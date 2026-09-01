@@ -11,9 +11,43 @@ CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
 
+# CMake build directories
+/build/
+/out/
+/cmake-build-*/
+
+# Compiled C/C++ artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.exp
+
+# Compiler and coverage output
+*.d
+*.gcda
+*.gcno
+*.gcov
+
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# Visual Studio Code
+.vscode/
+
 # CLion
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#cmake-build-*
+.idea/
