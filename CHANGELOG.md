@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- GitHub Actions workflow that configures, builds, and runs tests on Ubuntu and
+  Windows for pushes and pull requests targeting `main`.
 - Configurable `OPENTLV_BUILD_EXAMPLES` option and dedicated CMake targets for
   the C and C++ examples.
 - Dedicated CMake targets for the C and C++ test suites.
