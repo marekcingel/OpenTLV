@@ -17,15 +17,15 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout repozitára
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
-      - name: Konfigurácia CMake
+      - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build
         run: cmake --build build --config ${{ matrix.build_type }}
 
-      - name: Testy (voliteľné)
+      - name: Run tests
         working-directory: build
         run: ctest -C ${{ matrix.build_type }} --output-on-failure

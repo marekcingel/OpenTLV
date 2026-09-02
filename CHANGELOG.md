@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated the GitHub Actions checkout action to `actions/checkout@v5`.
 - Reorganized examples and tests into `tlv` and `tlv++` source directories and
   moved their build definitions out of the library targets.
 - Made the top-level CMake project language-agnostic so the C++ layer, tests,
