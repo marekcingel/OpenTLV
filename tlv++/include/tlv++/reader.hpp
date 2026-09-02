@@ -40,9 +40,9 @@ public:
         }
 
         return entry{
-            raw.tag,
+            raw.tag.data[0],
             std::span<const std::byte>(
-                reinterpret_cast<const std::byte*>(raw.value), raw.length)
+                reinterpret_cast<const std::byte*>(raw.value.data), raw.value.length)
         };
     }
 

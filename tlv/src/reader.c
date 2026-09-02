@@ -74,7 +74,6 @@ tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_entry_t* out_entry) {
         return TLV_ERR_BUFFER_TOO_SHORT;
     }
 
-    tlv_tag_t tag = reader->data[reader->pos];
     size_t length_pos = reader->pos + 1;
 
     size_t value_length = 0;
@@ -89,9 +88,10 @@ tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_entry_t* out_entry) {
         return TLV_ERR_BUFFER_TOO_SHORT;
     }
 
-    out_entry->tag = tag;
-    out_entry->value = reader->data + reader->pos + header_len;
-    out_entry->length = value_length;
+    out_entry->tag.data = reader->data + reader->pos;
+    out_entry->tag.length = 1;
+    out_entry->value.data = reader->data + reader->pos + header_len;
+    out_entry->value.length = value_length;
 
     reader->pos += header_len + value_length;
     return TLV_OK;
