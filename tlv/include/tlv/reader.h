@@ -21,7 +21,8 @@ int tlv_reader_at_end(const tlv_reader_t* reader);
 
 /*
  * Reads the next TLV item. Sets *out_entry and advances the internal position.
- * out_entry->value points directly into the original buffer (zero-copy).
+ * The tag and value byte spans point directly into the original buffer
+ * (zero-copy).
  */
 tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_entry_t* out_entry);
 

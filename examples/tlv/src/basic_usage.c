@@ -28,7 +28,8 @@ int main(void) {
             return 1;
         }
         printf("tag=0x%02x len=%zu value=%.*s\n",
-               entry.tag, entry.length, (int)entry.length, entry.value);
+               entry.tag.data[0], entry.value.length, (int)entry.value.length,
+               entry.value.data);
     }
 
     return 0;

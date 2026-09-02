@@ -13,9 +13,10 @@ TLV_TEST(reader_parses_single_short_form_entry) {
 
     tlv_entry_t entry;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(0x01, entry.tag);
-    ASSERT_EQ(3, entry.length);
-    ASSERT_MEM_EQ("abc", entry.value, 3);
+    ASSERT_EQ(1, entry.tag.length);
+    ASSERT_EQ(0x01, entry.tag.data[0]);
+    ASSERT_EQ(3, entry.value.length);
+    ASSERT_MEM_EQ("abc", entry.value.data, 3);
     ASSERT_TRUE(tlv_reader_at_end(&reader));
 }
 
@@ -29,13 +30,13 @@ TLV_TEST(reader_parses_multiple_entries) {
 
     tlv_entry_t e1, e2;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e1));
-    ASSERT_EQ(0x01, e1.tag);
-    ASSERT_EQ(2, e1.length);
+    ASSERT_EQ(0x01, e1.tag.data[0]);
+    ASSERT_EQ(2, e1.value.length);
 
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e2));
-    ASSERT_EQ(0x02, e2.tag);
-    ASSERT_EQ(1, e2.length);
-    ASSERT_EQ('x', e2.value[0]);
+    ASSERT_EQ(0x02, e2.tag.data[0]);
+    ASSERT_EQ(1, e2.value.length);
+    ASSERT_EQ('x', e2.value.data[0]);
 
     ASSERT_TRUE(tlv_reader_at_end(&reader));
 }
@@ -53,10 +54,10 @@ TLV_TEST(reader_parses_ber_long_form_1byte_length) {
 
     tlv_entry_t entry;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(0x05, entry.tag);
-    ASSERT_EQ(200, entry.length);
-    ASSERT_EQ('A', entry.value[0]);
-    ASSERT_EQ('A', entry.value[199]);
+    ASSERT_EQ(0x05, entry.tag.data[0]);
+    ASSERT_EQ(200, entry.value.length);
+    ASSERT_EQ('A', entry.value.data[0]);
+    ASSERT_EQ('A', entry.value.data[199]);
 }
 
 TLV_TEST(reader_parses_ber_long_form_2byte_length) {
@@ -74,8 +75,8 @@ TLV_TEST(reader_parses_ber_long_form_2byte_length) {
 
     tlv_entry_t entry;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(0x07, entry.tag);
-    ASSERT_EQ(300, entry.length);
+    ASSERT_EQ(0x07, entry.tag.data[0]);
+    ASSERT_EQ(300, entry.value.length);
 }
 
 TLV_TEST(reader_detects_buffer_too_short_for_value) {
@@ -95,7 +96,7 @@ TLV_TEST(reader_detects_end_of_buffer) {
 
     tlv_entry_t entry;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(0, entry.length);
+    ASSERT_EQ(0, entry.value.length);
     ASSERT_TRUE(tlv_reader_at_end(&reader));
     ASSERT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &entry));
 }
@@ -157,12 +158,12 @@ TLV_TEST(writer_reader_roundtrip) {
 
     tlv_entry_t e1, e2;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e1));
-    ASSERT_EQ(0x01, e1.tag);
-    ASSERT_MEM_EQ("hi", e1.value, 2);
+    ASSERT_EQ(0x01, e1.tag.data[0]);
+    ASSERT_MEM_EQ("hi", e1.value.data, 2);
 
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e2));
-    ASSERT_EQ(0x02, e2.tag);
-    ASSERT_MEM_EQ("x", e2.value, 1);
+    ASSERT_EQ(0x02, e2.tag.data[0]);
+    ASSERT_MEM_EQ("x", e2.value.data, 1);
 
     ASSERT_TRUE(tlv_reader_at_end(&reader));
 }
