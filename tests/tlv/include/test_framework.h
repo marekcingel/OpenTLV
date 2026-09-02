@@ -6,7 +6,7 @@
 static int g_tests_run = 0;
 static int g_tests_failed = 0;
 
-#define TLV_TEST(name) static void name(void)
+#define TLV_TEST(name)  void name(void)
 
 #define RUN_TEST(name) do { \
     g_tests_run++; \
