@@ -1,15 +1,18 @@
-add_library(tlv++ INTERFACE)
+cmake_minimum_required(VERSION 3.16)
 
-target_include_directories(tlv++ INTERFACE
+project(tlv++ LANGUAGES CXX)
+
+add_library(${PROJECT_NAME} INTERFACE)
+
+target_include_directories(${PROJECT_NAME} INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(tlv++ INTERFACE tlv)
-target_compile_features(tlv++ INTERFACE cxx_std_23)
+target_link_libraries(${PROJECT_NAME} INTERFACE
+    tlv
+)
 
-if (OPENTLV_BUILD_TESTS)
-    add_executable(tlvpp_tests ${CMAKE_SOURCE_DIR}/tests/tlv++/test_tlvpp.cpp)
-    target_link_libraries(tlvpp_tests PRIVATE tlv++)
-    add_test(NAME tlvpp_tests COMMAND tlvpp_tests)
-endif()
+target_compile_features(${PROJECT_NAME} INTERFACE
+    cxx_std_23
+)
