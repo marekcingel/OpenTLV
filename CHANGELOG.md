@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Runtime version API for checking the version and Git metadata compiled into the loaded OpenTLV library. (#26)
+- Public generated `tlv/version.h` header deriving the Semantic Versioning components and optional pre-release identifier from the latest Git tag, and exposing Git revision, tag, commit hash, branch, and repository version metadata. (#26)
 - Optional Google Benchmark suite for measuring TLV parsing and encoding throughput. (#14)
 - GoogleTest integration and CTest discovery for the C API and C++ wrapper test suites. (#22)
 - GitHub Actions workflow that configures, builds, and runs tests on Ubuntu and Windows for pushes and pull requests targeting `main`.
@@ -21,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated the GitHub Actions checkout to fetch complete Git history and tags for generated version metadata. (#26)
 - Lowered the minimum C++ standard for the `tlv++` wrapper to C++11 while using standard-library byte, span, any, and expected types when the selected language standard provides them. (#9)
 - Migrated the C API and C++ wrapper tests from custom assertion harnesses to GoogleTest. (#22)
 - Changed `tlv_entry_t` to expose both the tag and value as `tlv_bytes_t` zero-copy byte spans.

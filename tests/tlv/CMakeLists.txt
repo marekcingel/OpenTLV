@@ -8,6 +8,7 @@ set(HEADERS
 set(SOURCES
     src/dhcp_option_tests.cpp
     src/test_tlv.cpp
+    src/versiontest.cpp
 )
 
 add_executable(${PROJECT_NAME}

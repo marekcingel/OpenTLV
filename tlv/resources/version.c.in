@@ -1,0 +1,41 @@
+#include "tlv/version.h"
+
+uint32_t tlv_version_major(void) { 
+    return OPENTLV_VERSION_MAJOR; 
+}
+
+uint32_t tlv_version_minor(void) { 
+    return OPENTLV_VERSION_MINOR; 
+}
+
+uint32_t tlv_version_patch(void) { 
+    return OPENTLV_VERSION_PATCH; 
+}
+
+uint64_t tlv_version_revision(void) { 
+    return OPENTLV_VERSION_REVISION; 
+}
+
+const char *tlv_version_prerelease(void) {
+    return OPENTLV_VERSION_PRERELEASE;
+}
+
+const char *tlv_version_string(void) { 
+    return OPENTLV_VERSION_STRING; 
+}
+
+const char *tlv_version_git_commit_hash(void) {
+    return OPENTLV_GIT_COMMIT_HASH;
+}
+
+const char *tlv_version_git_branch(void) { 
+    return OPENTLV_GIT_BRANCH; 
+}
+
+const char *tlv_version_git_tag(void) {
+    return OPENTLV_GIT_TAG;
+}
+
+const char *tlv_version_git_repo(void) { 
+    return OPENTLV_GIT_REPO_VERSION; 
+}

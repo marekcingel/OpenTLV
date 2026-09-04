@@ -1,0 +1,41 @@
+#ifndef OPENTLV_VERSION_H
+#define OPENTLV_VERSION_H
+
+#include <stdint.h>
+
+/* clang-format off */
+#define OPENTLV_VERSION_MAJOR @OPENTLV_VERSION_MAJOR@
+#define OPENTLV_VERSION_MINOR @OPENTLV_VERSION_MINOR@
+#define OPENTLV_VERSION_PATCH @OPENTLV_VERSION_PATCH@
+#define OPENTLV_VERSION_REVISION @OPENTLV_VERSION_REVISION@
+
+#define OPENTLV_VERSION_PRERELEASE "@OPENTLV_VERSION_PRERELEASE@"
+#define OPENTLV_VERSION_STRING "@OPENTLV_VERSION_STRING@"
+
+#define OPENTLV_GIT_COMMIT_HASH "@OPENTLV_GIT_COMMIT_HASH@"
+#define OPENTLV_GIT_BRANCH "@OPENTLV_GIT_BRANCH@"
+#define OPENTLV_GIT_TAG "@OPENTLV_GIT_TAG@"
+#define OPENTLV_GIT_REPO_VERSION "@OPENTLV_GIT_REPO_VERSION@"
+/* clang-format on */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+uint32_t tlv_version_major(void);
+uint32_t tlv_version_minor(void);
+uint32_t tlv_version_patch(void);
+uint64_t tlv_version_revision(void);
+
+const char *tlv_version_prerelease(void);
+const char *tlv_version_string(void);
+const char *tlv_version_git_commit_hash(void);
+const char *tlv_version_git_branch(void);
+const char *tlv_version_git_tag(void);
+const char *tlv_version_git_repo(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* OPENTLV_VERSION_H */
