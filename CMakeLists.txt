@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(OpenTLV)
+include(cmake/version.cmake)
+
+project(OpenTLV VERSION ${OPENTLV_VERSION} LANGUAGES NONE)
+
+opentlv_generate_version_files()
 
 option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" ON)
 option(OPENTLV_BUILD_TESTS "Build tests" ON)

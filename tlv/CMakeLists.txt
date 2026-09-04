@@ -6,10 +6,16 @@ add_library(${PROJECT_NAME}
     src/reader.c
     src/writer.c
     src/error.c
+    ${OpenTLV_BINARY_DIR}/generated/src/version.c
+)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${OpenTLV_BINARY_DIR}/generated/include>
     $<INSTALL_INTERFACE:include>
 )
 
