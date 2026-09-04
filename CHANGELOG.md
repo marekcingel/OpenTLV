@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Optional Google Benchmark suite for measuring TLV parsing and encoding throughput. (#14)
 - GoogleTest integration and CTest discovery for the C API and C++ wrapper test suites. (#22)
 - GitHub Actions workflow that configures, builds, and runs tests on Ubuntu and Windows for pushes and pull requests targeting `main`.
 - Configurable `OPENTLV_BUILD_EXAMPLES` option and dedicated CMake targets for the C and C++ examples.

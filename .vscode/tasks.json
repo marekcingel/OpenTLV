@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Benchmark: Build and run",
+            "type": "shell",
+            "command": "cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-benchmarks\" -DOPENTLV_BUILD_BENCHMARKS:BOOL=ON -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CXX=OFF -DCMAKE_BUILD_TYPE=Release && cmake --build \"${workspaceFolder}/build-benchmarks\" --config Release --target benchmark-tlv && \"${workspaceFolder}/build-benchmarks/benchmarks/benchmark-tlv\" --benchmark_repetitions=10 --benchmark_report_aggregates_only=true --benchmark_out=\"${workspaceFolder}/benchmarks/results/latest.json\" --benchmark_out_format=json",
+            "windows": {
+                "command": "cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}\\build-benchmarks\" -DOPENTLV_BUILD_BENCHMARKS:BOOL=ON -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CXX=OFF -DCMAKE_BUILD_TYPE=Release; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; cmake --build \"${workspaceFolder}\\build-benchmarks\" --config Release --target benchmark-tlv; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & \"${workspaceFolder}\\build-benchmarks\\benchmarks\\Release\\benchmark-tlv.exe\" --benchmark_repetitions=10 --benchmark_report_aggregates_only=true --benchmark_out=\"${workspaceFolder}\\benchmarks\\results\\latest.json\" --benchmark_out_format=json"
+            },
+            "problemMatcher": ["$gcc", "$msCompile"],
+            "group": "test"
+        },
+        {
+            "label": "Benchmark: Compare baseline with last",
+            "type": "shell",
+            "command": "python3 -m venv \"${workspaceFolder}/build-benchmarks/benchmark-tools-venv\" && \"${workspaceFolder}/build-benchmarks/benchmark-tools-venv/bin/python\" -m pip install --disable-pip-version-check -r \"${workspaceFolder}/build-benchmarks/_deps/googlebenchmark-src/tools/requirements.txt\" && \"${workspaceFolder}/build-benchmarks/benchmark-tools-venv/bin/python\" \"${workspaceFolder}/build-benchmarks/_deps/googlebenchmark-src/tools/compare.py\" --display_aggregates_only benchmarks \"${workspaceFolder}/benchmarks/results/baseline.json\" \"${workspaceFolder}/benchmarks/results/latest.json\"",
+            "windows": {
+                "command": "python -m venv \"${workspaceFolder}\\build-benchmarks\\benchmark-tools-venv\"; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & \"${workspaceFolder}\\build-benchmarks\\benchmark-tools-venv\\Scripts\\python.exe\" -m pip install --disable-pip-version-check -r \"${workspaceFolder}\\build-benchmarks\\_deps\\googlebenchmark-src\\tools\\requirements.txt\"; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & \"${workspaceFolder}\\build-benchmarks\\benchmark-tools-venv\\Scripts\\python.exe\" \"${workspaceFolder}\\build-benchmarks\\_deps\\googlebenchmark-src\\tools\\compare.py\" --display_aggregates_only benchmarks \"${workspaceFolder}\\benchmarks\\results\\baseline.json\" \"${workspaceFolder}\\benchmarks\\results\\latest.json\""
+            },
+            "problemMatcher": [],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Benchmark: Update baseline from last",
+            "type": "process",
+            "command": "cmake",
+            "args": [
+                "-E",
+                "copy_if_different",
+                "${workspaceFolder}/benchmarks/results/latest.json",
+                "${workspaceFolder}/benchmarks/results/baseline.json"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
