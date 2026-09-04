@@ -1,8 +1,6 @@
 #ifndef OPENTLV_TLVPP_REGISTRY_HPP
 #define OPENTLV_TLVPP_REGISTRY_HPP
 
-#include <any>
-#include <expected>
 #include <functional>
 #include <map>
 
@@ -15,7 +13,7 @@ namespace tlv {
 // formats whose types are not all known at compile time.
 class codec_registry {
 public:
-  using decoder_fn = std::function<std::expected<std::any, error>(bytes)>;
+  using decoder_fn = std::function<expected<any, error>(bytes)>;
 
   // Registers a decoder for the specified tag. Replaces any previous
   // registration.
@@ -24,26 +22,31 @@ public:
   }
 
   // Registers a TlvCodec type directly, using its static tag and decode().
+#if __cplusplus >= 202002L
   template <TlvCodec T> void register_type() {
-    register_decoder(T::tag, [](bytes data) -> std::expected<std::any, error> {
-      auto result = T::decode(data);
+#else
+  template <typename T> void register_type() {
+#endif
+    static_assert(is_tlv_codec<T>::value, "T must satisfy the TLV codec interface");
+    register_decoder(T::tag, [](bytes data) -> expected<any, error> {
+      expected<T, error> result = T::decode(data);
       if (!result) {
-        return std::unexpected(result.error());
+        return unexpected<error>(result.error());
       }
-      return std::any(std::move(*result));
+      return any(std::move(*result));
     });
   }
 
-  [[nodiscard]] std::expected<std::any, error> decode(tag_t tag,
+  [[nodiscard]] expected<any, error> decode(tag_t tag,
                                                       bytes data) const {
     if (decoders_.count(tag) == 0) {
-      return std::unexpected(error{TLV_ERR_INVALID_LENGTH, "unregistered tag"});
+      return unexpected<error>(error{TLV_ERR_INVALID_LENGTH, "unregistered tag"});
     }
     return decoders_.at(tag)(data);
   }
 
   [[nodiscard]] bool has_decoder(tag_t tag) const {
-    return decoders_.contains(tag);
+    return decoders_.find(tag) != decoders_.end();
   }
 
 private:
