@@ -13,6 +13,7 @@ CMakeUserPresets.json
 
 # CMake build directories
 /build/
+/build-benchmarks/
 /out/
 /cmake-build-*/
 
@@ -44,6 +45,17 @@ CMakeUserPresets.json
 
 # Visual Studio Code
 .vscode/
+!.vscode/
+.vscode/*
+!.vscode/tasks.json
+
+# Local benchmark output
+/benchmarks/results/*
+!/benchmarks/results/.gitkeep
+
+# Python bytecode
+__pycache__/
+*.py[cod]
 
 # CLion
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
