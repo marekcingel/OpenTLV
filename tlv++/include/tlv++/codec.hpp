@@ -1,12 +1,11 @@
 #ifndef OPENTLV_TLVPP_CODEC_HPP
 #define OPENTLV_TLVPP_CODEC_HPP
 
-#include <concepts>
 #include <cstdint>
-#include <span>
 #include <vector>
 #include <string>
-#include <expected>
+
+#include "tlv++/compat.hpp"
 
 #include "tlv/error.h"
 #include "tlv/tlv.h"
@@ -24,7 +23,7 @@ struct error {
 };
 
 using tag_t = tlv_tag_t;
-using bytes = std::span<const std::byte>;
+using bytes = span<const byte>;
 
 // A TLV item on the C++ side (value points into the original buffer; zero-copy).
 struct entry {
@@ -34,12 +33,24 @@ struct entry {
 
 // Concept that every payload (data type) must satisfy to be encoded/decoded
 // through TLV. Implementations live outside the library core.
-template<typename T>
-concept TlvCodec = requires(const T& val, bytes data, std::vector<std::byte>& out) {
-    { T::tag } -> std::convertible_to<tag_t>;
-    { val.encode(out) } -> std::same_as<void>;
-    { T::decode(data) } -> std::same_as<std::expected<T, error>>;
+// C++20 and later exposes this check as a concept. In C++11 through C++17 it
+// remains an ordinary trait so the API can use SFINAE.
+template <typename T> struct is_tlv_codec {
+private:
+    template <typename U>
+    static auto test(int) -> decltype(
+        static_cast<tag_t>(U::tag),
+        std::declval<const U&>().encode(std::declval<std::vector<byte>&>()),
+        U::decode(std::declval<bytes>()),
+        std::true_type());
+    template <typename> static std::false_type test(...);
+public:
+    static const bool value = decltype(test<T>(0))::value;
 };
+
+#if __cplusplus >= 202002L
+template <typename T> concept TlvCodec = is_tlv_codec<T>::value;
+#endif
 
 } // namespace tlv
 

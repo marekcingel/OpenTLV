@@ -5,37 +5,39 @@
 #include <array>
 #include <cstddef>
 #include <iostream>
-#include <string_view>
+#include <string>
 
 #include "tlv++/tlv.hpp"
 
 int main() {
-    std::array<std::byte, 64> buf{};
+    std::array<tlv::byte, 64> buf{};
     tlv::writer w(buf.data(), buf.size());
 
-    auto to_bytes = [](std::string_view s) {
-        return tlv::bytes(reinterpret_cast<const std::byte*>(s.data()), s.size());
+    auto to_bytes = [](const std::string& s) {
+        return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
     };
 
-    if (auto r = w.write(0x01, to_bytes("hello")); !r) {
+    tlv::expected<void, tlv::error> r = w.write(0x01, to_bytes("hello"));
+    if (!r) {
         std::cerr << "write error: " << r.error().message << "\n";
         return 1;
     }
-    if (auto r = w.write(0x02, to_bytes("world")); !r) {
+    r = w.write(0x02, to_bytes("world"));
+    if (!r) {
         std::cerr << "write error: " << r.error().message << "\n";
         return 1;
     }
 
     std::cout << "Wrote " << w.size() << " bytes\n";
 
-    tlv::reader reader(std::span(buf.data(), w.size()));
+    tlv::reader reader(tlv::bytes(buf.data(), w.size()));
     while (!reader.at_end()) {
         auto entry = reader.next();
         if (!entry) {
             std::cerr << "read error: " << entry.error().message << "\n";
             return 1;
         }
-        std::string_view value(
+        std::string value(
             reinterpret_cast<const char*>(entry->value.data()),
             entry->value.size());
         std::cout << "tag=0x" << std::hex << static_cast<int>(entry->tag)

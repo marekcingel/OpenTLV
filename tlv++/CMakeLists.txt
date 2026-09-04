@@ -14,5 +14,5 @@ target_link_libraries(${PROJECT_NAME} INTERFACE
 )
 
 target_compile_features(${PROJECT_NAME} INTERFACE
-    cxx_std_23
+    cxx_std_11
 )
