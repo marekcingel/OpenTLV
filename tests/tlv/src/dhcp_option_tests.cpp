@@ -3,7 +3,6 @@
 
 #include <gtest/gtest.h>
 
-#include <string.h>
 
 TEST(TLV, dhcp_option_1_test) {
   const uint8_t data[] = {0x01, 0x04, 0xFF, 0xFF, 0xFF, 0x00};

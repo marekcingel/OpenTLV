@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include <string.h>
+#include <cstring>
 
 TEST(TLV, reader_parses_single_short_form_entry) {
   /* tag=0x01, len=0x03 (short form), value = "abc" */
@@ -44,7 +44,7 @@ TEST(TLV, reader_parses_ber_long_form_1byte_length) {
   data[0] = 0x05;
   data[1] = 0x81;
   data[2] = 200;
-  memset(data + 3, 'A', 200);
+  std::memset(data + 3, 'A', 200);
 
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
@@ -65,7 +65,7 @@ TEST(TLV, reader_parses_ber_long_form_2byte_length) {
   data[1] = 0x82;
   data[2] = 0x01;
   data[3] = 0x2C;
-  memset(data + 4, 'Z', len);
+  std::memset(data + 4, 'Z', len);
 
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
