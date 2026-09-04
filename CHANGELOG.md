@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configurable `OPENTLV_BUILD_EXAMPLES` option and dedicated CMake targets for
   the C and C++ examples.
 - Dedicated CMake targets for the C and C++ test suites.
+- GoogleTest integration and CTest discovery for the C API and C++ wrapper
+  test suites.
 
 ### Changed
 
@@ -26,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and examples can configure their own language requirements.
 - Replaced the C++ codec registry's unordered decoder storage with ordered
   `std::map` storage.
+- Migrated the C API and C++ wrapper tests from custom assertion harnesses to
+  GoogleTest.
 
 ## [0.0.1] - 2026-09-01
 

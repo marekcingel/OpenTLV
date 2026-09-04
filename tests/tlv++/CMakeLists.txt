@@ -25,6 +25,8 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     tlv++
+    GTest::gtest_main
 )
 
-add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+include(GoogleTest)
+gtest_discover_tests(${PROJECT_NAME})

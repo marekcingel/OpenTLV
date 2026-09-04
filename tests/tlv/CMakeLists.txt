@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(test-tlv LANGUAGES C)
+project(test-tlv LANGUAGES CXX)
 
 set(HEADERS
-    include/dhcp_option_tests.h
-    include/test_framework.h
 )
 
 set(SOURCES
-
-    src/test_tlv.c
+    src/dhcp_option_tests.cpp
+    src/test_tlv.cpp
 )
 
 add_executable(${PROJECT_NAME}
@@ -25,6 +23,8 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     tlv
+    GTest::gtest_main
 )
 
-add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+include(GoogleTest)
+gtest_discover_tests(${PROJECT_NAME})
