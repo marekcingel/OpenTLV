@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated the GitHub Actions checkout to fetch complete Git history and tags for generated version metadata. (#26)
 - Lowered the minimum C++ standard for the `tlv++` wrapper to C++11 while using standard-library byte, span, any, and expected types when the selected language standard provides them. (#9)
 - Migrated the C API and C++ wrapper tests from custom assertion harnesses to GoogleTest. (#22)
 - Changed `tlv_entry_t` to expose both the tag and value as `tlv_bytes_t` zero-copy byte spans.
