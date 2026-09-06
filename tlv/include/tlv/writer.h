@@ -8,16 +8,18 @@ extern "C" {
 #endif
 
 typedef struct tlv_writer {
+    const tlv_format_t* format; /* borrowed */
     uint8_t* buf;      /* buffer provided by the caller (no allocation in the core) */
     size_t   capacity;
     size_t   pos;       /* bytes currently written */
 } tlv_writer_t;
 
-/* Initializes a writer over an external buffer with the given capacity. */
-tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity);
+/* Uses a caller-provided format; NULL or missing required callbacks is an error. */
+tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf,
+                                        size_t capacity, const tlv_format_t* format);
 
-/* Writes one TLV item (single-byte tag + BER length + value).
- * Returns TLV_ERR_INVALID_TAG unless tag.size is exactly one.
+/* Writes one TLV item using the selected format.
+ * On error the position is unchanged; callbacks may have modified buffer bytes.
  */
 tlv_result_t tlv_writer_write(tlv_writer_t* writer, tlv_tag_t tag,
                                const uint8_t* value, size_t length);
