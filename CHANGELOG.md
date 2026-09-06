@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Explicit big-endian and little-endian helpers for reading and writing 16-bit and 32-bit integer values, independent of host byte order and TLV profile. (#37)
 - Allocation-free `tlv_scan()` recovery API to find complete TLV candidates from any buffer offset, with optional schema tag and value-length validation. (#35)
 - Optional constant-table TLV schemas with tag lookup and exact or minimum/maximum value-length validation, without runtime registration or allocation. (#34)
 - Allocation-free `tlv_walk()` and visitor API for sequential traversal, early stopping, and reader/visitor error reporting without automatic recursion into nested values. (#33)
