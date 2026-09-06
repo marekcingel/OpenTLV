@@ -1,5 +1,26 @@
 # C format abstraction
 
+## Fixed 1-byte TLV
+
+Use `tlv_format_fixed_1byte` for a one-byte tag, a one-byte unsigned length,
+and exactly that many value bytes. For example, `01 03 AA BB CC` encodes tag
+`01` and the three-byte value `AA BB CC`. All tag bytes are valid, including
+`00` and `FF`; lengths range from 0 to 255, with no BER-style prefixes.
+
+```c
+tlv_reader_t reader;
+tlv_reader_init(&reader, data, size, &tlv_format_fixed_1byte);
+tlv_writer_t writer;
+tlv_writer_init(&writer, buffer, capacity, &tlv_format_fixed_1byte);
+```
+
+Writing a tag whose size is not 1 returns `TLV_ERR_INVALID_TAG`; a value
+longer than 255 bytes returns `TLV_ERR_INVALID_LENGTH`. Missing length or
+value bytes return `TLV_ERR_BUFFER_TOO_SHORT`. An empty input is the end of
+the stream (`TLV_ERR_END_OF_BUFFER`). Multiple records may be concatenated.
+
+## Generic interface
+
 Include `tlv/format.h` to define an allocation-free `tlv_format_t` descriptor.
 Pass it to `tlv_reader_init` or `tlv_writer_init` as the
 last argument after the buffer and its size. The descriptor and its optional

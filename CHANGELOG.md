@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fixed 1-byte TLV format (`tlv_format_fixed_1byte`) with one-byte tags and lengths, values up to 255 bytes, and truncated-input detection. (#30)
 - Generic `tlv_format_t` callbacks and reader/writer initialization with custom formats, without dynamic allocation. (#29)
 - Format-independent core types in `tlv/types.h`: non-owning `tlv_buffer_t`, raw-byte `tlv_tag_t` with configurable `TLV_TAG_MAX_SIZE` (default 8, range 1–255), and `tlv_view_t` with a borrowed value. (#28)
 - Runtime version API for checking the version and Git metadata compiled into the loaded OpenTLV library. (#26)
