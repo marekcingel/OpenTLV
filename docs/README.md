@@ -6,6 +6,8 @@
 
 - [TLV scanning and recovery](scanner.md)
 
+- [Integer byte-order conversions](endian.md)
+
 Planned contents:
 
 - `format.md` — precise specification of the TLV format (tag, BER-style length)

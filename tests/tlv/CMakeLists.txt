@@ -6,6 +6,7 @@ set(HEADERS
 )
 
 set(SOURCES
+    src/endian_test.cpp
     src/dhcp_option_tests.cpp
     src/test_tlv.cpp
     src/reader_test.cpp
