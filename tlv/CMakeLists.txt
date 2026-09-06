@@ -4,6 +4,7 @@ project(tlv LANGUAGES C)
 
 add_library(${PROJECT_NAME}
     src/format_default.c
+    src/format_fixed_1byte.c
     src/reader.c
     src/writer.c
     src/error.c
