@@ -60,6 +60,15 @@ TEST(Format, CustomFormatRoundTripAndWireBytes) {
     EXPECT_EQ(sizeof(data), tlv_writer_size(&writer));
     const uint8_t header[] = {0x9F, 0x02, 0x2C, 0x01};
     EXPECT_EQ(0, std::memcmp(header, data, sizeof(header)));
+    size_t required = 0, written = 0;
+    const tlv_tag_t tag = {{0x9F, 0x02}, 2};
+    ASSERT_EQ(TLV_OK, tlv_encoded_size(tag, sizeof(value), &fixed, &required));
+    EXPECT_EQ(304u, required);
+    uint8_t direct[304] = {};
+    ASSERT_EQ(TLV_OK, tlv_write(direct, sizeof(direct), &fixed, tag,
+                                value, sizeof(value), &written));
+    EXPECT_EQ(required, written);
+    EXPECT_EQ(0, std::memcmp(direct, data, sizeof(direct)));
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &fixed));
     tlv_view_t entry{};

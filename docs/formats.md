@@ -24,6 +24,37 @@ returns `TLV_ERR_END_OF_BUFFER`; missing tag, length, or value bytes return
 Custom format callback errors propagate unchanged. The stateful
 `tlv_reader_next` uses the same parser and advances by the consumed size.
 
+## Writing one element
+
+Include `tlv/writer.h`. Query the complete encoded size without providing value
+bytes, then write into a caller-owned buffer:
+
+```c
+const tlv_tag_t tag = {{0x01}, 1};
+const uint8_t value[] = {0xAA, 0xBB, 0xCC};
+uint8_t buffer[5];
+size_t required, written;
+tlv_result_t result = tlv_encoded_size(tag, sizeof(value),
+                                      &tlv_format_fixed_1byte, &required);
+if (result == TLV_OK && required <= sizeof(buffer)) {
+    result = tlv_write(buffer, sizeof(buffer), &tlv_format_fixed_1byte,
+                       tag, value, sizeof(value), &written);
+    /* On success: written == required; buffer contains 01 03 AA BB CC. */
+}
+```
+
+Both APIs require `write_tag`, `write_length`, and `length_size`. The size query
+validates the tag and length; a total that cannot fit in `size_t` returns
+`TLV_ERR_INVALID_LENGTH`. Output size pointers are required and remain unchanged
+on failure. Insufficient capacity returns `TLV_ERR_BUFFER_TOO_SHORT` before any
+destination bytes are written. NULL output memory is valid only with zero
+capacity, which reports insufficient capacity for an otherwise valid element.
+An empty value may use NULL with length zero and still encodes tag and length.
+Value bytes are copied verbatim without allocation or semantic interpretation.
+The source value must not overlap the destination element. Callback errors
+propagate and may leave partially encoded bytes. `tlv_writer_write` uses the
+same encoder and advances its position only on success.
+
 ## Fixed 1-byte TLV
 
 Use `tlv_format_fixed_1byte` for a one-byte tag, a one-byte unsigned length,
