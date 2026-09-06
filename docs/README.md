@@ -4,6 +4,8 @@
 
 - [Optional C schemas](schemas.md) — constant tables, tag lookup, and length validation
 
+- [TLV scanning and recovery](scanner.md)
+
 Planned contents:
 
 - `format.md` — precise specification of the TLV format (tag, BER-style length)
