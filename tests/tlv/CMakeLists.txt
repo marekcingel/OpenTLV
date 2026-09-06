@@ -15,6 +15,7 @@ set(SOURCES
     src/walker_test.cpp
     src/writer_test.cpp
     src/format_test.cpp
+    src/format_ber_test.cpp
     src/format_fixed_1byte_test.cpp
     src/types_test.cpp
     src/versiontest.cpp
@@ -47,4 +48,20 @@ foreach(tag_capacity IN ITEMS 1 16 255)
     target_link_libraries(${types_target} PRIVATE GTest::gtest_main)
     target_compile_definitions(${types_target} PRIVATE TLV_TAG_MAX_SIZE=${tag_capacity})
     gtest_discover_tests(${types_target} TEST_PREFIX "TagCapacity${tag_capacity}.")
+endforeach()
+
+# Build the BER implementation and generic I/O with matching alternate layouts.
+foreach(tag_capacity IN ITEMS 1 16 255)
+    set(ber_target test-tlv-ber-${tag_capacity})
+    add_executable(${ber_target}
+        src/format_ber_test.cpp
+        ${OpenTLV_SOURCE_DIR}/tlv/src/format_ber.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/reader.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/writer.c
+    )
+    target_include_directories(${ber_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include)
+    target_link_libraries(${ber_target} PRIVATE GTest::gtest_main)
+    target_compile_features(${ber_target} PRIVATE c_std_99)
+    target_compile_definitions(${ber_target} PRIVATE TLV_TAG_MAX_SIZE=${tag_capacity})
+    gtest_discover_tests(${ber_target} TEST_PREFIX "TagCapacity${tag_capacity}.")
 endforeach()
