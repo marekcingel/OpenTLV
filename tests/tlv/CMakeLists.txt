@@ -9,6 +9,7 @@ set(SOURCES
     src/dhcp_option_tests.cpp
     src/test_tlv.cpp
     src/reader_test.cpp
+    src/schema_test.cpp
     src/walker_test.cpp
     src/writer_test.cpp
     src/format_test.cpp
