@@ -6,6 +6,7 @@ add_library(${PROJECT_NAME}
     src/format_default.c
     src/format_fixed_1byte.c
     src/reader.c
+    src/walker.c
     src/writer.c
     src/error.c
     ${OpenTLV_BINARY_DIR}/generated/src/version.c
