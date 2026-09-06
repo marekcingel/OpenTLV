@@ -61,7 +61,7 @@ static tlv_result_t decode_length(const tlv_reader_t* reader, size_t pos,
     return TLV_ERR_INVALID_LENGTH;
 }
 
-tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_entry_t* out_entry) {
+tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_view_t* out_entry) {
     if (reader == NULL || out_entry == NULL) {
         return TLV_ERR_NULL_ARG;
     }
@@ -88,8 +88,8 @@ tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_entry_t* out_entry) {
         return TLV_ERR_BUFFER_TOO_SHORT;
     }
 
-    out_entry->tag.data = reader->data + reader->pos;
-    out_entry->tag.length = 1;
+    out_entry->tag = (tlv_tag_t){{0}, 1};
+    out_entry->tag.data[0] = reader->data[reader->pos];
     out_entry->value.data = reader->data + reader->pos + header_len;
     out_entry->value.length = value_length;
 

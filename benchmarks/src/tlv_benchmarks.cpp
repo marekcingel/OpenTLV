@@ -20,7 +20,7 @@ std::vector<uint8_t> encode_stream(std::size_t value_size,
     return std::vector<uint8_t>();
   }
   for (std::size_t i = 0; i < entry_count; ++i) {
-    if (tlv_writer_write(&writer, static_cast<tlv_tag_t>(i), value.data(),
+    if (tlv_writer_write(&writer, (tlv_tag_t{{static_cast<uint8_t>(i)}, 1}), value.data(),
                          value.size()) != TLV_OK) {
       return std::vector<uint8_t>();
     }
@@ -38,7 +38,7 @@ void parse_entries(benchmark::State& state) {
 
   for (auto _ : state) {
     tlv_reader_t reader;
-    tlv_entry_t entry;
+    tlv_view_t entry;
     benchmark::DoNotOptimize(tlv_reader_init(&reader, encoded.data(),
                                               encoded.size()));
     benchmark::DoNotOptimize(tlv_reader_next(&reader, &entry));
@@ -58,7 +58,7 @@ void encode_entries(benchmark::State& state) {
     tlv_writer_t writer;
     benchmark::DoNotOptimize(tlv_writer_init(&writer, output.data(),
                                               output.size()));
-    benchmark::DoNotOptimize(tlv_writer_write(&writer, 0x42, value.data(),
+    benchmark::DoNotOptimize(tlv_writer_write(&writer, (tlv_tag_t{{0x42}, 1}), value.data(),
                                                value.size()));
     benchmark::ClobberMemory();
   }
@@ -76,7 +76,7 @@ void parse_stream(benchmark::State& state) {
 
   for (auto _ : state) {
     tlv_reader_t reader;
-    tlv_entry_t entry;
+    tlv_view_t entry;
     benchmark::DoNotOptimize(tlv_reader_init(&reader, encoded.data(),
                                               encoded.size()));
     while (!tlv_reader_at_end(&reader)) {

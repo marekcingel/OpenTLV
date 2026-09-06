@@ -10,9 +10,9 @@ TEST(TLV, dhcp_option_1_test) {
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
 
-  tlv_entry_t entry;
+  tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-  ASSERT_EQ(1, entry.tag.length);
+  ASSERT_EQ(1, entry.tag.size);
   ASSERT_EQ(0x01, entry.tag.data[0]);
   ASSERT_EQ(4, entry.value.length);
 }
@@ -23,9 +23,9 @@ TEST(TLV, dhcp_option_3_test) {
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
 
-  tlv_entry_t entry;
+  tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-  ASSERT_EQ(1, entry.tag.length);
+  ASSERT_EQ(1, entry.tag.size);
   ASSERT_EQ(0x03, entry.tag.data[0]);
   ASSERT_EQ(4, entry.value.length);
 }
@@ -37,9 +37,9 @@ TEST(TLV, dhcp_option_6_test) {
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
 
-  tlv_entry_t entry;
+  tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-  ASSERT_EQ(1, entry.tag.length);
+  ASSERT_EQ(1, entry.tag.size);
   ASSERT_EQ(0x06, entry.tag.data[0]);
   ASSERT_EQ(8, entry.value.length);
 }
@@ -51,9 +51,9 @@ TEST(TLV, dhcp_option_12_test) {
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
 
-  tlv_entry_t entry;
+  tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-  ASSERT_EQ(1, entry.tag.length);
+  ASSERT_EQ(1, entry.tag.size);
   ASSERT_EQ(0x0C, entry.tag.data[0]);
   ASSERT_EQ(9, entry.value.length);
 }

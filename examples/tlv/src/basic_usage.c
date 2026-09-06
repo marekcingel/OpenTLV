@@ -12,15 +12,15 @@ int main(void) {
     tlv_writer_t writer;
     tlv_writer_init(&writer, buf, sizeof(buf));
 
-    tlv_writer_write(&writer, 0x01, (const uint8_t*)"hello", 5);
-    tlv_writer_write(&writer, 0x02, (const uint8_t*)"world", 5);
+    tlv_writer_write(&writer, (tlv_tag_t){{0x01}, 1}, (const uint8_t*)"hello", 5);
+    tlv_writer_write(&writer, (tlv_tag_t){{0x02}, 1}, (const uint8_t*)"world", 5);
 
     printf("Wrote %zu bytes\n", tlv_writer_size(&writer));
 
     tlv_reader_t reader;
     tlv_reader_init(&reader, buf, tlv_writer_size(&writer));
 
-    tlv_entry_t entry;
+    tlv_view_t entry;
     while (!tlv_reader_at_end(&reader)) {
         tlv_result_t rc = tlv_reader_next(&reader, &entry);
         if (rc != TLV_OK) {
