@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Generic `tlv_write()` and `tlv_encoded_size()` APIs for allocation-free encoding into caller-provided buffers, with capacity and size-overflow checks. (#32)
 - Zero-copy `tlv_read()` API for parsing one element with a configured format, complete bounds checking, and the consumed encoded size. (#31)
 - Fixed 1-byte TLV format (`tlv_format_fixed_1byte`) with one-byte tags and lengths, values up to 255 bytes, and truncated-input detection. (#30)
 - Generic `tlv_format_t` callbacks and reader/writer initialization with custom formats, without dynamic allocation. (#29)
