@@ -24,6 +24,38 @@ returns `TLV_ERR_END_OF_BUFFER`; missing tag, length, or value bytes return
 Custom format callback errors propagate unchanged. The stateful
 `tlv_reader_next` uses the same parser and advances by the consumed size.
 
+## Walking multiple elements
+
+Include `tlv/walker.h` to visit concatenated elements with the generic reader:
+
+```c
+static tlv_visit_result_t count_entry(const tlv_view_t* view, void* context) {
+    size_t* count = (size_t*)context;
+    (void)view;
+    ++*count;
+    return TLV_VISIT_CONTINUE;
+}
+
+/* Inside a function: */
+size_t count = 0;
+tlv_result_t result = tlv_walk(data, size, &tlv_format_fixed_1byte,
+                              count_entry, &count);
+```
+
+The visitor runs once per successfully parsed element, in buffer order.
+Return `TLV_VISIT_CONTINUE` to advance, `TLV_VISIT_STOP` to finish successfully,
+or `TLV_VISIT_ERROR` to return `TLV_ERR_VISITOR`. Unknown visitor results also
+return `TLV_ERR_VISITOR`. Reader errors propagate unchanged. Stop and error
+prevent parsing any further elements; earlier callback effects remain.
+
+Empty input, including NULL with size zero, succeeds without calling the visitor.
+The visitor and a format with both read callbacks are required even for empty
+input; invalid arguments return `TLV_ERR_NULL_ARG`. The optional context may be
+NULL. The view pointer lasts only for the callback; a copied view still borrows
+the input value. Keep the input and format valid and unchanged during traversal.
+The walker allocates no memory and never interprets or recurses into values,
+even when they contain nested TLVs.
+
 ## Writing one element
 
 Include `tlv/writer.h`. Query the complete encoded size without providing value
