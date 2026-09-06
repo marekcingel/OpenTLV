@@ -8,6 +8,7 @@ set(HEADERS
 set(SOURCES
     src/dhcp_option_tests.cpp
     src/test_tlv.cpp
+    src/reader_test.cpp
     src/format_test.cpp
     src/format_fixed_1byte_test.cpp
     src/types_test.cpp

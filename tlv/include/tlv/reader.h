@@ -7,6 +7,19 @@
 extern "C" {
 #endif
 
+/*
+ * Parses one element from the beginning of data; trailing bytes are ignored.
+ * Requires format->read_tag/read_length and non-NULL output pointers.
+ * data may be NULL only when size is zero (TLV_ERR_END_OF_BUFFER).
+ * On success, out_entry borrows the input value and consumed receives the
+ * complete encoded size (tag + length + value). Keep the input alive while
+ * using the view. No allocation, value copying, or schema validation occurs.
+ * On failure, both outputs remain unchanged; callback errors propagate.
+ */
+tlv_result_t tlv_read(const uint8_t* data, size_t size,
+                      const tlv_format_t* format, tlv_view_t* out_entry,
+                      size_t* consumed);
+
 typedef struct tlv_reader {
     const tlv_format_t* format; /* borrowed */
     const uint8_t* data;

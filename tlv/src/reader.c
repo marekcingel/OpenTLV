@@ -15,19 +15,17 @@ int tlv_reader_at_end(const tlv_reader_t* reader) {
     return !reader || reader->pos >= reader->size;
 }
 
-tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_view_t* out_entry) {
+tlv_result_t tlv_read(const uint8_t* data, size_t size,
+                      const tlv_format_t* format, tlv_view_t* out_entry,
+                      size_t* consumed) {
     tlv_view_t entry = {0};
     size_t tag_size = 0, length_size = 0, remaining;
-    const uint8_t* data;
-    const tlv_format_t* format;
     tlv_result_t rc;
-    if (!reader || !out_entry) return TLV_ERR_NULL_ARG;
-    if (tlv_reader_at_end(reader)) return TLV_ERR_END_OF_BUFFER;
-    format = reader->format;
-    if (!reader->data || !format || !format->read_tag || !format->read_length)
+    if ((!data && size) || !out_entry || !consumed || !format ||
+        !format->read_tag || !format->read_length)
         return TLV_ERR_NULL_ARG;
-    data = reader->data + reader->pos;
-    remaining = reader->size - reader->pos;
+    if (!size) return TLV_ERR_END_OF_BUFFER;
+    remaining = size;
     rc = format->read_tag(format->context, data, remaining, &entry.tag, &tag_size);
     if (rc != TLV_OK) return rc;
     if (!tag_size || tag_size > remaining || !entry.tag.size ||
@@ -40,7 +38,19 @@ tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_view_t* out_entry) {
     remaining -= length_size;
     if (entry.value.length > remaining) return TLV_ERR_BUFFER_TOO_SHORT;
     entry.value.data = data + tag_size + length_size;
-    reader->pos += tag_size + length_size + entry.value.length;
+    *consumed = tag_size + length_size + entry.value.length;
     *out_entry = entry;
     return TLV_OK;
+}
+
+tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_view_t* out_entry) {
+    size_t consumed;
+    tlv_result_t rc;
+    if (!reader || !out_entry) return TLV_ERR_NULL_ARG;
+    if (tlv_reader_at_end(reader)) return TLV_ERR_END_OF_BUFFER;
+    if (!reader->data) return TLV_ERR_NULL_ARG;
+    rc = tlv_read(reader->data + reader->pos, reader->size - reader->pos,
+                  reader->format, out_entry, &consumed);
+    if (rc == TLV_OK) reader->pos += consumed;
+    return rc;
 }

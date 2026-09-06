@@ -1,5 +1,29 @@
 # C format abstraction
 
+## Reading one element
+
+Include `tlv/reader.h` and call `tlv_read` to parse one element from the
+beginning of a buffer:
+
+```c
+tlv_view_t view;
+size_t consumed;
+tlv_result_t result = tlv_read(data, size, &tlv_format_fixed_1byte,
+                               &view, &consumed);
+if (result == TLV_OK) {
+    /* view.value borrows data; consumed includes tag, length, and value. */
+}
+```
+
+Trailing bytes are ignored. The input must remain alive while using the view.
+The reader allocates no memory, copies no value bytes, and does not interpret
+the value or validate a schema. Empty input (including NULL with size zero)
+returns `TLV_ERR_END_OF_BUFFER`; missing tag, length, or value bytes return
+`TLV_ERR_BUFFER_TOO_SHORT` with the supplied formats. Invalid arguments return
+`TLV_ERR_NULL_ARG`. Both outputs are required and remain unchanged on failure.
+Custom format callback errors propagate unchanged. The stateful
+`tlv_reader_next` uses the same parser and advances by the consumed size.
+
 ## Fixed 1-byte TLV
 
 Use `tlv_format_fixed_1byte` for a one-byte tag, a one-byte unsigned length,
