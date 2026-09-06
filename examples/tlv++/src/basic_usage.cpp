@@ -17,12 +17,12 @@ int main() {
         return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
     };
 
-    tlv::expected<void, tlv::error> r = w.write(0x01, to_bytes("hello"));
+    tlv::expected<void, tlv::error> r = w.write(tlv::tag_t{{0x01}, 1}, to_bytes("hello"));
     if (!r) {
         std::cerr << "write error: " << r.error().message << "\n";
         return 1;
     }
-    r = w.write(0x02, to_bytes("world"));
+    r = w.write(tlv::tag_t{{0x02}, 1}, to_bytes("world"));
     if (!r) {
         std::cerr << "write error: " << r.error().message << "\n";
         return 1;
@@ -40,7 +40,7 @@ int main() {
         std::string value(
             reinterpret_cast<const char*>(entry->value.data()),
             entry->value.size());
-        std::cout << "tag=0x" << std::hex << static_cast<int>(entry->tag)
+        std::cout << "tag=0x" << std::hex << static_cast<int>(entry->tag.data[0])
                   << std::dec << " value=" << value << "\n";
     }
 

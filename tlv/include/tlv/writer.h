@@ -16,7 +16,9 @@ typedef struct tlv_writer {
 /* Initializes a writer over an external buffer with the given capacity. */
 tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity);
 
-/* Writes one TLV item (tag + BER length + value). */
+/* Writes one TLV item (single-byte tag + BER length + value).
+ * Returns TLV_ERR_INVALID_TAG unless tag.size is exactly one.
+ */
 tlv_result_t tlv_writer_write(tlv_writer_t* writer, tlv_tag_t tag,
                                const uint8_t* value, size_t length);
 

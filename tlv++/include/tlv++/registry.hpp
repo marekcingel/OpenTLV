@@ -50,7 +50,19 @@ public:
   }
 
 private:
-  std::map<tag_t, decoder_fn> decoders_;
+  struct tag_less {
+    bool operator()(const tag_t& left, const tag_t& right) const {
+      const size_t common = left.size < right.size ? left.size : right.size;
+      for (size_t i = 0; i < common && i < TLV_TAG_MAX_SIZE; ++i) {
+        if (left.data[i] != right.data[i]) {
+          return left.data[i] < right.data[i];
+        }
+      }
+      return left.size < right.size;
+    }
+  };
+
+  std::map<tag_t, decoder_fn, tag_less> decoders_;
 };
 
 } // namespace tlv

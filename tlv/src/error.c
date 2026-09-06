@@ -8,6 +8,7 @@ const char* tlv_strerror(tlv_result_t result) {
         case TLV_ERR_NULL_ARG:            return "null argument";
         case TLV_ERR_OUT_OF_MEMORY:       return "out of memory";
         case TLV_ERR_END_OF_BUFFER:       return "end of buffer";
+        case TLV_ERR_INVALID_TAG:         return "invalid tag";
         default:                         return "unknown error";
     }
 }

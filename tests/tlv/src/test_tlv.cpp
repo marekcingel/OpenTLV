@@ -11,9 +11,9 @@ TEST(TLV, reader_parses_single_short_form_entry) {
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
 
-  tlv_entry_t entry;
+  tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-  ASSERT_EQ(1, entry.tag.length);
+  ASSERT_EQ(1, entry.tag.size);
   ASSERT_EQ(0x01, entry.tag.data[0]);
   ASSERT_EQ(3, entry.value.length);
   ASSERT_EQ(0, std::memcmp("abc", entry.value.data, 3));
@@ -25,7 +25,7 @@ TEST(TLV, reader_parses_multiple_entries) {
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
 
-  tlv_entry_t e1, e2;
+  tlv_view_t e1, e2;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e1));
   ASSERT_EQ(0x01, e1.tag.data[0]);
   ASSERT_EQ(2, e1.value.length);
@@ -49,7 +49,7 @@ TEST(TLV, reader_parses_ber_long_form_1byte_length) {
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
 
-  tlv_entry_t entry;
+  tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
   ASSERT_EQ(0x05, entry.tag.data[0]);
   ASSERT_EQ(200, entry.value.length);
@@ -70,7 +70,7 @@ TEST(TLV, reader_parses_ber_long_form_2byte_length) {
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
 
-  tlv_entry_t entry;
+  tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
   ASSERT_EQ(0x07, entry.tag.data[0]);
   ASSERT_EQ(300, entry.value.length);
@@ -82,7 +82,7 @@ TEST(TLV, reader_detects_buffer_too_short_for_value) {
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
 
-  tlv_entry_t entry;
+  tlv_view_t entry;
   ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &entry));
 }
 
@@ -91,7 +91,7 @@ TEST(TLV, reader_detects_end_of_buffer) {
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
 
-  tlv_entry_t entry;
+  tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
   ASSERT_EQ(0, entry.value.length);
   ASSERT_TRUE(tlv_reader_at_end(&reader));
@@ -104,13 +104,44 @@ TEST(TLV, reader_rejects_null_args) {
 
 /* ---------- Writer tests ---------- */
 
+TEST(TLV, reader_copies_tag_and_borrows_value) {
+  uint8_t data[] = {0x01, 0x01, 0xAB};
+  tlv_reader_t reader;
+  ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data)));
+  tlv_view_t view{};
+  ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+  EXPECT_EQ(1, view.tag.size);
+  EXPECT_EQ(data + 2, view.value.data);
+  data[0] = 0x02;
+  data[2] = 0xCD;
+  EXPECT_EQ(0x01, view.tag.data[0]);
+  EXPECT_EQ(0xCD, view.value.data[0]);
+}
+
+TEST(TLV, writer_rejects_unsupported_tag_sizes_without_writing) {
+  uint8_t buf[8];
+  std::memset(buf, 0xAA, sizeof(buf));
+  tlv_writer_t writer;
+  ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf)));
+  for (unsigned size = 0; size <= 255; ++size) {
+    if (size == 1) continue;
+    SCOPED_TRACE(size);
+    tlv_tag_t tag{};
+    tag.size = static_cast<uint8_t>(size);
+    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_writer_write(&writer, tag, nullptr, 0));
+    EXPECT_EQ(0u, tlv_writer_size(&writer));
+    for (uint8_t byte : buf) EXPECT_EQ(0xAA, byte);
+  }
+  EXPECT_STREQ("invalid tag", tlv_strerror(TLV_ERR_INVALID_TAG));
+}
+
 TEST(TLV, writer_writes_short_form_entry) {
   uint8_t buf[16];
   tlv_writer_t writer;
   ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf)));
 
   const uint8_t value[] = {'a', 'b', 'c'};
-  ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, 0x01, value, sizeof(value)));
+  ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0x01}, 1}), value, sizeof(value)));
 
   ASSERT_EQ(5, tlv_writer_size(&writer));
   ASSERT_EQ(0x01, buf[0]);
@@ -125,7 +156,7 @@ TEST(TLV, writer_writes_long_form_1byte_length) {
 
   uint8_t value[200];
   memset(value, 'A', sizeof(value));
-  ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, 0x05, value, sizeof(value)));
+  ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0x05}, 1}), value, sizeof(value)));
 
   ASSERT_EQ(1 + 2 + 200, tlv_writer_size(&writer));
   ASSERT_EQ(0x05, buf[0]);
@@ -140,7 +171,7 @@ TEST(TLV, writer_detects_buffer_too_short) {
 
   const uint8_t value[] = {'a', 'b', 'c', 'd'};
   ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-            tlv_writer_write(&writer, 0x01, value, sizeof(value)));
+            tlv_writer_write(&writer, (tlv_tag_t{{0x01}, 1}), value, sizeof(value)));
 }
 
 TEST(TLV, writer_reader_roundtrip) {
@@ -148,13 +179,13 @@ TEST(TLV, writer_reader_roundtrip) {
   tlv_writer_t writer;
   ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf)));
 
-  ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, 0x01, (const uint8_t *)"hi", 2));
-  ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, 0x02, (const uint8_t *)"x", 1));
+  ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0x01}, 1}), (const uint8_t *)"hi", 2));
+  ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0x02}, 1}), (const uint8_t *)"x", 1));
 
   tlv_reader_t reader;
   ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, buf, tlv_writer_size(&writer)));
 
-  tlv_entry_t e1, e2;
+  tlv_view_t e1, e2;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e1));
   ASSERT_EQ(0x01, e1.tag.data[0]);
   ASSERT_EQ(0, std::memcmp("hi", e1.value.data, 2));

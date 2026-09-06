@@ -50,6 +50,10 @@ tlv_result_t tlv_writer_write(tlv_writer_t* writer, tlv_tag_t tag,
         return TLV_ERR_NULL_ARG;
     }
 
+    if (tag.size != 1) {
+        return TLV_ERR_INVALID_TAG;
+    }
+
     size_t len_hdr = length_header_size(length);
     if (len_hdr == 0) {
         return TLV_ERR_INVALID_LENGTH;
@@ -60,7 +64,7 @@ tlv_result_t tlv_writer_write(tlv_writer_t* writer, tlv_tag_t tag,
         return TLV_ERR_BUFFER_TOO_SHORT;
     }
 
-    writer->buf[writer->pos] = tag;
+    writer->buf[writer->pos] = tag.data[0];
     encode_length(writer->buf + writer->pos + 1, length, len_hdr);
     if (length > 0) {
         memcpy(writer->buf + writer->pos + 1 + len_hdr, value, length);

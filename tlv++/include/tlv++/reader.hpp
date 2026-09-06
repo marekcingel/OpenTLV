@@ -30,14 +30,14 @@ public:
             return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
         }
 
-        tlv_entry_t raw{};
+        tlv_view_t raw{};
         tlv_result_t rc = tlv_reader_next(&impl_, &raw);
         if (rc != TLV_OK) {
             return unexpected<error>(error::from_c(rc));
         }
 
         return entry{
-            raw.tag.data[0],
+            raw.tag,
             bytes(reinterpret_cast<const byte*>(raw.value.data), raw.value.length)
         };
     }
