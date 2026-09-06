@@ -11,7 +11,7 @@
 
 int main() {
     std::array<tlv::byte, 64> buf{};
-    tlv::writer w(buf.data(), buf.size());
+    tlv::writer w(buf.data(), buf.size(), tlv_format_default);
 
     auto to_bytes = [](const std::string& s) {
         return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
@@ -30,7 +30,7 @@ int main() {
 
     std::cout << "Wrote " << w.size() << " bytes\n";
 
-    tlv::reader reader(tlv::bytes(buf.data(), w.size()));
+    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
     while (!reader.at_end()) {
         auto entry = reader.next();
         if (!entry) {

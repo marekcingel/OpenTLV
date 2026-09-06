@@ -10,7 +10,7 @@
 int main(void) {
     uint8_t buf[64];
     tlv_writer_t writer;
-    tlv_writer_init(&writer, buf, sizeof(buf));
+    tlv_writer_init(&writer, buf, sizeof(buf), &tlv_format_default);
 
     tlv_writer_write(&writer, (tlv_tag_t){{0x01}, 1}, (const uint8_t*)"hello", 5);
     tlv_writer_write(&writer, (tlv_tag_t){{0x02}, 1}, (const uint8_t*)"world", 5);
@@ -18,7 +18,7 @@ int main(void) {
     printf("Wrote %zu bytes\n", tlv_writer_size(&writer));
 
     tlv_reader_t reader;
-    tlv_reader_init(&reader, buf, tlv_writer_size(&writer));
+    tlv_reader_init(&reader, buf, tlv_writer_size(&writer), &tlv_format_default);
 
     tlv_view_t entry;
     while (!tlv_reader_at_end(&reader)) {

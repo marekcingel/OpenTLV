@@ -7,16 +7,15 @@
 namespace tlv {
 
 // Thin, safe C++ wrapper around tlv_reader_t.
-// It does not own the buffer (like the C core); it only iterates over it.
+// The caller keeps the buffer, format, and format context alive.
 class reader {
 public:
-    explicit reader(bytes data) {
+    reader(bytes data, const tlv_format_t& format) {
         tlv_result_t rc = tlv_reader_init(
             &impl_,
             reinterpret_cast<const uint8_t*>(data.data()),
-            data.size());
-        // init fails only for a null buffer with a non-zero size. That should
-        // not occur with a valid span, but verify it through at_end().
+            data.size(), &format);
+        // Invalid buffers or missing format callbacks prevent reading.
         init_ok_ = (rc == TLV_OK);
     }
 

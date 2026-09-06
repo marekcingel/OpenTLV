@@ -9,14 +9,14 @@
 
 namespace tlv {
 
-// Thin C++ wrapper around tlv_writer_t. The caller owns the buffer (as in C).
+// Thin C++ wrapper; the caller keeps the buffer, format, and context alive.
 class writer {
 public:
-    writer(byte* buf, size_t capacity) {
+    writer(byte* buf, size_t capacity, const tlv_format_t& format) {
         tlv_writer_init(
             &impl_,
             reinterpret_cast<uint8_t*>(buf),
-            capacity);
+            capacity, &format);
     }
 
     // Writes raw bytes with the specified tag.
