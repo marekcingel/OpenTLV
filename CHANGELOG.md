@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- ASN.1 DER-TLV support with canonical tag and length validation, tag class and constructed accessors, bounded nested traversal, byte-offset errors, and deterministic encoding. Universal value decoding and SET ordering remain outside the supported TLV scope. (#59)
 - Official Clang 18+ support with compiler warnings, a warnings-as-errors CI job for C99 and C++11/14/17/20/23, and build documentation. (#60)
 - EMV Contact Book 3 v4.4 tag dictionary with context-specific length schemas and explicit numeric, enum, date, time, and digit-string value codecs, using generic BER-TLV I/O. (#40)
 - Explicit allocation-free helpers to copy values, serialize views, or preserve complete encoded TLV ranges in caller-provided storage, with size queries and destination capacity checks. (#39)

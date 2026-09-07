@@ -1,5 +1,8 @@
 # C format abstraction
 
+For canonical ASN.1 framing, nested validation, limits and error offsets, see
+[ASN.1 DER-TLV](der.md). `tlv_format_der` also supports the generic I/O below.
+
 ## Reading one element
 
 Include `tlv/reader.h` and call `tlv_read` to parse one element from the

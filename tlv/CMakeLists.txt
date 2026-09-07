@@ -10,6 +10,7 @@ add_library(${PROJECT_NAME}
     src/endian.c
     src/format_default.c
     src/format_ber.c
+    src/der.c
     src/format_fixed_1byte.c
     src/reader.c
     src/scanner.c
