@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed a BER test compilation failure in GCC Release builds with warnings-as-errors enabled. (#66)
 - Fixed an integer-to-boolean comparison warning in the ASN.1 DER tests by explicitly comparing boolean values. (#59)
 - Fixed CMake generation with benchmarks enabled by making C compiler information available to all targets linking the C library. (#59)
 - Fixed strict C++11/14 builds of the C++ wrapper by enabling `[[nodiscard]]` only in C++17 and newer. (#60)
@@ -41,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Extended the default warnings-as-errors setting to GCC and MSVC, using each compiler's native option for OpenTLV C and C++ targets.
+- Standardized GCC, Clang, and MSVC CI builds on Ninja with explicit test, example, and benchmark configuration, MSVC x64 targeting, and failure when no unit tests are discovered. Preserved compiler and C++ standard coverage and the Clang C-only build. (#66)
 - Updated VS Code benchmark build and comparison tasks to use the shared `build` directory, reusing existing Release build artifacts without disabling tests, examples, or the C++ layer. (#59)
 - Enabled benchmark builds and Clang warnings-as-errors by default; both remain configurable through their CMake options. (#59)
 - Expanded the C usage example to demonstrate single-element and sequential I/O, explicit copies and size queries, BER and custom formats, schemas, walking and scanning, value codecs, endian helpers, runtime version information, and error handling. (#39)

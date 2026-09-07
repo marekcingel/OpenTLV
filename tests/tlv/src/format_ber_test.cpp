@@ -44,25 +44,30 @@ TEST(Ber, TagsAndLengthsRoundTrip) {
 }
 
 TEST(Ber, LengthWireBytesAndBounds) {
-    const std::vector<std::pair<size_t, std::vector<uint8_t>>> cases = {
+    struct LengthCase {
+        size_t value;
+        std::vector<uint8_t> bytes;
+    };
+    std::vector<uint8_t> max_length_bytes(sizeof(size_t) + 1, 0xFF);
+    max_length_bytes[0] = 0x80 | sizeof(size_t);
+    const LengthCase cases[] = {
         {0, {0}}, {127, {0x7F}}, {128, {0x81, 0x80}}, {255, {0x81, 0xFF}},
         {256, {0x82, 1, 0}}, {65535, {0x82, 0xFF, 0xFF}}, {65536, {0x83, 1, 0, 0}},
-        {SIZE_MAX, std::vector<uint8_t>(sizeof(size_t) + 1, 0xFF)}};
-    for (auto item : cases) {
-        if (item.first == SIZE_MAX) item.second[0] = 0x80 | sizeof(size_t);
+        {SIZE_MAX, max_length_bytes}};
+    for (const auto& item : cases) {
         size_t used = 0, length = 0;
-        ASSERT_EQ(TLV_OK, ber.length_size(nullptr, item.first, &used));
-        EXPECT_EQ(item.second.size(), used);
+        ASSERT_EQ(TLV_OK, ber.length_size(nullptr, item.value, &used));
+        EXPECT_EQ(item.bytes.size(), used);
         std::vector<uint8_t> data(used, 0xEE);
         for (size_t capacity = 0; capacity < data.size(); ++capacity) {
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                      ber.write_length(nullptr, data.data(), capacity, item.first, &used));
+                      ber.write_length(nullptr, data.data(), capacity, item.value, &used));
             for (auto byte : data) EXPECT_EQ(0xEE, byte);
         }
-        ASSERT_EQ(TLV_OK, ber.write_length(nullptr, data.data(), data.size(), item.first, &used));
-        EXPECT_EQ(item.second, data);
+        ASSERT_EQ(TLV_OK, ber.write_length(nullptr, data.data(), data.size(), item.value, &used));
+        EXPECT_EQ(item.bytes, data);
         ASSERT_EQ(TLV_OK, ber.read_length(nullptr, data.data(), data.size(), &length, &used));
-        EXPECT_EQ(item.first, length);
+        EXPECT_EQ(item.value, length);
         for (size_t size = 0; size < data.size(); ++size)
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                       ber.read_length(nullptr, data.data(), size, &length, &used));
