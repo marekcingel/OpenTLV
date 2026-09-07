@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standardized GCC, Clang, and MSVC CI builds on Ninja with explicit test, example, and benchmark configuration, MSVC x64 targeting, and failure when no unit tests are discovered. Preserved compiler and C++ standard coverage and the Clang C-only build. (#66)
 - Updated VS Code benchmark build and comparison tasks to use the shared `build` directory, reusing existing Release build artifacts without disabling tests, examples, or the C++ layer. (#59)
 - Enabled benchmark builds and Clang warnings-as-errors by default; both remain configurable through their CMake options. (#59)
 - Expanded the C usage example to demonstrate single-element and sequential I/O, explicit copies and size queries, BER and custom formats, schemas, walking and scanning, value codecs, endian helpers, runtime version information, and error handling. (#39)

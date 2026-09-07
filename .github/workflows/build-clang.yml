@@ -36,9 +36,10 @@ jobs:
           -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_WARNINGS_AS_ERRORS=ON
           -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=ON
+          -DOPENTLV_BUILD_BENCHMARKS=ON
 
       - name: Build
-        run: cmake --build build --parallel 2
+        run: cmake --build build --parallel
 
       - name: Run all unit tests
         run: ctest --test-dir build --output-on-failure --no-tests=error
@@ -51,6 +52,6 @@ jobs:
       - name: Verify C-only build
         if: matrix.cxx_standard == 11
         run: |
-          cmake -S . -B build-c -G Ninja -DCMAKE_C_COMPILER=clang-18 -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_WARNINGS_AS_ERRORS=ON
-          cmake --build build-c --parallel 2
+          cmake -S . -B build-c -G Ninja -DCMAKE_C_COMPILER=clang-18 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=ON -DOPENTLV_BUILD_BENCHMARKS=OFF -DOPENTLV_WARNINGS_AS_ERRORS=ON
+          cmake --build build-c --parallel
           ./build-c/examples/tlv/example-tlv
