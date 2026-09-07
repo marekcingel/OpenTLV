@@ -1,0 +1,56 @@
+name: Clang Build
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  clang:
+    name: Clang 18 / C++${{ matrix.cxx_standard }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        cxx_standard: [11, 14, 17, 20, 23]
+    env:
+      CC: clang-18
+      CXX: clang++-18
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install Clang
+        run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
+
+      - name: Configure CMake
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
+          -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }}
+          -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+          -DOPENTLV_WARNINGS_AS_ERRORS=ON
+          -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=ON
+
+      - name: Build
+        run: cmake --build build --parallel 2
+
+      - name: Run all unit tests
+        run: ctest --test-dir build --output-on-failure --no-tests=error
+
+      - name: Run C and C++ examples
+        run: |
+          ./build/examples/tlv/example-tlv
+          ./build/examples/tlv++/example-tlv++
+
+      - name: Verify C-only build
+        if: matrix.cxx_standard == 11
+        run: |
+          cmake -S . -B build-c -G Ninja -DCMAKE_C_COMPILER=clang-18 -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_WARNINGS_AS_ERRORS=ON
+          cmake --build build-c --parallel 2
+          ./build-c/examples/tlv/example-tlv

@@ -1,5 +1,7 @@
 # OpenTLV — documentation
 
+- [Supported compilers and Clang builds](compilers.md)
+
 - [C format abstraction](formats.md) ? custom tag and length codecs
 
 - [Optional C schemas](schemas.md) — constant tables, tag lookup, and length validation

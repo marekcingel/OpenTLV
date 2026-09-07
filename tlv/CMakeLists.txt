@@ -33,3 +33,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_compile_features(${PROJECT_NAME} PUBLIC
     c_std_99
 )
+
+opentlv_configure_compiler(${PROJECT_NAME})

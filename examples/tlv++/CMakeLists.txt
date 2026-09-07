@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(example-tlv++)
+project(example-tlv++ LANGUAGES CXX)
 
 set(HEADERS
 )
@@ -22,3 +22,5 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} PRIVATE
     tlv++
 )
+
+opentlv_configure_compiler(${PROJECT_NAME})

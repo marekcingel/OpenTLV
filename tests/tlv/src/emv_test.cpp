@@ -44,7 +44,9 @@ TEST(Emv, AllDefinitionsUseGenericBerAndSchemas) {
         for (size_t i = 0; i < schema->count; ++i) {
             const auto& entry = schema->entries[i];
             unsigned tag = entry.tag.data[0];
+#if TLV_TAG_MAX_SIZE >= 2
             if (entry.tag.size == 2) tag = (tag << 8) | entry.tag.data[1];
+#endif
             ASSERT_TRUE(unique.insert(tag).second) << ctx << ": duplicate tag " << tag;
             const auto* definition = tlv_emv_find(context, &entry.tag);
             ASSERT_NE(nullptr, definition);
@@ -359,7 +361,9 @@ TEST(Emv, CoversContactBook3TagSet) {
             const auto& tag = schema->entries[i].tag;
             ASSERT_LE(tag.size, 2u);
             unsigned number = tag.data[0];
+#if TLV_TAG_MAX_SIZE >= 2
             if (tag.size == 2) number = (number << 8) | tag.data[1];
+#endif
             actual.insert(number);
         }
     }

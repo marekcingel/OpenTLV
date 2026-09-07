@@ -1,6 +1,13 @@
 #ifndef OPENTLV_TLVPP_COMPAT_HPP
 #define OPENTLV_TLVPP_COMPAT_HPP
 
+// nodiscard is standard only from C++17 onward.
+#if (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L
+#define TLV_NODISCARD [[nodiscard]]
+#else
+#define TLV_NODISCARD
+#endif
+
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
