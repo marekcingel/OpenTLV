@@ -7,6 +7,7 @@ set(HEADERS
 
 set(SOURCES
     src/codec_test.cpp
+    src/copy_test.cpp
     src/endian_test.cpp
     src/dhcp_option_tests.cpp
     src/test_tlv.cpp
