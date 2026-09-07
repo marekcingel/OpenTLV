@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Generic allocation-free C value codecs with caller-provided storage, zero-copy representation support, encoding size queries, and errors independent of TLV framing. (#38)
 - BER-TLV format (`tlv_format_ber`) with multi-byte tags, configurable tag capacity validation, definite short- and long-form lengths, and malformed/truncated-input detection. (#36)
 - Explicit big-endian and little-endian helpers for reading and writing 16-bit and 32-bit integer values, independent of host byte order and TLV profile. (#37)
 - Allocation-free `tlv_scan()` recovery API to find complete TLV candidates from any buffer offset, with optional schema tag and value-length validation. (#35)

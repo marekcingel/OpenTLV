@@ -8,6 +8,8 @@
 
 - [Integer byte-order conversions](endian.md)
 
+- [C value codecs](codecs.md)
+
 Planned contents:
 
 - `format.md` — precise specification of the TLV format (tag, BER-style length)
