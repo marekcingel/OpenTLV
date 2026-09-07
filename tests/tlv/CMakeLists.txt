@@ -6,6 +6,7 @@ set(HEADERS
 )
 
 set(SOURCES
+    src/emv_test.cpp
     src/codec_test.cpp
     src/copy_test.cpp
     src/endian_test.cpp
@@ -43,6 +44,25 @@ include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME})
 
 # Compile alternate capacities separately to keep type layouts consistent.
+foreach(tag_capacity IN ITEMS 1 2 3)
+    set(emv_target test-tlv-emv-${tag_capacity})
+    add_executable(${emv_target}
+        src/emv_test.cpp
+        ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/emv.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/emv_codec.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/codec.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/schema.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/format_ber.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/reader.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/writer.c
+    )
+    target_include_directories(${emv_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include)
+    target_link_libraries(${emv_target} PRIVATE GTest::gtest_main)
+    target_compile_features(${emv_target} PRIVATE c_std_99)
+    target_compile_definitions(${emv_target} PRIVATE TLV_TAG_MAX_SIZE=${tag_capacity})
+    gtest_discover_tests(${emv_target} TEST_PREFIX "TagCapacity${tag_capacity}.")
+endforeach()
+
 foreach(tag_capacity IN ITEMS 1 16 255)
     set(types_target test-tlv-types-${tag_capacity})
     add_executable(${types_target} src/types_test.cpp)
