@@ -10,6 +10,7 @@ const char* tlv_strerror(tlv_result_t result) {
         case TLV_ERR_END_OF_BUFFER:       return "end of buffer";
         case TLV_ERR_INVALID_TAG:         return "invalid tag";
         case TLV_ERR_VISITOR:             return "visitor error";
+        case TLV_ERR_LIMIT:               return "resource limit exceeded";
         default:                         return "unknown error";
     }
 }

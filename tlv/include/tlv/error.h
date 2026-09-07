@@ -13,7 +13,8 @@ typedef enum tlv_result {
     TLV_ERR_OUT_OF_MEMORY    = 4,
     TLV_ERR_END_OF_BUFFER    = 5,
     TLV_ERR_INVALID_TAG      = 6,
-    TLV_ERR_VISITOR          = 7
+    TLV_ERR_VISITOR          = 7,
+    TLV_ERR_LIMIT            = 8
 } tlv_result_t;
 
 /* Returns a readable description of an error code (static string; no need to free). */

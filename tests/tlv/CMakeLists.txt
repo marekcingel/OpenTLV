@@ -19,6 +19,7 @@ set(SOURCES
     src/writer_test.cpp
     src/format_test.cpp
     src/format_ber_test.cpp
+    src/der_test.cpp
     src/format_fixed_1byte_test.cpp
     src/types_test.cpp
     src/versiontest.cpp
@@ -63,6 +64,24 @@ foreach(tag_capacity IN ITEMS 1 2 3)
     target_compile_definitions(${emv_target} PRIVATE TLV_TAG_MAX_SIZE=${tag_capacity})
     opentlv_configure_compiler(${emv_target})
     gtest_discover_tests(${emv_target} TEST_PREFIX "TagCapacity${tag_capacity}.")
+endforeach()
+
+# DER must preserve the configurable raw-tag capacity, including large tags.
+foreach(tag_capacity IN ITEMS 1 16 255)
+    set(der_target test-tlv-der-${tag_capacity})
+    add_executable(${der_target}
+        src/der_test.cpp
+        ${OpenTLV_SOURCE_DIR}/tlv/src/der.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/format_ber.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/reader.c
+        ${OpenTLV_SOURCE_DIR}/tlv/src/writer.c
+    )
+    target_include_directories(${der_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include)
+    target_link_libraries(${der_target} PRIVATE GTest::gtest_main)
+    target_compile_features(${der_target} PRIVATE c_std_99)
+    target_compile_definitions(${der_target} PRIVATE TLV_TAG_MAX_SIZE=${tag_capacity})
+    opentlv_configure_compiler(${der_target})
+    gtest_discover_tests(${der_target} TEST_PREFIX "TagCapacity${tag_capacity}.")
 endforeach()
 
 foreach(tag_capacity IN ITEMS 1 16 255)

@@ -47,6 +47,12 @@ extern const tlv_format_t tlv_format_fixed_1byte;
  */
 extern const tlv_format_t tlv_format_ber;
 
+/* Canonical ASN.1 DER identifiers and definite lengths. Validates universal
+ * primitive/constructed bits, but does not inspect values or nested headers.
+ * Use tlv/der.h for bounded recursive validation and error offsets.
+ */
+extern const tlv_format_t tlv_format_der;
+
 #ifdef __cplusplus
 }
 #endif
