@@ -3,6 +3,7 @@
 
 #include "tlv/types.h"
 #include "tlv/codec.h"
+#include "tlv/copy.h"
 #include "tlv/endian.h"
 #include "tlv/format.h"
 

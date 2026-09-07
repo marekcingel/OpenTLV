@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Explicit allocation-free helpers to copy values, serialize views, or preserve complete encoded TLV ranges in caller-provided storage, with size queries and destination capacity checks. (#39)
 - Generic allocation-free C value codecs with caller-provided storage, zero-copy representation support, encoding size queries, and errors independent of TLV framing. (#38)
 - BER-TLV format (`tlv_format_ber`) with multi-byte tags, configurable tag capacity validation, definite short- and long-form lengths, and malformed/truncated-input detection. (#36)
 - Explicit big-endian and little-endian helpers for reading and writing 16-bit and 32-bit integer values, independent of host byte order and TLV profile. (#37)
@@ -34,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Expanded the C usage example to demonstrate single-element and sequential I/O, explicit copies and size queries, BER and custom formats, schemas, walking and scanning, value codecs, endian helpers, runtime version information, and error handling. (#39)
 - C reader/writer initializers and C++ constructors now require an explicit format. Reader and writer structs hold a borrowed format pointer; consumers must be updated and rebuilt. (#29)
 - Reader results now use `tlv_view_t`, and the writer and C++ codecs use raw-byte `tlv_tag_t` tags. Removed `tlv_entry_t` and `tlv_bytes_t`; the current single-byte writer rejects other tag sizes with `TLV_ERR_INVALID_TAG`. (#28)
 - Updated the GitHub Actions checkout to fetch complete Git history and tags for generated version metadata. (#26)

@@ -4,6 +4,7 @@ project(tlv LANGUAGES C)
 
 add_library(${PROJECT_NAME}
     src/codec.c
+    src/copy.c
     src/endian.c
     src/format_default.c
     src/format_ber.c
