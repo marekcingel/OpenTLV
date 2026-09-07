@@ -121,7 +121,7 @@ TEST(Der, UniversalPrimitiveConstructedRules) {
                                     number == 17 || number == 29;
         for (int constructed : {0, 1}) {
             tlv_tag_t tag{};
-            EXPECT_EQ(number == 0 || number == 15 || (constructed != must_construct)
+            EXPECT_EQ(number == 0 || number == 15 || ((constructed != 0) != must_construct)
                           ? TLV_ERR_INVALID_TAG : TLV_OK,
                       tlv_der_tag_make(TLV_ASN1_UNIVERSAL, constructed, number, &tag));
             EXPECT_EQ(TLV_OK, tlv_der_tag_make(TLV_ASN1_CONTEXT_SPECIFIC, constructed, number, &tag));
