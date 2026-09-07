@@ -26,3 +26,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME})
+
+opentlv_configure_compiler(${PROJECT_NAME})

@@ -23,3 +23,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     tlv
     benchmark::benchmark_main
 )
+
+opentlv_configure_compiler(${PROJECT_NAME})

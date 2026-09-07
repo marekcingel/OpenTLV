@@ -10,6 +10,9 @@ option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" O
 option(OPENTLV_BUILD_TESTS "Build tests" ON)
 option(OPENTLV_BUILD_EXAMPLES "Build examples" ON)
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
+option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV Clang warnings as errors" OFF)
+
+include(cmake/compiler.cmake)
 
 add_subdirectory(tlv)
 

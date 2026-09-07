@@ -37,7 +37,7 @@ public:
     });
   }
 
-  [[nodiscard]] expected<any, error> decode(tag_t tag,
+  TLV_NODISCARD expected<any, error> decode(tag_t tag,
                                                       bytes data) const {
     if (decoders_.count(tag) == 0) {
       return unexpected<error>(error{TLV_ERR_INVALID_LENGTH, "unregistered tag"});
@@ -45,7 +45,7 @@ public:
     return decoders_.at(tag)(data);
   }
 
-  [[nodiscard]] bool has_decoder(tag_t tag) const {
+  TLV_NODISCARD bool has_decoder(tag_t tag) const {
     return decoders_.find(tag) != decoders_.end();
   }
 

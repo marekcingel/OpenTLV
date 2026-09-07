@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed strict C++11/14 builds of the C++ wrapper by enabling `[[nodiscard]]` only in C++17 and newer. (#60)
 - Fixed GCC builds of the C API tests by including `<cstring>` for `std::memcmp` and `std::memset`. (#22)
 
 ### Added
 
+- Official Clang 18+ support with compiler warnings, a warnings-as-errors CI job for C99 and C++11/14/17/20/23, and build documentation. (#60)
 - EMV Contact Book 3 v4.4 tag dictionary with context-specific length schemas and explicit numeric, enum, date, time, and digit-string value codecs, using generic BER-TLV I/O. (#40)
 - Explicit allocation-free helpers to copy values, serialize views, or preserve complete encoded TLV ranges in caller-provided storage, with size queries and destination capacity checks. (#39)
 - Generic allocation-free C value codecs with caller-provided storage, zero-copy representation support, encoding size queries, and errors independent of TLV framing. (#38)

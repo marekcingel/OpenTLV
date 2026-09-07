@@ -19,12 +19,12 @@ public:
         init_ok_ = (rc == TLV_OK);
     }
 
-    [[nodiscard]] bool at_end() const {
+    TLV_NODISCARD bool at_end() const {
         return !init_ok_ || tlv_reader_at_end(&impl_) != 0;
     }
 
     // Reads the next item. Returns an error if the buffer is invalid or empty.
-    [[nodiscard]] expected<entry, error> next() {
+    TLV_NODISCARD expected<entry, error> next() {
         if (!init_ok_) {
             return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
         }

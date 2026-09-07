@@ -41,6 +41,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 include(GoogleTest)
+opentlv_configure_compiler(${PROJECT_NAME})
 gtest_discover_tests(${PROJECT_NAME})
 
 # Compile alternate capacities separately to keep type layouts consistent.
@@ -60,6 +61,7 @@ foreach(tag_capacity IN ITEMS 1 2 3)
     target_link_libraries(${emv_target} PRIVATE GTest::gtest_main)
     target_compile_features(${emv_target} PRIVATE c_std_99)
     target_compile_definitions(${emv_target} PRIVATE TLV_TAG_MAX_SIZE=${tag_capacity})
+    opentlv_configure_compiler(${emv_target})
     gtest_discover_tests(${emv_target} TEST_PREFIX "TagCapacity${tag_capacity}.")
 endforeach()
 
@@ -69,6 +71,7 @@ foreach(tag_capacity IN ITEMS 1 16 255)
     target_include_directories(${types_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include)
     target_link_libraries(${types_target} PRIVATE GTest::gtest_main)
     target_compile_definitions(${types_target} PRIVATE TLV_TAG_MAX_SIZE=${tag_capacity})
+    opentlv_configure_compiler(${types_target})
     gtest_discover_tests(${types_target} TEST_PREFIX "TagCapacity${tag_capacity}.")
 endforeach()
 
@@ -85,5 +88,6 @@ foreach(tag_capacity IN ITEMS 1 16 255)
     target_link_libraries(${ber_target} PRIVATE GTest::gtest_main)
     target_compile_features(${ber_target} PRIVATE c_std_99)
     target_compile_definitions(${ber_target} PRIVATE TLV_TAG_MAX_SIZE=${tag_capacity})
+    opentlv_configure_compiler(${ber_target})
     gtest_discover_tests(${ber_target} TEST_PREFIX "TagCapacity${tag_capacity}.")
 endforeach()
