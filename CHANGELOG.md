@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- EMV Contact Book 3 v4.4 tag dictionary with context-specific length schemas and explicit numeric, enum, date, time, and digit-string value codecs, using generic BER-TLV I/O. (#40)
 - Explicit allocation-free helpers to copy values, serialize views, or preserve complete encoded TLV ranges in caller-provided storage, with size queries and destination capacity checks. (#39)
 - Generic allocation-free C value codecs with caller-provided storage, zero-copy representation support, encoding size queries, and errors independent of TLV framing. (#38)
 - BER-TLV format (`tlv_format_ber`) with multi-byte tags, configurable tag capacity validation, definite short- and long-form lengths, and malformed/truncated-input detection. (#36)

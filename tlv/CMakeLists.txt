@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.16)
 project(tlv LANGUAGES C)
 
 add_library(${PROJECT_NAME}
+    src/profiles/emv.c
+    src/profiles/emv_codec.c
     src/codec.c
     src/copy.c
     src/endian.c

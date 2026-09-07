@@ -10,6 +10,8 @@
 
 - [C value codecs](codecs.md)
 
+- [EMV profile](emv.md)
+
 Planned contents:
 
 - `format.md` — precise specification of the TLV format (tag, BER-style length)
