@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(tlv LANGUAGES C)
 
 add_library(${PROJECT_NAME}
+    src/codec.c
     src/endian.c
     src/format_default.c
     src/format_ber.c
