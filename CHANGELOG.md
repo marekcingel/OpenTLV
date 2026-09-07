@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed an integer-to-boolean comparison warning in the ASN.1 DER tests by explicitly comparing boolean values. (#59)
+- Fixed CMake generation with benchmarks enabled by making C compiler information available to all targets linking the C library. (#59)
 - Fixed strict C++11/14 builds of the C++ wrapper by enabling `[[nodiscard]]` only in C++17 and newer. (#60)
 - Fixed GCC builds of the C API tests by including `<cstring>` for `std::memcmp` and `std::memset`. (#22)
 
@@ -39,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated VS Code benchmark build and comparison tasks to use the shared `build` directory, reusing existing Release build artifacts without disabling tests, examples, or the C++ layer. (#59)
+- Enabled benchmark builds and Clang warnings-as-errors by default; both remain configurable through their CMake options. (#59)
 - Expanded the C usage example to demonstrate single-element and sequential I/O, explicit copies and size queries, BER and custom formats, schemas, walking and scanning, value codecs, endian helpers, runtime version information, and error handling. (#39)
 - C reader/writer initializers and C++ constructors now require an explicit format. Reader and writer structs hold a borrowed format pointer; consumers must be updated and rebuilt. (#29)
 - Reader results now use `tlv_view_t`, and the writer and C++ codecs use raw-byte `tlv_tag_t` tags. Removed `tlv_entry_t` and `tlv_bytes_t`; the current single-byte writer rejects other tag sizes with `TLV_ERR_INVALID_TAG`. (#28)
