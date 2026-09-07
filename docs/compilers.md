@@ -35,11 +35,13 @@ ctest --test-dir build-clang --output-on-failure
 
 Select `11`, `14`, `17`, `20`, or `23` with `CMAKE_CXX_STANDARD`.
 For a C-only build without GoogleTest, also pass
-`-DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF`.
+`-DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_BENCHMARKS=OFF`.
 
 OpenTLV's own compiled targets enable `-Wall -Wextra -Wpedantic` with Clang,
-plus `-Wstrict-prototypes` for C. CI enables `OPENTLV_WARNINGS_AS_ERRORS`
-(default `OFF`) to add `-Werror`. These options are private to project
-targets, apply only to the active Clang compiler for each source language,
-and do not propagate to library consumers or third-party dependencies.
-GCC and MSVC compiler options are unchanged.
+plus `-Wstrict-prototypes` for C.
+
+`OPENTLV_WARNINGS_AS_ERRORS` defaults to `ON` for all supported compilers:
+it adds `-Werror` for GCC and Clang, and `/WX` for MSVC, for both C and C++.
+Pass `-DOPENTLV_WARNINGS_AS_ERRORS=OFF` to disable this behavior.
+These options are private to OpenTLV's compiled targets and do not propagate
+to library consumers or third-party dependencies.

@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Extended the default warnings-as-errors setting to GCC and MSVC, using each compiler's native option for OpenTLV C and C++ targets.
 - Standardized GCC, Clang, and MSVC CI builds on Ninja with explicit test, example, and benchmark configuration, MSVC x64 targeting, and failure when no unit tests are discovered. Preserved compiler and C++ standard coverage and the Clang C-only build. (#66)
 - Updated VS Code benchmark build and comparison tasks to use the shared `build` directory, reusing existing Release build artifacts without disabling tests, examples, or the C++ layer. (#59)
 - Enabled benchmark builds and Clang warnings-as-errors by default; both remain configurable through their CMake options. (#59)

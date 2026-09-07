@@ -14,6 +14,7 @@ function(opentlv_configure_compiler target)
     target_compile_options(${target} PRIVATE
         "$<$<COMPILE_LANG_AND_ID:C,Clang>:-Wall;-Wextra;-Wpedantic;-Wstrict-prototypes>"
         "$<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wall;-Wextra;-Wpedantic>"
-        "$<$<AND:$<BOOL:${OPENTLV_WARNINGS_AS_ERRORS}>,$<OR:$<COMPILE_LANG_AND_ID:C,Clang>,$<COMPILE_LANG_AND_ID:CXX,Clang>>>:-Werror>"
+        "$<$<AND:$<BOOL:${OPENTLV_WARNINGS_AS_ERRORS}>,$<OR:$<COMPILE_LANG_AND_ID:C,GNU,Clang>,$<COMPILE_LANG_AND_ID:CXX,GNU,Clang>>>:-Werror>"
+        "$<$<AND:$<BOOL:${OPENTLV_WARNINGS_AS_ERRORS}>,$<OR:$<COMPILE_LANG_AND_ID:C,MSVC>,$<COMPILE_LANG_AND_ID:CXX,MSVC>>>:/WX>"
     )
 endfunction()
