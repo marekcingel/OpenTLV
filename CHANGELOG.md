@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed a BER test compilation failure in GCC Release builds with warnings-as-errors enabled. (#66)
 - Fixed an integer-to-boolean comparison warning in the ASN.1 DER tests by explicitly comparing boolean values. (#59)
 - Fixed CMake generation with benchmarks enabled by making C compiler information available to all targets linking the C library. (#59)
 - Fixed strict C++11/14 builds of the C++ wrapper by enabling `[[nodiscard]]` only in C++17 and newer. (#60)
