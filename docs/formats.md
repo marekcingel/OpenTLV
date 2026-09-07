@@ -143,3 +143,27 @@ For a complete custom format, see `tests/tlv/src/format_test.cpp`: it defines
 a two-byte tag and a fixed two-byte little-endian length, then uses the same
 generic reader and writer to round-trip multiple items. Adding a format only
 requires a descriptor and callbacks in application code, without parser edits.
+
+## BER-TLV
+
+Use `tlv_format_ber` with the generic reader and writer for raw BER-TLV tags
+such as `5A`, `5F 2A`, `9F 1C`, and `9F 81 01`. Tags retain their wire bytes,
+including class and constructed bits. High-tag-number form ends at the first
+subsequent byte with bit 7 clear; its first subsequent byte must have a nonzero
+low seven-bit value. Tags must fit `TLV_TAG_MAX_SIZE`. The format accepts raw
+identifiers such as `9F 1C` without enforcing ASN.1 tag-number minimality or
+universal-tag semantics, and does not recurse into constructed values.
+
+Definite lengths range from zero through `SIZE_MAX` (the complete element must
+also fit `size_t`). The writer uses short form below 128 and the shortest
+big-endian long form otherwise: 128 is `81 80`, 256 is `82 01 00`.
+The reader also accepts nonminimal definite lengths, including leading zeros.
+Indefinite length `80`, reserved length prefix `FF`, and lengths overflowing
+`size_t` return `TLV_ERR_INVALID_LENGTH`.
+
+Malformed tags, unterminated tags on write, and tags exceeding capacity return
+`TLV_ERR_INVALID_TAG`. Missing tag continuation or length bytes return
+`TLV_ERR_BUFFER_TOO_SHORT`; a continuation requiring bytes beyond tag capacity
+returns `TLV_ERR_INVALID_TAG` even if those bytes are missing. Empty input to
+the generic reader returns `TLV_ERR_END_OF_BUFFER`. All BER-specific encoding
+and validation live in the format callbacks.
