@@ -1,4 +1,5 @@
-#include "tlv/format.h"
+#include "tlv/formats/default.h"
+#include "tlv/formats/format.h"
 
 static tlv_result_t read_tag(const void* ctx, const uint8_t* data, size_t size,
                               tlv_tag_t* tag, size_t* used) {
@@ -65,6 +66,6 @@ static tlv_result_t write_length(const void* ctx, uint8_t* data, size_t capacity
 }
 
 const tlv_format_t tlv_format_default = {
-    NULL, read_tag, write_tag, read_length, write_length, length_size
+    NULL, read_tag, write_tag, read_length, write_length, length_size, NULL
 };
 

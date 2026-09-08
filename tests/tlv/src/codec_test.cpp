@@ -1,9 +1,10 @@
+#include "tlv/formats/fixed_1byte.h"
 #include <gtest/gtest.h>
-#include "tlv/codec.h"
+#include "tlv/codec/codec.h"
 #include "tlv/endian.h"
 #include "tlv/types.h"
-#include "tlv/reader.h"
-#include "tlv/writer.h"
+#include "tlv/reader/reader.h"
+#include "tlv/writer/writer.h"
 
 namespace {
 tlv_codec_result_t decode_u16(const void* context, const uint8_t* data,

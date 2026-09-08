@@ -14,6 +14,6 @@ FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(tlv)
 
-if(OPENTLV_BUILD_CXX)
+if(OPENTLV_BUILD_CXX AND OPENTLV_FORMAT_DEFAULT)
     add_subdirectory(tlv++)
 endif()

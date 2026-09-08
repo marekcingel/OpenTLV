@@ -1,4 +1,4 @@
-#include "tlv/codec.h"
+#include "tlv/codec/codec.h"
 
 tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec,
                                     const uint8_t* data, size_t size,
@@ -32,6 +32,7 @@ const char* tlv_codec_strerror(tlv_codec_result_t result) {
         case TLV_CODEC_ERR_BUFFER_TOO_SHORT: return "Codec destination too short";
         case TLV_CODEC_ERR_INVALID_VALUE: return "Invalid codec value";
         case TLV_CODEC_ERR_UNSUPPORTED: return "Unsupported codec operation";
+        case TLV_CODEC_ERR_INVALID_STRUCTURE: return "Invalid TLV structure";
         default: return "Unknown codec error";
     }
 }

@@ -1,5 +1,5 @@
-#include "tlv/reader.h"
-#include "tlv/writer.h"
+#include "tlv/reader/reader.h"
+#include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>
@@ -46,7 +46,7 @@ tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size,
     data[1] = static_cast<uint8_t>(length >> 8);
     return TLV_OK;
 }
-const tlv_format_t fixed = {&width, read_tag, write_tag, read_length, write_length, length_size};
+const tlv_format_t fixed = {&width, read_tag, write_tag, read_length, write_length, length_size, NULL};
 }
 
 TEST(Format, CustomFormatRoundTripAndWireBytes) {

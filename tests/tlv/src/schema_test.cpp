@@ -1,5 +1,6 @@
-#include "tlv/schema.h"
-#include "tlv/reader.h"
+#include "tlv/formats/fixed_1byte.h"
+#include "tlv/schemas/schema.h"
+#include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
 
 namespace {

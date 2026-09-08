@@ -1,16 +1,19 @@
+#include "tlv/formats/default.h"
+#include "tlv/formats/fixed_1byte.h"
+#include "tlv/formats/ber.h"
 /* C API tour: all storage belongs to the caller; no heap allocation. */
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include "tlv/copy.h"
-#include "tlv/codec.h"
+#include "tlv/codec/codec.h"
 #include "tlv/endian.h"
-#include "tlv/reader.h"
-#include "tlv/scanner.h"
-#include "tlv/schema.h"
+#include "tlv/reader/reader.h"
+#include "tlv/reader/scanner.h"
+#include "tlv/schemas/schema.h"
 #include "tlv/version.h"
-#include "tlv/walker.h"
-#include "tlv/writer.h"
+#include "tlv/reader/walker.h"
+#include "tlv/writer/writer.h"
 
 #define CHECK(call) do { \
     tlv_result_t rc_ = (call); \

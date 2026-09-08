@@ -12,6 +12,12 @@ option(OPENTLV_BUILD_EXAMPLES "Build examples" ON)
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
+option(OPENTLV_FORMAT_DEFAULT "Include the default wire format" ON)
+option(OPENTLV_FORMAT_FIXED_1BYTE "Include the fixed one-byte wire format" ON)
+option(OPENTLV_FORMAT_BER "Include the BER wire format" ON)
+option(OPENTLV_FORMAT_DER "Include the DER wire format and validation profile" ON)
+option(OPENTLV_PROFILE_EMV "Include the EMV dictionary, schemas and codecs" ON)
+
 include(cmake/compiler.cmake)
 
 add_subdirectory(tlv)
@@ -29,6 +35,6 @@ if(OPENTLV_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-if(OPENTLV_BUILD_BENCHMARKS)
+if(OPENTLV_BUILD_BENCHMARKS AND OPENTLV_FORMAT_DEFAULT)
     add_subdirectory(benchmarks)
 endif()

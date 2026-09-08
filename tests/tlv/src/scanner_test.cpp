@@ -1,5 +1,7 @@
-#include "tlv/scanner.h"
-#include "tlv/reader.h"
+#include "tlv/formats/default.h"
+#include "tlv/formats/fixed_1byte.h"
+#include "tlv/reader/scanner.h"
+#include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
 
 namespace {

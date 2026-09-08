@@ -1,8 +1,8 @@
 #ifndef OPENTLV_SCANNER_H
 #define OPENTLV_SCANNER_H
 
-#include "tlv/tlv.h"
-#include "tlv/schema.h"
+#include "tlv/formats/format.h"
+#include "tlv/schemas/schema.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,6 +1,11 @@
-#include "tlv/der.h"
-#include "tlv/reader.h"
-#include "tlv/writer.h"
+#include "tlv/config.h"
+#if OPENTLV_FORMAT_BER
+#include "tlv/formats/ber.h"
+#endif
+#include "tlv/formats/der.h"
+#include "tlv/profiles/der.h"
+#include "tlv/reader/reader.h"
+#include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>
@@ -222,7 +227,9 @@ TEST(Der, BerCompatibilityAndGenericFormat) {
     for (const auto& data : cases) {
         tlv_view_t view{};
         size_t used;
+#if OPENTLV_FORMAT_BER
         ASSERT_EQ(TLV_OK, tlv_read(data.data(), data.size(), &tlv_format_ber, &view, &used));
+#endif
         EXPECT_NE(TLV_OK, tlv_read(data.data(), data.size(), &tlv_format_der, &view, &used));
     }
     // Generic I/O intentionally only validates the outer header.

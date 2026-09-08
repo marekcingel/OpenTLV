@@ -1,5 +1,6 @@
-#include "tlv/reader.h"
-#include "tlv/writer.h"
+#include "tlv/formats/default.h"
+#include "tlv/reader/reader.h"
+#include "tlv/writer/writer.h"
 
 #include <gtest/gtest.h>
 

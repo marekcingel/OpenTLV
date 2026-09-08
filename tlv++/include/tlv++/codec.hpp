@@ -1,35 +1,13 @@
 #ifndef OPENTLV_TLVPP_CODEC_HPP
 #define OPENTLV_TLVPP_CODEC_HPP
 
-#include <cstdint>
+#include <type_traits>
+#include <utility>
 #include <vector>
-#include <string>
-
-#include "tlv++/compat.hpp"
-
-#include "tlv/error.h"
-#include "tlv/tlv.h"
+#include "tlv++/types.hpp"
+#include "tlv++/writer.hpp"
 
 namespace tlv {
-
-// Idiomatic C++ error that wraps a C error code and context.
-struct error {
-    tlv_result_t code;
-    std::string  message;
-
-    static error from_c(tlv_result_t c_code) {
-        return error{c_code, tlv_strerror(c_code)};
-    }
-};
-
-using tag_t = tlv_tag_t;
-using bytes = span<const byte>;
-
-// A TLV item on the C++ side (value points into the original buffer; zero-copy).
-struct entry {
-    tag_t tag;
-    bytes value;
-};
 
 // Concept that every payload (data type) must satisfy to be encoded/decoded
 // through TLV. Implementations live outside the library core.
@@ -51,6 +29,15 @@ public:
 #if __cplusplus >= 202002L
 template <typename T> concept TlvCodec = is_tlv_codec<T>::value;
 #endif
+
+// Explicit higher-level convenience API. The temporary vector may allocate.
+template <typename T>
+TLV_NODISCARD typename std::enable_if<is_tlv_codec<T>::value, expected<void, error>>::type
+write_value(writer& output, const T& value) {
+    std::vector<byte> payload;
+    value.encode(payload);
+    return output.write(T::tag, bytes(payload.data(), payload.size()));
+}
 
 } // namespace tlv
 

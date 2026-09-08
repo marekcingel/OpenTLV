@@ -1,4 +1,5 @@
-#include "emv_internal.h"
+#include "tlv/profiles/emv.h"
+#include "../codec/emv_internal.h"
 
 #define EMV_WIRE_1(b1, b2) {{b1}, 1}
 #define EMV_WIRE_2(b1, b2) {{b1, b2}, 2}
@@ -127,6 +128,3 @@ tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definition,
         return TLV_ERR_INVALID_LENGTH;
     return TLV_OK;
 }
-
-static const emv_value_rule_t amount_rule = {6, 6, 1, TLV_EMV_VALUE_NUMBER, 12};
-const tlv_codec_t tlv_emv_codec_amount = {&amount_rule, emv_value_decode, emv_value_encode};

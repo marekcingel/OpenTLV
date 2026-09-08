@@ -1,6 +1,6 @@
 # C value codecs
 
-`tlv/codec.h` defines `tlv_codec_t`, an optional pair of decode and encode
+`tlv/codec/codec.h` defines `tlv_codec_t`, an optional pair of decode and encode
 callbacks with a borrowed, immutable context pointer. Codecs convert raw value
 bytes and application-defined C representations. They do not receive tags,
 formats, readers, or writers. Applications choose and invoke codecs explicitly;
@@ -15,7 +15,7 @@ No heap allocation or registration is required. A missing callback reports
 For example, an application can define a zero-copy decoder:
 
 ```c
-#include "tlv/codec.h"
+#include "tlv/codec/codec.h"
 #include "tlv/types.h"
 
 static tlv_codec_result_t decode_bytes(const void* context,
@@ -69,3 +69,33 @@ supports it. On failure destination contents are unspecified and encode's
 `tlv_codec_result_t` and `tlv_codec_strerror()` report conversion errors
 independently from parser/writer `tlv_result_t` errors. The existing C++ codec
 trait and registry are separate APIs and are unchanged.
+
+## Complete object mappings
+
+Bindings belong to the codec layer. Include `tlv/codec/structure.h` for
+`tlv_structure_codec_t`, which maps a complete TLV sequence to an application
+object. Its callbacks receive the selected format explicitly and may use raw
+reader/writer operations plus individual value codecs. The descriptor borrows
+its context, format and optional `tlv_structure_schema_t`, and specifies depth
+and element limits (zero is a real limit).
+
+`tlv_structure_decode` validates the complete structure before invoking the
+object mapper. `tlv_structure_encode` supports a NULL/0 size query and validates
+produced bytes on an actual write. A query relies on the callback to validate
+the object without generating bytes. Invalid framing/schema output returns
+`TLV_CODEC_ERR_INVALID_STRUCTURE`. As with value codecs, destination contents
+on failure are unspecified and failed encoding reports zero written bytes.
+Object storage and encoded storage belong to the caller.
+
+C++ `tlv::decode_structure<T>` and `tlv::encode_structure` in
+`tlv++/structure.hpp` adapt this descriptor without allocating temporary output.
+T must match the descriptor's representation and be default constructible.
+For a tested two-field mapping, see
+[`architecture_test.cpp`](../tests/tlv/src/architecture_test.cpp) and
+[`layers_test.cpp`](../tests/tlv++/src/layers_test.cpp).
+
+Existing tag-associated C++ codecs remain supported. Use
+`tlv::write_value(writer, value)` from `tlv++/codec.hpp` instead of the former
+`writer.write(value)`. This explicit convenience helper may allocate a temporary
+vector. Raw readers/writers now include only `tlv++/types.hpp` and the C I/O
+contracts; they do not depend on codecs.

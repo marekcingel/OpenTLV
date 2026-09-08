@@ -1,11 +1,8 @@
 #ifndef OPENTLV_TLVPP_WRITER_HPP
 #define OPENTLV_TLVPP_WRITER_HPP
 
-#include <vector>
-#include <type_traits>
-
-#include "tlv/writer.h"
-#include "tlv++/codec.hpp"
+#include "tlv/writer/writer.h"
+#include "tlv++/types.hpp"
 
 namespace tlv {
 
@@ -30,22 +27,6 @@ public:
             return unexpected<error>(error::from_c(rc));
         }
         return {};
-    }
-
-    // Convenience overload for TlvCodec types: encodes the value into a
-    // temporary buffer and writes it under T::tag.
-#if __cplusplus >= 202002L
-    template <TlvCodec T>
-    TLV_NODISCARD expected<void, error> write(const T& value) {
-#else
-    template <typename T>
-    TLV_NODISCARD typename std::enable_if<is_tlv_codec<T>::value,
-                                          expected<void, error>>::type
-    write(const T& value) {
-#endif
-        std::vector<byte> payload;
-        value.encode(payload);
-        return write(T::tag, bytes(payload.data(), payload.size()));
     }
 
     TLV_NODISCARD size_t size() const {

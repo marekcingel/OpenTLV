@@ -1,4 +1,5 @@
-#include "tlv/format.h"
+#include "ber_internal.h"
+#include "tlv/formats/format.h"
 #include <string.h>
 
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size,
@@ -86,6 +87,11 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
     return TLV_OK;
 }
 
-const tlv_format_t tlv_format_ber = {
-    NULL, read_tag, write_tag, read_length, write_length, length_size
+static int is_constructed(const void* context, const tlv_tag_t* tag) {
+    (void)context;
+    return (tag->data[0] & 0x20) != 0;
+}
+
+const tlv_format_t tlv_ber_wire = {
+    NULL, read_tag, write_tag, read_length, write_length, length_size, is_constructed
 };

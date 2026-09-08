@@ -6,6 +6,7 @@ set(HEADERS
 )
 
 set(SOURCES
+    src/layers_test.cpp
     src/test_tlvpp.cpp
 )
 

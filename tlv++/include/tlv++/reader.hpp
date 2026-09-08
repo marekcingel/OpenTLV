@@ -1,8 +1,8 @@
 #ifndef OPENTLV_TLVPP_READER_HPP
 #define OPENTLV_TLVPP_READER_HPP
 
-#include "tlv/reader.h"
-#include "tlv++/codec.hpp"
+#include "tlv/reader/reader.h"
+#include "tlv++/types.hpp"
 
 namespace tlv {
 
