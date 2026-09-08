@@ -1,11 +1,11 @@
 # TLV scanning and recovery
 
-Include `tlv/scanner.h` to search from an arbitrary byte offset. The scanner
+Include `tlv/reader/scanner.h` to search from an arbitrary byte offset. The scanner
 calls the generic `tlv_read()` at successive offsets and returns the first
 complete candidate, without allocating or copying values.
 
 ```c
-#include "tlv/scanner.h"
+#include "tlv/reader/scanner.h"
 
 const uint8_t data[] = {0xFF, 0xFF, 0x42, 1, 0xAB};
 tlv_view_t view;

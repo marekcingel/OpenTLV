@@ -19,7 +19,7 @@ On failure it remains unchanged. Insufficient capacity returns
 
 ```c
 #include "tlv/copy.h"
-#include "tlv/reader.h"
+#include "tlv/reader/reader.h"
 
 uint8_t input[] = {1, 2, 0xAB, 0xCD};
 uint8_t storage[16];

@@ -1,5 +1,5 @@
-#include "tlv/scanner.h"
-#include "tlv/reader.h"
+#include "tlv/reader/scanner.h"
+#include "tlv/reader/reader.h"
 
 tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start,
                       const tlv_format_t* format, const tlv_schema_t* schema,

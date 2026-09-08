@@ -28,30 +28,12 @@ typedef struct tlv_format {
     tlv_result_t (*write_length)(const void* context, uint8_t* data,
                                  size_t capacity, size_t length, size_t* written);
     tlv_result_t (*length_size)(const void* context, size_t length, size_t* size);
+    /* Optional nesting rule. NULL means all values are opaque. A nonzero
+     * result identifies a value containing a sequence in this same format.
+     * Called only with a successfully parsed tag. No value decoding occurs.
+     * This contract currently supports definite-length containers only. */
+    int (*is_constructed)(const void* context, const tlv_tag_t* tag);
 } tlv_format_t;
-
-/* Encoding: one raw tag byte and definite BER length up to 65535.
- * This is not a full BER-TLV tag implementation.
- */
-extern const tlv_format_t tlv_format_default;
-
-/* One raw tag byte, one unsigned length byte, and 0 through 255 value bytes.
- * Every tag byte is valid; there are no reserved tags or length encodings.
- */
-extern const tlv_format_t tlv_format_fixed_1byte;
-
-/* Raw BER-TLV tags up to TLV_TAG_MAX_SIZE, including high-tag-number form.
- * Definite lengths up to SIZE_MAX; writes use the shortest length encoding.
- * Reads accept nonminimal definite lengths. Indefinite lengths are rejected.
- * Tag bytes are preserved (including 9F 1C); ASN.1 semantics are not validated.
- */
-extern const tlv_format_t tlv_format_ber;
-
-/* Canonical ASN.1 DER identifiers and definite lengths. Validates universal
- * primitive/constructed bits, but does not inspect values or nested headers.
- * Use tlv/der.h for bounded recursive validation and error offsets.
- */
-extern const tlv_format_t tlv_format_der;
 
 #ifdef __cplusplus
 }

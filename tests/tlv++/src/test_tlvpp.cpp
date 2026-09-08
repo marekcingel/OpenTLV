@@ -1,3 +1,4 @@
+#include "tlv/formats/default.h"
 #include "tlv++/tlv.hpp"
 
 #include <gtest/gtest.h>
@@ -99,7 +100,7 @@ TEST(TLV_CPP, test_codec_write_via_writer) {
   tlv::writer w(buf.data(), buf.size(), tlv_format_default);
 
   greeting g{"ahoj"};
-  auto r = w.write(g);
+  auto r = tlv::write_value(w, g);
   ASSERT_TRUE(r.has_value());
 
   tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
@@ -121,7 +122,7 @@ TEST(TLV_CPP, test_registry_dynamic_decode) {
   std::array<tlv::byte, 64> buf{};
   tlv::writer w(buf.data(), buf.size(), tlv_format_default);
   greeting g{"cau"};
-  auto write_result = w.write(g);
+  auto write_result = tlv::write_value(w, g);
   ASSERT_TRUE(write_result.has_value());
 
   tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);

@@ -1,5 +1,5 @@
 #include "tlv/copy.h"
-#include "tlv/writer.h"
+#include "tlv/writer/writer.h"
 #include <string.h>
 
 tlv_result_t tlv_copy_encoded(tlv_buffer_t encoded, uint8_t* data,

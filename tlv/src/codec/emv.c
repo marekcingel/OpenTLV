@@ -276,3 +276,6 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value,
     return TLV_CODEC_OK;
 }
 #undef EMV_LOAD
+
+static const emv_value_rule_t amount_rule = {6, 6, 1, TLV_EMV_VALUE_NUMBER, 12};
+const tlv_codec_t tlv_emv_codec_amount = {&amount_rule, emv_value_decode, emv_value_encode};

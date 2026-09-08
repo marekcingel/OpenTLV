@@ -26,7 +26,7 @@ optional codec, and length step. Unknown tags and invalid contexts return NULL.
 
 ```c
 #include "tlv/profiles/emv.h"
-#include "tlv/reader.h"
+#include "tlv/reader/reader.h"
 
 /* Inside a function; wire contains an Amount, Authorised (Numeric) TLV. */
 tlv_view_t view;

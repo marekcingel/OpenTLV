@@ -14,7 +14,8 @@ typedef enum tlv_codec_result {
     TLV_CODEC_ERR_NULL_ARG,
     TLV_CODEC_ERR_BUFFER_TOO_SHORT,
     TLV_CODEC_ERR_INVALID_VALUE,
-    TLV_CODEC_ERR_UNSUPPORTED
+    TLV_CODEC_ERR_UNSUPPORTED,
+    TLV_CODEC_ERR_INVALID_STRUCTURE
 } tlv_codec_result_t;
 
 /* Borrowed descriptor and optional immutable context; no allocation or ownership

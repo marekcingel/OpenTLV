@@ -11,6 +11,7 @@ const char* tlv_strerror(tlv_result_t result) {
         case TLV_ERR_INVALID_TAG:         return "invalid tag";
         case TLV_ERR_VISITOR:             return "visitor error";
         case TLV_ERR_LIMIT:               return "resource limit exceeded";
+        case TLV_ERR_SCHEMA:              return "schema constraint violated";
         default:                         return "unknown error";
     }
 }

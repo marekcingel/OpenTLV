@@ -1,7 +1,7 @@
 #ifndef OPENTLV_WALKER_H
 #define OPENTLV_WALKER_H
 
-#include "tlv/tlv.h"
+#include "tlv/formats/format.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,6 +30,22 @@ typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_view_t* view, void* contex
 tlv_result_t tlv_walk(const uint8_t* data, size_t size,
                       const tlv_format_t* format, tlv_visitor_t visitor,
                       void* context);
+
+#define TLV_WALK_MAX_DEPTH 64
+typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view,
+                                               size_t depth, size_t offset,
+                                               void* context);
+/* Preorder traversal of definite-length containers identified by the format.
+ * Top-level depth is zero; max_depth is 0..TLV_WALK_MAX_DEPTH. No allocation
+ * or C recursion. NULL visitor validates only. STOP succeeds immediately.
+ * max_elements bounds all visited nodes (zero permits only empty input).
+ * error_offset, if non-NULL, receives the failing element's absolute offset
+ * on failure and remains unchanged on success. Callback effects are not
+ * rolled back. The input, format and borrowed views follow tlv_walk lifetimes. */
+tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size,
+                           const tlv_format_t* format, size_t max_depth,
+                           size_t max_elements, tlv_tree_visitor_t visitor,
+                           void* context, size_t* error_offset);
 
 #ifdef __cplusplus
 }

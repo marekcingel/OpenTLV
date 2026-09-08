@@ -1,4 +1,6 @@
-#include "tlv/walker.h"
+#include "tlv/formats/default.h"
+#include "tlv/formats/fixed_1byte.h"
+#include "tlv/reader/walker.h"
 #include <gtest/gtest.h>
 
 namespace {

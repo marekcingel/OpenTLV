@@ -1,5 +1,7 @@
 # OpenTLV — documentation
 
+- [Layered architecture, component selection and migration](architecture.md)
+
 - [Supported compilers and Clang builds](compilers.md)
 
 - [C format abstraction](formats.md) ? custom tag and length codecs

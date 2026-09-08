@@ -2,7 +2,7 @@
 #define OPENTLV_COPY_H
 
 #include "tlv/types.h"
-#include "tlv/format.h"
+#include "tlv/formats/format.h"
 
 #ifdef __cplusplus
 extern "C" {

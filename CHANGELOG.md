@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added format-driven bounded tree traversal, structural schemas for required/repeated fields and nested membership, and allocation-free complete-object codecs with C++ adapters. (#65)
 - ASN.1 DER-TLV support with canonical tag and length validation, tag class and constructed accessors, bounded nested traversal, byte-offset errors, and deterministic encoding. Universal value decoding and SET ordering remain outside the supported TLV scope. (#59)
 - Official Clang 18+ support with compiler warnings, a warnings-as-errors CI job for C99 and C++11/14/17/20/23, and build documentation. (#60)
 - EMV Contact Book 3 v4.4 tag dictionary with context-specific length schemas and explicit numeric, enum, date, time, and digit-string value codecs, using generic BER-TLV I/O. (#40)
@@ -42,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Organized public C headers and sources into formats, reader, writer, schemas, codec and profiles directories; moved C++ typed writing to `tlv::write_value`, separated raw I/O from codecs, and made built-in formats and the EMV profile independently selectable within the same library. Consumers must update includes and rebuild for the extended format descriptor. (#65)
 - Extended the default warnings-as-errors setting to GCC and MSVC, using each compiler's native option for OpenTLV C and C++ targets.
 - Standardized GCC, Clang, and MSVC CI builds on Ninja with explicit test, example, and benchmark configuration, MSVC x64 targeting, and failure when no unit tests are discovered. Preserved compiler and C++ standard coverage and the Clang C-only build. (#66)
 - Updated VS Code benchmark build and comparison tasks to use the shared `build` directory, reusing existing Release build artifacts without disabling tests, examples, or the C++ layer. (#59)

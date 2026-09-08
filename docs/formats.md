@@ -5,7 +5,7 @@ For canonical ASN.1 framing, nested validation, limits and error offsets, see
 
 ## Reading one element
 
-Include `tlv/reader.h` and call `tlv_read` to parse one element from the
+Include `tlv/reader/reader.h` and call `tlv_read` to parse one element from the
 beginning of a buffer:
 
 ```c
@@ -29,7 +29,7 @@ Custom format callback errors propagate unchanged. The stateful
 
 ## Walking multiple elements
 
-Include `tlv/walker.h` to visit concatenated elements with the generic reader:
+Include `tlv/reader/walker.h` to visit concatenated elements with the generic reader:
 
 ```c
 static tlv_visit_result_t count_entry(const tlv_view_t* view, void* context) {
@@ -61,7 +61,7 @@ even when they contain nested TLVs.
 
 ## Writing one element
 
-Include `tlv/writer.h`. Query the complete encoded size without providing value
+Include `tlv/writer/writer.h`. Query the complete encoded size without providing value
 bytes, then write into a caller-owned buffer:
 
 ```c
@@ -111,7 +111,7 @@ the stream (`TLV_ERR_END_OF_BUFFER`). Multiple records may be concatenated.
 
 ## Generic interface
 
-Include `tlv/format.h` to define an allocation-free `tlv_format_t` descriptor.
+Include `tlv/formats/format.h` to define an allocation-free `tlv_format_t` descriptor.
 Pass it to `tlv_reader_init` or `tlv_writer_init` as the
 last argument after the buffer and its size. The descriptor and its optional
 `context` are borrowed and must remain valid and unchanged throughout use.
@@ -170,3 +170,21 @@ Malformed tags, unterminated tags on write, and tags exceeding capacity return
 returns `TLV_ERR_INVALID_TAG` even if those bytes are missing. Empty input to
 the generic reader returns `TLV_ERR_END_OF_BUFFER`. All BER-specific encoding
 and validation live in the format callbacks.
+
+## Nested traversal
+
+Concrete descriptors are declared in `tlv/formats/default.h`, `fixed_1byte.h`,
+`ber.h` and `der.h`. The generic `format.h` declares only the contract.
+
+The final optional `is_constructed(context, tag)` callback identifies values
+containing child TLVs in the same format. NULL means opaque values. BER and DER
+inspect their constructed bit; default and fixed formats leave values opaque.
+Custom protocols can supply a different rule. This supports definite-length
+nesting; indefinite lengths and EOC are not supported by this contract.
+
+Use `tlv_walk_tree(data, size, format, max_depth, max_elements, visitor, context,
+error_offset)` for bounded preorder traversal or NULL visitor for validation.
+Depth is zero at the top level and cannot exceed `TLV_WALK_MAX_DEPTH` (64).
+Limits are inclusive; zero is a real limit. Offsets identify failing elements.
+STOP succeeds immediately without validating the remaining input. The original
+flat reader and walker retain their behavior. See [architecture](architecture.md).

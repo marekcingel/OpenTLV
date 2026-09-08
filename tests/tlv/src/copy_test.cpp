@@ -1,5 +1,7 @@
+#include "tlv/formats/fixed_1byte.h"
+#include "tlv/formats/ber.h"
 #include "tlv/copy.h"
-#include "tlv/reader.h"
+#include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>

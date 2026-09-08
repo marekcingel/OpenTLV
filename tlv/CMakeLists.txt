@@ -3,23 +3,37 @@ cmake_minimum_required(VERSION 3.16)
 project(tlv LANGUAGES C)
 
 add_library(${PROJECT_NAME}
-    src/profiles/emv.c
-    src/profiles/emv_codec.c
-    src/codec.c
+    src/codec/codec.c
+    src/codec/structure.c
     src/copy.c
     src/endian.c
-    src/format_default.c
-    src/format_ber.c
-    src/der.c
-    src/format_fixed_1byte.c
-    src/reader.c
-    src/scanner.c
-    src/schema.c
-    src/walker.c
-    src/writer.c
+    src/reader/reader.c
+    src/reader/scanner.c
+    src/reader/walker.c
+    src/schemas/schema.c
+    src/schemas/structure.c
+    src/writer/writer.c
     src/error.c
     ${OpenTLV_BINARY_DIR}/generated/src/version.c
 )
+
+foreach(component IN ITEMS DEFAULT FIXED_1BYTE BER DER)
+    if(OPENTLV_FORMAT_${component})
+        string(TOLOWER "${component}" source_name)
+        target_sources(${PROJECT_NAME} PRIVATE src/formats/${source_name}.c)
+    endif()
+endforeach()
+if(OPENTLV_FORMAT_BER OR OPENTLV_FORMAT_DER)
+    target_sources(${PROJECT_NAME} PRIVATE src/formats/ber_internal.c)
+endif()
+if(OPENTLV_FORMAT_DER)
+    target_sources(${PROJECT_NAME} PRIVATE src/profiles/der.c)
+endif()
+if(OPENTLV_PROFILE_EMV)
+    target_sources(${PROJECT_NAME} PRIVATE src/profiles/emv.c src/codec/emv.c)
+endif()
+configure_file(include/tlv/config.h.in
+    ${OpenTLV_BINARY_DIR}/generated/include/tlv/config.h)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS ON

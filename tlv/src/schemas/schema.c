@@ -1,4 +1,4 @@
-#include "tlv/schema.h"
+#include "tlv/schemas/schema.h"
 #include <string.h>
 
 const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema,

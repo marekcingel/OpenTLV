@@ -1,6 +1,6 @@
 #ifndef OPENTLV_EMV_INTERNAL_H
 #define OPENTLV_EMV_INTERNAL_H
-#include "tlv/profiles/emv.h"
+#include "tlv/codec/emv.h"
 
 typedef struct {
     size_t min_length, max_length, step;

@@ -1,6 +1,6 @@
 # ASN.1 DER-TLV
 
-Include `tlv/der.h` for allocation-free DER-TLV processing. Tags use the existing
+Include `tlv/profiles/der.h` for allocation-free DER-TLV processing. Tags use the existing
 `tlv_tag_t` wire-byte representation; values are borrowed `tlv_buffer_t` ranges.
 The caller owns input and output storage. Existing BER behavior is unchanged.
 
@@ -32,7 +32,7 @@ order; it does not convert arbitrary BER or repair noncanonical input.
 ## Read and inspect a tag
 
 ```c
-#include "tlv/der.h"
+#include "tlv/profiles/der.h"
 
 const uint8_t input[] = {0x30, 3, 0x02, 1, 42};
 tlv_view_t view;

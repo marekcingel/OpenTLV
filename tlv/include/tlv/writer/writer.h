@@ -1,7 +1,7 @@
 #ifndef OPENTLV_WRITER_H
 #define OPENTLV_WRITER_H
 
-#include "tlv/tlv.h"
+#include "tlv/formats/format.h"
 
 #ifdef __cplusplus
 extern "C" {
