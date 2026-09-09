@@ -1,0 +1,96 @@
+name: Coverage PR comment
+
+on:
+  workflow_run:
+    workflows: [Clang Build]
+    types: [completed]
+
+permissions:
+  actions: read
+  pull-requests: write
+
+concurrency:
+  group: coverage-comment-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    steps:
+      # Never check out or execute PR code in this privileged workflow.
+      - name: Download coverage data
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-clang-debug
+          path: coverage
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update pull-request coverage comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const run = context.payload.workflow_run;
+            const {owner, repo} = context.repo;
+            // Resolve the PR from GitHub metadata, never from artifact content.
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: 'open',
+              head: `${run.head_repository.owner.login}:${run.head_branch}`,
+              per_page: 100
+            });
+            const pull = pulls.find(pr =>
+              pr.head.repo?.id === run.head_repository.id &&
+              pr.head.sha === run.head_sha &&
+              ['main', 'develop'].includes(pr.base.ref));
+            if (!pull) {
+              core.info('No open PR matches this commit; skipping stale coverage.');
+              return;
+            }
+
+            // Artifacts are untrusted: render only validated numeric counters.
+            const data = JSON.parse(fs.readFileSync('coverage/summary.json', 'utf8'));
+            const rows = [['Lines', 'line'], ['Branches', 'branch']].map(([label, key]) => {
+              const covered = data[`${key}_covered`];
+              const total = data[`${key}_total`];
+              if (!Number.isSafeInteger(covered) || !Number.isSafeInteger(total) ||
+                  covered < 0 || total < covered) {
+                throw new Error(`Invalid ${key} coverage counters`);
+              }
+              const percent = total === 0 ? 'N/A' : `${(100 * covered / total).toFixed(2)}%`;
+              return `| ${label} | ${percent} | ${covered} / ${total} |`;
+            });
+            const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+              owner, repo, run_id: run.id, per_page: 100
+            });
+            const artifact = artifacts.find(a => a.name === 'coverage-clang-debug' && !a.expired);
+            if (!artifact) throw new Error('Missing coverage artifact');
+            const marker = '<!-- opentlv-clang-debug-coverage -->';
+            const body = [
+              marker,
+              '### Clang Debug unit-test coverage',
+              '',
+              `Commit: \`${run.head_sha}\``,
+              '',
+              '| Metric | Coverage | Covered / Total |',
+              '| --- | ---: | ---: |',
+              ...rows,
+              '',
+              `[Download HTML report](${context.serverUrl}/${owner}/${repo}/actions/runs/${run.id}/artifacts/${artifact.id})`,
+              '',
+              'Extract the ZIP and open `index.html` to view per-file coverage.'
+            ].join('\n');
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: pull.number, per_page: 100
+            });
+            const existing = comments.find(c =>
+              c.user?.login === 'github-actions[bot]' && c.body?.startsWith(marker));
+            // Recheck after fetching data in case a new commit arrived meanwhile.
+            const {data: current} = await github.rest.pulls.get({owner, repo, pull_number: pull.number});
+            if (current.state !== 'open' || current.head.sha !== run.head_sha) return;
+            if (existing) {
+              await github.rest.issues.updateComment({owner, repo, comment_id: existing.id, body});
+            } else {
+              await github.rest.issues.createComment({owner, repo, issue_number: pull.number, body});
+            }

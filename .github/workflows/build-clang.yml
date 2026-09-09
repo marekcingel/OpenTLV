@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, develop]
 
+permissions:
+  contents: read
+
 jobs:
   clang:
     name: Clang 18 / ${{ matrix.build_type }} / C++${{ matrix.cxx_standard }}
@@ -76,15 +79,36 @@ jobs:
             --include 'tlv/(src|include)/.*\.(c|h)$' \
             --include 'tlv\+\+/include/.*\.(h|hpp)$' \
             --html-details coverage/index.html \
+            --json-summary coverage/summary.json \
             --print-summary
 
       - name: Upload coverage report
+        id: coverage-artifact
         if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
         uses: actions/upload-artifact@v4
         with:
           name: coverage-clang-debug
           path: coverage/
           if-no-files-found: error
+
+      - name: Summarize coverage
+        if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
+        env:
+          COVERAGE_ARTIFACT_URL: ${{ steps.coverage-artifact.outputs.artifact-url }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+
+          with open('coverage/summary.json', encoding='utf-8') as report:
+              data = json.load(report)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+              summary.write('### Clang Debug unit-test coverage\n\n')
+              summary.write('| Metric | Coverage | Covered / Total |\n| --- | ---: | ---: |\n')
+              for label, metric in [('Lines', 'line'), ('Branches', 'branch')]:
+                  summary.write(f"| {label} | {data[metric + '_percent']}% | {data[metric + '_covered']} / {data[metric + '_total']} |\n")
+              summary.write(f"\n[Download HTML report]({os.environ['COVERAGE_ARTIFACT_URL']})\n")
+          PY
 
       - name: Run C and C++ examples
         run: |
