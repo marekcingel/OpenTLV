@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a workflow coverage summary and an automatically updated pull-request comment with line and branch coverage and a link to the HTML report. (#76)
+- Added line and branch coverage reporting for the Clang 18 Debug/C++23 unit tests, including C and C++ public implementations and a downloadable HTML report. (#76)
 - Added format-driven bounded tree traversal, structural schemas for required/repeated fields and nested membership, and allocation-free complete-object codecs with C++ adapters. (#65)
 - ASN.1 DER-TLV support with canonical tag and length validation, tag class and constructed accessors, bounded nested traversal, byte-offset errors, and deterministic encoding. Universal value decoding and SET ordering remain outside the supported TLV scope. (#59)
 - Official Clang 18+ support with compiler warnings, a warnings-as-errors CI job for C99 and C++11/14/17/20/23, and build documentation. (#60)
