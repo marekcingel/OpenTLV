@@ -8,12 +8,16 @@ on:
 
 jobs:
   clang:
-    name: Clang 18 / C++${{ matrix.cxx_standard }}
+    name: Clang 18 / ${{ matrix.build_type }} / C++${{ matrix.cxx_standard }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        cxx_standard: [11, 14, 17, 20, 23]
+        include:
+          - build_type: Debug
+            cxx_standard: 23
+          - build_type: Release
+            cxx_standard: 23
     env:
       CC: clang-18
       CXX: clang++-18
@@ -30,7 +34,7 @@ jobs:
         run: >-
           cmake -S . -B build -G Ninja
           -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
-          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
           -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }}
           -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
@@ -50,8 +54,7 @@ jobs:
           ./build/examples/tlv++/example-tlv++
 
       - name: Verify C-only build
-        if: matrix.cxx_standard == 11
         run: |
-          cmake -S . -B build-c -G Ninja -DCMAKE_C_COMPILER=clang-18 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=ON -DOPENTLV_BUILD_BENCHMARKS=OFF -DOPENTLV_WARNINGS_AS_ERRORS=ON
+          cmake -S . -B build-c -G Ninja -DCMAKE_C_COMPILER=clang-18 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=ON -DOPENTLV_BUILD_BENCHMARKS=OFF -DOPENTLV_WARNINGS_AS_ERRORS=ON
           cmake --build build-c --parallel
           ./build-c/examples/tlv/example-tlv

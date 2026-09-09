@@ -8,11 +8,15 @@ on:
 
 jobs:
   msvc:
+    name: MSVC / ${{ matrix.build_type }} / C++${{ matrix.cxx_standard }}
     strategy:
       fail-fast: false
       matrix:
-        build_type: [Release]
-        cxx_standard: [11, 23]
+        include:
+          - build_type: Debug
+            cxx_standard: 11
+          - build_type: Release
+            cxx_standard: 23
 
     runs-on: windows-latest
 
