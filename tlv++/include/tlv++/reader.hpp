@@ -10,7 +10,7 @@ namespace tlv {
 // The caller keeps the buffer, format, and format context alive.
 class reader {
 public:
-    reader(bytes data, const tlv_format_t& format) {
+    reader(bytes data, const tlv_reader_format_t& format) {
         tlv_result_t rc = tlv_reader_init(
             &impl_,
             reinterpret_cast<const uint8_t*>(data.data()),

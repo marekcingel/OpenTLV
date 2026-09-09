@@ -74,8 +74,10 @@ typedef struct tlv_structure_schema {
  * Uses bounded stack storage without allocation or recursion. Counts are
  * checked by rescanning each scope per rule: O(rules * rules + elements * rules) per scope.
  * Input and schema errors leave no partial application objects. */
+/* is_constructed uses format->context; NULL treats values as opaque. */
 tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
-                                 const tlv_format_t* format,
+                                 const tlv_reader_format_t* format,
+                                 tlv_is_constructed_fn is_constructed,
                                  const tlv_structure_schema_t* schema,
                                  size_t max_depth, size_t max_elements,
                                  size_t* error_offset);

@@ -9,7 +9,7 @@ namespace tlv {
 // Thin C++ wrapper; the caller keeps the buffer, format, and context alive.
 class writer {
 public:
-    writer(byte* buf, size_t capacity, const tlv_format_t& format) {
+    writer(byte* buf, size_t capacity, const tlv_writer_format_t& format) {
         tlv_writer_init(
             &impl_,
             reinterpret_cast<uint8_t*>(buf),

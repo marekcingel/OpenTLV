@@ -46,7 +46,8 @@ tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size,
     data[1] = static_cast<uint8_t>(length >> 8);
     return TLV_OK;
 }
-const tlv_format_t fixed = {&width, read_tag, write_tag, read_length, write_length, length_size, NULL};
+const tlv_reader_format_t fixed = {&width, read_tag, read_length};
+const tlv_writer_format_t fixed_writer = {&width, write_tag, write_length, length_size};
 }
 
 TEST(Format, CustomFormatRoundTripAndWireBytes) {
@@ -54,7 +55,7 @@ TEST(Format, CustomFormatRoundTripAndWireBytes) {
     uint8_t value[300];
     std::memset(value, 0xAB, sizeof(value));
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &fixed));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &fixed_writer));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0x9F, 0x02}, 2}), value, sizeof(value)));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0xAA, 0xBB}, 2}), nullptr, 0));
     EXPECT_EQ(sizeof(data), tlv_writer_size(&writer));
@@ -62,10 +63,10 @@ TEST(Format, CustomFormatRoundTripAndWireBytes) {
     EXPECT_EQ(0, std::memcmp(header, data, sizeof(header)));
     size_t required = 0, written = 0;
     const tlv_tag_t tag = {{0x9F, 0x02}, 2};
-    ASSERT_EQ(TLV_OK, tlv_encoded_size(tag, sizeof(value), &fixed, &required));
+    ASSERT_EQ(TLV_OK, tlv_encoded_size(tag, sizeof(value), &fixed_writer, &required));
     EXPECT_EQ(304u, required);
     uint8_t direct[304] = {};
-    ASSERT_EQ(TLV_OK, tlv_write(direct, sizeof(direct), &fixed, tag,
+    ASSERT_EQ(TLV_OK, tlv_write(direct, sizeof(direct), &fixed_writer, tag,
                                 value, sizeof(value), &written));
     EXPECT_EQ(required, written);
     EXPECT_EQ(0, std::memcmp(direct, data, sizeof(direct)));
@@ -102,7 +103,7 @@ TEST(Format, WriterPreflightDoesNotModifyBuffer) {
     uint8_t data[5];
     std::memset(data, 0xEE, sizeof(data));
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &fixed));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &fixed_writer));
     const tlv_tag_t tag = {{1, 2}, 2};
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_write(&writer, tag, data, 2));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, tag, data, 65536));
@@ -116,26 +117,26 @@ TEST(Format, RequiredCallbacksAreValidatedPerDirection) {
     tlv_writer_t writer;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_init(&reader, nullptr, 0, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_init(&writer, nullptr, 0, nullptr));
-    tlv_format_t format = fixed;
+    tlv_reader_format_t format = fixed;
     format.read_tag = nullptr;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_init(&reader, nullptr, 0, &format));
-    EXPECT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &format));
+    EXPECT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &fixed_writer));
     format = fixed;
     format.read_length = nullptr;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_init(&reader, nullptr, 0, &format));
     for (int i = 0; i < 3; ++i) {
-        format = fixed;
-        if (i == 0) format.write_tag = nullptr;
-        if (i == 1) format.write_length = nullptr;
-        if (i == 2) format.length_size = nullptr;
-        EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_init(&writer, nullptr, 0, &format));
-        EXPECT_EQ(TLV_OK, tlv_reader_init(&reader, nullptr, 0, &format));
+        tlv_writer_format_t output_format = fixed_writer;
+        if (i == 0) output_format.write_tag = nullptr;
+        if (i == 1) output_format.write_length = nullptr;
+        if (i == 2) output_format.length_size = nullptr;
+        EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_init(&writer, nullptr, 0, &output_format));
+        EXPECT_EQ(TLV_OK, tlv_reader_init(&reader, nullptr, 0, &fixed));
     }
 }
 
 TEST(Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
     uint8_t data[8] = {};
-    tlv_format_t format = fixed;
+    tlv_reader_format_t format = fixed;
     format.read_tag = [](const void*, const uint8_t*, size_t, tlv_tag_t*, size_t* used) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
@@ -158,15 +159,15 @@ TEST(Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
         return TLV_OK;
     };
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next(&reader, &entry));
-    format = fixed;
-    format.write_length = [](const void*, uint8_t*, size_t, size_t, size_t*) {
+    tlv_writer_format_t output_format = fixed_writer;
+    output_format.write_length = [](const void*, uint8_t*, size_t, size_t, size_t*) {
         return TLV_ERR_INVALID_LENGTH;
     };
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &format));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &output_format));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, (tlv_tag_t{{1, 2}, 2}), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
-    format.write_length = [](const void*, uint8_t*, size_t, size_t, size_t* used) {
+    output_format.write_length = [](const void*, uint8_t*, size_t, size_t, size_t* used) {
         *used = 3;
         return TLV_OK;
     };

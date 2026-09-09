@@ -17,11 +17,11 @@ extern "C" {
  * On failure, both outputs remain unchanged; callback errors propagate.
  */
 tlv_result_t tlv_read(const uint8_t* data, size_t size,
-                      const tlv_format_t* format, tlv_view_t* out_entry,
+                      const tlv_reader_format_t* format, tlv_view_t* out_entry,
                       size_t* consumed);
 
 typedef struct tlv_reader {
-    const tlv_format_t* format; /* borrowed */
+    const tlv_reader_format_t* format; /* borrowed */
     const uint8_t* data;
     size_t         size;
     size_t         pos;
@@ -29,7 +29,7 @@ typedef struct tlv_reader {
 
 /* Uses a caller-provided format; NULL or missing required callbacks is an error. */
 tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data,
-                                        size_t size, const tlv_format_t* format);
+                                        size_t size, const tlv_reader_format_t* format);
 
 /* Returns 1 if there are no further TLV items, otherwise 0. */
 int tlv_reader_at_end(const tlv_reader_t* reader);

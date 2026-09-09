@@ -15,16 +15,16 @@
 #include "tlv/schemas/schema.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_DEFAULT
-#include "tlv/formats/default.h"
+#include "tlv/formats/default/default.h"
 #endif
 #if OPENTLV_FORMAT_FIXED_1BYTE
-#include "tlv/formats/fixed_1byte.h"
+#include "tlv/formats/fixed/fixed_1byte.h"
 #endif
 #if OPENTLV_FORMAT_BER
-#include "tlv/formats/ber.h"
+#include "tlv/formats/asn1/ber.h"
 #endif
 #if OPENTLV_FORMAT_DER
-#include "tlv/formats/der.h"
+#include "tlv/formats/asn1/der.h"
 #endif
 #if OPENTLV_FORMAT_DER
 #include "tlv/profiles/der.h"

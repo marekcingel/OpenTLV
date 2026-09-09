@@ -2,7 +2,7 @@
 #include <string.h>
 
 tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf,
-                                        size_t capacity, const tlv_format_t* format) {
+                                        size_t capacity, const tlv_writer_format_t* format) {
     if (!writer || (!buf && capacity) || !format || !format->write_tag ||
         !format->write_length || !format->length_size) return TLV_ERR_NULL_ARG;
     writer->buf = buf;
@@ -13,7 +13,7 @@ tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf,
 }
 
 static tlv_result_t encoded_sizes(tlv_tag_t tag, size_t length,
-                                  const tlv_format_t* format,
+                                  const tlv_writer_format_t* format,
                                   size_t* tag_size, size_t* length_size,
                                   size_t* total) {
     tlv_result_t rc;
@@ -33,7 +33,7 @@ static tlv_result_t encoded_sizes(tlv_tag_t tag, size_t length,
 }
 
 tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,
-                              const tlv_format_t* format, size_t* size) {
+                              const tlv_writer_format_t* format, size_t* size) {
     size_t tag_size = 0, length_size = 0, total = 0;
     tlv_result_t rc;
     if (!size) return TLV_ERR_NULL_ARG;
@@ -42,7 +42,7 @@ tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,
     return rc;
 }
 
-tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_format_t* format,
+tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_writer_format_t* format,
                        tlv_tag_t tag, const uint8_t* value, size_t length,
                        size_t* out_written) {
     size_t tag_size = 0, length_size = 0, total = 0, written = 0;

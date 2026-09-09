@@ -1,4 +1,4 @@
-#include "tlv/formats/der.h"
+#include "tlv/formats/asn1/der.h"
 #include "ber_internal.h"
 #include <string.h>
 
@@ -8,7 +8,7 @@ static tlv_result_t der_read_tag(const void* context, const uint8_t* data,
     size_t count;
     unsigned number;
     int constructed;
-    tlv_result_t rc = tlv_ber_wire.read_tag(context, data, size, &parsed, &count);
+    tlv_result_t rc = tlv_ber_reader_wire.read_tag(context, data, size, &parsed, &count);
     if (rc != TLV_OK) return rc;
     if (count == 2 && data[1] < 31) return TLV_ERR_INVALID_TAG;
     /* Only tags up to 36 currently have assigned universal type semantics.
@@ -44,7 +44,7 @@ static tlv_result_t der_write_tag(const void* context, uint8_t* data,
 static tlv_result_t der_read_length(const void* context, const uint8_t* data,
                                    size_t size, size_t* length, size_t* consumed) {
     size_t value, count;
-    tlv_result_t rc = tlv_ber_wire.read_length(context, data, size, &value, &count);
+    tlv_result_t rc = tlv_ber_reader_wire.read_length(context, data, size, &value, &count);
     if (rc != TLV_OK) return rc;
     if (count > 1 && (value < 128 || data[1] == 0)) return TLV_ERR_INVALID_LENGTH;
     *length = value;
@@ -54,20 +54,29 @@ static tlv_result_t der_read_length(const void* context, const uint8_t* data,
 
 static tlv_result_t der_write_length(const void* context, uint8_t* data,
                                     size_t capacity, size_t length, size_t* written) {
-    return tlv_ber_wire.write_length(context, data, capacity, length, written);
+    return tlv_ber_writer_wire.write_length(context, data, capacity, length, written);
 }
 
 static tlv_result_t der_length_size(const void* context, size_t length, size_t* size) {
-    return tlv_ber_wire.length_size(context, length, size);
+    return tlv_ber_writer_wire.length_size(context, length, size);
 }
 
-static int is_constructed(const void* context, const tlv_tag_t* tag) {
+int tlv_der_is_constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
     return (tag->data[0] & 0x20) != 0;
 }
 
-const tlv_format_t tlv_format_der = {
-    NULL, der_read_tag, der_write_tag, der_read_length, der_write_length, der_length_size, is_constructed
+const tlv_reader_format_t tlv_reader_format_der = {
+    .context = NULL,
+    .read_tag = der_read_tag,
+    .read_length = der_read_length
+};
+
+const tlv_writer_format_t tlv_writer_format_der = {
+    .context = NULL,
+    .write_tag = der_write_tag,
+    .write_length = der_write_length,
+    .length_size = der_length_size
 };
 
 tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed,

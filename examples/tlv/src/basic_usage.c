@@ -1,6 +1,6 @@
-#include "tlv/formats/default.h"
-#include "tlv/formats/fixed_1byte.h"
-#include "tlv/formats/ber.h"
+#include "tlv/formats/default/default.h"
+#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/formats/asn1/ber.h"
 /* C API tour: all storage belongs to the caller; no heap allocation. */
 #include <inttypes.h>
 #include <stdio.h>
@@ -43,11 +43,11 @@ static int sequential_io(void) {
     tlv_reader_t reader;
     tlv_view_t view;
     puts("\nSequential writer and zero-copy reader (default format)");
-    CHECK(tlv_writer_init(&writer, buffer, sizeof(buffer), &tlv_format_default));
+    CHECK(tlv_writer_init(&writer, buffer, sizeof(buffer), &tlv_writer_format_default));
     CHECK(tlv_writer_write(&writer, (tlv_tag_t){{1}, 1}, (const uint8_t*)"hello", 5));
     CHECK(tlv_writer_write(&writer, (tlv_tag_t){{2}, 1}, (const uint8_t*)"world", 5));
     printf("Wrote %zu bytes\n", tlv_writer_size(&writer));
-    CHECK(tlv_reader_init(&reader, buffer, tlv_writer_size(&writer), &tlv_format_default));
+    CHECK(tlv_reader_init(&reader, buffer, tlv_writer_size(&writer), &tlv_reader_format_default));
     while (!tlv_reader_at_end(&reader)) {
         CHECK(tlv_reader_next(&reader, &view));
         /* view.value borrows buffer; keep buffer alive while using the view. */
@@ -64,11 +64,11 @@ static int single_element_and_copies(void) {
     size_t required, encoded_size, consumed, written;
     tlv_result_t result;
     puts("\nSingle-element I/O and explicit copies (fixed 1-byte format)");
-    CHECK(tlv_encoded_size(tag, sizeof(value), &tlv_format_fixed_1byte, &required));
+    CHECK(tlv_encoded_size(tag, sizeof(value), &tlv_writer_format_fixed_1byte, &required));
     printf("Required encoded storage: %zu bytes\n", required);
-    CHECK(tlv_write(input, sizeof(input), &tlv_format_fixed_1byte,
+    CHECK(tlv_write(input, sizeof(input), &tlv_writer_format_fixed_1byte,
                     tag, value, sizeof(value), &encoded_size));
-    CHECK(tlv_read(input, encoded_size, &tlv_format_fixed_1byte, &view, &consumed));
+    CHECK(tlv_read(input, encoded_size, &tlv_reader_format_fixed_1byte, &view, &consumed));
     CHECK(tlv_copy_value(&view, NULL, 0, &required));
     printf("Required value storage: %zu bytes\n", required);
     result = tlv_copy_value(&view, owned, 1, &written);
@@ -80,15 +80,15 @@ static int single_element_and_copies(void) {
     CHECK(tlv_copy_encoded((tlv_buffer_t){input, consumed}, exact, sizeof(exact), &written));
     /* A view does not retain the original header. Serialization may normalize
      * it (e.g. BER lengths); copy_encoded preserves the original bytes. */
-    CHECK(tlv_copy_view(&view, &tlv_format_fixed_1byte, NULL, 0, &required));
+    CHECK(tlv_copy_view(&view, &tlv_writer_format_fixed_1byte, NULL, 0, &required));
     printf("Required serialized-view storage: %zu bytes\n", required);
-    CHECK(tlv_copy_view(&view, &tlv_format_fixed_1byte, serialized, sizeof(serialized), &written));
+    CHECK(tlv_copy_view(&view, &tlv_writer_format_fixed_1byte, serialized, sizeof(serialized), &written));
     /* Keep the inline tag; redirect the value to caller-owned storage. */
     view.value.data = owned;
     memset(input, 0, sizeof(input));
     puts("Value after reusing input:");
     print_view(&view);
-    CHECK(tlv_read(exact, consumed, &tlv_format_fixed_1byte, &view, &written));
+    CHECK(tlv_read(exact, consumed, &tlv_reader_format_fixed_1byte, &view, &written));
     puts("Exact encoded copy after reusing input:");
     print_view(&view);
     return 0;
@@ -104,9 +104,9 @@ static int ber_format(void) {
     size_t required, written, consumed;
     tlv_view_t view;
     puts("\nBER: multi-byte tag when supported, long-form length");
-    CHECK(tlv_encoded_size(tag, sizeof(value), &tlv_format_ber, &required));
-    CHECK(tlv_write(encoded, sizeof(encoded), &tlv_format_ber, tag, value, sizeof(value), &written));
-    CHECK(tlv_read(encoded, written, &tlv_format_ber, &view, &consumed));
+    CHECK(tlv_encoded_size(tag, sizeof(value), &tlv_writer_format_ber, &required));
+    CHECK(tlv_write(encoded, sizeof(encoded), &tlv_writer_format_ber, tag, value, sizeof(value), &written));
+    CHECK(tlv_read(encoded, written, &tlv_reader_format_ber, &view, &consumed));
     printf("Tag bytes: %u, value bytes: %zu, encoded bytes: %zu\n",
            (unsigned)view.tag.size, view.value.length, required);
     return 0;
@@ -141,23 +141,23 @@ static int schema_walk_and_scan(void) {
     tlv_result_t result;
     visit_context_t state = {0, 0};
     puts("\nSchema validation in a walker callback");
-    CHECK(tlv_walk(input, sizeof(input), &tlv_format_fixed_1byte, visit, &state));
+    CHECK(tlv_walk(input, sizeof(input), &tlv_reader_format_fixed_1byte, visit, &state));
     printf("Visited %zu elements\n", state.count);
     state.count = 0;
     state.stop_after = 1;
-    CHECK(tlv_walk(input, sizeof(input), &tlv_format_fixed_1byte, visit, &state));
+    CHECK(tlv_walk(input, sizeof(input), &tlv_reader_format_fixed_1byte, visit, &state));
     printf("Stopped successfully after %zu element\n", state.count);
     /* Parsing never applies a schema automatically; our callback does. */
-    result = tlv_walk(invalid, sizeof(invalid), &tlv_format_fixed_1byte, visit, &state);
+    result = tlv_walk(invalid, sizeof(invalid), &tlv_reader_format_fixed_1byte, visit, &state);
     if (result != TLV_ERR_VISITOR) return 1;
     printf("Schema rejection by visitor: %s\n", tlv_strerror(result));
     puts("Recovery scan with a schema filter");
-    CHECK(tlv_scan(noisy, sizeof(noisy), 0, &tlv_format_fixed_1byte,
+    CHECK(tlv_scan(noisy, sizeof(noisy), 0, &tlv_reader_format_fixed_1byte,
                    &schema, &view, &offset, &consumed));
     printf("Candidate at offset %zu, encoded size %zu\n", offset, consumed);
     print_view(&view);
     /* A candidate is not proof of an original boundary. Continue after it. */
-    result = tlv_scan(noisy, sizeof(noisy), offset + consumed, &tlv_format_fixed_1byte,
+    result = tlv_scan(noisy, sizeof(noisy), offset + consumed, &tlv_reader_format_fixed_1byte,
                       &schema, &view, &offset, &consumed);
     if (result != TLV_ERR_END_OF_BUFFER) return 1;
     printf("No further candidate: %s\n", tlv_strerror(result));
@@ -197,9 +197,9 @@ static int codecs_and_endian(void) {
     CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), NULL, 0, &required));
     printf("Codec needs %zu bytes\n", required);
     CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), raw, sizeof(raw), &written));
-    CHECK(tlv_write(encoded, sizeof(encoded), &tlv_format_fixed_1byte,
+    CHECK(tlv_write(encoded, sizeof(encoded), &tlv_writer_format_fixed_1byte,
                     (tlv_tag_t){{3}, 1}, raw, written, &encoded_size));
-    CHECK(tlv_read(encoded, encoded_size, &tlv_format_fixed_1byte, &view, &consumed));
+    CHECK(tlv_read(encoded, encoded_size, &tlv_reader_format_fixed_1byte, &view, &consumed));
     CHECK_CODEC(tlv_codec_decode(&codec, view.value.data, view.value.length, &decoded, sizeof(decoded)));
     printf("Decoded uint32 BE: 0x%08" PRIX32 "\n", decoded);
     /* Endian helpers are also usable directly. They do not check bounds:
@@ -240,17 +240,19 @@ static tlv_result_t write_length_le16(const void* context, uint8_t* data,
     return TLV_OK;
 }
 static int custom_format(void) {
-    tlv_format_t format = tlv_format_fixed_1byte;
+    tlv_reader_format_t format;
+    tlv_writer_format_t writer_format;
     uint8_t encoded[16];
     const uint8_t value[] = {0xAA};
     tlv_view_t view;
     size_t written, consumed;
-    format.read_length = read_length_le16;
-    format.write_length = write_length_le16;
-    format.length_size = length_size_le16;
+    CHECK(tlv_reader_format_init(&format, NULL, tlv_reader_format_fixed_1byte.read_tag,
+                                 read_length_le16));
+    CHECK(tlv_writer_format_init(&writer_format, NULL, tlv_writer_format_fixed_1byte.write_tag,
+                                 write_length_le16, length_size_le16));
     /* format and its optional immutable context must outlive their users. */
     puts("\nCustom format: one-byte tag, two-byte little-endian length");
-    CHECK(tlv_write(encoded, sizeof(encoded), &format,
+    CHECK(tlv_write(encoded, sizeof(encoded), &writer_format,
                     (tlv_tag_t){{1}, 1}, value, sizeof(value), &written));
     CHECK(tlv_read(encoded, written, &format, &view, &consumed));
     print_view(&view);

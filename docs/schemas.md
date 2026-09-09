@@ -53,7 +53,7 @@ static const tlv_structure_rule_t rules[] = {
     { { {{2}, 1}, 0, 255, 0 }, 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL }
 };
 static const tlv_structure_schema_t message = {rules, 2, 0};
-/* tlv_schema_validate(data, size, format, &message, 16, 1000, &offset); */
+/* tlv_schema_validate(data, size, format, is_constructed, &message, 16, 1000, &offset); */
 ```
 
 `tlv_schema_validate` checks complete framing and nesting, then lengths,

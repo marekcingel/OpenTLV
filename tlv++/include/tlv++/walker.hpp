@@ -9,7 +9,7 @@ namespace tlv {
 // It is borrowed for this call; no function wrapper or allocation is needed.
 template <typename Visitor>
 TLV_NODISCARD expected<void, error>
-walk_tree(bytes data, const tlv_format_t& format, size_t max_depth,
+walk_tree(bytes data, const tlv_reader_format_t& format, tlv_is_constructed_fn is_constructed, size_t max_depth,
           size_t max_elements, Visitor&& visitor, size_t* error_offset = nullptr) {
     typedef typename std::remove_reference<Visitor>::type visitor_type;
     struct adapter {
@@ -24,7 +24,7 @@ walk_tree(bytes data, const tlv_format_t& format, size_t max_depth,
     };
     adapter state{&visitor};
     tlv_result_t rc = tlv_walk_tree(reinterpret_cast<const uint8_t*>(data.data()),
-        data.size(), &format, max_depth, max_elements, &adapter::call, &state, error_offset);
+        data.size(), &format, is_constructed, max_depth, max_elements, &adapter::call, &state, error_offset);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return {};
 }

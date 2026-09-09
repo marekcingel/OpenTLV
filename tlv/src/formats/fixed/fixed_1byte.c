@@ -1,4 +1,4 @@
-#include "tlv/formats/fixed_1byte.h"
+#include "tlv/formats/fixed/fixed_1byte.h"
 #include "tlv/formats/format.h"
 
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size,
@@ -47,6 +47,15 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
     return TLV_OK;
 }
 
-const tlv_format_t tlv_format_fixed_1byte = {
-    NULL, read_tag, write_tag, read_length, write_length, length_size, NULL
+const tlv_reader_format_t tlv_reader_format_fixed_1byte = {
+    .context = NULL,
+    .read_tag = read_tag,
+    .read_length = read_length
+};
+
+const tlv_writer_format_t tlv_writer_format_fixed_1byte = {
+    .context = NULL,
+    .write_tag = write_tag,
+    .write_length = write_length,
+    .length_size = length_size
 };

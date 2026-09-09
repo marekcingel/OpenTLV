@@ -1,4 +1,4 @@
-#include "tlv/formats/fixed_1byte.h"
+#include "tlv/formats/fixed/fixed_1byte.h"
 #include "tlv/schemas/schema.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
@@ -69,7 +69,7 @@ TEST(Schema, ValidatesExactAndInclusiveRangeLengths) {
 TEST(Schema, ReaderParsesUnknownTagsAndLengthsOutsideSchema) {
     const uint8_t data[] = {7, 0, 1, 0};
     tlv_reader_t reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_fixed_1byte));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_fixed_1byte));
     tlv_view_t view;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
     EXPECT_EQ(nullptr, tlv_schema_find(&schema, &view.tag));

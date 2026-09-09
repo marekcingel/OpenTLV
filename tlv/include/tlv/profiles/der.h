@@ -1,7 +1,7 @@
 #ifndef OPENTLV_DER_H
 #define OPENTLV_DER_H
 
-#include "tlv/formats/der.h"
+#include "tlv/formats/asn1/der.h"
 #include "tlv/reader/walker.h"
 
 #ifdef __cplusplus

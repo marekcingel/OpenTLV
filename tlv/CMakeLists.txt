@@ -5,6 +5,7 @@ project(tlv LANGUAGES C)
 add_library(${PROJECT_NAME}
     src/codec/codec.c
     src/codec/structure.c
+    src/formats/format.c
     src/copy.c
     src/endian.c
     src/reader/reader.c
@@ -17,14 +18,20 @@ add_library(${PROJECT_NAME}
     ${OpenTLV_BINARY_DIR}/generated/src/version.c
 )
 
-foreach(component IN ITEMS DEFAULT FIXED_1BYTE BER DER)
-    if(OPENTLV_FORMAT_${component})
-        string(TOLOWER "${component}" source_name)
-        target_sources(${PROJECT_NAME} PRIVATE src/formats/${source_name}.c)
-    endif()
-endforeach()
+if(OPENTLV_FORMAT_DEFAULT)
+    target_sources(${PROJECT_NAME} PRIVATE src/formats/default/default.c)
+endif()
+if(OPENTLV_FORMAT_FIXED_1BYTE)
+    target_sources(${PROJECT_NAME} PRIVATE src/formats/fixed/fixed_1byte.c)
+endif()
+if(OPENTLV_FORMAT_BER)
+    target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/ber.c)
+endif()
+if(OPENTLV_FORMAT_DER)
+    target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/der.c)
+endif()
 if(OPENTLV_FORMAT_BER OR OPENTLV_FORMAT_DER)
-    target_sources(${PROJECT_NAME} PRIVATE src/formats/ber_internal.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/ber_internal.c)
 endif()
 if(OPENTLV_FORMAT_DER)
     target_sources(${PROJECT_NAME} PRIVATE src/profiles/der.c)

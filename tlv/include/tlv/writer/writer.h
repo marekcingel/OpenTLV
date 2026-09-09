@@ -12,7 +12,7 @@ extern "C" {
  * On failure the output is unchanged; size_t overflow is INVALID_LENGTH.
  */
 tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,
-                              const tlv_format_t* format, size_t* size);
+                              const tlv_writer_format_t* format, size_t* size);
 
 /* Encodes one element directly into caller-owned memory, without allocation
  * or value interpretation. Value must not overlap the destination element.
@@ -22,12 +22,12 @@ tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,
  * On failure written is unchanged; encoding callback errors may modify data.
  * Callback errors propagate unchanged. Requires the same callbacks as sizing.
  */
-tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_format_t* format,
+tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_writer_format_t* format,
                        tlv_tag_t tag, const uint8_t* value, size_t length,
                        size_t* written);
 
 typedef struct tlv_writer {
-    const tlv_format_t* format; /* borrowed */
+    const tlv_writer_format_t* format; /* borrowed */
     uint8_t* buf;      /* buffer provided by the caller (no allocation in the core) */
     size_t   capacity;
     size_t   pos;       /* bytes currently written */
@@ -35,7 +35,7 @@ typedef struct tlv_writer {
 
 /* Uses a caller-provided format; NULL or missing required callbacks is an error. */
 tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf,
-                                        size_t capacity, const tlv_format_t* format);
+                                        size_t capacity, const tlv_writer_format_t* format);
 
 /* Writes one TLV item using the selected format.
  * On error the position is unchanged; callbacks may have modified buffer bytes.
