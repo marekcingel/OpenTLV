@@ -12,5 +12,8 @@
 #include "tlv++/structure.hpp"
 #include "tlv++/walker.hpp"
 #include "tlv++/schema.hpp"
+#if OPENTLV_FORMAT_BER
+#include "tlv++/ber.hpp"
+#endif
 
 #endif // OPENTLV_TLVPP_TLV_HPP

@@ -12,6 +12,7 @@ tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size,
                            size_t max_elements, tlv_tree_visitor_t visitor,
                            void* context, size_t* error_offset) {
     size_t ends[TLV_WALK_MAX_DEPTH + 1];
+    size_t resumes[TLV_WALK_MAX_DEPTH + 1];
     size_t depth = 0, pos = 0, count = 0;
     if ((!data && size) || !format || !format->read_tag || !format->read_length)
         return tree_error(TLV_ERR_NULL_ARG, 0, error_offset);
@@ -22,7 +23,7 @@ tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size,
         tlv_view_t view;
         size_t used, end;
         tlv_result_t rc;
-        if (pos == ends[depth]) { --depth; continue; }
+        if (pos == ends[depth]) { pos = resumes[depth]; --depth; continue; }
         if (count == max_elements)
             return tree_error(TLV_ERR_LIMIT, pos, error_offset);
         rc = tlv_read(data + pos, ends[depth] - pos, format, &view, &used);
@@ -37,10 +38,11 @@ tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size,
         }
         if (is_constructed &&
             is_constructed(format->context, &view.tag) && view.value.length) {
-            pos = end - view.value.length;
+            pos = (size_t)(view.value.data - data);
             if (depth == max_depth)
                 return tree_error(TLV_ERR_LIMIT, pos, error_offset);
-            ends[++depth] = end;
+            ends[++depth] = pos + view.value.length;
+            resumes[depth] = end;
         } else pos = end;
     }
     return TLV_OK;

@@ -115,7 +115,7 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                 (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed))
                 return invalid(pos, error_offset);
             if (rule->children) {
-                size_t start = frame->pos - view.value.length;
+                size_t start = (size_t)(view.value.data - data);
                 /* An empty container still has child-schema requirements. */
                 if (!view.value.length) {
                     rc = check_scope(data, format, rule->children, start, start, error_offset);
@@ -126,7 +126,7 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                     if (error_offset) *error_offset = start;
                     return TLV_ERR_LIMIT;
                 }
-                stack[++depth] = (scope_t){rule->children, start, frame->pos, start, 0};
+                stack[++depth] = (scope_t){rule->children, start, start + view.value.length, start, 0};
             }
         }
     }

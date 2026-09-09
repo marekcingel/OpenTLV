@@ -67,11 +67,14 @@ consumers. C++ common types are in `tlv++/types.hpp`, independent of codecs.
   Its optional flat schema filters tags and lengths. A candidate is not proof
   of an original network message boundary; it is not a streaming reassembler.
 
-The nesting contract currently covers **definite-length** containers whose
-values contain a sequence in the same format. A NULL nesting callback makes
-values opaque. BER indefinite lengths/EOC, mixed-format child payloads and
-stream reassembly remain outside this contract. Generic reading/writing still
-processes one outer element without recursively validating its value.
+The nesting contract covers containers whose value views contain a sequence
+in the same format, including BER indefinite lengths/EOC. A NULL nesting
+callback disables tree descent. BER still inspects descendant framing when
+needed to locate an indefinite element's end. Generic traversal separates the
+value end from the complete encoded end and skips enclosing trailers when
+resuming siblings. Mixed-format child payloads and stream reassembly remain
+outside this contract. Definite single-element I/O keeps values opaque;
+explicit BER indefinite writing validates child framing before writing.
 
 ## Structural rules and object codecs
 

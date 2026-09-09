@@ -130,7 +130,9 @@ Book 3 treats zero-length objects as absent, which the application must handle
 before validating a required value. These tables do not enforce APDU size,
 required tags, duplicates, template membership, or full transaction validity.
 
-BER framing keeps its generic definite-length rules. APDU status bytes and EMV
+Generic BER reading also accepts constructed indefinite lengths; the EMV
+dictionary and length schemas do not enforce a definite-only encoding policy.
+APDU status bytes and EMV
 padding are handled by the caller. Book 3 defines one- and two-byte tags;
 three-byte tags remain readable by generic BER but are unknown to this profile.
 With `TLV_TAG_MAX_SIZE == 1`, two-byte constants and entries are omitted;

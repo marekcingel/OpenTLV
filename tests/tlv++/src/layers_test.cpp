@@ -9,6 +9,32 @@
 #include "tlv/formats/default/default.h"
 #include "tlv++/structure.hpp"
 #include <gtest/gtest.h>
+#include "tlv/config.h"
+#if OPENTLV_FORMAT_BER
+#include "tlv++/ber.hpp"
+
+TEST(TLV_CPP, BerIndefiniteRoundTripAndTraversal) {
+    tlv::byte buffer[8]{};
+    const uint8_t children[] = {4, 2, 0, 0};
+    const tlv::bytes value(reinterpret_cast<const tlv::byte*>(children), sizeof(children));
+    auto written = tlv::ber_write_indefinite(buffer, sizeof(buffer), tlv_tag_t{{0x30},1}, value);
+    ASSERT_TRUE(written); EXPECT_EQ(8u, *written);
+    tlv::reader reader(tlv::bytes(buffer, *written), tlv_reader_format_ber);
+    auto item = reader.next();
+    ASSERT_TRUE(item); EXPECT_EQ(buffer + 2, item->value.data()); EXPECT_EQ(4u, item->value.size());
+    EXPECT_TRUE(reader.at_end());
+    size_t visits = 0;
+    EXPECT_TRUE(tlv::walk_tree(tlv::bytes(buffer, *written), tlv_reader_format_ber,
+        tlv_ber_is_constructed, 1, 2,
+        [&visits](const tlv::entry&, size_t depth, size_t offset) {
+            EXPECT_EQ(visits, depth); EXPECT_EQ(visits * 2, offset);
+            ++visits; return TLV_VISIT_CONTINUE;
+        }));
+    EXPECT_EQ(2u, visits);
+    EXPECT_FALSE(tlv::ber_write_indefinite(buffer, 7, tlv_tag_t{{0x30},1}, value));
+    EXPECT_FALSE(tlv::ber_write_indefinite(buffer, sizeof(buffer), tlv_tag_t{{4},1}, value));
+}
+#endif
 
 TEST(TLV_CPP, LayeredTraversalAndSchema) {
     const uint8_t data[] = {1, 1, 42, 2, 0};

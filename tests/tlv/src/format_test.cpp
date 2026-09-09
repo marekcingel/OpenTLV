@@ -46,7 +46,7 @@ tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size,
     data[1] = static_cast<uint8_t>(length >> 8);
     return TLV_OK;
 }
-const tlv_reader_format_t fixed = {&width, read_tag, read_length};
+const tlv_reader_format_t fixed = {&width, read_tag, read_length, nullptr};
 const tlv_writer_format_t fixed_writer = {&width, write_tag, write_length, length_size};
 }
 

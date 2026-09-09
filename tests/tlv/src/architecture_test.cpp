@@ -4,6 +4,10 @@
 #include "tlv/reader/scanner.h"
 #include "tlv/codec/structure.h"
 #include "tlv/config.h"
+#if OPENTLV_FORMAT_BER
+#include "tlv/formats/asn1/ber.h"
+#include "tlv/copy.h"
+#endif
 #if OPENTLV_PROFILE_EMV
 #include "tlv/profiles/emv.h"
 #endif
@@ -42,7 +46,7 @@ tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity,
     data[0] = static_cast<uint8_t>(length); return TLV_OK;
 }
 int constructed(const void*, const tlv_tag_t* tag) { return (tag->data[0] & 0x80) != 0; }
-const tlv_reader_format_t format = {nullptr, tag_read, length_read};
+const tlv_reader_format_t format = {nullptr, tag_read, length_read, nullptr};
 const tlv_writer_format_t writer_format = {nullptr, tag_write, length_write, length_size};
 const tlv_structure_rule_t child_rules[] = {
     {{{{1}, 1}, 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
@@ -53,6 +57,84 @@ const tlv_structure_rule_t parent_rules[] = {
     {{{{0x80}, 1}, 0, 255, 0}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &children}
 };
 const tlv_structure_schema_t schema = {parent_rules, 1, 0};
+
+#if OPENTLV_FORMAT_BER
+TEST(Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies) {
+    // Outer indefinite -> definite -> indefinite -> primitive; then siblings.
+    const uint8_t wire[] = {0x30, 0x80, 0x30, 7, 0x30, 0x80, 4, 1, 42, 0, 0,
+                           4, 0, 0, 0, 4, 0};
+    std::vector<size_t> visits;
+    auto visitor = [](const tlv_view_t*, size_t depth, size_t pos, void* context) {
+        auto& out = *static_cast<std::vector<size_t>*>(context);
+        out.push_back(depth); out.push_back(pos); return TLV_VISIT_CONTINUE;
+    };
+    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &tlv_reader_format_ber,
+        tlv_ber_is_constructed, 3, 6, visitor, &visits, nullptr));
+    EXPECT_EQ((std::vector<size_t>{0,0,1,2,2,4,3,6,1,11,0,15}), visits);
+    tlv_structure_schema_t recursive{};
+    const tlv_structure_rule_t rules[] = {
+        {{{{0x30},1},0,100,0},0,1,TLV_SCHEMA_CONSTRUCTED,&recursive},
+        {{{{4},1},0,1,0},0,1,TLV_SCHEMA_PRIMITIVE,nullptr}
+    };
+    recursive = tlv_structure_schema_t{rules, 2, 0};
+    EXPECT_EQ(TLV_OK, tlv_schema_validate(wire, sizeof(wire), &tlv_reader_format_ber,
+        tlv_ber_is_constructed, &recursive, 3, 6, nullptr));
+    size_t offset = 999;
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(wire, sizeof(wire), &tlv_reader_format_ber,
+        tlv_ber_is_constructed, 2, 6, nullptr, nullptr, &offset));
+    EXPECT_EQ(6u, offset);
+    tlv_view_t view{}; size_t used = 0;
+    ASSERT_EQ(TLV_OK, tlv_scan(wire, sizeof(wire), 0, &tlv_reader_format_ber,
+        nullptr, &view, &offset, &used));
+    EXPECT_EQ(0u, offset); EXPECT_EQ(15u, used); EXPECT_EQ(11u, view.value.length);
+    uint8_t copied[sizeof(wire)]; size_t written = 0;
+    ASSERT_EQ(TLV_OK, tlv_copy_view(&view, &tlv_writer_format_ber, copied, sizeof(copied), &written));
+    EXPECT_EQ(13u, written); EXPECT_EQ(11, copied[1]);
+    EXPECT_EQ(0, std::memcmp(wire + 2, copied + 2, 11));
+    EXPECT_EQ(TLV_OK, tlv_walk_tree(copied, written, &tlv_reader_format_ber,
+        tlv_ber_is_constructed, 3, 5, nullptr, nullptr, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_copy_encoded(tlv_buffer_t{wire, used}, copied, sizeof(copied), &written));
+    EXPECT_EQ(15u, written); EXPECT_EQ(0, std::memcmp(wire, copied, written));
+    // An empty indefinite scope still enforces required children.
+    const uint8_t empty[] = {0x30, 0x80, 0, 0};
+    const tlv_structure_rule_t required = {{{{4},1},0,1,0},1,1,TLV_SCHEMA_PRIMITIVE,nullptr};
+    const tlv_structure_schema_t child = {&required, 1, 0};
+    const tlv_structure_rule_t parent = {{{{0x30},1},0,100,0},1,1,TLV_SCHEMA_CONSTRUCTED,&child};
+    const tlv_structure_schema_t root = {&parent, 1, 0};
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(empty, sizeof(empty), &tlv_reader_format_ber,
+        tlv_ber_is_constructed, &root, 0, 1, &offset));
+    EXPECT_EQ(2u, offset);
+}
+#endif
+
+TEST(Architecture, GenericValueBoundsAndTrailerValidation) {
+    struct Bounds { size_t header, value, trailer; tlv_result_t rc; };
+    Bounds bounds = {1, 1, 2, TLV_OK};
+    tlv_reader_format_t framed = format;
+    framed.context = &bounds;
+    framed.read_value_bounds = [](const void* ctx, const tlv_tag_t*, const uint8_t*, size_t,
+                                  size_t* header, size_t* value, size_t* trailer) {
+        const auto& b = *static_cast<const Bounds*>(ctx);
+        *header = b.header; *value = b.value; *trailer = b.trailer; return b.rc;
+    };
+    const uint8_t wire[] = {1, 0xFF, 42, 0xAB, 0xCD};
+    tlv_view_t view{}; size_t used = 0;
+    ASSERT_EQ(TLV_OK, tlv_read(wire, sizeof(wire), &framed, &view, &used));
+    EXPECT_EQ(5u, used); EXPECT_EQ(wire + 2, view.value.data); EXPECT_EQ(1u, view.value.length);
+    const Bounds failures[] = {
+        {SIZE_MAX, 1, 2, TLV_OK}, {1, SIZE_MAX, 2, TLV_OK},
+        {1, 1, SIZE_MAX, TLV_OK}, {1, 1, 3, TLV_OK}, {1, 1, 2, TLV_ERR_LIMIT}
+    };
+    for (const auto& failure : failures) {
+        bounds = failure;
+        view = tlv_view_t{tlv_tag_t{{0xEE},1},{nullptr,42}}; used = 999;
+        EXPECT_NE(TLV_OK, tlv_read(wire, sizeof(wire), &framed, &view, &used));
+        EXPECT_EQ(999u, used); EXPECT_EQ(0xEE, view.tag.data[0]);
+        EXPECT_EQ(nullptr, view.value.data); EXPECT_EQ(42u, view.value.length);
+    }
+    ASSERT_EQ(TLV_OK, tlv_reader_format_init(&framed, nullptr, tag_read, length_read));
+    EXPECT_EQ(nullptr, framed.read_value_bounds);
+}
 
 TEST(Architecture, GenericVisitorUsesFormatNestingAndAbsoluteOffsets) {
     const uint8_t wire[] = {0x80, 5, 1, 1, 42, 0x81, 0, 2, 0};

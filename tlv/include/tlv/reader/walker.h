@@ -35,7 +35,7 @@ tlv_result_t tlv_walk(const uint8_t* data, size_t size,
 typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view,
                                                size_t depth, size_t offset,
                                                void* context);
-/* Preorder traversal of definite-length containers identified by is_constructed.
+/* Preorder traversal of bounded value views identified by is_constructed.
  * The predicate receives format->context; NULL treats every value as opaque.
  * Top-level depth is zero; max_depth is 0..TLV_WALK_MAX_DEPTH. No allocation
  * or C recursion. NULL visitor validates only. STOP succeeds immediately.
