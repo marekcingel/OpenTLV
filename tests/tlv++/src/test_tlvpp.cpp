@@ -1,4 +1,4 @@
-#include "tlv/formats/default.h"
+#include "tlv/formats/default/default.h"
 #include "tlv++/tlv.hpp"
 
 #include <gtest/gtest.h>
@@ -28,14 +28,14 @@ tlv::bytes to_bytes(const std::string &s) {
 
 TEST(TLV_CPP, test_writer_reader_roundtrip) {
   std::array<tlv::byte, 64> buf{};
-  tlv::writer w(buf.data(), buf.size(), tlv_format_default);
+  tlv::writer w(buf.data(), buf.size(), tlv_writer_format_default);
 
   auto r1 = w.write(tlv::tag_t{{0x01}, 1}, to_bytes("hi"));
   ASSERT_TRUE(r1.has_value());
   auto r2 = w.write(tlv::tag_t{{0x02}, 1}, to_bytes("x"));
   ASSERT_TRUE(r2.has_value());
 
-  tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
+  tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_reader_format_default);
 
   auto e1 = reader.next();
   ASSERT_TRUE(e1.has_value());
@@ -52,7 +52,7 @@ TEST(TLV_CPP, test_writer_reader_roundtrip) {
 
 TEST(TLV_CPP, test_writer_reports_buffer_too_short) {
   std::array<tlv::byte, 2> buf{};
-  tlv::writer w(buf.data(), buf.size(), tlv_format_default);
+  tlv::writer w(buf.data(), buf.size(), tlv_writer_format_default);
 
   auto r = w.write(tlv::tag_t{{0x01}, 1}, to_bytes("abcd"));
   ASSERT_FALSE(r.has_value());
@@ -61,7 +61,7 @@ TEST(TLV_CPP, test_writer_reports_buffer_too_short) {
 
 TEST(TLV_CPP, test_reader_reports_end_of_buffer) {
   std::array<tlv::byte, 2> buf{{static_cast<tlv::byte>(0x01), static_cast<tlv::byte>(0x00)}};
-  tlv::reader reader(tlv::bytes(buf.data(), buf.size()), tlv_format_default);
+  tlv::reader reader(tlv::bytes(buf.data(), buf.size()), tlv_reader_format_default);
 
   auto e1 = reader.next();
   ASSERT_TRUE(e1.has_value());
@@ -97,13 +97,13 @@ static_assert(tlv::is_tlv_codec<greeting>::value, "greeting must satisfy TLV cod
 
 TEST(TLV_CPP, test_codec_write_via_writer) {
   std::array<tlv::byte, 64> buf{};
-  tlv::writer w(buf.data(), buf.size(), tlv_format_default);
+  tlv::writer w(buf.data(), buf.size(), tlv_writer_format_default);
 
   greeting g{"ahoj"};
   auto r = tlv::write_value(w, g);
   ASSERT_TRUE(r.has_value());
 
-  tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
+  tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_reader_format_default);
   auto entry = reader.next();
   ASSERT_TRUE(entry.has_value());
   EXPECT_TRUE(entry->tag.size == greeting::tag.size && entry->tag.data[0] == greeting::tag.data[0]);
@@ -120,12 +120,12 @@ TEST(TLV_CPP, test_registry_dynamic_decode) {
   EXPECT_TRUE(registry.has_decoder(greeting::tag));
 
   std::array<tlv::byte, 64> buf{};
-  tlv::writer w(buf.data(), buf.size(), tlv_format_default);
+  tlv::writer w(buf.data(), buf.size(), tlv_writer_format_default);
   greeting g{"cau"};
   auto write_result = tlv::write_value(w, g);
   ASSERT_TRUE(write_result.has_value());
 
-  tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
+  tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_reader_format_default);
   auto entry = reader.next();
   ASSERT_TRUE(entry.has_value());
 

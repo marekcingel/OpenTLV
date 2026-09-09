@@ -2,6 +2,7 @@
 
 const char* tlv_strerror(tlv_result_t result) {
     switch (result) {
+        case TLV_ERR_INVALID_ARG:        return "invalid argument";
         case TLV_OK:                     return "OK";
         case TLV_ERR_BUFFER_TOO_SHORT:    return "buffer too short";
         case TLV_ERR_INVALID_LENGTH:      return "invalid length encoding";

@@ -1,4 +1,4 @@
-#include "tlv/formats/default.h"
+#include "tlv/formats/default/default.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
@@ -17,7 +17,7 @@ std::vector<uint8_t> encode_stream(std::size_t value_size,
                                   value_size <= 0xff ? 2 : 3;
   std::vector<uint8_t> encoded(entry_count * (1 + length_size + value_size));
   tlv_writer_t writer;
-  if (tlv_writer_init(&writer, encoded.data(), encoded.size(), &tlv_format_default) != TLV_OK) {
+  if (tlv_writer_init(&writer, encoded.data(), encoded.size(), &tlv_writer_format_default) != TLV_OK) {
     return std::vector<uint8_t>();
   }
   for (std::size_t i = 0; i < entry_count; ++i) {
@@ -41,7 +41,7 @@ void parse_entries(benchmark::State& state) {
     tlv_reader_t reader;
     tlv_view_t entry;
     benchmark::DoNotOptimize(tlv_reader_init(&reader, encoded.data(),
-                                              encoded.size(), &tlv_format_default));
+                                              encoded.size(), &tlv_reader_format_default));
     benchmark::DoNotOptimize(tlv_reader_next(&reader, &entry));
     benchmark::DoNotOptimize(entry.value.data);
     benchmark::DoNotOptimize(entry.value.length);
@@ -58,7 +58,7 @@ void encode_entries(benchmark::State& state) {
   for (auto _ : state) {
     tlv_writer_t writer;
     benchmark::DoNotOptimize(tlv_writer_init(&writer, output.data(),
-                                              output.size(), &tlv_format_default));
+                                              output.size(), &tlv_writer_format_default));
     benchmark::DoNotOptimize(tlv_writer_write(&writer, (tlv_tag_t{{0x42}, 1}), value.data(),
                                                value.size()));
     benchmark::ClobberMemory();
@@ -79,7 +79,7 @@ void parse_stream(benchmark::State& state) {
     tlv_reader_t reader;
     tlv_view_t entry;
     benchmark::DoNotOptimize(tlv_reader_init(&reader, encoded.data(),
-                                              encoded.size(), &tlv_format_default));
+                                              encoded.size(), &tlv_reader_format_default));
     while (!tlv_reader_at_end(&reader)) {
       benchmark::DoNotOptimize(tlv_reader_next(&reader, &entry));
       benchmark::DoNotOptimize(entry.value.data);

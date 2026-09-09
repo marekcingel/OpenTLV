@@ -18,6 +18,7 @@ set(SOURCES
     src/schema_test.cpp
     src/walker_test.cpp
     src/writer_test.cpp
+    src/format_init_test.cpp
     src/format_test.cpp
     src/format_ber_test.cpp
     src/der_test.cpp
@@ -97,8 +98,8 @@ if(OPENTLV_PROFILE_EMV AND OPENTLV_FORMAT_BER)
             ${OpenTLV_SOURCE_DIR}/tlv/src/codec/emv.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/codec/codec.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/schemas/schema.c
-            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/ber.c
-            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/ber_internal.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber_internal.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c
         )
@@ -119,15 +120,15 @@ if(OPENTLV_FORMAT_DER)
         add_executable(${der_target}
             src/der_test.cpp
             ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/der.c
-            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/der.c
-            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/ber_internal.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/der.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber_internal.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c
         )
         target_include_directories(${der_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include
             ${OpenTLV_BINARY_DIR}/generated/include)
         if(OPENTLV_FORMAT_BER)
-            target_sources(${der_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/src/formats/ber.c)
+            target_sources(${der_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber.c)
         endif()
         target_link_libraries(${der_target} PRIVATE GTest::gtest_main)
         target_compile_features(${der_target} PRIVATE c_std_99)
@@ -154,8 +155,8 @@ if(OPENTLV_FORMAT_BER)
         set(ber_target test-tlv-ber-${tag_capacity})
         add_executable(${ber_target}
             src/format_ber_test.cpp
-            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/ber.c
-            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/ber_internal.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber_internal.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c
         )

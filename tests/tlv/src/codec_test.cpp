@@ -1,4 +1,4 @@
-#include "tlv/formats/fixed_1byte.h"
+#include "tlv/formats/fixed/fixed_1byte.h"
 #include <gtest/gtest.h>
 #include "tlv/codec/codec.h"
 #include "tlv/endian.h"
@@ -80,10 +80,10 @@ TEST(Codec, ExplicitConversionBetweenFramingOperations) {
     tag.size = 1;
     tag.data[0] = 1;
     ASSERT_EQ(tlv_codec_encode(&scalar, &value, sizeof(value), raw, sizeof(raw), &raw_size), TLV_CODEC_OK);
-    ASSERT_EQ(tlv_write(framed, sizeof(framed), &tlv_format_fixed_1byte,
+    ASSERT_EQ(tlv_write(framed, sizeof(framed), &tlv_writer_format_fixed_1byte,
                         tag, raw, raw_size, &framed_size), TLV_OK);
     tlv_view_t view = {};
-    ASSERT_EQ(tlv_read(framed, framed_size, &tlv_format_fixed_1byte, &view, &consumed), TLV_OK);
+    ASSERT_EQ(tlv_read(framed, framed_size, &tlv_reader_format_fixed_1byte, &view, &consumed), TLV_OK);
     EXPECT_EQ(consumed, framed_size);
     EXPECT_EQ(view.value.data, framed + 2);
     ASSERT_EQ(tlv_codec_decode(&scalar, view.value.data, view.value.length,
@@ -91,7 +91,7 @@ TEST(Codec, ExplicitConversionBetweenFramingOperations) {
     EXPECT_EQ(decoded, value);
     // Framing also accepts values that this codec rejects.
     framed[1] = 1;
-    ASSERT_EQ(tlv_read(framed, 3, &tlv_format_fixed_1byte, &view, &consumed), TLV_OK);
+    ASSERT_EQ(tlv_read(framed, 3, &tlv_reader_format_fixed_1byte, &view, &consumed), TLV_OK);
     EXPECT_EQ(tlv_codec_decode(&scalar, view.value.data, view.value.length,
                                &decoded, sizeof(decoded)), TLV_CODEC_ERR_INVALID_VALUE);
 }

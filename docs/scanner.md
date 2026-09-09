@@ -11,7 +11,7 @@ const uint8_t data[] = {0xFF, 0xFF, 0x42, 1, 0xAB};
 tlv_view_t view;
 size_t offset, consumed;
 tlv_result_t result = tlv_scan(data, sizeof(data), 0,
-    &tlv_format_fixed_1byte, NULL, &view, &offset, &consumed);
+    &tlv_reader_format_fixed_1byte, NULL, &view, &offset, &consumed);
 /* TLV_OK: offset == 2, consumed == 3, view.value.data == data + 4. */
 ```
 

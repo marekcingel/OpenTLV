@@ -34,7 +34,11 @@ tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number);
  * primitive/constructed bits, but does not inspect values or nested headers.
  * Use tlv/profiles/der.h for bounded recursive validation and error offsets.
  */
-extern const tlv_format_t tlv_format_der;
+extern const tlv_reader_format_t tlv_reader_format_der;
+extern const tlv_writer_format_t tlv_writer_format_der;
+
+/* Nesting predicate for tree traversal; context is unused. */
+int tlv_der_is_constructed(const void* context, const tlv_tag_t* tag);
 
 #ifdef __cplusplus
 }

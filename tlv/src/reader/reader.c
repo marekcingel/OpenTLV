@@ -1,7 +1,7 @@
 #include "tlv/reader/reader.h"
 
 tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data,
-                                        size_t size, const tlv_format_t* format) {
+                                        size_t size, const tlv_reader_format_t* format) {
     if (!reader || (!data && size) || !format ||
         !format->read_tag || !format->read_length) return TLV_ERR_NULL_ARG;
     reader->data = data;
@@ -16,7 +16,7 @@ int tlv_reader_at_end(const tlv_reader_t* reader) {
 }
 
 tlv_result_t tlv_read(const uint8_t* data, size_t size,
-                      const tlv_format_t* format, tlv_view_t* out_entry,
+                      const tlv_reader_format_t* format, tlv_view_t* out_entry,
                       size_t* consumed) {
     tlv_view_t entry = {0};
     size_t tag_size = 0, length_size = 0, remaining;

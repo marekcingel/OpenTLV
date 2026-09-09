@@ -15,7 +15,8 @@ together in [emv_tags.def](../tlv/include/tlv/profiles/emv_tags.def).
 
 ## Framing and lookup
 
-Use `&tlv_format_ber` with the generic reader/writer, walker, or scanner.
+Use `&tlv_reader_format_ber` with the reader, walker, or scanner, and
+`&tlv_writer_format_ber` with the writer.
 There is no separate EMV parser and the reader never interprets values.
 All `tlv_emv_tag_*` constants use the universal `tlv_tag_t`.
 
@@ -31,7 +32,7 @@ optional codec, and length step. Unknown tags and invalid contexts return NULL.
 /* Inside a function; wire contains an Amount, Authorised (Numeric) TLV. */
 tlv_view_t view;
 size_t consumed;
-if (tlv_read(wire, wire_size, &tlv_format_ber, &view, &consumed) == TLV_OK) {
+if (tlv_read(wire, wire_size, &tlv_reader_format_ber, &view, &consumed) == TLV_OK) {
     const tlv_emv_definition_t* def =
         tlv_emv_find(TLV_EMV_CONTEXT_BASE, &view.tag);
     if (def && tlv_emv_validate_length(def, view.value.length) == TLV_OK &&
@@ -47,7 +48,7 @@ if (tlv_read(wire, wire_size, &tlv_format_ber, &view, &consumed) == TLV_OK) {
 
 For writing, explicitly encode the C value with `tlv_codec_encode()` into
 caller-owned storage, then pass those bytes and the tag to `tlv_write()` or
-`tlv_writer_write()` with `&tlv_format_ber`. Every semantic codec supports
+`tlv_writer_write()` with `&tlv_reader_format_ber`. Every semantic codec supports
 the generic encoding size query (`data == NULL`, `capacity == 0`).
 
 ## Contexts

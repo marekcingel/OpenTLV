@@ -37,7 +37,7 @@ tlv_result_t tlv_copy_encoded(tlv_buffer_t encoded, uint8_t* data,
  * Source value bytes must not overlap the destination element. Callback errors
  * propagate unchanged and may modify data; size queries do not write data.
  */
-tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_format_t* format,
+tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_writer_format_t* format,
                            uint8_t* data, size_t capacity, size_t* written);
 
 #ifdef __cplusplus

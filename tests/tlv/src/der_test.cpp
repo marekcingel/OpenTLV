@@ -1,8 +1,8 @@
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
-#include "tlv/formats/ber.h"
+#include "tlv/formats/asn1/ber.h"
 #endif
-#include "tlv/formats/der.h"
+#include "tlv/formats/asn1/der.h"
 #include "tlv/profiles/der.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -68,10 +68,10 @@ TEST(Der, CanonicalLengthBytesAndRoundTrip) {
                                        view.value.length, nullptr, &written, nullptr));
         EXPECT_EQ(data, again);
     }
-    const auto& format = tlv_format_der;
+    const auto& format = tlv_reader_format_der;
     uint8_t bytes[sizeof(size_t) + 1];
     size_t written, actual, used;
-    ASSERT_EQ(TLV_OK, format.write_length(nullptr, bytes, sizeof(bytes), SIZE_MAX, &written));
+    ASSERT_EQ(TLV_OK, tlv_writer_format_der.write_length(nullptr, bytes, sizeof(bytes), SIZE_MAX, &written));
     ASSERT_EQ(TLV_OK, format.read_length(nullptr, bytes, written, &actual, &used));
     EXPECT_EQ(SIZE_MAX, actual);
     EXPECT_EQ(written, used);
@@ -209,9 +209,9 @@ TEST(Der, DeepNestingUsesBoundedTraversal) {
     std::vector<uint8_t> data = {4, 0};
     for (size_t depth = 1; depth <= TLV_DER_MAX_DEPTH + 1; ++depth) {
         size_t size;
-        ASSERT_EQ(TLV_OK, tlv_encoded_size((tlv_tag_t{{0xA0}, 1}), data.size(), &tlv_format_der, &size));
+        ASSERT_EQ(TLV_OK, tlv_encoded_size((tlv_tag_t{{0xA0}, 1}), data.size(), &tlv_writer_format_der, &size));
         std::vector<uint8_t> outer(size);
-        ASSERT_EQ(TLV_OK, tlv_write(outer.data(), outer.size(), &tlv_format_der,
+        ASSERT_EQ(TLV_OK, tlv_write(outer.data(), outer.size(), &tlv_writer_format_der,
                                     (tlv_tag_t{{0xA0}, 1}), data.data(), data.size(), &size));
         data.swap(outer);
         auto limits = tlv_der_default_limits;
@@ -228,15 +228,15 @@ TEST(Der, BerCompatibilityAndGenericFormat) {
         tlv_view_t view{};
         size_t used;
 #if OPENTLV_FORMAT_BER
-        ASSERT_EQ(TLV_OK, tlv_read(data.data(), data.size(), &tlv_format_ber, &view, &used));
+        ASSERT_EQ(TLV_OK, tlv_read(data.data(), data.size(), &tlv_reader_format_ber, &view, &used));
 #endif
-        EXPECT_NE(TLV_OK, tlv_read(data.data(), data.size(), &tlv_format_der, &view, &used));
+        EXPECT_NE(TLV_OK, tlv_read(data.data(), data.size(), &tlv_reader_format_der, &view, &used));
     }
     // Generic I/O intentionally only validates the outer header.
     const uint8_t data[] = {0x30, 2, 0, 0};
     tlv_view_t view{};
     size_t used;
-    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_format_der, &view, &used));
+    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_reader_format_der, &view, &used));
     EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_der_read(data, sizeof(data), nullptr, &view, &used, nullptr));
 }
 

@@ -1,4 +1,4 @@
-#include "tlv/formats/default.h"
+#include "tlv/formats/default/default.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
@@ -9,7 +9,7 @@ TEST(TLV, dhcp_option_1_test) {
   const uint8_t data[] = {0x01, 0x04, 0xFF, 0xFF, 0xFF, 0x00};
 
   tlv_reader_t reader;
-  ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
+  ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_default));
 
   tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
@@ -22,7 +22,7 @@ TEST(TLV, dhcp_option_3_test) {
   const uint8_t data[] = {0x03, 0x04, 0xC0, 0xA8, 0x01, 0x01};
 
   tlv_reader_t reader;
-  ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
+  ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_default));
 
   tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
@@ -36,7 +36,7 @@ TEST(TLV, dhcp_option_6_test) {
                           0x08, 0x01, 0x01, 0x01, 0x01};
 
   tlv_reader_t reader;
-  ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
+  ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_default));
 
   tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
@@ -50,7 +50,7 @@ TEST(TLV, dhcp_option_12_test) {
                           0x6F, 0x75, 0x74, 0x65, 0x72};
 
   tlv_reader_t reader;
-  ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
+  ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_default));
 
   tlv_view_t entry;
   ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));

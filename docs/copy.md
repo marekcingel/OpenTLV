@@ -25,7 +25,7 @@ uint8_t input[] = {1, 2, 0xAB, 0xCD};
 uint8_t storage[16];
 tlv_view_t view;
 size_t consumed, required, written;
-tlv_result_t result = tlv_read(input, sizeof(input), &tlv_format_fixed_1byte,
+tlv_result_t result = tlv_read(input, sizeof(input), &tlv_reader_format_fixed_1byte,
                                &view, &consumed);
 if (result == TLV_OK) {
     result = tlv_copy_value(&view, NULL, 0, &required);

@@ -87,11 +87,16 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
     return TLV_OK;
 }
 
-static int is_constructed(const void* context, const tlv_tag_t* tag) {
-    (void)context;
-    return (tag->data[0] & 0x20) != 0;
-}
 
-const tlv_format_t tlv_ber_wire = {
-    NULL, read_tag, write_tag, read_length, write_length, length_size, is_constructed
+const tlv_reader_format_t tlv_ber_reader_wire = {
+    .context = NULL,
+    .read_tag = read_tag,
+    .read_length = read_length
+};
+
+const tlv_writer_format_t tlv_ber_writer_wire = {
+    .context = NULL,
+    .write_tag = write_tag,
+    .write_length = write_length,
+    .length_size = length_size
 };

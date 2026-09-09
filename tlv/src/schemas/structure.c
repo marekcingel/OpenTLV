@@ -12,7 +12,7 @@ static tlv_result_t invalid(size_t offset, size_t* error_offset) {
     return TLV_ERR_SCHEMA;
 }
 
-static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
+static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* format,
                                 const tlv_structure_schema_t* current,
                                 size_t start, size_t end, size_t* error_offset) {
     tlv_result_t rc;
@@ -56,7 +56,8 @@ typedef struct scope {
 } scope_t;
 
 tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
-                                 const tlv_format_t* format,
+                                 const tlv_reader_format_t* format,
+                                 tlv_is_constructed_fn is_constructed,
                                  const tlv_structure_schema_t* schema,
                                  size_t max_depth, size_t max_elements,
                                  size_t* error_offset) {
@@ -67,7 +68,7 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
         if (error_offset) *error_offset = 0;
         return TLV_ERR_NULL_ARG;
     }
-    rc = tlv_walk_tree(data, size, format, max_depth, max_elements,
+    rc = tlv_walk_tree(data, size, format, is_constructed, max_depth, max_elements,
                        NULL, NULL, error_offset);
     if (rc != TLV_OK) return rc;
     stack[0] = (scope_t){schema, 0, size, 0, 0};
@@ -108,8 +109,8 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                 if (error_offset) *error_offset = pos;
                 return rc;
             }
-            constructed = format->is_constructed &&
-                format->is_constructed(format->context, &view.tag);
+            constructed = is_constructed &&
+                is_constructed(format->context, &view.tag);
             if ((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
                 (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed))
                 return invalid(pos, error_offset);

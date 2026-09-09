@@ -1,5 +1,5 @@
-#include "tlv/formats/default.h"
-#include "tlv/formats/fixed_1byte.h"
+#include "tlv/formats/default/default.h"
+#include "tlv/formats/fixed/fixed_1byte.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
 #include <limits>
@@ -8,7 +8,7 @@ TEST(Reader, ReadsOnlyFirstElementAndBorrowsValue) {
     uint8_t data[] = {1, 2, 0xAB, 0xCD, 2, 0xFF};
     tlv_view_t view{};
     size_t consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_format_fixed_1byte, &view, &consumed));
+    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_reader_format_fixed_1byte, &view, &consumed));
     EXPECT_EQ(1u, view.tag.size);
     EXPECT_EQ(1u, view.tag.data[0]);
     EXPECT_EQ(data + 2, view.value.data);
@@ -22,7 +22,7 @@ TEST(Reader, EmptyValueAndBerLength) {
     const uint8_t data[] = {0x42, 0x82, 0, 0};
     tlv_view_t view{};
     size_t consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_format_default, &view, &consumed));
+    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_reader_format_default, &view, &consumed));
     EXPECT_EQ(data + sizeof(data), view.value.data);
     EXPECT_EQ(0u, view.value.length);
     EXPECT_EQ(sizeof(data), consumed);
@@ -38,8 +38,8 @@ struct Config {
     tlv_result_t length_error = TLV_OK;
 };
 
-tlv_format_t make_format(const Config* config) {
-    tlv_format_t format{};
+tlv_reader_format_t make_format(const Config* config) {
+    tlv_reader_format_t format{};
     format.context = config;
     format.read_tag = [](const void* ctx, const uint8_t*, size_t size,
                          tlv_tag_t* tag, size_t* used) {
@@ -62,7 +62,7 @@ tlv_format_t make_format(const Config* config) {
     return format;
 }
 
-void expect_failure(const uint8_t* data, size_t size, const tlv_format_t* format,
+void expect_failure(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
                     tlv_result_t error) {
     tlv_view_t view = {tlv_tag_t{{0xEE}, 1}, {data, 42}};
     size_t consumed = 99;
@@ -99,7 +99,7 @@ TEST(Reader, CustomFormatAndEveryTruncatedPrefix) {
 
 TEST(Reader, RejectsInvalidArguments) {
     const uint8_t data[] = {1, 0};
-    auto format = tlv_format_fixed_1byte;
+    auto format = tlv_reader_format_fixed_1byte;
     tlv_view_t view{};
     size_t consumed = 0;
     expect_failure(nullptr, 0, &format, TLV_ERR_END_OF_BUFFER);
@@ -109,7 +109,7 @@ TEST(Reader, RejectsInvalidArguments) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read(data, sizeof(data), &format, &view, nullptr));
     format.read_tag = nullptr;
     expect_failure(data, sizeof(data), &format, TLV_ERR_NULL_ARG);
-    format = tlv_format_fixed_1byte;
+    format = tlv_reader_format_fixed_1byte;
     format.read_length = nullptr;
     expect_failure(data, sizeof(data), &format, TLV_ERR_NULL_ARG);
 }
@@ -148,7 +148,7 @@ TEST(Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
 TEST(Reader, DetectsTruncatedBerLengthAndValue) {
     const uint8_t data[] = {1, 0x82, 0, 2, 0xAB, 0xCD};
     for (size_t size = 1; size < sizeof(data); ++size)
-        expect_failure(data, size, &tlv_format_default, TLV_ERR_BUFFER_TOO_SHORT);
+        expect_failure(data, size, &tlv_reader_format_default, TLV_ERR_BUFFER_TOO_SHORT);
     const uint8_t invalid[] = {1, 0x80};
-    expect_failure(invalid, sizeof(invalid), &tlv_format_default, TLV_ERR_INVALID_LENGTH);
+    expect_failure(invalid, sizeof(invalid), &tlv_reader_format_default, TLV_ERR_INVALID_LENGTH);
 }

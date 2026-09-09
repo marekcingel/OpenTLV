@@ -7,33 +7,73 @@
 extern "C" {
 #endif
 
-/* Stateless operations with optional borrowed, immutable configuration.
- * The descriptor and context must outlive readers/writers using them.
- * Callbacks must not allocate, retain buffers, or access beyond size/capacity.
- * On success, read callbacks report consumed bytes (at least one for tags)
- * and initialize their output. Tags must fit TLV_TAG_MAX_SIZE.
- * write_tag(context, NULL, 0, tag, &size) validates the tag and reports its encoded size;
- * this query must not write. Actual writes report the same size as the query.
- * length_size validates the length and reports the exact write_length size.
+typedef tlv_result_t (*tlv_read_tag_fn)(const void* context, const uint8_t* data,
+                                      size_t size, tlv_tag_t* tag, size_t* consumed);
+typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* data,
+                                         size_t size, size_t* length, size_t* consumed);
+typedef tlv_result_t (*tlv_write_tag_fn)(const void* context, uint8_t* data,
+                                       size_t capacity, const tlv_tag_t* tag, size_t* written);
+typedef tlv_result_t (*tlv_write_length_fn)(const void* context, uint8_t* data,
+                                          size_t capacity, size_t length, size_t* written);
+typedef tlv_result_t (*tlv_length_size_fn)(const void* context, size_t length, size_t* size);
+
+/* Stateless reading with optional borrowed, immutable configuration.
+ * The descriptor and context must outlive readers and operations using them.
+ * Both callbacks are required. They must not allocate, retain buffers, or
+ * access beyond size. On success they initialize their output and report
+ * consumed bytes (at least one for tags). Tags must fit TLV_TAG_MAX_SIZE.
  * All sizes are in bytes. Callback errors propagate unchanged.
+ * Reading borrows input bytes; value decoding and nesting are separate concerns.
  */
-typedef struct tlv_format {
+typedef struct tlv_reader_format {
     const void* context;
-    tlv_result_t (*read_tag)(const void* context, const uint8_t* data,
-                             size_t size, tlv_tag_t* tag, size_t* consumed);
-    tlv_result_t (*write_tag)(const void* context, uint8_t* data,
-                              size_t capacity, const tlv_tag_t* tag, size_t* written);
-    tlv_result_t (*read_length)(const void* context, const uint8_t* data,
-                                size_t size, size_t* length, size_t* consumed);
-    tlv_result_t (*write_length)(const void* context, uint8_t* data,
-                                 size_t capacity, size_t length, size_t* written);
-    tlv_result_t (*length_size)(const void* context, size_t length, size_t* size);
-    /* Optional nesting rule. NULL means all values are opaque. A nonzero
-     * result identifies a value containing a sequence in this same format.
-     * Called only with a successfully parsed tag. No value decoding occurs.
-     * This contract currently supports definite-length containers only. */
-    int (*is_constructed)(const void* context, const tlv_tag_t* tag);
-} tlv_format_t;
+    tlv_read_tag_fn read_tag;
+    tlv_read_length_fn read_length;
+} tlv_reader_format_t;
+
+/* Stateless writing with optional borrowed, immutable configuration.
+ * The descriptor and context must outlive writers and operations using them.
+ * All three callbacks are required. They must not allocate, retain buffers,
+ * or access beyond capacity. Tags must fit TLV_TAG_MAX_SIZE.
+ * write_tag(context, NULL, 0, tag, &size) validates the tag and reports its
+ * encoded size without writing. Actual writes report that same size.
+ * length_size validates the length and reports the exact write_length size.
+ * Successful write callbacks initialize written. All sizes are in bytes.
+ * Callback errors propagate unchanged. Value encoding is a separate concern.
+ */
+typedef struct tlv_writer_format {
+    const void* context;
+    tlv_write_tag_fn write_tag;
+    tlv_write_length_fn write_length;
+    tlv_length_size_fn length_size;
+} tlv_writer_format_t;
+
+/* Initializes caller-owned storage without allocation. context is borrowed
+ * and may be NULL. Returns TLV_ERR_INVALID_ARG if format or either callback
+ * is NULL, leaving the descriptor unchanged. Otherwise sets every field and
+ * returns TLV_OK. The descriptor and context follow the reading lifetime and
+ * callback contracts above; no input or configuration is copied or retained
+ * except the supplied pointers.
+ */
+tlv_result_t tlv_reader_format_init(tlv_reader_format_t* format, const void* context,
+                                     tlv_read_tag_fn read_tag, tlv_read_length_fn read_length);
+
+/* Initializes caller-owned storage without allocation. context is borrowed
+ * and may be NULL. Returns TLV_ERR_INVALID_ARG if format or any callback is
+ * NULL, leaving the descriptor unchanged. Otherwise sets every field and
+ * returns TLV_OK. The descriptor and context follow the writing lifetime and
+ * callback contracts above; only the supplied pointers are stored.
+ */
+tlv_result_t tlv_writer_format_init(tlv_writer_format_t* format, const void* context,
+                                     tlv_write_tag_fn write_tag, tlv_write_length_fn write_length,
+                                     tlv_length_size_fn length_size);
+
+/* Optional nesting predicate used by tree traversal and structure validation.
+ * Called only with successfully parsed tags, using the reader format context.
+ * Nonzero means a definite-length sequence in the same reader format.
+ * NULL at a call site means all values are opaque. No value decoding occurs.
+ */
+typedef int (*tlv_is_constructed_fn)(const void* context, const tlv_tag_t* tag);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
-#include "tlv/formats/default.h"
-#include "tlv/formats/fixed_1byte.h"
+#include "tlv/formats/default/default.h"
+#include "tlv/formats/fixed/fixed_1byte.h"
 #include "tlv/reader/scanner.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
@@ -26,7 +26,7 @@ protected:
 
     tlv_result_t scan(const uint8_t* data, size_t size, size_t start = 0,
                       const tlv_schema_t* filter = nullptr,
-                      const tlv_format_t* format = &tlv_format_fixed_1byte) {
+                      const tlv_reader_format_t* format = &tlv_reader_format_fixed_1byte) {
         return tlv_scan(data, size, start, format, filter, &view, &offset, &consumed);
     }
 
@@ -96,17 +96,17 @@ TEST_F(Scanner, HandlesEveryTruncatedPrefixSafely) {
     const uint8_t data[] = {0x42, 0x82, 0, 2, 0xAA, 0xBB};
     for (size_t size = 0; size < sizeof(data); ++size) {
         EXPECT_EQ(TLV_ERR_END_OF_BUFFER,
-                  scan(data, size, 0, &schema, &tlv_format_default));
+                  scan(data, size, 0, &schema, &tlv_reader_format_default));
         unchanged();
     }
-    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_format_default));
+    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_reader_format_default));
     EXPECT_EQ(0u, offset);
     EXPECT_EQ(sizeof(data), consumed);
 }
 
 TEST_F(Scanner, ContinuesAfterInvalidLengthAndTruncatedCandidate) {
     const uint8_t data[] = {0xFF, 0xFF, 0x42, 0x81, 1, 0xAA};
-    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_format_default));
+    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_reader_format_default));
     EXPECT_EQ(2u, offset);
     EXPECT_EQ(4u, consumed);
     const uint8_t nested[] = {0x42, 0x7F, 0x42, 1, 0xAA};
@@ -118,27 +118,27 @@ TEST_F(Scanner, ValidatesArgumentsWithoutChangingOutputs) {
     const uint8_t data[] = {1, 0};
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(nullptr, 1));
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(data, sizeof(data), 0, nullptr, nullptr));
-    tlv_format_t format = tlv_format_fixed_1byte;
+    tlv_reader_format_t format = tlv_reader_format_fixed_1byte;
     format.read_tag = nullptr;
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(data, sizeof(data), 0, nullptr, &format));
-    format = tlv_format_fixed_1byte;
+    format = tlv_reader_format_fixed_1byte;
     format.read_length = nullptr;
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(nullptr, 0, 0, nullptr, &format));
     const tlv_schema_t invalid = {nullptr, 1};
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(data, sizeof(data), 0, &invalid));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_scan(data, sizeof(data), 0,
-        &tlv_format_fixed_1byte, nullptr, nullptr, &offset, &consumed));
+        &tlv_reader_format_fixed_1byte, nullptr, nullptr, &offset, &consumed));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_scan(data, sizeof(data), 0,
-        &tlv_format_fixed_1byte, nullptr, &view, nullptr, &consumed));
+        &tlv_reader_format_fixed_1byte, nullptr, &view, nullptr, &consumed));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_scan(data, sizeof(data), 0,
-        &tlv_format_fixed_1byte, nullptr, &view, &offset, nullptr));
+        &tlv_reader_format_fixed_1byte, nullptr, &view, &offset, nullptr));
     unchanged();
 }
 
 TEST_F(Scanner, NormalReaderStillStopsAtInvalidBoundary) {
     const uint8_t data[] = {0xFF, 0xFF, 0x42, 1, 0xAA};
     tlv_reader_t reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_fixed_1byte));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_fixed_1byte));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &view));
     EXPECT_EQ(0u, reader.pos);
     unchanged();
@@ -149,12 +149,9 @@ TEST_F(Scanner, NormalReaderStillStopsAtInvalidBoundary) {
 
 TEST_F(Scanner, UsesCustomTagCallbackAndContext) {
     const uint8_t prefix = 0x9F;
-    tlv_format_t format = tlv_format_fixed_1byte;
+    tlv_reader_format_t format = tlv_reader_format_fixed_1byte;
     format.context = &prefix;
     format.read_tag = read_pair_tag;
-    format.write_tag = nullptr;
-    format.write_length = nullptr;
-    format.length_size = nullptr;
     const uint8_t data[] = {0xFF, 0xFF, 0x9F, 0x1C, 1, 0xAA};
     const tlv_schema_entry_t rule = {{{0x9F, 0x1C}, 2}, 1, 1, 0};
     const tlv_schema_t filter = {&rule, 1};

@@ -34,7 +34,11 @@ Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
 ```text
 tlv/
   types.h, error.h, endian.h, copy.h, tlv.h
-  formats/   format.h, default.h, fixed_1byte.h, ber.h, der.h
+  formats/
+    format.h
+    default/ default.h
+    fixed/   fixed_1byte.h
+    asn1/    ber.h, der.h
   reader/    reader.h, walker.h, scanner.h
   writer/    writer.h
   schemas/   schema.h
@@ -43,6 +47,8 @@ tlv/
 ```
 
 The tree shows the public layout; corresponding implementation files use `.c`.
+BER and DER share `src/formats/asn1/ber_internal.c` and its private header.
+The default encoding and fixed-width encodings have their own folders.
 Internal schema validation, BER helpers and EMV value codecs have dedicated
 source files. `config.h` and `version.h` are generated into the build include
 directory. The public aggregate `tlv/tlv.h` includes enabled components; generic
@@ -53,8 +59,8 @@ consumers. C++ common types are in `tlv++/types.hpp`, independent of codecs.
 
 * `tlv_reader_next` iterates adjacent elements without interpreting their values.
 * `tlv_walk` visits adjacent elements and fails at invalid framing.
-* `tlv_walk_tree` performs bounded preorder traversal using the format's
-  `is_constructed` rule. It exposes depth and absolute element offsets. A NULL
+* `tlv_walk_tree` performs bounded preorder traversal using a separate
+  `is_constructed` predicate. It exposes depth and absolute element offsets. A NULL
   visitor validates framing only. It uses a bounded stack, without allocation
   or C recursion. C++ offers `tlv::walk_tree` with a callable visitor.
 * `tlv_scan` searches byte offsets for a complete candidate after corruption.
@@ -79,8 +85,10 @@ tree depth and the total number of elements. Validation rescans each scope for
 each rule rather than allocating occurrence counters.
 
 `tlv_codec_t` converts an individual raw value. `tlv_structure_codec_t` maps a
-complete sequence into a caller-owned object, using an explicit format and an
-optional structure schema. It validates input before calling the object decoder
+complete sequence into a caller-owned object, using explicit `reader_format` and `writer_format` pointers, an optional
+`is_constructed` predicate, and an optional structure schema. Decode requires
+only the reader format. Encode needs the writer format and the matching reader
+format for validation of produced bytes. It validates input before calling the object decoder
 and validates encoded bytes before reporting success. It does not infer member
 offsets or allocate application objects. Application callbacks map fields and
 can invoke value codecs. Both APIs document object representation and ownership
@@ -129,8 +137,20 @@ cmake --build build-minimal --parallel
 
 Update flat includes to the folders above (`tlv/reader.h` becomes
 `tlv/reader/reader.h`, `tlv/format.h` becomes `tlv/formats/format.h`, and so on).
-Concrete format declarations now require `tlv/formats/<name>.h` or the public
-aggregate. Replace typed `writer.write(value)` with
+Concrete format declarations use `tlv/formats/default/default.h`,
+`tlv/formats/fixed/fixed_1byte.h`, `tlv/formats/asn1/ber.h`, or
+`tlv/formats/asn1/der.h`; the public aggregate includes enabled formats.
+Replace typed `writer.write(value)` with
 `tlv::write_value(writer, value)`. Raw `writer.write(tag, bytes)` is unchanged.
-Add the final `is_constructed` callback (or NULL) to custom format initializers
-and rebuild all consumers: extending `tlv_format_t` changes its ABI.
+Split custom descriptors into `tlv_reader_format_t` and `tlv_writer_format_t`.
+Use matching `tlv_reader_format_<name>` / `tlv_writer_format_<name>` constants
+at each call site. Runtime construction uses `tlv_reader_format_init` and
+`tlv_writer_format_init`; either direction can be implemented independently.
+
+Pass the nesting predicate (or NULL) immediately after the reader format in
+`tlv_walk_tree`, `tlv_schema_validate`, `tlv::walk_tree`, and `tlv::validate`.
+It receives the reader format context. BER and DER provide
+`tlv_ber_is_constructed` and `tlv_der_is_constructed`. Structure codecs store
+both format pointers and the separate nesting predicate, and decode/encode
+callbacks receive their corresponding format type. Rebuild all consumers
+because the descriptor and affected API layouts have changed. (#68)

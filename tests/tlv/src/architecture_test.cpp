@@ -42,8 +42,8 @@ tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity,
     data[0] = static_cast<uint8_t>(length); return TLV_OK;
 }
 int constructed(const void*, const tlv_tag_t* tag) { return (tag->data[0] & 0x80) != 0; }
-const tlv_format_t format = {nullptr, tag_read, tag_write, length_read,
-                            length_write, length_size, constructed};
+const tlv_reader_format_t format = {nullptr, tag_read, length_read};
+const tlv_writer_format_t writer_format = {nullptr, tag_write, length_write, length_size};
 const tlv_structure_rule_t child_rules[] = {
     {{{{1}, 1}, 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
     {{{{2}, 1}, 1, 1, 0}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr}
@@ -62,67 +62,67 @@ TEST(Architecture, GenericVisitorUsesFormatNestingAndAbsoluteOffsets) {
         auto& out = *static_cast<std::vector<size_t>*>(ctx);
         out.push_back(depth); out.push_back(pos); return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &format, 1, 4,
+    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &format, constructed, 1, 4,
                                    visitor, &visits, &offset));
     EXPECT_EQ((std::vector<size_t>{0,0,1,2,1,5,0,7}), visits);
     EXPECT_EQ(999u, offset);
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(wire, sizeof(wire), &format, 0, 4,
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(wire, sizeof(wire), &format, constructed, 0, 4,
                                           nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(wire, sizeof(wire), &format, 1, 3,
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(wire, sizeof(wire), &format, constructed, 1, 3,
                                           nullptr, nullptr, &offset));
     EXPECT_EQ(7u, offset);
-    tlv_format_t opaque = format; opaque.is_constructed = nullptr;
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &opaque, 0, 2,
+    tlv_reader_format_t opaque = format;
+    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &opaque, nullptr, 0, 2,
                                    nullptr, nullptr, nullptr));
 }
 
 TEST(Architecture, TreeRejectsTruncatedChildrenAndSupportsEarlyStop) {
     const uint8_t wire[] = {0x80, 2, 1, 9, 2, 0};
     size_t offset = 99;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_walk_tree(wire, sizeof(wire), &format,
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_walk_tree(wire, sizeof(wire), &format, constructed,
         2, 10, nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
     auto stop = [](const tlv_view_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &format, 2, 10, stop, nullptr, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &format, constructed, 2, 10, stop, nullptr, nullptr));
     auto fail = [](const tlv_view_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
-    EXPECT_EQ(TLV_ERR_VISITOR, tlv_walk_tree(wire, sizeof(wire), &format, 2, 10, fail, nullptr, nullptr));
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(nullptr, 0, &format, 0, 0, nullptr, nullptr, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk_tree(nullptr, 1, &format, 0, 0, nullptr, nullptr, nullptr));
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(nullptr, 0, &format, TLV_WALK_MAX_DEPTH+1,
+    EXPECT_EQ(TLV_ERR_VISITOR, tlv_walk_tree(wire, sizeof(wire), &format, constructed, 2, 10, fail, nullptr, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_walk_tree(nullptr, 0, &format, constructed, 0, 0, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk_tree(nullptr, 1, &format, constructed, 0, 0, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(nullptr, 0, &format, constructed, TLV_WALK_MAX_DEPTH+1,
                                          0, nullptr, nullptr, nullptr));
 }
 
 TEST(Architecture, SchemaChecksRequiredRepeatedAndNestedMembership) {
     const uint8_t good[] = {0x80, 9, 1, 1, 42, 2, 1, 7, 2, 1, 8};
-    EXPECT_EQ(TLV_OK, tlv_schema_validate(good, sizeof(good), &format, &schema, 1, 4, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_schema_validate(good, sizeof(good), &format, constructed, &schema, 1, 4, nullptr));
     const uint8_t empty[] = {0x80, 0};
     size_t offset = 99;
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(empty, sizeof(empty), &format, &schema, 0, 1, &offset));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(empty, sizeof(empty), &format, constructed, &schema, 0, 1, &offset));
     EXPECT_EQ(2u, offset);
     const uint8_t duplicate[] = {0x80, 6, 1, 1, 42, 1, 1, 7};
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(duplicate, sizeof(duplicate), &format, &schema, 1, 3, &offset));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(duplicate, sizeof(duplicate), &format, constructed, &schema, 1, 3, &offset));
     EXPECT_EQ(5u, offset);
     const uint8_t unknown[] = {0x80, 6, 1, 1, 42, 3, 1, 7};
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(unknown, sizeof(unknown), &format, &schema, 1, 3, &offset));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(unknown, sizeof(unknown), &format, constructed, &schema, 1, 3, &offset));
     EXPECT_EQ(5u, offset);
     const uint8_t bad_length[] = {0x80, 2, 1, 0};
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate(bad_length, sizeof(bad_length), &format, &schema, 1, 2, nullptr));
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(nullptr, 0, &format, &schema, 0, 0, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate(bad_length, sizeof(bad_length), &format, constructed, &schema, 1, 2, nullptr));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(nullptr, 0, &format, constructed, &schema, 0, 0, nullptr));
 }
 
 TEST(Architecture, SchemaUnknownPolicyKindsAndInvalidTables) {
     const uint8_t wire[] = {1, 1, 42, 3, 0};
     tlv_structure_schema_t open = children; open.allow_unknown = 1;
-    EXPECT_EQ(TLV_OK, tlv_schema_validate(wire, sizeof(wire), &format, &open, 0, 2, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_schema_validate(wire, sizeof(wire), &format, constructed, &open, 0, 2, nullptr));
     tlv_structure_rule_t rule = child_rules[0]; rule.kind = TLV_SCHEMA_CONSTRUCTED;
     tlv_structure_schema_t bad = {&rule, 1, 1};
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, &bad, 0, 2, nullptr));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, constructed, &bad, 0, 2, nullptr));
     rule.kind = TLV_SCHEMA_PRIMITIVE; rule.min_occurs = 2; rule.max_occurs = 1;
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, &bad, 0, 2, nullptr));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, constructed, &bad, 0, 2, nullptr));
     tlv_structure_rule_t duplicates[] = {child_rules[0], child_rules[0]};
     bad.rules = duplicates; bad.count = 2;
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, &bad, 0, 2, nullptr));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, constructed, &bad, 0, 2, nullptr));
 }
 
 TEST(Architecture, MaximumDepthAndEmptyChildSchemaUseTheSameBoundary) {
@@ -134,14 +134,14 @@ TEST(Architecture, MaximumDepthAndEmptyChildSchemaUseTheSameBoundary) {
     tlv_structure_schema_t recursive{};
     tlv_structure_rule_t rule = {{{{0x80},1},0,255,0},0,1,TLV_SCHEMA_CONSTRUCTED,&recursive};
     recursive.rules = &rule; recursive.count = 1;
-    EXPECT_EQ(TLV_OK, tlv_schema_validate(wire.data(), wire.size(), &format, &recursive,
+    EXPECT_EQ(TLV_OK, tlv_schema_validate(wire.data(), wire.size(), &format, constructed, &recursive,
                                           TLV_WALK_MAX_DEPTH, TLV_WALK_MAX_DEPTH+1, nullptr));
     size_t offset = 0;
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_schema_validate(wire.data(), wire.size(), &format, &recursive,
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_schema_validate(wire.data(), wire.size(), &format, constructed, &recursive,
         TLV_WALK_MAX_DEPTH-1, TLV_WALK_MAX_DEPTH+1, &offset));
     EXPECT_EQ(2u * TLV_WALK_MAX_DEPTH, offset);
     rule.min_occurs = 1;
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire.data(), wire.size(), &format, &recursive,
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire.data(), wire.size(), &format, constructed, &recursive,
         TLV_WALK_MAX_DEPTH, TLV_WALK_MAX_DEPTH+1, &offset));
     EXPECT_EQ(wire.size(), offset);
 }
@@ -159,7 +159,7 @@ TEST(Architecture, RecoveryAndSequentialTraversalRemainDistinct) {
 }
 
 struct object { uint8_t first, second; };
-tlv_codec_result_t object_decode(const void*, const tlv_format_t* selected,
+tlv_codec_result_t object_decode(const void*, const tlv_reader_format_t* selected,
                                 const uint8_t* data, size_t size, void* value, size_t capacity) {
     if (capacity < sizeof(object)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
     tlv_reader_t reader{}; tlv_view_t view{}; object result{};
@@ -171,7 +171,7 @@ tlv_codec_result_t object_decode(const void*, const tlv_format_t* selected,
     }
     std::memcpy(value, &result, sizeof(result)); return TLV_CODEC_OK;
 }
-tlv_codec_result_t object_encode(const void*, const tlv_format_t* selected,
+tlv_codec_result_t object_encode(const void*, const tlv_writer_format_t* selected,
                                 const void* value, size_t size, uint8_t* data,
                                 size_t capacity, size_t* written) {
     if (size != sizeof(object)) return TLV_CODEC_ERR_INVALID_VALUE;
@@ -187,7 +187,7 @@ tlv_codec_result_t object_encode(const void*, const tlv_format_t* selected,
 }
 
 TEST(Architecture, WholeObjectCodecRoundtripAndValidationBeforeMapping) {
-    const tlv_structure_codec_t codec = {nullptr, &format, &children, 0, 2, object_decode, object_encode};
+    const tlv_structure_codec_t codec = {nullptr, &format, &writer_format, constructed, &children, 0, 2, object_decode, object_encode};
     object value = {42, 7}, result = {99, 99};
     uint8_t wire[6]{}; size_t used = 0;
     EXPECT_EQ(TLV_CODEC_OK, tlv_structure_encode(&codec, &value, sizeof(value), nullptr, 0, &used));
@@ -206,7 +206,7 @@ TEST(Architecture, WholeObjectCodecRoundtripAndValidationBeforeMapping) {
 }
 
 TEST(Architecture, StructureCodecValidatesArgumentsDirectionsAndCallbackCounts) {
-    tlv_structure_codec_t codec = {nullptr, &format, nullptr, 0, 2, nullptr, nullptr};
+    tlv_structure_codec_t codec = {nullptr, &format, &writer_format, constructed, nullptr, 0, 2, nullptr, nullptr};
     object value{};
     uint8_t wire[6]{}; size_t used = 99;
     EXPECT_EQ(TLV_CODEC_ERR_UNSUPPORTED, tlv_structure_decode(&codec, nullptr, 0, &value, sizeof(value)));
@@ -218,12 +218,36 @@ TEST(Architecture, StructureCodecValidatesArgumentsDirectionsAndCallbackCounts) 
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, tlv_structure_decode(&codec, nullptr, 0, &value, sizeof(value)));
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, tlv_structure_encode(&codec, &value, sizeof(value), wire, sizeof(wire), &used));
     codec.max_depth = 0;
-    codec.encode = [](const void*, const tlv_format_t*, const void*, size_t,
+    codec.encode = [](const void*, const tlv_writer_format_t*, const void*, size_t,
                       uint8_t*, size_t capacity, size_t* count) {
         *count = capacity + 1; return TLV_CODEC_OK;
     };
     EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT, tlv_structure_encode(&codec, &value, sizeof(value), wire, sizeof(wire), &used));
     EXPECT_EQ(0u, used);
+}
+
+TEST(Architecture, StructureCodecDecodesWithoutWriterAndChecksEncoderFormat) {
+    tlv_structure_codec_t codec = {nullptr, &format, nullptr, constructed,
+                                   &children, 0, 2, object_decode, object_encode};
+    const uint8_t wire[] = {1, 1, 42, 2, 1, 7};
+    object value{};
+    ASSERT_EQ(TLV_CODEC_OK, tlv_structure_decode(&codec, wire, sizeof(wire), &value, sizeof(value)));
+    EXPECT_EQ(42, value.first);
+    EXPECT_EQ(7, value.second);
+    size_t used = 99;
+    EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
+        tlv_structure_encode(&codec, &value, sizeof(value), nullptr, 0, &used));
+    EXPECT_EQ(0u, used);
+    for (int missing = 0; missing < 3; ++missing) {
+        auto incomplete = writer_format;
+        if (missing == 0) incomplete.write_tag = nullptr;
+        if (missing == 1) incomplete.write_length = nullptr;
+        if (missing == 2) incomplete.length_size = nullptr;
+        codec.writer_format = &incomplete;
+        EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
+            tlv_structure_encode(&codec, &value, sizeof(value), nullptr, 0, &used));
+        EXPECT_EQ(0u, used);
+    }
 }
 
 #if OPENTLV_PROFILE_EMV

@@ -1,7 +1,7 @@
 # C format abstraction
 
 For canonical ASN.1 framing, nested validation, limits and error offsets, see
-[ASN.1 DER-TLV](der.md). `tlv_format_der` also supports the generic I/O below.
+[ASN.1 DER-TLV](der.md). `tlv_reader_format_der` and `tlv_writer_format_der` also support the generic I/O below.
 
 ## Reading one element
 
@@ -11,7 +11,7 @@ beginning of a buffer:
 ```c
 tlv_view_t view;
 size_t consumed;
-tlv_result_t result = tlv_read(data, size, &tlv_format_fixed_1byte,
+tlv_result_t result = tlv_read(data, size, &tlv_reader_format_fixed_1byte,
                                &view, &consumed);
 if (result == TLV_OK) {
     /* view.value borrows data; consumed includes tag, length, and value. */
@@ -41,7 +41,7 @@ static tlv_visit_result_t count_entry(const tlv_view_t* view, void* context) {
 
 /* Inside a function: */
 size_t count = 0;
-tlv_result_t result = tlv_walk(data, size, &tlv_format_fixed_1byte,
+tlv_result_t result = tlv_walk(data, size, &tlv_reader_format_fixed_1byte,
                               count_entry, &count);
 ```
 
@@ -70,9 +70,9 @@ const uint8_t value[] = {0xAA, 0xBB, 0xCC};
 uint8_t buffer[5];
 size_t required, written;
 tlv_result_t result = tlv_encoded_size(tag, sizeof(value),
-                                      &tlv_format_fixed_1byte, &required);
+                                      &tlv_writer_format_fixed_1byte, &required);
 if (result == TLV_OK && required <= sizeof(buffer)) {
-    result = tlv_write(buffer, sizeof(buffer), &tlv_format_fixed_1byte,
+    result = tlv_write(buffer, sizeof(buffer), &tlv_writer_format_fixed_1byte,
                        tag, value, sizeof(value), &written);
     /* On success: written == required; buffer contains 01 03 AA BB CC. */
 }
@@ -92,16 +92,16 @@ same encoder and advances its position only on success.
 
 ## Fixed 1-byte TLV
 
-Use `tlv_format_fixed_1byte` for a one-byte tag, a one-byte unsigned length,
+Use `tlv_reader_format_fixed_1byte` and `tlv_writer_format_fixed_1byte` for a one-byte tag, a one-byte unsigned length,
 and exactly that many value bytes. For example, `01 03 AA BB CC` encodes tag
 `01` and the three-byte value `AA BB CC`. All tag bytes are valid, including
 `00` and `FF`; lengths range from 0 to 255, with no BER-style prefixes.
 
 ```c
 tlv_reader_t reader;
-tlv_reader_init(&reader, data, size, &tlv_format_fixed_1byte);
+tlv_reader_init(&reader, data, size, &tlv_reader_format_fixed_1byte);
 tlv_writer_t writer;
-tlv_writer_init(&writer, buffer, capacity, &tlv_format_fixed_1byte);
+tlv_writer_init(&writer, buffer, capacity, &tlv_writer_format_fixed_1byte);
 ```
 
 Writing a tag whose size is not 1 returns `TLV_ERR_INVALID_TAG`; a value
@@ -111,13 +111,31 @@ the stream (`TLV_ERR_END_OF_BUFFER`). Multiple records may be concatenated.
 
 ## Generic interface
 
-Include `tlv/formats/format.h` to define an allocation-free `tlv_format_t` descriptor.
-Pass it to `tlv_reader_init` or `tlv_writer_init` as the
-last argument after the buffer and its size. The descriptor and its optional
-`context` are borrowed and must remain valid and unchanged throughout use.
+Include `tlv/formats/format.h` for the allocation-free, type-distinct descriptors:
 
-The reader requires `read_tag` and `read_length`. The writer requires
-`write_tag`, `write_length`, and `length_size`. Unused operations may be NULL.
+- `tlv_reader_format_t`: exactly `context`, `read_tag`, `read_length`.
+- `tlv_writer_format_t`: exactly `context`, `write_tag`, `write_length`, `length_size`.
+
+Pass the matching descriptor to `tlv_reader_init` or `tlv_writer_init` as the
+last argument after the buffer and its size. The descriptor and its optional
+immutable `context` are borrowed and must remain valid and unchanged throughout use.
+All callbacks in the chosen direction are required; a custom reader needs no
+write callbacks, and a custom writer needs no read callbacks.
+
+`tlv_reader_format_init(format, context, read_tag, read_length)` and
+`tlv_writer_format_init(format, context, write_tag, write_length, length_size)`
+initialize caller-owned descriptors at runtime. They return `TLV_OK` on success
+or `TLV_ERR_INVALID_ARG` for a NULL destination or required callback, leaving
+the destination unchanged on failure. A NULL context is valid. Static C
+initialization can use designated fields. The named callback typedefs are
+`tlv_read_tag_fn`, `tlv_read_length_fn`, `tlv_write_tag_fn`,
+`tlv_write_length_fn`, and `tlv_length_size_fn`.
+
+The two descriptor pointer types are incompatible. C++ rejects a direction
+mismatch; C builds with `-std=c11 -Wall -Wextra -Werror` reject it as well.
+Without warnings-as-errors, a C compiler may diagnose the mismatch and continue.
+No combined format descriptor or compatibility alias is provided.
+
 Callbacks receive the context and a bounded byte range; return a `tlv_result_t`
 and report consumed or written bytes through their output pointer.
 
@@ -136,9 +154,10 @@ reported sizes but cannot undo an out-of-bounds write by a custom callback.
 Source values passed to the writer must not overlap the destination item.
 
 `tlv_reader_init` and `tlv_writer_init` require an explicit format argument.
-The C++ reader and writer constructors likewise require a `const tlv_format_t&`
-as their last argument. There are no implicit-format overloads.
-`tlv_format_default` is an available encoding with one raw tag byte and a
+The C++ reader constructor requires `const tlv_reader_format_t&`; the writer
+constructor requires `const tlv_writer_format_t&` as its last argument. There are no implicit-format overloads.
+`tlv_reader_format_default` and `tlv_writer_format_default` are public const
+descriptors for one raw tag byte and a
 definite BER-style length of up to 65535; it does not implement full BER-TLV tags.
 Reader and writer structs store a borrowed format pointer; rebuild consumers.
 
@@ -149,7 +168,8 @@ requires a descriptor and callbacks in application code, without parser edits.
 
 ## BER-TLV
 
-Use `tlv_format_ber` with the generic reader and writer for raw BER-TLV tags
+Use `tlv_reader_format_ber` with the reader and `tlv_writer_format_ber` with
+the writer for raw BER-TLV tags
 such as `5A`, `5F 2A`, `9F 1C`, and `9F 81 01`. Tags retain their wire bytes,
 including class and constructed bits. High-tag-number form ends at the first
 subsequent byte with bit 7 clear; its first subsequent byte must have a nonzero
@@ -173,16 +193,19 @@ and validation live in the format callbacks.
 
 ## Nested traversal
 
-Concrete descriptors are declared in `tlv/formats/default.h`, `fixed_1byte.h`,
-`ber.h` and `der.h`. The generic `format.h` declares only the contract.
+Concrete descriptors are declared in `tlv/formats/default/default.h`,
+`tlv/formats/fixed/fixed_1byte.h`, `tlv/formats/asn1/ber.h`, and
+`tlv/formats/asn1/der.h`. The generic `format.h` declares only the contract.
 
-The final optional `is_constructed(context, tag)` callback identifies values
-containing child TLVs in the same format. NULL means opaque values. BER and DER
-inspect their constructed bit; default and fixed formats leave values opaque.
+The separate optional `tlv_is_constructed_fn` traversal argument identifies
+values containing child TLVs in the same format. It receives the reader
+format context and a parsed tag. NULL means opaque values. Pass
+`tlv_ber_is_constructed` or `tlv_der_is_constructed` to inspect the respective
+constructed bit; pass NULL for opaque default and fixed-format values.
 Custom protocols can supply a different rule. This supports definite-length
 nesting; indefinite lengths and EOC are not supported by this contract.
 
-Use `tlv_walk_tree(data, size, format, max_depth, max_elements, visitor, context,
+Use `tlv_walk_tree(data, size, format, is_constructed, max_depth, max_elements, visitor, context,
 error_offset)` for bounded preorder traversal or NULL visitor for validation.
 Depth is zero at the top level and cannot exceed `TLV_WALK_MAX_DEPTH` (64).
 Limits are inclusive; zero is a real limit. Offsets identify failing elements.

@@ -22,7 +22,7 @@ tlv_result_t tlv_copy_value(const tlv_view_t* view, uint8_t* data,
     return tlv_copy_encoded(view->value, data, capacity, written);
 }
 
-tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_format_t* format,
+tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_writer_format_t* format,
                            uint8_t* data, size_t capacity, size_t* written) {
     if (!view || !written || (!data && capacity) ||
         (!view->value.data && view->value.length)) return TLV_ERR_NULL_ARG;

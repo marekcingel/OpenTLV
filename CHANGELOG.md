@@ -43,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Grouped format headers and implementations into `default/`, `fixed/`, and `asn1/` directories; direct format includes must use the new paths. (#68)
+- Split format descriptors into type-distinct reader and writer APIs, with independent built-in instances and validated custom-format initializers. Tree traversal and structural validation now take a separate nesting predicate; structure codecs select reader and writer formats independently. (#68)
 - Organized public C headers and sources into formats, reader, writer, schemas, codec and profiles directories; moved C++ typed writing to `tlv::write_value`, separated raw I/O from codecs, and made built-in formats and the EMV profile independently selectable within the same library. Consumers must update includes and rebuild for the extended format descriptor. (#65)
 - Extended the default warnings-as-errors setting to GCC and MSVC, using each compiler's native option for OpenTLV C and C++ targets.
 - Standardized GCC, Clang, and MSVC CI builds on Ninja with explicit test, example, and benchmark configuration, MSVC x64 targeting, and failure when no unit tests are discovered. Preserved compiler and C++ standard coverage and the Clang C-only build. (#66)

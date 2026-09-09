@@ -6,7 +6,7 @@
 #if defined(OPENTLV_TLVPP_CODEC_HPP) || defined(OPENTLV_CODEC_H)
 #error Low-level APIs must not depend on the codec layer
 #endif
-#include "tlv/formats/default.h"
+#include "tlv/formats/default/default.h"
 #include "tlv++/structure.hpp"
 #include <gtest/gtest.h>
 
@@ -14,7 +14,7 @@ TEST(TLV_CPP, LayeredTraversalAndSchema) {
     const uint8_t data[] = {1, 1, 42, 2, 0};
     tlv::bytes bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
     size_t visits = 0;
-    auto result = tlv::walk_tree(bytes, tlv_format_default, 0, 2,
+    auto result = tlv::walk_tree(bytes, tlv_reader_format_default, nullptr, 0, 2,
         [&visits](const tlv::entry& item, size_t depth, size_t offset) {
             EXPECT_EQ(0u, depth);
             EXPECT_EQ(visits ? 3u : 0u, offset);
@@ -24,12 +24,12 @@ TEST(TLV_CPP, LayeredTraversalAndSchema) {
     ASSERT_TRUE(result); EXPECT_EQ(2u, visits);
     const tlv_structure_rule_t rule = {{{{1},1},1,1,0},1,1,TLV_SCHEMA_PRIMITIVE,nullptr};
     const tlv_structure_schema_t schema = {&rule, 1, 1};
-    EXPECT_TRUE(tlv::validate(bytes, tlv_format_default, schema, 0, 2));
+    EXPECT_TRUE(tlv::validate(bytes, tlv_reader_format_default, nullptr, schema, 0, 2));
 }
 
 namespace {
 struct pair_value { uint8_t first, second; };
-tlv_codec_result_t decode_pair(const void*, const tlv_format_t* format,
+tlv_codec_result_t decode_pair(const void*, const tlv_reader_format_t* format,
                                const uint8_t* data, size_t size, void* out, size_t capacity) {
     if (capacity < sizeof(pair_value)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
     tlv_view_t a{}, b{}; size_t used = 0, second_used = 0;
@@ -41,7 +41,7 @@ tlv_codec_result_t decode_pair(const void*, const tlv_format_t* format,
     *static_cast<pair_value*>(out) = pair_value{a.value.data[0], b.value.data[0]};
     return TLV_CODEC_OK;
 }
-tlv_codec_result_t encode_pair(const void*, const tlv_format_t* format,
+tlv_codec_result_t encode_pair(const void*, const tlv_writer_format_t* format,
                                const void* value, size_t size, uint8_t* data,
                                size_t capacity, size_t* written) {
     if (size != sizeof(pair_value)) return TLV_CODEC_ERR_INVALID_VALUE;
@@ -56,7 +56,7 @@ tlv_codec_result_t encode_pair(const void*, const tlv_format_t* format,
 }
 
 TEST(TLV_CPP, StructureCodecUsesCallerOwnedStorage) {
-    const tlv_structure_codec_t codec = {nullptr, &tlv_format_default, nullptr, 0, 2, decode_pair, encode_pair};
+    const tlv_structure_codec_t codec = {nullptr, &tlv_reader_format_default, &tlv_writer_format_default, nullptr, nullptr, 0, 2, decode_pair, encode_pair};
     const pair_value value{42, 7};
     tlv::byte data[6]{};
     auto size = tlv::encode_structure(codec, value, nullptr, 0);
