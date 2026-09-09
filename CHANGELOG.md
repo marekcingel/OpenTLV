@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Removed automatic pull-request coverage comments; the workflow coverage summary and downloadable HTML report remain available. (#76)
+
 ### Fixed
 
 - Fixed a BER test compilation failure in GCC Release builds with warnings-as-errors enabled. (#66)
