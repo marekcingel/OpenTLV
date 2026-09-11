@@ -3,6 +3,7 @@ name: GCC Build
 on:
   push:
     branches: [main, develop]
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
   pull_request:
     branches: [main, develop]
 
@@ -44,3 +45,21 @@ jobs:
 
       - name: Run tests
         run: ctest --test-dir build --output-on-failure --no-tests=error
+
+      - name: Set up Python for package verification
+        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate and verify distribution archive
+        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
+        run: python scripts/check_package.py build --cxx ON
+
+      - name: Upload distribution archive
+        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenTLV-Linux-GNU-${{ github.ref_name }}
+          path: build/packages/*.tar.gz
+          if-no-files-found: error

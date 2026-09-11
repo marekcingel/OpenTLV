@@ -144,7 +144,7 @@ Start with the [documentation index](docs/README.md), or choose a topic:
 
 | Topic | Guide |
 | --- | --- |
-| Build and integrate | [Getting started](docs/getting-started.md), [compiler support](docs/compilers.md) |
+| Build and integrate | [Getting started](docs/getting-started.md), [distribution archives](docs/getting-started.md#install-and-generate-distribution-archives), [compiler support](docs/compilers.md) |
 | Architecture and API migration | [Layers, component options, and migration](docs/architecture.md) |
 | Read, write, and traverse | [Formats and I/O contracts](docs/formats/README.md), [core types](docs/core-types.md) |
 | Validate and decode | [Schemas](docs/schemas.md), [value codecs](docs/codecs.md), [DER](docs/profiles/der/README.md), [EMV](docs/profiles/emv/README.md) |

@@ -49,6 +49,63 @@ For a C++ application, enable `CXX` in `project`, set `OPENTLV_BUILD_CXX` to `ON
 and link `tlv++` instead. This target propagates the C library and include paths.
 See the [C++ example](../examples/tlv++/src/basic_usage.cpp).
 
+## Install and generate distribution archives
+
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+cmake --build build --parallel
+cmake --install build --prefix /path/to/install
+cpack --config build/CPackConfig.cmake -C Release
+```
+
+With Visual Studio, omit `-G Ninja` and use `--config Release` when building
+and installing. CPack defaults to ZIP on Windows and TGZ elsewhere. Archives
+are written to `build/packages`, for example
+`OpenTLV-0.1.0-Windows-AMD64-MSVC.zip`,
+`OpenTLV-0.1.0-Linux-x86_64-GNU.tar.gz`, or
+`OpenTLV-0.1.0-Linux-x86_64-Clang.tar.gz`.
+The version comes from the project version, including any pre-release suffix.
+Use `cpack --config build/CPackConfig.cmake -C Release -G TGZ` (or `-G ZIP`)
+to select another archive format.
+
+Each archive has one enclosing directory containing exactly the CMake install
+layout: `include/tlv`, optional `include/tlv++`, library artifacts in `lib`
+(Windows shared libraries in `bin`), CMake exports in `lib/cmake/OpenTLV`,
+and license, README and changelog in `share/doc/OpenTLV`. GNUInstallDirs options
+such as `CMAKE_INSTALL_LIBDIR` customize the shared installation layout.
+Use relative install directories to keep packages relocatable.
+
+After extracting, point `CMAKE_PREFIX_PATH` at that enclosing directory:
+
+```cmake
+find_package(OpenTLV CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE OpenTLV::tlv)
+# For C++ applications, use OpenTLV::tlvpp instead.
+```
+
+```sh
+cmake -S my-app -B my-app/build -DCMAKE_PREFIX_PATH=/path/to/extracted/OpenTLV-0.1.0-Linux-x86_64-GNU
+cmake --build my-app/build --config Release
+```
+
+The source checkout is unnecessary. Use a compatible compiler, architecture
+and runtime for the binary library. For shared builds, make the installed
+runtime library discoverable by the platform loader (for example, Windows `PATH`).
+`OPENTLV_BUILD_CXX=OFF` omits C++ headers and the `OpenTLV::tlvpp` target.
+CPack only packages `install()` output; it requires neither Conan nor vcpkg.
+On version-tag pushes (for example `0.1.0` or `0.2.0-rc.1`), the standard
+GCC, Clang and MSVC Release jobs each package their tested builds. GCC and Clang
+produce TGZ archives; MSVC produces ZIP archives. Archive and CI artifact names
+include the compiler identifier to distinguish the packages.
+They compare each archive with `cmake --install`, build standalone C and C++
+consumers, and upload the archives. Branch pushes and pull requests skip packaging.
+The CI helper `python scripts/check_package.py build --cxx ON` runs CPack in a
+fresh directory and copies verified archives to `build/packages`. It reports
+missing, unexpected and changed files, respects the configured installation
+directories, and checks consumers with the original compiler and the extracted
+CMake package. Use `--cxx OFF` for a C-only build. Checks also run under `python -O`.
+It does not publish releases or generate native OS installers.
+
 ## C-only build
 
 ```sh
