@@ -12,9 +12,9 @@ features such as `std::expected` are unavailable.
 CI builds and tests Debug and Release configurations. GCC and MSVC use C++11
 for Debug and C++23 for Release; Clang 18 uses strict C99 and C++23 in both
 configurations and also verifies C-only builds. The Clang job runs the C and
-C++ examples and publishes a unit-test coverage report for Debug.
+C++ examples and publishes a combined unit and integration test coverage report for Debug.
 
-GoogleTest v1.18 requires C++17, so unit-test targets use at least C++17 even
+GoogleTest v1.18 requires C++17, so test targets use at least C++17 even
 when the wrapper and examples are configured for C++11 or C++14. The C++
 example does not link GoogleTest. C++14, C++17, and C++20 remain selectable
 locally but are not separate entries in the current CI matrix.

@@ -183,7 +183,7 @@ descriptors for one raw tag byte and a
 definite BER-style length of up to 65535; it does not implement full BER-TLV tags.
 Reader and writer structs store a borrowed format pointer; rebuild consumers.
 
-For a complete custom format, see `tests/tlv/src/format_test.cpp`: it defines
+For a complete custom format, see `tests/integration/tlv/src/format_test.cpp`: it defines
 a two-byte tag and a fixed two-byte little-endian length, then uses the same
 generic reader and writer to round-trip multiple items. Adding a format only
 requires a descriptor and callbacks in application code, without parser edits.
