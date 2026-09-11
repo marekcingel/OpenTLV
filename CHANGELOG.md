@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add a Windows x86 MSVC Release CI job that builds the library and runs all unit and integration tests using the Visual Studio Win32 platform. (#86)
+
 ### Changed
 
 - Separate unit and integration tests with independent CMake build switches, CTest labels, and visible `Unit_` / `Integration_` GoogleTest suite names; CI coverage reports now explicitly cover both groups. (#85)
