@@ -19,6 +19,7 @@ option(OPENTLV_FORMAT_DER "Include the DER wire format and validation profile" O
 option(OPENTLV_PROFILE_EMV "Include the EMV dictionary, schemas and codecs" ON)
 
 include(cmake/compiler.cmake)
+include(GNUInstallDirs)
 
 add_subdirectory(tlv)
 
@@ -37,4 +38,9 @@ endif()
 
 if(OPENTLV_BUILD_BENCHMARKS AND OPENTLV_FORMAT_DEFAULT)
     add_subdirectory(benchmarks)
+endif()
+
+include(cmake/install.cmake)
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    include(cmake/packaging.cmake)
 endif()

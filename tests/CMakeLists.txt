@@ -12,6 +12,7 @@ FetchContent_Declare(
     GIT_TAG v1.18.0
 )
 
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(tlv)
