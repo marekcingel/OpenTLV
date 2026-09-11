@@ -9,12 +9,15 @@ C++17, C++20, and C++23. A matching C++ standard library is required;
 the wrapper uses its compatibility implementations when optional library
 features such as `std::expected` are unavailable.
 
-The dedicated Clang job builds the C API in strict C99 mode and the C++
-example in every supported C++ standard, then runs both examples and all
-unit tests. GoogleTest v1.18 requires C++17, so unit-test targets use at least
-C++17 even in the C++11 and C++14 configurations. The C++ example does not
-link GoogleTest and verifies those older language modes directly.
-Existing GCC and MSVC jobs continue to run on Ubuntu and Windows.
+CI builds and tests Debug and Release configurations. GCC and MSVC use C++11
+for Debug and C++23 for Release; Clang 18 uses strict C99 and C++23 in both
+configurations and also verifies C-only builds. The Clang job runs the C and
+C++ examples and publishes a unit-test coverage report for Debug.
+
+GoogleTest v1.18 requires C++17, so unit-test targets use at least C++17 even
+when the wrapper and examples are configured for C++11 or C++14. The C++
+example does not link GoogleTest. C++14, C++17, and C++20 remain selectable
+locally but are not separate entries in the current CI matrix.
 Clang compilation and testing do not depend on clang-tidy or static analysis.
 
 ## Building with Clang

@@ -24,6 +24,6 @@ views. This is a preprocessor setting, not a CMake cache option.
 The reader returns `tlv_view_t`: it copies the tag into inline storage and
 borrows the value directly from the input buffer. The writer accepts
 `tlv_tag_t`, and the C++ layer uses the same type for tags and codec keys.
-The current wire format uses exactly one tag byte and a BER-style length.
-The writer returns `TLV_ERR_INVALID_TAG` for any tag size other than one.
-The core types themselves impose no such format restriction.
+Tag and length restrictions depend on the selected format; the default format
+uses one tag byte, while BER and DER support multi-byte tags.
+See [memory ownership and lifetime](memory.md) for shared buffer rules.

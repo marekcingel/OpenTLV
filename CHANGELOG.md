@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Refreshed the README with workflow badges, hierarchical format/profile support checklists and an expansion catalogue, a quick-start example, documentation organized by C format/profile implementation with byte-tree examples, and light/dark SVG logos. (#79)
 - Updated GCC, Clang, and MSVC CI to build and test Debug and Release: GCC and MSVC use C++11 for Debug and C++23 for Release; Clang uses C++23 and verifies C-only builds in both configurations. (#73)
 - Grouped format headers and implementations into `default/`, `fixed/`, and `asn1/` directories; direct format includes must use the new paths. (#68)
 - Split format descriptors into type-distinct reader and writer APIs, with independent built-in instances and validated custom-format initializers. Tree traversal and structural validation now take a separate nesting predicate; structure codecs select reader and writer formats independently. (#68)

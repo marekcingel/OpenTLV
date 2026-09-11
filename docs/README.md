@@ -1,26 +1,42 @@
-# OpenTLV — documentation
+# OpenTLV documentation
 
-- [Layered architecture, component selection and migration](architecture.md)
+[Project overview](../README.md)
 
-- [Supported compilers and Clang builds](compilers.md)
+## Start here
 
-- [C format abstraction](formats.md) ? custom tag and length codecs
+- [Getting started: builds, CMake integration, and tests](getting-started.md)
+- [Supported compilers and build settings](compilers.md)
+- [Layered architecture, component selection, and API migration](architecture.md)
+- Usage examples: [C](../examples/tlv/src/basic_usage.c) and [C++](../examples/tlv++/src/basic_usage.cpp)
 
-- [Optional C schemas](schemas.md) — constant tables, tag lookup, and length validation
+- [Choosing a format](formats/README.md#choose-a-format)
+- [Memory ownership and lifetime](memory.md)
 
+## Core API and formats
+
+- [Format trees and byte examples](format-examples.md)
+
+- [Format expansion candidates and proposed priorities](format-roadmap.md)
+- [Core types and buffer ownership](core-types.md)
+- [Formats, reading, writing, traversal, and custom callbacks](formats/README.md)
+- [Schemas and length validation](schemas.md)
+- [Value codecs](codecs.md)
+- [Copy helpers](copy.md)
 - [TLV scanning and recovery](scanner.md)
-
 - [Integer byte-order conversions](endian.md)
 
-- [C value codecs](codecs.md)
+## Profiles
 
-- [EMV profile](emv.md)
+- [EMV Contact Book 3 v4.4](profiles/emv/README.md)
+- [ASN.1 DER-TLV and validation limits](profiles/der/README.md)
 
-- [ASN.1 DER-TLV](der.md)
+## Project
 
-Planned contents:
+- [Logo assets](assets/README.md)
+- [Changelog](../CHANGELOG.md)
+- [Contributing](../CONTRIBUTING.md)
+- [License](../LICENSE)
 
-- `format.md` — precise specification of the TLV format (tag, BER-style length)
-- `c-api.md` — C API reference (`tlv/`)
-- `cpp-api.md` — C++ API reference (`tlv++/`)
-- `getting-started.md` — quick start for both libraries
+Dedicated C and C++ API reference manuals are not yet available. Use the guides
+above and the public headers in [tlv](../tlv/include/tlv) and
+[tlv++](../tlv++/include/tlv++) for the current API.

@@ -1,7 +1,32 @@
-# C format abstraction
+# C library formats
+
+The directory layout follows the C library's `formats/default`, `formats/fixed`,
+and `formats/asn1` implementation families. Each page includes a byte example.
+Profile semantics are documented separately.
+
+- [Default TLV](default/README.md)
+- [Fixed 1-byte TLV](fixed/README.md)
+- [BER-TLV](asn1/ber.md)
+- [DER-TLV](asn1/der.md)
+- [Application-defined formats](custom/README.md)
+- Profiles: [DER validation](../profiles/der/README.md), [EMV](../profiles/emv/README.md)
+
+
+## Choose a format
+
+| Need | Start with | Boundary |
+| --- | --- | --- |
+| Small internal records with fixed header sizes | [Fixed 1-byte TLV](fixed/README.md) | Values up to 255 bytes |
+| One-byte tags with larger payloads | [Default TLV](default/README.md) | Values up to 65,535 bytes |
+| Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
+| Canonical ASN.1 framing and nested checks | [DER](../profiles/der/README.md) | Structural validation, not full semantic DER |
+| EMV Contact Book 3 data objects | [BER plus EMV profile](../profiles/emv/README.md) | Dictionary/codecs, not a transaction engine |
+| Application-specific framing | [Custom callbacks](custom/README.md) | Application supplies wire rules |
+
+All formats follow the [shared memory ownership rules](../memory.md).
 
 For canonical ASN.1 framing, nested validation, limits and error offsets, see
-[ASN.1 DER-TLV](der.md). `tlv_reader_format_der` and `tlv_writer_format_der` also support the generic I/O below.
+[ASN.1 DER-TLV](../profiles/der/README.md). `tlv_reader_format_der` and `tlv_writer_format_der` also support the generic I/O below.
 
 ## Reading one element
 
@@ -91,25 +116,6 @@ The source value must not overlap the destination element. Callback errors
 propagate and may leave partially encoded bytes. `tlv_writer_write` uses the
 same encoder and advances its position only on success.
 
-## Fixed 1-byte TLV
-
-Use `tlv_reader_format_fixed_1byte` and `tlv_writer_format_fixed_1byte` for a one-byte tag, a one-byte unsigned length,
-and exactly that many value bytes. For example, `01 03 AA BB CC` encodes tag
-`01` and the three-byte value `AA BB CC`. All tag bytes are valid, including
-`00` and `FF`; lengths range from 0 to 255, with no BER-style prefixes.
-
-```c
-tlv_reader_t reader;
-tlv_reader_init(&reader, data, size, &tlv_reader_format_fixed_1byte);
-tlv_writer_t writer;
-tlv_writer_init(&writer, buffer, capacity, &tlv_writer_format_fixed_1byte);
-```
-
-Writing a tag whose size is not 1 returns `TLV_ERR_INVALID_TAG`; a value
-longer than 255 bytes returns `TLV_ERR_INVALID_LENGTH`. Missing length or
-value bytes return `TLV_ERR_BUFFER_TOO_SHORT`. An empty input is the end of
-the stream (`TLV_ERR_END_OF_BUFFER`). Multiple records may be concatenated.
-
 ## Generic interface
 
 Include `tlv/formats/format.h` for the allocation-free, type-distinct descriptors:
@@ -182,97 +188,6 @@ a two-byte tag and a fixed two-byte little-endian length, then uses the same
 generic reader and writer to round-trip multiple items. Adding a format only
 requires a descriptor and callbacks in application code, without parser edits.
 
-## BER-TLV
-
-Use `tlv_reader_format_ber` with the reader and `tlv_writer_format_ber` with
-the writer for raw BER-TLV tags
-such as `5A`, `5F 2A`, `9F 1C`, and `9F 81 01`. Tags retain their wire bytes,
-including class and constructed bits. High-tag-number form ends at the first
-subsequent byte with bit 7 clear; its first subsequent byte must have a nonzero
-low seven-bit value. Tags must fit `TLV_TAG_MAX_SIZE`. The format accepts raw
-identifiers such as `9F 1C` without enforcing ASN.1 tag-number minimality or
-universal-tag semantics. Definite values remain opaque during single-element
-reading; resolving an indefinite element inspects descendant framing.
-
-Definite lengths range from zero through `SIZE_MAX` (the complete element must
-also fit `size_t`). The writer uses short form below 128 and the shortest
-big-endian long form otherwise: 128 is `81 80`, 256 is `82 01 00`.
-The reader also accepts nonminimal definite lengths, including leading zeros.
-Reserved length prefix `FF` and lengths overflowing `size_t` return
-`TLV_ERR_INVALID_LENGTH`. The length-only callback still accepts definite
-lengths only: `80` needs the parsed tag and surrounding bytes, supplied through
-the optional value-boundary callback.
-
-Constructed elements may use indefinite length `80`, terminated by `00 00`.
-For example, `30 80 04 02 00 00 00 00` has a four-byte value `04 02 00 00`
-and consumes eight bytes. The zeros inside primitive tag `04` are data.
-Only the enclosing EOC is excluded from the value; EOCs belonging to children
-remain part of their complete encodings within that value.
-
-EOC matching uses an allocation-free iterative stack and permits mixed definite
-and indefinite descendants. Every definite parent bounds all its descendants;
-an EOC beyond that boundary cannot close a child. `TLV_BER_MAX_DEPTH` is 64
-simultaneous constructed scopes, counting the outer indefinite element and
-definite constructed descendants, including empty ones. Exceeding it returns
-`TLV_ERR_LIMIT`. This framing limit is independent of walker depth/element limits.
-Resolving one indefinite element takes linear time in the inspected framing;
-tree traversal and schemas can rescan nested encodings.
-
-Indefinite primitive values and malformed EOC length fields return
-`TLV_ERR_INVALID_LENGTH`. Unexpected EOC in a scanned definite scope and reserved
-universal tag zero used as an ordinary element return `TLV_ERR_INVALID_TAG`.
-Missing/truncated EOC or child encodings return `TLV_ERR_BUFFER_TOO_SHORT`.
-Single-element definite reads still defer child validation to tree traversal.
-
-### Explicit indefinite writing
-
-`tlv_write`, `tlv_writer_write`, and `tlv_encoded_size` retain definite BER output.
-Use the BER-specific functions for an already encoded sequence of children:
-
-```c
-const tlv_tag_t sequence = {{0x30}, 1};
-const uint8_t children[] = {0x04, 0x02, 0x00, 0x00};
-uint8_t output[8];
-size_t required, written;
-tlv_result_t rc = tlv_ber_indefinite_encoded_size(sequence, sizeof(children), &required);
-if (rc == TLV_OK && required <= sizeof(output)) {
-    rc = tlv_ber_write_indefinite(output, sizeof(output), sequence,
-                                 children, sizeof(children), &written);
-}
-```
-
-The size query validates the constructed tag and size overflow. Writing also
-validates all child framing and the same nesting limit before modifying the
-destination. Do not supply the enclosing EOC; the writer appends it. Source and
-destination must not overlap. Capacity failures leave bytes and outputs unchanged.
-An empty sequence accepts `NULL, 0` children. NULL destination with zero capacity
-reports insufficient capacity; use the separate size query for sizing.
-`tlv_ber_writer_write_indefinite` appends to a stateful writer initialized with
-`&tlv_writer_format_ber` and advances its position only on success.
-
-The C++ `tlv::reader`, traversal, and schema wrappers support indefinite input
-through the same BER descriptor. Include `tlv++/ber.hpp` for
-`tlv::ber_write_indefinite(buffer, capacity, tag, children)`, returning
-`expected<size_t, error>`. The ordinary C++ writer remains definite-length.
-The C core does not allocate; C++ error construction retains its existing
-`std::string` behavior.
-
-`tlv_copy_view` with the BER writer re-encodes the outer header as definite;
-child bytes remain unchanged. Use `tlv_copy_encoded` with the full consumed
-range to preserve the original indefinite representation. Flat walkers,
-recovery scanning, structural schemas and structure codecs use the resolved
-value range. Scanner results remain recovery candidates, not proof of a valid
-surrounding tree. DER still rejects indefinite lengths.
-
-These framing rules follow [ITU-T X.690 (02/2021), sections 8.1.3 and 8.1.5](https://www.itu.int/rec/T-REC-X.690-202102-I/en).
-
-Malformed tags, unterminated tags on write, and tags exceeding capacity return
-`TLV_ERR_INVALID_TAG`. Missing tag continuation or length bytes return
-`TLV_ERR_BUFFER_TOO_SHORT`; a continuation requiring bytes beyond tag capacity
-returns `TLV_ERR_INVALID_TAG` even if those bytes are missing. Empty input to
-the generic reader returns `TLV_ERR_END_OF_BUFFER`. All BER-specific encoding
-and validation live in the format callbacks.
-
 ## Nested traversal
 
 Concrete descriptors are declared in `tlv/formats/default/default.h`,
@@ -292,4 +207,4 @@ error_offset)` for bounded preorder traversal or NULL visitor for validation.
 Depth is zero at the top level and cannot exceed `TLV_WALK_MAX_DEPTH` (64).
 Limits are inclusive; zero is a real limit. Offsets identify failing elements.
 STOP succeeds immediately without validating the remaining input. The original
-flat reader and walker retain their behavior. See [architecture](architecture.md).
+flat reader and walker retain their behavior. See [architecture](../architecture.md).

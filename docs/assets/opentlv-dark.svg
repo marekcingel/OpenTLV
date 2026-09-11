@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="160" viewBox="0 0 720 160" role="img" aria-labelledby="title desc">
+  <title id="title">OpenTLV</title>
+  <desc id="desc">Three blocks represent Tag, Length, and Value inside an open enclosure.</desc>
+  <g fill="none" stroke="#EAF2F8" stroke-width="12" stroke-linejoin="round">
+    <path d="M22 70V52L48 26H218L244 52V70"/>
+    <path d="M22 90V108L48 134H218L244 108V90"/>
+  </g>
+  <path fill="#258BD2" d="M46 58h38v44H46z"/>
+  <path fill="#57AD59" d="M92 58h38v44H92z"/>
+  <path fill="#F38A30" d="M138 58h82v44h-82z"/>
+  <text x="272" y="109" fill="#EAF2F8" font-family="Arial, Helvetica, sans-serif" font-size="84" font-weight="700" letter-spacing="-3">OpenTLV</text>
+</svg>
