@@ -167,3 +167,158 @@ TEST(Ber, TruncationPreservesReaderOutput) {
         EXPECT_EQ(42u, view.value.length);
     }
 }
+
+TEST(Ber, IndefiniteReferenceEncodingsAndRoundTrip) {
+    const std::vector<std::vector<uint8_t>> values = {
+        {}, {0x04, 3, 0, 0, 0xFF},
+        {0x30, 0x80, 0, 0},
+        {0x30, 0x80, 0x04, 2, 0, 0, 0, 0, 0x04, 0},
+        {0x30, 6, 0x30, 0x80, 0, 0, 0x04, 0},
+        {0x30, 0x80, 0x30, 2, 0x04, 0, 0, 0}
+    };
+    const tlv_tag_t tag = {{0x30}, 1};
+    for (const auto& value : values) {
+        std::vector<uint8_t> expected = {0x30, 0x80};
+        expected.insert(expected.end(), value.begin(), value.end());
+        expected.insert(expected.end(), {0, 0});
+        size_t required = 0, written = 999, used = 999;
+        ASSERT_EQ(TLV_OK, tlv_ber_indefinite_encoded_size(tag, value.size(), &required));
+        EXPECT_EQ(expected.size(), required);
+        std::vector<uint8_t> output(required, 0xEE);
+        ASSERT_EQ(TLV_OK, tlv_ber_write_indefinite(output.data(), output.size(), tag,
+            value.data(), value.size(), &written));
+        EXPECT_EQ(expected, output);
+        EXPECT_EQ(required, written);
+        // A following sibling is outside the outer EOC.
+        output.insert(output.end(), {0x04, 0});
+        tlv_view_t view{};
+        ASSERT_EQ(TLV_OK, tlv_read(output.data(), output.size(), &ber, &view, &used));
+        EXPECT_EQ(required, used);
+        EXPECT_EQ(value.size(), view.value.length);
+        EXPECT_EQ(output.data() + 2, view.value.data);
+        if (!value.empty()) EXPECT_EQ(0, std::memcmp(value.data(), view.value.data, value.size()));
+        tlv_reader_t reader{};
+        ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, output.data(), output.size(), &ber));
+        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+        EXPECT_EQ(required, reader.pos);
+        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+        EXPECT_EQ(4, view.tag.data[0]);
+        EXPECT_TRUE(tlv_reader_at_end(&reader));
+        // Every proper prefix of a valid outer element is truncated.
+        for (size_t size = 1; size < required; ++size) {
+            view = tlv_view_t{tlv_tag_t{{0xEE}, 1}, {nullptr, 42}};
+            used = 999;
+            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_read(output.data(), size, &ber, &view, &used));
+            EXPECT_EQ(999u, used);
+            EXPECT_EQ(0xEE, view.tag.data[0]);
+            EXPECT_EQ(nullptr, view.value.data);
+            EXPECT_EQ(42u, view.value.length);
+        }
+    }
+}
+
+TEST(Ber, IndefiniteMalformedInputIsAtomic) {
+    struct Case { std::vector<uint8_t> wire; tlv_result_t result; };
+    const Case cases[] = {
+        {{0x04, 0x80, 0, 0}, TLV_ERR_INVALID_LENGTH},
+        {{0x30, 0x80, 0x04, 0x80, 0, 0, 0, 0}, TLV_ERR_INVALID_LENGTH},
+        {{0, 0}, TLV_ERR_INVALID_TAG},
+        {{0, 1, 0}, TLV_ERR_INVALID_TAG},
+        {{0x20, 0}, TLV_ERR_INVALID_TAG},
+        {{0x30, 0x80, 0, 1, 0, 0, 0}, TLV_ERR_INVALID_LENGTH},
+        {{0x30, 0x80, 0, 0x81, 0, 0, 0}, TLV_ERR_INVALID_LENGTH},
+        {{0x30, 0x80, 0, 0x80, 0, 0}, TLV_ERR_INVALID_LENGTH},
+        {{0x30, 0x80, 0x20, 0, 0, 0}, TLV_ERR_INVALID_TAG},
+        {{0x30, 0x80, 0x30, 2, 0, 0, 0, 0}, TLV_ERR_INVALID_TAG},
+        // A nested indefinite child cannot borrow EOC from outside its definite parent.
+        {{0x30, 0x80, 0x30, 2, 0x30, 0x80, 0, 0, 0, 0}, TLV_ERR_BUFFER_TOO_SHORT},
+        {{0x30, 0x80, 0x30, 3, 0x04, 2, 0, 0, 0}, TLV_ERR_BUFFER_TOO_SHORT},
+        {{0x30, 0x80, 0x04, 0xFF, 0, 0}, TLV_ERR_INVALID_LENGTH},
+        {{0x30, 0x80, 0x04, 2, 0, 0}, TLV_ERR_BUFFER_TOO_SHORT},
+        {{0x30, 0x80, 0}, TLV_ERR_BUFFER_TOO_SHORT},
+        {{0x30, 0x80, 0x30, 0x80, 0, 0}, TLV_ERR_BUFFER_TOO_SHORT}
+    };
+    for (const auto& item : cases) {
+        tlv_reader_t reader{};
+        ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, item.wire.data(), item.wire.size(), &ber));
+        tlv_view_t view = {tlv_tag_t{{0xEE}, 1}, {nullptr, 42}};
+        EXPECT_EQ(item.result, tlv_reader_next(&reader, &view));
+        EXPECT_EQ(0u, reader.pos);
+        EXPECT_EQ(0xEE, view.tag.data[0]);
+        EXPECT_EQ(nullptr, view.value.data);
+        EXPECT_EQ(42u, view.value.length);
+    }
+}
+
+TEST(Ber, IndefiniteWriterCapacityValidationAndDefault) {
+    const tlv_tag_t tag = {{0x30}, 1};
+    const uint8_t value[] = {0x04, 2, 0, 0};
+    uint8_t output[16];
+    size_t written = 999;
+    for (size_t capacity = 0; capacity < 8; ++capacity) {
+        std::memset(output, 0xEE, sizeof(output));
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+            tlv_ber_write_indefinite(output, capacity, tag, value, sizeof(value), &written));
+        EXPECT_EQ(999u, written);
+        for (auto byte : output) EXPECT_EQ(0xEE, byte);
+    }
+    const std::vector<std::vector<uint8_t>> invalid = {
+        {0, 0}, {0x04}, {0x04, 2, 0}, {0x04, 0x80, 0, 0},
+        {0x30, 0x80}, {0x30, 2, 0, 0}
+    };
+    for (const auto& bytes : invalid) {
+        EXPECT_NE(TLV_OK, tlv_ber_write_indefinite(output, sizeof(output), tag,
+            bytes.data(), bytes.size(), &written));
+        EXPECT_EQ(999u, written);
+        for (auto byte : output) EXPECT_EQ(0xEE, byte);
+    }
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_ber_indefinite_encoded_size(tag, SIZE_MAX, &written));
+    EXPECT_EQ(999u, written);
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_ber_indefinite_encoded_size(tlv_tag_t{{4}, 1}, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_ber_write_indefinite(output, sizeof(output),
+        tlv_tag_t{{4}, 1}, nullptr, 0, &written));
+    EXPECT_EQ(999u, written);
+    for (auto byte : output) EXPECT_EQ(0xEE, byte);
+    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_ber_indefinite_encoded_size(tlv_tag_t{{0}, 1}, 0, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_indefinite_encoded_size(tag, 0, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_write_indefinite(nullptr, 4, tag, nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_ber_write_indefinite(nullptr, 0, tag, nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_write_indefinite(output, sizeof(output), tag, nullptr, 1, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_write_indefinite(output, sizeof(output), tag, nullptr, 0, nullptr));
+    tlv_writer_t writer{};
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, output, 10, &ber_writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, nullptr, 0));
+    EXPECT_EQ(0x30, output[0]); EXPECT_EQ(0, output[1]);
+    ASSERT_EQ(TLV_OK, tlv_ber_writer_write_indefinite(&writer, tag, value, sizeof(value)));
+    EXPECT_EQ(10u, writer.pos);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_ber_writer_write_indefinite(&writer, tag, nullptr, 0));
+    EXPECT_EQ(10u, writer.pos);
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_writer_write_indefinite(nullptr, tag, nullptr, 0));
+    writer.format = nullptr;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_ber_writer_write_indefinite(&writer, tag, nullptr, 0));
+}
+
+TEST(Ber, IndefiniteNestingLimitIncludesDefiniteScopes) {
+    for (bool definite_child : {false, true}) {
+        std::vector<uint8_t> wire;
+        for (size_t depth = 0; depth < TLV_BER_MAX_DEPTH; ++depth)
+            wire.insert(wire.end(), {0x30, 0x80});
+        wire.resize(wire.size() + 2 * TLV_BER_MAX_DEPTH, 0);
+        tlv_view_t view{};
+        size_t used = 999;
+        ASSERT_EQ(TLV_OK, tlv_read(wire.data(), wire.size(), &ber, &view, &used));
+        EXPECT_EQ(wire.size(), used);
+        std::vector<uint8_t> out(wire.size());
+        ASSERT_EQ(TLV_OK, tlv_ber_write_indefinite(out.data(), out.size(), tlv_tag_t{{0x30}, 1},
+            view.value.data, view.value.length, &used));
+        EXPECT_EQ(wire, out);
+        const size_t midpoint = 2 * TLV_BER_MAX_DEPTH;
+        wire.insert(wire.begin() + midpoint, {0x30, static_cast<uint8_t>(definite_child ? 0 : 0x80)});
+        if (!definite_child) wire.insert(wire.begin() + midpoint + 2, {0, 0});
+        EXPECT_EQ(TLV_ERR_LIMIT, tlv_read(wire.data(), wire.size(), &ber, &view, &used));
+        out.assign(wire.size(), 0xEE);
+        EXPECT_EQ(TLV_ERR_LIMIT, tlv_ber_write_indefinite(out.data(), out.size(), tlv_tag_t{{0x30}, 1},
+            wire.data() + 2, wire.size() - 4, &used));
+        for (auto byte : out) EXPECT_EQ(0xEE, byte);
+    }
+}

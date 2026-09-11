@@ -31,12 +31,13 @@ TEST(FormatInit, ReaderValidInputAndOptionalContext) {
         EXPECT_EQ(ctx, format.context);
         EXPECT_EQ(read_tag, format.read_tag);
         EXPECT_EQ(read_length, format.read_length);
+        EXPECT_EQ(nullptr, format.read_value_bounds);
     }
 }
 
 TEST(FormatInit, ReaderRejectsNullArgumentsWithoutModification) {
     const int context = 42;
-    tlv_reader_format_t format = {&context, read_tag, read_length};
+    tlv_reader_format_t format = {&context, read_tag, read_length, nullptr};
     unsigned char before[sizeof(format)];
     std::memcpy(before, &format, sizeof(format));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_reader_format_init(nullptr, nullptr, read_tag, read_length));

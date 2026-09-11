@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added BER indefinite-length constructed reading and explicit writing, bounded EOC matching, and support in generic traversal, schemas, and C++ wrappers. Reader format descriptors gain an optional value-boundary callback; consumers must rebuild. (#50)
 - Added a workflow coverage summary and an automatically updated pull-request comment with line and branch coverage and a link to the HTML report. (#76)
 - Added line and branch coverage reporting for the Clang 18 Debug/C++23 unit tests, including C and C++ public implementations and a downloadable HTML report. (#76)
 - Added format-driven bounded tree traversal, structural schemas for required/repeated fields and nested membership, and allocation-free complete-object codecs with C++ adapters. (#65)
