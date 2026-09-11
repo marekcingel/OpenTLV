@@ -11,7 +11,7 @@ this profile. Book 3 data elements without a tag are not assigned invented tags.
 The reference is [EMVCo Book 3 v4.4](https://www.emvco.com/specifications/book-3-application-specification-2/),
 also available as a [public copy of the specification](https://www.scribd.com/document/648236969/EMV-v4-4-Book-3-Application-Specification-1).
 Tag constants, schema entries, length steps, and codec bindings are maintained
-together in [emv_tags.def](../tlv/include/tlv/profiles/emv_tags.def).
+together in [emv_tags.def](../../../tlv/include/tlv/profiles/emv_tags.def).
 
 ## Framing and lookup
 
@@ -137,3 +137,24 @@ padding are handled by the caller. Book 3 defines one- and two-byte tags;
 three-byte tags remain readable by generic BER but are unknown to this profile.
 With `TLV_TAG_MAX_SIZE == 1`, two-byte constants and entries are omitted;
 configure the macro consistently for the library and all consumers.
+
+## Byte example
+
+EMV adds dictionary entries, contextual schemas, and explicit value codecs;
+it does not introduce a separate wire-format descriptor.
+
+```text
+9F 02 06 00 00 00 00 12 34
+Element (9 bytes)
+|-- Tag:    9F 02 (Amount, Authorised, Numeric)
+|-- Length: 06 = 6 value bytes
+`-- Value:  00 00 00 00 12 34
+    `-- Explicit EMV numeric decoding: 1234 minor units
+```
+
+Read the framing with `tlv_reader_format_ber`, then explicitly decode the value
+with `tlv_emv_codec_amount` into caller-owned storage. Currency and decimal scale
+come from application context; the codec does not assign them. This one data
+object does not represent a complete or validated transaction.
+[EMV profile and codecs](README.md)
+
