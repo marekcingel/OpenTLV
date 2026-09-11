@@ -50,8 +50,10 @@ jobs:
       - name: Build
         run: cmake --build build --parallel
 
-      - name: Run tests
-        run: ctest --test-dir build --output-on-failure --no-tests=error
+      - name: Run unit and integration tests
+        run: |
+          ctest --test-dir build -L unit --output-on-failure --no-tests=error
+          ctest --test-dir build -L integration --output-on-failure --no-tests=error
 
       - name: Set up Python for package verification
         if: github.ref_type == 'tag' && matrix.build_type == 'Release'

@@ -126,6 +126,51 @@ for reads and a `tlv_writer_format_t` for writes. See
 
 ## Build and run tests
 
+Tests are classified by purpose under `tests/unit/{tlv,tlv++}` and
+`tests/integration/{tlv,tlv++}`. Unit tests exercise component contracts,
+including callback errors, storage and state guarantees. Integration tests
+exercise concrete wire formats, reference vectors, roundtrips, nested traversal,
+recovery and interactions between layers. A file containing both kinds of cases
+is split between the two directories; classify new cases by what they verify.
+
+`OPENTLV_BUILD_TESTS` is the main switch. With it enabled, both
+`OPENTLV_BUILD_UNIT_TESTS` and `OPENTLV_BUILD_INTEGRATION_TESTS` default to `ON`.
+An unfiltered CTest run executes both enabled groups. To select a group in an
+existing build, use its CTest label:
+
+```sh
+ctest --test-dir build-tests -C Release -L unit --output-on-failure --no-tests=error
+ctest --test-dir build-tests -C Release -L integration --output-on-failure --no-tests=error
+```
+
+To configure and build each group independently:
+
+```sh
+cmake -S . -B build-unit -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_UNIT_TESTS=ON -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF
+cmake --build build-unit --config Release --parallel
+ctest --test-dir build-unit -C Release --output-on-failure --no-tests=error
+
+cmake -S . -B build-integration -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_UNIT_TESTS=OFF -DOPENTLV_BUILD_INTEGRATION_TESTS=ON
+cmake --build build-integration --config Release --parallel
+ctest --test-dir build-integration -C Release --output-on-failure --no-tests=error
+```
+
+Both groups follow the enabled format/profile options and `OPENTLV_BUILD_CXX`.
+Generic contract tests use controlled callbacks where appropriate and remain
+available without built-in formats. Compile-time format direction checks run
+when tests are enabled. Alternate tag-capacity targets remain part of their
+respective groups: types use capacities 1/16/255, BER and DER use 1/16/255, and
+EMV uses 1/2/3. Each alternate target compiles its implementation with the same
+`TLV_TAG_MAX_SIZE` as its tests; it does not link the differently laid-out main
+library.
+
+CI runs both labels. The Clang Debug coverage artifact measures the combined
+unit and integration runs, including alternate-capacity targets, before examples
+or installed-package checks execute. Package verification remains available via
+`python scripts/check_package.py <release-build> --cxx ON` (or `OFF` for C-only).
+
+To build and run both groups together:
+
 Tests require a C++17-capable toolchain and access to the GoogleTest dependency.
 
 ```sh

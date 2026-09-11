@@ -8,6 +8,39 @@ on:
     branches: [main, develop]
 
 jobs:
+  test-selection:
+    name: Independent ${{ matrix.group }} tests / ${{ matrix.components }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [unit, integration]
+        components: [full, minimal]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Configure selected group
+        shell: bash
+        run: |
+          options=(-DOPENTLV_BUILD_UNIT_TESTS=OFF -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF)
+          if [[ '${{ matrix.group }}' == unit ]]; then
+            options+=(-DOPENTLV_BUILD_UNIT_TESTS=ON)
+          else
+            options+=(-DOPENTLV_BUILD_INTEGRATION_TESTS=ON)
+          fi
+          if [[ '${{ matrix.components }}' == minimal ]]; then
+            options+=(-DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED_1BYTE=OFF
+                      -DOPENTLV_FORMAT_BER=OFF -DOPENTLV_FORMAT_DER=OFF
+                      -DOPENTLV_PROFILE_EMV=OFF -DOPENTLV_BUILD_CXX=OFF)
+          fi
+          cmake -S . -B build-selection -DCMAKE_BUILD_TYPE=Release \
+            -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=OFF "${options[@]}"
+      - name: Build selected group
+        run: cmake --build build-selection --parallel
+      - name: Run all enabled tests
+        run: ctest --test-dir build-selection --output-on-failure --no-tests=error
+
   gcc:
     permissions:
       contents: write
@@ -45,8 +78,10 @@ jobs:
       - name: Build
         run: cmake --build build --parallel
 
-      - name: Run tests
-        run: ctest --test-dir build --output-on-failure --no-tests=error
+      - name: Run unit and integration tests
+        run: |
+          ctest --test-dir build -L unit --output-on-failure --no-tests=error
+          ctest --test-dir build -L integration --output-on-failure --no-tests=error
 
       - name: Set up Python for package verification
         if: github.ref_type == 'tag' && matrix.build_type == 'Release'

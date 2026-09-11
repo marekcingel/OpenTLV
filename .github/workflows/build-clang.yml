@@ -60,20 +60,24 @@ jobs:
       - name: Build
         run: cmake --build build --parallel
 
-      - name: Reset coverage counters before unit tests
+      - name: Reset coverage counters before unit and integration tests
         if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
         # GoogleTest discovery can execute instrumented binaries during the build.
         run: find build -type f -name '*.gcda' -delete
 
-      - name: Run all unit tests
-        run: ctest --test-dir build --output-on-failure --no-tests=error
+      - name: Run unit and integration tests
+        run: |
+          ctest --test-dir build -L unit --output-on-failure --no-tests=error
+          ctest --test-dir build -L integration --output-on-failure --no-tests=error
 
-      - name: Generate unit-test coverage report
+      - name: Generate unit and integration test coverage report
         if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
         # Collect before examples run and search only the main build tree.
         run: |
           test -n "$(find build -type f -name '*.gcno' -print -quit)" || { echo '::error::Missing coverage instrumentation data'; exit 1; }
-          test -n "$(find build/tests -type f -name '*.gcda' -print -quit)" || { echo '::error::Missing unit-test coverage execution data'; exit 1; }
+          for group in unit integration; do
+            test -n "$(find "build/tests/$group" -type f -name '*.gcda' -print -quit)" || { echo "::error::Missing $group coverage execution data"; exit 1; }
+          done
           mkdir -p coverage
           gcovr build --root . \
             --gcov-executable 'llvm-cov-18 gcov' \
@@ -90,7 +94,7 @@ jobs:
         if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-clang-debug
+          name: coverage-clang-debug-unit-integration
           path: coverage/
           if-no-files-found: error
 
@@ -106,7 +110,7 @@ jobs:
           with open('coverage/summary.json', encoding='utf-8') as report:
               data = json.load(report)
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
-              summary.write('### Clang Debug unit-test coverage\n\n')
+              summary.write('### Clang Debug unit and integration test coverage\n\n')
               summary.write('| Metric | Coverage | Covered / Total |\n| --- | ---: | ---: |\n')
               for label, metric in [('Lines', 'line'), ('Branches', 'branch')]:
                   summary.write(f"| {label} | {data[metric + '_percent']}% | {data[metric + '_covered']} / {data[metric + '_total']} |\n")

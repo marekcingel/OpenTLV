@@ -15,8 +15,12 @@ FetchContent_Declare(
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_subdirectory(tlv)
-
-if(OPENTLV_BUILD_CXX AND OPENTLV_FORMAT_DEFAULT)
-    add_subdirectory(tlv++)
-endif()
+foreach(test_group IN ITEMS unit integration)
+    string(TOUPPER "${test_group}" group_option)
+    if(OPENTLV_BUILD_${group_option}_TESTS)
+        add_subdirectory(${test_group}/tlv)
+        if(OPENTLV_BUILD_CXX AND (test_group STREQUAL "unit" OR OPENTLV_FORMAT_DEFAULT))
+            add_subdirectory(${test_group}/tlv++)
+        endif()
+    endif()
+endforeach()

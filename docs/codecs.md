@@ -91,8 +91,8 @@ C++ `tlv::decode_structure<T>` and `tlv::encode_structure` in
 `tlv++/structure.hpp` adapt this descriptor without allocating temporary output.
 T must match the descriptor's representation and be default constructible.
 For a tested two-field mapping, see
-[`architecture_test.cpp`](../tests/tlv/src/architecture_test.cpp) and
-[`layers_test.cpp`](../tests/tlv++/src/layers_test.cpp).
+[`architecture_test.cpp`](../tests/integration/tlv/src/architecture_test.cpp) and
+[`layers_test.cpp`](../tests/integration/tlv++/src/layers_test.cpp).
 
 Existing tag-associated C++ codecs remain supported. Use
 `tlv::write_value(writer, value)` from `tlv++/codec.hpp` instead of the former

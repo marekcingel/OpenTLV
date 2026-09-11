@@ -8,6 +8,8 @@ opentlv_generate_version_files()
 
 option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" ON)
 option(OPENTLV_BUILD_TESTS "Build tests" ON)
+option(OPENTLV_BUILD_UNIT_TESTS "Build component contract tests" ON)
+option(OPENTLV_BUILD_INTEGRATION_TESTS "Build format and layer integration tests" ON)
 option(OPENTLV_BUILD_EXAMPLES "Build examples" ON)
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
