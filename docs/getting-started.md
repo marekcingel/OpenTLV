@@ -98,13 +98,18 @@ GCC, Clang and MSVC Release jobs each package their tested builds. GCC and Clang
 produce TGZ archives; MSVC produces ZIP archives. Archive and CI artifact names
 include the compiler identifier to distinguish the packages.
 They compare each archive with `cmake --install`, build standalone C and C++
-consumers, and upload the archives. Branch pushes and pull requests skip packaging.
+consumers, and upload the archives as both Actions artifacts and GitHub Release
+assets for the tag. Each compiler job attaches its archive after its checks pass.
+If the release does not exist, it is created with generated release notes;
+tags with a pre-release suffix create a pre-release. Existing release notes are
+preserved, and reruns replace assets with matching names.
+Branch pushes and pull requests skip packaging and release uploads.
 The CI helper `python scripts/check_package.py build --cxx ON` runs CPack in a
 fresh directory and copies verified archives to `build/packages`. It reports
 missing, unexpected and changed files, respects the configured installation
 directories, and checks consumers with the original compiler and the extracted
 CMake package. Use `--cxx OFF` for a C-only build. Checks also run under `python -O`.
-It does not publish releases or generate native OS installers.
+Native OS installers are not generated.
 
 ## C-only build
 

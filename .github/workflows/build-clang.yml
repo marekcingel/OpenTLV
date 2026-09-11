@@ -12,6 +12,8 @@ permissions:
 
 jobs:
   clang:
+    permissions:
+      contents: write
     name: Clang 18 / ${{ matrix.build_type }} / C++${{ matrix.cxx_standard }}
     runs-on: ubuntu-24.04
     strategy:
@@ -139,3 +141,22 @@ jobs:
           name: OpenTLV-Linux-Clang-${{ github.ref_name }}
           path: build/packages/*.tar.gz
           if-no-files-found: error
+
+      - name: Attach archive to GitHub Release
+        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            options=(--verify-tag --title "$RELEASE_TAG" --generate-notes)
+            if [[ "$RELEASE_TAG" == *-* ]]; then
+              options+=(--prerelease)
+            fi
+            # Another compiler job may create the release concurrently.
+            gh release create "$RELEASE_TAG" "${options[@]}" ||
+              gh release view "$RELEASE_TAG" >/dev/null
+          fi
+          gh release upload "$RELEASE_TAG" build/packages/*.tar.gz --clobber
