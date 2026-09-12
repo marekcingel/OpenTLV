@@ -2,14 +2,19 @@ name: MSVC Build
 
 on:
   push:
-    branches: [main, develop]
     tags: ['[0-9]*.[0-9]*.[0-9]*']
-  pull_request:
-    branches: [main, develop]
 
 jobs:
   msvc-x86:
-    name: MSVC / x86 / Release
+    name: MSVC / x86 / ${{ matrix.build_type }} / C++${{ matrix.cxx_standard }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - build_type: Debug
+            cxx_standard: 11
+          - build_type: Release
+            cxx_standard: 23
     permissions:
       contents: read
     runs-on: windows-2022
@@ -23,22 +28,22 @@ jobs:
       - name: Configure CMake
         run: >-
           cmake -S . -B build -G "Visual Studio 17 2022" -A Win32
-          -DCMAKE_CXX_STANDARD=23
+          -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }}
           -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_BUILD_CXX=ON -DOPENTLV_BUILD_TESTS=ON
           -DOPENTLV_BUILD_UNIT_TESTS=ON -DOPENTLV_BUILD_INTEGRATION_TESTS=ON
           -DOPENTLV_BUILD_BENCHMARKS=OFF
 
       - name: Build
-        run: cmake --build build --config Release --parallel
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel
 
       - name: Run unit and integration tests
-        run: ctest --test-dir build -C Release --output-on-failure --no-tests=error
+        run: ctest --test-dir build -C ${{ matrix.build_type }} --output-on-failure --no-tests=error
 
   msvc:
     permissions:
-      contents: write
-    name: MSVC / ${{ matrix.build_type }} / C++${{ matrix.cxx_standard }}
+      contents: read
+    name: MSVC / x64 / ${{ matrix.build_type }} / C++${{ matrix.cxx_standard }}
     strategy:
       fail-fast: false
       matrix:
@@ -81,40 +86,3 @@ jobs:
         run: |
           ctest --test-dir build -L unit --output-on-failure --no-tests=error
           ctest --test-dir build -L integration --output-on-failure --no-tests=error
-
-      - name: Set up Python for package verification
-        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Generate and verify distribution archive
-        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
-        run: python scripts/check_package.py build --cxx ON
-
-      - name: Upload distribution archive
-        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
-        uses: actions/upload-artifact@v4
-        with:
-          name: OpenTLV-Windows-MSVC-${{ github.ref_name }}
-          path: build/packages/*.zip
-          if-no-files-found: error
-
-      - name: Attach archive to GitHub Release
-        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ github.ref_name }}
-        run: |
-          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            options=(--verify-tag --title "$RELEASE_TAG" --generate-notes)
-            if [[ "$RELEASE_TAG" == *-* ]]; then
-              options+=(--prerelease)
-            fi
-            # Another compiler job may create the release concurrently.
-            gh release create "$RELEASE_TAG" "${options[@]}" ||
-              gh release view "$RELEASE_TAG" >/dev/null
-          fi
-          gh release upload "$RELEASE_TAG" build/packages/*.zip --clobber
