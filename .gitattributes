@@ -1,0 +1,2 @@
+# Fuzz seeds are binary input, including files that happen to resemble text.
+tests/fuzz/corpus/** binary

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add optional C API fuzz targets, seed corpora, ASan/UBSan instrumentation, bounded CI fuzzing with reproducing artifacts, and local execution documentation. (#72)
 - Add Windows x86 MSVC CI builds for Debug/C++11 and Release/C++23 using the Visual Studio Win32 platform, and explicitly label build jobs as x86 or x64. GCC and Clang builds remain x64-only. (#86)
 
 ### Changed

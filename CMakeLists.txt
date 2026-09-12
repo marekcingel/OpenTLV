@@ -12,6 +12,7 @@ option(OPENTLV_BUILD_UNIT_TESTS "Build component contract tests" ON)
 option(OPENTLV_BUILD_INTEGRATION_TESTS "Build format and layer integration tests" ON)
 option(OPENTLV_BUILD_EXAMPLES "Build examples" ON)
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
+option(OPENTLV_BUILD_FUZZING "Build C API fuzz targets with libFuzzer, ASan and UBSan" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
 option(OPENTLV_FORMAT_DEFAULT "Include the default wire format" ON)
@@ -24,6 +25,10 @@ include(cmake/compiler.cmake)
 include(GNUInstallDirs)
 
 add_subdirectory(tlv)
+
+if(OPENTLV_BUILD_FUZZING)
+    add_subdirectory(tests/fuzz)
+endif()
 
 if(OPENTLV_BUILD_CXX)
     add_subdirectory(tlv++)
