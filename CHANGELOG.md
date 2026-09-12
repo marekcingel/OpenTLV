@@ -7,8 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Remove CI CPack distribution archive generation and uploads, along with automatic GitHub Release creation and archive attachments; retain coverage artifacts and the workflow summary. (#86)
+- Remove the dedicated GCC CI matrix for independent test groups and minimal component builds. (#86)
+
+### Added
+
+- Add Windows x86 MSVC CI builds for Debug/C++11 and Release/C++23 using the Visual Studio Win32 platform, and explicitly label build jobs as x86 or x64. GCC and Clang builds remain x64-only. (#86)
+
 ### Changed
 
+- Run GCC and MSVC CI only on version-tag pushes; retain Clang CI for pushes and pull requests targeting `main` and `develop`, as well as version tags. (#86)
 - Separate unit and integration tests with independent CMake build switches, CTest labels, and visible `Unit_` / `Integration_` GoogleTest suite names; CI coverage reports now explicitly cover both groups. (#85)
 
 ## [0.3.0] - 2026-09-11

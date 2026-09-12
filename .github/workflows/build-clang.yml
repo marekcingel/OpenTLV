@@ -13,8 +13,8 @@ permissions:
 jobs:
   clang:
     permissions:
-      contents: write
-    name: Clang 18 / ${{ matrix.build_type }} / C++${{ matrix.cxx_standard }}
+      contents: read
+    name: Clang 18 / x64 / ${{ matrix.build_type }} / C++${{ matrix.cxx_standard }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -127,40 +127,3 @@ jobs:
           cmake -S . -B build-c -G Ninja -DCMAKE_C_COMPILER=clang-18 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=ON -DOPENTLV_BUILD_BENCHMARKS=OFF -DOPENTLV_WARNINGS_AS_ERRORS=ON
           cmake --build build-c --parallel
           ./build-c/examples/tlv/example-tlv
-
-      - name: Set up Python for package verification
-        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Generate and verify distribution archive
-        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
-        run: python scripts/check_package.py build --cxx ON
-
-      - name: Upload distribution archive
-        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
-        uses: actions/upload-artifact@v4
-        with:
-          name: OpenTLV-Linux-Clang-${{ github.ref_name }}
-          path: build/packages/*.tar.gz
-          if-no-files-found: error
-
-      - name: Attach archive to GitHub Release
-        if: github.ref_type == 'tag' && matrix.build_type == 'Release'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ github.ref_name }}
-        run: |
-          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            options=(--verify-tag --title "$RELEASE_TAG" --generate-notes)
-            if [[ "$RELEASE_TAG" == *-* ]]; then
-              options+=(--prerelease)
-            fi
-            # Another compiler job may create the release concurrently.
-            gh release create "$RELEASE_TAG" "${options[@]}" ||
-              gh release view "$RELEASE_TAG" >/dev/null
-          fi
-          gh release upload "$RELEASE_TAG" build/packages/*.tar.gz --clobber
