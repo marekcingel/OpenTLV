@@ -6,6 +6,7 @@
 
 - [Getting started: builds, CMake integration, and tests](getting-started.md)
 - [Supported compilers and build settings](compilers.md)
+- [C API fuzzing with ASan and UBSan](fuzzing.md)
 - [Layered architecture, component selection, and API migration](architecture.md)
 - Usage examples: [C](../examples/tlv/src/basic_usage.c) and [C++](../examples/tlv++/src/basic_usage.cpp)
 
