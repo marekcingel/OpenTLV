@@ -2,6 +2,7 @@
 #define OPENTLV_TLVPP_READER_HPP
 
 #include "tlv/reader/reader.h"
+#include "tlv/length.h"
 #include "tlv++/types.hpp"
 
 namespace tlv {
@@ -35,9 +36,15 @@ public:
             return unexpected<error>(error::from_c(rc));
         }
 
+        size_t length;
+        rc = tlv_length_to_size(raw.value.length, &length);
+        if (rc != TLV_OK) {
+            return unexpected<error>(error::from_c(rc));
+        }
+
         return entry{
             raw.tag,
-            bytes(reinterpret_cast<const byte*>(raw.value.data), raw.value.length)
+            bytes(reinterpret_cast<const byte*>(raw.value.data), length)
         };
     }
 

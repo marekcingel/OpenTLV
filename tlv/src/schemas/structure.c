@@ -1,6 +1,7 @@
 #include "tlv/schemas/schema.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/walker.h"
+#include "tlv/length.h"
 #include <string.h>
 
 static int same_tag(const tlv_tag_t* a, const tlv_tag_t* b) {
@@ -104,29 +105,37 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                 if (!current->allow_unknown) return invalid(pos, error_offset);
                 continue;
             }
-            rc = tlv_schema_validate_length(&rule->entry, view.value.length);
-            if (rc != TLV_OK) {
-                if (error_offset) *error_offset = pos;
-                return rc;
-            }
-            constructed = is_constructed &&
-                is_constructed(format->context, &view.tag);
-            if ((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
-                (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed))
-                return invalid(pos, error_offset);
-            if (rule->children) {
-                size_t start = (size_t)(view.value.data - data);
-                /* An empty container still has child-schema requirements. */
-                if (!view.value.length) {
-                    rc = check_scope(data, format, rule->children, start, start, error_offset);
-                    if (rc != TLV_OK) return rc;
-                    continue;
+            {
+                size_t value_length;
+                rc = tlv_length_to_size(view.value.length, &value_length);
+                if (rc != TLV_OK) {
+                    if (error_offset) *error_offset = pos;
+                    return rc;
                 }
-                if (depth == TLV_WALK_MAX_DEPTH || depth == max_depth) {
-                    if (error_offset) *error_offset = start;
-                    return TLV_ERR_LIMIT;
+                rc = tlv_schema_validate_length(&rule->entry, value_length);
+                if (rc != TLV_OK) {
+                    if (error_offset) *error_offset = pos;
+                    return rc;
                 }
-                stack[++depth] = (scope_t){rule->children, start, start + view.value.length, start, 0};
+                constructed = is_constructed &&
+                    is_constructed(format->context, &view.tag);
+                if ((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
+                    (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed))
+                    return invalid(pos, error_offset);
+                if (rule->children) {
+                    size_t start = (size_t)(view.value.data - data);
+                    /* An empty container still has child-schema requirements. */
+                    if (!value_length) {
+                        rc = check_scope(data, format, rule->children, start, start, error_offset);
+                        if (rc != TLV_OK) return rc;
+                        continue;
+                    }
+                    if (depth == TLV_WALK_MAX_DEPTH || depth == max_depth) {
+                        if (error_offset) *error_offset = start;
+                        return TLV_ERR_LIMIT;
+                    }
+                    stack[++depth] = (scope_t){rule->children, start, start + value_length, start, 0};
+                }
             }
         }
     }

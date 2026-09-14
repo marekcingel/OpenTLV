@@ -1,5 +1,6 @@
 #include "tlv/reader/scanner.h"
 #include "tlv/reader/reader.h"
+#include "tlv/length.h"
 
 tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start,
                       const tlv_reader_format_t* format, const tlv_schema_t* schema,
@@ -18,7 +19,13 @@ tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start,
             continue;
         if (schema) {
             const tlv_schema_entry_t* rule = tlv_schema_find(schema, &entry.tag);
-            if (!rule || tlv_schema_validate_length(rule, entry.value.length) != TLV_OK)
+            /* entry.value.length always comes from tlv_read(), which derives it
+             * from this same build's size_t, so this conversion cannot actually
+             * fail here; it is kept to honor the length.h module boundary and
+             * to stay correct if entry is ever sourced differently. */
+            size_t value_length;
+            if (!rule || tlv_length_to_size(entry.value.length, &value_length) != TLV_OK ||
+                tlv_schema_validate_length(rule, value_length) != TLV_OK)
                 continue;
         }
         *out_entry = entry;

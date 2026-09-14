@@ -1,5 +1,6 @@
 #include "tlv/reader/walker.h"
 #include "tlv/reader/reader.h"
+#include "tlv/length.h"
 
 static tlv_result_t tree_error(tlv_result_t rc, size_t offset, size_t* out) {
     if (out) *out = offset;
@@ -38,10 +39,13 @@ tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size,
         }
         if (is_constructed &&
             is_constructed(format->context, &view.tag) && view.value.length) {
+            size_t value_length;
+            rc = tlv_length_to_size(view.value.length, &value_length);
+            if (rc != TLV_OK) return tree_error(rc, pos, error_offset);
             pos = (size_t)(view.value.data - data);
             if (depth == max_depth)
                 return tree_error(TLV_ERR_LIMIT, pos, error_offset);
-            ends[++depth] = pos + view.value.length;
+            ends[++depth] = pos + value_length;
             resumes[depth] = end;
         } else pos = end;
     }

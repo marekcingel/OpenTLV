@@ -1,16 +1,31 @@
 # C core types
 
-Include `<tlv/types.h>` for format-independent types and the common
-`tlv_result_t` error codes from `<tlv/error.h>`. Tags and their configuration
-are declared in `<tlv/tag.h>`, which can also be included directly.
+Include `<tlv/view.h>` for `tlv_view_t`, `<tlv/value.h>` for `tlv_value_t`, and
+`<tlv/length.h>` for `tlv_length_t`, or `<tlv/tlv.h>` to pull in all of them
+along with the rest of the public API. The common `tlv_result_t` error codes
+come from `<tlv/error.h>`. Tags and their configuration are declared in
+`<tlv/tag.h>`, which can also be included directly.
 
-- `tlv_buffer_t` is a read-only, non-owning range (`data`, `length`). A null
-  pointer is valid only for an empty range.
+- `tlv_length_t` is a fixed 64-bit unsigned logical TLV value length, with
+  the same numeric range on every platform regardless of the current build's
+  `size_t` width. See [logical TLV value lengths](length.md) for its checked
+  conversions and the x86/x64 divergence in what fits `size_t`.
+- `tlv_value_t` is a read-only, non-owning value (`data`, `length` as
+  `tlv_length_t`). A null `data` pointer is valid only when `length` is zero.
+  See [borrowed TLV values](value.md) for checked construction and
+  validation.
+- There is no separate native byte-range struct. Native byte ranges in the
+  public API are passed as an explicit `const uint8_t*`/`size_t` pair, for
+  example `tlv_copy_encoded(encoded_data, encoded_length, ...)`.
 - `tlv_tag_t` stores raw tag bytes in wire order and their actual `size`.
   It performs no integer conversion or profile-specific validation.
-- `tlv_view_t` stores a tag inline and a borrowed `value` buffer. The caller
-  must keep the value storage alive while using the view. Copying the view
-  copies the tag and pointer, not the value bytes.
+- `tlv_view_t` (in `<tlv/view.h>`) stores a tag inline and a borrowed
+  `tlv_value_t` value. The caller must keep the value storage alive while
+  using the view. Copying the view copies the tag and the value's pointer
+  and length, not the value bytes. `tlv_view_t`/`tlv_value_t` are plain
+  structs containing a pointer; unlike `tlv_length_t`'s numeric range, their
+  in-memory layout is **not** guaranteed to match across architectures, and
+  must never be treated as a portable wire encoding.
 
 All types support zero initialization and require no dynamic allocation.
 An empty tag has size zero; individual formats decide whether it is valid.

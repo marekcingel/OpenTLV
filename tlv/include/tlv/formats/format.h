@@ -1,7 +1,7 @@
 #ifndef OPENTLV_FORMAT_H
 #define OPENTLV_FORMAT_H
 
-#include "tlv/types.h"
+#include "tlv/view.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -18,13 +18,15 @@
 - [Format trees and byte examples](format-examples.md)
 
 - [Format expansion candidates and proposed priorities](format-roadmap.md)
-- [Core types and buffer ownership](core-types.md)
+- [Core types: tags, values, lengths, and ownership](core-types.md)
 - [Formats, reading, writing, traversal, and custom callbacks](formats/README.md)
 - [Schemas and length validation](schemas.md)
 - [Value codecs](codecs.md)
 - [Copy helpers](copy.md)
 - [TLV scanning and recovery](scanner.md)
 - [Integer byte-order conversions](endian.md)
+- [Logical TLV value lengths](length.md)
+- [Borrowed TLV values](value.md)
 
 ## Profiles
 
