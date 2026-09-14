@@ -1,6 +1,7 @@
 #include "ber_internal.h"
 #include "tlv/formats/format.h"
 #include <string.h>
+#include "tlv/endian.h"
 
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size,
                              tlv_tag_t* tag, size_t* consumed) {
@@ -42,7 +43,8 @@ static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacit
 
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
                                 size_t* length, size_t* consumed) {
-    size_t count, value = 0;
+    size_t count, offset, width;
+    uint64_t value;
     (void)context;
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
     if (data[0] < 0x80) {
@@ -54,11 +56,17 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
     if (data[0] == 0x80 || data[0] == 0xFF) return TLV_ERR_INVALID_LENGTH;
     count = data[0] & 0x7F;
     if (size - 1 < count) return TLV_ERR_BUFFER_TOO_SHORT;
-    for (size_t i = 1; i <= count; ++i) {
-        if (value > (SIZE_MAX >> 8)) return TLV_ERR_INVALID_LENGTH;
-        value = (value << 8) | data[i];
+    /* BER permits padding beyond the native integer width. Validate the
+     * complete payload before stripping only excess zero octets. */
+    offset = 1;
+    width = count;
+    while (width > sizeof(size_t) || width > sizeof(uint64_t)) {
+        if (data[offset++] != 0) return TLV_ERR_INVALID_LENGTH;
+        --width;
     }
-    *length = value;
+    if (!tlv_read_uint(data + offset, width, TLV_BYTE_ORDER_BIG_ENDIAN, &value) ||
+        value > SIZE_MAX) return TLV_ERR_INVALID_LENGTH;
+    *length = (size_t)value;
     *consumed = count + 1;
     return TLV_OK;
 }
@@ -80,10 +88,8 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
     if (*written == 1) data[0] = (uint8_t)length;
     else {
         data[0] = (uint8_t)(0x80 | (*written - 1));
-        for (size_t i = *written - 1; i; --i) {
-            data[i] = (uint8_t)length;
-            length >>= 8;
-        }
+        if (!tlv_write_uint(data + 1, *written - 1, TLV_BYTE_ORDER_BIG_ENDIAN, length))
+            return TLV_ERR_INVALID_LENGTH;
     }
     return TLV_OK;
 }

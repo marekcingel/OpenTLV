@@ -62,6 +62,8 @@ TEST(Unit_TLV, writer_rejects_unsupported_tag_sizes_without_writing) {
     EXPECT_EQ(0u, tlv_writer_size(&writer));
     for (uint8_t byte : buf) EXPECT_EQ(0xAA, byte);
   }
+  EXPECT_EQ(12, TLV_ERR_INVALID_BYTE_ORDER);
+  EXPECT_STREQ("invalid byte order", tlv_strerror(TLV_ERR_INVALID_BYTE_ORDER));
   EXPECT_EQ(11, TLV_ERR_INVALID_TAG_SIZE);
   EXPECT_STREQ("invalid tag size", tlv_strerror(TLV_ERR_INVALID_TAG_SIZE));
   EXPECT_STREQ("invalid tag", tlv_strerror(TLV_ERR_INVALID_TAG));

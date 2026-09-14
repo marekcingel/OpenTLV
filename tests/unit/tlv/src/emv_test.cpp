@@ -37,10 +37,12 @@ void check_vector(const tlv_codec_t* codec, const T& expected,
 }
 
 TEST(Unit_Emv, PublicTagConstantsMatchDefinitions) {
+    int equal = 0;
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg) \
     EXPECT_NE(nullptr, find(tlv_emv_tag_##name, TLV_EMV_CONTEXT_##scope)); \
-    EXPECT_EQ(1, tlv_tag_equal_u64(&tlv_emv_tag_##name, tlv_emv_tag_##name##_u64, TLV_BYTE_ORDER_BIG_ENDIAN));
+    ASSERT_EQ(TLV_OK, tlv_tag_equal_u64(&tlv_emv_tag_##name, tlv_emv_tag_##name##_u64, TLV_BYTE_ORDER_BIG_ENDIAN, &equal)); \
+    EXPECT_EQ(1, equal);
 #define EMV_END(scope)
 #include "tlv/profiles/emv_tags.def"
 #undef EMV_BEGIN

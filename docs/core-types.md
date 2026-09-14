@@ -48,21 +48,28 @@ See [memory ownership and lifetime](memory.md) for shared buffer rules.
 
 ## Tag comparison and numeric conversion
 
-All `tlv_tag_equal*` functions return `int`: 1 for equality, 0 for mismatch
-or invalid input. Null required pointers and sizes above capacity return 0.
+All `tlv_tag_equal*` functions return `tlv_result_t` and take a final `int* equal`
+output argument. A valid comparison returns `TLV_OK` and stores 1 for equality
+or 0 for mismatch. Mismatch is not an error. Null required pointers return
+`TLV_ERR_NULL_ARG`; sizes above capacity return `TLV_ERR_INVALID_TAG_SIZE`.
+The output remains unchanged on every failure. Supply a writable `int`.
 
-`tlv_tag_equal(a, b)` compares the size and valid bytes, ignoring unused
+When migrating from the predicate API, add `&equal` and check the returned
+status before using `equal`; do not use the status itself as a boolean match.
+
+`tlv_tag_equal(a, b, &equal)` compares the size and valid bytes, ignoring unused
 storage. Two empty tags compare equal. It supports the full configured capacity,
 including tags longer than 8 bytes.
 
-`tlv_tag_equal_bytes(tag, data, size)` compares a tag against an array
+`tlv_tag_equal_bytes(tag, data, size, &equal)` compares a tag against an array
 without constructing another `tlv_tag_t`. Length and leading zeros are
 significant. `data` may be null only when `size` is zero; otherwise the caller
 must provide `size` readable bytes. Sizes above `TLV_TAG_CAPACITY` are invalid.
 
 ```c
 const uint8_t expected[] = {0x82};
-if (tlv_tag_equal_bytes(tag, expected, sizeof(expected))) {
+int equal;
+if (tlv_tag_equal_bytes(tag, expected, sizeof(expected), &equal) == TLV_OK && equal) {
     /* The length and bytes match exactly. */
 }
 ```
@@ -74,7 +81,7 @@ if (tlv_tag_equal_bytes(tag, expected, sizeof(expected))) {
 Null arguments return `TLV_ERR_NULL_ARG`; empty tags, sizes exceeding capacity,
 and tags longer than 8 bytes return `TLV_ERR_INVALID_TAG_SIZE`. The output stays
 unchanged on failure, including for long tags with zero padding. Unknown or
-invalid byte order returns `TLV_ERR_INVALID_ARG`.
+invalid byte order returns `TLV_ERR_INVALID_BYTE_ORDER`.
 
 `tlv_tag_to_u8`, `tlv_tag_to_u16`, and `tlv_tag_to_u32` provide checked
 conversions into `uint8_t`, `uint16_t`, and `uint32_t`. They use the same input
@@ -85,9 +92,11 @@ limit: big-endian `00 FF` and little-endian `FF 00` both fit in `uint8_t`.
 
 `tlv_tag_equal_u8`, `tlv_tag_equal_u16`, `tlv_tag_equal_u32`, and
 `tlv_tag_equal_u64` compare against a value of the corresponding unsigned type.
-Their final argument is the explicit input byte order, e.g.
-`tlv_tag_equal_u16(tag, 0x9F02, TLV_BYTE_ORDER_BIG_ENDIAN)`.
-They use `tlv_tag_to_u64` and return 0 if conversion fails or values differ.
+Pass the explicit input byte order before the output argument, e.g.
+`tlv_tag_equal_u16(tag, 0x9F02, TLV_BYTE_ORDER_BIG_ENDIAN, &equal)`.
+They use `tlv_tag_to_u64` and propagate its errors, including
+`TLV_ERR_INVALID_BYTE_ORDER`. Required pointers are validated before tag size,
+then byte order. Valid unequal values return `TLV_OK` with `*equal == 0`.
 The tag value is never truncated to the argument type.
 With big-endian input, leading zeros do not affect numeric equality: `00 82` and `82` both equal
 `0x82` numerically, but differ under exact comparison. All helpers are
@@ -110,7 +119,7 @@ pointers return `TLV_ERR_NULL_ARG`.
 value into exactly `size` bytes (1..8, within capacity). Size is explicit:
 `0x82` can become `82`, big-endian `00 82`, or little-endian `82 00`.
 A value that does not fit the requested size returns `TLV_ERR_INVALID_TAG`;
-zero size, size above capacity, or size above 8 returns `TLV_ERR_INVALID_TAG_SIZE`. Unsupported byte order returns `TLV_ERR_INVALID_ARG`.
+zero size, size above capacity, or size above 8 returns `TLV_ERR_INVALID_TAG_SIZE`. Unsupported byte order returns `TLV_ERR_INVALID_BYTE_ORDER`.
 
 All constructors leave the destination unchanged on failure and zero unused
 storage on success. They allocate no memory and do not validate BER or EMV rules.

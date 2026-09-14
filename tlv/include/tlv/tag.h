@@ -39,22 +39,33 @@ extern "C" {
 #endif
 
 /* Exact size and byte comparison across the full configured capacity,
- * ignoring unused storage. Empty tags compare equal. Returns 1 for equality,
- * 0 for mismatch, NULL arguments, or sizes exceeding capacity. */
-int tlv_tag_equal(const tlv_tag_t* a, const tlv_tag_t* b);
+ * ignoring unused storage. Empty tags compare equal. Returns TLV_OK for a
+ * valid comparison and stores 1 for equality or 0 for mismatch in *equal.
+ * NULL required pointers return TLV_ERR_NULL_ARG; sizes above capacity return
+ * TLV_ERR_INVALID_TAG_SIZE. On every failure *equal is unchanged.
+ * equal must point to a writable int. */
+tlv_result_t tlv_tag_equal(const tlv_tag_t* a, const tlv_tag_t* b, int* equal);
 
 /* Compare against raw bytes, including length and leading zeros. The caller
  * provides size readable bytes. data may be NULL only when size is zero.
- * The same result and capacity rules as tlv_tag_equal apply to both inputs. */
-int tlv_tag_equal_bytes(const tlv_tag_t* tag, const uint8_t* data, size_t size);
+ * The same result, output, and capacity rules as tlv_tag_equal apply. */
+tlv_result_t tlv_tag_equal_bytes(const tlv_tag_t* tag, const uint8_t* data, size_t size,
+                                 int* equal);
 
-/* Numeric comparison using tlv_tag_to_u64. Returns 1 for equality, 0 for
- * mismatch or invalid input. Zero padding at the most significant end does not affect equality.
- * The tag value is never truncated to the argument type. */
-int tlv_tag_equal_u8(const tlv_tag_t* tag, uint8_t value, tlv_byte_order_t order);
-int tlv_tag_equal_u16(const tlv_tag_t* tag, uint16_t value, tlv_byte_order_t order);
-int tlv_tag_equal_u32(const tlv_tag_t* tag, uint32_t value, tlv_byte_order_t order);
-int tlv_tag_equal_u64(const tlv_tag_t* tag, uint64_t value, tlv_byte_order_t order);
+/* Numeric comparison using tlv_tag_to_u64, with the same input errors.
+ * Returns TLV_OK and stores 1 for equality or 0 for mismatch in *equal.
+ * equal must point to a writable int; NULL returns TLV_ERR_NULL_ARG.
+ * On every failure *equal is unchanged. Required pointers are checked before
+ * tag size, then byte order. Zero padding at the most significant end does
+ * not affect equality. The tag value is never truncated to the argument type. */
+tlv_result_t tlv_tag_equal_u8(const tlv_tag_t* tag, uint8_t value, tlv_byte_order_t order,
+                               int* equal);
+tlv_result_t tlv_tag_equal_u16(const tlv_tag_t* tag, uint16_t value, tlv_byte_order_t order,
+                               int* equal);
+tlv_result_t tlv_tag_equal_u32(const tlv_tag_t* tag, uint32_t value, tlv_byte_order_t order,
+                               int* equal);
+tlv_result_t tlv_tag_equal_u64(const tlv_tag_t* tag, uint64_t value, tlv_byte_order_t order,
+                               int* equal);
 
 /* Same input rules as tlv_tag_to_u64. Zero padding is accepted within the
  * 8-byte input limit. Values exceeding the destination type's maximum return
@@ -67,7 +78,7 @@ tlv_result_t tlv_tag_to_u32(const tlv_tag_t* tag, tlv_byte_order_t order, uint32
  * zero padding at the most significant end. This is not a BER tag-number decode.
  * NULL arguments return TLV_ERR_NULL_ARG; empty tags, sizes exceeding capacity
  * or sizes above 8 return TLV_ERR_INVALID_TAG_SIZE. Unknown or invalid byte order
- * returns TLV_ERR_INVALID_ARG. Output is unchanged on failure. */
+ * returns TLV_ERR_INVALID_BYTE_ORDER. Output is unchanged on failure. */
 tlv_result_t tlv_tag_to_u64(const tlv_tag_t* tag, tlv_byte_order_t order, uint64_t* value);
 
 /* Construct from size raw bytes (0..TLV_TAG_CAPACITY). data may be NULL
@@ -82,7 +93,7 @@ tlv_result_t tlv_tag_from_bytes(const uint8_t* data, size_t size, tlv_tag_t* tag
  * Zero padding is written at the most significant end in the selected order.
  * NULL tag returns TLV_ERR_NULL_ARG; invalid size returns TLV_ERR_INVALID_TAG_SIZE.
  * A value that does not fit returns TLV_ERR_INVALID_TAG; unsupported order
- * returns TLV_ERR_INVALID_ARG.
+ * returns TLV_ERR_INVALID_BYTE_ORDER.
  * The same destination guarantees as tlv_tag_from_bytes apply. */
 tlv_result_t tlv_tag_from_u8(uint8_t value, size_t size, tlv_byte_order_t order, tlv_tag_t* tag);
 tlv_result_t tlv_tag_from_u16(uint16_t value, size_t size, tlv_byte_order_t order, tlv_tag_t* tag);

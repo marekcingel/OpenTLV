@@ -1,5 +1,6 @@
 #include "tlv/formats/default/default.h"
 #include "tlv/formats/format.h"
+#include "tlv/endian.h"
 
 static tlv_result_t read_tag(const void* ctx, const uint8_t* data, size_t size,
                               tlv_tag_t* tag, size_t* used) {
@@ -35,7 +36,7 @@ static tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t siz
         *used = 2;
     } else if (data[0] == 0x82) {
         if (size < 3) return TLV_ERR_BUFFER_TOO_SHORT;
-        *length = ((size_t)data[1] << 8) | data[2];
+        *length = tlv_read_u16_be(data + 1);
         *used = 3;
     } else return TLV_ERR_INVALID_LENGTH;
     return TLV_OK;
@@ -59,8 +60,7 @@ static tlv_result_t write_length(const void* ctx, uint8_t* data, size_t capacity
         data[1] = (uint8_t)length;
     } else {
         data[0] = 0x82;
-        data[1] = (uint8_t)(length >> 8);
-        data[2] = (uint8_t)length;
+        tlv_write_u16_be(data + 1, (uint16_t)length);
     }
     return TLV_OK;
 }

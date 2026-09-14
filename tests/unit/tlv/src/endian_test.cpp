@@ -156,3 +156,83 @@ TEST(Unit_TLVEndian, NativeOrderMatchesIntegerStorage) {
     }
 #endif
 }
+
+TEST(Unit_TLVEndian, CheckedWidthsExactBytesAndPadding) {
+    const uint64_t values[] = {0x01, 0x0102, 0x010203, 0x01020304,
+        UINT64_C(0x0102030405), UINT64_C(0x010203040506),
+        UINT64_C(0x01020304050607), UINT64_C(0x0102030405060708)};
+    for (size_t width = 1; width <= sizeof(uint64_t); ++width) {
+        for (auto order : {TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN}) {
+            alignas(uint64_t) uint8_t bytes[10];
+            uint8_t expected[8];
+            for (size_t i = 0; i < width; ++i)
+                expected[i] = static_cast<uint8_t>(order == TLV_BYTE_ORDER_BIG_ENDIAN ? i + 1 : width - i);
+            std::memset(bytes, 0xA5, sizeof(bytes));
+            ASSERT_EQ(1, tlv_write_uint(bytes + 1, width, order, values[width - 1]));
+            EXPECT_EQ(0, std::memcmp(expected, bytes + 1, width));
+            EXPECT_EQ(0xA5, bytes[0]);
+            EXPECT_EQ(0xA5, bytes[width + 1]);
+            std::memcpy(bytes + 1, expected, width);
+            uint64_t value = 99;
+            ASSERT_EQ(1, tlv_read_uint(bytes + 1, width, order, &value));
+            EXPECT_EQ(values[width - 1], value);
+            for (uint64_t small : {UINT64_C(0), UINT64_C(1)}) {
+                ASSERT_EQ(1, tlv_write_uint(bytes + 1, width, order, small));
+                for (size_t i = 0; i < width; ++i)
+                    EXPECT_EQ(i == (order == TLV_BYTE_ORDER_BIG_ENDIAN ? width - 1 : 0) ? small : 0,
+                              bytes[i + 1]);
+                ASSERT_EQ(1, tlv_read_uint(bytes + 1, width, order, &value));
+                EXPECT_EQ(small, value);
+            }
+            const uint64_t maximum = UINT64_MAX >> ((sizeof(uint64_t) - width) * 8);
+            ASSERT_EQ(1, tlv_write_uint(bytes + 1, width, order, maximum));
+            for (size_t i = 1; i <= width; ++i) EXPECT_EQ(255, bytes[i]);
+            ASSERT_EQ(1, tlv_read_uint(bytes + 1, width, order, &value));
+            EXPECT_EQ(maximum, value);
+            if (width < sizeof(uint64_t)) {
+                EXPECT_EQ(0, tlv_write_uint(bytes + 1, width, order, maximum + 1));
+                for (size_t i = 1; i <= width; ++i) EXPECT_EQ(255, bytes[i]);
+            }
+        }
+    }
+}
+
+TEST(Unit_TLVEndian, CheckedFailuresPreserveOutputs) {
+    uint8_t bytes[8];
+    std::memset(bytes, 0xA5, sizeof(bytes));
+    uint64_t value = 42;
+    for (size_t width : {size_t(0), size_t(9), SIZE_MAX}) {
+        EXPECT_EQ(0, tlv_read_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
+        EXPECT_EQ(0, tlv_write_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, 0));
+    }
+    for (auto order : {TLV_BYTE_ORDER_UNKNOWN, static_cast<tlv_byte_order_t>(99)}) {
+        EXPECT_EQ(0, tlv_read_uint(bytes, 8, order, &value));
+        EXPECT_EQ(0, tlv_write_uint(bytes, 8, order, 0));
+    }
+    EXPECT_EQ(0, tlv_read_uint(nullptr, 8, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
+    EXPECT_EQ(0, tlv_read_uint(bytes, 8, TLV_BYTE_ORDER_BIG_ENDIAN, nullptr));
+    EXPECT_EQ(0, tlv_write_uint(nullptr, 8, TLV_BYTE_ORDER_BIG_ENDIAN, 0));
+    EXPECT_EQ(42u, value);
+    for (auto byte : bytes) EXPECT_EQ(0xA5, byte);
+}
+
+TEST(Unit_TLVEndian, FixedU64ExactBytesUnaligned) {
+    const uint64_t values[] = {0, 1, UINT64_C(0x0123456789ABCDEF), UINT64_MAX};
+    const uint8_t expected[][8] = {{0}, {0,0,0,0,0,0,0,1},
+        {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF},
+        {255,255,255,255,255,255,255,255}};
+    for (size_t n = 0; n < 4; ++n) {
+        alignas(uint64_t) uint8_t bytes[10];
+        std::memset(bytes, 0xA5, sizeof(bytes));
+        tlv_write_u64_be(bytes + 1, values[n]);
+        EXPECT_EQ(0, std::memcmp(bytes + 1, expected[n], 8));
+        std::memcpy(bytes + 1, expected[n], 8);
+        EXPECT_EQ(values[n], tlv_read_u64_be(bytes + 1));
+        tlv_write_u64_le(bytes + 1, values[n]);
+        for (size_t i = 0; i < 8; ++i) EXPECT_EQ(expected[n][7-i], bytes[i+1]);
+        for (size_t i = 0; i < 8; ++i) bytes[i+1] = expected[n][7-i];
+        EXPECT_EQ(values[n], tlv_read_u64_le(bytes + 1));
+        EXPECT_EQ(0xA5, bytes[0]);
+        EXPECT_EQ(0xA5, bytes[9]);
+    }
+}

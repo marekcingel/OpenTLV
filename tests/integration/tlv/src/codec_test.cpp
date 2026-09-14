@@ -9,7 +9,7 @@
 namespace {
 tlv_codec_result_t decode_u16(const void* context, const uint8_t* data,
                              size_t size, void* value, size_t capacity) {
-    if (size != 2) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (size != sizeof(uint16_t)) return TLV_CODEC_ERR_INVALID_VALUE;
     if (capacity < sizeof(uint16_t)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
     *static_cast<uint16_t*>(value) = *static_cast<const bool*>(context)
         ? tlv_read_u16_be(data) : tlv_read_u16_le(data);
@@ -20,12 +20,12 @@ tlv_codec_result_t encode_u16(const void* context, const void* value,
                              size_t* written) {
     if (size != sizeof(uint16_t)) return TLV_CODEC_ERR_INVALID_VALUE;
     if (data) {
-        if (capacity < 2) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        if (capacity < sizeof(uint16_t)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
         if (*static_cast<const bool*>(context))
             tlv_write_u16_be(data, *static_cast<const uint16_t*>(value));
         else tlv_write_u16_le(data, *static_cast<const uint16_t*>(value));
     }
-    *written = 2;
+    *written = sizeof(uint16_t);
     return TLV_CODEC_OK;
 }
 const bool big_endian = true;
