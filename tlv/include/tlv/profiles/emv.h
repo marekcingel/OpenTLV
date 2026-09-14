@@ -12,7 +12,7 @@ extern "C" {
  * biometric tags in Annex C. No Contactless kernels, proprietary dictionaries,
  * or subsequent specification bulletins. Untagged data elements are not tags.
  * Use &tlv_reader_format_ber with generic I/O; this profile does not parse TLV.
- * Tag constants that exceed TLV_TAG_MAX_SIZE are omitted from all tables.
+ * Tag constants that exceed TLV_TAG_CAPACITY are omitted from all tables.
  */
 #define TLV_EMV_SPECIFICATION "EMV Contact Book 3 v4.4 (October 2022)"
 

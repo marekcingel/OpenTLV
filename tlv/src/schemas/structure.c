@@ -21,7 +21,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* 
     for (size_t i = 0; i < current->count; ++i) {
         const tlv_structure_rule_t* rule = &current->rules[i];
         size_t count = 0, pos = start;
-        if (!rule->entry.tag.size || rule->entry.tag.size > TLV_TAG_MAX_SIZE ||
+        if (!rule->entry.tag.size || rule->entry.tag.size > TLV_TAG_CAPACITY ||
             rule->entry.min_length > rule->entry.max_length ||
             rule->min_occurs > rule->max_occurs ||
             rule->kind < TLV_SCHEMA_ANY || rule->kind > TLV_SCHEMA_CONSTRUCTED ||

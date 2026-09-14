@@ -30,8 +30,8 @@ TEST(Unit_Fixed1Byte, InvalidWritesPreserveBufferAndPosition) {
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, tag, value, 256));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_writer_write(&writer, tag, value, std::numeric_limits<size_t>::max()));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_writer_write(&writer, (tlv_tag_t{{0}, 0}), nullptr, 0));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_writer_write(&writer, (tlv_tag_t{{0}, 2}), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_writer_write(&writer, (tlv_tag_t{{0}, 0}), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_writer_write(&writer, (tlv_tag_t{{0}, 2}), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
     for (auto byte : data) EXPECT_EQ(0xEE, byte);
     for (size_t capacity = 0; capacity < 5; ++capacity) {

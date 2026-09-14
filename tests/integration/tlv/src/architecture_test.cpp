@@ -24,7 +24,7 @@ tlv_result_t tag_read(const void*, const uint8_t* data, size_t size,
 }
 tlv_result_t tag_write(const void*, uint8_t* data, size_t capacity,
                        const tlv_tag_t* tag, size_t* used) {
-    if (tag->size != 1) return TLV_ERR_INVALID_TAG;
+    if (tag->size != 1) return TLV_ERR_INVALID_TAG_SIZE;
     *used = 1;
     if (!data) return TLV_OK;
     if (!capacity) return TLV_ERR_BUFFER_TOO_SHORT;

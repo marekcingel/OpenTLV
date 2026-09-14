@@ -113,10 +113,10 @@ TEST(Unit_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
     config = Config{};
     config.tag_size = 0;
-    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
-#if TLV_TAG_MAX_SIZE < 255
-    config.tag_size = TLV_TAG_MAX_SIZE + 1;
-    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
+    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG_SIZE);
+#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
+    config.tag_size = TLV_TAG_CAPACITY + 1;
+    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG_SIZE);
 #endif
     config = Config{};
     config.value_bytes = std::numeric_limits<size_t>::max();

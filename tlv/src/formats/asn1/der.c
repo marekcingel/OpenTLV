@@ -32,9 +32,11 @@ static tlv_result_t der_write_tag(const void* context, uint8_t* data,
                                  size_t* written) {
     tlv_tag_t parsed;
     size_t count;
-    if (!tag->size || tag->size > TLV_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG;
-    if (der_read_tag(context, tag->data, tag->size, &parsed, &count) != TLV_OK ||
-        count != tag->size) return TLV_ERR_INVALID_TAG;
+    tlv_result_t rc;
+    if (!tag->size || tag->size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
+    rc = der_read_tag(context, tag->data, tag->size, &parsed, &count);
+    if (rc == TLV_ERR_INVALID_TAG_SIZE) return rc;
+    if (rc != TLV_OK || count != tag->size) return TLV_ERR_INVALID_TAG;
     if (data && capacity < count) return TLV_ERR_BUFFER_TOO_SHORT;
     if (data) memcpy(data, tag->data, count);
     *written = count;
@@ -92,7 +94,7 @@ tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed,
     else {
         result.data[0] |= 0x1F;
         do { digits[count++] = (uint8_t)(number & 0x7F); number >>= 7; } while (number);
-        if (count + 1 > TLV_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG;
+        if (count + 1 > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
         result.size = (uint8_t)(count + 1);
         for (size_t i = 0; i < count; ++i)
             result.data[i + 1] = (uint8_t)(digits[count - i - 1] | (i + 1 < count ? 0x80 : 0));
@@ -106,8 +108,10 @@ tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed,
 tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number) {
     uint64_t result;
     size_t written;
+    tlv_result_t rc;
     if (!tag || !number) return TLV_ERR_NULL_ARG;
-    if (der_write_tag(NULL, NULL, 0, tag, &written) != TLV_OK) return TLV_ERR_INVALID_TAG;
+    rc = der_write_tag(NULL, NULL, 0, tag, &written);
+    if (rc != TLV_OK) return rc;
     result = tag->data[0] & 0x1F;
     if (tag->size > 1) {
         result = 0;

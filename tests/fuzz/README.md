@@ -17,7 +17,7 @@ noncanonical DER framing, and depth-limit boundaries. The raw formats use
 `0x20` as a test-only constructed bit in the walker.
 
 `corpus/roundtrip` uses a different layout: byte 0 modulo
-`(TLV_TAG_MAX_SIZE + 1)` gives the candidate tag size, clamped to the remaining
+`(TLV_TAG_CAPACITY + 1)` gives the candidate tag size, clamped to the remaining
 input size; subsequent bytes hold that tag, followed by its value. Empty input
 produces an empty candidate tag/value. Every input is also tested as a value
 with the valid primitive tag `04`, ensuring successful writes are exercised.

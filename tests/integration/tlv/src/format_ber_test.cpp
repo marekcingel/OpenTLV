@@ -14,7 +14,7 @@ TEST(Integration_Ber, TagsAndLengthsRoundTrip) {
     const std::vector<std::vector<uint8_t>> tags = {{0x5A}, {0x5F, 0x2A},
         {0x9F, 0x1C}, {0x9F, 0x81, 0x01}, {0xBF, 0x81, 0x80, 0x00}};
     for (const auto& bytes : tags) {
-        if (bytes.size() > TLV_TAG_MAX_SIZE) continue;
+        if (bytes.size() > TLV_TAG_CAPACITY) continue;
         tlv_tag_t tag{};
         tag.size = static_cast<uint8_t>(bytes.size());
         std::memcpy(tag.data, bytes.data(), bytes.size());

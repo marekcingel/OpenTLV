@@ -20,7 +20,7 @@
 static inline void fuzz_view_bounds(const tlv_view_t* view,
                                     const uint8_t* data, size_t size) {
     uintptr_t base = (uintptr_t)data, value = (uintptr_t)view->value.data;
-    FUZZ_CHECK(view->tag.size > 0 && view->tag.size <= TLV_TAG_MAX_SIZE);
+    FUZZ_CHECK(view->tag.size > 0 && view->tag.size <= TLV_TAG_CAPACITY);
     /* Integer comparisons avoid undefined pointer subtraction on a bad view. */
     FUZZ_CHECK(value >= base && value - base <= size);
     FUZZ_CHECK(view->value.length <= size - (size_t)(value - base));
@@ -38,7 +38,7 @@ static inline tlv_view_t fuzz_sentinel(const uint8_t* data) {
 
 static inline void fuzz_unchanged(const tlv_view_t* view, const tlv_view_t* before) {
     FUZZ_CHECK(view->tag.size == before->tag.size);
-    FUZZ_CHECK(memcmp(view->tag.data, before->tag.data, TLV_TAG_MAX_SIZE) == 0);
+    FUZZ_CHECK(memcmp(view->tag.data, before->tag.data, TLV_TAG_CAPACITY) == 0);
     FUZZ_CHECK(view->value.data == before->value.data);
     FUZZ_CHECK(view->value.length == before->value.length);
 }

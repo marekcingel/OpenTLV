@@ -61,7 +61,7 @@ TEST(Unit_Copy, InvalidArgumentsAndEncodingErrors) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_view(&view, &controlled::writer, nullptr, 0, &written));
     view.value = {&byte, 1};
     view.tag.size = 0;
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_copy_view(&view, &controlled::writer, nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_copy_view(&view, &controlled::writer, nullptr, 0, &written));
     view.tag.size = 1;
     view.value.length = std::numeric_limits<size_t>::max();
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_copy_view(&view, &controlled::writer, nullptr, 0, &written));

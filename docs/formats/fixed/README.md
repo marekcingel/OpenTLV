@@ -59,7 +59,7 @@ tlv_writer_t writer;
 tlv_writer_init(&writer, buffer, capacity, &tlv_writer_format_fixed_1byte);
 ```
 
-Writing a tag whose size is not 1 returns `TLV_ERR_INVALID_TAG`; a value
+Writing a tag whose size is not 1 returns `TLV_ERR_INVALID_TAG_SIZE`; a value
 longer than 255 bytes returns `TLV_ERR_INVALID_LENGTH`. Missing length or
 value bytes return `TLV_ERR_BUFFER_TOO_SHORT`. An empty input is the end of
 the stream (`TLV_ERR_END_OF_BUFFER`). Multiple records may be concatenated.

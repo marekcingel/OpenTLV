@@ -33,7 +33,8 @@ typedef tlv_result_t (*tlv_length_size_fn)(const void* context, size_t length, s
  * replaces read_length in element parsing when non-NULL. Callbacks must not
  * allocate, retain buffers, or access beyond size. On success they initialize
  * their outputs and report
- * consumed bytes (at least one for tags). Tags must fit TLV_TAG_MAX_SIZE.
+ * consumed bytes (at least one for tags). Tags must fit TLV_TAG_CAPACITY; unsupported tag sizes
+ * return TLV_ERR_INVALID_TAG_SIZE.
  * All sizes are in bytes. Callback errors propagate unchanged.
  * Reading borrows input bytes; value decoding and tree visits are separate concerns.
  */
@@ -47,7 +48,8 @@ typedef struct tlv_reader_format {
 /* Stateless writing with optional borrowed, immutable configuration.
  * The descriptor and context must outlive writers and operations using them.
  * All three callbacks are required. They must not allocate, retain buffers,
- * or access beyond capacity. Tags must fit TLV_TAG_MAX_SIZE.
+ * or access beyond capacity. Tags must fit TLV_TAG_CAPACITY; unsupported tag sizes
+ * return TLV_ERR_INVALID_TAG_SIZE.
  * write_tag(context, NULL, 0, tag, &size) validates the tag and reports its
  * encoded size without writing. Actual writes report that same size.
  * length_size validates the length and reports the exact write_length size.

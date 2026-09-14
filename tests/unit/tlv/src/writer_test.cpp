@@ -29,7 +29,7 @@ TEST(Unit_Writer, InvalidArgumentsAndFormatsPreserveOutputs) {
     const auto* format = &controlled::writer;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_encoded_size(tag, 0, format, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_encoded_size(tag, 0, nullptr, &size));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_encoded_size(tlv_tag_t{}, 0, format, &size));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_encoded_size(tlv_tag_t{}, 0, format, &size));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_encoded_size(tag, 256, format, &size));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_write(nullptr, 1, format, tag, nullptr, 0, &size));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write(nullptr, 0, format, tag, nullptr, 0, &size));

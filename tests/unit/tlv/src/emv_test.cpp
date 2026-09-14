@@ -57,11 +57,11 @@ TEST(Unit_Emv, ScopeAndInvalidLookup) {
     EXPECT_EQ(nullptr, tlv_emv_find(TLV_EMV_CONTEXT_COUNT, &tlv_emv_tag_aip));
     const tlv_tag_t empty = {{0}, 0};
     EXPECT_EQ(nullptr, find(empty));
-#if TLV_TAG_MAX_SIZE < 255
-    tlv_tag_t invalid = {{0x82}, TLV_TAG_MAX_SIZE + 1};
+#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
+    tlv_tag_t invalid = {{0x82}, TLV_TAG_CAPACITY + 1};
     EXPECT_EQ(nullptr, find(invalid));
 #endif
-#if TLV_TAG_MAX_SIZE >= 3
+#if TLV_TAG_CAPACITY >= 3
     // Contact Book 3 defines one/two-byte tags. Kernel 2's three-byte tag
     // is still readable through generic BER but absent from every EMV table.
     const uint8_t wire[] = {0xDF, 0x81, 0x29, 0};
@@ -86,7 +86,7 @@ TEST(Unit_Emv, ContextPreventsTagCollisions) {
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(biometric, 4));
     EXPECT_EQ(nullptr, find(tlv_emv_tag_tvr, TLV_EMV_CONTEXT_BHT));
     EXPECT_EQ(1u, find(tlv_emv_tag_aip, TLV_EMV_CONTEXT_BHT)->schema->max_length);
-#if TLV_TAG_MAX_SIZE >= 2
+#if TLV_TAG_CAPACITY >= 2
     const auto* counter = find(tlv_emv_tag_iris_try_counter, TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS);
     const auto* mac = find(tlv_emv_tag_iris_try_counter, TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION);
     ASSERT_NE(nullptr, counter);
@@ -102,7 +102,7 @@ TEST(Unit_Emv, NonContiguousLengthRules) {
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_afl), 5));
     EXPECT_EQ(TLV_OK, tlv_schema_validate_length(find(tlv_emv_tag_afl)->schema, 5));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_cvm_list), 11));
-#if TLV_TAG_MAX_SIZE >= 2
+#if TLV_TAG_CAPACITY >= 2
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_bic), 9));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_language_preference), 3));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_issuer_public_key_exponent), 2));
@@ -136,7 +136,7 @@ TEST(Unit_Emv, SemanticErrorsAndUnalignedStorage) {
     const uint8_t invalid_bio_bytes[] = {3};
     tlv_emv_biometric_type_t bio;
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, tlv_codec_decode(bio_codec, invalid_bio_bytes, 1, &bio, sizeof(bio)));
-#if TLV_TAG_MAX_SIZE >= 2
+#if TLV_TAG_CAPACITY >= 2
     const auto* time_codec = find(tlv_emv_tag_transaction_time)->codec;
     const tlv_emv_time_t bad_times[] = {{24, 0, 0}, {0, 60, 0}, {0, 0, 60}};
     for (const auto& time : bad_times)
@@ -217,7 +217,7 @@ TEST(Unit_Emv, CoversContactBook3TagSet) {
             const auto& tag = schema->entries[i].tag;
             ASSERT_LE(tag.size, 2u);
             unsigned number = tag.data[0];
-#if TLV_TAG_MAX_SIZE >= 2
+#if TLV_TAG_CAPACITY >= 2
             if (tag.size == 2) number = (number << 8) | tag.data[1];
 #endif
             actual.insert(number);
@@ -225,7 +225,7 @@ TEST(Unit_Emv, CoversContactBook3TagSet) {
     }
     std::set<unsigned> wanted;
     for (unsigned tag : expected) {
-        if (TLV_TAG_MAX_SIZE >= 2 || tag <= 255) wanted.insert(tag);
+        if (TLV_TAG_CAPACITY >= 2 || tag <= 255) wanted.insert(tag);
     }
     EXPECT_EQ(wanted, actual);
 }
@@ -237,7 +237,7 @@ TEST(Unit_Emv, NumericConstantsInSwitch) {
     case tlv_emv_tag_aip_u64: EXPECT_EQ(0x82u, value); break;
     default: FAIL() << "AIP case did not match";
     }
-#if TLV_TAG_MAX_SIZE >= 2
+#if TLV_TAG_CAPACITY >= 2
     EXPECT_EQ(0x9f02, tlv_emv_tag_amount_authorised_u64);
 #endif
 }

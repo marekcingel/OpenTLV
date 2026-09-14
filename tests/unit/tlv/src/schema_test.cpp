@@ -37,8 +37,8 @@ TEST(Unit_Schema, HandlesEmptyMissingAndInvalidInputs) {
     const tlv_schema_t missing = {nullptr, 1};
     EXPECT_EQ(nullptr, tlv_schema_find(&empty, &tag));
     EXPECT_EQ(nullptr, tlv_schema_find(&missing, &tag));
-#if TLV_TAG_MAX_SIZE < 255
-    tag.size = TLV_TAG_MAX_SIZE + 1;
+#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
+    tag.size = TLV_TAG_CAPACITY + 1;
     EXPECT_EQ(nullptr, tlv_schema_find(&schema, &tag));
     const tlv_schema_entry_t invalid_entries[] = {
         {tag, 0, 0, 0}, entries[0]

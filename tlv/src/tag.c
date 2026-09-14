@@ -9,10 +9,10 @@ int tlv_tag_equal(const tlv_tag_t* a, const tlv_tag_t* b) {
 
 int tlv_tag_equal_bytes(const tlv_tag_t* tag, const uint8_t* data, size_t size) {
     if (tag == NULL || (data == NULL && size != 0)) return 0;
-#if TLV_TAG_MAX_SIZE < 255
-    if (tag->size > TLV_TAG_MAX_SIZE) return 0;
+#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
+    if (tag->size > TLV_TAG_CAPACITY) return 0;
 #endif
-    if (size > TLV_TAG_MAX_SIZE) return 0;
+    if (size > TLV_TAG_CAPACITY) return 0;
     return tag->size == size && (size == 0 || memcmp(tag->data, data, size) == 0);
 }
 
@@ -70,10 +70,10 @@ tlv_result_t tlv_tag_to_u64(const tlv_tag_t* tag, tlv_byte_order_t order, uint64
     uint64_t result = 0;
     size_t i;
     if (tag == NULL || value == NULL) return TLV_ERR_NULL_ARG;
-#if TLV_TAG_MAX_SIZE < 255
-    if (tag->size > TLV_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG;
+#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
+    if (tag->size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
 #endif
-    if (tag->size == 0 || tag->size > 8) return TLV_ERR_INVALID_TAG;
+    if (tag->size == 0 || tag->size > 8) return TLV_ERR_INVALID_TAG_SIZE;
     if (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
         return TLV_ERR_INVALID_ARG;
     for (i = 0; i < tag->size; ++i) {
@@ -86,9 +86,9 @@ tlv_result_t tlv_tag_to_u64(const tlv_tag_t* tag, tlv_byte_order_t order, uint64
 
 tlv_result_t tlv_tag_from_bytes(const uint8_t* data, size_t size, tlv_tag_t* tag) {
     if (tag == NULL || (data == NULL && size != 0)) return TLV_ERR_NULL_ARG;
-    if (size > TLV_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG;
+    if (size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
     if (size != 0) memmove(tag->data, data, size);
-    memset(tag->data + size, 0, TLV_TAG_MAX_SIZE - size);
+    memset(tag->data + size, 0, TLV_TAG_CAPACITY - size);
     tag->size = (uint8_t)size;
     return TLV_OK;
 }
@@ -108,7 +108,7 @@ tlv_result_t tlv_tag_from_u32(uint32_t value, size_t size, tlv_byte_order_t orde
 tlv_result_t tlv_tag_from_u64(uint64_t value, size_t size, tlv_byte_order_t order, tlv_tag_t* tag) {
     size_t i;
     if (tag == NULL) return TLV_ERR_NULL_ARG;
-    if (size == 0 || size > 8 || size > TLV_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG;
+    if (size == 0 || size > 8 || size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
     if (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
         return TLV_ERR_INVALID_ARG;
     if (size < 8 && (value >> (size * 8)) != 0) return TLV_ERR_INVALID_TAG;
@@ -117,7 +117,7 @@ tlv_result_t tlv_tag_from_u64(uint64_t value, size_t size, tlv_byte_order_t orde
         tag->data[index] = (uint8_t)value;
         value >>= 8;
     }
-    memset(tag->data + size, 0, TLV_TAG_MAX_SIZE - size);
+    memset(tag->data + size, 0, TLV_TAG_CAPACITY - size);
     tag->size = (uint8_t)size;
     return TLV_OK;
 }

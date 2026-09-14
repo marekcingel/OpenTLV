@@ -151,7 +151,7 @@ query. `length_size` validates a value length and returns its encoded size.
 The writer checks total capacity before invoking the actual encoding callbacks,
 which must write exactly the queried sizes. No temporary heap buffer is needed.
 Tags are copied into `tlv_tag_t`; decoded values borrow the input buffer.
-A tag must consume at least one byte and contain 1 through `TLV_TAG_MAX_SIZE`
+A tag must consume at least one byte and contain 1 through `TLV_TAG_CAPACITY`
 raw bytes. A format may use a zero-byte length field for an implicit length.
 
 When non-NULL, `read_value_bounds(context, tag, data, size, &length_size,

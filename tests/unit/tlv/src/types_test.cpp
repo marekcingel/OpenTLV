@@ -11,9 +11,9 @@ TEST(Unit_TLVTypes, zero_initialization_produces_empty_view) {
 
 TEST(Unit_TLVTypes, tag_stores_raw_bytes_at_every_supported_size) {
     tlv_tag_t tag{};
-    ASSERT_EQ(TLV_TAG_MAX_SIZE, sizeof(tag.data));
+    ASSERT_EQ(TLV_TAG_CAPACITY, sizeof(tag.data));
 
-    for (size_t size = 1; size <= TLV_TAG_MAX_SIZE; ++size) {
+    for (size_t size = 1; size <= TLV_TAG_CAPACITY; ++size) {
         SCOPED_TRACE(size);
         for (size_t i = 0; i < size; ++i) {
             tag.data[i] = static_cast<uint8_t>(0x9F + i);

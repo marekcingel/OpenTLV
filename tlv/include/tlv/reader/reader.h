@@ -15,6 +15,7 @@ extern "C" {
  * complete encoded size (tag + length + value + optional trailer). The value
  * excludes enclosing framing such as BER EOC. Keep the input alive while
  * using the view. No allocation, value copying, or schema validation occurs.
+ * Empty tags or unsupported tag sizes return TLV_ERR_INVALID_TAG_SIZE.
  * On failure, both outputs remain unchanged; callback errors propagate.
  */
 tlv_result_t tlv_read(const uint8_t* data, size_t size,

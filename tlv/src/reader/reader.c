@@ -28,8 +28,9 @@ tlv_result_t tlv_read(const uint8_t* data, size_t size,
     remaining = size;
     rc = format->read_tag(format->context, data, remaining, &entry.tag, &tag_size);
     if (rc != TLV_OK) return rc;
-    if (!tag_size || tag_size > remaining || !entry.tag.size ||
-        entry.tag.size > TLV_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG;
+    if (!tag_size || tag_size > remaining) return TLV_ERR_INVALID_TAG;
+    if (!entry.tag.size || entry.tag.size > TLV_TAG_CAPACITY)
+        return TLV_ERR_INVALID_TAG_SIZE;
     remaining -= tag_size;
     if (format->read_value_bounds)
         rc = format->read_value_bounds(format->context, &entry.tag,
