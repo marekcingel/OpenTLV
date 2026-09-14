@@ -123,6 +123,7 @@ if(OPENTLV_PROFILE_EMV AND OPENTLV_FORMAT_BER)
             ${OpenTLV_SOURCE_DIR}/tlv/src/codec/codec.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/schemas/schema.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/endian.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber_internal.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c
@@ -148,6 +149,7 @@ if(OPENTLV_FORMAT_DER)
             src/der_test.cpp
             ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/der.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/der.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/endian.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber_internal.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c
@@ -170,6 +172,7 @@ if(test_group STREQUAL "unit")
 foreach(tag_capacity IN ITEMS 1 16 255)
     set(types_target test-${test_group}-tlv-types-${tag_capacity})
     add_executable(${types_target} src/types_test.cpp src/tag_test.cpp
+        ${OpenTLV_SOURCE_DIR}/tlv/src/endian.c
         ${OpenTLV_SOURCE_DIR}/tlv/src/tag.c)
     target_include_directories(${types_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include)
     target_link_libraries(${types_target} PRIVATE GTest::gtest_main)
@@ -187,6 +190,7 @@ if(OPENTLV_FORMAT_BER)
         add_executable(${ber_target}
             src/format_ber_test.cpp
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/endian.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber_internal.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c

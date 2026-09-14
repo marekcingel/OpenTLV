@@ -57,3 +57,50 @@ void tlv_write_u32_le(uint8_t* data, uint32_t value) {
     data[2] = (uint8_t)(value >> 16);
     data[3] = (uint8_t)(value >> 24);
 }
+
+int tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t order,
+                  uint64_t* value) {
+    uint64_t result = 0;
+    size_t i;
+    if (!data || !value || !width || width > sizeof(uint64_t) ||
+        (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN))
+        return 0;
+    for (i = 0; i < width; ++i) {
+        size_t index = order == TLV_BYTE_ORDER_BIG_ENDIAN ? i : width - 1 - i;
+        result = (result << 8) | data[index];
+    }
+    *value = result;
+    return 1;
+}
+
+int tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
+                   uint64_t value) {
+    size_t i;
+    if (!data || !width || width > sizeof(uint64_t) ||
+        (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN))
+        return 0;
+    if (width < sizeof(uint64_t) && (value >> (width * 8)) != 0) return 0;
+    for (i = 0; i < width; ++i) {
+        size_t index = order == TLV_BYTE_ORDER_LITTLE_ENDIAN ? i : width - 1 - i;
+        data[index] = (uint8_t)value;
+        value >>= 8;
+    }
+    return 1;
+}
+
+uint64_t tlv_read_u64_be(const uint8_t* data) {
+    uint64_t value = 0;
+    tlv_read_uint(data, sizeof(uint64_t), TLV_BYTE_ORDER_BIG_ENDIAN, &value);
+    return value;
+}
+uint64_t tlv_read_u64_le(const uint8_t* data) {
+    uint64_t value = 0;
+    tlv_read_uint(data, sizeof(uint64_t), TLV_BYTE_ORDER_LITTLE_ENDIAN, &value);
+    return value;
+}
+void tlv_write_u64_be(uint8_t* data, uint64_t value) {
+    tlv_write_uint(data, sizeof(uint64_t), TLV_BYTE_ORDER_BIG_ENDIAN, value);
+}
+void tlv_write_u64_le(uint8_t* data, uint64_t value) {
+    tlv_write_uint(data, sizeof(uint64_t), TLV_BYTE_ORDER_LITTLE_ENDIAN, value);
+}

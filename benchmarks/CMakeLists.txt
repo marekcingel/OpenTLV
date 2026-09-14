@@ -25,3 +25,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 opentlv_configure_compiler(${PROJECT_NAME})
+
+# Let the runner use the actual target path for single- and multi-config builds.
+file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/executable-path.txt"
+    CONTENT "$<TARGET_FILE:benchmark-tlv>\n")

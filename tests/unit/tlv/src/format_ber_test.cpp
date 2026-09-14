@@ -152,3 +152,31 @@ TEST(Unit_Ber, IndefiniteWriterCapacityValidationAndDefault) {
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_ber_writer_write_indefinite(&writer, tag, nullptr, 0));
 }
 
+
+TEST(Unit_Ber, LongPaddedLengthsAndTruncation) {
+    for (size_t width : {sizeof(size_t) + 1, size_t(9), size_t(126)}) {
+        std::vector<uint8_t> bytes(width + 1, 0);
+        bytes[0] = static_cast<uint8_t>(0x80 | width);
+        bytes.back() = 0x7F;
+        size_t length = 42, used = 43;
+        ASSERT_EQ(TLV_OK, ber.read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
+        EXPECT_EQ(127u, length);
+        EXPECT_EQ(bytes.size(), used);
+        bytes.back() = 0;
+        ASSERT_EQ(TLV_OK, ber.read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
+        EXPECT_EQ(0u, length);
+        std::memset(bytes.data() + bytes.size() - sizeof(size_t), 255, sizeof(size_t));
+        ASSERT_EQ(TLV_OK, ber.read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
+        EXPECT_EQ(SIZE_MAX, length);
+        bytes[1] = 1;
+        length = 42; used = 43;
+        for (size_t size = 0; size < bytes.size(); ++size) {
+            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, ber.read_length(nullptr, bytes.data(), size, &length, &used));
+            EXPECT_EQ(42u, length);
+            EXPECT_EQ(43u, used);
+        }
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, ber.read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
+        EXPECT_EQ(42u, length);
+        EXPECT_EQ(43u, used);
+    }
+}

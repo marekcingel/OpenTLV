@@ -7,22 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix benchmark comparison dependency installation with older pip behind system-trusted TLS proxies by supplying trusted system CA certificates while preserving TLS verification and explicit certificate-bundle settings. (#98)
+
 ### Removed
 
-- Remove `TLV_TAG_MAX_SIZE` configuration and alias support; configure tag storage with `TLV_TAG_CAPACITY` instead. #96
+- Remove `TLV_TAG_MAX_SIZE` configuration and alias support; configure tag storage with `TLV_TAG_CAPACITY` instead. (#96)
 - Remove CI CPack distribution archive generation and uploads, along with automatic GitHub Release creation and archive attachments; retain coverage artifacts and the workflow summary. (#86)
 - Remove the dedicated GCC CI matrix for independent test groups and minimal component builds. (#86)
 
 ### Added
 
-- Add `TLV_TAG_CAPACITY` (default 8), the fixed `TLV_TAG_MAX_SUPPORTED_SIZE` representation limit, and `TLV_ERR_INVALID_TAG_SIZE` with a readable error description. #96
+- Add `tlv_read_u64_be/le`, `tlv_write_u64_be/le`, and checked `tlv_read_uint` / `tlv_write_uint` helpers for widths 1-8, with explicit byte order, zero padding, unaligned byte-buffer support, overflow rejection, and unchanged outputs on failure. Existing u16/u32 helper APIs remain compatible. (#98)
+- Add `TLV_TAG_CAPACITY` (default 8), the fixed `TLV_TAG_MAX_SUPPORTED_SIZE` representation limit, and `TLV_ERR_INVALID_TAG_SIZE` with a readable error description. (#96)
 - Add public `tlv/tag.h` with checked construction from byte arrays and explicitly sized integers, full-capacity tag/byte-array comparison and `u8`/`u16`/`u32`/`u64` numeric comparison and checked conversion helpers with explicit big-/little-endian input order for `uint8_t`, `uint16_t`, `uint32_t`, and `uint64_t`, `tlv_endian_native()` for host byte order, and numeric EMV tag constants for C/C++ `case` labels; preserve `tlv/types.h` include compatibility. (#90)
 - Add optional C API fuzz targets, seed corpora, ASan/UBSan instrumentation, bounded CI fuzzing with reproducing artifacts, and local execution documentation. (#72)
 - Add Windows x86 MSVC CI builds for Debug/C++11 and Release/C++23 using the Visual Studio Win32 platform, and explicitly label build jobs as x86 or x64. GCC and Clang builds remain x64-only. (#86)
 
 ### Changed
 
-- Tag-size failures previously returning `TLV_ERR_INVALID_TAG` now return `TLV_ERR_INVALID_TAG_SIZE`; malformed encoding and numeric overflow retain `TLV_ERR_INVALID_TAG`. Capacity must match between the library and consumers; equal capacities preserve the existing tag layout. #96
+- Baseline updates replace the machine hostname with a public label (the baseline filename stem by default, overridable with `--host-label`); local latest-run metadata remains unchanged.
+- Benchmark tasks now use a shared Python runner and the configured Release executable path, validate results before replacing `latest.json`, retain the previous completed run on failure, and report output paths and run dates.
+- Centralize numeric tag, default-format length, BER/DER length, and binary EMV integer serialization in the endian module. Preserve wire encodings and format validation, including BER padded lengths longer than `sizeof(size_t)` that fit `size_t`; isolated component tests link the shared implementation. (#98)
+- Windows benchmark comparison and baseline-update tasks now use the versioned `benchmarks/baselines/windows-msvc-x64.json`; latest runs remain local.
+- Change all `tlv_tag_equal*` functions to return `tlv_result_t` and take an `int* equal` output argument. Callers must update calls and rebuild: valid comparisons return `TLV_OK` with output 1 or 0; invalid inputs return specific errors and leave the output unchanged. (#98)
+- Numeric tag construction and conversion now report `TLV_ERR_INVALID_BYTE_ORDER` for unknown or unsupported byte order instead of `TLV_ERR_INVALID_ARG`. Numeric comparisons propagate this error, and `tlv_strerror` provides its description; existing error-code values remain unchanged. (#98)
+- Tag-size failures previously returning `TLV_ERR_INVALID_TAG` now return `TLV_ERR_INVALID_TAG_SIZE`; malformed encoding and numeric overflow retain `TLV_ERR_INVALID_TAG`. Capacity must match between the library and consumers; equal capacities preserve the existing tag layout. (#96)
 - Run GCC and MSVC CI only on version-tag pushes; retain Clang CI for pushes and pull requests targeting `main` and `develop`, as well as version tags. (#86)
 - Separate unit and integration tests with independent CMake build switches, CTest labels, and visible `Unit_` / `Integration_` GoogleTest suite names; CI coverage reports now explicitly cover both groups. (#85)
 

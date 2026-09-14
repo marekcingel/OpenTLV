@@ -169,7 +169,7 @@ static int schema_walk_and_scan(void) {
 static tlv_codec_result_t decode_u32(const void* context, const uint8_t* data,
                                     size_t size, void* value, size_t capacity) {
     (void)context;
-    if (size != 4) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (size != sizeof(uint32_t)) return TLV_CODEC_ERR_INVALID_VALUE;
     if (capacity < sizeof(uint32_t)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
     *(uint32_t*)value = tlv_read_u32_be(data);
     return TLV_CODEC_OK;
@@ -179,10 +179,10 @@ static tlv_codec_result_t encode_u32(const void* context, const void* value,
                                     size_t* written) {
     (void)context;
     if (size != sizeof(uint32_t)) return TLV_CODEC_ERR_INVALID_VALUE;
-    if (!data) { *written = 4; return TLV_CODEC_OK; }
-    if (capacity < 4) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    if (!data) { *written = sizeof(uint32_t); return TLV_CODEC_OK; }
+    if (capacity < sizeof(uint32_t)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
     tlv_write_u32_be(data, *(const uint32_t*)value);
-    *written = 4;
+    *written = sizeof(uint32_t);
     return TLV_CODEC_OK;
 }
 
@@ -190,7 +190,7 @@ static int codecs_and_endian(void) {
     const tlv_codec_t codec = {NULL, decode_u32, encode_u32};
     const uint32_t number = UINT32_C(0x12345678);
     uint32_t decoded;
-    uint8_t raw[4], encoded[16];
+    uint8_t raw[sizeof(uint32_t)], encoded[16];
     size_t required, written, encoded_size, consumed;
     tlv_view_t view;
     puts("\nExplicit value codec inside TLV framing");
@@ -218,15 +218,15 @@ static int codecs_and_endian(void) {
 static tlv_result_t read_length_le16(const void* context, const uint8_t* data,
                                     size_t size, size_t* length, size_t* consumed) {
     (void)context;
-    if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (size < sizeof(uint16_t)) return TLV_ERR_BUFFER_TOO_SHORT;
     *length = tlv_read_u16_le(data);
-    *consumed = 2;
+    *consumed = sizeof(uint16_t);
     return TLV_OK;
 }
 static tlv_result_t length_size_le16(const void* context, size_t length, size_t* size) {
     (void)context;
     if (length > UINT16_MAX) return TLV_ERR_INVALID_LENGTH;
-    *size = 2;
+    *size = sizeof(uint16_t);
     return TLV_OK;
 }
 static tlv_result_t write_length_le16(const void* context, uint8_t* data,

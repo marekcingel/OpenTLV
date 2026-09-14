@@ -1,5 +1,6 @@
 #include "emv_internal.h"
 #include <string.h>
+#include "tlv/endian.h"
 
 static int valid_length(const emv_value_rule_t* rule, size_t size) {
     return size >= rule->min_length && size <= rule->max_length &&
@@ -16,15 +17,13 @@ static int read_number(const uint8_t* data, size_t size, unsigned digits,
                        uint64_t* value) {
     uint64_t number = 0;
     size_t i;
-    if (!size || size > 8 || digits > 18) return 0;
+    if (!size || size > sizeof(uint64_t) || digits > 18) return 0;
+    if (!digits) return tlv_read_uint(data, size, TLV_BYTE_ORDER_BIG_ENDIAN, value);
     for (i = 0; i < size; ++i) {
         unsigned part = data[i];
-        unsigned radix = 256;
-        if (digits) {
-            if ((part >> 4) > 9 || (part & 15) > 9) return 0;
-            part = (part >> 4) * 10 + (part & 15);
-            radix = 100;
-        }
+        unsigned radix = 100;
+        if ((part >> 4) > 9 || (part & 15) > 9) return 0;
+        part = (part >> 4) * 10 + (part & 15);
         if (number > (UINT64_MAX - part) / radix) return 0;
         number = number * radix + part;
     }
@@ -36,17 +35,13 @@ static int read_number(const uint8_t* data, size_t size, unsigned digits,
 static int write_number(uint64_t value, unsigned digits,
                         uint8_t* data, size_t size) {
     size_t i;
-    if (!size || size > 8 || digits > 18 ||
+    if (!size || size > sizeof(uint64_t) || digits > 18 ||
         (digits && value > decimal_limit(digits))) return 0;
+    if (!digits) return tlv_write_uint(data, size, TLV_BYTE_ORDER_BIG_ENDIAN, value);
     for (i = size; i > 0; --i) {
-        if (digits) {
-            unsigned pair = (unsigned)(value % 100);
-            data[i - 1] = (uint8_t)(((pair / 10) << 4) | (pair % 10));
-            value /= 100;
-        } else {
-            data[i - 1] = (uint8_t)(value & 255);
-            value >>= 8;
-        }
+        unsigned pair = (unsigned)(value % 100);
+        data[i - 1] = (uint8_t)(((pair / 10) << 4) | (pair % 10));
+        value /= 100;
     }
     return value == 0;
 }
@@ -199,7 +194,7 @@ tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data,
 tlv_codec_result_t emv_value_encode(const void* context, const void* value,
         size_t size, uint8_t* data, size_t capacity, size_t* written) {
     const emv_value_rule_t* rule = (const emv_value_rule_t*)context;
-    uint8_t bytes[8];
+    uint8_t bytes[sizeof(uint64_t)];
     uint64_t number;
     size_t count = rule->min_length;
     if (rule->kind == TLV_EMV_VALUE_DIGITS)
