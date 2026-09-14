@@ -8,6 +8,7 @@ set(HEADERS
 set(SOURCES
     src/architecture_test.cpp
     src/emv_test.cpp
+    src/tag_c_test.c
     src/codec_test.cpp
     src/copy_test.cpp
     src/endian_test.cpp
@@ -23,6 +24,7 @@ set(SOURCES
     src/format_ber_test.cpp
     src/der_test.cpp
     src/format_fixed_1byte_test.cpp
+    src/tag_test.cpp
     src/types_test.cpp
     src/versiontest.cpp
 )
@@ -52,7 +54,7 @@ if(NOT (OPENTLV_FORMAT_DEFAULT))
     list(REMOVE_ITEM SOURCES src/dhcp_option_tests.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_BER AND OPENTLV_PROFILE_EMV))
-    list(REMOVE_ITEM SOURCES src/emv_test.cpp)
+    list(REMOVE_ITEM SOURCES src/emv_test.cpp src/tag_c_test.c)
 endif()
 if(NOT (OPENTLV_FORMAT_BER))
     list(REMOVE_ITEM SOURCES src/format_ber_test.cpp)
@@ -115,6 +117,7 @@ if(OPENTLV_PROFILE_EMV AND OPENTLV_FORMAT_BER)
         set(emv_target test-${test_group}-tlv-emv-${tag_capacity})
         add_executable(${emv_target}
             src/emv_test.cpp
+            ${OpenTLV_SOURCE_DIR}/tlv/src/tag.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/emv.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/codec/emv.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/codec/codec.c
@@ -124,6 +127,9 @@ if(OPENTLV_PROFILE_EMV AND OPENTLV_FORMAT_BER)
             ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c
         )
+        if(test_group STREQUAL "unit")
+            target_sources(${emv_target} PRIVATE src/tag_c_test.c)
+        endif()
         target_include_directories(${emv_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include)
         target_link_libraries(${emv_target} PRIVATE GTest::gtest_main)
         target_compile_features(${emv_target} PRIVATE c_std_99)
@@ -163,7 +169,8 @@ endif()
 if(test_group STREQUAL "unit")
 foreach(tag_capacity IN ITEMS 1 16 255)
     set(types_target test-${test_group}-tlv-types-${tag_capacity})
-    add_executable(${types_target} src/types_test.cpp)
+    add_executable(${types_target} src/types_test.cpp src/tag_test.cpp
+        ${OpenTLV_SOURCE_DIR}/tlv/src/tag.c)
     target_include_directories(${types_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include)
     target_link_libraries(${types_target} PRIVATE GTest::gtest_main)
     target_compile_definitions(${types_target} PRIVATE TLV_TAG_MAX_SIZE=${tag_capacity})

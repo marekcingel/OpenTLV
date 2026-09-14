@@ -7,6 +7,7 @@ add_library(${PROJECT_NAME}
     src/codec/structure.c
     src/formats/format.c
     src/copy.c
+    src/tag.c
     src/endian.c
     src/reader/reader.c
     src/reader/scanner.c

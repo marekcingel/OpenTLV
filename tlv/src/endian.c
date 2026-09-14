@@ -1,5 +1,15 @@
 #include "tlv/endian.h"
 
+tlv_byte_order_t tlv_endian_native(void) {
+    const uint32_t value = UINT32_C(0x01020304);
+    const unsigned char* bytes = (const unsigned char*)&value;
+    if (bytes[0] == 1 && bytes[1] == 2 && bytes[2] == 3 && bytes[3] == 4)
+        return TLV_BYTE_ORDER_BIG_ENDIAN;
+    if (bytes[0] == 4 && bytes[1] == 3 && bytes[2] == 2 && bytes[3] == 1)
+        return TLV_BYTE_ORDER_LITTLE_ENDIAN;
+    return TLV_BYTE_ORDER_UNKNOWN;
+}
+
 uint16_t tlv_read_u16_be(const uint8_t* data) {
     return (uint16_t)(((uint32_t)data[0] << 8) |
                        ((uint32_t)data[1] << 0));

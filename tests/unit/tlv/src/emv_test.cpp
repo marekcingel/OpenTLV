@@ -39,7 +39,8 @@ void check_vector(const tlv_codec_t* codec, const T& expected,
 TEST(Unit_Emv, PublicTagConstantsMatchDefinitions) {
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg) \
-    EXPECT_NE(nullptr, find(tlv_emv_tag_##name, TLV_EMV_CONTEXT_##scope));
+    EXPECT_NE(nullptr, find(tlv_emv_tag_##name, TLV_EMV_CONTEXT_##scope)); \
+    EXPECT_EQ(1, tlv_tag_equal_u64(&tlv_emv_tag_##name, tlv_emv_tag_##name##_u64, TLV_BYTE_ORDER_BIG_ENDIAN));
 #define EMV_END(scope)
 #include "tlv/profiles/emv_tags.def"
 #undef EMV_BEGIN
@@ -227,4 +228,21 @@ TEST(Unit_Emv, CoversContactBook3TagSet) {
         if (TLV_TAG_MAX_SIZE >= 2 || tag <= 255) wanted.insert(tag);
     }
     EXPECT_EQ(wanted, actual);
+}
+
+TEST(Unit_Emv, NumericConstantsInSwitch) {
+    uint64_t value = 0;
+    ASSERT_EQ(TLV_OK, tlv_tag_to_u64(&tlv_emv_tag_aip, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
+    switch (value) {
+    case tlv_emv_tag_aip_u64: EXPECT_EQ(0x82u, value); break;
+    default: FAIL() << "AIP case did not match";
+    }
+#if TLV_TAG_MAX_SIZE >= 2
+    EXPECT_EQ(0x9f02, tlv_emv_tag_amount_authorised_u64);
+#endif
+}
+
+extern "C" int tlv_test_c_tag_switch(void);
+TEST(Unit_Emv, NumericConstantsInCSwitch) {
+    EXPECT_EQ(1, tlv_test_c_tag_switch());
 }

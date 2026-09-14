@@ -37,6 +37,18 @@ typedef enum {
 #define TLV_EMV_AIP_ISSUER_AUTHENTICATION_SUPPORTED UINT64_C(0x0400)
 #define TLV_EMV_AIP_CDA_SUPPORTED UINT64_C(0x0100)
 
+/* Integer constant expressions usable in C and C++ case labels. Names retain
+ * the dictionary suffix, e.g. tlv_emv_tag_aip_u64. Capacity filtering matches
+ * the raw tag objects. All current dictionary values fit in an int. */
+#define EMV_BEGIN(scope)
+#define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg) \
+    enum { tlv_emv_tag_##name##_u64 = (size == 1 ? (b1) : ((b1) << 8) | (b2)) };
+#define EMV_END(scope)
+#include "tlv/profiles/emv_tags.def"
+#undef EMV_BEGIN
+#undef EMV_TAG
+#undef EMV_END
+
 /* Public constants are all the same universal tlv_tag_t as generic I/O. */
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg) \
