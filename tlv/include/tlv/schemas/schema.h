@@ -3,6 +3,7 @@
 
 #include "tlv/view.h"
 #include "tlv/formats/format.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,7 +30,7 @@ typedef struct {
  * a missing nonempty table, or a tag size exceeding TLV_TAG_CAPACITY.
  * Entries with invalid tag sizes are skipped. No sorting is required.
  */
-const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema,
+TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema,
                                           const tlv_tag_t* tag);
 
 /* Validates only value length, independently of parsing or tag lookup.
@@ -38,7 +39,7 @@ const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema,
  * for an out-of-range length or reversed bounds, TLV_ERR_NULL_ARG for NULL,
  * and TLV_OK otherwise. Flags do not affect validation.
  */
-tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry,
+TLV_API tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry,
                                          size_t length);
 
 typedef enum tlv_schema_kind {
@@ -75,7 +76,7 @@ typedef struct tlv_structure_schema {
  * checked by rescanning each scope per rule: O(rules * rules + elements * rules) per scope.
  * Input and schema errors leave no partial application objects. */
 /* is_constructed uses format->context; NULL treats values as opaque. */
-tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
+TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                                  const tlv_reader_format_t* format,
                                  tlv_is_constructed_fn is_constructed,
                                  const tlv_structure_schema_t* schema,

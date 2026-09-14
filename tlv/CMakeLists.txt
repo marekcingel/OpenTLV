@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.16)
 
 project(tlv LANGUAGES C)
 
-add_library(${PROJECT_NAME}
+set(_tlv_library_type STATIC)
+if(OPENTLV_BUILD_SHARED_LIBS)
+    set(_tlv_library_type SHARED)
+endif()
+
+add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/codec/codec.c
     src/codec/structure.c
     src/formats/format.c
@@ -47,7 +52,15 @@ if(OPENTLV_PROFILE_EMV)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    WINDOWS_EXPORT_ALL_SYMBOLS ON
+    C_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+)
+
+include(GenerateExportHeader)
+generate_export_header(${PROJECT_NAME}
+    BASE_NAME TLV
+    EXPORT_MACRO_NAME TLV_API
+    EXPORT_FILE_NAME "${OpenTLV_BINARY_DIR}/generated/include/tlv/export.h"
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

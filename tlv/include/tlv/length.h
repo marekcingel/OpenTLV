@@ -2,6 +2,7 @@
 #define OPENTLV_LENGTH_H
 
 #include "tlv/error.h"
+#include "tlv/export.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -19,7 +20,7 @@ typedef uint64_t tlv_length_t;
  * tlv_length_t, so this cannot fail for its numeric domain. length is
  * required and must be non-NULL; NULL returns TLV_ERR_NULL_ARG and leaves
  * *length unchanged. */
-tlv_result_t tlv_length_from_size(size_t size, tlv_length_t* length);
+TLV_API tlv_result_t tlv_length_from_size(size_t size, tlv_length_t* length);
 
 /* Checked, narrowing conversion to the current build's native size. Lengths
  * greater than SIZE_MAX are rejected with TLV_ERR_INVALID_LENGTH, leaving
@@ -27,13 +28,13 @@ tlv_result_t tlv_length_from_size(size_t size, tlv_length_t* length);
  * Passing this conversion does not prove that a buffer of that size exists,
  * is accessible, or has sufficient capacity; actual bounds remain the
  * caller's responsibility. */
-tlv_result_t tlv_length_to_size(tlv_length_t length, size_t* size);
+TLV_API tlv_result_t tlv_length_to_size(tlv_length_t length, size_t* size);
 
 /* Reports whether length fits the current build's size_t range without
  * converting it or accessing any memory. Returns TLV_OK when it fits and
  * TLV_ERR_INVALID_LENGTH otherwise. Passing this check does not prove that
  * a buffer exists, is accessible, or has sufficient capacity. */
-tlv_result_t tlv_length_validate_native(tlv_length_t length);
+TLV_API tlv_result_t tlv_length_validate_native(tlv_length_t length);
 
 #ifdef __cplusplus
 }

@@ -29,7 +29,8 @@ target_link_libraries(${test_target} PRIVATE
     GTest::gtest_main
 )
 
+opentlv_configure_compiler(${test_target})
+opentlv_copy_shared_runtime(${test_target})
+
 include(GoogleTest)
 gtest_discover_tests(${test_target} PROPERTIES LABELS ${test_group})
-
-opentlv_configure_compiler(${test_target})

@@ -2,6 +2,7 @@
 #define OPENTLV_FORMATS_DER_H
 
 #include "tlv/formats/format.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,19 +29,19 @@ static inline int tlv_der_tag_is_constructed(const tlv_tag_t* tag) {
  * Outputs are unchanged
  * on failure. Raw parsing supports the full configured tag capacity.
  */
-tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed,
+TLV_API tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed,
                               uint64_t number, tlv_tag_t* tag);
-tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number);
+TLV_API tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number);
 
 /* Canonical ASN.1 DER identifiers and definite lengths. Validates universal
  * primitive/constructed bits, but does not inspect values or nested headers.
  * Use tlv/profiles/der.h for bounded recursive validation and error offsets.
  */
-extern const tlv_reader_format_t tlv_reader_format_der;
-extern const tlv_writer_format_t tlv_writer_format_der;
+extern TLV_API const tlv_reader_format_t tlv_reader_format_der;
+extern TLV_API const tlv_writer_format_t tlv_writer_format_der;
 
 /* Nesting predicate for tree traversal; context is unused. */
-int tlv_der_is_constructed(const void* context, const tlv_tag_t* tag);
+TLV_API int tlv_der_is_constructed(const void* context, const tlv_tag_t* tag);
 
 #ifdef __cplusplus
 }

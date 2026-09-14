@@ -1,6 +1,7 @@
 #ifndef OPENTLV_ENDIAN_H
 #define OPENTLV_ENDIAN_H
 
+#include "tlv/export.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -16,7 +17,7 @@ typedef enum tlv_byte_order {
 
 /* Native uint32_t byte order; UNKNOWN for an unsupported mixed byte order.
  * Describes the executing platform, not the format of incoming data. */
-tlv_byte_order_t tlv_endian_native(void);
+TLV_API tlv_byte_order_t tlv_endian_native(void);
 
 /* Convert raw value bytes independently of host byte order and TLV profile.
  * be means big-endian (most significant byte first); le means little-endian.
@@ -26,20 +27,20 @@ tlv_byte_order_t tlv_endian_native(void);
  * No alignment is required. Only the specified bytes are read or written.
  * Every value of the declared integer type fits; no overflow is possible.
  */
-uint16_t tlv_read_u16_be(const uint8_t* data);
-uint16_t tlv_read_u16_le(const uint8_t* data);
-uint32_t tlv_read_u32_be(const uint8_t* data);
-uint32_t tlv_read_u32_le(const uint8_t* data);
-uint64_t tlv_read_u64_be(const uint8_t* data);
-uint64_t tlv_read_u64_le(const uint8_t* data);
+TLV_API uint16_t tlv_read_u16_be(const uint8_t* data);
+TLV_API uint16_t tlv_read_u16_le(const uint8_t* data);
+TLV_API uint32_t tlv_read_u32_be(const uint8_t* data);
+TLV_API uint32_t tlv_read_u32_le(const uint8_t* data);
+TLV_API uint64_t tlv_read_u64_be(const uint8_t* data);
+TLV_API uint64_t tlv_read_u64_le(const uint8_t* data);
 
-void tlv_write_u16_be(uint8_t* data, uint16_t value);
-void tlv_write_u16_le(uint8_t* data, uint16_t value);
-void tlv_write_u32_be(uint8_t* data, uint32_t value);
-void tlv_write_u32_le(uint8_t* data, uint32_t value);
+TLV_API void tlv_write_u16_be(uint8_t* data, uint16_t value);
+TLV_API void tlv_write_u16_le(uint8_t* data, uint16_t value);
+TLV_API void tlv_write_u32_be(uint8_t* data, uint32_t value);
+TLV_API void tlv_write_u32_le(uint8_t* data, uint32_t value);
 
-void tlv_write_u64_be(uint8_t* data, uint64_t value);
-void tlv_write_u64_le(uint8_t* data, uint64_t value);
+TLV_API void tlv_write_u64_be(uint8_t* data, uint64_t value);
+TLV_API void tlv_write_u64_le(uint8_t* data, uint64_t value);
 
 /* Checked unsigned serialization: return 1 on success, 0 on failure.
  * Width must be 1..8; order must be BIG_ENDIAN or LITTLE_ENDIAN.
@@ -51,9 +52,9 @@ void tlv_write_u64_le(uint8_t* data, uint64_t value);
  * to a writable uint64_t. Reads finish before storing *value.
  * No allocation, host byte-order dependence, or protocol validation.
  */
-int tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t order,
+TLV_API int tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t order,
                   uint64_t* value);
-int tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
+TLV_API int tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
                    uint64_t value);
 
 #ifdef __cplusplus

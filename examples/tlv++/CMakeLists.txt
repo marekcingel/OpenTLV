@@ -24,3 +24,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 opentlv_configure_compiler(${PROJECT_NAME})
+opentlv_copy_shared_runtime(${PROJECT_NAME})

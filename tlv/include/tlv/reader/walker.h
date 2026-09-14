@@ -2,6 +2,7 @@
 #define OPENTLV_WALKER_H
 
 #include "tlv/formats/format.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,7 +28,7 @@ typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_view_t* view, void* contex
  * data may be NULL only when size is zero; invalid arguments return
  * TLV_ERR_NULL_ARG. Earlier callback effects are not rolled back on error.
  */
-tlv_result_t tlv_walk(const uint8_t* data, size_t size,
+TLV_API tlv_result_t tlv_walk(const uint8_t* data, size_t size,
                       const tlv_reader_format_t* format, tlv_visitor_t visitor,
                       void* context);
 
@@ -43,7 +44,7 @@ typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view,
  * error_offset, if non-NULL, receives the failing element's absolute offset
  * on failure and remains unchanged on success. Callback effects are not
  * rolled back. The input, format and borrowed views follow tlv_walk lifetimes. */
-tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size,
+TLV_API tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size,
                            const tlv_reader_format_t* format,
                            tlv_is_constructed_fn is_constructed, size_t max_depth,
                            size_t max_elements, tlv_tree_visitor_t visitor,

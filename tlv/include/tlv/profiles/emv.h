@@ -3,6 +3,7 @@
 
 #include "tlv/schemas/schema.h"
 #include "tlv/codec/emv.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +53,7 @@ typedef enum {
 /* Public constants are all the same universal tlv_tag_t as generic I/O. */
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg) \
-    extern const tlv_tag_t tlv_emv_tag_##name;
+    extern TLV_API const tlv_tag_t tlv_emv_tag_##name;
 #define EMV_END(scope)
 #include "tlv/profiles/emv_tags.def"
 #undef EMV_BEGIN
@@ -67,19 +68,19 @@ typedef struct {
     size_t length_step; /* permitted lengths: min + n * step */
 } tlv_emv_definition_t;
 
-extern const tlv_schema_t tlv_emv_schema; /* BASE context */
+extern TLV_API const tlv_schema_t tlv_emv_schema; /* BASE context */
 /* Immutable static tables; no allocation. Invalid contexts return NULL.
  * Contexts are explicit and never fall back to the base dictionary.
  */
-const tlv_schema_t* tlv_emv_schema_for(tlv_emv_context_t context);
-const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context,
+TLV_API const tlv_schema_t* tlv_emv_schema_for(tlv_emv_context_t context);
+TLV_API const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context,
                                        const tlv_tag_t* tag);
 /* Adds length-step checks (AFL, CVM lists, BIC, RSA exponents, etc.) to the
  * generic schema's inclusive bounds. NULL -> TLV_ERR_NULL_ARG.
  * Not a transaction validator: key-dependent lengths, required/duplicate tags,
  * template membership and cryptographic/value semantics are separate checks.
  */
-tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definition,
+TLV_API tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definition,
                                     size_t length);
 
 #ifdef __cplusplus

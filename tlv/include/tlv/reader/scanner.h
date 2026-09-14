@@ -3,6 +3,7 @@
 
 #include "tlv/formats/format.h"
 #include "tlv/schemas/schema.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +25,7 @@ extern "C" {
  * the input must outlive the returned view. No allocation or value copying
  * occurs; custom callbacks must obey the allocation-free format contract.
  */
-tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start,
+TLV_API tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start,
                       const tlv_reader_format_t* format, const tlv_schema_t* schema,
                       tlv_view_t* out_entry, size_t* out_offset, size_t* consumed);
 

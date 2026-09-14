@@ -3,6 +3,7 @@
 
 #include "tlv/view.h"
 #include "tlv/formats/format.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,7 +24,7 @@ extern "C" {
 /* Copies only the value, without interpreting or validating the tag.
  * Overlapping source and destination byte ranges are supported.
  */
-tlv_result_t tlv_copy_value(const tlv_view_t* view, uint8_t* data,
+TLV_API tlv_result_t tlv_copy_value(const tlv_view_t* view, uint8_t* data,
                             size_t capacity, size_t* written);
 
 /* Copies an exact encoded byte range, preserving the original wire bytes.
@@ -32,7 +33,7 @@ tlv_result_t tlv_copy_value(const tlv_view_t* view, uint8_t* data,
  * is performed. Overlap is supported. encoded_data may be NULL only when
  * encoded_length is zero.
  */
-tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encoded_length,
+TLV_API tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encoded_length,
                               uint8_t* data, size_t capacity, size_t* written);
 
 /* Serializes tag, length and value using format, as tlv_write does.
@@ -41,7 +42,7 @@ tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encoded_length
  * Source value bytes must not overlap the destination element. Callback errors
  * propagate unchanged and may modify data; size queries do not write data.
  */
-tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_writer_format_t* format,
+TLV_API tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_writer_format_t* format,
                            uint8_t* data, size_t capacity, size_t* written);
 
 #ifdef __cplusplus

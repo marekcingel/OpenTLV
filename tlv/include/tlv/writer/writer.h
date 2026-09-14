@@ -2,6 +2,7 @@
 #define OPENTLV_WRITER_H
 
 #include "tlv/formats/format.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,7 +13,7 @@ extern "C" {
  * Empty tags or unsupported tag sizes return TLV_ERR_INVALID_TAG_SIZE.
  * On failure the output is unchanged; size_t overflow is INVALID_LENGTH.
  */
-tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,
+TLV_API tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,
                               const tlv_writer_format_t* format, size_t* size);
 
 /* Encodes one element directly into caller-owned memory, without allocation
@@ -23,7 +24,7 @@ tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,
  * On failure written is unchanged; encoding callback errors may modify data.
  * Callback errors propagate unchanged. Requires the same callbacks as sizing.
  */
-tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_writer_format_t* format,
+TLV_API tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_writer_format_t* format,
                        tlv_tag_t tag, const uint8_t* value, size_t length,
                        size_t* written);
 
@@ -35,17 +36,17 @@ typedef struct tlv_writer {
 } tlv_writer_t;
 
 /* Uses a caller-provided format; NULL or missing required callbacks is an error. */
-tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf,
+TLV_API tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf,
                                         size_t capacity, const tlv_writer_format_t* format);
 
 /* Writes one TLV item using the selected format.
  * On error the position is unchanged; callbacks may have modified buffer bytes.
  */
-tlv_result_t tlv_writer_write(tlv_writer_t* writer, tlv_tag_t tag,
+TLV_API tlv_result_t tlv_writer_write(tlv_writer_t* writer, tlv_tag_t tag,
                                const uint8_t* value, size_t length);
 
 /* Number of bytes currently written to the buffer. */
-size_t tlv_writer_size(const tlv_writer_t* writer);
+TLV_API size_t tlv_writer_size(const tlv_writer_t* writer);
 
 #ifdef __cplusplus
 }
