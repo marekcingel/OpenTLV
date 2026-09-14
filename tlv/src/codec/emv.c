@@ -18,7 +18,7 @@ static int read_number(const uint8_t* data, size_t size, unsigned digits,
     uint64_t number = 0;
     size_t i;
     if (!size || size > sizeof(uint64_t) || digits > 18) return 0;
-    if (!digits) return tlv_read_uint(data, size, TLV_BYTE_ORDER_BIG_ENDIAN, value);
+    if (!digits) return tlv_read_uint(data, size, TLV_BYTE_ORDER_BIG_ENDIAN, value) == TLV_OK;
     for (i = 0; i < size; ++i) {
         unsigned part = data[i];
         unsigned radix = 100;
@@ -37,7 +37,7 @@ static int write_number(uint64_t value, unsigned digits,
     size_t i;
     if (!size || size > sizeof(uint64_t) || digits > 18 ||
         (digits && value > decimal_limit(digits))) return 0;
-    if (!digits) return tlv_write_uint(data, size, TLV_BYTE_ORDER_BIG_ENDIAN, value);
+    if (!digits) return tlv_write_uint(data, size, TLV_BYTE_ORDER_BIG_ENDIAN, value) == TLV_OK;
     for (i = size; i > 0; --i) {
         unsigned pair = (unsigned)(value % 100);
         data[i - 1] = (uint8_t)(((pair / 10) << 4) | (pair % 10));

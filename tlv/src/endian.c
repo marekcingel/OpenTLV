@@ -58,34 +58,36 @@ void tlv_write_u32_le(uint8_t* data, uint32_t value) {
     data[3] = (uint8_t)(value >> 24);
 }
 
-int tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t order,
+tlv_result_t tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t order,
                   uint64_t* value) {
     uint64_t result = 0;
     size_t i;
-    if (!data || !value || !width || width > sizeof(uint64_t) ||
-        (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN))
-        return 0;
+    if (!data || !value) return TLV_ERR_NULL_ARG;
+    if (!width || width > sizeof(uint64_t)) return TLV_ERR_INVALID_LENGTH;
+    if (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
+        return TLV_ERR_INVALID_BYTE_ORDER;
     for (i = 0; i < width; ++i) {
         size_t index = order == TLV_BYTE_ORDER_BIG_ENDIAN ? i : width - 1 - i;
         result = (result << 8) | data[index];
     }
     *value = result;
-    return 1;
+    return TLV_OK;
 }
 
-int tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
+tlv_result_t tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
                    uint64_t value) {
     size_t i;
-    if (!data || !width || width > sizeof(uint64_t) ||
-        (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN))
-        return 0;
-    if (width < sizeof(uint64_t) && (value >> (width * 8)) != 0) return 0;
+    if (!data) return TLV_ERR_NULL_ARG;
+    if (!width || width > sizeof(uint64_t)) return TLV_ERR_INVALID_LENGTH;
+    if (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
+        return TLV_ERR_INVALID_BYTE_ORDER;
+    if (width < sizeof(uint64_t) && (value >> (width * 8)) != 0) return TLV_ERR_OVERFLOW;
     for (i = 0; i < width; ++i) {
         size_t index = order == TLV_BYTE_ORDER_LITTLE_ENDIAN ? i : width - 1 - i;
         data[index] = (uint8_t)value;
         value >>= 8;
     }
-    return 1;
+    return TLV_OK;
 }
 
 uint64_t tlv_read_u64_be(const uint8_t* data) {

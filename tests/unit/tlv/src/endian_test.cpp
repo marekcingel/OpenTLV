@@ -5,6 +5,14 @@
 #include <cstring>
 #include "tlv/tag.h"
 
+extern "C" int tlv_test_c_endian(void);
+
+TEST(Unit_TLVEndian, PublicCContract) {
+    EXPECT_EQ(1, tlv_test_c_endian());
+    EXPECT_EQ(13, TLV_ERR_OVERFLOW);
+    EXPECT_STREQ("numeric overflow", tlv_strerror(TLV_ERR_OVERFLOW));
+}
+
 namespace {
 struct EndianCase {
     uint32_t value;
@@ -168,31 +176,33 @@ TEST(Unit_TLVEndian, CheckedWidthsExactBytesAndPadding) {
             for (size_t i = 0; i < width; ++i)
                 expected[i] = static_cast<uint8_t>(order == TLV_BYTE_ORDER_BIG_ENDIAN ? i + 1 : width - i);
             std::memset(bytes, 0xA5, sizeof(bytes));
-            ASSERT_EQ(1, tlv_write_uint(bytes + 1, width, order, values[width - 1]));
+            ASSERT_EQ(TLV_OK, tlv_write_uint(bytes + 1, width, order, values[width - 1]));
             EXPECT_EQ(0, std::memcmp(expected, bytes + 1, width));
             EXPECT_EQ(0xA5, bytes[0]);
             EXPECT_EQ(0xA5, bytes[width + 1]);
             std::memcpy(bytes + 1, expected, width);
             uint64_t value = 99;
-            ASSERT_EQ(1, tlv_read_uint(bytes + 1, width, order, &value));
+            ASSERT_EQ(TLV_OK, tlv_read_uint(bytes + 1, width, order, &value));
             EXPECT_EQ(values[width - 1], value);
             for (uint64_t small : {UINT64_C(0), UINT64_C(1)}) {
-                ASSERT_EQ(1, tlv_write_uint(bytes + 1, width, order, small));
+                ASSERT_EQ(TLV_OK, tlv_write_uint(bytes + 1, width, order, small));
                 for (size_t i = 0; i < width; ++i)
                     EXPECT_EQ(i == (order == TLV_BYTE_ORDER_BIG_ENDIAN ? width - 1 : 0) ? small : 0,
                               bytes[i + 1]);
-                ASSERT_EQ(1, tlv_read_uint(bytes + 1, width, order, &value));
+                ASSERT_EQ(TLV_OK, tlv_read_uint(bytes + 1, width, order, &value));
                 EXPECT_EQ(small, value);
             }
             const uint64_t maximum = UINT64_MAX >> ((sizeof(uint64_t) - width) * 8);
-            ASSERT_EQ(1, tlv_write_uint(bytes + 1, width, order, maximum));
+            ASSERT_EQ(TLV_OK, tlv_write_uint(bytes + 1, width, order, maximum));
             for (size_t i = 1; i <= width; ++i) EXPECT_EQ(255, bytes[i]);
-            ASSERT_EQ(1, tlv_read_uint(bytes + 1, width, order, &value));
+            ASSERT_EQ(TLV_OK, tlv_read_uint(bytes + 1, width, order, &value));
             EXPECT_EQ(maximum, value);
             if (width < sizeof(uint64_t)) {
-                EXPECT_EQ(0, tlv_write_uint(bytes + 1, width, order, maximum + 1));
+                EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_write_uint(bytes + 1, width, order, maximum + 1));
                 for (size_t i = 1; i <= width; ++i) EXPECT_EQ(255, bytes[i]);
             }
+            EXPECT_EQ(0xA5, bytes[0]);
+            for (size_t i = width + 1; i < sizeof(bytes); ++i) EXPECT_EQ(0xA5, bytes[i]);
         }
     }
 }
@@ -202,18 +212,40 @@ TEST(Unit_TLVEndian, CheckedFailuresPreserveOutputs) {
     std::memset(bytes, 0xA5, sizeof(bytes));
     uint64_t value = 42;
     for (size_t width : {size_t(0), size_t(9), SIZE_MAX}) {
-        EXPECT_EQ(0, tlv_read_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
-        EXPECT_EQ(0, tlv_write_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, 0));
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_read_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, 0));
     }
     for (auto order : {TLV_BYTE_ORDER_UNKNOWN, static_cast<tlv_byte_order_t>(99)}) {
-        EXPECT_EQ(0, tlv_read_uint(bytes, 8, order, &value));
-        EXPECT_EQ(0, tlv_write_uint(bytes, 8, order, 0));
+        EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_read_uint(bytes, 8, order, &value));
+        EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_write_uint(bytes, 8, order, 0));
     }
-    EXPECT_EQ(0, tlv_read_uint(nullptr, 8, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
-    EXPECT_EQ(0, tlv_read_uint(bytes, 8, TLV_BYTE_ORDER_BIG_ENDIAN, nullptr));
-    EXPECT_EQ(0, tlv_write_uint(nullptr, 8, TLV_BYTE_ORDER_BIG_ENDIAN, 0));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read_uint(nullptr, 8, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read_uint(bytes, 8, TLV_BYTE_ORDER_BIG_ENDIAN, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_write_uint(nullptr, 8, TLV_BYTE_ORDER_BIG_ENDIAN, 0));
     EXPECT_EQ(42u, value);
     for (auto byte : bytes) EXPECT_EQ(0xA5, byte);
+}
+
+TEST(Unit_TLVEndian, ValidationOrderAndBothOrdersPreserveOutputs) {
+    for (auto order : {TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN,
+                       TLV_BYTE_ORDER_UNKNOWN, static_cast<tlv_byte_order_t>(99)}) {
+        alignas(uint64_t) uint8_t storage[10];
+        std::memset(storage, 0xA5, sizeof(storage));
+        uint64_t value = 42;
+        for (size_t width : {size_t(0), size_t(9), SIZE_MAX}) {
+            EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read_uint(nullptr, width, order, &value));
+            EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read_uint(storage + 1, width, order, nullptr));
+            EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_write_uint(nullptr, width, order, UINT64_MAX));
+            EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_read_uint(storage + 1, width, order, &value));
+            EXPECT_EQ(42u, value);
+            EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write_uint(storage + 1, width, order, UINT64_MAX));
+            for (auto byte : storage) EXPECT_EQ(0xA5, byte);
+        }
+        if (order == TLV_BYTE_ORDER_UNKNOWN || static_cast<int>(order) == 99) {
+            EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_write_uint(storage + 1, 1, order, UINT64_MAX));
+            for (auto byte : storage) EXPECT_EQ(0xA5, byte);
+        }
+    }
 }
 
 TEST(Unit_TLVEndian, FixedU64ExactBytesUnaligned) {
