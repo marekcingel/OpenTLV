@@ -2,6 +2,7 @@
 #define OPENTLV_FORMAT_H
 
 #include "tlv/view.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,7 +72,7 @@ typedef struct tlv_writer_format {
  * lifetime and callback contracts above; no input or configuration is copied or retained
  * except the supplied pointers.
  */
-tlv_result_t tlv_reader_format_init(tlv_reader_format_t* format, const void* context,
+TLV_API tlv_result_t tlv_reader_format_init(tlv_reader_format_t* format, const void* context,
                                      tlv_read_tag_fn read_tag, tlv_read_length_fn read_length);
 
 /* Initializes caller-owned storage without allocation. context is borrowed
@@ -80,7 +81,7 @@ tlv_result_t tlv_reader_format_init(tlv_reader_format_t* format, const void* con
  * returns TLV_OK. The descriptor and context follow the writing lifetime and
  * callback contracts above; only the supplied pointers are stored.
  */
-tlv_result_t tlv_writer_format_init(tlv_writer_format_t* format, const void* context,
+TLV_API tlv_result_t tlv_writer_format_init(tlv_writer_format_t* format, const void* context,
                                      tlv_write_tag_fn write_tag, tlv_write_length_fn write_length,
                                      tlv_length_size_fn length_size);
 

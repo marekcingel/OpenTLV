@@ -9,6 +9,7 @@ install(DIRECTORY tlv/include/tlv DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 install(FILES
     "${OpenTLV_BINARY_DIR}/generated/include/tlv/config.h"
     "${OpenTLV_BINARY_DIR}/generated/include/tlv/version.h"
+    "${OpenTLV_BINARY_DIR}/generated/include/tlv/export.h"
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tlv)
 
 if(OPENTLV_BUILD_CXX)

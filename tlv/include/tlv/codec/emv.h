@@ -1,6 +1,7 @@
 #ifndef OPENTLV_CODEC_EMV_H
 #define OPENTLV_CODEC_EMV_H
 #include "tlv/codec/codec.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,7 +74,7 @@ typedef struct {
  * Account/biometric codecs reject undefined enum values; cryptogram RFU is
  * represented explicitly. DATE/TIME check BCD and calendar/clock ranges.
  */
-extern const tlv_codec_t tlv_emv_codec_amount; /* n12, six bytes <-> uint64_t */
+extern TLV_API const tlv_codec_t tlv_emv_codec_amount; /* n12, six bytes <-> uint64_t */
 
 #ifdef __cplusplus
 }

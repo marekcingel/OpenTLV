@@ -3,6 +3,7 @@
 
 #include "tlv/formats/asn1/der.h"
 #include "tlv/reader/walker.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,7 +22,7 @@ typedef struct tlv_der_limits {
     size_t max_value_size;
     size_t max_elements;
 } tlv_der_limits_t;
-extern const tlv_der_limits_t tlv_der_default_limits;
+extern TLV_API const tlv_der_limits_t tlv_der_default_limits;
 
 /* Zero-copy preorder traversal. offset is the tag's absolute input offset.
  * Callback view is temporary; its value borrows input. STOP succeeds without
@@ -38,14 +39,14 @@ typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_view_t* view,
  * are relative to data. Argument/input-limit errors use 0. Success leaves it
  * unchanged. No allocations and no C recursion are used.
  */
-tlv_result_t tlv_der_read(const uint8_t* data, size_t size,
+TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size,
                           const tlv_der_limits_t* limits, tlv_view_t* view,
                           size_t* consumed, size_t* error_offset);
 
 /* Validates all concatenated elements recursively; empty input succeeds.
  * visitor may be NULL for validation only. Same offset and limit conventions.
  */
-tlv_result_t tlv_der_walk(const uint8_t* data, size_t size,
+TLV_API tlv_result_t tlv_der_walk(const uint8_t* data, size_t size,
                           const tlv_der_limits_t* limits,
                           tlv_der_visitor_t visitor, void* context,
                           size_t* error_offset);
@@ -57,7 +58,7 @@ tlv_result_t tlv_der_walk(const uint8_t* data, size_t size,
  * destination must not overlap. Output and written remain unchanged on error.
  * error_offset is relative to the would-be output, using read conventions.
  */
-tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
+TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
                            const uint8_t* value, size_t length,
                            const tlv_der_limits_t* limits, size_t* written,
                            size_t* error_offset);

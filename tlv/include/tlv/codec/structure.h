@@ -2,6 +2,7 @@
 #define OPENTLV_CODEC_STRUCTURE_H
 #include "tlv/codec/codec.h"
 #include "tlv/schemas/schema.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,10 +43,10 @@ typedef struct tlv_structure_codec {
                                 uint8_t* data, size_t capacity, size_t* written);
 } tlv_structure_codec_t;
 
-tlv_codec_result_t tlv_structure_decode(const tlv_structure_codec_t* codec,
+TLV_API tlv_codec_result_t tlv_structure_decode(const tlv_structure_codec_t* codec,
                                         const uint8_t* data, size_t size,
                                         void* value, size_t capacity);
-tlv_codec_result_t tlv_structure_encode(const tlv_structure_codec_t* codec,
+TLV_API tlv_codec_result_t tlv_structure_encode(const tlv_structure_codec_t* codec,
                                         const void* value, size_t size,
                                         uint8_t* data, size_t capacity,
                                         size_t* written);

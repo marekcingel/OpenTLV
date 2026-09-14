@@ -31,6 +31,9 @@ foreach(source IN LISTS tlv_sources)
 endforeach()
 add_library(tlv_fuzz STATIC ${fuzz_sources})
 target_include_directories(tlv_fuzz PUBLIC ${tlv_includes})
+# Compiles library sources directly rather than linking the tlv target;
+# TLV_STATIC_DEFINE keeps TLV_API a no-op regardless of OPENTLV_BUILD_SHARED_LIBS.
+target_compile_definitions(tlv_fuzz PUBLIC TLV_STATIC_DEFINE)
 target_compile_features(tlv_fuzz PUBLIC c_std_99)
 opentlv_configure_compiler(tlv_fuzz)
 target_compile_options(tlv_fuzz PRIVATE

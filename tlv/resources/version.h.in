@@ -1,6 +1,7 @@
 #ifndef OPENTLV_VERSION_H
 #define OPENTLV_VERSION_H
 
+#include "tlv/export.h"
 #include <stdint.h>
 
 /* clang-format off */
@@ -22,17 +23,17 @@
 extern "C" {
 #endif
 
-uint32_t tlv_version_major(void);
-uint32_t tlv_version_minor(void);
-uint32_t tlv_version_patch(void);
-uint64_t tlv_version_revision(void);
+TLV_API uint32_t tlv_version_major(void);
+TLV_API uint32_t tlv_version_minor(void);
+TLV_API uint32_t tlv_version_patch(void);
+TLV_API uint64_t tlv_version_revision(void);
 
-const char *tlv_version_prerelease(void);
-const char *tlv_version_string(void);
-const char *tlv_version_git_commit_hash(void);
-const char *tlv_version_git_branch(void);
-const char *tlv_version_git_tag(void);
-const char *tlv_version_git_repo(void);
+TLV_API const char *tlv_version_prerelease(void);
+TLV_API const char *tlv_version_string(void);
+TLV_API const char *tlv_version_git_commit_hash(void);
+TLV_API const char *tlv_version_git_branch(void);
+TLV_API const char *tlv_version_git_tag(void);
+TLV_API const char *tlv_version_git_repo(void);
 
 #ifdef __cplusplus
 }

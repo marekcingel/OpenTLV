@@ -7,6 +7,7 @@ project(OpenTLV VERSION ${OPENTLV_VERSION} LANGUAGES C)
 opentlv_generate_version_files()
 
 option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" ON)
+option(OPENTLV_BUILD_SHARED_LIBS "Build tlv as a shared library instead of static" ON)
 option(OPENTLV_BUILD_TESTS "Build tests" ON)
 option(OPENTLV_BUILD_UNIT_TESTS "Build component contract tests" ON)
 option(OPENTLV_BUILD_INTEGRATION_TESTS "Build format and layer integration tests" ON)

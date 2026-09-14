@@ -1,6 +1,8 @@
 #ifndef OPENTLV_ERROR_H
 #define OPENTLV_ERROR_H
 
+#include "tlv/export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,7 +26,7 @@ typedef enum tlv_result {
 } tlv_result_t;
 
 /* Returns a readable description of an error code (static string; no need to free). */
-const char* tlv_strerror(tlv_result_t result);
+TLV_API const char* tlv_strerror(tlv_result_t result);
 
 #ifdef __cplusplus
 }

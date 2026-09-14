@@ -3,6 +3,7 @@
 
 #include "tlv/error.h"
 #include "tlv/length.h"
+#include "tlv/export.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -27,14 +28,14 @@ typedef struct {
  * represented by the current build's size_t returns TLV_ERR_INVALID_LENGTH.
  * value is unchanged on every failure. Actual allocation bounds for data
  * remain the caller's responsibility; no memory is accessed. */
-tlv_result_t tlv_value_init(const uint8_t* data, tlv_length_t length,
+TLV_API tlv_result_t tlv_value_init(const uint8_t* data, tlv_length_t length,
                             tlv_value_t* value);
 
 /* Validates representation and pointer requirements only: data must be
  * non-NULL unless length is zero, and length must be representable by the
  * current build's size_t. Does not access memory and does not prove
  * sufficient allocation bounds. NULL value returns TLV_ERR_NULL_ARG. */
-tlv_result_t tlv_value_validate(const tlv_value_t* value);
+TLV_API tlv_result_t tlv_value_validate(const tlv_value_t* value);
 
 #ifdef __cplusplus
 }

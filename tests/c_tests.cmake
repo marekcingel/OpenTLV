@@ -111,6 +111,7 @@ target_link_libraries(${test_target} PRIVATE
 
 include(GoogleTest)
 opentlv_configure_compiler(${test_target})
+opentlv_copy_shared_runtime(${test_target})
 gtest_discover_tests(${test_target} PROPERTIES LABELS ${test_group})
 
 # Compile alternate capacities separately to keep type layouts consistent.
@@ -134,10 +135,13 @@ if(OPENTLV_PROFILE_EMV AND OPENTLV_FORMAT_BER)
         if(test_group STREQUAL "unit")
             target_sources(${emv_target} PRIVATE src/tag_c_test.c)
         endif()
-        target_include_directories(${emv_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include)
+        target_include_directories(${emv_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include
+            ${OpenTLV_BINARY_DIR}/generated/include)
         target_link_libraries(${emv_target} PRIVATE GTest::gtest_main)
         target_compile_features(${emv_target} PRIVATE c_std_99)
-        target_compile_definitions(${emv_target} PRIVATE TLV_TAG_CAPACITY=${tag_capacity})
+        # Compiles library sources directly rather than linking the tlv target;
+        # TLV_STATIC_DEFINE keeps TLV_API a no-op regardless of OPENTLV_BUILD_SHARED_LIBS.
+        target_compile_definitions(${emv_target} PRIVATE TLV_TAG_CAPACITY=${tag_capacity} TLV_STATIC_DEFINE)
         opentlv_configure_compiler(${emv_target})
         gtest_discover_tests(${emv_target} TEST_PREFIX "TagCapacity${tag_capacity}." PROPERTIES LABELS ${test_group})
     endforeach()
@@ -165,7 +169,9 @@ if(OPENTLV_FORMAT_DER)
         endif()
         target_link_libraries(${der_target} PRIVATE GTest::gtest_main)
         target_compile_features(${der_target} PRIVATE c_std_99)
-        target_compile_definitions(${der_target} PRIVATE TLV_TAG_CAPACITY=${tag_capacity})
+        # Compiles library sources directly rather than linking the tlv target;
+        # TLV_STATIC_DEFINE keeps TLV_API a no-op regardless of OPENTLV_BUILD_SHARED_LIBS.
+        target_compile_definitions(${der_target} PRIVATE TLV_TAG_CAPACITY=${tag_capacity} TLV_STATIC_DEFINE)
         opentlv_configure_compiler(${der_target})
         gtest_discover_tests(${der_target} TEST_PREFIX "TagCapacity${tag_capacity}." PROPERTIES LABELS ${test_group})
     endforeach()
@@ -178,9 +184,12 @@ foreach(tag_capacity IN ITEMS 1 16 255)
     add_executable(${view_target} src/view_test.cpp src/tag_test.cpp
         ${OpenTLV_SOURCE_DIR}/tlv/src/endian.c
         ${OpenTLV_SOURCE_DIR}/tlv/src/tag.c)
-    target_include_directories(${view_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include)
+    target_include_directories(${view_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include
+        ${OpenTLV_BINARY_DIR}/generated/include)
     target_link_libraries(${view_target} PRIVATE GTest::gtest_main)
-    target_compile_definitions(${view_target} PRIVATE TLV_TAG_CAPACITY=${tag_capacity})
+    # Compiles library sources directly rather than linking the tlv target;
+    # TLV_STATIC_DEFINE keeps TLV_API a no-op regardless of OPENTLV_BUILD_SHARED_LIBS.
+    target_compile_definitions(${view_target} PRIVATE TLV_TAG_CAPACITY=${tag_capacity} TLV_STATIC_DEFINE)
     opentlv_configure_compiler(${view_target})
     gtest_discover_tests(${view_target} TEST_PREFIX "TagCapacity${tag_capacity}." PROPERTIES LABELS ${test_group})
 endforeach()
@@ -200,10 +209,13 @@ if(OPENTLV_FORMAT_BER)
             ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c
         )
-        target_include_directories(${ber_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include)
+        target_include_directories(${ber_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include
+            ${OpenTLV_BINARY_DIR}/generated/include)
         target_link_libraries(${ber_target} PRIVATE GTest::gtest_main)
         target_compile_features(${ber_target} PRIVATE c_std_99)
-        target_compile_definitions(${ber_target} PRIVATE TLV_TAG_CAPACITY=${tag_capacity})
+        # Compiles library sources directly rather than linking the tlv target;
+        # TLV_STATIC_DEFINE keeps TLV_API a no-op regardless of OPENTLV_BUILD_SHARED_LIBS.
+        target_compile_definitions(${ber_target} PRIVATE TLV_TAG_CAPACITY=${tag_capacity} TLV_STATIC_DEFINE)
         opentlv_configure_compiler(${ber_target})
         gtest_discover_tests(${ber_target} TEST_PREFIX "TagCapacity${tag_capacity}." PROPERTIES LABELS ${test_group})
     endforeach()

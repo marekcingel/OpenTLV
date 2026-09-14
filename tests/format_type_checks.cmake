@@ -3,7 +3,7 @@
 function(opentlv_check_format_types)
     include(CheckCSourceCompiles)
     set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-    set(CMAKE_REQUIRED_INCLUDES "${OpenTLV_SOURCE_DIR}/tlv/include")
+    set(CMAKE_REQUIRED_INCLUDES "${OpenTLV_SOURCE_DIR}/tlv/include" "${OpenTLV_BINARY_DIR}/generated/include")
     if(MSVC)
         set(CMAKE_REQUIRED_FLAGS "/std:c11 /W4 /WX")
     elseif(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")

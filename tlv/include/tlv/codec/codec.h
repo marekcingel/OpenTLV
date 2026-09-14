@@ -1,6 +1,7 @@
 #ifndef OPENTLV_CODEC_H
 #define OPENTLV_CODEC_H
 
+#include "tlv/export.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -43,14 +44,14 @@ typedef struct tlv_codec {
  * only for size == 0. Encode data may be NULL only for a size query. written
  * is required and must not alias input or destination storage.
  */
-tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec,
+TLV_API tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec,
                                     const uint8_t* data, size_t size,
                                     void* value, size_t capacity);
-tlv_codec_result_t tlv_codec_encode(const tlv_codec_t* codec,
+TLV_API tlv_codec_result_t tlv_codec_encode(const tlv_codec_t* codec,
                                     const void* value, size_t size,
                                     uint8_t* data, size_t capacity,
                                     size_t* written);
-const char* tlv_codec_strerror(tlv_codec_result_t result);
+TLV_API const char* tlv_codec_strerror(tlv_codec_result_t result);
 
 #ifdef __cplusplus
 }

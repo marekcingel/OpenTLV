@@ -3,6 +3,7 @@
 
 #include "tlv/formats/format.h"
 #include "tlv/writer/writer.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,8 +14,8 @@ extern "C" {
  * Reads accept nonminimal definite lengths and constructed indefinite lengths.
  * Tag bytes are preserved (including 9F 1C); ASN.1 semantics are not validated.
  */
-extern const tlv_reader_format_t tlv_reader_format_ber;
-extern const tlv_writer_format_t tlv_writer_format_ber;
+extern TLV_API const tlv_reader_format_t tlv_reader_format_ber;
+extern TLV_API const tlv_writer_format_t tlv_writer_format_ber;
 
 /* Maximum simultaneous constructed scopes while resolving an indefinite
  * element, including that element and definite constructed descendants.
@@ -29,15 +30,15 @@ extern const tlv_writer_format_t tlv_writer_format_ber;
  * Children must not include the enclosing EOC or overlap the destination.
  * All outputs and writer position remain unchanged on failure.
  */
-tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t length, size_t* size);
-tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity,
+TLV_API tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t length, size_t* size);
+TLV_API tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity,
     tlv_tag_t tag, const uint8_t* value, size_t length, size_t* written);
 /* Requires a writer initialized with tlv_writer_format_ber. */
-tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer,
+TLV_API tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer,
     tlv_tag_t tag, const uint8_t* value, size_t length);
 
 /* Nesting predicate for tree traversal; context is unused. */
-int tlv_ber_is_constructed(const void* context, const tlv_tag_t* tag);
+TLV_API int tlv_ber_is_constructed(const void* context, const tlv_tag_t* tag);
 
 #ifdef __cplusplus
 }

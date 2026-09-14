@@ -1,6 +1,8 @@
 #ifndef OPENTLV_CONFIG_H
 #define OPENTLV_CONFIG_H
 
+#include "tlv/export.h"
+
 #cmakedefine01 OPENTLV_FORMAT_DEFAULT
 #cmakedefine01 OPENTLV_FORMAT_FIXED_1BYTE
 #cmakedefine01 OPENTLV_FORMAT_ASN1
@@ -15,12 +17,12 @@ extern "C" {
 /* Runtime mirrors of the OPENTLV_* macros above: 1 if the component was
  * compiled into this build of the library, 0 otherwise. Useful when the
  * compiled configuration is not known at the consumer's compile time. */
-int tlv_config_format_default(void);
-int tlv_config_format_fixed_1byte(void);
-int tlv_config_format_asn1(void);
-int tlv_config_format_ber(void);
-int tlv_config_format_der(void);
-int tlv_config_profile_emv(void);
+TLV_API int tlv_config_format_default(void);
+TLV_API int tlv_config_format_fixed_1byte(void);
+TLV_API int tlv_config_format_asn1(void);
+TLV_API int tlv_config_format_ber(void);
+TLV_API int tlv_config_format_der(void);
+TLV_API int tlv_config_profile_emv(void);
 
 #ifdef __cplusplus
 }

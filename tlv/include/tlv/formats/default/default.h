@@ -2,6 +2,7 @@
 #define OPENTLV_FORMATS_DEFAULT_H
 
 #include "tlv/formats/format.h"
+#include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,8 +12,8 @@ extern "C" {
  * This is not a full BER-TLV tag implementation.
  * Writing any tag size other than one returns TLV_ERR_INVALID_TAG_SIZE.
  */
-extern const tlv_reader_format_t tlv_reader_format_default;
-extern const tlv_writer_format_t tlv_writer_format_default;
+extern TLV_API const tlv_reader_format_t tlv_reader_format_default;
+extern TLV_API const tlv_writer_format_t tlv_writer_format_default;
 
 #ifdef __cplusplus
 }
