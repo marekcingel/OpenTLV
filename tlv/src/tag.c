@@ -86,8 +86,7 @@ tlv_result_t tlv_tag_to_u64(const tlv_tag_t* tag, tlv_byte_order_t order, uint64
     if (tag->size == 0 || tag->size > sizeof(uint64_t)) return TLV_ERR_INVALID_TAG_SIZE;
     if (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
         return TLV_ERR_INVALID_BYTE_ORDER;
-    if (!tlv_read_uint(tag->data, tag->size, order, value)) return TLV_ERR_INVALID_BYTE_ORDER;
-    return TLV_OK;
+    return tlv_read_uint(tag->data, tag->size, order, value);
 }
 
 tlv_result_t tlv_tag_from_bytes(const uint8_t* data, size_t size, tlv_tag_t* tag) {
@@ -116,7 +115,8 @@ tlv_result_t tlv_tag_from_u64(uint64_t value, size_t size, tlv_byte_order_t orde
     if (size == 0 || size > sizeof(uint64_t) || size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
     if (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
         return TLV_ERR_INVALID_BYTE_ORDER;
-    if (!tlv_write_uint(tag->data, size, order, value)) return TLV_ERR_INVALID_TAG;
+    if (tlv_write_uint(tag->data, size, order, value) != TLV_OK)
+        return TLV_ERR_INVALID_TAG;
     memset(tag->data + size, 0, TLV_TAG_CAPACITY - size);
     tag->size = (uint8_t)size;
     return TLV_OK;

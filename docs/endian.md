@@ -39,9 +39,10 @@ results are identical on big-endian and little-endian hosts.
 `width` bytes. Widths 1 through 8 are supported, including 3, 5, 6, and 7.
 Choose `TLV_BYTE_ORDER_BIG_ENDIAN` or `TLV_BYTE_ORDER_LITTLE_ENDIAN` explicitly.
 
-Both return 1 on success and 0 on a null pointer, invalid width, or invalid
-byte order (including `TLV_BYTE_ORDER_UNKNOWN`). Writes also reject values
-that do not fit the width; they never truncate. All failures leave outputs
+Both return `TLV_OK` on success. Validation checks required pointers first
+(`TLV_ERR_NULL_ARG`), then width (`TLV_ERR_INVALID_LENGTH`), then byte order
+(`TLV_ERR_INVALID_BYTE_ORDER`, including `TLV_BYTE_ORDER_UNKNOWN`). Writes
+also return `TLV_ERR_OVERFLOW` for values that do not fit; they never truncate. All failures leave outputs
 unchanged. Reads accept zero padding and finish reading before storing the
 result. Writes pad with zero bytes at the most significant end.
 
@@ -53,7 +54,7 @@ specified bytes, independently of host byte order.
 ```c
 uint8_t bytes[3];
 uint64_t value;
-if (tlv_write_uint(bytes, 3, TLV_BYTE_ORDER_BIG_ENDIAN, 0x1234)) {
+if (tlv_write_uint(bytes, 3, TLV_BYTE_ORDER_BIG_ENDIAN, 0x1234) == TLV_OK) {
     /* bytes are 00 12 34 */
     tlv_read_uint(bytes, 3, TLV_BYTE_ORDER_BIG_ENDIAN, &value);
 }

@@ -22,7 +22,9 @@ typedef enum tlv_result {
     /* Tag size violates the range supported by the operation. */
     TLV_ERR_INVALID_TAG_SIZE = 11,
     /* Byte order is unknown or unsupported. */
-    TLV_ERR_INVALID_BYTE_ORDER = 12
+    TLV_ERR_INVALID_BYTE_ORDER = 12,
+    /* Unsigned value cannot fit the requested numeric width. */
+    TLV_ERR_OVERFLOW = 13
 } tlv_result_t;
 
 /* Returns a readable description of an error code (static string; no need to free). */

@@ -64,7 +64,7 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
         if (data[offset++] != 0) return TLV_ERR_INVALID_LENGTH;
         --width;
     }
-    if (!tlv_read_uint(data + offset, width, TLV_BYTE_ORDER_BIG_ENDIAN, &value) ||
+    if (tlv_read_uint(data + offset, width, TLV_BYTE_ORDER_BIG_ENDIAN, &value) != TLV_OK ||
         value > SIZE_MAX) return TLV_ERR_INVALID_LENGTH;
     *length = (size_t)value;
     *consumed = count + 1;
@@ -88,7 +88,7 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
     if (*written == 1) data[0] = (uint8_t)length;
     else {
         data[0] = (uint8_t)(0x80 | (*written - 1));
-        if (!tlv_write_uint(data + 1, *written - 1, TLV_BYTE_ORDER_BIG_ENDIAN, length))
+        if (tlv_write_uint(data + 1, *written - 1, TLV_BYTE_ORDER_BIG_ENDIAN, length) != TLV_OK)
             return TLV_ERR_INVALID_LENGTH;
     }
     return TLV_OK;

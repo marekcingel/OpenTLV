@@ -12,6 +12,7 @@ set(SOURCES
     src/codec_test.cpp
     src/copy_test.cpp
     src/endian_test.cpp
+    src/endian_c_test.c
     src/length_test.cpp
     src/value_test.cpp
     src/dhcp_option_tests.cpp

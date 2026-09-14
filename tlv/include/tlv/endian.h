@@ -2,6 +2,7 @@
 #define OPENTLV_ENDIAN_H
 
 #include "tlv/export.h"
+#include "tlv/error.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -42,20 +43,21 @@ TLV_API void tlv_write_u32_le(uint8_t* data, uint32_t value);
 TLV_API void tlv_write_u64_be(uint8_t* data, uint64_t value);
 TLV_API void tlv_write_u64_le(uint8_t* data, uint64_t value);
 
-/* Checked unsigned serialization: return 1 on success, 0 on failure.
- * Width must be 1..8; order must be BIG_ENDIAN or LITTLE_ENDIAN.
- * NULL pointers, invalid width/order, and write overflow are rejected without
- * modifying any output. Reads accept zero padding; writes zero-pad to width
- * and reject values that do not fit (never truncate).
- * data must provide width readable/writable bytes; allocation bounds are the
- * caller's responsibility. Byte buffers need no alignment. value must point
- * to a writable uint64_t. Reads finish before storing *value.
- * No allocation, host byte-order dependence, or protocol validation.
+/* Checked unsigned serialization; width must be 1..8.
+ * Return TLV_OK on success. Validation order: required NULL pointers return
+ * TLV_ERR_NULL_ARG; unsupported width returns TLV_ERR_INVALID_LENGTH;
+ * unknown/unsupported order returns TLV_ERR_INVALID_BYTE_ORDER; write values
+ * that do not fit return TLV_ERR_OVERFLOW. Failures leave outputs unchanged.
+ * Reads accept zero padding; writes zero-pad to width and never truncate.
+ * The caller provides width readable/writable bytes; allocation bounds are
+ * not checked. Byte buffers need no alignment. value must point to a writable
+ * uint64_t. Reads finish before storing *value. No allocation, implicit native
+ * byte order, or protocol validation.
  */
-TLV_API int tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t order,
-                  uint64_t* value);
-TLV_API int tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
-                   uint64_t value);
+TLV_API tlv_result_t tlv_read_uint(const uint8_t* data, size_t width,
+                                  tlv_byte_order_t order, uint64_t* value);
+TLV_API tlv_result_t tlv_write_uint(uint8_t* data, size_t width,
+                                   tlv_byte_order_t order, uint64_t value);
 
 #ifdef __cplusplus
 }
