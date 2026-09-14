@@ -17,9 +17,13 @@ option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON
 
 option(OPENTLV_FORMAT_DEFAULT "Include the default wire format" ON)
 option(OPENTLV_FORMAT_FIXED_1BYTE "Include the fixed one-byte wire format" ON)
+option(OPENTLV_FORMAT_ASN1 "Include ASN.1-related wire formats (BER, DER)" ON)
 option(OPENTLV_FORMAT_BER "Include the BER wire format" ON)
 option(OPENTLV_FORMAT_DER "Include the DER wire format and validation profile" ON)
 option(OPENTLV_PROFILE_EMV "Include the EMV dictionary, schemas and codecs" ON)
+
+include(cmake/format_options.cmake)
+opentlv_generate_config_files()
 
 include(cmake/compiler.cmake)
 include(GNUInstallDirs)
