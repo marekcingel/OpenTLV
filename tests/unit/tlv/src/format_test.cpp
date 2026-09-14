@@ -4,7 +4,7 @@
 #include <cstring>
 #include <limits>
 
-#if TLV_TAG_MAX_SIZE >= 2
+#if TLV_TAG_CAPACITY >= 2
 
 namespace {
 // Two raw tag bytes, and a configurable fixed-width little-endian length.
@@ -18,7 +18,7 @@ tlv_result_t read_tag(const void*, const uint8_t* data, size_t size,
 }
 tlv_result_t write_tag(const void*, uint8_t* data, size_t size,
                        const tlv_tag_t* tag, size_t* used) {
-    if (tag->size != 2) return TLV_ERR_INVALID_TAG;
+    if (tag->size != 2) return TLV_ERR_INVALID_TAG_SIZE;
     *used = 2;
     if (!data) return TLV_OK;
     if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -71,7 +71,7 @@ TEST(Unit_Format, WriterPreflightDoesNotModifyBuffer) {
     const tlv_tag_t tag = {{1, 2}, 2};
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_write(&writer, tag, data, 2));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, tag, data, 65536));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_writer_write(&writer, (tlv_tag_t{{1}, 1}), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_writer_write(&writer, (tlv_tag_t{{1}, 1}), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
     for (auto byte : data) EXPECT_EQ(0xEE, byte);
 }
@@ -139,4 +139,4 @@ TEST(Unit_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
     EXPECT_EQ(0u, writer.pos);
 }
 
-#endif // TLV_TAG_MAX_SIZE >= 2
+#endif // TLV_TAG_CAPACITY >= 2

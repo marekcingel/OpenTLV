@@ -57,11 +57,13 @@ remain unchanged on failure. Keep the input alive while using returned views.
 Class and constructed accessors require a valid DER tag. `tlv_der_tag_number`
 validates a tag and extracts a `uint64_t`; larger numbers return
 `TLV_ERR_INVALID_TAG` without changing the output. Raw parsing accepts tags up
-to `TLV_TAG_MAX_SIZE` (default 8 bytes, configurable from 1 to 255 consistently
+to `TLV_TAG_CAPACITY` (default 8 bytes, configurable from 1 to 255 consistently
 across library and consumers), including numbers larger than `uint64_t`.
 `tlv_der_tag_make(class, constructed, number, &tag)` creates minimal wire bytes
 from a `uint64_t`, rejects invalid universal forms or insufficient tag capacity,
-and leaves the output unchanged on failure. `constructed` must be 0 or 1.
+and leaves the output unchanged on failure. Empty tags and insufficient tag
+capacity return `TLV_ERR_INVALID_TAG_SIZE`; invalid encodings return
+`TLV_ERR_INVALID_TAG`. `constructed` must be 0 or 1.
 
 ## Traverse and limit work
 

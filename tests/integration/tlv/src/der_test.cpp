@@ -19,9 +19,10 @@ TEST(Integration_Der, TagClassesNumbersAndForms) {
                 tlv_tag_t tag{};
                 size_t digits = 1;
                 if (number >= 31) for (uint64_t n = number; n; n >>= 7) ++digits;
-                const bool invalid = digits > TLV_TAG_MAX_SIZE ||
+                const bool invalid = digits > TLV_TAG_CAPACITY ||
                     (cls == TLV_ASN1_UNIVERSAL && number <= 36 && constructed);
-                ASSERT_EQ(invalid ? TLV_ERR_INVALID_TAG : TLV_OK,
+                ASSERT_EQ(digits > TLV_TAG_CAPACITY ? TLV_ERR_INVALID_TAG_SIZE :
+                          (invalid ? TLV_ERR_INVALID_TAG : TLV_OK),
                           tlv_der_tag_make(cls, constructed, number, &tag));
                 if (invalid) continue;
                 EXPECT_EQ(cls, tlv_der_tag_class(&tag));
@@ -29,7 +30,7 @@ TEST(Integration_Der, TagClassesNumbersAndForms) {
                 uint64_t actual = 0;
                 ASSERT_EQ(TLV_OK, tlv_der_tag_number(&tag, &actual));
                 EXPECT_EQ(number, actual);
-                uint8_t encoded[TLV_TAG_MAX_SIZE + 1];
+                uint8_t encoded[TLV_TAG_CAPACITY + 1];
                 size_t written = 0, consumed = 0;
                 ASSERT_EQ(TLV_OK, tlv_der_write(encoded, sizeof(encoded), tag, nullptr,
                                                0, nullptr, &written, nullptr));
@@ -96,7 +97,7 @@ TEST(Integration_Der, InvalidFieldsHaveOffsetsAndPreserveOutputs) {
         {{0x10, 0}, TLV_ERR_INVALID_TAG, 0},
         {{0x30, 2, 0x21, 0}, TLV_ERR_INVALID_TAG, 2}
     };
-    if (TLV_TAG_MAX_SIZE > 1) {
+    if (TLV_TAG_CAPACITY > 1) {
         cases.push_back({{0x9F, 0x1E, 0}, TLV_ERR_INVALID_TAG, 0});
         cases.push_back({{0x9F, 0x80, 0x1F, 0}, TLV_ERR_INVALID_TAG, 0});
         cases.push_back({{0x9F}, TLV_ERR_BUFFER_TOO_SHORT, 0});
@@ -208,7 +209,7 @@ TEST(Integration_Der, DeepNestingUsesBoundedTraversal) {
 
 TEST(Integration_Der, BerCompatibilityAndGenericFormat) {
     std::vector<std::vector<uint8_t>> cases = {{4, 0x81, 0}, {4, 0x82, 0, 0}, {0x24, 0}};
-    if (TLV_TAG_MAX_SIZE > 1) cases.push_back({0x9F, 0x1C, 0});
+    if (TLV_TAG_CAPACITY > 1) cases.push_back({0x9F, 0x1C, 0});
     for (const auto& data : cases) {
         tlv_view_t view{};
         size_t used;
@@ -226,19 +227,19 @@ TEST(Integration_Der, BerCompatibilityAndGenericFormat) {
 }
 
 TEST(Integration_Der, TagCapacityAndNumericOverflow) {
-    std::vector<uint8_t> data(TLV_TAG_MAX_SIZE + 1, 0x81);
+    std::vector<uint8_t> data(TLV_TAG_CAPACITY + 1, 0x81);
     data[0] = 0x9F;
     tlv_view_t view{};
     size_t used;
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_der_read(data.data(), data.size(), nullptr, &view, &used, nullptr));
-    if (TLV_TAG_MAX_SIZE > 1) {
-        data[TLV_TAG_MAX_SIZE - 1] = 0x7F;
-        data[TLV_TAG_MAX_SIZE] = 0;
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_der_read(data.data(), data.size(), nullptr, &view, &used, nullptr));
+    if (TLV_TAG_CAPACITY > 1) {
+        data[TLV_TAG_CAPACITY - 1] = 0x7F;
+        data[TLV_TAG_CAPACITY] = 0;
         ASSERT_EQ(TLV_OK, tlv_der_read(data.data(), data.size(), nullptr, &view, &used, nullptr));
         uint64_t number = 42;
-        EXPECT_EQ(TLV_TAG_MAX_SIZE > 11 ? TLV_ERR_INVALID_TAG : TLV_OK,
+        EXPECT_EQ(TLV_TAG_CAPACITY > 11 ? TLV_ERR_INVALID_TAG : TLV_OK,
                   tlv_der_tag_number(&view.tag, &number));
-        if (TLV_TAG_MAX_SIZE > 11) EXPECT_EQ(42u, number);
+        if (TLV_TAG_CAPACITY > 11) EXPECT_EQ(42u, number);
     }
 }
 

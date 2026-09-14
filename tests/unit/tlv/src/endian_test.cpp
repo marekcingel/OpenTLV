@@ -146,7 +146,7 @@ TEST(Unit_TLVEndian, NativeOrderMatchesIntegerStorage) {
         EXPECT_EQ(TLV_BYTE_ORDER_LITTLE_ENDIAN, order);
     else
         EXPECT_EQ(TLV_BYTE_ORDER_UNKNOWN, order);
-#if TLV_TAG_MAX_SIZE >= 4
+#if TLV_TAG_CAPACITY >= 4
     if (order != TLV_BYTE_ORDER_UNKNOWN) {
         tlv_tag_t tag = {{0}, 4};
         std::memcpy(tag.data, bytes, sizeof(bytes));

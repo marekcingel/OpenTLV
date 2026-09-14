@@ -95,7 +95,7 @@ static int single_element_and_copies(void) {
 }
 
 static int ber_format(void) {
-#if TLV_TAG_MAX_SIZE >= 2
+#if TLV_TAG_CAPACITY >= 2
     const tlv_tag_t tag = {{0x9F, 0x1C}, 2};
 #else
     const tlv_tag_t tag = {{0x5A}, 1};

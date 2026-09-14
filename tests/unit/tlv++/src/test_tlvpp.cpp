@@ -78,13 +78,13 @@ TEST(Unit_TLV_CPP, registry_compares_valid_tag_bytes_and_size) {
     return tlv::any(42);
   });
   tlv::tag_t same = first;
-#if TLV_TAG_MAX_SIZE > 1
-  same.data[TLV_TAG_MAX_SIZE - 1] = 0xFF;
+#if TLV_TAG_CAPACITY > 1
+  same.data[TLV_TAG_CAPACITY - 1] = 0xFF;
 #endif
   EXPECT_TRUE(registry.has_decoder(same));
   tlv::tag_t other = {{0x11}, 1};
   EXPECT_FALSE(registry.has_decoder(other));
-#if TLV_TAG_MAX_SIZE > 1
+#if TLV_TAG_CAPACITY > 1
   tlv::tag_t longer = {{0x10, 0x00}, 2};
   EXPECT_FALSE(registry.has_decoder(longer));
   registry.register_decoder(longer, [](tlv::bytes) -> tlv::expected<tlv::any, tlv::error> {

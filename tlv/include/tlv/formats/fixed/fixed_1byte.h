@@ -9,6 +9,7 @@ extern "C" {
 
 /* One raw tag byte, one unsigned length byte, and 0 through 255 value bytes.
  * Every tag byte is valid; there are no reserved tags or length encodings.
+ * Writing any tag size other than one returns TLV_ERR_INVALID_TAG_SIZE.
  */
 extern const tlv_reader_format_t tlv_reader_format_fixed_1byte;
 extern const tlv_writer_format_t tlv_writer_format_fixed_1byte;

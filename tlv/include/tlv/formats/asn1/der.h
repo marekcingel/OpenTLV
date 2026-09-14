@@ -23,7 +23,9 @@ static inline int tlv_der_tag_is_constructed(const tlv_tag_t* tag) {
 }
 
 /* Canonical tag construction and numeric extraction. Numbers exceeding uint64_t
- * or tags exceeding TLV_TAG_MAX_SIZE return INVALID_TAG. Outputs are unchanged
+ * return TLV_ERR_INVALID_TAG. Empty tags or tags exceeding TLV_TAG_CAPACITY
+ * return TLV_ERR_INVALID_TAG_SIZE. Invalid encodings return TLV_ERR_INVALID_TAG.
+ * Outputs are unchanged
  * on failure. Raw parsing supports the full configured tag capacity.
  */
 tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed,

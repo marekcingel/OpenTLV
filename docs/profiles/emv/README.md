@@ -155,7 +155,7 @@ dictionary and length schemas do not enforce a definite-only encoding policy.
 APDU status bytes and EMV
 padding are handled by the caller. Book 3 defines one- and two-byte tags;
 three-byte tags remain readable by generic BER but are unknown to this profile.
-With `TLV_TAG_MAX_SIZE == 1`, two-byte constants and entries are omitted;
+With `TLV_TAG_CAPACITY == 1`, two-byte constants and entries are omitted;
 configure the macro consistently for the library and all consumers.
 
 ## Byte example

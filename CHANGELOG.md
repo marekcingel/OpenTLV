@@ -9,17 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Remove `TLV_TAG_MAX_SIZE` configuration and alias support; configure tag storage with `TLV_TAG_CAPACITY` instead. #96
 - Remove CI CPack distribution archive generation and uploads, along with automatic GitHub Release creation and archive attachments; retain coverage artifacts and the workflow summary. (#86)
 - Remove the dedicated GCC CI matrix for independent test groups and minimal component builds. (#86)
 
 ### Added
 
+- Add `TLV_TAG_CAPACITY` (default 8), the fixed `TLV_TAG_MAX_SUPPORTED_SIZE` representation limit, and `TLV_ERR_INVALID_TAG_SIZE` with a readable error description. #96
 - Add public `tlv/tag.h` with checked construction from byte arrays and explicitly sized integers, full-capacity tag/byte-array comparison and `u8`/`u16`/`u32`/`u64` numeric comparison and checked conversion helpers with explicit big-/little-endian input order for `uint8_t`, `uint16_t`, `uint32_t`, and `uint64_t`, `tlv_endian_native()` for host byte order, and numeric EMV tag constants for C/C++ `case` labels; preserve `tlv/types.h` include compatibility. (#90)
 - Add optional C API fuzz targets, seed corpora, ASan/UBSan instrumentation, bounded CI fuzzing with reproducing artifacts, and local execution documentation. (#72)
 - Add Windows x86 MSVC CI builds for Debug/C++11 and Release/C++23 using the Visual Studio Win32 platform, and explicitly label build jobs as x86 or x64. GCC and Clang builds remain x64-only. (#86)
 
 ### Changed
 
+- Tag-size failures previously returning `TLV_ERR_INVALID_TAG` now return `TLV_ERR_INVALID_TAG_SIZE`; malformed encoding and numeric overflow retain `TLV_ERR_INVALID_TAG`. Capacity must match between the library and consumers; equal capacities preserve the existing tag layout. #96
 - Run GCC and MSVC CI only on version-tag pushes; retain Clang CI for pushes and pull requests targeting `main` and `develop`, as well as version tags. (#86)
 - Separate unit and integration tests with independent CMake build switches, CTest labels, and visible `Unit_` / `Integration_` GoogleTest suite names; CI coverage reports now explicitly cover both groups. (#85)
 

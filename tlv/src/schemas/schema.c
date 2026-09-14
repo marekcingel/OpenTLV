@@ -6,8 +6,8 @@ const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema,
     size_t i;
     if (!schema || !tag || (!schema->entries && schema->count != 0))
         return NULL;
-#if TLV_TAG_MAX_SIZE < 255
-    if (tag->size > TLV_TAG_MAX_SIZE)
+#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
+    if (tag->size > TLV_TAG_CAPACITY)
         return NULL;
 #endif
     for (i = 0; i < schema->count; ++i) {

@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-/* Raw BER-TLV tags up to TLV_TAG_MAX_SIZE, including high-tag-number form.
+/* Raw BER-TLV tags up to TLV_TAG_CAPACITY, including high-tag-number form.
  * Definite lengths up to SIZE_MAX; writes use the shortest length encoding.
  * Reads accept nonminimal definite lengths and constructed indefinite lengths.
  * Tag bytes are preserved (including 9F 1C); ASN.1 semantics are not validated.

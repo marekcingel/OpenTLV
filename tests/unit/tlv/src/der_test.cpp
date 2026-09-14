@@ -12,7 +12,7 @@
 
 TEST(Unit_Der, UniversalPrimitiveConstructedRules) {
     for (uint64_t number = 0; number <= 36; ++number) {
-        if (number >= 31 && TLV_TAG_MAX_SIZE < 2) continue;
+        if (number >= 31 && TLV_TAG_CAPACITY < 2) continue;
         const bool must_construct = number == 8 || number == 11 || number == 16 ||
                                     number == 17 || number == 29;
         for (int constructed : {0, 1}) {
@@ -48,4 +48,32 @@ TEST(Unit_Der, EmptyArgumentsAndVisitorControl) {
     EXPECT_EQ(TLV_ERR_VISITOR, tlv_der_walk(data, sizeof(data), nullptr, error, nullptr, &offset));
     EXPECT_EQ(0u, offset);
     EXPECT_NE(TLV_OK, tlv_der_walk(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
+}
+
+TEST(Unit_Der, TagSizeErrorsPreserveOutputs) {
+    tlv_tag_t tag{};
+    uint64_t number = 42;
+    size_t written = 99;
+    uint8_t output[TLV_TAG_CAPACITY] = {0xEE};
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_der_tag_number(&tag, &number));
+    EXPECT_EQ(42u, number);
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+              tlv_writer_format_der.write_tag(nullptr, output, sizeof(output), &tag, &written));
+    EXPECT_EQ(99u, written);
+    EXPECT_EQ(0xEE, output[0]);
+#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
+    tag.size = TLV_TAG_CAPACITY + 1;
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_der_tag_number(&tag, &number));
+    EXPECT_EQ(42u, number);
+#endif
+    tag = tlv_tag_t{{0x9F}, TLV_TAG_CAPACITY};
+    for (size_t i = 1; i < TLV_TAG_CAPACITY; ++i) tag.data[i] = 0x81;
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_der_tag_number(&tag, &number));
+    EXPECT_EQ(42u, number);
+#if TLV_TAG_CAPACITY < 11
+    const tlv_tag_t before = tag;
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+              tlv_der_tag_make(TLV_ASN1_PRIVATE, 0, UINT64_MAX, &tag));
+    EXPECT_EQ(0, std::memcmp(&before, &tag, sizeof(tag)));
+#endif
 }

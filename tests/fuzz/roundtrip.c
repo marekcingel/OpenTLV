@@ -8,7 +8,7 @@ static void check_roundtrip(size_t format, tlv_tag_t tag,
         FUZZ_CHECK(total == SIZE_MAX);
         return;
     }
-    FUZZ_CHECK(total >= length && total - length <= TLV_TAG_MAX_SIZE + sizeof(size_t) + 2);
+    FUZZ_CHECK(total >= length && total - length <= TLV_TAG_CAPACITY + sizeof(size_t) + 2);
     FUZZ_CHECK(total > 0);
     uint8_t* encoded = (uint8_t*)malloc(total);
     FUZZ_CHECK(encoded != NULL);
@@ -34,7 +34,7 @@ static void check_roundtrip(size_t format, tlv_tag_t tag,
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     tlv_tag_t tag = {{0}, 0};
-    size_t tag_size = size ? data[0] % (TLV_TAG_MAX_SIZE + 1) : 0;
+    size_t tag_size = size ? data[0] % (TLV_TAG_CAPACITY + 1) : 0;
     if (size && tag_size > size - 1) tag_size = size - 1;
     tag.size = (uint8_t)tag_size;
     if (tag_size) memcpy(tag.data, data + 1, tag_size);

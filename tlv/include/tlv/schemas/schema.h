@@ -26,7 +26,7 @@ typedef struct {
 
 /* Linear lookup by tag size and active bytes (including empty tags).
  * Returns the first matching entry, or NULL for unknown tags, NULL arguments,
- * a missing nonempty table, or a tag size exceeding TLV_TAG_MAX_SIZE.
+ * a missing nonempty table, or a tag size exceeding TLV_TAG_CAPACITY.
  * Entries with invalid tag sizes are skipped. No sorting is required.
  */
 const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema,

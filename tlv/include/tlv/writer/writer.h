@@ -9,6 +9,7 @@ extern "C" {
 
 /* Computes tag + length + value size without accessing value bytes.
  * Requires format->write_tag/write_length/length_size and a non-NULL output.
+ * Empty tags or unsupported tag sizes return TLV_ERR_INVALID_TAG_SIZE.
  * On failure the output is unchanged; size_t overflow is INVALID_LENGTH.
  */
 tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,

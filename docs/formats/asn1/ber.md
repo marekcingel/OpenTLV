@@ -14,7 +14,7 @@
 
 ## Scope and limits
 
-Multi-byte tags up to TLV_TAG_MAX_SIZE; definite lengths and constructed indefinite input. Ordinary writes use definite lengths.
+Multi-byte tags up to TLV_TAG_CAPACITY; definite lengths and constructed indefinite input. Ordinary writes use definite lengths.
 
 See [shared memory ownership rules](../../memory.md) before retaining a parsed view.
 
@@ -52,7 +52,7 @@ the writer for raw BER-TLV tags
 such as `5A`, `5F 2A`, `9F 1C`, and `9F 81 01`. Tags retain their wire bytes,
 including class and constructed bits. High-tag-number form ends at the first
 subsequent byte with bit 7 clear; its first subsequent byte must have a nonzero
-low seven-bit value. Tags must fit `TLV_TAG_MAX_SIZE`. The format accepts raw
+low seven-bit value. Tags must fit `TLV_TAG_CAPACITY`. The format accepts raw
 identifiers such as `9F 1C` without enforcing ASN.1 tag-number minimality or
 universal-tag semantics. Definite values remain opaque during single-element
 reading; resolving an indefinite element inspects descendant framing.
@@ -129,10 +129,11 @@ surrounding tree. DER still rejects indefinite lengths.
 
 These framing rules follow [ITU-T X.690 (02/2021), sections 8.1.3 and 8.1.5](https://www.itu.int/rec/T-REC-X.690-202102-I/en).
 
-Malformed tags, unterminated tags on write, and tags exceeding capacity return
-`TLV_ERR_INVALID_TAG`. Missing tag continuation or length bytes return
+Malformed tags and unterminated tags on write return `TLV_ERR_INVALID_TAG`,
+unless continuation requires bytes beyond capacity. Empty tags on write and
+tags exceeding capacity return `TLV_ERR_INVALID_TAG_SIZE`. Missing tag continuation or length bytes return
 `TLV_ERR_BUFFER_TOO_SHORT`; a continuation requiring bytes beyond tag capacity
-returns `TLV_ERR_INVALID_TAG` even if those bytes are missing. Empty input to
+returns `TLV_ERR_INVALID_TAG_SIZE` even if those bytes are missing. Empty input to
 the generic reader returns `TLV_ERR_END_OF_BUFFER`. All BER-specific encoding
 and validation live in the format callbacks.
 

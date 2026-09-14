@@ -53,15 +53,17 @@ TEST(Unit_TLV, writer_rejects_unsupported_tag_sizes_without_writing) {
   std::memset(buf, 0xAA, sizeof(buf));
   tlv_writer_t writer;
   ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_writer_format_default));
-  for (unsigned size = 0; size <= 255; ++size) {
+  for (unsigned size = 0; size <= TLV_TAG_MAX_SUPPORTED_SIZE; ++size) {
     if (size == 1) continue;
     SCOPED_TRACE(size);
     tlv_tag_t tag{};
     tag.size = static_cast<uint8_t>(size);
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_writer_write(&writer, tag, nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_writer_write(&writer, tag, nullptr, 0));
     EXPECT_EQ(0u, tlv_writer_size(&writer));
     for (uint8_t byte : buf) EXPECT_EQ(0xAA, byte);
   }
+  EXPECT_EQ(11, TLV_ERR_INVALID_TAG_SIZE);
+  EXPECT_STREQ("invalid tag size", tlv_strerror(TLV_ERR_INVALID_TAG_SIZE));
   EXPECT_STREQ("invalid tag", tlv_strerror(TLV_ERR_INVALID_TAG));
 }
 

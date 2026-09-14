@@ -15,12 +15,29 @@ are declared in `<tlv/tag.h>`, which can also be included directly.
 All types support zero initialization and require no dynamic allocation.
 An empty tag has size zero; individual formats decide whether it is valid.
 
-Define `TLV_TAG_MAX_SIZE` at compile time to change the default capacity of
-8 bytes, for example with the compiler option `-DTLV_TAG_MAX_SIZE=16`
-(`/DTLV_TAG_MAX_SIZE=16` with MSVC). The allowed range is 1–255 because the
-actual size is stored in a `uint8_t`. Use the same definition in the library
-and every consumer: changing capacity changes the layout and ABI of tags and
-views. This is a preprocessor setting, not a CMake cache option.
+`TLV_TAG_MAX_SUPPORTED_SIZE` is the fixed representation limit `UINT8_MAX`
+(255), imposed by the `uint8_t size` field. It is not configurable and is not
+a protocol limit. `TLV_TAG_CAPACITY` is the compile-time inline storage
+capacity (default 8); `tag.size` is the current number of valid bytes (0 through
+capacity). Empty tags are valid for raw construction and comparison; numeric
+conversion and TLV I/O require nonempty tags.
+
+Define `TLV_TAG_CAPACITY` at compile time, for example `-DTLV_TAG_CAPACITY=16`
+(`/DTLV_TAG_CAPACITY=16` with MSVC). The allowed range is 1 through
+`TLV_TAG_MAX_SUPPORTED_SIZE`; configurations outside it fail preprocessing.
+Use the same capacity in the library and every C/C++ consumer: capacity affects
+structure layout and ABI. Rebuild both when changing it. This is a preprocessor
+setting, not a CMake cache option.
+
+Migrate existing `TLV_TAG_MAX_SIZE` definitions to `TLV_TAG_CAPACITY`.
+The old name is no longer supported or provided as an alias. Only
+`TLV_TAG_CAPACITY` configures storage; leaving it undefined selects 8.
+Equal capacities retain the existing structure layout.
+
+Direct assignment to the public `size` field can truncate values outside the
+`uint8_t` range before the library can validate them (for example, 256 becomes
+zero). Use construction helpers with `size_t` lengths for checked input. These
+validate the length before narrowing, including lengths 256 and 257 at capacity 255.
 
 The reader returns `tlv_view_t`: it copies the tag into inline storage and
 borrows the value directly from the input buffer. The writer accepts
@@ -41,7 +58,7 @@ including tags longer than 8 bytes.
 `tlv_tag_equal_bytes(tag, data, size)` compares a tag against an array
 without constructing another `tlv_tag_t`. Length and leading zeros are
 significant. `data` may be null only when `size` is zero; otherwise the caller
-must provide `size` readable bytes. Sizes above `TLV_TAG_MAX_SIZE` are invalid.
+must provide `size` readable bytes. Sizes above `TLV_TAG_CAPACITY` are invalid.
 
 ```c
 const uint8_t expected[] = {0x82};
@@ -55,7 +72,7 @@ if (tlv_tag_equal_bytes(tag, expected, sizeof(expected))) {
 `9F 02` becomes `0x9F02`; with `TLV_BYTE_ORDER_LITTLE_ENDIAN`, it becomes
 `0x029F`. It does not decode the ASN.1 tag number.
 Null arguments return `TLV_ERR_NULL_ARG`; empty tags, sizes exceeding capacity,
-and tags longer than 8 bytes return `TLV_ERR_INVALID_TAG`. The output stays
+and tags longer than 8 bytes return `TLV_ERR_INVALID_TAG_SIZE`. The output stays
 unchanged on failure, including for long tags with zero padding. Unknown or
 invalid byte order returns `TLV_ERR_INVALID_ARG`.
 
@@ -84,16 +101,16 @@ order and still compare exact bytes and length.
 
 ## Constructing tags
 
-`tlv_tag_from_bytes(data, size, &tag)` copies up to `TLV_TAG_MAX_SIZE` bytes.
+`tlv_tag_from_bytes(data, size, &tag)` copies up to `TLV_TAG_CAPACITY` bytes.
 Zero size creates an empty tag and permits null `data`. Source and destination
-may overlap. Excessive size returns `TLV_ERR_INVALID_TAG`; missing required
+may overlap. Excessive size returns `TLV_ERR_INVALID_TAG_SIZE`; missing required
 pointers return `TLV_ERR_NULL_ARG`.
 
 `tlv_tag_from_u8/u16/u32/u64(value, size, order, &tag)` encodes an unsigned
 value into exactly `size` bytes (1..8, within capacity). Size is explicit:
 `0x82` can become `82`, big-endian `00 82`, or little-endian `82 00`.
-A size too small for the value returns `TLV_ERR_INVALID_TAG`, as does an invalid
-size. Unsupported byte order returns `TLV_ERR_INVALID_ARG`.
+A value that does not fit the requested size returns `TLV_ERR_INVALID_TAG`;
+zero size, size above capacity, or size above 8 returns `TLV_ERR_INVALID_TAG_SIZE`. Unsupported byte order returns `TLV_ERR_INVALID_ARG`.
 
 All constructors leave the destination unchanged on failure and zero unused
 storage on success. They allocate no memory and do not validate BER or EMV rules.
@@ -104,3 +121,13 @@ if (tlv_tag_from_u16(0x9F02, 2, TLV_BYTE_ORDER_BIG_ENDIAN, &tag) == TLV_OK) {
     /* tag contains the exact bytes 9F 02. */
 }
 ```
+
+## Tag errors
+
+`TLV_ERR_INVALID_TAG_SIZE` identifies sizes unsupported by an operation.
+`TLV_ERR_INVALID_TAG` identifies malformed tag encoding or numeric values that
+do not fit the requested representation. Size failures previously returning
+`TLV_ERR_INVALID_TAG` now return `TLV_ERR_INVALID_TAG_SIZE`; update callers that
+check specific errors. `TLV_ERR_INVALID_LENGTH` remains a value-length error,
+and invalid schema definitions retain schema-specific errors. Comparison helpers
+still return 0 for invalid inputs. Existing error-code numeric values are unchanged.

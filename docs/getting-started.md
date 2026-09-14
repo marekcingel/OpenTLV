@@ -161,7 +161,7 @@ available without built-in formats. Compile-time format direction checks run
 when tests are enabled. Alternate tag-capacity targets remain part of their
 respective groups: types use capacities 1/16/255, BER and DER use 1/16/255, and
 EMV uses 1/2/3. Each alternate target compiles its implementation with the same
-`TLV_TAG_MAX_SIZE` as its tests; it does not link the differently laid-out main
+`TLV_TAG_CAPACITY` as its tests; it does not link the differently laid-out main
 library.
 
 CI runs both labels. The Clang Debug coverage artifact measures the combined

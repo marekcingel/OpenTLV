@@ -19,7 +19,7 @@ static tlv_result_t encoded_sizes(tlv_tag_t tag, size_t length,
     tlv_result_t rc;
     if (!format || !format->write_tag || !format->write_length || !format->length_size)
         return TLV_ERR_NULL_ARG;
-    if (!tag.size || tag.size > TLV_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG;
+    if (!tag.size || tag.size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
     rc = format->write_tag(format->context, NULL, 0, &tag, tag_size);
     if (rc != TLV_OK) return rc;
     if (!*tag_size) return TLV_ERR_INVALID_TAG;

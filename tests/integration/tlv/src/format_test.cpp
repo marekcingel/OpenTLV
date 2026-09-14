@@ -4,7 +4,7 @@
 #include <cstring>
 #include <limits>
 
-#if TLV_TAG_MAX_SIZE >= 2
+#if TLV_TAG_CAPACITY >= 2
 
 namespace {
 // Two raw tag bytes, and a configurable fixed-width little-endian length.
@@ -18,7 +18,7 @@ tlv_result_t read_tag(const void*, const uint8_t* data, size_t size,
 }
 tlv_result_t write_tag(const void*, uint8_t* data, size_t size,
                        const tlv_tag_t* tag, size_t* used) {
-    if (tag->size != 2) return TLV_ERR_INVALID_TAG;
+    if (tag->size != 2) return TLV_ERR_INVALID_TAG_SIZE;
     *used = 2;
     if (!data) return TLV_OK;
     if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -86,4 +86,4 @@ TEST(Integration_Format, CustomFormatRoundTripAndWireBytes) {
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 }
 
-#endif // TLV_TAG_MAX_SIZE >= 2
+#endif // TLV_TAG_CAPACITY >= 2
