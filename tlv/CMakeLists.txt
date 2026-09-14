@@ -17,6 +17,7 @@ add_library(${PROJECT_NAME}
     src/writer/writer.c
     src/error.c
     ${OpenTLV_BINARY_DIR}/generated/src/version.c
+    ${OpenTLV_BINARY_DIR}/generated/src/config.c
 )
 
 if(OPENTLV_FORMAT_DEFAULT)
@@ -31,7 +32,9 @@ endif()
 if(OPENTLV_FORMAT_DER)
     target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/der.c)
 endif()
-if(OPENTLV_FORMAT_BER OR OPENTLV_FORMAT_DER)
+if(OPENTLV_FORMAT_BER)
+    # DER (below) cascades off whenever BER is OFF, so this single guard
+    # covers the shared private BER wire helpers used by both.
     target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/ber_internal.c)
 endif()
 if(OPENTLV_FORMAT_DER)
@@ -40,8 +43,6 @@ endif()
 if(OPENTLV_PROFILE_EMV)
     target_sources(${PROJECT_NAME} PRIVATE src/profiles/emv.c src/codec/emv.c)
 endif()
-configure_file(include/tlv/config.h.in
-    ${OpenTLV_BINARY_DIR}/generated/include/tlv/config.h)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS ON

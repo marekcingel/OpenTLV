@@ -113,16 +113,20 @@ to ON and can be disabled independently:
 | --- | --- |
 | `OPENTLV_FORMAT_DEFAULT` | One-byte tag with legacy definite BER-style length |
 | `OPENTLV_FORMAT_FIXED_1BYTE` | One-byte tag and length |
+| `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER) |
 | `OPENTLV_FORMAT_BER` | Public BER format |
 | `OPENTLV_FORMAT_DER` | DER format and bounded DER profile operations |
 | `OPENTLV_PROFILE_EMV` | EMV dictionary, schemas and value codecs |
 
-EMV tables/codecs can be used without built-in BER; the caller may supply a
-compatible format. DER uses private BER wire helpers even when public BER is
-disabled. Disabling both BER and DER removes that backend. No component creates
-another public binary library. `tlv/config.h` exposes the configured selection.
-Explicitly including a disabled component's header does not provide its symbols;
-consumers should use the config macros when supporting reduced builds.
+`OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`, and
+`OPENTLV_PROFILE_EMV` form a chain (ASN1 -> BER -> DER -> EMV): disabling an
+option forces every option below it OFF as well, regardless of how that
+option was set, so `-DOPENTLV_FORMAT_BER=OFF` also disables DER and EMV. This
+cascade is centralized in `cmake/format_options.cmake`. No component creates
+another public binary library. `tlv/config.h` exposes the configured
+selection, including `OPENTLV_FORMAT_ASN1`. Explicitly including a disabled
+component's header does not provide its symbols; consumers should use the
+config macros when supporting reduced builds.
 
 Tests that require disabled components and examples that demonstrate them are
 omitted. Generic architecture tests use an application-defined format and run
@@ -131,8 +135,7 @@ is built only when that component is enabled.
 
 ```sh
 cmake -S . -B build-minimal -DOPENTLV_FORMAT_DEFAULT=OFF \
-  -DOPENTLV_FORMAT_FIXED_1BYTE=OFF -DOPENTLV_FORMAT_BER=OFF \
-  -DOPENTLV_FORMAT_DER=OFF -DOPENTLV_PROFILE_EMV=OFF
+  -DOPENTLV_FORMAT_FIXED_1BYTE=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build-minimal --parallel
 ```
 

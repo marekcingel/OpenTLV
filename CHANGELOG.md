@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add the `OPENTLV_FORMAT_ASN1` CMake option and `tlv/config.h` runtime accessors (`tlv_config_format_default()`, `tlv_config_format_fixed_1byte()`, `tlv_config_format_asn1()`, `tlv_config_format_ber()`, `tlv_config_format_der()`, `tlv_config_profile_emv()`) mirroring the compile-time config macros. `tlv/config.h`/`tlv/config.c` are now generated from `tlv/resources/config.h.in`/`config.c.in`, moved from `tlv/include/tlv/config.h.in`. (#101)
 - Add `tlv_read_u64_be/le`, `tlv_write_u64_be/le`, and checked `tlv_read_uint` / `tlv_write_uint` helpers for widths 1-8, with explicit byte order, zero padding, unaligned byte-buffer support, overflow rejection, and unchanged outputs on failure. Existing u16/u32 helper APIs remain compatible. (#98)
 - Add `TLV_TAG_CAPACITY` (default 8), the fixed `TLV_TAG_MAX_SUPPORTED_SIZE` representation limit, and `TLV_ERR_INVALID_TAG_SIZE` with a readable error description. (#96)
 - Add public `tlv/tag.h` with checked construction from byte arrays and explicitly sized integers, full-capacity tag/byte-array comparison and `u8`/`u16`/`u32`/`u64` numeric comparison and checked conversion helpers with explicit big-/little-endian input order for `uint8_t`, `uint16_t`, `uint32_t`, and `uint64_t`, `tlv_endian_native()` for host byte order, and numeric EMV tag constants for C/C++ `case` labels; preserve `tlv/types.h` include compatibility. (#90)
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`, and `OPENTLV_PROFILE_EMV` now form a cascade (ASN1 -> BER -> DER -> EMV): disabling a CMake option forces every option below it OFF, even if that option was explicitly set ON. Previously these options were independent; DER no longer builds with `OPENTLV_FORMAT_BER=OFF`, and EMV no longer builds with `OPENTLV_FORMAT_DER=OFF`. Centralized in `cmake/format_options.cmake`. (#101)
 - Baseline updates replace the machine hostname with a public label (the baseline filename stem by default, overridable with `--host-label`); local latest-run metadata remains unchanged.
 - Benchmark tasks now use a shared Python runner and the configured Release executable path, validate results before replacing `latest.json`, retain the previous completed run on failure, and report output paths and run dates.
 - Centralize numeric tag, default-format length, BER/DER length, and binary EMV integer serialization in the endian module. Preserve wire encodings and format validation, including BER padded lengths longer than `sizeof(size_t)` that fit `size_t`; isolated component tests link the shared implementation. (#98)
