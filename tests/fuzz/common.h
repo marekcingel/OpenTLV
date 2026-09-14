@@ -2,6 +2,7 @@
 #define OPENTLV_FUZZ_COMMON_H
 
 #include "tlv/config.h"
+#include "tlv/length.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/walker.h"
 #include "tlv/writer/writer.h"
@@ -55,6 +56,7 @@ typedef struct fuzz_visit_context {
 static inline tlv_visit_result_t fuzz_visit(const tlv_view_t* view, size_t depth,
                                            size_t offset, void* opaque) {
     fuzz_visit_context* ctx = (fuzz_visit_context*)opaque;
+    size_t value_length;
     FUZZ_CHECK(ctx->count < ctx->max_elements);
     FUZZ_CHECK(depth <= ctx->max_depth && depth <= TLV_WALK_MAX_DEPTH);
     FUZZ_CHECK(offset < ctx->size);
@@ -62,8 +64,9 @@ static inline tlv_visit_result_t fuzz_visit(const tlv_view_t* view, size_t depth
     FUZZ_CHECK(!ctx->count || depth <= ctx->previous_depth + 1);
     fuzz_view_bounds(view, ctx->data + offset, ctx->size - offset);
     FUZZ_CHECK(view->value.length <= ctx->max_value_size);
+    FUZZ_CHECK(tlv_length_to_size(view->value.length, &value_length) == TLV_OK);
     ctx->value_ends[depth] = (size_t)((uintptr_t)view->value.data -
-                                    (uintptr_t)ctx->data) + view->value.length;
+                                    (uintptr_t)ctx->data) + value_length;
     if (depth) FUZZ_CHECK(ctx->value_ends[depth] <= ctx->value_ends[depth - 1]);
     ctx->previous_offset = offset;
     ctx->previous_depth = depth;

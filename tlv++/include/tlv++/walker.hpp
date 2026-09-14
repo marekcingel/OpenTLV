@@ -3,6 +3,7 @@
 #include <type_traits>
 #include "tlv++/types.hpp"
 #include "tlv/reader/walker.h"
+#include "tlv/length.h"
 
 namespace tlv {
 // Visitor(entry, depth, absolute_offset) returns tlv_visit_result_t.
@@ -17,8 +18,11 @@ walk_tree(bytes data, const tlv_reader_format_t& format, tlv_is_constructed_fn i
         static tlv_visit_result_t call(const tlv_view_t* view, size_t depth,
                                        size_t offset, void* context) {
             adapter* self = static_cast<adapter*>(context);
+            size_t length;
+            if (tlv_length_to_size(view->value.length, &length) != TLV_OK)
+                return TLV_VISIT_ERROR;
             return (*self->visitor)(entry{view->tag,
-                bytes(reinterpret_cast<const byte*>(view->value.data), view->value.length)},
+                bytes(reinterpret_cast<const byte*>(view->value.data), length)},
                 depth, offset);
         }
     };

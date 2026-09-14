@@ -2,7 +2,7 @@
 #define OPENTLV_TLVPP_TYPES_HPP
 #include <string>
 #include "tlv++/compat.hpp"
-#include "tlv/types.h"
+#include "tlv/view.h"
 namespace tlv {
 // Idiomatic C++ error that wraps a C error code and context.
 struct error {

@@ -16,12 +16,13 @@ For example, an application can define a zero-copy decoder:
 
 ```c
 #include "tlv/codec/codec.h"
-#include "tlv/types.h"
+
+typedef struct { const uint8_t* data; size_t length; } byte_range_t;
 
 static tlv_codec_result_t decode_bytes(const void* context,
     const uint8_t* data, size_t size, void* value, size_t capacity)
 {
-    tlv_buffer_t* bytes = (tlv_buffer_t*)value;
+    byte_range_t* bytes = (byte_range_t*)value;
     (void)context;
     if (capacity < sizeof(*bytes)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
     bytes->data = data;
@@ -32,12 +33,16 @@ static tlv_codec_result_t decode_bytes(const void* context,
 static const tlv_codec_t bytes_codec = {NULL, decode_bytes, NULL};
 ```
 
-After a successful `tlv_read()`, explicitly convert its value:
+After a successful `tlv_read()`, convert the view's `tlv_length_t` value length with
+`tlv_length_to_size()` (from `tlv/length.h`) before passing it to a codec, which takes a
+native `size_t` size:
 
 ```c
-tlv_buffer_t bytes;
-tlv_codec_result_t result = tlv_codec_decode(&bytes_codec,
-    view.value.data, view.value.length, &bytes, sizeof(bytes));
+size_t length;
+byte_range_t bytes;
+tlv_codec_result_t result;
+if (tlv_length_to_size(view.value.length, &length) != TLV_OK) { /* value too large for this build */ }
+result = tlv_codec_decode(&bytes_codec, view.value.data, length, &bytes, sizeof(bytes));
 ```
 
 The resulting `bytes` borrows the original input. Keep that storage alive and

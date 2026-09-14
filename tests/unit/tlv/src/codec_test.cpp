@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "tlv/codec/codec.h"
 #include "tlv/endian.h"
-#include "tlv/types.h"
+#include "tlv/view.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
@@ -30,10 +30,15 @@ tlv_codec_result_t encode_u16(const void* context, const void* value,
 const bool big_endian = true;
 const tlv_codec_t scalar = {&big_endian, decode_u16, encode_u16};
 
+struct byte_view {
+    const uint8_t* data;
+    size_t length;
+};
+
 tlv_codec_result_t decode_view(const void*, const uint8_t* data, size_t size,
                               void* value, size_t capacity) {
-    if (capacity < sizeof(tlv_buffer_t)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-    *static_cast<tlv_buffer_t*>(value) = tlv_buffer_t{data, size};
+    if (capacity < sizeof(byte_view)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    *static_cast<byte_view*>(value) = byte_view{data, size};
     return TLV_CODEC_OK;
 }
 }
@@ -60,7 +65,7 @@ TEST(Unit_Codec, ScalarRoundTripAndSizeQuery) {
 TEST(Unit_Codec, BorrowedAndEmptyRepresentations) {
     const tlv_codec_t codec = {nullptr, decode_view, nullptr};
     uint8_t bytes[] = {1, 2, 3};
-    tlv_buffer_t view = {};
+    byte_view view = {};
     ASSERT_EQ(tlv_codec_decode(&codec, bytes, sizeof(bytes), &view, sizeof(view)), TLV_CODEC_OK);
     EXPECT_EQ(view.data, bytes);
     EXPECT_EQ(view.length, sizeof(bytes));

@@ -30,11 +30,10 @@ TEST(Integration_Copy, EncodedRangePreservesHeaderWhileViewUsesSelectedFormat) {
     tlv_view_t view{};
     size_t consumed = 0, written = 99;
     ASSERT_EQ(TLV_OK, tlv_read(input, sizeof(input), &tlv_reader_format_ber, &view, &consumed));
-    const tlv_buffer_t range = {input, consumed};
-    ASSERT_EQ(TLV_OK, tlv_copy_encoded(range, nullptr, 0, &written));
+    ASSERT_EQ(TLV_OK, tlv_copy_encoded(input, consumed, nullptr, 0, &written));
     EXPECT_EQ(sizeof(input), written);
     uint8_t exact[4] = {}, encoded[3] = {};
-    ASSERT_EQ(TLV_OK, tlv_copy_encoded(range, exact, sizeof(exact), &written));
+    ASSERT_EQ(TLV_OK, tlv_copy_encoded(input, consumed, exact, sizeof(exact), &written));
     EXPECT_EQ(0, std::memcmp(input, exact, sizeof(input)));
     ASSERT_EQ(TLV_OK, tlv_copy_view(&view, &tlv_writer_format_ber, nullptr, 0, &written));
     EXPECT_EQ(sizeof(encoded), written);

@@ -93,7 +93,7 @@ TEST(Integration_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies) {
     EXPECT_EQ(0, std::memcmp(wire + 2, copied + 2, 11));
     EXPECT_EQ(TLV_OK, tlv_walk_tree(copied, written, &tlv_reader_format_ber,
         tlv_ber_is_constructed, 3, 5, nullptr, nullptr, nullptr));
-    ASSERT_EQ(TLV_OK, tlv_copy_encoded(tlv_buffer_t{wire, used}, copied, sizeof(copied), &written));
+    ASSERT_EQ(TLV_OK, tlv_copy_encoded(wire, used, copied, sizeof(copied), &written));
     EXPECT_EQ(15u, written); EXPECT_EQ(0, std::memcmp(wire, copied, written));
     // An empty indefinite scope still enforces required children.
     const uint8_t empty[] = {0x30, 0x80, 0, 0};

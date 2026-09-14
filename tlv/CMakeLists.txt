@@ -9,6 +9,8 @@ add_library(${PROJECT_NAME}
     src/copy.c
     src/tag.c
     src/endian.c
+    src/length.c
+    src/value.c
     src/reader/reader.c
     src/reader/scanner.c
     src/reader/walker.c

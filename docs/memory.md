@@ -4,9 +4,9 @@
 
 | Object or operation | Ownership and lifetime |
 | --- | --- |
-| `tlv_buffer_t` | Borrows its bytes; does not allocate or free them. |
+| `tlv_value_t` | Borrows its bytes; does not allocate or free them. Its `tlv_length_t` length may exceed the current build's `size_t`; convert with `tlv_length_to_size()` before native-size use. |
 | `tlv_tag_t` | Stores tag bytes inline; copying it copies the tag. |
-| `tlv_view_t` | Stores a tag inline and borrows value bytes. Copying a view does not copy its payload. |
+| `tlv_view_t` | Stores a tag inline and a borrowed `tlv_value_t` value. Copying a view does not copy its payload. |
 | Reader | Borrows the input, format descriptor, and descriptor context. Keep them valid and unchanged during use. |
 | Writer | Borrows output storage, its format descriptor, and context. The caller provides capacity. |
 | Visitor | Receives a temporary view; a copied view still borrows the input. |

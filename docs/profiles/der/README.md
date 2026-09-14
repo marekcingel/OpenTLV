@@ -1,7 +1,7 @@
 # ASN.1 DER-TLV
 
 Include `tlv/profiles/der.h` for allocation-free DER-TLV processing. Tags use the existing
-`tlv_tag_t` wire-byte representation; values are borrowed `tlv_buffer_t` ranges.
+`tlv_tag_t` wire-byte representation; values are borrowed `tlv_value_t` ranges.
 The caller owns input and output storage. Existing BER behavior is unchanged.
 
 ## Supported scope

@@ -15,7 +15,9 @@ of TLV framing and profiles; the caller chooses the byte order explicitly.
 
 Reads return `uint16_t`, `uint32_t`, or `uint64_t`; writes return `void`. Supply a non-null
 pointer to at least 2, 4, or 8 readable/writable bytes respectively. When reading
-a `tlv_view_t`, check `view.value.length` before passing `view.value.data`.
+a `tlv_view_t`, check `view.value.length` before passing `view.value.data`; convert
+it with `tlv_length_to_size()` (see [logical TLV value lengths](length.md)) first if
+you need a native `size_t` bound.
 These helpers do not validate pointers or lengths and require no alignment.
 
 ```c

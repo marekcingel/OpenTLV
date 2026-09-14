@@ -1,7 +1,7 @@
 #ifndef OPENTLV_SCHEMA_H
 #define OPENTLV_SCHEMA_H
 
-#include "tlv/types.h"
+#include "tlv/view.h"
 #include "tlv/formats/format.h"
 
 #ifdef __cplusplus

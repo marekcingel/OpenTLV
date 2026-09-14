@@ -1,15 +1,15 @@
-#include "tlv/types.h"
+#include "tlv/view.h"
 
 #include <gtest/gtest.h>
 
-TEST(Unit_TLVTypes, zero_initialization_produces_empty_view) {
+TEST(Unit_TLVView, zero_initialization_produces_empty_view) {
     tlv_view_t empty{};
     EXPECT_EQ(0, empty.tag.size);
     EXPECT_EQ(nullptr, empty.value.data);
     EXPECT_EQ(0u, empty.value.length);
 }
 
-TEST(Unit_TLVTypes, tag_stores_raw_bytes_at_every_supported_size) {
+TEST(Unit_TLVView, tag_stores_raw_bytes_at_every_supported_size) {
     tlv_tag_t tag{};
     ASSERT_EQ(TLV_TAG_CAPACITY, sizeof(tag.data));
 
@@ -28,17 +28,7 @@ TEST(Unit_TLVTypes, tag_stores_raw_bytes_at_every_supported_size) {
     }
 }
 
-TEST(Unit_TLVTypes, buffer_borrows_byte_range) {
-    uint8_t storage[] = {0x12, 0x34, 0x56};
-    tlv_buffer_t buffer = {storage + 1, 2};
-    EXPECT_EQ(storage + 1, buffer.data);
-    EXPECT_EQ(2u, buffer.length);
-    storage[1] = 0xAB;
-    EXPECT_EQ(0xAB, buffer.data[0]);
-    EXPECT_EQ(0x56, buffer.data[1]);
-}
-
-TEST(Unit_TLVTypes, copying_view_copies_tag_and_borrows_value) {
+TEST(Unit_TLVView, copying_view_copies_tag_and_borrows_value) {
     uint8_t storage[] = {0x12, 0x34, 0x56};
     tlv_view_t view = {{{0x81}, 1}, {storage + 1, 2}};
     tlv_view_t copy = view;
@@ -53,7 +43,7 @@ TEST(Unit_TLVTypes, copying_view_copies_tag_and_borrows_value) {
     EXPECT_EQ(0x81, copy.tag.data[0]);
 }
 
-TEST(Unit_TLVTypes, result_distinguishes_success_from_error) {
+TEST(Unit_TLVView, result_distinguishes_success_from_error) {
     tlv_result_t result = TLV_OK;
     EXPECT_EQ(0, result);
     EXPECT_NE(TLV_OK, TLV_ERR_NULL_ARG);

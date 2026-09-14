@@ -1,7 +1,9 @@
 #ifndef OPENTLV_TLV_H
 #define OPENTLV_TLV_H
 
-#include "tlv/types.h"
+#include "tlv/view.h"
+#include "tlv/length.h"
+#include "tlv/value.h"
 #include "tlv/codec/codec.h"
 #include "tlv/codec/structure.h"
 #include "tlv/copy.h"

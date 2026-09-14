@@ -8,7 +8,7 @@ components are concrete formats and profiles, rather than entire layers.
 
 | Area | Responsibility | Allowed dependencies |
 | --- | --- | --- |
-| Shared contracts | Borrowed buffers, raw tags, errors, format callbacks | Standard C types |
+| Shared contracts | Borrowed values, logical lengths, raw tags, errors, format callbacks | Standard C types |
 | Reader / writer | Bounded raw TLV I/O, iteration, copies, generic traversal | Shared contracts |
 | Formats | Tag/length wire encoding and identification of nested containers | Shared contracts; private wire helpers |
 | Schemas | Tag length, occurrence, primitive/container and child membership rules | Shared contracts, raw reader and traversal |
@@ -33,7 +33,7 @@ Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
 
 ```text
 tlv/
-  types.h, error.h, endian.h, copy.h, tlv.h
+  view.h, value.h, length.h, error.h, endian.h, copy.h, tlv.h
   formats/
     format.h
     default/ default.h

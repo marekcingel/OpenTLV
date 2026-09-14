@@ -8,6 +8,7 @@
 #include "tlv/copy.h"
 #include "tlv/codec/codec.h"
 #include "tlv/endian.h"
+#include "tlv/length.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/scanner.h"
 #include "tlv/schemas/schema.h"
@@ -29,11 +30,15 @@
 } while (0)
 
 static void print_view(const tlv_view_t* view) {
-    size_t i;
+    size_t i, length;
     printf("tag=");
     for (i = 0; i < view->tag.size; ++i) printf("%02X", (unsigned)view->tag.data[i]);
-    printf(" length=%zu value=", view->value.length);
-    for (i = 0; i < view->value.length; ++i) printf("%02X ", (unsigned)view->value.data[i]);
+    if (tlv_length_to_size(view->value.length, &length) != TLV_OK) {
+        printf(" length=<unrepresentable>\n");
+        return;
+    }
+    printf(" length=%zu value=", length);
+    for (i = 0; i < length; ++i) printf("%02X ", (unsigned)view->value.data[i]);
     putchar('\n');
 }
 
@@ -75,9 +80,9 @@ static int single_element_and_copies(void) {
     if (result != TLV_ERR_BUFFER_TOO_SHORT) return 1;
     printf("Expected capacity error: %s\n", tlv_strerror(result));
     CHECK(tlv_copy_value(&view, owned, sizeof(owned), &written));
-    CHECK(tlv_copy_encoded((tlv_buffer_t){input, consumed}, NULL, 0, &required));
+    CHECK(tlv_copy_encoded(input, consumed, NULL, 0, &required));
     printf("Required exact-copy storage: %zu bytes\n", required);
-    CHECK(tlv_copy_encoded((tlv_buffer_t){input, consumed}, exact, sizeof(exact), &written));
+    CHECK(tlv_copy_encoded(input, consumed, exact, sizeof(exact), &written));
     /* A view does not retain the original header. Serialization may normalize
      * it (e.g. BER lengths); copy_encoded preserves the original bytes. */
     CHECK(tlv_copy_view(&view, &tlv_writer_format_fixed_1byte, NULL, 0, &required));
@@ -107,8 +112,12 @@ static int ber_format(void) {
     CHECK(tlv_encoded_size(tag, sizeof(value), &tlv_writer_format_ber, &required));
     CHECK(tlv_write(encoded, sizeof(encoded), &tlv_writer_format_ber, tag, value, sizeof(value), &written));
     CHECK(tlv_read(encoded, written, &tlv_reader_format_ber, &view, &consumed));
-    printf("Tag bytes: %u, value bytes: %zu, encoded bytes: %zu\n",
-           (unsigned)view.tag.size, view.value.length, required);
+    {
+        size_t value_length;
+        CHECK(tlv_length_to_size(view.value.length, &value_length));
+        printf("Tag bytes: %u, value bytes: %zu, encoded bytes: %zu\n",
+               (unsigned)view.tag.size, value_length, required);
+    }
     return 0;
 }
 
@@ -124,7 +133,9 @@ typedef struct { size_t count; size_t stop_after; } visit_context_t;
 static tlv_visit_result_t visit(const tlv_view_t* view, void* context) {
     visit_context_t* state = (visit_context_t*)context;
     const tlv_schema_entry_t* entry = tlv_schema_find(&schema, &view->tag);
-    if (!entry || tlv_schema_validate_length(entry, view->value.length) != TLV_OK)
+    size_t length;
+    if (!entry || tlv_length_to_size(view->value.length, &length) != TLV_OK ||
+        tlv_schema_validate_length(entry, length) != TLV_OK)
         return TLV_VISIT_ERROR;
     print_view(view); /* The view pointer is valid only during this callback. */
     ++state->count;
@@ -200,7 +211,11 @@ static int codecs_and_endian(void) {
     CHECK(tlv_write(encoded, sizeof(encoded), &tlv_writer_format_fixed_1byte,
                     (tlv_tag_t){{3}, 1}, raw, written, &encoded_size));
     CHECK(tlv_read(encoded, encoded_size, &tlv_reader_format_fixed_1byte, &view, &consumed));
-    CHECK_CODEC(tlv_codec_decode(&codec, view.value.data, view.value.length, &decoded, sizeof(decoded)));
+    {
+        size_t value_length;
+        CHECK(tlv_length_to_size(view.value.length, &value_length));
+        CHECK_CODEC(tlv_codec_decode(&codec, view.value.data, value_length, &decoded, sizeof(decoded)));
+    }
     printf("Decoded uint32 BE: 0x%08" PRIX32 "\n", decoded);
     /* Endian helpers are also usable directly. They do not check bounds:
      * raw has four bytes, enough for every call below. */

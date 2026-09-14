@@ -1,6 +1,7 @@
 #include "tlv/formats/asn1/der.h"
 #include "tlv/profiles/der.h"
 #include "tlv/writer/writer.h"
+#include "tlv/length.h"
 #include <string.h>
 
 const tlv_der_limits_t tlv_der_default_limits = {
@@ -16,18 +17,20 @@ static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
 static tlv_result_t read_entry(const uint8_t* data, size_t size, size_t base,
                                const tlv_der_limits_t* limits, tlv_view_t* view,
                                size_t* consumed, size_t* error_offset) {
-    size_t tag_size, length_size;
+    size_t tag_size, length_size, value_length;
     tlv_result_t rc = tlv_reader_format_der.read_tag(tlv_reader_format_der.context, data, size, &view->tag, &tag_size);
     if (rc != TLV_OK) return fail(rc, base, error_offset);
     rc = tlv_reader_format_der.read_length(tlv_reader_format_der.context, data + tag_size, size - tag_size,
-                         &view->value.length, &length_size);
+                         &value_length, &length_size);
     if (rc != TLV_OK) return fail(rc, base + tag_size, error_offset);
-    if (view->value.length > limits->max_value_size)
+    if (value_length > limits->max_value_size)
         return fail(TLV_ERR_LIMIT, base + tag_size, error_offset);
-    if (view->value.length > size - tag_size - length_size)
+    if (value_length > size - tag_size - length_size)
         return fail(TLV_ERR_BUFFER_TOO_SHORT, base + tag_size + length_size, error_offset);
+    rc = tlv_length_from_size(value_length, &view->value.length);
+    if (rc != TLV_OK) return fail(rc, base + tag_size, error_offset);
     view->value.data = data + tag_size + length_size;
-    *consumed = tag_size + length_size + view->value.length;
+    *consumed = tag_size + length_size + value_length;
     return TLV_OK;
 }
 
@@ -66,8 +69,11 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base,
             if (visit != TLV_VISIT_CONTINUE) return fail(TLV_ERR_VISITOR, base + pos, error_offset);
         }
         if (tlv_der_tag_is_constructed(&view.tag) && view.value.length) {
+            size_t value_length;
+            rc = tlv_length_to_size(view.value.length, &value_length);
+            if (rc != TLV_OK) return fail(rc, base + pos, error_offset);
             /* Report the first child's tag for a depth-limit failure. */
-            pos = end - view.value.length;
+            pos = end - value_length;
             if (initial_depth + level == limits->max_depth)
                 return fail(TLV_ERR_LIMIT, base + pos, error_offset);
             ends[++level] = end;

@@ -15,7 +15,8 @@ TEST(Unit_Copy, InsufficientCapacityLeavesOutputsUnchanged) {
                   tlv_copy_view(&view, &controlled::writer, output, capacity, &written));
         if (capacity < sizeof(value)) {
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_copy_value(&view, output, capacity, &written));
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_copy_encoded(view.value, output, capacity, &written));
+            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_copy_encoded(
+                view.value.data, static_cast<size_t>(view.value.length), output, capacity, &written));
         }
         EXPECT_EQ(99u, written);
         for (auto byte : output) EXPECT_EQ(0xEE, byte);
@@ -29,13 +30,13 @@ TEST(Unit_Copy, EmptyValuesAndOverlappingByteRanges) {
     EXPECT_EQ(TLV_OK, tlv_copy_value(&empty, nullptr, 0, &written));
     EXPECT_EQ(0u, written);
     EXPECT_EQ(TLV_OK, tlv_copy_value(&empty, output, 0, &written));
-    EXPECT_EQ(TLV_OK, tlv_copy_encoded({nullptr, 0}, output, 0, &written));
+    EXPECT_EQ(TLV_OK, tlv_copy_encoded(nullptr, 0, output, 0, &written));
     EXPECT_EQ(TLV_OK, tlv_copy_view(&empty, &controlled::writer, output, 2, &written));
     EXPECT_EQ(2u, written);
     EXPECT_EQ(1, output[0]);
     EXPECT_EQ(0, output[1]);
     uint8_t bytes[] = {1, 2, 3, 4};
-    EXPECT_EQ(TLV_OK, tlv_copy_encoded({bytes, 3}, bytes + 1, 3, &written));
+    EXPECT_EQ(TLV_OK, tlv_copy_encoded(bytes, 3, bytes + 1, 3, &written));
     const uint8_t expected[] = {1, 1, 2, 3};
     EXPECT_EQ(0, std::memcmp(expected, bytes, 4));
     const tlv_view_t view = {{}, {bytes + 1, 3}};
@@ -51,7 +52,7 @@ TEST(Unit_Copy, InvalidArgumentsAndEncodingErrors) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_value(nullptr, &byte, 1, &written));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_value(&view, nullptr, 1, &written));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_value(&view, &byte, 1, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_encoded({nullptr, 1}, nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_encoded(nullptr, 1, nullptr, 0, &written));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_view(nullptr, &controlled::writer, nullptr, 0, &written));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_view(&view, nullptr, nullptr, 0, &written));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_view(&view, &controlled::writer, nullptr, 1, &written));
