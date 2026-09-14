@@ -18,7 +18,27 @@ together in [emv_tags.def](../../../tlv/include/tlv/profiles/emv_tags.def).
 Use `&tlv_reader_format_ber` with the reader, walker, or scanner, and
 `&tlv_writer_format_ber` with the writer.
 There is no separate EMV parser and the reader never interprets values.
-All `tlv_emv_tag_*` constants use the universal `tlv_tag_t`.
+The existing `tlv_emv_tag_*` objects use the universal `tlv_tag_t`.
+Each has a numeric integer constant expression with the `_u64` suffix,
+such as `tlv_emv_tag_aip_u64` (`0x82`), usable in C and C++ `case` labels.
+Both forms follow the configured tag capacity.
+
+```c
+/* Inside a function; tag points to a tlv_tag_t. */
+uint64_t number;
+if (tlv_tag_to_u64(tag, TLV_BYTE_ORDER_BIG_ENDIAN, &number) == TLV_OK) {
+    switch (number) {
+    case tlv_emv_tag_aip_u64:
+        /* Handle AIP. */
+        break;
+    default:
+        break;
+    }
+}
+```
+
+See [tag comparison and numeric conversion](../../core-types.md#tag-comparison-and-numeric-conversion)
+for conversion limits and exact versus numeric equality.
 
 `tlv_emv_schema` is the base dictionary, compatible with `tlv_schema_find()`
 and `tlv_schema_validate_length()`. `tlv_emv_find(context, tag)` returns an

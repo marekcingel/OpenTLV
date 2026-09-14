@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add public `tlv/tag.h` with checked construction from byte arrays and explicitly sized integers, full-capacity tag/byte-array comparison and `u8`/`u16`/`u32`/`u64` numeric comparison and checked conversion helpers with explicit big-/little-endian input order for `uint8_t`, `uint16_t`, `uint32_t`, and `uint64_t`, `tlv_endian_native()` for host byte order, and numeric EMV tag constants for C/C++ `case` labels; preserve `tlv/types.h` include compatibility. (#90)
 - Add optional C API fuzz targets, seed corpora, ASan/UBSan instrumentation, bounded CI fuzzing with reproducing artifacts, and local execution documentation. (#72)
 - Add Windows x86 MSVC CI builds for Debug/C++11 and Release/C++23 using the Visual Studio Win32 platform, and explicitly label build jobs as x86 or x64. GCC and Clang builds remain x64-only. (#86)
 
