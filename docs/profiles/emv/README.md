@@ -176,5 +176,12 @@ Read the framing with `tlv_reader_format_ber`, then explicitly decode the value
 with `tlv_emv_codec_amount` into caller-owned storage. Currency and decimal scale
 come from application context; the codec does not assign them. This one data
 object does not represent a complete or validated transaction.
-[EMV profile and codecs](README.md)
 
+## Example
+
+[examples/emv/src/tag_decoding.c](../../../examples/emv/src/tag_decoding.c) walks
+a whole record instead of one element: it looks up every child tag with
+`tlv_emv_find()`, checks its length with `tlv_emv_validate_length()`, decodes it
+according to `value_kind`, and leaves a tag that is unknown or has an invalid
+length skipped rather than aborting the walk.
+[EMV profile and codecs](README.md)
