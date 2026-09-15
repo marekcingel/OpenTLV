@@ -53,7 +53,7 @@ file because clang-format versions disagree on how to classify an ambiguous
 `.h` file as C or C++, and clang-format 18 (still common) can't even parse a
 `Language: C` section. Install the exact version pinned in
 [.pre-commit-config.yaml](.pre-commit-config.yaml) (`rev:` under
-`mirrors-clang-format`, currently 19.1.7 - `pip install clang-format==19.1.7`
+`mirrors-clang-format`, currently 23.1.1 - `pip install clang-format==23.1.1`
 also gets that same build) to avoid version-to-version formatting
 differences, and, from a configured build directory, run:
 

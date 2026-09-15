@@ -45,8 +45,8 @@ TEST(Integration_TLV_CPP, LayeredTraversalAndSchema) {
     const uint8_t data[] = {1, 1, 42, 2, 0};
     tlv::bytes    bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
     size_t        visits = 0;
-    auto          result = tlv::walk_tree(bytes, tlv_reader_format_default, nullptr, 0, 2,
-                                          [&visits](const tlv::entry& item, size_t depth, size_t offset) {
+    auto result = tlv::walk_tree(bytes, tlv_reader_format_default, nullptr, 0, 2,
+                                 [&visits](const tlv::entry& item, size_t depth, size_t offset) {
                                      EXPECT_EQ(0u, depth);
                                      EXPECT_EQ(visits ? 3u : 0u, offset);
                                      EXPECT_EQ(visits ? 2 : 1, item.tag.data[0]);
