@@ -19,6 +19,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add CER-TLV (ASN.1 Canonical Encoding Rules) as a full sibling of the DER format
+  and profile: `tlv/formats/asn1/cer.h` (`tlv_reader_format_cer`/`tlv_writer_format_cer`,
+  `tlv_cer_tag_make`/`tlv_cer_tag_number`, `tlv_cer_is_constructed`) and
+  `tlv/profiles/cer.h` (`tlv_cer_read`/`tlv_cer_walk`/`tlv_cer_write` and their
+  `_strict` counterparts, plus `tlv_cer_write_segmented_string`). CER requires a
+  constructed value's length to be indefinite (EOC-terminated) and a primitive
+  value's length to be definite and minimally encoded; traversal is a single
+  bounded pass with no allocation and no C recursion, using a fixed stack for
+  open indefinite containers. Constructed BIT STRING, OCTET STRING and
+  restricted character string values (including UTF8String) are validated and
+  encoded according to ITU-T X.690's canonical segmentation rules (1,000-octet
+  non-final segments, BIT STRING unused-bits accounting, and a streaming
+  cross-segment check for UTF8String, whose multi-byte characters may legally
+  split across a segment boundary); segments are exposed for zero-copy
+  inspection through the existing `tlv_walk`, without a dedicated API. The
+  `_strict` functions additionally validate universal primitive content,
+  sharing DER's canonical value validators (BOOLEAN, INTEGER/ENUMERATED, BIT
+  STRING, NULL, OBJECT IDENTIFIER/RELATIVE-OID, REAL, the same string and
+  date/time types DER supports) through private helpers that do not require
+  enabling the DER component; unsupported universal types, including
+  constructed ones, report `TLV_ERR_UNSUPPORTED_TYPE`. Selected with the new
+  `OPENTLV_FORMAT_CER` CMake option (default `ON`), cascading from
+  `OPENTLV_FORMAT_BER` as an independent sibling of `OPENTLV_FORMAT_DER`: CER
+  never depends on DER (or vice versa) and builds and passes its tests with
+  DER disabled; `OPENTLV_PROFILE_EMV` is unaffected either way. See
+  [docs/profiles/cer/README.md](docs/profiles/cer/README.md). (#112)
 - Add `tlv_der_read_strict`, `tlv_der_walk_strict` and `tlv_der_write_strict`,
   drop-in counterparts of `tlv_der_read`/`tlv_der_walk`/`tlv_der_write` that
   additionally validate the canonical DER content of every UNIVERSAL-class

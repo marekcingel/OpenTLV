@@ -1,5 +1,6 @@
 #include "tlv/formats/asn1/der.h"
 #include "ber_internal.h"
+#include "asn1_internal.h"
 #include <string.h>
 
 static tlv_result_t der_read_tag(const void* context, const uint8_t* data,
@@ -7,20 +8,21 @@ static tlv_result_t der_read_tag(const void* context, const uint8_t* data,
     tlv_tag_t parsed;
     size_t count;
     unsigned number;
-    int constructed;
-    tlv_result_t rc = tlv_ber_reader_wire.read_tag(context, data, size, &parsed, &count);
+    int must_construct;
+    tlv_result_t rc = tlv_asn1_read_identifier(context, data, size, &parsed, &count);
     if (rc != TLV_OK) return rc;
-    if (count == 2 && data[1] < 31) return TLV_ERR_INVALID_TAG;
     /* Only tags up to 36 currently have assigned universal type semantics.
      * Larger numbers remain opaque, without narrowing large raw identifiers.
+     * tlv_asn1_read_identifier already rejects tags 0/15 and requires the
+     * constructed bit for the always-constructed set; DER additionally
+     * requires every other assigned universal number to stay primitive
+     * (unlike CER, which allows either form for the segmentable types).
      */
     number = count == 1 ? (data[0] & 0x1F) : (count == 2 ? data[1] : 127);
-    if (!(data[0] & 0xC0)) {
-        if (number == 0 || number == 15) return TLV_ERR_INVALID_TAG;
-        constructed = number == 8 || number == 11 || number == 16 ||
-                      number == 17 || number == 29;
-        if (number <= 36 && ((data[0] & 0x20) != 0) != constructed)
-            return TLV_ERR_INVALID_TAG;
+    if (!(data[0] & 0xC0) && number <= 36) {
+        must_construct = number == 8 || number == 11 || number == 16 ||
+                         number == 17 || number == 29;
+        if (!must_construct && (data[0] & 0x20)) return TLV_ERR_INVALID_TAG;
     }
     *tag = parsed;
     *consumed = count;
@@ -45,13 +47,7 @@ static tlv_result_t der_write_tag(const void* context, uint8_t* data,
 
 static tlv_result_t der_read_length(const void* context, const uint8_t* data,
                                    size_t size, size_t* length, size_t* consumed) {
-    size_t value, count;
-    tlv_result_t rc = tlv_ber_reader_wire.read_length(context, data, size, &value, &count);
-    if (rc != TLV_OK) return rc;
-    if (count > 1 && (value < 128 || data[1] == 0)) return TLV_ERR_INVALID_LENGTH;
-    *length = value;
-    *consumed = count;
-    return TLV_OK;
+    return tlv_asn1_read_minimal_length(context, data, size, length, consumed);
 }
 
 static tlv_result_t der_write_length(const void* context, uint8_t* data,

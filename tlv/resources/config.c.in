@@ -20,6 +20,10 @@ int tlv_config_format_der(void) {
     return OPENTLV_FORMAT_DER;
 }
 
+int tlv_config_format_cer(void) {
+    return OPENTLV_FORMAT_CER;
+}
+
 int tlv_config_profile_emv(void) {
     return OPENTLV_PROFILE_EMV;
 }

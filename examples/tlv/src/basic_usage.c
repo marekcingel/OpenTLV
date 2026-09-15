@@ -1,6 +1,11 @@
 #include "tlv/formats/default/default.h"
 #include "tlv/formats/fixed/fixed_1byte.h"
 #include "tlv/formats/asn1/ber.h"
+#include "tlv/config.h"
+#if OPENTLV_FORMAT_CER
+#include "tlv/formats/asn1/cer.h"
+#include "tlv/profiles/cer.h"
+#endif
 /* C API tour: all storage belongs to the caller; no heap allocation. */
 #include <inttypes.h>
 #include <stdio.h>
@@ -120,6 +125,53 @@ static int ber_format(void) {
     }
     return 0;
 }
+
+#if OPENTLV_FORMAT_CER
+static tlv_visit_result_t print_segment(const tlv_view_t* view, void* context) {
+    size_t length;
+    (void)context;
+    CHECK(tlv_length_to_size(view->value.length, &length));
+    printf("  segment: tag 0x%02X, %zu content octets, address %p (borrowed, not copied)\n",
+           view->tag.data[0], length, (const void*)view->value.data);
+    return TLV_VISIT_CONTINUE;
+}
+
+static int cer_format(void) {
+    /* Nested indefinite-length containers: SEQUENCE(indefinite){ INTEGER 5 }. */
+    const uint8_t integer_child[] = {0x02, 1, 5};
+    uint8_t nested[16];
+    size_t required, written, consumed;
+    tlv_view_t view;
+    puts("\nCER: nested indefinite-length container");
+    CHECK(tlv_cer_write(NULL, 0, (tlv_tag_t){{0x30}, 1}, integer_child, sizeof(integer_child),
+                        NULL, &required, NULL));
+    CHECK(tlv_cer_write(nested, sizeof(nested), (tlv_tag_t){{0x30}, 1}, integer_child,
+                        sizeof(integer_child), NULL, &written, NULL));
+    CHECK(tlv_cer_read(nested, written, NULL, &view, &consumed, NULL));
+    printf("Encoded %zu bytes (tag + 0x80 + child + EOC), consumed %zu\n", written, consumed);
+
+    /* A logical OCTET STRING over the 1,000-octet canonical segmentation
+     * threshold: written as a constructed, segmented value and inspected
+     * segment by segment without copying or concatenating them. */
+    {
+        uint8_t content[1500], segmented[1520];
+        size_t seg_written, value_size, i;
+        for (i = 0; i < sizeof(content); ++i) content[i] = (uint8_t)i;
+        puts("CER: segmented OCTET STRING, segments accessed without copying");
+        CHECK(tlv_cer_write_segmented_string(segmented, sizeof(segmented), (tlv_tag_t){{0x04}, 1},
+                                             content, sizeof(content), NULL, &seg_written, NULL));
+        CHECK(tlv_cer_read_strict(segmented, seg_written, NULL, &view, &consumed, NULL));
+        printf("Constructed: %d, encoded %zu bytes\n",
+               tlv_cer_tag_is_constructed(&view.tag), consumed);
+        /* view.value is the encoded constructed contents (segment headers
+         * included) -- distinct from the logical string data each segment's
+         * own borrowed value exposes below. */
+        CHECK(tlv_length_to_size(view.value.length, &value_size));
+        CHECK(tlv_walk(view.value.data, value_size, &tlv_reader_format_cer, print_segment, NULL));
+    }
+    return 0;
+}
+#endif
 
 static const tlv_schema_entry_t schema_entries[] = {
     {{{1}, 1}, 2, 2, 0}, /* Exact length. */
@@ -280,5 +332,8 @@ int main(void) {
            tlv_version_git_repo(), tlv_version_git_branch(), tlv_version_git_commit_hash());
     if (sequential_io() || single_element_and_copies() || ber_format() ||
         schema_walk_and_scan() || codecs_and_endian() || custom_format()) return 1;
+#if OPENTLV_FORMAT_CER
+    if (cer_format()) return 1;
+#endif
     return 0;
 }

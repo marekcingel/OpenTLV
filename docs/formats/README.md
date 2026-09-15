@@ -8,8 +8,9 @@ Profile semantics are documented separately.
 - [Fixed 1-byte TLV](fixed/README.md)
 - [BER-TLV](asn1/ber.md)
 - [DER-TLV](asn1/der.md)
+- [CER-TLV](asn1/cer.md)
 - [Application-defined formats](custom/README.md)
-- Profiles: [DER validation](../profiles/der/README.md), [EMV](../profiles/emv/README.md)
+- Profiles: [DER validation](../profiles/der/README.md), [CER validation](../profiles/cer/README.md), [EMV](../profiles/emv/README.md)
 
 
 ## Choose a format
@@ -20,13 +21,16 @@ Profile semantics are documented separately.
 | One-byte tags with larger payloads | [Default TLV](default/README.md) | Values up to 65,535 bytes |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
 | Canonical ASN.1 framing and nested checks | [DER](../profiles/der/README.md) | Structural validation, not full semantic DER |
+| Canonical ASN.1 with indefinite-length framing and segmented strings | [CER](../profiles/cer/README.md) | Structural validation, not full semantic CER |
 | EMV Contact Book 3 data objects | [BER plus EMV profile](../profiles/emv/README.md) | Dictionary/codecs, not a transaction engine |
 | Application-specific framing | [Custom callbacks](custom/README.md) | Application supplies wire rules |
 
 All formats follow the [shared memory ownership rules](../memory.md).
 
 For canonical ASN.1 framing, nested validation, limits and error offsets, see
-[ASN.1 DER-TLV](../profiles/der/README.md). `tlv_reader_format_der` and `tlv_writer_format_der` also support the generic I/O below.
+[ASN.1 DER-TLV](../profiles/der/README.md) and its sibling [ASN.1 CER-TLV](../profiles/cer/README.md).
+`tlv_reader_format_der`/`tlv_writer_format_der` and `tlv_reader_format_cer`/`tlv_writer_format_cer`
+also support the generic I/O below.
 
 ## Reading one element
 
@@ -191,14 +195,16 @@ requires a descriptor and callbacks in application code, without parser edits.
 ## Nested traversal
 
 Concrete descriptors are declared in `tlv/formats/default/default.h`,
-`tlv/formats/fixed/fixed_1byte.h`, `tlv/formats/asn1/ber.h`, and
-`tlv/formats/asn1/der.h`. The generic `format.h` declares only the contract.
+`tlv/formats/fixed/fixed_1byte.h`, `tlv/formats/asn1/ber.h`,
+`tlv/formats/asn1/der.h`, and `tlv/formats/asn1/cer.h`. The generic `format.h`
+declares only the contract.
 
 The separate optional `tlv_is_constructed_fn` traversal argument identifies
 values containing child TLVs in the same format. It receives the reader
 format context and a parsed tag. NULL means opaque values. Pass
-`tlv_ber_is_constructed` or `tlv_der_is_constructed` to inspect the respective
-constructed bit; pass NULL for opaque default and fixed-format values.
+`tlv_ber_is_constructed`, `tlv_der_is_constructed` or `tlv_cer_is_constructed`
+to inspect the respective constructed bit; pass NULL for opaque default and
+fixed-format values.
 Custom protocols can supply a different rule. Traversal follows the value view
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.
 

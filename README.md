@@ -40,7 +40,7 @@ Built-in components are enabled by default and can be selected with
 - **TLV processing**
   - [x] Primitive values
   - [x] Constructed / nested values
-    - [x] BER/DER constructed-tag recognition and custom nesting predicates
+    - [x] BER/DER/CER constructed-tag recognition and custom nesting predicates
     - [x] Bounded tree traversal without a schema
     - [x] Depth and element-count limits
   - [x] Sequential traversal
@@ -60,7 +60,10 @@ Built-in components are enabled by default and can be selected with
       - [x] Structural validation
       - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/profiles/der/README.md#strict-universal-value-validation)
       - [ ] Canonical SET/SET OF ordering
-    - [ ] **CER** - dedicated canonical encoding and validation
+    - [x] **CER-TLV** - indefinite-length constructed framing, canonical string segmentation. [Scope](docs/profiles/cer/README.md) [Tree and bytes](docs/formats/asn1/cer.md#byte-example-nested-indefinite-length-containers)
+      - [x] Structural validation (framing, EOC placement, canonical segmentation)
+      - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/profiles/cer/README.md#strict-universal-value-validation)
+      - [ ] Canonical SET/SET OF ordering
   - [x] **Application-defined format callbacks** - independent reader and writer descriptors. [Contracts](docs/formats/README.md#generic-interface) [Tree and bytes](docs/formats/custom/README.md#byte-example)
 - **Protocol formats and profiles**
   - **Smart cards / payments**
@@ -154,7 +157,7 @@ Start with the [documentation index](docs/README.md), or choose a topic:
 | Build and integrate | [Getting started](docs/getting-started.md), [distribution archives](docs/getting-started.md#install-and-generate-distribution-archives), [compiler support](docs/compilers.md) |
 | Architecture and API migration | [Layers, component options, and migration](docs/architecture.md) |
 | Read, write, and traverse | [Formats and I/O contracts](docs/formats/README.md), [core types](docs/core-types.md) |
-| Validate and decode | [Schemas](docs/schemas.md), [value codecs](docs/codecs.md), [DER](docs/profiles/der/README.md), [EMV](docs/profiles/emv/README.md) |
+| Validate and decode | [Schemas](docs/schemas.md), [value codecs](docs/codecs.md), [DER](docs/profiles/der/README.md), [CER](docs/profiles/cer/README.md), [EMV](docs/profiles/emv/README.md) |
 | Copy and recover data | [Copy helpers](docs/copy.md), [recovery scanner](docs/scanner.md), [byte order](docs/endian.md) |
 
 ## Releases and contributing

@@ -39,13 +39,27 @@ endif()
 if(OPENTLV_FORMAT_DER)
     target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/der.c)
 endif()
+if(OPENTLV_FORMAT_CER)
+    target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/cer.c)
+endif()
 if(OPENTLV_FORMAT_BER)
-    # DER (below) cascades off whenever BER is OFF, so this single guard
-    # covers the shared private BER wire helpers used by both.
+    # DER and CER (below) cascade off whenever BER is OFF, so this single
+    # guard covers the shared private BER wire helpers used by both.
     target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/ber_internal.c)
+endif()
+if(OPENTLV_FORMAT_DER OR OPENTLV_FORMAT_CER)
+    # Shared canonical identifier/length helpers and universal-value content
+    # validators, usable by either sibling without requiring the other.
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/formats/asn1/asn1_internal.c
+        src/profiles/asn1_values_internal.c)
 endif()
 if(OPENTLV_FORMAT_DER)
     target_sources(${PROJECT_NAME} PRIVATE src/profiles/der.c src/profiles/der_values.c)
+endif()
+if(OPENTLV_FORMAT_CER)
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/profiles/cer.c src/profiles/cer_values_internal.c)
 endif()
 if(OPENTLV_PROFILE_EMV)
     target_sources(${PROJECT_NAME} PRIVATE src/profiles/emv.c src/codec/emv.c)

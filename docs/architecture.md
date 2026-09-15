@@ -113,16 +113,20 @@ to ON and can be disabled independently:
 | --- | --- |
 | `OPENTLV_FORMAT_DEFAULT` | One-byte tag with legacy definite BER-style length |
 | `OPENTLV_FORMAT_FIXED_1BYTE` | One-byte tag and length |
-| `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER) |
+| `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER, CER) |
 | `OPENTLV_FORMAT_BER` | Public BER format |
 | `OPENTLV_FORMAT_DER` | DER format and bounded DER profile operations |
+| `OPENTLV_FORMAT_CER` | CER format and bounded CER profile operations |
 | `OPENTLV_PROFILE_EMV` | EMV dictionary, schemas and value codecs |
 
 `OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`, and
 `OPENTLV_PROFILE_EMV` form a chain (ASN1 -> BER -> DER -> EMV): disabling an
 option forces every option below it OFF as well, regardless of how that
-option was set, so `-DOPENTLV_FORMAT_BER=OFF` also disables DER and EMV. This
-cascade is centralized in `cmake/format_options.cmake`. No component creates
+option was set, so `-DOPENTLV_FORMAT_BER=OFF` also disables DER, CER and EMV.
+`OPENTLV_FORMAT_CER` is an independent sibling of `OPENTLV_FORMAT_DER` under
+`OPENTLV_FORMAT_BER`, not a descendant of it: CER never depends on DER (or
+vice versa), and disabling DER does not affect CER or EMV. This cascade is
+centralized in `cmake/format_options.cmake`. No component creates
 another public binary library. `tlv/config.h` exposes the configured
 selection, including `OPENTLV_FORMAT_ASN1`. Explicitly including a disabled
 component's header does not provide its symbols; consumers should use the

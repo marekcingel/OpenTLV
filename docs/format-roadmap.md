@@ -26,8 +26,8 @@ introducing protocol-specific branches in the generic parser.
 | Area | Candidate | Intended boundary and reference |
 | --- | --- | --- |
 | Generic | Configurable fixed-width TLV | Reusable tag/length widths and byte order; distinguish payload length from total encoded length. Custom callbacks are already supported. |
-| ASN.1 | CER | Dedicated canonical rules, including relevant value rules; BER indefinite support alone is insufficient. [ITU-T X.690](https://www.itu.int/rec/T-REC-X.690/en) |
 | ASN.1 | Full DER validation | Extend beyond structural framing to canonical values and ordering. Schema-dependent semantics need an explicit scope. [Current limits](profiles/der/README.md#supported-scope) |
+| ASN.1 | Full CER validation | Extend beyond structural framing, EOC placement and canonical segmentation to full value/ordering semantics. Schema-dependent rules need an explicit scope. [Current limits](profiles/cer/README.md#supported-scope) |
 | Smart cards | GlobalPlatform DGI | DGI field encoding and length handling, separately from APDU transport and card management. [Card Specification 2.3, section 11.1.12](https://globalplatform.org/wp-content/uploads/2018/03/GPC_Specification_v2.3.pdf) |
 | Payments | EMV contactless | Separate kernel-specific scope and specification selection; not implied by the existing Contact Book 3 dictionary. [Current profile](profiles/emv/README.md) |
 | Networking | NDN | Packet TLV framing and explicit container rules; packet semantics belong in a separate profile. [NDN packet format](https://101.named-data.net/connectivity/packet-format/) |

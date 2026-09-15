@@ -14,6 +14,7 @@ CMakeUserPresets.json
 # CMake build directories
 /build/
 /build-benchmarks/
+/build-verify/
 /out/
 /cmake-build-*/
 
