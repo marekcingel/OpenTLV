@@ -2,22 +2,22 @@
 
 const char* tlv_strerror(tlv_result_t result) {
     switch (result) {
-        case TLV_ERR_INVALID_ARG:        return "invalid argument";
+        case TLV_ERR_INVALID_ARG: return "invalid argument";
         case TLV_ERR_INVALID_BYTE_ORDER: return "invalid byte order";
-        case TLV_ERR_OVERFLOW:           return "numeric overflow";
-        case TLV_OK:                     return "OK";
-        case TLV_ERR_BUFFER_TOO_SHORT:    return "buffer too short";
-        case TLV_ERR_INVALID_LENGTH:      return "invalid length encoding";
-        case TLV_ERR_NULL_ARG:            return "null argument";
-        case TLV_ERR_OUT_OF_MEMORY:       return "out of memory";
-        case TLV_ERR_END_OF_BUFFER:       return "end of buffer";
-        case TLV_ERR_INVALID_TAG_SIZE:    return "invalid tag size";
-        case TLV_ERR_INVALID_TAG:         return "invalid tag";
-        case TLV_ERR_VISITOR:             return "visitor error";
-        case TLV_ERR_LIMIT:               return "resource limit exceeded";
-        case TLV_ERR_SCHEMA:              return "schema constraint violated";
-        case TLV_ERR_INVALID_VALUE:       return "invalid or noncanonical value";
-        case TLV_ERR_UNSUPPORTED_TYPE:    return "unsupported universal type";
-        default:                         return "unknown error";
+        case TLV_ERR_OVERFLOW: return "numeric overflow";
+        case TLV_OK: return "OK";
+        case TLV_ERR_BUFFER_TOO_SHORT: return "buffer too short";
+        case TLV_ERR_INVALID_LENGTH: return "invalid length encoding";
+        case TLV_ERR_NULL_ARG: return "null argument";
+        case TLV_ERR_OUT_OF_MEMORY: return "out of memory";
+        case TLV_ERR_END_OF_BUFFER: return "end of buffer";
+        case TLV_ERR_INVALID_TAG_SIZE: return "invalid tag size";
+        case TLV_ERR_INVALID_TAG: return "invalid tag";
+        case TLV_ERR_VISITOR: return "visitor error";
+        case TLV_ERR_LIMIT: return "resource limit exceeded";
+        case TLV_ERR_SCHEMA: return "schema constraint violated";
+        case TLV_ERR_INVALID_VALUE: return "invalid or noncanonical value";
+        case TLV_ERR_UNSUPPORTED_TYPE: return "unsupported universal type";
+        default: return "unknown error";
     }
 }

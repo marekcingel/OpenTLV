@@ -51,7 +51,7 @@ TLV_API tlv_result_t tlv_tag_equal(const tlv_tag_t* a, const tlv_tag_t* b, int* 
  * provides size readable bytes. data may be NULL only when size is zero.
  * The same result, output, and capacity rules as tlv_tag_equal apply. */
 TLV_API tlv_result_t tlv_tag_equal_bytes(const tlv_tag_t* tag, const uint8_t* data, size_t size,
-                                 int* equal);
+                                         int* equal);
 
 /* Numeric comparison using tlv_tag_to_u64, with the same input errors.
  * Returns TLV_OK and stores 1 for equality or 0 for mismatch in *equal.
@@ -60,13 +60,13 @@ TLV_API tlv_result_t tlv_tag_equal_bytes(const tlv_tag_t* tag, const uint8_t* da
  * tag size, then byte order. Zero padding at the most significant end does
  * not affect equality. The tag value is never truncated to the argument type. */
 TLV_API tlv_result_t tlv_tag_equal_u8(const tlv_tag_t* tag, uint8_t value, tlv_byte_order_t order,
-                               int* equal);
+                                      int* equal);
 TLV_API tlv_result_t tlv_tag_equal_u16(const tlv_tag_t* tag, uint16_t value, tlv_byte_order_t order,
-                               int* equal);
+                                       int* equal);
 TLV_API tlv_result_t tlv_tag_equal_u32(const tlv_tag_t* tag, uint32_t value, tlv_byte_order_t order,
-                               int* equal);
+                                       int* equal);
 TLV_API tlv_result_t tlv_tag_equal_u64(const tlv_tag_t* tag, uint64_t value, tlv_byte_order_t order,
-                               int* equal);
+                                       int* equal);
 
 /* Same input rules as tlv_tag_to_u64. Zero padding is accepted within the
  * 8-byte input limit. Values exceeding the destination type's maximum return
@@ -96,10 +96,14 @@ TLV_API tlv_result_t tlv_tag_from_bytes(const uint8_t* data, size_t size, tlv_ta
  * A value that does not fit returns TLV_ERR_INVALID_TAG; unsupported order
  * returns TLV_ERR_INVALID_BYTE_ORDER.
  * The same destination guarantees as tlv_tag_from_bytes apply. */
-TLV_API tlv_result_t tlv_tag_from_u8(uint8_t value, size_t size, tlv_byte_order_t order, tlv_tag_t* tag);
-TLV_API tlv_result_t tlv_tag_from_u16(uint16_t value, size_t size, tlv_byte_order_t order, tlv_tag_t* tag);
-TLV_API tlv_result_t tlv_tag_from_u32(uint32_t value, size_t size, tlv_byte_order_t order, tlv_tag_t* tag);
-TLV_API tlv_result_t tlv_tag_from_u64(uint64_t value, size_t size, tlv_byte_order_t order, tlv_tag_t* tag);
+TLV_API tlv_result_t tlv_tag_from_u8(uint8_t value, size_t size, tlv_byte_order_t order,
+                                     tlv_tag_t* tag);
+TLV_API tlv_result_t tlv_tag_from_u16(uint16_t value, size_t size, tlv_byte_order_t order,
+                                      tlv_tag_t* tag);
+TLV_API tlv_result_t tlv_tag_from_u32(uint32_t value, size_t size, tlv_byte_order_t order,
+                                      tlv_tag_t* tag);
+TLV_API tlv_result_t tlv_tag_from_u64(uint64_t value, size_t size, tlv_byte_order_t order,
+                                      tlv_tag_t* tag);
 
 #ifdef __cplusplus
 }

@@ -54,9 +54,8 @@ extern TLV_API const tlv_cer_limits_t tlv_cer_default_limits;
  * that keeps traversal a single linear pass with no rescanning. Callback
  * side effects are not rolled back on errors.
  */
-typedef tlv_visit_result_t (*tlv_cer_visitor_t)(const tlv_view_t* view,
-                                               size_t depth, size_t offset,
-                                               void* context);
+typedef tlv_visit_result_t (*tlv_cer_visitor_t)(const tlv_view_t* view, size_t depth, size_t offset,
+                                                void* context);
 
 /* Validates one complete element, including all descendants, indefinite
  * constructed framing, EOC placement and canonical string segmentation
@@ -68,18 +67,15 @@ typedef tlv_visit_result_t (*tlv_cer_visitor_t)(const tlv_view_t* view,
  * per-segment offsets are relative to data. Argument/input-limit errors use
  * 0. Success leaves it unchanged. No allocations and no C recursion.
  */
-TLV_API tlv_result_t tlv_cer_read(const uint8_t* data, size_t size,
-                          const tlv_cer_limits_t* limits, tlv_view_t* view,
-                          size_t* consumed, size_t* error_offset);
+TLV_API tlv_result_t tlv_cer_read(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
+                                  tlv_view_t* view, size_t* consumed, size_t* error_offset);
 
 /* Validates all concatenated elements recursively; empty input succeeds.
  * visitor may be NULL for validation only. Same offset, limit and visit
  * order conventions as above.
  */
-TLV_API tlv_result_t tlv_cer_walk(const uint8_t* data, size_t size,
-                          const tlv_cer_limits_t* limits,
-                          tlv_cer_visitor_t visitor, void* context,
-                          size_t* error_offset);
+TLV_API tlv_result_t tlv_cer_walk(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
+                                  tlv_cer_visitor_t visitor, void* context, size_t* error_offset);
 
 /* Writes canonical CER tag/length/EOC framing. For a constructed tag, value
  * is pre-encoded child bytes without the enclosing EOC (added automatically);
@@ -95,9 +91,9 @@ TLV_API tlv_result_t tlv_cer_walk(const uint8_t* data, size_t size,
  * would-be output, using read conventions.
  */
 TLV_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                           const uint8_t* value, size_t length,
-                           const tlv_cer_limits_t* limits, size_t* written,
-                           size_t* error_offset);
+                                   const uint8_t* value, size_t length,
+                                   const tlv_cer_limits_t* limits, size_t* written,
+                                   size_t* error_offset);
 
 /* Strict counterparts of tlv_cer_read/tlv_cer_walk/tlv_cer_write: identical
  * contracts, offsets and limits, but every UNIVERSAL-class element they
@@ -113,16 +109,15 @@ TLV_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  * non-strict functions.
  */
 TLV_API tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size,
-                          const tlv_cer_limits_t* limits, tlv_view_t* view,
-                          size_t* consumed, size_t* error_offset);
+                                         const tlv_cer_limits_t* limits, tlv_view_t* view,
+                                         size_t* consumed, size_t* error_offset);
 TLV_API tlv_result_t tlv_cer_walk_strict(const uint8_t* data, size_t size,
-                          const tlv_cer_limits_t* limits,
-                          tlv_cer_visitor_t visitor, void* context,
-                          size_t* error_offset);
+                                         const tlv_cer_limits_t* limits, tlv_cer_visitor_t visitor,
+                                         void* context, size_t* error_offset);
 TLV_API tlv_result_t tlv_cer_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                           const uint8_t* value, size_t length,
-                           const tlv_cer_limits_t* limits, size_t* written,
-                           size_t* error_offset);
+                                          const uint8_t* value, size_t length,
+                                          const tlv_cer_limits_t* limits, size_t* written,
+                                          size_t* error_offset);
 
 /* Encodes logical string content -- not pre-encoded segments -- for a
  * primitive-form UNIVERSAL string tag (OCTET STRING, BIT STRING, or a
@@ -146,10 +141,10 @@ TLV_API tlv_result_t tlv_cer_write_strict(uint8_t* data, size_t capacity, tlv_ta
  * conventions. Allocation-free; size arithmetic (including every segment
  * header and the EOC) is overflow-checked before writing.
  */
-TLV_API tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity,
-                          tlv_tag_t tag, const uint8_t* content, size_t content_length,
-                          const tlv_cer_limits_t* limits, size_t* written,
-                          size_t* error_offset);
+TLV_API tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_tag_t tag,
+                                                    const uint8_t* content, size_t content_length,
+                                                    const tlv_cer_limits_t* limits, size_t* written,
+                                                    size_t* error_offset);
 
 #ifdef __cplusplus
 }

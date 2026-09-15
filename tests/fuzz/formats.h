@@ -25,7 +25,7 @@ static inline int fuzz_constructed(const void* context, const tlv_tag_t* tag) {
 static const struct {
     const tlv_reader_format_t* reader;
     const tlv_writer_format_t* writer;
-    tlv_is_constructed_fn constructed;
+    tlv_is_constructed_fn      constructed;
 } fuzz_formats[] = {
 #if OPENTLV_FORMAT_DEFAULT
     {&tlv_reader_format_default, &tlv_writer_format_default, fuzz_constructed},
@@ -39,7 +39,6 @@ static const struct {
 #if OPENTLV_FORMAT_DER
     {&tlv_reader_format_der, &tlv_writer_format_der, tlv_der_is_constructed},
 #endif
-    {NULL, NULL, NULL}
-};
+    {NULL, NULL, NULL}};
 
 #endif

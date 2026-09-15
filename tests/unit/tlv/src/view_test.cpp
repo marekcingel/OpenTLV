@@ -29,7 +29,7 @@ TEST(Unit_TLVView, tag_stores_raw_bytes_at_every_supported_size) {
 }
 
 TEST(Unit_TLVView, copying_view_copies_tag_and_borrows_value) {
-    uint8_t storage[] = {0x12, 0x34, 0x56};
+    uint8_t    storage[] = {0x12, 0x34, 0x56};
     tlv_view_t view = {{{0x81}, 1}, {storage + 1, 2}};
     tlv_view_t copy = view;
     EXPECT_EQ(1, copy.tag.size);

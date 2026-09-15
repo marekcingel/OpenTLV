@@ -11,15 +11,15 @@
 #include <string.h>
 
 /* Unlike assert(), contract checks must survive Release/NDEBUG builds. */
-#define FUZZ_CHECK(condition) do { \
-    if (!(condition)) { \
-        fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #condition); \
-        abort(); \
-    } \
-} while (0)
+#define FUZZ_CHECK(condition)                                                                      \
+    do {                                                                                           \
+        if (!(condition)) {                                                                        \
+            fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #condition);                        \
+            abort();                                                                               \
+        }                                                                                          \
+    } while (0)
 
-static inline void fuzz_view_bounds(const tlv_view_t* view,
-                                    const uint8_t* data, size_t size) {
+static inline void fuzz_view_bounds(const tlv_view_t* view, const uint8_t* data, size_t size) {
     uintptr_t base = (uintptr_t)data, value = (uintptr_t)view->value.data;
     FUZZ_CHECK(view->tag.size > 0 && view->tag.size <= TLV_TAG_CAPACITY);
     /* Integer comparisons avoid undefined pointer subtraction on a bad view. */
@@ -45,18 +45,18 @@ static inline void fuzz_unchanged(const tlv_view_t* view, const tlv_view_t* befo
 }
 
 typedef struct fuzz_visit_context {
-    const uint8_t* data;
-    size_t size, max_depth, max_elements, max_value_size;
-    size_t count, previous_offset, previous_depth;
-    size_t value_ends[TLV_WALK_MAX_DEPTH + 1];
-    size_t stop_at;
+    const uint8_t*     data;
+    size_t             size, max_depth, max_elements, max_value_size;
+    size_t             count, previous_offset, previous_depth;
+    size_t             value_ends[TLV_WALK_MAX_DEPTH + 1];
+    size_t             stop_at;
     tlv_visit_result_t action;
 } fuzz_visit_context;
 
-static inline tlv_visit_result_t fuzz_visit(const tlv_view_t* view, size_t depth,
-                                           size_t offset, void* opaque) {
+static inline tlv_visit_result_t fuzz_visit(const tlv_view_t* view, size_t depth, size_t offset,
+                                            void* opaque) {
     fuzz_visit_context* ctx = (fuzz_visit_context*)opaque;
-    size_t value_length;
+    size_t              value_length;
     FUZZ_CHECK(ctx->count < ctx->max_elements);
     FUZZ_CHECK(depth <= ctx->max_depth && depth <= TLV_WALK_MAX_DEPTH);
     FUZZ_CHECK(offset < ctx->size);
@@ -65,8 +65,8 @@ static inline tlv_visit_result_t fuzz_visit(const tlv_view_t* view, size_t depth
     fuzz_view_bounds(view, ctx->data + offset, ctx->size - offset);
     FUZZ_CHECK(view->value.length <= ctx->max_value_size);
     FUZZ_CHECK(tlv_length_to_size(view->value.length, &value_length) == TLV_OK);
-    ctx->value_ends[depth] = (size_t)((uintptr_t)view->value.data -
-                                    (uintptr_t)ctx->data) + value_length;
+    ctx->value_ends[depth] =
+        (size_t)((uintptr_t)view->value.data - (uintptr_t)ctx->data) + value_length;
     if (depth) FUZZ_CHECK(ctx->value_ends[depth] <= ctx->value_ends[depth - 1]);
     ctx->previous_offset = offset;
     ctx->previous_depth = depth;

@@ -1,17 +1,14 @@
 #include "tlv/codec/codec.h"
 
-tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec,
-                                    const uint8_t* data, size_t size,
+tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint8_t* data, size_t size,
                                     void* value, size_t capacity) {
     if (!codec || !value || (!data && size)) return TLV_CODEC_ERR_NULL_ARG;
     if (!codec->decode) return TLV_CODEC_ERR_UNSUPPORTED;
     return codec->decode(codec->context, data, size, value, capacity);
 }
 
-tlv_codec_result_t tlv_codec_encode(const tlv_codec_t* codec,
-                                    const void* value, size_t size,
-                                    uint8_t* data, size_t capacity,
-                                    size_t* written) {
+tlv_codec_result_t tlv_codec_encode(const tlv_codec_t* codec, const void* value, size_t size,
+                                    uint8_t* data, size_t capacity, size_t* written) {
     size_t count = 0;
     tlv_codec_result_t result;
     if (!written) return TLV_CODEC_ERR_NULL_ARG;

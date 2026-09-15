@@ -28,12 +28,12 @@ TLV_API uint32_t tlv_version_minor(void);
 TLV_API uint32_t tlv_version_patch(void);
 TLV_API uint64_t tlv_version_revision(void);
 
-TLV_API const char *tlv_version_prerelease(void);
-TLV_API const char *tlv_version_string(void);
-TLV_API const char *tlv_version_git_commit_hash(void);
-TLV_API const char *tlv_version_git_branch(void);
-TLV_API const char *tlv_version_git_tag(void);
-TLV_API const char *tlv_version_git_repo(void);
+TLV_API const char* tlv_version_prerelease(void);
+TLV_API const char* tlv_version_string(void);
+TLV_API const char* tlv_version_git_commit_hash(void);
+TLV_API const char* tlv_version_git_branch(void);
+TLV_API const char* tlv_version_git_tag(void);
+TLV_API const char* tlv_version_git_repo(void);
 
 #ifdef __cplusplus
 }

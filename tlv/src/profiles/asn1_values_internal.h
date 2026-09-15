@@ -38,7 +38,8 @@ tlv_result_t tlv_asn1_validate_generalized_time(const uint8_t* value, size_t len
  * for the value rules ITU-T X.690 §11 documents as common to both encodings.
  * Returns TLV_ERR_UNSUPPORTED_TYPE for a UNIVERSAL number with no
  * implemented canonical content rule. */
-tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* value, size_t length);
+tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* value,
+                                               size_t length);
 
 /* Streaming UTF8String validator, for CER's constructed UTF8String content: a
  * multi-byte character may legally straddle a 1000-octet segment boundary,
@@ -51,13 +52,13 @@ tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* v
  * mid-sequence. Fixed O(1) state (a 4-byte pending buffer); no allocation. */
 typedef struct tlv_asn1_utf8_stream {
     uint8_t pending[4];
-    size_t pending_len;   /* bytes already collected for the code point in progress */
-    size_t pending_need;  /* total bytes that code point requires (0 = none pending) */
+    size_t pending_len;  /* bytes already collected for the code point in progress */
+    size_t pending_need; /* total bytes that code point requires (0 = none pending) */
 } tlv_asn1_utf8_stream_t;
 
 void tlv_asn1_utf8_stream_init(tlv_asn1_utf8_stream_t* state);
-tlv_result_t tlv_asn1_utf8_stream_update(tlv_asn1_utf8_stream_t* state,
-                                        const uint8_t* value, size_t length);
+tlv_result_t tlv_asn1_utf8_stream_update(tlv_asn1_utf8_stream_t* state, const uint8_t* value,
+                                         size_t length);
 tlv_result_t tlv_asn1_utf8_stream_finish(tlv_asn1_utf8_stream_t* state);
 
 #endif /* OPENTLV_ASN1_VALUES_INTERNAL_H */

@@ -3,9 +3,9 @@
 
 static void check_der(const uint8_t* data, size_t size, const tlv_der_limits_t* limits) {
     const tlv_der_limits_t* actual = limits ? limits : &tlv_der_default_limits;
-    tlv_view_t view = fuzz_sentinel(data), before = view;
-    size_t consumed = SIZE_MAX, error = SIZE_MAX;
-    tlv_result_t rc = tlv_der_read(data, size, limits, &view, &consumed, &error);
+    tlv_view_t              view = fuzz_sentinel(data), before = view;
+    size_t                  consumed = SIZE_MAX, error = SIZE_MAX;
+    tlv_result_t            rc = tlv_der_read(data, size, limits, &view, &consumed, &error);
     if (rc == TLV_OK) {
         FUZZ_CHECK(consumed > 0 && consumed <= size);
         fuzz_view_bounds(&view, data, consumed);
@@ -20,8 +20,10 @@ static void check_der(const uint8_t* data, size_t size, const tlv_der_limits_t* 
     }
     for (unsigned mode = 0; mode < 3; ++mode) {
         fuzz_visit_context ctx = {0};
-        ctx.data = data; ctx.size = size;
-        ctx.max_depth = actual->max_depth; ctx.max_elements = actual->max_elements;
+        ctx.data = data;
+        ctx.size = size;
+        ctx.max_depth = actual->max_depth;
+        ctx.max_elements = actual->max_elements;
         ctx.max_value_size = actual->max_value_size;
         ctx.stop_at = mode ? 1 : 0;
         ctx.action = mode == 1 ? TLV_VISIT_STOP : TLV_VISIT_ERROR;
@@ -29,7 +31,8 @@ static void check_der(const uint8_t* data, size_t size, const tlv_der_limits_t* 
         rc = tlv_der_walk(data, size, limits, fuzz_visit, &ctx, &error);
         if (rc == TLV_OK) {
             FUZZ_CHECK(error == SIZE_MAX && size <= actual->max_input_size);
-        } else FUZZ_CHECK(error <= size);
+        } else
+            FUZZ_CHECK(error <= size);
         if (mode && ctx.count) {
             FUZZ_CHECK(rc == (mode == 1 ? TLV_OK : TLV_ERR_VISITOR));
         }

@@ -8,23 +8,40 @@ tlv_cer_type_info_t tlv_cer_type_info(uint64_t number) {
     switch (number) {
         case 3: info.form = TLV_CER_FORM_BIT_STRING; break;
         case 4: info.form = TLV_CER_FORM_OCTETS; break;
-        case 12: info.form = TLV_CER_FORM_CHARACTERS; info.is_utf8 = 1; break;
+        case 12:
+            info.form = TLV_CER_FORM_CHARACTERS;
+            info.is_utf8 = 1;
+            break;
         /* ObjectDescriptor(7), NumericString(18), PrintableString(19),
          * TeletexString(20), VideotexString(21), IA5String(22),
          * GraphicString(25), VisibleString(26), GeneralString(27): all
          * 1-octet restricted character string types. 7/20/21/25/27 have no
          * implemented content rule (recognized-but-unsupported, matching
          * DER); validate_character_segment() below reports that. */
-        case 7: case 18: case 19: case 20: case 21: case 22: case 25: case 26: case 27:
-            info.form = TLV_CER_FORM_CHARACTERS; break;
-        case 28: info.form = TLV_CER_FORM_CHARACTERS; info.code_unit_width = 4; break; /* UniversalString */
-        case 30: info.form = TLV_CER_FORM_CHARACTERS; info.code_unit_width = 2; break; /* BMPString */
+        case 7:
+        case 18:
+        case 19:
+        case 20:
+        case 21:
+        case 22:
+        case 25:
+        case 26:
+        case 27: info.form = TLV_CER_FORM_CHARACTERS; break;
+        case 28:
+            info.form = TLV_CER_FORM_CHARACTERS;
+            info.code_unit_width = 4;
+            break; /* UniversalString */
+        case 30:
+            info.form = TLV_CER_FORM_CHARACTERS;
+            info.code_unit_width = 2;
+            break; /* BMPString */
         default: break;
     }
     return info;
 }
 
-tlv_result_t tlv_cer_validate_universal_value(uint64_t number, const uint8_t* value, size_t length) {
+tlv_result_t tlv_cer_validate_universal_value(uint64_t number, const uint8_t* value,
+                                              size_t length) {
     return tlv_asn1_validate_universal_value(number, value, length);
 }
 
@@ -59,9 +76,10 @@ static tlv_result_t validate_character_segment(uint64_t number, unsigned width,
         case 19: return tlv_asn1_validate_printable_string(value, length);
         case 22: return tlv_asn1_validate_ia5_string(value, length);
         case 26: return tlv_asn1_validate_visible_string(value, length);
-        default: return TLV_ERR_UNSUPPORTED_TYPE; /* ObjectDescriptor, TeletexString,
-                                                    * VideotexString, GraphicString,
-                                                    * GeneralString */
+        default:
+            return TLV_ERR_UNSUPPORTED_TYPE; /* ObjectDescriptor, TeletexString,
+                                              * VideotexString, GraphicString,
+                                              * GeneralString */
     }
 }
 
@@ -80,9 +98,9 @@ void tlv_cer_segment_state_init(tlv_cer_segment_state_t* state, uint64_t number,
         tlv_asn1_utf8_stream_init(&state->utf8);
 }
 
-tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state,
-    const tlv_tag_t* tag, const uint8_t* value, size_t length, size_t offset,
-    size_t* error_offset) {
+tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state, const tlv_tag_t* tag,
+                                       const uint8_t* value, size_t length, size_t offset,
+                                       size_t* error_offset) {
     tlv_result_t rc;
 
     /* A further segment proves the previously pending one was not last. */
@@ -111,8 +129,12 @@ tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state,
         if (state->info.is_utf8)
             rc = tlv_asn1_utf8_stream_update(&state->utf8, value, length);
         else
-            rc = validate_character_segment(state->number, state->info.code_unit_width, value, length);
-        if (rc != TLV_OK) { if (error_offset) *error_offset = offset; return rc; }
+            rc = validate_character_segment(state->number, state->info.code_unit_width, value,
+                                            length);
+        if (rc != TLV_OK) {
+            if (error_offset) *error_offset = offset;
+            return rc;
+        }
     }
 
     state->total_octets += length;
@@ -124,8 +146,8 @@ tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state,
     return TLV_OK;
 }
 
-tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state,
-    size_t element_offset, size_t* error_offset) {
+tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state, size_t element_offset,
+                                          size_t* error_offset) {
     tlv_result_t rc;
     if (!state->has_pending) {
         if (error_offset) *error_offset = element_offset;
@@ -138,10 +160,16 @@ tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state,
     if (state->strict) {
         if (state->info.form == TLV_CER_FORM_BIT_STRING) {
             rc = tlv_asn1_validate_bit_string(state->pending_value, state->pending_length);
-            if (rc != TLV_OK) { if (error_offset) *error_offset = state->pending_offset; return rc; }
+            if (rc != TLV_OK) {
+                if (error_offset) *error_offset = state->pending_offset;
+                return rc;
+            }
         } else if (state->info.form == TLV_CER_FORM_CHARACTERS && state->info.is_utf8) {
             rc = tlv_asn1_utf8_stream_finish(&state->utf8);
-            if (rc != TLV_OK) { if (error_offset) *error_offset = state->pending_offset; return rc; }
+            if (rc != TLV_OK) {
+                if (error_offset) *error_offset = state->pending_offset;
+                return rc;
+            }
         }
         /* OCTETS: no content rule. Non-UTF8 CHARACTERS: every segment,
          * including this final one, was already validated when added. */

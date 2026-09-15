@@ -9,15 +9,14 @@
 namespace {
 // Two raw tag bytes, and a configurable fixed-width little-endian length.
 const size_t width = 2;
-tlv_result_t read_tag(const void*, const uint8_t* data, size_t size,
-                      tlv_tag_t* tag, size_t* used) {
+tlv_result_t read_tag(const void*, const uint8_t* data, size_t size, tlv_tag_t* tag, size_t* used) {
     if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
     *tag = tlv_tag_t{{data[0], data[1]}, 2};
     *used = 2;
     return TLV_OK;
 }
-tlv_result_t write_tag(const void*, uint8_t* data, size_t size,
-                       const tlv_tag_t* tag, size_t* used) {
+tlv_result_t write_tag(const void*, uint8_t* data, size_t size, const tlv_tag_t* tag,
+                       size_t* used) {
     if (tag->size != 2) return TLV_ERR_INVALID_TAG_SIZE;
     *used = 2;
     if (!data) return TLV_OK;
@@ -30,15 +29,15 @@ tlv_result_t length_size(const void* ctx, size_t length, size_t* used) {
     *used = *static_cast<const size_t*>(ctx);
     return TLV_OK;
 }
-tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t size,
-                         size_t* length, size_t* used) {
+tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t size, size_t* length,
+                         size_t* used) {
     *used = *static_cast<const size_t*>(ctx);
     if (size < *used) return TLV_ERR_BUFFER_TOO_SHORT;
     *length = data[0] | (static_cast<size_t>(data[1]) << 8);
     return TLV_OK;
 }
-tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size,
-                          size_t length, size_t* used) {
+tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, size_t length,
+                          size_t* used) {
     const auto rc = length_size(ctx, length, used);
     if (rc != TLV_OK) return rc;
     if (size < *used) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -48,7 +47,7 @@ tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size,
 }
 const tlv_reader_format_t fixed = {&width, read_tag, read_length, nullptr};
 const tlv_writer_format_t fixed_writer = {&width, write_tag, write_length, length_size};
-}
+} // namespace
 
 TEST(Unit_Format, TruncationPreservesReaderStateAndOutput) {
     const uint8_t data[] = {0x9F, 0x02, 0x02, 0x00, 0xAB, 0xCD};
@@ -99,14 +98,14 @@ TEST(Unit_Format, RequiredCallbacksAreValidatedPerDirection) {
 }
 
 TEST(Unit_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
-    uint8_t data[8] = {};
+    uint8_t             data[8] = {};
     tlv_reader_format_t format = fixed;
     format.read_tag = [](const void*, const uint8_t*, size_t, tlv_tag_t*, size_t* used) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
     };
     tlv_reader_t reader;
-    tlv_view_t entry{};
+    tlv_view_t   entry{};
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &format));
     EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_reader_next(&reader, &entry));
     EXPECT_EQ(0u, reader.pos);
@@ -129,13 +128,15 @@ TEST(Unit_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
     };
     tlv_writer_t writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &output_format));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, (tlv_tag_t{{1, 2}, 2}), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_writer_write(&writer, (tlv_tag_t{{1, 2}, 2}), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
     output_format.write_length = [](const void*, uint8_t*, size_t, size_t, size_t* used) {
         *used = 3;
         return TLV_OK;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, (tlv_tag_t{{1, 2}, 2}), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_writer_write(&writer, (tlv_tag_t{{1, 2}, 2}), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
 }
 

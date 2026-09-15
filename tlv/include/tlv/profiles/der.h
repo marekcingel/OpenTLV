@@ -28,9 +28,8 @@ extern TLV_API const tlv_der_limits_t tlv_der_default_limits;
  * Callback view is temporary; its value borrows input. STOP succeeds without
  * validating the rest; callback side effects are not rolled back on errors.
  */
-typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_view_t* view,
-                                               size_t depth, size_t offset,
-                                               void* context);
+typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_view_t* view, size_t depth, size_t offset,
+                                                void* context);
 
 /* Validates one complete element, including all descendants; ignores trailing
  * bytes (but max_input_size covers size). Empty input returns END_OF_BUFFER.
@@ -39,17 +38,14 @@ typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_view_t* view,
  * are relative to data. Argument/input-limit errors use 0. Success leaves it
  * unchanged. No allocations and no C recursion are used.
  */
-TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size,
-                          const tlv_der_limits_t* limits, tlv_view_t* view,
-                          size_t* consumed, size_t* error_offset);
+TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                                  tlv_view_t* view, size_t* consumed, size_t* error_offset);
 
 /* Validates all concatenated elements recursively; empty input succeeds.
  * visitor may be NULL for validation only. Same offset and limit conventions.
  */
-TLV_API tlv_result_t tlv_der_walk(const uint8_t* data, size_t size,
-                          const tlv_der_limits_t* limits,
-                          tlv_der_visitor_t visitor, void* context,
-                          size_t* error_offset);
+TLV_API tlv_result_t tlv_der_walk(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                                  tlv_der_visitor_t visitor, void* context, size_t* error_offset);
 
 /* Writes canonical tag/length bytes, copying value verbatim. Constructed values
  * must already contain canonical DER-TLV children; they are validated first.
@@ -59,9 +55,9 @@ TLV_API tlv_result_t tlv_der_walk(const uint8_t* data, size_t size,
  * error_offset is relative to the would-be output, using read conventions.
  */
 TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                           const uint8_t* value, size_t length,
-                           const tlv_der_limits_t* limits, size_t* written,
-                           size_t* error_offset);
+                                   const uint8_t* value, size_t length,
+                                   const tlv_der_limits_t* limits, size_t* written,
+                                   size_t* error_offset);
 
 /* Strict counterparts of tlv_der_read/tlv_der_walk/tlv_der_write: identical
  * contracts, offsets and limits, but every UNIVERSAL-class primitive element
@@ -73,16 +69,15 @@ TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  * and constructed values are unaffected, matching the non-strict functions.
  */
 TLV_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
-                          const tlv_der_limits_t* limits, tlv_view_t* view,
-                          size_t* consumed, size_t* error_offset);
+                                         const tlv_der_limits_t* limits, tlv_view_t* view,
+                                         size_t* consumed, size_t* error_offset);
 TLV_API tlv_result_t tlv_der_walk_strict(const uint8_t* data, size_t size,
-                          const tlv_der_limits_t* limits,
-                          tlv_der_visitor_t visitor, void* context,
-                          size_t* error_offset);
+                                         const tlv_der_limits_t* limits, tlv_der_visitor_t visitor,
+                                         void* context, size_t* error_offset);
 TLV_API tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                           const uint8_t* value, size_t length,
-                           const tlv_der_limits_t* limits, size_t* written,
-                           size_t* error_offset);
+                                          const uint8_t* value, size_t length,
+                                          const tlv_der_limits_t* limits, size_t* written,
+                                          size_t* error_offset);
 
 #ifdef __cplusplus
 }

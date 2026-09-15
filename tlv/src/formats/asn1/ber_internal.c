@@ -3,8 +3,8 @@
 #include <string.h>
 #include "tlv/endian.h"
 
-static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size,
-                             tlv_tag_t* tag, size_t* consumed) {
+static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
+                             size_t* consumed) {
     size_t count = 1;
     (void)context;
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -65,7 +65,8 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
         --width;
     }
     if (tlv_read_uint(data + offset, width, TLV_BYTE_ORDER_BIG_ENDIAN, &value) != TLV_OK ||
-        value > SIZE_MAX) return TLV_ERR_INVALID_LENGTH;
+        value > SIZE_MAX)
+        return TLV_ERR_INVALID_LENGTH;
     *length = (size_t)value;
     *consumed = count + 1;
     return TLV_OK;
@@ -75,17 +76,21 @@ static tlv_result_t length_size(const void* context, size_t length, size_t* size
     size_t count = 1;
     (void)context;
     if (length >= 0x80) {
-        do { ++count; length >>= 8; } while (length);
+        do {
+            ++count;
+            length >>= 8;
+        } while (length);
     }
     *size = count;
     return TLV_OK;
 }
 
-static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity,
-                                 size_t length, size_t* written) {
+static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity, size_t length,
+                                 size_t* written) {
     length_size(context, length, written);
     if (capacity < *written) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (*written == 1) data[0] = (uint8_t)length;
+    if (*written == 1)
+        data[0] = (uint8_t)length;
     else {
         data[0] = (uint8_t)(0x80 | (*written - 1));
         if (tlv_write_uint(data + 1, *written - 1, TLV_BYTE_ORDER_BIG_ENDIAN, length) != TLV_OK)
@@ -94,16 +99,10 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
     return TLV_OK;
 }
 
-
 const tlv_reader_format_t tlv_ber_reader_wire = {
-    .context = NULL,
-    .read_tag = read_tag,
-    .read_length = read_length
-};
+    .context = NULL, .read_tag = read_tag, .read_length = read_length};
 
-const tlv_writer_format_t tlv_ber_writer_wire = {
-    .context = NULL,
-    .write_tag = write_tag,
-    .write_length = write_length,
-    .length_size = length_size
-};
+const tlv_writer_format_t tlv_ber_writer_wire = {.context = NULL,
+                                                 .write_tag = write_tag,
+                                                 .write_length = write_length,
+                                                 .length_size = length_size};

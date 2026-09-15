@@ -16,16 +16,16 @@ TEST(Unit_Writer, EveryInsufficientCapacityPreservesBufferAndOutput) {
         uint8_t data[6];
         std::memset(data, 0xEE, sizeof(data));
         size_t written = 99;
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write(data, capacity,
-            &controlled::writer, tag, value, sizeof(value), &written));
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write(data, capacity, &controlled::writer, tag,
+                                                      value, sizeof(value), &written));
         EXPECT_EQ(99u, written);
         for (auto byte : data) EXPECT_EQ(0xEE, byte);
     }
 }
 
 TEST(Unit_Writer, InvalidArgumentsAndFormatsPreserveOutputs) {
-    uint8_t data[4] = {};
-    size_t size = 99;
+    uint8_t     data[4] = {};
+    size_t      size = 99;
     const auto* format = &controlled::writer;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_encoded_size(tag, 0, format, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_encoded_size(tag, 0, nullptr, &size));
@@ -47,8 +47,8 @@ TEST(Unit_Writer, InvalidArgumentsAndFormatsPreserveOutputs) {
 }
 
 TEST(Unit_Writer, OverflowAndCallbackFailuresPreserveOutput) {
-    auto format = controlled::writer;
-    size_t size = 99;
+    auto    format = controlled::writer;
+    size_t  size = 99;
     uint8_t data[4] = {};
     format.length_size = [](const void*, size_t, size_t* used) {
         *used = std::numeric_limits<size_t>::max();
@@ -60,11 +60,10 @@ TEST(Unit_Writer, OverflowAndCallbackFailuresPreserveOutput) {
         *used = 0;
         return TLV_OK;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_encoded_size(tag,
-        std::numeric_limits<size_t>::max(), &format, &size));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_encoded_size(tag, std::numeric_limits<size_t>::max(), &format, &size));
     format = controlled::writer;
-    format.write_tag = [](const void*, uint8_t* dst, size_t,
-                          const tlv_tag_t*, size_t* used) {
+    format.write_tag = [](const void*, uint8_t* dst, size_t, const tlv_tag_t*, size_t* used) {
         *used = dst ? 2 : 1;
         return TLV_OK;
     };
@@ -77,16 +76,17 @@ TEST(Unit_Writer, OverflowAndCallbackFailuresPreserveOutput) {
 }
 
 TEST(Unit_Writer, StatefulAppendFailureAndRetry) {
-    uint8_t data[5] = {};
+    uint8_t       data[5] = {};
     const uint8_t value = 0xAB;
-    tlv_writer_t writer;
+    tlv_writer_t  writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, nullptr, 0));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_write(&writer, tag, data, 2));
     EXPECT_EQ(2u, tlv_writer_size(&writer));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, &value, 1));
     tlv_reader_t reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, tlv_writer_size(&writer), &controlled::reader));
+    ASSERT_EQ(TLV_OK,
+              tlv_reader_init(&reader, data, tlv_writer_size(&writer), &controlled::reader));
     tlv_view_t view{};
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
     EXPECT_EQ(0u, view.value.length);
@@ -108,13 +108,14 @@ TEST(Unit_Writer, ImplicitZeroByteLength) {
         return TLV_OK;
     };
     auto reader_format = controlled::reader;
-    reader_format.read_length = [](const void*, const uint8_t*, size_t, size_t* length, size_t* used) {
+    reader_format.read_length = [](const void*, const uint8_t*, size_t, size_t* length,
+                                   size_t* used) {
         *length = 0;
         *used = 0;
         return TLV_OK;
     };
     uint8_t data = 0;
-    size_t size = 0;
+    size_t  size = 0;
     ASSERT_EQ(TLV_OK, tlv_encoded_size(tag, 0, &format, &size));
     EXPECT_EQ(1u, size);
     ASSERT_EQ(TLV_OK, tlv_write(&data, 1, &format, tag, nullptr, 0, &size));

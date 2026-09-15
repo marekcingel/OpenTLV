@@ -1,8 +1,8 @@
 #include "tlv/formats/fixed/fixed_1byte.h"
 #include "tlv/formats/format.h"
 
-static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size,
-                             tlv_tag_t* tag, size_t* consumed) {
+static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
+                             size_t* consumed) {
     (void)context;
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
     *tag = (tlv_tag_t){{0}, 1};
@@ -38,8 +38,8 @@ static tlv_result_t length_size(const void* context, size_t length, size_t* size
     return TLV_OK;
 }
 
-static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity,
-                                 size_t length, size_t* written) {
+static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity, size_t length,
+                                 size_t* written) {
     tlv_result_t rc = length_size(context, length, written);
     if (rc != TLV_OK) return rc;
     if (!capacity) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -48,14 +48,9 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
 }
 
 const tlv_reader_format_t tlv_reader_format_fixed_1byte = {
-    .context = NULL,
-    .read_tag = read_tag,
-    .read_length = read_length
-};
+    .context = NULL, .read_tag = read_tag, .read_length = read_length};
 
-const tlv_writer_format_t tlv_writer_format_fixed_1byte = {
-    .context = NULL,
-    .write_tag = write_tag,
-    .write_length = write_length,
-    .length_size = length_size
-};
+const tlv_writer_format_t tlv_writer_format_fixed_1byte = {.context = NULL,
+                                                           .write_tag = write_tag,
+                                                           .write_length = write_length,
+                                                           .length_size = length_size};

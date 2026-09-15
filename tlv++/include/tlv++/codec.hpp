@@ -16,12 +16,12 @@ namespace tlv {
 template <typename T> struct is_tlv_codec {
 private:
     template <typename U>
-    static auto test(int) -> decltype(
-        static_cast<tag_t>(U::tag),
-        std::declval<const U&>().encode(std::declval<std::vector<byte>&>()),
-        U::decode(std::declval<bytes>()),
-        std::true_type());
+    static auto test(int)
+        -> decltype(static_cast<tag_t>(U::tag),
+                    std::declval<const U&>().encode(std::declval<std::vector<byte>&>()),
+                    U::decode(std::declval<bytes>()), std::true_type());
     template <typename> static std::false_type test(...);
+
 public:
     static const bool value = decltype(test<T>(0))::value;
 };

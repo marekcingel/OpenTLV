@@ -1,19 +1,23 @@
 #include "tlv/formats/asn1/ber.h"
 #include "ber_internal.h"
 #include <string.h>
-static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag, size_t* used) {
+static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
+                             size_t* used) {
     /* Universal tag zero is reserved for EOC, never an ordinary element. */
     if (size && (data[0] == 0 || data[0] == 0x20)) return TLV_ERR_INVALID_TAG;
     return tlv_ber_reader_wire.read_tag(context, data, size, tag, used);
 }
-static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity, const tlv_tag_t* tag, size_t* used) {
+static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
+                              const tlv_tag_t* tag, size_t* used) {
     if (tag->size && (tag->data[0] == 0 || tag->data[0] == 0x20)) return TLV_ERR_INVALID_TAG;
     return tlv_ber_writer_wire.write_tag(context, data, capacity, tag, used);
 }
-static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size, size_t* length, size_t* used) {
+static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
+                                size_t* length, size_t* used) {
     return tlv_ber_reader_wire.read_length(context, data, size, length, used);
 }
-static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity, size_t length, size_t* used) {
+static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity, size_t length,
+                                 size_t* used) {
     return tlv_ber_writer_wire.write_length(context, data, capacity, length, used);
 }
 static tlv_result_t length_size(const void* context, size_t length, size_t* size) {
@@ -39,7 +43,9 @@ tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefin
         if (pos == limit) {
             if (terminated[depth - 1]) return TLV_ERR_BUFFER_TOO_SHORT;
             if (--depth == 0) {
-                *value_size = pos; *consumed = pos; return TLV_OK;
+                *value_size = pos;
+                *consumed = pos;
+                return TLV_OK;
             }
             continue;
         }
@@ -48,7 +54,9 @@ tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefin
             if (data[pos + 1] != 0) return TLV_ERR_INVALID_LENGTH;
             if (!terminated[depth - 1]) return TLV_ERR_INVALID_TAG;
             if (--depth == 0) {
-                *value_size = pos; *consumed = pos + 2; return TLV_OK;
+                *value_size = pos;
+                *consumed = pos + 2;
+                return TLV_OK;
             }
             pos += 2;
             continue;
@@ -73,13 +81,14 @@ tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefin
             if (depth == TLV_BER_MAX_DEPTH) return TLV_ERR_LIMIT;
             ends[depth] = pos + length;
             terminated[depth++] = child_indefinite;
-        } else pos += length;
+        } else
+            pos += length;
     }
 }
 
 static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
-    const uint8_t* data, size_t size, size_t* length_size,
-    size_t* value_size, size_t* trailer_size) {
+                                      const uint8_t* data, size_t size, size_t* length_size,
+                                      size_t* value_size, size_t* trailer_size) {
     size_t length, used;
     tlv_result_t rc;
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -87,22 +96,24 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
         rc = read_length(context, data, size, &length, &used);
         if (rc != TLV_OK) return rc;
         if (length > size - used) return TLV_ERR_BUFFER_TOO_SHORT;
-        *length_size = used; *value_size = length; *trailer_size = 0;
+        *length_size = used;
+        *value_size = length;
+        *trailer_size = 0;
         return TLV_OK;
     }
     if (!tlv_ber_is_constructed(context, tag)) return TLV_ERR_INVALID_LENGTH;
     rc = tlv_ber_scan_contents(data + 1, size - 1, 1, &length, &used);
     if (rc != TLV_OK) return rc;
-    *length_size = 1; *value_size = length; *trailer_size = 2;
+    *length_size = 1;
+    *value_size = length;
+    *trailer_size = 2;
     return TLV_OK;
 }
 
-const tlv_reader_format_t tlv_reader_format_ber = {
-    .context = NULL,
-    .read_tag = read_tag,
-    .read_length = read_length,
-    .read_value_bounds = read_value_bounds
-};
+const tlv_reader_format_t tlv_reader_format_ber = {.context = NULL,
+                                                   .read_tag = read_tag,
+                                                   .read_length = read_length,
+                                                   .read_value_bounds = read_value_bounds};
 
 tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t length, size_t* size) {
     size_t tag_size;
@@ -116,8 +127,8 @@ tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t length, size_
     return TLV_OK;
 }
 
-tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity,
-    tlv_tag_t tag, const uint8_t* value, size_t length, size_t* written) {
+tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity, tlv_tag_t tag,
+                                      const uint8_t* value, size_t length, size_t* written) {
     size_t total, checked_length, used;
     tlv_result_t rc;
     if ((!data && capacity) || (!value && length) || !written) return TLV_ERR_NULL_ARG;
@@ -129,27 +140,26 @@ tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity,
     memcpy(data, tag.data, tag.size);
     data[tag.size] = 0x80;
     if (length) memcpy(data + tag.size + 1, value, length);
-    data[total - 2] = 0; data[total - 1] = 0;
+    data[total - 2] = 0;
+    data[total - 1] = 0;
     *written = total;
     return TLV_OK;
 }
 
-tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer,
-    tlv_tag_t tag, const uint8_t* value, size_t length) {
+tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag,
+                                             const uint8_t* value, size_t length) {
     size_t written;
     tlv_result_t rc;
     if (!writer) return TLV_ERR_NULL_ARG;
     if (writer->format != &tlv_writer_format_ber) return TLV_ERR_INVALID_ARG;
     if (writer->pos > writer->capacity) return TLV_ERR_BUFFER_TOO_SHORT;
     rc = tlv_ber_write_indefinite(writer->buf ? writer->buf + writer->pos : NULL,
-        writer->capacity - writer->pos, tag, value, length, &written);
+                                  writer->capacity - writer->pos, tag, value, length, &written);
     if (rc == TLV_OK) writer->pos += written;
     return rc;
 }
 
-const tlv_writer_format_t tlv_writer_format_ber = {
-    .context = NULL,
-    .write_tag = write_tag,
-    .write_length = write_length,
-    .length_size = length_size
-};
+const tlv_writer_format_t tlv_writer_format_ber = {.context = NULL,
+                                                   .write_tag = write_tag,
+                                                   .write_length = write_length,
+                                                   .length_size = length_size};

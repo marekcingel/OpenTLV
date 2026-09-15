@@ -28,8 +28,8 @@ static inline int tlv_cer_tag_is_constructed(const tlv_tag_t* tag) {
  * exceeding TLV_TAG_CAPACITY return TLV_ERR_INVALID_TAG_SIZE. Invalid
  * encodings return TLV_ERR_INVALID_TAG. Outputs are unchanged on failure.
  */
-TLV_API tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructed,
-                              uint64_t number, tlv_tag_t* tag);
+TLV_API tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
+                                      tlv_tag_t* tag);
 TLV_API tlv_result_t tlv_cer_tag_number(const tlv_tag_t* tag, uint64_t* number);
 
 /* Canonical ASN.1 CER identifiers and lengths for a single element: SEQUENCE/

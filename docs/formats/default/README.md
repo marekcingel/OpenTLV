@@ -45,8 +45,6 @@ int main(void) {
 }
 ```
 
-
-
 ## Byte example
 
 One raw tag byte and a definite BER-style length, up to 65,535 value bytes.
@@ -64,4 +62,3 @@ For 128 value bytes, the header is `01 81 80`, followed by all 128 payload
 bytes. This format supports BER-style lengths, not multi-byte BER tags.
 Use `tlv_reader_format_default` / `tlv_writer_format_default`.
 [Format contract](../README.md#generic-interface)
-

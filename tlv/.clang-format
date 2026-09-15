@@ -1,0 +1,37 @@
+# clang-format configuration for OpenTLV's C layer (tlv). Overrides the
+# root ../.clang-format (written for tlv++) for every file under this
+# directory, since clang-format resolves the nearest .clang-format by
+# walking up from a file's own directory. See ../.clang-format for why this
+# is a separate file rather than a `Language: C` section in one shared file.
+BasedOnStyle: LLVM
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+
+BreakBeforeBraces: Attach
+PointerAlignment: Left
+DerivePointerAlignment: false
+AlignConsecutiveDeclarations: false
+
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+
+SpaceBeforeParens: ControlStatements
+SpacesBeforeTrailingComments: 1
+IndentCaseLabels: true
+
+# Header order in this codebase is deliberate (nearest-to-furthest, not
+# alphabetical); do not let the formatter re-sort or regroup it.
+SortIncludes: false
+IncludeBlocks: Preserve
+
+# TLV_API is a visibility/export specifier preceding a declaration's return
+# type like an attribute.
+AttributeMacros:
+  - TLV_API

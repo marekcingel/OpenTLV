@@ -79,9 +79,9 @@ void tlv_cer_segment_state_init(tlv_cer_segment_state_t* state, uint64_t number,
 /* Call for every primitive child of the segmentable constructed value, in
  * order. tag/value/length describe the segment as read; offset is its
  * absolute tag offset, used for error reporting via *error_offset. */
-tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state,
-    const tlv_tag_t* tag, const uint8_t* value, size_t length, size_t offset,
-    size_t* error_offset);
+tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state, const tlv_tag_t* tag,
+                                       const uint8_t* value, size_t length, size_t offset,
+                                       size_t* error_offset);
 
 /* Call exactly once, when the enclosing element's matching EOC is found (so
  * every segment has already been fed to tlv_cer_segment_state_add()).
@@ -91,7 +91,7 @@ tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state,
  * justified (total content exceeded TLV_CER_MAX_SEGMENT_OCTETS).
  * element_offset is the constructed element's own tag offset, used when
  * segmentation was unjustified or no segment was present. */
-tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state,
-    size_t element_offset, size_t* error_offset);
+tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state, size_t element_offset,
+                                          size_t* error_offset);
 
 #endif /* OPENTLV_CER_VALUES_INTERNAL_H */

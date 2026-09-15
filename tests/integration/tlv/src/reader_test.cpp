@@ -6,8 +6,8 @@
 
 TEST(Integration_Reader, EmptyValueAndBerLength) {
     const uint8_t data[] = {0x42, 0x82, 0, 0};
-    tlv_view_t view{};
-    size_t consumed = 0;
+    tlv_view_t    view{};
+    size_t        consumed = 0;
     ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_reader_format_default, &view, &consumed));
     EXPECT_EQ(data + sizeof(data), view.value.data);
     EXPECT_EQ(0u, view.value.length);
@@ -18,7 +18,7 @@ namespace {
 void expect_failure(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
                     tlv_result_t error) {
     tlv_view_t view = {tlv_tag_t{{0xEE}, 1}, {data, 42}};
-    size_t consumed = 99;
+    size_t     consumed = 99;
     EXPECT_EQ(error, tlv_read(data, size, format, &view, &consumed));
     EXPECT_EQ(99u, consumed);
     EXPECT_EQ(1u, view.tag.size);
@@ -26,7 +26,7 @@ void expect_failure(const uint8_t* data, size_t size, const tlv_reader_format_t*
     EXPECT_EQ(data, view.value.data);
     EXPECT_EQ(42u, view.value.length);
 }
-}
+} // namespace
 
 TEST(Integration_Reader, DetectsTruncatedBerLengthAndValue) {
     const uint8_t data[] = {1, 0x82, 0, 2, 0xAB, 0xCD};

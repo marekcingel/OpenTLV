@@ -23,7 +23,7 @@ TEST(Unit_Fixed1Byte, TruncationPreservesReaderAndOutput) {
 TEST(Unit_Fixed1Byte, InvalidWritesPreserveBufferAndPosition) {
     uint8_t data[258];
     std::memset(data, 0xEE, sizeof(data));
-    uint8_t value[256] = {};
+    uint8_t      value[256] = {};
     tlv_writer_t writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &tlv_writer_format_fixed_1byte));
     const tlv_tag_t tag = {{1}, 1};
@@ -44,14 +44,16 @@ TEST(Unit_Fixed1Byte, InvalidWritesPreserveBufferAndPosition) {
 
 TEST(Unit_Fixed1Byte, CallbacksRejectMissingBytes) {
     const auto& format = tlv_reader_format_fixed_1byte;
-    tlv_tag_t tag = {{0xFF}, 1};
-    size_t used = 0, length = 0;
+    tlv_tag_t   tag = {{0xFF}, 1};
+    size_t      used = 0, length = 0;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, format.read_tag(nullptr, nullptr, 0, &tag, &used));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, format.read_length(nullptr, nullptr, 0, &length, &used));
     ASSERT_EQ(TLV_OK, tlv_writer_format_fixed_1byte.write_tag(nullptr, nullptr, 0, &tag, &used));
     EXPECT_EQ(1u, used);
     uint8_t data = 0xEE;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_format_fixed_1byte.write_tag(nullptr, &data, 0, &tag, &used));
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_format_fixed_1byte.write_length(nullptr, &data, 0, 255, &used));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_writer_format_fixed_1byte.write_tag(nullptr, &data, 0, &tag, &used));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_writer_format_fixed_1byte.write_length(nullptr, &data, 0, 255, &used));
     EXPECT_EQ(0xEE, data);
 }

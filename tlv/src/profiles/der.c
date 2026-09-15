@@ -5,9 +5,7 @@
 #include "der_values_internal.h"
 #include <string.h>
 
-const tlv_der_limits_t tlv_der_default_limits = {
-    32, 16 * 1024 * 1024, 16 * 1024 * 1024, 100000
-};
+const tlv_der_limits_t tlv_der_default_limits = {32, 16 * 1024 * 1024, 16 * 1024 * 1024, 100000};
 
 static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
     if (error_offset) *error_offset = offset;
@@ -16,13 +14,14 @@ static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
 
 /* Parse a bounded header with field offsets. No outputs escape on failure. */
 static tlv_result_t read_entry(const uint8_t* data, size_t size, size_t base,
-                               const tlv_der_limits_t* limits, tlv_view_t* view,
-                               size_t* consumed, size_t* error_offset) {
+                               const tlv_der_limits_t* limits, tlv_view_t* view, size_t* consumed,
+                               size_t* error_offset) {
     size_t tag_size, length_size, value_length;
-    tlv_result_t rc = tlv_reader_format_der.read_tag(tlv_reader_format_der.context, data, size, &view->tag, &tag_size);
+    tlv_result_t rc = tlv_reader_format_der.read_tag(tlv_reader_format_der.context, data, size,
+                                                     &view->tag, &tag_size);
     if (rc != TLV_OK) return fail(rc, base, error_offset);
-    rc = tlv_reader_format_der.read_length(tlv_reader_format_der.context, data + tag_size, size - tag_size,
-                         &value_length, &length_size);
+    rc = tlv_reader_format_der.read_length(tlv_reader_format_der.context, data + tag_size,
+                                           size - tag_size, &value_length, &length_size);
     if (rc != TLV_OK) return fail(rc, base + tag_size, error_offset);
     if (value_length > limits->max_value_size)
         return fail(TLV_ERR_LIMIT, base + tag_size, error_offset);
@@ -38,12 +37,10 @@ static tlv_result_t read_entry(const uint8_t* data, size_t size, size_t base,
 /* Iterative depth-first traversal: each stack slot is an enclosing value end.
  * Parent ends also serve as resume positions; descendants cannot escape them.
  */
-static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base,
-                             size_t initial_depth, size_t initial_count,
-                             const tlv_der_limits_t* limits,
-                             tlv_der_visitor_t visitor, void* context,
-                             int one, tlv_view_t* first, size_t* first_size,
-                             int strict, size_t* error_offset) {
+static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size_t initial_depth,
+                             size_t initial_count, const tlv_der_limits_t* limits,
+                             tlv_der_visitor_t visitor, void* context, int one, tlv_view_t* first,
+                             size_t* first_size, int strict, size_t* error_offset) {
     size_t ends[TLV_DER_MAX_DEPTH + 1];
     size_t level = 0, pos = 0, count = initial_count;
     ends[0] = size;
@@ -51,11 +48,14 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base,
         tlv_view_t view;
         size_t used, end, value_length;
         tlv_result_t rc;
-        if (pos == ends[level]) { --level; continue; }
+        if (pos == ends[level]) {
+            --level;
+            continue;
+        }
         if (initial_depth + level > limits->max_depth || count == limits->max_elements)
             return fail(TLV_ERR_LIMIT, base + pos, error_offset);
-        rc = read_entry(data + pos, ends[level] - pos, base + pos,
-                         limits, &view, &used, error_offset);
+        rc = read_entry(data + pos, ends[level] - pos, base + pos, limits, &view, &used,
+                        error_offset);
         if (rc != TLV_OK) return rc;
         ++count;
         end = pos + used;
@@ -85,38 +85,36 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base,
             if (initial_depth + level == limits->max_depth)
                 return fail(TLV_ERR_LIMIT, base + pos, error_offset);
             ends[++level] = end;
-        } else pos = end;
+        } else
+            pos = end;
     }
     return TLV_OK;
 }
 
-static tlv_result_t walk_impl(const uint8_t* data, size_t size,
-                              const tlv_der_limits_t* limits,
-                              tlv_der_visitor_t visitor, void* context,
-                              int strict, size_t* error_offset) {
+static tlv_result_t walk_impl(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                              tlv_der_visitor_t visitor, void* context, int strict,
+                              size_t* error_offset) {
     if (!limits) limits = &tlv_der_default_limits;
     if (!data && size) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
     if (limits->max_depth > TLV_DER_MAX_DEPTH || size > limits->max_input_size)
         return fail(TLV_ERR_LIMIT, 0, error_offset);
-    return traverse(data, size, 0, 0, 0, limits, visitor, context, 0, NULL, NULL,
-                     strict, error_offset);
+    return traverse(data, size, 0, 0, 0, limits, visitor, context, 0, NULL, NULL, strict,
+                    error_offset);
 }
 
-tlv_result_t tlv_der_walk(const uint8_t* data, size_t size,
-                          const tlv_der_limits_t* limits,
+tlv_result_t tlv_der_walk(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
                           tlv_der_visitor_t visitor, void* context, size_t* error_offset) {
     return walk_impl(data, size, limits, visitor, context, 0, error_offset);
 }
 
-tlv_result_t tlv_der_walk_strict(const uint8_t* data, size_t size,
-                          const tlv_der_limits_t* limits,
-                          tlv_der_visitor_t visitor, void* context, size_t* error_offset) {
+tlv_result_t tlv_der_walk_strict(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                                 tlv_der_visitor_t visitor, void* context, size_t* error_offset) {
     return walk_impl(data, size, limits, visitor, context, 1, error_offset);
 }
 
-static tlv_result_t read_impl(const uint8_t* data, size_t size,
-                              const tlv_der_limits_t* limits, tlv_view_t* view,
-                              size_t* consumed, int strict, size_t* error_offset) {
+static tlv_result_t read_impl(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                              tlv_view_t* view, size_t* consumed, int strict,
+                              size_t* error_offset) {
     tlv_view_t result;
     size_t used;
     tlv_result_t rc;
@@ -125,27 +123,26 @@ static tlv_result_t read_impl(const uint8_t* data, size_t size,
     if (limits->max_depth > TLV_DER_MAX_DEPTH || size > limits->max_input_size)
         return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (!size) return fail(TLV_ERR_END_OF_BUFFER, 0, error_offset);
-    rc = traverse(data, size, 0, 0, 0, limits, NULL, NULL, 1, &result, &used,
-                   strict, error_offset);
-    if (rc == TLV_OK) { *view = result; *consumed = used; }
+    rc = traverse(data, size, 0, 0, 0, limits, NULL, NULL, 1, &result, &used, strict, error_offset);
+    if (rc == TLV_OK) {
+        *view = result;
+        *consumed = used;
+    }
     return rc;
 }
 
-tlv_result_t tlv_der_read(const uint8_t* data, size_t size,
-                          const tlv_der_limits_t* limits, tlv_view_t* view,
-                          size_t* consumed, size_t* error_offset) {
+tlv_result_t tlv_der_read(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                          tlv_view_t* view, size_t* consumed, size_t* error_offset) {
     return read_impl(data, size, limits, view, consumed, 0, error_offset);
 }
 
-tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
-                          const tlv_der_limits_t* limits, tlv_view_t* view,
-                          size_t* consumed, size_t* error_offset) {
+tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                                 tlv_view_t* view, size_t* consumed, size_t* error_offset) {
     return read_impl(data, size, limits, view, consumed, 1, error_offset);
 }
 
-static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                               const uint8_t* value, size_t length,
-                               const tlv_der_limits_t* limits, int strict,
+static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, const uint8_t* value,
+                               size_t length, const tlv_der_limits_t* limits, int strict,
                                size_t* written, size_t* error_offset) {
     size_t total;
     tlv_result_t rc;
@@ -155,7 +152,8 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag,
     rc = tlv_encoded_size(tag, length, &tlv_writer_format_der, &total);
     if (rc != TLV_OK) return fail(rc, rc == TLV_ERR_INVALID_LENGTH ? tag.size : 0, error_offset);
     if (limits->max_depth > TLV_DER_MAX_DEPTH || total > limits->max_input_size ||
-        !limits->max_elements) return fail(TLV_ERR_LIMIT, 0, error_offset);
+        !limits->max_elements)
+        return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (length > limits->max_value_size) return fail(TLV_ERR_LIMIT, tag.size, error_offset);
     if (strict && tlv_der_tag_class(&tag) == TLV_ASN1_UNIVERSAL &&
         !tlv_der_tag_is_constructed(&tag)) {
@@ -165,26 +163,28 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag,
         if (rc != TLV_OK) return fail(rc, total - length, error_offset);
     }
     if (tlv_der_tag_is_constructed(&tag)) {
-        rc = traverse(value, length, total - length, 1, 1, limits,
-                       NULL, NULL, 0, NULL, NULL, strict, error_offset);
+        rc = traverse(value, length, total - length, 1, 1, limits, NULL, NULL, 0, NULL, NULL,
+                      strict, error_offset);
         if (rc != TLV_OK) return rc;
     }
-    if (!data) { *written = total; return TLV_OK; }
+    if (!data) {
+        *written = total;
+        return TLV_OK;
+    }
     rc = tlv_write(data, capacity, &tlv_writer_format_der, tag, value, length, written);
     if (rc != TLV_OK) return fail(rc, 0, error_offset);
     return TLV_OK;
 }
 
-tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                           const uint8_t* value, size_t length,
-                           const tlv_der_limits_t* limits, size_t* written,
+tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag, const uint8_t* value,
+                           size_t length, const tlv_der_limits_t* limits, size_t* written,
                            size_t* error_offset) {
     return write_impl(data, capacity, tag, value, length, limits, 0, written, error_offset);
 }
 
 tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                           const uint8_t* value, size_t length,
-                           const tlv_der_limits_t* limits, size_t* written,
-                           size_t* error_offset) {
+                                  const uint8_t* value, size_t length,
+                                  const tlv_der_limits_t* limits, size_t* written,
+                                  size_t* error_offset) {
     return write_impl(data, capacity, tag, value, length, limits, 1, written, error_offset);
 }

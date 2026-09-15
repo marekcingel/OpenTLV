@@ -28,8 +28,7 @@ typedef struct {
  * represented by the current build's size_t returns TLV_ERR_INVALID_LENGTH.
  * value is unchanged on every failure. Actual allocation bounds for data
  * remain the caller's responsibility; no memory is accessed. */
-TLV_API tlv_result_t tlv_value_init(const uint8_t* data, tlv_length_t length,
-                            tlv_value_t* value);
+TLV_API tlv_result_t tlv_value_init(const uint8_t* data, tlv_length_t length, tlv_value_t* value);
 
 /* Validates representation and pointer requirements only: data must be
  * non-NULL unless length is zero, and length must be representable by the

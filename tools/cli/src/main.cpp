@@ -73,7 +73,7 @@ static int nibble(unsigned char ch) {
 static int append(uint8_t** data, size_t* size, size_t* capacity, size_t limit, uint8_t byte) {
     if (*size == limit) return fail(3, "input-size limit exceeded");
     if (*size == *capacity) {
-        size_t next = *capacity ? (*capacity > SIZE_MAX / 2 ? SIZE_MAX : *capacity * 2) : 4096;
+        size_t   next = *capacity ? (*capacity > SIZE_MAX / 2 ? SIZE_MAX : *capacity * 2) : 4096;
         uint8_t* grown;
         if (next > limit) next = limit;
         grown = (uint8_t*)realloc(*data, next);
@@ -87,12 +87,15 @@ static int append(uint8_t** data, size_t* size, size_t* capacity, size_t limit, 
 
 static int read_input(const cli::options* o, uint8_t** data, size_t* size) {
     size_t capacity = 0;
-    int rc = 0;
+    int    rc = 0;
     if (o->hex) {
         const unsigned char* p = (const unsigned char*)o->hex;
         while (*p) {
             int hi, lo;
-            if (isspace(*p)) { ++p; continue; }
+            if (isspace(*p)) {
+                ++p;
+                continue;
+            }
             hi = nibble(*p++);
             if (hi < 0 || !*p || (lo = nibble(*p++)) < 0)
                 return fail(2, "hex input requires complete hexadecimal byte pairs");
@@ -101,7 +104,7 @@ static int read_input(const cli::options* o, uint8_t** data, size_t* size) {
         }
     } else {
         FILE* stream = stdin;
-        int ch, high = -1;
+        int   ch, high = -1;
         if (strcmp(o->input, "-")) {
 #ifdef _WIN32
             if (fopen_s(&stream, o->input, "rb")) stream = NULL;
@@ -119,8 +122,14 @@ static int read_input(const cli::options* o, uint8_t** data, size_t* size) {
                 int digit;
                 if (high < 0 && isspace((unsigned char)ch)) continue;
                 digit = nibble((unsigned char)ch);
-                if (digit < 0) { rc = fail(2, "hex input requires complete hexadecimal byte pairs"); break; }
-                if (high < 0) { high = digit; continue; }
+                if (digit < 0) {
+                    rc = fail(2, "hex input requires complete hexadecimal byte pairs");
+                    break;
+                }
+                if (high < 0) {
+                    high = digit;
+                    continue;
+                }
                 ch = high * 16 + digit;
                 high = -1;
             }
@@ -136,37 +145,40 @@ static int read_input(const cli::options* o, uint8_t** data, size_t* size) {
 
 typedef struct output_context {
     const cli::options* options;
-    const uint8_t* data;
-    int ber;
-    cli_presentation_t presentation;
+    const uint8_t*      data;
+    int                 ber;
+    cli_presentation_t  presentation;
 } output_context_t;
 
-static tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth,
-                                        size_t offset, void* context) {
+static tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth, size_t offset,
+                                        void* context) {
     output_context_t* out = (output_context_t*)context;
-    size_t i;
-    int indefinite = out->ber && out->data[offset + view->tag.size] == 0x80;
+    size_t            i;
+    int               indefinite = out->ber && out->data[offset + view->tag.size] == 0x80;
     cli_presentation_visit(&out->presentation, view, depth, indefinite);
     if (!out->options->tree && depth) return TLV_VISIT_CONTINUE;
-    if (out->options->pretty) cli_presentation_prefix(&out->presentation, depth);
-    else for (i = 0; i < depth; ++i) fputs("  ", stdout);
+    if (out->options->pretty)
+        cli_presentation_prefix(&out->presentation, depth);
+    else
+        for (i = 0; i < depth; ++i) fputs("  ", stdout);
     printf("offset=%zu tag=", offset);
     if (out->presentation.color) fputs("\033[36m", stdout);
     for (i = 0; i < view->tag.size; ++i) printf("%02X", (unsigned)view->tag.data[i]);
     if (out->presentation.color) fputs("\033[0m", stdout);
     printf(" length=%" PRIu64, view->value.length);
-    if (indefinite)
-        fputs(" encoding=indefinite", stdout);
+    if (indefinite) fputs(" encoding=indefinite", stdout);
     fputs(" value=", stdout);
     for (i = 0; i < (size_t)view->value.length; ++i) printf("%02X", (unsigned)view->value.data[i]);
-    if (out->options->profile) cli_presentation_emv(&out->presentation, view, depth, out->options->describe);
+    if (out->options->profile)
+        cli_presentation_emv(&out->presentation, view, depth, out->options->describe);
     putchar('\n');
     return ferror(stdout) ? TLV_VISIT_ERROR : TLV_VISIT_CONTINUE;
 }
 
 static const char* error_name(tlv_result_t rc) {
     switch (rc) {
-#define ERROR_NAME(e) case e: return #e
+#define ERROR_NAME(e)                                                                              \
+    case e: return #e
         ERROR_NAME(TLV_OK);
         ERROR_NAME(TLV_ERR_BUFFER_TOO_SHORT);
         ERROR_NAME(TLV_ERR_INVALID_LENGTH);
@@ -188,14 +200,13 @@ static const char* error_name(tlv_result_t rc) {
 
 /* A DOL length is a single unsigned byte, not a BER length field. No value
  * bytes follow it. Reuse the public BER tag reader without fabricating TLVs. */
-static tlv_result_t walk_pdol(const uint8_t* data, size_t size,
-                              const tlv_reader_format_t* format,
+static tlv_result_t walk_pdol(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
                               output_context_t* output, size_t* error_offset) {
     size_t pos = 0, count = 0;
     while (pos < size) {
-        tlv_view_t entry;
-        size_t used, start = pos, i;
-        unsigned requested;
+        tlv_view_t   entry;
+        size_t       used, start = pos, i;
+        unsigned     requested;
         tlv_result_t rc;
         *error_offset = pos;
         if (count == output->options->max_elements) return TLV_ERR_LIMIT;
@@ -225,22 +236,29 @@ static tlv_result_t walk_pdol(const uint8_t* data, size_t size,
 }
 
 static int run(int argc, char** argv) {
-    cli::options o;
+    cli::options               o;
     const tlv_reader_format_t* format;
-    tlv_is_constructed_fn predicate = NULL;
-    uint8_t* data = NULL;
-    size_t size = 0, error_offset = 0;
-    tlv_result_t result;
-    tlv_tree_visitor_t visitor;
-    output_context_t output;
+    tlv_is_constructed_fn      predicate = NULL;
+    uint8_t*                   data = NULL;
+    size_t                     size = 0, error_offset = 0;
+    tlv_result_t               result;
+    tlv_tree_visitor_t         visitor;
+    output_context_t           output;
     // Own the buffer across wrapper errors, which may allocate error strings.
     std::unique_ptr<uint8_t, decltype(&std::free)> input(nullptr, &std::free);
-    int rc, structured;
-    if (argc == 2 && !strcmp(argv[1], "--help")) { cli::options::usage(); goto flushed; }
-    if (argc == 2 && !strcmp(argv[1], "--version")) {
-        printf("opentlv %s\n", tlv_version_string()); goto flushed;
+    int                                            rc, structured;
+    if (argc == 2 && !strcmp(argv[1], "--help")) {
+        cli::options::usage();
+        goto flushed;
     }
-    if (argc == 2 && !strcmp(argv[1], "formats")) { formats(); goto flushed; }
+    if (argc == 2 && !strcmp(argv[1], "--version")) {
+        printf("opentlv %s\n", tlv_version_string());
+        goto flushed;
+    }
+    if (argc == 2 && !strcmp(argv[1], "formats")) {
+        formats();
+        goto flushed;
+    }
     if (argc < 2) return fail(2, "missing command; use --help");
     rc = o.parse(argc, argv);
     if (rc) return rc;
@@ -259,10 +277,11 @@ static int run(int argc, char** argv) {
 #if OPENTLV_FORMAT_BER
     if (structured) predicate = tlv_ber_is_constructed;
 #endif
-    if (o.pdol) result = walk_pdol(data, size, format, &output, &error_offset);
+    if (o.pdol)
+        result = walk_pdol(data, size, format, &output, &error_offset);
     else
 #if OPENTLV_FORMAT_DER
-    if (!strcmp(o.format, "der")) {
+        if (!strcmp(o.format, "der")) {
         tlv_der_limits_t limits = {o.max_depth, o.max_input, o.max_input, o.max_elements};
         result = tlv_der_walk(data, size, &limits, visitor, &output, &error_offset);
     } else
@@ -270,23 +289,24 @@ static int run(int argc, char** argv) {
     {
         // The C++ walker owns the callback adapter and exposes borrowed entries.
         const auto walked = tlv::walk_tree(
-            tlv::bytes(reinterpret_cast<const tlv::byte*>(data), size),
-            *format, predicate, o.max_depth, o.max_elements,
+            tlv::bytes(reinterpret_cast<const tlv::byte*>(data), size), *format, predicate,
+            o.max_depth, o.max_elements,
             [&output, visitor](const tlv::entry& entry, size_t depth, size_t offset) {
                 if (!visitor) return TLV_VISIT_CONTINUE;
                 // Presentation shares this view adapter with the unwrapped DER API.
                 const tlv_view_t raw = {entry.tag,
-                    {reinterpret_cast<const uint8_t*>(entry.value.data()),
-                     static_cast<tlv_length_t>(entry.value.size())}};
+                                        {reinterpret_cast<const uint8_t*>(entry.value.data()),
+                                         static_cast<tlv_length_t>(entry.value.size())}};
                 return visitor(&raw, depth, offset, &output);
-            }, &error_offset);
+            },
+            &error_offset);
         result = walked ? TLV_OK : walked.error().code;
     }
     cli_presentation_restore(&output.presentation);
     if (fflush(stdout) || ferror(stdout)) return fail(3, "cannot write output");
     if (result != TLV_OK) {
-        fprintf(stderr, "opentlv: %s at byte %zu: %s\n", error_name(result),
-                error_offset, tlv_strerror(result));
+        fprintf(stderr, "opentlv: %s at byte %zu: %s\n", error_name(result), error_offset,
+                tlv_strerror(result));
         return result == TLV_ERR_LIMIT || result == TLV_ERR_OUT_OF_MEMORY ? 3 : 1;
     }
     return 0;

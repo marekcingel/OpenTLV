@@ -45,8 +45,6 @@ int main(void) {
 }
 ```
 
-
-
 Use `tlv_reader_format_ber` with the reader and `tlv_writer_format_ber` with
 the writer for raw BER-TLV tags
 such as `5A`, `5F 2A`, `9F 1C`, and `9F 81 01`. Tags retain their wire bytes,
@@ -137,7 +135,6 @@ returns `TLV_ERR_INVALID_TAG_SIZE` even if those bytes are missing. Empty input 
 the generic reader returns `TLV_ERR_END_OF_BUFFER`. All BER-specific encoding
 and validation live in the format callbacks.
 
-
 ## Byte example
 
 ### Definite constructed value
@@ -183,4 +180,3 @@ Primitive indefinite-length values are rejected. Ordinary BER writing emits
 definite lengths; use `tlv_ber_write_indefinite` for explicit indefinite output.
 Use `tlv_reader_format_ber` / `tlv_writer_format_ber`.
 [BER rules and limits](ber.md)
-

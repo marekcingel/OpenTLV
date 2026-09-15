@@ -2,7 +2,6 @@
 
 [Format documentation](../README.md)
 
-
 ## API and build
 
 | Setting | Value |

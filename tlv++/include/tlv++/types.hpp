@@ -23,5 +23,5 @@ struct entry {
     bytes value;
 };
 
-}
+} // namespace tlv
 #endif

@@ -1,0 +1,33 @@
+# Formatting today; cppcheck and clang-tidy are planned as additional jobs
+# in this same workflow.
+name: Static Analysis
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  pre-commit:
+    permissions:
+      contents: read
+    name: pre-commit checks
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # Runs the same hooks, at the same pinned versions, as
+      # .pre-commit-config.yaml: clang-format plus the whitespace/YAML/
+      # markdownlint checks. Keeping one source of truth for hook versions
+      # here avoids CI silently drifting out of sync with what contributors
+      # run locally.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - uses: pre-commit/action@v3.0.1

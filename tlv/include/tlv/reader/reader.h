@@ -19,20 +19,19 @@ extern "C" {
  * Empty tags or unsupported tag sizes return TLV_ERR_INVALID_TAG_SIZE.
  * On failure, both outputs remain unchanged; callback errors propagate.
  */
-TLV_API tlv_result_t tlv_read(const uint8_t* data, size_t size,
-                      const tlv_reader_format_t* format, tlv_view_t* out_entry,
-                      size_t* consumed);
+TLV_API tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
+                              tlv_view_t* out_entry, size_t* consumed);
 
 typedef struct tlv_reader {
     const tlv_reader_format_t* format; /* borrowed */
     const uint8_t* data;
-    size_t         size;
-    size_t         pos;
+    size_t size;
+    size_t pos;
 } tlv_reader_t;
 
 /* Uses a caller-provided format; NULL or missing required callbacks is an error. */
-TLV_API tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data,
-                                        size_t size, const tlv_reader_format_t* format);
+TLV_API tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data, size_t size,
+                                     const tlv_reader_format_t* format);
 
 /* Returns 1 if there are no further TLV items, otherwise 0. */
 TLV_API int tlv_reader_at_end(const tlv_reader_t* reader);

@@ -45,8 +45,6 @@ int main(void) {
 }
 ```
 
-
-
 Use `tlv_reader_format_fixed_1byte` and `tlv_writer_format_fixed_1byte` for a one-byte tag, a one-byte unsigned length,
 and exactly that many value bytes. For example, `01 03 AA BB CC` encodes tag
 `01` and the three-byte value `AA BB CC`. All tag bytes are valid, including
@@ -64,7 +62,6 @@ longer than 255 bytes returns `TLV_ERR_INVALID_LENGTH`. Missing length or
 value bytes return `TLV_ERR_BUFFER_TOO_SHORT`. An empty input is the end of
 the stream (`TLV_ERR_END_OF_BUFFER`). Multiple records may be concatenated.
 
-
 ## Byte example
 
 One tag byte and one unsigned length byte, up to 255 value bytes.
@@ -81,4 +78,3 @@ For 128 value bytes, the header is `02 80`, followed by all 128 payload
 bytes: `80` is an ordinary length here, not a BER indefinite-length marker.
 Use `tlv_reader_format_fixed_1byte` / `tlv_writer_format_fixed_1byte`.
 [Fixed format](README.md)
-

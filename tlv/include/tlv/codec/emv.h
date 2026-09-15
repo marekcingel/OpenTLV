@@ -15,19 +15,23 @@ typedef enum {
     TLV_EMV_VALUE_BYTES,
     TLV_EMV_VALUE_TEXT,
     TLV_EMV_VALUE_TEMPLATE,
-    TLV_EMV_VALUE_NUMBER,      /* uint64_t: binary or decimal BCD */
-    TLV_EMV_VALUE_FLAGS,       /* uint64_t */
-    TLV_EMV_VALUE_DIGITS,      /* char[]: NUL-terminated decimal digits */
-    TLV_EMV_VALUE_DATE,        /* tlv_emv_date_t */
-    TLV_EMV_VALUE_TIME,        /* tlv_emv_time_t */
-    TLV_EMV_VALUE_ACCOUNT,     /* tlv_emv_account_type_t */
-    TLV_EMV_VALUE_CRYPTOGRAM,  /* tlv_emv_cryptogram_info_t */
-    TLV_EMV_VALUE_BIOMETRIC,   /* tlv_emv_biometric_type_t */
+    TLV_EMV_VALUE_NUMBER,     /* uint64_t: binary or decimal BCD */
+    TLV_EMV_VALUE_FLAGS,      /* uint64_t */
+    TLV_EMV_VALUE_DIGITS,     /* char[]: NUL-terminated decimal digits */
+    TLV_EMV_VALUE_DATE,       /* tlv_emv_date_t */
+    TLV_EMV_VALUE_TIME,       /* tlv_emv_time_t */
+    TLV_EMV_VALUE_ACCOUNT,    /* tlv_emv_account_type_t */
+    TLV_EMV_VALUE_CRYPTOGRAM, /* tlv_emv_cryptogram_info_t */
+    TLV_EMV_VALUE_BIOMETRIC,  /* tlv_emv_biometric_type_t */
     TLV_EMV_VALUE_NUMBER_LIST /* tlv_emv_number_list_t */
 } tlv_emv_value_kind_t;
 
-typedef struct { uint8_t year, month, day; } tlv_emv_date_t;
-typedef struct { uint8_t hour, minute, second; } tlv_emv_time_t;
+typedef struct {
+    uint8_t year, month, day;
+} tlv_emv_date_t;
+typedef struct {
+    uint8_t hour, minute, second;
+} tlv_emv_time_t;
 /* year is YY (0..99); no century is inferred. February 29 is accepted for
  * years divisible by four; the caller resolves century-dependent validity.
  */
@@ -46,7 +50,7 @@ typedef enum {
 } tlv_emv_cryptogram_type_t;
 typedef struct {
     tlv_emv_cryptogram_type_t type; /* wire bits b8-b7 */
-    uint8_t flags; /* remaining six bits, preserved without interpretation */
+    uint8_t flags;                  /* remaining six bits, preserved without interpretation */
 } tlv_emv_cryptogram_info_t;
 
 typedef enum {

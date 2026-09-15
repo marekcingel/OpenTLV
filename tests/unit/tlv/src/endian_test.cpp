@@ -16,8 +16,8 @@ TEST(Unit_TLVEndian, PublicCContract) {
 namespace {
 struct EndianCase {
     uint32_t value;
-    uint8_t be[4];
-    uint8_t le[4];
+    uint8_t  be[4];
+    uint8_t  le[4];
 };
 
 const EndianCase cases[] = {
@@ -36,8 +36,7 @@ TEST(Unit_TLVEndian, read_u16_be_from_exact_bytes) {
         for (size_t i = 0; i < 2; ++i) {
             storage[i + 1] = test.be[i + 2];
         }
-        EXPECT_EQ(static_cast<uint16_t>(test.value),
-                  tlv_read_u16_be(storage + 1));
+        EXPECT_EQ(static_cast<uint16_t>(test.value), tlv_read_u16_be(storage + 1));
     }
 }
 
@@ -64,8 +63,7 @@ TEST(Unit_TLVEndian, read_u16_le_from_exact_bytes) {
         for (size_t i = 0; i < 2; ++i) {
             storage[i + 1] = test.le[i + 0];
         }
-        EXPECT_EQ(static_cast<uint16_t>(test.value),
-                  tlv_read_u16_le(storage + 1));
+        EXPECT_EQ(static_cast<uint16_t>(test.value), tlv_read_u16_le(storage + 1));
     }
 }
 
@@ -92,8 +90,7 @@ TEST(Unit_TLVEndian, read_u32_be_from_exact_bytes) {
         for (size_t i = 0; i < 4; ++i) {
             storage[i + 1] = test.be[i + 0];
         }
-        EXPECT_EQ(static_cast<uint32_t>(test.value),
-                  tlv_read_u32_be(storage + 1));
+        EXPECT_EQ(static_cast<uint32_t>(test.value), tlv_read_u32_be(storage + 1));
     }
 }
 
@@ -120,8 +117,7 @@ TEST(Unit_TLVEndian, read_u32_le_from_exact_bytes) {
         for (size_t i = 0; i < 4; ++i) {
             storage[i + 1] = test.le[i + 0];
         }
-        EXPECT_EQ(static_cast<uint32_t>(test.value),
-                  tlv_read_u32_le(storage + 1));
+        EXPECT_EQ(static_cast<uint32_t>(test.value), tlv_read_u32_le(storage + 1));
     }
 }
 
@@ -143,11 +139,11 @@ TEST(Unit_TLVEndian, write_u32_le_produces_exact_bytes) {
 
 TEST(Unit_TLVEndian, NativeOrderMatchesIntegerStorage) {
     const uint32_t original = UINT32_C(0x12345678);
-    uint8_t bytes[4];
+    uint8_t        bytes[4];
     std::memcpy(bytes, &original, sizeof(bytes));
     const tlv_byte_order_t order = tlv_endian_native();
-    const uint8_t big[] = {0x12, 0x34, 0x56, 0x78};
-    const uint8_t little[] = {0x78, 0x56, 0x34, 0x12};
+    const uint8_t          big[] = {0x12, 0x34, 0x56, 0x78};
+    const uint8_t          little[] = {0x78, 0x56, 0x34, 0x12};
     if (std::memcmp(bytes, big, sizeof(bytes)) == 0)
         EXPECT_EQ(TLV_BYTE_ORDER_BIG_ENDIAN, order);
     else if (std::memcmp(bytes, little, sizeof(bytes)) == 0)
@@ -166,15 +162,21 @@ TEST(Unit_TLVEndian, NativeOrderMatchesIntegerStorage) {
 }
 
 TEST(Unit_TLVEndian, CheckedWidthsExactBytesAndPadding) {
-    const uint64_t values[] = {0x01, 0x0102, 0x010203, 0x01020304,
-        UINT64_C(0x0102030405), UINT64_C(0x010203040506),
-        UINT64_C(0x01020304050607), UINT64_C(0x0102030405060708)};
+    const uint64_t values[] = {0x01,
+                               0x0102,
+                               0x010203,
+                               0x01020304,
+                               UINT64_C(0x0102030405),
+                               UINT64_C(0x010203040506),
+                               UINT64_C(0x01020304050607),
+                               UINT64_C(0x0102030405060708)};
     for (size_t width = 1; width <= sizeof(uint64_t); ++width) {
         for (auto order : {TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN}) {
             alignas(uint64_t) uint8_t bytes[10];
-            uint8_t expected[8];
+            uint8_t                   expected[8];
             for (size_t i = 0; i < width; ++i)
-                expected[i] = static_cast<uint8_t>(order == TLV_BYTE_ORDER_BIG_ENDIAN ? i + 1 : width - i);
+                expected[i] =
+                    static_cast<uint8_t>(order == TLV_BYTE_ORDER_BIG_ENDIAN ? i + 1 : width - i);
             std::memset(bytes, 0xA5, sizeof(bytes));
             ASSERT_EQ(TLV_OK, tlv_write_uint(bytes + 1, width, order, values[width - 1]));
             EXPECT_EQ(0, std::memcmp(expected, bytes + 1, width));
@@ -212,8 +214,10 @@ TEST(Unit_TLVEndian, CheckedFailuresPreserveOutputs) {
     std::memset(bytes, 0xA5, sizeof(bytes));
     uint64_t value = 42;
     for (size_t width : {size_t(0), size_t(9), SIZE_MAX}) {
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_read_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, 0));
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                  tlv_read_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                  tlv_write_uint(bytes, width, TLV_BYTE_ORDER_BIG_ENDIAN, 0));
     }
     for (auto order : {TLV_BYTE_ORDER_UNKNOWN, static_cast<tlv_byte_order_t>(99)}) {
         EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_read_uint(bytes, 8, order, &value));
@@ -238,11 +242,13 @@ TEST(Unit_TLVEndian, ValidationOrderAndBothOrdersPreserveOutputs) {
             EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_write_uint(nullptr, width, order, UINT64_MAX));
             EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_read_uint(storage + 1, width, order, &value));
             EXPECT_EQ(42u, value);
-            EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write_uint(storage + 1, width, order, UINT64_MAX));
+            EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                      tlv_write_uint(storage + 1, width, order, UINT64_MAX));
             for (auto byte : storage) EXPECT_EQ(0xA5, byte);
         }
         if (order == TLV_BYTE_ORDER_UNKNOWN || static_cast<int>(order) == 99) {
-            EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_write_uint(storage + 1, 1, order, UINT64_MAX));
+            EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER,
+                      tlv_write_uint(storage + 1, 1, order, UINT64_MAX));
             for (auto byte : storage) EXPECT_EQ(0xA5, byte);
         }
     }
@@ -250,9 +256,10 @@ TEST(Unit_TLVEndian, ValidationOrderAndBothOrdersPreserveOutputs) {
 
 TEST(Unit_TLVEndian, FixedU64ExactBytesUnaligned) {
     const uint64_t values[] = {0, 1, UINT64_C(0x0123456789ABCDEF), UINT64_MAX};
-    const uint8_t expected[][8] = {{0}, {0,0,0,0,0,0,0,1},
-        {0x01,0x23,0x45,0x67,0x89,0xAB,0xCD,0xEF},
-        {255,255,255,255,255,255,255,255}};
+    const uint8_t  expected[][8] = {{0},
+                                    {0, 0, 0, 0, 0, 0, 0, 1},
+                                    {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF},
+                                    {255, 255, 255, 255, 255, 255, 255, 255}};
     for (size_t n = 0; n < 4; ++n) {
         alignas(uint64_t) uint8_t bytes[10];
         std::memset(bytes, 0xA5, sizeof(bytes));
@@ -261,8 +268,8 @@ TEST(Unit_TLVEndian, FixedU64ExactBytesUnaligned) {
         std::memcpy(bytes + 1, expected[n], 8);
         EXPECT_EQ(values[n], tlv_read_u64_be(bytes + 1));
         tlv_write_u64_le(bytes + 1, values[n]);
-        for (size_t i = 0; i < 8; ++i) EXPECT_EQ(expected[n][7-i], bytes[i+1]);
-        for (size_t i = 0; i < 8; ++i) bytes[i+1] = expected[n][7-i];
+        for (size_t i = 0; i < 8; ++i) EXPECT_EQ(expected[n][7 - i], bytes[i + 1]);
+        for (size_t i = 0; i < 8; ++i) bytes[i + 1] = expected[n][7 - i];
         EXPECT_EQ(values[n], tlv_read_u64_le(bytes + 1));
         EXPECT_EQ(0xA5, bytes[0]);
         EXPECT_EQ(0xA5, bytes[9]);

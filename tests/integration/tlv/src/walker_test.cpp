@@ -5,9 +5,9 @@
 
 namespace {
 struct Visits {
-    tlv_view_t views[4]{};
-    size_t count = 0;
-    size_t finish_after = 4;
+    tlv_view_t         views[4]{};
+    size_t             count = 0;
+    size_t             finish_after = 4;
     tlv_visit_result_t result = TLV_VISIT_CONTINUE;
 };
 
@@ -17,12 +17,13 @@ tlv_visit_result_t collect(const tlv_view_t* view, void* context) {
     visits.views[visits.count++] = *view;
     return visits.count == visits.finish_after ? visits.result : TLV_VISIT_CONTINUE;
 }
-}
+} // namespace
 
 TEST(Integration_Walker, VisitsSequentialElementsAndBorrowsValues) {
     const uint8_t data[] = {1, 2, 0xAB, 0xCD, 2, 0, 3, 1, 0xEF};
-    Visits visits;
-    ASSERT_EQ(TLV_OK, tlv_walk(data, sizeof(data), &tlv_reader_format_fixed_1byte, collect, &visits));
+    Visits        visits;
+    ASSERT_EQ(TLV_OK,
+              tlv_walk(data, sizeof(data), &tlv_reader_format_fixed_1byte, collect, &visits));
     ASSERT_EQ(3u, visits.count);
     for (size_t i = 0; i < visits.count; ++i) {
         EXPECT_EQ(1u, visits.views[i].tag.size);
@@ -63,7 +64,7 @@ TEST(Integration_Walker, PropagatesTruncatedInputAfterSuccessfulVisits) {
 TEST(Integration_Walker, UsesSelectedFormatWithoutRecursingIntoValues) {
     // BER length; the first value is a TLV, the second is an invalid TLV.
     const uint8_t data[] = {1, 0x81, 2, 3, 0, 2, 0x81, 1, 0xFF};
-    Visits visits;
+    Visits        visits;
     ASSERT_EQ(TLV_OK, tlv_walk(data, sizeof(data), &tlv_reader_format_default, collect, &visits));
     ASSERT_EQ(2u, visits.count);
     EXPECT_EQ(1u, visits.views[0].tag.data[0]);
@@ -72,4 +73,3 @@ TEST(Integration_Walker, UsesSelectedFormatWithoutRecursingIntoValues) {
     EXPECT_EQ(2u, visits.views[1].tag.data[0]);
     EXPECT_EQ(1u, visits.views[1].value.length);
 }
-

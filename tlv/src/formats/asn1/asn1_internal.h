@@ -14,16 +14,15 @@
  * requirement for the remaining universal numbers: DER always requires it,
  * while CER requires it only for non-segmentable types, so each caller
  * applies that narrower rule itself. */
-tlv_result_t tlv_asn1_read_identifier(const void* context, const uint8_t* data,
-                                      size_t size, tlv_tag_t* tag, size_t* consumed);
+tlv_result_t tlv_asn1_read_identifier(const void* context, const uint8_t* data, size_t size,
+                                      tlv_tag_t* tag, size_t* consumed);
 
 /* Re-parses tag->data (a caller-owned raw tag) with tlv_asn1_read_identifier
  * and requires the parse to consume exactly tag->size bytes, matching the
  * write_tag contract (validate, and optionally emit, canonical identifier
  * bytes). data may be NULL only when capacity is 0 (size query). */
-tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data,
-                                       size_t capacity, const tlv_tag_t* tag,
-                                       size_t* written);
+tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data, size_t capacity,
+                                       const tlv_tag_t* tag, size_t* written);
 
 /* Parses one BER definite length via tlv_ber_reader_wire.read_length, then
  * rejects non-minimal long-form encodings (a long form below 128, or a
@@ -31,6 +30,6 @@ tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data,
  * restriction DER and CER both require of every definite length they encode.
  * Indefinite (0x80) and the reserved 0xFF prefix are already rejected by the
  * underlying reader. */
-tlv_result_t tlv_asn1_read_minimal_length(const void* context, const uint8_t* data,
-                                          size_t size, size_t* length, size_t* consumed);
+tlv_result_t tlv_asn1_read_minimal_length(const void* context, const uint8_t* data, size_t size,
+                                          size_t* length, size_t* consumed);
 #endif

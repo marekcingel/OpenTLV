@@ -1,24 +1,31 @@
 #include "formats.h"
 
-static void check_walk(const uint8_t* data, size_t size, size_t format,
-                       size_t depth, size_t elements, size_t stop_at,
-                       tlv_visit_result_t action) {
+static void check_walk(const uint8_t* data, size_t size, size_t format, size_t depth,
+                       size_t elements, size_t stop_at, tlv_visit_result_t action) {
     fuzz_visit_context ctx = {0};
-    size_t error = SIZE_MAX;
-    ctx.data = data; ctx.size = size;
-    ctx.max_depth = depth; ctx.max_elements = elements; ctx.max_value_size = size;
-    ctx.stop_at = stop_at; ctx.action = action;
-    tlv_result_t rc = tlv_walk_tree(data, size, fuzz_formats[format].reader,
-        fuzz_formats[format].constructed, depth, elements, fuzz_visit, &ctx, &error);
-    if (rc == TLV_OK) FUZZ_CHECK(error == SIZE_MAX);
-    else FUZZ_CHECK(error <= size);
+    size_t             error = SIZE_MAX;
+    ctx.data = data;
+    ctx.size = size;
+    ctx.max_depth = depth;
+    ctx.max_elements = elements;
+    ctx.max_value_size = size;
+    ctx.stop_at = stop_at;
+    ctx.action = action;
+    tlv_result_t rc =
+        tlv_walk_tree(data, size, fuzz_formats[format].reader, fuzz_formats[format].constructed,
+                      depth, elements, fuzz_visit, &ctx, &error);
+    if (rc == TLV_OK)
+        FUZZ_CHECK(error == SIZE_MAX);
+    else
+        FUZZ_CHECK(error <= size);
     if (stop_at && ctx.count == stop_at) {
         FUZZ_CHECK(rc == (action == TLV_VISIT_STOP ? TLV_OK : TLV_ERR_VISITOR));
     }
     if (!stop_at) {
         size_t other_error = SIZE_MAX;
         FUZZ_CHECK(rc == tlv_walk_tree(data, size, fuzz_formats[format].reader,
-            fuzz_formats[format].constructed, depth, elements, NULL, NULL, &other_error));
+                                       fuzz_formats[format].constructed, depth, elements, NULL,
+                                       NULL, &other_error));
         FUZZ_CHECK(error == other_error);
     }
 }
