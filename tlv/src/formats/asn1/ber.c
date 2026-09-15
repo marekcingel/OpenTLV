@@ -24,12 +24,8 @@ int tlv_ber_is_constructed(const void* context, const tlv_tag_t* tag) {
     return (tag->data[0] & 0x20) != 0;
 }
 
-/* Walk only framing, skipping primitive contents in one step. Each frame's
- * end is a hard bound inherited from the closest definite enclosing scope.
- * In particular an EOC outside that bound cannot terminate a nested value.
- */
-static tlv_result_t scan_contents(const uint8_t* data, size_t size, int indefinite,
-                                  size_t* value_size, size_t* consumed) {
+tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefinite,
+                                   size_t* value_size, size_t* consumed) {
     size_t ends[TLV_BER_MAX_DEPTH];
     int terminated[TLV_BER_MAX_DEPTH];
     size_t depth = 1, pos = 0;
@@ -95,7 +91,7 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
         return TLV_OK;
     }
     if (!tlv_ber_is_constructed(context, tag)) return TLV_ERR_INVALID_LENGTH;
-    rc = scan_contents(data + 1, size - 1, 1, &length, &used);
+    rc = tlv_ber_scan_contents(data + 1, size - 1, 1, &length, &used);
     if (rc != TLV_OK) return rc;
     *length_size = 1; *value_size = length; *trailer_size = 2;
     return TLV_OK;
@@ -128,7 +124,7 @@ tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity,
     rc = tlv_ber_indefinite_encoded_size(tag, length, &total);
     if (rc != TLV_OK) return rc;
     if (capacity < total) return TLV_ERR_BUFFER_TOO_SHORT;
-    rc = scan_contents(value, length, 0, &checked_length, &used);
+    rc = tlv_ber_scan_contents(value, length, 0, &checked_length, &used);
     if (rc != TLV_OK) return rc;
     memcpy(data, tag.data, tag.size);
     data[tag.size] = 0x80;

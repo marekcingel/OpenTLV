@@ -9,8 +9,14 @@
 #
 #   OPENTLV_FORMAT_ASN1
 #     `- OPENTLV_FORMAT_BER
-#          `- OPENTLV_FORMAT_DER
-#               `- OPENTLV_PROFILE_EMV
+#          |- OPENTLV_FORMAT_DER
+#          |    `- OPENTLV_PROFILE_EMV
+#          `- OPENTLV_FORMAT_CER
+#
+# OPENTLV_FORMAT_DER and OPENTLV_FORMAT_CER are independent siblings under
+# OPENTLV_FORMAT_BER: CER never depends on DER (or vice versa), and
+# OPENTLV_PROFILE_EMV cascades only from OPENTLV_FORMAT_DER, so it is
+# unaffected by OPENTLV_FORMAT_CER either way.
 #
 # OPENTLV_FORMAT_DEFAULT and OPENTLV_FORMAT_FIXED_1BYTE are unrelated leaves
 # and cascade to nothing.
@@ -24,6 +30,9 @@ if(NOT OPENTLV_FORMAT_BER)
     set(OPENTLV_FORMAT_DER OFF CACHE BOOL
         "Include the DER wire format and validation profile" FORCE)
     message(STATUS "OPENTLV_FORMAT_BER is OFF: forcing OPENTLV_FORMAT_DER OFF")
+    set(OPENTLV_FORMAT_CER OFF CACHE BOOL
+        "Include the CER wire format and validation profile" FORCE)
+    message(STATUS "OPENTLV_FORMAT_BER is OFF: forcing OPENTLV_FORMAT_CER OFF")
 endif()
 if(NOT OPENTLV_FORMAT_DER)
     set(OPENTLV_PROFILE_EMV OFF CACHE BOOL

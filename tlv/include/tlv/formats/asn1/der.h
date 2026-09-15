@@ -2,20 +2,16 @@
 #define OPENTLV_FORMATS_DER_H
 
 #include "tlv/formats/format.h"
+#include "tlv/formats/asn1/ber.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum tlv_asn1_class {
-    TLV_ASN1_UNIVERSAL = 0,
-    TLV_ASN1_APPLICATION = 1,
-    TLV_ASN1_CONTEXT_SPECIFIC = 2,
-    TLV_ASN1_PRIVATE = 3
-} tlv_asn1_class_t;
-
-/* Accessors require a successfully parsed or created DER tag. */
+/* tlv_asn1_class_t is declared in tlv/formats/asn1/ber.h: identifier-octet
+ * class bits are shared by every ASN.1 encoding-rule profile, not specific
+ * to DER. Accessors below require a successfully parsed or created DER tag. */
 static inline tlv_asn1_class_t tlv_der_tag_class(const tlv_tag_t* tag) {
     return (tlv_asn1_class_t)(tag->data[0] >> 6);
 }

@@ -9,6 +9,15 @@
 extern "C" {
 #endif
 
+/* Identifier-octet class bits (ITU-T X.690 §8.1), independent of any
+ * particular encoding-rule profile; shared by the DER and CER profiles. */
+typedef enum tlv_asn1_class {
+    TLV_ASN1_UNIVERSAL = 0,
+    TLV_ASN1_APPLICATION = 1,
+    TLV_ASN1_CONTEXT_SPECIFIC = 2,
+    TLV_ASN1_PRIVATE = 3
+} tlv_asn1_class_t;
+
 /* Raw BER-TLV tags up to TLV_TAG_CAPACITY, including high-tag-number form.
  * Definite lengths up to SIZE_MAX; writes use the shortest length encoding.
  * Reads accept nonminimal definite lengths and constructed indefinite lengths.

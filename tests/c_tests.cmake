@@ -27,6 +27,8 @@ set(SOURCES
     src/format_ber_test.cpp
     src/der_test.cpp
     src/der_values_test.cpp
+    src/cer_test.cpp
+    src/cer_values_test.cpp
     src/format_fixed_1byte_test.cpp
     src/tag_test.cpp
     src/view_test.cpp
@@ -53,6 +55,9 @@ if(test_group STREQUAL "integration")
 endif()
 if(NOT OPENTLV_FORMAT_DER)
     list(REMOVE_ITEM SOURCES src/der_test.cpp src/der_values_test.cpp)
+endif()
+if(NOT OPENTLV_FORMAT_CER)
+    list(REMOVE_ITEM SOURCES src/cer_test.cpp src/cer_values_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_DEFAULT))
     list(REMOVE_ITEM SOURCES src/dhcp_option_tests.cpp)
@@ -158,7 +163,9 @@ if(OPENTLV_FORMAT_DER)
             src/der_test.cpp
             ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/der.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/der_values.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/asn1_values_internal.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/der.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/asn1_internal.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/endian.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/length.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber_internal.c
@@ -182,6 +189,46 @@ if(OPENTLV_FORMAT_DER)
         target_compile_definitions(${der_target} PRIVATE TLV_TAG_CAPACITY=${tag_capacity} TLV_STATIC_DEFINE)
         opentlv_configure_compiler(${der_target})
         gtest_discover_tests(${der_target} TEST_PREFIX "TagCapacity${tag_capacity}." PROPERTIES LABELS ${test_group})
+    endforeach()
+
+endif()
+
+# CER must preserve the configurable raw-tag capacity, and must build and
+# pass its tests with DER disabled: this block never lists a DER source.
+if(OPENTLV_FORMAT_CER)
+    foreach(tag_capacity IN ITEMS 1 16 255)
+        set(cer_target test-${test_group}-tlv-cer-${tag_capacity})
+        set(cer_target_sources
+            src/cer_test.cpp
+            ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/cer.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/cer_values_internal.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/asn1_values_internal.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/cer.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/asn1_internal.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/endian.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/length.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber_internal.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/reader/walker.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c
+        )
+        # cer_values_test.cpp only exists in the unit test sources.
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/cer_values_test.cpp")
+            list(APPEND cer_target_sources src/cer_values_test.cpp)
+        endif()
+        add_executable(${cer_target} ${cer_target_sources})
+        target_include_directories(${cer_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include
+            ${OpenTLV_BINARY_DIR}/generated/include)
+        if(OPENTLV_FORMAT_BER)
+            target_sources(${cer_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber.c)
+        endif()
+        target_link_libraries(${cer_target} PRIVATE GTest::gtest_main)
+        target_compile_features(${cer_target} PRIVATE c_std_99)
+        # Compiles library sources directly rather than linking the tlv target;
+        # TLV_STATIC_DEFINE keeps TLV_API a no-op regardless of OPENTLV_BUILD_SHARED_LIBS.
+        target_compile_definitions(${cer_target} PRIVATE TLV_TAG_CAPACITY=${tag_capacity} TLV_STATIC_DEFINE)
+        opentlv_configure_compiler(${cer_target})
+        gtest_discover_tests(${cer_target} TEST_PREFIX "TagCapacity${tag_capacity}." PROPERTIES LABELS ${test_group})
     endforeach()
 
 endif()

@@ -10,5 +10,6 @@ not allocated C objects.
 - [Fixed 1-byte TLV](formats/fixed/README.md#byte-example)
 - [BER-TLV](formats/asn1/ber.md#byte-example)
 - [DER-TLV](formats/asn1/der.md#byte-example)
+- [CER-TLV](formats/asn1/cer.md#byte-example-nested-indefinite-length-containers)
 - [EMV Contact Book 3 profile over BER-TLV](profiles/emv/README.md#byte-example)
 - [Application-defined format example](formats/custom/README.md#byte-example)
