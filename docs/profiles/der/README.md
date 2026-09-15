@@ -22,12 +22,14 @@ universal tags retain their primitive/constructed bit without type validation.
 Application, context-specific and private tags permit either form.
 
 This is a **TLV-layer validator, not a complete ASN.1 DER validator**. Primitive
-contents are opaque: BOOLEAN representations, INTEGER minimality, BIT STRING
-padding, OID components, string/time/REAL encodings, schema constraints,
-implicit-tag semantics, DEFAULT omission and SET/SET OF ordering are outside
-this scope. Callers must supply canonical ASN.1 contents and ordering when
-full DER conformance is required. The encoder preserves contents and child
-order; it does not convert arbitrary BER or repair noncanonical input.
+contents are opaque by default: BOOLEAN representations, INTEGER minimality, BIT
+STRING padding, OID components and string/time/REAL encodings are only checked
+by the `_strict` functions described below, and schema constraints,
+implicit-tag semantics, DEFAULT omission and SET/SET OF ordering remain outside
+this scope regardless. Callers must supply canonical ASN.1 contents and ordering
+when full DER conformance is required beyond what `_strict` covers. The encoder
+preserves contents and child order; it does not convert arbitrary BER or repair
+noncanonical input.
 
 ## Read and inspect a tag
 
@@ -122,6 +124,42 @@ only for zero length. Otherwise the source value must not overlap the complete
 destination element. Failures leave destination bytes and `written` unchanged.
 Insufficient capacity returns `TLV_ERR_BUFFER_TOO_SHORT`. Encoded size overflow
 returns `TLV_ERR_INVALID_LENGTH`.
+
+## Strict universal value validation
+
+`tlv_der_read_strict`, `tlv_der_walk_strict` and `tlv_der_write_strict` are drop-in
+counterparts of `tlv_der_read`, `tlv_der_walk` and `tlv_der_write`: identical
+signatures, offsets and resource limits, but every UNIVERSAL-class **primitive**
+element they encounter (including nested ones, and the top-level element given
+to `tlv_der_write_strict`) additionally has its content checked against ASN.1
+DER canonical rules. Non-UNIVERSAL classes and constructed values (SEQUENCE,
+SET, EXTERNAL, EMBEDDED PDV, CHARACTER STRING) are unaffected: their contents
+are validated structurally only, exactly as with the non-strict functions.
+`tlv_der_read`, `tlv_der_walk` and `tlv_der_write` themselves are unchanged.
+
+Recognized types with invalid or noncanonical content return
+`TLV_ERR_INVALID_VALUE`. A UNIVERSAL primitive tag number without an
+implemented rule returns `TLV_ERR_UNSUPPORTED_TYPE` instead of silently
+passing, so callers can tell "checked and canonical" apart from "not checked".
+
+| Group | Supported types |
+| --- | --- |
+| Simple | BOOLEAN, INTEGER, BIT STRING, OCTET STRING (unconstrained), NULL, OBJECT IDENTIFIER, RELATIVE-OID, REAL, ENUMERATED |
+| String | UTF8String, NumericString, PrintableString, IA5String, VisibleString, UniversalString, BMPString |
+| Date/time | UTCTime, GeneralizedTime |
+
+UTCTime/GeneralizedTime checks are structural (digit patterns, mandatory `Z`,
+canonical fraction rules, and range checks such as month 01-12 or day 01-31);
+they do not perform full Gregorian calendar validation (e.g. do not detect
+"30 February"). Structured types (SEQUENCE, SET, EXTERNAL, EMBEDDED PDV,
+CHARACTER STRING) have no additional value semantics in this scope, and
+CHOICE/ANY have no wire tag of their own, so neither applies here.
+
+Recognized but explicitly unsupported (return `TLV_ERR_UNSUPPORTED_TYPE` in
+strict mode rather than being silently accepted): ObjectDescriptor,
+TeletexString, VideotexString, GraphicString, GeneralString, TIME, DATE,
+TIME-OF-DAY, DATE-TIME, DURATION, OID-IRI, RELATIVE-OID-IRI, and any
+UNIVERSAL primitive tag number beyond 36.
 
 ## Errors and generic I/O
 

@@ -63,6 +63,27 @@ TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag
                            const tlv_der_limits_t* limits, size_t* written,
                            size_t* error_offset);
 
+/* Strict counterparts of tlv_der_read/tlv_der_walk/tlv_der_write: identical
+ * contracts, offsets and limits, but every UNIVERSAL-class primitive element
+ * (including nested ones) additionally has its content validated against
+ * ASN.1 DER canonical rules. Recognized universal types with invalid or
+ * noncanonical content return TLV_ERR_INVALID_VALUE; universal types without
+ * an implemented canonical rule return TLV_ERR_UNSUPPORTED_TYPE. See
+ * docs/profiles/der/README.md for the supported-type table. Non-UNIVERSAL
+ * and constructed values are unaffected, matching the non-strict functions.
+ */
+TLV_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
+                          const tlv_der_limits_t* limits, tlv_view_t* view,
+                          size_t* consumed, size_t* error_offset);
+TLV_API tlv_result_t tlv_der_walk_strict(const uint8_t* data, size_t size,
+                          const tlv_der_limits_t* limits,
+                          tlv_der_visitor_t visitor, void* context,
+                          size_t* error_offset);
+TLV_API tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
+                           const uint8_t* value, size_t length,
+                           const tlv_der_limits_t* limits, size_t* written,
+                           size_t* error_offset);
+
 #ifdef __cplusplus
 }
 #endif

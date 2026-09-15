@@ -16,6 +16,8 @@ const char* tlv_strerror(tlv_result_t result) {
         case TLV_ERR_VISITOR:             return "visitor error";
         case TLV_ERR_LIMIT:               return "resource limit exceeded";
         case TLV_ERR_SCHEMA:              return "schema constraint violated";
+        case TLV_ERR_INVALID_VALUE:       return "invalid or noncanonical value";
+        case TLV_ERR_UNSUPPORTED_TYPE:    return "unsupported universal type";
         default:                         return "unknown error";
     }
 }

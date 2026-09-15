@@ -26,6 +26,7 @@ set(SOURCES
     src/format_test.cpp
     src/format_ber_test.cpp
     src/der_test.cpp
+    src/der_values_test.cpp
     src/format_fixed_1byte_test.cpp
     src/tag_test.cpp
     src/view_test.cpp
@@ -51,7 +52,7 @@ if(test_group STREQUAL "integration")
     endif()
 endif()
 if(NOT OPENTLV_FORMAT_DER)
-    list(REMOVE_ITEM SOURCES src/der_test.cpp)
+    list(REMOVE_ITEM SOURCES src/der_test.cpp src/der_values_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_DEFAULT))
     list(REMOVE_ITEM SOURCES src/dhcp_option_tests.cpp)
@@ -153,9 +154,10 @@ endif()
 if(OPENTLV_FORMAT_DER)
     foreach(tag_capacity IN ITEMS 1 16 255)
         set(der_target test-${test_group}-tlv-der-${tag_capacity})
-        add_executable(${der_target}
+        set(der_target_sources
             src/der_test.cpp
             ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/der.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/der_values.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/der.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/endian.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/length.c
@@ -163,6 +165,11 @@ if(OPENTLV_FORMAT_DER)
             ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c
         )
+        # der_values_test.cpp only exists in the unit test sources.
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/der_values_test.cpp")
+            list(APPEND der_target_sources src/der_values_test.cpp)
+        endif()
+        add_executable(${der_target} ${der_target_sources})
         target_include_directories(${der_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tlv/include
             ${OpenTLV_BINARY_DIR}/generated/include)
         if(OPENTLV_FORMAT_BER)

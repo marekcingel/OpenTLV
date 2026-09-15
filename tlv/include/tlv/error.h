@@ -24,7 +24,11 @@ typedef enum tlv_result {
     /* Byte order is unknown or unsupported. */
     TLV_ERR_INVALID_BYTE_ORDER = 12,
     /* Unsigned value cannot fit the requested numeric width. */
-    TLV_ERR_OVERFLOW = 13
+    TLV_ERR_OVERFLOW = 13,
+    /* Universal primitive content is malformed or fails a canonical DER rule. */
+    TLV_ERR_INVALID_VALUE = 14,
+    /* Universal tag number has no implemented canonical validation. */
+    TLV_ERR_UNSUPPORTED_TYPE = 15
 } tlv_result_t;
 
 /* Returns a readable description of an error code (static string; no need to free). */
