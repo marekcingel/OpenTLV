@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add CLI `--pdol` inspection and structural validation of raw EMV DOL tag/length pairs, with optional EMV annotations and existing input/resource limits. (#109)
+- Extend CLI inspection with hex-encoded file/stdin input, optional EMV dictionary names and type/length descriptions, UTF-8 tree branches, and automatic or explicitly controlled terminal colors. (#109)
+- Add an optional `opentlv` CLI (`OPENTLV_BUILD_CLI`, built on `tlv++` and requiring a C++11+ compiler, defaults to `ON` and is skipped automatically in C-only builds) for inspecting and structurally validating TLV files, binary stdin, and hexadecimal input, including bounded BER/DER tree traversal and dependency-free CLI integration tests. (#109)
 - Add `TLV_ERR_OVERFLOW` with a readable description for unsigned values that do not fit the requested numeric width. (#93)
 - Add the `OPENTLV_BUILD_SHARED_LIBS` CMake option (default `ON`) to select between building `tlv` as a shared or static library, and `tlv/export.h` (generated via CMake's `GenerateExportHeader` module) providing the `TLV_API` macro that explicitly marks the public C API for shared-library export/import; internal helpers are no longer exported. Executables built in the same CMake configuration (examples, tests, benchmarks) get the Windows runtime DLL copied next to them automatically after linking. (#104)
 - Add `tlv/length.h` (`tlv_length_t`, a fixed 64-bit unsigned logical TLV value length independent of the current build's `size_t` width, with checked `tlv_length_from_size()`, `tlv_length_to_size()`, and `tlv_length_validate_native()` conversions) and `tlv/value.h` (`tlv_value_t`, a borrowed, non-owning value with checked `tlv_value_init()`/`tlv_value_validate()`). Both are built unconditionally into the core library and exposed through `tlv/tlv.h`. (#100)

@@ -12,6 +12,22 @@ option(OPENTLV_BUILD_TESTS "Build tests" ON)
 option(OPENTLV_BUILD_UNIT_TESTS "Build component contract tests" ON)
 option(OPENTLV_BUILD_INTEGRATION_TESTS "Build format and layer integration tests" ON)
 option(OPENTLV_BUILD_EXAMPLES "Build examples" ON)
+option(OPENTLV_BUILD_CLI "Build the opentlv command-line tool" ON)
+option(OPENTLV_BUILD_CLI_TESTS "Build dependency-free CLI integration tests" ${OPENTLV_BUILD_TESTS})
+if(OPENTLV_BUILD_CLI AND NOT OPENTLV_BUILD_CXX)
+    # The CLI is built on tlv++; a C-only build (OPENTLV_BUILD_CXX=OFF) simply
+    # skips it instead of failing, since OPENTLV_BUILD_CLI defaults to ON.
+    set(OPENTLV_BUILD_CLI OFF)
+    message(STATUS "OPENTLV_BUILD_CLI requires OPENTLV_BUILD_CXX=ON (tlv++); disabling the CLI for this C-only build.")
+endif()
+# Enable CXX at the top level (rather than relying solely on tlv++'s own
+# project(LANGUAGES CXX)) so multi-config generators such as Visual Studio
+# know about the CXX compiler before generating every subdirectory's project
+# files; without this, target_compile_features() in tools/cli fails to find
+# CXX compile features under that generator.
+if(OPENTLV_BUILD_CXX)
+    enable_language(CXX)
+endif()
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
 option(OPENTLV_BUILD_FUZZING "Build C API fuzz targets with libFuzzer, ASan and UBSan" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
@@ -46,6 +62,13 @@ endif()
 
 if(OPENTLV_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+if(OPENTLV_BUILD_CLI)
+    if(OPENTLV_BUILD_CLI_TESTS)
+        enable_testing()
+    endif()
+    add_subdirectory(tools/cli)
 endif()
 
 if(OPENTLV_BUILD_BENCHMARKS AND OPENTLV_FORMAT_DEFAULT)

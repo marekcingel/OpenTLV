@@ -140,6 +140,12 @@ and [C++](examples/tlv++/src/basic_usage.cpp) examples cover more of the API.
 
 ## Documentation
 
+An optional command-line tool (built on the `tlv++` wrapper, so it requires a
+C++11+ compiler) supports TLV inspection and structural validation from
+files, stdin, or hexadecimal input. Builds by default (`OPENTLV_BUILD_CLI`);
+see the [CLI guide](docs/cli.md) for commands, build instructions, limits,
+and exit codes.
+
 Start with the [documentation index](docs/README.md), or choose a topic:
 
 | Topic | Guide |
