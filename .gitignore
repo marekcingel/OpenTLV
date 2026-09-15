@@ -54,6 +54,10 @@ CMakeUserPresets.json
 /benchmarks/results/*
 !/benchmarks/results/.gitkeep
 
+# Local Conan recipe validation
+/conan/all/test_package/build/
+/conan/all/test_package/CMakeUserPresets.json
+
 # Python bytecode
 __pycache__/
 *.py[cod]

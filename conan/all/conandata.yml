@@ -1,0 +1,6 @@
+# Populated automatically by .github/workflows/conan-publish.yml when a
+# version tag is pushed; each entry maps a released OpenTLV version to its
+# GitHub release source archive and checksum. Left empty until the first tag
+# after this workflow was introduced, so already-released versions are not
+# submitted retroactively.
+sources: {}

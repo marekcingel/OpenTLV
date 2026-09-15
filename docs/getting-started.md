@@ -109,6 +109,9 @@ and runtime for the binary library. For shared builds, make the installed
 runtime library discoverable by the platform loader (for example, Windows `PATH`).
 `OPENTLV_BUILD_CXX=OFF` omits C++ headers and the `OpenTLV::tlvpp` target.
 CPack only packages `install()` output; it requires neither Conan nor vcpkg.
+OpenTLV is also available as a [Conan](https://conan.io) package (`opentlv`)
+through [ConanCenter](https://conan.io/center); see [the recipe](../conan/README.md)
+for its options and how new versions reach it.
 On version-tag pushes (for example `0.1.0` or `0.2.0-rc.1`), the standard
 GCC, Clang and MSVC Release jobs each package their tested builds. GCC and Clang
 produce TGZ archives; MSVC produces ZIP archives. Archive and CI artifact names

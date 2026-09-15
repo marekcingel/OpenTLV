@@ -19,6 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a [Conan 2](https://docs.conan.io/2/) recipe (`conan/`) packaging both the C
+  API (`OpenTLV::tlv`) and the header-only C++ wrapper (`OpenTLV::tlvpp`, `with_cxx`
+  option, default `ON`) via the existing CMake install layout, with `shared`/`fPIC`
+  options and a C and C++ `test_package` consumption check. A new
+  [`conan-publish` workflow](.github/workflows/conan-publish.yml) opens a pull
+  request to `conan-io/conan-center-index` for each version tagged after this
+  change (not retroactively for already-released versions), guarded by an optional
+  `CONAN_CENTER_PAT` repository secret. See [conan/README.md](conan/README.md).
+  Documents OpenTLV's late-alpha / pre-beta API stability status in the README. (#115)
 - Add CER-TLV (ASN.1 Canonical Encoding Rules) as a full sibling of the DER format
   and profile: `tlv/formats/asn1/cer.h` (`tlv_reader_format_cer`/`tlv_writer_format_cer`,
   `tlv_cer_tag_make`/`tlv_cer_tag_number`, `tlv_cer_is_constructed`) and

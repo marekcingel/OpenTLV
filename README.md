@@ -11,6 +11,13 @@ it useful for structured binary messages, files, and device protocols.
 
 The badges show workflow status on `main`.
 
+## Project status
+
+OpenTLV is in a late-alpha / pre-beta stage. The core library is usable and
+exercised by CI, but the public C and C++ APIs may still change between minor
+versions without a deprecation period. Pin an exact version and review the
+[changelog](CHANGELOG.md) before upgrading.
+
 ## Who is it for?
 
 OpenTLV is for C/C++ developers building embedded software, protocol handlers,

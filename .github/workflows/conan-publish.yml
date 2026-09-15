@@ -1,0 +1,93 @@
+name: Publish Conan recipe
+
+# Submits the recipe in conan/ to conan-center-index by opening a pull
+# request against conan-io/conan-center-index for the tagged version. Skips
+# already-released versions: it only runs for tags pushed after this
+# workflow was added, per the recipe's own conan/all/conandata.yml note.
+on:
+  push:
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
+
+jobs:
+  publish:
+    if: ${{ secrets.CONAN_CENTER_PAT != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      GH_TOKEN: ${{ secrets.CONAN_CENTER_PAT }}
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - name: Checkout OpenTLV
+        uses: actions/checkout@v5
+        with:
+          path: opentlv
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Conan 2
+        run: pip install "conan>=2.0,<3.0" pyyaml
+
+      - name: Detect ConanCenter fork owner
+        run: echo "FORK_OWNER=$(gh api user --jq .login)" >> "$GITHUB_ENV"
+
+      - name: Fork conan-io/conan-center-index
+        run: gh repo fork conan-io/conan-center-index --clone=false --remote=false || true
+
+      - name: Clone fork
+        run: gh repo clone "$FORK_OWNER/conan-center-index" cci -- --depth 1 --origin fork
+
+      - name: Add and sync upstream remote
+        working-directory: cci
+        run: |
+          git remote add upstream https://github.com/conan-io/conan-center-index.git
+          git fetch upstream master --depth 1
+          git checkout -B "opentlv-$VERSION" upstream/master
+
+      - name: Compute source archive checksum
+        run: |
+          url="https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
+          sha256=$(curl -sL "$url" | sha256sum | cut -d' ' -f1)
+          echo "SOURCE_URL=$url" >> "$GITHUB_ENV"
+          echo "SOURCE_SHA256=$sha256" >> "$GITHUB_ENV"
+
+      - name: Copy recipe and add version entry
+        working-directory: cci
+        run: |
+          mkdir -p recipes/opentlv/all
+          cp -f "$GITHUB_WORKSPACE/opentlv/conan/all/conanfile.py" recipes/opentlv/all/conanfile.py
+          rm -rf recipes/opentlv/all/test_package
+          cp -r "$GITHUB_WORKSPACE/opentlv/conan/all/test_package" recipes/opentlv/all/test_package
+
+          python "$GITHUB_WORKSPACE/opentlv/scripts/conan_add_version.py" \
+            --recipe-dir recipes/opentlv \
+            --version "$VERSION" \
+            --url "$SOURCE_URL" \
+            --sha256 "$SOURCE_SHA256"
+
+      - name: Validate recipe locally
+        working-directory: cci
+        run: |
+          conan profile detect --force
+          for shared in True False; do
+            conan create recipes/opentlv/all --name opentlv --version "$VERSION" \
+              -o "opentlv/*:shared=$shared" -o "opentlv/*:with_cxx=True" --build=missing
+          done
+
+      - name: Open pull request to conan-center-index
+        working-directory: cci
+        run: |
+          git config user.name "OpenTLV release bot"
+          git config user.email "actions@github.com"
+          git add recipes/opentlv
+          git commit -m "opentlv: add version $VERSION"
+          git push fork "opentlv-$VERSION" --force
+          gh pr create \
+            --repo conan-io/conan-center-index \
+            --base master \
+            --head "$FORK_OWNER:opentlv-$VERSION" \
+            --title "[package] opentlv/$VERSION: new version" \
+            --body "Adds opentlv/$VERSION, published from https://github.com/${{ github.repository }}/releases/tag/$VERSION."

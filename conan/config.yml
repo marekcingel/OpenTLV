@@ -1,0 +1,3 @@
+# Populated automatically by .github/workflows/conan-publish.yml, in step
+# with conan/all/conandata.yml. See that file for why it starts empty.
+versions: {}
