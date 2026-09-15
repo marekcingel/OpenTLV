@@ -10,6 +10,7 @@
 - [C API fuzzing with ASan and UBSan](fuzzing.md)
 - [Layered architecture, component selection, and API migration](architecture.md)
 - Usage examples: [C](../examples/tlv/src/basic_usage.c) and [C++](../examples/tlv++/src/basic_usage.cpp)
+- [EMV tag decoding walkthrough](../examples/emv/src/tag_decoding.c)
 
 - [Choosing a format](formats/README.md#choose-a-format)
 - [Memory ownership and lifetime](memory.md)

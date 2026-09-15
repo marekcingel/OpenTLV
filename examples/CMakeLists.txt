@@ -9,3 +9,7 @@ endif()
 if(OPENTLV_BUILD_CXX AND OPENTLV_FORMAT_DEFAULT)
     add_subdirectory(tlv++)
 endif()
+
+if(OPENTLV_PROFILE_EMV)
+    add_subdirectory(emv)
+endif()

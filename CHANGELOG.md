@@ -19,6 +19,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a practical EMV tag decoding example
+  (`examples/emv/src/tag_decoding.c`): parses a simulated READ RECORD response
+  template, then for each child tag calls `tlv_emv_find()` to look up its Book 3
+  definition, `tlv_emv_validate_length()` to check its length, and
+  `tlv_codec_decode()` to decode the value according to its `value_kind`
+  (PAN digits, an expiration date, AIP/CVM flags, an amount, the cryptogram
+  information byte, an account type, and a raw-bytes AFL), while a proprietary
+  tag outside the dictionary and a deliberately truncated CVM Results value
+  exercise unknown-tag and invalid-length handling without aborting the walk.
+  Registered as the `Integration_example_emv` ctest, so it runs wherever
+  `ctest -L integration` already runs. (#54)
 - Add CER-TLV (ASN.1 Canonical Encoding Rules) as a full sibling of the DER format
   and profile: `tlv/formats/asn1/cer.h` (`tlv_reader_format_cer`/`tlv_writer_format_cer`,
   `tlv_cer_tag_make`/`tlv_cer_tag_number`, `tlv_cer_is_constructed`) and
