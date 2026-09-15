@@ -8,10 +8,10 @@
 extern "C" {
 #endif
 
-typedef tlv_result_t (*tlv_read_tag_fn)(const void* context, const uint8_t* data,
-                                      size_t size, tlv_tag_t* tag, size_t* consumed);
-typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* data,
-                                         size_t size, size_t* length, size_t* consumed);
+typedef tlv_result_t (*tlv_read_tag_fn)(const void* context, const uint8_t* data, size_t size,
+                                        tlv_tag_t* tag, size_t* consumed);
+typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* data, size_t size,
+                                           size_t* length, size_t* consumed);
 
 /* Optional replacement for read_length during element reading. data starts
  * after the tag. Return the length-field size, borrowed value size, and trailing
@@ -19,13 +19,14 @@ typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* d
  * The callback may inspect nested framing to resolve a terminated value.
  * It follows the same allocation and buffer-lifetime rules as read_length.
  */
-typedef tlv_result_t (*tlv_read_value_bounds_fn)(const void* context,
-    const tlv_tag_t* tag, const uint8_t* data, size_t size,
-    size_t* length_size, size_t* value_size, size_t* trailer_size);
-typedef tlv_result_t (*tlv_write_tag_fn)(const void* context, uint8_t* data,
-                                       size_t capacity, const tlv_tag_t* tag, size_t* written);
-typedef tlv_result_t (*tlv_write_length_fn)(const void* context, uint8_t* data,
-                                          size_t capacity, size_t length, size_t* written);
+typedef tlv_result_t (*tlv_read_value_bounds_fn)(const void* context, const tlv_tag_t* tag,
+                                                 const uint8_t* data, size_t size,
+                                                 size_t* length_size, size_t* value_size,
+                                                 size_t* trailer_size);
+typedef tlv_result_t (*tlv_write_tag_fn)(const void* context, uint8_t* data, size_t capacity,
+                                         const tlv_tag_t* tag, size_t* written);
+typedef tlv_result_t (*tlv_write_length_fn)(const void* context, uint8_t* data, size_t capacity,
+                                            size_t length, size_t* written);
 typedef tlv_result_t (*tlv_length_size_fn)(const void* context, size_t length, size_t* size);
 
 /* Stateless reading with optional borrowed, immutable configuration.
@@ -73,7 +74,8 @@ typedef struct tlv_writer_format {
  * except the supplied pointers.
  */
 TLV_API tlv_result_t tlv_reader_format_init(tlv_reader_format_t* format, const void* context,
-                                     tlv_read_tag_fn read_tag, tlv_read_length_fn read_length);
+                                            tlv_read_tag_fn read_tag,
+                                            tlv_read_length_fn read_length);
 
 /* Initializes caller-owned storage without allocation. context is borrowed
  * and may be NULL. Returns TLV_ERR_INVALID_ARG if format or any callback is
@@ -82,8 +84,9 @@ TLV_API tlv_result_t tlv_reader_format_init(tlv_reader_format_t* format, const v
  * callback contracts above; only the supplied pointers are stored.
  */
 TLV_API tlv_result_t tlv_writer_format_init(tlv_writer_format_t* format, const void* context,
-                                     tlv_write_tag_fn write_tag, tlv_write_length_fn write_length,
-                                     tlv_length_size_fn length_size);
+                                            tlv_write_tag_fn write_tag,
+                                            tlv_write_length_fn write_length,
+                                            tlv_length_size_fn length_size);
 
 /* Optional nesting predicate used by tree traversal and structure validation.
  * Called only with successfully parsed tags, using the reader format context.

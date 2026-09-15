@@ -54,10 +54,10 @@ TLV_API void tlv_write_u64_le(uint8_t* data, uint64_t value);
  * uint64_t. Reads finish before storing *value. No allocation, implicit native
  * byte order, or protocol validation.
  */
-TLV_API tlv_result_t tlv_read_uint(const uint8_t* data, size_t width,
-                                  tlv_byte_order_t order, uint64_t* value);
-TLV_API tlv_result_t tlv_write_uint(uint8_t* data, size_t width,
-                                   tlv_byte_order_t order, uint64_t value);
+TLV_API tlv_result_t tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t order,
+                                   uint64_t* value);
+TLV_API tlv_result_t tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
+                                    uint64_t value);
 
 #ifdef __cplusplus
 }

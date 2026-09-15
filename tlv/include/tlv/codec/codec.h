@@ -33,24 +33,21 @@ typedef enum tlv_codec_result {
  */
 typedef struct tlv_codec {
     const void* context;
-    tlv_codec_result_t (*decode)(const void* context, const uint8_t* data,
-                                size_t size, void* value, size_t capacity);
-    tlv_codec_result_t (*encode)(const void* context, const void* value,
-                                size_t size, uint8_t* data, size_t capacity,
-                                size_t* written);
+    tlv_codec_result_t (*decode)(const void* context, const uint8_t* data, size_t size, void* value,
+                                 size_t capacity);
+    tlv_codec_result_t (*encode)(const void* context, const void* value, size_t size, uint8_t* data,
+                                 size_t capacity, size_t* written);
 } tlv_codec_t;
 
 /* value is required even for empty representations. Decode data may be NULL
  * only for size == 0. Encode data may be NULL only for a size query. written
  * is required and must not alias input or destination storage.
  */
-TLV_API tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec,
-                                    const uint8_t* data, size_t size,
-                                    void* value, size_t capacity);
-TLV_API tlv_codec_result_t tlv_codec_encode(const tlv_codec_t* codec,
-                                    const void* value, size_t size,
-                                    uint8_t* data, size_t capacity,
-                                    size_t* written);
+TLV_API tlv_codec_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint8_t* data,
+                                            size_t size, void* value, size_t capacity);
+TLV_API tlv_codec_result_t tlv_codec_encode(const tlv_codec_t* codec, const void* value,
+                                            size_t size, uint8_t* data, size_t capacity,
+                                            size_t* written);
 TLV_API const char* tlv_codec_strerror(tlv_codec_result_t result);
 
 #ifdef __cplusplus

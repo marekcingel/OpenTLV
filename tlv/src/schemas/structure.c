@@ -14,18 +14,17 @@ static tlv_result_t invalid(size_t offset, size_t* error_offset) {
 }
 
 static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* format,
-                                const tlv_structure_schema_t* current,
-                                size_t start, size_t end, size_t* error_offset) {
+                                const tlv_structure_schema_t* current, size_t start, size_t end,
+                                size_t* error_offset) {
     tlv_result_t rc;
-    if (!current->rules && current->count)
-        return invalid(start, error_offset);
+    if (!current->rules && current->count) return invalid(start, error_offset);
     for (size_t i = 0; i < current->count; ++i) {
         const tlv_structure_rule_t* rule = &current->rules[i];
         size_t count = 0, pos = start;
         if (!rule->entry.tag.size || rule->entry.tag.size > TLV_TAG_CAPACITY ||
             rule->entry.min_length > rule->entry.max_length ||
-            rule->min_occurs > rule->max_occurs ||
-            rule->kind < TLV_SCHEMA_ANY || rule->kind > TLV_SCHEMA_CONSTRUCTED ||
+            rule->min_occurs > rule->max_occurs || rule->kind < TLV_SCHEMA_ANY ||
+            rule->kind > TLV_SCHEMA_CONSTRUCTED ||
             (rule->children && rule->kind != TLV_SCHEMA_CONSTRUCTED))
             return invalid(start, error_offset);
         for (size_t j = 0; j < i; ++j)
@@ -59,9 +58,8 @@ typedef struct scope {
 tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                                  const tlv_reader_format_t* format,
                                  tlv_is_constructed_fn is_constructed,
-                                 const tlv_structure_schema_t* schema,
-                                 size_t max_depth, size_t max_elements,
-                                 size_t* error_offset) {
+                                 const tlv_structure_schema_t* schema, size_t max_depth,
+                                 size_t max_elements, size_t* error_offset) {
     scope_t stack[TLV_WALK_MAX_DEPTH + 1];
     size_t depth = 0;
     tlv_result_t rc;
@@ -69,8 +67,8 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
         if (error_offset) *error_offset = 0;
         return TLV_ERR_NULL_ARG;
     }
-    rc = tlv_walk_tree(data, size, format, is_constructed, max_depth, max_elements,
-                       NULL, NULL, error_offset);
+    rc = tlv_walk_tree(data, size, format, is_constructed, max_depth, max_elements, NULL, NULL,
+                       error_offset);
     if (rc != TLV_OK) return rc;
     stack[0] = (scope_t){schema, 0, size, 0, 0};
     for (;;) {
@@ -99,7 +97,8 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
             frame->pos += used;
             for (size_t i = 0; i < current->count; ++i)
                 if (same_tag(&current->rules[i].entry.tag, &view.tag)) {
-                    rule = &current->rules[i]; break;
+                    rule = &current->rules[i];
+                    break;
                 }
             if (!rule) {
                 if (!current->allow_unknown) return invalid(pos, error_offset);
@@ -117,8 +116,7 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                     if (error_offset) *error_offset = pos;
                     return rc;
                 }
-                constructed = is_constructed &&
-                    is_constructed(format->context, &view.tag);
+                constructed = is_constructed && is_constructed(format->context, &view.tag);
                 if ((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
                     (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed))
                     return invalid(pos, error_offset);
@@ -134,7 +132,8 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                         if (error_offset) *error_offset = start;
                         return TLV_ERR_LIMIT;
                     }
-                    stack[++depth] = (scope_t){rule->children, start, start + value_length, start, 0};
+                    stack[++depth] =
+                        (scope_t){rule->children, start, start + value_length, start, 0};
                 }
             }
         }

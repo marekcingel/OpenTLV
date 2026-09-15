@@ -7,11 +7,11 @@
 #include <limits>
 
 TEST(Integration_Copy, ValueOutlivesInputWhileReaderRemainsZeroCopy) {
-    uint8_t input[] = {1, 2, 0xAB, 0xCD};
+    uint8_t    input[] = {1, 2, 0xAB, 0xCD};
     tlv_view_t view{};
-    size_t consumed = 0, written = 99;
-    ASSERT_EQ(TLV_OK, tlv_read(input, sizeof(input), &tlv_reader_format_fixed_1byte,
-                              &view, &consumed));
+    size_t     consumed = 0, written = 99;
+    ASSERT_EQ(TLV_OK,
+              tlv_read(input, sizeof(input), &tlv_reader_format_fixed_1byte, &view, &consumed));
     EXPECT_EQ(input + 2, view.value.data);
     ASSERT_EQ(TLV_OK, tlv_copy_value(&view, nullptr, 0, &written));
     EXPECT_EQ(2u, written);
@@ -26,9 +26,9 @@ TEST(Integration_Copy, ValueOutlivesInputWhileReaderRemainsZeroCopy) {
 }
 
 TEST(Integration_Copy, EncodedRangePreservesHeaderWhileViewUsesSelectedFormat) {
-    uint8_t input[] = {0x5A, 0x81, 1, 0xAB}; // Nonminimal BER length.
+    uint8_t    input[] = {0x5A, 0x81, 1, 0xAB}; // Nonminimal BER length.
     tlv_view_t view{};
-    size_t consumed = 0, written = 99;
+    size_t     consumed = 0, written = 99;
     ASSERT_EQ(TLV_OK, tlv_read(input, sizeof(input), &tlv_reader_format_ber, &view, &consumed));
     ASSERT_EQ(TLV_OK, tlv_copy_encoded(input, consumed, nullptr, 0, &written));
     EXPECT_EQ(sizeof(input), written);
@@ -37,7 +37,8 @@ TEST(Integration_Copy, EncodedRangePreservesHeaderWhileViewUsesSelectedFormat) {
     EXPECT_EQ(0, std::memcmp(input, exact, sizeof(input)));
     ASSERT_EQ(TLV_OK, tlv_copy_view(&view, &tlv_writer_format_ber, nullptr, 0, &written));
     EXPECT_EQ(sizeof(encoded), written);
-    ASSERT_EQ(TLV_OK, tlv_copy_view(&view, &tlv_writer_format_ber, encoded, sizeof(encoded), &written));
+    ASSERT_EQ(TLV_OK,
+              tlv_copy_view(&view, &tlv_writer_format_ber, encoded, sizeof(encoded), &written));
     EXPECT_EQ(sizeof(encoded), written);
     const uint8_t expected[] = {0x5A, 1, 0xAB};
     EXPECT_EQ(0, std::memcmp(expected, encoded, sizeof(expected)));
@@ -45,4 +46,3 @@ TEST(Integration_Copy, EncodedRangePreservesHeaderWhileViewUsesSelectedFormat) {
     EXPECT_EQ(0xAB, exact[3]);
     EXPECT_EQ(0xAB, encoded[2]);
 }
-

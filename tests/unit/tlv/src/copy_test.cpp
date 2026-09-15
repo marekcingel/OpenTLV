@@ -6,17 +6,18 @@
 #include <limits>
 
 TEST(Unit_Copy, InsufficientCapacityLeavesOutputsUnchanged) {
-    const uint8_t value[] = {0xAB, 0xCD};
+    const uint8_t    value[] = {0xAB, 0xCD};
     const tlv_view_t view = {{{1}, 1}, {value, sizeof(value)}};
     for (size_t capacity = 0; capacity < 4; ++capacity) {
         uint8_t output[] = {0xEE, 0xEE, 0xEE, 0xEE};
-        size_t written = 99;
+        size_t  written = 99;
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                   tlv_copy_view(&view, &controlled::writer, output, capacity, &written));
         if (capacity < sizeof(value)) {
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_copy_value(&view, output, capacity, &written));
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_copy_encoded(
-                view.value.data, static_cast<size_t>(view.value.length), output, capacity, &written));
+            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                      tlv_copy_encoded(view.value.data, static_cast<size_t>(view.value.length),
+                                       output, capacity, &written));
         }
         EXPECT_EQ(99u, written);
         for (auto byte : output) EXPECT_EQ(0xEE, byte);
@@ -25,8 +26,8 @@ TEST(Unit_Copy, InsufficientCapacityLeavesOutputsUnchanged) {
 
 TEST(Unit_Copy, EmptyValuesAndOverlappingByteRanges) {
     const tlv_view_t empty = {{{1}, 1}, {nullptr, 0}};
-    size_t written = 99;
-    uint8_t output[2] = {};
+    size_t           written = 99;
+    uint8_t          output[2] = {};
     EXPECT_EQ(TLV_OK, tlv_copy_value(&empty, nullptr, 0, &written));
     EXPECT_EQ(0u, written);
     EXPECT_EQ(TLV_OK, tlv_copy_value(&empty, output, 0, &written));
@@ -46,9 +47,9 @@ TEST(Unit_Copy, EmptyValuesAndOverlappingByteRanges) {
 }
 
 TEST(Unit_Copy, InvalidArgumentsAndEncodingErrors) {
-    uint8_t byte = 0xEE;
+    uint8_t    byte = 0xEE;
     tlv_view_t view = {{{1}, 1}, {&byte, 1}};
-    size_t written = 99;
+    size_t     written = 99;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_value(nullptr, &byte, 1, &written));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_value(&view, nullptr, 1, &written));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_value(&view, &byte, 1, nullptr));
@@ -62,10 +63,12 @@ TEST(Unit_Copy, InvalidArgumentsAndEncodingErrors) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_view(&view, &controlled::writer, nullptr, 0, &written));
     view.value = {&byte, 1};
     view.tag.size = 0;
-    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_copy_view(&view, &controlled::writer, nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+              tlv_copy_view(&view, &controlled::writer, nullptr, 0, &written));
     view.tag.size = 1;
     view.value.length = std::numeric_limits<size_t>::max();
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_copy_view(&view, &controlled::writer, nullptr, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_copy_view(&view, &controlled::writer, nullptr, 0, &written));
     EXPECT_EQ(99u, written);
     EXPECT_EQ(0xEE, byte);
 }

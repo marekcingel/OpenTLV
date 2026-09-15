@@ -28,14 +28,12 @@ typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_view_t* view, void* contex
  * data may be NULL only when size is zero; invalid arguments return
  * TLV_ERR_NULL_ARG. Earlier callback effects are not rolled back on error.
  */
-TLV_API tlv_result_t tlv_walk(const uint8_t* data, size_t size,
-                      const tlv_reader_format_t* format, tlv_visitor_t visitor,
-                      void* context);
+TLV_API tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
+                              tlv_visitor_t visitor, void* context);
 
 #define TLV_WALK_MAX_DEPTH 64
-typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view,
-                                               size_t depth, size_t offset,
-                                               void* context);
+typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view, size_t depth,
+                                                 size_t offset, void* context);
 /* Preorder traversal of bounded value views identified by is_constructed.
  * The predicate receives format->context; NULL treats every value as opaque.
  * Top-level depth is zero; max_depth is 0..TLV_WALK_MAX_DEPTH. No allocation
@@ -45,10 +43,10 @@ typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view,
  * on failure and remains unchanged on success. Callback effects are not
  * rolled back. The input, format and borrowed views follow tlv_walk lifetimes. */
 TLV_API tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size,
-                           const tlv_reader_format_t* format,
-                           tlv_is_constructed_fn is_constructed, size_t max_depth,
-                           size_t max_elements, tlv_tree_visitor_t visitor,
-                           void* context, size_t* error_offset);
+                                   const tlv_reader_format_t* format,
+                                   tlv_is_constructed_fn is_constructed, size_t max_depth,
+                                   size_t max_elements, tlv_tree_visitor_t visitor, void* context,
+                                   size_t* error_offset);
 
 #ifdef __cplusplus
 }

@@ -4,9 +4,9 @@
 #include <limits>
 
 TEST(Unit_Reader, ReadsOnlyFirstElementAndBorrowsValue) {
-    uint8_t data[] = {1, 2, 0xAB, 0xCD, 2, 0xFF};
+    uint8_t    data[] = {1, 2, 0xAB, 0xCD, 2, 0xFF};
     tlv_view_t view{};
-    size_t consumed = 0;
+    size_t     consumed = 0;
     ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &controlled::reader, &view, &consumed));
     EXPECT_EQ(1u, view.tag.size);
     EXPECT_EQ(1u, view.tag.data[0]);
@@ -19,10 +19,10 @@ TEST(Unit_Reader, ReadsOnlyFirstElementAndBorrowsValue) {
 
 namespace {
 struct Config {
-    size_t tag_bytes = 2;
-    size_t length_bytes = 2;
-    size_t value_bytes = 2;
-    uint8_t tag_size = 1;
+    size_t       tag_bytes = 2;
+    size_t       length_bytes = 2;
+    size_t       value_bytes = 2;
+    uint8_t      tag_size = 1;
     tlv_result_t tag_error = TLV_OK;
     tlv_result_t length_error = TLV_OK;
 };
@@ -30,8 +30,8 @@ struct Config {
 tlv_reader_format_t make_format(const Config* config) {
     tlv_reader_format_t format{};
     format.context = config;
-    format.read_tag = [](const void* ctx, const uint8_t*, size_t size,
-                         tlv_tag_t* tag, size_t* used) {
+    format.read_tag = [](const void* ctx, const uint8_t*, size_t size, tlv_tag_t* tag,
+                         size_t* used) {
         const auto& c = *static_cast<const Config*>(ctx);
         if (c.tag_error != TLV_OK) return c.tag_error;
         if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -39,8 +39,8 @@ tlv_reader_format_t make_format(const Config* config) {
         *used = c.tag_bytes;
         return TLV_OK;
     };
-    format.read_length = [](const void* ctx, const uint8_t*, size_t size,
-                            size_t* length, size_t* used) {
+    format.read_length = [](const void* ctx, const uint8_t*, size_t size, size_t* length,
+                            size_t* used) {
         const auto& c = *static_cast<const Config*>(ctx);
         if (c.length_error != TLV_OK) return c.length_error;
         if (size < c.length_bytes) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -54,7 +54,7 @@ tlv_reader_format_t make_format(const Config* config) {
 void expect_failure(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
                     tlv_result_t error) {
     tlv_view_t view = {tlv_tag_t{{0xEE}, 1}, {data, 42}};
-    size_t consumed = 99;
+    size_t     consumed = 99;
     EXPECT_EQ(error, tlv_read(data, size, format, &view, &consumed));
     EXPECT_EQ(99u, consumed);
     EXPECT_EQ(1u, view.tag.size);
@@ -62,19 +62,19 @@ void expect_failure(const uint8_t* data, size_t size, const tlv_reader_format_t*
     EXPECT_EQ(data, view.value.data);
     EXPECT_EQ(42u, view.value.length);
 }
-}
+} // namespace
 
 TEST(Unit_Reader, CustomFormatAndEveryTruncatedPrefix) {
     const uint8_t data[6] = {};
-    Config config;
-    const auto format = make_format(&config);
+    Config        config;
+    const auto    format = make_format(&config);
     for (size_t size = 0; size < sizeof(data); ++size) {
         SCOPED_TRACE(size);
         expect_failure(data, size, &format,
                        size ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER);
     }
     tlv_view_t view{};
-    size_t consumed = 0;
+    size_t     consumed = 0;
     ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &format, &view, &consumed));
     EXPECT_EQ(0x42, view.tag.data[0]);
     EXPECT_EQ(data + 4, view.value.data);
@@ -88,9 +88,9 @@ TEST(Unit_Reader, CustomFormatAndEveryTruncatedPrefix) {
 
 TEST(Unit_Reader, RejectsInvalidArguments) {
     const uint8_t data[] = {1, 0};
-    auto format = controlled::reader;
-    tlv_view_t view{};
-    size_t consumed = 0;
+    auto          format = controlled::reader;
+    tlv_view_t    view{};
+    size_t        consumed = 0;
     expect_failure(nullptr, 0, &format, TLV_ERR_END_OF_BUFFER);
     expect_failure(nullptr, 1, &format, TLV_ERR_NULL_ARG);
     expect_failure(data, sizeof(data), nullptr, TLV_ERR_NULL_ARG);
@@ -105,8 +105,8 @@ TEST(Unit_Reader, RejectsInvalidArguments) {
 
 TEST(Unit_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     const uint8_t data[6] = {};
-    Config config;
-    auto format = make_format(&config);
+    Config        config;
+    auto          format = make_format(&config);
     config.tag_bytes = 0;
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
     config.tag_bytes = std::numeric_limits<size_t>::max();
@@ -133,4 +133,3 @@ TEST(Unit_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     config.length_error = TLV_ERR_INVALID_LENGTH;
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_LENGTH);
 }
-

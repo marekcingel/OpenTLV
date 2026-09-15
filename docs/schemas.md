@@ -64,6 +64,6 @@ resource errors propagate. Failure offsets identify the element, or the end
 of a parent with missing fields. Success leaves the offset unchanged.
 
 No allocation or C recursion is used. Each scope is rescanned for each rule;
-complexity is O(rules * rules + elements * rules) per scope. Tables must remain immutable.
+complexity is `O(rules * rules + elements * rules)` per scope. Tables must remain immutable.
 Sibling ordering and cross-field/value semantics are application concerns.
 `tlv::validate` exposes these same rules through the C++ API.

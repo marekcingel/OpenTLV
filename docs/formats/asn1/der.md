@@ -45,8 +45,6 @@ int main(void) {
 }
 ```
 
-
-
 ## Byte example
 
 ```text
@@ -71,4 +69,3 @@ The generic `tlv_reader_format_der` / `tlv_writer_format_der` descriptors valida
 only the current tag and length. Indefinite lengths are rejected. Full ASN.1
 value canonicalization and SET ordering remain outside the supported scope.
 [DER profile](../../profiles/der/README.md)
-

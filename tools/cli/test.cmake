@@ -190,4 +190,3 @@ if(HAS_DER)
     check(1 "TLV_ERR_" validate --format der --hex "30800401AA0000")
     check(1 "TLV_ERR_" validate --format der --hex "048101AA")
 endif()
-

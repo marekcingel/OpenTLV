@@ -12,7 +12,7 @@
 
 int main() {
     std::array<tlv::byte, 64> buf{};
-    tlv::writer w(buf.data(), buf.size(), tlv_writer_format_default);
+    tlv::writer               w(buf.data(), buf.size(), tlv_writer_format_default);
 
     auto to_bytes = [](const std::string& s) {
         return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
@@ -38,11 +38,9 @@ int main() {
             std::cerr << "read error: " << entry.error().message << "\n";
             return 1;
         }
-        std::string value(
-            reinterpret_cast<const char*>(entry->value.data()),
-            entry->value.size());
-        std::cout << "tag=0x" << std::hex << static_cast<int>(entry->tag.data[0])
-                  << std::dec << " value=" << value << "\n";
+        std::string value(reinterpret_cast<const char*>(entry->value.data()), entry->value.size());
+        std::cout << "tag=0x" << std::hex << static_cast<int>(entry->tag.data[0]) << std::dec
+                  << " value=" << value << "\n";
     }
 
     return 0;

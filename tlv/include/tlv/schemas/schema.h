@@ -30,8 +30,7 @@ typedef struct {
  * a missing nonempty table, or a tag size exceeding TLV_TAG_CAPACITY.
  * Entries with invalid tag sizes are skipped. No sorting is required.
  */
-TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema,
-                                          const tlv_tag_t* tag);
+TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, const tlv_tag_t* tag);
 
 /* Validates only value length, independently of parsing or tag lookup.
  * Bounds are inclusive; equal bounds specify an exact length. SIZE_MAX can
@@ -39,8 +38,7 @@ TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema,
  * for an out-of-range length or reversed bounds, TLV_ERR_NULL_ARG for NULL,
  * and TLV_OK otherwise. Flags do not affect validation.
  */
-TLV_API tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry,
-                                         size_t length);
+TLV_API tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry, size_t length);
 
 typedef enum tlv_schema_kind {
     TLV_SCHEMA_ANY = 0,
@@ -77,11 +75,10 @@ typedef struct tlv_structure_schema {
  * Input and schema errors leave no partial application objects. */
 /* is_constructed uses format->context; NULL treats values as opaque. */
 TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
-                                 const tlv_reader_format_t* format,
-                                 tlv_is_constructed_fn is_constructed,
-                                 const tlv_structure_schema_t* schema,
-                                 size_t max_depth, size_t max_elements,
-                                 size_t* error_offset);
+                                         const tlv_reader_format_t* format,
+                                         tlv_is_constructed_fn is_constructed,
+                                         const tlv_structure_schema_t* schema, size_t max_depth,
+                                         size_t max_elements, size_t* error_offset);
 
 #ifdef __cplusplus
 }

@@ -34,7 +34,8 @@ tlv_result_t tlv_asn1_validate_bit_string(const uint8_t* value, size_t length) {
 }
 
 tlv_result_t tlv_asn1_validate_octet_string(const uint8_t* value, size_t length) {
-    (void)value; (void)length;
+    (void)value;
+    (void)length;
     return TLV_OK;
 }
 
@@ -63,9 +64,10 @@ tlv_result_t tlv_asn1_validate_real(const uint8_t* value, size_t length) {
     first = value[0];
     if (!(first & 0x80)) {
         if (first & 0x40)
-            return (length == 1 && (first == 0x40 || first == 0x41 ||
-                                    first == 0x42 || first == 0x43))
-                       ? TLV_OK : TLV_ERR_INVALID_VALUE;
+            return (length == 1 &&
+                    (first == 0x40 || first == 0x41 || first == 0x42 || first == 0x43))
+                       ? TLV_OK
+                       : TLV_ERR_INVALID_VALUE;
         return TLV_ERR_INVALID_VALUE;
     }
     if ((first & 0x30) != 0x00) return TLV_ERR_INVALID_VALUE;
@@ -79,8 +81,7 @@ tlv_result_t tlv_asn1_validate_real(const uint8_t* value, size_t length) {
     if (length < 1 + exp_octets + 1) return TLV_ERR_INVALID_VALUE;
     if (tlv_asn1_validate_integer(value + 1, exp_octets) != TLV_OK) return TLV_ERR_INVALID_VALUE;
     mantissa_start = 1 + exp_octets;
-    if (length - mantissa_start > 1 && value[mantissa_start] == 0x00)
-        return TLV_ERR_INVALID_VALUE;
+    if (length - mantissa_start > 1 && value[mantissa_start] == 0x00) return TLV_ERR_INVALID_VALUE;
     return (value[length - 1] & 0x01) != 0 ? TLV_OK : TLV_ERR_INVALID_VALUE;
 }
 
@@ -129,28 +130,41 @@ static tlv_result_t utf8_stream_finish_codepoint(const tlv_asn1_utf8_stream_t* s
     uint8_t b0 = state->pending[0];
     uint32_t cp, min_cp;
     size_t k;
-    if ((b0 & 0xE0) == 0xC0) { cp = (uint32_t)(b0 & 0x1F); min_cp = 0x80; }
-    else if ((b0 & 0xF0) == 0xE0) { cp = (uint32_t)(b0 & 0x0F); min_cp = 0x800; }
-    else { cp = (uint32_t)(b0 & 0x07); min_cp = 0x10000; }
-    for (k = 1; k < state->pending_need; ++k)
-        cp = (cp << 6) | (uint32_t)(state->pending[k] & 0x3F);
+    if ((b0 & 0xE0) == 0xC0) {
+        cp = (uint32_t)(b0 & 0x1F);
+        min_cp = 0x80;
+    } else if ((b0 & 0xF0) == 0xE0) {
+        cp = (uint32_t)(b0 & 0x0F);
+        min_cp = 0x800;
+    } else {
+        cp = (uint32_t)(b0 & 0x07);
+        min_cp = 0x10000;
+    }
+    for (k = 1; k < state->pending_need; ++k) cp = (cp << 6) | (uint32_t)(state->pending[k] & 0x3F);
     if (cp < min_cp || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF))
         return TLV_ERR_INVALID_VALUE;
     return TLV_OK;
 }
 
-tlv_result_t tlv_asn1_utf8_stream_update(tlv_asn1_utf8_stream_t* state,
-                                        const uint8_t* value, size_t length) {
+tlv_result_t tlv_asn1_utf8_stream_update(tlv_asn1_utf8_stream_t* state, const uint8_t* value,
+                                         size_t length) {
     size_t i = 0;
     while (i < length) {
         if (state->pending_need == 0) {
             uint8_t b0 = value[i];
             size_t extra;
-            if (b0 < 0x80) { ++i; continue; }
-            if ((b0 & 0xE0) == 0xC0) extra = 1;
-            else if ((b0 & 0xF0) == 0xE0) extra = 2;
-            else if ((b0 & 0xF8) == 0xF0) extra = 3;
-            else return TLV_ERR_INVALID_VALUE;
+            if (b0 < 0x80) {
+                ++i;
+                continue;
+            }
+            if ((b0 & 0xE0) == 0xC0)
+                extra = 1;
+            else if ((b0 & 0xF0) == 0xE0)
+                extra = 2;
+            else if ((b0 & 0xF8) == 0xF0)
+                extra = 3;
+            else
+                return TLV_ERR_INVALID_VALUE;
             state->pending[0] = b0;
             state->pending_len = 1;
             state->pending_need = 1 + extra;
@@ -212,8 +226,12 @@ tlv_result_t tlv_asn1_validate_bmp_string(const uint8_t* value, size_t length) {
     return TLV_OK;
 }
 
-static int is_digit(uint8_t c) { return c >= '0' && c <= '9'; }
-static int digit_pair(const uint8_t* p) { return (p[0] - '0') * 10 + (p[1] - '0'); }
+static int is_digit(uint8_t c) {
+    return c >= '0' && c <= '9';
+}
+static int digit_pair(const uint8_t* p) {
+    return (p[0] - '0') * 10 + (p[1] - '0');
+}
 
 /* Canonical form: exactly "YYMMDDHHMMSSZ" (13 bytes). Calendar validity is
  * range-checked only (e.g. day 01-31); "30 February" is not detected. */
@@ -221,10 +239,14 @@ tlv_result_t tlv_asn1_validate_utc_time(const uint8_t* value, size_t length) {
     size_t i;
     int mm, dd, hh, mi, ss;
     if (length != 13) return TLV_ERR_INVALID_VALUE;
-    for (i = 0; i < 12; ++i) if (!is_digit(value[i])) return TLV_ERR_INVALID_VALUE;
+    for (i = 0; i < 12; ++i)
+        if (!is_digit(value[i])) return TLV_ERR_INVALID_VALUE;
     if (value[12] != 'Z') return TLV_ERR_INVALID_VALUE;
-    mm = digit_pair(value + 2); dd = digit_pair(value + 4);
-    hh = digit_pair(value + 6); mi = digit_pair(value + 8); ss = digit_pair(value + 10);
+    mm = digit_pair(value + 2);
+    dd = digit_pair(value + 4);
+    hh = digit_pair(value + 6);
+    mi = digit_pair(value + 8);
+    ss = digit_pair(value + 10);
     if (mm < 1 || mm > 12 || dd < 1 || dd > 31 || hh > 23 || mi > 59 || ss > 59)
         return TLV_ERR_INVALID_VALUE;
     return TLV_OK;
@@ -237,9 +259,13 @@ tlv_result_t tlv_asn1_validate_generalized_time(const uint8_t* value, size_t len
     size_t i, frac_start;
     int mm, dd, hh, mi, ss;
     if (length < 15) return TLV_ERR_INVALID_VALUE;
-    for (i = 0; i < 14; ++i) if (!is_digit(value[i])) return TLV_ERR_INVALID_VALUE;
-    mm = digit_pair(value + 4); dd = digit_pair(value + 6);
-    hh = digit_pair(value + 8); mi = digit_pair(value + 10); ss = digit_pair(value + 12);
+    for (i = 0; i < 14; ++i)
+        if (!is_digit(value[i])) return TLV_ERR_INVALID_VALUE;
+    mm = digit_pair(value + 4);
+    dd = digit_pair(value + 6);
+    hh = digit_pair(value + 8);
+    mi = digit_pair(value + 10);
+    ss = digit_pair(value + 12);
     if (mm < 1 || mm > 12 || dd < 1 || dd > 31 || hh > 23 || mi > 59 || ss > 59)
         return TLV_ERR_INVALID_VALUE;
     i = 14;
@@ -252,15 +278,18 @@ tlv_result_t tlv_asn1_validate_generalized_time(const uint8_t* value, size_t len
     return (i == length - 1 && value[i] == 'Z') ? TLV_OK : TLV_ERR_INVALID_VALUE;
 }
 
-tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* value, size_t length) {
+tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* value,
+                                               size_t length) {
     switch (number) {
-        case 1:  return tlv_asn1_validate_boolean(value, length);
-        case 2:  case 10: return tlv_asn1_validate_integer(value, length);
-        case 3:  return tlv_asn1_validate_bit_string(value, length);
-        case 4:  return tlv_asn1_validate_octet_string(value, length);
-        case 5:  return tlv_asn1_validate_null(value, length);
-        case 6:  case 13: return tlv_asn1_validate_oid(value, length);
-        case 9:  return tlv_asn1_validate_real(value, length);
+        case 1: return tlv_asn1_validate_boolean(value, length);
+        case 2:
+        case 10: return tlv_asn1_validate_integer(value, length);
+        case 3: return tlv_asn1_validate_bit_string(value, length);
+        case 4: return tlv_asn1_validate_octet_string(value, length);
+        case 5: return tlv_asn1_validate_null(value, length);
+        case 6:
+        case 13: return tlv_asn1_validate_oid(value, length);
+        case 9: return tlv_asn1_validate_real(value, length);
         case 12: return tlv_asn1_validate_utf8(value, length);
         case 18: return tlv_asn1_validate_numeric_string(value, length);
         case 19: return tlv_asn1_validate_printable_string(value, length);

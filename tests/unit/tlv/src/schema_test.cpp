@@ -3,15 +3,13 @@
 #include <gtest/gtest.h>
 
 namespace {
-static const tlv_schema_entry_t entries[] = {
-    {{{2}, 1}, 2, 4, 0},
-    {{{1}, 1}, 3, 3, 0},
-    {{{0x9F, 0x02}, 2}, 0, SIZE_MAX, UINT32_MAX},
-    {{{2}, 1}, 9, 9, 0},
-    {{{0}, 0}, 0, 0, 0}
-};
-static const tlv_schema_t schema = {entries, sizeof(entries) / sizeof(entries[0])};
-}
+static const tlv_schema_entry_t entries[] = {{{{2}, 1}, 2, 4, 0},
+                                             {{{1}, 1}, 3, 3, 0},
+                                             {{{0x9F, 0x02}, 2}, 0, SIZE_MAX, UINT32_MAX},
+                                             {{{2}, 1}, 9, 9, 0},
+                                             {{{0}, 0}, 0, 0, 0}};
+static const tlv_schema_t       schema = {entries, sizeof(entries) / sizeof(entries[0])};
+} // namespace
 
 TEST(Unit_Schema, FindsUnsortedTagsAndReturnsFirstDuplicate) {
     tlv_tag_t tag = {{1}, 1};
@@ -40,10 +38,8 @@ TEST(Unit_Schema, HandlesEmptyMissingAndInvalidInputs) {
 #if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
     tag.size = TLV_TAG_CAPACITY + 1;
     EXPECT_EQ(nullptr, tlv_schema_find(&schema, &tag));
-    const tlv_schema_entry_t invalid_entries[] = {
-        {tag, 0, 0, 0}, entries[0]
-    };
-    const tlv_schema_t invalid = {invalid_entries, 2};
+    const tlv_schema_entry_t invalid_entries[] = {{tag, 0, 0, 0}, entries[0]};
+    const tlv_schema_t       invalid = {invalid_entries, 2};
     tag = {{2}, 1};
     EXPECT_EQ(&invalid_entries[1], tlv_schema_find(&invalid, &tag));
 #endif
@@ -64,4 +60,3 @@ TEST(Unit_Schema, ValidatesExactAndInclusiveRangeLengths) {
     const tlv_schema_entry_t reversed = {{{1}, 1}, 4, 2, 0};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&reversed, 3));
 }
-

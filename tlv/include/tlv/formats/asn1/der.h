@@ -25,8 +25,8 @@ static inline int tlv_der_tag_is_constructed(const tlv_tag_t* tag) {
  * Outputs are unchanged
  * on failure. Raw parsing supports the full configured tag capacity.
  */
-TLV_API tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed,
-                              uint64_t number, tlv_tag_t* tag);
+TLV_API tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
+                                      tlv_tag_t* tag);
 TLV_API tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number);
 
 /* Canonical ASN.1 DER identifiers and definite lengths. Validates universal

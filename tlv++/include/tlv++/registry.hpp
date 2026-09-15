@@ -13,56 +13,55 @@ namespace tlv {
 // formats whose types are not all known at compile time.
 class codec_registry {
 public:
-  using decoder_fn = std::function<expected<any, error>(bytes)>;
+    using decoder_fn = std::function<expected<any, error>(bytes)>;
 
-  // Registers a decoder for the specified tag. Replaces any previous
-  // registration.
-  void register_decoder(tag_t tag, decoder_fn decoder) {
-    decoders_[tag] = std::move(decoder);
-  }
-
-  // Registers a TlvCodec type directly, using its static tag and decode().
-#if __cplusplus >= 202002L
-  template <TlvCodec T> void register_type() {
-#else
-  template <typename T> void register_type() {
-#endif
-    static_assert(is_tlv_codec<T>::value, "T must satisfy the TLV codec interface");
-    register_decoder(T::tag, [](bytes data) -> expected<any, error> {
-      expected<T, error> result = T::decode(data);
-      if (!result) {
-        return unexpected<error>(result.error());
-      }
-      return any(std::move(*result));
-    });
-  }
-
-  TLV_NODISCARD expected<any, error> decode(tag_t tag,
-                                                      bytes data) const {
-    if (decoders_.count(tag) == 0) {
-      return unexpected<error>(error{TLV_ERR_INVALID_LENGTH, "unregistered tag"});
+    // Registers a decoder for the specified tag. Replaces any previous
+    // registration.
+    void register_decoder(tag_t tag, decoder_fn decoder) {
+        decoders_[tag] = std::move(decoder);
     }
-    return decoders_.at(tag)(data);
-  }
 
-  TLV_NODISCARD bool has_decoder(tag_t tag) const {
-    return decoders_.find(tag) != decoders_.end();
-  }
+    // Registers a TlvCodec type directly, using its static tag and decode().
+#if __cplusplus >= 202002L
+    template <TlvCodec T> void register_type() {
+#else
+    template <typename T> void register_type() {
+#endif
+        static_assert(is_tlv_codec<T>::value, "T must satisfy the TLV codec interface");
+        register_decoder(T::tag, [](bytes data) -> expected<any, error> {
+            expected<T, error> result = T::decode(data);
+            if (!result) {
+                return unexpected<error>(result.error());
+            }
+            return any(std::move(*result));
+        });
+    }
+
+    TLV_NODISCARD expected<any, error> decode(tag_t tag, bytes data) const {
+        if (decoders_.count(tag) == 0) {
+            return unexpected<error>(error{TLV_ERR_INVALID_LENGTH, "unregistered tag"});
+        }
+        return decoders_.at(tag)(data);
+    }
+
+    TLV_NODISCARD bool has_decoder(tag_t tag) const {
+        return decoders_.find(tag) != decoders_.end();
+    }
 
 private:
-  struct tag_less {
-    bool operator()(const tag_t& left, const tag_t& right) const {
-      const size_t common = left.size < right.size ? left.size : right.size;
-      for (size_t i = 0; i < common && i < TLV_TAG_CAPACITY; ++i) {
-        if (left.data[i] != right.data[i]) {
-          return left.data[i] < right.data[i];
+    struct tag_less {
+        bool operator()(const tag_t& left, const tag_t& right) const {
+            const size_t common = left.size < right.size ? left.size : right.size;
+            for (size_t i = 0; i < common && i < TLV_TAG_CAPACITY; ++i) {
+                if (left.data[i] != right.data[i]) {
+                    return left.data[i] < right.data[i];
+                }
+            }
+            return left.size < right.size;
         }
-      }
-      return left.size < right.size;
-    }
-  };
+    };
 
-  std::map<tag_t, decoder_fn, tag_less> decoders_;
+    std::map<tag_t, decoder_fn, tag_less> decoders_;
 };
 
 } // namespace tlv

@@ -10,19 +10,13 @@ namespace tlv {
 class writer {
 public:
     writer(byte* buf, size_t capacity, const tlv_writer_format_t& format) {
-        tlv_writer_init(
-            &impl_,
-            reinterpret_cast<uint8_t*>(buf),
-            capacity, &format);
+        tlv_writer_init(&impl_, reinterpret_cast<uint8_t*>(buf), capacity, &format);
     }
 
     // Writes raw bytes with the specified tag.
     TLV_NODISCARD expected<void, error> write(tag_t tag, bytes value) {
         tlv_result_t rc = tlv_writer_write(
-            &impl_,
-            tag,
-            reinterpret_cast<const uint8_t*>(value.data()),
-            value.size());
+            &impl_, tag, reinterpret_cast<const uint8_t*>(value.data()), value.size());
         if (rc != TLV_OK) {
             return unexpected<error>(error::from_c(rc));
         }

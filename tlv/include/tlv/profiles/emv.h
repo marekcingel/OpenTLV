@@ -18,13 +18,13 @@ extern "C" {
 #define TLV_EMV_SPECIFICATION "EMV Contact Book 3 v4.4 (October 2022)"
 
 typedef enum {
-    TLV_EMV_CONTEXT_BASE = 0,          /* ordinary application data */
-    TLV_EMV_CONTEXT_BIT,               /* inside 7F60 */
-    TLV_EMV_CONTEXT_BHT,               /* inside A1 within 7F60 */
-    TLV_EMV_CONTEXT_BHT_FORMAT,        /* inside level-2 A1/A2 within BHT */
-    TLV_EMV_CONTEXT_BIT_GROUP,         /* inside BF4A/BF4B, or terminal group */
-    TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS, /* inside BF4C */
-    TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS, /* inside BF4D */
+    TLV_EMV_CONTEXT_BASE = 0,               /* ordinary application data */
+    TLV_EMV_CONTEXT_BIT,                    /* inside 7F60 */
+    TLV_EMV_CONTEXT_BHT,                    /* inside A1 within 7F60 */
+    TLV_EMV_CONTEXT_BHT_FORMAT,             /* inside level-2 A1/A2 within BHT */
+    TLV_EMV_CONTEXT_BIT_GROUP,              /* inside BF4A/BF4B, or terminal group */
+    TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS,     /* inside BF4C */
+    TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS,     /* inside BF4D */
     TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION, /* inside BF4E */
     TLV_EMV_CONTEXT_COUNT
 } tlv_emv_context_t;
@@ -42,7 +42,7 @@ typedef enum {
  * the dictionary suffix, e.g. tlv_emv_tag_aip_u64. Capacity filtering matches
  * the raw tag objects. All current dictionary values fit in an int. */
 #define EMV_BEGIN(scope)
-#define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg) \
+#define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
     enum { tlv_emv_tag_##name##_u64 = (size == 1 ? (b1) : ((b1) << 8) | (b2)) };
 #define EMV_END(scope)
 #include "tlv/profiles/emv_tags.def"
@@ -52,7 +52,7 @@ typedef enum {
 
 /* Public constants are all the same universal tlv_tag_t as generic I/O. */
 #define EMV_BEGIN(scope)
-#define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg) \
+#define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
     extern TLV_API const tlv_tag_t tlv_emv_tag_##name;
 #define EMV_END(scope)
 #include "tlv/profiles/emv_tags.def"
@@ -65,7 +65,7 @@ typedef struct {
     const char* name; /* stable symbolic name from emv_tags.def */
     tlv_emv_value_kind_t value_kind;
     const tlv_codec_t* codec; /* NULL when no conversion is provided */
-    size_t length_step; /* permitted lengths: min + n * step */
+    size_t length_step;       /* permitted lengths: min + n * step */
 } tlv_emv_definition_t;
 
 extern TLV_API const tlv_schema_t tlv_emv_schema; /* BASE context */
@@ -73,15 +73,13 @@ extern TLV_API const tlv_schema_t tlv_emv_schema; /* BASE context */
  * Contexts are explicit and never fall back to the base dictionary.
  */
 TLV_API const tlv_schema_t* tlv_emv_schema_for(tlv_emv_context_t context);
-TLV_API const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context,
-                                       const tlv_tag_t* tag);
+TLV_API const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context, const tlv_tag_t* tag);
 /* Adds length-step checks (AFL, CVM lists, BIC, RSA exponents, etc.) to the
  * generic schema's inclusive bounds. NULL -> TLV_ERR_NULL_ARG.
  * Not a transaction validator: key-dependent lengths, required/duplicate tags,
  * template membership and cryptographic/value semantics are separate checks.
  */
-TLV_API tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definition,
-                                    size_t length);
+TLV_API tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definition, size_t length);
 
 #ifdef __cplusplus
 }

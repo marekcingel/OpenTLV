@@ -11,13 +11,13 @@ namespace {
 
 std::vector<uint8_t> wrap(uint8_t tag_byte, const std::vector<uint8_t>& content) {
     const tlv_tag_t tag{{tag_byte}, 1};
-    size_t required = 0, written = 0;
+    size_t          required = 0, written = 0;
     EXPECT_EQ(TLV_OK, tlv_der_write(nullptr, 0, tag, content.empty() ? nullptr : content.data(),
-                                   content.size(), nullptr, &required, nullptr));
+                                    content.size(), nullptr, &required, nullptr));
     std::vector<uint8_t> data(required);
     EXPECT_EQ(TLV_OK, tlv_der_write(data.data(), data.size(), tag,
-                                   content.empty() ? nullptr : content.data(),
-                                   content.size(), nullptr, &written, nullptr));
+                                    content.empty() ? nullptr : content.data(), content.size(),
+                                    nullptr, &written, nullptr));
     EXPECT_EQ(required, written);
     return data;
 }
@@ -26,10 +26,11 @@ std::vector<uint8_t> wrap(uint8_t tag_byte, const std::vector<uint8_t>& content)
  * functions (existing DER-TLV behavior is unaffected by this story). */
 void check(uint8_t tag_byte, const std::vector<uint8_t>& content, tlv_result_t expect) {
     const std::vector<uint8_t> data = wrap(tag_byte, content);
-    tlv_view_t view{};
-    size_t consumed = 0, offset = 99;
+    tlv_view_t                 view{};
+    size_t                     consumed = 0, offset = 99;
     EXPECT_EQ(TLV_OK, tlv_der_read(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
-    EXPECT_EQ(expect, tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed, &offset));
+    EXPECT_EQ(expect,
+              tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed, &offset));
     if (expect != TLV_OK) EXPECT_EQ(data.size() - content.size(), offset);
 }
 
@@ -122,7 +123,8 @@ TEST(Unit_DerValues, Utf8String) {
 TEST(Unit_DerValues, RestrictedCharacterRepertoires) {
     check(0x12, {'0', '9', ' '}, TLV_OK);
     check(0x12, {'A'}, TLV_ERR_INVALID_VALUE);
-    check(0x13, {'A', 'z', '0', ' ', '\'', '(', ')', '+', ',', '-', '.', '/', ':', '=', '?'}, TLV_OK);
+    check(0x13, {'A', 'z', '0', ' ', '\'', '(', ')', '+', ',', '-', '.', '/', ':', '=', '?'},
+          TLV_OK);
     check(0x13, {'_'}, TLV_ERR_INVALID_VALUE);
     check(0x16, {0x00, 0x7F}, TLV_OK);
     check(0x16, {0x80}, TLV_ERR_INVALID_VALUE);
@@ -144,14 +146,18 @@ TEST(Unit_DerValues, UniversalAndBmpStrings) {
 
 TEST(Unit_DerValues, UtcTime) {
     check(0x17, {'2', '5', '0', '1', '0', '2', '1', '2', '0', '0', '0', '0', 'Z'}, TLV_OK);
-    check(0x17, {'2', '5', '0', '1', '0', '2', '1', '2', '0', '0', '0', '0'}, TLV_ERR_INVALID_VALUE);
-    check(0x17, {'2', '5', '1', '3', '0', '2', '1', '2', '0', '0', '0', '0', 'Z'}, TLV_ERR_INVALID_VALUE);
-    check(0x17, {'2', '5', '0', '1', '0', '2', '1', '2', '0', '0', '0', '0', '+'}, TLV_ERR_INVALID_VALUE);
+    check(0x17, {'2', '5', '0', '1', '0', '2', '1', '2', '0', '0', '0', '0'},
+          TLV_ERR_INVALID_VALUE);
+    check(0x17, {'2', '5', '1', '3', '0', '2', '1', '2', '0', '0', '0', '0', 'Z'},
+          TLV_ERR_INVALID_VALUE);
+    check(0x17, {'2', '5', '0', '1', '0', '2', '1', '2', '0', '0', '0', '0', '+'},
+          TLV_ERR_INVALID_VALUE);
 }
 
 TEST(Unit_DerValues, GeneralizedTime) {
-    const std::vector<uint8_t> base = {'2', '0', '2', '5', '0', '1', '0', '2', '1', '2', '0', '0', '0', '0'};
-    auto with = [&](std::vector<uint8_t> suffix) {
+    const std::vector<uint8_t> base = {'2', '0', '2', '5', '0', '1', '0',
+                                       '2', '1', '2', '0', '0', '0', '0'};
+    auto                       with = [&](std::vector<uint8_t> suffix) {
         std::vector<uint8_t> full = base;
         full.insert(full.end(), suffix.begin(), suffix.end());
         return full;
@@ -177,33 +183,36 @@ TEST(Unit_DerValues, UnsupportedTypesAreExplicitInStrictMode) {
     size_t required = 0, written = 0;
     ASSERT_EQ(TLV_OK, tlv_der_write(nullptr, 0, tag, nullptr, 0, nullptr, &required, nullptr));
     std::vector<uint8_t> data(required);
-    ASSERT_EQ(TLV_OK, tlv_der_write(data.data(), data.size(), tag, nullptr, 0, nullptr, &written, nullptr));
+    ASSERT_EQ(TLV_OK,
+              tlv_der_write(data.data(), data.size(), tag, nullptr, 0, nullptr, &written, nullptr));
     tlv_view_t view{};
-    size_t consumed = 0;
+    size_t     consumed = 0;
     EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE,
               tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
 }
 
 TEST(Unit_DerValues, NonUniversalClassesAreUnaffected) {
-    for (uint8_t tag_byte : {0x81 /* context-specific, primitive */,
-                            0xC1 /* private, primitive */}) {
+    for (uint8_t tag_byte :
+         {0x81 /* context-specific, primitive */, 0xC1 /* private, primitive */}) {
         const std::vector<uint8_t> data = wrap(tag_byte, {0x02});
-        tlv_view_t view{};
-        size_t consumed = 0;
-        EXPECT_EQ(TLV_OK, tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
+        tlv_view_t                 view{};
+        size_t                     consumed = 0;
+        EXPECT_EQ(TLV_OK, tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed,
+                                              nullptr));
     }
     /* Constructed, non-UNIVERSAL: content must still be a valid nested DER-TLV
      * element, but its bytes are never passed to universal value validation. */
     const std::vector<uint8_t> data = wrap(0xA1 /* context-specific, constructed */, {0x05, 0x00});
-    tlv_view_t view{};
-    size_t consumed = 0;
-    EXPECT_EQ(TLV_OK, tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
+    tlv_view_t                 view{};
+    size_t                     consumed = 0;
+    EXPECT_EQ(TLV_OK,
+              tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
 }
 
 TEST(Unit_DerValues, NestedValueReportsOffsetOfOffendingElement) {
     const uint8_t data[] = {0x30, 6, 0x02, 1, 0, 0x01, 1, 1};
-    tlv_view_t view{};
-    size_t consumed = 0, offset = 99;
+    tlv_view_t    view{};
+    size_t        consumed = 0, offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_der_read_strict(data, sizeof(data), nullptr, &view, &consumed, &offset));
     EXPECT_EQ(7u, offset);
@@ -211,7 +220,7 @@ TEST(Unit_DerValues, NestedValueReportsOffsetOfOffendingElement) {
 
 TEST(Unit_DerValues, WalkStrictVisitsAndReportsInvalidContent) {
     const uint8_t data[] = {0x01, 1, 0x02};
-    size_t offset = 99;
+    size_t        offset = 99;
     EXPECT_EQ(TLV_OK, tlv_der_walk(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_der_walk_strict(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
@@ -220,22 +229,24 @@ TEST(Unit_DerValues, WalkStrictVisitsAndReportsInvalidContent) {
 
 TEST(Unit_DerValues, WriteStrictLeavesOutputAndWrittenUnchangedOnFailure) {
     const tlv_tag_t tag{{0x01}, 1};
-    const uint8_t bad_value[] = {0x02};
-    uint8_t output[8];
+    const uint8_t   bad_value[] = {0x02};
+    uint8_t         output[8];
     std::fill(std::begin(output), std::end(output), 0xEE);
     size_t written = 99, offset = 0, required = 99;
-    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_der_write_strict(output, sizeof(output), tag, bad_value,
-                                                         sizeof(bad_value), nullptr, &written, &offset));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_der_write_strict(output, sizeof(output), tag, bad_value, sizeof(bad_value),
+                                   nullptr, &written, &offset));
     EXPECT_EQ(99u, written);
     EXPECT_EQ(2u, offset); /* value start: 1 tag byte + 1 length byte */
     for (auto byte : output) EXPECT_EQ(0xEE, byte);
-    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_der_write_strict(nullptr, 0, tag, bad_value,
-                                                         sizeof(bad_value), nullptr, &required, &offset));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_der_write_strict(nullptr, 0, tag, bad_value, sizeof(bad_value), nullptr,
+                                   &required, &offset));
     EXPECT_EQ(99u, required);
     /* A valid BOOLEAN still writes successfully in strict mode. */
     const uint8_t good_value[] = {0xFF};
     EXPECT_EQ(TLV_OK, tlv_der_write_strict(output, sizeof(output), tag, good_value,
-                                          sizeof(good_value), nullptr, &written, nullptr));
+                                           sizeof(good_value), nullptr, &written, nullptr));
     EXPECT_EQ(3u, written);
     EXPECT_EQ(0x01, output[0]);
     EXPECT_EQ(0x01, output[1]);

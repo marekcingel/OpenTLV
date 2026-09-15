@@ -36,20 +36,18 @@ typedef struct tlv_structure_codec {
     size_t max_depth;
     size_t max_elements;
     tlv_codec_result_t (*decode)(const void* context, const tlv_reader_format_t* format,
-                                const uint8_t* data, size_t size,
-                                void* value, size_t capacity);
+                                 const uint8_t* data, size_t size, void* value, size_t capacity);
     tlv_codec_result_t (*encode)(const void* context, const tlv_writer_format_t* format,
-                                const void* value, size_t size,
-                                uint8_t* data, size_t capacity, size_t* written);
+                                 const void* value, size_t size, uint8_t* data, size_t capacity,
+                                 size_t* written);
 } tlv_structure_codec_t;
 
 TLV_API tlv_codec_result_t tlv_structure_decode(const tlv_structure_codec_t* codec,
-                                        const uint8_t* data, size_t size,
-                                        void* value, size_t capacity);
+                                                const uint8_t* data, size_t size, void* value,
+                                                size_t capacity);
 TLV_API tlv_codec_result_t tlv_structure_encode(const tlv_structure_codec_t* codec,
-                                        const void* value, size_t size,
-                                        uint8_t* data, size_t capacity,
-                                        size_t* written);
+                                                const void* value, size_t size, uint8_t* data,
+                                                size_t capacity, size_t* written);
 #ifdef __cplusplus
 }
 #endif

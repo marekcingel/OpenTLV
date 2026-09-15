@@ -19,6 +19,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add clang-format support for `tlv` and `tlv++`: a repository-root
+  [.clang-format](.clang-format) style for tlv++ and everything built on it
+  (`tools/`, `tests/`, `benchmarks/`, `examples/`), with
+  [tlv/.clang-format](tlv/.clang-format) overriding it for the pure C layer
+  (clang-format resolves the nearest file per directory, so both apply
+  automatically without a `Language:`-keyed split in one shared file, which
+  clang-format versions disagree on for ambiguous `.h` files and which
+  clang-format 18 can't even parse), opt-in `format`/`format-check` CMake
+  targets (`cmake/clang_format.cmake`), a
+  [.pre-commit-config.yaml](.pre-commit-config.yaml) that runs clang-format
+  plus whitespace/YAML/Markdown checks before each commit, and a CI job
+  ([static-analysis.yml](.github/workflows/static-analysis.yml)) that runs the
+  same pre-commit hooks and fails a push or pull request when any covered
+  file isn't formatted. All existing files in those directories were
+  reformatted to match. (#118)
 - Add a practical EMV tag decoding example
   (`examples/emv/src/tag_decoding.c`): parses a simulated READ RECORD response
   template, then for each child tag calls `tlv_emv_find()` to look up its Book 3

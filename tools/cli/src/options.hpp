@@ -10,7 +10,7 @@ namespace cli {
 // and returns a nonzero exit code, matching this CLI's exit-code contract.
 class options {
 public:
-    int parse(int argc, char** argv);
+    int         parse(int argc, char** argv);
     static void usage();
 
     const char* command = nullptr;
@@ -21,12 +21,12 @@ public:
     std::size_t max_input = 16777216;
     std::size_t max_depth = 64;
     std::size_t max_elements = 100000;
-    int tree = 0;
-    int pretty = 0;
-    int describe = 0;
-    int color = 0;
-    int hex_input = 0;
-    int pdol = 0;
+    int         tree = 0;
+    int         pretty = 0;
+    int         describe = 0;
+    int         color = 0;
+    int         hex_input = 0;
+    int         pdol = 0;
 };
 
 } // namespace cli

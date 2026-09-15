@@ -16,7 +16,7 @@
 
 static int environment_excludes_color(void) {
 #ifdef _WIN32
-    char value[32];
+    char  value[32];
     DWORD length;
     SetLastError(ERROR_SUCCESS);
     length = GetEnvironmentVariableA("NO_COLOR", value, sizeof(value));
@@ -29,8 +29,8 @@ static int environment_excludes_color(void) {
 #endif
 }
 
-void cli_presentation_init(cli_presentation_t* p, const uint8_t* data,
-                           size_t size, int color, int pretty) {
+void cli_presentation_init(cli_presentation_t* p, const uint8_t* data, size_t size, int color,
+                           int pretty) {
     int terminal;
     memset(p, 0, sizeof(*p));
     p->data = data;
@@ -45,7 +45,7 @@ void cli_presentation_init(cli_presentation_t* p, const uint8_t* data,
 #ifdef _WIN32
     if (terminal && p->color) {
         p->restore_mode = SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE),
-            p->console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0;
+                                         p->console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0;
         if (!p->restore_mode && color == 0) p->color = 0;
     }
     if (terminal && pretty) {
@@ -69,14 +69,17 @@ void cli_presentation_restore(cli_presentation_t* p) {
 #if OPENTLV_PROFILE_EMV
 static int child_context(int context, const tlv_tag_t* tag) {
     unsigned value = tag->data[0];
-    if (tag->size == 2) value = (value << 8) | tag->data[1];
-    else if (tag->size != 1) return TLV_EMV_CONTEXT_COUNT;
+    if (tag->size == 2)
+        value = (value << 8) | tag->data[1];
+    else if (tag->size != 1)
+        return TLV_EMV_CONTEXT_COUNT;
     if (context == TLV_EMV_CONTEXT_BASE || context == TLV_EMV_CONTEXT_BIT_GROUP) {
         if (value == 0x7F60) return TLV_EMV_CONTEXT_BIT;
     }
     if (context == TLV_EMV_CONTEXT_BASE) {
         switch (value) {
-            case 0xBF4A: case 0xBF4B: return TLV_EMV_CONTEXT_BIT_GROUP;
+            case 0xBF4A:
+            case 0xBF4B: return TLV_EMV_CONTEXT_BIT_GROUP;
             case 0xBF4C: return TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS;
             case 0xBF4D: return TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS;
             case 0xBF4E: return TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION;
@@ -92,8 +95,8 @@ static int child_context(int context, const tlv_tag_t* tag) {
 }
 #endif
 
-void cli_presentation_visit(cli_presentation_t* p, const tlv_view_t* view,
-                            size_t depth, int indefinite) {
+void cli_presentation_visit(cli_presentation_t* p, const tlv_view_t* view, size_t depth,
+                            int indefinite) {
     size_t end = (size_t)(view->value.data - p->data) + (size_t)view->value.length;
     p->more[depth] = end + (indefinite ? 2u : 0u) < p->ends[depth];
     if (depth < TLV_WALK_MAX_DEPTH) {
@@ -106,16 +109,19 @@ void cli_presentation_visit(cli_presentation_t* p, const tlv_view_t* view,
 
 void cli_presentation_prefix(const cli_presentation_t* p, size_t depth) {
     size_t i;
-    for (i = 1; i < depth; ++i)
-        fputs(p->more[i] ? "\xE2\x94\x82   " : "    ", stdout);
-    if (depth) fputs(p->more[depth] ? "\xE2\x94\x9C\xE2\x94\x80\xE2\x94\x80 " :
-                                    "\xE2\x94\x94\xE2\x94\x80\xE2\x94\x80 ", stdout);
+    for (i = 1; i < depth; ++i) fputs(p->more[i] ? "\xE2\x94\x82   " : "    ", stdout);
+    if (depth)
+        fputs(p->more[depth] ? "\xE2\x94\x9C\xE2\x94\x80\xE2\x94\x80 "
+                             : "\xE2\x94\x94\xE2\x94\x80\xE2\x94\x80 ",
+              stdout);
 }
 
 #if OPENTLV_PROFILE_EMV
 /* Presentation labels only; tag matching, value types and bounds come from tlv. */
 static void display_name(const char* name) {
-    static const struct { const char *symbol, *label; } labels[] = {
+    static const struct {
+        const char *symbol, *label;
+    } labels[] = {
         {"pan", "Primary Account Number (PAN)"},
         {"aip", "Application Interchange Profile (AIP)"},
         {"afl", "Application File Locator (AFL)"},
@@ -127,15 +133,22 @@ static void display_name(const char* name) {
         {"fci_template", "File Control Information (FCI) Template"},
         {"fci_proprietary_template", "File Control Information (FCI) Proprietary Template"},
         {"iin", "Issuer Identification Number (IIN)"},
-        {"sfi", "Short File Identifier (SFI)"}
-    };
+        {"sfi", "Short File Identifier (SFI)"}};
     size_t i;
-    int initial = 1;
+    int    initial = 1;
     for (i = 0; i < sizeof(labels) / sizeof(labels[0]); ++i)
-        if (!strcmp(name, labels[i].symbol)) { fputs(labels[i].label, stdout); return; }
+        if (!strcmp(name, labels[i].symbol)) {
+            fputs(labels[i].label, stdout);
+            return;
+        }
     for (; *name; ++name) {
-        if (*name == '_') { putchar(' '); initial = 1; }
-        else { putchar(initial ? toupper((unsigned char)*name) : *name); initial = 0; }
+        if (*name == '_') {
+            putchar(' ');
+            initial = 1;
+        } else {
+            putchar(initial ? toupper((unsigned char)*name) : *name);
+            initial = 0;
+        }
     }
 }
 
@@ -158,24 +171,30 @@ static const char* value_description(tlv_emv_value_kind_t kind) {
 }
 #endif
 
-void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view,
-                          size_t depth, int describe) {
+void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, size_t depth,
+                          int describe) {
 #if OPENTLV_PROFILE_EMV
-    const tlv_emv_definition_t* definition = tlv_emv_find(
-        (tlv_emv_context_t)p->contexts[depth], &view->tag);
+    const tlv_emv_definition_t* definition =
+        tlv_emv_find((tlv_emv_context_t)p->contexts[depth], &view->tag);
     fputs(" name=\"", stdout);
-    if (definition) display_name(definition->name);
-    else fputs("Unknown EMV tag in this context", stdout);
+    if (definition)
+        display_name(definition->name);
+    else
+        fputs("Unknown EMV tag in this context", stdout);
     putchar('"');
     if (describe && definition) {
-        printf(" description=\"%s; dictionary length: %zu", value_description(definition->value_kind),
-               definition->schema->min_length);
-        if (definition->schema->max_length == SIZE_MAX) fputs("..unbounded", stdout);
+        printf(" description=\"%s; dictionary length: %zu",
+               value_description(definition->value_kind), definition->schema->min_length);
+        if (definition->schema->max_length == SIZE_MAX)
+            fputs("..unbounded", stdout);
         else if (definition->schema->max_length != definition->schema->min_length)
             printf("..%zu", definition->schema->max_length);
         printf(" bytes; step: %zu\"", definition->length_step);
     }
 #else
-    (void)p; (void)view; (void)depth; (void)describe;
+    (void)p;
+    (void)view;
+    (void)depth;
+    (void)describe;
 #endif
 }

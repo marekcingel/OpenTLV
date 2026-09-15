@@ -11,27 +11,21 @@ tlv_byte_order_t tlv_endian_native(void) {
 }
 
 uint16_t tlv_read_u16_be(const uint8_t* data) {
-    return (uint16_t)(((uint32_t)data[0] << 8) |
-                       ((uint32_t)data[1] << 0));
+    return (uint16_t)(((uint32_t)data[0] << 8) | ((uint32_t)data[1] << 0));
 }
 
 uint16_t tlv_read_u16_le(const uint8_t* data) {
-    return (uint16_t)(((uint32_t)data[0] << 0) |
-                       ((uint32_t)data[1] << 8));
+    return (uint16_t)(((uint32_t)data[0] << 0) | ((uint32_t)data[1] << 8));
 }
 
 uint32_t tlv_read_u32_be(const uint8_t* data) {
-    return (uint32_t)(((uint32_t)data[0] << 24) |
-                       ((uint32_t)data[1] << 16) |
-                       ((uint32_t)data[2] << 8) |
-                       ((uint32_t)data[3] << 0));
+    return (uint32_t)(((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) |
+                      ((uint32_t)data[2] << 8) | ((uint32_t)data[3] << 0));
 }
 
 uint32_t tlv_read_u32_le(const uint8_t* data) {
-    return (uint32_t)(((uint32_t)data[0] << 0) |
-                       ((uint32_t)data[1] << 8) |
-                       ((uint32_t)data[2] << 16) |
-                       ((uint32_t)data[3] << 24));
+    return (uint32_t)(((uint32_t)data[0] << 0) | ((uint32_t)data[1] << 8) |
+                      ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24));
 }
 
 void tlv_write_u16_be(uint8_t* data, uint16_t value) {
@@ -59,7 +53,7 @@ void tlv_write_u32_le(uint8_t* data, uint32_t value) {
 }
 
 tlv_result_t tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t order,
-                  uint64_t* value) {
+                           uint64_t* value) {
     uint64_t result = 0;
     size_t i;
     if (!data || !value) return TLV_ERR_NULL_ARG;
@@ -74,8 +68,7 @@ tlv_result_t tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t o
     return TLV_OK;
 }
 
-tlv_result_t tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
-                   uint64_t value) {
+tlv_result_t tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order, uint64_t value) {
     size_t i;
     if (!data) return TLV_ERR_NULL_ARG;
     if (!width || width > sizeof(uint64_t)) return TLV_ERR_INVALID_LENGTH;

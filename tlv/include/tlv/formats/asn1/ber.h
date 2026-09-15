@@ -40,11 +40,11 @@ extern TLV_API const tlv_writer_format_t tlv_writer_format_ber;
  * All outputs and writer position remain unchanged on failure.
  */
 TLV_API tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t length, size_t* size);
-TLV_API tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity,
-    tlv_tag_t tag, const uint8_t* value, size_t length, size_t* written);
+TLV_API tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity, tlv_tag_t tag,
+                                              const uint8_t* value, size_t length, size_t* written);
 /* Requires a writer initialized with tlv_writer_format_ber. */
-TLV_API tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer,
-    tlv_tag_t tag, const uint8_t* value, size_t length);
+TLV_API tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag,
+                                                     const uint8_t* value, size_t length);
 
 /* Nesting predicate for tree traversal; context is unused. */
 TLV_API int tlv_ber_is_constructed(const void* context, const tlv_tag_t* tag);

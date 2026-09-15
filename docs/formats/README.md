@@ -12,7 +12,6 @@ Profile semantics are documented separately.
 - [Application-defined formats](custom/README.md)
 - Profiles: [DER validation](../profiles/der/README.md), [CER validation](../profiles/cer/README.md), [EMV](../profiles/emv/README.md)
 
-
 ## Choose a format
 
 | Need | Start with | Boundary |

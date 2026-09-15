@@ -6,18 +6,16 @@
 
 namespace {
 const tlv_schema_entry_t rules[] = {{{{0x42}, 1}, 1, 2, 0}};
-const tlv_schema_t schema = {rules, 1};
-
-
+const tlv_schema_t       schema = {rules, 1};
 
 class Integration_Scanner : public ::testing::Test {
 protected:
     tlv_view_t view = {{{0xAA}, 1}, {nullptr, 99}};
-    size_t offset = 88;
-    size_t consumed = 77;
+    size_t     offset = 88;
+    size_t     consumed = 77;
 
     tlv_result_t scan(const uint8_t* data, size_t size, size_t start = 0,
-                      const tlv_schema_t* filter = nullptr,
+                      const tlv_schema_t*        filter = nullptr,
                       const tlv_reader_format_t* format = &tlv_reader_format_fixed_1byte) {
         return tlv_scan(data, size, start, format, filter, &view, &offset, &consumed);
     }
@@ -31,7 +29,7 @@ protected:
         EXPECT_EQ(77u, consumed);
     }
 };
-}
+} // namespace
 
 TEST_F(Integration_Scanner, SkipsInvalidLeadingBytesWithoutSchema) {
     const uint8_t data[] = {0xFF, 0xFF, 0x42, 1, 0xAB};
@@ -54,8 +52,7 @@ TEST_F(Integration_Scanner, ReturnsFirstCandidateAndResumesAtAbsoluteOffset) {
 }
 
 TEST_F(Integration_Scanner, SchemaRejectsUnknownTagsAndInvalidLengths) {
-    const uint8_t data[] = {7, 0, 0x42, 0, 0x42, 3, 0xFF, 0xFF, 0xFF,
-                            0x42, 2, 0xAA, 0xBB};
+    const uint8_t data[] = {7, 0, 0x42, 0, 0x42, 3, 0xFF, 0xFF, 0xFF, 0x42, 2, 0xAA, 0xBB};
     ASSERT_EQ(TLV_OK, scan(data, sizeof(data)));
     EXPECT_EQ(0u, offset);
     ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema));
@@ -65,12 +62,12 @@ TEST_F(Integration_Scanner, SchemaRejectsUnknownTagsAndInvalidLengths) {
 }
 
 TEST_F(Integration_Scanner, EmptyAndReversedSchemasRejectAllCandidates) {
-    const uint8_t data[] = {0x42, 1, 0xFF};
+    const uint8_t      data[] = {0x42, 1, 0xFF};
     const tlv_schema_t empty = {nullptr, 0};
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, sizeof(data), 0, &empty));
     unchanged();
     const tlv_schema_entry_t reversed_rule = {{{0x42}, 1}, 2, 1, 0};
-    const tlv_schema_t reversed = {&reversed_rule, 1};
+    const tlv_schema_t       reversed = {&reversed_rule, 1};
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, sizeof(data), 0, &reversed));
     unchanged();
 }
@@ -78,8 +75,7 @@ TEST_F(Integration_Scanner, EmptyAndReversedSchemasRejectAllCandidates) {
 TEST_F(Integration_Scanner, HandlesEveryTruncatedPrefixSafely) {
     const uint8_t data[] = {0x42, 0x82, 0, 2, 0xAA, 0xBB};
     for (size_t size = 0; size < sizeof(data); ++size) {
-        EXPECT_EQ(TLV_ERR_END_OF_BUFFER,
-                  scan(data, size, 0, &schema, &tlv_reader_format_default));
+        EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, size, 0, &schema, &tlv_reader_format_default));
         unchanged();
     }
     ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_reader_format_default));
@@ -99,7 +95,7 @@ TEST_F(Integration_Scanner, ContinuesAfterInvalidLengthAndTruncatedCandidate) {
 
 TEST_F(Integration_Scanner, NormalReaderStillStopsAtInvalidBoundary) {
     const uint8_t data[] = {0xFF, 0xFF, 0x42, 1, 0xAA};
-    tlv_reader_t reader;
+    tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_fixed_1byte));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &view));
     EXPECT_EQ(0u, reader.pos);
@@ -108,4 +104,3 @@ TEST_F(Integration_Scanner, NormalReaderStillStopsAtInvalidBoundary) {
     EXPECT_EQ(2u, offset);
     EXPECT_EQ(0u, reader.pos);
 }
-

@@ -1,8 +1,7 @@
 #include "formats.h"
 
-static void check_roundtrip(size_t format, tlv_tag_t tag,
-                            const uint8_t* value, size_t length) {
-    size_t total = SIZE_MAX, written = SIZE_MAX, consumed = SIZE_MAX;
+static void check_roundtrip(size_t format, tlv_tag_t tag, const uint8_t* value, size_t length) {
+    size_t       total = SIZE_MAX, written = SIZE_MAX, consumed = SIZE_MAX;
     tlv_result_t rc = tlv_encoded_size(tag, length, fuzz_formats[format].writer, &total);
     if (rc != TLV_OK) {
         FUZZ_CHECK(total == SIZE_MAX);
@@ -13,16 +12,15 @@ static void check_roundtrip(size_t format, tlv_tag_t tag,
     uint8_t* encoded = (uint8_t*)malloc(total);
     FUZZ_CHECK(encoded != NULL);
     memset(encoded, 0xa5, total);
-    FUZZ_CHECK(tlv_write(encoded, total - 1, fuzz_formats[format].writer,
-        tag, value, length, &written) != TLV_OK);
+    FUZZ_CHECK(tlv_write(encoded, total - 1, fuzz_formats[format].writer, tag, value, length,
+                         &written) != TLV_OK);
     FUZZ_CHECK(written == SIZE_MAX);
     for (size_t j = 0; j < total; ++j) FUZZ_CHECK(encoded[j] == 0xa5);
-    FUZZ_CHECK(tlv_write(encoded, total, fuzz_formats[format].writer,
-        tag, value, length, &written) == TLV_OK);
+    FUZZ_CHECK(tlv_write(encoded, total, fuzz_formats[format].writer, tag, value, length,
+                         &written) == TLV_OK);
     FUZZ_CHECK(written == total);
     tlv_view_t view = fuzz_sentinel(value);
-    FUZZ_CHECK(tlv_read(encoded, written, fuzz_formats[format].reader,
-        &view, &consumed) == TLV_OK);
+    FUZZ_CHECK(tlv_read(encoded, written, fuzz_formats[format].reader, &view, &consumed) == TLV_OK);
     FUZZ_CHECK(consumed == written);
     fuzz_view_bounds(&view, encoded, written);
     FUZZ_CHECK(view.tag.size == tag.size);
@@ -34,7 +32,7 @@ static void check_roundtrip(size_t format, tlv_tag_t tag,
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     tlv_tag_t tag = {{0}, 0};
-    size_t tag_size = size ? data[0] % (TLV_TAG_CAPACITY + 1) : 0;
+    size_t    tag_size = size ? data[0] % (TLV_TAG_CAPACITY + 1) : 0;
     if (size && tag_size > size - 1) tag_size = size - 1;
     tag.size = (uint8_t)tag_size;
     if (tag_size) memcpy(tag.data, data + 1, tag_size);

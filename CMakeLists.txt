@@ -46,6 +46,9 @@ opentlv_generate_config_files()
 include(cmake/compiler.cmake)
 include(GNUInstallDirs)
 
+include(cmake/clang_format.cmake)
+opentlv_add_clang_format_targets()
+
 add_subdirectory(tlv)
 
 if(OPENTLV_BUILD_FUZZING)

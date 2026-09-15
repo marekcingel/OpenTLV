@@ -3,8 +3,8 @@
 #include "tlv/endian.h"
 
 static int valid_length(const emv_value_rule_t* rule, size_t size) {
-    return size >= rule->min_length && size <= rule->max_length &&
-           rule->step && (size - rule->min_length) % rule->step == 0;
+    return size >= rule->min_length && size <= rule->max_length && rule->step &&
+           (size - rule->min_length) % rule->step == 0;
 }
 
 static uint64_t decimal_limit(unsigned digits) {
@@ -13,8 +13,7 @@ static uint64_t decimal_limit(unsigned digits) {
     return limit - 1;
 }
 
-static int read_number(const uint8_t* data, size_t size, unsigned digits,
-                       uint64_t* value) {
+static int read_number(const uint8_t* data, size_t size, unsigned digits, uint64_t* value) {
     uint64_t number = 0;
     size_t i;
     if (!size || size > sizeof(uint64_t) || digits > 18) return 0;
@@ -32,11 +31,11 @@ static int read_number(const uint8_t* data, size_t size, unsigned digits,
     return 1;
 }
 
-static int write_number(uint64_t value, unsigned digits,
-                        uint8_t* data, size_t size) {
+static int write_number(uint64_t value, unsigned digits, uint8_t* data, size_t size) {
     size_t i;
     if (!size || size > sizeof(uint64_t) || digits > 18 ||
-        (digits && value > decimal_limit(digits))) return 0;
+        (digits && value > decimal_limit(digits)))
+        return 0;
     if (!digits) return tlv_write_uint(data, size, TLV_BYTE_ORDER_BIG_ENDIAN, value) == TLV_OK;
     for (i = size; i > 0; --i) {
         unsigned pair = (unsigned)(value % 100);
@@ -47,7 +46,7 @@ static int write_number(uint64_t value, unsigned digits,
 }
 
 static int valid_date(tlv_emv_date_t date) {
-    static const uint8_t days[] = {31,28,31,30,31,30,31,31,30,31,30,31};
+    static const uint8_t days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     unsigned limit;
     if (date.year > 99 || date.month < 1 || date.month > 12) return 0;
     limit = days[date.month - 1];
@@ -66,22 +65,22 @@ static int valid_biometric(uint64_t biometric) {
            biometric == TLV_EMV_BIOMETRIC_PALM;
 }
 
-static tlv_codec_result_t decode_digits(const emv_value_rule_t* rule,
-        const uint8_t* data, size_t size, void* value, size_t capacity) {
+static tlv_codec_result_t decode_digits(const emv_value_rule_t* rule, const uint8_t* data,
+                                        size_t size, void* value, size_t capacity) {
     size_t i, count = 0;
     int padding = 0;
     char* digits = (char*)value;
     if (size > (SIZE_MAX - 1) / 2) return TLV_CODEC_ERR_INVALID_VALUE;
     for (i = 0; i < size * 2; ++i) {
         unsigned digit = (i % 2 ? data[i / 2] : data[i / 2] >> 4) & 15;
-        if (digit == 15) padding = 1;
+        if (digit == 15)
+            padding = 1;
         else {
             if (digit > 9 || padding) return TLV_CODEC_ERR_INVALID_VALUE;
             ++count;
         }
     }
-    if (rule->argument && (!count || count > rule->argument))
-        return TLV_CODEC_ERR_INVALID_VALUE;
+    if (rule->argument && (!count || count > rule->argument)) return TLV_CODEC_ERR_INVALID_VALUE;
     if (capacity < count + 1) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
     for (i = 0; i < count; ++i) {
         unsigned digit = (i % 2 ? data[i / 2] : data[i / 2] >> 4) & 15;
@@ -91,13 +90,12 @@ static tlv_codec_result_t decode_digits(const emv_value_rule_t* rule,
     return TLV_CODEC_OK;
 }
 
-static tlv_codec_result_t encode_digits(const emv_value_rule_t* rule,
-        const void* value, size_t size, uint8_t* data, size_t capacity,
-        size_t* written) {
+static tlv_codec_result_t encode_digits(const emv_value_rule_t* rule, const void* value,
+                                        size_t size, uint8_t* data, size_t capacity,
+                                        size_t* written) {
     const char* digits = (const char*)value;
     size_t i, bytes = size / 2 + size % 2;
-    if (!valid_length(rule, bytes) ||
-        (rule->argument && (!size || size > rule->argument)))
+    if (!valid_length(rule, bytes) || (rule->argument && (!size || size > rule->argument)))
         return TLV_CODEC_ERR_INVALID_VALUE;
     for (i = 0; i < size; ++i)
         if (digits[i] < '0' || digits[i] > '9') return TLV_CODEC_ERR_INVALID_VALUE;
@@ -113,14 +111,15 @@ static tlv_codec_result_t encode_digits(const emv_value_rule_t* rule,
     return TLV_CODEC_OK;
 }
 
-#define EMV_STORE(object) do { \
-    if (capacity < sizeof(object)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT; \
-    memcpy(value, &(object), sizeof(object)); \
-    return TLV_CODEC_OK; \
-} while (0)
+#define EMV_STORE(object)                                                                          \
+    do {                                                                                           \
+        if (capacity < sizeof(object)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;                      \
+        memcpy(value, &(object), sizeof(object));                                                  \
+        return TLV_CODEC_OK;                                                                       \
+    } while (0)
 
-tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data,
-        size_t size, void* value, size_t capacity) {
+tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data, size_t size,
+                                    void* value, size_t capacity) {
     const emv_value_rule_t* rule = (const emv_value_rule_t*)context;
     uint64_t number;
     if (!valid_length(rule, size)) return TLV_CODEC_ERR_INVALID_VALUE;
@@ -130,8 +129,7 @@ tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data,
             if (!read_number(data, size, rule->argument, &number))
                 return TLV_CODEC_ERR_INVALID_VALUE;
             EMV_STORE(number);
-        case TLV_EMV_VALUE_DIGITS:
-            return decode_digits(rule, data, size, value, capacity);
+        case TLV_EMV_VALUE_DIGITS: return decode_digits(rule, data, size, value, capacity);
         case TLV_EMV_VALUE_DATE: {
             tlv_emv_date_t date;
             if (!read_number(data, size, 6, &number)) return TLV_CODEC_ERR_INVALID_VALUE;
@@ -186,13 +184,14 @@ tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data,
 }
 #undef EMV_STORE
 
-#define EMV_LOAD(object) do { \
-    if (size != sizeof(object)) return TLV_CODEC_ERR_INVALID_VALUE; \
-    memcpy(&(object), value, sizeof(object)); \
-} while (0)
+#define EMV_LOAD(object)                                                                           \
+    do {                                                                                           \
+        if (size != sizeof(object)) return TLV_CODEC_ERR_INVALID_VALUE;                            \
+        memcpy(&(object), value, sizeof(object));                                                  \
+    } while (0)
 
-tlv_codec_result_t emv_value_encode(const void* context, const void* value,
-        size_t size, uint8_t* data, size_t capacity, size_t* written) {
+tlv_codec_result_t emv_value_encode(const void* context, const void* value, size_t size,
+                                    uint8_t* data, size_t capacity, size_t* written) {
     const emv_value_rule_t* rule = (const emv_value_rule_t*)context;
     uint8_t bytes[sizeof(uint64_t)];
     uint64_t number;
