@@ -19,6 +19,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `tlv_der_read_strict`, `tlv_der_walk_strict` and `tlv_der_write_strict`,
+  drop-in counterparts of `tlv_der_read`/`tlv_der_walk`/`tlv_der_write` that
+  additionally validate the canonical DER content of every UNIVERSAL-class
+  primitive element (including nested ones) against ITU-T X.690: BOOLEAN,
+  INTEGER, BIT STRING, OCTET STRING, NULL, OBJECT IDENTIFIER, RELATIVE-OID,
+  REAL, ENUMERATED, UTF8String, NumericString, PrintableString, IA5String,
+  VisibleString, UniversalString, BMPString, UTCTime and GeneralizedTime.
+  Other UNIVERSAL primitive types report the new `TLV_ERR_UNSUPPORTED_TYPE`
+  instead of being silently accepted. Existing `tlv_der_read`/`tlv_der_walk`/
+  `tlv_der_write` and all BER behavior are unchanged. Adds `TLV_ERR_INVALID_VALUE`
+  and `TLV_ERR_UNSUPPORTED_TYPE`, both with readable descriptions. (#62)
 - Add CLI `--pdol` inspection and structural validation of raw EMV DOL tag/length pairs, with optional EMV annotations and existing input/resource limits. (#109)
 - Extend CLI inspection with hex-encoded file/stdin input, optional EMV dictionary names and type/length descriptions, UTF-8 tree branches, and automatic or explicitly controlled terminal colors. (#109)
 - Add an optional `opentlv` CLI (`OPENTLV_BUILD_CLI`, built on `tlv++` and requiring a C++11+ compiler, defaults to `ON` and is skipped automatically in C-only builds) for inspecting and structurally validating TLV files, binary stdin, and hexadecimal input, including bounded BER/DER tree traversal and dependency-free CLI integration tests. (#109)

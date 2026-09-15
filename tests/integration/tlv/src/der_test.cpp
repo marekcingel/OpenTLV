@@ -226,6 +226,45 @@ TEST(Integration_Der, BerCompatibilityAndGenericFormat) {
     EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_der_read(data, sizeof(data), nullptr, &view, &used, nullptr));
 }
 
+TEST(Integration_Der, StrictReadWriteRoundTripsCanonicalStructure) {
+    /* SEQUENCE { BOOLEAN TRUE, INTEGER 300, UTF8String "ok", NULL } */
+    const uint8_t data[] = {
+        0x30, 13,
+        0x01, 1, 0xFF,
+        0x02, 2, 0x01, 0x2C,
+        0x0C, 2, 'o', 'k',
+        0x05, 0
+    };
+    tlv_view_t view{};
+    size_t consumed = 0, written = 0;
+    ASSERT_EQ(TLV_OK, tlv_der_read_strict(data, sizeof(data), nullptr, &view, &consumed, nullptr));
+    EXPECT_EQ(sizeof(data), consumed);
+    uint8_t output[sizeof(data)];
+    ASSERT_EQ(TLV_OK, tlv_der_write_strict(output, sizeof(output), view.tag, view.value.data,
+                                          view.value.length, nullptr, &written, nullptr));
+    EXPECT_EQ(sizeof(data), written);
+    EXPECT_EQ(0, std::memcmp(data, output, written));
+}
+
+TEST(Integration_Der, StrictReadRejectsNestedNoncanonicalContentButNonStrictAccepts) {
+    /* SEQUENCE { OCTET STRING "x", BOOLEAN 0x01 (noncanonical) } */
+    const uint8_t data[] = {0x30, 6, 0x04, 1, 'x', 0x01, 1, 0x01};
+    tlv_view_t view{};
+    size_t consumed = 0, offset = 99;
+    ASSERT_EQ(TLV_OK, tlv_der_read(data, sizeof(data), nullptr, &view, &consumed, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_der_read_strict(data, sizeof(data), nullptr, &view, &consumed, &offset));
+    EXPECT_EQ(7u, offset);
+    uint8_t output[sizeof(data)];
+    size_t written = 42;
+    EXPECT_EQ(TLV_OK, tlv_der_write(output, sizeof(output), (tlv_tag_t{{0x30}, 1}), data + 2,
+                                   sizeof(data) - 2, nullptr, &written, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_der_write_strict(output, sizeof(output), (tlv_tag_t{{0x30}, 1}), data + 2,
+                                  sizeof(data) - 2, nullptr, &written, &offset));
+    EXPECT_EQ(7u, offset);
+}
+
 TEST(Integration_Der, TagCapacityAndNumericOverflow) {
     std::vector<uint8_t> data(TLV_TAG_CAPACITY + 1, 0x81);
     data[0] = 0x9F;

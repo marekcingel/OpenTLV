@@ -58,7 +58,8 @@ Built-in components are enabled by default and can be selected with
       - [x] Constructed indefinite-length reading and explicit writing
     - [x] **DER-TLV** - canonical identifier and length framing. [Scope](docs/profiles/der/README.md) [Tree and bytes](docs/formats/asn1/der.md#byte-example)
       - [x] Structural validation
-      - [ ] Full ASN.1 value validation and canonical SET/SET OF ordering
+      - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/profiles/der/README.md#strict-universal-value-validation)
+      - [ ] Canonical SET/SET OF ordering
     - [ ] **CER** - dedicated canonical encoding and validation
   - [x] **Application-defined format callbacks** - independent reader and writer descriptors. [Contracts](docs/formats/README.md#generic-interface) [Tree and bytes](docs/formats/custom/README.md#byte-example)
 - **Protocol formats and profiles**

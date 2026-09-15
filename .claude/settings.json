@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"./build-verify/tests/unit/tlv/Debug/test-unit-tlv.exe\")",
+      "Bash(cmake --build build-verify --target test-integration-tlv --config Debug -- -m)",
+      "Bash(cmake --build build-verify --target test-integration-tlv-der-1 --config Debug -- -m)"
+    ]
+  }
+}
