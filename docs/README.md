@@ -5,6 +5,7 @@
 ## Start here
 
 - [Getting started: builds, CMake integration, and tests](getting-started.md)
+- [Command-line inspection and validation](cli.md)
 - [Supported compilers and build settings](compilers.md)
 - [C API fuzzing with ASan and UBSan](fuzzing.md)
 - [Layered architecture, component selection, and API migration](architecture.md)
