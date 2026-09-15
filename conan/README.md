@@ -44,15 +44,18 @@ for that CMake package's target names and layout.
 ```sh
 pip install "conan>=2.0,<3.0"
 conan profile detect --force
-conan create conan/all --name opentlv --version 0.3.0 \
+conan create conan/all --name opentlv \
     -o "opentlv/*:shared=False" -o "opentlv/*:with_cxx=True" --build=missing
 ```
 
-This requires a `sources` entry for the chosen version in
-`conan/all/conandata.yml`; add a temporary local entry (source archive URL and
-sha256, for example from an existing GitHub release tag) to validate the
-recipe against a version that has not gone through `conan-publish.yml` yet,
-and revert it afterward.
+Run from a checkout of this repository, with no `--version`, this builds
+directly from the working copy instead of a downloaded archive: `set_version()`
+derives the version from `git describe --tags --long` against the checkout
+(for example `0.3.0` on an exact tag, or `0.3.0-5` five commits past it), and
+`source()` falls back to a local copy whenever `conan/all/conandata.yml` has
+no entry for that version yet, so no manual edits are needed. `--version`
+always takes precedence when passed explicitly, as `conan-publish.yml` and
+ConanCenter's own CI do, so that path is unaffected.
 
 ## Project stability
 
