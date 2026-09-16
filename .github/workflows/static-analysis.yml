@@ -77,4 +77,56 @@ jobs:
           -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
 
       - name: Run cppcheck
-        run: cmake --build build --target cppcheck
+        run: cmake --build build --target cppcheck 2>&1 | tee "$RUNNER_TEMP/cppcheck.log"
+
+      - name: Summarize cppcheck findings
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+
+          log_path = os.path.join(os.environ["RUNNER_TEMP"], "cppcheck.log")
+          if not os.path.exists(log_path):
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+                  summary.write("### cppcheck findings\n\n")
+                  summary.write("cppcheck did not run; see the earlier failed step(s) above.\n")
+              raise SystemExit
+
+          with open(log_path, encoding="utf-8", errors="replace") as log:
+              lines = log.readlines()
+
+          # Matches cppcheck's default "file:line:col: severity: message [id]"
+          # template; the note: follow-up lines some findings (e.g.
+          # shadowFunction) print have no [id] and are intentionally skipped.
+          pattern = re.compile(
+              r"^(?P<file>.+):(?P<line>\d+):\d+: "
+              r"(?P<severity>error|warning|style|performance|portability): "
+              r"(?P<message>.+) \[(?P<id>[A-Za-z0-9_]+)\]$"
+          )
+          findings = [m.groupdict() for line in lines if (m := pattern.match(line.rstrip("\n")))]
+
+          severities = ["error", "warning", "style", "performance", "portability"]
+          counts = {severity: 0 for severity in severities}
+          for finding in findings:
+              counts[finding["severity"]] += 1
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("### cppcheck findings\n\n")
+              if not findings:
+                  summary.write("No cppcheck findings across `tlv` and `tlv++`.\n")
+                  raise SystemExit
+
+              summary.write("| Severity | Count |\n| --- | ---: |\n")
+              for severity in severities:
+                  if counts[severity]:
+                      summary.write(f"| {severity} | {counts[severity]} |\n")
+
+              summary.write("\n| File | Line | Severity | Message |\n| --- | ---: | --- | --- |\n")
+              for finding in findings:
+                  message = finding["message"].replace("|", "\\|")
+                  summary.write(
+                      f"| {finding['file']} | {finding['line']} | {finding['severity']} | "
+                      f"{message} (`{finding['id']}`) |\n"
+                  )
+          PY
