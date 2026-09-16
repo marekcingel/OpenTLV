@@ -139,7 +139,6 @@ jobs:
           -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
           -DOPENTLV_BUILD_FUZZING=ON -DOPENTLV_BUILD_CXX=OFF
           -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
-          -DOPENTLV_PROFILE_EMV=OFF
       - name: Build C API fuzz targets
         if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
         run: cmake --build build/fuzz --parallel
@@ -154,7 +153,7 @@ jobs:
           set -o pipefail
           status=0
           mkdir -p build/fuzz/findings
-          for target in read walk_tree der roundtrip; do
+          for target in read walk_tree der roundtrip codec; do
             mkdir -p "build/fuzz/findings/$target" "build/fuzz/corpus/$target"
             "build/fuzz/tests/fuzz/fuzz_$target" \
               "build/fuzz/corpus/$target" "tests/fuzz/corpus/$target" \

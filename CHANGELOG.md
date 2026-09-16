@@ -5,6 +5,13 @@ All notable changes to OpenTLV are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Add a `fuzz_codec` libFuzzer target (`tests/fuzz/codec.c`, built when `OPENTLV_PROFILE_EMV` is on) covering every EMV dictionary tag's value codec: `tlv_codec_decode`/`tlv_codec_encode` for NUMBER, FLAGS, DIGITS, DATE, TIME, ACCOUNT, CRYPTOGRAM, BIOMETRIC and NUMBER_LIST kinds, checking one-byte-short capacity rejection, decode/encode/decode round-trip equality, and undersized-output rejection. (#58)
+- Add an 18-file seed corpus under `tests/fuzz/corpus/codec/` and wire the `fuzz_codec` target into the Clang CI fuzzing job and [docs/fuzzing.md](docs/fuzzing.md). (#58)
+
 ## [0.4.0] - 2026-09-16
 
 ### Fixed
@@ -19,69 +26,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add clang-format support for `tlv` and `tlv++`: a repository-root
-  [.clang-format](.clang-format) style for tlv++ and everything built on it
-  (`tools/`, `tests/`, `benchmarks/`, `examples/`), with
-  [tlv/.clang-format](tlv/.clang-format) overriding it for the pure C layer
-  (clang-format resolves the nearest file per directory, so both apply
-  automatically without a `Language:`-keyed split in one shared file, which
-  clang-format versions disagree on for ambiguous `.h` files and which
-  clang-format 18 can't even parse), opt-in `format`/`format-check` CMake
-  targets (`cmake/clang_format.cmake`), a
-  [.pre-commit-config.yaml](.pre-commit-config.yaml) that runs clang-format
-  plus whitespace/YAML/Markdown checks before each commit, and a CI job
-  ([static-analysis.yml](.github/workflows/static-analysis.yml)) that runs the
-  same pre-commit hooks and fails a push or pull request when any covered
-  file isn't formatted. All existing files in those directories were
-  reformatted to match. (#118)
-- Add a practical EMV tag decoding example
-  (`examples/emv/src/tag_decoding.c`): parses a simulated READ RECORD response
-  template, then for each child tag calls `tlv_emv_find()` to look up its Book 3
-  definition, `tlv_emv_validate_length()` to check its length, and
-  `tlv_codec_decode()` to decode the value according to its `value_kind`
-  (PAN digits, an expiration date, AIP/CVM flags, an amount, the cryptogram
-  information byte, an account type, and a raw-bytes AFL), while a proprietary
-  tag outside the dictionary and a deliberately truncated CVM Results value
-  exercise unknown-tag and invalid-length handling without aborting the walk.
-  Registered as the `Integration_example_emv` ctest, so it runs wherever
-  `ctest -L integration` already runs. (#54)
-- Add CER-TLV (ASN.1 Canonical Encoding Rules) as a full sibling of the DER format
-  and profile: `tlv/formats/asn1/cer.h` (`tlv_reader_format_cer`/`tlv_writer_format_cer`,
-  `tlv_cer_tag_make`/`tlv_cer_tag_number`, `tlv_cer_is_constructed`) and
-  `tlv/profiles/cer.h` (`tlv_cer_read`/`tlv_cer_walk`/`tlv_cer_write` and their
-  `_strict` counterparts, plus `tlv_cer_write_segmented_string`). CER requires a
-  constructed value's length to be indefinite (EOC-terminated) and a primitive
-  value's length to be definite and minimally encoded; traversal is a single
-  bounded pass with no allocation and no C recursion, using a fixed stack for
-  open indefinite containers. Constructed BIT STRING, OCTET STRING and
-  restricted character string values (including UTF8String) are validated and
-  encoded according to ITU-T X.690's canonical segmentation rules (1,000-octet
-  non-final segments, BIT STRING unused-bits accounting, and a streaming
-  cross-segment check for UTF8String, whose multi-byte characters may legally
-  split across a segment boundary); segments are exposed for zero-copy
-  inspection through the existing `tlv_walk`, without a dedicated API. The
-  `_strict` functions additionally validate universal primitive content,
-  sharing DER's canonical value validators (BOOLEAN, INTEGER/ENUMERATED, BIT
-  STRING, NULL, OBJECT IDENTIFIER/RELATIVE-OID, REAL, the same string and
-  date/time types DER supports) through private helpers that do not require
-  enabling the DER component; unsupported universal types, including
-  constructed ones, report `TLV_ERR_UNSUPPORTED_TYPE`. Selected with the new
-  `OPENTLV_FORMAT_CER` CMake option (default `ON`), cascading from
-  `OPENTLV_FORMAT_BER` as an independent sibling of `OPENTLV_FORMAT_DER`: CER
-  never depends on DER (or vice versa) and builds and passes its tests with
-  DER disabled; `OPENTLV_PROFILE_EMV` is unaffected either way. See
-  [docs/profiles/cer/README.md](docs/profiles/cer/README.md). (#112)
-- Add `tlv_der_read_strict`, `tlv_der_walk_strict` and `tlv_der_write_strict`,
-  drop-in counterparts of `tlv_der_read`/`tlv_der_walk`/`tlv_der_write` that
-  additionally validate the canonical DER content of every UNIVERSAL-class
-  primitive element (including nested ones) against ITU-T X.690: BOOLEAN,
-  INTEGER, BIT STRING, OCTET STRING, NULL, OBJECT IDENTIFIER, RELATIVE-OID,
-  REAL, ENUMERATED, UTF8String, NumericString, PrintableString, IA5String,
-  VisibleString, UniversalString, BMPString, UTCTime and GeneralizedTime.
-  Other UNIVERSAL primitive types report the new `TLV_ERR_UNSUPPORTED_TYPE`
-  instead of being silently accepted. Existing `tlv_der_read`/`tlv_der_walk`/
-  `tlv_der_write` and all BER behavior are unchanged. Adds `TLV_ERR_INVALID_VALUE`
-  and `TLV_ERR_UNSUPPORTED_TYPE`, both with readable descriptions. (#62)
+- Add clang-format support for `tlv` and `tlv++`: a repository-root [.clang-format](.clang-format) style for tlv++ and everything built on it (`tools/`, `tests/`, `benchmarks/`, `examples/`), with [tlv/.clang-format](tlv/.clang-format) overriding it for the pure C layer (clang-format resolves the nearest file per directory, so both apply automatically without a `Language:`-keyed split in one shared file, which clang-format versions disagree on for ambiguous `.h` files and which clang-format 18 can't even parse). (#118)
+- Add opt-in `format`/`format-check` CMake targets (`cmake/clang_format.cmake`). (#118)
+- Add a [.pre-commit-config.yaml](.pre-commit-config.yaml) that runs clang-format plus whitespace/YAML/Markdown checks before each commit. (#118)
+- Add a CI job ([static-analysis.yml](.github/workflows/static-analysis.yml)) that runs the same pre-commit hooks and fails a push or pull request when any covered file isn't formatted. (#118)
+- Reformat all existing files in `tlv`, `tlv++`, `tools/`, `tests/`, `benchmarks/`, and `examples/` to match the new clang-format style. (#118)
+- Add a practical EMV tag decoding example (`examples/emv/src/tag_decoding.c`): parses a simulated READ RECORD response template, then for each child tag calls `tlv_emv_find()` to look up its Book 3 definition, `tlv_emv_validate_length()` to check its length, and `tlv_codec_decode()` to decode the value according to its `value_kind` (PAN digits, an expiration date, AIP/CVM flags, an amount, the cryptogram information byte, an account type, and a raw-bytes AFL), while a proprietary tag outside the dictionary and a deliberately truncated CVM Results value exercise unknown-tag and invalid-length handling without aborting the walk. Registered as the `Integration_example_emv` ctest, so it runs wherever `ctest -L integration` already runs. (#54)
+- Add CER-TLV (ASN.1 Canonical Encoding Rules) as a full sibling of the DER format and profile: `tlv/formats/asn1/cer.h` (`tlv_reader_format_cer`/`tlv_writer_format_cer`, `tlv_cer_tag_make`/`tlv_cer_tag_number`, `tlv_cer_is_constructed`) and `tlv/profiles/cer.h` (`tlv_cer_read`/`tlv_cer_walk`/`tlv_cer_write`), requiring a constructed value's length to be indefinite (EOC-terminated) and a primitive value's length to be definite and minimally encoded, with a single bounded traversal pass using no allocation and no C recursion (a fixed stack tracks open indefinite containers). (#112)
+- Validate and encode constructed BIT STRING, OCTET STRING and restricted character string values (including UTF8String) in `tlv_cer_write` according to ITU-T X.690's canonical segmentation rules (1,000-octet non-final segments, BIT STRING unused-bits accounting, and a streaming cross-segment check for UTF8String, whose multi-byte characters may legally split across a segment boundary), via the new `tlv_cer_write_segmented_string`; segments are exposed for zero-copy inspection through the existing `tlv_walk`, without a dedicated API. (#112)
+- Add `tlv_cer_read_strict`, `tlv_cer_walk_strict` and `tlv_cer_write_strict`, which additionally validate universal primitive content, sharing DER's canonical value validators (BOOLEAN, INTEGER/ENUMERATED, BIT STRING, NULL, OBJECT IDENTIFIER/RELATIVE-OID, REAL, the same string and date/time types DER supports) through private helpers that do not require enabling the DER component; unsupported universal types, including constructed ones, report `TLV_ERR_UNSUPPORTED_TYPE`. (#112)
+- Add the `OPENTLV_FORMAT_CER` CMake option (default `ON`), cascading from `OPENTLV_FORMAT_BER` as an independent sibling of `OPENTLV_FORMAT_DER`: CER never depends on DER (or vice versa) and builds and passes its tests with DER disabled; `OPENTLV_PROFILE_EMV` is unaffected either way. See [docs/profiles/cer/README.md](docs/profiles/cer/README.md). (#112)
+- Add `tlv_der_read_strict`, `tlv_der_walk_strict` and `tlv_der_write_strict`, drop-in counterparts of `tlv_der_read`/`tlv_der_walk`/`tlv_der_write` that additionally validate the canonical DER content of every UNIVERSAL-class primitive element (including nested ones) against ITU-T X.690: BOOLEAN, INTEGER, BIT STRING, OCTET STRING, NULL, OBJECT IDENTIFIER, RELATIVE-OID, REAL, ENUMERATED, UTF8String, NumericString, PrintableString, IA5String, VisibleString, UniversalString, BMPString, UTCTime and GeneralizedTime; other UNIVERSAL primitive types report the new `TLV_ERR_UNSUPPORTED_TYPE` instead of being silently accepted. Existing `tlv_der_read`/`tlv_der_walk`/`tlv_der_write` and all BER behavior are unchanged. (#62)
+- Add `TLV_ERR_INVALID_VALUE` and `TLV_ERR_UNSUPPORTED_TYPE`, both with readable descriptions. (#62)
 - Add CLI `--pdol` inspection and structural validation of raw EMV DOL tag/length pairs, with optional EMV annotations and existing input/resource limits. (#109)
 - Extend CLI inspection with hex-encoded file/stdin input, optional EMV dictionary names and type/length descriptions, UTF-8 tree branches, and automatic or explicitly controlled terminal colors. (#109)
 - Add an optional `opentlv` CLI (`OPENTLV_BUILD_CLI`, built on `tlv++` and requiring a C++11+ compiler, defaults to `ON` and is skipped automatically in C-only builds) for inspecting and structurally validating TLV files, binary stdin, and hexadecimal input, including bounded BER/DER tree traversal and dependency-free CLI integration tests. (#109)
