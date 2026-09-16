@@ -14,8 +14,7 @@ sudo apt-get install clang-18 libclang-rt-18-dev llvm-18 cmake ninja-build
 cmake -S . -B build/fuzz -G Ninja \
   -DCMAKE_C_COMPILER=clang-18 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DOPENTLV_BUILD_FUZZING=ON -DOPENTLV_BUILD_CXX=OFF \
-  -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF \
-  -DOPENTLV_PROFILE_EMV=OFF
+  -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
 cmake --build build/fuzz --parallel
 ```
 
@@ -33,14 +32,18 @@ flags. Contract checks remain active with `NDEBUG`; UBSan errors are fatal.
 | `fuzz_walk_tree` | Nested `tlv_walk_tree` traversal, depth and element limits (including zero), view ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal. |
 | `fuzz_der` | `tlv_der_read` and `tlv_der_walk`, canonical DER-TLV framing, all four profile limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal. |
 | `fuzz_roundtrip` | Generated tags and values, sizing, insufficient-capacity output preservation, successful write/read tag and value equality. |
+| `fuzz_codec` | `tlv_codec_decode`/`tlv_codec_encode` for every EMV dictionary tag's codec (NUMBER, FLAGS, DIGITS, DATE, TIME, ACCOUNT, CRYPTOGRAM, BIOMETRIC, NUMBER_LIST), one-byte-short capacities, decode/encode/decode round-trip equality, and undersized-output rejection. |
 
 The reader, walker, and round-trip targets run each input against every enabled
 built-in format: default, fixed 1-byte, BER, and DER. Component switches still
-apply; `fuzz_der` is omitted when `OPENTLV_FORMAT_DER=OFF`. At least one built-in
-format must be enabled. For the raw-byte formats, the walker harness uses tag
-bit `0x20` as a test-only container convention. BER and DER use their public
-nesting predicates. DER profile validation covers the existing DER-TLV
-contract, not ASN.1 value semantics or SET/SET OF ordering.
+apply; `fuzz_der` is omitted when `OPENTLV_FORMAT_DER=OFF`, and `fuzz_codec` is
+omitted when `OPENTLV_PROFILE_EMV=OFF`. At least one built-in format must be
+enabled. For the raw-byte formats, the walker harness uses tag bit `0x20` as a
+test-only container convention. BER and DER use their public nesting
+predicates. DER profile validation covers the existing DER-TLV contract, not
+ASN.1 value semantics or SET/SET OF ordering. `fuzz_codec` covers value-codec
+semantics (BCD/binary numeric ranges, date/time calendar checks, enum
+validation) independently of TLV framing.
 
 `error_offset` may change on failure; on success it must stay unchanged.
 Earlier visitor effects are not rolled back. The suite checks these documented
@@ -67,7 +70,7 @@ For all enabled targets (Bash):
 ```bash
 set -o pipefail
 status=0
-for target in read walk_tree der roundtrip; do
+for target in read walk_tree der roundtrip codec; do
   executable="build/fuzz/tests/fuzz/fuzz_$target"
   [ -x "$executable" ] || continue
   mkdir -p "build/fuzz/corpus/$target" "build/fuzz/findings/$target"
@@ -101,7 +104,7 @@ saved input as a file instead of a corpus directory:
 build/fuzz/tests/fuzz/fuzz_read path/to/read/crash-<hash>
 ```
 
-Use the corresponding target for `walk_tree`, `der`, or `roundtrip`. Findings
+Use the corresponding target for `walk_tree`, `der`, `roundtrip`, or `codec`. Findings
 may also use names such as `timeout-<hash>` or `oom-<hash>`; retain the original
 timeout/RSS settings when reproducing those. Keep the sanitizer environment
 variables from the local-run example and ensure `llvm-symbolizer-18` is on
