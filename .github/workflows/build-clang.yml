@@ -153,7 +153,7 @@ jobs:
           set -o pipefail
           status=0
           mkdir -p build/fuzz/findings
-          for target in read walk_tree der roundtrip codec; do
+          for target in read walk_tree der der_schema roundtrip codec; do
             mkdir -p "build/fuzz/findings/$target" "build/fuzz/corpus/$target"
             "build/fuzz/tests/fuzz/fuzz_$target" \
               "build/fuzz/corpus/$target" "tests/fuzz/corpus/$target" \

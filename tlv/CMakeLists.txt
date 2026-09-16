@@ -55,7 +55,8 @@ if(OPENTLV_FORMAT_DER OR OPENTLV_FORMAT_CER)
         src/profiles/asn1_values_internal.c)
 endif()
 if(OPENTLV_FORMAT_DER)
-    target_sources(${PROJECT_NAME} PRIVATE src/profiles/der.c src/profiles/der_values.c)
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/profiles/der.c src/profiles/der_values.c src/profiles/der_schema.c)
 endif()
 if(OPENTLV_FORMAT_CER)
     target_sources(${PROJECT_NAME} PRIVATE
