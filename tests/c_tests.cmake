@@ -8,6 +8,7 @@ set(HEADERS
 set(SOURCES
     src/architecture_test.cpp
     src/emv_test.cpp
+    src/dol_test.cpp
     src/tag_c_test.c
     src/codec_test.cpp
     src/copy_test.cpp
@@ -64,7 +65,7 @@ if(NOT (OPENTLV_FORMAT_DEFAULT))
     list(REMOVE_ITEM SOURCES src/dhcp_option_tests.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_BER AND OPENTLV_PROFILE_EMV))
-    list(REMOVE_ITEM SOURCES src/emv_test.cpp src/tag_c_test.c)
+    list(REMOVE_ITEM SOURCES src/emv_test.cpp src/dol_test.cpp src/tag_c_test.c)
 endif()
 if(NOT (OPENTLV_FORMAT_BER))
     list(REMOVE_ITEM SOURCES src/format_ber_test.cpp)
