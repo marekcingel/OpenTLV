@@ -458,7 +458,7 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
     if (rc != TLV_OK) return rc;
 
     while (level >= 0) {
-        der_schema_frame_t* frame = &stack[level];
+        const der_schema_frame_t* frame = &stack[level];
         if (frame->pos == frame->end) {
             tlv_result_t end_rc = TLV_OK;
             if (frame->type->kind == TLV_DER_SCHEMA_SEQUENCE) {
@@ -594,11 +594,11 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
                                            size_t* out_len) {
     size_t offs[TLV_DER_SCHEMA_MAX_COMPONENTS], lens[TLV_DER_SCHEMA_MAX_COMPONENTS];
     size_t present = 0, i, total = 0, base, pos;
-    tlv_result_t rc;
     for (i = 0; i < count; ++i) {
         int component_absent = 0;
         size_t off, len;
-        rc = encode_at(wctx, &components[i], 0, depth, 0, &component_absent, &off, &len);
+        tlv_result_t rc =
+            encode_at(wctx, &components[i], 0, depth, 0, &component_absent, &off, &len);
         if (rc != TLV_OK) return rc;
         if (component_absent) {
             if (components[i].presence == TLV_DER_REQUIRED) return TLV_ERR_SCHEMA;
@@ -628,13 +628,13 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
                                        size_t* out_off, size_t* out_len) {
     size_t offs[TLV_DER_SCHEMA_MAX_COMPONENTS], lens[TLV_DER_SCHEMA_MAX_COMPONENTS];
     tlv_tag_t tags[TLV_DER_SCHEMA_MAX_COMPONENTS];
-    size_t present = 0, i, j, total = 0, base, pos;
-    tlv_result_t rc;
+    size_t present = 0, i, total = 0, base, pos;
     for (i = 0; i < type->component_count; ++i) {
         int component_absent = 0;
         size_t off, len;
         tlv_tag_t tag;
-        rc = encode_at(wctx, &type->components[i], 0, depth, 0, &component_absent, &off, &len);
+        tlv_result_t rc =
+            encode_at(wctx, &type->components[i], 0, depth, 0, &component_absent, &off, &len);
         if (rc != TLV_OK) return rc;
         if (component_absent) {
             if (type->components[i].presence == TLV_DER_REQUIRED) return TLV_ERR_SCHEMA;
@@ -650,7 +650,7 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
     for (i = 1; i < present; ++i) {
         size_t off_i = offs[i], len_i = lens[i];
         tlv_tag_t tag_i = tags[i];
-        j = i;
+        size_t j = i;
         while (j > 0) {
             tlv_asn1_class_t ca = tlv_der_tag_class(&tags[j - 1]), cb = tlv_der_tag_class(&tag_i);
             uint64_t na = 0, nb = 0;
@@ -691,11 +691,11 @@ static tlv_result_t encode_set_of_content(der_schema_write_ctx_t* wctx,
                                           const tlv_der_schema_type_t* type, size_t depth,
                                           size_t* out_off, size_t* out_len) {
     size_t count = 0, i, total = 0, base, pos;
-    tlv_result_t rc;
     for (;;) {
         int element_absent = 0;
         size_t off, len;
-        rc = encode_at(wctx, type->element, count, depth, 0, &element_absent, &off, &len);
+        tlv_result_t rc =
+            encode_at(wctx, type->element, count, depth, 0, &element_absent, &off, &len);
         if (rc != TLV_OK) return rc;
         if (element_absent) break;
         if (count >= wctx->scratch_capacity) return TLV_ERR_LIMIT;

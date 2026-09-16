@@ -64,3 +64,23 @@ cmake --build <build-dir> --target format-check   # check only, like CI
 
 Both targets are opt-in and are skipped with a warning if clang-format isn't
 found, so their absence never breaks a regular build.
+
+## Static analysis (cppcheck)
+
+[static-analysis.yml](.github/workflows/static-analysis.yml) also runs
+[cppcheck](https://cppcheck.sourceforge.io/) over `tlv` (C) and `tlv++`
+(C++) with `--enable=warning,style,performance,portability`. Reproduce it
+locally by installing cppcheck, configuring a build directory, and building
+the opt-in `cppcheck` target:
+
+```sh
+cmake -S . -B <build-dir> -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build <build-dir> --target cppcheck
+```
+
+Like `format`/`format-check`, the target is skipped with a warning (never
+breaking a regular build) if cppcheck isn't found. Justified exceptions
+(for example a limitation of cppcheck's own preprocessor, or intentional
+API behavior a check flags) live in
+[.cppcheck-suppressions](.cppcheck-suppressions), with a comment explaining
+each one; prefer fixing a finding over suppressing it.

@@ -49,7 +49,7 @@ class any {
     template <typename T> struct holder : holder_base {
         explicit holder(const T& value) : value(value) {}
         explicit holder(T&& value) : value(std::move(value)) {}
-        std::unique_ptr<holder_base> clone() const {
+        std::unique_ptr<holder_base> clone() const override {
             return std::unique_ptr<holder_base>(new holder<T>(value));
         }
         T value;

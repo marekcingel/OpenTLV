@@ -76,8 +76,7 @@ const tlv_writer_format_t tlv_writer_format_cer = {.context = NULL,
 tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
                               tlv_tag_t* tag) {
     tlv_tag_t result = {{0}, 1};
-    uint8_t digits[10];
-    size_t count = 0, written;
+    size_t written;
     if (!tag) return TLV_ERR_NULL_ARG;
     if ((unsigned)tag_class > 3 || (constructed != 0 && constructed != 1))
         return TLV_ERR_INVALID_TAG;
@@ -85,6 +84,8 @@ tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructed, uint6
     if (number < 31)
         result.data[0] |= (uint8_t)number;
     else {
+        uint8_t digits[10];
+        size_t count = 0;
         result.data[0] |= 0x1F;
         do {
             digits[count++] = (uint8_t)(number & 0x7F);

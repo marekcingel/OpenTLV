@@ -1,4 +1,4 @@
-# Formatting today; cppcheck and clang-tidy are planned as additional jobs
+# Formatting and cppcheck today; clang-tidy is planned as an additional job
 # in this same workflow.
 name: Static Analysis
 
@@ -31,3 +31,102 @@ jobs:
         with:
           python-version: '3.x'
       - uses: pre-commit/action@v3.0.1
+
+  cppcheck:
+    permissions:
+      contents: read
+    name: cppcheck
+    runs-on: ubuntu-24.04
+    # ubuntu-24.04's apt package (2.13.0) predates this pin; built from
+    # source since upstream only publishes a Windows installer, not a Linux
+    # binary, for releases (github.com/cppcheck-opensource/cppcheck).
+    env:
+      CPPCHECK_VERSION: '2.21.0'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Cache cppcheck ${{ env.CPPCHECK_VERSION }} build
+        id: cppcheck-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/cppcheck-install
+          key: cppcheck-${{ env.CPPCHECK_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Build cppcheck ${{ env.CPPCHECK_VERSION }}
+        if: steps.cppcheck-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone --branch "$CPPCHECK_VERSION" --depth 1 \
+            https://github.com/cppcheck-opensource/cppcheck.git "$RUNNER_TEMP/cppcheck-src"
+          cmake -S "$RUNNER_TEMP/cppcheck-src" -B "$RUNNER_TEMP/cppcheck-build" -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/cppcheck-install"
+          cmake --build "$RUNNER_TEMP/cppcheck-build" --parallel
+          cmake --install "$RUNNER_TEMP/cppcheck-build"
+
+      - name: Add cppcheck to PATH
+        run: echo "$RUNNER_TEMP/cppcheck-install/bin" >> "$GITHUB_PATH"
+
+      - name: Configure CMake
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
+
+      - name: Run cppcheck
+        run: cmake --build build --target cppcheck 2>&1 | tee "$RUNNER_TEMP/cppcheck.log"
+
+      - name: Summarize cppcheck findings
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+
+          log_path = os.path.join(os.environ["RUNNER_TEMP"], "cppcheck.log")
+          if not os.path.exists(log_path):
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+                  summary.write("### cppcheck findings\n\n")
+                  summary.write("cppcheck did not run; see the earlier failed step(s) above.\n")
+              raise SystemExit
+
+          with open(log_path, encoding="utf-8", errors="replace") as log:
+              lines = log.readlines()
+
+          # Matches cppcheck's default "file:line:col: severity: message [id]"
+          # template; the note: follow-up lines some findings (e.g.
+          # shadowFunction) print have no [id] and are intentionally skipped.
+          pattern = re.compile(
+              r"^(?P<file>.+):(?P<line>\d+):\d+: "
+              r"(?P<severity>error|warning|style|performance|portability): "
+              r"(?P<message>.+) \[(?P<id>[A-Za-z0-9_]+)\]$"
+          )
+          findings = [m.groupdict() for line in lines if (m := pattern.match(line.rstrip("\n")))]
+
+          severities = ["error", "warning", "style", "performance", "portability"]
+          counts = {severity: 0 for severity in severities}
+          for finding in findings:
+              counts[finding["severity"]] += 1
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("### cppcheck findings\n\n")
+              if not findings:
+                  summary.write("No cppcheck findings across `tlv` and `tlv++`.\n")
+                  raise SystemExit
+
+              summary.write("| Severity | Count |\n| --- | ---: |\n")
+              for severity in severities:
+                  if counts[severity]:
+                      summary.write(f"| {severity} | {counts[severity]} |\n")
+
+              summary.write("\n| File | Line | Severity | Message |\n| --- | ---: | --- | --- |\n")
+              for finding in findings:
+                  message = finding["message"].replace("|", "\\|")
+                  summary.write(
+                      f"| {finding['file']} | {finding['line']} | {finding['severity']} | "
+                      f"{message} (`{finding['id']}`) |\n"
+                  )
+          PY

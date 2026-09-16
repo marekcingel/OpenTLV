@@ -36,7 +36,7 @@ tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefin
     ends[0] = size;
     terminated[0] = indefinite;
     for (;;) {
-        size_t limit = ends[depth - 1], tag_size, length_size, length;
+        size_t limit = ends[depth - 1], tag_size, len_size, length;
         tlv_tag_t tag;
         tlv_result_t rc;
         int child_indefinite, constructed;
@@ -72,9 +72,9 @@ tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefin
             ++pos;
             length = limit - pos;
         } else {
-            rc = read_length(NULL, data + pos, limit - pos, &length, &length_size);
+            rc = read_length(NULL, data + pos, limit - pos, &length, &len_size);
             if (rc != TLV_OK) return rc;
-            pos += length_size;
+            pos += len_size;
             if (length > limit - pos) return TLV_ERR_BUFFER_TOO_SHORT;
         }
         if (constructed) {
@@ -87,7 +87,7 @@ tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefin
 }
 
 static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
-                                      const uint8_t* data, size_t size, size_t* length_size,
+                                      const uint8_t* data, size_t size, size_t* len_size,
                                       size_t* value_size, size_t* trailer_size) {
     size_t length, used;
     tlv_result_t rc;
@@ -96,7 +96,7 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
         rc = read_length(context, data, size, &length, &used);
         if (rc != TLV_OK) return rc;
         if (length > size - used) return TLV_ERR_BUFFER_TOO_SHORT;
-        *length_size = used;
+        *len_size = used;
         *value_size = length;
         *trailer_size = 0;
         return TLV_OK;
@@ -104,7 +104,7 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
     if (!tlv_ber_is_constructed(context, tag)) return TLV_ERR_INVALID_LENGTH;
     rc = tlv_ber_scan_contents(data + 1, size - 1, 1, &length, &used);
     if (rc != TLV_OK) return rc;
-    *length_size = 1;
+    *len_size = 1;
     *value_size = length;
     *trailer_size = 2;
     return TLV_OK;
