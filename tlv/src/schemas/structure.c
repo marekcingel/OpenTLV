@@ -16,7 +16,6 @@ static tlv_result_t invalid(size_t offset, size_t* error_offset) {
 static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* format,
                                 const tlv_structure_schema_t* current, size_t start, size_t end,
                                 size_t* error_offset) {
-    tlv_result_t rc;
     if (!current->rules && current->count) return invalid(start, error_offset);
     for (size_t i = 0; i < current->count; ++i) {
         const tlv_structure_rule_t* rule = &current->rules[i];
@@ -33,7 +32,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* 
         while (pos < end) {
             tlv_view_t view;
             size_t used;
-            rc = tlv_read(data + pos, end - pos, format, &view, &used);
+            tlv_result_t rc = tlv_read(data + pos, end - pos, format, &view, &used);
             if (rc != TLV_OK) {
                 if (error_offset) *error_offset = pos;
                 return rc;
@@ -88,7 +87,6 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
             tlv_view_t view;
             size_t used, pos = frame->pos;
             const tlv_structure_rule_t* rule = NULL;
-            int constructed;
             rc = tlv_read(data + pos, frame->end - pos, format, &view, &used);
             if (rc != TLV_OK) {
                 if (error_offset) *error_offset = pos;
@@ -116,7 +114,7 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                     if (error_offset) *error_offset = pos;
                     return rc;
                 }
-                constructed = is_constructed && is_constructed(format->context, &view.tag);
+                int constructed = is_constructed && is_constructed(format->context, &view.tag);
                 if ((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
                     (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed))
                     return invalid(pos, error_offset);

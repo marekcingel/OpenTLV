@@ -1,0 +1,23 @@
+# Suppressions for the 'cppcheck' CMake target and the Static Analysis CI
+# job (.github/workflows/static-analysis.yml). Each entry is a deliberate,
+# justified exception, not a blanket silence: see the comment above it.
+
+# emv_tags.def is an X-macro table re-included with a different EMV_TAG
+# definition at each use, including one in tlv/src/profiles/emv.c that
+# dispatches per entry via token-pasting (EMV_CODEC_##kind). cppcheck's
+# preprocessor cannot resolve that pasted, per-entry macro name, which is
+# valid C the compilers (Clang/GCC/MSVC, all covered by CI) accept.
+unknownMacro:*/emv_tags.def
+
+# tlv++'s pre-C++17/20/23 polyfills for std::any/std::expected/std::unexpected
+# intentionally mirror those standard types' implicit converting
+# constructors (e.g. so `return value;` works where `expected<T, E>` is
+# expected), so they are deliberately not explicit.
+noExplicitConstructor:*/tlv++/compat.hpp
+
+# tlv++ is header-only and this target analyzes its headers directly,
+# without a translation unit that instantiates and uses every template and
+# struct; cppcheck's single-pass, no-instantiation analysis then reports
+# members that are actually used by tlv++ consumers (tools/cli, tests,
+# examples) as unused.
+unusedStructMember:*/tlv++/*.hpp

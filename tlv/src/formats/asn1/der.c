@@ -8,7 +8,6 @@ static tlv_result_t der_read_tag(const void* context, const uint8_t* data, size_
     tlv_tag_t parsed;
     size_t count;
     unsigned number;
-    int must_construct;
     tlv_result_t rc = tlv_asn1_read_identifier(context, data, size, &parsed, &count);
     if (rc != TLV_OK) return rc;
     /* Only tags up to 36 currently have assigned universal type semantics.
@@ -20,7 +19,7 @@ static tlv_result_t der_read_tag(const void* context, const uint8_t* data, size_
      */
     number = count == 1 ? (data[0] & 0x1F) : (count == 2 ? data[1] : 127);
     if (!(data[0] & 0xC0) && number <= 36) {
-        must_construct =
+        int must_construct =
             number == 8 || number == 11 || number == 16 || number == 17 || number == 29;
         if (!must_construct && (data[0] & 0x20)) return TLV_ERR_INVALID_TAG;
     }
@@ -74,8 +73,7 @@ const tlv_writer_format_t tlv_writer_format_der = {.context = NULL,
 tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
                               tlv_tag_t* tag) {
     tlv_tag_t result = {{0}, 1};
-    uint8_t digits[10];
-    size_t count = 0, written;
+    size_t written;
     if (!tag) return TLV_ERR_NULL_ARG;
     if ((unsigned)tag_class > 3 || (constructed != 0 && constructed != 1))
         return TLV_ERR_INVALID_TAG;
@@ -83,6 +81,8 @@ tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed, uint6
     if (number < 31)
         result.data[0] |= (uint8_t)number;
     else {
+        uint8_t digits[10];
+        size_t count = 0;
         result.data[0] |= 0x1F;
         do {
             digits[count++] = (uint8_t)(number & 0x7F);
