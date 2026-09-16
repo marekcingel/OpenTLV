@@ -1,6 +1,12 @@
 # Optional C schemas
 
-Include `tlv/schemas/schema.h` to describe known tags using constant tables:
+Include `tlv/schemas/schema.h` to describe known tags using constant tables.
+This engine is format-agnostic and expresses occurrence, nesting and
+membership only; it has no ASN.1 semantics. For DER-specific canonical rules
+it cannot express (SET/SET OF ordering, CHOICE, implicit/explicit tagging,
+DEFAULT omission), see
+[schema-aware DER validation and encoding](profiles/der/README.md#schema-aware-validation-and-encoding),
+a distinct schema type built for that purpose.
 
 ```c
 static const tlv_schema_entry_t entries[] = {

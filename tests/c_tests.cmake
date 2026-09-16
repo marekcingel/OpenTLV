@@ -27,6 +27,7 @@ set(SOURCES
     src/format_ber_test.cpp
     src/der_test.cpp
     src/der_values_test.cpp
+    src/der_schema_test.cpp
     src/cer_test.cpp
     src/cer_values_test.cpp
     src/format_fixed_1byte_test.cpp
@@ -54,7 +55,7 @@ if(test_group STREQUAL "integration")
     endif()
 endif()
 if(NOT OPENTLV_FORMAT_DER)
-    list(REMOVE_ITEM SOURCES src/der_test.cpp src/der_values_test.cpp)
+    list(REMOVE_ITEM SOURCES src/der_test.cpp src/der_values_test.cpp src/der_schema_test.cpp)
 endif()
 if(NOT OPENTLV_FORMAT_CER)
     list(REMOVE_ITEM SOURCES src/cer_test.cpp src/cer_values_test.cpp)
@@ -161,8 +162,10 @@ if(OPENTLV_FORMAT_DER)
         set(der_target test-${test_group}-tlv-der-${tag_capacity})
         set(der_target_sources
             src/der_test.cpp
+            src/der_schema_test.cpp
             ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/der.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/der_values.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/der_schema.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/profiles/asn1_values_internal.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/der.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/asn1_internal.c
@@ -171,6 +174,7 @@ if(OPENTLV_FORMAT_DER)
             ${OpenTLV_SOURCE_DIR}/tlv/src/formats/asn1/ber_internal.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/reader/reader.c
             ${OpenTLV_SOURCE_DIR}/tlv/src/writer/writer.c
+            ${OpenTLV_SOURCE_DIR}/tlv/src/tag.c
         )
         # der_values_test.cpp only exists in the unit test sources.
         if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/der_values_test.cpp")

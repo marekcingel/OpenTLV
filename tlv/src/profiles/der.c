@@ -2,6 +2,7 @@
 #include "tlv/profiles/der.h"
 #include "tlv/writer/writer.h"
 #include "tlv/length.h"
+#include "der_internal.h"
 #include "der_values_internal.h"
 #include <string.h>
 
@@ -13,9 +14,9 @@ static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
 }
 
 /* Parse a bounded header with field offsets. No outputs escape on failure. */
-static tlv_result_t read_entry(const uint8_t* data, size_t size, size_t base,
-                               const tlv_der_limits_t* limits, tlv_view_t* view, size_t* consumed,
-                               size_t* error_offset) {
+tlv_result_t tlv_der_read_entry(const uint8_t* data, size_t size, size_t base,
+                                const tlv_der_limits_t* limits, tlv_view_t* view, size_t* consumed,
+                                size_t* error_offset) {
     size_t tag_size, length_size, value_length;
     tlv_result_t rc = tlv_reader_format_der.read_tag(tlv_reader_format_der.context, data, size,
                                                      &view->tag, &tag_size);
@@ -54,8 +55,8 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
         }
         if (initial_depth + level > limits->max_depth || count == limits->max_elements)
             return fail(TLV_ERR_LIMIT, base + pos, error_offset);
-        rc = read_entry(data + pos, ends[level] - pos, base + pos, limits, &view, &used,
-                        error_offset);
+        rc = tlv_der_read_entry(data + pos, ends[level] - pos, base + pos, limits, &view, &used,
+                                error_offset);
         if (rc != TLV_OK) return rc;
         ++count;
         end = pos + used;

@@ -24,12 +24,13 @@ Application, context-specific and private tags permit either form.
 This is a **TLV-layer validator, not a complete ASN.1 DER validator**. Primitive
 contents are opaque by default: BOOLEAN representations, INTEGER minimality, BIT
 STRING padding, OID components and string/time/REAL encodings are only checked
-by the `_strict` functions described below, and schema constraints,
-implicit-tag semantics, DEFAULT omission and SET/SET OF ordering remain outside
-this scope regardless. Callers must supply canonical ASN.1 contents and ordering
-when full DER conformance is required beyond what `_strict` covers. The encoder
-preserves contents and child order; it does not convert arbitrary BER or repair
-noncanonical input.
+by the `_strict` functions described below. Schema constraints, implicit/explicit
+tagging, CHOICE resolution, DEFAULT omission and SET/SET OF ordering are still
+outside this scope: use [`tlv/profiles/der_schema.h`](#schema-aware-validation-and-encoding)
+when those are required. Callers must supply canonical ASN.1 contents and
+ordering when full DER conformance is required beyond what `_strict` (or the
+schema-aware layer) covers. The encoder preserves contents and child order; it
+does not convert arbitrary BER or repair noncanonical input.
 
 ## Read and inspect a tag
 
@@ -160,6 +161,88 @@ strict mode rather than being silently accepted): ObjectDescriptor,
 TeletexString, VideotexString, GraphicString, GeneralString, TIME, DATE,
 TIME-OF-DAY, DATE-TIME, DURATION, OID-IRI, RELATIVE-OID-IRI, and any
 UNIVERSAL primitive tag number beyond 36.
+
+## Schema-aware validation and encoding
+
+Include `tlv/profiles/der_schema.h` when canonical rules depend on ASN.1 type
+information that raw TLV structure alone cannot express: distinguishing SET
+from SET OF, validating implicitly tagged content against its underlying
+type, checking explicit-tag wrapper structure, resolving CHOICE alternatives,
+and enforcing REQUIRED/OPTIONAL/DEFAULT components (including DEFAULT
+omission). This is a fixed, small ASN.1 subset, **not an ASN.1 compiler or an
+unrestricted type system**; a schema is a borrowed, immutable, caller-authored
+static table, similar in spirit to [`tlv/schemas/schema.h`](../../schemas.md)
+but distinct from it: `tlv_structure_schema_t` is format-agnostic and only
+expresses occurrence/membership, while `tlv_der_schema_type_t` is ASN.1-
+specific and expresses DER canonical semantics. A component's underlying
+`type` is always a `tlv_der_schema_type_t`, never the other kind of schema.
+
+Supported type kinds: `TLV_DER_SCHEMA_UNIVERSAL` (a specific universal tag
+number, content-validated the same way `_strict` validates it), `SEQUENCE`,
+`SET`, `SET_OF`, `CHOICE`, and `ANY` (exactly one well-formed DER-TLV element
+with no further ASN.1 semantics; legal untagged only as a direct SEQUENCE
+component, since its wildcard tag would make SET/CHOICE/SET-OF matching
+ambiguous). Each component of a SEQUENCE/SET/CHOICE, and a SET OF's element,
+carries a tagging mode (untagged, `TLV_DER_TAG_IMPLICIT` or
+`TLV_DER_TAG_EXPLICIT`, with a class and number for the latter two) and a
+presence (`TLV_DER_REQUIRED`, `TLV_DER_OPTIONAL`, or `TLV_DER_DEFAULT` with a
+complete canonical encoding to compare against). `tlv_der_schema_check`
+validates a hand-authored table's internal consistency once (distinct SET/
+CHOICE component tags, CHOICE alternatives required with no default, no
+IMPLICIT tagging of a CHOICE or ANY component, and bounds on component count
+and type-graph depth); `tlv_der_schema_read`/`tlv_der_schema_write` also
+enforce the depth bound live and do not require it to have been called first.
+
+```c
+const tlv_der_schema_type_t integer_type = {TLV_DER_SCHEMA_UNIVERSAL, 2};
+const tlv_der_schema_type_t octet_string_type = {TLV_DER_SCHEMA_UNIVERSAL, 4};
+const tlv_der_schema_component_t set_components[] = {
+    {&integer_type, TLV_DER_TAG_NONE, TLV_ASN1_UNIVERSAL, 0, TLV_DER_REQUIRED, NULL, 0},
+    {&octet_string_type, TLV_DER_TAG_NONE, TLV_ASN1_UNIVERSAL, 0, TLV_DER_REQUIRED, NULL, 0},
+};
+const tlv_der_schema_type_t set_type = {TLV_DER_SCHEMA_SET, 0, set_components, 2};
+
+tlv_view_t view;
+size_t consumed, error_offset;
+tlv_result_t rc = tlv_der_schema_read(data, size, &set_type, NULL,
+                                      &view, &consumed, &error_offset);
+```
+
+`tlv_der_schema_read` rejects a SET whose components are not encoded in
+ascending tag order and a SET OF whose elements are not encoded in ascending
+order of their complete encodings (both violations return
+`TLV_ERR_INVALID_VALUE`); validating SET/SET OF order needs no extra storage,
+since DER canonical order is checked with a single adjacent-pair scan.
+`tlv_der_schema_write` produces canonical output regardless of the order its
+`tlv_der_schema_encode_fn` callback is invoked in: it sorts SET components by
+effective tag (schema-bounded, needing no caller scratch) and SET OF elements
+by complete encoding (using the caller-supplied `scratch`/`scratch_capacity`
+records), and omits a DEFAULT component whose complete encoding equals its
+`default_encoding`. Unlike `tlv_der_write`, it always composes the complete
+output in a caller-supplied `scratch_bytes` arena first — needed to compare
+and reorder content before committing to it — so `scratch_bytes` and
+`scratch_bytes_capacity` are required even for a `NULL`-`data` size query;
+size `scratch_bytes_capacity` generously, since composing nested content can
+temporarily use more arena space than the final output size.
+
+This API is **unconditionally strict**: there is no permissive mode, so every
+UNIVERSAL leaf is content-validated, and unresolved CHOICE tags, unsupported
+universal types, and schema self-check failures are always explicit errors
+rather than silently accepted.
+
+`tlv_der_schema_limits_t` extends `tlv_der_limits_t` (identical `max_depth`,
+`max_input_size`, `max_value_size`, `max_elements` semantics) with
+`max_set_elements`, which bounds `tlv_der_schema_write`'s SET OF sort-record
+capacity; `tlv_der_schema_default_limits` mirrors `tlv_der_default_limits`.
+`TLV_DER_SCHEMA_MAX_TYPE_DEPTH` (32) bounds CHOICE/EXPLICIT resolution
+recursion over the schema's own type graph — trusted, caller-authored data,
+not attacker input — guarding only against an accidentally self-referential
+table. `TLV_DER_SCHEMA_MAX_COMPONENTS` (64) bounds a single SEQUENCE, SET or
+CHOICE's direct component count.
+
+Existing `tlv_der_read`/`walk`/`write` (and their `_strict` counterparts) and
+the generic `tlv_structure_schema_t` engine are unaffected: this is a purely
+additive layer.
 
 ## Errors and generic I/O
 
