@@ -1,0 +1,20 @@
+# tlv++ is C++, so it additionally enables a curated modernize-* subset on
+# top of the shared baseline in the repo-root .clang-tidy. This is
+# deliberately not the whole modernize-*/cppcoreguidelines-* wildcard group:
+# most cppcoreguidelines-* checks and several individual modernize-* checks
+# (e.g. modernize-use-nodiscard, modernize-avoid-c-arrays,
+# modernize-use-trailing-return-type) are either purely stylistic for this
+# codebase or would require pervasive, correctness-unrelated API churn.
+# Extend this list deliberately, one check at a time.
+InheritParentConfig: true
+Checks: >
+  modernize-use-nullptr,
+  modernize-use-override,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  modernize-use-using,
+  modernize-use-bool-literals,
+  modernize-loop-convert,
+  modernize-use-emplace,
+  modernize-redundant-void-arg,
+  modernize-return-braced-init-list

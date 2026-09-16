@@ -213,7 +213,7 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
             tlv_emv_date_t date;
             EMV_LOAD(date);
             if (!valid_date(date)) return TLV_CODEC_ERR_INVALID_VALUE;
-            number = date.year * UINT64_C(10000) + date.month * 100 + date.day;
+            number = date.year * UINT64_C(10000) + (uint64_t)date.month * 100 + date.day;
             write_number(number, 6, bytes, count);
             break;
         }
@@ -222,7 +222,7 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
             EMV_LOAD(time);
             if (time.hour > 23 || time.minute > 59 || time.second > 59)
                 return TLV_CODEC_ERR_INVALID_VALUE;
-            number = time.hour * UINT64_C(10000) + time.minute * 100 + time.second;
+            number = time.hour * UINT64_C(10000) + (uint64_t)time.minute * 100 + time.second;
             write_number(number, 6, bytes, count);
             break;
         }

@@ -1,0 +1,60 @@
+# Shared clang-tidy baseline for tlv (C) and tlv++ (C++), run by the opt-in
+# 'clang-tidy' CMake target (cmake/clang_tidy.cmake) and the Static Analysis
+# CI job (.github/workflows/static-analysis.yml). tlv/.clang-tidy and
+# tlv++/.clang-tidy layer on top of this file: clang-tidy resolves the
+# config for a given file by walking up from that file's own directory and
+# merging every .clang-tidy it finds (nearest first), so tlv/ can keep
+# C++-only groups off and tlv++/ can add a curated C++-only subset without
+# duplicating this baseline.
+#
+# clang-diagnostic-*/clang-analyzer-* surface compiler warnings and the
+# Clang Static Analyzer's semantic bug-finding; bugprone-*/performance-*/
+# portability-*/readability-* mirror the categories the 'cppcheck' target
+# already enables (see cmake/cppcheck.cmake), for consistency between the
+# two tools. The exclusions below are checks that are either pure style
+# preferences conflicting with this codebase's established conventions, or
+# that would require broad, correctness-unrelated rewrites to satisfy:
+#
+# - readability-braces-around-statements: conflicts with the project's
+#   deliberate `if (cond) return x;` style (AllowShortIfStatementsOnASingle
+#   Line in .clang-format).
+# - readability-magic-numbers: this is a binary-protocol library; bit widths,
+#   shift amounts and wire-format limits are inherent to the domain, not
+#   unnamed constants that need extracting.
+# - readability-identifier-length: short, idiomatic names (i, rc, a, b) are
+#   established style throughout tlv/tlv++.
+# - readability-function-cognitive-complexity: several parser/codec
+#   functions are inherently branchy; splitting them up is a larger,
+#   separate refactor, not a static-analysis fix.
+# - readability-isolate-declaration: multi-variable declarations are used
+#   throughout and are not a readability problem in this codebase.
+# - readability-avoid-nested-conditional-operator: short 3-way ternary
+#   chains are a common, readable idiom here (e.g. ASN.1 length-size
+#   classification); rewriting them as if/else is a style preference, not a
+#   correctness fix.
+# - readability-math-missing-parentheses: fires pervasively on well-known,
+#   already-correct bit-shift/BCD arithmetic (e.g. tlv/src/endian.c); adding
+#   parentheses everywhere would be pure churn.
+# - bugprone-easily-swappable-parameters: extremely noisy for a byte-buffer
+#   API built on (data, size) parameter pairs; not a real defect signal here.
+# - clang-analyzer-optin.performance.Padding: an opt-in, performance-only
+#   suggestion to reorder public struct fields for cache-line padding;
+#   reordering public API struct layout for a marginal size saving is out of
+#   scope and unrelated to correctness.
+Checks: >
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  -clang-analyzer-optin.performance.Padding,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  performance-*,
+  portability-*,
+  readability-*,
+  -readability-braces-around-statements,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-function-cognitive-complexity,
+  -readability-isolate-declaration,
+  -readability-avoid-nested-conditional-operator,
+  -readability-math-missing-parentheses
+WarningsAsErrors: '*'

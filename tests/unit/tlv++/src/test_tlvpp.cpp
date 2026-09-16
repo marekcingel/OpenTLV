@@ -67,7 +67,6 @@ struct greeting {
     }
 };
 
-constexpr tlv::tag_t greeting::tag;
 static_assert(tlv::is_tlv_codec<greeting>::value, "greeting must satisfy TLV codec interface");
 
 TEST(Unit_TLV_CPP, registry_compares_valid_tag_bytes_and_size) {

@@ -1,8 +1,8 @@
 # Adds an opt-in 'cppcheck' target that runs cppcheck's static analysis over
 # tlv (C) and tlv++ (C++) sources and public headers. Not part of ALL, and
 # skipped with a warning if no cppcheck is found, so its absence never breaks
-# a regular build. clang-tidy is planned as a follow-up target in this same
-# module.
+# a regular build. See cmake/clang_tidy.cmake for the complementary
+# 'clang-tidy' target.
 set(_OPENTLV_CPPCHECK_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 function(opentlv_add_cppcheck_targets)

@@ -84,3 +84,40 @@ breaking a regular build) if cppcheck isn't found. Justified exceptions
 API behavior a check flags) live in
 [.cppcheck-suppressions](.cppcheck-suppressions), with a comment explaining
 each one; prefer fixing a finding over suppressing it.
+
+## Static analysis (clang-tidy)
+
+[static-analysis.yml](.github/workflows/static-analysis.yml) also runs
+[clang-tidy](https://clang.llvm.org/extra/clang-tidy/) 18 over `tlv` (C) and
+`tlv++` (C++). Check selection lives in [.clang-tidy](.clang-tidy) at the
+repository root (the shared baseline for both languages) plus
+[tlv/.clang-tidy](tlv/.clang-tidy) and [tlv++/.clang-tidy](tlv++/.clang-tidy),
+which layer C- and C++-specific checks on top of it; clang-tidy resolves the
+config for a given file by merging every `.clang-tidy` it finds walking up
+from that file's own directory, so both apply automatically. Reproduce it
+locally by installing clang-tidy, configuring a build directory with
+`CMAKE_EXPORT_COMPILE_COMMANDS` enabled (clang-tidy needs the resulting
+`compile_commands.json` to know each file's include paths and language
+standard), and building the opt-in `clang-tidy` target:
+
+```sh
+cmake -S . -B <build-dir> -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+cmake --build <build-dir> --target clang-tidy
+```
+
+Like `format`/`format-check`/`cppcheck`, the target is skipped with a
+warning (never breaking a regular build) if clang-tidy isn't found or
+`CMAKE_EXPORT_COMPILE_COMMANDS` wasn't enabled (also requires
+`OPENTLV_BUILD_CXX`/`OPENTLV_BUILD_TESTS`/`OPENTLV_BUILD_UNIT_TESTS`, all ON
+by default). tlv++ is header-only, so there's no translation unit of its
+own for clang-tidy to attach to; instead the target points clang-tidy at
+`tests/unit/tlv++/src/test_tlvpp.cpp`, which already includes and exercises
+every tlv++ header with real instantiations (a synthetic TU that just
+`#include`s the headers would compile but never instantiate their
+templates, so clang-tidy would have nothing to analyze inside them).
+Findings are still reported for that test file itself, so it has to stay
+clang-tidy-clean too. Justified exceptions (for example a Clang Static
+Analyzer false positive through an indirect function-pointer call it can't
+resolve) are fixed with a
+`NOLINT`/`NOLINTNEXTLINE`/`NOLINTBEGIN`-`NOLINTEND` comment explaining why,
+right at the finding; prefer fixing a finding over suppressing it.

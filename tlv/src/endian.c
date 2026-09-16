@@ -19,13 +19,13 @@ uint16_t tlv_read_u16_le(const uint8_t* data) {
 }
 
 uint32_t tlv_read_u32_be(const uint8_t* data) {
-    return (uint32_t)(((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) |
-                      ((uint32_t)data[2] << 8) | ((uint32_t)data[3] << 0));
+    return ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) | ((uint32_t)data[2] << 8) |
+           ((uint32_t)data[3] << 0);
 }
 
 uint32_t tlv_read_u32_le(const uint8_t* data) {
-    return (uint32_t)(((uint32_t)data[0] << 0) | ((uint32_t)data[1] << 8) |
-                      ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24));
+    return ((uint32_t)data[0] << 0) | ((uint32_t)data[1] << 8) | ((uint32_t)data[2] << 16) |
+           ((uint32_t)data[3] << 24);
 }
 
 void tlv_write_u16_be(uint8_t* data, uint16_t value) {
