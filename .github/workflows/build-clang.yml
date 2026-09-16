@@ -128,6 +128,20 @@ jobs:
           cmake --build build-c --parallel
           ./build-c/examples/tlv/example-tlv
 
+      # Restores libFuzzer-discovered inputs from the most recent previous run (falling back
+      # to just the checked-in seed corpus on a cache miss), so each run's 60s fuzzing budget
+      # builds on prior coverage instead of rediscovering it from scratch. The run_id-suffixed
+      # key means every run saves a new cache entry (via restore-keys' prefix match on the next
+      # run); GitHub evicts the oldest ones once the repo's cache quota fills up.
+      - name: Restore fuzz corpus cache
+        if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
+        uses: actions/cache@v4
+        with:
+          path: build/fuzz/corpus
+          key: fuzz-corpus-${{ github.run_id }}
+          restore-keys: |
+            fuzz-corpus-
+
       - name: Install fuzzing sanitizer runtimes
         if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
         run: sudo apt-get install -y libclang-rt-18-dev

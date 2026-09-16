@@ -29,7 +29,7 @@ tlv_result_t tlv_asn1_validate_bit_string(const uint8_t* value, size_t length) {
     unused = value[0];
     if (unused > 7) return TLV_ERR_INVALID_VALUE;
     if (length == 1) return unused == 0 ? TLV_OK : TLV_ERR_INVALID_VALUE;
-    mask = (uint8_t)((1u << unused) - 1u);
+    mask = (uint8_t)((1U << unused) - 1U);
     return (value[length - 1] & mask) == 0 ? TLV_OK : TLV_ERR_INVALID_VALUE;
 }
 

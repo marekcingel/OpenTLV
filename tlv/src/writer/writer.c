@@ -55,6 +55,14 @@ tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_writer_format_t
     rc = format->write_length(format->context, data + tag_size, length_size, length, &written);
     if (rc != TLV_OK) return rc;
     if (written != length_size) return TLV_ERR_INVALID_LENGTH;
+    // data is non-NULL here: tag_size is always > 0 for a valid tag (checked in
+    // encoded_sizes()), so total >= 1, and the earlier "capacity < total" check forces
+    // capacity > 0, ruling out data == NULL (guarded at function entry). The analyzer can't
+    // fold this across the format->write_tag() indirect call. Which specific analyzer check
+    // fires here (unix.cstring.NullArg vs. core.NonNullParamChecker, depending on whether the
+    // platform's <string.h> declares memcpy's parameters nonnull) varies by libc/clang-tidy
+    // version, so this is left unnamed rather than pinned to one that may not match in CI.
+    // NOLINTNEXTLINE
     if (length) memcpy(data + tag_size + length_size, value, length);
     *out_written = total;
     return TLV_OK;

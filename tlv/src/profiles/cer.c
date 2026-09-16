@@ -5,7 +5,8 @@
 #include "cer_values_internal.h"
 #include <string.h>
 
-const tlv_cer_limits_t tlv_cer_default_limits = {32, 16 * 1024 * 1024, 16 * 1024 * 1024, 100000};
+const tlv_cer_limits_t tlv_cer_default_limits = {32, (size_t)16 * 1024 * 1024,
+                                                 (size_t)16 * 1024 * 1024, 100000};
 
 static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
     if (error_offset) *error_offset = offset;

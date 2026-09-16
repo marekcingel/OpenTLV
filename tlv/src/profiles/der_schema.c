@@ -5,7 +5,7 @@
 #include <string.h>
 
 const tlv_der_schema_limits_t tlv_der_schema_default_limits = {
-    {32, 16 * 1024 * 1024, 16 * 1024 * 1024, 100000}, 10000};
+    {32, (size_t)16 * 1024 * 1024, (size_t)16 * 1024 * 1024, 100000}, 10000};
 
 static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
     if (error_offset) *error_offset = offset;
@@ -267,8 +267,8 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_view_t vie
     value_offset = elem_base + used - value_length;
 
     if (component->tagging == TLV_DER_TAG_EXPLICIT) {
-        tlv_view_t inner;
-        size_t inner_used;
+        tlv_view_t inner = {0};
+        size_t inner_used = 0;
         if (schema_depth > TLV_DER_SCHEMA_MAX_TYPE_DEPTH)
             return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
         rc = read_one(ctx, value_offset, value_length, depth + 1, &inner, &inner_used);
@@ -864,9 +864,22 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
     }
 
     if (!*absent && component->presence == TLV_DER_DEFAULT && component->default_encoding &&
-        *out_len == component->default_encoding_length &&
-        memcmp(wctx->arena + *out_off, component->default_encoding, *out_len) == 0)
-        *absent = 1;
+        *out_len == component->default_encoding_length) {
+        int matches_default = 1;
+        if (*out_len) {
+            // wctx->arena is non-NULL here: every write into it above is preceded by an
+            // arena_used + n > arena_capacity capacity check, so a NULL (zero-capacity) arena
+            // forces *out_len == 0, which this branch already rules out. The analyzer can't
+            // fold that invariant through the recursive produce_natural_encoding()/
+            // wrap_and_store() call chain. Left unnamed (not pinned to e.g.
+            // unix.cstring.NullArg or core.NonNullParamChecker) since which analyzer check
+            // fires here depends on the platform libc's memcmp declaration.
+            matches_default =
+                // NOLINTNEXTLINE
+                memcmp(wctx->arena + *out_off, component->default_encoding, *out_len) == 0;
+        }
+        if (matches_default) *absent = 1;
+    }
     return TLV_OK;
 }
 
@@ -909,7 +922,7 @@ tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_
     if (root_len > limits->base.max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (data) {
         if (root_len > capacity) return fail(TLV_ERR_BUFFER_TOO_SHORT, 0, error_offset);
-        memcpy(data, wctx.arena + root_off, root_len);
+        if (root_len) memcpy(data, wctx.arena + root_off, root_len);
     }
     *written = root_len;
     return TLV_OK;

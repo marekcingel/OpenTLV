@@ -43,7 +43,7 @@ typedef enum {
  * the raw tag objects. All current dictionary values fit in an int. */
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
-    enum { tlv_emv_tag_##name##_u64 = (size == 1 ? (b1) : ((b1) << 8) | (b2)) };
+    enum { tlv_emv_tag_##name##_u64 = ((size) == 1 ? (b1) : ((b1) << 8) | (b2)) };
 #define EMV_END(scope)
 #include "tlv/profiles/emv_tags.def"
 #undef EMV_BEGIN

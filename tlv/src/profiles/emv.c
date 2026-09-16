@@ -121,6 +121,7 @@ const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context, const tlv_ta
     const tlv_schema_t* schema = tlv_emv_schema_for(context);
     const tlv_schema_entry_t* entry = tlv_schema_find(schema, tag);
     if (!entry) return NULL;
+    if ((unsigned)context >= EMV_COUNT(definitions)) return NULL;
     return &definitions[context][entry - schema->entries];
 }
 

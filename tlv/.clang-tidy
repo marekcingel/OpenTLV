@@ -1,0 +1,23 @@
+# tlv is a pure C99 library: keep every C++-only check group off, even
+# though the shared baseline in the repo-root .clang-tidy doesn't enable any
+# of them either. This makes the C vs. C++ split from issue #120 explicit in
+# tlv's own directory, and keeps this file protective if that root baseline
+# is ever broadened (e.g. to a wildcard).
+InheritParentConfig: true
+Checks: >
+  -modernize-*,
+  -cppcoreguidelines-*,
+  -google-*,
+  -hicpp-*,
+  -fuchsia-*,
+  -llvmlibc-*,
+  -abseil-*,
+  -boost-*,
+  -objc-*,
+  -zircon-*,
+  -altera-*,
+  -android-*,
+  -darwin-*,
+  -linuxkernel-*,
+  -openmp-*,
+  -mpi-*

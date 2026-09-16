@@ -101,7 +101,10 @@ the C fuzz targets separately in Debug mode after coverage collection. It runs
 each target for approximately 60 seconds, fails on any
 target failure, and uploads per-target logs and reproducing inputs even when
 the run fails. A 15-minute step timeout bounds fuzz execution. This short
-campaign is a smoke check, not exhaustive validation.
+campaign is a smoke check, not exhaustive validation. CI caches `build/fuzz/corpus`
+across runs (`actions/cache`, restored before the fuzz build and saved after
+it), so each run's 60 seconds builds on inputs the previous run discovered
+instead of starting over from just the checked-in seed corpus every time.
 
 Download the `c-fuzz-findings-<run>-<attempt>` artifact, check out the failing
 commit, and build with the same component options and Clang version. Pass the

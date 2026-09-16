@@ -137,8 +137,18 @@ tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity, tlv_tag_t 
     if (capacity < total) return TLV_ERR_BUFFER_TOO_SHORT;
     rc = tlv_ber_scan_contents(value, length, 0, &checked_length, &used);
     if (rc != TLV_OK) return rc;
+    // data is non-NULL here. total is always >= 3 (tag_size + 1 end-of-contents flag byte + 2
+    // terminator bytes, with tag_size >= 1 for any valid tag), and capacity >= total was just
+    // checked above; the only way data could be NULL is capacity == 0 (guarded at function
+    // entry), which is smaller than the always-positive total. The analyzer can't fold this
+    // across the indirect write_tag() call inside tlv_ber_indefinite_encoded_size(). Left
+    // unnamed (not pinned to e.g. unix.cstring.NullArg/core.NullDereference/
+    // core.NonNullParamChecker) since which analyzer check fires here depends on the platform
+    // libc's memcpy declaration.
+    // NOLINTBEGIN
     memcpy(data, tag.data, tag.size);
     data[tag.size] = 0x80;
+    // NOLINTEND
     if (length) memcpy(data + tag.size + 1, value, length);
     data[total - 2] = 0;
     data[total - 1] = 0;

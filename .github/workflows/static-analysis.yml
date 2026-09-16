@@ -1,5 +1,3 @@
-# Formatting and cppcheck today; clang-tidy is planned as an additional job
-# in this same workflow.
 name: Static Analysis
 
 on:
@@ -123,6 +121,85 @@ jobs:
                       summary.write(f"| {severity} | {counts[severity]} |\n")
 
               summary.write("\n| File | Line | Severity | Message |\n| --- | ---: | --- | --- |\n")
+              for finding in findings:
+                  message = finding["message"].replace("|", "\\|")
+                  summary.write(
+                      f"| {finding['file']} | {finding['line']} | {finding['severity']} | "
+                      f"{message} (`{finding['id']}`) |\n"
+                  )
+          PY
+
+  clang-tidy:
+    permissions:
+      contents: read
+    name: clang-tidy
+    runs-on: ubuntu-24.04
+    env:
+      CC: clang-18
+      CXX: clang++-18
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Clang and Ninja
+        run: sudo apt-get update && sudo apt-get install -y clang-18 clang-tidy-18 ninja-build
+
+      # Only configures the project (compile_commands.json is written at
+      # generate time); this never needs a full build, matching the cppcheck
+      # job above. C++23 matches the standard build-clang.yml tests with, so
+      # tlv++'s compat.hpp polyfills are exercised the same way in both.
+      - name: Configure CMake
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
+          -DCMAKE_CXX_STANDARD=23 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+
+      - name: Run clang-tidy
+        run: cmake --build build --target clang-tidy 2>&1 | tee "$RUNNER_TEMP/clang-tidy.log"
+
+      - name: Summarize clang-tidy findings
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+
+          log_path = os.path.join(os.environ["RUNNER_TEMP"], "clang-tidy.log")
+          if not os.path.exists(log_path):
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+                  summary.write("### clang-tidy findings\n\n")
+                  summary.write("clang-tidy did not run; see the earlier failed step(s) above.\n")
+              raise SystemExit
+
+          with open(log_path, encoding="utf-8", errors="replace") as log:
+              lines = log.readlines()
+
+          # Matches clang-tidy's default "file:line:col: severity: message [check-name]"
+          # diagnostic line; WarningsAsErrors: '*' (in .clang-tidy) turns every enabled
+          # check into a "error" with a trailing ",-warnings-as-errors" tag, which is
+          # split off below to recover the actual check name.
+          pattern = re.compile(
+              r"^(?P<file>.+):(?P<line>\d+):\d+: "
+              r"(?P<severity>warning|error): (?P<message>.+) \[(?P<id>[A-Za-z0-9_.,-]+)\]$"
+          )
+          findings = []
+          for line in lines:
+              match = pattern.match(line.rstrip("\n"))
+              if not match:
+                  continue
+              finding = match.groupdict()
+              finding["id"] = finding["id"].split(",")[0]
+              findings.append(finding)
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("### clang-tidy findings\n\n")
+              if not findings:
+                  summary.write("No clang-tidy findings across `tlv` and `tlv++`.\n")
+                  raise SystemExit
+
+              summary.write("| File | Line | Severity | Message |\n| --- | ---: | --- | --- |\n")
               for finding in findings:
                   message = finding["message"].replace("|", "\\|")
                   summary.write(

@@ -62,6 +62,9 @@ if(OPENTLV_BUILD_CXX)
     add_subdirectory(tlv++)
 endif()
 
+include(cmake/clang_tidy.cmake)
+opentlv_add_clang_tidy_targets()
+
 if(OPENTLV_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
