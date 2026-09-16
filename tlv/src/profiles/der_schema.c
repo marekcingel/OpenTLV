@@ -871,9 +871,11 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
             // arena_used + n > arena_capacity capacity check, so a NULL (zero-capacity) arena
             // forces *out_len == 0, which this branch already rules out. The analyzer can't
             // fold that invariant through the recursive produce_natural_encoding()/
-            // wrap_and_store() call chain.
+            // wrap_and_store() call chain. Left unnamed (not pinned to e.g.
+            // unix.cstring.NullArg or core.NonNullParamChecker) since which analyzer check
+            // fires here depends on the platform libc's memcmp declaration.
             matches_default =
-                // NOLINTNEXTLINE(clang-analyzer-unix.cstring.NullArg)
+                // NOLINTNEXTLINE
                 memcmp(wctx->arena + *out_off, component->default_encoding, *out_len) == 0;
         }
         if (matches_default) *absent = 1;
@@ -920,7 +922,7 @@ tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity, const tlv_der_
     if (root_len > limits->base.max_input_size) return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (data) {
         if (root_len > capacity) return fail(TLV_ERR_BUFFER_TOO_SHORT, 0, error_offset);
-        memcpy(data, wctx.arena + root_off, root_len);
+        if (root_len) memcpy(data, wctx.arena + root_off, root_len);
     }
     *written = root_len;
     return TLV_OK;
