@@ -4,12 +4,13 @@
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* used) {
     /* Universal tag zero is reserved for EOC, never an ordinary element. */
-    if (size && (data[0] == 0 || data[0] == 0x20)) return TLV_ERR_INVALID_TAG;
+    if (size && (data[0] == 0 || data[0] == TLV_ASN1_CONSTRUCTED_BIT)) return TLV_ERR_INVALID_TAG;
     return tlv_ber_reader_wire.read_tag(context, data, size, tag, used);
 }
 static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
                               const tlv_tag_t* tag, size_t* used) {
-    if (tag->size && (tag->data[0] == 0 || tag->data[0] == 0x20)) return TLV_ERR_INVALID_TAG;
+    if (tag->size && (tag->data[0] == 0 || tag->data[0] == TLV_ASN1_CONSTRUCTED_BIT))
+        return TLV_ERR_INVALID_TAG;
     return tlv_ber_writer_wire.write_tag(context, data, capacity, tag, used);
 }
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
@@ -25,7 +26,7 @@ static tlv_result_t length_size(const void* context, size_t length, size_t* size
 }
 int tlv_ber_is_constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
-    return (tag->data[0] & 0x20) != 0;
+    return (tag->data[0] & TLV_ASN1_CONSTRUCTED_BIT) != 0;
 }
 
 tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefinite,
@@ -50,15 +51,15 @@ tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefin
             continue;
         }
         if (data[pos] == 0) {
-            if (limit - pos < 2) return TLV_ERR_BUFFER_TOO_SHORT;
+            if (limit - pos < TLV_BER_EOC_SIZE) return TLV_ERR_BUFFER_TOO_SHORT;
             if (data[pos + 1] != 0) return TLV_ERR_INVALID_LENGTH;
             if (!terminated[depth - 1]) return TLV_ERR_INVALID_TAG;
             if (--depth == 0) {
                 *value_size = pos;
-                *consumed = pos + 2;
+                *consumed = pos + TLV_BER_EOC_SIZE;
                 return TLV_OK;
             }
-            pos += 2;
+            pos += TLV_BER_EOC_SIZE;
             continue;
         }
         rc = read_tag(NULL, data + pos, limit - pos, &tag, &tag_size);
@@ -66,7 +67,7 @@ tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefin
         pos += tag_size;
         if (pos == limit) return TLV_ERR_BUFFER_TOO_SHORT;
         constructed = tlv_ber_is_constructed(NULL, &tag);
-        child_indefinite = data[pos] == 0x80;
+        child_indefinite = data[pos] == TLV_BER_LENGTH_LONG_FORM_BIT;
         if (child_indefinite) {
             if (!constructed) return TLV_ERR_INVALID_LENGTH;
             ++pos;
@@ -92,7 +93,7 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
     size_t length, used;
     tlv_result_t rc;
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (data[0] != 0x80) {
+    if (data[0] != TLV_BER_LENGTH_LONG_FORM_BIT) {
         rc = read_length(context, data, size, &length, &used);
         if (rc != TLV_OK) return rc;
         if (length > size - used) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -104,9 +105,9 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
     if (!tlv_ber_is_constructed(context, tag)) return TLV_ERR_INVALID_LENGTH;
     rc = tlv_ber_scan_contents(data + 1, size - 1, 1, &length, &used);
     if (rc != TLV_OK) return rc;
-    *len_size = 1;
+    *len_size = TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE;
     *value_size = length;
-    *trailer_size = 2;
+    *trailer_size = TLV_BER_EOC_SIZE;
     return TLV_OK;
 }
 
@@ -122,8 +123,9 @@ tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t length, size_
     rc = write_tag(NULL, NULL, 0, &tag, &tag_size);
     if (rc != TLV_OK) return rc;
     if (!tlv_ber_is_constructed(NULL, &tag)) return TLV_ERR_INVALID_LENGTH;
-    if (length > SIZE_MAX - tag_size - 3) return TLV_ERR_INVALID_LENGTH;
-    *size = tag_size + 1 + length + 2;
+    if (length > SIZE_MAX - tag_size - (TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE + TLV_BER_EOC_SIZE))
+        return TLV_ERR_INVALID_LENGTH;
+    *size = tag_size + TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE + length + TLV_BER_EOC_SIZE;
     return TLV_OK;
 }
 
@@ -147,11 +149,11 @@ tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity, tlv_tag_t 
     // libc's memcpy declaration.
     // NOLINTBEGIN
     memcpy(data, tag.data, tag.size);
-    data[tag.size] = 0x80;
+    data[tag.size] = TLV_BER_LENGTH_LONG_FORM_BIT;
     // NOLINTEND
-    if (length) memcpy(data + tag.size + 1, value, length);
-    data[total - 2] = 0;
-    data[total - 1] = 0;
+    if (length) memcpy(data + tag.size + TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE, value, length);
+    data[total - TLV_BER_EOC_SIZE] = 0;
+    data[total - TLV_BER_EOC_SIZE + 1] = 0;
     *written = total;
     return TLV_OK;
 }

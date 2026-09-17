@@ -18,6 +18,16 @@ typedef enum tlv_asn1_class {
     TLV_ASN1_PRIVATE = 3
 } tlv_asn1_class_t;
 
+/* Identifier octet bit layout below the class field (X.690 §8.1.2): bit 5 is
+ * the constructed/primitive flag, and the low 5 bits are the low-tag-number
+ * field, which escapes to high-tag-number form by being all-ones (31). */
+enum {
+    TLV_ASN1_CLASS_SHIFT = 6,
+    TLV_ASN1_CONSTRUCTED_BIT = 0x20,
+    TLV_ASN1_TAG_NUMBER_MASK = 0x1F,
+    TLV_ASN1_LOW_TAG_LIMIT = 31
+};
+
 /* Raw BER-TLV tags up to TLV_TAG_CAPACITY, including high-tag-number form.
  * Definite lengths up to SIZE_MAX; writes use the shortest length encoding.
  * Reads accept nonminimal definite lengths and constructed indefinite lengths.
@@ -30,7 +40,7 @@ extern TLV_API const tlv_writer_format_t tlv_writer_format_ber;
  * element, including that element and definite constructed descendants.
  * The implementation uses a fixed stack, without allocation or recursion.
  */
-#define TLV_BER_MAX_DEPTH 64
+enum { TLV_BER_MAX_DEPTH = 64 };
 
 /* Explicit indefinite encoding: tag + 80 + encoded children + 00 00.
  * The ordinary BER writer remains definite-length. Only constructed tags

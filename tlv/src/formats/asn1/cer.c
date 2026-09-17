@@ -28,7 +28,7 @@ static tlv_result_t cer_length_size(const void* context, size_t length, size_t* 
 
 int tlv_cer_is_constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
-    return (tag->data[0] & 0x20) != 0;
+    return (tag->data[0] & TLV_ASN1_CONSTRUCTED_BIT) != 0;
 }
 
 /* Resolves one element's length field: a constructed tag's length must be
@@ -44,13 +44,13 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
     tlv_result_t rc;
     int constructed = tlv_cer_is_constructed(context, tag);
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (data[0] == 0x80) {
+    if (data[0] == TLV_BER_LENGTH_LONG_FORM_BIT) {
         if (!constructed) return TLV_ERR_INVALID_LENGTH;
         rc = tlv_ber_scan_contents(data + 1, size - 1, 1, &length, &used);
         if (rc != TLV_OK) return rc;
-        *length_size = 1;
+        *length_size = TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE;
         *value_size = length;
-        *trailer_size = 2;
+        *trailer_size = TLV_BER_EOC_SIZE;
         return TLV_OK;
     }
     if (constructed) return TLV_ERR_INVALID_LENGTH;
@@ -78,23 +78,26 @@ tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructed, uint6
     tlv_tag_t result = {{0}, 1};
     size_t written;
     if (!tag) return TLV_ERR_NULL_ARG;
-    if ((unsigned)tag_class > 3 || (constructed != 0 && constructed != 1))
+    if ((unsigned)tag_class > (unsigned)TLV_ASN1_PRIVATE || (constructed != 0 && constructed != 1))
         return TLV_ERR_INVALID_TAG;
-    result.data[0] = (uint8_t)(((unsigned)tag_class << 6) | (constructed ? 0x20 : 0));
-    if (number < 31)
+    result.data[0] = (uint8_t)(((unsigned)tag_class << TLV_ASN1_CLASS_SHIFT) |
+                               (constructed ? TLV_ASN1_CONSTRUCTED_BIT : 0));
+    if (number < TLV_ASN1_LOW_TAG_LIMIT)
         result.data[0] |= (uint8_t)number;
     else {
         uint8_t digits[10];
         size_t count = 0;
-        result.data[0] |= 0x1F;
+        result.data[0] |= TLV_ASN1_TAG_NUMBER_MASK;
         do {
-            digits[count++] = (uint8_t)(number & 0x7F);
-            number >>= 7;
+            digits[count++] = (uint8_t)(number & TLV_BER_TAG_DIGIT_MASK);
+            number >>= TLV_BER_TAG_DIGIT_BITS;
         } while (number);
         if (count + 1 > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
         result.size = (uint8_t)(count + 1);
         for (size_t i = 0; i < count; ++i)
-            result.data[i + 1] = (uint8_t)(digits[count - i - 1] | (i + 1 < count ? 0x80 : 0));
+            result.data[i + 1] =
+                (uint8_t)(digits[count - i - 1] |
+                          (i + 1 < count ? TLV_BER_TAG_DIGIT_CONTINUATION_BIT : 0));
     }
     if (cer_write_tag(NULL, NULL, 0, &result, &written) != TLV_OK) return TLV_ERR_INVALID_TAG;
     *tag = result;
@@ -108,12 +111,12 @@ tlv_result_t tlv_cer_tag_number(const tlv_tag_t* tag, uint64_t* number) {
     if (!tag || !number) return TLV_ERR_NULL_ARG;
     rc = cer_write_tag(NULL, NULL, 0, tag, &written);
     if (rc != TLV_OK) return rc;
-    result = tag->data[0] & 0x1F;
+    result = tag->data[0] & TLV_ASN1_TAG_NUMBER_MASK;
     if (tag->size > 1) {
         result = 0;
         for (size_t i = 1; i < tag->size; ++i) {
-            if (result > (UINT64_MAX >> 7)) return TLV_ERR_INVALID_TAG;
-            result = (result << 7) | (tag->data[i] & 0x7F);
+            if (result > (UINT64_MAX >> TLV_BER_TAG_DIGIT_BITS)) return TLV_ERR_INVALID_TAG;
+            result = (result << TLV_BER_TAG_DIGIT_BITS) | (tag->data[i] & TLV_BER_TAG_DIGIT_MASK);
         }
     }
     *number = result;

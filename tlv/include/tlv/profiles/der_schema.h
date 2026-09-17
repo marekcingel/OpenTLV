@@ -105,11 +105,11 @@ struct tlv_der_schema_type {
  * unwrapping) while resolving a single wire position. Schemas are trusted,
  * caller-authored static data, not attacker input; this only guards against
  * an accidentally self-referential table. */
-#define TLV_DER_SCHEMA_MAX_TYPE_DEPTH 32
+enum { TLV_DER_SCHEMA_MAX_TYPE_DEPTH = 32 };
 
 /* Maximum direct components of one SEQUENCE, SET or CHOICE (presence is
  * tracked with a 64-bit bitmap). */
-#define TLV_DER_SCHEMA_MAX_COMPONENTS 64
+enum { TLV_DER_SCHEMA_MAX_COMPONENTS = 64 };
 
 typedef struct tlv_der_schema_limits {
     /* Reused from tlv/profiles/der.h: depth, input size, value size and
