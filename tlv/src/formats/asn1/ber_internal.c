@@ -1,7 +1,6 @@
 #include "ber_internal.h"
 #include "tlv/formats/format.h"
 #include <string.h>
-#include "tlv/endian.h"
 
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* consumed) {
@@ -41,63 +40,45 @@ static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacit
     return TLV_OK;
 }
 
+/* Delegates to the standalone tlv_ber_length_decode() (tlv/formats/asn1/ber.h)
+ * for the actual field parsing, narrowing its portable tlv_length_t result to
+ * this build's size_t. consumed is only published once that narrowing also
+ * succeeds, so a value that decodes but does not fit size_t leaves *length
+ * and *consumed unchanged, like any other failure. */
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
                                 size_t* length, size_t* consumed) {
-    size_t count, offset, width;
-    uint64_t value;
+    tlv_length_t value;
+    size_t local_consumed;
+    tlv_result_t rc;
     (void)context;
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (data[0] < TLV_BER_LENGTH_LONG_FORM_BIT) {
-        *length = data[0];
-        *consumed = 1;
-        return TLV_OK;
-    }
-    /* Indefinite lengths and the reserved FF prefix are unsupported. */
-    if (data[0] == TLV_BER_LENGTH_LONG_FORM_BIT || data[0] == TLV_BER_LENGTH_RESERVED_OCTET)
-        return TLV_ERR_INVALID_LENGTH;
-    count = data[0] & TLV_BER_LENGTH_COUNT_MASK;
-    if (size - 1 < count) return TLV_ERR_BUFFER_TOO_SHORT;
-    /* BER permits padding beyond the native integer width. Validate the
-     * complete payload before stripping only excess zero octets. */
-    offset = 1;
-    width = count;
-    while (width > sizeof(size_t) || width > sizeof(uint64_t)) {
-        if (data[offset++] != 0) return TLV_ERR_INVALID_LENGTH;
-        --width;
-    }
-    if (tlv_read_uint(data + offset, width, TLV_BYTE_ORDER_BIG_ENDIAN, &value) != TLV_OK ||
-        value > SIZE_MAX)
-        return TLV_ERR_INVALID_LENGTH;
-    *length = (size_t)value;
-    *consumed = count + 1;
+    rc = tlv_ber_length_decode(data, size, &value, &local_consumed);
+    if (rc != TLV_OK) return rc;
+    rc = tlv_length_to_size(value, length);
+    if (rc != TLV_OK) return TLV_ERR_INVALID_LENGTH;
+    *consumed = local_consumed;
     return TLV_OK;
 }
 
+/* Delegates to the standalone tlv_ber_length_encode(). length always fits
+ * tlv_length_t (tlv_length_from_size() is lossless), so the only failure this
+ * can add is a NULL size, already excluded by tlv_writer_format_t callers. */
 static tlv_result_t length_size(const void* context, size_t length, size_t* size) {
-    size_t count = 1;
+    tlv_length_t value;
+    tlv_result_t rc;
     (void)context;
-    if (length >= TLV_BER_LENGTH_LONG_FORM_BIT) {
-        do {
-            ++count;
-            length >>= 8;
-        } while (length);
-    }
-    *size = count;
-    return TLV_OK;
+    rc = tlv_length_from_size(length, &value);
+    if (rc != TLV_OK) return rc;
+    return tlv_ber_length_encode(value, NULL, 0, size);
 }
 
 static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity, size_t length,
                                  size_t* written) {
-    length_size(context, length, written);
-    if (capacity < *written) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (*written == 1)
-        data[0] = (uint8_t)length;
-    else {
-        data[0] = (uint8_t)(TLV_BER_LENGTH_LONG_FORM_BIT | (*written - 1));
-        if (tlv_write_uint(data + 1, *written - 1, TLV_BYTE_ORDER_BIG_ENDIAN, length) != TLV_OK)
-            return TLV_ERR_INVALID_LENGTH;
-    }
-    return TLV_OK;
+    tlv_length_t value;
+    tlv_result_t rc;
+    (void)context;
+    rc = tlv_length_from_size(length, &value);
+    if (rc != TLV_OK) return rc;
+    return tlv_ber_length_encode(value, data, capacity, written);
 }
 
 const tlv_reader_format_t tlv_ber_reader_wire = {

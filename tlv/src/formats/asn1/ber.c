@@ -1,5 +1,6 @@
 #include "tlv/formats/asn1/ber.h"
 #include "ber_internal.h"
+#include "tlv/endian.h"
 #include <string.h>
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* used) {
@@ -175,3 +176,61 @@ const tlv_writer_format_t tlv_writer_format_ber = {.context = NULL,
                                                    .write_tag = write_tag,
                                                    .write_length = write_length,
                                                    .length_size = length_size};
+
+tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_length_t* value,
+                                   size_t* consumed) {
+    size_t count, offset, width;
+    uint64_t decoded;
+    if ((!data && data_size) || !value || !consumed) return TLV_ERR_NULL_ARG;
+    if (!data_size) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (data[0] < TLV_BER_LENGTH_LONG_FORM_BIT) {
+        *value = data[0];
+        *consumed = 1;
+        return TLV_OK;
+    }
+    /* Indefinite lengths and the reserved FF prefix are unsupported. */
+    if (data[0] == TLV_BER_LENGTH_LONG_FORM_BIT || data[0] == TLV_BER_LENGTH_RESERVED_OCTET)
+        return TLV_ERR_INVALID_LENGTH;
+    count = data[0] & TLV_BER_LENGTH_COUNT_MASK;
+    if (data_size - 1 < count) return TLV_ERR_BUFFER_TOO_SHORT;
+    /* BER permits padding beyond tlv_length_t's 64-bit width. Validate the
+     * complete payload before stripping only excess zero octets. */
+    offset = 1;
+    width = count;
+    while (width > sizeof(uint64_t)) {
+        if (data[offset++] != 0) return TLV_ERR_INVALID_LENGTH;
+        --width;
+    }
+    if (tlv_read_uint(data + offset, width, TLV_BYTE_ORDER_BIG_ENDIAN, &decoded) != TLV_OK)
+        return TLV_ERR_INVALID_LENGTH;
+    *value = decoded;
+    *consumed = count + 1;
+    return TLV_OK;
+}
+
+tlv_result_t tlv_ber_length_encode(tlv_length_t value, uint8_t* out, size_t out_capacity,
+                                   size_t* written) {
+    size_t count = 1;
+    tlv_length_t remaining = value;
+    if ((!out && out_capacity) || !written) return TLV_ERR_NULL_ARG;
+    if (value >= TLV_BER_LENGTH_LONG_FORM_BIT) {
+        do {
+            ++count;
+            remaining >>= 8;
+        } while (remaining);
+    }
+    if (!out) {
+        *written = count;
+        return TLV_OK;
+    }
+    if (out_capacity < count) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (count == 1)
+        out[0] = (uint8_t)value;
+    else {
+        out[0] = (uint8_t)(TLV_BER_LENGTH_LONG_FORM_BIT | (count - 1));
+        if (tlv_write_uint(out + 1, count - 1, TLV_BYTE_ORDER_BIG_ENDIAN, value) != TLV_OK)
+            return TLV_ERR_INVALID_LENGTH;
+    }
+    *written = count;
+    return TLV_OK;
+}

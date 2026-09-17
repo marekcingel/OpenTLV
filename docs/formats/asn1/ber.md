@@ -125,6 +125,61 @@ recovery scanning, structural schemas and structure codecs use the resolved
 value range. Scanner results remain recovery candidates, not proof of a valid
 surrounding tree. DER still rejects indefinite lengths.
 
+### Standalone definite-length codec
+
+`tlv_ber_length_decode(data, data_size, &value, &consumed)` and
+`tlv_ber_length_encode(value, out, out_capacity, &written)` inspect or produce
+one BER definite-length field on its own, independent of any tag or value
+payload and of the format callbacks above. They use `tlv_length_t` (from
+`tlv/length.h`) for the decoded value, so it has the same 64-bit range on
+every build regardless of the current build's `size_t` width:
+
+```c
+#include "tlv/formats/asn1/ber.h"
+#include "tlv/length.h"
+
+uint8_t out[TLV_BER_LENGTH_MAX_ENCODED_SIZE];
+size_t written;
+if (tlv_ber_length_encode(300, out, sizeof(out), &written) == TLV_OK) {
+    /* out[0..written) is 82 01 2C. */
+}
+
+tlv_length_t value;
+size_t consumed;
+if (tlv_ber_length_decode(out, written, &value, &consumed) == TLV_OK) {
+    size_t available; /* bytes actually held by the value buffer at hand */
+    size_t needed;
+    /* Convert the portable decoded length before using it as a native size,
+     * then separately check it against the buffer that is actually available;
+     * a successful conversion does not by itself prove that much data exists. */
+    if (tlv_length_to_size(value, &needed) == TLV_OK && needed <= available) {
+        /* needed bytes of value payload may now be read from the buffer. */
+    }
+}
+```
+
+`tlv_ber_length_decode` accepts short form and long form, including nonminimal
+(zero-padded) long-form encodings whose numeric value still fits `tlv_length_t`
+-- the same nonminimal acceptance as `tlv_reader_format_ber`, just against the
+full 64-bit range instead of the current build's `size_t`. The indefinite
+marker (`80` alone) and the reserved `FF` prefix are rejected with
+`TLV_ERR_INVALID_LENGTH`, as is a padded value wider than `tlv_length_t` or
+nonzero excess padding. A field that declares more length octets than
+`data_size` provides returns `TLV_ERR_BUFFER_TOO_SHORT`. It does not process
+the indefinite-length marker's associated content or constructed EOC framing;
+use `tlv_reader_format_ber` or `tlv_ber_write_indefinite` for that.
+
+`tlv_ber_length_encode` always produces the shortest definite form and
+supports a size query: pass `out == NULL` with `out_capacity == 0` to receive
+the required size in `*written` without writing. `TLV_BER_LENGTH_MAX_ENCODED_SIZE`
+(9) is enough to hold the encoding of any `tlv_length_t` value, including
+`UINT64_MAX` (`88 FF FF FF FF FF FF FF FF`); it is smaller than the largest
+field `tlv_ber_length_decode` can still accept, since nonminimal input may use
+up to 127 length octets. Insufficient `out_capacity` returns
+`TLV_ERR_BUFFER_TOO_SHORT` with no partial write. Both functions leave their
+outputs unchanged on failure, and neither allocates or requires the length's
+value payload to be present.
+
 These framing rules follow [ITU-T X.690 (02/2021), sections 8.1.3 and 8.1.5](https://www.itu.int/rec/T-REC-X.690-202102-I/en).
 
 Malformed tags and unterminated tags on write return `TLV_ERR_INVALID_TAG`,
