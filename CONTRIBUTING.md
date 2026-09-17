@@ -1,10 +1,14 @@
 # Contributing to OpenTLV
 
 Report bugs and propose features through
-[GitHub issues](https://github.com/marekcingel/OpenTLV/issues).
-For bugs, include a small reproducer, expected and actual behavior, compiler,
-build options, and the version or commit used. Report suspected security
-vulnerabilities privately instead, following [SECURITY.md](SECURITY.md).
+[GitHub issues](https://github.com/marekcingel/OpenTLV/issues), using the
+Bug Report, Feature Request, or Documentation issue form. For bugs, include a
+small reproducer, expected and actual behavior, compiler, build options, and
+the version or commit used. Report suspected security vulnerabilities
+privately instead, following [SECURITY.md](SECURITY.md).
+
+All project spaces, including issues, pull requests, and reviews, are
+governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 Before opening a pull request:
 
