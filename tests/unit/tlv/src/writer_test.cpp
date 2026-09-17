@@ -27,6 +27,34 @@ TEST(Unit_Writer, EveryInsufficientCapacityReportsRequiredSizeAndPreservesBuffer
     }
 }
 
+// Regression for a fuzz_roundtrip crash on the empty input (0 bytes, matching
+// tests/fuzz/corpus/roundtrip/empty.bin): with a zero-length value, the harness's
+// undersized tlv_write() still asserted the pre-#108 contract (written left
+// untouched on TLV_ERR_BUFFER_TOO_SHORT). Reproduces that exact call shape here so
+// the size-feedback contract for a zero-length value is covered without fuzzing.
+TEST(Unit_Writer, ZeroLengthValueUndersizedWriteThenRoundTripRegression) {
+    const tlv_tag_t primitive = {{0x04}, 1};
+    size_t          total = 0;
+    ASSERT_EQ(TLV_OK, tlv_encoded_size(primitive, 0, &controlled::writer, &total));
+    std::vector<uint8_t> encoded(total, 0xA5);
+    size_t               written = 99;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write(encoded.data(), total - 1, &controlled::writer,
+                                                  primitive, nullptr, 0, &written));
+    EXPECT_EQ(total, written);
+    for (auto byte : encoded) EXPECT_EQ(0xA5, byte);
+    ASSERT_EQ(TLV_OK, tlv_write(encoded.data(), total, &controlled::writer, primitive, nullptr, 0,
+                                &written));
+    EXPECT_EQ(total, written);
+    tlv_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, encoded.data(), written, &controlled::reader));
+    tlv_view_t view{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+    EXPECT_EQ(primitive.size, view.tag.size);
+    EXPECT_EQ(primitive.data[0], view.tag.data[0]);
+    EXPECT_EQ(0u, view.value.length);
+    EXPECT_TRUE(tlv_reader_at_end(&reader));
+}
+
 TEST(Unit_Writer, InvalidArgumentsAndFormatsPreserveOutputs) {
     uint8_t     data[4] = {};
     size_t      size = 99;
