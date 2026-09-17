@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add [SECURITY.md](SECURITY.md), documenting supported versions and a private vulnerability-reporting process via GitHub Private Vulnerability Reporting. (#161)
 - Add `tlv_emv_value_kind_description`, `tlv_emv_display_label`, and `tlv_emv_titlecase_name` to `tlv/codec/emv.h`/`tlv/profiles/emv.h`, moving the `opentlv` CLI's tag-name and value-kind-description lookup tables (previously private to `tools/cli/src/presentation.cpp`) into the core library so any consumer can produce the same human-readable diagnostics. (#55)
 - Add structured EMV codecs for AFL (`tlv_emv_afl_t`, a list of SFI/record-range/offline-DA-count entries), CVM Results (`tlv_emv_cvm_result_t`), and Track 2 Equivalent Data (`tlv_emv_track2_t`: PAN, expiration date, service code, discretionary data), replacing their previous BYTES/FLAGS kinds in the dictionary. Add named `TLV_EMV_TVR_*`, `TLV_EMV_TSI_*`, `TLV_EMV_TERMINAL_CAPABILITIES_*`, and `TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_*` bit-flag masks for their existing FLAGS values, and `TLV_EMV_CVM_RESULT_*` for the CVM result byte. Demonstrated in [tag_decoding.c](examples/emv/src/tag_decoding.c). (#55)
 - Add [ROADMAP.md](ROADMAP.md), documenting the planned 1.x-4.x major-version direction (Foundation, Runtime Format Engine/OTDL, Semantic Engine, Compiler), and link it from [README.md](README.md#long-term-direction) and [docs/README.md](docs/README.md#project). (#152)
