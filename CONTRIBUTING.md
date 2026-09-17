@@ -3,7 +3,8 @@
 Report bugs and propose features through
 [GitHub issues](https://github.com/marekcingel/OpenTLV/issues).
 For bugs, include a small reproducer, expected and actual behavior, compiler,
-build options, and the version or commit used.
+build options, and the version or commit used. Report suspected security
+vulnerabilities privately instead, following [SECURITY.md](SECURITY.md).
 
 Before opening a pull request:
 
