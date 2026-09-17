@@ -22,6 +22,23 @@ enum { EMV_MAX_HOUR = 23, EMV_MAX_MINUTE = 59, EMV_MAX_SECOND = 59 };
  * flags field in the low bits. */
 enum { EMV_CID_TYPE_SHIFT = 6, EMV_CID_FLAGS_MASK = 0x3F };
 
+/* AFL entry byte one: SFI occupies the top five bits, the low three are RFU. */
+enum { EMV_AFL_SFI_SHIFT = 3, EMV_AFL_MIN_SFI = 1, EMV_AFL_MAX_SFI = 30 };
+
+/* Track 2: BCD digit nibbles, a field-separator nibble (hex D), then a fixed
+ * four-digit expiration date and three-digit service code. */
+enum {
+    EMV_TRACK2_FIELD_SEPARATOR = 0xD,
+    EMV_TRACK2_EXPIRY_DIGITS = 4,
+    EMV_TRACK2_SERVICE_CODE_DIGITS = 3,
+    EMV_TRACK2_MAX_DIGITS = TLV_EMV_TRACK2_PAN_MAX_DIGITS + 1 + EMV_TRACK2_EXPIRY_DIGITS +
+        EMV_TRACK2_SERVICE_CODE_DIGITS + TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS + 1
+};
+
+/* Upper bound for a semantic codec's encoded output: AFL's 252-byte maximum
+ * (63 four-byte entries) is the largest; every other kind needs far less. */
+enum { EMV_MAX_ENCODED_VALUE_SIZE = 252 };
+
 static int valid_length(const emv_value_rule_t* rule, size_t size) {
     return size >= rule->min_length && size <= rule->max_length && rule->step &&
            (size - rule->min_length) % rule->step == 0;
@@ -83,6 +100,24 @@ static int valid_biometric(uint64_t biometric) {
     return biometric == TLV_EMV_BIOMETRIC_FACIAL || biometric == TLV_EMV_BIOMETRIC_VOICE ||
            biometric == TLV_EMV_BIOMETRIC_FINGER || biometric == TLV_EMV_BIOMETRIC_IRIS ||
            biometric == TLV_EMV_BIOMETRIC_PALM;
+}
+
+static int valid_afl_entry(uint8_t sfi, uint8_t first_record, uint8_t last_record,
+                           uint8_t offline_auth_record_count) {
+    return sfi >= EMV_AFL_MIN_SFI && sfi <= EMV_AFL_MAX_SFI && first_record >= 1 &&
+           last_record >= first_record &&
+           offline_auth_record_count <= (uint8_t)(last_record - first_record + 1);
+}
+
+/* i counts nibbles from the start of `data`, high nibble of each byte first. */
+static unsigned track2_nibble(const uint8_t* data, size_t i) {
+    return (i % 2 ? data[i / 2] : data[i / 2] >> EMV_BCD_NIBBLE_BITS) & EMV_NIBBLE_MASK;
+}
+
+static size_t emv_strnlen(const char* value, size_t limit) {
+    size_t length = 0;
+    while (length < limit && value[length]) ++length;
+    return length;
 }
 
 static tlv_codec_result_t decode_digits(const emv_value_rule_t* rule, const uint8_t* data,
@@ -206,6 +241,75 @@ tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data, si
                     return TLV_CODEC_ERR_INVALID_VALUE;
             EMV_STORE(list);
         }
+        case TLV_EMV_VALUE_AFL: {
+            tlv_emv_afl_t afl;
+            size_t i;
+            memset(&afl, 0, sizeof(afl));
+            afl.count = size / 4;
+            for (i = 0; i < afl.count; ++i) {
+                const uint8_t* entry = data + i * 4;
+                uint8_t sfi = (uint8_t)(entry[0] >> EMV_AFL_SFI_SHIFT);
+                if (!valid_afl_entry(sfi, entry[1], entry[2], entry[3]))
+                    return TLV_CODEC_ERR_INVALID_VALUE;
+                afl.entries[i].sfi = sfi;
+                afl.entries[i].first_record = entry[1];
+                afl.entries[i].last_record = entry[2];
+                afl.entries[i].offline_auth_record_count = entry[3];
+            }
+            EMV_STORE(afl);
+        }
+        case TLV_EMV_VALUE_CVM_RESULT: {
+            tlv_emv_cvm_result_t result;
+            result.method = data[0];
+            result.condition = data[1];
+            result.result = data[2];
+            EMV_STORE(result);
+        }
+        case TLV_EMV_VALUE_TRACK2: {
+            tlv_emv_track2_t track2;
+            size_t total_nibbles, pad = 0, sep = (size_t)-1, i, disc_len;
+            if (!size) return TLV_CODEC_ERR_INVALID_VALUE;
+            total_nibbles = size * 2;
+            memset(&track2, 0, sizeof(track2));
+            if (track2_nibble(data, total_nibbles - 1) == EMV_BCD_PAD_NIBBLE) pad = 1;
+            for (i = 0; i < total_nibbles - pad && i <= TLV_EMV_TRACK2_PAN_MAX_DIGITS; ++i) {
+                unsigned nibble = track2_nibble(data, i);
+                if (nibble == EMV_TRACK2_FIELD_SEPARATOR) {
+                    sep = i;
+                    break;
+                }
+                if (nibble > 9) return TLV_CODEC_ERR_INVALID_VALUE;
+            }
+            if (sep == (size_t)-1 || sep == 0 ||
+                sep + 1 + EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS >
+                    total_nibbles - pad)
+                return TLV_CODEC_ERR_INVALID_VALUE;
+            for (i = 0; i < EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS; ++i)
+                if (track2_nibble(data, sep + 1 + i) > 9) return TLV_CODEC_ERR_INVALID_VALUE;
+            disc_len = (total_nibbles - pad) -
+                       (sep + 1 + EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS);
+            if (disc_len > TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS)
+                return TLV_CODEC_ERR_INVALID_VALUE;
+            for (i = 0; i < disc_len; ++i)
+                if (track2_nibble(data, sep + 1 + EMV_TRACK2_EXPIRY_DIGITS +
+                                            EMV_TRACK2_SERVICE_CODE_DIGITS + i) > 9)
+                    return TLV_CODEC_ERR_INVALID_VALUE;
+            for (i = 0; i < sep; ++i) track2.pan[i] = (char)('0' + track2_nibble(data, i));
+            track2.expiration_year =
+                (uint8_t)(track2_nibble(data, sep + 1) * 10 + track2_nibble(data, sep + 2));
+            track2.expiration_month =
+                (uint8_t)(track2_nibble(data, sep + 3) * 10 + track2_nibble(data, sep + 4));
+            if (track2.expiration_month < 1 || track2.expiration_month > 12)
+                return TLV_CODEC_ERR_INVALID_VALUE;
+            track2.service_code =
+                (uint16_t)(track2_nibble(data, sep + 5) * 100 + track2_nibble(data, sep + 6) * 10 +
+                           track2_nibble(data, sep + 7));
+            for (i = 0; i < disc_len; ++i)
+                track2.discretionary_data[i] =
+                    (char)('0' + track2_nibble(data, sep + 1 + EMV_TRACK2_EXPIRY_DIGITS +
+                                                         EMV_TRACK2_SERVICE_CODE_DIGITS + i));
+            EMV_STORE(track2);
+        }
         default: return TLV_CODEC_ERR_UNSUPPORTED;
     }
 }
@@ -220,7 +324,7 @@ tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data, si
 tlv_codec_result_t emv_value_encode(const void* context, const void* value, size_t size,
                                     uint8_t* data, size_t capacity, size_t* written) {
     const emv_value_rule_t* rule = (const emv_value_rule_t*)context;
-    uint8_t bytes[sizeof(uint64_t)];
+    uint8_t bytes[EMV_MAX_ENCODED_VALUE_SIZE];
     uint64_t number;
     size_t count = rule->min_length;
     if (rule->kind == TLV_EMV_VALUE_DIGITS)
@@ -291,6 +395,68 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
                     return TLV_CODEC_ERR_INVALID_VALUE;
             break;
         }
+        case TLV_EMV_VALUE_AFL: {
+            tlv_emv_afl_t afl;
+            size_t i;
+            EMV_LOAD(afl);
+            if (!afl.count || afl.count > TLV_EMV_AFL_MAX_ENTRIES)
+                return TLV_CODEC_ERR_INVALID_VALUE;
+            count = afl.count * 4;
+            for (i = 0; i < afl.count; ++i) {
+                const tlv_emv_afl_entry_t* entry = &afl.entries[i];
+                if (!valid_afl_entry(entry->sfi, entry->first_record, entry->last_record,
+                                     entry->offline_auth_record_count))
+                    return TLV_CODEC_ERR_INVALID_VALUE;
+                bytes[i * 4 + 0] = (uint8_t)(entry->sfi << EMV_AFL_SFI_SHIFT);
+                bytes[i * 4 + 1] = entry->first_record;
+                bytes[i * 4 + 2] = entry->last_record;
+                bytes[i * 4 + 3] = entry->offline_auth_record_count;
+            }
+            break;
+        }
+        case TLV_EMV_VALUE_CVM_RESULT: {
+            tlv_emv_cvm_result_t result;
+            EMV_LOAD(result);
+            bytes[0] = result.method;
+            bytes[1] = result.condition;
+            bytes[2] = result.result;
+            break;
+        }
+        case TLV_EMV_VALUE_TRACK2: {
+            tlv_emv_track2_t track2;
+            uint8_t nibbles[EMV_TRACK2_MAX_DIGITS];
+            size_t pan_len, disc_len, n = 0, i;
+            EMV_LOAD(track2);
+            pan_len = emv_strnlen(track2.pan, sizeof(track2.pan));
+            disc_len = emv_strnlen(track2.discretionary_data, sizeof(track2.discretionary_data));
+            if (!pan_len || pan_len > TLV_EMV_TRACK2_PAN_MAX_DIGITS ||
+                disc_len > TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS || track2.expiration_month < 1 ||
+                track2.expiration_month > 12 || track2.expiration_year > 99 ||
+                track2.service_code > 999)
+                return TLV_CODEC_ERR_INVALID_VALUE;
+            for (i = 0; i < pan_len; ++i) {
+                if (track2.pan[i] < '0' || track2.pan[i] > '9') return TLV_CODEC_ERR_INVALID_VALUE;
+                nibbles[n++] = (uint8_t)(track2.pan[i] - '0');
+            }
+            nibbles[n++] = EMV_TRACK2_FIELD_SEPARATOR;
+            nibbles[n++] = (uint8_t)(track2.expiration_year / 10);
+            nibbles[n++] = (uint8_t)(track2.expiration_year % 10);
+            nibbles[n++] = (uint8_t)(track2.expiration_month / 10);
+            nibbles[n++] = (uint8_t)(track2.expiration_month % 10);
+            nibbles[n++] = (uint8_t)(track2.service_code / 100);
+            nibbles[n++] = (uint8_t)((track2.service_code / 10) % 10);
+            nibbles[n++] = (uint8_t)(track2.service_code % 10);
+            for (i = 0; i < disc_len; ++i) {
+                if (track2.discretionary_data[i] < '0' || track2.discretionary_data[i] > '9')
+                    return TLV_CODEC_ERR_INVALID_VALUE;
+                nibbles[n++] = (uint8_t)(track2.discretionary_data[i] - '0');
+            }
+            if (n % 2) nibbles[n++] = EMV_BCD_PAD_NIBBLE;
+            count = n / 2;
+            for (i = 0; i < count; ++i)
+                bytes[i] = (uint8_t)((nibbles[i * 2] << EMV_BCD_NIBBLE_BITS) | nibbles[i * 2 + 1]);
+            break;
+        }
         default: return TLV_CODEC_ERR_UNSUPPORTED;
     }
     if (!valid_length(rule, count)) return TLV_CODEC_ERR_INVALID_VALUE;
@@ -305,3 +471,25 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
 
 static const emv_value_rule_t amount_rule = {6, 6, 1, TLV_EMV_VALUE_NUMBER, 12};
 const tlv_codec_t tlv_emv_codec_amount = {&amount_rule, emv_value_decode, emv_value_encode};
+
+const char* tlv_emv_value_kind_description(tlv_emv_value_kind_t kind) {
+    switch (kind) {
+        case TLV_EMV_VALUE_BYTES: return "Raw bytes";
+        case TLV_EMV_VALUE_TEXT: return "Text bytes (not necessarily UTF-8)";
+        case TLV_EMV_VALUE_TEMPLATE: return "Template containing encoded data elements";
+        case TLV_EMV_VALUE_NUMBER: return "Numeric value (binary or decimal BCD, tag-dependent)";
+        case TLV_EMV_VALUE_FLAGS: return "Bit flags";
+        case TLV_EMV_VALUE_DIGITS: return "Decimal digits";
+        case TLV_EMV_VALUE_DATE: return "Date (YYMMDD)";
+        case TLV_EMV_VALUE_TIME: return "Time (hhmmss)";
+        case TLV_EMV_VALUE_ACCOUNT: return "Account type";
+        case TLV_EMV_VALUE_CRYPTOGRAM: return "Cryptogram information";
+        case TLV_EMV_VALUE_BIOMETRIC: return "Biometric type";
+        case TLV_EMV_VALUE_NUMBER_LIST: return "List of numeric values";
+        case TLV_EMV_VALUE_AFL: return "Application File Locator entry list";
+        case TLV_EMV_VALUE_CVM_RESULT: return "CVM method, condition, and result";
+        case TLV_EMV_VALUE_TRACK2:
+            return "Track 2 equivalent data (PAN, expiry, service code, discretionary data)";
+        default: return "Unspecified representation";
+    }
+}

@@ -57,10 +57,9 @@ static int encode_child(const tlv_codec_t* codec, const void* value, size_t valu
 }
 
 /* Assembles the record's children as a sequence of BER TLVs, mixing values
- * encoded through their EMV codec with a couple of literal byte strings: one
- * ordinary BYTES tag (AFL, which has no codec) and two deliberately invalid
- * inputs (a wrong-length CVM Results and a proprietary tag absent from the
- * Book 3 dictionary) to exercise the graceful-handling paths below. */
+ * encoded through their EMV codec with two deliberately invalid inputs (a
+ * wrong-length CVM Results and a proprietary tag absent from the Book 3
+ * dictionary) to exercise the graceful-handling paths below. */
 static int build_record(uint8_t* content, size_t capacity, size_t* content_size) {
     tlv_writer_t writer;
     uint8_t      scratch[16];
@@ -93,12 +92,21 @@ static int build_record(uint8_t* content, size_t capacity, size_t* content_size)
     }
     CHECK(tlv_writer_write(&writer, tlv_emv_tag_aip, scratch, size));
 
-    /* AFL (94): TLV_EMV_VALUE_BYTES has no codec; SFI 1, records 1-1, no
-     * offline data authentication records. */
+    /* AFL (94): one entry, SFI 1, records 1-1, no offline data
+     * authentication records. */
     {
-        static const uint8_t afl[] = {0x08, 0x01, 0x01, 0x00};
-        CHECK(tlv_writer_write(&writer, tlv_emv_tag_afl, afl, sizeof(afl)));
+        tlv_emv_afl_t afl;
+        memset(&afl, 0, sizeof(afl));
+        afl.count = 1;
+        afl.entries[0].sfi = 1;
+        afl.entries[0].first_record = 1;
+        afl.entries[0].last_record = 1;
+        afl.entries[0].offline_auth_record_count = 0;
+        if (encode_child(tlv_emv_find(TLV_EMV_CONTEXT_BASE, &tlv_emv_tag_afl)->codec, &afl,
+                         sizeof(afl), scratch, sizeof(scratch), &size))
+            return 1;
     }
+    CHECK(tlv_writer_write(&writer, tlv_emv_tag_afl, scratch, size));
 
     /* Amount, Authorised (9F02): n12 BCD, unscaled minor units. */
     {
@@ -158,8 +166,7 @@ typedef struct {
     int                       aip_seen;
     uint64_t                  aip;
     int                       afl_seen;
-    uint8_t                   afl[4];
-    size_t                    afl_length;
+    tlv_emv_afl_t             afl;
     int                       amount_seen;
     uint64_t                  amount;
     int                       cryptogram_seen;
@@ -276,17 +283,22 @@ static tlv_visit_result_t decode_field(const tlv_view_t* view, void* context) {
             record->account_seen = 1;
             break;
         }
-        case TLV_EMV_VALUE_BYTES: {
-            size_t i;
-            if (length > sizeof(record->afl)) {
-                printf(" -> value too large for this example\n");
+        case TLV_EMV_VALUE_AFL: {
+            size_t             i;
+            tlv_codec_result_t rc = tlv_codec_decode(def->codec, view->value.data, length,
+                                                     &record->afl, sizeof(record->afl));
+            if (rc != TLV_CODEC_OK) {
+                printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
                 ++record->errors;
                 break;
             }
-            memcpy(record->afl, view->value.data, length);
-            record->afl_length = length;
             printf(" =");
-            for (i = 0; i < length; ++i) printf(" %02X", (unsigned)record->afl[i]);
+            for (i = 0; i < record->afl.count; ++i)
+                printf(" (sfi %u, records %u-%u, %u for offline auth)",
+                       (unsigned)record->afl.entries[i].sfi,
+                       (unsigned)record->afl.entries[i].first_record,
+                       (unsigned)record->afl.entries[i].last_record,
+                       (unsigned)record->afl.entries[i].offline_auth_record_count);
             putchar('\n');
             record->afl_seen = 1;
             break;
@@ -336,12 +348,10 @@ int main(void) {
            "expiration date decoded incorrectly");
     EXPECT(record.aip_seen && record.aip == (TLV_EMV_AIP_SDA_SUPPORTED | TLV_EMV_AIP_CDA_SUPPORTED),
            "AIP decoded incorrectly");
-    {
-        static const uint8_t expected_afl[] = {0x08, 0x01, 0x01, 0x00};
-        EXPECT(record.afl_seen && record.afl_length == sizeof(expected_afl) &&
-                   memcmp(record.afl, expected_afl, sizeof(expected_afl)) == 0,
-               "AFL decoded incorrectly");
-    }
+    EXPECT(record.afl_seen && record.afl.count == 1 && record.afl.entries[0].sfi == 1 &&
+               record.afl.entries[0].first_record == 1 && record.afl.entries[0].last_record == 1 &&
+               record.afl.entries[0].offline_auth_record_count == 0,
+           "AFL decoded incorrectly");
     EXPECT(record.amount_seen && record.amount == 12345, "amount decoded incorrectly");
     EXPECT(record.cryptogram_seen && record.cryptogram.type == TLV_EMV_CRYPTOGRAM_ARQC &&
                record.cryptogram.flags == 0x15,

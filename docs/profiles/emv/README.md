@@ -110,6 +110,9 @@ parameters and proprietary template contents do not acquire invented schemas.
 | CRYPTOGRAM | `tlv_emv_cryptogram_info_t`: AAC/TC/ARQC/RFU enum and remaining six bits |
 | BIOMETRIC | `tlv_emv_biometric_type_t`: facial, voice, finger, iris, palm |
 | NUMBER_LIST | `tlv_emv_number_list_t`: up to four reference currencies or exponents |
+| AFL | `tlv_emv_afl_t`: up to `TLV_EMV_AFL_MAX_ENTRIES` `tlv_emv_afl_entry_t` records (sfi, first/last record, offline-DA record count) |
+| CVM_RESULT | `tlv_emv_cvm_result_t`: method, condition, and result bytes, preserved raw |
+| TRACK2 | `tlv_emv_track2_t`: PAN, expiration year/month, service code, discretionary data |
 | BYTES, TEXT, TEMPLATE | No codec; use the original borrowed value bytes |
 
 Decode capacity is at least `sizeof(the C representation)` and encode size is
@@ -124,7 +127,12 @@ odd-width fields such as currency codes and exponents. Variable-length numbers
 are encoded in the shortest permitted width; use the original view when exact
 wire preservation matters. Currency amounts are unscaled minor units.
 `tlv_emv_codec_amount` is a convenient standalone n12/six-byte amount codec.
-`TLV_EMV_AIP_*` masks can be used with the decoded AIP flags.
+`TLV_EMV_AIP_*` masks can be used with the decoded AIP flags; `TLV_EMV_TVR_*`,
+`TLV_EMV_TSI_*`, `TLV_EMV_TERMINAL_CAPABILITIES_*`, and
+`TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_*` mask the TVR (`95`), TSI (`9B`),
+Terminal Capabilities (`9F33`), and Additional Terminal Capabilities (`9F40`)
+FLAGS values the same way; `TLV_EMV_CVM_RESULT_*` names the well-known
+`tlv_emv_cvm_result_t.result` byte values (unknown/failed/successful).
 
 Dates validate month/day ranges and leap years within YY. No century is chosen;
 the caller must resolve the century for year 00. Times reject hours above 23
@@ -132,11 +140,30 @@ and minutes/seconds above 59. Account and biometric enums reject undefined
 values. Cryptogram RFU and all flag bits are retained. Transaction type, POS
 entry mode, and terminal type remain numbers: their complete enum definitions
 are outside Book 3. Text is not converted to UTF-8 or NUL-terminated storage;
-its original encoding/padding is preserved. Opaque cryptographic data,
-track-2 composite data, and nested templates are not converted to scalars.
+its original encoding/padding is preserved. Opaque cryptographic data and
+nested templates are not converted to scalars. The AFL (`94`) codec rejects
+an sfi outside 1-30, a first_record of zero, a last_record below first_record,
+and an offline_auth_record_count above the entry's record range. The Track 2
+Equivalent Data (`57`) codec rejects a missing/misplaced field separator, a
+PAN outside 1-19 digits, a non-decimal expiry/service-code/discretionary
+digit, and an expiration_month outside 1-12, and handles the trailing
+hex-F pad nibble used when the total digit count is odd. CVM Results (`9F34`)
+stores its three bytes without further validation, like FLAGS.
 `8C`/`8D`/`97`/`9F38`/`9F49` (CDOL1, CDOL2, TDOL, PDOL, DDOL) remain BYTES:
 see [Data Object Lists](#data-object-lists-pdolcdolddol) for the dedicated
 component that parses and constructs them.
+
+## Diagnostics and tooling
+
+`tlv_emv_value_kind_description(kind)` returns a short description of a value
+kind's C representation and wire meaning (e.g. `"Bit flags"` for
+`TLV_EMV_VALUE_FLAGS`), for logs or a dump tool. `tlv_emv_display_label(name)`
+returns a curated human-readable label for a dictionary symbol (`def->name`),
+such as `"Application File Locator (AFL)"` for `"afl"`, or `NULL` when none is
+curated; `tlv_emv_titlecase_name(name, buffer, capacity)` then derives a
+generic one (`"application_label"` -> `"Application Label"`) into caller-owned
+storage, `TLV_ERR_BUFFER_TOO_SHORT` if `capacity` is less than
+`strlen(name) + 1`. These back the `opentlv` CLI's `--profile emv` output.
 
 ## Validation limits
 
