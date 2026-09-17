@@ -33,6 +33,9 @@ typedef union {
     tlv_emv_cryptogram_info_t cryptogram;
     tlv_emv_biometric_type_t  biometric;
     tlv_emv_number_list_t     list;
+    tlv_emv_afl_t             afl;
+    tlv_emv_cvm_result_t      cvm_result;
+    tlv_emv_track2_t          track2;
 } fuzz_codec_fixed_value;
 
 static size_t fixed_capacity(tlv_emv_value_kind_t kind) {
@@ -45,6 +48,9 @@ static size_t fixed_capacity(tlv_emv_value_kind_t kind) {
         case TLV_EMV_VALUE_CRYPTOGRAM: return sizeof(tlv_emv_cryptogram_info_t);
         case TLV_EMV_VALUE_BIOMETRIC: return sizeof(tlv_emv_biometric_type_t);
         case TLV_EMV_VALUE_NUMBER_LIST: return sizeof(tlv_emv_number_list_t);
+        case TLV_EMV_VALUE_AFL: return sizeof(tlv_emv_afl_t);
+        case TLV_EMV_VALUE_CVM_RESULT: return sizeof(tlv_emv_cvm_result_t);
+        case TLV_EMV_VALUE_TRACK2: return sizeof(tlv_emv_track2_t);
         default: return 0;
     }
 }
@@ -74,6 +80,24 @@ static int fixed_equal(tlv_emv_value_kind_t kind, const fuzz_codec_fixed_value* 
                 if (a->list.values[i] != b->list.values[i]) return 0;
             return 1;
         }
+        case TLV_EMV_VALUE_AFL: {
+            size_t i;
+            if (a->afl.count != b->afl.count) return 0;
+            for (i = 0; i < a->afl.count; ++i)
+                if (memcmp(&a->afl.entries[i], &b->afl.entries[i], sizeof(a->afl.entries[i])) != 0)
+                    return 0;
+            return 1;
+        }
+        case TLV_EMV_VALUE_CVM_RESULT:
+            return a->cvm_result.method == b->cvm_result.method &&
+                   a->cvm_result.condition == b->cvm_result.condition &&
+                   a->cvm_result.result == b->cvm_result.result;
+        case TLV_EMV_VALUE_TRACK2:
+            return strcmp(a->track2.pan, b->track2.pan) == 0 &&
+                   a->track2.expiration_year == b->track2.expiration_year &&
+                   a->track2.expiration_month == b->track2.expiration_month &&
+                   a->track2.service_code == b->track2.service_code &&
+                   strcmp(a->track2.discretionary_data, b->track2.discretionary_data) == 0;
         default: return 0;
     }
 }

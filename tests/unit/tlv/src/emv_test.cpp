@@ -224,6 +224,178 @@ TEST(Unit_Emv, AmountCodecRejectsInvalidInputs) {
     }
 }
 
+TEST(Unit_Emv, AflCodecDecodesEntryList) {
+    const auto*   codec = find(tlv_emv_tag_afl)->codec;
+    tlv_emv_afl_t afl{};
+    afl.entries[0] = {1, 1, 1, 0};
+    afl.entries[1] = {2, 3, 5, 2};
+    afl.count = 2;
+    check_vector(codec, afl, {0x08, 0x01, 0x01, 0x00, 0x10, 0x03, 0x05, 0x02});
+}
+
+TEST(Unit_Emv, AflCodecRejectsMalformedEntries) {
+    const auto*   codec = find(tlv_emv_tag_afl)->codec;
+    tlv_emv_afl_t decoded{};
+    size_t        written;
+    const uint8_t sfi_zero[] = {0x00, 0x01, 0x01, 0x00};
+    const uint8_t sfi_too_high[] = {0xF8, 0x01, 0x01, 0x00};
+    const uint8_t first_record_zero[] = {0x08, 0x00, 0x01, 0x00};
+    const uint8_t last_before_first[] = {0x08, 0x05, 0x03, 0x00};
+    const uint8_t offline_count_out_of_range[] = {0x08, 0x01, 0x01, 0x02};
+    for (const auto* bad :
+         {sfi_zero, sfi_too_high, first_record_zero, last_before_first, offline_count_out_of_range})
+        EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+                  tlv_codec_decode(codec, bad, 4, &decoded, sizeof(decoded)));
+
+    tlv_emv_afl_t empty{};
+    empty.count = 0;
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_encode(codec, &empty, sizeof(empty), nullptr, 0, &written));
+    tlv_emv_afl_t too_many{};
+    too_many.count = TLV_EMV_AFL_MAX_ENTRIES + 1;
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_encode(codec, &too_many, sizeof(too_many), nullptr, 0, &written));
+}
+
+TEST(Unit_Emv, CvmResultCodecPreservesRawFields) {
+    EXPECT_EQ(0x00, TLV_EMV_CVM_RESULT_UNKNOWN);
+    EXPECT_EQ(0x01, TLV_EMV_CVM_RESULT_FAILED);
+#if TLV_TAG_CAPACITY >= 2
+    const auto*                codec = find(tlv_emv_tag_cvm_results)->codec;
+    const tlv_emv_cvm_result_t expected = {0x1F, 0x00, TLV_EMV_CVM_RESULT_SUCCESSFUL};
+    check_vector(codec, expected, {0x1F, 0x00, 0x02});
+#endif
+}
+
+TEST(Unit_Emv, Track2CodecRoundTripsWithAndWithoutPadding) {
+    const auto* codec = find(tlv_emv_tag_track2_equivalent_data)->codec;
+
+    // Even total digit count: no trailing pad nibble.
+    tlv_emv_track2_t even{};
+    std::strcpy(even.pan, "4111111111111111");
+    even.expiration_year = 27;
+    even.expiration_month = 12;
+    even.service_code = 201;
+    std::strcpy(even.discretionary_data, "999999");
+    check_vector(
+        codec, even,
+        {0x41, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0xD2, 0x71, 0x22, 0x01, 0x99, 0x99, 0x99});
+
+    // Odd total digit count: a trailing hex-F pad nibble fills the last byte.
+    tlv_emv_track2_t odd{};
+    std::strcpy(odd.pan, "1");
+    odd.expiration_year = 99;
+    odd.expiration_month = 1;
+    odd.service_code = 0;
+    std::strcpy(odd.discretionary_data, "12");
+    check_vector(codec, odd, {0x1D, 0x99, 0x01, 0x00, 0x01, 0x2F});
+}
+
+TEST(Unit_Emv, Track2CodecRejectsMalformedValues) {
+    const auto*      codec = find(tlv_emv_tag_track2_equivalent_data)->codec;
+    tlv_emv_track2_t decoded{};
+    size_t           written;
+
+    // No field separator anywhere in the value.
+    const uint8_t no_separator[] = {0x11, 0x11, 0x11, 0x11, 0x11};
+    EXPECT_EQ(
+        TLV_CODEC_ERR_INVALID_VALUE,
+        tlv_codec_decode(codec, no_separator, sizeof(no_separator), &decoded, sizeof(decoded)));
+
+    // Separator in the first nibble: an empty PAN.
+    const uint8_t empty_pan[] = {0xD2, 0x71, 0x22, 0x00};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(codec, empty_pan, sizeof(empty_pan), &decoded, sizeof(decoded)));
+
+    // Expiration month 13 is out of range.
+    const uint8_t bad_month[] = {0x1D, 0x99, 0x13, 0x00, 0x01, 0x2F};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(codec, bad_month, sizeof(bad_month), &decoded, sizeof(decoded)));
+
+    // A non-decimal nibble inside the discretionary data.
+    const uint8_t bad_discretionary[] = {0x1D, 0x99, 0x01, 0x00, 0x0E, 0x2F};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(codec, bad_discretionary, sizeof(bad_discretionary), &decoded,
+                               sizeof(decoded)));
+
+    tlv_emv_track2_t empty_pan_value{};
+    std::strcpy(empty_pan_value.discretionary_data, "1");
+    empty_pan_value.expiration_month = 1;
+    EXPECT_EQ(
+        TLV_CODEC_ERR_INVALID_VALUE,
+        tlv_codec_encode(codec, &empty_pan_value, sizeof(empty_pan_value), nullptr, 0, &written));
+
+    tlv_emv_track2_t bad_month_value{};
+    std::strcpy(bad_month_value.pan, "1");
+    bad_month_value.expiration_month = 13;
+    EXPECT_EQ(
+        TLV_CODEC_ERR_INVALID_VALUE,
+        tlv_codec_encode(codec, &bad_month_value, sizeof(bad_month_value), nullptr, 0, &written));
+
+    tlv_emv_track2_t non_digit_pan{};
+    std::strcpy(non_digit_pan.pan, "41A1");
+    non_digit_pan.expiration_month = 1;
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_encode(codec, &non_digit_pan, sizeof(non_digit_pan), nullptr, 0, &written));
+}
+
+TEST(Unit_Emv, NamedBitFlagConstantsMatchWireBitPositions) {
+    const uint64_t tvr =
+        TLV_EMV_TVR_SDA_FAILED | TLV_EMV_TVR_NEW_CARD | TLV_EMV_TVR_ONLINE_PIN_ENTERED |
+        TLV_EMV_TVR_MERCHANT_FORCED_TRANSACTION_ONLINE | TLV_EMV_TVR_ISSUER_AUTHENTICATION_FAILED;
+    check_vector(find(tlv_emv_tag_tvr)->codec, tvr, {0x40, 0x08, 0x04, 0x08, 0x40});
+
+    const uint64_t tsi = TLV_EMV_TSI_OFFLINE_DATA_AUTHENTICATION_PERFORMED |
+                         TLV_EMV_TSI_TERMINAL_RISK_MANAGEMENT_PERFORMED;
+    check_vector(find(tlv_emv_tag_tsi)->codec, tsi, {0x88, 0x00});
+
+#if TLV_TAG_CAPACITY >= 2
+    const uint64_t capabilities = TLV_EMV_TERMINAL_CAPABILITIES_MAGNETIC_STRIPE |
+                                  TLV_EMV_TERMINAL_CAPABILITIES_ENCIPHERED_PIN_FOR_ONLINE |
+                                  TLV_EMV_TERMINAL_CAPABILITIES_DDA;
+    check_vector(find(tlv_emv_tag_terminal_capabilities)->codec, capabilities, {0x40, 0x40, 0x40});
+
+    const uint64_t additional = TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_CASH |
+                                TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_SERVICES |
+                                TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_CASH_DEPOSIT |
+                                TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_COMMAND_KEYS |
+                                TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_PRINT_CARDHOLDER |
+                                TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_CODE_TABLE_9 |
+                                TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_CODE_TABLE_1 |
+                                TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_CODE_TABLE_5;
+    check_vector(find(tlv_emv_tag_additional_terminal_capabilities)->codec, additional,
+                 {0xA0, 0x80, 0x20, 0x41, 0x11});
+#endif
+}
+
+TEST(Unit_Emv, ValueKindDescriptionCoversEveryKind) {
+    EXPECT_STREQ("Raw bytes", tlv_emv_value_kind_description(TLV_EMV_VALUE_BYTES));
+    EXPECT_STREQ("Bit flags", tlv_emv_value_kind_description(TLV_EMV_VALUE_FLAGS));
+    EXPECT_STREQ("Application File Locator entry list",
+                 tlv_emv_value_kind_description(TLV_EMV_VALUE_AFL));
+    EXPECT_STREQ("CVM method, condition, and result",
+                 tlv_emv_value_kind_description(TLV_EMV_VALUE_CVM_RESULT));
+    EXPECT_STREQ("Track 2 equivalent data (PAN, expiry, service code, discretionary data)",
+                 tlv_emv_value_kind_description(TLV_EMV_VALUE_TRACK2));
+    EXPECT_STREQ("Unspecified representation",
+                 tlv_emv_value_kind_description(static_cast<tlv_emv_value_kind_t>(-1)));
+}
+
+TEST(Unit_Emv, DisplayLabelAndTitlecaseName) {
+    EXPECT_STREQ("Application File Locator (AFL)", tlv_emv_display_label("afl"));
+    EXPECT_EQ(nullptr, tlv_emv_display_label("terminal_capabilities"));
+    EXPECT_EQ(nullptr, tlv_emv_display_label(nullptr));
+
+    char buffer[64];
+    EXPECT_EQ(TLV_OK, tlv_emv_titlecase_name("terminal_capabilities", buffer, sizeof(buffer)));
+    EXPECT_STREQ("Terminal Capabilities", buffer);
+    EXPECT_EQ(TLV_OK, tlv_emv_titlecase_name("afl", buffer, sizeof(buffer)));
+    EXPECT_STREQ("Afl", buffer);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_emv_titlecase_name("terminal_capabilities", buffer, 5));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_emv_titlecase_name(nullptr, buffer, sizeof(buffer)));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_emv_titlecase_name("afl", nullptr, sizeof(buffer)));
+}
+
 TEST(Unit_Emv, CoversContactBook3TagSet) {
     // Independent fixture transcribed from Book 3 v4.4 Annex A Table 38.
     // Repeated context-specific meanings are covered separately above.

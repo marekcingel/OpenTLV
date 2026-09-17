@@ -1,6 +1,5 @@
 #include "presentation.hpp"
 #include "tlv/config.h"
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -117,57 +116,20 @@ void cli_presentation_prefix(const cli_presentation_t* p, size_t depth) {
 }
 
 #if OPENTLV_PROFILE_EMV
-/* Presentation labels only; tag matching, value types and bounds come from tlv. */
+/* Presentation-only wrapper: falls back to a generic title-cased label when
+ * the symbol has no curated one. Tag matching, value types and bounds come
+ * from tlv itself (tlv_emv_display_label/tlv_emv_titlecase_name). */
 static void display_name(const char* name) {
-    static const struct {
-        const char *symbol, *label;
-    } labels[] = {
-        {"pan", "Primary Account Number (PAN)"},
-        {"aip", "Application Interchange Profile (AIP)"},
-        {"afl", "Application File Locator (AFL)"},
-        {"tvr", "Terminal Verification Results (TVR)"},
-        {"tsi", "Transaction Status Information (TSI)"},
-        {"atc", "Application Transaction Counter (ATC)"},
-        {"df_name", "Dedicated File (DF) Name"},
-        {"adf_name", "Application Dedicated File (ADF) Name"},
-        {"fci_template", "File Control Information (FCI) Template"},
-        {"fci_proprietary_template", "File Control Information (FCI) Proprietary Template"},
-        {"iin", "Issuer Identification Number (IIN)"},
-        {"sfi", "Short File Identifier (SFI)"}};
-    size_t i;
-    int    initial = 1;
-    for (i = 0; i < sizeof(labels) / sizeof(labels[0]); ++i)
-        if (!strcmp(name, labels[i].symbol)) {
-            fputs(labels[i].label, stdout);
-            return;
-        }
-    for (; *name; ++name) {
-        if (*name == '_') {
-            putchar(' ');
-            initial = 1;
-        } else {
-            putchar(initial ? toupper((unsigned char)*name) : *name);
-            initial = 0;
-        }
+    char        titlecased[128];
+    const char* label = tlv_emv_display_label(name);
+    if (label) {
+        fputs(label, stdout);
+        return;
     }
-}
-
-static const char* value_description(tlv_emv_value_kind_t kind) {
-    switch (kind) {
-        case TLV_EMV_VALUE_BYTES: return "Raw bytes";
-        case TLV_EMV_VALUE_TEXT: return "Text bytes (not necessarily UTF-8)";
-        case TLV_EMV_VALUE_TEMPLATE: return "Template containing encoded data elements";
-        case TLV_EMV_VALUE_NUMBER: return "Numeric value (binary or decimal BCD, tag-dependent)";
-        case TLV_EMV_VALUE_FLAGS: return "Bit flags";
-        case TLV_EMV_VALUE_DIGITS: return "Decimal digits";
-        case TLV_EMV_VALUE_DATE: return "Date (YYMMDD)";
-        case TLV_EMV_VALUE_TIME: return "Time (hhmmss)";
-        case TLV_EMV_VALUE_ACCOUNT: return "Account type";
-        case TLV_EMV_VALUE_CRYPTOGRAM: return "Cryptogram information";
-        case TLV_EMV_VALUE_BIOMETRIC: return "Biometric type";
-        case TLV_EMV_VALUE_NUMBER_LIST: return "List of numeric values";
-        default: return "Unspecified representation";
-    }
+    if (tlv_emv_titlecase_name(name, titlecased, sizeof(titlecased)) == TLV_OK)
+        fputs(titlecased, stdout);
+    else
+        fputs(name, stdout);
 }
 #endif
 
@@ -184,7 +146,8 @@ void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, s
     putchar('"');
     if (describe && definition) {
         printf(" description=\"%s; dictionary length: %zu",
-               value_description(definition->value_kind), definition->schema->min_length);
+               tlv_emv_value_kind_description(definition->value_kind),
+               definition->schema->min_length);
         if (definition->schema->max_length == SIZE_MAX)
             fputs("..unbounded", stdout);
         else if (definition->schema->max_length != definition->schema->min_length)
