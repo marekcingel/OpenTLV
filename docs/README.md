@@ -37,6 +37,7 @@
 
 ## Project
 
+- [Long-term roadmap](../ROADMAP.md)
 - [Logo assets](assets/README.md)
 - [Changelog](../CHANGELOG.md)
 - [Contributing](../CONTRIBUTING.md)
