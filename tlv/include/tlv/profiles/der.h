@@ -15,7 +15,7 @@ extern "C" {
  * max_input_size bounds supplied input / complete encoded output, max_value_size
  * bounds each value, and max_elements bounds total visited elements.
  */
-#define TLV_DER_MAX_DEPTH 64
+enum { TLV_DER_MAX_DEPTH = 64 };
 typedef struct tlv_der_limits {
     size_t max_depth;
     size_t max_input_size;

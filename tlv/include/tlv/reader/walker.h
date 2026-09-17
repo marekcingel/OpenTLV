@@ -31,7 +31,7 @@ typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_view_t* view, void* contex
 TLV_API tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
                               tlv_visitor_t visitor, void* context);
 
-#define TLV_WALK_MAX_DEPTH 64
+enum { TLV_WALK_MAX_DEPTH = 64 };
 typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view, size_t depth,
                                                  size_t offset, void* context);
 /* Preorder traversal of bounded value views identified by is_constructed.

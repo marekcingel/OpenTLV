@@ -8,14 +8,14 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
     size_t count = 1;
     (void)context;
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    if ((data[0] & 0x1F) == 0x1F) {
+    if ((data[0] & TLV_ASN1_TAG_NUMBER_MASK) == TLV_ASN1_TAG_NUMBER_MASK) {
         for (;;) {
             if (count == TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
             if (count == size) return TLV_ERR_BUFFER_TOO_SHORT;
             /* The first base-128 digit must be nonzero. Keep raw tag bytes,
              * including BER-TLV identifiers such as 9F 1C. */
-            if (count == 1 && !(data[count] & 0x7F)) return TLV_ERR_INVALID_TAG;
-            if (!(data[count++] & 0x80)) break;
+            if (count == 1 && !(data[count] & TLV_BER_TAG_DIGIT_MASK)) return TLV_ERR_INVALID_TAG;
+            if (!(data[count++] & TLV_BER_TAG_DIGIT_CONTINUATION_BIT)) break;
         }
     }
     *tag = (tlv_tag_t){{0}, 0};
@@ -47,14 +47,15 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
     uint64_t value;
     (void)context;
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (data[0] < 0x80) {
+    if (data[0] < TLV_BER_LENGTH_LONG_FORM_BIT) {
         *length = data[0];
         *consumed = 1;
         return TLV_OK;
     }
     /* Indefinite lengths and the reserved FF prefix are unsupported. */
-    if (data[0] == 0x80 || data[0] == 0xFF) return TLV_ERR_INVALID_LENGTH;
-    count = data[0] & 0x7F;
+    if (data[0] == TLV_BER_LENGTH_LONG_FORM_BIT || data[0] == TLV_BER_LENGTH_RESERVED_OCTET)
+        return TLV_ERR_INVALID_LENGTH;
+    count = data[0] & TLV_BER_LENGTH_COUNT_MASK;
     if (size - 1 < count) return TLV_ERR_BUFFER_TOO_SHORT;
     /* BER permits padding beyond the native integer width. Validate the
      * complete payload before stripping only excess zero octets. */
@@ -75,7 +76,7 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
 static tlv_result_t length_size(const void* context, size_t length, size_t* size) {
     size_t count = 1;
     (void)context;
-    if (length >= 0x80) {
+    if (length >= TLV_BER_LENGTH_LONG_FORM_BIT) {
         do {
             ++count;
             length >>= 8;
@@ -92,7 +93,7 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
     if (*written == 1)
         data[0] = (uint8_t)length;
     else {
-        data[0] = (uint8_t)(0x80 | (*written - 1));
+        data[0] = (uint8_t)(TLV_BER_LENGTH_LONG_FORM_BIT | (*written - 1));
         if (tlv_write_uint(data + 1, *written - 1, TLV_BYTE_ORDER_BIG_ENDIAN, length) != TLV_OK)
             return TLV_ERR_INVALID_LENGTH;
     }

@@ -48,7 +48,7 @@ typedef tlv_result_t (*tlv_dol_visit_fn)(const tlv_dol_entry_t* entry, size_t in
  * bounded field is 252 bytes). Not configurable, matching
  * TLV_TAG_MAX_SUPPORTED_SIZE's convention for a hard architectural bound
  * rather than a runtime one. */
-#define TLV_DOL_MAX_VALUE_LENGTH 255
+enum { TLV_DOL_MAX_VALUE_LENGTH = UINT8_MAX };
 
 /* Bounds independent of size: the entry count tlv_dol_read/tlv_dol_write
  * visit, and the longest value tlv_dol_write's padding/truncation logic may
