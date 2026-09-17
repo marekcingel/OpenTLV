@@ -162,6 +162,18 @@ Start with the [documentation index](docs/README.md), or choose a topic:
 | Validate and decode | [Schemas](docs/schemas.md), [value codecs](docs/codecs.md), [DER](docs/profiles/der/README.md), [CER](docs/profiles/cer/README.md), [EMV](docs/profiles/emv/README.md) |
 | Copy and recover data | [Copy helpers](docs/copy.md), [recovery scanner](docs/scanner.md), [byte order](docs/endian.md) |
 
+## Long-term direction
+
+OpenTLV 1.x is the stable, compile-time foundation described above: a
+portable C core and C++ wrapper with built-in formats, schemas, and codecs
+defined at compile time. Beyond 1.x, the project's planned direction moves
+toward runtime-defined TLV formats (an OpenTLV Definition Language, or OTDL),
+a runtime semantic model for interpreting decoded values, and an
+`opentlv-gen` compiler that generates native C/C++ code from OTDL
+definitions. See [ROADMAP.md](ROADMAP.md) for the full stage-by-stage plan;
+future major-version functionality described there is direction, not a
+committed API or implementation design.
+
 ## Releases and contributing
 
 See [releases](https://github.com/marekcingel/OpenTLV/releases) and the
