@@ -1,0 +1,57 @@
+name: Feature Request
+description: Propose new functionality, an API, a format, an integration, or an improvement.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an improvement. Please search
+        [existing issues](https://github.com/marekcingel/OpenTLV/issues) first.
+
+        For substantial API or architecture changes, expect a design discussion
+        before implementation - see [CONTRIBUTING.md](https://github.com/marekcingel/OpenTLV/blob/main/CONTRIBUTING.md).
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What problem does this solve, or what use case does it enable?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-functionality
+    attributes:
+      label: Proposed functionality
+      description: What should be added or changed?
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Example use case
+      description: A concrete scenario where this would be used.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-api
+    attributes:
+      label: Proposed API or behavior
+      description: Sketch of a function signature, type, CLI flag, or observable behavior, if applicable.
+      render: c
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you considered and why you didn't pick them.
+    validations:
+      required: false
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Anything else relevant (links, references, related issues).
+    validations:
+      required: false

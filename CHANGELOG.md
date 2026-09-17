@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md), prompting for a description, related issue, change type, testing, API/ABI/compatibility impact, and a contributor checklist. (#175)
+- Add GitHub issue forms under [.github/ISSUE_TEMPLATE/](.github/ISSUE_TEMPLATE/) (bug report, feature request, documentation) plus [config.yml](.github/ISSUE_TEMPLATE/config.yml) disabling blank issues and linking security reports to [SECURITY.md](SECURITY.md). (#174)
+- Add [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) (Contributor Covenant v2.1), linked from [CONTRIBUTING.md](CONTRIBUTING.md). (#173)
 - Add [SECURITY.md](SECURITY.md), documenting supported versions and a private vulnerability-reporting process via GitHub Private Vulnerability Reporting. (#161)
 - Add `tlv_emv_value_kind_description`, `tlv_emv_display_label`, and `tlv_emv_titlecase_name` to `tlv/codec/emv.h`/`tlv/profiles/emv.h`, moving the `opentlv` CLI's tag-name and value-kind-description lookup tables (previously private to `tools/cli/src/presentation.cpp`) into the core library so any consumer can produce the same human-readable diagnostics. (#55)
 - Add structured EMV codecs for AFL (`tlv_emv_afl_t`, a list of SFI/record-range/offline-DA-count entries), CVM Results (`tlv_emv_cvm_result_t`), and Track 2 Equivalent Data (`tlv_emv_track2_t`: PAN, expiration date, service code, discretionary data), replacing their previous BYTES/FLAGS kinds in the dictionary. Add named `TLV_EMV_TVR_*`, `TLV_EMV_TSI_*`, `TLV_EMV_TERMINAL_CAPABILITIES_*`, and `TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_*` bit-flag masks for their existing FLAGS values, and `TLV_EMV_CVM_RESULT_*` for the CVM result byte. Demonstrated in [tag_decoding.c](examples/emv/src/tag_decoding.c). (#55)
