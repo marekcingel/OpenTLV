@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a `fuzz_codec` libFuzzer target (`tests/fuzz/codec.c`, built when `OPENTLV_PROFILE_EMV` is on) covering every EMV dictionary tag's value codec: `tlv_codec_decode`/`tlv_codec_encode` for NUMBER, FLAGS, DIGITS, DATE, TIME, ACCOUNT, CRYPTOGRAM, BIOMETRIC and NUMBER_LIST kinds, checking one-byte-short capacity rejection, decode/encode/decode round-trip equality, and undersized-output rejection. (#58)
 - Add an 18-file seed corpus under `tests/fuzz/corpus/codec/` and wire the `fuzz_codec` target into the Clang CI fuzzing job and [docs/fuzzing.md](docs/fuzzing.md). (#58)
 
+### Changed
+
+- `tlv_tag_to_u8/u16/u32` and `tlv_tag_from_u8/u16/u32/u64` now return `TLV_ERR_OVERFLOW`, not `TLV_ERR_INVALID_TAG`, for an otherwise valid numeric value or input that does not fit the destination type or requested encoded width; update callers checking specific error codes. `TLV_ERR_INVALID_TAG` is retained for invalid tag sizes, capacity violations, and numeric inputs longer than 8 bytes. Comparison signatures, their 1/0 contract, BER/DER parser error mapping, and the 8-byte numeric tag limit are unchanged. (#92)
+
 ## [0.4.0] - 2026-09-16
 
 ### Fixed

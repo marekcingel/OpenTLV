@@ -51,7 +51,7 @@ tlv_result_t tlv_tag_to_u8(const tlv_tag_t* tag, tlv_byte_order_t order, uint8_t
     if (value == NULL) return TLV_ERR_NULL_ARG;
     result = tlv_tag_to_u64(tag, order, &number);
     if (result != TLV_OK) return result;
-    if (number > UINT8_MAX) return TLV_ERR_INVALID_TAG;
+    if (number > UINT8_MAX) return TLV_ERR_OVERFLOW;
     *value = (uint8_t)number;
     return TLV_OK;
 }
@@ -62,7 +62,7 @@ tlv_result_t tlv_tag_to_u16(const tlv_tag_t* tag, tlv_byte_order_t order, uint16
     if (value == NULL) return TLV_ERR_NULL_ARG;
     result = tlv_tag_to_u64(tag, order, &number);
     if (result != TLV_OK) return result;
-    if (number > UINT16_MAX) return TLV_ERR_INVALID_TAG;
+    if (number > UINT16_MAX) return TLV_ERR_OVERFLOW;
     *value = (uint16_t)number;
     return TLV_OK;
 }
@@ -73,7 +73,7 @@ tlv_result_t tlv_tag_to_u32(const tlv_tag_t* tag, tlv_byte_order_t order, uint32
     if (value == NULL) return TLV_ERR_NULL_ARG;
     result = tlv_tag_to_u64(tag, order, &number);
     if (result != TLV_OK) return result;
-    if (number > UINT32_MAX) return TLV_ERR_INVALID_TAG;
+    if (number > UINT32_MAX) return TLV_ERR_OVERFLOW;
     *value = (uint32_t)number;
     return TLV_OK;
 }
@@ -111,12 +111,14 @@ tlv_result_t tlv_tag_from_u32(uint32_t value, size_t size, tlv_byte_order_t orde
 }
 
 tlv_result_t tlv_tag_from_u64(uint64_t value, size_t size, tlv_byte_order_t order, tlv_tag_t* tag) {
+    tlv_result_t result;
     if (tag == NULL) return TLV_ERR_NULL_ARG;
     if (size == 0 || size > sizeof(uint64_t) || size > TLV_TAG_CAPACITY)
         return TLV_ERR_INVALID_TAG_SIZE;
     if (order != TLV_BYTE_ORDER_BIG_ENDIAN && order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
         return TLV_ERR_INVALID_BYTE_ORDER;
-    if (tlv_write_uint(tag->data, size, order, value) != TLV_OK) return TLV_ERR_INVALID_TAG;
+    result = tlv_write_uint(tag->data, size, order, value);
+    if (result != TLV_OK) return result;
     memset(tag->data + size, 0, TLV_TAG_CAPACITY - size);
     tag->size = (uint8_t)size;
     return TLV_OK;
