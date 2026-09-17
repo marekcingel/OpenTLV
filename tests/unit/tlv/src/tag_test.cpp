@@ -152,7 +152,7 @@ void check_narrow_conversion(tlv_result_t (*convert)(const tlv_tag_t*, tlv_byte_
         std::memset(tag.data, 0, tag.size);
         tag.data[0] = 1;
         value = 123;
-        EXPECT_EQ(TLV_ERR_INVALID_TAG, convert(&tag, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
+        EXPECT_EQ(TLV_ERR_OVERFLOW, convert(&tag, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
         EXPECT_EQ(123u, value);
         std::memset(tag.data, 0xff, tag.size);
         tag.data[0] = 0;
@@ -272,7 +272,7 @@ void check_byte_orders(tlv_result_t (*convert)(const tlv_tag_t*, tlv_byte_order_
         std::memset(tag.data, 0, tag.size);
         tag.data[tag.size - 1] = 1;
         value = 123;
-        EXPECT_EQ(TLV_ERR_INVALID_TAG, convert(&tag, TLV_BYTE_ORDER_LITTLE_ENDIAN, &value));
+        EXPECT_EQ(TLV_ERR_OVERFLOW, convert(&tag, TLV_BYTE_ORDER_LITTLE_ENDIAN, &value));
         EXPECT_EQ(123u, value);
         check_comparison(TLV_OK, 0, compare, &tag, T(0), TLV_BYTE_ORDER_LITTLE_ENDIAN);
     }
@@ -345,7 +345,7 @@ void check_constructor(tlv_result_t (*construct)(T, size_t, tlv_byte_order_t, tl
     EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, construct(T(0), 1, TLV_BYTE_ORDER_UNKNOWN, &tag));
     EXPECT_EQ(0, std::memcmp(&original, &tag, sizeof(tag)));
     if (sizeof(T) > 1) {
-        EXPECT_EQ(TLV_ERR_INVALID_TAG,
+        EXPECT_EQ(TLV_ERR_OVERFLOW,
                   construct(static_cast<T>(0x100), 1, TLV_BYTE_ORDER_BIG_ENDIAN, &tag));
         EXPECT_EQ(0, std::memcmp(&original, &tag, sizeof(tag)));
     }
