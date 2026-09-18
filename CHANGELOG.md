@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix a `-Werror -Warray-bounds` compile failure in the new `tlv_emv_child_context` (`tlv/profiles/emv.h`, below) under `TLV_TAG_CAPACITY=1`: composing a two-byte tag value read `tag->data[1]` unconditionally, which Clang flags as provably out-of-bounds when `data` is declared `uint8_t[1]`. Guarded under `#if TLV_TAG_CAPACITY >= 2`, matching the function's other two-byte-tag paths, and covered by a new regression test exercising the oversized-tag shape at capacity 1. (#163)
+
+### Added
+
+- Add `tlv_emv_child_context` to `tlv/profiles/emv.h`, moving the EMV nested-template context lookup out of the `otlv` CLI's presentation code and into the core library, with unit test coverage across every `TLV_TAG_CAPACITY` variant. (#163)
+
 ### Changed
 
+- Split the `otlv` CLI's `main.cpp` into dedicated `input.cpp` (input/hex loading), `commands.cpp` (command dispatch and TLV walking), and a new `console_color.hpp` RAII helper, and convert its own input/output from C stdio to C++ iostreams. Also fixes a stale `opentlv:` diagnostic prefix left over from the CLI's rename to `otlv`. No CLI behavior or exit-code changes. (#163)
 - Rename the CLI executable and CMake target from `opentlv` to `otlv`, and update its `--help`/`--version` output, [tools/cli/test.cmake](tools/cli/test.cmake), and [docs/cli.md](docs/cli.md) to match. (#162)
 
 ## [0.5.0] - 2026-09-18

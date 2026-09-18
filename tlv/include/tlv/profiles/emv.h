@@ -29,6 +29,15 @@ typedef enum {
     TLV_EMV_CONTEXT_COUNT
 } tlv_emv_context_t;
 
+/* Determines the context a tag's children should be interpreted under, given
+ * the context `tag` itself was found in (e.g. the Biometric Information
+ * Template switches its children from BASE to BIT). Returns
+ * TLV_EMV_CONTEXT_COUNT when `tag` does not introduce a new context for its
+ * children - callers keep traversing in `context` themselves when `tag` is
+ * otherwise a known template (tlv_emv_find(context, tag) resolves it). NULL
+ * `tag` -> TLV_EMV_CONTEXT_COUNT. */
+TLV_API tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const tlv_tag_t* tag);
+
 /* AIP masks for the uint64_t FLAGS representation (Annex C1). */
 #define TLV_EMV_AIP_XDA_SUPPORTED UINT64_C(0x8000)
 #define TLV_EMV_AIP_SDA_SUPPORTED UINT64_C(0x4000)
