@@ -181,16 +181,24 @@ before validating a required value. These tables do not enforce APDU size,
 required tags, duplicates, template membership, or full transaction validity;
 see [Structural validation](#structural-validation) for the layer that does.
 
+Generic BER reading also accepts constructed indefinite lengths; the EMV
+dictionary and length schemas do not enforce a definite-only encoding policy.
+APDU status bytes and EMV
+padding are handled by the caller. Book 3 defines one- and two-byte tags;
+three-byte tags remain readable by generic BER but are unknown to this profile.
+With `TLV_TAG_CAPACITY == 1`, two-byte constants and entries are omitted;
+configure the macro consistently for the library and all consumers.
+
 ## Structural validation
 
 `tlv_emv_structure_schema` (`tlv/profiles/emv_schema.h`) is a
 `tlv_structure_schema_t` for `tlv_schema_validate()` that fills the gap above:
 mandatory/forbidden/duplicate tags, length bounds, and required nesting, for
-the FCI Template (`6F`, including its `A5` FCI Proprietary Template child) and
-the GPO Response Message Template Format 2 (`77`). Other top-level tags,
-including the Read Record Template (`70`) and Response Message Template
-Format 1 (`80`), vary too much by kernel and issuer for a generic schema and
-are accepted unchecked at the root.
+the FCI Template (`6F`, including its `A5` FCI Proprietary Template child),
+the Application Template (`61`), and the GPO Response Message Template
+Format 2 (`77`). Other top-level tags, including the Read Record Template
+(`70`) and Response Message Template Format 1 (`80`), vary too much by kernel
+and issuer for a generic schema and are accepted unchecked at the root.
 
 ```c
 #include "tlv/formats/asn1/ber.h"
@@ -207,14 +215,6 @@ tlv_result_t rc = tlv_schema_validate(wire, size, &tlv_reader_format_ber,
 ```
 
 This backs the `opentlv` CLI's `validate --profile emv`.
-
-Generic BER reading also accepts constructed indefinite lengths; the EMV
-dictionary and length schemas do not enforce a definite-only encoding policy.
-APDU status bytes and EMV
-padding are handled by the caller. Book 3 defines one- and two-byte tags;
-three-byte tags remain readable by generic BER but are unknown to this profile.
-With `TLV_TAG_CAPACITY == 1`, two-byte constants and entries are omitted;
-configure the macro consistently for the library and all consumers.
 
 ## Data Object Lists (PDOL/CDOL/DDOL)
 

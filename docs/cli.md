@@ -40,6 +40,7 @@ otlv dump --format ber --profile emv --hex "6F0784050102030405" --pretty --descr
 otlv dump --format ber --input capture.hex --input-encoding hex
 otlv dump --format ber --profile emv --decode --hex "9F0206000000001000"
 otlv dump --format ber --profile emv --decode --output json --hex "9F0206000000001000"
+otlv validate --format ber --profile emv --input input.bin
 ```
 
 `dump` and `validate` require an explicit `--format` and exactly one input
@@ -204,15 +205,18 @@ is needed only for optional `--profile emv` annotations.
 against `tlv_emv_structure_schema` (see
 [EMV structural validation](profiles/emv/README.md#structural-validation)):
 mandatory tags, forbidden/unknown tags, duplicate tags, length bounds, and
-required nesting for the FCI Template and GPO Response Message Template
-Format 2. It runs only after the input has parsed as valid BER, only for
-`validate` (`dump --profile emv` only annotates tags), and not with `--pdol`
-(a DOL's tag/length pairs are not a TLV structure to check against a schema).
+required nesting for the FCI Template, Application Template, and GPO
+Response Message Template Format 2. It runs only after the input has parsed
+as valid BER, only for `validate` (`dump --profile emv` only annotates
+tags), and not with `--pdol` (a DOL's tag/length pairs are not a TLV
+structure to check against a schema).
 A schema violation is reported like any other failure, but prefixed with
 `schema` to keep it distinguishable from a format/framing error. A missing
 mandatory tag reports the distinct `TLV_ERR_SCHEMA_MISSING`, without a `tag=`
 field (its offset is the end of the enclosing element's value, not a tag);
-every other violation reports `TLV_ERR_SCHEMA` with the offending tag:
+every other violation (a forbidden/unknown/duplicate tag reports
+`TLV_ERR_SCHEMA`, a length outside bounds reports `TLV_ERR_INVALID_LENGTH`)
+includes the offending tag:
 
 ```sh
 $ otlv validate --format ber --profile emv --hex "6F00"
