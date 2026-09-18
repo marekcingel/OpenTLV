@@ -55,14 +55,15 @@ if(OPENTLV_FORMAT_DER OR OPENTLV_FORMAT_CER)
         src/profiles/asn1_values_internal.c)
 endif()
 if(OPENTLV_FORMAT_DER)
-    target_sources(${PROJECT_NAME} PRIVATE src/profiles/der.c src/profiles/der_values.c)
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/profiles/der.c src/profiles/der_values.c src/profiles/der_schema.c)
 endif()
 if(OPENTLV_FORMAT_CER)
     target_sources(${PROJECT_NAME} PRIVATE
         src/profiles/cer.c src/profiles/cer_values_internal.c)
 endif()
 if(OPENTLV_PROFILE_EMV)
-    target_sources(${PROJECT_NAME} PRIVATE src/profiles/emv.c src/codec/emv.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/profiles/emv.c src/codec/emv.c src/profiles/dol.c)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

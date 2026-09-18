@@ -70,7 +70,7 @@ TLV_API tlv_result_t tlv_tag_equal_u64(const tlv_tag_t* tag, uint64_t value, tlv
 
 /* Same input rules as tlv_tag_to_u64. Zero padding is accepted within the
  * 8-byte input limit. Values exceeding the destination type's maximum return
- * TLV_ERR_INVALID_TAG. Output is unchanged on every failure. */
+ * TLV_ERR_OVERFLOW. Output is unchanged on every failure. */
 TLV_API tlv_result_t tlv_tag_to_u8(const tlv_tag_t* tag, tlv_byte_order_t order, uint8_t* value);
 TLV_API tlv_result_t tlv_tag_to_u16(const tlv_tag_t* tag, tlv_byte_order_t order, uint16_t* value);
 TLV_API tlv_result_t tlv_tag_to_u32(const tlv_tag_t* tag, tlv_byte_order_t order, uint32_t* value);
@@ -93,8 +93,8 @@ TLV_API tlv_result_t tlv_tag_from_bytes(const uint8_t* data, size_t size, tlv_ta
 /* Construct an explicitly sized (1..8 bytes, within capacity) raw tag.
  * Zero padding is written at the most significant end in the selected order.
  * NULL tag returns TLV_ERR_NULL_ARG; invalid size returns TLV_ERR_INVALID_TAG_SIZE.
- * A value that does not fit returns TLV_ERR_INVALID_TAG; unsupported order
- * returns TLV_ERR_INVALID_BYTE_ORDER.
+ * A value that does not fit the requested size returns TLV_ERR_OVERFLOW;
+ * unsupported order returns TLV_ERR_INVALID_BYTE_ORDER.
  * The same destination guarantees as tlv_tag_from_bytes apply. */
 TLV_API tlv_result_t tlv_tag_from_u8(uint8_t value, size_t size, tlv_byte_order_t order,
                                      tlv_tag_t* tag);

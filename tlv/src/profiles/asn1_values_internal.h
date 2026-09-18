@@ -59,6 +59,6 @@ typedef struct tlv_asn1_utf8_stream {
 void tlv_asn1_utf8_stream_init(tlv_asn1_utf8_stream_t* state);
 tlv_result_t tlv_asn1_utf8_stream_update(tlv_asn1_utf8_stream_t* state, const uint8_t* value,
                                          size_t length);
-tlv_result_t tlv_asn1_utf8_stream_finish(tlv_asn1_utf8_stream_t* state);
+tlv_result_t tlv_asn1_utf8_stream_finish(const tlv_asn1_utf8_stream_t* state);
 
 #endif /* OPENTLV_ASN1_VALUES_INTERNAL_H */

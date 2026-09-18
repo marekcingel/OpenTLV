@@ -29,7 +29,7 @@ tlv_result_t tlv_asn1_validate_bit_string(const uint8_t* value, size_t length) {
     unused = value[0];
     if (unused > 7) return TLV_ERR_INVALID_VALUE;
     if (length == 1) return unused == 0 ? TLV_OK : TLV_ERR_INVALID_VALUE;
-    mask = (uint8_t)((1u << unused) - 1u);
+    mask = (uint8_t)((1U << unused) - 1U);
     return (value[length - 1] & mask) == 0 ? TLV_OK : TLV_ERR_INVALID_VALUE;
 }
 
@@ -187,7 +187,7 @@ tlv_result_t tlv_asn1_utf8_stream_update(tlv_asn1_utf8_stream_t* state, const ui
     return TLV_OK;
 }
 
-tlv_result_t tlv_asn1_utf8_stream_finish(tlv_asn1_utf8_stream_t* state) {
+tlv_result_t tlv_asn1_utf8_stream_finish(const tlv_asn1_utf8_stream_t* state) {
     return state->pending_need == 0 ? TLV_OK : TLV_ERR_INVALID_VALUE;
 }
 
@@ -256,7 +256,7 @@ tlv_result_t tlv_asn1_validate_utc_time(const uint8_t* value, size_t length) {
  * one or more fractional digits not ending in '0', then a mandatory trailing
  * "Z" (no differential time zones). Calendar validity is range-checked only. */
 tlv_result_t tlv_asn1_validate_generalized_time(const uint8_t* value, size_t length) {
-    size_t i, frac_start;
+    size_t i;
     int mm, dd, hh, mi, ss;
     if (length < 15) return TLV_ERR_INVALID_VALUE;
     for (i = 0; i < 14; ++i)
@@ -270,7 +270,7 @@ tlv_result_t tlv_asn1_validate_generalized_time(const uint8_t* value, size_t len
         return TLV_ERR_INVALID_VALUE;
     i = 14;
     if (i < length && value[i] == '.') {
-        frac_start = ++i;
+        size_t frac_start = ++i;
         while (i < length && is_digit(value[i])) ++i;
         if (i == frac_start) return TLV_ERR_INVALID_VALUE;
         if (value[i - 1] == '0') return TLV_ERR_INVALID_VALUE;

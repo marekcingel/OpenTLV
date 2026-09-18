@@ -1,0 +1,40 @@
+name: Documentation
+description: Report missing, incorrect, or unclear documentation.
+title: "[Docs]: "
+labels:
+  - documentation
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the docs. Please search
+        [existing issues](https://github.com/marekcingel/OpenTLV/issues) first.
+  - type: input
+    id: area
+    attributes:
+      label: Documentation area
+      description: Affected page, section, or file.
+      placeholder: e.g. docs/formats/README.md, README.md, a docstring/header comment
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Description of the problem
+      description: What's missing, incorrect, or unclear?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: What should the documentation say instead, if you have a proposal?
+    validations:
+      required: false
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Anything else relevant (links, related issues).
+    validations:
+      required: false

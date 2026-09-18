@@ -1,5 +1,7 @@
 #include "tlv/profiles/emv.h"
 #include "../codec/emv_internal.h"
+#include <ctype.h>
+#include <string.h>
 
 #define EMV_WIRE_1(b1, b2) {{b1}, 1}
 #define EMV_WIRE_2(b1, b2) {{b1, b2}, 2}
@@ -68,6 +70,9 @@ const tlv_schema_t tlv_emv_schema = {entries_BASE + 1, emv_count_BASE};
 #define EMV_CODEC_CRYPTOGRAM EMV_CODEC_NUMBER
 #define EMV_CODEC_BIOMETRIC EMV_CODEC_NUMBER
 #define EMV_CODEC_NUMBER_LIST EMV_CODEC_NUMBER
+#define EMV_CODEC_AFL EMV_CODEC_NUMBER
+#define EMV_CODEC_CVM_RESULT EMV_CODEC_NUMBER
+#define EMV_CODEC_TRACK2 EMV_CODEC_NUMBER
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
     EMV_CODEC_##kind(name, min, max, step, kind, arg)
@@ -89,6 +94,9 @@ const tlv_schema_t tlv_emv_schema = {entries_BASE + 1, emv_count_BASE};
 #define EMV_POINTER_CRYPTOGRAM EMV_POINTER_NUMBER
 #define EMV_POINTER_BIOMETRIC EMV_POINTER_NUMBER
 #define EMV_POINTER_NUMBER_LIST EMV_POINTER_NUMBER
+#define EMV_POINTER_AFL EMV_POINTER_NUMBER
+#define EMV_POINTER_CVM_RESULT EMV_POINTER_NUMBER
+#define EMV_POINTER_TRACK2 EMV_POINTER_NUMBER
 #define EMV_BEGIN(scope) static const tlv_emv_definition_t definitions_##scope[] = {
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
     {&entries_##scope[emv_index_##name + 1], #name, TLV_EMV_VALUE_##kind,                          \
@@ -121,6 +129,7 @@ const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context, const tlv_ta
     const tlv_schema_t* schema = tlv_emv_schema_for(context);
     const tlv_schema_entry_t* entry = tlv_schema_find(schema, tag);
     if (!entry) return NULL;
+    if ((unsigned)context >= EMV_COUNT(definitions)) return NULL;
     return &definitions[context][entry - schema->entries];
 }
 
@@ -132,5 +141,50 @@ tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definition, siz
     if (!definition->length_step ||
         (length - definition->schema->min_length) % definition->length_step)
         return TLV_ERR_INVALID_LENGTH;
+    return TLV_OK;
+}
+
+/* Curated only where a generic title-cased label would be misleading:
+ * abbreviations and initialisms that deserve their expansion and acronym. */
+static const struct {
+    const char *symbol, *label;
+} emv_display_labels[] = {
+    {"pan", "Primary Account Number (PAN)"},
+    {"aip", "Application Interchange Profile (AIP)"},
+    {"afl", "Application File Locator (AFL)"},
+    {"tvr", "Terminal Verification Results (TVR)"},
+    {"tsi", "Transaction Status Information (TSI)"},
+    {"atc", "Application Transaction Counter (ATC)"},
+    {"df_name", "Dedicated File (DF) Name"},
+    {"adf_name", "Application Dedicated File (ADF) Name"},
+    {"fci_template", "File Control Information (FCI) Template"},
+    {"fci_proprietary_template", "File Control Information (FCI) Proprietary Template"},
+    {"iin", "Issuer Identification Number (IIN)"},
+    {"sfi", "Short File Identifier (SFI)"}};
+
+const char* tlv_emv_display_label(const char* name) {
+    size_t i;
+    if (!name) return NULL;
+    for (i = 0; i < EMV_COUNT(emv_display_labels); ++i)
+        if (!strcmp(name, emv_display_labels[i].symbol)) return emv_display_labels[i].label;
+    return NULL;
+}
+
+tlv_result_t tlv_emv_titlecase_name(const char* name, char* buffer, size_t capacity) {
+    size_t i;
+    int initial = 1;
+    if (!name || !buffer) return TLV_ERR_NULL_ARG;
+    for (i = 0; name[i]; ++i) {
+        if (capacity <= i) return TLV_ERR_BUFFER_TOO_SHORT;
+        if (name[i] == '_') {
+            buffer[i] = ' ';
+            initial = 1;
+        } else {
+            buffer[i] = initial ? (char)toupper((unsigned char)name[i]) : name[i];
+            initial = 0;
+        }
+    }
+    if (capacity <= i) return TLV_ERR_BUFFER_TOO_SHORT;
+    buffer[i] = '\0';
     return TLV_OK;
 }

@@ -100,7 +100,7 @@ invalid byte order returns `TLV_ERR_INVALID_BYTE_ORDER`.
 
 `tlv_tag_to_u8`, `tlv_tag_to_u16`, and `tlv_tag_to_u32` provide checked
 conversions into `uint8_t`, `uint16_t`, and `uint32_t`. They use the same input
-rules as `tlv_tag_to_u64` and return `TLV_ERR_INVALID_TAG` if the numeric value
+rules as `tlv_tag_to_u64` and return `TLV_ERR_OVERFLOW` if the numeric value
 exceeds the destination type's maximum, leaving the output unchanged.
 Zero padding at the most significant end is accepted within the 8-byte input
 limit: big-endian `00 FF` and little-endian `FF 00` both fit in `uint8_t`.
@@ -133,7 +133,7 @@ pointers return `TLV_ERR_NULL_ARG`.
 `tlv_tag_from_u8/u16/u32/u64(value, size, order, &tag)` encodes an unsigned
 value into exactly `size` bytes (1..8, within capacity). Size is explicit:
 `0x82` can become `82`, big-endian `00 82`, or little-endian `82 00`.
-A value that does not fit the requested size returns `TLV_ERR_INVALID_TAG`;
+A value that does not fit the requested size returns `TLV_ERR_OVERFLOW`;
 zero size, size above capacity, or size above 8 returns `TLV_ERR_INVALID_TAG_SIZE`. Unsupported byte order returns `TLV_ERR_INVALID_BYTE_ORDER`.
 
 All constructors leave the destination unchanged on failure and zero unused
@@ -149,9 +149,12 @@ if (tlv_tag_from_u16(0x9F02, 2, TLV_BYTE_ORDER_BIG_ENDIAN, &tag) == TLV_OK) {
 ## Tag errors
 
 `TLV_ERR_INVALID_TAG_SIZE` identifies sizes unsupported by an operation.
-`TLV_ERR_INVALID_TAG` identifies malformed tag encoding or numeric values that
-do not fit the requested representation. Size failures previously returning
-`TLV_ERR_INVALID_TAG` now return `TLV_ERR_INVALID_TAG_SIZE`; update callers that
-check specific errors. `TLV_ERR_INVALID_LENGTH` remains a value-length error,
-and invalid schema definitions retain schema-specific errors. Comparison helpers
-still return 0 for invalid inputs. Existing error-code numeric values are unchanged.
+`TLV_ERR_OVERFLOW` identifies an otherwise valid numeric value or input that
+does not fit the requested destination type or encoded width.
+`TLV_ERR_INVALID_TAG` identifies malformed tag encoding. Size failures
+previously returning `TLV_ERR_INVALID_TAG` now return `TLV_ERR_INVALID_TAG_SIZE`,
+and numeric range failures previously returning `TLV_ERR_INVALID_TAG` now return
+`TLV_ERR_OVERFLOW`; update callers that check specific errors. `TLV_ERR_INVALID_LENGTH`
+remains a value-length error, and invalid schema definitions retain schema-specific
+errors. Comparison helpers still return 0 for invalid inputs. Existing error-code
+numeric values are unchanged.

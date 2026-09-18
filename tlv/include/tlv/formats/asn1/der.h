@@ -13,10 +13,10 @@ extern "C" {
  * class bits are shared by every ASN.1 encoding-rule profile, not specific
  * to DER. Accessors below require a successfully parsed or created DER tag. */
 static inline tlv_asn1_class_t tlv_der_tag_class(const tlv_tag_t* tag) {
-    return (tlv_asn1_class_t)(tag->data[0] >> 6);
+    return (tlv_asn1_class_t)(tag->data[0] >> TLV_ASN1_CLASS_SHIFT);
 }
 static inline int tlv_der_tag_is_constructed(const tlv_tag_t* tag) {
-    return (tag->data[0] & 0x20) != 0;
+    return (tag->data[0] & TLV_ASN1_CONSTRUCTED_BIT) != 0;
 }
 
 /* Canonical tag construction and numeric extraction. Numbers exceeding uint64_t

@@ -101,8 +101,6 @@ void tlv_cer_segment_state_init(tlv_cer_segment_state_t* state, uint64_t number,
 tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state, const tlv_tag_t* tag,
                                        const uint8_t* value, size_t length, size_t offset,
                                        size_t* error_offset) {
-    tlv_result_t rc;
-
     /* A further segment proves the previously pending one was not last. */
     if (state->has_pending) {
         if (state->pending_length != TLV_CER_MAX_SEGMENT_OCTETS) {
@@ -126,6 +124,7 @@ tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state, const tlv
     }
 
     if (state->strict && state->info.form == TLV_CER_FORM_CHARACTERS) {
+        tlv_result_t rc;
         if (state->info.is_utf8)
             rc = tlv_asn1_utf8_stream_update(&state->utf8, value, length);
         else
@@ -148,7 +147,6 @@ tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state, const tlv
 
 tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state, size_t element_offset,
                                           size_t* error_offset) {
-    tlv_result_t rc;
     if (!state->has_pending) {
         if (error_offset) *error_offset = element_offset;
         return TLV_ERR_INVALID_LENGTH;
@@ -158,6 +156,7 @@ tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state, size_t
         return TLV_ERR_INVALID_LENGTH;
     }
     if (state->strict) {
+        tlv_result_t rc;
         if (state->info.form == TLV_CER_FORM_BIT_STRING) {
             rc = tlv_asn1_validate_bit_string(state->pending_value, state->pending_length);
             if (rc != TLV_OK) {

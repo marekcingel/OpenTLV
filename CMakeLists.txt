@@ -49,6 +49,9 @@ include(GNUInstallDirs)
 include(cmake/clang_format.cmake)
 opentlv_add_clang_format_targets()
 
+include(cmake/cppcheck.cmake)
+opentlv_add_cppcheck_targets()
+
 add_subdirectory(tlv)
 
 if(OPENTLV_BUILD_FUZZING)
@@ -58,6 +61,9 @@ endif()
 if(OPENTLV_BUILD_CXX)
     add_subdirectory(tlv++)
 endif()
+
+include(cmake/clang_tidy.cmake)
+opentlv_add_clang_tidy_targets()
 
 if(OPENTLV_BUILD_TESTS)
     enable_testing()

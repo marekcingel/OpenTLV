@@ -2,6 +2,8 @@
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
+#include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <vector>
 
@@ -157,6 +159,119 @@ TEST(Unit_Ber, IndefiniteWriterCapacityValidationAndDefault) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_writer_write_indefinite(nullptr, tag, nullptr, 0));
     writer.format = nullptr;
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_ber_writer_write_indefinite(&writer, tag, nullptr, 0));
+}
+
+TEST(Unit_Ber, StandaloneLengthDecodeFixtures) {
+    const struct {
+        std::vector<uint8_t> bytes;
+        tlv_length_t         value;
+    } cases[] = {
+        {{0x00}, 0},
+        {{0x7F}, 127},
+        {{0x81, 0x80}, 128},
+        {{0x81, 0xFF}, 255},
+        {{0x82, 0x01, 0x00}, 256},
+        {{0x88, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}, UINT64_MAX},
+    };
+    for (const auto& c : cases) {
+        tlv_length_t value = 999;
+        size_t       consumed = 999;
+        ASSERT_EQ(TLV_OK, tlv_ber_length_decode(c.bytes.data(), c.bytes.size(), &value, &consumed));
+        EXPECT_EQ(c.value, value);
+        EXPECT_EQ(c.bytes.size(), consumed);
+    }
+}
+
+TEST(Unit_Ber, StandaloneLengthEncodeFixtures) {
+    const struct {
+        tlv_length_t         value;
+        std::vector<uint8_t> bytes;
+    } cases[] = {
+        {0, {0x00}},
+        {127, {0x7F}},
+        {128, {0x81, 0x80}},
+        {255, {0x81, 0xFF}},
+        {256, {0x82, 0x01, 0x00}},
+        {UINT64_MAX, {0x88, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}},
+    };
+    for (const auto& c : cases) {
+        uint8_t out[TLV_BER_LENGTH_MAX_ENCODED_SIZE];
+        std::memset(out, 0xEE, sizeof(out));
+        size_t written = 999;
+        ASSERT_EQ(TLV_OK, tlv_ber_length_encode(c.value, out, sizeof(out), &written));
+        EXPECT_EQ(c.bytes.size(), written);
+        EXPECT_TRUE(std::equal(c.bytes.begin(), c.bytes.end(), out));
+    }
+    EXPECT_EQ(9u, TLV_BER_LENGTH_MAX_ENCODED_SIZE);
+}
+
+TEST(Unit_Ber, StandaloneLengthEncodeSizeQueryAndCapacity) {
+    size_t written = 999;
+    ASSERT_EQ(TLV_OK, tlv_ber_length_encode(UINT64_MAX, nullptr, 0, &written));
+    EXPECT_EQ(9u, written);
+    ASSERT_EQ(TLV_OK, tlv_ber_length_encode(0, nullptr, 0, &written));
+    EXPECT_EQ(1u, written);
+    uint8_t out[TLV_BER_LENGTH_MAX_ENCODED_SIZE];
+    for (size_t capacity = 0; capacity < 9; ++capacity) {
+        std::memset(out, 0xEE, sizeof(out));
+        written = 999;
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  tlv_ber_length_encode(UINT64_MAX, out, capacity, &written));
+        EXPECT_EQ(999u, written);
+        for (auto byte : out) EXPECT_EQ(0xEE, byte);
+    }
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_length_encode(0, nullptr, 1, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_length_encode(0, out, sizeof(out), nullptr));
+}
+
+TEST(Unit_Ber, StandaloneLengthDecodeRejectsIndefiniteAndReserved) {
+    tlv_length_t value = 999;
+    size_t       consumed = 999;
+    for (uint8_t prefix : {0x80, 0xFF}) {
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_ber_length_decode(&prefix, 1, &value, &consumed));
+        EXPECT_EQ(999u, value);
+        EXPECT_EQ(999u, consumed);
+    }
+}
+
+TEST(Unit_Ber, StandaloneLengthDecodeOverflowAndNonminimalPadding) {
+    tlv_length_t value = 999;
+    size_t       consumed = 999;
+    /* Declared width (9 octets) wider than uint64_t (8 octets), with a
+     * nonzero excess octet: not representable in tlv_length_t. */
+    std::vector<uint8_t> overflow(10, 0);
+    overflow[0] = 0x89;
+    overflow[1] = 1;
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_ber_length_decode(overflow.data(), overflow.size(), &value, &consumed));
+    EXPECT_EQ(999u, value);
+    EXPECT_EQ(999u, consumed);
+    /* Same width, but the excess octet is zero padding: representable and accepted. */
+    overflow[1] = 0;
+    overflow.back() = 0x7F;
+    ASSERT_EQ(TLV_OK, tlv_ber_length_decode(overflow.data(), overflow.size(), &value, &consumed));
+    EXPECT_EQ(127u, value);
+    EXPECT_EQ(overflow.size(), consumed);
+    /* Nonminimal but representable: a zero-padded long form for a small value. */
+    const uint8_t padded[] = {0x83, 0, 0, 0x7F};
+    ASSERT_EQ(TLV_OK, tlv_ber_length_decode(padded, sizeof(padded), &value, &consumed));
+    EXPECT_EQ(127u, value);
+    EXPECT_EQ(4u, consumed);
+}
+
+TEST(Unit_Ber, StandaloneLengthDecodeTruncationAndNullArgs) {
+    const uint8_t bytes[] = {0x82, 0x01, 0x00};
+    tlv_length_t  value = 999;
+    size_t        consumed = 999;
+    for (size_t size = 0; size < sizeof(bytes); ++size) {
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_ber_length_decode(bytes, size, &value, &consumed));
+        EXPECT_EQ(999u, value);
+        EXPECT_EQ(999u, consumed);
+    }
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_length_decode(nullptr, 1, &value, &consumed));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_length_decode(bytes, sizeof(bytes), nullptr, &consumed));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_length_decode(bytes, sizeof(bytes), &value, nullptr));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_ber_length_decode(nullptr, 0, &value, &consumed));
 }
 
 TEST(Unit_Ber, LongPaddedLengthsAndTruncation) {

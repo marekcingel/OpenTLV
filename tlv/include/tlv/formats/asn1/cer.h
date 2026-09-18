@@ -15,10 +15,10 @@ extern "C" {
  * than reused from der.h, so CER never depends on the DER component being
  * enabled. */
 static inline tlv_asn1_class_t tlv_cer_tag_class(const tlv_tag_t* tag) {
-    return (tlv_asn1_class_t)(tag->data[0] >> 6);
+    return (tlv_asn1_class_t)(tag->data[0] >> TLV_ASN1_CLASS_SHIFT);
 }
 static inline int tlv_cer_tag_is_constructed(const tlv_tag_t* tag) {
-    return (tag->data[0] & 0x20) != 0;
+    return (tag->data[0] & TLV_ASN1_CONSTRUCTED_BIT) != 0;
 }
 
 /* Canonical tag construction and numeric extraction; identical rules and

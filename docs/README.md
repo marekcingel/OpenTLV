@@ -37,9 +37,11 @@
 
 ## Project
 
+- [Long-term roadmap](../ROADMAP.md)
 - [Logo assets](assets/README.md)
 - [Changelog](../CHANGELOG.md)
 - [Contributing](../CONTRIBUTING.md)
+- [Security policy](../SECURITY.md)
 - [License](../LICENSE)
 
 Dedicated C and C++ API reference manuals are not yet available. Use the guides

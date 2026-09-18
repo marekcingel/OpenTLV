@@ -42,7 +42,10 @@ target_compile_options(tlv_fuzz PRIVATE
 
 set(fuzz_targets read walk_tree roundtrip)
 if(OPENTLV_FORMAT_DER)
-    list(APPEND fuzz_targets der)
+    list(APPEND fuzz_targets der der_schema)
+endif()
+if(OPENTLV_PROFILE_EMV)
+    list(APPEND fuzz_targets codec dol)
 endif()
 foreach(name IN LISTS fuzz_targets)
     add_executable(fuzz_${name} ${name}.c)

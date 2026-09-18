@@ -13,9 +13,10 @@ static void check_roundtrip(size_t format, tlv_tag_t tag, const uint8_t* value, 
     FUZZ_CHECK(encoded != NULL);
     memset(encoded, 0xa5, total);
     FUZZ_CHECK(tlv_write(encoded, total - 1, fuzz_formats[format].writer, tag, value, length,
-                         &written) != TLV_OK);
-    FUZZ_CHECK(written == SIZE_MAX);
+                         &written) == TLV_ERR_BUFFER_TOO_SHORT);
+    FUZZ_CHECK(written == total);
     for (size_t j = 0; j < total; ++j) FUZZ_CHECK(encoded[j] == 0xa5);
+    written = SIZE_MAX;
     FUZZ_CHECK(tlv_write(encoded, total, fuzz_formats[format].writer, tag, value, length,
                          &written) == TLV_OK);
     FUZZ_CHECK(written == total);

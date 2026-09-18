@@ -14,8 +14,7 @@ sudo apt-get install clang-18 libclang-rt-18-dev llvm-18 cmake ninja-build
 cmake -S . -B build/fuzz -G Ninja \
   -DCMAKE_C_COMPILER=clang-18 -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DOPENTLV_BUILD_FUZZING=ON -DOPENTLV_BUILD_CXX=OFF \
-  -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF \
-  -DOPENTLV_PROFILE_EMV=OFF
+  -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
 cmake --build build/fuzz --parallel
 ```
 
@@ -32,15 +31,26 @@ flags. Contract checks remain active with `NDEBUG`; UBSan errors are fatal.
 | `fuzz_read` | Sequential `tlv_read` calls, positive bounded consumption, borrowed value ranges, unchanged view and consumed count on failure. |
 | `fuzz_walk_tree` | Nested `tlv_walk_tree` traversal, depth and element limits (including zero), view ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal. |
 | `fuzz_der` | `tlv_der_read` and `tlv_der_walk`, canonical DER-TLV framing, all four profile limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal. |
+| `fuzz_der_schema` | `tlv_der_schema_read` against a fixed representative schema (IMPLICIT/EXPLICIT tagging, a DEFAULT component, SET, SET OF and CHOICE), all five schema limits, unchanged read outputs and bounded error offsets on failure. |
 | `fuzz_roundtrip` | Generated tags and values, sizing, insufficient-capacity output preservation, successful write/read tag and value equality. |
+| `fuzz_codec` | `tlv_codec_decode`/`tlv_codec_encode` for every EMV dictionary tag's codec (NUMBER, FLAGS, DIGITS, DATE, TIME, ACCOUNT, CRYPTOGRAM, BIOMETRIC, NUMBER_LIST), one-byte-short capacities, decode/encode/decode round-trip equality, and undersized-output rejection. |
+| `fuzz_dol` | `tlv_dol_read` and `tlv_dol_write` (both a size query and a full write against a deterministic `resolve` callback exercising presence, padding and truncation), both DOL limits, and that `tlv_dol_write`'s output length depends only on the input DOL. |
 
 The reader, walker, and round-trip targets run each input against every enabled
 built-in format: default, fixed 1-byte, BER, and DER. Component switches still
-apply; `fuzz_der` is omitted when `OPENTLV_FORMAT_DER=OFF`. At least one built-in
-format must be enabled. For the raw-byte formats, the walker harness uses tag
-bit `0x20` as a test-only container convention. BER and DER use their public
-nesting predicates. DER profile validation covers the existing DER-TLV
-contract, not ASN.1 value semantics or SET/SET OF ordering.
+apply; `fuzz_der` and `fuzz_der_schema` are omitted when `OPENTLV_FORMAT_DER=OFF`,
+and `fuzz_codec` and `fuzz_dol` are omitted when `OPENTLV_PROFILE_EMV=OFF`. At
+least one built-in format must be enabled. For the raw-byte formats, the
+walker harness uses tag bit `0x20` as a test-only container convention. BER
+and DER use their public nesting predicates. `fuzz_der` covers the existing
+DER-TLV contract, not ASN.1 value semantics or SET/SET OF ordering;
+`fuzz_der_schema` covers the schema-aware layer that does (SET/SET OF
+ordering, tagging, CHOICE, DEFAULT omission) against one fixed schema.
+`fuzz_codec` covers value-codec semantics (BCD/binary numeric ranges,
+date/time calendar checks, enum validation) independently of TLV framing.
+`fuzz_dol` covers the dedicated DOL value component (tag/one-byte-length
+parsing, resolve-driven construction, and EMV padding/truncation), which is
+not ordinary TLV structure and so is not exercised by any other target.
 
 `error_offset` may change on failure; on success it must stay unchanged.
 Earlier visitor effects are not rolled back. The suite checks these documented
@@ -67,7 +77,7 @@ For all enabled targets (Bash):
 ```bash
 set -o pipefail
 status=0
-for target in read walk_tree der roundtrip; do
+for target in read walk_tree der der_schema roundtrip codec dol; do
   executable="build/fuzz/tests/fuzz/fuzz_$target"
   [ -x "$executable" ] || continue
   mkdir -p "build/fuzz/corpus/$target" "build/fuzz/findings/$target"
@@ -91,7 +101,10 @@ the C fuzz targets separately in Debug mode after coverage collection. It runs
 each target for approximately 60 seconds, fails on any
 target failure, and uploads per-target logs and reproducing inputs even when
 the run fails. A 15-minute step timeout bounds fuzz execution. This short
-campaign is a smoke check, not exhaustive validation.
+campaign is a smoke check, not exhaustive validation. CI caches `build/fuzz/corpus`
+across runs (`actions/cache`, restored before the fuzz build and saved after
+it), so each run's 60 seconds builds on inputs the previous run discovered
+instead of starting over from just the checked-in seed corpus every time.
 
 Download the `c-fuzz-findings-<run>-<attempt>` artifact, check out the failing
 commit, and build with the same component options and Clang version. Pass the
@@ -101,7 +114,8 @@ saved input as a file instead of a corpus directory:
 build/fuzz/tests/fuzz/fuzz_read path/to/read/crash-<hash>
 ```
 
-Use the corresponding target for `walk_tree`, `der`, or `roundtrip`. Findings
+Use the corresponding target for `walk_tree`, `der`, `der_schema`, `roundtrip`,
+`codec`, or `dol`. Findings
 may also use names such as `timeout-<hash>` or `oom-<hash>`; retain the original
 timeout/RSS settings when reproducing those. Keep the sanitizer environment
 variables from the local-run example and ensure `llvm-symbolizer-18` is on

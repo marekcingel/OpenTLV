@@ -16,7 +16,6 @@
 
 #if __cplusplus >= 201703L
 #include <any>
-#include <cstddef>
 #endif
 
 #if __cplusplus >= 202002L
@@ -49,7 +48,7 @@ class any {
     template <typename T> struct holder : holder_base {
         explicit holder(const T& value) : value(value) {}
         explicit holder(T&& value) : value(std::move(value)) {}
-        std::unique_ptr<holder_base> clone() const {
+        std::unique_ptr<holder_base> clone() const override {
             return std::unique_ptr<holder_base>(new holder<T>(value));
         }
         T value;
@@ -141,7 +140,9 @@ public:
     expected(unexpected<E>&& error) : has_value_(false) {
         new (&storage_.error) E(std::move(error.error()));
     }
-    expected(expected&& other) : has_value_(other.has_value_) {
+    expected(expected&& other) noexcept(std::is_nothrow_move_constructible<T>::value &&
+                                        std::is_nothrow_move_constructible<E>::value)
+        : has_value_(other.has_value_) {
         if (has_value_)
             new (&storage_.value) T(std::move(other.storage_.value));
         else

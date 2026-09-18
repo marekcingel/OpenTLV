@@ -5,7 +5,8 @@
 #include "cer_values_internal.h"
 #include <string.h>
 
-const tlv_cer_limits_t tlv_cer_default_limits = {32, 16 * 1024 * 1024, 16 * 1024 * 1024, 100000};
+const tlv_cer_limits_t tlv_cer_default_limits = {32, (size_t)16 * 1024 * 1024,
+                                                 (size_t)16 * 1024 * 1024, 100000};
 
 static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
     if (error_offset) *error_offset = offset;
@@ -472,7 +473,7 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
         size_t chunk = is_bit ? TLV_CER_MAX_SEGMENT_OCTETS - 1 : TLV_CER_MAX_SEGMENT_OCTETS;
         size_t source_octets = is_bit ? content_length - 1 : content_length;
         size_t num_non_final, final_octets, final_content_size, final_length_size, total,
-            per_segment, i;
+            per_segment;
         segment_layout(source_octets, chunk, &num_non_final, &final_octets);
         final_content_size = is_bit ? final_octets + 1 : final_octets;
         rc = tlv_writer_format_cer.length_size(NULL, final_content_size, &final_length_size);
@@ -512,7 +513,7 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
             memcpy(out, constructed_tag.data, tag_size);
             out += tag_size;
             *out++ = 0x80;
-            for (i = 0; i < num_non_final; ++i) {
+            for (size_t i = 0; i < num_non_final; ++i) {
                 memcpy(out, tag.data, tag_size);
                 out += tag_size;
                 rc = tlv_writer_format_cer.write_length(NULL, out, seg_length_size,

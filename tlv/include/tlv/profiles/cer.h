@@ -15,7 +15,7 @@ extern "C" {
  * types including UTF8String): a value with this many content octets or
  * fewer must be primitive, more must be constructed and segmented.
  */
-#define TLV_CER_MAX_SEGMENT_OCTETS 1000
+enum { TLV_CER_MAX_SEGMENT_OCTETS = 1000 };
 
 /* Maximum number of constructed ancestors; top-level elements have depth 0.
  * max_depth may be 0 through TLV_CER_MAX_DEPTH. All limits are inclusive;
@@ -26,7 +26,7 @@ extern "C" {
  * per-segment framing overhead), and max_elements bounds total visited
  * elements, including each string segment.
  */
-#define TLV_CER_MAX_DEPTH 64
+enum { TLV_CER_MAX_DEPTH = 64 };
 typedef struct tlv_cer_limits {
     size_t max_depth;
     size_t max_input_size;

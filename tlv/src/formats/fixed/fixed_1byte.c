@@ -1,5 +1,6 @@
 #include "tlv/formats/fixed/fixed_1byte.h"
 #include "tlv/formats/format.h"
+#include <stdint.h>
 
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* consumed) {
@@ -33,7 +34,7 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
 
 static tlv_result_t length_size(const void* context, size_t length, size_t* size) {
     (void)context;
-    if (length > 255) return TLV_ERR_INVALID_LENGTH;
+    if (length > UINT8_MAX) return TLV_ERR_INVALID_LENGTH;
     *size = 1;
     return TLV_OK;
 }

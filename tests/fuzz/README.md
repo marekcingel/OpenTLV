@@ -23,5 +23,13 @@ produces an empty candidate tag/value. Every input is also tested as a value
 with the valid primitive tag `04`, ensuring successful writes are exercised.
 Long-value seeds cover 127/128 and 255/256 length transitions.
 
+`corpus/codec` also contains raw bytes with no selector prefix: every input is
+tried as the raw value of every EMV dictionary tag's codec, so a seed only
+needs to be interesting for one value kind (BCD/binary numbers, dates, times,
+account/biometric enums, cryptogram info, digit strings) to be useful. Names
+describe the targeted kind and boundary: valid/invalid BCD, calendar and
+clock range violations, undefined enum values, and digit strings with
+mid-string or leading padding nibbles.
+
 Only seed inputs belong in these corpus directories. Store documentation here,
 and write mutation discoveries and crash artifacts under the build directory.
