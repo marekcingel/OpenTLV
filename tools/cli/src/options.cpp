@@ -63,7 +63,7 @@ int options::parse(int argc, char** argv) {
             bit = 8192;
         else if (!strcmp(arg, "--decode"))
             bit = 16384;
-        else if (!strcmp(arg, "--json"))
+        else if (!strcmp(arg, "--output"))
             bit = 32768;
         else
             return fail(2, "unknown option; use --help");
@@ -79,10 +79,6 @@ int options::parse(int argc, char** argv) {
         }
         if (bit == 16384) {
             decode = 1;
-            continue;
-        }
-        if (bit == 32768) {
-            json = 1;
             continue;
         }
         if (bit == 128) {
@@ -110,6 +106,10 @@ int options::parse(int argc, char** argv) {
             if (strcmp(argv[i], "binary") && strcmp(argv[i], "hex"))
                 return fail(2, "input encoding must be binary or hex");
             hex_input = !strcmp(argv[i], "hex");
+        } else if (bit == 32768) {
+            if (strcmp(argv[i], "text") && strcmp(argv[i], "json"))
+                return fail(2, "output must be text or json");
+            output = argv[i];
         } else if (!number(argv[i], bit == 16   ? &max_input
                                     : bit == 32 ? &max_depth
                                                 : &max_elements))
@@ -123,7 +123,8 @@ int options::parse(int argc, char** argv) {
         return fail(2, "--pdol requires --format ber and cannot use --tree, --pretty, or --decode");
     if ((seen & 512) && (seen & 1024)) return fail(2, "conflicting color options");
     if ((seen & 4096) && !input) return fail(2, "--input-encoding requires --input");
-    if ((profile || describe || color || decode || json) && strcmp(command, "dump"))
+    if ((profile || describe || color || decode || strcmp(output, "text")) &&
+        strcmp(command, "dump"))
         return fail(2, "presentation options require dump");
     if (describe && !profile) return fail(2, "--describe requires --profile emv");
     if (decode && !profile) return fail(2, "--decode requires --profile emv");
@@ -149,7 +150,7 @@ void options::usage() {
                  "  --profile emv          Annotate BER tags using the EMV dictionary\n"
                  "  --describe             Include EMV type and length descriptions\n"
                  "  --decode               Decode known EMV values (requires --profile emv)\n"
-                 "  --json                 Print one JSON object per element instead of text\n"
+                 "  --output text|json     Print text (default) or a hierarchical JSON document\n"
                  "  --input-encoding NAME  binary (default) or hex, for --input\n"
                  "  --force-color          Emit ANSI colors even when redirected\n"
                  "  --no-color             Disable colors (default: auto for terminals)\n"

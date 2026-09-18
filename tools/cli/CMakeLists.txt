@@ -27,7 +27,7 @@ target_include_directories(otlv
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# Header-only, fetched only for the CLI: --json output (tools/cli/src/commands.cpp)
+# Header-only, fetched only for the CLI: --output json (tools/cli/src/commands.cpp)
 # is the sole nlohmann/json consumer. tlv and tlv++ remain dependency-free.
 include(FetchContent)
 FetchContent_Declare(

@@ -28,7 +28,7 @@ public:
     int         hex_input = 0;
     int         pdol = 0;
     int         decode = 0;
-    int         json = 0;
+    const char* output = "text";
 };
 
 } // namespace cli
