@@ -23,7 +23,7 @@ and requires `OPENTLV_BUILD_CXX=ON` (also the default); a C-only build
 `OPENTLV_BUILD_CLI_TESTS` initially defaults to `OPENTLV_BUILD_TESTS`; CLI
 tests use CMake only and can run with library unit/integration tests disabled.
 Building the CLI fetches [nlohmann/json](https://github.com/nlohmann/json)
-(header-only, used for `--json` output) via CMake `FetchContent`; the `tlv`
+(header-only, used for `--output json`) via CMake `FetchContent`; the `tlv`
 and `tlv++` libraries themselves remain dependency-free.
 
 ## Commands
@@ -39,7 +39,7 @@ otlv validate --format ber --input -
 otlv dump --format ber --profile emv --hex "6F0784050102030405" --pretty --describe
 otlv dump --format ber --input capture.hex --input-encoding hex
 otlv dump --format ber --profile emv --decode --hex "9F0206000000001000"
-otlv dump --format ber --profile emv --decode --json --hex "9F0206000000001000"
+otlv dump --format ber --profile emv --decode --output json --hex "9F0206000000001000"
 ```
 
 `dump` and `validate` require an explicit `--format` and exactly one input
@@ -117,7 +117,7 @@ that describe embedded structures. A standalone context-specific fragment has
 no enclosing context and begins in the base dictionary.
 
 The EMV profile must be compiled in. `--profile`, `--describe`, `--decode`,
-`--json`, and color flags are dump-only options; `--describe` and `--decode`
+`--output`, and color flags are dump-only options; `--describe` and `--decode`
 require `--profile emv`. EMV annotations require BER.
 
 ### Value decoding
@@ -150,17 +150,22 @@ a short label or a compact field list. `--decode` cannot be combined with
 
 ### JSON output
 
-`--json` prints one JSON object per line instead of the key=value text above,
-carrying the same information under stable field names (`offset`, `tag`,
-`length`, `depth` when `--tree` is set, `indefinite` when true, `value`,
-`name`, `description`, `decoded`, `decode_error`) and, for `--pdol`,
-(`offset`, `tag`, `requested_length`, `name`). Fields that do not apply to an
-element (an unset `--describe` description, an undecoded value, and so on)
-are simply omitted rather than set to `null`. Each line is independently
-valid JSON; the command's output as a whole is not wrapped in an enclosing
-array, matching the partial-output-on-failure behavior described above.
-`--pretty`'s graphical tree connectors are a text-mode presentation only;
-under `--json`, nesting is conveyed by the `depth` field instead.
+`--output json` prints a single JSON document instead of the key=value text
+above: a top-level object with an `elements` array, carrying the same
+information under stable field names (`offset`, `tag`, `length`,
+`indefinite` when true, `value`, `name`, `description`, `decoded`,
+`decode_error`) and, for `--pdol`, (`offset`, `tag`, `requested_length`,
+`name`). Fields that do not apply to an element (an unset `--describe`
+description, an undecoded value, and so on) are simply omitted rather than
+set to `null`. When `--tree` is set, a constructed BER/DER element carries
+its children in its own nested `elements` array instead of a flat list, so
+the document's shape mirrors the input's structure; without `--tree`, only
+top-level elements appear and no element has an `elements` field.
+`--pretty`'s graphical tree connectors are a text-mode presentation only and
+have no effect on `--output json`. A malformed input may still produce a
+document containing the elements parsed before the failure, matching the
+partial-output-on-failure behavior described above; the diagnostic itself is
+always reported separately, on stderr.
 
 ### PDOL / DOL inspection
 

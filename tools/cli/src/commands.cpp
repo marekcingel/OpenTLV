@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <ios>
 #include <iostream>
+#include <utility>
+#include <vector>
 #include <nlohmann/json.hpp>
 #include "console_color.hpp"
 #include "decode.hpp"
@@ -50,7 +52,32 @@ typedef struct output_context {
     const uint8_t*      data;
     int                 ber;
     cli_presentation_t  presentation;
+    // --output json only: elements not yet attached to their parent's nested
+    // "elements" array, one per currently open depth (stack.size() == the
+    // depth of the next element to be attached), and the finished document's
+    // top-level array.
+    std::vector<nlohmann::json> json_stack;
+    nlohmann::json              json_root = nlohmann::json::array();
 } output_context_t;
+
+bool is_json(const cli::options& o) {
+    return !strcmp(o.output, "json");
+}
+
+// Attaches every element on the json_stack deeper than target_depth to its
+// parent's "elements" array (or json_root, for a closing top-level element),
+// converting the preorder traversal into a nested document as each
+// element's subtree finishes.
+void json_flush(output_context_t& out, size_t target_depth) {
+    while (out.json_stack.size() > target_depth) {
+        nlohmann::json child = std::move(out.json_stack.back());
+        out.json_stack.pop_back();
+        if (out.json_stack.empty())
+            out.json_root.push_back(std::move(child));
+        else
+            out.json_stack.back()["elements"].push_back(std::move(child));
+    }
+}
 
 // Prints `length` bytes as uppercase hex ("0A1B..."), restoring std::cout's
 // prior formatting state afterward so callers can freely mix this with
@@ -72,7 +99,7 @@ void print_tag(const tlv_tag_t& tag, bool color) {
 }
 
 // Same encoding as print_hex, built as a string instead of streamed, for
-// --json's field values (which are never color-wrapped).
+// --output json's field values (which are never color-wrapped).
 std::string hex_string(const uint8_t* data, size_t length) {
     static const char digits[] = "0123456789ABCDEF";
     std::string       result(length * 2, '0');
@@ -84,7 +111,7 @@ std::string hex_string(const uint8_t* data, size_t length) {
 }
 
 // Adds the "name" and, if requested, "description" EMV dictionary fields to
-// a --json element object, from the same lookup the text renderer uses.
+// a --output json element object, from the same lookup the text renderer uses.
 void json_emv(nlohmann::json& object, const cli_presentation_t& presentation,
               const tlv_view_t* view, size_t depth, int describe) {
     const cli_emv_info info = cli_presentation_emv_info(&presentation, view, depth, describe);
@@ -92,8 +119,8 @@ void json_emv(nlohmann::json& object, const cli_presentation_t& presentation,
     if (info.has_description) object["description"] = info.description;
 }
 
-// Adds the "decoded" or "decode_error" field to a --json element object, or
-// neither for a tag/value kind with no codec.
+// Adds the "decoded" or "decode_error" field to a --output json element
+// object, or neither for a tag/value kind with no codec.
 void json_decode(nlohmann::json& object, const cli_presentation_t& presentation,
                  const tlv_view_t* view, size_t depth) {
     const cli::decode_result result = cli::decode_emv_value(presentation.contexts[depth], view);
@@ -110,20 +137,22 @@ tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth, size_t of
     int               indefinite = out->ber && out->data[offset + view->tag.size] == 0x80;
     cli_presentation_visit(&out->presentation, view, depth, indefinite);
     if (!out->options->tree && depth) return TLV_VISIT_CONTINUE;
-    if (out->options->json) {
+    if (is_json(*out->options)) {
         nlohmann::json object;
         object["offset"] = offset;
         object["tag"] = hex_string(view->tag.data, view->tag.size);
         object["length"] = (uint64_t)view->value.length;
-        if (out->options->tree) object["depth"] = depth;
         if (indefinite) object["indefinite"] = true;
         object["value"] = hex_string(view->value.data, (size_t)view->value.length);
         if (out->options->profile) {
             json_emv(object, out->presentation, view, depth, out->options->describe);
             if (out->options->decode) json_decode(object, out->presentation, view, depth);
         }
-        std::cout << object.dump() << "\n";
-        return std::cout ? TLV_VISIT_CONTINUE : TLV_VISIT_ERROR;
+        // Attach any elements deeper than this one to their parent first,
+        // since their subtrees are now known to be finished.
+        json_flush(*out, depth);
+        out->json_stack.push_back(std::move(object));
+        return TLV_VISIT_CONTINUE;
     }
     if (out->options->pretty)
         cli_presentation_prefix(&out->presentation, depth);
@@ -197,15 +226,14 @@ tlv_result_t walk_pdol(const uint8_t* data, size_t size, const tlv_reader_format
         /* Annotation uses only the tag, never a requested length as a value view. */
         entry.value.data = NULL;
         entry.value.length = 0;
-        if (output->options->json) {
+        if (is_json(*output->options)) {
             nlohmann::json object;
             object["offset"] = start;
             object["tag"] = hex_string(entry.tag.data, entry.tag.size);
             object["requested_length"] = requested;
             if (output->options->profile)
                 json_emv(object, output->presentation, &entry, 0, output->options->describe);
-            std::cout << object.dump() << "\n";
-            if (!std::cout) return TLV_ERR_VISITOR;
+            output->json_root.push_back(std::move(object));
             continue;
         }
         std::cout << "offset=" << start << " tag=";
@@ -293,6 +321,12 @@ int execute(const options& o, const uint8_t* data, size_t size) {
             },
             &error_offset);
         result = walked ? TLV_OK : walked.error().code;
+    }
+    if (is_json(o)) {
+        json_flush(output, 0);
+        nlohmann::json document;
+        document["elements"] = std::move(output.json_root);
+        std::cout << document.dump() << "\n";
     }
     cli_presentation_restore(&output.presentation);
     int rc = flush_stdout();
