@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `--decode` and `--json` to the `otlv` CLI: `--decode` decodes known EMV tag values through the existing codec layer into human-readable text (`decoded="..."`, or `decode-error="..."` on a codec failure), and `--json` prints one JSON object per element instead of the key=value text format, using the newly vendored [nlohmann/json](https://github.com/nlohmann/json). Both compose with `--profile emv`, `--describe`, and `--pdol`. (#166)
 - Add `tlv_emv_child_context` to `tlv/profiles/emv.h`, moving the EMV nested-template context lookup out of the `otlv` CLI's presentation code and into the core library, with unit test coverage across every `TLV_TAG_CAPACITY` variant. (#163)
 
 ### Changed

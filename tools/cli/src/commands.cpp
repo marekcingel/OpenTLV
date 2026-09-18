@@ -3,7 +3,9 @@
 #include <iomanip>
 #include <ios>
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include "console_color.hpp"
+#include "decode.hpp"
 #include "diagnostics.hpp"
 #include "presentation.hpp"
 #include "tlv/config.h"
@@ -69,6 +71,38 @@ void print_tag(const tlv_tag_t& tag, bool color) {
     print_hex(tag.data, tag.size);
 }
 
+// Same encoding as print_hex, built as a string instead of streamed, for
+// --json's field values (which are never color-wrapped).
+std::string hex_string(const uint8_t* data, size_t length) {
+    static const char digits[] = "0123456789ABCDEF";
+    std::string       result(length * 2, '0');
+    for (size_t i = 0; i < length; ++i) {
+        result[i * 2] = digits[data[i] >> 4];
+        result[i * 2 + 1] = digits[data[i] & 0xF];
+    }
+    return result;
+}
+
+// Adds the "name" and, if requested, "description" EMV dictionary fields to
+// a --json element object, from the same lookup the text renderer uses.
+void json_emv(nlohmann::json& object, const cli_presentation_t& presentation,
+              const tlv_view_t* view, size_t depth, int describe) {
+    const cli_emv_info info = cli_presentation_emv_info(&presentation, view, depth, describe);
+    object["name"] = info.known ? info.name : "Unknown EMV tag in this context";
+    if (info.has_description) object["description"] = info.description;
+}
+
+// Adds the "decoded" or "decode_error" field to a --json element object, or
+// neither for a tag/value kind with no codec.
+void json_decode(nlohmann::json& object, const cli_presentation_t& presentation,
+                 const tlv_view_t* view, size_t depth) {
+    const cli::decode_result result = cli::decode_emv_value(presentation.contexts[depth], view);
+    if (result.status == cli::decode_status::ok)
+        object["decoded"] = result.text;
+    else if (result.status == cli::decode_status::error)
+        object["decode_error"] = result.text;
+}
+
 tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth, size_t offset,
                                  void* context) {
     output_context_t* out = (output_context_t*)context;
@@ -76,6 +110,21 @@ tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth, size_t of
     int               indefinite = out->ber && out->data[offset + view->tag.size] == 0x80;
     cli_presentation_visit(&out->presentation, view, depth, indefinite);
     if (!out->options->tree && depth) return TLV_VISIT_CONTINUE;
+    if (out->options->json) {
+        nlohmann::json object;
+        object["offset"] = offset;
+        object["tag"] = hex_string(view->tag.data, view->tag.size);
+        object["length"] = (uint64_t)view->value.length;
+        if (out->options->tree) object["depth"] = depth;
+        if (indefinite) object["indefinite"] = true;
+        object["value"] = hex_string(view->value.data, (size_t)view->value.length);
+        if (out->options->profile) {
+            json_emv(object, out->presentation, view, depth, out->options->describe);
+            if (out->options->decode) json_decode(object, out->presentation, view, depth);
+        }
+        std::cout << object.dump() << "\n";
+        return std::cout ? TLV_VISIT_CONTINUE : TLV_VISIT_ERROR;
+    }
     if (out->options->pretty)
         cli_presentation_prefix(&out->presentation, depth);
     else
@@ -86,8 +135,17 @@ tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth, size_t of
     if (indefinite) std::cout << " encoding=indefinite";
     std::cout << " value=";
     print_hex(view->value.data, (size_t)view->value.length);
-    if (out->options->profile)
+    if (out->options->profile) {
         cli_presentation_emv(&out->presentation, view, depth, out->options->describe);
+        if (out->options->decode) {
+            const cli::decode_result result =
+                cli::decode_emv_value(out->presentation.contexts[depth], view);
+            if (result.status == cli::decode_status::ok)
+                std::cout << " decoded=\"" << result.text << '"';
+            else if (result.status == cli::decode_status::error)
+                std::cout << " decode-error=\"" << result.text << '"';
+        }
+    }
     std::cout << "\n";
     return std::cout ? TLV_VISIT_CONTINUE : TLV_VISIT_ERROR;
 }
@@ -136,12 +194,23 @@ tlv_result_t walk_pdol(const uint8_t* data, size_t size, const tlv_reader_format
         requested = data[pos++];
         ++count;
         if (strcmp(output->options->command, "dump")) continue;
-        std::cout << "offset=" << start << " tag=";
-        print_tag(entry.tag, output->presentation.color != 0);
-        std::cout << " requested-length=" << requested;
         /* Annotation uses only the tag, never a requested length as a value view. */
         entry.value.data = NULL;
         entry.value.length = 0;
+        if (output->options->json) {
+            nlohmann::json object;
+            object["offset"] = start;
+            object["tag"] = hex_string(entry.tag.data, entry.tag.size);
+            object["requested_length"] = requested;
+            if (output->options->profile)
+                json_emv(object, output->presentation, &entry, 0, output->options->describe);
+            std::cout << object.dump() << "\n";
+            if (!std::cout) return TLV_ERR_VISITOR;
+            continue;
+        }
+        std::cout << "offset=" << start << " tag=";
+        print_tag(entry.tag, output->presentation.color != 0);
+        std::cout << " requested-length=" << requested;
         if (output->options->profile)
             cli_presentation_emv(&output->presentation, &entry, 0, output->options->describe);
         std::cout << "\n";

@@ -1,6 +1,7 @@
 set(HEADERS
     src/commands.hpp
     src/console_color.hpp
+    src/decode.hpp
     src/diagnostics.hpp
     src/input.hpp
     src/options.hpp
@@ -9,6 +10,7 @@ set(HEADERS
 
 set(SOURCES
     src/commands.cpp
+    src/decode.cpp
     src/input.cpp
     src/main.cpp
     src/options.cpp
@@ -25,7 +27,18 @@ target_include_directories(otlv
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(otlv PRIVATE tlv++)
+# Header-only, fetched only for the CLI: --json output (tools/cli/src/commands.cpp)
+# is the sole nlohmann/json consumer. tlv and tlv++ remain dependency-free.
+include(FetchContent)
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+)
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+FetchContent_MakeAvailable(nlohmann_json)
+
+target_link_libraries(otlv PRIVATE tlv++ nlohmann_json::nlohmann_json)
 target_compile_features(otlv PRIVATE cxx_std_11)
 opentlv_configure_compiler(otlv)
 opentlv_copy_shared_runtime(otlv)

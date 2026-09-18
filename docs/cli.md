@@ -22,6 +22,9 @@ and requires `OPENTLV_BUILD_CXX=ON` (also the default); a C-only build
 (`OPENTLV_BUILD_CXX=OFF`) silently skips the CLI instead of failing.
 `OPENTLV_BUILD_CLI_TESTS` initially defaults to `OPENTLV_BUILD_TESTS`; CLI
 tests use CMake only and can run with library unit/integration tests disabled.
+Building the CLI fetches [nlohmann/json](https://github.com/nlohmann/json)
+(header-only, used for `--json` output) via CMake `FetchContent`; the `tlv`
+and `tlv++` libraries themselves remain dependency-free.
 
 ## Commands
 
@@ -35,6 +38,8 @@ otlv validate --format der --input sample.der
 otlv validate --format ber --input -
 otlv dump --format ber --profile emv --hex "6F0784050102030405" --pretty --describe
 otlv dump --format ber --input capture.hex --input-encoding hex
+otlv dump --format ber --profile emv --decode --hex "9F0206000000001000"
+otlv dump --format ber --profile emv --decode --json --hex "9F0206000000001000"
 ```
 
 `dump` and `validate` require an explicit `--format` and exactly one input
@@ -111,9 +116,51 @@ ordinary EMV tags. Primitive BER values remain opaque, including EMV elements
 that describe embedded structures. A standalone context-specific fragment has
 no enclosing context and begins in the base dictionary.
 
-The EMV profile must be compiled in. `--profile`, `--describe`, and color flags
-are dump-only options; `--describe` requires `--profile emv`. EMV annotations
-require BER.
+The EMV profile must be compiled in. `--profile`, `--describe`, `--decode`,
+`--json`, and color flags are dump-only options; `--describe` and `--decode`
+require `--profile emv`. EMV annotations require BER.
+
+### Value decoding
+
+`--decode` additionally decodes each known tag's value through the OpenTLV
+codec layer (`tlv/codec/`) and appends it as `decoded="..."`, for example:
+
+```text
+offset=0 tag=9F02 length=6 value=000000001000 name="Amount, Authorised" decoded="1000"
+```
+
+The raw `value=` field is always present; decoding never replaces it. Only
+tags with a dictionary entry and a registered codec are decoded - an unknown
+tag, or a known tag whose value kind carries no codec (raw bytes, text, or a
+template), is left with no `decoded` field and is not treated as an error. A
+value that fails to decode (wrong length, invalid BCD, an undefined enum
+value, and so on) instead reports `decode-error="..."`, drawn from the
+codec's own diagnostic; the element itself is still printed, and the command
+does not fail because of it.
+
+Decoded output favors the codec's own C representation over further
+interpretation: numeric fields (including currency amounts, which the codec
+returns as unscaled minor units - see `tlv/codec/emv.h`) print as a plain
+decimal integer, bit flags print as hexadecimal, dates/times print as
+`YYYY-MM-DD`/`HH:MM:SS` (the century of a date is assumed, as the dictionary
+value itself does not carry one), and enumerated or composite kinds (account
+type, cryptogram information, biometric type, AFL, CVM Results, Track 2) print
+a short label or a compact field list. `--decode` cannot be combined with
+`--pdol`, since a DOL entry carries a requested length, not a value.
+
+### JSON output
+
+`--json` prints one JSON object per line instead of the key=value text above,
+carrying the same information under stable field names (`offset`, `tag`,
+`length`, `depth` when `--tree` is set, `indefinite` when true, `value`,
+`name`, `description`, `decoded`, `decode_error`) and, for `--pdol`,
+(`offset`, `tag`, `requested_length`, `name`). Fields that do not apply to an
+element (an unset `--describe` description, an undecoded value, and so on)
+are simply omitted rather than set to `null`. Each line is independently
+valid JSON; the command's output as a whole is not wrapped in an enclosing
+array, matching the partial-output-on-failure behavior described above.
+`--pretty`'s graphical tree connectors are a text-mode presentation only;
+under `--json`, nesting is conveyed by the `depth` field instead.
 
 ### PDOL / DOL inspection
 
@@ -181,5 +228,5 @@ fields. Offsets do not promise the exact corrupted byte.
 | 2 | Invalid command, option, hex input, or unavailable format |
 | 3 | I/O failure, allocation failure, or exceeded resource limit |
 
-Encoding, JSON, EMV semantic validation, recovery scanning, and prebuilt release
+Encoding, EMV semantic validation, recovery scanning, and prebuilt release
 binaries are outside this initial CLI scope.

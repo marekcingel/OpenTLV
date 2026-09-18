@@ -61,6 +61,10 @@ int options::parse(int argc, char** argv) {
             bit = 4096;
         else if (!strcmp(arg, "--pdol"))
             bit = 8192;
+        else if (!strcmp(arg, "--decode"))
+            bit = 16384;
+        else if (!strcmp(arg, "--json"))
+            bit = 32768;
         else
             return fail(2, "unknown option; use --help");
         if (seen & bit) return fail(2, "duplicate option");
@@ -71,6 +75,14 @@ int options::parse(int argc, char** argv) {
         }
         if (bit == 8192) {
             pdol = 1;
+            continue;
+        }
+        if (bit == 16384) {
+            decode = 1;
+            continue;
+        }
+        if (bit == 32768) {
+            json = 1;
             continue;
         }
         if (bit == 128) {
@@ -107,13 +119,14 @@ int options::parse(int argc, char** argv) {
         return fail(2, "specify --format and exactly one of --input or --hex");
     if (max_depth > TLV_WALK_MAX_DEPTH) return fail(2, "maximum depth must be in 0..64");
     if (tree && strcmp(command, "dump")) return fail(2, "--tree requires dump");
-    if (pdol && (strcmp(format, "ber") || tree))
-        return fail(2, "--pdol requires --format ber and cannot use --tree or --pretty");
+    if (pdol && (strcmp(format, "ber") || tree || decode))
+        return fail(2, "--pdol requires --format ber and cannot use --tree, --pretty, or --decode");
     if ((seen & 512) && (seen & 1024)) return fail(2, "conflicting color options");
     if ((seen & 4096) && !input) return fail(2, "--input-encoding requires --input");
-    if ((profile || describe || color) && strcmp(command, "dump"))
+    if ((profile || describe || color || decode || json) && strcmp(command, "dump"))
         return fail(2, "presentation options require dump");
     if (describe && !profile) return fail(2, "--describe requires --profile emv");
+    if (decode && !profile) return fail(2, "--decode requires --profile emv");
     if (profile) {
         if (strcmp(profile, "emv")) return fail(2, "unknown profile");
         if (strcmp(format, "ber")) return fail(2, "EMV annotations require --format ber");
@@ -135,6 +148,8 @@ void options::usage() {
                  "  --pretty               Print a graphical UTF-8 tree (implies --tree)\n"
                  "  --profile emv          Annotate BER tags using the EMV dictionary\n"
                  "  --describe             Include EMV type and length descriptions\n"
+                 "  --decode               Decode known EMV values (requires --profile emv)\n"
+                 "  --json                 Print one JSON object per element instead of text\n"
                  "  --input-encoding NAME  binary (default) or hex, for --input\n"
                  "  --force-color          Emit ANSI colors even when redirected\n"
                  "  --no-color             Disable colors (default: auto for terminals)\n"

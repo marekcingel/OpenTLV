@@ -1,6 +1,7 @@
 #include "presentation.hpp"
 #include "tlv/config.h"
 #include <iostream>
+#include <sstream>
 #include <stdlib.h>
 #include <string.h>
 #ifdef _WIN32
@@ -90,39 +91,35 @@ void cli_presentation_prefix(const cli_presentation_t* p, size_t depth) {
 /* Presentation-only wrapper: falls back to a generic title-cased label when
  * the symbol has no curated one. Tag matching, value types and bounds come
  * from tlv itself (tlv_emv_display_label/tlv_emv_titlecase_name). */
-static void display_name(const char* name) {
+static std::string display_name(const char* name) {
     char        titlecased[128];
     const char* label = tlv_emv_display_label(name);
-    if (label) {
-        std::cout << label;
-        return;
-    }
-    if (tlv_emv_titlecase_name(name, titlecased, sizeof(titlecased)) == TLV_OK)
-        std::cout << titlecased;
-    else
-        std::cout << name;
+    if (label) return label;
+    if (tlv_emv_titlecase_name(name, titlecased, sizeof(titlecased)) == TLV_OK) return titlecased;
+    return name;
 }
 #endif
 
-void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, size_t depth,
-                          int describe) {
+cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_view_t* view,
+                                       size_t depth, int describe) {
+    cli_emv_info info;
 #if OPENTLV_PROFILE_EMV
     const tlv_emv_definition_t* definition =
         tlv_emv_find((tlv_emv_context_t)p->contexts[depth], &view->tag);
-    std::cout << " name=\"";
-    if (definition)
-        display_name(definition->name);
-    else
-        std::cout << "Unknown EMV tag in this context";
-    std::cout << '"';
-    if (describe && definition) {
-        std::cout << " description=\"" << tlv_emv_value_kind_description(definition->value_kind)
-                  << "; dictionary length: " << definition->schema->min_length;
+    if (!definition) return info;
+    info.known = true;
+    info.name = display_name(definition->name);
+    if (describe) {
+        std::ostringstream description;
+        description << tlv_emv_value_kind_description(definition->value_kind)
+                    << "; dictionary length: " << definition->schema->min_length;
         if (definition->schema->max_length == SIZE_MAX)
-            std::cout << "..unbounded";
+            description << "..unbounded";
         else if (definition->schema->max_length != definition->schema->min_length)
-            std::cout << ".." << definition->schema->max_length;
-        std::cout << " bytes; step: " << definition->length_step << '"';
+            description << ".." << definition->schema->max_length;
+        description << " bytes; step: " << definition->length_step;
+        info.has_description = true;
+        info.description = description.str();
     }
 #else
     (void)p;
@@ -130,4 +127,12 @@ void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, s
     (void)depth;
     (void)describe;
 #endif
+    return info;
+}
+
+void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, size_t depth,
+                          int describe) {
+    const cli_emv_info info = cli_presentation_emv_info(p, view, depth, describe);
+    std::cout << " name=\"" << (info.known ? info.name : "Unknown EMV tag in this context") << '"';
+    if (info.has_description) std::cout << " description=\"" << info.description << '"';
 }
