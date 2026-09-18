@@ -1,6 +1,19 @@
 #ifndef OPENTLV_CLI_PRESENTATION_H
 #define OPENTLV_CLI_PRESENTATION_H
+#include <string>
 #include "tlv/reader/walker.h"
+
+// Structured EMV dictionary metadata for one element, shared by the text
+// renderer (cli_presentation_emv, below) and the CLI's JSON output so both
+// present the same lookup without duplicating it. `known` is false for a tag
+// with no dictionary entry in the element's context, in which case `name`
+// and `description` are unset.
+struct cli_emv_info {
+    bool        known = false;
+    std::string name;
+    bool        has_description = false;
+    std::string description;
+};
 
 typedef struct cli_presentation {
     const uint8_t* data;
@@ -21,4 +34,6 @@ void cli_presentation_visit(cli_presentation_t* p, const tlv_view_t* view, size_
 void cli_presentation_prefix(const cli_presentation_t* p, size_t depth);
 void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, size_t depth,
                           int describe);
+cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_view_t* view,
+                                       size_t depth, int describe);
 #endif
