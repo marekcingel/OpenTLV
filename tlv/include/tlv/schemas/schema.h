@@ -68,11 +68,18 @@ typedef struct tlv_structure_schema {
 
 /* Validate framing, nesting, lengths, occurrence counts and child membership.
  * Never decodes values. All tables are borrowed and immutable during use.
- * Limits and offsets follow tlv_walk_tree; missing required fields report
- * the end of their parent value. Invalid rule tables return TLV_ERR_SCHEMA.
- * Uses bounded stack storage without allocation or recursion. Counts are
- * checked by rescanning each scope per rule: O(rules * rules + elements * rules) per scope.
- * Input and schema errors leave no partial application objects. */
+ * Limits and offsets follow tlv_walk_tree. A missing required field (an
+ * occurrence count below its rule's min_occurs) returns TLV_ERR_SCHEMA_MISSING
+ * with the end of its parent's value as the offset - a scope boundary, not
+ * an element, and one that can coincide with the start of an unrelated
+ * sibling in the enclosing scope. Every other violation (forbidden/unknown
+ * tag, an occurrence count above max_occurs, kind mismatch, an invalid rule
+ * table) returns TLV_ERR_SCHEMA with the offset anchored to the actual
+ * offending element. Length failures retain TLV_ERR_INVALID_LENGTH, also
+ * element-anchored. Uses bounded stack storage without allocation or
+ * recursion. Counts are checked by rescanning each scope per rule:
+ * O(rules * rules + elements * rules) per scope. Input and schema errors
+ * leave no partial application objects. */
 /* is_constructed uses format->context; NULL treats values as opaque. */
 TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                                          const tlv_reader_format_t* format,

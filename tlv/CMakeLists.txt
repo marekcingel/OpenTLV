@@ -63,7 +63,8 @@ if(OPENTLV_FORMAT_CER)
         src/profiles/cer.c src/profiles/cer_values_internal.c)
 endif()
 if(OPENTLV_PROFILE_EMV)
-    target_sources(${PROJECT_NAME} PRIVATE src/profiles/emv.c src/codec/emv.c src/profiles/dol.c)
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/profiles/emv.c src/codec/emv.c src/profiles/dol.c src/profiles/emv_schema.c)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

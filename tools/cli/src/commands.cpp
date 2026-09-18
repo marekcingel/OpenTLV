@@ -25,6 +25,9 @@
 #if OPENTLV_FORMAT_DER
 #include "tlv/profiles/der.h"
 #endif
+#if OPENTLV_PROFILE_EMV
+#include "tlv/profiles/emv_schema.h"
+#endif
 
 using cli::fail;
 
@@ -193,6 +196,7 @@ const char* error_name(tlv_result_t rc) {
         ERROR_NAME(TLV_ERR_VISITOR);
         ERROR_NAME(TLV_ERR_LIMIT);
         ERROR_NAME(TLV_ERR_SCHEMA);
+        ERROR_NAME(TLV_ERR_SCHEMA_MISSING);
         ERROR_NAME(TLV_ERR_INVALID_ARG);
         ERROR_NAME(TLV_ERR_INVALID_TAG_SIZE);
         ERROR_NAME(TLV_ERR_INVALID_BYTE_ORDER);
@@ -274,6 +278,10 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     tlv_result_t               result;
     tlv_tree_visitor_t         visitor;
     output_context_t           output;
+    // Set when the diagnostic below reports the separate schema-structure
+    // pass (--profile emv on validate) rather than the format/framing walk,
+    // so the two stay distinguishable in output.
+    bool schema_stage = false;
     // Identity, not the format name string, is the single source of truth for
     // format-specific behavior below (indefinite-length display, --tree
     // support, and DER's own schema-driven walker).
@@ -322,6 +330,22 @@ int execute(const options& o, const uint8_t* data, size_t size) {
             &error_offset);
         result = walked ? TLV_OK : walked.error().code;
     }
+#if OPENTLV_PROFILE_EMV
+    // Schema structure is checked only once the input has already parsed
+    // cleanly, and only for validate: dump's --profile only annotates tags,
+    // and --pdol's raw tag/length pairs are not a TLV structure to check.
+    if (result == TLV_OK && o.profile && !o.pdol && !strcmp(o.command, "validate")) {
+        size_t       schema_offset = error_offset;
+        tlv_result_t schema_result =
+            tlv_schema_validate(data, size, format, predicate, &tlv_emv_structure_schema,
+                                o.max_depth, o.max_elements, &schema_offset);
+        if (schema_result != TLV_OK) {
+            result = schema_result;
+            error_offset = schema_offset;
+            schema_stage = true;
+        }
+    }
+#endif
     if (is_json(o)) {
         json_flush(output, 0);
         nlohmann::json document;
@@ -332,8 +356,20 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     int rc = flush_stdout();
     if (rc) return rc;
     if (result != TLV_OK) {
-        std::cerr << "otlv: " << error_name(result) << " at byte " << error_offset << ": "
-                  << tlv_strerror(result) << "\n";
+        std::cerr << "otlv: " << (schema_stage ? "schema " : "") << error_name(result)
+                  << " at byte " << error_offset;
+        // TLV_ERR_SCHEMA_MISSING's offset is the end of the parent's value
+        // (a scope boundary, not an element) and can coincide with the start
+        // of an unrelated sibling in the enclosing scope, so no tag is
+        // printed for it. Every other result's offset anchors the actual
+        // element, so a tag read there is always accurate.
+        tlv_tag_t tag;
+        size_t    used;
+        if (result != TLV_ERR_SCHEMA_MISSING && error_offset < size &&
+            format->read_tag(format->context, data + error_offset, size - error_offset, &tag,
+                             &used) == TLV_OK)
+            std::cerr << " tag=" << hex_string(tag.data, tag.size);
+        std::cerr << ": " << tlv_strerror(result) << "\n";
         return result == TLV_ERR_LIMIT || result == TLV_ERR_OUT_OF_MEMORY ? 3 : 1;
     }
     return 0;

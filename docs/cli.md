@@ -116,9 +116,11 @@ ordinary EMV tags. Primitive BER values remain opaque, including EMV elements
 that describe embedded structures. A standalone context-specific fragment has
 no enclosing context and begins in the base dictionary.
 
-The EMV profile must be compiled in. `--profile`, `--describe`, `--decode`,
-`--output`, and color flags are dump-only options; `--describe` and `--decode`
-require `--profile emv`. EMV annotations require BER.
+The EMV profile must be compiled in. `--describe`, `--decode`, `--output`, and
+color flags are dump-only options; `--describe` and `--decode` require
+`--profile emv`. `--profile emv` itself is also accepted by `validate`, where
+it selects EMV schema validation instead of annotating output (see below).
+EMV annotations and schema validation both require BER.
 
 ### Value decoding
 
@@ -196,13 +198,39 @@ two bytes fail with offsets. `--tree` and `--pretty` are rejected because a DOL
 is flat; `--max-depth` has no effect. BER must be enabled; the EMV dictionary
 is needed only for optional `--profile emv` annotations.
 
+### EMV schema validation
+
+`validate --format ber --profile emv` additionally checks the parsed input
+against `tlv_emv_structure_schema` (see
+[EMV structural validation](profiles/emv/README.md#structural-validation)):
+mandatory tags, forbidden/unknown tags, duplicate tags, length bounds, and
+required nesting for the FCI Template and GPO Response Message Template
+Format 2. It runs only after the input has parsed as valid BER, only for
+`validate` (`dump --profile emv` only annotates tags), and not with `--pdol`
+(a DOL's tag/length pairs are not a TLV structure to check against a schema).
+A schema violation is reported like any other failure, but prefixed with
+`schema` to keep it distinguishable from a format/framing error. A missing
+mandatory tag reports the distinct `TLV_ERR_SCHEMA_MISSING`, without a `tag=`
+field (its offset is the end of the enclosing element's value, not a tag);
+every other violation reports `TLV_ERR_SCHEMA` with the offending tag:
+
+```sh
+$ otlv validate --format ber --profile emv --hex "6F00"
+otlv: schema TLV_ERR_SCHEMA_MISSING at byte 2: required schema field missing
+```
+
+The exit code contract is unchanged (1 for a schema violation, 3 for an
+exceeded limit). Unmodeled top-level tags, such as the Read Record Template,
+are accepted unchecked; this is not a full EMV transaction or value validator.
+
 ### Validation and limits
 
 `validate` is silent on success. Both commands consume all concatenated
 elements; empty input succeeds and invalid trailing bytes fail. Default and
 fixed-1byte values are opaque. BER uses constructed-tag recognition; DER uses
 the existing structural validator. This does not provide full ASN.1 value
-validation, canonical SET/SET OF ordering, or EMV profile validation.
+validation or canonical SET/SET OF ordering; EMV structural profile
+validation is available via `--profile emv`, above.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
@@ -221,10 +249,16 @@ they are not a wall-clock timeout or incremental streaming interface.
 ## Diagnostics and exit codes
 
 Command output goes to stdout; diagnostics go to stderr. Library failures
-include the symbolic `TLV_ERR_*` name, description, and byte offset. Generic
-traversal reports the failing element; errors resolving an indefinite BER
-container may identify that container. DER can identify individual failing
-fields. Offsets do not promise the exact corrupted byte.
+include the symbolic `TLV_ERR_*` name, description, and byte offset, plus the
+tag at that offset when one is available. Generic traversal reports the
+failing element; errors resolving an indefinite BER container may identify
+that container. DER can identify individual failing fields. Offsets do not
+promise the exact corrupted byte. A `TLV_ERR_SCHEMA_MISSING` failure (a
+missing mandatory tag) never prints a `tag=` field: its offset is the end of
+the enclosing element's value, not a tag, and could otherwise coincide with
+an unrelated sibling at the enclosing scope. An EMV schema violation
+(`validate --profile emv`) is additionally prefixed with `schema` to
+distinguish it from a format/framing error.
 
 | Code | Meaning |
 | --- | --- |
