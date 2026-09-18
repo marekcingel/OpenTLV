@@ -5,6 +5,12 @@ All notable changes to OpenTLV are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Rename the CLI executable and CMake target from `opentlv` to `otlv`, and update its `--help`/`--version` output, [tools/cli/test.cmake](tools/cli/test.cmake), and [docs/cli.md](docs/cli.md) to match. (#162)
+
 ## [0.5.0] - 2026-09-18
 
 ### Fixed

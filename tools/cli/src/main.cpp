@@ -252,7 +252,7 @@ static int run(int argc, char** argv) {
         goto flushed;
     }
     if (argc == 2 && !strcmp(argv[1], "--version")) {
-        printf("opentlv %s\n", tlv_version_string());
+        printf("otlv %s\n", tlv_version_string());
         goto flushed;
     }
     if (argc == 2 && !strcmp(argv[1], "formats")) {
@@ -263,7 +263,7 @@ static int run(int argc, char** argv) {
     rc = o.parse(argc, argv);
     if (rc) return rc;
     format = select_format(o.format);
-    if (!format) return fail(2, "unknown or disabled format; use opentlv formats");
+    if (!format) return fail(2, "unknown or disabled format; use otlv formats");
     structured = !strcmp(o.format, "ber") || !strcmp(o.format, "der");
     if (o.tree && !structured) return fail(2, "--tree supports only BER and DER");
     rc = read_input(&o, &data, &size);
@@ -305,7 +305,7 @@ static int run(int argc, char** argv) {
     cli_presentation_restore(&output.presentation);
     if (fflush(stdout) || ferror(stdout)) return fail(3, "cannot write output");
     if (result != TLV_OK) {
-        fprintf(stderr, "opentlv: %s at byte %zu: %s\n", error_name(result), error_offset,
+        fprintf(stderr, "otlv: %s at byte %zu: %s\n", error_name(result), error_offset,
                 tlv_strerror(result));
         return result == TLV_ERR_LIMIT || result == TLV_ERR_OUT_OF_MEMORY ? 3 : 1;
     }

@@ -1,6 +1,6 @@
 # Command-line tool
 
-The optional `opentlv` executable inspects and structurally validates TLV
+The optional `otlv` executable inspects and structurally validates TLV
 data using the public C library through the `tlv++` wrapper. Building it
 requires a C++11 (or newer) compiler; the underlying library itself remains a
 dependency-free C99 core, so this requirement affects only the CLI target.
@@ -26,15 +26,15 @@ tests use CMake only and can run with library unit/integration tests disabled.
 ## Commands
 
 ```sh
-opentlv --help
-opentlv --version
-opentlv formats
-opentlv dump --format ber --hex "E1 03 5A 01 12" --tree
-opentlv dump --format fixed-1byte --input sample.bin
-opentlv validate --format der --input sample.der
-opentlv validate --format ber --input -
-opentlv dump --format ber --profile emv --hex "6F0784050102030405" --pretty --describe
-opentlv dump --format ber --input capture.hex --input-encoding hex
+otlv --help
+otlv --version
+otlv formats
+otlv dump --format ber --hex "E1 03 5A 01 12" --tree
+otlv dump --format fixed-1byte --input sample.bin
+otlv validate --format der --input sample.der
+otlv validate --format ber --input -
+otlv dump --format ber --profile emv --hex "6F0784050102030405" --pretty --describe
+otlv dump --format ber --input capture.hex --input-encoding hex
 ```
 
 `dump` and `validate` require an explicit `--format` and exactly one input
@@ -120,8 +120,8 @@ require BER.
 Use `--pdol` to read a raw PDOL value as ordered tag/length pairs:
 
 ```sh
-opentlv dump --format ber --pdol --hex "9F02069F1A02" --profile emv
-opentlv validate --format ber --pdol --input pdol.hex --input-encoding hex
+otlv dump --format ber --pdol --hex "9F02069F1A02" --profile emv
+otlv validate --format ber --pdol --input pdol.hex --input-encoding hex
 ```
 
 Without annotations, the output is:

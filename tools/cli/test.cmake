@@ -21,7 +21,7 @@ function(check expected pattern)
 endfunction()
 
 check(0 "Usage:" --help)
-check(0 "opentlv " --version)
+check(0 "otlv " --version)
 check(2 "missing command")
 check(2 "unknown command" unknown)
 check(0 "" formats)

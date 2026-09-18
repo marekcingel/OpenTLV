@@ -12,7 +12,7 @@ option(OPENTLV_BUILD_TESTS "Build tests" ON)
 option(OPENTLV_BUILD_UNIT_TESTS "Build component contract tests" ON)
 option(OPENTLV_BUILD_INTEGRATION_TESTS "Build format and layer integration tests" ON)
 option(OPENTLV_BUILD_EXAMPLES "Build examples" ON)
-option(OPENTLV_BUILD_CLI "Build the opentlv command-line tool" ON)
+option(OPENTLV_BUILD_CLI "Build the otlv command-line tool" ON)
 option(OPENTLV_BUILD_CLI_TESTS "Build dependency-free CLI integration tests" ${OPENTLV_BUILD_TESTS})
 if(OPENTLV_BUILD_CLI AND NOT OPENTLV_BUILD_CXX)
     # The CLI is built on tlv++; a C-only build (OPENTLV_BUILD_CXX=OFF) simply

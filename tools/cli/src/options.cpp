@@ -126,8 +126,8 @@ int options::parse(int argc, char** argv) {
 
 void options::usage() {
     std::puts(
-        "Usage: opentlv dump|validate --format NAME (--input PATH|- | --hex BYTES) [OPTIONS]\n"
-        "       opentlv formats | --help | --version\n"
+        "Usage: otlv dump|validate --format NAME (--input PATH|- | --hex BYTES) [OPTIONS]\n"
+        "       otlv formats | --help | --version\n"
         "Formats: default, fixed-1byte, ber, der (when enabled in this build)\n"
         "Options:\n"
         "  --pdol                 Read raw DOL tag/one-byte-length pairs (BER)\n"
