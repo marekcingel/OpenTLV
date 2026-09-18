@@ -1,8 +1,8 @@
 #include "options.hpp"
 #include "diagnostics.hpp"
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
+#include <iostream>
 #include "tlv/config.h"
 #include "tlv/reader/walker.h"
 
@@ -125,25 +125,26 @@ int options::parse(int argc, char** argv) {
 }
 
 void options::usage() {
-    std::puts(
-        "Usage: otlv dump|validate --format NAME (--input PATH|- | --hex BYTES) [OPTIONS]\n"
-        "       otlv formats | --help | --version\n"
-        "Formats: default, fixed-1byte, ber, der (when enabled in this build)\n"
-        "Options:\n"
-        "  --pdol                 Read raw DOL tag/one-byte-length pairs (BER)\n"
-        "  --tree                 Print nested BER/DER elements (dump only)\n"
-        "  --pretty               Print a graphical UTF-8 tree (implies --tree)\n"
-        "  --profile emv          Annotate BER tags using the EMV dictionary\n"
-        "  --describe             Include EMV type and length descriptions\n"
-        "  --input-encoding NAME  binary (default) or hex, for --input\n"
-        "  --force-color          Emit ANSI colors even when redirected\n"
-        "  --no-color             Disable colors (default: auto for terminals)\n"
-        "  --max-input-size N     Maximum input bytes (default 16777216)\n"
-        "  --max-depth N          Maximum child depth, 0..64 (default 64)\n"
-        "  --max-elements N       Maximum visited elements (default 100000)\n"
-        "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"
-        "Validation accepts empty input and checks all concatenated elements.\n"
-        "Exit codes: 0 success, 1 invalid TLV, 2 invalid usage/hex/format, 3 I/O/resource error.");
+    std::cout << "Usage: otlv dump|validate --format NAME (--input PATH|- | --hex BYTES) "
+                 "[OPTIONS]\n"
+                 "       otlv formats | --help | --version\n"
+                 "Formats: default, fixed-1byte, ber, der (when enabled in this build)\n"
+                 "Options:\n"
+                 "  --pdol                 Read raw DOL tag/one-byte-length pairs (BER)\n"
+                 "  --tree                 Print nested BER/DER elements (dump only)\n"
+                 "  --pretty               Print a graphical UTF-8 tree (implies --tree)\n"
+                 "  --profile emv          Annotate BER tags using the EMV dictionary\n"
+                 "  --describe             Include EMV type and length descriptions\n"
+                 "  --input-encoding NAME  binary (default) or hex, for --input\n"
+                 "  --force-color          Emit ANSI colors even when redirected\n"
+                 "  --no-color             Disable colors (default: auto for terminals)\n"
+                 "  --max-input-size N     Maximum input bytes (default 16777216)\n"
+                 "  --max-depth N          Maximum child depth, 0..64 (default 64)\n"
+                 "  --max-elements N       Maximum visited elements (default 100000)\n"
+                 "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"
+                 "Validation accepts empty input and checks all concatenated elements.\n"
+                 "Exit codes: 0 success, 1 invalid TLV, 2 invalid usage/hex/format, 3 "
+                 "I/O/resource error.\n";
 }
 
 } // namespace cli

@@ -125,6 +125,44 @@ const tlv_schema_t* tlv_emv_schema_for(tlv_emv_context_t context) {
     return context == TLV_EMV_CONTEXT_BASE ? &tlv_emv_schema : &schemas[context];
 }
 
+tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const tlv_tag_t* tag) {
+    unsigned value;
+    if (!tag) return TLV_EMV_CONTEXT_COUNT;
+    value = tag->data[0];
+    if (tag->size == 2)
+        value = (value << 8) | tag->data[1];
+    else if (tag->size != 1)
+        return TLV_EMV_CONTEXT_COUNT;
+#if TLV_TAG_CAPACITY >= 2
+    if (context == TLV_EMV_CONTEXT_BASE || context == TLV_EMV_CONTEXT_BIT_GROUP) {
+        if (value == tlv_emv_tag_biometric_information_template_u64) return TLV_EMV_CONTEXT_BIT;
+    }
+#endif
+    if (context == TLV_EMV_CONTEXT_BASE) {
+#if TLV_TAG_CAPACITY >= 2
+        switch (value) {
+            case tlv_emv_tag_offline_bit_group_template_u64:
+            case tlv_emv_tag_online_bit_group_template_u64: return TLV_EMV_CONTEXT_BIT_GROUP;
+            case tlv_emv_tag_biometric_try_counters_template_u64:
+                return TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS;
+            case tlv_emv_tag_preferred_attempts_template_u64:
+                return TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS;
+            case tlv_emv_tag_biometric_verification_data_template_u64:
+                return TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION;
+            default: break;
+        }
+#endif
+        /* Only known templates inherit BASE, avoiding guesses in proprietary containers. */
+        if (tlv_emv_find(TLV_EMV_CONTEXT_BASE, tag)) return TLV_EMV_CONTEXT_BASE;
+    }
+    if (context == TLV_EMV_CONTEXT_BIT && value == tlv_emv_tag_biometric_header_template_u64)
+        return TLV_EMV_CONTEXT_BHT;
+    if (context == TLV_EMV_CONTEXT_BHT &&
+        (value == tlv_emv_tag_bht1_u64 || value == tlv_emv_tag_bht2_u64))
+        return TLV_EMV_CONTEXT_BHT_FORMAT;
+    return TLV_EMV_CONTEXT_COUNT;
+}
+
 const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context, const tlv_tag_t* tag) {
     const tlv_schema_t* schema = tlv_emv_schema_for(context);
     const tlv_schema_entry_t* entry = tlv_schema_find(schema, tag);

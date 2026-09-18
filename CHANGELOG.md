@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `tlv_emv_child_context` to `tlv/profiles/emv.h`, moving the EMV nested-template context lookup out of the `otlv` CLI's presentation code and into the core library. (#163)
+
 ### Changed
 
+- Split the `otlv` CLI's `main.cpp` into dedicated `input.cpp` (input/hex loading), `commands.cpp` (command dispatch and TLV walking), and a new `console_color.hpp` RAII helper, and convert its own input/output from C stdio to C++ iostreams. Also fixes a stale `opentlv:` diagnostic prefix left over from the CLI's rename to `otlv`. No CLI behavior or exit-code changes. (#163)
 - Rename the CLI executable and CMake target from `opentlv` to `otlv`, and update its `--help`/`--version` output, [tools/cli/test.cmake](tools/cli/test.cmake), and [docs/cli.md](docs/cli.md) to match. (#162)
 
 ## [0.5.0] - 2026-09-18

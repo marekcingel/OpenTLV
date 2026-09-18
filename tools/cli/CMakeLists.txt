@@ -1,10 +1,15 @@
 set(HEADERS
+    src/commands.hpp
+    src/console_color.hpp
     src/diagnostics.hpp
+    src/input.hpp
     src/options.hpp
     src/presentation.hpp
 )
 
 set(SOURCES
+    src/commands.cpp
+    src/input.cpp
     src/main.cpp
     src/options.cpp
     src/presentation.cpp
