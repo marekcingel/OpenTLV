@@ -129,10 +129,14 @@ tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const tlv_tag
     unsigned value;
     if (!tag) return TLV_EMV_CONTEXT_COUNT;
     value = tag->data[0];
+#if TLV_TAG_CAPACITY >= 2
     if (tag->size == 2)
         value = (value << 8) | tag->data[1];
     else if (tag->size != 1)
         return TLV_EMV_CONTEXT_COUNT;
+#else
+    if (tag->size != 1) return TLV_EMV_CONTEXT_COUNT;
+#endif
 #if TLV_TAG_CAPACITY >= 2
     if (context == TLV_EMV_CONTEXT_BASE || context == TLV_EMV_CONTEXT_BIT_GROUP) {
         if (value == tlv_emv_tag_biometric_information_template_u64) return TLV_EMV_CONTEXT_BIT;

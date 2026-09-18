@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix a `-Werror -Warray-bounds` compile failure in the new `tlv_emv_child_context` (`tlv/profiles/emv.h`, below) under `TLV_TAG_CAPACITY=1`: composing a two-byte tag value read `tag->data[1]` unconditionally, which Clang flags as provably out-of-bounds when `data` is declared `uint8_t[1]`. Guarded under `#if TLV_TAG_CAPACITY >= 2`, matching the function's other two-byte-tag paths, and covered by a new regression test exercising the oversized-tag shape at capacity 1. (#163)
+
 ### Added
 
-- Add `tlv_emv_child_context` to `tlv/profiles/emv.h`, moving the EMV nested-template context lookup out of the `otlv` CLI's presentation code and into the core library. (#163)
+- Add `tlv_emv_child_context` to `tlv/profiles/emv.h`, moving the EMV nested-template context lookup out of the `otlv` CLI's presentation code and into the core library, with unit test coverage across every `TLV_TAG_CAPACITY` variant. (#163)
 
 ### Changed
 
