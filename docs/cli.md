@@ -41,6 +41,7 @@ otlv dump --format ber --input capture.hex --input-encoding hex
 otlv dump --format ber --profile emv --decode --hex "9F0206000000001000"
 otlv dump --format ber --profile emv --decode --output json --hex "9F0206000000001000"
 otlv validate --format ber --profile emv --input input.bin
+otlv encode --format ber --tag 9F02 --value 000000001000
 ```
 
 `dump` and `validate` require an explicit `--format` and exactly one input
@@ -169,6 +170,37 @@ have no effect on `--output json`. A malformed input may still produce a
 document containing the elements parsed before the failure, matching the
 partial-output-on-failure behavior described above; the diagnostic itself is
 always reported separately, on stderr.
+
+### Encoding
+
+`encode` writes one TLV element with the OpenTLV writer for the format chosen
+by `--format`, so the format alone determines the tag and length encoding:
+
+```sh
+otlv encode --format ber --tag 9F02 --value 000000001000
+```
+
+```text
+9F0206000000001000
+```
+
+`--format` and `--tag` are required; `--value` is optional and defaults to an
+empty value. `--tag` and `--value` use the same hex syntax as `--hex`
+(case-insensitive, complete byte pairs, optional whitespace between pairs).
+`--value` is limited by `--max-input-size`; a tag longer than the library's
+tag capacity is rejected. Output is uppercase hex followed by a newline by
+default; `--output-encoding binary` writes the raw encoded bytes with no
+newline, including on Windows. Either output can be read back with `otlv dump`
+(`--input -`, plus `--input-encoding hex` for the hex form).
+
+The writer validates the tag and length before anything is printed, so a
+rejected element produces no output. Malformed hex, unknown or disabled
+formats, and options other than `--format`, `--tag`, `--value`,
+`--output-encoding`, and `--max-input-size` exit with code 2. An element the
+format cannot encode (an invalid BER tag, or a value too long for
+`fixed-1byte`) reports `otlv: cannot encode element N: <reason>` and exits
+with code 1. Internally, encoding runs over a list of element specs, so
+structured multi-element input can be added as another source for that list.
 
 ### PDOL / DOL inspection
 
