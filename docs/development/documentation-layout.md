@@ -42,6 +42,16 @@ pages link back to the guides through the `@docs` Doxygen alias. Generate the
 references before `mkdocs build`; see
 [CONTRIBUTING.md](../../CONTRIBUTING.md#generate-the-c-api-reference).
 
+## Versioned documentation
+
+The site is published per release: `latest` is the development documentation
+built from `develop`, and each released `X.Y` is built from its release tag and
+stays available after later releases. Write pages for the current sources; do
+not copy the documentation tree or add version-specific pages by hand. Links
+that leave `docs/` point at the source of the same version. See
+[CONTRIBUTING.md](../../CONTRIBUTING.md#publishing) for how versions are
+published.
+
 ## Executable examples
 
 Important examples (introductory C and C++ usage) are compiled sources under

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{#- Development builds (see extra.docs_channel in mkdocs.yml) say so on every
+    page; released versions carry no banner. -#}
+{% block announce %}
+  {% if config.extra.docs_channel == "development" %}
+    This is the <strong>development</strong> documentation. It may describe
+    changes that are not part of any release; use the version selector in the
+    header for released versions.
+  {% endif %}
+{% endblock %}

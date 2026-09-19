@@ -1,12 +1,19 @@
 name: Documentation
 
 # Pull requests validate the documentation: Markdown lint, the generated C and
-# C++ API references and a strict site build that includes them. A push to main (the publication branch) validates, builds and deploys
-# the site to GitHub Pages. The generated site is uploaded as a workflow
-# artifact and never committed.
+# C++ API references and a strict site build that includes them. Publishing is
+# versioned with mike, which keeps every version as a directory on the
+# gh-pages branch:
+#   - a push to develop publishes the development documentation as "latest";
+#   - a release tag X.Y.Z publishes version "X.Y" (built from that tag, so it
+#     matches the released sources) with the alias "stable", and makes "stable"
+#     the default the site root redirects to.
+# Published versions are never rebuilt or removed by later releases. Tags are
+# expected in ascending order: the latest pushed release tag becomes "stable".
 on:
   push:
-    branches: [main]
+    branches: [develop]
+    tags: ['[0-9]*.[0-9]*.[0-9]*', '!*-*']
   pull_request:
     branches: [main, develop]
   workflow_dispatch:
@@ -15,7 +22,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: docs-${{ github.event_name == 'pull_request' && github.ref || 'pages' }}
+  group: docs-${{ github.event_name == 'pull_request' && github.ref || 'publish' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -91,24 +98,61 @@ jobs:
       - name: Build site
         run: mkdocs build --strict
 
-      - name: Upload Pages artifact
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-  deploy:
-    name: Deploy to GitHub Pages
+  publish:
+    name: Publish versioned documentation
     needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/'))
     runs-on: ubuntu-24.04
     permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      contents: write
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: pip
+          cache-dependency-path: requirements-docs.txt
+
+      - name: Install documentation dependencies
+        run: pip install -r requirements-docs.txt
+
+      # The references were generated and validated by the build job from this
+      # same commit; mike embeds them through tools/docs/hooks.py.
+      - name: Download API references
+        uses: actions/download-artifact@v5
+        with:
+          name: cxx-api-reference
+          path: api-docs
+
+      - name: Configure git identity for mike
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Publish development documentation
+        if: github.ref == 'refs/heads/develop'
+        env:
+          OPENTLV_API_DOCS_DIR: ${{ github.workspace }}/api-docs
+          OPENTLV_DOCS_CHANNEL: development
+          OPENTLV_DOCS_REF: develop
+        run: |
+          mike deploy --push --title "latest (development)" latest
+          # Until the first release exists, the site root shows latest.
+          if ! mike list stable > /dev/null 2>&1; then
+            mike set-default --push latest
+          fi
+
+      - name: Publish release documentation
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          OPENTLV_API_DOCS_DIR: ${{ github.workspace }}/api-docs
+          OPENTLV_DOCS_CHANNEL: release
+          OPENTLV_DOCS_REF: ${{ github.ref_name }}
+        run: |
+          version="$(echo "$GITHUB_REF_NAME" | cut -d. -f1,2)"
+          mike deploy --push --update-aliases --title "$version" "$version" stable
+          mike set-default --push stable
