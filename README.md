@@ -27,7 +27,7 @@ can allocate. Applications requiring strictly allocation-free behavior should us
 the C API. Raw TLV reading does not interpret values or validate an entire protocol.
 
 See [choosing a format](docs/formats/README.md#choose-a-format) and
-[memory ownership](docs/memory.md) for practical guidance.
+[memory ownership](docs/guides/memory.md) for practical guidance.
 
 ## Format and profile support
 
@@ -35,7 +35,7 @@ Checked items are implemented; the linked documentation defines their scope.
 Unchecked items have no built-in implementation today. This is a support overview,
 not a commitment to implement every listed format; scheduled work belongs in issues.
 Built-in components are enabled by default and can be selected with
-[CMake options](docs/architecture.md#build-configuration).
+[CMake options](docs/concepts/architecture.md#build-configuration).
 
 - **TLV processing**
   - [x] Primitive values
@@ -88,13 +88,13 @@ Tree traversal visits borrowed values without building an allocated object tree.
 For definite-length containers, the value length covers the complete child
 encodings; indefinite BER containers use EOC termination. See
 [nested traversal](docs/formats/README.md#nested-traversal),
-[value codecs](docs/codecs.md), and [architecture](docs/architecture.md).
+[value codecs](docs/guides/codecs.md), and [architecture](docs/concepts/architecture.md).
 
-See [format expansion candidates](docs/format-roadmap.md) for references,
+See [format expansion candidates](docs/formats/format-roadmap.md) for references,
 implementation boundaries, and proposed priorities. Scheduled work is tracked
 in [issues](https://github.com/marekcingel/OpenTLV/issues).
 
-See [format trees and byte examples](docs/format-examples.md) for a field-by-field
+See [format trees and byte examples](docs/formats/format-examples.md) for a field-by-field
 view of every implemented format, including nested BER/DER and the EMV profile.
 
 ## Quick start
@@ -139,7 +139,7 @@ cmake -S . -B build -DOPENTLV_BUILD_TESTS=OFF
 cmake --build build --config Release --parallel
 ```
 
-See [getting started](docs/getting-started.md) for linking this example, CMake
+See [getting started](docs/getting-started/README.md) for linking this example, CMake
 integration, C-only builds, and running tests. The [C](examples/tlv/src/basic_usage.c)
 and [C++](examples/tlv++/src/basic_usage.cpp) examples cover more of the API, and
 [examples/emv/src/tag_decoding.c](examples/emv/src/tag_decoding.c) walks a full
@@ -150,18 +150,18 @@ EMV TLV record through tag lookup, length validation, and value decoding.
 An optional command-line tool (built on the `tlv++` wrapper, so it requires a
 C++11+ compiler) supports TLV inspection and structural validation from
 files, stdin, or hexadecimal input. Builds by default (`OPENTLV_BUILD_CLI`);
-see the [CLI guide](docs/cli.md) for commands, build instructions, limits,
+see the [CLI guide](docs/cli/README.md) for commands, build instructions, limits,
 and exit codes.
 
 Start with the [documentation index](docs/README.md), or choose a topic:
 
 | Topic | Guide |
 | --- | --- |
-| Build and integrate | [Getting started](docs/getting-started.md), [distribution archives](docs/getting-started.md#install-and-generate-distribution-archives), [compiler support](docs/compilers.md) |
-| Architecture and API migration | [Layers, component options, and migration](docs/architecture.md) |
-| Read, write, and traverse | [Formats and I/O contracts](docs/formats/README.md), [core types](docs/core-types.md) |
-| Validate and decode | [Schemas](docs/schemas.md), [value codecs](docs/codecs.md), [DER](docs/profiles/der/README.md), [CER](docs/profiles/cer/README.md), [EMV](docs/profiles/emv/README.md) |
-| Copy and recover data | [Copy helpers](docs/copy.md), [recovery scanner](docs/scanner.md), [byte order](docs/endian.md) |
+| Build and integrate | [Getting started](docs/getting-started/README.md), [distribution archives](docs/getting-started/README.md#install-and-generate-distribution-archives), [compiler support](docs/reference/compilers.md) |
+| Architecture and API migration | [Layers, component options, and migration](docs/concepts/architecture.md) |
+| Read, write, and traverse | [Formats and I/O contracts](docs/formats/README.md), [core types](docs/concepts/core-types.md) |
+| Validate and decode | [Schemas](docs/guides/schemas.md), [value codecs](docs/guides/codecs.md), [DER](docs/profiles/der/README.md), [CER](docs/profiles/cer/README.md), [EMV](docs/profiles/emv/README.md) |
+| Copy and recover data | [Copy helpers](docs/guides/copy.md), [recovery scanner](docs/guides/scanner.md), [byte order](docs/concepts/endian.md) |
 
 ## Long-term direction
 

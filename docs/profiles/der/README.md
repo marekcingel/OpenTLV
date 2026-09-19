@@ -171,7 +171,7 @@ type, checking explicit-tag wrapper structure, resolving CHOICE alternatives,
 and enforcing REQUIRED/OPTIONAL/DEFAULT components (including DEFAULT
 omission). This is a fixed, small ASN.1 subset, **not an ASN.1 compiler or an
 unrestricted type system**; a schema is a borrowed, immutable, caller-authored
-static table, similar in spirit to [`tlv/schemas/schema.h`](../../schemas.md)
+static table, similar in spirit to [`tlv/schemas/schema.h`](../../guides/schemas.md)
 but distinct from it: `tlv_structure_schema_t` is format-agnostic and only
 expresses occurrence/membership, while `tlv_der_schema_type_t` is ASN.1-
 specific and expresses DER canonical semantics. A component's underlying

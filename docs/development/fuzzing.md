@@ -59,7 +59,7 @@ exceptions rather than requiring every output to remain unchanged on error.
 ## Run locally
 
 Run from the repository root. Keep discoveries in a writable build directory;
-the checked-in [seed corpus](../tests/fuzz/README.md) is the second corpus path.
+the checked-in [seed corpus](../../tests/fuzz/README.md) is the second corpus path.
 For one target:
 
 ```sh
@@ -96,7 +96,7 @@ With `-runs=0`, libFuzzer replays the seed corpus without a mutation campaign.
 
 ## Reproduce and minimize a finding
 
-The Debug/C++23 job in [Clang Build](../.github/workflows/build-clang.yml) builds
+The Debug/C++23 job in [Clang Build](../../.github/workflows/build-clang.yml) builds
 the C fuzz targets separately in Debug mode after coverage collection. It runs
 each target for approximately 60 seconds, fails on any
 target failure, and uploads per-target logs and reproducing inputs even when

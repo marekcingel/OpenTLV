@@ -1,12 +1,12 @@
 # Getting started
 
-[Back to documentation](README.md)
+[Back to documentation](../README.md)
 
 ## Build from a checkout
 
 Install Git, CMake 3.16+ and GCC, MSVC, or upstream Clang 18+.
 Use CMake 3.20+ for C++23. On Windows, use a Visual Studio developer shell
-when selecting Ninja with MSVC. See [compiler support](compilers.md).
+when selecting Ninja with MSVC. See [compiler support](../reference/compilers.md).
 
 ```sh
 git clone https://github.com/marekcingel/OpenTLV.git
@@ -41,7 +41,7 @@ by adding its directory to `PATH` on Windows or `LD_LIBRARY_PATH`/rpath on Linux
 ## Integrate with CMake
 
 Place the checkout at `external/OpenTLV` in your application. Save the complete
-[C quick-start example](../README.md#quick-start) as `main.c` and use:
+[C quick-start example](../../README.md#quick-start) as `main.c` and use:
 
 ```cmake
 cmake_minimum_required(VERSION 3.16)
@@ -63,7 +63,7 @@ Run `build/tlv_demo` (Ninja/Makefiles), or `build/Release/tlv_demo.exe`
 
 For a C++ application, enable `CXX` in `project`, set `OPENTLV_BUILD_CXX` to `ON`,
 and link `tlv++` instead. This target propagates the C library and include paths.
-See the [C++ example](../examples/tlv++/src/basic_usage.cpp).
+See the [C++ example](../../examples/tlv++/src/basic_usage.cpp).
 
 ## Install and generate distribution archives
 
@@ -134,11 +134,11 @@ cmake -S . -B build-c -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTL
 cmake --build build-c --config Release --parallel
 ```
 
-The [component configuration](architecture.md#build-configuration) lists the
+The [component configuration](../concepts/architecture.md#build-configuration) lists the
 format and profile switches. Keep `OPENTLV_FORMAT_FIXED_1BYTE=ON` for the README
 example. Built-in descriptors are direction-specific: use a `tlv_reader_format_t`
 for reads and a `tlv_writer_format_t` for writes. See
-[format contracts](formats/README.md#generic-interface) and [migration](architecture.md#migration).
+[format contracts](../formats/README.md#generic-interface) and [migration](../concepts/architecture.md#migration).
 
 ## Build and run tests
 
@@ -195,5 +195,5 @@ cmake --build build-tests --config Release --parallel
 ctest --test-dir build-tests -C Release --output-on-failure --no-tests=error
 ```
 
-See [compiler-specific settings](compilers.md) for strict builds. GitHub Actions
+See [compiler-specific settings](../reference/compilers.md) for strict builds. GitHub Actions
 runs build and test jobs for GCC, Clang, and MSVC; the README badges follow `main`.

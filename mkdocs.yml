@@ -53,14 +53,19 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started:
-      - Getting started: getting-started.md
-      - Compilers and build settings: compilers.md
+      - Getting started: getting-started/README.md
   - Concepts:
-      - Architecture: architecture.md
-      - Core types: core-types.md
-      - Borrowed values: value.md
-      - Logical lengths: length.md
-      - Byte order: endian.md
+      - Architecture: concepts/architecture.md
+      - Core types: concepts/core-types.md
+      - Borrowed values: concepts/value.md
+      - Logical lengths: concepts/length.md
+      - Byte order: concepts/endian.md
+  - Guides:
+      - Memory ownership: guides/memory.md
+      - Schemas and length validation: guides/schemas.md
+      - Value codecs: guides/codecs.md
+      - Copy helpers: guides/copy.md
+      - Scanning and recovery: guides/scanner.md
   - Formats:
       - Overview: formats/README.md
       - Default TLV: formats/default/README.md
@@ -69,20 +74,18 @@ nav:
       - DER-TLV: formats/asn1/der.md
       - CER-TLV: formats/asn1/cer.md
       - Custom formats: formats/custom/README.md
-      - Format examples: format-examples.md
-      - Format roadmap: format-roadmap.md
+      - Format examples: formats/format-examples.md
+      - Format roadmap: formats/format-roadmap.md
   - Profiles:
       - DER: profiles/der/README.md
       - CER: profiles/cer/README.md
       - EMV: profiles/emv/README.md
-  - Guides:
-      - Memory ownership: memory.md
-      - Schemas and length validation: schemas.md
-      - Value codecs: codecs.md
-      - Copy helpers: copy.md
-      - Scanning and recovery: scanner.md
   - CLI:
-      - otlv command line: cli.md
+      - otlv command line: cli/README.md
+  - Reference:
+      - Overview: reference/README.md
+      - Compilers and build settings: reference/compilers.md
   - Development:
-      - Fuzzing: fuzzing.md
+      - Where documentation belongs: development/documentation-layout.md
+      - Fuzzing: development/fuzzing.md
       - Logo assets: assets/README.md
