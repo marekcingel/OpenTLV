@@ -9,8 +9,13 @@ extern "C" {
 #endif
 
 /**
- * @file writer.h
+ * @file
+ * @ingroup writer
  * @brief Allocation-free encoding of TLV elements into caller-owned buffers.
+ */
+
+/** @addtogroup writer
+ * @{
  */
 
 /**
@@ -192,5 +197,7 @@ TLV_API size_t tlv_writer_size(const tlv_writer_t* writer);
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_WRITER_H */

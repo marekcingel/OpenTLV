@@ -1,6 +1,12 @@
 #ifndef OPENTLV_TLV_H
 #define OPENTLV_TLV_H
 
+/**
+ * @file
+ * @brief Convenience header for the configured C API.
+ * @ingroup core
+ */
+
 #include "tlv/view.h"
 #include "tlv/length.h"
 #include "tlv/value.h"

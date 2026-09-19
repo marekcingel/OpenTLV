@@ -10,8 +10,13 @@ extern "C" {
 #endif
 
 /**
- * @file codec.h
+ * @file
+ * @ingroup codecs
  * @brief Value codec descriptors for converting raw TLV values to and from C representations.
+ */
+
+/** @addtogroup codecs
+ * @{
  */
 
 /**
@@ -139,5 +144,7 @@ TLV_API const char* tlv_codec_strerror(tlv_codec_result_t result);
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_CODEC_H */

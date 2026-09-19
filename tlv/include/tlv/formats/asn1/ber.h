@@ -11,8 +11,13 @@ extern "C" {
 #endif
 
 /**
- * @file ber.h
+ * @file
+ * @ingroup formats
  * @brief ASN.1 BER reader and writer formats, indefinite-length framing and length codec.
+ */
+
+/** @addtogroup formats
+ * @{
  */
 
 /**
@@ -237,4 +242,6 @@ TLV_API tlv_result_t tlv_ber_length_encode(tlv_length_t value, uint8_t* out, siz
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif

@@ -10,12 +10,17 @@ extern "C" {
 #endif
 
 /**
- * @file cer.h
+ * @file
+ * @ingroup profiles
  * @brief Bounded recursive CER validation, traversal and canonical writing.
  *
  * All functions here are allocation-free and use no C recursion. All limits
  * are inclusive, and zero is a real limit. Passing `NULL` limits selects
  * #tlv_cer_default_limits.
+ */
+
+/** @addtogroup profiles
+ * @{
  */
 
 /**
@@ -272,4 +277,6 @@ TLV_API tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capaci
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif /* OPENTLV_CER_H */

@@ -10,12 +10,17 @@ extern "C" {
 #endif
 
 /**
- * @file der.h
+ * @file
+ * @ingroup profiles
  * @brief Bounded recursive DER validation, traversal and canonical writing.
  *
  * All functions here are allocation-free and use no C recursion. All limits
  * are inclusive, and zero is a real limit. Passing `NULL` limits selects
  * #tlv_der_default_limits.
+ */
+
+/** @addtogroup profiles
+ * @{
  */
 
 /** @brief Maximum `max_depth` accepted in #tlv_der_limits_t. */
@@ -180,4 +185,6 @@ TLV_API tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_ta
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif /* OPENTLV_DER_H */

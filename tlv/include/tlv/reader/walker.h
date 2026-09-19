@@ -9,8 +9,13 @@ extern "C" {
 #endif
 
 /**
- * @file walker.h
+ * @file
+ * @ingroup traversal
  * @brief Visitor-based traversal of sequential and nested TLV elements.
+ */
+
+/** @addtogroup traversal
+ * @{
  */
 
 /** @brief Value a visitor callback returns to control traversal. */
@@ -115,5 +120,7 @@ TLV_API tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size,
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_WALKER_H */

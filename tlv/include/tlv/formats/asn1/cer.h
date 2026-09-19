@@ -10,13 +10,18 @@ extern "C" {
 #endif
 
 /**
- * @file cer.h
+ * @file
+ * @ingroup formats
  * @brief ASN.1 CER reader and writer formats with tag accessors.
  *
  * The tag accessors here have identical semantics to the DER accessors in
  * tlv/formats/asn1/der.h (#tlv_asn1_class_t is shared, declared in
  * tlv/formats/asn1/ber.h). They are duplicated rather than reused from
  * der.h so CER never depends on the DER component being enabled.
+ */
+
+/** @addtogroup formats
+ * @{
  */
 
 /**
@@ -128,4 +133,6 @@ TLV_API int tlv_cer_is_constructed(const void* context, const tlv_tag_t* tag);
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif /* OPENTLV_FORMATS_CER_H */

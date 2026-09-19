@@ -10,8 +10,13 @@ extern "C" {
 #endif
 
 /**
- * @file schema.h
+ * @file
+ * @ingroup schemas
  * @brief Length schemas and structural schemas for validating TLV data.
+ */
+
+/** @addtogroup schemas
+ * @{
  */
 
 /**
@@ -171,5 +176,7 @@ TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_SCHEMA_H */

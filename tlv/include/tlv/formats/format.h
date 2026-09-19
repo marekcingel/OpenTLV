@@ -9,7 +9,8 @@ extern "C" {
 #endif
 
 /**
- * @file format.h
+ * @file
+ * @ingroup formats
  * @brief Reader and writer format descriptors that define a TLV wire encoding.
  *
  * A format is a pair of stateless callback tables (one for reading, one for
@@ -21,6 +22,10 @@ extern "C" {
  * size or capacity they are given. All sizes are in bytes. Tags must fit
  * #TLV_TAG_CAPACITY; unsupported tag sizes return #TLV_ERR_INVALID_TAG_SIZE.
  * Callback errors propagate unchanged through the generic reader and writer.
+ */
+
+/** @addtogroup formats
+ * @{
  */
 
 /**
@@ -231,5 +236,7 @@ typedef int (*tlv_is_constructed_fn)(const void* context, const tlv_tag_t* tag);
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_FORMAT_H */

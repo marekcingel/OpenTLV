@@ -9,8 +9,13 @@ extern "C" {
 #endif
 
 /**
- * @file structure.h
+ * @file
+ * @ingroup codecs
  * @brief Codec bindings between a complete TLV sequence and one application object.
+ */
+
+/** @addtogroup codecs
+ * @{
  */
 
 /**
@@ -123,4 +128,6 @@ TLV_API tlv_codec_result_t tlv_structure_encode(const tlv_structure_codec_t* cod
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif

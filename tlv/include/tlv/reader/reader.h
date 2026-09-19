@@ -9,8 +9,13 @@ extern "C" {
 #endif
 
 /**
- * @file reader.h
+ * @file
+ * @ingroup reader
  * @brief Zero-copy parsing of TLV elements from a caller-owned buffer.
+ */
+
+/** @addtogroup reader
+ * @{
  */
 
 /**
@@ -113,5 +118,7 @@ TLV_API tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_view_t* out_entry
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_READER_H */

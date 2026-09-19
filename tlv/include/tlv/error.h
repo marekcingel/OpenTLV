@@ -8,8 +8,13 @@ extern "C" {
 #endif
 
 /**
- * @file error.h
+ * @file
+ * @ingroup core
  * @brief Result codes shared by every OpenTLV C function that can fail.
+ */
+
+/** @addtogroup core
+ * @{
  */
 
 /**
@@ -84,5 +89,7 @@ TLV_API const char* tlv_strerror(tlv_result_t result);
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_ERROR_H */

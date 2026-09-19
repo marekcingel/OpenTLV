@@ -11,7 +11,8 @@ extern "C" {
 #endif
 
 /**
- * @file dol.h
+ * @file
+ * @ingroup profiles
  * @brief Data Object List (DOL) parsing and construction (EMV Contact Book 3 v4.4, section 5.4).
  *
  * PDOL, CDOL1/CDOL2 and DDOL all share one wire format: a flat sequence of
@@ -29,6 +30,10 @@ extern "C" {
  * but this component itself imposes no such restriction. Each requested
  * length is exactly one raw unsigned byte (0..255): there is no BER long
  * form and no value bytes follow it. No allocation and no recursion are used.
+ */
+
+/** @addtogroup profiles
+ * @{
  */
 
 /**
@@ -221,4 +226,6 @@ TLV_API tlv_result_t tlv_dol_write(const uint8_t* dol, size_t dol_size, uint8_t*
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif /* OPENTLV_PROFILES_DOL_H */

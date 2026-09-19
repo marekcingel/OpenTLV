@@ -11,7 +11,8 @@ extern "C" {
 #endif
 
 /**
- * @file der_schema.h
+ * @file
+ * @ingroup schemas
  * @brief Schema-aware ASN.1 DER validation and encoding.
  *
  * A small, fixed subset of ASN.1 (SEQUENCE, SET, SET OF, CHOICE, UNIVERSAL
@@ -30,6 +31,10 @@ extern "C" {
  * tlv_der_read_strict(): there is no permissive mode, so unresolved CHOICE
  * tags, unsupported universal types and inconsistent schemas are always
  * explicit errors. No allocation and no unbounded C recursion are used.
+ */
+
+/** @addtogroup schemas
+ * @{
  */
 
 /**
@@ -361,4 +366,6 @@ TLV_API tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity,
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif /* OPENTLV_DER_SCHEMA_H */

@@ -32,8 +32,8 @@ The public headers ([tlv/include/tlv](tlv/include/tlv) and
 [tlv++/include/tlv++](tlv++/include/tlv++)) are the authoritative source for
 API contracts and are written as Doxygen comments, so a generated API
 reference can be built from them. Every new or changed public declaration
-follows the conventions below. Doxygen generation itself is not part of the
-build yet; the comments are checked by review and, for the C headers, by the
+follows the conventions below. The C API comments are rendered by
+[Doxygen](#generate-the-c-api-reference) and can also be checked by the
 compiler (see the end of this section).
 
 **Format.** Use `/** ... */` blocks with a leading `@brief` line, a blank line,
@@ -93,6 +93,38 @@ state each of the following explicitly:
 
 To catch malformed comments (for example a `@param` that names a nonexistent
 parameter), build the C headers with Clang's `-Wdocumentation`.
+
+## Generate the C API reference
+
+Install [Doxygen](https://www.doxygen.nl/download.html) 1.9.1 or newer, CMake
+and a C compiler. From the repository root, run:
+
+```sh
+cmake -S . -B build/docs -DOPENTLV_BUILD_DOCS=ON -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+cmake --build build/docs --target c-api-docs
+```
+
+Open `build/docs/docs/c-api/html/index.html`. No library compilation is
+required for this target. `OPENTLV_BUILD_DOCS` defaults to `OFF`, so normal
+builds do not require Doxygen; enabling it requires Doxygen at configure time.
+Generated files stay in the build directory and must not be committed.
+
+The reference covers `tlv/include/tlv` and the generated public configuration
+and version headers. It includes all shipped C formats and profiles, even
+when disabled in the configured library; configuration/version values describe
+that build. Implementation sources and C++ headers are outside the input set.
+The configuration is in [tools/docs/Doxyfile.in](tools/docs/Doxyfile.in).
+
+API groups are defined in [tools/docs/c-api.dox](tools/docs/c-api.dox).
+When adding a public header, use `@file` without a filename (some headers share
+a basename), assign its file documentation with `@ingroup`, and surround its
+declarations with `@addtogroup <group>` / `@{` / `@}` as in existing headers.
+Keep includes outside that group block.
+
+The [Documentation workflow](.github/workflows/docs.yml) generates the same
+reference, treats Doxygen warnings as errors and uploads the HTML as the
+`c-api-reference` artifact. This reference is separate from the MkDocs site;
+website integration and the C++ reference are outside its scope.
 
 ## Pre-commit hooks
 

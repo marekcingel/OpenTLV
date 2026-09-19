@@ -10,12 +10,17 @@ extern "C" {
 #endif
 
 /**
- * @file der.h
+ * @file
+ * @ingroup formats
  * @brief ASN.1 DER reader and writer formats with tag accessors.
  *
  * #tlv_asn1_class_t is declared in tlv/formats/asn1/ber.h: identifier-octet
  * class bits are shared by every ASN.1 encoding-rule profile, not specific to
  * DER.
+ */
+
+/** @addtogroup formats
+ * @{
  */
 
 /**
@@ -106,4 +111,6 @@ TLV_API int tlv_der_is_constructed(const void* context, const tlv_tag_t* tag);
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif

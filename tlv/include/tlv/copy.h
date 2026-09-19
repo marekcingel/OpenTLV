@@ -10,7 +10,8 @@ extern "C" {
 #endif
 
 /**
- * @file copy.h
+ * @file
+ * @ingroup copy
  * @brief Explicit copies of TLV values and encoded elements into caller-owned storage.
  *
  * Every function here copies into caller-owned storage; none allocates or
@@ -28,6 +29,10 @@ extern "C" {
  *   source bytes.
  * - A view whose `value.length` does not fit the current build's `size_t`
  *   returns #TLV_ERR_INVALID_LENGTH before any copying.
+ */
+
+/** @addtogroup copy
+ * @{
  */
 
 /**
@@ -106,5 +111,7 @@ TLV_API tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_writer_form
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_COPY_H */

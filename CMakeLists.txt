@@ -30,6 +30,7 @@ if(OPENTLV_BUILD_CXX)
 endif()
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
 option(OPENTLV_BUILD_FUZZING "Build C API fuzz targets with libFuzzer, ASan and UBSan" OFF)
+option(OPENTLV_BUILD_DOCS "Enable the Doxygen C API reference target" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
 option(OPENTLV_FORMAT_DEFAULT "Include the default wire format" ON)
@@ -53,6 +54,10 @@ include(cmake/cppcheck.cmake)
 opentlv_add_cppcheck_targets()
 
 add_subdirectory(tlv)
+
+if(OPENTLV_BUILD_DOCS)
+    include(cmake/doxygen.cmake)
+endif()
 
 if(OPENTLV_BUILD_FUZZING)
     add_subdirectory(tests/fuzz)

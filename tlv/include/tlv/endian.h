@@ -11,8 +11,13 @@ extern "C" {
 #endif
 
 /**
- * @file endian.h
+ * @file
+ * @ingroup core
  * @brief Byte-order helpers for reading and writing fixed-width unsigned integers.
+ */
+
+/** @addtogroup core
+ * @{
  */
 
 /** @brief Byte order of a multi-byte integer. */
@@ -152,5 +157,7 @@ TLV_API tlv_result_t tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_ENDIAN_H */
