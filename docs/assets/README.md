@@ -6,6 +6,7 @@ these fields into a TLV element. The logo follows the initial project concept.
 - [README SVG with a white background](opentlv.svg)
 - [Light-background SVG](opentlv-light.svg)
 - [Dark-background SVG](opentlv-dark.svg)
+- [Site header mark](logo-mark.svg) (white enclosure, for the blue MkDocs header) and [favicon](favicon.svg), both wordmark-free
 
 The light and dark variants have transparent backgrounds and a `720 x 160`
 view box. The README uses ordinary Markdown image syntax with `opentlv.svg`,
