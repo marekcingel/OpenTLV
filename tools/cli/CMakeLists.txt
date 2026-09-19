@@ -3,6 +3,7 @@ set(HEADERS
     src/console_color.hpp
     src/decode.hpp
     src/diagnostics.hpp
+    src/encode.hpp
     src/input.hpp
     src/options.hpp
     src/presentation.hpp
@@ -11,6 +12,7 @@ set(HEADERS
 set(SOURCES
     src/commands.cpp
     src/decode.cpp
+    src/encode.cpp
     src/input.cpp
     src/main.cpp
     src/options.cpp

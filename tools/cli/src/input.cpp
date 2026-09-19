@@ -29,22 +29,27 @@ int append(std::vector<uint8_t>& data, std::size_t limit, uint8_t byte) {
 
 namespace cli {
 
+int decode_hex(const char* text, std::size_t limit, std::vector<uint8_t>& data) {
+    const unsigned char* p = (const unsigned char*)text;
+    while (*p) {
+        int hi, lo, rc;
+        if (isspace(*p)) {
+            ++p;
+            continue;
+        }
+        hi = nibble(*p++);
+        if (hi < 0 || !*p || (lo = nibble(*p++)) < 0)
+            return fail(2, "hex input requires complete hexadecimal byte pairs");
+        rc = append(data, limit, (uint8_t)(hi * 16 + lo));
+        if (rc) return rc;
+    }
+    return 0;
+}
+
 int read_input(const options& o, std::vector<uint8_t>& data) {
     int rc = 0;
     if (o.hex) {
-        const unsigned char* p = (const unsigned char*)o.hex;
-        while (*p) {
-            int hi, lo;
-            if (isspace(*p)) {
-                ++p;
-                continue;
-            }
-            hi = nibble(*p++);
-            if (hi < 0 || !*p || (lo = nibble(*p++)) < 0)
-                return fail(2, "hex input requires complete hexadecimal byte pairs");
-            rc = append(data, o.max_input, (uint8_t)(hi * 16 + lo));
-            if (rc) return rc;
-        }
+        return decode_hex(o.hex, o.max_input, data);
     } else {
         std::ifstream file;
         std::istream* stream = &std::cin;

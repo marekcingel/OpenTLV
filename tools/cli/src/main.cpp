@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "commands.hpp"
+#include "encode.hpp"
 #include "diagnostics.hpp"
 #include "input.hpp"
 #include "options.hpp"
@@ -28,6 +29,8 @@ static int run(int argc, char** argv) {
     cli::options o;
     int          rc = o.parse(argc, argv);
     if (rc) return rc;
+
+    if (!strcmp(o.command, "encode")) return cli::commands::encode(o);
 
     std::vector<uint8_t> data;
     rc = cli::read_input(o, data);

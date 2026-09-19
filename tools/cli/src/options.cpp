@@ -28,7 +28,9 @@ int options::parse(int argc, char** argv) {
     unsigned seen = 0;
     int      i;
     command = argv[1];
-    if (strcmp(command, "dump") && strcmp(command, "validate"))
+    const unsigned encode_only = 65536 | 131072 | 262144; // --tag, --value, --output-encoding
+    const bool     encoding = argc > 1 && !strcmp(command, "encode");
+    if (strcmp(command, "dump") && strcmp(command, "validate") && !encoding)
         return fail(2, "unknown command; use --help");
     for (i = 2; i < argc; ++i) {
         unsigned    bit;
@@ -65,8 +67,18 @@ int options::parse(int argc, char** argv) {
             bit = 16384;
         else if (!strcmp(arg, "--output"))
             bit = 32768;
+        else if (!strcmp(arg, "--tag"))
+            bit = 65536;
+        else if (!strcmp(arg, "--value"))
+            bit = 131072;
+        else if (!strcmp(arg, "--output-encoding"))
+            bit = 262144;
         else
             return fail(2, "unknown option; use --help");
+        // encode takes only --format, --max-input-size and its own options;
+        // dump/validate never take the encode-only ones.
+        if (encoding ? !(bit & (2 | 16 | encode_only)) : (bit & encode_only))
+            return fail(2, encoding ? "option is not valid for encode" : "option requires encode");
         if (seen & bit) return fail(2, "duplicate option");
         seen |= bit;
         if (bit == 1) {
@@ -102,7 +114,15 @@ int options::parse(int argc, char** argv) {
             hex = argv[i];
         else if (bit == 2048)
             profile = argv[i];
-        else if (bit == 4096) {
+        else if (bit == 65536)
+            tag = argv[i];
+        else if (bit == 131072)
+            value = argv[i];
+        else if (bit == 262144) {
+            if (strcmp(argv[i], "binary") && strcmp(argv[i], "hex"))
+                return fail(2, "output encoding must be binary or hex");
+            binary_output = !strcmp(argv[i], "binary");
+        } else if (bit == 4096) {
             if (strcmp(argv[i], "binary") && strcmp(argv[i], "hex"))
                 return fail(2, "input encoding must be binary or hex");
             hex_input = !strcmp(argv[i], "hex");
@@ -114,6 +134,10 @@ int options::parse(int argc, char** argv) {
                                     : bit == 32 ? &max_depth
                                                 : &max_elements))
             return fail(2, "limits must be nonnegative decimal integers fitting size_t");
+    }
+    if (encoding) {
+        if (!format || !tag) return fail(2, "encode requires --format and --tag");
+        return 0;
     }
     if (!format || (!!input + !!hex) != 1)
         return fail(2, "specify --format and exactly one of --input or --hex");
@@ -140,6 +164,8 @@ int options::parse(int argc, char** argv) {
 void options::usage() {
     std::cout << "Usage: otlv dump|validate --format NAME (--input PATH|- | --hex BYTES) "
                  "[OPTIONS]\n"
+                 "       otlv encode --format NAME --tag HEX [--value HEX] "
+                 "[--output-encoding hex|binary]\n"
                  "       otlv formats | --help | --version\n"
                  "Formats: default, fixed-1byte, ber, der (when enabled in this build)\n"
                  "Options:\n"
@@ -157,12 +183,16 @@ void options::usage() {
                  "  --max-input-size N     Maximum input bytes (default 16777216)\n"
                  "  --max-depth N          Maximum child depth, 0..64 (default 64)\n"
                  "  --max-elements N       Maximum visited elements (default 100000)\n"
+                 "  --tag HEX              encode: tag bytes in wire order\n"
+                 "  --value HEX            encode: value bytes (default: empty)\n"
+                 "  --output-encoding NAME encode: hex (default, one line) or binary\n"
                  "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"
                  "Validation accepts empty input and checks all concatenated elements.\n"
                  "With --profile emv, validate also checks the EMV schema structure "
                  "(mandatory/forbidden/duplicate tags, lengths, and nesting) and reports a "
                  "schema-labeled diagnostic distinct from format errors; --pdol skips it.\n"
-                 "Exit codes: 0 success, 1 invalid TLV, 2 invalid usage/hex/format, 3 "
+                 "Exit codes: 0 success, 1 invalid TLV (or element rejected by encode), 2 invalid "
+                 "usage/hex/format, 3 "
                  "I/O/resource error.\n";
 }
 
