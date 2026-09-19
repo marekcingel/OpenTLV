@@ -20,23 +20,41 @@ exclude_docs: |
 
 theme:
   name: material
+  logo: assets/logo-mark.svg
+  favicon: assets/favicon.svg
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
+      primary: blue
+      accent: orange
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: blue
+      accent: orange
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
   features:
+    - navigation.tabs
     - navigation.sections
     - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
     - search.highlight
     - content.action.edit
     - content.code.copy
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/marekcingel/OpenTLV
+      name: OpenTLV on GitHub
 
 # Rewrites relative links that leave docs/ (source files, README, CHANGELOG)
 # to GitHub URLs, so the Markdown stays valid on GitHub and in the site.
@@ -48,6 +66,9 @@ markdown_extensions:
   - toc:
       permalink: true
   - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
   - pymdownx.superfences
 
 nav:
