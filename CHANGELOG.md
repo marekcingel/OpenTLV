@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a [Chore issue form](.github/ISSUE_TEMPLATE/chore.yml) for maintenance, build, CI, tooling, and repository workflow improvements. (#207)
 - Validate documentation in CI: the Documentation workflow now runs markdownlint and a `mkdocs build --strict`, and warnings for pages missing from `nav`, invalid `nav` entries, absolute links, missing anchors and links to nonexistent repository files fail the build; run the same checks locally as described in [CONTRIBUTING.md](CONTRIBUTING.md#documentation-site). (#189)
 - Add a Documentation workflow that verifies the MkDocs site builds on pull requests and deploys it to GitHub Pages from `main` through GitHub Actions, without committing generated files; see [CONTRIBUTING.md](CONTRIBUTING.md#publishing). (#188)
 - Configure the MkDocs site theme with OpenTLV logo, favicon and blue/orange colors, top-level navigation tabs, previous/next footer links, search suggestions, a GitHub repository link and syntax highlighting; light/dark modes, search, code copy, table of contents and edit links are kept. (#187)
@@ -29,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Allow blank GitHub issues alongside the structured issue forms. (#207)
+- Move C API fuzzing out of the Clang pull-request build into a separate [workflow](.github/workflows/fuzz.yml), running on pushes to `main`, weekly on Mondays at 03:17 UTC even without new commits, and on manual request; preserve corpus caching and failure artifacts. (#207)
 - Reorganize `docs/` into `getting-started/`, `concepts/`, `guides/`, `formats/`, `profiles/`, `cli/`, `reference/` and `development/` sections, update the MkDocs navigation and internal links, and add [where documentation belongs](docs/development/documentation-layout.md), including a migration table for moved pages; old page paths are not redirected. (#186)
 - Standardize public C and C++ header comments on Doxygen, documenting ownership, lifetime, allocation, error and output-preservation contracts, and add the convention to [CONTRIBUTING.md](CONTRIBUTING.md#public-api-documentation). No behavior changes. (#184)
 - Split the `otlv` CLI's `main.cpp` into dedicated `input.cpp` (input/hex loading), `commands.cpp` (command dispatch and TLV walking), and a new `console_color.hpp` RAII helper, and convert its own input/output from C stdio to C++ iostreams. Also fixes a stale `opentlv:` diagnostic prefix left over from the CLI's rename to `otlv`. No CLI behavior or exit-code changes. (#163)

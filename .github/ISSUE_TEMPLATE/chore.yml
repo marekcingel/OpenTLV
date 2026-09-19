@@ -1,0 +1,44 @@
+name: Chore
+description: Propose maintenance, build, CI, tooling, or repository workflow improvements.
+title: "[Chore]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for maintenance, build, CI, tooling, and repository workflow changes.
+        Please search [existing issues](https://github.com/marekcingel/OpenTLV/issues) first.
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What problem does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-changes
+    attributes:
+      label: Proposed changes
+      description: Describe the scope and any exclusions.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: What observable results are needed to consider this complete?
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: How should the change be verified? Include completed checks and any limitations.
+    validations:
+      required: false
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Related issues, logs, links, or alternatives considered.
+    validations:
+      required: false
