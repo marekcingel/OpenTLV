@@ -226,3 +226,22 @@ navigation. Relative links that leave `docs/` (to source files, `README.md`,
 [tools/docs/hooks.py](tools/docs/hooks.py). The site landing page is
 [docs/index.md](docs/index.md); [docs/README.md](docs/README.md) remains the
 index shown on GitHub.
+
+### Publishing
+
+The [Documentation workflow](.github/workflows/docs.yml) builds the site with
+`mkdocs build` and deploys it to GitHub Pages at
+<https://marekcingel.github.io/OpenTLV/>:
+
+- Pull requests to `main` or `develop` only verify that the site builds.
+- A push to `main`, the publication branch, builds and deploys the site. A
+  failed build stops the workflow before deployment, so the published site is
+  never replaced by a broken one.
+- The generated site is uploaded as a workflow artifact; nothing is committed
+  to a `gh-pages` branch.
+
+No manual upload is needed. One-time repository setup: under **Settings ->
+Pages**, set **Source** to **GitHub Actions**. To publish from another branch,
+change `on.push.branches` and the `github.ref` check in the workflow, and allow
+that branch in the `github-pages` environment's deployment branch rules.
+A run can also be started manually from the Actions tab (`main` only deploys).
