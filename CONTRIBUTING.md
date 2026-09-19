@@ -196,3 +196,24 @@ Analyzer false positive through an indirect function-pointer call it can't
 resolve) are fixed with a
 `NOLINT`/`NOLINTNEXTLINE`/`NOLINTBEGIN`-`NOLINTEND` comment explaining why,
 right at the finding; prefer fixing a finding over suppressing it.
+
+## Documentation site
+
+The [docs/](docs) directory is also built into a [MkDocs](https://www.mkdocs.org/)
+site with the [Material](https://squidfunk.github.io/mkdocs-material/) theme,
+configured in [mkdocs.yml](mkdocs.yml). The Markdown files stay the single
+source and remain readable on GitHub. Build and preview it locally:
+
+```sh
+pip install -r requirements-docs.txt
+mkdocs serve   # live preview at http://127.0.0.1:8000
+mkdocs build   # writes the static site to site/ (git-ignored)
+```
+
+The build is strict: broken links between documentation pages fail it. Add a
+new page to the `nav` section of `mkdocs.yml` so it appears in the site
+navigation. Relative links that leave `docs/` (to source files, `README.md`,
+`CHANGELOG.md` and so on) are rewritten to GitHub URLs by
+[tools/docs/hooks.py](tools/docs/hooks.py). The site landing page is
+[docs/index.md](docs/index.md); [docs/README.md](docs/README.md) remains the
+index shown on GitHub.
