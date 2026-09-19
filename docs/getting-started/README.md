@@ -40,8 +40,41 @@ by adding its directory to `PATH` on Windows or `LD_LIBRARY_PATH`/rpath on Linux
 
 ## Integrate with CMake
 
-Place the checkout at `external/OpenTLV` in your application. Save the complete
-[C quick-start example](../../README.md#quick-start) as `main.c` and use:
+Place the checkout at `external/OpenTLV` in your application. Save the C
+example below as `main.c`. It is the complete program
+[examples/tlv/src/quick_start.c](../../examples/tlv/src/quick_start.c): CI builds
+and runs it against the current API, and a check keeps this copy identical to
+the source, so it stays valid as OpenTLV evolves.
+
+<!-- example: examples/tlv/src/quick_start.c -->
+```c
+#include <string.h>
+#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/reader/reader.h"
+#include "tlv/writer/writer.h"
+
+int main(void) {
+    const tlv_tag_t tag = {{0x01}, 1};
+    const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
+    uint8_t         buffer[5];
+    size_t          written = 0, consumed = 0;
+    tlv_view_t      view;
+
+    if (tlv_write(buffer, sizeof(buffer), &tlv_writer_format_fixed_1byte, tag, value, sizeof(value),
+                  &written) != TLV_OK)
+        return 1;
+    if (tlv_read(buffer, written, &tlv_reader_format_fixed_1byte, &view, &consumed) != TLV_OK)
+        return 1;
+
+    /* view.value borrows buffer; keep it alive while using the view. */
+    if (consumed != written || view.tag.size != 1 || view.tag.data[0] != 0x01) return 1;
+    if (view.value.length != sizeof(value) || memcmp(view.value.data, value, sizeof(value)) != 0)
+        return 1;
+    return 0;
+}
+```
+
+Then use:
 
 ```cmake
 cmake_minimum_required(VERSION 3.16)
@@ -63,7 +96,65 @@ Run `build/tlv_demo` (Ninja/Makefiles), or `build/Release/tlv_demo.exe`
 
 For a C++ application, enable `CXX` in `project`, set `OPENTLV_BUILD_CXX` to `ON`,
 and link `tlv++` instead. This target propagates the C library and include paths.
-See the [C++ example](../../examples/tlv++/src/basic_usage.cpp).
+Save the C++ example below as `main.cpp`; it is the complete program
+[examples/tlv++/src/basic_usage.cpp](../../examples/tlv++/src/basic_usage.cpp),
+verified the same way:
+
+<!-- example: examples/tlv++/src/basic_usage.cpp -->
+```cpp
+#include "tlv/formats/default/default.h"
+/*
+ * Simple example of using the tlv++ layer: writes two TLV items through
+ * tlv::writer and reads them back through tlv::reader.
+ */
+#include <array>
+#include <cstddef>
+#include <iostream>
+#include <string>
+
+#include "tlv++/tlv.hpp"
+
+int main() {
+    std::array<tlv::byte, 64> buf{};
+    tlv::writer               w(buf.data(), buf.size(), tlv_writer_format_default);
+
+    auto to_bytes = [](const std::string& s) {
+        return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
+    };
+
+    tlv::expected<void, tlv::error> r = w.write(tlv::tag_t{{0x01}, 1}, to_bytes("hello"));
+    if (!r) {
+        std::cerr << "write error: " << r.error().message << "\n";
+        return 1;
+    }
+    r = w.write(tlv::tag_t{{0x02}, 1}, to_bytes("world"));
+    if (!r) {
+        std::cerr << "write error: " << r.error().message << "\n";
+        return 1;
+    }
+
+    std::cout << "Wrote " << w.size() << " bytes\n";
+
+    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_reader_format_default);
+    while (!reader.at_end()) {
+        auto entry = reader.next();
+        if (!entry) {
+            std::cerr << "read error: " << entry.error().message << "\n";
+            return 1;
+        }
+        std::string value(reinterpret_cast<const char*>(entry->value.data()), entry->value.size());
+        std::cout << "tag=0x" << std::hex << static_cast<int>(entry->tag.data[0]) << std::dec
+                  << " value=" << value << "\n";
+    }
+
+    return 0;
+}
+```
+
+Both programs are built by the `example-tlv-quick-start` and `example-tlv++`
+targets whenever `OPENTLV_BUILD_EXAMPLES` is `ON` (the default) and run in CI. The
+[C API tour](../../examples/tlv/src/basic_usage.c) and the
+[EMV example](../../examples/emv/src/tag_decoding.c) are further runnable examples.
 
 ## Install and generate distribution archives
 
