@@ -80,3 +80,5 @@ Sibling ordering and cross-field/value semantics are application concerns.
 `tlv::validate` exposes these same rules through the C++ API. For a concrete
 structure schema built on this engine, see
 [EMV structural validation](../profiles/emv/README.md#structural-validation).
+
+See also the [C API reference: schemas](../reference/c-api.md#schemas) and the [C++ API reference](../reference/cxx-api.md).

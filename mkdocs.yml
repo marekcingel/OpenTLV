@@ -113,6 +113,8 @@ nav:
       - otlv command line: cli/README.md
   - Reference:
       - Overview: reference/README.md
+      - C API: reference/c-api.md
+      - C++ API: reference/cxx-api.md
       - Compilers and build settings: reference/compilers.md
   - Development:
       - Where documentation belongs: development/documentation-layout.md

@@ -38,3 +38,5 @@ Descriptors and their optional context are borrowed, not owned. Avoid returning 
 reader or writer referring to a descriptor or context local to a completed function.
 The C core does not allocate dynamically. C++ convenience types, error strings,
 and dynamic containers may allocate; choose the C API for a strict no-heap path.
+
+See also the [C API reference](../reference/c-api.md#core-types-and-utilities) and the [C++ API reference](../reference/cxx-api.md).

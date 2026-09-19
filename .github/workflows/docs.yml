@@ -1,7 +1,7 @@
 name: Documentation
 
-# Pull requests validate the documentation: Markdown lint plus a strict site
-# build. A push to main (the publication branch) validates, builds and deploys
+# Pull requests validate the documentation: Markdown lint, the generated C and
+# C++ API references and a strict site build that includes them. A push to main (the publication branch) validates, builds and deploys
 # the site to GitHub Pages. The generated site is uploaded as a workflow
 # artifact and never committed.
 on:
@@ -19,14 +19,23 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  api:
-    name: Generate C and C++ API references
+  build:
+    name: Validate and build documentation
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: pip
+          cache-dependency-path: requirements-docs.txt
+
+      - name: Install documentation dependencies
+        run: pip install -r requirements-docs.txt pre-commit
 
       - name: Install Doxygen
         run: sudo apt-get update && sudo apt-get install -y doxygen ninja-build
@@ -39,6 +48,8 @@ jobs:
           -DOPENTLV_BUILD_TESTS=OFF
           -DOPENTLV_BUILD_EXAMPLES=OFF
 
+      # Doxygen warnings are errors. The site build below embeds this output
+      # under reference/api/ and fails if either reference is missing.
       - name: Generate C and C++ API references
         run: cmake --build build/docs --target cxx-api-docs
 
@@ -59,32 +70,18 @@ jobs:
             build/docs/docs/c-api/html
           if-no-files-found: error
 
-  build:
-    name: Validate and build documentation
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-          cache: pip
-          cache-dependency-path: requirements-docs.txt
-
-      - name: Install documentation dependencies
-        run: pip install -r requirements-docs.txt pre-commit
-
       # Same hook, version and .markdownlint.json as the local pre-commit
       # setup; the hook runs with --fix, so a fixable finding fails the step
       # through the diff it leaves behind.
       - name: Lint Markdown
         run: pre-commit run markdownlint --all-files --show-diff-on-failure
 
-      # Broken links and anchors, links to missing repository files, pages
-      # missing from or invalid in the nav, and configuration errors are all
-      # build warnings, and --strict turns every warning into a failure that
-      # also blocks deployment through `needs`.
+      # The generated API references are part of the site (see
+      # tools/docs/hooks.py), so links between guides and API pages are
+      # validated too. Broken links and anchors, links to missing repository
+      # files, pages missing from or invalid in the nav, and configuration
+      # errors are all build warnings, and --strict turns every warning into a
+      # failure that also blocks deployment through `needs`.
       - name: Build site
         run: mkdocs build --strict
 

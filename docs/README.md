@@ -46,7 +46,9 @@ Documentation is grouped by purpose. See
 
 ## Reference
 
-- [Reference overview and public headers](reference/README.md)
+- [Reference overview](reference/README.md)
+- [Generated C API reference](reference/c-api.md)
+- [Generated C++ API reference](reference/cxx-api.md)
 - [Supported compilers and build settings](reference/compilers.md)
 
 ## Development

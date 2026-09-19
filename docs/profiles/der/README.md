@@ -260,3 +260,5 @@ C++ readers and writers, respectively. These descriptors
 validates **only the current tag and length**. Generic I/O does not inspect
 constructed contents, apply DER resource limits, or provide field offsets.
 Use the DER-specific functions above when those guarantees are required.
+
+See also the [C API reference: profiles](../../reference/c-api.md#profiles).

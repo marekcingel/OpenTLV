@@ -40,3 +40,5 @@ in the number of entries for each successfully parsed candidate.
 
 Scanning is separate from ordinary reading and walking. Neither API skips
 invalid bytes or implicitly applies schemas.
+
+See also the [C API reference: traversal and scanning](../reference/c-api.md#traversal-and-scanning).

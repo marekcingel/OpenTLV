@@ -7,34 +7,49 @@
  *
  * This reference covers all shipped C formats and profiles, including those
  * disabled in a particular library build. Configuration and version values
- * describe the CMake build used to generate this reference. The C++ API has a separate reference. Integration into the main
- * documentation website is separate work.
+ * describe the CMake build used to generate this reference.
+ *
+ * This reference is part of the OpenTLV documentation site. Read the
+ * @docs{getting-started,getting started guide}, the
+ * @docs{concepts/architecture,architecture overview} and the
+ * @docs{guides/memory,memory ownership guide} alongside it, and see the
+ * @docs{reference/c-api,C API overview} for each area's matching guides.
+ * The C++ wrappers are documented in the @docs{reference/cxx-api,C++ API reference}.
  */
 
 /** @defgroup core Core types and utilities
  * Tags, lengths, values, views, byte order, errors and build metadata.
+ * Guides: @docs{concepts/core-types,C core types}, @docs{concepts/value,borrowed values} and @docs{guides/memory,memory ownership}.
  */
 /** @defgroup reader Reader
  * Stateless reading and stateful iteration over encoded elements.
+ * Guides: @docs{formats,formats}.
  */
 /** @defgroup writer Writer
  * Encoding and stateful output into caller-owned buffers.
+ * Guides: @docs{formats,formats}.
  */
 /** @defgroup traversal Traversal and scanning
  * Walking nested elements and scanning paths with caller-owned state.
+ * Guides: @docs{guides/scanner,scanning and recovery}.
  */
 /** @defgroup schemas Schemas
  * Structural validation and schema-driven encoding.
+ * Guides: @docs{guides/schemas,schemas and length validation}.
  */
 /** @defgroup codecs Codecs
  * Value conversion and structured codecs, including EMV values.
+ * Guides: @docs{guides/codecs,value codecs}.
  */
 /** @defgroup formats Formats
  * Format callbacks and default, fixed, BER, DER and CER wire formats.
+ * Guides: @docs{formats,formats}.
  */
 /** @defgroup profiles Profiles
  * DER and CER validation, EMV dictionaries and DOL utilities.
+ * Guides: @docs{profiles/emv,EMV}, @docs{profiles/der,DER} and @docs{profiles/cer,CER}.
  */
 /** @defgroup copy Copy utilities
  * Copying views and encoded bytes into caller-owned storage.
+ * Guides: @docs{guides/copy,copy helpers}.
  */

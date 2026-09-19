@@ -213,3 +213,5 @@ Depth is zero at the top level and cannot exceed `TLV_WALK_MAX_DEPTH` (64).
 Limits are inclusive; zero is a real limit. Offsets identify failing elements.
 STOP succeeds immediately without validating the remaining input. The original
 flat reader and walker retain their behavior. See [architecture](../concepts/architecture.md).
+
+See also the [C API reference: formats](../reference/c-api.md#formats).

@@ -317,3 +317,5 @@ a whole record instead of one element: it looks up every child tag with
 according to `value_kind`, and leaves a tag that is unknown or has an invalid
 length skipped rather than aborting the walk.
 [EMV profile and codecs](README.md)
+
+See also the [C API reference: profiles](../../reference/c-api.md#profiles).

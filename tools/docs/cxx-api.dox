@@ -5,6 +5,10 @@
  * Include tlv++/tlv.hpp for the complete header-only wrapper API.
  * C declarations are linked to the accompanying C reference and are excluded
  * from the C++ indexes. Using the wrappers still requires linking the C library.
+ * This reference is part of the OpenTLV documentation site; see the
+ * @docs{concepts/architecture,architecture overview},
+ * @docs{guides/memory,memory ownership guide} and
+ * @docs{reference/cxx-api,C++ API overview} for the surrounding guides.
  *
  * @section compatibility Language compatibility
  * This reference shows the C++11 fallback interfaces of tlv::any, tlv::span,

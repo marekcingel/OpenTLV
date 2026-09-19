@@ -1,7 +1,10 @@
-"""MkDocs hook: adapt relative links for the site.
+"""MkDocs hooks: adapt relative links and publish the generated API references.
 
 Links that leave docs/ point at the GitHub repository, and links to the GitHub
 index docs/README.md point at the site landing page docs/index.md.
+
+The Doxygen HTML for the C and C++ APIs is added to the site as static files
+under reference/api/, so it is validated by the strict build like any page.
 """
 
 import logging
@@ -9,13 +12,48 @@ import os
 import posixpath
 import re
 
+from mkdocs.exceptions import PluginError
+from mkdocs.structure.files import File
+
 log = logging.getLogger("mkdocs.hooks.opentlv")
 
 REPO_URL = "https://github.com/marekcingel/OpenTLV"
 BRANCH = "main"
 
+# Directory holding the c-api/html and cxx-api/html trees produced by the
+# c-api-docs and cxx-api-docs CMake targets. The two trees stay siblings, as
+# the C++ reference links to C declarations through a relative path.
+API_DIR_ENV = "OPENTLV_API_DOCS_DIR"
+API_DIR_DEFAULT = os.path.join("build", "docs", "docs")
+API_TREES = ("c-api", "cxx-api")
+API_SITE_PREFIX = "reference/api"
+
 # Inline Markdown links: [text](target). Image links are left alone.
 LINK = re.compile(r"(?<!!)(\[[^\]]*\]\()([^)\s]+)(\))")
+
+
+def on_files(files, config):
+    api_dir = os.environ.get(API_DIR_ENV, API_DIR_DEFAULT)
+    for tree in API_TREES:
+        html_dir = os.path.join(api_dir, tree, "html")
+        if not os.path.isfile(os.path.join(html_dir, "index.html")):
+            raise PluginError(
+                f"generated API reference not found in '{html_dir}'. Generate it first: "
+                "cmake -S . -B build/docs -DOPENTLV_BUILD_DOCS=ON -DOPENTLV_BUILD_CXX=OFF "
+                "-DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF && "
+                f"cmake --build build/docs --target cxx-api-docs (or set {API_DIR_ENV})"
+            )
+        for root, _dirs, names in os.walk(html_dir):
+            for name in sorted(names):
+                rel = os.path.relpath(os.path.join(root, name), html_dir).replace(os.sep, "/")
+                files.append(
+                    File.generated(
+                        config,
+                        f"{API_SITE_PREFIX}/{tree}/html/{rel}",
+                        abs_src_path=os.path.abspath(os.path.join(root, name)),
+                    )
+                )
+    return files
 
 
 def on_page_markdown(markdown, page, config, files):
