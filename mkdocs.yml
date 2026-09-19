@@ -9,9 +9,17 @@ docs_dir: docs
 site_dir: site
 strict: true
 
-# Anchors are only reported as INFO by default; warn so strict fails on them.
+# Several checks are only reported as INFO by default; warn so strict fails on
+# them: pages missing from nav, absolute links, missing nav files and anchors.
 validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: warn
   links:
+    not_found: warn
+    absolute_links: warn
+    unrecognized_links: warn
     anchors: warn
 
 # docs/README.md is the GitHub index; the site landing page is docs/index.md.
