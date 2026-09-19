@@ -222,7 +222,10 @@ tlv_result_t tlv_emv_titlecase_name(const char* name, char* buffer, size_t capac
             buffer[i] = ' ';
             initial = 1;
         } else {
-            buffer[i] = initial ? (char)toupper((unsigned char)name[i]) : name[i];
+            if (initial)
+                buffer[i] = (char)toupper((unsigned char)name[i]);
+            else
+                buffer[i] = name[i];
             initial = 0;
         }
     }

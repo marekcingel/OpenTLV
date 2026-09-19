@@ -106,7 +106,10 @@ tlv_result_t tlv_writer_copy_encoded(tlv_writer_t* writer, const uint8_t* encode
     if (!encoded_data && encoded_length) return TLV_ERR_NULL_ARG;
     if (writer->capacity - writer->pos < encoded_length) return TLV_ERR_BUFFER_TOO_SHORT;
     dest = writer->buf ? writer->buf + writer->pos : NULL;
-    if (encoded_length) memmove(dest, encoded_data, encoded_length);
+    if (encoded_length) {
+        if (!dest) return TLV_ERR_BUFFER_TOO_SHORT;
+        memmove(dest, encoded_data, encoded_length);
+    }
     writer->pos += encoded_length;
     return TLV_OK;
 }
