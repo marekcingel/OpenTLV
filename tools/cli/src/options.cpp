@@ -30,9 +30,19 @@ int options::parse(int argc, char** argv) {
     command = argv[1];
     const unsigned encode_only = 65536 | 131072 | 262144; // --tag, --value, --output-encoding
     const bool     encoding = argc > 1 && !strcmp(command, "encode");
-    if (strcmp(command, "dump") && strcmp(command, "validate") && !encoding)
+    const bool     lookup = argc > 1 && !strcmp(command, "tag");
+    const bool     listing = argc > 1 && !strcmp(command, "tags");
+    const unsigned search_only = 524288; // --search
+    if (strcmp(command, "dump") && strcmp(command, "validate") && !encoding && !lookup && !listing)
         return fail(2, "unknown command; use --help");
-    for (i = 2; i < argc; ++i) {
+    i = 2;
+    if (lookup) {
+        // tag takes the tag bytes as a positional argument: otlv tag 9F02 --profile emv
+        if (argc < 3 || !strncmp(argv[2], "--", 2)) return fail(2, "tag requires a hex tag");
+        tag = argv[2];
+        i = 3;
+    }
+    for (; i < argc; ++i) {
         unsigned    bit;
         const char* arg = argv[i];
         if (!strcmp(arg, "--tree"))
@@ -73,12 +83,21 @@ int options::parse(int argc, char** argv) {
             bit = 131072;
         else if (!strcmp(arg, "--output-encoding"))
             bit = 262144;
+        else if (!strcmp(arg, "--search"))
+            bit = search_only;
         else
             return fail(2, "unknown option; use --help");
         // encode takes only --format, --max-input-size and its own options;
         // dump/validate never take the encode-only ones.
-        if (encoding ? !(bit & (2 | 16 | encode_only)) : (bit & encode_only))
-            return fail(2, encoding ? "option is not valid for encode" : "option requires encode");
+        if (lookup     ? !(bit & (2048 | 32768))
+            : listing  ? !(bit & (2048 | 32768 | search_only))
+            : encoding ? !(bit & (2 | 16 | encode_only))
+                       : (bit & (encode_only | search_only)))
+            return fail(2, lookup                ? "option is not valid for tag"
+                           : listing             ? "option is not valid for tags"
+                           : encoding            ? "option is not valid for encode"
+                           : (bit & search_only) ? "option requires tags"
+                                                 : "option requires encode");
         if (seen & bit) return fail(2, "duplicate option");
         seen |= bit;
         if (bit == 1) {
@@ -116,6 +135,8 @@ int options::parse(int argc, char** argv) {
             profile = argv[i];
         else if (bit == 65536)
             tag = argv[i];
+        else if (bit == search_only)
+            search = argv[i];
         else if (bit == 131072)
             value = argv[i];
         else if (bit == 262144) {
@@ -134,6 +155,15 @@ int options::parse(int argc, char** argv) {
                                     : bit == 32 ? &max_depth
                                                 : &max_elements))
             return fail(2, "limits must be nonnegative decimal integers fitting size_t");
+    }
+    if (lookup || listing) {
+        if (!profile)
+            return fail(2, listing ? "tags requires --profile emv" : "tag requires --profile emv");
+        if (strcmp(profile, "emv")) return fail(2, "unknown profile");
+#if !OPENTLV_PROFILE_EMV
+        return fail(2, "EMV profile is disabled in this build");
+#endif
+        return 0;
     }
     if (encoding) {
         if (!format || !tag) return fail(2, "encode requires --format and --tag");
@@ -166,6 +196,8 @@ void options::usage() {
                  "[OPTIONS]\n"
                  "       otlv encode --format NAME --tag HEX [--value HEX] "
                  "[--output-encoding hex|binary]\n"
+                 "       otlv tag HEX --profile emv [--output text|json]\n"
+                 "       otlv tags --profile emv [--search TEXT] [--output text|json]\n"
                  "       otlv formats | --help | --version\n"
                  "Formats: default, fixed-1byte, ber, der (when enabled in this build)\n"
                  "Options:\n"
@@ -183,9 +215,13 @@ void options::usage() {
                  "  --max-input-size N     Maximum input bytes (default 16777216)\n"
                  "  --max-depth N          Maximum child depth, 0..64 (default 64)\n"
                  "  --max-elements N       Maximum visited elements (default 100000)\n"
+                 "  --search TEXT          tags: only tags whose name contains TEXT "
+                 "(case-insensitive)\n"
                  "  --tag HEX              encode: tag bytes in wire order\n"
                  "  --value HEX            encode: value bytes (default: empty)\n"
                  "  --output-encoding NAME encode: hex (default, one line) or binary\n"
+                 "tag looks up one BER tag in the EMV dictionary; an unknown tag is a result "
+                 "(exit 0), not an error; tags lists the dictionary.\n"
                  "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"
                  "Validation accepts empty input and checks all concatenated elements.\n"
                  "With --profile emv, validate also checks the EMV schema structure "

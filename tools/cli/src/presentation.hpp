@@ -15,6 +15,11 @@ struct cli_emv_info {
     std::string description;
 };
 
+// Human-readable label for an EMV dictionary symbol (curated when available,
+// otherwise title-cased). Shared by dump annotations and the tag command.
+// Available only when the EMV profile is enabled.
+std::string cli_emv_display_name(const char* name);
+
 typedef struct cli_presentation {
     const uint8_t* data;
     size_t         ends[TLV_WALK_MAX_DEPTH + 1];

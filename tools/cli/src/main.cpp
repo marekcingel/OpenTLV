@@ -7,6 +7,7 @@
 #include "diagnostics.hpp"
 #include "input.hpp"
 #include "options.hpp"
+#include "tag.hpp"
 #include "tlv/version.h"
 
 using cli::fail;
@@ -31,6 +32,9 @@ static int run(int argc, char** argv) {
     if (rc) return rc;
 
     if (!strcmp(o.command, "encode")) return cli::commands::encode(o);
+
+    if (!strcmp(o.command, "tag")) return cli::commands::tag(o);
+    if (!strcmp(o.command, "tags")) return cli::commands::tags(o);
 
     std::vector<uint8_t> data;
     rc = cli::read_input(o, data);

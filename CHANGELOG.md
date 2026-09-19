@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `otlv tag HEX --profile emv [--output text|json]`, printing a tag's name, type, form and length from the EMV dictionary, and `otlv tags --profile emv [--search TEXT]`, listing the dictionary's tags; unknown tags are reported as a result (exit 0) and invalid hex or incomplete tags are rejected. (#169)
 - Add `otlv encode --format NAME --tag HEX [--value HEX] [--output-encoding hex|binary]`, encoding a single TLV element with the OpenTLV writer and printing hex or raw bytes that `otlv dump` can read back; invalid tags and lengths are rejected before any output. (#168)
 - Add `TLV_ERR_SCHEMA_MISSING` to `tlv_schema_validate()` (`tlv/schemas/schema.h`), splitting it out from `TLV_ERR_SCHEMA` for a missing required field: that failure's offset is a scope boundary rather than an element, and can coincide with an unrelated sibling, so callers must no longer treat it like the element-anchored offset every other schema violation reports. (#167)
 - Add `tlv_emv_structure_schema` (`tlv/profiles/emv_schema.h`) and wire it into the `otlv` CLI's `validate --profile emv`, checking mandatory/forbidden/duplicate EMV tags, lengths, and nesting for the FCI, Application, and GPO response templates, with a `schema`-labeled diagnostic distinguishing it from format errors. (#167)

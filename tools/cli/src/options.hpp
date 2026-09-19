@@ -33,6 +33,8 @@ public:
     const char* tag = nullptr;
     const char* value = nullptr;
     int         binary_output = 0;
+    // tags only: case-insensitive name filter.
+    const char* search = nullptr;
 };
 
 } // namespace cli
