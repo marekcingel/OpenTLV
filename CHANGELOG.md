@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add linked C and C++ content tabs to the documentation site and use them for the CMake integration example in Getting started, with a compiled C++ quick start (`examples/tlv++/src/quick_start.cpp`) checked by `scripts/check_doc_examples.py`; see [Where documentation belongs](docs/development/documentation-layout.md#c-and-c-tabs). (#195)
 - Publish versioned documentation with mike: `latest` (development) from `develop`, one `X.Y` version per release tag with a `stable` alias, and a version selector on the site; see [CONTRIBUTING.md](CONTRIBUTING.md#publishing). (#194)
 - Back the C and C++ introductory documentation examples with compiled sources (`examples/tlv/src/quick_start.c`, `examples/tlv++/src/basic_usage.cpp`), built and run in CI, and check with `scripts/check_doc_examples.py` that the Markdown copies match them. (#193)
 - Integrate the generated C and C++ API references into the documentation site under Reference, built from the Documentation workflow, with links between guides, concepts and API pages. (#192)
