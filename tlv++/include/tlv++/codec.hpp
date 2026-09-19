@@ -39,10 +39,11 @@ private:
     template <typename> static std::false_type test(...);
 
 public:
+    /** @brief Whether T provides the codec expressions described by this trait. */
     static const bool value = decltype(test<T>(0))::value;
 };
 
-#if __cplusplus >= 202002L
+#if __cplusplus >= 202002L || defined(OPENTLV_DOXYGEN)
 /** @brief Concept form of #tlv::is_tlv_codec; available from C++20. */
 template <typename T> concept TlvCodec = is_tlv_codec<T>::value;
 #endif

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a dedicated Doxygen C++ API reference with a `cxx-api-docs` CMake target, separate navigation, links to the C API and a CI-generated HTML artifact. (#191)
 - Add an opt-in Doxygen C API reference, organized by API area, with a `c-api-docs` CMake target, local generation instructions and a CI-generated HTML artifact. (#190)
 - Add a [Chore issue form](.github/ISSUE_TEMPLATE/chore.yml) for maintenance, build, CI, tooling, and repository workflow improvements. (#207)
 - Validate documentation in CI: the Documentation workflow now runs markdownlint and a `mkdocs build --strict`, and warnings for pages missing from `nav`, invalid `nav` entries, absolute links, missing anchors and links to nonexistent repository files fail the build; run the same checks locally as described in [CONTRIBUTING.md](CONTRIBUTING.md#documentation-site). (#189)

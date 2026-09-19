@@ -1,0 +1,34 @@
+/**
+ * @mainpage OpenTLV C++ API reference
+ *
+ * Start with namespace tlv, the class index, or the public header index.
+ * Include tlv++/tlv.hpp for the complete header-only wrapper API.
+ * C declarations are linked to the accompanying C reference and are excluded
+ * from the C++ indexes. Using the wrappers still requires linking the C library.
+ *
+ * @section compatibility Language compatibility
+ * This reference shows the C++11 fallback interfaces of tlv::any, tlv::span,
+ * tlv::expected and tlv::unexpected, together with the C++20 tlv::TlvCodec
+ * concept. In newer language modes, compat.hpp selects standard-library
+ * aliases: byte and any from C++17, span from C++20, and expected/unexpected
+ * when the standard library advertises C++23 expected support.
+ * The fallback interfaces are minimal; they do not promise every operation
+ * of the standard-library equivalents. See compat.hpp for their contracts.
+ *
+ * @section ownership Ownership and lifetime
+ * tlv::reader and tlv::writer hold their C state by value and borrow buffers
+ * and format contexts. Destroying a wrapper does not release that storage.
+ * tlv::bytes and tlv::entry are non-owning views; keep the source bytes alive.
+ * tlv::expected destroys its held value or error through RAII, and tlv::any
+ * owns its type-erased value. Error messages, the registry and convenience
+ * encoding can allocate; the C core's allocation-free guarantee does not
+ * apply to every C++ helper. Individual declarations specify these contracts.
+ */
+
+/**
+ * @namespace tlv
+ * @brief Public C++ wrappers, value types, codec traits and helpers for OpenTLV.
+ *
+ * Wrappers translate C result codes into tlv::expected results with tlv::error.
+ * Refer to each declaration for borrowed lifetimes and error behavior.
+ */

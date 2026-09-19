@@ -29,12 +29,5 @@ INCLUDE_FILE_PATTERNS  = *.h *.def
 SKIP_FUNCTION_MACROS   = NO
 INCLUDE_PATH           = "@PROJECT_SOURCE_DIR@/tlv/include" \
                          "@PROJECT_BINARY_DIR@/generated/include"
-GENERATE_HTML          = YES
-GENERATE_LATEX         = NO
-HAVE_DOT               = NO
-SOURCE_BROWSER         = NO
-VERBATIM_HEADERS       = NO
-QUIET                  = YES
-WARNINGS               = YES
-WARN_IF_DOC_ERROR      = YES
-WARN_AS_ERROR          = YES
+@INCLUDE               = "@PROJECT_BINARY_DIR@/Doxyfile.common"
+GENERATE_TAGFILE        = "@PROJECT_BINARY_DIR@/docs/c-api/c-api.tag"

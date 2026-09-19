@@ -30,7 +30,7 @@ if(OPENTLV_BUILD_CXX)
 endif()
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
 option(OPENTLV_BUILD_FUZZING "Build C API fuzz targets with libFuzzer, ASan and UBSan" OFF)
-option(OPENTLV_BUILD_DOCS "Enable the Doxygen C API reference target" OFF)
+option(OPENTLV_BUILD_DOCS "Enable the Doxygen C and C++ API reference targets" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
 option(OPENTLV_FORMAT_DEFAULT "Include the default wire format" ON)
