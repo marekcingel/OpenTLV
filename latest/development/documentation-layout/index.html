@@ -1853,6 +1853,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#c-and-c-tabs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C and C++ tabs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#adding-new-topics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2028,6 +2039,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#c-and-c-tabs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C and C++ tabs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#adding-new-topics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2177,6 +2199,44 @@ directly above a fenced block to embed a source file verbatim; run
 <code>python scripts/check_doc_examples.py --fix</code> to refresh the copy. CI fails when a
 block differs from its source or the source no longer builds. Small illustrative
 fragments may stay inline.</p>
+<h2 id="c-and-c-tabs">C and C++ tabs<a class="headerlink" href="#c-and-c-tabs" title="Permanent link">&para;</a></h2>
+<p>OpenTLV has a C core and a header-only C++ wrapper. Where both expose the same
+operation, show the two side by side in content tabs instead of writing two
+pages or listing both languages one after another:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>/// tab | C
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>C code and any C-specific notes.
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>///
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>/// tab | C++
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>C++ code and any C++-specific notes.
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>///
+</code></pre></div>
+<p>The <code>/// tab | Label</code> blocks (<code>pymdownx.blocks.tab</code>) keep their content
+unindented, so the source remains valid Markdown that markdownlint accepts
+without suppressions; do not use the indented <code>=== "Label"</code> syntax.</p>
+<p>Conventions:</p>
+<ul>
+<li>Label tabs exactly <code>C</code> and <code>C++</code>, with <code>C</code> first. Tabs with the same label are
+  linked across the site, so a reader's choice follows them from page to page.
+  Use other labels (for example the name of a future language binding) only for
+  further languages, never for other kinds of choice.</li>
+<li>Tab only what differs. Keep the explanation of behavior shared by both APIs
+  (formats, lengths, ownership, errors) as ordinary text outside the tabs, and
+  mention a language difference in that language's tab.</li>
+<li>Use tabs only for equivalent functionality. If one language has no
+  counterpart, describe it in prose rather than leaving an empty tab.</li>
+<li>Every tab group must read correctly on GitHub, which renders the source
+  without tabs: put a short sentence before the group and give each tab enough
+  context (a file name or a note) to stand alone.</li>
+<li>Important tabbed examples are compiled sources: put the
+  <code>&lt;!-- example: examples/PATH --&gt;</code> marker and the fenced block inside the tab,
+  and the check below keeps the copy identical. See
+  <a href="../../getting-started/#integrate-with-cmake">Getting started</a>.</li>
+</ul>
+<p>The same mechanism extends to language bindings: add a tab per binding to the
+groups where it has an equivalent.</p>
 <h2 id="adding-new-topics">Adding new topics<a class="headerlink" href="#adding-new-topics" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>OTDL</strong>: the planned definition language's syntax and specification belong
@@ -2315,6 +2375,8 @@ unchanged site URLs and preserved heading anchors continue to work.</p>
             </div>
           
           
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
@@ -2406,7 +2468,7 @@ unchanged site URLs and preserved heading anchors continue to work.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.action.edit", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.action.edit", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
