@@ -1,0 +1,72 @@
+name: C API Fuzzing
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Every Monday at 03:17 UTC, even without changes to main.
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    name: Clang 18 / C API fuzzing
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Clang and sanitizer runtimes
+        run: sudo apt-get update && sudo apt-get install -y clang-18 libclang-rt-18-dev llvm-18 ninja-build
+
+      # Restores libFuzzer-discovered inputs from the most recent previous run (falling back
+      # to just the checked-in seed corpus on a cache miss), so each run's 60s fuzzing budget
+      # builds on prior coverage instead of rediscovering it from scratch. The run_id-suffixed
+      # key means every run saves a new cache entry (via restore-keys' prefix match on the next
+      # run); GitHub evicts the oldest ones once the repo's cache quota fills up.
+      - name: Restore fuzz corpus cache
+        uses: actions/cache@v4
+        with:
+          path: build/fuzz/corpus
+          key: fuzz-corpus-${{ github.run_id }}
+          restore-keys: |
+            fuzz-corpus-
+
+      - name: Configure C API fuzzing
+        run: >-
+          cmake -S . -B build/fuzz -G Ninja
+          -DCMAKE_C_COMPILER=clang-18 -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
+          -DOPENTLV_BUILD_FUZZING=ON -DOPENTLV_BUILD_CXX=OFF
+          -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+      - name: Build C API fuzz targets
+        run: cmake --build build/fuzz --parallel
+      - name: Fuzz each target for 60 seconds
+        timeout-minutes: 15
+        env:
+          ASAN_OPTIONS: abort_on_error=1:detect_leaks=1
+          UBSAN_OPTIONS: halt_on_error=1:abort_on_error=1:print_stacktrace=1
+        shell: bash
+        run: |
+          set -o pipefail
+          status=0
+          mkdir -p build/fuzz/findings
+          for target in read walk_tree der der_schema roundtrip codec; do
+            mkdir -p "build/fuzz/findings/$target" "build/fuzz/corpus/$target"
+            "build/fuzz/tests/fuzz/fuzz_$target" \
+              "build/fuzz/corpus/$target" "tests/fuzz/corpus/$target" \
+              -max_total_time=60 -max_len=4096 -timeout=10 -rss_limit_mb=2048 \
+              -artifact_prefix="build/fuzz/findings/$target/" \
+              2>&1 | tee "build/fuzz/findings/$target/run.log" || status=1
+          done
+          exit "$status"
+      - name: Save reproducing inputs and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-fuzz-findings-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/fuzz/findings/
+          if-no-files-found: warn

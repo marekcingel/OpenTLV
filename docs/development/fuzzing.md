@@ -96,9 +96,12 @@ With `-runs=0`, libFuzzer replays the seed corpus without a mutation campaign.
 
 ## Reproduce and minimize a finding
 
-The Debug/C++23 job in [Clang Build](../../.github/workflows/build-clang.yml) builds
-the C fuzz targets separately in Debug mode after coverage collection. It runs
-each target for approximately 60 seconds, fails on any
+The [C API Fuzzing](../../.github/workflows/fuzz.yml) workflow runs on pushes to
+`main` (including merged pull requests), every Monday at 03:17 UTC even without
+new commits, and manually through `workflow_dispatch`. Scheduled runs use the
+latest commit on the default branch; the workflow must be merged there first.
+Fuzzing runs separately from pull-request builds. It builds the C fuzz targets
+in Debug mode, runs each configured CI target for approximately 60 seconds, fails on any
 target failure, and uploads per-target logs and reproducing inputs even when
 the run fails. A 15-minute step timeout bounds fuzz execution. This short
 campaign is a smoke check, not exhaustive validation. CI caches `build/fuzz/corpus`
