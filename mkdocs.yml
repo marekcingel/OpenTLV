@@ -58,6 +58,7 @@ theme:
     - search.highlight
     - content.action.edit
     - content.code.copy
+    - content.tabs.link
 
 extra:
   # "development" for local and latest builds, "release" for tagged versions;
@@ -87,6 +88,9 @@ markdown_extensions:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
+  # C/C++ content tabs (/// tab | C); see docs/development/documentation-layout.md.
+  - pymdownx.blocks.tab:
+      alternate_style: true
 
 nav:
   - Home: index.md

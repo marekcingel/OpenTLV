@@ -122,6 +122,7 @@ jobs:
           ./build/examples/tlv/example-tlv
           ./build/examples/tlv/example-tlv-quick-start
           ./build/examples/tlv++/example-tlv++
+          ./build/examples/tlv++/example-tlv++-quick-start
 
       - name: Verify C-only build
         run: |

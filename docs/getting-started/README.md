@@ -40,11 +40,22 @@ by adding its directory to `PATH` on Windows or `LD_LIBRARY_PATH`/rpath on Linux
 
 ## Integrate with CMake
 
-Place the checkout at `external/OpenTLV` in your application. Save the C
-example below as `main.c`. It is the complete program
-[examples/tlv/src/quick_start.c](../../examples/tlv/src/quick_start.c): CI builds
-and runs it against the current API, and a check keeps this copy identical to
-the source, so it stays valid as OpenTLV evolves.
+Place the checkout at `external/OpenTLV` in your application. OpenTLV has a C
+core and a header-only C++ wrapper; the steps below are the same for both apart
+from the language, the source file and the library you link. Choose your
+language in any tab group on this site and the choice is kept for the other
+tabbed examples. Without tabs (for example on GitHub) the C example is listed
+before the C++ one.
+
+The program writes `01 03 AA BB CC` with the fixed 1-byte format and reads the
+value back. Each is a complete program that CI builds and runs against the
+current API, and a check keeps its copy here identical to the source, so it
+stays valid as OpenTLV evolves.
+
+/// tab | C
+
+Save the example as `main.c`. It is
+[examples/tlv/src/quick_start.c](../../examples/tlv/src/quick_start.c).
 
 <!-- example: examples/tlv/src/quick_start.c -->
 ```c
@@ -90,71 +101,73 @@ add_executable(tlv_demo main.c)
 target_link_libraries(tlv_demo PRIVATE tlv)
 ```
 
-Configure and build the application using the same CMake commands above.
-Run `build/tlv_demo` (Ninja/Makefiles), or `build/Release/tlv_demo.exe`
-(Visual Studio). Exit code zero indicates a successful round trip.
+///
 
-For a C++ application, enable `CXX` in `project`, set `OPENTLV_BUILD_CXX` to `ON`,
-and link `tlv++` instead. This target propagates the C library and include paths.
-Save the C++ example below as `main.cpp`; it is the complete program
-[examples/tlv++/src/basic_usage.cpp](../../examples/tlv++/src/basic_usage.cpp),
-verified the same way:
+/// tab | C++
 
-<!-- example: examples/tlv++/src/basic_usage.cpp -->
+Save the example as `main.cpp`. It is
+[examples/tlv++/src/quick_start.cpp](../../examples/tlv++/src/quick_start.cpp).
+Enable `CXX` in `project`, set `OPENTLV_BUILD_CXX` to `ON`, and link `tlv++`
+instead of `tlv`; this target propagates the C library and include paths.
+
+<!-- example: examples/tlv++/src/quick_start.cpp -->
 ```cpp
-#include "tlv/formats/default/default.h"
-/*
- * Simple example of using the tlv++ layer: writes two TLV items through
- * tlv::writer and reads them back through tlv::reader.
- */
 #include <array>
-#include <cstddef>
-#include <iostream>
-#include <string>
+#include <cstring>
 
 #include "tlv++/tlv.hpp"
+#include "tlv/formats/fixed/fixed_1byte.h"
 
 int main() {
-    std::array<tlv::byte, 64> buf{};
-    tlv::writer               w(buf.data(), buf.size(), tlv_writer_format_default);
+    const tlv::tag_t               tag{{0x01}, 1};
+    const std::array<tlv::byte, 3> value = {
+        static_cast<tlv::byte>(0xAA), static_cast<tlv::byte>(0xBB), static_cast<tlv::byte>(0xCC)};
+    std::array<tlv::byte, 5> buffer{};
+    tlv::writer              writer(buffer.data(), buffer.size(), tlv_writer_format_fixed_1byte);
 
-    auto to_bytes = [](const std::string& s) {
-        return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
-    };
+    if (!writer.write(tag, tlv::bytes(value.data(), value.size()))) return 1;
 
-    tlv::expected<void, tlv::error> r = w.write(tlv::tag_t{{0x01}, 1}, to_bytes("hello"));
-    if (!r) {
-        std::cerr << "write error: " << r.error().message << "\n";
+    // entry.value borrows buffer; keep it alive while using the entry.
+    tlv::reader reader(tlv::bytes(buffer.data(), writer.size()), tlv_reader_format_fixed_1byte);
+    auto        entry = reader.next();
+    if (!entry || !reader.at_end()) return 1;
+
+    if (entry->tag.size != 1 || entry->tag.data[0] != 0x01) return 1;
+    if (entry->value.size() != value.size() ||
+        std::memcmp(entry->value.data(), value.data(), value.size()) != 0)
         return 1;
-    }
-    r = w.write(tlv::tag_t{{0x02}, 1}, to_bytes("world"));
-    if (!r) {
-        std::cerr << "write error: " << r.error().message << "\n";
-        return 1;
-    }
-
-    std::cout << "Wrote " << w.size() << " bytes\n";
-
-    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_reader_format_default);
-    while (!reader.at_end()) {
-        auto entry = reader.next();
-        if (!entry) {
-            std::cerr << "read error: " << entry.error().message << "\n";
-            return 1;
-        }
-        std::string value(reinterpret_cast<const char*>(entry->value.data()), entry->value.size());
-        std::cout << "tag=0x" << std::hex << static_cast<int>(entry->tag.data[0]) << std::dec
-                  << " value=" << value << "\n";
-    }
-
     return 0;
 }
 ```
 
-Both programs are built by the `example-tlv-quick-start` and `example-tlv++`
-targets whenever `OPENTLV_BUILD_EXAMPLES` is `ON` (the default) and run in CI. The
-[C API tour](../../examples/tlv/src/basic_usage.c) and the
-[EMV example](../../examples/emv/src/tag_decoding.c) are further runnable examples.
+Then use:
+
+```cmake
+cmake_minimum_required(VERSION 3.16)
+project(tlv_demo LANGUAGES CXX)
+
+set(OPENTLV_BUILD_CXX ON CACHE BOOL "" FORCE)
+set(OPENTLV_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(OPENTLV_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(OPENTLV_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/OpenTLV)
+
+add_executable(tlv_demo main.cpp)
+target_link_libraries(tlv_demo PRIVATE tlv++)
+```
+
+///
+
+Configure and build the application using the same CMake commands above.
+Run `build/tlv_demo` (Ninja/Makefiles), or `build/Release/tlv_demo.exe`
+(Visual Studio). Exit code zero indicates a successful round trip.
+
+Both programs are built by the `example-tlv-quick-start` and
+`example-tlv++-quick-start` targets whenever `OPENTLV_BUILD_EXAMPLES` is `ON`
+(the default) and run in CI. The [C API tour](../../examples/tlv/src/basic_usage.c),
+the [C++ example](../../examples/tlv++/src/basic_usage.cpp) with the default
+format, and the [EMV example](../../examples/emv/src/tag_decoding.c) are further
+runnable examples.
 
 ## Install and generate distribution archives
 

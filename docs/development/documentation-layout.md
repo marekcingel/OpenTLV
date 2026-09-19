@@ -61,6 +61,50 @@ directly above a fenced block to embed a source file verbatim; run
 block differs from its source or the source no longer builds. Small illustrative
 fragments may stay inline.
 
+## C and C++ tabs
+
+OpenTLV has a C core and a header-only C++ wrapper. Where both expose the same
+operation, show the two side by side in content tabs instead of writing two
+pages or listing both languages one after another:
+
+````markdown
+/// tab | C
+
+C code and any C-specific notes.
+///
+
+/// tab | C++
+
+C++ code and any C++-specific notes.
+///
+````
+
+The `/// tab | Label` blocks (`pymdownx.blocks.tab`) keep their content
+unindented, so the source remains valid Markdown that markdownlint accepts
+without suppressions; do not use the indented `=== "Label"` syntax.
+
+Conventions:
+
+- Label tabs exactly `C` and `C++`, with `C` first. Tabs with the same label are
+  linked across the site, so a reader's choice follows them from page to page.
+  Use other labels (for example the name of a future language binding) only for
+  further languages, never for other kinds of choice.
+- Tab only what differs. Keep the explanation of behavior shared by both APIs
+  (formats, lengths, ownership, errors) as ordinary text outside the tabs, and
+  mention a language difference in that language's tab.
+- Use tabs only for equivalent functionality. If one language has no
+  counterpart, describe it in prose rather than leaving an empty tab.
+- Every tab group must read correctly on GitHub, which renders the source
+  without tabs: put a short sentence before the group and give each tab enough
+  context (a file name or a note) to stand alone.
+- Important tabbed examples are compiled sources: put the
+  `<!-- example: examples/PATH -->` marker and the fenced block inside the tab,
+  and the check below keeps the copy identical. See
+  [Getting started](../getting-started/README.md#integrate-with-cmake).
+
+The same mechanism extends to language bindings: add a tab per binding to the
+groups where it has an equivalent.
+
 ## Adding new topics
 
 - **OTDL**: the planned definition language's syntax and specification belong
