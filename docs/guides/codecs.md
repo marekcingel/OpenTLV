@@ -104,3 +104,5 @@ Existing tag-associated C++ codecs remain supported. Use
 `writer.write(value)`. This explicit convenience helper may allocate a temporary
 vector. Raw readers/writers now include only `tlv++/types.hpp` and the C I/O
 contracts; they do not depend on codecs.
+
+See also the [C API reference: codecs](../reference/c-api.md#codecs).

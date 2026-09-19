@@ -65,3 +65,5 @@ mapping remain the calling module's responsibility. BER accepts padded length
 payloads longer than eight bytes when the decoded length fits `size_t`;
 the BER module validates excess padding before using these helpers. DER
 continues to apply its stricter canonical length rules.
+
+See also the [C API reference: core types](../reference/c-api.md#core-types-and-utilities).

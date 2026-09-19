@@ -50,3 +50,5 @@ serialization follows `tlv_write()` and requires a nonoverlapping source
 value and destination; format callback errors may partially modify the
 destination. Output size pointers and source descriptors must not overlap
 destination storage, and size pointers must not alias source storage.
+
+See also the [C API reference: copy utilities](../reference/c-api.md#copy-utilities).

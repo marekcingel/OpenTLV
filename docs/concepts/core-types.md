@@ -158,3 +158,5 @@ and numeric range failures previously returning `TLV_ERR_INVALID_TAG` now return
 remains a value-length error, and invalid schema definitions retain schema-specific
 errors. Comparison helpers still return 0 for invalid inputs. Existing error-code
 numeric values are unchanged.
+
+See also the [C API reference: core types](../reference/c-api.md#core-types-and-utilities).

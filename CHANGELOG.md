@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Integrate the generated C and C++ API references into the documentation site under Reference, built from the Documentation workflow, with links between guides, concepts and API pages. (#192)
 - Add a dedicated Doxygen C++ API reference with a `cxx-api-docs` CMake target, separate navigation, links to the C API and a CI-generated HTML artifact. (#191)
 - Add an opt-in Doxygen C API reference, organized by API area, with a `c-api-docs` CMake target, local generation instructions and a CI-generated HTML artifact. (#190)
 - Add a [Chore issue form](.github/ISSUE_TEMPLATE/chore.yml) for maintenance, build, CI, tooling, and repository workflow improvements. (#207)

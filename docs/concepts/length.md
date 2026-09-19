@@ -68,3 +68,5 @@ pointer arithmetic, memory access, or a call into an API that still takes
 failure case, rather than narrowing implicitly. See
 [borrowed TLV values](value.md) and [core types](core-types.md) for how
 `tlv_value_t` and `tlv_view_t` use `tlv_length_t`.
+
+See also the [C API reference: core types](../reference/c-api.md#core-types-and-utilities).

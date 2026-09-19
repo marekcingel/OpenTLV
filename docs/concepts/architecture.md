@@ -164,3 +164,5 @@ It receives the reader format context. BER and DER provide
 both format pointers and the separate nesting predicate, and decode/encode
 callbacks receive their corresponding format type. Rebuild all consumers
 because the descriptor and affected API layouts have changed. (#68)
+
+See also the generated [C API reference](../reference/c-api.md) and [C++ API reference](../reference/cxx-api.md).

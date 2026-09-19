@@ -15,6 +15,7 @@ EMV Contact Book 3 profile.
 | Understand who owns parsed data | [Memory ownership](guides/memory.md) |
 | Validate or decode values | [Schemas](guides/schemas.md), [value codecs](guides/codecs.md) |
 | Work with DER, CER or EMV data | [DER](profiles/der/README.md), [CER](profiles/cer/README.md), [EMV](profiles/emv/README.md) |
+| Look up an exact function, type or contract | [C API](reference/c-api.md), [C++ API](reference/cxx-api.md) |
 | Inspect TLV data from a terminal | [The `otlv` CLI](cli/README.md) |
 | Contribute or run the fuzzers | [Fuzzing](development/fuzzing.md), [Contributing](../CONTRIBUTING.md) |
 
@@ -26,12 +27,11 @@ EMV Contact Book 3 profile.
 - **Formats** - reading, writing and traversal for each TLV format, with byte examples.
 - **Profiles** - DER, CER and EMV semantics layered on the formats.
 - **CLI** - the `otlv` command-line tool.
-- **Reference** - supported compilers and the public API entry points.
+- **Reference** - the generated [C API](reference/c-api.md) and [C++ API](reference/cxx-api.md) references and supported compilers.
 - **Development** - fuzzing and [where documentation belongs](development/documentation-layout.md).
 
-Dedicated C and C++ API reference manuals are not yet available. Use the guides
-here and the public headers in [tlv](../tlv/include/tlv) and
-[tlv++](../tlv++/include/tlv++) for the current API.
+Exact API contracts live in the generated [C API](reference/c-api.md) and
+[C++ API](reference/cxx-api.md) references; the guides here explain how to use them.
 
 ## Project
 

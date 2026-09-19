@@ -11,7 +11,7 @@ section by the page's primary purpose, and link to related material elsewhere.
 | `formats/` | Wire formats and their reading, writing and byte examples | [Formats](../formats/README.md) |
 | `profiles/` | Standards or industry semantics layered on a format | [DER](../profiles/der/README.md) |
 | `cli/` | Command-line tools, one page per tool | [otlv](../cli/README.md) |
-| `reference/` | Lookup material: API manuals, option tables, support matrices | [Compilers](../reference/compilers.md) |
+| `reference/` | Lookup material: API manuals, option tables, support matrices | [C API](../reference/c-api.md), [Compilers](../reference/compilers.md) |
 | `development/` | Contributor material: tooling, fuzzing, docs conventions | [Fuzzing](fuzzing.md) |
 
 ## Section boundaries
@@ -29,6 +29,18 @@ the DER and CER format pages describe their framing, while their profile pages
 describe recursive and value validation. DER and CER are sibling BER profiles;
 EMV is a profile over BER-TLV. Cross-link these pages rather than duplicating
 their contracts or implying complete protocol support.
+
+## Generated API reference
+
+The C and C++ API references are generated with Doxygen and embedded in the
+site under `reference/api/` at build time; they are never committed. The
+hand-written pages [c-api.md](../reference/c-api.md) and
+[cxx-api.md](../reference/cxx-api.md) are their entry points in the navigation.
+Guides and concepts link to those pages (and to their per-area sections) rather
+than into the generated files, which do not exist in the repository. Generated
+pages link back to the guides through the `@docs` Doxygen alias. Generate the
+references before `mkdocs build`; see
+[CONTRIBUTING.md](../../CONTRIBUTING.md#generate-the-c-api-reference).
 
 ## Adding new topics
 

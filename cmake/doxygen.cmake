@@ -15,6 +15,10 @@ string(REPLACE "#include \"tlv/profiles/emv_tags.def\"" "${_emv_entries}"
 file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/docs-input/tlv/profiles")
 file(WRITE "${PROJECT_BINARY_DIR}/docs-input/tlv/profiles/emv.h" "${_emv_contents}")
 
+# Base URL of the published documentation site, used by the @docs alias to
+# link generated API pages back to the guides and concepts.
+set(OPENTLV_DOCS_URL "https://marekcingel.github.io/OpenTLV/")
+
 configure_file(
     "${PROJECT_SOURCE_DIR}/tools/docs/Doxyfile.in"
     "${PROJECT_BINARY_DIR}/Doxyfile"

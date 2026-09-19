@@ -67,3 +67,5 @@ checking a `tlv_view_t` by hand, for example in tests or custom format
 integrations. There is no separate native byte-range struct in the public
 API: a native `const uint8_t*`/`size_t` pair is passed directly where one is
 needed, for example in `tlv_copy_encoded()`.
+
+See also the [C API reference: core types](../reference/c-api.md#core-types-and-utilities).

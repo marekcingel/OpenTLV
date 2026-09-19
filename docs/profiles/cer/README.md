@@ -215,3 +215,5 @@ C++ readers and writers. These descriptors validate **only the current tag and
 length** — generic I/O does not inspect constructed contents, EOC placement, or
 canonical segmentation, and provides no field offsets. Use the CER-specific
 functions above when those guarantees are required.
+
+See also the [C API reference: profiles](../../reference/c-api.md#profiles).

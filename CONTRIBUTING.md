@@ -123,8 +123,8 @@ Keep includes outside that group block.
 
 The [Documentation workflow](.github/workflows/docs.yml) generates the same
 reference, treats Doxygen warnings as errors and uploads the HTML as the
-`c-api-reference` artifact. This reference is separate from the MkDocs site;
-website integration is outside its scope.
+`c-api-reference` artifact. The same generated HTML is published as part of the
+MkDocs site under [Reference](docs/reference/c-api.md).
 
 ## Generate the C++ API reference
 
@@ -153,7 +153,14 @@ reference navigation and compatibility notes, complementing conceptual docs.
 The Documentation workflow generates both references with warnings as errors.
 The `cxx-api-reference` artifact contains `cxx-api/html` and `c-api/html` as
 siblings so links to C declarations work after extraction. Keep that layout
-when copying the references. Integration into the main site is separate work.
+when copying the references.
+
+The site build embeds both generated trees under `reference/api/` through
+[tools/docs/hooks.py](tools/docs/hooks.py), so `mkdocs build` needs them first:
+run the `cxx-api-docs` target above, then `mkdocs build --strict`. Set
+`OPENTLV_API_DOCS_DIR` if the CMake build directory is not `build/docs`. Link to
+API pages from the guides through the [C](docs/reference/c-api.md) and
+[C++](docs/reference/cxx-api.md) reference pages, which stay valid on GitHub.
 
 ## Pre-commit hooks
 
