@@ -13,6 +13,13 @@ static tlv_result_t invalid(size_t offset, size_t* error_offset) {
     return TLV_ERR_SCHEMA;
 }
 
+/* Distinct from invalid(): offset is the end of the enclosing scope, not an
+ * element, so it must not be presented as the location of a tag. */
+static tlv_result_t missing(size_t offset, size_t* error_offset) {
+    if (error_offset) *error_offset = offset;
+    return TLV_ERR_SCHEMA_MISSING;
+}
+
 static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* format,
                                 const tlv_structure_schema_t* current, size_t start, size_t end,
                                 size_t* error_offset) {
@@ -43,7 +50,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* 
             }
             pos += used;
         }
-        if (count < rule->min_occurs) return invalid(end, error_offset);
+        if (count < rule->min_occurs) return missing(end, error_offset);
     }
     return TLV_OK;
 }

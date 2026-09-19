@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `TLV_ERR_SCHEMA_MISSING` to `tlv_schema_validate()` (`tlv/schemas/schema.h`), splitting it out from `TLV_ERR_SCHEMA` for a missing required field: that failure's offset is a scope boundary rather than an element, and can coincide with an unrelated sibling, so callers must no longer treat it like the element-anchored offset every other schema violation reports. (#167)
+- Add `tlv_emv_structure_schema` (`tlv/profiles/emv_schema.h`) and wire it into the `otlv` CLI's `validate --profile emv`, checking mandatory/forbidden/duplicate EMV tags, lengths, and nesting for the FCI, Application, and GPO response templates, with a `schema`-labeled diagnostic distinguishing it from format errors. (#167)
 - Change the `otlv` CLI's `--json` flag to `--output text|json`, and change its JSON output from one flat JSON line per element to a single hierarchical document (a top-level `elements` array, with constructed BER/DER elements nesting their own `elements` under `--tree`). (#164, #165)
 - Add `--decode` and `--json` to the `otlv` CLI: `--decode` decodes known EMV tag values through the existing codec layer into human-readable text (`decoded="..."`, or `decode-error="..."` on a codec failure), and `--json` prints one JSON object per element instead of the key=value text format, using the newly vendored [nlohmann/json](https://github.com/nlohmann/json). Both compose with `--profile emv`, `--describe`, and `--pdol`. (#166)
 - Add `tlv_emv_child_context` to `tlv/profiles/emv.h`, moving the EMV nested-template context lookup out of the `otlv` CLI's presentation code and into the core library, with unit test coverage across every `TLV_TAG_CAPACITY` variant. (#163)

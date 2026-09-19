@@ -53,8 +53,8 @@ check(2 "conflicting color" dump --format ber --hex AA --force-color --no-color)
 check(2 "requires --input" dump --format ber --hex AA --input-encoding hex)
 check(2 "binary or hex" dump --format ber --input - --input-encoding unknown)
 check(2 "requires --profile" dump --format ber --hex AA --describe)
-check(2 "require dump" validate --format ber --hex AA --profile emv)
-check(2 "require --format ber" dump --format der --hex AA --profile emv)
+check(2 "requires --format ber" validate --format der --hex AA --profile emv)
+check(2 "requires --format ber" dump --format der --hex AA --profile emv)
 check(2 "unknown profile" dump --format ber --hex AA --profile unknown)
 check(2 "--decode requires --profile" dump --format ber --hex AA --decode)
 check(2 "require dump" validate --format ber --hex AA --output json)
@@ -203,8 +203,39 @@ if(HAS_EMV)
     # --decode: a value kind with no codec (PAN is DIGITS, not BYTES/TEXT/TEMPLATE, so use a template tag instead).
     check(0 "^offset=0 tag=6F length=0 value= name=\"File Control Information \\(FCI\\) Template\"\n$" dump --format ber --hex "6F00" --profile emv --decode)
     check(0 "\"decoded\":\"12345678\"" dump --format ber --hex "5A0412345678" --profile emv --decode --output json)
+    # Schema validation (#167): mandatory tags, forbidden/unknown tags, duplicate
+    # tags, length constraints and nesting, with a tag/offset diagnostic
+    # distinguishable from an ordinary format error.
+    check(0 "^$" validate --format ber --profile emv --hex "6F098407A0000000031010") # DF Name only.
+    # Missing mandatory DF Name: the distinct TLV_ERR_SCHEMA_MISSING (not
+    # TLV_ERR_SCHEMA) never prints a tag, since its offset is only the end of
+    # the FCI Template's (empty) value, not an element.
+    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 2: required schema field missing\n$"
+        validate --format ber --profile emv --hex "6F00")
+    check(1 "schema TLV_ERR_SCHEMA at byte 11 tag=50:" # Application Label forbidden directly under the FCI Template.
+        validate --format ber --profile emv --hex "6F0C8407A0000000031010500141")
+    check(1 "schema TLV_ERR_SCHEMA at byte 11 tag=84:" validate --format ber --profile emv # Duplicate DF Name.
+        --hex "6F128407A00000000310108407A0000000031010")
+    check(1 "schema TLV_ERR_INVALID_LENGTH at byte 2 tag=84:" # DF Name shorter than the dictionary minimum.
+        validate --format ber --profile emv --hex "6F048402AABB")
+    check(0 "^$" validate --format ber --profile emv # A nested, known-optional FCI Proprietary Template child.
+        --hex "6F0C84053132333435A503500141")
+    check(0 "^$" validate --format ber --profile emv --hex "770A82021980940408010100") # GPO response format 2: AIP + AFL.
+    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 6: required schema field missing\n$"
+        validate --format ber --profile emv --hex "770482021980") # Missing mandatory AFL.
+    check(0 "^$" validate --format ber --profile emv --hex "7003DF0100") # Unmodeled top-level template: accepted unchecked.
+    check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" # A plain format error is not labeled "schema".
+        validate --format ber --profile emv --hex "6F0AFF")
+    # A missing-required-field offset is the end of its parent's (here,
+    # empty) value, which coincides with the unrelated sibling GPO response
+    # (770A...) that follows; TLV_ERR_SCHEMA_MISSING's dedicated diagnostic
+    # (no "tag=") avoids misattributing the failure to that sibling.
+    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 2: required schema field missing\n$"
+        validate --format ber --profile emv --hex "6F00770A82021980940408010100")
+    check(0 "tag=6F" dump --format ber --profile emv --hex "6F00") # dump's --profile never runs schema checks.
 else()
     check(2 "EMV profile is disabled" dump --format ber --hex " " --profile emv)
+    check(2 "EMV profile is disabled" validate --format ber --hex " " --profile emv)
 endif()
 if(HAS_DER)
     check(1 "TLV_ERR_" validate --format der --hex "30800401AA0000")

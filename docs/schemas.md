@@ -64,12 +64,19 @@ static const tlv_structure_schema_t message = {rules, 2, 0};
 
 `tlv_schema_validate` checks complete framing and nesting, then lengths,
 occurrences and child membership. It never decodes values. Invalid rule tables,
-unknown tags, missing fields, excessive occurrences and kind mismatches return
-`TLV_ERR_SCHEMA`; length failures retain `TLV_ERR_INVALID_LENGTH`. Framing and
-resource errors propagate. Failure offsets identify the element, or the end
-of a parent with missing fields. Success leaves the offset unchanged.
+unknown tags, excessive occurrences and kind mismatches return `TLV_ERR_SCHEMA`,
+with the offset anchored to the actual offending element; length failures
+retain `TLV_ERR_INVALID_LENGTH`, anchored the same way. A missing required
+field (an occurrence count below its rule's `min_occurs`) instead returns
+`TLV_ERR_SCHEMA_MISSING`, with the offset at the end of its parent's value - a
+scope boundary rather than an element, which can coincide with the start of
+an unrelated sibling in the enclosing scope. Distinguish the two codes before
+using the offset to look up a tag. Framing and resource errors propagate.
+Success leaves the offset unchanged.
 
 No allocation or C recursion is used. Each scope is rescanned for each rule;
 complexity is `O(rules * rules + elements * rules)` per scope. Tables must remain immutable.
 Sibling ordering and cross-field/value semantics are application concerns.
-`tlv::validate` exposes these same rules through the C++ API.
+`tlv::validate` exposes these same rules through the C++ API. For a concrete
+structure schema built on this engine, see
+[EMV structural validation](profiles/emv/README.md#structural-validation).

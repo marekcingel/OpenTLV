@@ -123,14 +123,13 @@ int options::parse(int argc, char** argv) {
         return fail(2, "--pdol requires --format ber and cannot use --tree, --pretty, or --decode");
     if ((seen & 512) && (seen & 1024)) return fail(2, "conflicting color options");
     if ((seen & 4096) && !input) return fail(2, "--input-encoding requires --input");
-    if ((profile || describe || color || decode || strcmp(output, "text")) &&
-        strcmp(command, "dump"))
+    if ((describe || color || decode || strcmp(output, "text")) && strcmp(command, "dump"))
         return fail(2, "presentation options require dump");
     if (describe && !profile) return fail(2, "--describe requires --profile emv");
     if (decode && !profile) return fail(2, "--decode requires --profile emv");
     if (profile) {
         if (strcmp(profile, "emv")) return fail(2, "unknown profile");
-        if (strcmp(format, "ber")) return fail(2, "EMV annotations require --format ber");
+        if (strcmp(format, "ber")) return fail(2, "EMV profile requires --format ber");
 #if !OPENTLV_PROFILE_EMV
         return fail(2, "EMV profile is disabled in this build");
 #endif
@@ -147,7 +146,8 @@ void options::usage() {
                  "  --pdol                 Read raw DOL tag/one-byte-length pairs (BER)\n"
                  "  --tree                 Print nested BER/DER elements (dump only)\n"
                  "  --pretty               Print a graphical UTF-8 tree (implies --tree)\n"
-                 "  --profile emv          Annotate BER tags using the EMV dictionary\n"
+                 "  --profile emv          Annotate BER tags (dump) or check EMV schema "
+                 "structure (validate)\n"
                  "  --describe             Include EMV type and length descriptions\n"
                  "  --decode               Decode known EMV values (requires --profile emv)\n"
                  "  --output text|json     Print text (default) or a hierarchical JSON document\n"
@@ -159,6 +159,9 @@ void options::usage() {
                  "  --max-elements N       Maximum visited elements (default 100000)\n"
                  "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"
                  "Validation accepts empty input and checks all concatenated elements.\n"
+                 "With --profile emv, validate also checks the EMV schema structure "
+                 "(mandatory/forbidden/duplicate tags, lengths, and nesting) and reports a "
+                 "schema-labeled diagnostic distinct from format errors; --pdol skips it.\n"
                  "Exit codes: 0 success, 1 invalid TLV, 2 invalid usage/hex/format, 3 "
                  "I/O/resource error.\n";
 }
