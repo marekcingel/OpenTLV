@@ -17,7 +17,7 @@
 The application supplies its descriptors, callbacks, and optional context.
 Callbacks define valid tags and lengths, obey buffer bounds, and support writer
 size queries. There is no built-in configurable fixed-width descriptor.
-See [shared memory ownership rules](../../memory.md).
+See [shared memory ownership rules](../../guides/memory.md).
 
 ## C usage
 

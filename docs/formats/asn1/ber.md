@@ -16,7 +16,7 @@
 
 Multi-byte tags up to TLV_TAG_CAPACITY; definite lengths and constructed indefinite input. Ordinary writes use definite lengths.
 
-See [shared memory ownership rules](../../memory.md) before retaining a parsed view.
+See [shared memory ownership rules](../../guides/memory.md) before retaining a parsed view.
 
 ## Minimal C usage
 

@@ -58,7 +58,7 @@ representable `tlv_length_t` value everywhere, yet `tlv_length_to_size()` and
 x64 without attempting any allocation or memory access, since it equals
 `SIZE_MAX` there.
 
-Readers ([`tlv_read()`](../tlv/include/tlv/reader/reader.h) and its callers)
+Readers ([`tlv_read()`](../../tlv/include/tlv/reader/reader.h) and its callers)
 decode using native `size_t` internally -- format callbacks are unchanged --
 and convert the final length to `tlv_length_t` with `tlv_length_from_size()`
 before returning a [`tlv_view_t`](value.md). That conversion cannot fail.

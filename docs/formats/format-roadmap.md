@@ -1,9 +1,9 @@
 # Format expansion candidates
 
-[Back to documentation](README.md)
+[Back to documentation](../README.md)
 
 This is a candidate catalogue, not a release schedule. The
-[README checklist](../README.md#format-and-profile-support) records built-in support.
+[README checklist](../../README.md#format-and-profile-support) records built-in support.
 Unchecked entries are not implemented; application-defined callbacks may already
 support particular encodings. Each implementation needs a separate scope, chosen
 specification edition, limits, and conformance tests before its checkbox is enabled.
@@ -26,10 +26,10 @@ introducing protocol-specific branches in the generic parser.
 | Area | Candidate | Intended boundary and reference |
 | --- | --- | --- |
 | Generic | Configurable fixed-width TLV | Reusable tag/length widths and byte order; distinguish payload length from total encoded length. Custom callbacks are already supported. |
-| ASN.1 | Full DER validation | Extend beyond structural framing to canonical values and ordering. Schema-dependent semantics need an explicit scope. [Current limits](profiles/der/README.md#supported-scope) |
-| ASN.1 | Full CER validation | Extend beyond structural framing, EOC placement and canonical segmentation to full value/ordering semantics. Schema-dependent rules need an explicit scope. [Current limits](profiles/cer/README.md#supported-scope) |
+| ASN.1 | Full DER validation | Extend beyond structural framing to canonical values and ordering. Schema-dependent semantics need an explicit scope. [Current limits](../profiles/der/README.md#supported-scope) |
+| ASN.1 | Full CER validation | Extend beyond structural framing, EOC placement and canonical segmentation to full value/ordering semantics. Schema-dependent rules need an explicit scope. [Current limits](../profiles/cer/README.md#supported-scope) |
 | Smart cards | GlobalPlatform DGI | DGI field encoding and length handling, separately from APDU transport and card management. [Card Specification 2.3, section 11.1.12](https://globalplatform.org/wp-content/uploads/2018/03/GPC_Specification_v2.3.pdf) |
-| Payments | EMV contactless | Separate kernel-specific scope and specification selection; not implied by the existing Contact Book 3 dictionary. [Current profile](profiles/emv/README.md) |
+| Payments | EMV contactless | Separate kernel-specific scope and specification selection; not implied by the existing Contact Book 3 dictionary. [Current profile](../profiles/emv/README.md) |
 | Networking | NDN | Packet TLV framing and explicit container rules; packet semantics belong in a separate profile. [NDN packet format](https://101.named-data.net/connectivity/packet-format/) |
 | Networking | PEAP | Defined TLV structures, independently from TLS transport and authentication state machines. [Microsoft PEAP TLV](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-peap/fa418c4b-b11e-47a5-b86f-d74a9150b822) |
 | Networking | RADIUS | Base attribute framing; the length includes Type and Length. Vendor-specific and extended attributes need separately defined coverage. [RFC 2865, section 5](https://www.rfc-editor.org/rfc/rfc2865.html#section-5) |
@@ -46,7 +46,7 @@ introducing protocol-specific branches in the generic parser.
 
 The current tree walker already handles nested values without a schema, using
 bounded iterative traversal. It does not allocate an object tree. See
-[architecture](architecture.md#traversal-and-recovery).
+[architecture](../concepts/architecture.md#traversal-and-recovery).
 
 ## Proposed order
 

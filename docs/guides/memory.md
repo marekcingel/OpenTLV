@@ -1,6 +1,6 @@
 # Memory ownership and lifetime
 
-[Back to documentation](README.md)
+[Back to documentation](../README.md)
 
 | Object or operation | Ownership and lifetime |
 | --- | --- |
@@ -30,7 +30,7 @@ encoding must be retained.
 The C writer copies value bytes into caller-provided output. The source value
 must not overlap the destination element. Capacity is checked before writing;
 custom callback failures can still leave partially modified bytes. Do not assume
-that every error rolls back destination memory. See [I/O contracts](formats/README.md).
+that every error rolls back destination memory. See [I/O contracts](../formats/README.md).
 
 ## Custom descriptors and C++
 

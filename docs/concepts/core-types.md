@@ -59,7 +59,7 @@ borrows the value directly from the input buffer. The writer accepts
 `tlv_tag_t`, and the C++ layer uses the same type for tags and codec keys.
 Tag and length restrictions depend on the selected format; the default format
 uses one tag byte, while BER and DER support multi-byte tags.
-See [memory ownership and lifetime](memory.md) for shared buffer rules.
+See [memory ownership and lifetime](../guides/memory.md) for shared buffer rules.
 
 ## Tag comparison and numeric conversion
 

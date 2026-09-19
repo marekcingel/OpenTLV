@@ -16,7 +16,7 @@ Before opening a pull request:
 - Update relevant documentation and add meaningful tests for behavior changes;
   document new or changed public API as described in
   [Public API documentation](#public-api-documentation).
-- Build and run the applicable tests using the [getting-started guide](docs/getting-started.md#build-and-run-tests).
+- Build and run the applicable tests using the [getting-started guide](docs/getting-started/README.md#build-and-run-tests).
 - Format C and C++ changes with clang-format, ideally via the pre-commit hooks
   (see below); CI rejects a pull request that isn't formatted.
 - Record meaningful user-facing changes at the top of the appropriate `Unreleased`
@@ -209,6 +209,15 @@ pip install -r requirements-docs.txt
 mkdocs serve   # live preview at http://127.0.0.1:8000
 mkdocs build   # writes the static site to site/ (git-ignored)
 ```
+
+Documentation is grouped by purpose (`getting-started/`, `concepts/`, `guides/`,
+`formats/`, `profiles/`, `cli/`, `reference/`, `development/`); see
+[where documentation belongs](docs/development/documentation-layout.md) before
+adding a page.
+
+For a documentation move, follow the repository-wide link checks and content
+preservation rules in that guide. The [migration table and URL policy](docs/development/documentation-layout.md#migration-for-issue-186)
+record the paths changed by the documentation reorganization.
 
 The build is strict: broken links between documentation pages fail it. Add a
 new page to the `nav` section of `mkdocs.yml` so it appears in the site

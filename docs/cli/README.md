@@ -289,7 +289,7 @@ is needed only for optional `--profile emv` annotations.
 
 `validate --format ber --profile emv` additionally checks the parsed input
 against `tlv_emv_structure_schema` (see
-[EMV structural validation](profiles/emv/README.md#structural-validation)):
+[EMV structural validation](../profiles/emv/README.md#structural-validation)):
 mandatory tags, forbidden/unknown tags, duplicate tags, length bounds, and
 required nesting for the FCI Template, Application Template, and GPO
 Response Message Template Format 2. It runs only after the input has parsed

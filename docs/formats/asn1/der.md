@@ -16,7 +16,7 @@
 
 Canonical tag/length framing with definite lengths only. Generic I/O does not validate nested contents or full ASN.1 value semantics.
 
-See [shared memory ownership rules](../../memory.md) before retaining a parsed view.
+See [shared memory ownership rules](../../guides/memory.md) before retaining a parsed view.
 
 ## Minimal C usage
 

@@ -37,7 +37,7 @@ if (tlv_tag_to_u64(tag, TLV_BYTE_ORDER_BIG_ENDIAN, &number) == TLV_OK) {
 }
 ```
 
-See [tag comparison and numeric conversion](../../core-types.md#tag-comparison-and-numeric-conversion)
+See [tag comparison and numeric conversion](../../concepts/core-types.md#tag-comparison-and-numeric-conversion)
 for conversion limits and exact versus numeric equality.
 
 `tlv_emv_schema` is the base dictionary, compatible with `tlv_schema_find()`

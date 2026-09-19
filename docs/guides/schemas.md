@@ -5,7 +5,7 @@ This engine is format-agnostic and expresses occurrence, nesting and
 membership only; it has no ASN.1 semantics. For DER-specific canonical rules
 it cannot express (SET/SET OF ordering, CHOICE, implicit/explicit tagging,
 DEFAULT omission), see
-[schema-aware DER validation and encoding](profiles/der/README.md#schema-aware-validation-and-encoding),
+[schema-aware DER validation and encoding](../profiles/der/README.md#schema-aware-validation-and-encoding),
 a distinct schema type built for that purpose.
 
 ```c
@@ -79,4 +79,4 @@ complexity is `O(rules * rules + elements * rules)` per scope. Tables must remai
 Sibling ordering and cross-field/value semantics are application concerns.
 `tlv::validate` exposes these same rules through the C++ API. For a concrete
 structure schema built on this engine, see
-[EMV structural validation](profiles/emv/README.md#structural-validation).
+[EMV structural validation](../profiles/emv/README.md#structural-validation).
