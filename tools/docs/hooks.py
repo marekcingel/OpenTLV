@@ -18,7 +18,9 @@ from mkdocs.structure.files import File
 log = logging.getLogger("mkdocs.hooks.opentlv")
 
 REPO_URL = "https://github.com/marekcingel/OpenTLV"
-BRANCH = "main"
+# Git ref that repository links point at: the release tag for a released
+# version, develop for the latest (development) documentation.
+REF = os.environ.get("OPENTLV_DOCS_REF", "develop")
 
 # Directory holding the c-api/html and cxx-api/html trees produced by the
 # c-api-docs and cxx-api-docs CMake targets. The two trees stay siblings, as
@@ -30,6 +32,11 @@ API_SITE_PREFIX = "reference/api"
 
 # Inline Markdown links: [text](target). Image links are left alone.
 LINK = re.compile(r"(?<!!)(\[[^\]]*\]\()([^)\s]+)(\))")
+
+
+def on_config(config):
+    config.extra["docs_channel"] = os.environ.get("OPENTLV_DOCS_CHANNEL", config.extra["docs_channel"])
+    return config
 
 
 def on_files(files, config):
@@ -74,6 +81,6 @@ def on_page_markdown(markdown, page, config, files):
             # A warning fails the strict build, like a broken link inside docs/.
             log.warning("%s: link to '%s' does not exist in the repository", page.file.src_uri, target)
         kind = "tree" if os.path.isdir(repo_path) else "blob"
-        return f"{prefix}{REPO_URL}/{kind}/{BRANCH}/{repo_path}{sep}{fragment}{suffix}"
+        return f"{prefix}{REPO_URL}/{kind}/{REF}/{repo_path}{sep}{fragment}{suffix}"
 
     return LINK.sub(rewrite, markdown)

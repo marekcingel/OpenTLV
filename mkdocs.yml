@@ -28,6 +28,7 @@ exclude_docs: |
 
 theme:
   name: material
+  custom_dir: tools/docs/overrides
   logo: assets/logo-mark.svg
   favicon: assets/favicon.svg
   palette:
@@ -59,6 +60,14 @@ theme:
     - content.code.copy
 
 extra:
+  # "development" for local and latest builds, "release" for tagged versions;
+  # tools/docs/hooks.py reads it from OPENTLV_DOCS_CHANNEL, which the
+  # Documentation workflow sets (tools/docs/overrides/main.html).
+  docs_channel: development
+  # Version selector; versions are published with mike (see CONTRIBUTING.md).
+  version:
+    provider: mike
+    alias: true
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/marekcingel/OpenTLV

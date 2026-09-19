@@ -305,20 +305,27 @@ index shown on GitHub.
 
 ### Publishing
 
-The [Documentation workflow](.github/workflows/docs.yml) builds the site with
-`mkdocs build` and deploys it to GitHub Pages at
-<https://marekcingel.github.io/OpenTLV/>:
+The [Documentation workflow](.github/workflows/docs.yml) publishes versioned
+documentation to GitHub Pages at <https://marekcingel.github.io/OpenTLV/> with
+[mike](https://github.com/jimporter/mike). Each version is a directory on the
+`gh-pages` branch, and the site header has a version selector:
 
 - Pull requests to `main` or `develop` run Markdown lint and a strict site
   build; either failing fails the check.
-- A push to `main`, the publication branch, builds and deploys the site. A
-  failed build stops the workflow before deployment, so the published site is
-  never replaced by a broken one.
-- The generated site is uploaded as a workflow artifact; nothing is committed
-  to a `gh-pages` branch.
+- A push to `develop` publishes the development documentation as `latest`. It
+  is labeled "latest (development)" and every page carries a development
+  banner.
+- A release tag `X.Y.Z` (no pre-release suffix) publishes version `X.Y`, built
+  from that tag so it matches the released sources, with the alias `stable`.
+  The site root redirects to `stable` once a release exists, and to `latest`
+  before that. A later patch tag replaces the content of its `X.Y`; other
+  versions stay available after newer releases. Push release tags in ascending
+  order, as the most recently published tag becomes `stable`.
+- Nothing is copied by hand: every version is built from its own tag. A failed
+  build stops the workflow before anything is published.
 
-No manual upload is needed. One-time repository setup: under **Settings ->
-Pages**, set **Source** to **GitHub Actions**. To publish from another branch,
-change `on.push.branches` and the `github.ref` check in the workflow, and allow
-that branch in the `github-pages` environment's deployment branch rules.
-A run can also be started manually from the Actions tab (`main` only deploys).
+One-time repository setup: under **Settings -> Pages**, set **Source** to
+**Deploy from a branch** and select `gh-pages` (root). The first publish
+creates the branch. Manage published versions locally with `mike list`,
+`mike delete` and `mike retitle`; add `--push` to publish the change.
+Preview the version selector with `mike serve`.
