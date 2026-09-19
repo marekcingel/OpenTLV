@@ -32,7 +32,7 @@ The public headers ([tlv/include/tlv](tlv/include/tlv) and
 [tlv++/include/tlv++](tlv++/include/tlv++)) are the authoritative source for
 API contracts and are written as Doxygen comments, so a generated API
 reference can be built from them. Every new or changed public declaration
-follows the conventions below. The C API comments are rendered by
+follows the conventions below. The C and C++ API comments are rendered by
 [Doxygen](#generate-the-c-api-reference) and can also be checked by the
 compiler (see the end of this section).
 
@@ -124,7 +124,36 @@ Keep includes outside that group block.
 The [Documentation workflow](.github/workflows/docs.yml) generates the same
 reference, treats Doxygen warnings as errors and uploads the HTML as the
 `c-api-reference` artifact. This reference is separate from the MkDocs site;
-website integration and the C++ reference are outside its scope.
+website integration is outside its scope.
+
+## Generate the C++ API reference
+
+Use the same Doxygen configuration prerequisites and CMake configure command
+as for the [C reference](#generate-the-c-api-reference), then run:
+
+```sh
+cmake --build build/docs --target cxx-api-docs
+```
+
+Open `build/docs/docs/cxx-api/html/index.html`. This target also generates the
+C reference for cross-links; no C++ compiler or library compilation is needed,
+and `OPENTLV_BUILD_CXX=OFF` does not disable reference generation.
+
+The C++ namespace, class and header indexes cover only `tlv++/include/tlv++`.
+Private members and implementation helpers are excluded. The reference shows
+C++11 compatibility interfaces plus the C++20 `TlvCodec` concept; its landing
+page explains the standard-library aliases selected by newer language modes.
+Ownership, lifetime and error contracts come from the public header comments.
+
+[tools/docs/Doxyfile.cxx.in](tools/docs/Doxyfile.cxx.in) configures C++ extraction;
+[tools/docs/Doxyfile.common.in](tools/docs/Doxyfile.common.in) shares HTML and
+warning settings with C. The [landing page](tools/docs/cxx-api.dox) provides
+reference navigation and compatibility notes, complementing conceptual docs.
+
+The Documentation workflow generates both references with warnings as errors.
+The `cxx-api-reference` artifact contains `cxx-api/html` and `c-api/html` as
+siblings so links to C declarations work after extraction. Keep that layout
+when copying the references. Integration into the main site is separate work.
 
 ## Pre-commit hooks
 

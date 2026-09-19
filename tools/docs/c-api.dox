@@ -7,8 +7,8 @@
  *
  * This reference covers all shipped C formats and profiles, including those
  * disabled in a particular library build. Configuration and version values
- * describe the CMake build used to generate this reference. The C++ API and
- * integration into the main documentation website are separate work.
+ * describe the CMake build used to generate this reference. The C++ API has a separate reference. Integration into the main
+ * documentation website is separate work.
  */
 
 /** @defgroup core Core types and utilities

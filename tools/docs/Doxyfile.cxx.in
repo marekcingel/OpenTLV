@@ -1,0 +1,23 @@
+@INCLUDE               = "@PROJECT_BINARY_DIR@/Doxyfile.common"
+PROJECT_NAME           = "OpenTLV C++ API"
+PROJECT_NUMBER         = "@OPENTLV_VERSION_STRING@"
+OUTPUT_DIRECTORY       = "@PROJECT_BINARY_DIR@/docs/cxx-api"
+INPUT                  = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++" \
+                         "@PROJECT_SOURCE_DIR@/tools/docs/cxx-api.dox"
+FILE_PATTERNS          = *.hpp *.dox
+RECURSIVE              = YES
+STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@/tlv++/include"
+OPTIMIZE_OUTPUT_FOR_C  = NO
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_PRIV_VIRTUAL   = NO
+INTERNAL_DOCS          = NO
+EXCLUDE_SYMBOLS        = OPENTLV_* TLV_NODISCARD
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+# Render fallback interfaces and also expose the C++20 concept.
+PREDEFINED             = __cplusplus=201103L OPENTLV_DOXYGEN TLV_NODISCARD=
+SEARCH_INCLUDES        = NO
+TAGFILES               = "@PROJECT_BINARY_DIR@/docs/c-api/c-api.tag=../../c-api/html"

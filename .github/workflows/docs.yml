@@ -19,8 +19,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  c-api:
-    name: Generate C API reference
+  api:
+    name: Generate C and C++ API references
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
@@ -31,7 +31,7 @@ jobs:
       - name: Install Doxygen
         run: sudo apt-get update && sudo apt-get install -y doxygen ninja-build
 
-      - name: Configure C API documentation
+      - name: Configure API documentation
         run: >-
           cmake -S . -B build/docs -G Ninja
           -DOPENTLV_BUILD_DOCS=ON
@@ -39,14 +39,24 @@ jobs:
           -DOPENTLV_BUILD_TESTS=OFF
           -DOPENTLV_BUILD_EXAMPLES=OFF
 
-      - name: Generate C API reference
-        run: cmake --build build/docs --target c-api-docs
+      - name: Generate C and C++ API references
+        run: cmake --build build/docs --target cxx-api-docs
 
       - name: Upload C API reference
         uses: actions/upload-artifact@v4
         with:
           name: c-api-reference
           path: build/docs/docs/c-api/html
+          if-no-files-found: error
+
+      # Preserve sibling directories so C++ links to C declarations work.
+      - name: Upload C++ reference with linked C reference
+        uses: actions/upload-artifact@v4
+        with:
+          name: cxx-api-reference
+          path: |
+            build/docs/docs/cxx-api/html
+            build/docs/docs/c-api/html
           if-no-files-found: error
 
   build:
