@@ -7,12 +7,28 @@
 #include "tlv++/types.hpp"
 #include "tlv++/writer.hpp"
 
+/**
+ * @file codec.hpp
+ * @brief Compile-time codec trait and a convenience value writer.
+ */
+
 namespace tlv {
 
-// Concept that every payload (data type) must satisfy to be encoded/decoded
-// through TLV. Implementations live outside the library core.
-// C++20 and later exposes this check as a concept. In C++11 through C++17 it
-// remains an ordinary trait so the API can use SFINAE.
+/**
+ * @brief Trait for the interface every payload type must satisfy to be encoded and decoded through
+ * TLV.
+ *
+ * `T` satisfies the trait when it provides:
+ * - a static member `tag` convertible to #tag_t,
+ * - `void encode(std::vector<byte>&) const` appending its encoded value, and
+ * - a static `decode(bytes)` returning the decoded value.
+ *
+ * Implementations live outside the library core. C++20 and later expose the
+ * same check as the TlvCodec concept. In C++11 through C++17 it remains an
+ * ordinary trait so the API can use SFINAE.
+ *
+ * @tparam T Payload type to check.
+ */
 template <typename T> struct is_tlv_codec {
 private:
     template <typename U>
@@ -27,10 +43,25 @@ public:
 };
 
 #if __cplusplus >= 202002L
+/** @brief Concept form of #tlv::is_tlv_codec; available from C++20. */
 template <typename T> concept TlvCodec = is_tlv_codec<T>::value;
 #endif
 
-// Explicit higher-level convenience API. The temporary vector may allocate.
+/**
+ * @brief Encodes a codec value and writes it as one element.
+ *
+ * Calls `value.encode()` into a temporary vector, then writes it under
+ * `T::tag`. This is an explicit higher-level convenience API.
+ *
+ * @tparam T A type satisfying #tlv::is_tlv_codec.
+ *
+ * @param output Writer to append to.
+ * @param value  Value to encode.
+ *
+ * @return Success, or the error of writer::write().
+ *
+ * @note The temporary vector may allocate.
+ */
 template <typename T>
 TLV_NODISCARD typename std::enable_if<is_tlv_codec<T>::value, expected<void, error>>::type
 write_value(writer& output, const T& value) {

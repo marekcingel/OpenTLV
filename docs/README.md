@@ -41,6 +41,7 @@
 - [Logo assets](assets/README.md)
 - [Changelog](../CHANGELOG.md)
 - [Contributing](../CONTRIBUTING.md)
+- [Public API documentation conventions](../CONTRIBUTING.md#public-api-documentation)
 - [Security policy](../SECURITY.md)
 - [License](../LICENSE)
 

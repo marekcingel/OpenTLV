@@ -12,3 +12,9 @@ When updating `CHANGELOG.md`:
 - Use the existing Keep a Changelog categories (`Added`, `Changed`, `Fixed`,
   and so on) and match the file's existing wording and formatting.
 - Include the relevant pull-request or issue reference when one is known.
+
+## Public API documentation
+
+Document every new or changed public declaration in `tlv/include/` and
+`tlv++/include/` with Doxygen comments, following the conventions in
+[CONTRIBUTING.md](CONTRIBUTING.md#public-api-documentation).

@@ -13,7 +13,9 @@ governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 Before opening a pull request:
 
 - Keep changes focused and preserve documented memory ownership and API boundaries.
-- Update relevant documentation and add meaningful tests for behavior changes.
+- Update relevant documentation and add meaningful tests for behavior changes;
+  document new or changed public API as described in
+  [Public API documentation](#public-api-documentation).
 - Build and run the applicable tests using the [getting-started guide](docs/getting-started.md#build-and-run-tests).
 - Format C and C++ changes with clang-format, ideally via the pre-commit hooks
   (see below); CI rejects a pull request that isn't formatted.
@@ -23,6 +25,74 @@ Before opening a pull request:
 
 For substantial API or architecture changes, discuss the proposed scope in an
 issue first. Repository-specific instructions are in [AGENTS.md](AGENTS.md).
+
+## Public API documentation
+
+The public headers ([tlv/include/tlv](tlv/include/tlv) and
+[tlv++/include/tlv++](tlv++/include/tlv++)) are the authoritative source for
+API contracts and are written as Doxygen comments, so a generated API
+reference can be built from them. Every new or changed public declaration
+follows the conventions below. Doxygen generation itself is not part of the
+build yet; the comments are checked by review and, for the C headers, by the
+compiler (see the end of this section).
+
+**Format.** Use `/** ... */` blocks with a leading `@brief` line, a blank line,
+then the details. Put the block directly above the declaration. Use
+`/** ... */` above a member or enumerator (or `/**< ... */` after it) for
+structure members, enum values and constants. Plain `/* ... */` and `//`
+comments stay for implementation notes and are never used for public
+contracts. Start each header with an `@file` block giving a one-line `@brief`,
+and put any module-wide rules there.
+
+**Tags**, in this order:
+
+| Tag | Use |
+| --- | --- |
+| `@brief` | One sentence, imperative or descriptive, ending in a period. |
+| `@param[in]`, `@param[out]`, `@param[in,out]` | Every parameter that is not obvious from its name and type. State the direction, whether `NULL` is allowed and when, valid ranges, and units (bytes, not elements). |
+| `@return` | One line per distinct result code, naming the enumerator (`@return #TLV_ERR_NULL_ARG if ...`); use one line for success. |
+| `@note` | Guarantees and clarifications, such as output preservation on failure. |
+| `@warning` | Hazards the caller must act on, such as lifetime requirements, or callbacks that may leave a buffer modified on error. |
+| `@see` | Related functions or types. |
+| `@deprecated` | Deprecated APIs, with the replacement. |
+
+**Describe the public contract, not the implementation.** Where they apply,
+state each of the following explicitly:
+
+- ownership and lifetime: who owns each buffer, and what must outlive a
+  returned view, reader, writer or descriptor;
+- allocation behavior, including that a function never allocates;
+- zero-copy behavior: which outputs borrow input bytes;
+- valid and invalid arguments, including `NULL` handling and overlap rules;
+- error conditions, using the result-code names;
+- output preservation on failure, such as `*written` left unchanged, a
+  destination left unspecified, or a callback that may have modified it;
+- reader and writer state changes, such as the position advancing only on
+  success;
+- native-size limitations, such as a 64-bit `tlv_length_t` narrowed to
+  `size_t`;
+- format- or profile-specific restrictions.
+
+**Conventions.**
+
+- Refer to code entities by name: `#TLV_OK` for constants, types and enumerators
+  in the same header set, `function()` for functions (Doxygen links them), and
+  backticks for parameters and other code. Cross-reference documentation files
+  by path.
+- Do not restate the signature. Skip `@param` only for parameters whose name and
+  type make them obvious.
+- A family of overloads that differ only by type (for example `_u8`, `_u16`,
+  `_u32`, `_u64`) documents the first in full and uses `@copydetails` on the
+  rest, each with its own `@brief`.
+- Generated code, such as constants produced from
+  [emv_tags.def](tlv/include/tlv/profiles/emv_tags.def), is documented once on the
+  generating macro or in the header that expands it.
+- Preserve existing useful documentation when converting a comment; move its
+  content into the structure above rather than rewriting it.
+- Public C headers stay C99 and must not need Doxygen to compile.
+
+To catch malformed comments (for example a `@param` that names a nonexistent
+parameter), build the C headers with Clang's `-Wdocumentation`.
 
 ## Pre-commit hooks
 

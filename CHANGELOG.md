@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Standardize public C and C++ header comments on Doxygen, documenting ownership, lifetime, allocation, error and output-preservation contracts, and add the convention to [CONTRIBUTING.md](CONTRIBUTING.md#public-api-documentation). No behavior changes. (#184)
 - Split the `otlv` CLI's `main.cpp` into dedicated `input.cpp` (input/hex loading), `commands.cpp` (command dispatch and TLV walking), and a new `console_color.hpp` RAII helper, and convert its own input/output from C stdio to C++ iostreams. Also fixes a stale `opentlv:` diagnostic prefix left over from the CLI's rename to `otlv`. No CLI behavior or exit-code changes. (#163)
 - Rename the CLI executable and CMake target from `opentlv` to `otlv`, and update its `--help`/`--version` output, [tools/cli/test.cmake](tools/cli/test.cmake), and [docs/cli.md](docs/cli.md) to match. (#162)
 
