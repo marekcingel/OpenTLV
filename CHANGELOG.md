@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Validate documentation in CI: the Documentation workflow now runs markdownlint and a `mkdocs build --strict`, and warnings for pages missing from `nav`, invalid `nav` entries, absolute links, missing anchors and links to nonexistent repository files fail the build; run the same checks locally as described in [CONTRIBUTING.md](CONTRIBUTING.md#documentation-site). (#189)
 - Add a Documentation workflow that verifies the MkDocs site builds on pull requests and deploys it to GitHub Pages from `main` through GitHub Actions, without committing generated files; see [CONTRIBUTING.md](CONTRIBUTING.md#publishing). (#188)
 - Configure the MkDocs site theme with OpenTLV logo, favicon and blue/orange colors, top-level navigation tabs, previous/next footer links, search suggestions, a GitHub repository link and syntax highlighting; light/dark modes, search, code copy, table of contents and edit links are kept. (#187)
 - Add a MkDocs (Material) documentation site built from `docs/`, with a landing page and Getting Started, Concepts, Formats, Profiles, Guides, CLI and Development navigation; build and preview it with `mkdocs serve` (see [CONTRIBUTING.md](CONTRIBUTING.md#documentation-site)). (#185)

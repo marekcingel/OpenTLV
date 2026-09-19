@@ -4,9 +4,12 @@ Links that leave docs/ point at the GitHub repository, and links to the GitHub
 index docs/README.md point at the site landing page docs/index.md.
 """
 
+import logging
 import os
 import posixpath
 import re
+
+log = logging.getLogger("mkdocs.hooks.opentlv")
 
 REPO_URL = "https://github.com/marekcingel/OpenTLV"
 BRANCH = "main"
@@ -29,6 +32,9 @@ def on_page_markdown(markdown, page, config, files):
         if not resolved.startswith(".."):
             return match.group(0)
         repo_path = posixpath.normpath(posixpath.join("docs", resolved))
+        if not os.path.exists(repo_path):
+            # A warning fails the strict build, like a broken link inside docs/.
+            log.warning("%s: link to '%s' does not exist in the repository", page.file.src_uri, target)
         kind = "tree" if os.path.isdir(repo_path) else "blob"
         return f"{prefix}{REPO_URL}/{kind}/{BRANCH}/{repo_path}{sep}{fragment}{suffix}"
 

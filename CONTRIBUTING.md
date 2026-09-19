@@ -210,6 +210,13 @@ mkdocs serve   # live preview at http://127.0.0.1:8000
 mkdocs build   # writes the static site to site/ (git-ignored)
 ```
 
+Run the same checks as CI before opening a pull request:
+
+```sh
+pre-commit run markdownlint --all-files   # Markdown lint, rules in .markdownlint.json
+mkdocs build --strict                     # any warning fails the build
+```
+
 Documentation is grouped by purpose (`getting-started/`, `concepts/`, `guides/`,
 `formats/`, `profiles/`, `cli/`, `reference/`, `development/`); see
 [where documentation belongs](docs/development/documentation-layout.md) before
@@ -219,9 +226,10 @@ For a documentation move, follow the repository-wide link checks and content
 preservation rules in that guide. The [migration table and URL policy](docs/development/documentation-layout.md#migration-for-issue-186)
 record the paths changed by the documentation reorganization.
 
-The build is strict: broken links between documentation pages fail it. Add a
-new page to the `nav` section of `mkdocs.yml` so it appears in the site
-navigation. Relative links that leave `docs/` (to source files, `README.md`,
+The build is strict: any warning fails it, including broken links and anchors
+between pages, links to repository files that do not exist, pages missing from
+`nav` and `nav` entries that point to no page. Add a new page to the `nav`
+section of `mkdocs.yml` so it appears in the site navigation. Relative links that leave `docs/` (to source files, `README.md`,
 `CHANGELOG.md` and so on) are rewritten to GitHub URLs by
 [tools/docs/hooks.py](tools/docs/hooks.py). The site landing page is
 [docs/index.md](docs/index.md); [docs/README.md](docs/README.md) remains the
@@ -233,7 +241,8 @@ The [Documentation workflow](.github/workflows/docs.yml) builds the site with
 `mkdocs build` and deploys it to GitHub Pages at
 <https://marekcingel.github.io/OpenTLV/>:
 
-- Pull requests to `main` or `develop` only verify that the site builds.
+- Pull requests to `main` or `develop` run Markdown lint and a strict site
+  build; either failing fails the check.
 - A push to `main`, the publication branch, builds and deploys the site. A
   failed build stops the workflow before deployment, so the published site is
   never replaced by a broken one.
