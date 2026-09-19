@@ -7,6 +7,7 @@ set(HEADERS
     src/input.hpp
     src/options.hpp
     src/presentation.hpp
+    src/tag.hpp
 )
 
 set(SOURCES
@@ -17,6 +18,7 @@ set(SOURCES
     src/main.cpp
     src/options.cpp
     src/presentation.cpp
+    src/tag.cpp
 )
 
 add_executable(otlv

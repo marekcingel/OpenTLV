@@ -42,6 +42,7 @@ otlv dump --format ber --profile emv --decode --hex "9F0206000000001000"
 otlv dump --format ber --profile emv --decode --output json --hex "9F0206000000001000"
 otlv validate --format ber --profile emv --input input.bin
 otlv encode --format ber --tag 9F02 --value 000000001000
+otlv tag 9F02 --profile emv
 ```
 
 `dump` and `validate` require an explicit `--format` and exactly one input
@@ -201,6 +202,59 @@ format cannot encode (an invalid BER tag, or a value too long for
 `fixed-1byte`) reports `otlv: cannot encode element N: <reason>` and exits
 with code 1. Internally, encoding runs over a list of element specs, so
 structured multi-element input can be added as another source for that list.
+
+### Tag lookup
+
+`tag` looks up one BER tag in the OpenTLV EMV dictionary, so the CLI can serve
+as a quick tag reference. The metadata comes from the profile layer
+(`tlv_emv_find` in the base context); the CLI keeps no dictionary of its own.
+
+```sh
+otlv tag 9F02 --profile emv
+```
+
+```text
+Tag:         9F02
+Name:        Amount Authorised
+Type:        Numeric value (binary or decimal BCD, tag-dependent)
+Form:        Primitive
+Length:      6
+```
+
+The tag is a positional argument in the same hex syntax as `--hex`, and must
+be exactly one complete BER tag. `--profile emv` is required. `Length step` is
+printed only when the dictionary's permitted lengths advance by more than one
+byte (for example the AFL). `--output json` prints one object with `tag`,
+`profile`, `known` and, for known tags, `name`, `symbol`, `type`,
+`constructed`, `min_length`, `max_length` (omitted when unbounded) and
+`length_step`.
+
+A tag with no dictionary entry is a valid result, not malformed data: text
+output prints `Result:      Unknown tag in the EMV profile (base context)`,
+JSON output has `"known":false`, and the exit code is 0. An invalid or
+incomplete tag, an unknown profile, or any option other than `--profile` and
+`--output` exits with code 2.
+
+`tags` lists every tag in the dictionary (base context), sorted by tag, when
+you do not know which tag to look up:
+
+```sh
+otlv tags --profile emv --search amount
+```
+
+```text
+81      Amount Authorised Binary
+9F02    Amount Authorised
+9F03    Amount Other
+...
+```
+
+`--search TEXT` keeps only tags whose displayed name contains `TEXT`
+(case-insensitive). `--output json` prints `{"profile":"emv","tags":[...]}`
+where each element has the same fields as a known `tag` result. A search with
+no matches is not an error: it prints nothing (or an empty array) and exits 0.
+`tags` accepts only `--profile`, `--output` and `--search`; `--search` is
+rejected by every other command.
 
 ### PDOL / DOL inspection
 

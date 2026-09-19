@@ -91,7 +91,7 @@ void cli_presentation_prefix(const cli_presentation_t* p, size_t depth) {
 /* Presentation-only wrapper: falls back to a generic title-cased label when
  * the symbol has no curated one. Tag matching, value types and bounds come
  * from tlv itself (tlv_emv_display_label/tlv_emv_titlecase_name). */
-static std::string display_name(const char* name) {
+std::string cli_emv_display_name(const char* name) {
     char        titlecased[128];
     const char* label = tlv_emv_display_label(name);
     if (label) return label;
@@ -108,7 +108,7 @@ cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_vi
         tlv_emv_find((tlv_emv_context_t)p->contexts[depth], &view->tag);
     if (!definition) return info;
     info.known = true;
-    info.name = display_name(definition->name);
+    info.name = cli_emv_display_name(definition->name);
     if (describe) {
         std::ostringstream description;
         description << tlv_emv_value_kind_description(definition->value_kind)
