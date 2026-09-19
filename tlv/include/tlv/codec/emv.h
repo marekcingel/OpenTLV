@@ -8,7 +8,8 @@ extern "C" {
 #endif
 
 /**
- * @file emv.h
+ * @file
+ * @ingroup codecs
  * @brief Semantic codecs and C representations for EMV data element values.
  *
  * Use tlv_codec_decode() and tlv_codec_encode() with these codecs or with the
@@ -36,6 +37,10 @@ extern "C" {
  *   and an `expiration_month` outside 1-12. Encode rejects a `discretionary_data`
  *   or `pan` string without a NUL within its documented array size.
  * - CVM_RESULT stores its three bytes without further validation, like FLAGS.
+ */
+
+/** @addtogroup codecs
+ * @{
  */
 
 /**
@@ -262,4 +267,6 @@ TLV_API const char* tlv_emv_value_kind_description(tlv_emv_value_kind_t kind);
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif

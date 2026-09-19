@@ -10,7 +10,8 @@ extern "C" {
 #endif
 
 /**
- * @file emv.h
+ * @file
+ * @ingroup profiles
  * @brief EMV Contact Book 3 data dictionary: tag constants, schemas and lookup.
  *
  * Scope: EMV Contact Book 3 v4.4, October 2022, Annex A and the nested
@@ -21,6 +22,10 @@ extern "C" {
  * Use #tlv_reader_format_ber with generic I/O; this profile does not parse
  * TLV. Tag constants that exceed #TLV_TAG_CAPACITY are omitted from all
  * tables.
+ */
+
+/** @addtogroup profiles
+ * @{
  */
 
 /**
@@ -217,14 +222,16 @@ TLV_API tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const
 #define TLV_EMV_CVM_RESULT_SUCCESSFUL 0x02
 /** @} */
 
-/*
- * Numeric tag constants, generated from tlv/profiles/emv_tags.def.
+/**
+ * @name Numeric tag constants
+ * @brief Integer constants generated from tlv/profiles/emv_tags.def.
  *
  * Each dictionary entry produces an enumerator `tlv_emv_tag_<name>_u64`, for
  * example `tlv_emv_tag_aip_u64`. These are integer constant expressions
  * usable in C and C++ case labels. Names retain the dictionary suffix.
  * Capacity filtering matches the raw tag objects. All current dictionary
  * values fit in an `int`.
+ * @{
  */
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
@@ -234,12 +241,15 @@ TLV_API tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const
 #undef EMV_BEGIN
 #undef EMV_TAG
 #undef EMV_END
+/** @} */
 
-/*
- * Tag objects, generated from tlv/profiles/emv_tags.def.
+/**
+ * @name Tag objects
+ * @brief Raw tag constants generated from tlv/profiles/emv_tags.def.
  *
  * Each dictionary entry produces a constant `tlv_emv_tag_<name>` of type
  * `const tlv_tag_t`, the same universal tag type used by generic I/O.
+ * @{
  */
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
@@ -249,6 +259,7 @@ TLV_API tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const
 #undef EMV_BEGIN
 #undef EMV_TAG
 #undef EMV_END
+/** @} */
 
 /**
  * @brief One entry of the EMV data dictionary.
@@ -353,4 +364,6 @@ TLV_API tlv_result_t tlv_emv_titlecase_name(const char* name, char* buffer, size
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif /* OPENTLV_PROFILES_EMV_H */

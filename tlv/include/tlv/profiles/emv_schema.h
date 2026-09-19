@@ -9,8 +9,13 @@ extern "C" {
 #endif
 
 /**
- * @file emv_schema.h
+ * @file
+ * @ingroup schemas
  * @brief Structural schema for common EMV Book 3 v4.4 top-level data objects.
+ */
+
+/** @addtogroup schemas
+ * @{
  */
 
 /**
@@ -37,4 +42,6 @@ extern TLV_API const tlv_structure_schema_t tlv_emv_structure_schema;
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif /* OPENTLV_PROFILES_EMV_SCHEMA_H */

@@ -11,8 +11,13 @@ extern "C" {
 #endif
 
 /**
- * @file length.h
+ * @file
+ * @ingroup core
  * @brief Build-independent 64-bit TLV length type and checked conversions to `size_t`.
+ */
+
+/** @addtogroup core
+ * @{
  */
 
 /**
@@ -77,5 +82,7 @@ TLV_API tlv_result_t tlv_length_validate_native(tlv_length_t length);
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_LENGTH_H */

@@ -8,8 +8,13 @@
 #include <stddef.h>
 
 /**
- * @file tag.h
+ * @file
+ * @ingroup core
  * @brief Raw TLV tag type with checked construction, comparison and numeric conversion.
+ */
+
+/** @addtogroup core
+ * @{
  */
 
 #ifdef TLV_TAG_MAX_SUPPORTED_SIZE
@@ -250,5 +255,7 @@ TLV_API tlv_result_t tlv_tag_from_u64(uint64_t value, size_t size, tlv_byte_orde
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_TAG_H */

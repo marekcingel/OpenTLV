@@ -11,8 +11,13 @@ extern "C" {
 #endif
 
 /**
- * @file value.h
+ * @file
+ * @ingroup core
  * @brief Non-owning, read-only TLV value type.
+ */
+
+/** @addtogroup core
+ * @{
  */
 
 /**
@@ -74,5 +79,7 @@ TLV_API tlv_result_t tlv_value_validate(const tlv_value_t* value);
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_VALUE_H */

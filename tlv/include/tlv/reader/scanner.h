@@ -10,8 +10,13 @@ extern "C" {
 #endif
 
 /**
- * @file scanner.h
+ * @file
+ * @ingroup traversal
  * @brief Recovery scan for a plausible TLV element at any byte offset.
+ */
+
+/** @addtogroup traversal
+ * @{
  */
 
 /**
@@ -53,5 +58,7 @@ TLV_API tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start,
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_SCANNER_H */

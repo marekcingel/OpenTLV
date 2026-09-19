@@ -1,8 +1,19 @@
 #ifndef OPENTLV_VERSION_H
 #define OPENTLV_VERSION_H
 
+/**
+ * @file
+ * @brief Generated library version metadata.
+ * @ingroup core
+ */
+
+
 #include "tlv/export.h"
 #include <stdint.h>
+
+/** @addtogroup core
+ * @{
+ */
 
 /* clang-format off */
 #define OPENTLV_VERSION_MAJOR @OPENTLV_VERSION_MAJOR@
@@ -38,5 +49,7 @@ TLV_API const char* tlv_version_git_repo(void);
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* OPENTLV_VERSION_H */

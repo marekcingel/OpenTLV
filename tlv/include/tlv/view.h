@@ -6,8 +6,13 @@
 #include "tlv/value.h"
 
 /**
- * @file view.h
+ * @file
+ * @ingroup core
  * @brief Decoded TLV element view: an inline tag plus a borrowed value.
+ */
+
+/** @addtogroup core
+ * @{
  */
 
 /**
@@ -25,5 +30,7 @@ typedef struct {
     /** Element value; borrows the original input storage. */
     tlv_value_t value;
 } tlv_view_t;
+
+/** @} */
 
 #endif /* OPENTLV_VIEW_H */
