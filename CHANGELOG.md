@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a Documentation workflow that verifies the MkDocs site builds on pull requests and deploys it to GitHub Pages from `main` through GitHub Actions, without committing generated files; see [CONTRIBUTING.md](CONTRIBUTING.md#publishing). (#188)
 - Configure the MkDocs site theme with OpenTLV logo, favicon and blue/orange colors, top-level navigation tabs, previous/next footer links, search suggestions, a GitHub repository link and syntax highlighting; light/dark modes, search, code copy, table of contents and edit links are kept. (#187)
 - Add a MkDocs (Material) documentation site built from `docs/`, with a landing page and Getting Started, Concepts, Formats, Profiles, Guides, CLI and Development navigation; build and preview it with `mkdocs serve` (see [CONTRIBUTING.md](CONTRIBUTING.md#documentation-site)). (#185)
 - Add `otlv tag HEX --profile emv [--output text|json]`, printing a tag's name, type, form and length from the EMV dictionary, and `otlv tags --profile emv [--search TEXT]`, listing the dictionary's tags; unknown tags are reported as a result (exit 0) and invalid hex or incomplete tags are rejected. (#169)
