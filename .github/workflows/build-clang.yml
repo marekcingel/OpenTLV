@@ -117,9 +117,10 @@ jobs:
               summary.write(f"\n[Download HTML report]({os.environ['COVERAGE_ARTIFACT_URL']})\n")
           PY
 
-      - name: Run C and C++ examples
+      - name: Run C and C++ examples (also the ones embedded in the documentation)
         run: |
           ./build/examples/tlv/example-tlv
+          ./build/examples/tlv/example-tlv-quick-start
           ./build/examples/tlv++/example-tlv++
 
       - name: Verify C-only build
@@ -127,3 +128,4 @@ jobs:
           cmake -S . -B build-c -G Ninja -DCMAKE_C_COMPILER=clang-18 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=ON -DOPENTLV_BUILD_BENCHMARKS=OFF -DOPENTLV_WARNINGS_AS_ERRORS=ON
           cmake --build build-c --parallel
           ./build-c/examples/tlv/example-tlv
+          ./build-c/examples/tlv/example-tlv-quick-start

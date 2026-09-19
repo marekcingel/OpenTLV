@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Back the C and C++ introductory documentation examples with compiled sources (`examples/tlv/src/quick_start.c`, `examples/tlv++/src/basic_usage.cpp`), built and run in CI, and check with `scripts/check_doc_examples.py` that the Markdown copies match them. (#193)
 - Integrate the generated C and C++ API references into the documentation site under Reference, built from the Documentation workflow, with links between guides, concepts and API pages. (#192)
 - Add a dedicated Doxygen C++ API reference with a `cxx-api-docs` CMake target, separate navigation, links to the C API and a CI-generated HTML artifact. (#191)
 - Add an opt-in Doxygen C API reference, organized by API area, with a `c-api-docs` CMake target, local generation instructions and a CI-generated HTML artifact. (#190)

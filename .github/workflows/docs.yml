@@ -76,6 +76,12 @@ jobs:
       - name: Lint Markdown
         run: pre-commit run markdownlint --all-files --show-diff-on-failure
 
+      # Code blocks marked with `<!-- example: PATH -->` must equal the source
+      # file, which the build workflows compile and run, so documented code
+      # cannot drift from the current API.
+      - name: Check documented examples match their sources
+        run: python scripts/check_doc_examples.py
+
       # The generated API references are part of the site (see
       # tools/docs/hooks.py), so links between guides and API pages are
       # validated too. Broken links and anchors, links to missing repository

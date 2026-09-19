@@ -42,6 +42,15 @@ pages link back to the guides through the `@docs` Doxygen alias. Generate the
 references before `mkdocs build`; see
 [CONTRIBUTING.md](../../CONTRIBUTING.md#generate-the-c-api-reference).
 
+## Executable examples
+
+Important examples (introductory C and C++ usage) are compiled sources under
+`examples/`, not Markdown-only snippets. Place `<!-- example: examples/PATH -->`
+directly above a fenced block to embed a source file verbatim; run
+`python scripts/check_doc_examples.py --fix` to refresh the copy. CI fails when a
+block differs from its source or the source no longer builds. Small illustrative
+fragments may stay inline.
+
 ## Adding new topics
 
 - **OTDL**: the planned definition language's syntax and specification belong

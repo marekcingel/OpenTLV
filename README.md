@@ -99,8 +99,10 @@ view of every implemented format, including nested BER/DER and the EMV profile.
 
 ## Quick start
 
-This complete C example writes `01 03 AA BB CC` and reads the value back:
+This complete C example ([source](examples/tlv/src/quick_start.c), built and run in CI) writes
+`01 03 AA BB CC` and reads the value back:
 
+<!-- example: examples/tlv/src/quick_start.c -->
 ```c
 #include <string.h>
 #include "tlv/formats/fixed/fixed_1byte.h"
@@ -109,22 +111,22 @@ This complete C example writes `01 03 AA BB CC` and reads the value back:
 
 int main(void) {
     const tlv_tag_t tag = {{0x01}, 1};
-    const uint8_t value[] = {0xAA, 0xBB, 0xCC};
-    uint8_t buffer[5];
-    size_t written = 0, consumed = 0;
-    tlv_view_t view;
+    const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
+    uint8_t         buffer[5];
+    size_t          written = 0, consumed = 0;
+    tlv_view_t      view;
 
-    if (tlv_write(buffer, sizeof(buffer), &tlv_writer_format_fixed_1byte,
-                  tag, value, sizeof(value), &written) != TLV_OK)
+    if (tlv_write(buffer, sizeof(buffer), &tlv_writer_format_fixed_1byte, tag, value, sizeof(value),
+                  &written) != TLV_OK)
         return 1;
-    if (tlv_read(buffer, written, &tlv_reader_format_fixed_1byte,
-                 &view, &consumed) != TLV_OK)
+    if (tlv_read(buffer, written, &tlv_reader_format_fixed_1byte, &view, &consumed) != TLV_OK)
         return 1;
 
     /* view.value borrows buffer; keep it alive while using the view. */
-    return consumed == written && view.tag.size == 1 &&
-           view.tag.data[0] == 0x01 && view.value.length == sizeof(value) &&
-           memcmp(view.value.data, value, sizeof(value)) == 0 ? 0 : 1;
+    if (consumed != written || view.tag.size != 1 || view.tag.data[0] != 0x01) return 1;
+    if (view.value.length != sizeof(value) || memcmp(view.value.data, value, sizeof(value)) != 0)
+        return 1;
+    return 0;
 }
 ```
 
