@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the WebAssembly build failing to compile the Bluetooth LTV format selection because the format header was not included. (#222)
 - Fix a Clang `-Wmissing-field-initializers` error in the architecture and Bluetooth LTV tests. (#220)
 - Fix Rust formatting and clippy findings and a Rust reader test that expected the wrong error for a truncated length. (#159)
 - Fix the Rust bindings build failing on Windows because the CMake source path had a `\\?\` prefix that MSVC cannot open. (#158)

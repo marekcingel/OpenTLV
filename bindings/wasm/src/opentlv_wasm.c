@@ -5,6 +5,9 @@
 #include <string.h>
 
 #include "tlv/tlv.h"
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#include "tlv/formats/bluetooth/bluetooth_ltv.h"
+#endif
 #include "tlv/version.h"
 
 enum {
