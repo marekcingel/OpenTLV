@@ -143,4 +143,5 @@ nav:
       - Where documentation belongs: development/documentation-layout.md
       - Fuzzing: development/fuzzing.md
       - WebAssembly build: development/webassembly.md
+      - Rust bindings: development/rust.md
       - Logo assets: assets/README.md
