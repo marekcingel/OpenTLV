@@ -60,7 +60,9 @@ impl Format {
 
     pub(crate) fn reader_raw(self) -> *const sys::tlv_reader_format_t {
         // SAFETY: only the address of an immutable static is taken; the
-        // static lives for the whole program and is never written.
+        // static lives for the whole program and is never written. Newer
+        // compilers treat this as safe, but the MSRV (1.70) needs `unsafe`.
+        #[allow(unused_unsafe)]
         unsafe {
             match self {
                 Format::Default => ptr::addr_of!(sys::tlv_reader_format_default),
@@ -74,7 +76,9 @@ impl Format {
 
     pub(crate) fn writer_raw(self) -> *const sys::tlv_writer_format_t {
         // SAFETY: only the address of an immutable static is taken; the
-        // static lives for the whole program and is never written.
+        // static lives for the whole program and is never written. Newer
+        // compilers treat this as safe, but the MSRV (1.70) needs `unsafe`.
+        #[allow(unused_unsafe)]
         unsafe {
             match self {
                 Format::Default => ptr::addr_of!(sys::tlv_writer_format_default),

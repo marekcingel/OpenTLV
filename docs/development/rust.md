@@ -143,6 +143,30 @@ By default the build script configures and builds the OpenTLV C library from the
 repository root with CMake, as a static Release library inside Cargo's `target`
 directory, and links it. The C++ layer, CLI, tests and examples are not built.
 
+## Continuous integration and quality checks
+
+The [Rust Bindings workflow](https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/rust.yml)
+runs on every push and pull request to `main` and fails on any of:
+
+- `cargo fmt --all --check`, formatting differs from rustfmt;
+- `cargo clippy --workspace --all-targets -- -D warnings`, any clippy or
+  compiler warning;
+- `cargo build` and `cargo test` on Linux, Windows and macOS, with warnings
+  denied.
+
+Run the same checks locally from `bindings/rust`:
+
+```sh
+cargo fmt --all --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+```
+
+`opentlv/tests/corpus.rs` replays the C fuzz seeds in `tests/fuzz/corpus`
+through the safe API (reader on every format, DER and CER profiles, writer and
+reader round trips, every EMV codec), so seeds added for the C harnesses also
+cover the bindings without being copied.
+
 ## Linking a prebuilt library
 
 To link a library you built yourself, point `OPENTLV_LIB_DIR` at the directory

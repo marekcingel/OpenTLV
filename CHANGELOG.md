@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a Rust Bindings CI workflow that builds and tests the Rust crates on Linux, Windows and macOS and enforces `cargo fmt --check` and `cargo clippy -D warnings`, and add Rust tests that replay the C fuzz seed corpus; see [Rust bindings](docs/development/rust.md). (#159)
 - Add safe Rust wrappers to the `opentlv` crate for schemas (`LengthSchema`, `StructureSchema`), value codecs (`Codec`, `Value`, `CodecError`), the EMV dictionary (`emv`) and the DER and CER profiles (`Profile`), plus `Format` parsing by name; see [Rust bindings](docs/development/rust.md). (#158)
 - Add a safe Rust `Writer` to the `opentlv` crate that encodes TLV entries from `&[u8]` values into a caller-owned buffer with `Result` errors; see [Rust bindings](docs/development/rust.md). (#157)
 - Add a safe Rust `Reader` to the `opentlv` crate that iterates TLV entries from a `&[u8]` with borrowed values and `Result` errors; see [Rust bindings](docs/development/rust.md). (#156)
@@ -21,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Rust formatting and clippy findings and a Rust reader test that expected the wrong error for a truncated length. (#159)
 - Fix the Rust bindings build failing on Windows because the CMake source path had a `\\?\` prefix that MSVC cannot open. (#158)
 
 ## [0.6.0] - 2026-09-20

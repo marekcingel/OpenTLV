@@ -46,7 +46,12 @@ impl<'a> Reader<'a> {
         // SAFETY: `raw` is writable; `data` is a valid slice (a non-null
         // pointer even when empty); `format.reader_raw()` points to a static format.
         let code = unsafe {
-            sys::tlv_reader_init(raw.as_mut_ptr(), data.as_ptr(), data.len(), format.reader_raw())
+            sys::tlv_reader_init(
+                raw.as_mut_ptr(),
+                data.as_ptr(),
+                data.len(),
+                format.reader_raw(),
+            )
         };
         // Every argument is non-null and the built-in formats are complete, so
         // initialization cannot fail.

@@ -55,7 +55,7 @@ fn truncated_value_is_an_error_then_iteration_stops() {
 fn truncated_length_is_an_error() {
     let data = [0x01];
     let err = Reader::new(&data).next().unwrap().unwrap_err();
-    assert_eq!(err, Error::InvalidLength);
+    assert_eq!(err, Error::BufferTooShort);
 }
 
 #[test]

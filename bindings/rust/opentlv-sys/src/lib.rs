@@ -853,7 +853,12 @@ mod tests {
             .to_str()
             .unwrap();
         let expected = unsafe {
-            format!("{}.{}.{}", tlv_version_major(), tlv_version_minor(), tlv_version_patch())
+            format!(
+                "{}.{}.{}",
+                tlv_version_major(),
+                tlv_version_minor(),
+                tlv_version_patch()
+            )
         };
         assert!(version.starts_with(&expected), "{version} vs {expected}");
     }

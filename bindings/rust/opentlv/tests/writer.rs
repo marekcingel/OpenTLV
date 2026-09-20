@@ -13,7 +13,10 @@ fn writes_entries_with_expected_bytes() {
     writer.write(&tag(&[0x01]), b"abc").unwrap();
     writer.write(&tag(&[0x02]), &[]).unwrap();
     assert_eq!(writer.position(), 7);
-    assert_eq!(writer.written(), &[0x01, 0x03, b'a', b'b', b'c', 0x02, 0x00]);
+    assert_eq!(
+        writer.written(),
+        &[0x01, 0x03, b'a', b'b', b'c', 0x02, 0x00]
+    );
 }
 
 #[test]
@@ -133,7 +136,10 @@ fn round_trips_fixed_and_der_formats() {
         let mut writer = Writer::with_format(&mut buf, format);
         writer.write(&tag(&[0x04]), &[1, 2, 3]).unwrap();
         let encoded = writer.finish();
-        let entry = Reader::with_format(encoded, format).next().unwrap().unwrap();
+        let entry = Reader::with_format(encoded, format)
+            .next()
+            .unwrap()
+            .unwrap();
         assert_eq!(entry.tag().as_bytes(), &[0x04]);
         assert_eq!(entry.value(), &[1, 2, 3]);
     }
