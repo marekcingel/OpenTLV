@@ -2002,6 +2002,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#core-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2094,6 +2105,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#core-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2161,8 +2183,49 @@
 </tbody>
 </table>
 <p>All <code>unsafe</code> FFI interaction is isolated in <code>opentlv-sys</code>; <code>opentlv</code> contains no
-<code>extern</code> declarations. So far only the version functions and <code>tlv_strerror</code> are
-bound, and <code>opentlv::version()</code> is the first safe function.</p>
+<code>extern</code> declarations. Only the part of the C API the safe crate needs is bound
+so far.</p>
+<h2 id="core-types">Core types<a class="headerlink" href="#core-types" title="Permanent link">&para;</a></h2>
+<p>The <code>opentlv</code> crate exposes these safe types; none of them exposes a raw pointer:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Wraps</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Tag</code></td>
+<td><code>tlv_tag_t</code></td>
+<td>Owned, <code>Copy</code>; built with <code>from_bytes</code> or <code>from_u64</code>, read with <code>as_bytes</code> or <code>to_u64</code></td>
+</tr>
+<tr>
+<td><code>Entry&lt;'a&gt;</code></td>
+<td><code>tlv_view_t</code></td>
+<td>A <code>Tag</code> plus a value borrowed as <code>&amp;'a [u8]</code></td>
+</tr>
+<tr>
+<td><code>Error</code></td>
+<td><code>tlv_result_t</code></td>
+<td>One variant per <code>TLV_ERR_*</code> code, plus <code>Unknown(code)</code>; implements <code>std::error::Error</code></td>
+</tr>
+<tr>
+<td><code>Result&lt;T&gt;</code></td>
+<td></td>
+<td>Alias for <code>std::result::Result&lt;T, Error&gt;</code></td>
+</tr>
+<tr>
+<td><code>ByteOrder</code></td>
+<td><code>tlv_byte_order_t</code></td>
+<td>Byte order for numeric tag conversions</td>
+</tr>
+</tbody>
+</table>
+<p><code>Tag::CAPACITY</code> mirrors the C <code>TLV_TAG_CAPACITY</code> (default 8). The layout of
+<code>tlv_tag_t</code> is part of the C ABI, so the bindings only support a library built
+with the default capacity.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Requirements: a Rust toolchain (1.70 or newer), CMake 3.16 or newer and a C99
 compiler. On Windows use the MSVC Rust toolchain with Visual Studio.</p>
