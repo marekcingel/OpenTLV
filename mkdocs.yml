@@ -3,7 +3,7 @@ site_description: Portable C99 and C++ library for reading, writing and validati
 site_url: https://marekcingel.github.io/OpenTLV/
 repo_url: https://github.com/marekcingel/OpenTLV
 repo_name: marekcingel/OpenTLV
-edit_uri: edit/develop/docs/
+edit_uri: edit/main/docs/
 
 docs_dir: docs
 site_dir: site

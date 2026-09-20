@@ -310,9 +310,9 @@ documentation to GitHub Pages at <https://marekcingel.github.io/OpenTLV/> with
 [mike](https://github.com/jimporter/mike). Each version is a directory on the
 `gh-pages` branch, and the site header has a version selector:
 
-- Pull requests to `main` or `develop` run Markdown lint and a strict site
+- Pull requests to `main` run Markdown lint and a strict site
   build; either failing fails the check.
-- A push to `develop` publishes the development documentation as `latest`. It
+- A push to `main` publishes the development documentation as `latest`. It
   is labeled "latest (development)" and every page carries a development
   banner.
 - A release tag `X.Y.Z` (no pre-release suffix) publishes version `X.Y`, built

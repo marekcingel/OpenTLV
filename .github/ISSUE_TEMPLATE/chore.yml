@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this form for maintenance, build, CI, tooling, release, branch sync, and repository workflow changes.
+        Use this form for maintenance, build, CI, tooling, release, and repository workflow changes.
         Please search [existing issues](https://github.com/marekcingel/OpenTLV/issues) first.
   - type: dropdown
     id: chore-type
@@ -15,7 +15,6 @@ body:
       label: Chore type
       options:
         - Release
-        - Sync main and develop
         - Build / CI
         - Tooling
         - Dependencies

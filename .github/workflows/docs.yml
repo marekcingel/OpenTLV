@@ -4,7 +4,7 @@ name: Documentation
 # C++ API references and a strict site build that includes them. Publishing is
 # versioned with mike, which keeps every version as a directory on the
 # gh-pages branch:
-#   - a push to develop publishes the development documentation as "latest";
+#   - a push to main publishes the development documentation as "latest";
 #   - a release tag X.Y.Z publishes version "X.Y" (built from that tag, so it
 #     matches the released sources) with the alias "stable", and makes "stable"
 #     the default the site root redirects to.
@@ -12,10 +12,10 @@ name: Documentation
 # expected in ascending order: the latest pushed release tag becomes "stable".
 on:
   push:
-    branches: [develop]
+    branches: [main]
     tags: ['[0-9]*.[0-9]*.[0-9]*', '!*-*']
   pull_request:
-    branches: [main, develop]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -127,7 +127,7 @@ jobs:
   publish:
     name: Publish versioned documentation
     needs: build
-    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/'))
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -166,13 +166,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Publish development documentation
-        if: github.ref == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/main'
         env:
           OPENTLV_API_DOCS_DIR: ${{ github.workspace }}/api-docs
           OPENTLV_WASM_DIR: ${{ github.workspace }}/playground-wasm
           OPENTLV_DOCS_REQUIRE_WASM: '1'
           OPENTLV_DOCS_CHANNEL: development
-          OPENTLV_DOCS_REF: develop
+          OPENTLV_DOCS_REF: main
         run: |
           mike deploy --push --title "latest (development)" latest
           # Until the first release exists, the site root shows latest.

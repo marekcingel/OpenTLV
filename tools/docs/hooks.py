@@ -20,8 +20,8 @@ log = logging.getLogger("mkdocs.hooks.opentlv")
 
 REPO_URL = "https://github.com/marekcingel/OpenTLV"
 # Git ref that repository links point at: the release tag for a released
-# version, develop for the latest (development) documentation.
-REF = os.environ.get("OPENTLV_DOCS_REF", "develop")
+# version, main for the latest (development) documentation.
+REF = os.environ.get("OPENTLV_DOCS_REF", "main")
 
 # Directory holding the c-api/html and cxx-api/html trees produced by the
 # c-api-docs and cxx-api-docs CMake targets. The two trees stay siblings, as

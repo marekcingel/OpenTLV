@@ -2,9 +2,9 @@ name: CodeQL
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
   schedule:
     # Re-runs the security-extended query suite against unchanged code every
     # Monday, so newly published queries still get applied between pushes.
