@@ -290,6 +290,558 @@ extern "C" {
     ) -> tlv_result_t;
 }
 
+/// Nesting predicate passed to schema validation (`tlv_is_constructed_fn`).
+pub type tlv_is_constructed_fn =
+    unsafe extern "C" fn(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
+
+/// Length rule for one tag (`tlv_schema_entry_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_schema_entry_t {
+    /// Tag this entry describes.
+    pub tag: tlv_tag_t,
+    /// Minimum permitted value length, inclusive.
+    pub min_length: usize,
+    /// Maximum permitted value length, inclusive; `usize::MAX` is unrestricted.
+    pub max_length: usize,
+    /// Reserved; currently ignored.
+    pub flags: u32,
+}
+
+/// Borrowed table of per-tag length rules (`tlv_schema_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_schema_t {
+    /// Borrowed entries; may be null only when `count` is zero.
+    pub entries: *const tlv_schema_entry_t,
+    /// Number of entries.
+    pub count: usize,
+}
+
+/// Expected form of a value (`tlv_schema_kind_t`).
+pub type tlv_schema_kind_t = c_int;
+/// The element may be primitive or constructed (`TLV_SCHEMA_ANY`).
+pub const TLV_SCHEMA_ANY: tlv_schema_kind_t = 0;
+/// The element must be primitive (`TLV_SCHEMA_PRIMITIVE`).
+pub const TLV_SCHEMA_PRIMITIVE: tlv_schema_kind_t = 1;
+/// The element must be constructed (`TLV_SCHEMA_CONSTRUCTED`).
+pub const TLV_SCHEMA_CONSTRUCTED: tlv_schema_kind_t = 2;
+
+/// Structural rule for one tag within a single parent (`tlv_structure_rule_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_structure_rule_t {
+    /// Tag and permitted value-length bounds.
+    pub entry: tlv_schema_entry_t,
+    /// Minimum occurrences within the parent.
+    pub min_occurs: usize,
+    /// Maximum occurrences within the parent; `usize::MAX` is unrestricted.
+    pub max_occurs: usize,
+    /// Required form of the value.
+    pub kind: tlv_schema_kind_t,
+    /// Schema for the value's children, or null.
+    pub children: *const tlv_structure_schema_t,
+}
+
+/// Borrowed set of structural rules for one parent scope (`tlv_structure_schema_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_structure_schema_t {
+    /// Borrowed rules; tags must be unique.
+    pub rules: *const tlv_structure_rule_t,
+    /// Number of rules.
+    pub count: usize,
+    /// Nonzero accepts tags that match no rule.
+    pub allow_unknown: c_int,
+}
+
+/// Result code of a value conversion (`tlv_codec_result_t`).
+pub type tlv_codec_result_t = c_int;
+/// The conversion succeeded (`TLV_CODEC_OK`).
+pub const TLV_CODEC_OK: tlv_codec_result_t = 0;
+/// A required pointer argument is null (`TLV_CODEC_ERR_NULL_ARG`).
+pub const TLV_CODEC_ERR_NULL_ARG: tlv_codec_result_t = 1;
+/// A supplied buffer is too small (`TLV_CODEC_ERR_BUFFER_TOO_SHORT`).
+pub const TLV_CODEC_ERR_BUFFER_TOO_SHORT: tlv_codec_result_t = 2;
+/// The value or its representation is invalid (`TLV_CODEC_ERR_INVALID_VALUE`).
+pub const TLV_CODEC_ERR_INVALID_VALUE: tlv_codec_result_t = 3;
+/// The operation is not supported by the codec (`TLV_CODEC_ERR_UNSUPPORTED`).
+pub const TLV_CODEC_ERR_UNSUPPORTED: tlv_codec_result_t = 4;
+/// A structure is malformed or violates its schema (`TLV_CODEC_ERR_INVALID_STRUCTURE`).
+pub const TLV_CODEC_ERR_INVALID_STRUCTURE: tlv_codec_result_t = 5;
+
+/// Value decoder callback of a codec.
+pub type tlv_codec_decode_fn = unsafe extern "C" fn(
+    context: *const c_void,
+    data: *const u8,
+    size: usize,
+    value: *mut c_void,
+    capacity: usize,
+) -> tlv_codec_result_t;
+
+/// Value encoder callback of a codec.
+pub type tlv_codec_encode_fn = unsafe extern "C" fn(
+    context: *const c_void,
+    value: *const c_void,
+    size: usize,
+    data: *mut u8,
+    capacity: usize,
+    written: *mut usize,
+) -> tlv_codec_result_t;
+
+/// Borrowed codec descriptor (`tlv_codec_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_codec_t {
+    /// Immutable context passed to both callbacks; may be null.
+    pub context: *const c_void,
+    /// Decoder; `None` if unsupported.
+    pub decode: Option<tlv_codec_decode_fn>,
+    /// Encoder; `None` if unsupported.
+    pub encode: Option<tlv_codec_encode_fn>,
+}
+
+/// Dictionary context of an EMV tag (`tlv_emv_context_t`).
+pub type tlv_emv_context_t = c_int;
+/// Ordinary application data (`TLV_EMV_CONTEXT_BASE`).
+pub const TLV_EMV_CONTEXT_BASE: tlv_emv_context_t = 0;
+/// Inside 7F60 (`TLV_EMV_CONTEXT_BIT`).
+pub const TLV_EMV_CONTEXT_BIT: tlv_emv_context_t = 1;
+/// Inside A1 within 7F60 (`TLV_EMV_CONTEXT_BHT`).
+pub const TLV_EMV_CONTEXT_BHT: tlv_emv_context_t = 2;
+/// Inside level-2 A1/A2 within BHT (`TLV_EMV_CONTEXT_BHT_FORMAT`).
+pub const TLV_EMV_CONTEXT_BHT_FORMAT: tlv_emv_context_t = 3;
+/// Inside BF4A/BF4B or a terminal group (`TLV_EMV_CONTEXT_BIT_GROUP`).
+pub const TLV_EMV_CONTEXT_BIT_GROUP: tlv_emv_context_t = 4;
+/// Inside BF4C (`TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS`).
+pub const TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS: tlv_emv_context_t = 5;
+/// Inside BF4D (`TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS`).
+pub const TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS: tlv_emv_context_t = 6;
+/// Inside BF4E (`TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION`).
+pub const TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION: tlv_emv_context_t = 7;
+/// Number of contexts, and the "no new context" result (`TLV_EMV_CONTEXT_COUNT`).
+pub const TLV_EMV_CONTEXT_COUNT: tlv_emv_context_t = 8;
+
+/// C representation of an EMV value (`tlv_emv_value_kind_t`).
+pub type tlv_emv_value_kind_t = c_int;
+/// Opaque bytes (`TLV_EMV_VALUE_BYTES`).
+pub const TLV_EMV_VALUE_BYTES: tlv_emv_value_kind_t = 0;
+/// Text bytes (`TLV_EMV_VALUE_TEXT`).
+pub const TLV_EMV_VALUE_TEXT: tlv_emv_value_kind_t = 1;
+/// Constructed template (`TLV_EMV_VALUE_TEMPLATE`).
+pub const TLV_EMV_VALUE_TEMPLATE: tlv_emv_value_kind_t = 2;
+/// `u64` number (`TLV_EMV_VALUE_NUMBER`).
+pub const TLV_EMV_VALUE_NUMBER: tlv_emv_value_kind_t = 3;
+/// `u64` bit flags (`TLV_EMV_VALUE_FLAGS`).
+pub const TLV_EMV_VALUE_FLAGS: tlv_emv_value_kind_t = 4;
+/// NUL-terminated decimal digits (`TLV_EMV_VALUE_DIGITS`).
+pub const TLV_EMV_VALUE_DIGITS: tlv_emv_value_kind_t = 5;
+/// [`tlv_emv_date_t`] (`TLV_EMV_VALUE_DATE`).
+pub const TLV_EMV_VALUE_DATE: tlv_emv_value_kind_t = 6;
+/// [`tlv_emv_time_t`] (`TLV_EMV_VALUE_TIME`).
+pub const TLV_EMV_VALUE_TIME: tlv_emv_value_kind_t = 7;
+/// Account type (`TLV_EMV_VALUE_ACCOUNT`).
+pub const TLV_EMV_VALUE_ACCOUNT: tlv_emv_value_kind_t = 8;
+/// [`tlv_emv_cryptogram_info_t`] (`TLV_EMV_VALUE_CRYPTOGRAM`).
+pub const TLV_EMV_VALUE_CRYPTOGRAM: tlv_emv_value_kind_t = 9;
+/// Biometric type (`TLV_EMV_VALUE_BIOMETRIC`).
+pub const TLV_EMV_VALUE_BIOMETRIC: tlv_emv_value_kind_t = 10;
+/// [`tlv_emv_number_list_t`] (`TLV_EMV_VALUE_NUMBER_LIST`).
+pub const TLV_EMV_VALUE_NUMBER_LIST: tlv_emv_value_kind_t = 11;
+/// [`tlv_emv_afl_t`] (`TLV_EMV_VALUE_AFL`).
+pub const TLV_EMV_VALUE_AFL: tlv_emv_value_kind_t = 12;
+/// [`tlv_emv_cvm_result_t`] (`TLV_EMV_VALUE_CVM_RESULT`).
+pub const TLV_EMV_VALUE_CVM_RESULT: tlv_emv_value_kind_t = 13;
+/// [`tlv_emv_track2_t`] (`TLV_EMV_VALUE_TRACK2`).
+pub const TLV_EMV_VALUE_TRACK2: tlv_emv_value_kind_t = 14;
+
+/// Decoded EMV date (`tlv_emv_date_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct tlv_emv_date_t {
+    /// Two-digit year.
+    pub year: u8,
+    /// Month, 1..12.
+    pub month: u8,
+    /// Day of month.
+    pub day: u8,
+}
+
+/// Decoded EMV time (`tlv_emv_time_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct tlv_emv_time_t {
+    /// Hour.
+    pub hour: u8,
+    /// Minute.
+    pub minute: u8,
+    /// Second.
+    pub second: u8,
+}
+
+/// Account type (`tlv_emv_account_type_t`), a C `enum`.
+pub type tlv_emv_account_type_t = c_int;
+/// Default account (`TLV_EMV_ACCOUNT_DEFAULT`).
+pub const TLV_EMV_ACCOUNT_DEFAULT: tlv_emv_account_type_t = 0;
+/// Savings account (`TLV_EMV_ACCOUNT_SAVINGS`).
+pub const TLV_EMV_ACCOUNT_SAVINGS: tlv_emv_account_type_t = 10;
+/// Cheque or debit account (`TLV_EMV_ACCOUNT_CHEQUE_DEBIT`).
+pub const TLV_EMV_ACCOUNT_CHEQUE_DEBIT: tlv_emv_account_type_t = 20;
+/// Credit account (`TLV_EMV_ACCOUNT_CREDIT`).
+pub const TLV_EMV_ACCOUNT_CREDIT: tlv_emv_account_type_t = 30;
+
+/// Cryptogram type (`tlv_emv_cryptogram_type_t`), a C `enum`; values 0..=3.
+pub type tlv_emv_cryptogram_type_t = c_int;
+
+/// Decoded Cryptogram Information Data (`tlv_emv_cryptogram_info_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct tlv_emv_cryptogram_info_t {
+    /// Cryptogram type, from wire bits b8-b7.
+    pub type_: tlv_emv_cryptogram_type_t,
+    /// Remaining six bits.
+    pub flags: u8,
+}
+
+/// Biometric type (`tlv_emv_biometric_type_t`), a C `enum`.
+pub type tlv_emv_biometric_type_t = c_int;
+/// Facial biometric (`TLV_EMV_BIOMETRIC_FACIAL`).
+pub const TLV_EMV_BIOMETRIC_FACIAL: tlv_emv_biometric_type_t = 0x02;
+/// Voice biometric (`TLV_EMV_BIOMETRIC_VOICE`).
+pub const TLV_EMV_BIOMETRIC_VOICE: tlv_emv_biometric_type_t = 0x04;
+/// Fingerprint biometric (`TLV_EMV_BIOMETRIC_FINGER`).
+pub const TLV_EMV_BIOMETRIC_FINGER: tlv_emv_biometric_type_t = 0x08;
+/// Iris biometric (`TLV_EMV_BIOMETRIC_IRIS`).
+pub const TLV_EMV_BIOMETRIC_IRIS: tlv_emv_biometric_type_t = 0x10;
+/// Palm biometric (`TLV_EMV_BIOMETRIC_PALM`).
+pub const TLV_EMV_BIOMETRIC_PALM: tlv_emv_biometric_type_t = 0x020000;
+
+/// Decoded list of up to four numbers (`tlv_emv_number_list_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct tlv_emv_number_list_t {
+    /// List values; only the first `count` are populated.
+    pub values: [u64; 4],
+    /// Number of populated entries.
+    pub count: usize,
+}
+
+/// One Application File Locator entry (`tlv_emv_afl_entry_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct tlv_emv_afl_entry_t {
+    /// Short file identifier, 1-30.
+    pub sfi: u8,
+    /// First record, nonzero.
+    pub first_record: u8,
+    /// Last record, not below `first_record`.
+    pub last_record: u8,
+    /// Leading records used for offline data authentication.
+    pub offline_auth_record_count: u8,
+}
+
+/// Maximum number of AFL entries (`TLV_EMV_AFL_MAX_ENTRIES`).
+pub const TLV_EMV_AFL_MAX_ENTRIES: usize = 63;
+
+/// Decoded Application File Locator (`tlv_emv_afl_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_emv_afl_t {
+    /// Entries in wire order; only the first `count` are populated.
+    pub entries: [tlv_emv_afl_entry_t; TLV_EMV_AFL_MAX_ENTRIES],
+    /// Number of populated entries.
+    pub count: usize,
+}
+
+/// CVM Results, preserved raw (`tlv_emv_cvm_result_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct tlv_emv_cvm_result_t {
+    /// CVM method code.
+    pub method: u8,
+    /// CVM condition code.
+    pub condition: u8,
+    /// CVM outcome.
+    pub result: u8,
+}
+
+/// Maximum PAN digits in Track 2 data (`TLV_EMV_TRACK2_PAN_MAX_DIGITS`).
+pub const TLV_EMV_TRACK2_PAN_MAX_DIGITS: usize = 19;
+/// Maximum discretionary digits (`TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS`).
+pub const TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS: usize = 30;
+
+/// Decoded Track 2 Equivalent Data (`tlv_emv_track2_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_emv_track2_t {
+    /// PAN digits, NUL-terminated.
+    pub pan: [c_char; TLV_EMV_TRACK2_PAN_MAX_DIGITS + 1],
+    /// Expiration year, YY.
+    pub expiration_year: u8,
+    /// Expiration month, 1-12.
+    pub expiration_month: u8,
+    /// Three-digit service code.
+    pub service_code: u16,
+    /// Discretionary data digits, NUL-terminated.
+    pub discretionary_data: [c_char; TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS + 1],
+}
+
+/// One entry of the EMV data dictionary (`tlv_emv_definition_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_emv_definition_t {
+    /// Tag and length bounds; borrowed from static tables.
+    pub schema: *const tlv_schema_entry_t,
+    /// Stable symbolic name.
+    pub name: *const c_char,
+    /// C representation of the value.
+    pub value_kind: tlv_emv_value_kind_t,
+    /// Semantic codec; null when no conversion is provided.
+    pub codec: *const tlv_codec_t,
+    /// Permitted lengths: `min + n * step`.
+    pub length_step: usize,
+}
+
+/// Inclusive resource limits for DER validation and writing (`tlv_der_limits_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_der_limits_t {
+    /// Maximum number of constructed ancestors.
+    pub max_depth: usize,
+    /// Bounds the input, or the complete output when writing.
+    pub max_input_size: usize,
+    /// Bounds each value.
+    pub max_value_size: usize,
+    /// Bounds the total visited elements.
+    pub max_elements: usize,
+}
+
+/// Inclusive resource limits for CER validation and writing (`tlv_cer_limits_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_cer_limits_t {
+    /// Maximum number of constructed ancestors.
+    pub max_depth: usize,
+    /// Bounds the input, or the complete output when writing.
+    pub max_input_size: usize,
+    /// Bounds each element's content.
+    pub max_value_size: usize,
+    /// Bounds the total visited elements.
+    pub max_elements: usize,
+}
+
+/// Preorder DER traversal callback (`tlv_der_visitor_t`); the safe crate passes `None`.
+pub type tlv_der_visitor_t = unsafe extern "C" fn(
+    view: *const tlv_view_t,
+    depth: usize,
+    offset: usize,
+    context: *mut c_void,
+) -> c_int;
+
+/// Preorder CER traversal callback (`tlv_cer_visitor_t`); the safe crate passes `None`.
+pub type tlv_cer_visitor_t = tlv_der_visitor_t;
+
+extern "C" {
+    /// Nesting predicate for BER.
+    pub fn tlv_ber_is_constructed(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
+    /// Nesting predicate for CER.
+    pub fn tlv_cer_is_constructed(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
+    /// Nesting predicate for DER.
+    pub fn tlv_der_is_constructed(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
+
+    /// Looks up a tag's entry by linear search.
+    pub fn tlv_schema_find(
+        schema: *const tlv_schema_t,
+        tag: *const tlv_tag_t,
+    ) -> *const tlv_schema_entry_t;
+    /// Validates a value length against an entry's bounds.
+    pub fn tlv_schema_validate_length(
+        entry: *const tlv_schema_entry_t,
+        length: usize,
+    ) -> tlv_result_t;
+    /// Validates framing, nesting, lengths, occurrences and membership.
+    pub fn tlv_schema_validate(
+        data: *const u8,
+        size: usize,
+        format: *const tlv_reader_format_t,
+        is_constructed: Option<tlv_is_constructed_fn>,
+        schema: *const tlv_structure_schema_t,
+        max_depth: usize,
+        max_elements: usize,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+
+    /// Structural schema for common EMV top-level data objects.
+    pub static tlv_emv_structure_schema: tlv_structure_schema_t;
+    /// EMV dictionary length schema for the base context.
+    pub static tlv_emv_schema: tlv_schema_t;
+    /// Returns the EMV dictionary schema for a context, or null.
+    pub fn tlv_emv_schema_for(context: tlv_emv_context_t) -> *const tlv_schema_t;
+    /// Looks up a tag's definition in a context, or null.
+    pub fn tlv_emv_find(
+        context: tlv_emv_context_t,
+        tag: *const tlv_tag_t,
+    ) -> *const tlv_emv_definition_t;
+    /// Returns the context for a tag's children.
+    pub fn tlv_emv_child_context(
+        context: tlv_emv_context_t,
+        tag: *const tlv_tag_t,
+    ) -> tlv_emv_context_t;
+    /// Validates a length against a definition.
+    pub fn tlv_emv_validate_length(
+        definition: *const tlv_emv_definition_t,
+        length: usize,
+    ) -> tlv_result_t;
+    /// Returns a curated label for a dictionary symbol, or null.
+    pub fn tlv_emv_display_label(name: *const c_char) -> *const c_char;
+    /// Describes an EMV value kind.
+    pub fn tlv_emv_value_kind_description(kind: tlv_emv_value_kind_t) -> *const c_char;
+    /// Codec for amounts (format n12).
+    pub static tlv_emv_codec_amount: tlv_codec_t;
+
+    /// Decodes a raw value with a codec.
+    pub fn tlv_codec_decode(
+        codec: *const tlv_codec_t,
+        data: *const u8,
+        size: usize,
+        value: *mut c_void,
+        capacity: usize,
+    ) -> tlv_codec_result_t;
+    /// Encodes a C representation into raw value bytes with a codec.
+    pub fn tlv_codec_encode(
+        codec: *const tlv_codec_t,
+        value: *const c_void,
+        size: usize,
+        data: *mut u8,
+        capacity: usize,
+        written: *mut usize,
+    ) -> tlv_codec_result_t;
+    /// Describes a codec result.
+    pub fn tlv_codec_strerror(result: tlv_codec_result_t) -> *const c_char;
+
+    /// Default DER limits.
+    pub static tlv_der_default_limits: tlv_der_limits_t;
+    /// Validates one complete DER element.
+    pub fn tlv_der_read(
+        data: *const u8,
+        size: usize,
+        limits: *const tlv_der_limits_t,
+        view: *mut tlv_view_t,
+        consumed: *mut usize,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+    /// Strict counterpart of [`tlv_der_read`].
+    pub fn tlv_der_read_strict(
+        data: *const u8,
+        size: usize,
+        limits: *const tlv_der_limits_t,
+        view: *mut tlv_view_t,
+        consumed: *mut usize,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+    /// Validates all concatenated DER elements recursively.
+    pub fn tlv_der_walk(
+        data: *const u8,
+        size: usize,
+        limits: *const tlv_der_limits_t,
+        visitor: Option<tlv_der_visitor_t>,
+        context: *mut c_void,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+    /// Strict counterpart of [`tlv_der_walk`].
+    pub fn tlv_der_walk_strict(
+        data: *const u8,
+        size: usize,
+        limits: *const tlv_der_limits_t,
+        visitor: Option<tlv_der_visitor_t>,
+        context: *mut c_void,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+    /// Writes a canonical DER element.
+    pub fn tlv_der_write(
+        data: *mut u8,
+        capacity: usize,
+        tag: tlv_tag_t,
+        value: *const u8,
+        length: usize,
+        limits: *const tlv_der_limits_t,
+        written: *mut usize,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+    /// Strict counterpart of [`tlv_der_write`].
+    pub fn tlv_der_write_strict(
+        data: *mut u8,
+        capacity: usize,
+        tag: tlv_tag_t,
+        value: *const u8,
+        length: usize,
+        limits: *const tlv_der_limits_t,
+        written: *mut usize,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+
+    /// Default CER limits.
+    pub static tlv_cer_default_limits: tlv_cer_limits_t;
+    /// Validates one complete CER element.
+    pub fn tlv_cer_read(
+        data: *const u8,
+        size: usize,
+        limits: *const tlv_cer_limits_t,
+        view: *mut tlv_view_t,
+        consumed: *mut usize,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+    /// Strict counterpart of [`tlv_cer_read`].
+    pub fn tlv_cer_read_strict(
+        data: *const u8,
+        size: usize,
+        limits: *const tlv_cer_limits_t,
+        view: *mut tlv_view_t,
+        consumed: *mut usize,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+    /// Validates all concatenated CER elements recursively.
+    pub fn tlv_cer_walk(
+        data: *const u8,
+        size: usize,
+        limits: *const tlv_cer_limits_t,
+        visitor: Option<tlv_cer_visitor_t>,
+        context: *mut c_void,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+    /// Strict counterpart of [`tlv_cer_walk`].
+    pub fn tlv_cer_walk_strict(
+        data: *const u8,
+        size: usize,
+        limits: *const tlv_cer_limits_t,
+        visitor: Option<tlv_cer_visitor_t>,
+        context: *mut c_void,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+    /// Writes a canonical CER element.
+    pub fn tlv_cer_write(
+        data: *mut u8,
+        capacity: usize,
+        tag: tlv_tag_t,
+        value: *const u8,
+        length: usize,
+        limits: *const tlv_cer_limits_t,
+        written: *mut usize,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+    /// Strict counterpart of [`tlv_cer_write`].
+    pub fn tlv_cer_write_strict(
+        data: *mut u8,
+        capacity: usize,
+        tag: tlv_tag_t,
+        value: *const u8,
+        length: usize,
+        limits: *const tlv_cer_limits_t,
+        written: *mut usize,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

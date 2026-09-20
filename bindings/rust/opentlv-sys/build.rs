@@ -32,6 +32,12 @@ fn build_from_source() {
         .join("../../..")
         .canonicalize()
         .expect("cannot locate the OpenTLV source tree");
+    // On Windows `canonicalize` returns a `\?\` verbatim path that MSVC
+    // cannot open source files through, so strip the prefix.
+    let source_dir = match source_dir.to_str().and_then(|p| p.strip_prefix(r"\\?\")) {
+        Some(plain) => PathBuf::from(plain),
+        None => source_dir,
+    };
     let build_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap()).join("cmake-build");
 
     for path in ["CMakeLists.txt", "cmake", "tlv"] {

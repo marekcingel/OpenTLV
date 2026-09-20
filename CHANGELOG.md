@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add safe Rust wrappers to the `opentlv` crate for schemas (`LengthSchema`, `StructureSchema`), value codecs (`Codec`, `Value`, `CodecError`), the EMV dictionary (`emv`) and the DER and CER profiles (`Profile`), plus `Format` parsing by name; see [Rust bindings](docs/development/rust.md). (#158)
 - Add a safe Rust `Writer` to the `opentlv` crate that encodes TLV entries from `&[u8]` values into a caller-owned buffer with `Result` errors; see [Rust bindings](docs/development/rust.md). (#157)
 - Add a safe Rust `Reader` to the `opentlv` crate that iterates TLV entries from a `&[u8]` with borrowed values and `Result` errors; see [Rust bindings](docs/development/rust.md). (#156)
 - Add safe Rust core types to the `opentlv` crate: `Tag`, `Entry`, `Error` (mapped from every `TLV_ERR_*` code), `Result` and `ByteOrder`; see [Rust bindings](docs/development/rust.md). (#155)
@@ -17,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Move to a trunk-based workflow: `main` is the only long-lived branch, the `develop` branch is removed, and the `latest` documentation is published from `main`. (#228)
+
+### Fixed
+
+- Fix the Rust bindings build failing on Windows because the CMake source path had a `\\?\` prefix that MSVC cannot open. (#158)
 
 ## [0.6.0] - 2026-09-20
 
