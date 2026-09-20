@@ -53,6 +53,8 @@
       
     
     
+      <link rel="stylesheet" href="../../playground/playground.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -368,6 +370,26 @@
   
   
   CLI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../playground/" class="md-tabs__link">
+          
+  
+  
+  Playground
 
         </a>
       </li>
@@ -1544,7 +1566,7 @@
   <span class="md-ellipsis">
     
   
-    Reference
+    Playground
   
 
     
@@ -1557,6 +1579,93 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Playground
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV playground
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1710,10 +1819,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
             
   
   
@@ -1731,8 +1840,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_9">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1887,6 +1996,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#documentation-playground" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation playground
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1983,6 +2103,17 @@
     <span class="md-ellipsis">
       
         Use from JavaScript
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-playground" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation playground
       
     </span>
   </a>
@@ -2107,6 +2238,14 @@ with every element read before the failure:</p>
 <p><code>parse</code> throws only for programming errors (a non-<code>Uint8Array</code> argument) or
 when memory runs out. Input is processed entirely in the browser. A single
 call reads at most 65,536 elements and 64 levels of nesting.</p>
+<h2 id="documentation-playground">Documentation playground<a class="headerlink" href="#documentation-playground" title="Permanent link">&para;</a></h2>
+<p>The <a href="../../playground/">TLV playground</a> in the documentation site is built
+on this module: <code>docs/playground/playground.js</code> calls <code>parse</code> and renders the
+result, with no parsing logic of its own. The Documentation workflow builds the
+module and <code>tools/docs/hooks.py</code> publishes it as <code>playground/wasm/</code>. To try it
+locally, build the module as above and run <code>mkdocs serve</code>; use
+<code>OPENTLV_WASM_DIR</code> if the build directory is not <code>build-wasm</code>. Without the
+module the site still builds and the playground page says it is unavailable.</p>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <p><code>bindings/wasm/test/smoke.mjs</code> runs the module in Node.js and is registered with CTest
 when <code>node</code> is found:</p>
@@ -2226,6 +2365,8 @@ when <code>node</code> is found:</p>
     
     
       <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../playground/playground.js" type="module"></script>
       
     
   </body>
