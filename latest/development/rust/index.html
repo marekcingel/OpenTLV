@@ -2035,6 +2035,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schemas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codecs-and-the-emv-dictionary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codecs and the EMV dictionary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#profiles-and-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Profiles and formats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2153,6 +2186,39 @@
     <span class="md-ellipsis">
       
         Writer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schemas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codecs-and-the-emv-dictionary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codecs and the EMV dictionary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#profiles-and-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Profiles and formats
       
     </span>
   </a>
@@ -2301,12 +2367,75 @@ bytes with the buffer's lifetime. <code>encoded_size</code> computes the size of
 without writing it. Failures use the common <code>Error</code>; an entry that does not fit
 gives <code>Error::BufferTooShort</code> and leaves the position unchanged. Library users
 need no <code>unsafe</code>.</p>
+<h2 id="schemas">Schemas<a class="headerlink" href="#schemas" title="Permanent link">&para;</a></h2>
+<p>Both schema types wrap the C library's tables; validation runs in C.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Wraps</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LengthSchema</code></td>
+<td><code>tlv_schema_t</code></td>
+<td>Per-tag length rules: <code>find</code> and <code>validate_length</code></td>
+</tr>
+<tr>
+<td><code>StructureSchema</code></td>
+<td><code>tlv_structure_schema_t</code></td>
+<td>Required, optional, duplicate, kind and child-membership rules for a whole buffer</td>
+</tr>
+</tbody>
+</table>
+<p><code>LengthSchema::new</code> and <code>StructureSchema::new</code> build owned tables from
+<code>LengthRule</code> and <code>StructureRule</code> values; <code>LengthSchema::emv</code>,
+<code>LengthSchema::emv_for</code> and <code>StructureSchema::emv</code> return the built-in EMV
+schemas. <code>StructureSchema::validate</code> takes the data, a <code>Format</code> (which decides
+which tags are constructed) and <code>ValidationLimits</code>, and returns
+<code>Result&lt;(), SchemaError&gt;</code>. <code>SchemaError</code> carries the C <code>Error</code>
+(<code>Schema</code>, <code>SchemaMissing</code>, <code>InvalidLength</code>, <code>Limit</code>, ...) and the failing
+offset.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">let</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Tag</span><span class="p">::</span><span class="n">from_bytes</span><span class="p">(</span><span class="o">&amp;</span><span class="p">[</span><span class="mh">0x84</span><span class="p">])</span><span class="o">?</span><span class="p">;</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kd">let</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">StructureSchema</span><span class="p">::</span><span class="n">new</span><span class="p">(</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">[</span><span class="n">opentlv</span><span class="p">::</span><span class="n">StructureRule</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="n">tag</span><span class="p">).</span><span class="n">length</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">).</span><span class="n">required_once</span><span class="p">()],</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="kc">false</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">);</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">schema</span><span class="p">.</span><span class="n">validate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Format</span><span class="p">::</span><span class="n">Ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">opentlv</span><span class="p">::</span><span class="n">ValidationLimits</span><span class="p">::</span><span class="n">default</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div>
+<h2 id="codecs-and-the-emv-dictionary">Codecs and the EMV dictionary<a class="headerlink" href="#codecs-and-the-emv-dictionary" title="Permanent link">&para;</a></h2>
+<p><code>Codec</code> converts a raw value to a typed <code>Value</code> (<code>Number</code>, <code>Flags</code>, <code>Digits</code>,
+<code>Date</code>, <code>Time</code>, <code>Afl</code>, <code>Track2</code>, ...) with <code>decode</code>, and back with <code>encode</code>,
+<code>encode_into</code> and <code>encoded_size</code>. Errors use <code>CodecError</code>, mapped from
+<code>tlv_codec_result_t</code>, which is separate from the framing <code>Error</code>. <code>Codec::amount</code>
+is the amount codec; every other codec comes from the EMV dictionary:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">use</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">emv</span><span class="p">::{</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">Context</span><span class="p">};</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kd">let</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Tag</span><span class="p">::</span><span class="n">from_bytes</span><span class="p">(</span><span class="o">&amp;</span><span class="p">[</span><span class="mh">0x9A</span><span class="p">])</span><span class="o">?</span><span class="p">;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kd">let</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emv</span><span class="p">::</span><span class="n">find</span><span class="p">(</span><span class="n">Context</span><span class="p">::</span><span class="n">Base</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tag</span><span class="p">).</span><span class="n">unwrap</span><span class="p">();</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kd">let</span><span class="w"> </span><span class="n">date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">definition</span><span class="p">.</span><span class="n">codec</span><span class="p">().</span><span class="n">unwrap</span><span class="p">().</span><span class="n">decode</span><span class="p">(</span><span class="o">&amp;</span><span class="p">[</span><span class="mh">0x25</span><span class="p">,</span><span class="w"> </span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0x31</span><span class="p">])</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div>
+<p><code>emv::find</code> returns a <code>Definition</code> (name, <code>ValueKind</code>, length bounds and step,
+<code>validate_length</code>, optional <code>Codec</code>); <code>Context::child</code> follows template
+contexts. Opaque bytes, text and templates have no codec; use the reader's
+borrowed value.</p>
+<h2 id="profiles-and-formats">Profiles and formats<a class="headerlink" href="#profiles-and-formats" title="Permanent link">&para;</a></h2>
+<p><code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>, <code>Fixed1Byte</code>) selects the wire
+encoding; it implements <code>FromStr</code> and <code>Display</code> for names such as <code>"der"</code>.
+<code>Profile</code> (<code>Der</code>, <code>Cer</code>) adds canonical-encoding checks and resource <code>Limits</code>
+on top of the format: <code>validate</code>, <code>read</code>, <code>encoded_size</code> and <code>write</code>, each with
+a <code>Strictness</code> (<code>Canonical</code> or <code>Strict</code>, which also validates UNIVERSAL
+content). Failures are <code>ProfileError</code> values with the failing offset.</p>
+<p>The DOL profile and the callback-based visitors and structure codecs of the C
+API are not bound yet.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Requirements: a Rust toolchain (1.70 or newer), CMake 3.16 or newer and a C99
 compiler. On Windows use the MSVC Rust toolchain with Visual Studio.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>bindings/rust
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>cargo<span class="w"> </span>build
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>cargo<span class="w"> </span><span class="nb">test</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span>bindings/rust
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>cargo<span class="w"> </span>build
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>cargo<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
 <p>By default the build script configures and builds the OpenTLV C library from the
 repository root with CMake, as a static Release library inside Cargo's <code>target</code>
@@ -2314,7 +2443,7 @@ directory, and links it. The C++ layer, CLI, tests and examples are not built.</
 <h2 id="linking-a-prebuilt-library">Linking a prebuilt library<a class="headerlink" href="#linking-a-prebuilt-library" title="Permanent link">&para;</a></h2>
 <p>To link a library you built yourself, point <code>OPENTLV_LIB_DIR</code> at the directory
 containing it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">OPENTLV_LIB_DIR</span><span class="o">=</span>/path/to/build/tlv<span class="w"> </span>cargo<span class="w"> </span>build
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">OPENTLV_LIB_DIR</span><span class="o">=</span>/path/to/build/tlv<span class="w"> </span>cargo<span class="w"> </span>build
 </code></pre></div>
 <p><code>OPENTLV_LINK_KIND</code> selects <code>static</code> or <code>dylib</code> (default <code>dylib</code>, matching the
 default CMake build). With a shared library, the platform's loader must find it
