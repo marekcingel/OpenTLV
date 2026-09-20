@@ -3,45 +3,12 @@
 use std::iter::FusedIterator;
 use std::marker::PhantomData;
 use std::mem::MaybeUninit;
-use std::ptr;
 
 use opentlv_sys as sys;
 
 use crate::entry::Entry;
 use crate::error::{Error, Result};
-
-/// The wire format a [`Reader`] decodes.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
-#[non_exhaustive]
-pub enum Format {
-    /// One-byte tag and a definite BER length.
-    #[default]
-    Default,
-    /// BER-TLV.
-    Ber,
-    /// Canonical Encoding Rules.
-    Cer,
-    /// Distinguished Encoding Rules.
-    Der,
-    /// One-byte tag and one-byte length.
-    Fixed1Byte,
-}
-
-impl Format {
-    fn raw(self) -> *const sys::tlv_reader_format_t {
-        // SAFETY: only the address of an immutable static is taken; the
-        // static lives for the whole program and is never written.
-        unsafe {
-            match self {
-                Format::Default => ptr::addr_of!(sys::tlv_reader_format_default),
-                Format::Ber => ptr::addr_of!(sys::tlv_reader_format_ber),
-                Format::Cer => ptr::addr_of!(sys::tlv_reader_format_cer),
-                Format::Der => ptr::addr_of!(sys::tlv_reader_format_der),
-                Format::Fixed1Byte => ptr::addr_of!(sys::tlv_reader_format_fixed_1byte),
-            }
-        }
-    }
-}
+use crate::format::Format;
 
 /// A sequential reader that parses TLV entries from a byte slice.
 ///
@@ -77,9 +44,9 @@ impl<'a> Reader<'a> {
     pub fn with_format(data: &'a [u8], format: Format) -> Reader<'a> {
         let mut raw = MaybeUninit::<sys::tlv_reader_t>::uninit();
         // SAFETY: `raw` is writable; `data` is a valid slice (a non-null
-        // pointer even when empty); `format.raw()` points to a static format.
+        // pointer even when empty); `format.reader_raw()` points to a static format.
         let code = unsafe {
-            sys::tlv_reader_init(raw.as_mut_ptr(), data.as_ptr(), data.len(), format.raw())
+            sys::tlv_reader_init(raw.as_mut_ptr(), data.as_ptr(), data.len(), format.reader_raw())
         };
         // Every argument is non-null and the built-in formats are complete, so
         // initialization cannot fail.
