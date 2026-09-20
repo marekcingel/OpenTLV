@@ -2,130 +2,134 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/assets/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/cli/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/concepts/architecture/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/concepts/core-types/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/concepts/endian/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/concepts/length/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/concepts/value/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/development/documentation-layout/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/development/fuzzing/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
+    </url>
+    <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/development/webassembly/</loc>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/format-examples/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/format-roadmap/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/asn1/ber/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/asn1/cer/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/asn1/der/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/custom/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/default/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/fixed/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/getting-started/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/guides/codecs/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/guides/copy/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/guides/memory/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/guides/scanner/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/guides/schemas/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/profiles/cer/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/profiles/der/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/profiles/emv/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/reference/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/reference/c-api/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/reference/compilers/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/reference/cxx-api/</loc>
-         <lastmod>2026-09-19</lastmod>
+         <lastmod>2026-09-20</lastmod>
     </url>
 </urlset>

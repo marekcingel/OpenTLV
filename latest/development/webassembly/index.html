@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/development/fuzzing/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/development/webassembly/">
       
       
-        <link rel="prev" href="../documentation-layout/">
+        <link rel="prev" href="../fuzzing/">
       
       
-        <link rel="next" href="../webassembly/">
+        <link rel="next" href="../../assets/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Fuzzing - OpenTLV</title>
+        <title>WebAssembly build - OpenTLV</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#fuzzing-the-c-api" class="md-skip">
+        <a href="#webassembly-build-experimental" class="md-skip">
           Skip to content
         </a>
       
@@ -129,7 +129,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Fuzzing
+              WebAssembly build
             
           </span>
         </div>
@@ -1774,6 +1774,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../fuzzing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fuzzing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1793,7 +1821,7 @@
   <span class="md-ellipsis">
     
   
-    Fuzzing
+    WebAssembly build
   
 
     
@@ -1811,7 +1839,7 @@
   <span class="md-ellipsis">
     
   
-    Fuzzing
+    WebAssembly build
   
 
     
@@ -1837,10 +1865,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#targets-and-contracts" class="md-nav__link">
+  <a href="#build" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Targets and contracts
+        Build
       
     </span>
   </a>
@@ -1848,10 +1876,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-locally" class="md-nav__link">
+  <a href="#use-from-javascript" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run locally
+        Use from JavaScript
       
     </span>
   </a>
@@ -1859,10 +1887,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reproduce-and-minimize-a-finding" class="md-nav__link">
+  <a href="#testing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reproduce and minimize a finding
+        Testing
       
     </span>
   </a>
@@ -1873,34 +1901,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../webassembly/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    WebAssembly build
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1968,10 +1968,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#targets-and-contracts" class="md-nav__link">
+  <a href="#build" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Targets and contracts
+        Build
       
     </span>
   </a>
@@ -1979,10 +1979,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-locally" class="md-nav__link">
+  <a href="#use-from-javascript" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run locally
+        Use from JavaScript
       
     </span>
   </a>
@@ -1990,10 +1990,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reproduce-and-minimize-a-finding" class="md-nav__link">
+  <a href="#testing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reproduce and minimize a finding
+        Testing
       
     </span>
   </a>
@@ -2017,7 +2017,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/develop/docs/development/fuzzing.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/develop/docs/development/webassembly.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2025,144 +2025,93 @@
   
 
 
-<h1 id="fuzzing-the-c-api">Fuzzing the C API<a class="headerlink" href="#fuzzing-the-c-api" title="Permanent link">&para;</a></h1>
-<p>The optional <code>OPENTLV_BUILD_FUZZING</code> build tests the C <code>tlv</code> API using
-<a href="https://llvm.org/docs/LibFuzzer.html">libFuzzer</a>, AddressSanitizer (ASan), and
-<a href="https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html">UndefinedBehaviorSanitizer</a>
-(UBSan). It defaults to <code>OFF</code>. The C++ wrappers are outside this suite.</p>
-<p>The fuzz build requires Linux (including WSL), Clang 18 or newer, and its
-libFuzzer and sanitizer runtimes. On Ubuntu 24.04:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo<span class="w"> </span>apt-get<span class="w"> </span>update
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>clang-18<span class="w"> </span>libclang-rt-18-dev<span class="w"> </span>llvm-18<span class="w"> </span>cmake<span class="w"> </span>ninja-build
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build/fuzz<span class="w"> </span>-G<span class="w"> </span>Ninja<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>-DCMAKE_C_COMPILER<span class="o">=</span>clang-18<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>RelWithDebInfo<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span>-DOPENTLV_BUILD_FUZZING<span class="o">=</span>ON<span class="w"> </span>-DOPENTLV_BUILD_CXX<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>-DOPENTLV_BUILD_TESTS<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_EXAMPLES<span class="o">=</span>OFF
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build/fuzz<span class="w"> </span>--parallel
+<h1 id="webassembly-build-experimental">WebAssembly build (experimental)<a class="headerlink" href="#webassembly-build-experimental" title="Permanent link">&para;</a></h1>
+<p>The optional <code>OPENTLV_BUILD_WASM</code> build compiles the OpenTLV C core to
+WebAssembly with <a href="https://emscripten.org/">Emscripten</a>, so browser tooling runs
+the same parser as native applications. It defaults to <code>OFF</code> and adds nothing
+to normal C and C++ builds.</p>
+<p>The first interface is intentionally small: it parses a byte buffer and returns
+the element structure or the parser error. It wraps the existing C API in
+<code>bindings/wasm/src/opentlv_wasm.c</code>; no parsing logic is duplicated. Editing, schemas,
+profiles and OTDL are not exposed yet.</p>
+<h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
+<p>Install and activate an Emscripten SDK (CI pins the version set in
+<code>.github/workflows/wasm.yml</code>), then:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>emcmake<span class="w"> </span>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-wasm<span class="w"> </span>-G<span class="w"> </span>Ninja<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_BUILD_WASM<span class="o">=</span>ON<span class="w"> </span>-DOPENTLV_BUILD_CXX<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_CLI<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-DOPENTLV_BUILD_TESTS<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_EXAMPLES<span class="o">=</span>OFF
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-wasm<span class="w"> </span>--target<span class="w"> </span>opentlv-wasm
 </code></pre></div>
-<p>No GoogleTest or C++ compiler configuration is needed. The runtime itself may
-depend on the toolchain's C++ runtime. A separate static <code>tlv_fuzz</code> library
-reuses the enabled C sources with coverage and sanitizer instrumentation.
-The ordinary <code>tlv</code> target, installed package, and consumers receive no fuzzing
-flags. Contract checks remain active with <code>NDEBUG</code>; UBSan errors are fatal.</p>
-<h2 id="targets-and-contracts">Targets and contracts<a class="headerlink" href="#targets-and-contracts" title="Permanent link">&para;</a></h2>
+<p>The artifacts are written to <code>build-wasm/bindings/wasm/dist/</code>:</p>
 <table>
 <thead>
 <tr>
-<th>Target</th>
-<th>Checks</th>
+<th>File</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>fuzz_read</code></td>
-<td>Sequential <code>tlv_read</code> calls, positive bounded consumption, borrowed value ranges, unchanged view and consumed count on failure.</td>
+<td><code>opentlv.mjs</code></td>
+<td>JavaScript entry point (<code>loadOpenTLV</code>, <code>hexToBytes</code>)</td>
 </tr>
 <tr>
-<td><code>fuzz_walk_tree</code></td>
-<td>Nested <code>tlv_walk_tree</code> traversal, depth and element limits (including zero), view ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal.</td>
+<td><code>opentlv-core.js</code></td>
+<td>Generated Emscripten ES module loader</td>
 </tr>
 <tr>
-<td><code>fuzz_der</code></td>
-<td><code>tlv_der_read</code> and <code>tlv_der_walk</code>, canonical DER-TLV framing, all four profile limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal.</td>
-</tr>
-<tr>
-<td><code>fuzz_der_schema</code></td>
-<td><code>tlv_der_schema_read</code> against a fixed representative schema (IMPLICIT/EXPLICIT tagging, a DEFAULT component, SET, SET OF and CHOICE), all five schema limits, unchanged read outputs and bounded error offsets on failure.</td>
-</tr>
-<tr>
-<td><code>fuzz_roundtrip</code></td>
-<td>Generated tags and values, sizing, insufficient-capacity output preservation, successful write/read tag and value equality.</td>
-</tr>
-<tr>
-<td><code>fuzz_codec</code></td>
-<td><code>tlv_codec_decode</code>/<code>tlv_codec_encode</code> for every EMV dictionary tag's codec (NUMBER, FLAGS, DIGITS, DATE, TIME, ACCOUNT, CRYPTOGRAM, BIOMETRIC, NUMBER_LIST), one-byte-short capacities, decode/encode/decode round-trip equality, and undersized-output rejection.</td>
-</tr>
-<tr>
-<td><code>fuzz_dol</code></td>
-<td><code>tlv_dol_read</code> and <code>tlv_dol_write</code> (both a size query and a full write against a deterministic <code>resolve</code> callback exercising presence, padding and truncation), both DOL limits, and that <code>tlv_dol_write</code>'s output length depends only on the input DOL.</td>
+<td><code>opentlv-core.wasm</code></td>
+<td>The compiled OpenTLV core</td>
 </tr>
 </tbody>
 </table>
-<p>The reader, walker, and round-trip targets run each input against every enabled
-built-in format: default, fixed 1-byte, BER, and DER. Component switches still
-apply; <code>fuzz_der</code> and <code>fuzz_der_schema</code> are omitted when <code>OPENTLV_FORMAT_DER=OFF</code>,
-and <code>fuzz_codec</code> and <code>fuzz_dol</code> are omitted when <code>OPENTLV_PROFILE_EMV=OFF</code>. At
-least one built-in format must be enabled. For the raw-byte formats, the
-walker harness uses tag bit <code>0x20</code> as a test-only container convention. BER
-and DER use their public nesting predicates. <code>fuzz_der</code> covers the existing
-DER-TLV contract, not ASN.1 value semantics or SET/SET OF ordering;
-<code>fuzz_der_schema</code> covers the schema-aware layer that does (SET/SET OF
-ordering, tagging, CHOICE, DEFAULT omission) against one fixed schema.
-<code>fuzz_codec</code> covers value-codec semantics (BCD/binary numeric ranges,
-date/time calendar checks, enum validation) independently of TLV framing.
-<code>fuzz_dol</code> covers the dedicated DOL value component (tag/one-byte-length
-parsing, resolve-driven construction, and EMV padding/truncation), which is
-not ordinary TLV structure and so is not exercised by any other target.</p>
-<p><code>error_offset</code> may change on failure; on success it must stay unchanged.
-Earlier visitor effects are not rolled back. The suite checks these documented
-exceptions rather than requiring every output to remain unchanged on error.</p>
-<h2 id="run-locally">Run locally<a class="headerlink" href="#run-locally" title="Permanent link">&para;</a></h2>
-<p>Run from the repository root. Keep discoveries in a writable build directory;
-the checked-in <a href="https://github.com/marekcingel/OpenTLV/blob/develop/tests/fuzz/README.md">seed corpus</a> is the second corpus path.
-For one target:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ASAN_OPTIONS</span><span class="o">=</span><span class="nv">abort_on_error</span><span class="o">=</span><span class="m">1</span>:detect_leaks<span class="o">=</span><span class="m">1</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">UBSAN_OPTIONS</span><span class="o">=</span><span class="nv">halt_on_error</span><span class="o">=</span><span class="m">1</span>:abort_on_error<span class="o">=</span><span class="m">1</span>:print_stacktrace<span class="o">=</span><span class="m">1</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>build/fuzz/corpus/read<span class="w"> </span>build/fuzz/findings/read
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>build/fuzz/tests/fuzz/fuzz_read<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>build/fuzz/corpus/read<span class="w"> </span>tests/fuzz/corpus/read<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span>-max_total_time<span class="o">=</span><span class="m">60</span><span class="w"> </span>-max_len<span class="o">=</span><span class="m">4096</span><span class="w"> </span>-timeout<span class="o">=</span><span class="m">10</span><span class="w"> </span>-rss_limit_mb<span class="o">=</span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span>-artifact_prefix<span class="o">=</span>build/fuzz/findings/read/
+<p>Serve the three files from the same directory. With the same Emscripten version
+and configuration the artifacts are byte-for-byte identical; CI builds twice
+and compares them. Format options such as <code>OPENTLV_FORMAT_BER</code> apply as in
+native builds, and a compiled-out format is rejected as an invalid argument.</p>
+<h2 id="use-from-javascript">Use from JavaScript<a class="headerlink" href="#use-from-javascript" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">loadOpenTLV</span><span class="p">,</span><span class="w"> </span><span class="nx">hexToBytes</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./opentlv.mjs"</span><span class="p">;</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">opentlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">loadOpenTLV</span><span class="p">();</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">opentlv</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nx">hexToBytes</span><span class="p">(</span><span class="s2">"6F 0A 84 03 41 42 43 A5 03 50 01 01"</span><span class="p">),</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">format</span><span class="o">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">);</span>
 </code></pre></div>
-<p>For all enabled targets (Bash):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">set</span><span class="w"> </span>-o<span class="w"> </span>pipefail
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">status</span><span class="o">=</span><span class="m">0</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">for</span><span class="w"> </span>target<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>walk_tree<span class="w"> </span>der<span class="w"> </span>der_schema<span class="w"> </span>roundtrip<span class="w"> </span>codec<span class="w"> </span>dol<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nv">executable</span><span class="o">=</span><span class="s2">"build/fuzz/tests/fuzz/fuzz_</span><span class="nv">$target</span><span class="s2">"</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="o">[</span><span class="w"> </span>-x<span class="w"> </span><span class="s2">"</span><span class="nv">$executable</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">continue</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"build/fuzz/corpus/</span><span class="nv">$target</span><span class="s2">"</span><span class="w"> </span><span class="s2">"build/fuzz/findings/</span><span class="nv">$target</span><span class="s2">"</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="s2">"</span><span class="nv">$executable</span><span class="s2">"</span><span class="w"> </span><span class="s2">"build/fuzz/corpus/</span><span class="nv">$target</span><span class="s2">"</span><span class="w"> </span><span class="s2">"tests/fuzz/corpus/</span><span class="nv">$target</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span>-max_total_time<span class="o">=</span><span class="m">60</span><span class="w"> </span>-max_len<span class="o">=</span><span class="m">4096</span><span class="w"> </span>-timeout<span class="o">=</span><span class="m">10</span><span class="w"> </span>-rss_limit_mb<span class="o">=</span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span>-artifact_prefix<span class="o">=</span><span class="s2">"build/fuzz/findings/</span><span class="nv">$target</span><span class="s2">/"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span><span class="s2">"build/fuzz/findings/</span><span class="nv">$target</span><span class="s2">/run.log"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">status</span><span class="o">=</span><span class="m">1</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">done</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="nb">test</span><span class="w"> </span><span class="s2">"</span><span class="nv">$status</span><span class="s2">"</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span>
+<p><code>parse</code> takes a <code>Uint8Array</code> and a <code>format</code> (<code>default</code>, <code>fixed-1byte</code>, <code>ber</code> or
+<code>der</code>; default <code>default</code>) and returns:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">      </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6F"</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nt">"constructed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">      </span><span class="nt">"children"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">"84"</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">"constructed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"414243"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A5"</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">"constructed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">          </span><span class="nt">"children"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">"50"</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"constructed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"01"</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">          </span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">      </span><span class="p">]</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="p">}</span>
 </code></pre></div>
-<p>Increase <code>-max_total_time</code> for longer sessions, or use <code>-runs=N</code> for a bounded
-number of executions. <code>-max_len</code> limits generated inputs, not the API's supported
-input size. <code>-timeout</code> bounds one execution and the RSS option limits memory.
-With <code>-runs=0</code>, libFuzzer replays the seed corpus without a mutation campaign.</p>
-<h2 id="reproduce-and-minimize-a-finding">Reproduce and minimize a finding<a class="headerlink" href="#reproduce-and-minimize-a-finding" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/develop/.github/workflows/fuzz.yml">C API Fuzzing</a> workflow runs on pushes to
-<code>main</code> (including merged pull requests), every Monday at 03:17 UTC even without
-new commits, and manually through <code>workflow_dispatch</code>. Scheduled runs use the
-latest commit on the default branch; the workflow must be merged there first.
-Fuzzing runs separately from pull-request builds. It builds the C fuzz targets
-in Debug mode, runs each configured CI target for approximately 60 seconds, fails on any
-target failure, and uploads per-target logs and reproducing inputs even when
-the run fails. A 15-minute step timeout bounds fuzz execution. This short
-campaign is a smoke check, not exhaustive validation. CI caches <code>build/fuzz/corpus</code>
-across runs (<code>actions/cache</code>, restored before the fuzz build and saved after
-it), so each run's 60 seconds builds on inputs the previous run discovered
-instead of starting over from just the checked-in seed corpus every time.</p>
-<p>Download the <code>c-fuzz-findings-&lt;run&gt;-&lt;attempt&gt;</code> artifact, check out the failing
-commit, and build with the same component options and Clang version. Pass the
-saved input as a file instead of a corpus directory:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>build/fuzz/tests/fuzz/fuzz_read<span class="w"> </span>path/to/read/crash-&lt;hash&gt;
+<p>Tags and values are uppercase hexadecimal. Only BER and DER elements can be
+constructed; the other formats return flat elements with opaque values.</p>
+<p>Invalid input does not throw. The result carries an <code>error</code> object with the
+numeric <code>code</code> of <code>tlv_result_t</code>, its <code>message</code> and the input <code>offset</code>, together
+with every element read before the failure:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"default"</span><span class="p">,</span><span class="w"> </span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">],</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buffer too short"</span><span class="p">,</span><span class="w"> </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
-<p>Use the corresponding target for <code>walk_tree</code>, <code>der</code>, <code>der_schema</code>, <code>roundtrip</code>,
-<code>codec</code>, or <code>dol</code>. Findings
-may also use names such as <code>timeout-&lt;hash&gt;</code> or <code>oom-&lt;hash&gt;</code>; retain the original
-timeout/RSS settings when reproducing those. Keep the sanitizer environment
-variables from the local-run example and ensure <code>llvm-symbolizer-18</code> is on
-PATH (or set <code>ASAN_SYMBOLIZER_PATH</code> to its absolute path).</p>
-<p>To minimize a crashing input:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>build/fuzz/tests/fuzz/fuzz_read<span class="w"> </span>-minimize_crash<span class="o">=</span><span class="m">1</span><span class="w"> </span>-max_total_time<span class="o">=</span><span class="m">60</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-exact_artifact_path<span class="o">=</span>build/fuzz/minimized-input<span class="w"> </span>path/to/read/crash-&lt;hash&gt;
+<p><code>parse</code> throws only for programming errors (a non-<code>Uint8Array</code> argument) or
+when memory runs out. Input is processed entirely in the browser. A single
+call reads at most 65,536 elements and 64 levels of nesting.</p>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<p><code>bindings/wasm/test/smoke.mjs</code> runs the module in Node.js and is registered with CTest
+when <code>node</code> is found:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ctest<span class="w"> </span>--test-dir<span class="w"> </span>build-wasm<span class="w"> </span>-L<span class="w"> </span>wasm<span class="w"> </span>--output-on-failure
 </code></pre></div>
-<p>Retain the original artifact and log. Once understood and fixed, add the small
-reproducer to the appropriate seed corpus and a focused regression test for
-the violated library contract.</p>
 
 
 
@@ -2200,7 +2149,7 @@ the violated library contract.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../documentation-layout/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Where documentation belongs">
+          <a href="../fuzzing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Fuzzing">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2210,20 +2159,20 @@ the violated library contract.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Where documentation belongs
+                Fuzzing
               </div>
             </div>
           </a>
         
         
           
-          <a href="../webassembly/" class="md-footer__link md-footer__link--next" aria-label="Next: WebAssembly build">
+          <a href="../../assets/" class="md-footer__link md-footer__link--next" aria-label="Next: Logo assets">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                WebAssembly build
+                Logo assets
               </div>
             </div>
             <div class="md-footer__button md-icon">
