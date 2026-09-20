@@ -1,6 +1,7 @@
 #include "tlv/reader/walker.h"
 #include "tlv/reader/reader.h"
 #include "tlv/length.h"
+#include "../formats/format_internal.h"
 
 static tlv_result_t tree_error(tlv_result_t rc, size_t offset, size_t* out) {
     if (out) *out = offset;
@@ -14,7 +15,7 @@ tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_reader_fo
     size_t ends[TLV_WALK_MAX_DEPTH + 1];
     size_t resumes[TLV_WALK_MAX_DEPTH + 1];
     size_t depth = 0, pos = 0, count = 0;
-    if ((!data && size) || !format || !format->read_tag || !format->read_length)
+    if ((!data && size) || !tlv_reader_format_usable(format))
         return tree_error(TLV_ERR_NULL_ARG, 0, error_offset);
     if (max_depth > TLV_WALK_MAX_DEPTH) return tree_error(TLV_ERR_LIMIT, 0, error_offset);
     ends[0] = size;

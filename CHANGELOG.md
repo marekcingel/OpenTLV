@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add the Bluetooth LTV (Length | Type | Value) format, `tlv_reader_format_bluetooth_ltv` and `tlv_writer_format_bluetooth_ltv`, behind the new `OPENTLV_FORMAT_BLUETOOTH_LTV` CMake option and the `otlv` format name `bluetooth-ltv`, and add optional whole-element `read_element` and `write_header` format callbacks so formats whose length precedes the type work with the generic reader, writer, scanner and walker; see [Bluetooth LTV](docs/formats/bluetooth/README.md). (#220)
 - Add a Rust guide covering Cargo setup, reading, writing, error handling, ownership and the relationship to the C API, runnable `reader` and `writer` examples for the `opentlv` crate, and a `missing_docs` lint that requires Rustdoc on the public API; see [Using OpenTLV from Rust](docs/guides/rust.md). (#160)
 - Add a Rust Bindings CI workflow that builds and tests the Rust crates on Linux, Windows and macOS and enforces `cargo fmt --check` and `cargo clippy -D warnings`, and add Rust tests that replay the C fuzz seed corpus; see [Rust bindings](docs/development/rust.md). (#159)
 - Add safe Rust wrappers to the `opentlv` crate for schemas (`LengthSchema`, `StructureSchema`), value codecs (`Codec`, `Value`, `CodecError`), the EMV dictionary (`emv`) and the DER and CER profiles (`Profile`), plus `Format` parsing by name; see [Rust bindings](docs/development/rust.md). (#158)

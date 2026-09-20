@@ -1,10 +1,10 @@
 #include "tlv/reader/reader.h"
 #include "tlv/length.h"
+#include "../formats/format_internal.h"
 
 tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data, size_t size,
                              const tlv_reader_format_t* format) {
-    if (!reader || (!data && size) || !format || !format->read_tag || !format->read_length)
-        return TLV_ERR_NULL_ARG;
+    if (!reader || (!data && size) || !tlv_reader_format_usable(format)) return TLV_ERR_NULL_ARG;
     reader->data = data;
     reader->size = size;
     reader->pos = 0;
@@ -22,24 +22,32 @@ tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_reader_format_
     size_t tag_size = 0, length_size = 0, trailer_size = 0, remaining;
     size_t value_length = 0;
     tlv_result_t rc;
-    if ((!data && size) || !out_entry || !consumed || !format || !format->read_tag ||
-        !format->read_length)
+    if ((!data && size) || !out_entry || !consumed || !tlv_reader_format_usable(format))
         return TLV_ERR_NULL_ARG;
     if (!size) return TLV_ERR_END_OF_BUFFER;
     remaining = size;
-    rc = format->read_tag(format->context, data, remaining, &entry.tag, &tag_size);
-    if (rc != TLV_OK) return rc;
-    if (!tag_size || tag_size > remaining) return TLV_ERR_INVALID_TAG;
-    if (!entry.tag.size || entry.tag.size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
-    remaining -= tag_size;
-    if (format->read_value_bounds)
-        rc = format->read_value_bounds(format->context, &entry.tag, data + tag_size, remaining,
-                                       &length_size, &value_length, &trailer_size);
-    else
-        rc = format->read_length(format->context, data + tag_size, remaining, &value_length,
-                                 &length_size);
-    if (rc != TLV_OK) return rc;
-    if (length_size > remaining) return TLV_ERR_INVALID_LENGTH;
+    if (format->read_element) {
+        /* The header is everything before the value, whatever order its fields use. */
+        rc = format->read_element(format->context, data, remaining, &entry.tag, &length_size,
+                                  &value_length, &trailer_size);
+        if (rc != TLV_OK) return rc;
+        if (!length_size || length_size > remaining) return TLV_ERR_INVALID_LENGTH;
+        if (!entry.tag.size || entry.tag.size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
+    } else {
+        rc = format->read_tag(format->context, data, remaining, &entry.tag, &tag_size);
+        if (rc != TLV_OK) return rc;
+        if (!tag_size || tag_size > remaining) return TLV_ERR_INVALID_TAG;
+        if (!entry.tag.size || entry.tag.size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
+        remaining -= tag_size;
+        if (format->read_value_bounds)
+            rc = format->read_value_bounds(format->context, &entry.tag, data + tag_size, remaining,
+                                           &length_size, &value_length, &trailer_size);
+        else
+            rc = format->read_length(format->context, data + tag_size, remaining, &value_length,
+                                     &length_size);
+        if (rc != TLV_OK) return rc;
+        if (length_size > remaining) return TLV_ERR_INVALID_LENGTH;
+    }
     remaining -= length_size;
     if (value_length > remaining) return TLV_ERR_BUFFER_TOO_SHORT;
     remaining -= value_length;

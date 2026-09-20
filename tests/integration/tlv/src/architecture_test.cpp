@@ -55,7 +55,7 @@ int constructed(const void*, const tlv_tag_t* tag) {
     return (tag->data[0] & 0x80) != 0;
 }
 const tlv_reader_format_t  format = {nullptr, tag_read, length_read, nullptr};
-const tlv_writer_format_t  writer_format = {nullptr, tag_write, length_write, length_size};
+const tlv_writer_format_t  writer_format = {nullptr, tag_write, length_write, length_size, nullptr};
 const tlv_structure_rule_t child_rules[] = {
     {{{{1}, 1}, 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
     {{{{2}, 1}, 1, 1, 0}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr}};

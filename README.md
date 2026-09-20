@@ -51,6 +51,7 @@ Built-in components are enabled by default and can be selected with
   - **Default and fixed-width**
     - [x] **Default TLV** - one-byte tags, definite BER-style lengths up to 65,535 bytes. [Details](docs/formats/README.md#generic-interface) [Tree and bytes](docs/formats/default/README.md#byte-example)
     - [x] **Fixed 1-byte TLV** - one-byte tags and lengths, values up to 255 bytes. [Details](docs/formats/fixed/README.md) [Tree and bytes](docs/formats/fixed/README.md#byte-example)
+    - [x] **Bluetooth LTV** - length-before-type framing used by Bluetooth advertising data, values up to 254 bytes. [Details](docs/formats/bluetooth/README.md) [Tree and bytes](docs/formats/bluetooth/README.md#byte-example)
     - [ ] **Configurable fixed-width TLV** - built-in configurable tag/length widths and byte order
   - **ASN.1-related encodings**
     - [x] **BER-TLV** - multi-byte tags. [Scope](docs/formats/asn1/ber.md) [Tree and bytes](docs/formats/asn1/ber.md#byte-example)

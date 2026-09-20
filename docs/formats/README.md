@@ -6,6 +6,7 @@ Profile semantics are documented separately.
 
 - [Default TLV](default/README.md)
 - [Fixed 1-byte TLV](fixed/README.md)
+- [Bluetooth LTV](bluetooth/README.md)
 - [BER-TLV](asn1/ber.md)
 - [DER-TLV](asn1/der.md)
 - [CER-TLV](asn1/cer.md)
@@ -18,6 +19,7 @@ Profile semantics are documented separately.
 | --- | --- | --- |
 | Small internal records with fixed header sizes | [Fixed 1-byte TLV](fixed/README.md) | Values up to 255 bytes |
 | One-byte tags with larger payloads | [Default TLV](default/README.md) | Values up to 65,535 bytes |
+| Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
 | Canonical ASN.1 framing and nested checks | [DER](../profiles/der/README.md) | Structural validation, not full semantic DER |
 | Canonical ASN.1 with indefinite-length framing and segmented strings | [CER](../profiles/cer/README.md) | Structural validation, not full semantic CER |
@@ -123,23 +125,25 @@ same encoder and advances its position only on success.
 
 Include `tlv/formats/format.h` for the allocation-free, type-distinct descriptors:
 
-- `tlv_reader_format_t`: `context`, `read_tag`, `read_length`, optional `read_value_bounds`.
-- `tlv_writer_format_t`: exactly `context`, `write_tag`, `write_length`, `length_size`.
+- `tlv_reader_format_t`: `context`, `read_tag`, `read_length`, optional `read_value_bounds`, optional `read_element`.
+- `tlv_writer_format_t`: `context`, `write_tag`, `write_length`, `length_size`, optional `write_header`.
 
 Pass the matching descriptor to `tlv_reader_init` or `tlv_writer_init` as the
 last argument after the buffer and its size. The descriptor and its optional
 immutable `context` are borrowed and must remain valid and unchanged throughout use.
-All callbacks except `read_value_bounds` are required; a custom reader needs no
-write callbacks, and a custom writer needs no read callbacks.
+`read_tag` and `read_length` are required unless `read_element` is set, and `write_tag`,
+`write_length` and `length_size` are required unless `write_header` is set; a custom
+reader needs no write callbacks, and a custom writer needs no read callbacks.
 
 `tlv_reader_format_init(format, context, read_tag, read_length)` and
 `tlv_writer_format_init(format, context, write_tag, write_length, length_size)`
-initialize caller-owned descriptors at runtime. They return `TLV_OK` on success
+initialize caller-owned descriptors at runtime; `tlv_reader_format_init_element` and
+`tlv_writer_format_init_header` do the same for the whole-element callbacks below. They return `TLV_OK` on success
 or `TLV_ERR_INVALID_ARG` for a NULL destination or required callback, leaving
 the destination unchanged on failure. A NULL context is valid. Static C
 initialization can use designated fields. The named callback typedefs are
 `tlv_read_tag_fn`, `tlv_read_length_fn`, `tlv_read_value_bounds_fn`, `tlv_write_tag_fn`,
-`tlv_write_length_fn`, and `tlv_length_size_fn`.
+`tlv_write_length_fn`, `tlv_length_size_fn`, `tlv_read_element_fn`, and `tlv_write_header_fn`.
 
 The two descriptor pointer types are incompatible. C++ rejects a direction
 mismatch; C builds with `-std=c11 -Wall -Wextra -Werror` reject it as well.
@@ -215,3 +219,23 @@ STOP succeeds immediately without validating the remaining input. The original
 flat reader and walker retain their behavior. See [architecture](../concepts/architecture.md).
 
 See also the [C API reference: formats](../reference/c-api.md#formats).
+
+### Formats whose length precedes the tag
+
+`read_tag` and `read_length` assume the tag comes first. Formats with another
+field order, such as [Bluetooth LTV](bluetooth/README.md) (Length | Type |
+Value), set the optional `read_element` and `write_header` callbacks instead:
+
+- `read_element(context, data, size, &tag, &header_size, &value_size,
+  &trailer_size)` parses a whole element. `header_size` covers everything
+  before the value, in any field order. It replaces `read_tag`, `read_length`
+  and `read_value_bounds`, and the core applies the same bounds checks.
+- `write_header(context, data, capacity, tag, length, &written)` writes the
+  whole header. With `data == NULL` and `capacity == 0` it validates and sizes
+  the header. It replaces `write_tag`, `write_length` and `length_size`.
+
+Every generic operation (reader, writer, scanner, walker, schemas, copy) works
+on such formats unchanged. Code that calls `read_tag` or `write_tag` directly on
+a descriptor must check for `NULL` first. Like `read_value_bounds`, these fields
+were appended to the descriptors, so rebuild the library and all consumers
+together and append `NULL` to aggregate initializers.

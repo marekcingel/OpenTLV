@@ -1,9 +1,9 @@
 #include "tlv/codec/structure.h"
 #include "tlv/reader/walker.h"
+#include "../formats/format_internal.h"
 
 static int valid_descriptor(const tlv_structure_codec_t* codec) {
-    return codec && codec->reader_format && codec->reader_format->read_tag &&
-           codec->reader_format->read_length;
+    return codec && tlv_reader_format_usable(codec->reader_format);
 }
 
 static tlv_codec_result_t validate(const tlv_structure_codec_t* codec, const uint8_t* data,
@@ -38,9 +38,7 @@ tlv_codec_result_t tlv_structure_encode(const tlv_structure_codec_t* codec, cons
     if (!valid_descriptor(codec) || !value || (!data && capacity)) return TLV_CODEC_ERR_NULL_ARG;
     if (codec->max_depth > TLV_WALK_MAX_DEPTH) return TLV_CODEC_ERR_INVALID_VALUE;
     if (!codec->encode) return TLV_CODEC_ERR_UNSUPPORTED;
-    if (!codec->writer_format || !codec->writer_format->write_tag ||
-        !codec->writer_format->write_length || !codec->writer_format->length_size)
-        return TLV_CODEC_ERR_NULL_ARG;
+    if (!tlv_writer_format_usable(codec->writer_format)) return TLV_CODEC_ERR_NULL_ARG;
     rc = codec->encode(codec->context, codec->writer_format, value, size, data, capacity, &count);
     if (rc != TLV_CODEC_OK) return rc;
     if (data && count > capacity) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;

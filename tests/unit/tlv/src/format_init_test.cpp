@@ -44,7 +44,7 @@ TEST(Unit_FormatInit, ReaderValidInputAndOptionalContext) {
 
 TEST(Unit_FormatInit, ReaderRejectsNullArgumentsWithoutModification) {
     const int           context = 42;
-    tlv_reader_format_t format = {&context, read_tag, read_length, nullptr};
+    tlv_reader_format_t format = {&context, read_tag, read_length, nullptr, nullptr};
     unsigned char       before[sizeof(format)];
     std::memcpy(before, &format, sizeof(format));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_reader_format_init(nullptr, nullptr, read_tag, read_length));
@@ -70,7 +70,7 @@ TEST(Unit_FormatInit, WriterValidInputAndOptionalContext) {
 
 TEST(Unit_FormatInit, WriterRejectsNullArgumentsWithoutModification) {
     const int           context = 42;
-    tlv_writer_format_t format = {&context, write_tag, write_length, length_size};
+    tlv_writer_format_t format = {&context, write_tag, write_length, length_size, nullptr};
     unsigned char       before[sizeof(format)];
     std::memcpy(before, &format, sizeof(format));
     EXPECT_EQ(TLV_ERR_INVALID_ARG,

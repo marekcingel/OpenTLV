@@ -19,6 +19,9 @@
 #if OPENTLV_FORMAT_FIXED_1BYTE
 #include "tlv/formats/fixed/fixed_1byte.h"
 #endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#include "tlv/formats/bluetooth/bluetooth_ltv.h"
+#endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/formats/asn1/ber.h"
 #endif
@@ -45,6 +48,9 @@ const tlv_reader_format_t* select_format(const char* name) {
 #endif
 #if OPENTLV_FORMAT_DER
     if (!strcmp(name, "der")) return &tlv_reader_format_der;
+#endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+    if (!strcmp(name, "bluetooth-ltv")) return &tlv_reader_format_bluetooth_ltv;
 #endif
     (void)name;
     return NULL;
@@ -206,6 +212,16 @@ const char* error_name(tlv_result_t rc) {
     }
 }
 
+/* Reads the tag at the start of an element, including for formats that parse whole elements
+ * (whose tag is only known once the element is well-formed). */
+bool read_tag_at(const tlv_reader_format_t* format, const uint8_t* data, size_t size,
+                 tlv_tag_t* tag, size_t* used) {
+    if (format->read_tag) return format->read_tag(format->context, data, size, tag, used) == TLV_OK;
+    size_t value_size, trailer_size;
+    return format->read_element(format->context, data, size, tag, used, &value_size,
+                                &trailer_size) == TLV_OK;
+}
+
 /* A DOL length is a single unsigned byte, not a BER length field. No value
  * bytes follow it. Reuse the public BER tag reader without fabricating TLVs. */
 tlv_result_t walk_pdol(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
@@ -268,6 +284,9 @@ void formats() {
 #endif
 #if OPENTLV_FORMAT_DER
     std::cout << "der\n";
+#endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+    std::cout << "bluetooth-ltv\n";
 #endif
 }
 
@@ -366,8 +385,7 @@ int execute(const options& o, const uint8_t* data, size_t size) {
         tlv_tag_t tag;
         size_t    used;
         if (result != TLV_ERR_SCHEMA_MISSING && error_offset < size &&
-            format->read_tag(format->context, data + error_offset, size - error_offset, &tag,
-                             &used) == TLV_OK)
+            read_tag_at(format, data + error_offset, size - error_offset, &tag, &used))
             std::cerr << " tag=" << hex_string(tag.data, tag.size);
         std::cerr << ": " << tlv_strerror(result) << "\n";
         return result == TLV_ERR_LIMIT || result == TLV_ERR_OUT_OF_MEMORY ? 3 : 1;
