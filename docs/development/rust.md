@@ -68,6 +68,66 @@ without writing it. Failures use the common `Error`; an entry that does not fit
 gives `Error::BufferTooShort` and leaves the position unchanged. Library users
 need no `unsafe`.
 
+## Schemas
+
+Both schema types wrap the C library's tables; validation runs in C.
+
+| Type | Wraps | Purpose |
+| --- | --- | --- |
+| `LengthSchema` | `tlv_schema_t` | Per-tag length rules: `find` and `validate_length` |
+| `StructureSchema` | `tlv_structure_schema_t` | Required, optional, duplicate, kind and child-membership rules for a whole buffer |
+
+`LengthSchema::new` and `StructureSchema::new` build owned tables from
+`LengthRule` and `StructureRule` values; `LengthSchema::emv`,
+`LengthSchema::emv_for` and `StructureSchema::emv` return the built-in EMV
+schemas. `StructureSchema::validate` takes the data, a `Format` (which decides
+which tags are constructed) and `ValidationLimits`, and returns
+`Result<(), SchemaError>`. `SchemaError` carries the C `Error`
+(`Schema`, `SchemaMissing`, `InvalidLength`, `Limit`, ...) and the failing
+offset.
+
+```rust
+let tag = opentlv::Tag::from_bytes(&[0x84])?;
+let schema = opentlv::StructureSchema::new(
+    [opentlv::StructureRule::new(tag).length(5, 16).required_once()],
+    false,
+);
+schema.validate(&data, opentlv::Format::Ber, &opentlv::ValidationLimits::default())?;
+```
+
+## Codecs and the EMV dictionary
+
+`Codec` converts a raw value to a typed `Value` (`Number`, `Flags`, `Digits`,
+`Date`, `Time`, `Afl`, `Track2`, ...) with `decode`, and back with `encode`,
+`encode_into` and `encoded_size`. Errors use `CodecError`, mapped from
+`tlv_codec_result_t`, which is separate from the framing `Error`. `Codec::amount`
+is the amount codec; every other codec comes from the EMV dictionary:
+
+```rust
+use opentlv::emv::{self, Context};
+
+let tag = opentlv::Tag::from_bytes(&[0x9A])?;
+let definition = emv::find(Context::Base, &tag).unwrap();
+let date = definition.codec().unwrap().decode(&[0x25, 0x12, 0x31])?;
+```
+
+`emv::find` returns a `Definition` (name, `ValueKind`, length bounds and step,
+`validate_length`, optional `Codec`); `Context::child` follows template
+contexts. Opaque bytes, text and templates have no codec; use the reader's
+borrowed value.
+
+## Profiles and formats
+
+`Format` (`Default`, `Ber`, `Cer`, `Der`, `Fixed1Byte`) selects the wire
+encoding; it implements `FromStr` and `Display` for names such as `"der"`.
+`Profile` (`Der`, `Cer`) adds canonical-encoding checks and resource `Limits`
+on top of the format: `validate`, `read`, `encoded_size` and `write`, each with
+a `Strictness` (`Canonical` or `Strict`, which also validates UNIVERSAL
+content). Failures are `ProfileError` values with the failing offset.
+
+The DOL profile and the callback-based visitors and structure codecs of the C
+API are not bound yet.
+
 ## Build
 
 Requirements: a Rust toolchain (1.70 or newer), CMake 3.16 or newer and a C99
