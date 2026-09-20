@@ -5,10 +5,10 @@ name: WebAssembly Build
 # independent builds produce identical artifacts. Native builds are unaffected.
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
     tags: ['[0-9]*.[0-9]*.[0-9]*']
   pull_request:
-    branches: [main, develop]
+    branches: [main]
 
 permissions:
   contents: read
