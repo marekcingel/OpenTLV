@@ -12,6 +12,9 @@ import createOpenTLV from "./opentlv-core.js";
 /** Formats the module can parse (a build may compile out some of them). */
 export const FORMATS = Object.freeze(["default", "fixed-1byte", "ber", "der"]);
 
+/** Profiles that annotate elements with known tag names ("none" adds nothing). */
+export const PROFILES = Object.freeze(["none", "emv"]);
+
 /**
  * Converts hexadecimal text to bytes. Whitespace is ignored; an optional "0x"
  * prefix is not accepted. Throws a TypeError for invalid or odd-length input.
@@ -51,25 +54,32 @@ export async function loadOpenTLV(moduleOptions = {}) {
 
     /**
      * Parses `bytes` and returns
-     * `{ format, elements: [{ offset, depth, tag, length, constructed, value | children }], error? }`.
+     * `{ format, profile?, elements: [{ offset, depth, tag, length, headerSize, constructed,
+     * value | children, symbol?, name?, lengthValid? }], error? }`.
      * `error` is `{ code, message, offset }` and comes with every element read
      * before the failure. Tags and values are uppercase hexadecimal strings.
+     * An element spans `headerSize + length` bytes starting at `offset`.
      *
      * @param {Uint8Array} bytes
-     * @param {{format?: string}} [options] `format` defaults to "default".
+     * @param {{format?: string, profile?: string}} [options] `format` defaults to
+     *   "default"; `profile` ("none" or "emv") defaults to "none".
      */
-    parse(bytes, { format = "default" } = {}) {
+    parse(bytes, { format = "default", profile = "none" } = {}) {
       if (!(bytes instanceof Uint8Array)) throw new TypeError("bytes must be a Uint8Array");
       const formatSize = module.lengthBytesUTF8(format) + 1;
+      const profileSize = module.lengthBytesUTF8(profile) + 1;
       const input = allocate(bytes.length);
       let name = 0;
+      let profileName = 0;
       let result = 0;
       try {
         name = allocate(formatSize);
+        profileName = allocate(profileSize);
         // HEAPU8 is re-read on every use: it is replaced when memory grows.
         module.HEAPU8.set(bytes, input);
         module.stringToUTF8(format, name, formatSize);
-        result = module._opentlv_wasm_parse(input, bytes.length, name);
+        module.stringToUTF8(profile, profileName, profileSize);
+        result = module._opentlv_wasm_parse(input, bytes.length, name, profileName);
         if (!result) throw new Error("OpenTLV: out of memory");
         const json = module.UTF8ToString(
           module._opentlv_wasm_result_json(result),
@@ -78,6 +88,7 @@ export async function loadOpenTLV(moduleOptions = {}) {
         return JSON.parse(json);
       } finally {
         if (result) module._opentlv_wasm_result_free(result);
+        if (profileName) module._opentlv_wasm_free(profileName);
         if (name) module._opentlv_wasm_free(name);
         module._opentlv_wasm_free(input);
       }

@@ -2114,7 +2114,7 @@
 
 <h1 id="playground">Playground<a class="headerlink" href="#playground" title="Permanent link">&para;</a></h1>
 <p>Paste hexadecimal TLV data, choose a format and press <strong>Parse</strong> to see the
-nested structure. Parsing runs in your browser with the
+nested structure as a tree, a hex dump or JSON. Parsing runs in your browser with the
 <a href="../development/webassembly/">OpenTLV WebAssembly build</a>, the same C core as
 native applications. Nothing you enter is uploaded.</p>
 <!-- markdownlint-disable MD033 -->
@@ -2133,6 +2133,12 @@ native applications. Nothing you enter is uploaded.</p>
         <option value="der">DER-TLV</option>
       </select>
     </label>
+    <label>Profile
+      <select id="otlv-pg-profile" disabled>
+        <option value="none">None</option>
+        <option value="emv">EMV tag names (BER-TLV only)</option>
+      </select>
+    </label>
   </div>
   <label for="otlv-pg-input" class="otlv-pg-label">TLV data (hexadecimal, whitespace ignored)</label>
   <textarea id="otlv-pg-input" class="otlv-pg-input" rows="6" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="6F 0A 84 03 41 42 43 A5 03 50 01 01"></textarea>
@@ -2146,18 +2152,33 @@ native applications. Nothing you enter is uploaded.</p>
 <!-- markdownlint-enable MD033 -->
 
 <h2 id="what-it-shows">What it shows<a class="headerlink" href="#what-it-shows" title="Permanent link">&para;</a></h2>
-<p>Each element lists its tag, length, offset in the input and, for primitive
-elements, its value in hexadecimal. In <a href="../formats/asn1/ber/">BER-TLV</a> and
+<p>The result has three views of one parse; a selection in any of them is shown
+in all of them.</p>
+<ul>
+<li><strong>Tree</strong>: the nested elements with tag, length, offset and, for primitive
+  elements, the value. Select an element to inspect it.</li>
+<li><strong>Hex</strong>: a hex dump of the input. The selected element's tag, length and value
+  bytes are highlighted in different colors, and clicking a byte selects the
+  innermost element that contains it.</li>
+<li><strong>JSON</strong>: the parse result as JSON, with a <strong>Copy JSON</strong> button.</li>
+</ul>
+<p>The inspector lists the selected element's tag, encoded tag and length bytes,
+length, offset, encoded size, nesting depth and path, and raw value, with
+buttons to copy the tag, the value or the whole encoded element. With the
+<strong>EMV</strong> profile it also shows the tag's name from the
+<a href="../profiles/emv/">EMV profile</a> and whether its length is permitted.</p>
+<p>In <a href="../formats/asn1/ber/">BER-TLV</a> and
 <a href="../formats/asn1/der/">DER-TLV</a> constructed elements nest their children; the
 <a href="../formats/default/">Default</a> and
 <a href="../formats/fixed/">Fixed 1-byte</a> formats have opaque values, so their
-elements are flat. EMV data is BER-TLV, see the <a href="../profiles/emv/">EMV profile</a>.</p>
+elements are flat. EMV data is BER-TLV.</p>
 <p>Invalid or truncated input reports the parser error with its code, message and
 input offset, together with every element read before the failure.</p>
 <h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
-<p>The playground only parses. Editing, re-encoding, JSON export, schemas, profiles
-and OTDL are not available. One parse reads at most 65,536 elements and 64
-levels of nesting; see <a href="../development/webassembly/#use-from-javascript">WebAssembly build</a>.</p>
+<p>The playground only parses and inspects. Editing, re-encoding, schemas, OTDL
+and shareable sessions are not available. One parse reads at most 65,536
+elements and 64 levels of nesting; see
+<a href="../development/webassembly/#use-from-javascript">WebAssembly build</a>.</p>
 
 
 
