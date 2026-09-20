@@ -2258,7 +2258,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/develop/docs/profiles/emv/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/profiles/emv/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2277,7 +2277,7 @@ this profile. Book 3 data elements without a tag are not assigned invented tags.
 <p>The reference is <a href="https://www.emvco.com/specifications/book-3-application-specification-2/">EMVCo Book 3 v4.4</a>,
 also available as a <a href="https://www.scribd.com/document/648236969/EMV-v4-4-Book-3-Application-Specification-1">public copy of the specification</a>.
 Tag constants, schema entries, length steps, and codec bindings are maintained
-together in <a href="https://github.com/marekcingel/OpenTLV/blob/develop/tlv/include/tlv/profiles/emv_tags.def">emv_tags.def</a>.</p>
+together in <a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/include/tlv/profiles/emv_tags.def">emv_tags.def</a>.</p>
 <h2 id="framing-and-lookup">Framing and lookup<a class="headerlink" href="#framing-and-lookup" title="Permanent link">&para;</a></h2>
 <p>Use <code>&amp;tlv_reader_format_ber</code> with the reader, walker, or scanner, and
 <code>&amp;tlv_writer_format_ber</code> with the writer.
@@ -2607,7 +2607,7 @@ with <code>tlv_emv_codec_amount</code> into caller-owned storage. Currency and d
 come from application context; the codec does not assign them. This one data
 object does not represent a complete or validated transaction.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/develop/examples/emv/src/tag_decoding.c">examples/emv/src/tag_decoding.c</a> walks
+<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/emv/src/tag_decoding.c">examples/emv/src/tag_decoding.c</a> walks
 a whole record instead of one element: it looks up every child tag with
 <code>tlv_emv_find()</code>, checks its length with <code>tlv_emv_validate_length()</code>, decodes it
 according to <code>value_kind</code>, and leaves a tag that is unknown or has an invalid

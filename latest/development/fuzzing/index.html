@@ -2126,7 +2126,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/develop/docs/development/fuzzing.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/development/fuzzing.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2213,7 +2213,7 @@ Earlier visitor effects are not rolled back. The suite checks these documented
 exceptions rather than requiring every output to remain unchanged on error.</p>
 <h2 id="run-locally">Run locally<a class="headerlink" href="#run-locally" title="Permanent link">&para;</a></h2>
 <p>Run from the repository root. Keep discoveries in a writable build directory;
-the checked-in <a href="https://github.com/marekcingel/OpenTLV/blob/develop/tests/fuzz/README.md">seed corpus</a> is the second corpus path.
+the checked-in <a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/fuzz/README.md">seed corpus</a> is the second corpus path.
 For one target:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">ASAN_OPTIONS</span><span class="o">=</span><span class="nv">abort_on_error</span><span class="o">=</span><span class="m">1</span>:detect_leaks<span class="o">=</span><span class="m">1</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">UBSAN_OPTIONS</span><span class="o">=</span><span class="nv">halt_on_error</span><span class="o">=</span><span class="m">1</span>:abort_on_error<span class="o">=</span><span class="m">1</span>:print_stacktrace<span class="o">=</span><span class="m">1</span>
@@ -2242,7 +2242,7 @@ number of executions. <code>-max_len</code> limits generated inputs, not the API
 input size. <code>-timeout</code> bounds one execution and the RSS option limits memory.
 With <code>-runs=0</code>, libFuzzer replays the seed corpus without a mutation campaign.</p>
 <h2 id="reproduce-and-minimize-a-finding">Reproduce and minimize a finding<a class="headerlink" href="#reproduce-and-minimize-a-finding" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/develop/.github/workflows/fuzz.yml">C API Fuzzing</a> workflow runs on pushes to
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/fuzz.yml">C API Fuzzing</a> workflow runs on pushes to
 <code>main</code> (including merged pull requests), every Monday at 03:17 UTC even without
 new commits, and manually through <code>workflow_dispatch</code>. Scheduled runs use the
 latest commit on the default branch; the workflow must be merged there first.

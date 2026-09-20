@@ -2236,7 +2236,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/develop/docs/development/documentation-layout.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/development/documentation-layout.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2320,14 +2320,14 @@ Guides and concepts link to those pages (and to their per-area sections) rather
 than into the generated files, which do not exist in the repository. Generated
 pages link back to the guides through the <code>@docs</code> Doxygen alias. Generate the
 references before <code>mkdocs build</code>; see
-<a href="https://github.com/marekcingel/OpenTLV/blob/develop/CONTRIBUTING.md#generate-the-c-api-reference">CONTRIBUTING.md</a>.</p>
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/CONTRIBUTING.md#generate-the-c-api-reference">CONTRIBUTING.md</a>.</p>
 <h2 id="versioned-documentation">Versioned documentation<a class="headerlink" href="#versioned-documentation" title="Permanent link">&para;</a></h2>
 <p>The site is published per release: <code>latest</code> is the development documentation
-built from <code>develop</code>, and each released <code>X.Y</code> is built from its release tag and
+built from <code>main</code>, and each released <code>X.Y</code> is built from its release tag and
 stays available after later releases. Write pages for the current sources; do
 not copy the documentation tree or add version-specific pages by hand. Links
 that leave <code>docs/</code> point at the source of the same version. See
-<a href="https://github.com/marekcingel/OpenTLV/blob/develop/CONTRIBUTING.md#publishing">CONTRIBUTING.md</a> for how versions are
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/CONTRIBUTING.md#publishing">CONTRIBUTING.md</a> for how versions are
 published.</p>
 <h2 id="executable-examples">Executable examples<a class="headerlink" href="#executable-examples" title="Permanent link">&para;</a></h2>
 <p>Important examples (introductory C and C++ usage) are compiled sources under
@@ -2394,9 +2394,9 @@ does not require placeholder pages or new OTDL, binding or tool documentation.</
 <ul>
 <li>Give a section or topic a <code>README.md</code> when it needs an overview; a directory
   used only to group pages does not need a placeholder index.</li>
-<li>Add every new page to the <code>nav</code> in <a href="https://github.com/marekcingel/OpenTLV/blob/develop/mkdocs.yml">mkdocs.yml</a>. Keep the
+<li>Add every new page to the <code>nav</code> in <a href="https://github.com/marekcingel/OpenTLV/blob/main/mkdocs.yml">mkdocs.yml</a>. Keep the
   GitHub index <a href="../../">docs/README.md</a>, site landing page
-  <a href="../../">docs/index.md</a>, and project <a href="https://github.com/marekcingel/OpenTLV/blob/develop/README.md">README.md</a>
+  <a href="../../">docs/index.md</a>, and project <a href="https://github.com/marekcingel/OpenTLV/blob/main/README.md">README.md</a>
   aligned with the sections and entry points they describe. The GitHub index
   may link to an overview that leads to individual topic pages.</li>
 <li>When moving a page, update inbound links throughout the repository,

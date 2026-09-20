@@ -2170,7 +2170,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/develop/docs/getting-started/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/getting-started/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2222,7 +2222,7 @@ stays valid as OpenTLV evolves.</p>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Save the example as <code>main.c</code>. It is
-<a href="https://github.com/marekcingel/OpenTLV/blob/develop/examples/tlv/src/quick_start.c">examples/tlv/src/quick_start.c</a>.</p>
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/quick_start.c">examples/tlv/src/quick_start.c</a>.</p>
 <!-- example: examples/tlv/src/quick_start.c -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/formats/fixed/fixed_1byte.h"</span>
@@ -2265,7 +2265,7 @@ stays valid as OpenTLV evolves.</p>
 </div>
 <div class="tabbed-block">
 <p>Save the example as <code>main.cpp</code>. It is
-<a href="https://github.com/marekcingel/OpenTLV/blob/develop/examples/tlv++/src/quick_start.cpp">examples/tlv++/src/quick_start.cpp</a>.
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/quick_start.cpp">examples/tlv++/src/quick_start.cpp</a>.
 Enable <code>CXX</code> in <code>project</code>, set <code>OPENTLV_BUILD_CXX</code> to <code>ON</code>, and link <code>tlv++</code>
 instead of <code>tlv</code>; this target propagates the C library and include paths.</p>
 <!-- example: examples/tlv++/src/quick_start.cpp -->
@@ -2317,9 +2317,9 @@ Run <code>build/tlv_demo</code> (Ninja/Makefiles), or <code>build/Release/tlv_de
 (Visual Studio). Exit code zero indicates a successful round trip.</p>
 <p>Both programs are built by the <code>example-tlv-quick-start</code> and
 <code>example-tlv++-quick-start</code> targets whenever <code>OPENTLV_BUILD_EXAMPLES</code> is <code>ON</code>
-(the default) and run in CI. The <a href="https://github.com/marekcingel/OpenTLV/blob/develop/examples/tlv/src/basic_usage.c">C API tour</a>,
-the <a href="https://github.com/marekcingel/OpenTLV/blob/develop/examples/tlv++/src/basic_usage.cpp">C++ example</a> with the default
-format, and the <a href="https://github.com/marekcingel/OpenTLV/blob/develop/examples/emv/src/tag_decoding.c">EMV example</a> are further
+(the default) and run in CI. The <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/basic_usage.c">C API tour</a>,
+the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/basic_usage.cpp">C++ example</a> with the default
+format, and the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/emv/src/tag_decoding.c">EMV example</a> are further
 runnable examples.</p>
 <h2 id="install-and-generate-distribution-archives">Install and generate distribution archives<a class="headerlink" href="#install-and-generate-distribution-archives" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span>-G<span class="w"> </span>Ninja<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span>-DOPENTLV_BUILD_TESTS<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_EXAMPLES<span class="o">=</span>OFF
