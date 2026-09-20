@@ -86,6 +86,11 @@ impl Tag {
         }
     }
 
+    /// Returns the underlying C tag, for passing by value to the C library.
+    pub(crate) fn raw(&self) -> sys::tlv_tag_t {
+        self.raw
+    }
+
     /// Returns the tag bytes in wire order.
     pub fn as_bytes(&self) -> &[u8] {
         &self.raw.data[..usize::from(self.raw.size)]

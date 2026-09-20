@@ -138,6 +138,56 @@ pub struct tlv_reader_format_t {
     pub read_value_bounds: Option<tlv_read_value_bounds_fn>,
 }
 
+/// Tag encoder callback (`tlv_write_tag_fn`).
+pub type tlv_write_tag_fn = unsafe extern "C" fn(
+    context: *const c_void,
+    data: *mut u8,
+    capacity: usize,
+    tag: *const tlv_tag_t,
+    written: *mut usize,
+) -> tlv_result_t;
+
+/// Length encoder callback (`tlv_write_length_fn`).
+pub type tlv_write_length_fn = unsafe extern "C" fn(
+    context: *const c_void,
+    data: *mut u8,
+    capacity: usize,
+    length: usize,
+    written: *mut usize,
+) -> tlv_result_t;
+
+/// Length size callback (`tlv_length_size_fn`).
+pub type tlv_length_size_fn =
+    unsafe extern "C" fn(context: *const c_void, length: usize, size: *mut usize) -> tlv_result_t;
+
+/// Stateless writing format (`tlv_writer_format_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_writer_format_t {
+    /// Borrowed, immutable configuration passed to every callback; may be null.
+    pub context: *const c_void,
+    /// Tag encoder. Required.
+    pub write_tag: Option<tlv_write_tag_fn>,
+    /// Length encoder. Required.
+    pub write_length: Option<tlv_write_length_fn>,
+    /// Length size query. Required.
+    pub length_size: Option<tlv_length_size_fn>,
+}
+
+/// Sequential writer over a caller-owned buffer (`tlv_writer_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_writer_t {
+    /// Borrowed writer format.
+    pub format: *const tlv_writer_format_t,
+    /// Borrowed output buffer.
+    pub buf: *mut u8,
+    /// Capacity of `buf` in bytes.
+    pub capacity: usize,
+    /// Number of bytes written so far.
+    pub pos: usize,
+}
+
 /// Sequential reader over a caller-owned buffer (`tlv_reader_t`).
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -163,6 +213,41 @@ extern "C" {
     pub static tlv_reader_format_der: tlv_reader_format_t;
     /// Fixed one-byte tag and one-byte length format.
     pub static tlv_reader_format_fixed_1byte: tlv_reader_format_t;
+
+    /// Default writer format: one-byte tag, definite BER length.
+    pub static tlv_writer_format_default: tlv_writer_format_t;
+    /// BER-TLV writer format.
+    pub static tlv_writer_format_ber: tlv_writer_format_t;
+    /// CER writer format.
+    pub static tlv_writer_format_cer: tlv_writer_format_t;
+    /// DER writer format.
+    pub static tlv_writer_format_der: tlv_writer_format_t;
+    /// Fixed one-byte tag and one-byte length writer format.
+    pub static tlv_writer_format_fixed_1byte: tlv_writer_format_t;
+
+    /// Computes the encoded size of an element without accessing value bytes.
+    pub fn tlv_encoded_size(
+        tag: tlv_tag_t,
+        length: usize,
+        format: *const tlv_writer_format_t,
+        size: *mut usize,
+    ) -> tlv_result_t;
+    /// Initializes a sequential writer over `buf`; both `buf` and `format` are borrowed.
+    pub fn tlv_writer_init(
+        writer: *mut tlv_writer_t,
+        buf: *mut u8,
+        capacity: usize,
+        format: *const tlv_writer_format_t,
+    ) -> tlv_result_t;
+    /// Writes one element at the writer's current position.
+    pub fn tlv_writer_write(
+        writer: *mut tlv_writer_t,
+        tag: tlv_tag_t,
+        value: *const u8,
+        length: usize,
+    ) -> tlv_result_t;
+    /// Returns the number of bytes written so far.
+    pub fn tlv_writer_size(writer: *const tlv_writer_t) -> usize;
 
     /// Initializes a sequential reader over `data`; both `data` and `format` are borrowed.
     pub fn tlv_reader_init(

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a safe Rust `Writer` to the `opentlv` crate that encodes TLV entries from `&[u8]` values into a caller-owned buffer with `Result` errors; see [Rust bindings](docs/development/rust.md). (#157)
 - Add a safe Rust `Reader` to the `opentlv` crate that iterates TLV entries from a `&[u8]` with borrowed values and `Result` errors; see [Rust bindings](docs/development/rust.md). (#156)
 - Add safe Rust core types to the `opentlv` crate: `Tag`, `Entry`, `Error` (mapped from every `TLV_ERR_*` code), `Result` and `ByteOrder`; see [Rust bindings](docs/development/rust.md). (#155)
 - Add experimental Rust bindings under `bindings/rust`: an `opentlv-sys` FFI crate that builds and links the C library, and a safe `opentlv` crate exposing the library version; see [Rust bindings](docs/development/rust.md). (#154)

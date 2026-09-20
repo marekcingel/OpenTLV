@@ -2,18 +2,23 @@
 //!
 //! All `unsafe` FFI interaction lives in `opentlv-sys`; this crate builds the
 //! safe API on top of it. It provides the core types [`Tag`], [`Entry`],
-//! [`Error`] and [`Result`], the [`Reader`] that parses TLV buffers, and reports
-//! the library version. No raw pointers appear in the public API.
+//! [`Error`] and [`Result`], the [`Reader`] that parses TLV buffers, the
+//! [`Writer`] that encodes them, and reports the library version. No raw pointers
+//! appear in the public API.
 
 mod entry;
 mod error;
+mod format;
 mod reader;
 mod tag;
+mod writer;
 
 pub use entry::Entry;
 pub use error::{Error, Result};
-pub use reader::{Format, Reader};
+pub use format::Format;
+pub use reader::Reader;
 pub use tag::{ByteOrder, Tag};
+pub use writer::{encoded_size, Writer};
 
 use std::ffi::CStr;
 

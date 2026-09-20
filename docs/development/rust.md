@@ -48,6 +48,26 @@ for entry in reader {
 iterator ends, since the C reader does not advance past bad data. Library users
 need no `unsafe`.
 
+## Writer
+
+`Writer<'a>` encodes entries into a caller-owned `&'a mut [u8]`. It wraps the C
+`tlv_writer_t` and never allocates. Tags are `Tag`s and values are `&[u8]`.
+
+```rust
+let mut buf = [0u8; 64];
+let mut writer = opentlv::Writer::new(&mut buf);
+writer.write(&opentlv::Tag::from_bytes(&[0x01])?, b"abc")?;
+let encoded: &[u8] = writer.written();
+```
+
+`Writer::with_format` takes the same `Format` as the reader. `write_entry`
+appends an `Entry` (for example one produced by a `Reader`), `position`,
+`remaining` and `capacity` report buffer usage, and `finish` returns the written
+bytes with the buffer's lifetime. `encoded_size` computes the size of an entry
+without writing it. Failures use the common `Error`; an entry that does not fit
+gives `Error::BufferTooShort` and leaves the position unchanged. Library users
+need no `unsafe`.
+
 ## Build
 
 Requirements: a Rust toolchain (1.70 or newer), CMake 3.16 or newer and a C99
