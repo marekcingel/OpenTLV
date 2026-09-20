@@ -8,8 +8,24 @@ The Rust bindings live in `bindings/rust/`, a Cargo workspace with two crates:
 | `opentlv` | Safe Rust API built on `opentlv-sys` |
 
 All `unsafe` FFI interaction is isolated in `opentlv-sys`; `opentlv` contains no
-`extern` declarations. So far only the version functions and `tlv_strerror` are
-bound, and `opentlv::version()` is the first safe function.
+`extern` declarations. Only the part of the C API the safe crate needs is bound
+so far.
+
+## Core types
+
+The `opentlv` crate exposes these safe types; none of them exposes a raw pointer:
+
+| Type | Wraps | Notes |
+| --- | --- | --- |
+| `Tag` | `tlv_tag_t` | Owned, `Copy`; built with `from_bytes` or `from_u64`, read with `as_bytes` or `to_u64` |
+| `Entry<'a>` | `tlv_view_t` | A `Tag` plus a value borrowed as `&'a [u8]` |
+| `Error` | `tlv_result_t` | One variant per `TLV_ERR_*` code, plus `Unknown(code)`; implements `std::error::Error` |
+| `Result<T>` | | Alias for `std::result::Result<T, Error>` |
+| `ByteOrder` | `tlv_byte_order_t` | Byte order for numeric tag conversions |
+
+`Tag::CAPACITY` mirrors the C `TLV_TAG_CAPACITY` (default 8). The layout of
+`tlv_tag_t` is part of the C ABI, so the bindings only support a library built
+with the default capacity.
 
 ## Build
 
