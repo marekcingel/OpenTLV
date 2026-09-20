@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an interactive TLV playground to the documentation site that parses hexadecimal input client-side with the WebAssembly build; see [TLV playground](docs/playground/index.md). (#197)
 - Add an experimental WebAssembly build (`OPENTLV_BUILD_WASM`, Emscripten) exposing a small browser parsing interface over the C core, with a CI workflow; see [WebAssembly build](docs/development/webassembly.md). (#196)
 - Add linked C and C++ content tabs to the documentation site and use them for the CMake integration example in Getting started, with a compiled C++ quick start (`examples/tlv++/src/quick_start.cpp`) checked by `scripts/check_doc_examples.py`; see [Where documentation belongs](docs/development/documentation-layout.md#c-and-c-tabs). (#195)
 - Publish versioned documentation with mike: `latest` (development) from `develop`, one `X.Y` version per release tag with a `stable` alias, and a version selector on the site; see [CONTRIBUTING.md](CONTRIBUTING.md#publishing). (#194)

@@ -44,6 +44,10 @@ Documentation is grouped by purpose. See
 
 - [Command-line inspection and validation](cli/README.md)
 
+## Playground
+
+- [Interactive TLV playground](playground/index.md)
+
 ## Reference
 
 - [Reference overview](reference/README.md)

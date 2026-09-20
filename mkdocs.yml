@@ -92,6 +92,14 @@ markdown_extensions:
   - pymdownx.blocks.tab:
       alternate_style: true
 
+# The playground page (docs/playground/) is only a script and a stylesheet; the
+# script does nothing on pages without the playground element.
+extra_css:
+  - playground/playground.css
+extra_javascript:
+  - path: playground/playground.js
+    type: module
+
 nav:
   - Home: index.md
   - Getting Started:
@@ -124,6 +132,8 @@ nav:
       - EMV: profiles/emv/README.md
   - CLI:
       - otlv command line: cli/README.md
+  - Playground:
+      - TLV playground: playground/index.md
   - Reference:
       - Overview: reference/README.md
       - C API: reference/c-api.md
