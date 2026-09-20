@@ -34,6 +34,7 @@ otlv --version
 otlv formats
 otlv dump --format ber --hex "E1 03 5A 01 12" --tree
 otlv dump --format fixed-1byte --input sample.bin
+otlv dump --format bluetooth-ltv --hex "02 01 06 03 09 48 69"
 otlv validate --format der --input sample.der
 otlv validate --format ber --input -
 otlv dump --format ber --profile emv --hex "6F0784050102030405" --pretty --describe
@@ -57,8 +58,8 @@ The same hex syntax applies to files and stdin, including CR/LF between pairs.
 read without buffering the encoded text. It does not limit the number of
 whitespace characters read from a stream.
 
-`formats` lists only enabled formats: `default`, `fixed-1byte`, `ber`, and
-`der`. Existing library CMake component options control availability. Unknown
+`formats` lists only enabled formats: `default`, `fixed-1byte`, `ber`,
+`der`, and `bluetooth-ltv`. Existing library CMake component options control availability. Unknown
 or disabled formats fail before reading input. No format detection is performed.
 
 ### Output
@@ -316,8 +317,8 @@ are accepted unchecked; this is not a full EMV transaction or value validator.
 ### Validation and limits
 
 `validate` is silent on success. Both commands consume all concatenated
-elements; empty input succeeds and invalid trailing bytes fail. Default and
-fixed-1byte values are opaque. BER uses constructed-tag recognition; DER uses
+elements; empty input succeeds and invalid trailing bytes fail. Default,
+fixed-1byte and bluetooth-ltv values are opaque. BER uses constructed-tag recognition; DER uses
 the existing structural validator. This does not provide full ASN.1 value
 validation or canonical SET/SET OF ordering; EMV structural profile
 validation is available via `--profile emv`, above.

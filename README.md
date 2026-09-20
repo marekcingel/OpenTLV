@@ -78,7 +78,6 @@ Built-in components are enabled by default and can be selected with
     - [ ] **RADIUS attribute encoding**
   - **IoT / wireless**
     - [ ] **OMA LwM2M TLV format**
-    - [ ] **Bluetooth LE advertising data (LTV)**
 
 OpenTLV keeps framing, traversal, schemas, and value codecs separate. Broader
 format coverage should come through selectable adapters and profiles around the

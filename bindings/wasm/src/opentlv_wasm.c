@@ -202,6 +202,9 @@ static const tlv_reader_format_t* select_format(const char* name, int* ber, int*
 #if OPENTLV_FORMAT_FIXED_1BYTE
     if (!strcmp(name, "fixed-1byte")) return &tlv_reader_format_fixed_1byte;
 #endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+    if (!strcmp(name, "bluetooth-ltv")) return &tlv_reader_format_bluetooth_ltv;
+#endif
 #if OPENTLV_FORMAT_BER
     if (!strcmp(name, "ber")) {
         *ber = 1;

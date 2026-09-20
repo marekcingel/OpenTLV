@@ -66,6 +66,15 @@ assert.equal(result.error.offset, 5);
 assert.equal(typeof result.error.message, "string");
 assert.notEqual(result.error.code, 0);
 
+// Bluetooth LTV: the length precedes the type, and the reported length is the value length.
+result = opentlv.parse(hexToBytes("02 01 06 03 09 48 69"), { format: "bluetooth-ltv" });
+assert.equal(result.error, undefined);
+assert.equal(result.elements.length, 2);
+assert.equal(result.elements[1].tag, "09");
+assert.equal(result.elements[1].length, 2);
+assert.equal(result.elements[1].headerSize, 2);
+assert.equal(result.elements[1].value, "4869");
+
 // Unknown formats and bad arguments.
 assert.ok(opentlv.parse(sample, { format: "nope" }).error);
 assert.deepEqual(opentlv.parse(new Uint8Array(0)).elements, []);
