@@ -1,0 +1,70 @@
+name: Rust Bindings
+
+# Builds and tests the experimental Rust bindings (bindings/rust) on every
+# platform and enforces rustfmt and clippy. The build script compiles the C
+# library with CMake, and tests/corpus.rs replays the C fuzz seed corpus in
+# tests/fuzz/corpus, so C changes are exercised through the bindings too.
+on:
+  push:
+    branches: [main]
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+defaults:
+  run:
+    working-directory: bindings/rust
+
+jobs:
+  lint:
+    permissions:
+      contents: read
+    name: rustfmt and clippy
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install stable Rust with rustfmt and clippy
+        run: rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+
+      - name: Check formatting
+        run: cargo fmt --all --check
+
+      # -D warnings makes every clippy or compiler warning fail the job.
+      - name: Run clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+  test:
+    permissions:
+      contents: read
+    name: build and test / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install stable Rust
+        run: rustup toolchain install stable --profile minimal
+
+      - name: Build
+        run: cargo build --workspace --all-targets
+        env:
+          RUSTFLAGS: -D warnings
+
+      # Runs unit, integration (including the shared corpus replay) and
+      # documentation tests.
+      - name: Test
+        run: cargo test --workspace
+        env:
+          RUSTFLAGS: -D warnings

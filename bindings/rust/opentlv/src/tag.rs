@@ -226,10 +226,16 @@ mod tests {
     #[test]
     fn to_u64_rejects_empty_and_oversized_tags() {
         let empty = Tag::from_bytes(&[]).unwrap();
-        assert_eq!(empty.to_u64(ByteOrder::BigEndian), Err(Error::InvalidTagSize));
+        assert_eq!(
+            empty.to_u64(ByteOrder::BigEndian),
+            Err(Error::InvalidTagSize)
+        );
         if Tag::CAPACITY > 8 {
             let long = Tag::from_bytes(&[1; 9]).unwrap();
-            assert_eq!(long.to_u64(ByteOrder::BigEndian), Err(Error::InvalidTagSize));
+            assert_eq!(
+                long.to_u64(ByteOrder::BigEndian),
+                Err(Error::InvalidTagSize)
+            );
         }
     }
 
