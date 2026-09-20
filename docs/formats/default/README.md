@@ -16,7 +16,7 @@
 
 One raw tag byte; definite BER-style lengths up to 65,535 bytes. Values are opaque.
 
-See [shared memory ownership rules](../../memory.md) before retaining a parsed view.
+See [shared memory ownership rules](../../guides/memory.md) before retaining a parsed view.
 
 ## Minimal C usage
 

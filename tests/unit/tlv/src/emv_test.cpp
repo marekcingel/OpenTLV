@@ -104,6 +104,69 @@ TEST(Unit_Emv, ContextPreventsTagCollisions) {
 #endif
 }
 
+TEST(Unit_Emv, ChildContextTracksNestedTemplates) {
+    EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, nullptr));
+
+    const tlv_tag_t zero_size = {{0}, 0};
+    EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &zero_size));
+
+    // A known, non-template BASE tag keeps its children in BASE.
+    EXPECT_EQ(TLV_EMV_CONTEXT_BASE, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &tlv_emv_tag_aip));
+    // An unrecognized proprietary tag has no defined child context.
+    const tlv_tag_t proprietary = {{0x9E}, 1};
+    EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &proprietary));
+
+    // A1 under BIT opens the BHT; A1/A2 under BHT open its level-2 BHT_FORMAT.
+    const tlv_tag_t bht_open = {{0xA1}, 1};
+    const tlv_tag_t bht_close = {{0xA2}, 1};
+    EXPECT_EQ(TLV_EMV_CONTEXT_BHT, tlv_emv_child_context(TLV_EMV_CONTEXT_BIT, &bht_open));
+    EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BIT, &bht_close));
+    EXPECT_EQ(TLV_EMV_CONTEXT_BHT_FORMAT, tlv_emv_child_context(TLV_EMV_CONTEXT_BHT, &bht_open));
+    EXPECT_EQ(TLV_EMV_CONTEXT_BHT_FORMAT, tlv_emv_child_context(TLV_EMV_CONTEXT_BHT, &bht_close));
+    // BHT_FORMAT has no further nesting of its own.
+    EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BHT_FORMAT, &bht_open));
+
+#if TLV_TAG_CAPACITY >= 2
+    // The Biometric Information Template (7F60) switches its children to BIT,
+    // whether read directly under BASE or nested inside a BIT group.
+    EXPECT_EQ(
+        TLV_EMV_CONTEXT_BIT,
+        tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &tlv_emv_tag_biometric_information_template));
+    EXPECT_EQ(TLV_EMV_CONTEXT_BIT,
+              tlv_emv_child_context(TLV_EMV_CONTEXT_BIT_GROUP,
+                                    &tlv_emv_tag_biometric_information_template));
+
+    EXPECT_EQ(TLV_EMV_CONTEXT_BIT_GROUP,
+              tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &tlv_emv_tag_offline_bit_group_template));
+    EXPECT_EQ(TLV_EMV_CONTEXT_BIT_GROUP,
+              tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &tlv_emv_tag_online_bit_group_template));
+    EXPECT_EQ(
+        TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS,
+        tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &tlv_emv_tag_biometric_try_counters_template));
+    EXPECT_EQ(
+        TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS,
+        tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &tlv_emv_tag_preferred_attempts_template));
+    EXPECT_EQ(TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION,
+              tlv_emv_child_context(TLV_EMV_CONTEXT_BASE,
+                                    &tlv_emv_tag_biometric_verification_data_template));
+
+    // The two tag bytes are composed big-endian before lookup, not just the first byte.
+    const tlv_tag_t low_byte_only = {{0xBF, 0x00}, 2};
+    EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &low_byte_only));
+
+    // Outside BASE/BIT_GROUP, the biometric template tag carries no special context.
+    EXPECT_EQ(
+        TLV_EMV_CONTEXT_COUNT,
+        tlv_emv_child_context(TLV_EMV_CONTEXT_BHT, &tlv_emv_tag_biometric_information_template));
+#else
+    // TLV_TAG_CAPACITY == 1: a two-byte tag can never legitimately occur, but
+    // this is the exact shape that once tripped a compile-time -Warray-bounds
+    // error (an unguarded tag->data[1] read in tlv_emv_child_context).
+    const tlv_tag_t oversized = {{0xBF}, 2};
+    EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &oversized));
+#endif
+}
+
 TEST(Unit_Emv, NonContiguousLengthRules) {
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_afl), 5));
     EXPECT_EQ(TLV_OK, tlv_schema_validate_length(find(tlv_emv_tag_afl)->schema, 5));

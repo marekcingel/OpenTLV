@@ -1,7 +1,18 @@
 #ifndef OPENTLV_CONFIG_H
 #define OPENTLV_CONFIG_H
 
+/**
+ * @file
+ * @brief Generated library feature configuration.
+ * @ingroup core
+ */
+
+
 #include "tlv/export.h"
+
+/** @addtogroup core
+ * @{
+ */
 
 #cmakedefine01 OPENTLV_FORMAT_DEFAULT
 #cmakedefine01 OPENTLV_FORMAT_FIXED_1BYTE
@@ -29,5 +40,7 @@ TLV_API int tlv_config_profile_emv(void);
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif

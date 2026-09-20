@@ -27,6 +27,14 @@ public:
     int         color = 0;
     int         hex_input = 0;
     int         pdol = 0;
+    int         decode = 0;
+    const char* output = "text";
+    // encode only: tag/value hex text and whether to emit raw bytes.
+    const char* tag = nullptr;
+    const char* value = nullptr;
+    int         binary_output = 0;
+    // tags only: case-insensitive name filter.
+    const char* search = nullptr;
 };
 
 } // namespace cli

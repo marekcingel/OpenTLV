@@ -16,7 +16,7 @@
 
 One tag byte and one unsigned length byte; at most 255 value bytes. Values are opaque.
 
-See [shared memory ownership rules](../../memory.md) before retaining a parsed view.
+See [shared memory ownership rules](../../guides/memory.md) before retaining a parsed view.
 
 ## Minimal C usage
 

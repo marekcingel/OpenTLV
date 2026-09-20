@@ -24,7 +24,7 @@ Profile semantics are documented separately.
 | EMV Contact Book 3 data objects | [BER plus EMV profile](../profiles/emv/README.md) | Dictionary/codecs, not a transaction engine |
 | Application-specific framing | [Custom callbacks](custom/README.md) | Application supplies wire rules |
 
-All formats follow the [shared memory ownership rules](../memory.md).
+All formats follow the [shared memory ownership rules](../guides/memory.md).
 
 For canonical ASN.1 framing, nested validation, limits and error offsets, see
 [ASN.1 DER-TLV](../profiles/der/README.md) and its sibling [ASN.1 CER-TLV](../profiles/cer/README.md).
@@ -212,4 +212,6 @@ error_offset)` for bounded preorder traversal or NULL visitor for validation.
 Depth is zero at the top level and cannot exceed `TLV_WALK_MAX_DEPTH` (64).
 Limits are inclusive; zero is a real limit. Offsets identify failing elements.
 STOP succeeds immediately without validating the remaining input. The original
-flat reader and walker retain their behavior. See [architecture](../architecture.md).
+flat reader and walker retain their behavior. See [architecture](../concepts/architecture.md).
+
+See also the [C API reference: formats](../reference/c-api.md#formats).

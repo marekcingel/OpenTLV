@@ -12,7 +12,7 @@ option(OPENTLV_BUILD_TESTS "Build tests" ON)
 option(OPENTLV_BUILD_UNIT_TESTS "Build component contract tests" ON)
 option(OPENTLV_BUILD_INTEGRATION_TESTS "Build format and layer integration tests" ON)
 option(OPENTLV_BUILD_EXAMPLES "Build examples" ON)
-option(OPENTLV_BUILD_CLI "Build the opentlv command-line tool" ON)
+option(OPENTLV_BUILD_CLI "Build the otlv command-line tool" ON)
 option(OPENTLV_BUILD_CLI_TESTS "Build dependency-free CLI integration tests" ${OPENTLV_BUILD_TESTS})
 if(OPENTLV_BUILD_CLI AND NOT OPENTLV_BUILD_CXX)
     # The CLI is built on tlv++; a C-only build (OPENTLV_BUILD_CXX=OFF) simply
@@ -30,6 +30,8 @@ if(OPENTLV_BUILD_CXX)
 endif()
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
 option(OPENTLV_BUILD_FUZZING "Build C API fuzz targets with libFuzzer, ASan and UBSan" OFF)
+option(OPENTLV_BUILD_WASM "Build the experimental WebAssembly module (requires Emscripten)" OFF)
+option(OPENTLV_BUILD_DOCS "Enable the Doxygen C and C++ API reference targets" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
 option(OPENTLV_FORMAT_DEFAULT "Include the default wire format" ON)
@@ -39,6 +41,14 @@ option(OPENTLV_FORMAT_BER "Include the BER wire format" ON)
 option(OPENTLV_FORMAT_DER "Include the DER wire format and validation profile" ON)
 option(OPENTLV_FORMAT_CER "Include the CER wire format and validation profile" ON)
 option(OPENTLV_PROFILE_EMV "Include the EMV dictionary, schemas and codecs" ON)
+
+if(OPENTLV_BUILD_WASM)
+    if(NOT EMSCRIPTEN)
+        message(FATAL_ERROR "OPENTLV_BUILD_WASM requires Emscripten; configure with emcmake cmake.")
+    endif()
+    # The module links the core statically; Emscripten shared libraries are not supported.
+    set(OPENTLV_BUILD_SHARED_LIBS OFF)
+endif()
 
 include(cmake/format_options.cmake)
 opentlv_generate_config_files()
@@ -53,6 +63,16 @@ include(cmake/cppcheck.cmake)
 opentlv_add_cppcheck_targets()
 
 add_subdirectory(tlv)
+
+if(OPENTLV_BUILD_WASM)
+    # ctest reads the top-level test file, so testing is enabled here, not in bindings/wasm.
+    enable_testing()
+    add_subdirectory(bindings/wasm)
+endif()
+
+if(OPENTLV_BUILD_DOCS)
+    include(cmake/doxygen.cmake)
+endif()
 
 if(OPENTLV_BUILD_FUZZING)
     add_subdirectory(tests/fuzz)

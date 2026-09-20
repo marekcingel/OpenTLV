@@ -37,7 +37,7 @@ if (tlv_tag_to_u64(tag, TLV_BYTE_ORDER_BIG_ENDIAN, &number) == TLV_OK) {
 }
 ```
 
-See [tag comparison and numeric conversion](../../core-types.md#tag-comparison-and-numeric-conversion)
+See [tag comparison and numeric conversion](../../concepts/core-types.md#tag-comparison-and-numeric-conversion)
 for conversion limits and exact versus numeric equality.
 
 `tlv_emv_schema` is the base dictionary, compatible with `tlv_schema_find()`
@@ -178,7 +178,8 @@ certificate/remainder lengths need the application's key and algorithm context.
 Unspecified variable minima use zero. Fixed-size entries describe present values;
 Book 3 treats zero-length objects as absent, which the application must handle
 before validating a required value. These tables do not enforce APDU size,
-required tags, duplicates, template membership, or full transaction validity.
+required tags, duplicates, template membership, or full transaction validity;
+see [Structural validation](#structural-validation) for the layer that does.
 
 Generic BER reading also accepts constructed indefinite lengths; the EMV
 dictionary and length schemas do not enforce a definite-only encoding policy.
@@ -187,6 +188,33 @@ padding are handled by the caller. Book 3 defines one- and two-byte tags;
 three-byte tags remain readable by generic BER but are unknown to this profile.
 With `TLV_TAG_CAPACITY == 1`, two-byte constants and entries are omitted;
 configure the macro consistently for the library and all consumers.
+
+## Structural validation
+
+`tlv_emv_structure_schema` (`tlv/profiles/emv_schema.h`) is a
+`tlv_structure_schema_t` for `tlv_schema_validate()` that fills the gap above:
+mandatory/forbidden/duplicate tags, length bounds, and required nesting, for
+the FCI Template (`6F`, including its `A5` FCI Proprietary Template child),
+the Application Template (`61`), and the GPO Response Message Template
+Format 2 (`77`). Other top-level tags, including the Read Record Template
+(`70`) and Response Message Template Format 1 (`80`), vary too much by kernel
+and issuer for a generic schema and are accepted unchecked at the root.
+
+```c
+#include "tlv/formats/asn1/ber.h"
+#include "tlv/profiles/emv_schema.h"
+
+/* Inside a function; wire/size hold one or more concatenated EMV elements. */
+size_t       offset;
+tlv_result_t rc = tlv_schema_validate(wire, size, &tlv_reader_format_ber,
+                                      tlv_ber_is_constructed, &tlv_emv_structure_schema,
+                                      64, 100000, &offset);
+/* TLV_OK, or an element-anchored TLV_ERR_SCHEMA/TLV_ERR_INVALID_LENGTH, or
+ * TLV_ERR_SCHEMA_MISSING (a missing required tag) with offset at the end of
+ * its parent's value instead - see tlv/schemas/schema.h. */
+```
+
+This backs the `opentlv` CLI's `validate --profile emv`.
 
 ## Data Object Lists (PDOL/CDOL/DDOL)
 
@@ -289,3 +317,5 @@ a whole record instead of one element: it looks up every child tag with
 according to `value_kind`, and leaves a tag that is unknown or has an invalid
 length skipped rather than aborting the walk.
 [EMV profile and codecs](README.md)
+
+See also the [C API reference: profiles](../../reference/c-api.md#profiles).

@@ -1,0 +1,33 @@
+PROJECT_NAME           = "OpenTLV C API"
+PROJECT_NUMBER         = "@OPENTLV_VERSION_STRING@"
+OUTPUT_DIRECTORY       = "@PROJECT_BINARY_DIR@/docs/c-api"
+INPUT                  = "@PROJECT_SOURCE_DIR@/tlv/include/tlv" \
+                         "@PROJECT_BINARY_DIR@/generated/include/tlv/config.h" \
+                         "@PROJECT_BINARY_DIR@/generated/include/tlv/version.h" \
+                         "@PROJECT_BINARY_DIR@/docs-input/tlv/profiles/emv.h" \
+                         "@PROJECT_SOURCE_DIR@/tools/docs/c-api.dox"
+EXCLUDE                = "@PROJECT_SOURCE_DIR@/tlv/include/tlv/profiles/emv.h"
+FILE_PATTERNS          = *.h *.dox
+RECURSIVE              = YES
+STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@/tlv/include" \
+                         "@PROJECT_BINARY_DIR@/docs-input" \
+                         "@PROJECT_BINARY_DIR@/generated/include"
+OPTIMIZE_OUTPUT_FOR_C  = YES
+# The input is restricted to public headers. Include macro-generated constants
+# and generated build metadata even where they have no individual comment.
+EXTRACT_ALL            = YES
+EXTRACT_STATIC         = YES
+INTERNAL_DOCS          = NO
+EXCLUDE_SYMBOLS        = OPENTLV_*_H EMV_BEGIN EMV_TAG EMV_END
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED            = TLV_API=
+EXPAND_AS_DEFINED      = EMV_BEGIN EMV_TAG EMV_END TLV_TAG_CAPACITY
+SEARCH_INCLUDES        = YES
+INCLUDE_FILE_PATTERNS  = *.h *.def
+SKIP_FUNCTION_MACROS   = NO
+INCLUDE_PATH           = "@PROJECT_SOURCE_DIR@/tlv/include" \
+                         "@PROJECT_BINARY_DIR@/generated/include"
+@INCLUDE               = "@PROJECT_BINARY_DIR@/Doxyfile.common"
+GENERATE_TAGFILE        = "@PROJECT_BINARY_DIR@/docs/c-api/c-api.tag"

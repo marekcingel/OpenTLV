@@ -117,8 +117,9 @@ TEST(Integration_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies) {
     const tlv_structure_rule_t   parent = {
         {{{0x30}, 1}, 0, 100, 0}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &child};
     const tlv_structure_schema_t root = {&parent, 1, 0};
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(empty, sizeof(empty), &tlv_reader_format_ber,
-                                                  tlv_ber_is_constructed, &root, 0, 1, &offset));
+    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
+              tlv_schema_validate(empty, sizeof(empty), &tlv_reader_format_ber,
+                                  tlv_ber_is_constructed, &root, 0, 1, &offset));
     EXPECT_EQ(2u, offset);
 }
 #endif
@@ -174,8 +175,8 @@ TEST(Integration_Architecture, SchemaChecksRequiredRepeatedAndNestedMembership) 
                                           nullptr));
     const uint8_t empty[] = {0x80, 0};
     size_t        offset = 99;
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(empty, sizeof(empty), &format, constructed,
-                                                  &schema, 0, 1, &offset));
+    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING, tlv_schema_validate(empty, sizeof(empty), &format,
+                                                          constructed, &schema, 0, 1, &offset));
     EXPECT_EQ(2u, offset);
     const uint8_t duplicate[] = {0x80, 6, 1, 1, 42, 1, 1, 7};
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(duplicate, sizeof(duplicate), &format,
@@ -188,7 +189,7 @@ TEST(Integration_Architecture, SchemaChecksRequiredRepeatedAndNestedMembership) 
     const uint8_t bad_length[] = {0x80, 2, 1, 0};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate(bad_length, sizeof(bad_length), &format,
                                                           constructed, &schema, 1, 2, nullptr));
-    EXPECT_EQ(TLV_ERR_SCHEMA,
+    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
               tlv_schema_validate(nullptr, 0, &format, constructed, &schema, 0, 0, nullptr));
 }
 
@@ -212,7 +213,7 @@ TEST(Integration_Architecture, MaximumDepthAndEmptyChildSchemaUseTheSameBoundary
                                   TLV_WALK_MAX_DEPTH - 1, TLV_WALK_MAX_DEPTH + 1, &offset));
     EXPECT_EQ(2u * TLV_WALK_MAX_DEPTH, offset);
     rule.min_occurs = 1;
-    EXPECT_EQ(TLV_ERR_SCHEMA,
+    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
               tlv_schema_validate(wire.data(), wire.size(), &format, constructed, &recursive,
                                   TLV_WALK_MAX_DEPTH, TLV_WALK_MAX_DEPTH + 1, &offset));
     EXPECT_EQ(wire.size(), offset);

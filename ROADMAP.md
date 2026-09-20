@@ -30,7 +30,7 @@ Scope:
 - Structural schemas and value codecs.
 - Built-in TLV formats and profiles (default/fixed-width, BER/DER/CER, EMV
   Contact Book 3), as tracked in the [README format checklist](README.md#format-and-profile-support)
-  and [format expansion candidates](docs/format-roadmap.md).
+  and [format expansion candidates](docs/formats/format-roadmap.md).
 - CLI and developer tooling for TLV inspection and validation.
 - Language bindings beyond C/C++.
 - Testing, fuzzing, coverage, documentation, and packaging/distribution.

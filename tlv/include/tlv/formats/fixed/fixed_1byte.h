@@ -8,14 +8,28 @@
 extern "C" {
 #endif
 
-/* One raw tag byte, one unsigned length byte, and 0 through 255 value bytes.
+/**
+ * @file
+ * @ingroup formats
+ * @brief A fixed format: one tag byte, one length byte, and 0-255 value bytes.
+ *
  * Every tag byte is valid; there are no reserved tags or length encodings.
- * Writing any tag size other than one returns TLV_ERR_INVALID_TAG_SIZE.
+ *
+ * @note Writing any tag size other than one returns #TLV_ERR_INVALID_TAG_SIZE.
  */
+
+/** @addtogroup formats
+ * @{
+ */
+
+/** @brief Reader format for the fixed 1-byte encoding; a borrowed, immutable global. */
 extern TLV_API const tlv_reader_format_t tlv_reader_format_fixed_1byte;
+/** @brief Writer format for the fixed 1-byte encoding; a borrowed, immutable global. */
 extern TLV_API const tlv_writer_format_t tlv_writer_format_fixed_1byte;
 
 #ifdef __cplusplus
 }
 #endif
+/** @} */
+
 #endif

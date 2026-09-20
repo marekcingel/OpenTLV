@@ -1,0 +1,97 @@
+.otlv-pg-status { color: var(--md-default-fg-color--light); }
+.otlv-pg-controls { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.8rem; }
+.otlv-pg-controls label { display: flex; flex-direction: column; font-size: 0.75rem; gap: 0.2rem; }
+.otlv-pg select,
+.otlv-pg-input {
+  background: var(--md-code-bg-color);
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.2rem;
+  color: var(--md-code-fg-color);
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
+}
+.otlv-pg-label { display: block; font-size: 0.75rem; margin-bottom: 0.2rem; }
+.otlv-pg-input {
+  box-sizing: border-box;
+  font-family: var(--md-code-font-family, monospace);
+  resize: vertical;
+  width: 100%;
+}
+.otlv-pg-actions { align-items: center; display: flex; gap: 1rem; margin: 0.4rem 0 0.8rem; }
+.otlv-pg-hint { color: var(--md-default-fg-color--light); font-size: 0.75rem; }
+.otlv-pg-error {
+  background: var(--md-code-bg-color);
+  border-left: 0.2rem solid #e53935;
+  margin-bottom: 0.8rem;
+  padding: 0.5rem 0.8rem;
+}
+.otlv-pg-error[hidden] { display: none; }
+.otlv-pg-output:empty { display: none; }
+.otlv-pg-node { margin: 0.15rem 0; }
+.otlv-pg-children { border-left: 1px solid var(--md-default-fg-color--lighter); margin-left: 0.3rem; padding-left: 0.6rem; }
+.otlv-pg-tag { color: var(--md-accent-fg-color); font-weight: bold; }
+.otlv-pg-meta { color: var(--md-default-fg-color--light); }
+.otlv-pg-value { overflow-wrap: anywhere; }
+.otlv-pg-empty { color: var(--md-default-fg-color--light); font-style: italic; }
+.otlv-pg-tabs { align-items: center; display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.4rem; }
+.otlv-pg-tab,
+.otlv-pg-copy,
+.otlv-pg-toggle,
+.otlv-pg-select {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-align: left;
+}
+.otlv-pg-tab {
+  border-bottom: 2px solid transparent;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.7rem;
+}
+.otlv-pg-tab[aria-selected="true"] { border-bottom-color: var(--md-accent-fg-color); font-weight: bold; }
+.otlv-pg-copy {
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.2rem;
+  font-size: 0.75rem;
+  margin-left: auto;
+  padding: 0.2rem 0.6rem;
+}
+.otlv-pg-copy[hidden] { display: none; }
+.otlv-pg-tab + .otlv-pg-copy,
+.otlv-pg-copy ~ .otlv-pg-copy { margin-left: 0; }
+.otlv-pg-panel {
+  background: var(--md-code-bg-color);
+  border-radius: 0.2rem;
+  font-family: var(--md-code-font-family, monospace);
+  font-size: 0.8rem;
+  overflow-x: auto;
+  padding: 0.5rem 0.8rem;
+}
+.otlv-pg-panel[hidden] { display: none; }
+.otlv-pg-row { align-items: baseline; display: flex; gap: 0.2rem; }
+.otlv-pg-toggle { flex: none; text-align: center; width: 1rem; }
+.otlv-pg-select { border-radius: 0.15rem; padding: 0 0.2rem; }
+.otlv-pg-row.otlv-pg-selected .otlv-pg-select { background: var(--md-accent-fg-color--transparent); outline: 1px solid var(--md-accent-fg-color); }
+.otlv-pg-name { font-family: var(--md-text-font-family, sans-serif); }
+.otlv-pg-children[hidden] { display: none; }
+.otlv-pg-dump-row { display: flex; gap: 1rem; white-space: nowrap; }
+.otlv-pg-offset { color: var(--md-default-fg-color--light); }
+.otlv-pg-bytes { display: inline-flex; flex-wrap: nowrap; }
+.otlv-pg-byte { cursor: pointer; padding: 0 0.15rem; }
+.otlv-pg-byte:hover { background: var(--md-default-fg-color--lightest); }
+.otlv-pg-byte.otlv-pg-b-tag { background: var(--md-accent-fg-color); color: var(--md-accent-bg-color); }
+.otlv-pg-byte.otlv-pg-b-len { background: #f9a825; color: #000; }
+.otlv-pg-byte.otlv-pg-b-val { background: var(--md-accent-fg-color--transparent); }
+.otlv-pg-ascii { color: var(--md-default-fg-color--light); }
+.otlv-pg-json { background: none; margin: 0; white-space: pre; }
+.otlv-pg-detail-title { margin: 1rem 0 0.3rem; }
+.otlv-pg-fields { margin: 0; }
+.otlv-pg-field { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 0.1rem 0; }
+.otlv-pg-field dt { color: var(--md-default-fg-color--light); flex: none; font-size: 0.75rem; width: 9rem; }
+.otlv-pg-field dd { font-family: var(--md-code-font-family, monospace); font-size: 0.8rem; margin: 0; overflow-wrap: anywhere; }
+.otlv-pg-copy-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
+.otlv-pg-copy-row .otlv-pg-copy { margin-left: 0; }

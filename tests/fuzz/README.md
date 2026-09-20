@@ -1,6 +1,6 @@
 # C fuzz harnesses and seed corpus
 
-See [local builds, execution, and reproduction](../../docs/fuzzing.md).
+See [local builds, execution, and reproduction](../../docs/development/fuzzing.md).
 All harnesses are C99 and exercise only the C library.
 
 Checked-in seed files use the `.bin` extension to identify binary test inputs.

@@ -26,7 +26,7 @@ identifier and length, not nested framing, EOC placement, or canonical
 string segmentation across descendants — use [tlv/profiles/cer.h](../../profiles/cer/README.md)
 for that.
 
-See [shared memory ownership rules](../../memory.md) before retaining a
+See [shared memory ownership rules](../../guides/memory.md) before retaining a
 parsed view.
 
 ## Minimal C usage

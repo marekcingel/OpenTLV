@@ -1,0 +1,16 @@
+name: General
+description: Open an issue that does not fit the other forms, with a free-form description.
+title: ""
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for anything that does not fit the other templates.
+        Please search [existing issues](https://github.com/marekcingel/OpenTLV/issues) first.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the topic, question, or task.
+    validations:
+      required: true

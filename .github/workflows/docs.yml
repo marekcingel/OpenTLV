@@ -1,0 +1,194 @@
+name: Documentation
+
+# Pull requests validate the documentation: Markdown lint, the generated C and
+# C++ API references and a strict site build that includes them. Publishing is
+# versioned with mike, which keeps every version as a directory on the
+# gh-pages branch:
+#   - a push to develop publishes the development documentation as "latest";
+#   - a release tag X.Y.Z publishes version "X.Y" (built from that tag, so it
+#     matches the released sources) with the alias "stable", and makes "stable"
+#     the default the site root redirects to.
+# Published versions are never rebuilt or removed by later releases. Tags are
+# expected in ascending order: the latest pushed release tag becomes "stable".
+on:
+  push:
+    branches: [develop]
+    tags: ['[0-9]*.[0-9]*.[0-9]*', '!*-*']
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.event_name == 'pull_request' && github.ref || 'publish' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Validate and build documentation
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: pip
+          cache-dependency-path: requirements-docs.txt
+
+      - name: Install documentation dependencies
+        run: pip install -r requirements-docs.txt pre-commit
+
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen ninja-build
+
+      - name: Configure API documentation
+        run: >-
+          cmake -S . -B build/docs -G Ninja
+          -DOPENTLV_BUILD_DOCS=ON
+          -DOPENTLV_BUILD_CXX=OFF
+          -DOPENTLV_BUILD_TESTS=OFF
+          -DOPENTLV_BUILD_EXAMPLES=OFF
+
+      # Doxygen warnings are errors. The site build below embeds this output
+      # under reference/api/ and fails if either reference is missing.
+      - name: Generate C and C++ API references
+        run: cmake --build build/docs --target cxx-api-docs
+
+      - name: Upload C API reference
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-api-reference
+          path: build/docs/docs/c-api/html
+          if-no-files-found: error
+
+      # Preserve sibling directories so C++ links to C declarations work.
+      - name: Upload C++ reference with linked C reference
+        uses: actions/upload-artifact@v4
+        with:
+          name: cxx-api-reference
+          path: |
+            build/docs/docs/cxx-api/html
+            build/docs/docs/c-api/html
+          if-no-files-found: error
+
+      # The playground runs the WebAssembly build in the browser, so the site
+      # embeds it. Same Emscripten version as the WebAssembly Build workflow.
+      - name: Set up Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 4.0.10
+          actions-cache-folder: emsdk-cache
+
+      - name: Build WebAssembly module for the playground
+        run: |
+          emcmake cmake -S . -B build-wasm -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DOPENTLV_BUILD_WASM=ON \
+            -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_CLI=OFF \
+            -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+          cmake --build build-wasm --target opentlv-wasm --parallel
+
+      - name: Upload WebAssembly module
+        uses: actions/upload-artifact@v4
+        with:
+          name: playground-wasm
+          path: build-wasm/bindings/wasm/dist/
+          if-no-files-found: error
+
+      # Same hook, version and .markdownlint.json as the local pre-commit
+      # setup; the hook runs with --fix, so a fixable finding fails the step
+      # through the diff it leaves behind.
+      - name: Lint Markdown
+        run: pre-commit run markdownlint --all-files --show-diff-on-failure
+
+      # Code blocks marked with `<!-- example: PATH -->` must equal the source
+      # file, which the build workflows compile and run, so documented code
+      # cannot drift from the current API.
+      - name: Check documented examples match their sources
+        run: python scripts/check_doc_examples.py
+
+      # The generated API references are part of the site (see
+      # tools/docs/hooks.py), so links between guides and API pages are
+      # validated too. Broken links and anchors, links to missing repository
+      # files, pages missing from or invalid in the nav, and configuration
+      # errors are all build warnings, and --strict turns every warning into a
+      # failure that also blocks deployment through `needs`.
+      - name: Build site
+        env:
+          OPENTLV_DOCS_REQUIRE_WASM: '1'
+        run: mkdocs build --strict
+
+  publish:
+    name: Publish versioned documentation
+    needs: build
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/'))
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: pip
+          cache-dependency-path: requirements-docs.txt
+
+      - name: Install documentation dependencies
+        run: pip install -r requirements-docs.txt
+
+      # The references were generated and validated by the build job from this
+      # same commit; mike embeds them through tools/docs/hooks.py.
+      - name: Download API references
+        uses: actions/download-artifact@v5
+        with:
+          name: cxx-api-reference
+          path: api-docs
+
+      - name: Download WebAssembly module
+        uses: actions/download-artifact@v5
+        with:
+          name: playground-wasm
+          path: playground-wasm
+
+      - name: Configure git identity for mike
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Publish development documentation
+        if: github.ref == 'refs/heads/develop'
+        env:
+          OPENTLV_API_DOCS_DIR: ${{ github.workspace }}/api-docs
+          OPENTLV_WASM_DIR: ${{ github.workspace }}/playground-wasm
+          OPENTLV_DOCS_REQUIRE_WASM: '1'
+          OPENTLV_DOCS_CHANNEL: development
+          OPENTLV_DOCS_REF: develop
+        run: |
+          mike deploy --push --title "latest (development)" latest
+          # Until the first release exists, the site root shows latest.
+          if ! mike list stable > /dev/null 2>&1; then
+            mike set-default --push latest
+          fi
+
+      - name: Publish release documentation
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          OPENTLV_API_DOCS_DIR: ${{ github.workspace }}/api-docs
+          OPENTLV_WASM_DIR: ${{ github.workspace }}/playground-wasm
+          OPENTLV_DOCS_REQUIRE_WASM: '1'
+          OPENTLV_DOCS_CHANNEL: release
+          OPENTLV_DOCS_REF: ${{ github.ref_name }}
+        run: |
+          version="$(echo "$GITHUB_REF_NAME" | cut -d. -f1,2)"
+          mike deploy --push --update-aliases --title "$version" "$version" stable
+          mike set-default --push stable

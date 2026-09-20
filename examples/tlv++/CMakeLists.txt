@@ -25,3 +25,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 opentlv_configure_compiler(${PROJECT_NAME})
 opentlv_copy_shared_runtime(${PROJECT_NAME})
+
+# Backs the C++ example in Getting Started; scripts/check_doc_examples.py keeps the
+# Markdown copy identical to this file. It is the C++ counterpart of the C quick start.
+add_executable(example-tlv++-quick-start src/quick_start.cpp)
+target_link_libraries(example-tlv++-quick-start PRIVATE tlv++)
+opentlv_configure_compiler(example-tlv++-quick-start)
+opentlv_copy_shared_runtime(example-tlv++-quick-start)

@@ -1,0 +1,146 @@
+site_name: OpenTLV
+site_description: Portable C99 and C++ library for reading, writing and validating TLV data.
+site_url: https://marekcingel.github.io/OpenTLV/
+repo_url: https://github.com/marekcingel/OpenTLV
+repo_name: marekcingel/OpenTLV
+edit_uri: edit/develop/docs/
+
+docs_dir: docs
+site_dir: site
+strict: true
+
+# Several checks are only reported as INFO by default; warn so strict fails on
+# them: pages missing from nav, absolute links, missing nav files and anchors.
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    absolute_links: warn
+    unrecognized_links: warn
+    anchors: warn
+
+# docs/README.md is the GitHub index; the site landing page is docs/index.md.
+exclude_docs: |
+  /README.md
+
+theme:
+  name: material
+  custom_dir: tools/docs/overrides
+  logo: assets/logo-mark.svg
+  favicon: assets/favicon.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: orange
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: orange
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.action.edit
+    - content.code.copy
+    - content.tabs.link
+
+extra:
+  # "development" for local and latest builds, "release" for tagged versions;
+  # tools/docs/hooks.py reads it from OPENTLV_DOCS_CHANNEL, which the
+  # Documentation workflow sets (tools/docs/overrides/main.html).
+  docs_channel: development
+  # Version selector; versions are published with mike (see CONTRIBUTING.md).
+  version:
+    provider: mike
+    alias: true
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/marekcingel/OpenTLV
+      name: OpenTLV on GitHub
+
+# Rewrites relative links that leave docs/ (source files, README, CHANGELOG)
+# to GitHub URLs, so the Markdown stays valid on GitHub and in the site.
+hooks:
+  - tools/docs/hooks.py
+
+markdown_extensions:
+  - tables
+  - toc:
+      permalink: true
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  # C/C++ content tabs (/// tab | C); see docs/development/documentation-layout.md.
+  - pymdownx.blocks.tab:
+      alternate_style: true
+
+# The playground page (docs/playground/) is only a script and a stylesheet; the
+# script does nothing on pages without the playground element.
+extra_css:
+  - playground/playground.css
+extra_javascript:
+  - path: playground/playground.js
+    type: module
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Getting started: getting-started/README.md
+  - Concepts:
+      - Architecture: concepts/architecture.md
+      - Core types: concepts/core-types.md
+      - Borrowed values: concepts/value.md
+      - Logical lengths: concepts/length.md
+      - Byte order: concepts/endian.md
+  - Guides:
+      - Memory ownership: guides/memory.md
+      - Schemas and length validation: guides/schemas.md
+      - Value codecs: guides/codecs.md
+      - Copy helpers: guides/copy.md
+      - Scanning and recovery: guides/scanner.md
+  - Formats:
+      - Overview: formats/README.md
+      - Default TLV: formats/default/README.md
+      - Fixed 1-byte TLV: formats/fixed/README.md
+      - BER-TLV: formats/asn1/ber.md
+      - DER-TLV: formats/asn1/der.md
+      - CER-TLV: formats/asn1/cer.md
+      - Custom formats: formats/custom/README.md
+      - Format examples: formats/format-examples.md
+      - Format roadmap: formats/format-roadmap.md
+  - Profiles:
+      - DER: profiles/der/README.md
+      - CER: profiles/cer/README.md
+      - EMV: profiles/emv/README.md
+  - CLI:
+      - otlv command line: cli/README.md
+  - Playground:
+      - TLV playground: playground/index.md
+  - Reference:
+      - Overview: reference/README.md
+      - C API: reference/c-api.md
+      - C++ API: reference/cxx-api.md
+      - Compilers and build settings: reference/compilers.md
+  - Development:
+      - Where documentation belongs: development/documentation-layout.md
+      - Fuzzing: development/fuzzing.md
+      - WebAssembly build: development/webassembly.md
+      - Logo assets: assets/README.md

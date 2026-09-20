@@ -1,6 +1,7 @@
 #include "presentation.hpp"
 #include "tlv/config.h"
-#include <stdio.h>
+#include <iostream>
+#include <sstream>
 #include <stdlib.h>
 #include <string.h>
 #ifdef _WIN32
@@ -57,42 +58,13 @@ void cli_presentation_init(cli_presentation_t* p, const uint8_t* data, size_t si
 void cli_presentation_restore(cli_presentation_t* p) {
 #ifdef _WIN32
     /* Flush UTF-8 bytes before restoring the console's original encoding. */
-    (void)fflush(stdout);
+    std::cout.flush();
     if (p->restore_mode) SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), p->console_mode);
     if (p->restore_codepage) SetConsoleOutputCP(p->console_codepage);
 #else
     (void)p;
 #endif
 }
-
-#if OPENTLV_PROFILE_EMV
-static int child_context(int context, const tlv_tag_t* tag) {
-    unsigned value = tag->data[0];
-    if (tag->size == 2)
-        value = (value << 8) | tag->data[1];
-    else if (tag->size != 1)
-        return TLV_EMV_CONTEXT_COUNT;
-    if (context == TLV_EMV_CONTEXT_BASE || context == TLV_EMV_CONTEXT_BIT_GROUP) {
-        if (value == 0x7F60) return TLV_EMV_CONTEXT_BIT;
-    }
-    if (context == TLV_EMV_CONTEXT_BASE) {
-        switch (value) {
-            case 0xBF4A:
-            case 0xBF4B: return TLV_EMV_CONTEXT_BIT_GROUP;
-            case 0xBF4C: return TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS;
-            case 0xBF4D: return TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS;
-            case 0xBF4E: return TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION;
-            default: break;
-        }
-        /* Only known templates inherit BASE, avoiding guesses in proprietary containers. */
-        if (tlv_emv_find(TLV_EMV_CONTEXT_BASE, tag)) return TLV_EMV_CONTEXT_BASE;
-    }
-    if (context == TLV_EMV_CONTEXT_BIT && value == 0xA1) return TLV_EMV_CONTEXT_BHT;
-    if (context == TLV_EMV_CONTEXT_BHT && (value == 0xA1 || value == 0xA2))
-        return TLV_EMV_CONTEXT_BHT_FORMAT;
-    return TLV_EMV_CONTEXT_COUNT;
-}
-#endif
 
 void cli_presentation_visit(cli_presentation_t* p, const tlv_view_t* view, size_t depth,
                             int indefinite) {
@@ -101,58 +73,53 @@ void cli_presentation_visit(cli_presentation_t* p, const tlv_view_t* view, size_
     if (depth < TLV_WALK_MAX_DEPTH) {
         p->ends[depth + 1] = end;
 #if OPENTLV_PROFILE_EMV
-        p->contexts[depth + 1] = child_context(p->contexts[depth], &view->tag);
+        p->contexts[depth + 1] =
+            tlv_emv_child_context((tlv_emv_context_t)p->contexts[depth], &view->tag);
 #endif
     }
 }
 
 void cli_presentation_prefix(const cli_presentation_t* p, size_t depth) {
     size_t i;
-    for (i = 1; i < depth; ++i) fputs(p->more[i] ? "\xE2\x94\x82   " : "    ", stdout);
+    for (i = 1; i < depth; ++i) std::cout << (p->more[i] ? "\xE2\x94\x82   " : "    ");
     if (depth)
-        fputs(p->more[depth] ? "\xE2\x94\x9C\xE2\x94\x80\xE2\x94\x80 "
-                             : "\xE2\x94\x94\xE2\x94\x80\xE2\x94\x80 ",
-              stdout);
+        std::cout << (p->more[depth] ? "\xE2\x94\x9C\xE2\x94\x80\xE2\x94\x80 "
+                                     : "\xE2\x94\x94\xE2\x94\x80\xE2\x94\x80 ");
 }
 
 #if OPENTLV_PROFILE_EMV
 /* Presentation-only wrapper: falls back to a generic title-cased label when
  * the symbol has no curated one. Tag matching, value types and bounds come
  * from tlv itself (tlv_emv_display_label/tlv_emv_titlecase_name). */
-static void display_name(const char* name) {
+std::string cli_emv_display_name(const char* name) {
     char        titlecased[128];
     const char* label = tlv_emv_display_label(name);
-    if (label) {
-        fputs(label, stdout);
-        return;
-    }
-    if (tlv_emv_titlecase_name(name, titlecased, sizeof(titlecased)) == TLV_OK)
-        fputs(titlecased, stdout);
-    else
-        fputs(name, stdout);
+    if (label) return label;
+    if (tlv_emv_titlecase_name(name, titlecased, sizeof(titlecased)) == TLV_OK) return titlecased;
+    return name;
 }
 #endif
 
-void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, size_t depth,
-                          int describe) {
+cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_view_t* view,
+                                       size_t depth, int describe) {
+    cli_emv_info info;
 #if OPENTLV_PROFILE_EMV
     const tlv_emv_definition_t* definition =
         tlv_emv_find((tlv_emv_context_t)p->contexts[depth], &view->tag);
-    fputs(" name=\"", stdout);
-    if (definition)
-        display_name(definition->name);
-    else
-        fputs("Unknown EMV tag in this context", stdout);
-    putchar('"');
-    if (describe && definition) {
-        printf(" description=\"%s; dictionary length: %zu",
-               tlv_emv_value_kind_description(definition->value_kind),
-               definition->schema->min_length);
+    if (!definition) return info;
+    info.known = true;
+    info.name = cli_emv_display_name(definition->name);
+    if (describe) {
+        std::ostringstream description;
+        description << tlv_emv_value_kind_description(definition->value_kind)
+                    << "; dictionary length: " << definition->schema->min_length;
         if (definition->schema->max_length == SIZE_MAX)
-            fputs("..unbounded", stdout);
+            description << "..unbounded";
         else if (definition->schema->max_length != definition->schema->min_length)
-            printf("..%zu", definition->schema->max_length);
-        printf(" bytes; step: %zu\"", definition->length_step);
+            description << ".." << definition->schema->max_length;
+        description << " bytes; step: " << definition->length_step;
+        info.has_description = true;
+        info.description = description.str();
     }
 #else
     (void)p;
@@ -160,4 +127,12 @@ void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, s
     (void)depth;
     (void)describe;
 #endif
+    return info;
+}
+
+void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, size_t depth,
+                          int describe) {
+    const cli_emv_info info = cli_presentation_emv_info(p, view, depth, describe);
+    std::cout << " name=\"" << (info.known ? info.name : "Unknown EMV tag in this context") << '"';
+    if (info.has_description) std::cout << " description=\"" << info.description << '"';
 }

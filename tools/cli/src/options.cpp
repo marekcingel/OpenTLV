@@ -1,8 +1,8 @@
 #include "options.hpp"
 #include "diagnostics.hpp"
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
+#include <iostream>
 #include "tlv/config.h"
 #include "tlv/reader/walker.h"
 
@@ -28,9 +28,21 @@ int options::parse(int argc, char** argv) {
     unsigned seen = 0;
     int      i;
     command = argv[1];
-    if (strcmp(command, "dump") && strcmp(command, "validate"))
+    const unsigned encode_only = 65536 | 131072 | 262144; // --tag, --value, --output-encoding
+    const bool     encoding = argc > 1 && !strcmp(command, "encode");
+    const bool     lookup = argc > 1 && !strcmp(command, "tag");
+    const bool     listing = argc > 1 && !strcmp(command, "tags");
+    const unsigned search_only = 524288; // --search
+    if (strcmp(command, "dump") && strcmp(command, "validate") && !encoding && !lookup && !listing)
         return fail(2, "unknown command; use --help");
-    for (i = 2; i < argc; ++i) {
+    i = 2;
+    if (lookup) {
+        // tag takes the tag bytes as a positional argument: otlv tag 9F02 --profile emv
+        if (argc < 3 || !strncmp(argv[2], "--", 2)) return fail(2, "tag requires a hex tag");
+        tag = argv[2];
+        i = 3;
+    }
+    for (; i < argc; ++i) {
         unsigned    bit;
         const char* arg = argv[i];
         if (!strcmp(arg, "--tree"))
@@ -61,8 +73,31 @@ int options::parse(int argc, char** argv) {
             bit = 4096;
         else if (!strcmp(arg, "--pdol"))
             bit = 8192;
+        else if (!strcmp(arg, "--decode"))
+            bit = 16384;
+        else if (!strcmp(arg, "--output"))
+            bit = 32768;
+        else if (!strcmp(arg, "--tag"))
+            bit = 65536;
+        else if (!strcmp(arg, "--value"))
+            bit = 131072;
+        else if (!strcmp(arg, "--output-encoding"))
+            bit = 262144;
+        else if (!strcmp(arg, "--search"))
+            bit = search_only;
         else
             return fail(2, "unknown option; use --help");
+        // encode takes only --format, --max-input-size and its own options;
+        // dump/validate never take the encode-only ones.
+        if (lookup     ? !(bit & (2048 | 32768))
+            : listing  ? !(bit & (2048 | 32768 | search_only))
+            : encoding ? !(bit & (2 | 16 | encode_only))
+                       : (bit & (encode_only | search_only)))
+            return fail(2, lookup                ? "option is not valid for tag"
+                           : listing             ? "option is not valid for tags"
+                           : encoding            ? "option is not valid for encode"
+                           : (bit & search_only) ? "option requires tags"
+                                                 : "option requires encode");
         if (seen & bit) return fail(2, "duplicate option");
         seen |= bit;
         if (bit == 1) {
@@ -71,6 +106,10 @@ int options::parse(int argc, char** argv) {
         }
         if (bit == 8192) {
             pdol = 1;
+            continue;
+        }
+        if (bit == 16384) {
+            decode = 1;
             continue;
         }
         if (bit == 128) {
@@ -94,29 +133,57 @@ int options::parse(int argc, char** argv) {
             hex = argv[i];
         else if (bit == 2048)
             profile = argv[i];
-        else if (bit == 4096) {
+        else if (bit == 65536)
+            tag = argv[i];
+        else if (bit == search_only)
+            search = argv[i];
+        else if (bit == 131072)
+            value = argv[i];
+        else if (bit == 262144) {
+            if (strcmp(argv[i], "binary") && strcmp(argv[i], "hex"))
+                return fail(2, "output encoding must be binary or hex");
+            binary_output = !strcmp(argv[i], "binary");
+        } else if (bit == 4096) {
             if (strcmp(argv[i], "binary") && strcmp(argv[i], "hex"))
                 return fail(2, "input encoding must be binary or hex");
             hex_input = !strcmp(argv[i], "hex");
+        } else if (bit == 32768) {
+            if (strcmp(argv[i], "text") && strcmp(argv[i], "json"))
+                return fail(2, "output must be text or json");
+            output = argv[i];
         } else if (!number(argv[i], bit == 16   ? &max_input
                                     : bit == 32 ? &max_depth
                                                 : &max_elements))
             return fail(2, "limits must be nonnegative decimal integers fitting size_t");
     }
+    if (lookup || listing) {
+        if (!profile)
+            return fail(2, listing ? "tags requires --profile emv" : "tag requires --profile emv");
+        if (strcmp(profile, "emv")) return fail(2, "unknown profile");
+#if !OPENTLV_PROFILE_EMV
+        return fail(2, "EMV profile is disabled in this build");
+#endif
+        return 0;
+    }
+    if (encoding) {
+        if (!format || !tag) return fail(2, "encode requires --format and --tag");
+        return 0;
+    }
     if (!format || (!!input + !!hex) != 1)
         return fail(2, "specify --format and exactly one of --input or --hex");
     if (max_depth > TLV_WALK_MAX_DEPTH) return fail(2, "maximum depth must be in 0..64");
     if (tree && strcmp(command, "dump")) return fail(2, "--tree requires dump");
-    if (pdol && (strcmp(format, "ber") || tree))
-        return fail(2, "--pdol requires --format ber and cannot use --tree or --pretty");
+    if (pdol && (strcmp(format, "ber") || tree || decode))
+        return fail(2, "--pdol requires --format ber and cannot use --tree, --pretty, or --decode");
     if ((seen & 512) && (seen & 1024)) return fail(2, "conflicting color options");
     if ((seen & 4096) && !input) return fail(2, "--input-encoding requires --input");
-    if ((profile || describe || color) && strcmp(command, "dump"))
+    if ((describe || color || decode || strcmp(output, "text")) && strcmp(command, "dump"))
         return fail(2, "presentation options require dump");
     if (describe && !profile) return fail(2, "--describe requires --profile emv");
+    if (decode && !profile) return fail(2, "--decode requires --profile emv");
     if (profile) {
         if (strcmp(profile, "emv")) return fail(2, "unknown profile");
-        if (strcmp(format, "ber")) return fail(2, "EMV annotations require --format ber");
+        if (strcmp(format, "ber")) return fail(2, "EMV profile requires --format ber");
 #if !OPENTLV_PROFILE_EMV
         return fail(2, "EMV profile is disabled in this build");
 #endif
@@ -125,25 +192,44 @@ int options::parse(int argc, char** argv) {
 }
 
 void options::usage() {
-    std::puts(
-        "Usage: opentlv dump|validate --format NAME (--input PATH|- | --hex BYTES) [OPTIONS]\n"
-        "       opentlv formats | --help | --version\n"
-        "Formats: default, fixed-1byte, ber, der (when enabled in this build)\n"
-        "Options:\n"
-        "  --pdol                 Read raw DOL tag/one-byte-length pairs (BER)\n"
-        "  --tree                 Print nested BER/DER elements (dump only)\n"
-        "  --pretty               Print a graphical UTF-8 tree (implies --tree)\n"
-        "  --profile emv          Annotate BER tags using the EMV dictionary\n"
-        "  --describe             Include EMV type and length descriptions\n"
-        "  --input-encoding NAME  binary (default) or hex, for --input\n"
-        "  --force-color          Emit ANSI colors even when redirected\n"
-        "  --no-color             Disable colors (default: auto for terminals)\n"
-        "  --max-input-size N     Maximum input bytes (default 16777216)\n"
-        "  --max-depth N          Maximum child depth, 0..64 (default 64)\n"
-        "  --max-elements N       Maximum visited elements (default 100000)\n"
-        "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"
-        "Validation accepts empty input and checks all concatenated elements.\n"
-        "Exit codes: 0 success, 1 invalid TLV, 2 invalid usage/hex/format, 3 I/O/resource error.");
+    std::cout << "Usage: otlv dump|validate --format NAME (--input PATH|- | --hex BYTES) "
+                 "[OPTIONS]\n"
+                 "       otlv encode --format NAME --tag HEX [--value HEX] "
+                 "[--output-encoding hex|binary]\n"
+                 "       otlv tag HEX --profile emv [--output text|json]\n"
+                 "       otlv tags --profile emv [--search TEXT] [--output text|json]\n"
+                 "       otlv formats | --help | --version\n"
+                 "Formats: default, fixed-1byte, ber, der (when enabled in this build)\n"
+                 "Options:\n"
+                 "  --pdol                 Read raw DOL tag/one-byte-length pairs (BER)\n"
+                 "  --tree                 Print nested BER/DER elements (dump only)\n"
+                 "  --pretty               Print a graphical UTF-8 tree (implies --tree)\n"
+                 "  --profile emv          Annotate BER tags (dump) or check EMV schema "
+                 "structure (validate)\n"
+                 "  --describe             Include EMV type and length descriptions\n"
+                 "  --decode               Decode known EMV values (requires --profile emv)\n"
+                 "  --output text|json     Print text (default) or a hierarchical JSON document\n"
+                 "  --input-encoding NAME  binary (default) or hex, for --input\n"
+                 "  --force-color          Emit ANSI colors even when redirected\n"
+                 "  --no-color             Disable colors (default: auto for terminals)\n"
+                 "  --max-input-size N     Maximum input bytes (default 16777216)\n"
+                 "  --max-depth N          Maximum child depth, 0..64 (default 64)\n"
+                 "  --max-elements N       Maximum visited elements (default 100000)\n"
+                 "  --search TEXT          tags: only tags whose name contains TEXT "
+                 "(case-insensitive)\n"
+                 "  --tag HEX              encode: tag bytes in wire order\n"
+                 "  --value HEX            encode: value bytes (default: empty)\n"
+                 "  --output-encoding NAME encode: hex (default, one line) or binary\n"
+                 "tag looks up one BER tag in the EMV dictionary; an unknown tag is a result "
+                 "(exit 0), not an error; tags lists the dictionary.\n"
+                 "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"
+                 "Validation accepts empty input and checks all concatenated elements.\n"
+                 "With --profile emv, validate also checks the EMV schema structure "
+                 "(mandatory/forbidden/duplicate tags, lengths, and nesting) and reports a "
+                 "schema-labeled diagnostic distinct from format errors; --pdol skips it.\n"
+                 "Exit codes: 0 success, 1 invalid TLV (or element rejected by encode), 2 invalid "
+                 "usage/hex/format, 3 "
+                 "I/O/resource error.\n";
 }
 
 } // namespace cli
