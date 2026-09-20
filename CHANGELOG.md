@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a "Chore type" dropdown to the Chore issue form, covering releases and `main`/`develop` sync, and a free-form General issue form. (#223)
 - Add Tree, Hex and JSON views, an element inspector with copy buttons and an optional EMV profile to the TLV playground, backed by encoded header sizes and EMV tag names in the WebAssembly parse result; `opentlv_wasm_parse` takes a new `profile` argument. (#198)
 - Add an interactive TLV playground to the documentation site that parses hexadecimal input client-side with the WebAssembly build; see [TLV playground](docs/playground/index.md). (#197)
 - Add an experimental WebAssembly build (`OPENTLV_BUILD_WASM`, Emscripten) exposing a small browser parsing interface over the C core, with a CI workflow; see [WebAssembly build](docs/development/webassembly.md). (#196)
