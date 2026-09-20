@@ -6,7 +6,7 @@
 
 #![allow(non_camel_case_types)]
 
-use std::os::raw::{c_char, c_int};
+use std::os::raw::{c_char, c_int, c_void};
 
 /// Logical TLV value length (`tlv_length_t`), always 64 bits wide.
 pub type tlv_length_t = u64;
@@ -95,7 +95,87 @@ pub struct tlv_view_t {
     pub value: tlv_value_t,
 }
 
+/// Tag decoder callback (`tlv_read_tag_fn`).
+pub type tlv_read_tag_fn = unsafe extern "C" fn(
+    context: *const c_void,
+    data: *const u8,
+    size: usize,
+    tag: *mut tlv_tag_t,
+    consumed: *mut usize,
+) -> tlv_result_t;
+
+/// Length decoder callback (`tlv_read_length_fn`).
+pub type tlv_read_length_fn = unsafe extern "C" fn(
+    context: *const c_void,
+    data: *const u8,
+    size: usize,
+    length: *mut usize,
+    consumed: *mut usize,
+) -> tlv_result_t;
+
+/// Optional value-bounds callback (`tlv_read_value_bounds_fn`).
+pub type tlv_read_value_bounds_fn = unsafe extern "C" fn(
+    context: *const c_void,
+    tag: *const tlv_tag_t,
+    data: *const u8,
+    size: usize,
+    length_size: *mut usize,
+    value_size: *mut usize,
+    trailer_size: *mut usize,
+) -> tlv_result_t;
+
+/// Stateless reading format (`tlv_reader_format_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_reader_format_t {
+    /// Borrowed, immutable configuration passed to every callback; may be null.
+    pub context: *const c_void,
+    /// Tag decoder. Required.
+    pub read_tag: Option<tlv_read_tag_fn>,
+    /// Length decoder. Required.
+    pub read_length: Option<tlv_read_length_fn>,
+    /// Optional replacement for `read_length`.
+    pub read_value_bounds: Option<tlv_read_value_bounds_fn>,
+}
+
+/// Sequential reader over a caller-owned buffer (`tlv_reader_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_reader_t {
+    /// Borrowed reader format.
+    pub format: *const tlv_reader_format_t,
+    /// Borrowed input buffer.
+    pub data: *const u8,
+    /// Input size in bytes.
+    pub size: usize,
+    /// Offset of the next element to read.
+    pub pos: usize,
+}
+
 extern "C" {
+    /// Default format: one-byte tag, definite BER length.
+    pub static tlv_reader_format_default: tlv_reader_format_t;
+    /// BER-TLV format.
+    pub static tlv_reader_format_ber: tlv_reader_format_t;
+    /// CER format.
+    pub static tlv_reader_format_cer: tlv_reader_format_t;
+    /// DER format.
+    pub static tlv_reader_format_der: tlv_reader_format_t;
+    /// Fixed one-byte tag and one-byte length format.
+    pub static tlv_reader_format_fixed_1byte: tlv_reader_format_t;
+
+    /// Initializes a sequential reader over `data`; both `data` and `format` are borrowed.
+    pub fn tlv_reader_init(
+        reader: *mut tlv_reader_t,
+        data: *const u8,
+        size: usize,
+        format: *const tlv_reader_format_t,
+    ) -> tlv_result_t;
+    /// Returns 1 if the reader has consumed all input, otherwise 0.
+    pub fn tlv_reader_at_end(reader: *const tlv_reader_t) -> c_int;
+    /// Reads the next element and advances the reader.
+    pub fn tlv_reader_next(reader: *mut tlv_reader_t, out_entry: *mut tlv_view_t) -> tlv_result_t;
+
     /// Returns the library version as a NUL-terminated static string, for example `"0.6.0"`.
     pub fn tlv_version_string() -> *const c_char;
     /// Returns the major version number.

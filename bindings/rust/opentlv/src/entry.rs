@@ -39,7 +39,6 @@ impl<'a> Entry<'a> {
     ///
     /// If `raw.value.data` is non-null, it must point to `raw.value.length`
     /// readable bytes that stay valid and unmodified for `'a`.
-    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) unsafe fn from_raw(raw: &sys::tlv_view_t) -> Result<Entry<'a>> {
         let tag = Tag::from_raw(&raw.tag)?;
 

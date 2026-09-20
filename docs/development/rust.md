@@ -27,6 +27,27 @@ The `opentlv` crate exposes these safe types; none of them exposes a raw pointer
 `tlv_tag_t` is part of the C ABI, so the bindings only support a library built
 with the default capacity.
 
+## Reader
+
+`Reader<'a>` parses a `&'a [u8]` and iterates over `Result<Entry<'a>>`. It wraps
+the C `tlv_reader_t`; entry values are zero-copy slices of the input, and the
+borrow checker keeps the input alive for as long as the reader or any entry.
+
+```rust
+let reader = opentlv::Reader::new(&data);
+
+for entry in reader {
+    let entry = entry?;
+    println!("{:?}: {:?}", entry.tag(), entry.value());
+}
+```
+
+`Reader::new` uses the default format (one-byte tag, definite BER length);
+`Reader::with_format` takes a `Format` (`Default`, `Ber`, `Cer`, `Der`,
+`Fixed1Byte`). Malformed input yields an `Err(Error)` item, after which the
+iterator ends, since the C reader does not advance past bad data. Library users
+need no `unsafe`.
+
 ## Build
 
 Requirements: a Rust toolchain (1.70 or newer), CMake 3.16 or newer and a C99
