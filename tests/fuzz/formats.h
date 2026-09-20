@@ -8,6 +8,9 @@
 #if OPENTLV_FORMAT_FIXED_1BYTE
 #include "tlv/formats/fixed/fixed_1byte.h"
 #endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#include "tlv/formats/bluetooth/bluetooth_ltv.h"
+#endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/formats/asn1/ber.h"
 #endif
@@ -32,6 +35,9 @@ static const struct {
 #endif
 #if OPENTLV_FORMAT_FIXED_1BYTE
     {&tlv_reader_format_fixed_1byte, &tlv_writer_format_fixed_1byte, fuzz_constructed},
+#endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+    {&tlv_reader_format_bluetooth_ltv, &tlv_writer_format_bluetooth_ltv, fuzz_constructed},
 #endif
 #if OPENTLV_FORMAT_BER
     {&tlv_reader_format_ber, &tlv_writer_format_ber, tlv_ber_is_constructed},

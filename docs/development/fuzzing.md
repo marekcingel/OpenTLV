@@ -37,7 +37,7 @@ flags. Contract checks remain active with `NDEBUG`; UBSan errors are fatal.
 | `fuzz_dol` | `tlv_dol_read` and `tlv_dol_write` (both a size query and a full write against a deterministic `resolve` callback exercising presence, padding and truncation), both DOL limits, and that `tlv_dol_write`'s output length depends only on the input DOL. |
 
 The reader, walker, and round-trip targets run each input against every enabled
-built-in format: default, fixed 1-byte, BER, and DER. Component switches still
+built-in format: default, fixed 1-byte, Bluetooth LTV, BER, and DER. Component switches still
 apply; `fuzz_der` and `fuzz_der_schema` are omitted when `OPENTLV_FORMAT_DER=OFF`,
 and `fuzz_codec` and `fuzz_dol` are omitted when `OPENTLV_PROFILE_EMV=OFF`. At
 least one built-in format must be enabled. For the raw-byte formats, the
