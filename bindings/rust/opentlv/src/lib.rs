@@ -1,7 +1,17 @@
 //! Safe Rust bindings for OpenTLV.
 //!
 //! All `unsafe` FFI interaction lives in `opentlv-sys`; this crate builds the
-//! safe API on top of it. Currently it only reports the library version.
+//! safe API on top of it. It provides the core types [`Tag`], [`Entry`],
+//! [`Error`] and [`Result`], and reports the library version. No raw pointers
+//! appear in the public API.
+
+mod entry;
+mod error;
+mod tag;
+
+pub use entry::Entry;
+pub use error::{Error, Result};
+pub use tag::{ByteOrder, Tag};
 
 use std::ffi::CStr;
 
