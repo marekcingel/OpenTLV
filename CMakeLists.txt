@@ -30,6 +30,7 @@ if(OPENTLV_BUILD_CXX)
 endif()
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
 option(OPENTLV_BUILD_FUZZING "Build C API fuzz targets with libFuzzer, ASan and UBSan" OFF)
+option(OPENTLV_BUILD_WASM "Build the experimental WebAssembly module (requires Emscripten)" OFF)
 option(OPENTLV_BUILD_DOCS "Enable the Doxygen C and C++ API reference targets" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
@@ -40,6 +41,14 @@ option(OPENTLV_FORMAT_BER "Include the BER wire format" ON)
 option(OPENTLV_FORMAT_DER "Include the DER wire format and validation profile" ON)
 option(OPENTLV_FORMAT_CER "Include the CER wire format and validation profile" ON)
 option(OPENTLV_PROFILE_EMV "Include the EMV dictionary, schemas and codecs" ON)
+
+if(OPENTLV_BUILD_WASM)
+    if(NOT EMSCRIPTEN)
+        message(FATAL_ERROR "OPENTLV_BUILD_WASM requires Emscripten; configure with emcmake cmake.")
+    endif()
+    # The module links the core statically; Emscripten shared libraries are not supported.
+    set(OPENTLV_BUILD_SHARED_LIBS OFF)
+endif()
 
 include(cmake/format_options.cmake)
 opentlv_generate_config_files()
@@ -54,6 +63,10 @@ include(cmake/cppcheck.cmake)
 opentlv_add_cppcheck_targets()
 
 add_subdirectory(tlv)
+
+if(OPENTLV_BUILD_WASM)
+    add_subdirectory(bindings/wasm)
+endif()
 
 if(OPENTLV_BUILD_DOCS)
     include(cmake/doxygen.cmake)

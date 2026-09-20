@@ -1,0 +1,72 @@
+name: WebAssembly Build
+
+# Experimental: compiles the OpenTLV C core to WebAssembly with a pinned
+# Emscripten release, checks the module in Node.js and verifies that two
+# independent builds produce identical artifacts. Native builds are unaffected.
+on:
+  push:
+    branches: [main, develop]
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+env:
+  EMSCRIPTEN_VERSION: 4.0.10
+
+jobs:
+  wasm:
+    permissions:
+      contents: read
+    name: Emscripten / Release
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{ env.EMSCRIPTEN_VERSION }}
+          actions-cache-folder: emsdk-cache
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Configure and build
+        run: |
+          for dir in build-wasm build-wasm-repeat; do
+            emcmake cmake -S . -B "$dir" -G Ninja \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DOPENTLV_BUILD_WASM=ON \
+              -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_CLI=OFF \
+              -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF \
+              -DOPENTLV_WARNINGS_AS_ERRORS=ON
+            cmake --build "$dir" --target opentlv-wasm --parallel
+          done
+
+      - name: Run WebAssembly smoke test
+        run: ctest --test-dir build-wasm -L wasm --output-on-failure --no-tests=error
+
+      - name: Verify reproducible artifacts
+        run: |
+          for dir in build-wasm build-wasm-repeat; do
+            (cd "$dir/bindings/wasm/dist" && sha256sum opentlv-core.js opentlv-core.wasm opentlv.mjs) | tee "$dir.sha256"
+          done
+          diff build-wasm.sha256 build-wasm-repeat.sha256
+
+      - name: Upload WebAssembly artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: opentlv-wasm
+          path: build-wasm/bindings/wasm/dist/
+          if-no-files-found: error

@@ -55,6 +55,7 @@ Documentation is grouped by purpose. See
 
 - [Where documentation belongs](development/documentation-layout.md)
 - [C API fuzzing with ASan and UBSan](development/fuzzing.md)
+- [Experimental WebAssembly build](development/webassembly.md)
 - [Logo assets](assets/README.md)
 
 ## Project
