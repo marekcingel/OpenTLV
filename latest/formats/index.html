@@ -1210,6 +1210,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Nested traversal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#formats-whose-length-precedes-the-tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Formats whose length precedes the tag
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -1264,6 +1281,34 @@
     
   
     Fixed 1-byte TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="bluetooth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth LTV
   
 
     
@@ -2229,6 +2274,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Nested traversal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#formats-whose-length-precedes-the-tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Formats whose length precedes the tag
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2263,6 +2325,7 @@ Profile semantics are documented separately.</p>
 <ul>
 <li><a href="default/">Default TLV</a></li>
 <li><a href="fixed/">Fixed 1-byte TLV</a></li>
+<li><a href="bluetooth/">Bluetooth LTV</a></li>
 <li><a href="asn1/ber/">BER-TLV</a></li>
 <li><a href="asn1/der/">DER-TLV</a></li>
 <li><a href="asn1/cer/">CER-TLV</a></li>
@@ -2288,6 +2351,11 @@ Profile semantics are documented separately.</p>
 <td>One-byte tags with larger payloads</td>
 <td><a href="default/">Default TLV</a></td>
 <td>Values up to 65,535 bytes</td>
+</tr>
+<tr>
+<td>Bluetooth advertising data (length before type)</td>
+<td><a href="bluetooth/">Bluetooth LTV</a></td>
+<td>Values up to 254 bytes, no nesting</td>
 </tr>
 <tr>
 <td>Multi-byte tags or constructed indefinite values</td>
@@ -2396,22 +2464,24 @@ same encoder and advances its position only on success.</p>
 <h2 id="generic-interface">Generic interface<a class="headerlink" href="#generic-interface" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/formats/format.h</code> for the allocation-free, type-distinct descriptors:</p>
 <ul>
-<li><code>tlv_reader_format_t</code>: <code>context</code>, <code>read_tag</code>, <code>read_length</code>, optional <code>read_value_bounds</code>.</li>
-<li><code>tlv_writer_format_t</code>: exactly <code>context</code>, <code>write_tag</code>, <code>write_length</code>, <code>length_size</code>.</li>
+<li><code>tlv_reader_format_t</code>: <code>context</code>, <code>read_tag</code>, <code>read_length</code>, optional <code>read_value_bounds</code>, optional <code>read_element</code>.</li>
+<li><code>tlv_writer_format_t</code>: <code>context</code>, <code>write_tag</code>, <code>write_length</code>, <code>length_size</code>, optional <code>write_header</code>.</li>
 </ul>
 <p>Pass the matching descriptor to <code>tlv_reader_init</code> or <code>tlv_writer_init</code> as the
 last argument after the buffer and its size. The descriptor and its optional
 immutable <code>context</code> are borrowed and must remain valid and unchanged throughout use.
-All callbacks except <code>read_value_bounds</code> are required; a custom reader needs no
-write callbacks, and a custom writer needs no read callbacks.</p>
+<code>read_tag</code> and <code>read_length</code> are required unless <code>read_element</code> is set, and <code>write_tag</code>,
+<code>write_length</code> and <code>length_size</code> are required unless <code>write_header</code> is set; a custom
+reader needs no write callbacks, and a custom writer needs no read callbacks.</p>
 <p><code>tlv_reader_format_init(format, context, read_tag, read_length)</code> and
 <code>tlv_writer_format_init(format, context, write_tag, write_length, length_size)</code>
-initialize caller-owned descriptors at runtime. They return <code>TLV_OK</code> on success
+initialize caller-owned descriptors at runtime; <code>tlv_reader_format_init_element</code> and
+<code>tlv_writer_format_init_header</code> do the same for the whole-element callbacks below. They return <code>TLV_OK</code> on success
 or <code>TLV_ERR_INVALID_ARG</code> for a NULL destination or required callback, leaving
 the destination unchanged on failure. A NULL context is valid. Static C
 initialization can use designated fields. The named callback typedefs are
 <code>tlv_read_tag_fn</code>, <code>tlv_read_length_fn</code>, <code>tlv_read_value_bounds_fn</code>, <code>tlv_write_tag_fn</code>,
-<code>tlv_write_length_fn</code>, and <code>tlv_length_size_fn</code>.</p>
+<code>tlv_write_length_fn</code>, <code>tlv_length_size_fn</code>, <code>tlv_read_element_fn</code>, and <code>tlv_write_header_fn</code>.</p>
 <p>The two descriptor pointer types are incompatible. C++ rejects a direction
 mismatch; C builds with <code>-std=c11 -Wall -Wextra -Werror</code> reject it as well.
 Without warnings-as-errors, a C compiler may diagnose the mismatch and continue.
@@ -2474,6 +2544,24 @@ Limits are inclusive; zero is a real limit. Offsets identify failing elements.
 STOP succeeds immediately without validating the remaining input. The original
 flat reader and walker retain their behavior. See <a href="../concepts/architecture/">architecture</a>.</p>
 <p>See also the <a href="../reference/c-api/#formats">C API reference: formats</a>.</p>
+<h3 id="formats-whose-length-precedes-the-tag">Formats whose length precedes the tag<a class="headerlink" href="#formats-whose-length-precedes-the-tag" title="Permanent link">&para;</a></h3>
+<p><code>read_tag</code> and <code>read_length</code> assume the tag comes first. Formats with another
+field order, such as <a href="bluetooth/">Bluetooth LTV</a> (Length | Type |
+Value), set the optional <code>read_element</code> and <code>write_header</code> callbacks instead:</p>
+<ul>
+<li><code>read_element(context, data, size, &amp;tag, &amp;header_size, &amp;value_size,
+  &amp;trailer_size)</code> parses a whole element. <code>header_size</code> covers everything
+  before the value, in any field order. It replaces <code>read_tag</code>, <code>read_length</code>
+  and <code>read_value_bounds</code>, and the core applies the same bounds checks.</li>
+<li><code>write_header(context, data, capacity, tag, length, &amp;written)</code> writes the
+  whole header. With <code>data == NULL</code> and <code>capacity == 0</code> it validates and sizes
+  the header. It replaces <code>write_tag</code>, <code>write_length</code> and <code>length_size</code>.</li>
+</ul>
+<p>Every generic operation (reader, writer, scanner, walker, schemas, copy) works
+on such formats unchanged. Code that calls <code>read_tag</code> or <code>write_tag</code> directly on
+a descriptor must check for <code>NULL</code> first. Like <code>read_value_bounds</code>, these fields
+were appended to the descriptors, so rebuild the library and all consumers
+together and append <code>NULL</code> to aggregate initializers.</p>
 
 
 

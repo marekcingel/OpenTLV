@@ -126,6 +126,7 @@ $(function() {
 <li>tlv_codec_t&#160;:&#160;<a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">codec.h</a></li>
 <li>tlv_config_format_asn1()&#160;:&#160;<a class="el" href="group__core.html#ga15576d7eeee44a18a9e4d1c045e804f4">config.h</a></li>
 <li>tlv_config_format_ber()&#160;:&#160;<a class="el" href="group__core.html#gabd5770ca68e95e679760185b916c2af9">config.h</a></li>
+<li>tlv_config_format_bluetooth_ltv()&#160;:&#160;<a class="el" href="group__core.html#gabc3367f3e1e3cc52f4b4225192b040c6">config.h</a></li>
 <li>tlv_config_format_cer()&#160;:&#160;<a class="el" href="group__core.html#ga5f3c677a28a0c7b049c58202d2fb2ba3">config.h</a></li>
 <li>tlv_config_format_default()&#160;:&#160;<a class="el" href="group__core.html#ga68ed64e63494e6f7010fa0a55707dc5d">config.h</a></li>
 <li>tlv_config_format_der()&#160;:&#160;<a class="el" href="group__core.html#ga34223c98a64eb464f85be2ed322d07b7">config.h</a></li>
@@ -689,6 +690,7 @@ $(function() {
 <li>tlv_length_validate_native()&#160;:&#160;<a class="el" href="group__core.html#ga5379ba9130ae0652419c1c9d50f45d6b">length.h</a></li>
 <li>TLV_OK&#160;:&#160;<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">error.h</a></li>
 <li>tlv_read()&#160;:&#160;<a class="el" href="group__reader.html#ga928a8bb49ea003c9dfa4fdcfcb98ab0c">reader.h</a></li>
+<li>tlv_read_element_fn&#160;:&#160;<a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">format.h</a></li>
 <li>tlv_read_length_fn&#160;:&#160;<a class="el" href="group__formats.html#ga28b862bc888dc1227d98bf02c7aede33">format.h</a></li>
 <li>tlv_read_tag_fn&#160;:&#160;<a class="el" href="group__formats.html#ga42a852e645b64b1d92281ba236613b67">format.h</a></li>
 <li>tlv_read_u16_be()&#160;:&#160;<a class="el" href="group__core.html#ga499bfbe30be91b54f3c39b147339b8f5">endian.h</a></li>
@@ -701,11 +703,13 @@ $(function() {
 <li>tlv_read_value_bounds_fn&#160;:&#160;<a class="el" href="group__formats.html#ga15290eae4856feaaafa58d0104831d50">format.h</a></li>
 <li>tlv_reader_at_end()&#160;:&#160;<a class="el" href="group__reader.html#gab5cb4a6d23f0adb8adbe00cce73bd148">reader.h</a></li>
 <li>tlv_reader_format_ber&#160;:&#160;<a class="el" href="group__formats.html#ga0fca6210debe5a4230394a95fc7ad156">ber.h</a></li>
+<li>tlv_reader_format_bluetooth_ltv&#160;:&#160;<a class="el" href="group__formats.html#gaef5c2c9cf896b280a7c855ad9ae4fb4d">bluetooth_ltv.h</a></li>
 <li>tlv_reader_format_cer&#160;:&#160;<a class="el" href="group__formats.html#gaa7288816a33df8ba2bd152cab354f6d0">cer.h</a></li>
 <li>tlv_reader_format_default&#160;:&#160;<a class="el" href="group__formats.html#gaeb7feaf23edad09ffc9eb97ff54bb4f4">default.h</a></li>
 <li>tlv_reader_format_der&#160;:&#160;<a class="el" href="group__formats.html#gae21e6c8a35be4e8ae168df9600b9fc06">der.h</a></li>
 <li>tlv_reader_format_fixed_1byte&#160;:&#160;<a class="el" href="group__formats.html#ga89520383d638b2a8ba838329d84a4f54">fixed_1byte.h</a></li>
 <li>tlv_reader_format_init()&#160;:&#160;<a class="el" href="group__formats.html#gac1eaa4bac80b5831d2a84fc0b3977fb7">format.h</a></li>
+<li>tlv_reader_format_init_element()&#160;:&#160;<a class="el" href="group__formats.html#ga2ced6b5807f6bd52465f021cbdc7293c">format.h</a></li>
 <li>tlv_reader_format_t&#160;:&#160;<a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">format.h</a></li>
 <li>tlv_reader_init()&#160;:&#160;<a class="el" href="group__reader.html#ga80ac48c8339e27d2fa57ee70a879f313">reader.h</a></li>
 <li>tlv_reader_next()&#160;:&#160;<a class="el" href="group__reader.html#ga91c8fedabb172582e19deb52c50d4c50">reader.h</a></li>
@@ -767,6 +771,7 @@ $(function() {
 <li>TLV_WALK_MAX_DEPTH&#160;:&#160;<a class="el" href="group__traversal.html#ggabc5c98fcc1211af2b80116dd6e0a035da03f8984ca3e48d080f644fc40d810053">walker.h</a></li>
 <li>tlv_walk_tree()&#160;:&#160;<a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee">walker.h</a></li>
 <li>tlv_write()&#160;:&#160;<a class="el" href="group__writer.html#ga720c1e8a56a41c1053a2691efee6874a">writer.h</a></li>
+<li>tlv_write_header_fn&#160;:&#160;<a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">format.h</a></li>
 <li>tlv_write_length_fn&#160;:&#160;<a class="el" href="group__formats.html#ga06dce9179e60b9556b5160affebd516f">format.h</a></li>
 <li>tlv_write_tag_fn&#160;:&#160;<a class="el" href="group__formats.html#ga82d80d491a7c0793ae09d3c507905f2d">format.h</a></li>
 <li>tlv_write_u16_be()&#160;:&#160;<a class="el" href="group__core.html#gacc02ad6b2640b2b365621240fe50b4c4">endian.h</a></li>
@@ -779,11 +784,13 @@ $(function() {
 <li>tlv_writer_copy_encoded()&#160;:&#160;<a class="el" href="group__writer.html#ga540c090c0e876316a438581dadf05363">writer.h</a></li>
 <li>tlv_writer_copy_view()&#160;:&#160;<a class="el" href="group__writer.html#ga3f77c44c09900417a89f0426b6bf8329">writer.h</a></li>
 <li>tlv_writer_format_ber&#160;:&#160;<a class="el" href="group__formats.html#ga578b925016c88f98190f1636a173eeea">ber.h</a></li>
+<li>tlv_writer_format_bluetooth_ltv&#160;:&#160;<a class="el" href="group__formats.html#gab0f18fb88e65689d5f3308aacb75e4e2">bluetooth_ltv.h</a></li>
 <li>tlv_writer_format_cer&#160;:&#160;<a class="el" href="group__formats.html#ga0731859b4df581ea9bed0303b23e8e86">cer.h</a></li>
 <li>tlv_writer_format_default&#160;:&#160;<a class="el" href="group__formats.html#ga775947c53487ca9dbb37d2bbee733d56">default.h</a></li>
 <li>tlv_writer_format_der&#160;:&#160;<a class="el" href="group__formats.html#gae97f51796e98e5d1ccd4dba3c0657844">der.h</a></li>
 <li>tlv_writer_format_fixed_1byte&#160;:&#160;<a class="el" href="group__formats.html#ga7dff9ea3f10308b9d8c2b15e9afacdcb">fixed_1byte.h</a></li>
 <li>tlv_writer_format_init()&#160;:&#160;<a class="el" href="group__formats.html#ga349e7133b934011befb1319e5eef9d86">format.h</a></li>
+<li>tlv_writer_format_init_header()&#160;:&#160;<a class="el" href="group__formats.html#ga46aa31b5ef5b16b5f61de941236147e1">format.h</a></li>
 <li>tlv_writer_format_t&#160;:&#160;<a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">format.h</a></li>
 <li>tlv_writer_init()&#160;:&#160;<a class="el" href="group__writer.html#gac7c8eeb51d5aba0a4e0dbdb3e7069501">writer.h</a></li>
 <li>tlv_writer_size()&#160;:&#160;<a class="el" href="group__writer.html#ga0327ced490b6dc179fc7753be3efa53f">writer.h</a></li>

@@ -90,10 +90,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:af5bfa7749c4b5d71d1aab0c947c52e83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac9cb9b30b66a6fb111306f614224446f" id="r_ac9cb9b30b66a6fb111306f614224446f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga33d7ea8aebb7decc4ee7e4bd690b599c">tlv_length_size_fn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__writer__format.html#ac9cb9b30b66a6fb111306f614224446f">length_size</a></td></tr>
 <tr class="separator:ac9cb9b30b66a6fb111306f614224446f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa45189b82f488eb720c01d361236ad0" id="r_afa45189b82f488eb720c01d361236ad0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">tlv_write_header_fn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__writer__format.html#afa45189b82f488eb720c01d361236ad0">write_header</a></td></tr>
+<tr class="separator:afa45189b82f488eb720c01d361236ad0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Stateless writing format with optional borrowed, immutable configuration. </p>
-<p>The descriptor and context must outlive every writer and operation that uses them. All three callbacks are required. They must not allocate, retain buffers, or access memory beyond <code>capacity</code>. Successful write callbacks initialize <code>written</code>. Value encoding is a separate concern.</p>
+<p>The descriptor and context must outlive every writer and operation that uses them. <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> are all required unless <code>write_header</code> is set, which replaces the three. Callbacks must not allocate, retain buffers, or access memory beyond <code>capacity</code>. Successful write callbacks initialize <code>written</code>. Value encoding is a separate concern.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__formats.html#ga349e7133b934011befb1319e5eef9d86" title="Initializes a writer format in caller-owned storage.">tlv_writer_format_init</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a5e7d6eddaa0f687489289ecd7fc9ecfc" name="a5e7d6eddaa0f687489289ecd7fc9ecfc"></a>
@@ -123,6 +125,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Length validator and size query. Required. </p>
+
+</div>
+</div>
+<a id="afa45189b82f488eb720c01d361236ad0" name="afa45189b82f488eb720c01d361236ad0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa45189b82f488eb720c01d361236ad0">&#9670;&#160;</a></span>write_header</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">tlv_write_header_fn</a> tlv_writer_format::write_header</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional whole-header encoder that replaces <code>write_tag</code>, <code>write_length</code> and <code>length_size</code>; <code>NULL</code> when unused. </p>
 
 </div>
 </div>

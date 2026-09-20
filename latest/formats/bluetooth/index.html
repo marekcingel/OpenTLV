@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/endian/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/formats/bluetooth/">
       
       
-        <link rel="prev" href="../length/">
+        <link rel="prev" href="../fixed/">
       
       
-        <link rel="next" href="../../guides/memory/">
+        <link rel="next" href="../asn1/ber/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Byte order - OpenTLV</title>
+        <title>Bluetooth LTV - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#integer-byte-order-conversions" class="md-skip">
+        <a href="#bluetooth-ltv" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Byte order
+              Bluetooth LTV
             
           </span>
         </div>
@@ -281,13 +281,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../architecture/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../concepts/architecture/" class="md-tabs__link">
           
   
   
@@ -323,11 +321,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../formats/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -601,31 +601,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   
@@ -643,7 +638,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -661,7 +656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
+      <a href="../../concepts/architecture/" class="md-nav__link">
         
   
   
@@ -689,7 +684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../core-types/" class="md-nav__link">
+      <a href="../../concepts/core-types/" class="md-nav__link">
         
   
   
@@ -717,7 +712,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../value/" class="md-nav__link">
+      <a href="../../concepts/value/" class="md-nav__link">
         
   
   
@@ -745,7 +740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../length/" class="md-nav__link">
+      <a href="../../concepts/length/" class="md-nav__link">
         
   
   
@@ -770,37 +765,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Byte order
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../concepts/endian/" class="md-nav__link">
         
   
   
@@ -816,37 +784,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#checked-variable-width-integers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Checked variable-width integers
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1090,26 +1027,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1127,7 +1069,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1145,7 +1087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1173,7 +1115,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/default/" class="md-nav__link">
+      <a href="../default/" class="md-nav__link">
         
   
   
@@ -1201,7 +1143,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/fixed/" class="md-nav__link">
+      <a href="../fixed/" class="md-nav__link">
         
   
   
@@ -1226,10 +1168,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../formats/bluetooth/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth LTV
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1245,6 +1214,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#api-and-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API and build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope-and-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope and limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minimal-c-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal C usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#byte-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Byte example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-fits-the-format-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it fits the format architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1257,7 +1301,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/asn1/ber/" class="md-nav__link">
+      <a href="../asn1/ber/" class="md-nav__link">
         
   
   
@@ -1285,7 +1329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/asn1/der/" class="md-nav__link">
+      <a href="../asn1/der/" class="md-nav__link">
         
   
   
@@ -1313,7 +1357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/asn1/cer/" class="md-nav__link">
+      <a href="../asn1/cer/" class="md-nav__link">
         
   
   
@@ -1341,7 +1385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/custom/" class="md-nav__link">
+      <a href="../custom/" class="md-nav__link">
         
   
   
@@ -1369,7 +1413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/format-examples/" class="md-nav__link">
+      <a href="../format-examples/" class="md-nav__link">
         
   
   
@@ -1397,7 +1441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/format-roadmap/" class="md-nav__link">
+      <a href="../format-roadmap/" class="md-nav__link">
         
   
   
@@ -2139,10 +2183,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#checked-variable-width-integers" class="md-nav__link">
+  <a href="#api-and-build" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Checked variable-width integers
+        API and build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope-and-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope and limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#minimal-c-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimal C usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#byte-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Byte example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-fits-the-format-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it fits the format architecture
       
     </span>
   </a>
@@ -2166,7 +2254,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/endian.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/formats/bluetooth/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2174,94 +2262,97 @@
   
 
 
-<h1 id="integer-byte-order-conversions">Integer byte-order conversions<a class="headerlink" href="#integer-byte-order-conversions" title="Permanent link">&para;</a></h1>
-<p>Include <code>tlv/endian.h</code> (also available through <code>tlv/tlv.h</code>) to convert raw
-value bytes to and from native unsigned integers. The helpers are independent
-of TLV framing and profiles; the caller chooses the byte order explicitly.</p>
+<h1 id="bluetooth-ltv">Bluetooth LTV<a class="headerlink" href="#bluetooth-ltv" title="Permanent link">&para;</a></h1>
+<p><a href="../">Format documentation</a></p>
+<h2 id="api-and-build">API and build<a class="headerlink" href="#api-and-build" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Integer</th>
-<th>Big-endian</th>
-<th>Little-endian</th>
+<th>Setting</th>
+<th>Value</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Read 16-bit</td>
-<td><code>tlv_read_u16_be(data)</code></td>
-<td><code>tlv_read_u16_le(data)</code></td>
+<td>Format header</td>
+<td><code>tlv/formats/bluetooth/bluetooth_ltv.h</code></td>
 </tr>
 <tr>
-<td>Read 32-bit</td>
-<td><code>tlv_read_u32_be(data)</code></td>
-<td><code>tlv_read_u32_le(data)</code></td>
+<td>Reader descriptor</td>
+<td><code>tlv_reader_format_bluetooth_ltv</code></td>
 </tr>
 <tr>
-<td>Read 64-bit</td>
-<td><code>tlv_read_u64_be(data)</code></td>
-<td><code>tlv_read_u64_le(data)</code></td>
+<td>Writer descriptor</td>
+<td><code>tlv_writer_format_bluetooth_ltv</code></td>
 </tr>
 <tr>
-<td>Write 64-bit</td>
-<td><code>tlv_write_u64_be(data, value)</code></td>
-<td><code>tlv_write_u64_le(data, value)</code></td>
+<td>CMake option (default ON)</td>
+<td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
 </tr>
 <tr>
-<td>Write 16-bit</td>
-<td><code>tlv_write_u16_be(data, value)</code></td>
-<td><code>tlv_write_u16_le(data, value)</code></td>
+<td><code>otlv</code> format name</td>
+<td><code>bluetooth-ltv</code></td>
 </tr>
 <tr>
-<td>Write 32-bit</td>
-<td><code>tlv_write_u32_be(data, value)</code></td>
-<td><code>tlv_write_u32_le(data, value)</code></td>
+<td>Link target</td>
+<td><code>tlv</code></td>
 </tr>
 </tbody>
 </table>
-<p>Reads return <code>uint16_t</code>, <code>uint32_t</code>, or <code>uint64_t</code>; writes return <code>void</code>. Supply a non-null
-pointer to at least 2, 4, or 8 readable/writable bytes respectively. When reading
-a <code>tlv_view_t</code>, check <code>view.value.length</code> before passing <code>view.value.data</code>; convert
-it with <code>tlv_length_to_size()</code> (see <a href="../length/">logical TLV value lengths</a>) first if
-you need a native <code>size_t</code> bound.
-These helpers do not validate pointers or lengths and require no alignment.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/endian.h"</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bytes</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)];</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">tlv_write_u32_be</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="n">UINT32_C</span><span class="p">(</span><span class="mh">0x12345678</span><span class="p">));</span><span class="w"> </span><span class="cm">/* 12 34 56 78 */</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kt">uint32_t</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_read_u32_be</span><span class="p">(</span><span class="n">bytes</span><span class="p">);</span><span class="w">     </span><span class="cm">/* 0x12345678 */</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">tlv_write_u32_le</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span><span class="w">             </span><span class="cm">/* 78 56 34 12 */</span>
+<h2 id="scope-and-limits">Scope and limits<a class="headerlink" href="#scope-and-limits" title="Permanent link">&para;</a></h2>
+<p>Bluetooth advertising data, scan-response data and Generic Access Profile data
+types are a sequence of Length | Type | Value structures. Unlike every other
+built-in format, the length comes <strong>before</strong> the type, and it counts the type
+byte plus the value bytes.</p>
+<ul>
+<li>The type is exposed as a one-byte tag; the value is opaque.</li>
+<li>A structure is <code>length + 1</code> bytes and carries at most 254 value bytes.</li>
+<li>Unknown types are structurally valid and skipped by length alone.</li>
+<li>A length byte of zero is rejected with <code>TLV_ERR_INVALID_LENGTH</code>: it has no
+  type byte, and in Bluetooth data it starts the non-significant zero padding.</li>
+<li>There are no constructed types; nesting is left to the caller.</li>
+</ul>
+<p>See <a href="../../guides/memory/">shared memory ownership rules</a> before retaining a parsed view.</p>
+<h2 id="minimal-c-usage">Minimal C usage<a class="headerlink" href="#minimal-c-usage" title="Permanent link">&para;</a></h2>
+<p>The generic reader and writer work unchanged; only the format descriptor
+differs. Exit code zero means success.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/formats/bluetooth/bluetooth_ltv.h"</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/reader.h"</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="cm">/* Flags (01) = 06, then Complete Local Name (09) = "Hi". */</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">advertising</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0x01</span><span class="p">,</span><span class="w"> </span><span class="mh">0x06</span><span class="p">,</span><span class="w"> </span><span class="mh">0x03</span><span class="p">,</span><span class="w"> </span><span class="mh">0x09</span><span class="p">,</span><span class="w"> </span><span class="sc">'H'</span><span class="p">,</span><span class="w"> </span><span class="sc">'i'</span><span class="p">};</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">tlv_reader_t</span><span class="w"> </span><span class="n">reader</span><span class="p">;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">tlv_view_t</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_reader_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="n">advertising</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">advertising</span><span class="p">),</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">                        </span><span class="o">&amp;</span><span class="n">tlv_reader_format_bluetooth_ltv</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_reader_next</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">view</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="o">++</span><span class="n">count</span><span class="p">;</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tlv_reader_at_end</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">}</span>
 </code></pre></div>
-<p>All operations access individual bytes and use integer shifts, so their
-results are identical on big-endian and little-endian hosts.</p>
-<h2 id="checked-variable-width-integers">Checked variable-width integers<a class="headerlink" href="#checked-variable-width-integers" title="Permanent link">&para;</a></h2>
-<p><code>tlv_read_uint(data, width, order, &amp;value)</code> reads into a <code>uint64_t</code>.
-<code>tlv_write_uint(data, width, order, value)</code> writes a <code>uint64_t</code> using exactly
-<code>width</code> bytes. Widths 1 through 8 are supported, including 3, 5, 6, and 7.
-Choose <code>TLV_BYTE_ORDER_BIG_ENDIAN</code> or <code>TLV_BYTE_ORDER_LITTLE_ENDIAN</code> explicitly.</p>
-<p>Both return <code>TLV_OK</code> on success. Validation checks required pointers first
-(<code>TLV_ERR_NULL_ARG</code>), then width (<code>TLV_ERR_INVALID_LENGTH</code>), then byte order
-(<code>TLV_ERR_INVALID_BYTE_ORDER</code>, including <code>TLV_BYTE_ORDER_UNKNOWN</code>). Writes
-also return <code>TLV_ERR_OVERFLOW</code> for values that do not fit; they never truncate. All failures leave outputs
-unchanged. Reads accept zero padding and finish reading before storing the
-result. Writes pad with zero bytes at the most significant end.</p>
-<p>The caller must supply <code>width</code> accessible bytes and, for reads, a writable
-<code>uint64_t</code> output object. The helpers cannot check allocation bounds. Byte
-buffers may be unaligned. Operations allocate no memory and access only the
-specified bytes, independently of host byte order.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bytes</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kt">uint64_t</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_write_uint</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">,</span><span class="w"> </span><span class="mh">0x1234</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="cm">/* bytes are 00 12 34 */</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">tlv_read_uint</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">);</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
+<p>Writing uses <code>tlv_writer_format_bluetooth_ltv</code> with the same <code>tlv_write</code> and
+<code>tlv_writer_write</code> calls as any other format. Writing a tag whose size is not 1
+returns <code>TLV_ERR_INVALID_TAG_SIZE</code>; a value longer than 254 bytes returns
+<code>TLV_ERR_INVALID_LENGTH</code>.</p>
+<h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>03 09 48 69
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Element (4 bytes)
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>|-- Length: 03 = type byte + 2 value bytes
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>|-- Type:   09 (Complete Local Name), exposed as the tag
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>`-- Value:  48 69 ("Hi")
 </code></pre></div>
-<p>Tag capacity, protocol bounds, framing, canonical encodings, and public error
-mapping remain the calling module's responsibility. BER accepts padded length
-payloads longer than eight bytes when the decoded length fits <code>size_t</code>;
-the BER module validates excess padding before using these helpers. DER
-continues to apply its stricter canonical length rules.</p>
-<p>See also the <a href="../../reference/c-api/#core-types-and-utilities">C API reference: core types</a>.</p>
+<h2 id="how-it-fits-the-format-architecture">How it fits the format architecture<a class="headerlink" href="#how-it-fits-the-format-architecture" title="Permanent link">&para;</a></h2>
+<p>Other formats decode a tag, then a length, through the <code>read_tag</code> and
+<code>read_length</code> callbacks. That split cannot describe a format whose length
+precedes its type, so Bluetooth LTV uses the optional whole-element callbacks
+<code>read_element</code> (reader) and <code>write_header</code> (writer) described in the
+<a href="../#generic-interface">generic interface</a>. They report the tag, the
+size of everything before the value, and the value size in one step, so the
+reader, scanner, walker, schemas, copy helpers and the CLI work on it with no
+format-specific code. Bluetooth-specific wire rules stay in
+<code>tlv/src/formats/bluetooth/</code>.</p>
 
 
 
@@ -2299,7 +2390,7 @@ continues to apply its stricter canonical length rules.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../length/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Logical lengths">
+          <a href="../fixed/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Fixed 1-byte TLV">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2309,20 +2400,20 @@ continues to apply its stricter canonical length rules.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Logical lengths
+                Fixed 1-byte TLV
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../guides/memory/" class="md-footer__link md-footer__link--next" aria-label="Next: Memory ownership">
+          <a href="../asn1/ber/" class="md-footer__link md-footer__link--next" aria-label="Next: BER-TLV">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Memory ownership
+                BER-TLV
               </div>
             </div>
             <div class="md-footer__button md-icon">

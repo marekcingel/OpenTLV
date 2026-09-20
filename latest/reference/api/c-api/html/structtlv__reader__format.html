@@ -90,10 +90,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:a33c149d9ed3608896c438355814b7a60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab118933b04db65b5f92bf8815f4eeb30" id="r_ab118933b04db65b5f92bf8815f4eeb30"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga15290eae4856feaaafa58d0104831d50">tlv_read_value_bounds_fn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__format.html#ab118933b04db65b5f92bf8815f4eeb30">read_value_bounds</a></td></tr>
 <tr class="separator:ab118933b04db65b5f92bf8815f4eeb30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaddfeb86acbf16a398f7f077d3b40c4c" id="r_aaddfeb86acbf16a398f7f077d3b40c4c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">tlv_read_element_fn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__format.html#aaddfeb86acbf16a398f7f077d3b40c4c">read_element</a></td></tr>
+<tr class="separator:aaddfeb86acbf16a398f7f077d3b40c4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Stateless reading format with optional borrowed, immutable configuration. </p>
-<p>The descriptor and context must outlive every reader and operation that uses them. <code>read_tag</code> and <code>read_length</code> are required; <code>read_value_bounds</code> is optional and, when non-<code>NULL</code>, replaces <code>read_length</code> in element parsing. Callbacks must not allocate, retain buffers, or access memory beyond <code>size</code>. On success they initialize their outputs.</p>
+<p>The descriptor and context must outlive every reader and operation that uses them. <code>read_tag</code> and <code>read_length</code> are required unless <code>read_element</code> is set; <code>read_value_bounds</code> is optional and, when non-<code>NULL</code>, replaces <code>read_length</code> in element parsing. A non-<code>NULL</code> <code>read_element</code> replaces all three, so every generic operation (reader, scanner, walker, schemas) works on formats with a different field order. Callbacks must not allocate, retain buffers, or access memory beyond <code>size</code>. On success they initialize their outputs.</p>
 <p>Reading borrows input bytes; value decoding and tree visits are separate concerns.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__formats.html#gac1eaa4bac80b5831d2a84fc0b3977fb7" title="Initializes a reader format in caller-owned storage.">tlv_reader_format_init</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
@@ -109,6 +111,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Borrowed, immutable configuration passed to every callback; may be <code>NULL</code>. </p>
+
+</div>
+</div>
+<a id="aaddfeb86acbf16a398f7f077d3b40c4c" name="aaddfeb86acbf16a398f7f077d3b40c4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaddfeb86acbf16a398f7f077d3b40c4c">&#9670;&#160;</a></span>read_element</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">tlv_read_element_fn</a> tlv_reader_format::read_element</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional whole-element parser that replaces <code>read_tag</code>, <code>read_length</code> and <code>read_value_bounds</code>; <code>NULL</code> when unused. </p>
 
 </div>
 </div>
