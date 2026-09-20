@@ -84,6 +84,16 @@ with every element read before the failure:
 when memory runs out. Input is processed entirely in the browser. A single
 call reads at most 65,536 elements and 64 levels of nesting.
 
+## Documentation playground
+
+The [TLV playground](../playground/index.md) in the documentation site is built
+on this module: `docs/playground/playground.js` calls `parse` and renders the
+result, with no parsing logic of its own. The Documentation workflow builds the
+module and `tools/docs/hooks.py` publishes it as `playground/wasm/`. To try it
+locally, build the module as above and run `mkdocs serve`; use
+`OPENTLV_WASM_DIR` if the build directory is not `build-wasm`. Without the
+module the site still builds and the playground page says it is unavailable.
+
 ## Testing
 
 `bindings/wasm/test/smoke.mjs` runs the module in Node.js and is registered with CTest
