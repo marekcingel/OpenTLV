@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add experimental Rust bindings under `bindings/rust`: an `opentlv-sys` FFI crate that builds and links the C library, and a safe `opentlv` crate exposing the library version; see [Rust bindings](docs/development/rust.md). (#154)
+
 ### Changed
 
 - Move to a trunk-based workflow: `main` is the only long-lived branch, the `develop` branch is removed, and the `latest` documentation is published from `main`. (#228)

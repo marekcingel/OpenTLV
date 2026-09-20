@@ -67,3 +67,6 @@ __pycache__/
 
 # MkDocs output
 /site/
+
+# Rust bindings build output
+/bindings/rust/target/
