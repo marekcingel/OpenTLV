@@ -11,16 +11,21 @@
  *
  * The JSON document has the shape
  *
- *   {"format": "ber",
+ *   {"format": "ber", "profile": "emv",
  *    "elements": [{"offset": 0, "depth": 0, "tag": "6F", "length": 10,
- *                  "constructed": true, "children": [ ... ]},
+ *                  "headerSize": 2, "constructed": true,
+ *                  "symbol": "fci_template", "name": "FCI Template",
+ *                  "lengthValid": true, "children": [ ... ]},
  *                 {"offset": 2, "depth": 1, "tag": "84", "length": 3,
- *                  "constructed": false, "value": "414243"}],
+ *                  "headerSize": 2, "constructed": false, "value": "414243"}],
  *    "error": {"code": 1, "message": "...", "offset": 12}}
  *
  * "error" is present only on failure; "elements" then holds every element
  * that was read before the error. Only BER and DER elements can be
- * constructed. Tags and values are uppercase hexadecimal.
+ * constructed. Tags and values are uppercase hexadecimal. An element occupies
+ * "headerSize" + "length" encoded bytes starting at "offset"; "tag" holds the
+ * encoded tag bytes. "profile", "symbol", "name" and "lengthValid" appear only
+ * when a profile was requested (and "symbol", "name" only for tags it knows).
  */
 
 #include <stddef.h>
@@ -42,11 +47,13 @@ typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 
 /*
  * Parses `size` bytes as `format` ("default", "fixed-1byte", "ber" or "der").
- * Returns NULL only when memory runs out. An unknown format or invalid input is
- * reported through the result, never by returning NULL.
+ * `profile` annotates elements with dictionary metadata: NULL, "" or "none"
+ * for none, or "emv" (EMV Contact Book 3 tags) with the "ber" format.
+ * Returns NULL only when memory runs out. An unknown format or profile, or
+ * invalid input, is reported through the result, never by returning NULL.
  */
 OPENTLV_WASM_API opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size,
-                                                           const char* format);
+                                                           const char* format, const char* profile);
 
 /* tlv_result_t of the parse; 0 (TLV_OK) on success. */
 OPENTLV_WASM_API int opentlv_wasm_result_code(const opentlv_wasm_result_t* result);
