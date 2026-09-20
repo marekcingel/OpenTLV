@@ -1,12 +1,28 @@
 name: Chore
 description: Propose maintenance, build, CI, tooling, or repository workflow improvements.
 title: "[Chore]: "
+labels:
+  - chore
 body:
   - type: markdown
     attributes:
       value: |
-        Use this form for maintenance, build, CI, tooling, and repository workflow changes.
+        Use this form for maintenance, build, CI, tooling, release, branch sync, and repository workflow changes.
         Please search [existing issues](https://github.com/marekcingel/OpenTLV/issues) first.
+  - type: dropdown
+    id: chore-type
+    attributes:
+      label: Chore type
+      options:
+        - Release
+        - Sync main and develop
+        - Build / CI
+        - Tooling
+        - Dependencies
+        - Repository maintenance
+        - Other
+    validations:
+      required: true
   - type: textarea
     id: motivation
     attributes:
