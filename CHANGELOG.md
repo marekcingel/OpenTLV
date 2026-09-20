@@ -9,12 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the WebAssembly smoke test not being registered with CTest, so `ctest -L wasm` found no tests. (#196)
 - Fix a `clang-analyzer-core.NonNullParamChecker` failure in `tlv_writer_copy_encoded` (`tlv/writer/writer.h`): a `NULL` writer buffer with free capacity could pass a `NULL` destination to `memmove` for a nonempty range, which now returns `TLV_ERR_BUFFER_TOO_SHORT` instead. (#168)
 - Fix a `bugprone-narrowing-conversions` failure in `tlv_emv_titlecase_name` (`tlv/profiles/emv.h`), where a `char`/`int` conditional was narrowed back to `char`; no behavior change. (#168)
 - Fix a `-Werror -Warray-bounds` compile failure in the new `tlv_emv_child_context` (`tlv/profiles/emv.h`, below) under `TLV_TAG_CAPACITY=1`: composing a two-byte tag value read `tag->data[1]` unconditionally, which Clang flags as provably out-of-bounds when `data` is declared `uint8_t[1]`. Guarded under `#if TLV_TAG_CAPACITY >= 2`, matching the function's other two-byte-tag paths, and covered by a new regression test exercising the oversized-tag shape at capacity 1. (#163)
 
 ### Added
 
+- Add an experimental WebAssembly build (`OPENTLV_BUILD_WASM`, Emscripten) exposing a small browser parsing interface over the C core, with a CI workflow; see [WebAssembly build](docs/development/webassembly.md). (#196)
 - Add linked C and C++ content tabs to the documentation site and use them for the CMake integration example in Getting started, with a compiled C++ quick start (`examples/tlv++/src/quick_start.cpp`) checked by `scripts/check_doc_examples.py`; see [Where documentation belongs](docs/development/documentation-layout.md#c-and-c-tabs). (#195)
 - Publish versioned documentation with mike: `latest` (development) from `develop`, one `X.Y` version per release tag with a `stable` alias, and a version selector on the site; see [CONTRIBUTING.md](CONTRIBUTING.md#publishing). (#194)
 - Back the C and C++ introductory documentation examples with compiled sources (`examples/tlv/src/quick_start.c`, `examples/tlv++/src/basic_usage.cpp`), built and run in CI, and check with `scripts/check_doc_examples.py` that the Markdown copies match them. (#193)
