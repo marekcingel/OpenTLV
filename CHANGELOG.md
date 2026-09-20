@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the WebAssembly smoke test not being registered with CTest, so `ctest -L wasm` found no tests. (#196)
 - Fix a `clang-analyzer-core.NonNullParamChecker` failure in `tlv_writer_copy_encoded` (`tlv/writer/writer.h`): a `NULL` writer buffer with free capacity could pass a `NULL` destination to `memmove` for a nonempty range, which now returns `TLV_ERR_BUFFER_TOO_SHORT` instead. (#168)
 - Fix a `bugprone-narrowing-conversions` failure in `tlv_emv_titlecase_name` (`tlv/profiles/emv.h`), where a `char`/`int` conditional was narrowed back to `char`; no behavior change. (#168)
 - Fix a `-Werror -Warray-bounds` compile failure in the new `tlv_emv_child_context` (`tlv/profiles/emv.h`, below) under `TLV_TAG_CAPACITY=1`: composing a two-byte tag value read `tag->data[1]` unconditionally, which Clang flags as provably out-of-bounds when `data` is declared `uint8_t[1]`. Guarded under `#if TLV_TAG_CAPACITY >= 2`, matching the function's other two-byte-tag paths, and covered by a new regression test exercising the oversized-tag shape at capacity 1. (#163)

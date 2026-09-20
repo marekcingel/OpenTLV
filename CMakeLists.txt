@@ -65,6 +65,8 @@ opentlv_add_cppcheck_targets()
 add_subdirectory(tlv)
 
 if(OPENTLV_BUILD_WASM)
+    # ctest reads the top-level test file, so testing is enabled here, not in bindings/wasm.
+    enable_testing()
     add_subdirectory(bindings/wasm)
 endif()
 

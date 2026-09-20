@@ -44,7 +44,6 @@ option(OPENTLV_BUILD_WASM_TESTS "Register the Node.js smoke test for the WebAsse
 if(OPENTLV_BUILD_WASM_TESTS)
     find_program(OPENTLV_NODE_EXECUTABLE node)
     if(OPENTLV_NODE_EXECUTABLE)
-        enable_testing()
         add_test(NAME Integration_wasm
             COMMAND ${OPENTLV_NODE_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test/smoke.mjs" "${_wasm_output_dir}")
         set_tests_properties(Integration_wasm PROPERTIES LABELS "integration;wasm")
