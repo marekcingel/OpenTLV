@@ -124,6 +124,17 @@ pub type tlv_read_value_bounds_fn = unsafe extern "C" fn(
     trailer_size: *mut usize,
 ) -> tlv_result_t;
 
+/// Whole-element parser callback (`tlv_read_element_fn`).
+pub type tlv_read_element_fn = unsafe extern "C" fn(
+    context: *const c_void,
+    data: *const u8,
+    size: usize,
+    tag: *mut tlv_tag_t,
+    header_size: *mut usize,
+    value_size: *mut usize,
+    trailer_size: *mut usize,
+) -> tlv_result_t;
+
 /// Stateless reading format (`tlv_reader_format_t`).
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -136,6 +147,8 @@ pub struct tlv_reader_format_t {
     pub read_length: Option<tlv_read_length_fn>,
     /// Optional replacement for `read_length`.
     pub read_value_bounds: Option<tlv_read_value_bounds_fn>,
+    /// Optional whole-element parser that replaces the three callbacks above.
+    pub read_element: Option<tlv_read_element_fn>,
 }
 
 /// Tag encoder callback (`tlv_write_tag_fn`).
@@ -160,6 +173,16 @@ pub type tlv_write_length_fn = unsafe extern "C" fn(
 pub type tlv_length_size_fn =
     unsafe extern "C" fn(context: *const c_void, length: usize, size: *mut usize) -> tlv_result_t;
 
+/// Whole-header encoder callback (`tlv_write_header_fn`).
+pub type tlv_write_header_fn = unsafe extern "C" fn(
+    context: *const c_void,
+    data: *mut u8,
+    capacity: usize,
+    tag: *const tlv_tag_t,
+    length: usize,
+    written: *mut usize,
+) -> tlv_result_t;
+
 /// Stateless writing format (`tlv_writer_format_t`).
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -172,6 +195,8 @@ pub struct tlv_writer_format_t {
     pub write_length: Option<tlv_write_length_fn>,
     /// Length size query. Required.
     pub length_size: Option<tlv_length_size_fn>,
+    /// Optional whole-header encoder that replaces the three callbacks above.
+    pub write_header: Option<tlv_write_header_fn>,
 }
 
 /// Sequential writer over a caller-owned buffer (`tlv_writer_t`).

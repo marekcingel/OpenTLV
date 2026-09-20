@@ -18,3 +18,17 @@ tlv_result_t tlv_writer_format_init(tlv_writer_format_t* format, const void* con
                                     .length_size = length_size};
     return TLV_OK;
 }
+
+tlv_result_t tlv_reader_format_init_element(tlv_reader_format_t* format, const void* context,
+                                            tlv_read_element_fn read_element) {
+    if (!format || !read_element) return TLV_ERR_INVALID_ARG;
+    *format = (tlv_reader_format_t){.context = context, .read_element = read_element};
+    return TLV_OK;
+}
+
+tlv_result_t tlv_writer_format_init_header(tlv_writer_format_t* format, const void* context,
+                                           tlv_write_header_fn write_header) {
+    if (!format || !write_header) return TLV_ERR_INVALID_ARG;
+    *format = (tlv_writer_format_t){.context = context, .write_header = write_header};
+    return TLV_OK;
+}

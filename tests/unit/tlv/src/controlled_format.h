@@ -40,8 +40,8 @@ inline tlv_result_t write_length(const void* context, uint8_t* data, size_t size
     data[0] = static_cast<uint8_t>(length);
     return TLV_OK;
 }
-const tlv_reader_format_t reader = {nullptr, read_tag, read_length, nullptr};
-const tlv_writer_format_t writer = {nullptr, write_tag, write_length, length_size};
+const tlv_reader_format_t reader = {nullptr, read_tag, read_length, nullptr, nullptr};
+const tlv_writer_format_t writer = {nullptr, write_tag, write_length, length_size, nullptr};
 } // namespace controlled
 
 #endif

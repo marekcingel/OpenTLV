@@ -38,6 +38,7 @@ tlv/
     format.h
     default/ default.h
     fixed/   fixed_1byte.h
+    bluetooth/ bluetooth_ltv.h
     asn1/    ber.h, der.h
   reader/    reader.h, walker.h, scanner.h
   writer/    writer.h
@@ -113,6 +114,7 @@ to ON and can be disabled independently:
 | --- | --- |
 | `OPENTLV_FORMAT_DEFAULT` | One-byte tag with legacy definite BER-style length |
 | `OPENTLV_FORMAT_FIXED_1BYTE` | One-byte tag and length |
+| `OPENTLV_FORMAT_BLUETOOTH_LTV` | Bluetooth Length, Type, Value framing |
 | `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER, CER) |
 | `OPENTLV_FORMAT_BER` | Public BER format |
 | `OPENTLV_FORMAT_DER` | DER format and bounded DER profile operations |

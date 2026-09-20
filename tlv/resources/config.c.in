@@ -8,6 +8,10 @@ int tlv_config_format_fixed_1byte(void) {
     return OPENTLV_FORMAT_FIXED_1BYTE;
 }
 
+int tlv_config_format_bluetooth_ltv(void) {
+    return OPENTLV_FORMAT_BLUETOOTH_LTV;
+}
+
 int tlv_config_format_asn1(void) {
     return OPENTLV_FORMAT_ASN1;
 }

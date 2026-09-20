@@ -14,6 +14,9 @@
 #if OPENTLV_FORMAT_FIXED_1BYTE
 #include "tlv/formats/fixed/fixed_1byte.h"
 #endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#include "tlv/formats/bluetooth/bluetooth_ltv.h"
+#endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/formats/asn1/ber.h"
 #endif
@@ -41,6 +44,9 @@ const tlv_writer_format_t* select_writer(const char* name) {
 #endif
 #if OPENTLV_FORMAT_DER
     if (!strcmp(name, "der")) return &tlv_writer_format_der;
+#endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+    if (!strcmp(name, "bluetooth-ltv")) return &tlv_writer_format_bluetooth_ltv;
 #endif
     (void)name;
     return NULL;

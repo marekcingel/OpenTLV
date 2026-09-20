@@ -33,6 +33,7 @@ set(SOURCES
     src/cer_test.cpp
     src/cer_values_test.cpp
     src/format_fixed_1byte_test.cpp
+    src/format_bluetooth_ltv_test.cpp
     src/tag_test.cpp
     src/view_test.cpp
     src/versiontest.cpp
@@ -73,6 +74,9 @@ if(NOT (OPENTLV_FORMAT_BER))
 endif()
 if(NOT (OPENTLV_FORMAT_FIXED_1BYTE))
     list(REMOVE_ITEM SOURCES src/format_fixed_1byte_test.cpp)
+endif()
+if(NOT (OPENTLV_FORMAT_BLUETOOTH_LTV))
+    list(REMOVE_ITEM SOURCES src/format_bluetooth_ltv_test.cpp)
 endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED_1BYTE))
