@@ -7,6 +7,9 @@ The Rust bindings live in `bindings/rust/`, a Cargo workspace with two crates:
 | `opentlv-sys` | Raw `extern "C"` declarations of the OpenTLV C API and the build script that links the C library |
 | `opentlv` | Safe Rust API built on `opentlv-sys` |
 
+For setup, examples, error handling and ownership as a user, see
+[Using OpenTLV from Rust](../guides/rust.md).
+
 All `unsafe` FFI interaction is isolated in `opentlv-sys`; `opentlv` contains no
 `extern` declarations. Only the part of the C API the safe crate needs is bound
 so far.

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a Rust guide covering Cargo setup, reading, writing, error handling, ownership and the relationship to the C API, runnable `reader` and `writer` examples for the `opentlv` crate, and a `missing_docs` lint that requires Rustdoc on the public API; see [Using OpenTLV from Rust](docs/guides/rust.md). (#160)
 - Add a Rust Bindings CI workflow that builds and tests the Rust crates on Linux, Windows and macOS and enforces `cargo fmt --check` and `cargo clippy -D warnings`, and add Rust tests that replay the C fuzz seed corpus; see [Rust bindings](docs/development/rust.md). (#159)
 - Add safe Rust wrappers to the `opentlv` crate for schemas (`LengthSchema`, `StructureSchema`), value codecs (`Codec`, `Value`, `CodecError`), the EMV dictionary (`emv`) and the DER and CER profiles (`Profile`), plus `Format` parsing by name; see [Rust bindings](docs/development/rust.md). (#158)
 - Add a safe Rust `Writer` to the `opentlv` crate that encodes TLV entries from `&[u8]` values into a caller-owned buffer with `Result` errors; see [Rust bindings](docs/development/rust.md). (#157)

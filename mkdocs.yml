@@ -116,6 +116,7 @@ nav:
       - Value codecs: guides/codecs.md
       - Copy helpers: guides/copy.md
       - Scanning and recovery: guides/scanner.md
+      - Using OpenTLV from Rust: guides/rust.md
   - Formats:
       - Overview: formats/README.md
       - Default TLV: formats/default/README.md

@@ -9,6 +9,64 @@
 //! values to and from typed [`Value`]s, [`Profile`] enforces the DER and CER
 //! canonical rules, and the [`emv`] module exposes the EMV dictionary. No raw
 //! pointers appear in the public API.
+//!
+//! # Setup
+//!
+//! Add the crate by path from an OpenTLV checkout; the build script builds and
+//! links the C library with CMake (see `docs/guides/rust.md`).
+//!
+//! ```toml
+//! [dependencies]
+//! opentlv = { path = "OpenTLV/bindings/rust/opentlv" }
+//! ```
+//!
+//! # Reading and writing
+//!
+//! ```
+//! use opentlv::{Format, Reader, Tag, Writer};
+//!
+//! # fn main() -> opentlv::Result<()> {
+//! let mut buf = [0u8; 16];
+//! let mut writer = Writer::with_format(&mut buf, Format::Ber);
+//! writer.write(&Tag::from_bytes(&[0x50])?, b"VISA")?;
+//!
+//! for entry in Reader::with_format(writer.written(), Format::Ber) {
+//!     let entry = entry?;
+//!     assert_eq!(entry.tag().as_bytes(), [0x50]);
+//!     assert_eq!(entry.value(), b"VISA");
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! Complete programs are in the crate's `examples/` directory
+//! (`cargo run --example reader`, `cargo run --example writer`).
+//!
+//! # Errors
+//!
+//! Fallible operations return [`Result`], whose error is [`Error`]: one variant
+//! per C `TLV_ERR_*` code, [`Display`](std::fmt::Display)ed with the C
+//! description. [`SchemaError`] and [`ProfileError`] add the failing offset and
+//! [`CodecError`] maps the separate codec result codes. Malformed input never
+//! panics. A [`Reader`] ends after its first error; a [`Writer`] that reports
+//! [`Error::BufferTooShort`] keeps its position.
+//!
+//! # Ownership and lifetimes
+//!
+//! [`Tag`] is an owned `Copy` value. [`Reader<'a>`](Reader) borrows its input
+//! and yields [`Entry<'a>`](Entry) values that are zero-copy slices of it, so
+//! entries outlive the reader but not the input. [`Writer<'a>`](Writer)
+//! exclusively borrows a caller-owned output buffer and never allocates.
+//! Schemas own their C tables and free them on drop.
+//!
+//! # Relationship to the C API
+//!
+//! Every operation calls into the OpenTLV C library through `opentlv-sys`, so
+//! behavior and error codes match the C API. The safe layer replaces pointer and
+//! length pairs with slices and lifetimes. Callback-based visitors, structure
+//! codecs and the DOL profile are not bound yet.
+
+#![warn(missing_docs)]
 
 mod codec;
 mod entry;
