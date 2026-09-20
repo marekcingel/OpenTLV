@@ -35,6 +35,14 @@ typedef struct {
     size_t count[TLV_WALK_MAX_DEPTH + 2];
     int    has_children[TLV_WALK_MAX_DEPTH + 2];
     int    ber;
+    /* Start of the parsed input; offsets of values are measured against it. */
+    const uint8_t* input;
+#if OPENTLV_PROFILE_EMV
+    /* Set when the EMV dictionary annotates elements; `emv_context[d]` is the
+     * dictionary context of the elements at depth d. */
+    int               emv;
+    tlv_emv_context_t emv_context[TLV_WALK_MAX_DEPTH + 2];
+#endif
 } writer_context_t;
 
 static void builder_reserve(builder_t* b, size_t extra) {
@@ -111,14 +119,44 @@ static void close_elements(writer_context_t* w, size_t depth) {
     }
 }
 
+#if OPENTLV_PROFILE_EMV
+/* Appends the EMV dictionary entry of the element, if it has one, and derives
+ * the dictionary context its children are read in. */
+static void emit_emv(writer_context_t* w, const tlv_view_t* view, size_t depth, size_t length) {
+    tlv_emv_context_t           context = w->emv_context[depth];
+    tlv_emv_context_t           child = tlv_emv_child_context(context, &view->tag);
+    const tlv_emv_definition_t* definition = tlv_emv_find(context, &view->tag);
+
+    w->emv_context[depth + 1] = child == TLV_EMV_CONTEXT_COUNT ? context : child;
+    if (!definition) return;
+    {
+        char        title[128];
+        const char* label = tlv_emv_display_label(definition->name);
+        if (!label && tlv_emv_titlecase_name(definition->name, title, sizeof title) == TLV_OK)
+            label = title;
+        builder_text(&w->out, ",\"symbol\":");
+        builder_json_string(&w->out, definition->name);
+        if (label) {
+            builder_text(&w->out, ",\"name\":");
+            builder_json_string(&w->out, label);
+        }
+        builder_text(&w->out, tlv_emv_validate_length(definition, length) == TLV_OK
+                                  ? ",\"lengthValid\":true"
+                                  : ",\"lengthValid\":false");
+    }
+}
+#endif
+
 static tlv_visit_result_t emit_element(const tlv_view_t* view, size_t depth, size_t offset,
                                        void* context) {
     writer_context_t* w = (writer_context_t*)context;
     int               constructed = 0;
-    size_t            length;
+    size_t            length, header_size;
 
     if (tlv_length_to_size(view->value.length, &length) != TLV_OK) return TLV_VISIT_ERROR;
     if (depth > TLV_WALK_MAX_DEPTH) return TLV_VISIT_ERROR;
+    /* The value directly follows the encoded tag and length. */
+    header_size = (size_t)(view->value.data - w->input) - offset;
 #if OPENTLV_FORMAT_BER
     if (w->ber) constructed = tlv_ber_is_constructed(NULL, &view->tag) != 0;
 #endif
@@ -134,7 +172,12 @@ static tlv_visit_result_t emit_element(const tlv_view_t* view, size_t depth, siz
     builder_hex(&w->out, view->tag.data, view->tag.size);
     builder_text(&w->out, "\",\"length\":");
     builder_number(&w->out, length);
+    builder_text(&w->out, ",\"headerSize\":");
+    builder_number(&w->out, header_size);
     builder_text(&w->out, constructed ? ",\"constructed\":true" : ",\"constructed\":false");
+#if OPENTLV_PROFILE_EMV
+    if (w->emv) emit_emv(w, view, depth, length);
+#endif
     if (constructed && length) {
         /* The walker descends into it next; children close it later. */
         builder_text(&w->out, ",\"children\":[");
@@ -185,7 +228,8 @@ static void append_error(builder_t* b, tlv_result_t code, size_t offset) {
     builder_text(b, "}");
 }
 
-opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format) {
+opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format,
+                                          const char* profile) {
     opentlv_wasm_result_t*     result = (opentlv_wasm_result_t*)calloc(1, sizeof *result);
     const tlv_reader_format_t* reader;
     writer_context_t*          w;
@@ -200,9 +244,22 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
     }
     reader = select_format(format, &ber, &der);
     w->ber = ber;
+    w->input = data;
 
     builder_text(&w->out, "{\"format\":");
     builder_json_string(&w->out, format ? format : "");
+
+    if (profile && *profile && strcmp(profile, "none")) {
+        /* The EMV dictionary names BER-TLV tags; it does not apply to other formats. */
+#if OPENTLV_PROFILE_EMV
+        if (!strcmp(profile, "emv") && ber && !der) {
+            w->emv = 1;
+            w->emv_context[0] = TLV_EMV_CONTEXT_BASE;
+            builder_text(&w->out, ",\"profile\":\"emv\"");
+        } else
+#endif
+            reader = NULL;
+    }
     builder_text(&w->out, ",\"elements\":[");
 
     if (!reader) {

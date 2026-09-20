@@ -32,6 +32,31 @@ assert.equal(fci.children[0].value, "414243");
 assert.equal(fci.children[1].children[0].tag, "50");
 assert.equal(fci.children[1].children[0].value, "01");
 
+// Every element reports its encoded header size, so its byte range is offset..offset+headerSize+length.
+assert.deepEqual(
+  [fci.headerSize, fci.children[0].headerSize, fci.children[1].children[0].headerSize],
+  [2, 2, 2],
+);
+result = opentlv.parse(hexToBytes("5F 2D 02 65 6E"), { format: "ber" });
+assert.equal(result.elements[0].headerSize, 3);
+assert.equal(result.profile, undefined);
+assert.equal(result.elements[0].name, undefined);
+
+// The EMV profile names known tags and flags lengths the dictionary does not permit.
+result = opentlv.parse(sample, { format: "ber", profile: "emv" });
+assert.equal(result.error, undefined);
+assert.equal(result.profile, "emv");
+assert.equal(result.elements[0].symbol, "fci_template");
+assert.match(result.elements[0].name, /FCI/);
+assert.equal(result.elements[0].children[0].symbol, "df_name");
+assert.equal(result.elements[0].children[0].lengthValid, false); // DF Name is 5..16 bytes long
+result = opentlv.parse(hexToBytes("9F 02 06 00 00 00 00 01 00 DF 99 01 00"), { format: "ber", profile: "emv" });
+assert.equal(result.elements[0].symbol, "amount_authorised");
+assert.equal(result.elements[0].lengthValid, true);
+assert.equal(result.elements[1].symbol, undefined);
+assert.ok(opentlv.parse(sample, { format: "default", profile: "emv" }).error);
+assert.ok(opentlv.parse(sample, { format: "ber", profile: "nope" }).error);
+
 // Errors are reported to the caller together with the elements read before them.
 result = opentlv.parse(hexToBytes("84 03 41 42 43 84 05 41"), { format: "default" });
 assert.equal(result.elements.length, 1);

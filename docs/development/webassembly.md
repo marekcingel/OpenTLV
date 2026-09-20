@@ -8,7 +8,7 @@ to normal C and C++ builds.
 The first interface is intentionally small: it parses a byte buffer and returns
 the element structure or the parser error. It wraps the existing C API in
 `bindings/wasm/src/opentlv_wasm.c`; no parsing logic is duplicated. Editing, schemas,
-profiles and OTDL are not exposed yet.
+schemas and OTDL are not exposed; the EMV dictionary is available as an annotation profile (below).
 
 ## Build
 
@@ -47,20 +47,21 @@ const result = opentlv.parse(
 );
 ```
 
-`parse` takes a `Uint8Array` and a `format` (`default`, `fixed-1byte`, `ber` or
-`der`; default `default`) and returns:
+`parse` takes a `Uint8Array`, a `format` (`default`, `fixed-1byte`, `ber` or
+`der`; default `default`) and optionally a `profile` (`none` or `emv`; default
+`none`) and returns:
 
 ```json
 {
   "format": "ber",
   "elements": [
     {
-      "offset": 0, "depth": 0, "tag": "6F", "length": 10, "constructed": true,
+      "offset": 0, "depth": 0, "tag": "6F", "length": 10, "headerSize": 2, "constructed": true,
       "children": [
-        { "offset": 2, "depth": 1, "tag": "84", "length": 3, "constructed": false, "value": "414243" },
-        { "offset": 7, "depth": 1, "tag": "A5", "length": 3, "constructed": true,
+        { "offset": 2, "depth": 1, "tag": "84", "length": 3, "headerSize": 2, "constructed": false, "value": "414243" },
+        { "offset": 7, "depth": 1, "tag": "A5", "length": 3, "headerSize": 2, "constructed": true,
           "children": [
-            { "offset": 9, "depth": 2, "tag": "50", "length": 1, "constructed": false, "value": "01" }
+            { "offset": 9, "depth": 2, "tag": "50", "length": 1, "headerSize": 2, "constructed": false, "value": "01" }
           ] }
       ]
     }
@@ -69,7 +70,16 @@ const result = opentlv.parse(
 ```
 
 Tags and values are uppercase hexadecimal. Only BER and DER elements can be
-constructed; the other formats return flat elements with opaque values.
+constructed; the other formats return flat elements with opaque values. An
+element occupies `headerSize + length` encoded bytes from `offset`, the first
+bytes being its encoded `tag`; a constructed element's value is the byte range
+its `children` cover.
+
+With `profile: "emv"` (BER only; other formats report an invalid-argument
+error) the result also has `"profile": "emv"`. Every element the
+[EMV dictionary](../profiles/emv/README.md) knows carries `symbol` (the
+dictionary name), `name` (a display name) and `lengthValid` (whether `length`
+is permitted for the tag); other elements carry none of these.
 
 Invalid input does not throw. The result carries an `error` object with the
 numeric `code` of `tlv_result_t`, its `message` and the input `offset`, together
@@ -87,8 +97,9 @@ call reads at most 65,536 elements and 64 levels of nesting.
 ## Documentation playground
 
 The [TLV playground](../playground/index.md) in the documentation site is built
-on this module: `docs/playground/playground.js` calls `parse` and renders the
-result, with no parsing logic of its own. The Documentation workflow builds the
+on this module: `docs/playground/playground.js` calls `parse` once and renders
+the result as tree, hex and JSON views, with no parsing logic of its own; the
+JSON view serializes the parse result itself. The Documentation workflow builds the
 module and `tools/docs/hooks.py` publishes it as `playground/wasm/`. To try it
 locally, build the module as above and run `mkdocs serve`; use
 `OPENTLV_WASM_DIR` if the build directory is not `build-wasm`. Without the
