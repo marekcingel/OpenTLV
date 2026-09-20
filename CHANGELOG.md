@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the GitHub Pages Jekyll build failing on `{{` in C code samples by adding a root `.nojekyll`; the documentation is built with MkDocs and published from `gh-pages`. (#218)
 - Fix the WebAssembly smoke test not being registered with CTest, so `ctest -L wasm` found no tests. (#196)
 - Fix a `clang-analyzer-core.NonNullParamChecker` failure in `tlv_writer_copy_encoded` (`tlv/writer/writer.h`): a `NULL` writer buffer with free capacity could pass a `NULL` destination to `memmove` for a nonempty range, which now returns `TLV_ERR_BUFFER_TOO_SHORT` instead. (#168)
 - Fix a `bugprone-narrowing-conversions` failure in `tlv_emv_titlecase_name` (`tlv/profiles/emv.h`), where a `char`/`int` conditional was narrowed back to `char`; no behavior change. (#168)

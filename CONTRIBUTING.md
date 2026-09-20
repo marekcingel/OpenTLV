@@ -326,6 +326,8 @@ documentation to GitHub Pages at <https://marekcingel.github.io/OpenTLV/> with
 
 One-time repository setup: under **Settings -> Pages**, set **Source** to
 **Deploy from a branch** and select `gh-pages` (root). The first publish
-creates the branch. Manage published versions locally with `mike list`,
+creates the branch. The root `.nojekyll` keeps GitHub Pages from running Jekyll
+on the source branches, where Liquid would reject `{{` in the C code samples.
+Manage published versions locally with `mike list`,
 `mike delete` and `mike retitle`; add `--push` to publish the change.
 Preview the version selector with `mike serve`.
