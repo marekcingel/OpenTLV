@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/formats/custom/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/development/rust/">
       
       
-        <link rel="prev" href="../asn1/cer/">
+        <link rel="prev" href="../webassembly/">
       
       
-        <link rel="next" href="../format-examples/">
+        <link rel="next" href="../../assets/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Custom formats - OpenTLV</title>
+        <title>Rust bindings - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#application-defined-format-example" class="md-skip">
+        <a href="#rust-bindings-experimental" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Custom formats
+              Rust bindings
             
           </span>
         </div>
@@ -321,13 +321,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
           
   
   
@@ -423,11 +421,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../development/documentation-layout/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../documentation-layout/" class="md-tabs__link">
           
   
   
@@ -999,31 +999,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1041,7 +1036,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1059,7 +1054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../formats/" class="md-nav__link">
         
   
   
@@ -1087,7 +1082,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../default/" class="md-nav__link">
+      <a href="../../formats/default/" class="md-nav__link">
         
   
   
@@ -1115,7 +1110,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fixed/" class="md-nav__link">
+      <a href="../../formats/fixed/" class="md-nav__link">
         
   
   
@@ -1143,7 +1138,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/ber/" class="md-nav__link">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
   
@@ -1171,7 +1166,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/der/" class="md-nav__link">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
         
   
   
@@ -1199,7 +1194,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/cer/" class="md-nav__link">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
         
   
   
@@ -1224,37 +1219,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Custom formats
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../formats/custom/" class="md-nav__link">
         
   
   
@@ -1270,70 +1238,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#api-and-build" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API and build
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scope-and-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope and limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#c-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C usage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#byte-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Byte example
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1346,7 +1250,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-examples/" class="md-nav__link">
+      <a href="../../formats/format-examples/" class="md-nav__link">
         
   
   
@@ -1374,7 +1278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-roadmap/" class="md-nav__link">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
         
   
   
@@ -1894,26 +1798,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
             
   
   
@@ -1931,7 +1840,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1949,7 +1858,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/documentation-layout/" class="md-nav__link">
+      <a href="../documentation-layout/" class="md-nav__link">
         
   
   
@@ -1977,7 +1886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/fuzzing/" class="md-nav__link">
+      <a href="../fuzzing/" class="md-nav__link">
         
   
   
@@ -2005,7 +1914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/webassembly/" class="md-nav__link">
+      <a href="../webassembly/" class="md-nav__link">
         
   
   
@@ -2030,10 +1939,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../development/rust/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust bindings
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2049,6 +1985,48 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linking-a-prebuilt-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linking a prebuilt library
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2116,10 +2094,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#api-and-build" class="md-nav__link">
+  <a href="#build" class="md-nav__link">
     <span class="md-ellipsis">
       
-        API and build
+        Build
       
     </span>
   </a>
@@ -2127,32 +2105,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scope-and-limits" class="md-nav__link">
+  <a href="#linking-a-prebuilt-library" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scope and limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#c-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C usage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#byte-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Byte example
+        Linking a prebuilt library
       
     </span>
   </a>
@@ -2176,7 +2132,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/formats/custom/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/development/rust.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2184,63 +2140,48 @@
   
 
 
-<h1 id="application-defined-format-example">Application-defined format example<a class="headerlink" href="#application-defined-format-example" title="Permanent link">&para;</a></h1>
-<p><a href="../">Format documentation</a></p>
-<h2 id="api-and-build">API and build<a class="headerlink" href="#api-and-build" title="Permanent link">&para;</a></h2>
+<h1 id="rust-bindings-experimental">Rust bindings (experimental)<a class="headerlink" href="#rust-bindings-experimental" title="Permanent link">&para;</a></h1>
+<p>The Rust bindings live in <code>bindings/rust/</code>, a Cargo workspace with two crates:</p>
 <table>
 <thead>
 <tr>
-<th>Setting</th>
-<th>Value</th>
+<th>Crate</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Header</td>
-<td><code>tlv/formats/format.h</code></td>
+<td><code>opentlv-sys</code></td>
+<td>Raw <code>extern "C"</code> declarations of the OpenTLV C API and the build script that links the C library</td>
 </tr>
 <tr>
-<td>Reader setup</td>
-<td><code>tlv_reader_format_init</code></td>
-</tr>
-<tr>
-<td>Writer setup</td>
-<td><code>tlv_writer_format_init</code></td>
-</tr>
-<tr>
-<td>CMake option</td>
-<td>None; generic callbacks are always available</td>
-</tr>
-<tr>
-<td>Link target</td>
-<td><code>tlv</code></td>
+<td><code>opentlv</code></td>
+<td>Safe Rust API built on <code>opentlv-sys</code></td>
 </tr>
 </tbody>
 </table>
-<h2 id="scope-and-limits">Scope and limits<a class="headerlink" href="#scope-and-limits" title="Permanent link">&para;</a></h2>
-<p>The application supplies its descriptors, callbacks, and optional context.
-Callbacks define valid tags and lengths, obey buffer bounds, and support writer
-size queries. There is no built-in configurable fixed-width descriptor.
-See <a href="../../guides/memory/">shared memory ownership rules</a>.</p>
-<h2 id="c-usage">C usage<a class="headerlink" href="#c-usage" title="Permanent link">&para;</a></h2>
-<p>Use the complete custom-format implementation in the
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/basic_usage.c">C example</a>, which includes callback
-implementations, descriptor initialization, writing, and reading.
-The <a href="../#generic-interface">generic contract</a> documents each callback.</p>
-<h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
-<p>Custom callbacks are implemented infrastructure, not one additional standardized
-wire format. The bundled C example supplies a one-byte tag and a fixed two-byte
-little-endian length:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>01 01 00 AA
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Element (4 bytes)
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>|-- Tag:    01
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>|-- Length: 01 00 (little-endian) = 1 value byte
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>`-- Value:  AA
+<p>All <code>unsafe</code> FFI interaction is isolated in <code>opentlv-sys</code>; <code>opentlv</code> contains no
+<code>extern</code> declarations. So far only the version functions and <code>tlv_strerror</code> are
+bound, and <code>opentlv::version()</code> is the first safe function.</p>
+<h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
+<p>Requirements: a Rust toolchain (1.70 or newer), CMake 3.16 or newer and a C99
+compiler. On Windows use the MSVC Rust toolchain with Visual Studio.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>bindings/rust
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>cargo<span class="w"> </span>build
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>cargo<span class="w"> </span><span class="nb">test</span>
 </code></pre></div>
-<p>See the custom-format implementation in the
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/basic_usage.c">C example</a> and the
-<a href="../#generic-interface">callback contracts</a>. No built-in configurable
-fixed-width descriptor is implied by this example.</p>
+<p>By default the build script configures and builds the OpenTLV C library from the
+repository root with CMake, as a static Release library inside Cargo's <code>target</code>
+directory, and links it. The C++ layer, CLI, tests and examples are not built.</p>
+<h2 id="linking-a-prebuilt-library">Linking a prebuilt library<a class="headerlink" href="#linking-a-prebuilt-library" title="Permanent link">&para;</a></h2>
+<p>To link a library you built yourself, point <code>OPENTLV_LIB_DIR</code> at the directory
+containing it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">OPENTLV_LIB_DIR</span><span class="o">=</span>/path/to/build/tlv<span class="w"> </span>cargo<span class="w"> </span>build
+</code></pre></div>
+<p><code>OPENTLV_LINK_KIND</code> selects <code>static</code> or <code>dylib</code> (default <code>dylib</code>, matching the
+default CMake build). With a shared library, the platform's loader must find it
+at run time (<code>PATH</code> on Windows, <code>LD_LIBRARY_PATH</code> on Linux, <code>DYLD_LIBRARY_PATH</code>
+on macOS).</p>
 
 
 
@@ -2278,7 +2219,7 @@ fixed-width descriptor is implied by this example.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../asn1/cer/" class="md-footer__link md-footer__link--prev" aria-label="Previous: CER-TLV">
+          <a href="../webassembly/" class="md-footer__link md-footer__link--prev" aria-label="Previous: WebAssembly build">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2288,20 +2229,20 @@ fixed-width descriptor is implied by this example.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                CER-TLV
+                WebAssembly build
               </div>
             </div>
           </a>
         
         
           
-          <a href="../format-examples/" class="md-footer__link md-footer__link--next" aria-label="Next: Format examples">
+          <a href="../../assets/" class="md-footer__link md-footer__link--next" aria-label="Next: Logo assets">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Format examples
+                Logo assets
               </div>
             </div>
             <div class="md-footer__button md-icon">
