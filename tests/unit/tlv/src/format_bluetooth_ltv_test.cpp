@@ -151,7 +151,7 @@ TEST(Unit_BluetoothLtv, WriterRoundTripsThroughReader) {
 TEST(Unit_BluetoothLtv, GenericScannerWalkerAndTreeWalkWork) {
     tlv_view_t               view;
     size_t                   offset = 0, consumed = 0;
-    const tlv_schema_entry_t entries[] = {{tlv_tag_t{{0x09}, 1}, 0, 8}};
+    const tlv_schema_entry_t entries[] = {{tlv_tag_t{{0x09}, 1}, 0, 8, 0}};
     const tlv_schema_t       schema = {entries, 1};
     ASSERT_EQ(TLV_OK, tlv_scan(advertising, sizeof(advertising), 0, &reader_format, &schema, &view,
                                &offset, &consumed));
