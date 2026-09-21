@@ -118,6 +118,12 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__schema.html">tlv_structure_schema</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed set of structural rules for one parent scope.  <a href="structtlv__structure__schema.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__issue.html">tlv_schema_issue</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One violation found by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.  <a href="structtlv__schema__issue.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__report.html">tlv_schema_report</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-provided storage for the violations of <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.  <a href="structtlv__schema__report.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -154,6 +160,18 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga86e8ecc543b5d6b397732cbcf2db59cf" id="r_ga86e8ecc543b5d6b397732cbcf2db59cf"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__structure__schema.html">tlv_structure_schema</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a></td></tr>
 <tr class="memdesc:ga86e8ecc543b5d6b397732cbcf2db59cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed set of structural rules for one parent scope.  <br /></td></tr>
 <tr class="separator:ga86e8ecc543b5d6b397732cbcf2db59cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3227a53ef45b23ad3a68daf7a412be6d" id="r_ga3227a53ef45b23ad3a68daf7a412be6d"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">tlv_schema_issue_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">tlv_schema_issue_kind_t</a></td></tr>
+<tr class="memdesc:ga3227a53ef45b23ad3a68daf7a412be6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kind of violation found by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.  <br /></td></tr>
+<tr class="separator:ga3227a53ef45b23ad3a68daf7a412be6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7537f035621096beea18ca83bd278646" id="r_ga7537f035621096beea18ca83bd278646"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419">tlv_schema_unknown_policy</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a></td></tr>
+<tr class="memdesc:ga7537f035621096beea18ca83bd278646"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unknown-tag policy applied by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.  <br /></td></tr>
+<tr class="separator:ga7537f035621096beea18ca83bd278646"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga220ba990eff95fed9600d98e8bdda35b" id="r_ga220ba990eff95fed9600d98e8bdda35b"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__issue.html">tlv_schema_issue</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga220ba990eff95fed9600d98e8bdda35b">tlv_schema_issue_t</a></td></tr>
+<tr class="memdesc:ga220ba990eff95fed9600d98e8bdda35b"><td class="mdescLeft">&#160;</td><td class="mdescRight">One violation found by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.  <br /></td></tr>
+<tr class="separator:ga220ba990eff95fed9600d98e8bdda35b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf4de86f71e20230eeae932f3f45939ef" id="r_gaf4de86f71e20230eeae932f3f45939ef"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__report.html">tlv_schema_report</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gaf4de86f71e20230eeae932f3f45939ef">tlv_schema_report_t</a></td></tr>
+<tr class="memdesc:gaf4de86f71e20230eeae932f3f45939ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-provided storage for the violations of <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.  <br /></td></tr>
+<tr class="separator:gaf4de86f71e20230eeae932f3f45939ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -195,6 +213,27 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga5c8a305dce94f119abad5b7137d21f51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expected form of a value described by a <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>.  <a href="group__schemas.html#ga5c8a305dce94f119abad5b7137d21f51">More...</a><br /></td></tr>
 <tr class="separator:ga5c8a305dce94f119abad5b7137d21f51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac36f475ca5b446f4fde4c9b90bec77c8" id="r_gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggac36f475ca5b446f4fde4c9b90bec77c8a12bedeaa95acd08f7e0bb4893b875796">TLV_SCHEMA_PATH_MAX</a> = 16
+ }</td></tr>
+<tr class="memdesc:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of tags in a <a class="el" href="group__schemas.html#ga220ba990eff95fed9600d98e8bdda35b" title="One violation found by tlv_schema_validate_all().">tlv_schema_issue_t</a> path.  <a href="group__schemas.html#gac36f475ca5b446f4fde4c9b90bec77c8">More...</a><br /></td></tr>
+<tr class="separator:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae8780ff71af2d72d1dcb5f8189af7dfd" id="r_gae8780ff71af2d72d1dcb5f8189af7dfd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">tlv_schema_issue_kind</a> { <br />
+&#160;&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a> = 1
+, <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">TLV_SCHEMA_ISSUE_DUPLICATE</a>
+, <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfdafc246b6e80fb54d8e829aec4992776a6">TLV_SCHEMA_ISSUE_UNEXPECTED</a>
+, <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda38bc5113a24c5cd1ec20ea2a9eff5db9">TLV_SCHEMA_ISSUE_KIND</a>
+, <br />
+&#160;&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f">TLV_SCHEMA_ISSUE_LENGTH</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:gae8780ff71af2d72d1dcb5f8189af7dfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kind of violation found by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.  <a href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">More...</a><br /></td></tr>
+<tr class="separator:gae8780ff71af2d72d1dcb5f8189af7dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaac0ce480d18e12ccf642fc85a59f8419" id="r_gaac0ce480d18e12ccf642fc85a59f8419"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419">tlv_schema_unknown_policy</a> { <a class="el" href="group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a> = 0
+, <a class="el" href="group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af072c0e4269aea574e493a08006b9448">TLV_SCHEMA_UNKNOWN_ALLOW</a>
+, <a class="el" href="group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419a6b926c816e076a0ffbbc502f1d015077">TLV_SCHEMA_UNKNOWN_REJECT</a>
+ }</td></tr>
+<tr class="memdesc:gaac0ce480d18e12ccf642fc85a59f8419"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unknown-tag policy applied by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.  <a href="group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419">More...</a><br /></td></tr>
+<tr class="separator:gaac0ce480d18e12ccf642fc85a59f8419"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -216,6 +255,15 @@ Functions</h2></td></tr>
 <tr class="memitem:ga97a62974e65d9dbcfeece9282fbf9cc4" id="r_ga97a62974e65d9dbcfeece9282fbf9cc4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga97a62974e65d9dbcfeece9282fbf9cc4">tlv_schema_validate</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format, <a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> *schema, size_t max_depth, size_t max_elements, size_t *error_offset)</td></tr>
 <tr class="memdesc:ga97a62974e65d9dbcfeece9282fbf9cc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates framing, nesting, lengths, occurrence counts and child membership.  <br /></td></tr>
 <tr class="separator:ga97a62974e65d9dbcfeece9282fbf9cc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4c919c58faa26e2903a0cf004b2646db" id="r_ga4c919c58faa26e2903a0cf004b2646db"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db">tlv_schema_validate_all</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format, <a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> *schema, size_t max_depth, size_t max_elements, <a class="el" href="group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown, <a class="el" href="group__schemas.html#gaf4de86f71e20230eeae932f3f45939ef">tlv_schema_report_t</a> *report, size_t *error_offset)</td></tr>
+<tr class="memdesc:ga4c919c58faa26e2903a0cf004b2646db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a TLV structure and reports every schema violation.  <br /></td></tr>
+<tr class="separator:ga4c919c58faa26e2903a0cf004b2646db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7f8651f7f1f83f182b82bdb42e07c519" id="r_ga7f8651f7f1f83f182b82bdb42e07c519"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga7f8651f7f1f83f182b82bdb42e07c519">tlv_schema_issue_kind_string</a> (<a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">tlv_schema_issue_kind_t</a> kind)</td></tr>
+<tr class="memdesc:ga7f8651f7f1f83f182b82bdb42e07c519"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a short name for a violation kind.  <br /></td></tr>
+<tr class="separator:ga7f8651f7f1f83f182b82bdb42e07c519"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9dbac48a6edf2a70ca47ad501deee221" id="r_ga9dbac48a6edf2a70ca47ad501deee221"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga9dbac48a6edf2a70ca47ad501deee221">tlv_schema_issue_path_string</a> (const <a class="el" href="group__schemas.html#ga220ba990eff95fed9600d98e8bdda35b">tlv_schema_issue_t</a> *issue, char *out, size_t capacity, size_t *length)</td></tr>
+<tr class="memdesc:ga9dbac48a6edf2a70ca47ad501deee221"><td class="mdescLeft">&#160;</td><td class="mdescRight">Formats the path of a violation as uppercase hexadecimal tags joined by <code>/</code>.  <br /></td></tr>
+<tr class="separator:ga9dbac48a6edf2a70ca47ad501deee221"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -380,6 +428,39 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="ga3227a53ef45b23ad3a68daf7a412be6d" name="ga3227a53ef45b23ad3a68daf7a412be6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3227a53ef45b23ad3a68daf7a412be6d">&#9670;&#160;</a></span>tlv_schema_issue_kind_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">tlv_schema_issue_kind</a> <a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">tlv_schema_issue_kind_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Kind of violation found by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>. </p>
+
+</div>
+</div>
+<a id="ga220ba990eff95fed9600d98e8bdda35b" name="ga220ba990eff95fed9600d98e8bdda35b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga220ba990eff95fed9600d98e8bdda35b">&#9670;&#160;</a></span>tlv_schema_issue_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__schema__issue.html">tlv_schema_issue</a> <a class="el" href="group__schemas.html#ga220ba990eff95fed9600d98e8bdda35b">tlv_schema_issue_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>One violation found by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>. </p>
+<p><code>path</code> lists the tags from the outermost scope to the affected tag, for example <code>70</code>, <code>77</code>, <code>9F36</code> for the text <code>70/77/9F36</code>. For <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a> the last entry is the tag that is absent. </p>
+
+</div>
+</div>
 <a id="ga1006ba0162e6d89504bf1ca404771314" name="ga1006ba0162e6d89504bf1ca404771314"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga1006ba0162e6d89504bf1ca404771314">&#9670;&#160;</a></span>tlv_schema_kind_t</h2>
 
@@ -393,6 +474,39 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Expected form of a value described by a <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>. </p>
+
+</div>
+</div>
+<a id="gaf4de86f71e20230eeae932f3f45939ef" name="gaf4de86f71e20230eeae932f3f45939ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf4de86f71e20230eeae932f3f45939ef">&#9670;&#160;</a></span>tlv_schema_report_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__schema__report.html">tlv_schema_report</a> <a class="el" href="group__schemas.html#gaf4de86f71e20230eeae932f3f45939ef">tlv_schema_report_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Caller-provided storage for the violations of <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all</a> </dd></dl>
+
+</div>
+</div>
+<a id="ga7537f035621096beea18ca83bd278646" name="ga7537f035621096beea18ca83bd278646"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7537f035621096beea18ca83bd278646">&#9670;&#160;</a></span>tlv_schema_unknown_policy_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419">tlv_schema_unknown_policy</a> <a class="el" href="group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Unknown-tag policy applied by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>. </p>
 
 </div>
 </div>
@@ -432,6 +546,25 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="gac36f475ca5b446f4fde4c9b90bec77c8" name="gac36f475ca5b446f4fde4c9b90bec77c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac36f475ca5b446f4fde4c9b90bec77c8">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Maximum number of tags in a <a class="el" href="group__schemas.html#ga220ba990eff95fed9600d98e8bdda35b" title="One violation found by tlv_schema_validate_all().">tlv_schema_issue_t</a> path. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggac36f475ca5b446f4fde4c9b90bec77c8a12bedeaa95acd08f7e0bb4893b875796" name="ggac36f475ca5b446f4fde4c9b90bec77c8a12bedeaa95acd08f7e0bb4893b875796"></a>TLV_SCHEMA_PATH_MAX&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
 <a id="gabed82baf7f470b522273a3e37c24c600" name="gabed82baf7f470b522273a3e37c24c600"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gabed82baf7f470b522273a3e37c24c600">&#9670;&#160;</a></span>anonymous enum</h2>
 
@@ -553,6 +686,34 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="gae8780ff71af2d72d1dcb5f8189af7dfd" name="gae8780ff71af2d72d1dcb5f8189af7dfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae8780ff71af2d72d1dcb5f8189af7dfd">&#9670;&#160;</a></span>tlv_schema_issue_kind</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">tlv_schema_issue_kind</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Kind of violation found by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e" name="ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e"></a>TLV_SCHEMA_ISSUE_MISSING&#160;</td><td class="fielddoc"><p>A required tag is absent: its occurrence count is below <code>min_occurs</code>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb" name="ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb"></a>TLV_SCHEMA_ISSUE_DUPLICATE&#160;</td><td class="fielddoc"><p>A tag occurs more often than <code>max_occurs</code> allows. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfdafc246b6e80fb54d8e829aec4992776a6" name="ggae8780ff71af2d72d1dcb5f8189af7dfdafc246b6e80fb54d8e829aec4992776a6"></a>TLV_SCHEMA_ISSUE_UNEXPECTED&#160;</td><td class="fielddoc"><p>A tag is prohibited or unknown in its parent and unknown tags are rejected. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda38bc5113a24c5cd1ec20ea2a9eff5db9" name="ggae8780ff71af2d72d1dcb5f8189af7dfda38bc5113a24c5cd1ec20ea2a9eff5db9"></a>TLV_SCHEMA_ISSUE_KIND&#160;</td><td class="fielddoc"><p>A primitive value where a constructed one is required, or the reverse. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f" name="ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f"></a>TLV_SCHEMA_ISSUE_LENGTH&#160;</td><td class="fielddoc"><p>A value length is outside the bounds of the tag's rule. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <a id="ga5c8a305dce94f119abad5b7137d21f51" name="ga5c8a305dce94f119abad5b7137d21f51"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga5c8a305dce94f119abad5b7137d21f51">&#9670;&#160;</a></span>tlv_schema_kind</h2>
 
@@ -572,6 +733,30 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="gga5c8a305dce94f119abad5b7137d21f51a9783161ba8613fd97ed438cab42799d0" name="gga5c8a305dce94f119abad5b7137d21f51a9783161ba8613fd97ed438cab42799d0"></a>TLV_SCHEMA_PRIMITIVE&#160;</td><td class="fielddoc"><p>The element must be primitive. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga5c8a305dce94f119abad5b7137d21f51a3127834146a11209244a4045ffa26242" name="gga5c8a305dce94f119abad5b7137d21f51a3127834146a11209244a4045ffa26242"></a>TLV_SCHEMA_CONSTRUCTED&#160;</td><td class="fielddoc"><p>The element must be constructed. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="gaac0ce480d18e12ccf642fc85a59f8419" name="gaac0ce480d18e12ccf642fc85a59f8419"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaac0ce480d18e12ccf642fc85a59f8419">&#9670;&#160;</a></span>tlv_schema_unknown_policy</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419">tlv_schema_unknown_policy</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Unknown-tag policy applied by <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82" name="ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82"></a>TLV_SCHEMA_UNKNOWN_BY_SCHEMA&#160;</td><td class="fielddoc"><p>Each scope follows its own <a class="el" href="structtlv__structure__schema.html#aaee701c6ab8ff5e90a4f4c086f1e7471">tlv_structure_schema_t::allow_unknown</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaac0ce480d18e12ccf642fc85a59f8419af072c0e4269aea574e493a08006b9448" name="ggaac0ce480d18e12ccf642fc85a59f8419af072c0e4269aea574e493a08006b9448"></a>TLV_SCHEMA_UNKNOWN_ALLOW&#160;</td><td class="fielddoc"><p>Tags without a rule are accepted in every scope. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaac0ce480d18e12ccf642fc85a59f8419a6b926c816e076a0ffbbc502f1d015077" name="ggaac0ce480d18e12ccf642fc85a59f8419a6b926c816e076a0ffbbc502f1d015077"></a>TLV_SCHEMA_UNKNOWN_REJECT&#160;</td><td class="fielddoc"><p>Tags without a rule are reported in every scope. </p>
 </td></tr>
 </table>
 
@@ -858,6 +1043,92 @@ Any callback error, propagated unchanged.</dd></dl>
 
 </div>
 </div>
+<a id="ga7f8651f7f1f83f182b82bdb42e07c519" name="ga7f8651f7f1f83f182b82bdb42e07c519"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7f8651f7f1f83f182b82bdb42e07c519">&#9670;&#160;</a></span>tlv_schema_issue_kind_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_schema_issue_kind_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">tlv_schema_issue_kind_t</a>&#160;</td>
+          <td class="paramname"><em>kind</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a short name for a violation kind. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">kind</td><td>Violation kind.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A static, NUL-terminated string such as <code>"missing"</code>, never <code>NULL</code>; an unrecognized value yields <code>"unknown"</code>. </dd></dl>
+
+</div>
+</div>
+<a id="ga9dbac48a6edf2a70ca47ad501deee221" name="ga9dbac48a6edf2a70ca47ad501deee221"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9dbac48a6edf2a70ca47ad501deee221">&#9670;&#160;</a></span>tlv_schema_issue_path_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_schema_issue_path_string </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__schemas.html#ga220ba990eff95fed9600d98e8bdda35b">tlv_schema_issue_t</a> *&#160;</td>
+          <td class="paramname"><em>issue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Formats the path of a violation as uppercase hexadecimal tags joined by <code>/</code>. </p>
+<p>For example <code>70/77/9F36</code>. The text is NUL-terminated when it fits.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">issue</td><td>Violation to format. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">out</td><td>Destination; may be <code>NULL</code> only if <code>capacity</code> is zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Size of <code>out</code> in bytes, including the terminator. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">length</td><td>Receives the text length without the terminator, also when <code>out</code> is too small. May be <code>NULL</code>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>issue</code> or a required <code>out</code> is <code>NULL</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if the path length or a tag size is invalid. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> is below <code>*length + 1</code>. </dd></dl>
+
+</div>
+</div>
 <a id="ga97a62974e65d9dbcfeece9282fbf9cc4" name="ga97a62974e65d9dbcfeece9282fbf9cc4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga97a62974e65d9dbcfeece9282fbf9cc4">&#9670;&#160;</a></span>tlv_schema_validate()</h2>
 
@@ -945,6 +1216,114 @@ Any callback error, propagated unchanged.</dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for a length failure, also element-anchored. </dd>
 <dd>
 Any other error of <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="ga4c919c58faa26e2903a0cf004b2646db" name="ga4c919c58faa26e2903a0cf004b2646db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4c919c58faa26e2903a0cf004b2646db">&#9670;&#160;</a></span>tlv_schema_validate_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_schema_validate_all </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td>
+          <td class="paramname"><em>is_constructed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> *&#160;</td>
+          <td class="paramname"><em>schema</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a>&#160;</td>
+          <td class="paramname"><em>unknown</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__schemas.html#gaf4de86f71e20230eeae932f3f45939ef">tlv_schema_report_t</a> *&#160;</td>
+          <td class="paramname"><em>report</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>error_offset</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validates a TLV structure and reports every schema violation. </p>
+<p>Applies the same rules as <a class="el" href="group__schemas.html#ga97a62974e65d9dbcfeece9282fbf9cc4" title="Validates framing, nesting, lengths, occurrence counts and child membership.">tlv_schema_validate()</a> (required and optional tags, occurrence limits, parent-child membership, primitive or constructed form, and per-tag length bounds), but continues after a violation and records each one with the path to the affected tag and its byte offset. The tag and length rules come from the same <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a> entries, so nothing is defined twice. Never decodes values. No allocation and no recursion.</p>
+<p>Wire-level errors (a truncated or malformed element, or an exceeded limit) make the input unparseable and abort the call before any violation is recorded. The contents of a scope that violates its rules are still checked: an element rejected as unexpected or of the wrong form is not descended into, but its siblings are checked.</p>
+<p>Violations are recorded in scope order; the order of violations within one scope is not part of the contract.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Encoded input. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Input size in bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Reader format. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">is_constructed</td><td>Nesting predicate, or <code>NULL</code> to treat values as opaque. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">schema</td><td>Structural schema to validate against. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_depth</td><td>Maximum nesting depth, as for <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_elements</td><td>Maximum total elements, as for <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">unknown</td><td>Policy for tags without a rule. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">report</td><td>Receives the violations; <code>count</code> is set on <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> and is zero on other errors. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error_offset</td><td>Optional. Receives the failing offset for errors other than <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a>; see <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> if the data conforms; <code>report-&gt;count</code> is zero. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> if at least one violation was found; <code>report-&gt;count</code> is their total number, of which the first <code>report-&gt;capacity</code> are stored. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required arguments. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for an invalid rule table or <code>unknown</code> value. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the schema nests deeper than <a class="el" href="group__schemas.html#ggac36f475ca5b446f4fde4c9b90bec77c8a12bedeaa95acd08f7e0bb4893b875796">TLV_SCHEMA_PATH_MAX</a> tags, or as for <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>. </dd>
+<dd>
+Any other error of <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga9dbac48a6edf2a70ca47ad501deee221" title="Formats the path of a violation as uppercase hexadecimal tags joined by /.">tlv_schema_issue_path_string</a> </dd></dl>
 
 </div>
 </div>

@@ -2810,6 +2810,10 @@ and issuer for a generic schema and are accepted unchecked at the root.</p>
 <a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="cm"> * its parent's value instead - see tlv/schemas/schema.h. */</span>
 </code></pre></div>
 <p>This backs the <code>opentlv</code> CLI's <code>validate --profile emv</code>.</p>
+<p>To report every violation with its path (for example <code>6F/84</code>) and offset in a
+single pass, or to define schemas for other templates such as the Read Record
+Template (<code>70</code>) for a specific kernel, use <code>tlv_schema_validate_all()</code>; see
+<a href="../../guides/schemas/#reporting-every-violation">Reporting every violation</a>.</p>
 <h2 id="data-object-lists-pdolcdolddol">Data Object Lists (PDOL/CDOL/DDOL)<a class="headerlink" href="#data-object-lists-pdolcdolddol" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/profiles/dol.h</code>. A Data Object List is a sequence of tag/
 requested-length pairs with no value bytes of its own; PDOL, CDOL1, CDOL2 and

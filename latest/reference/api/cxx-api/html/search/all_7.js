@@ -1,5 +1,6 @@
 var searchData=
 [
   ['is_5fconstructed_0',['is_constructed',['../../../c-api/html/structtlv__structure__codec.html#afb2642a956c482e5abde27a333bdbce7',1,'tlv_structure_codec']]],
-  ['is_5ftlv_5fcodec_1',['is_tlv_codec',['../structtlv_1_1is__tlv__codec.html',1,'tlv']]]
+  ['is_5ftlv_5fcodec_1',['is_tlv_codec',['../structtlv_1_1is__tlv__codec.html',1,'tlv']]],
+  ['issues_2',['issues',['../../../c-api/html/structtlv__schema__report.html#a2c82b3b97b6128d5ad761c5f551914de',1,'tlv_schema_report']]]
 ];
