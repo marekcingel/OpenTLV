@@ -1,0 +1,2226 @@
+<abi-corpus version='2.2' architecture='elf-amd-x86_64' soname='libtlv.so'>
+  <elf-needed>
+    <dependency name='libc.so.6'/>
+  </elf-needed>
+  <elf-function-symbols>
+    <elf-symbol name='tlv_ber_indefinite_encoded_size' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_ber_is_constructed' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_ber_length_decode' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_ber_length_encode' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_ber_write_indefinite' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_ber_writer_write_indefinite' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_cer_is_constructed' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_cer_read' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_cer_read_strict' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_cer_tag_make' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_cer_tag_number' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_cer_walk' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_cer_walk_strict' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_cer_write' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_cer_write_segmented_string' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_cer_write_strict' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_codec_decode' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_codec_encode' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_codec_strerror' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_config_format_asn1' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_config_format_ber' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_config_format_bluetooth_ltv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_config_format_cer' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_config_format_default' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_config_format_der' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_config_format_fixed_1byte' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_config_profile_emv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_copy_encoded' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_copy_value' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_copy_view' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_is_constructed' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_read' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_read_strict' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_schema_check' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_schema_read' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_schema_write' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_tag_make' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_tag_number' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_walk' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_walk_strict' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_write' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_write_strict' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_dol_read' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_dol_write' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_child_context' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_display_label' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_find' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_schema_for' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_titlecase_name' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_validate_length' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_value_kind_description' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_encoded_size' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_endian_native' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_length_from_size' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_length_to_size' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_length_validate_native' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_read' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_read_u16_be' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_read_u16_le' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_read_u32_be' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_read_u32_le' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_read_u64_be' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_read_u64_le' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_read_uint' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_at_end' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_format_init' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_format_init_element' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_init' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_next' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_scan' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_schema_find' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_schema_validate' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_schema_validate_length' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_strerror' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_structure_decode' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_structure_encode' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_equal' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_equal_bytes' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_equal_u16' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_equal_u32' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_equal_u64' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_equal_u8' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_from_bytes' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_from_u16' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_from_u32' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_from_u64' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_from_u8' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_to_u16' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_to_u32' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_to_u64' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_tag_to_u8' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_value_init' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_value_validate' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_version_git_branch' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_version_git_commit_hash' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_version_git_repo' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_version_git_tag' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_version_major' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_version_minor' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_version_patch' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_version_prerelease' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_version_revision' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_version_string' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_walk' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_walk_tree' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_write' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_write_u16_be' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_write_u16_le' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_write_u32_be' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_write_u32_le' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_write_u64_be' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_write_u64_le' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_write_uint' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_copy_encoded' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_copy_view' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_format_init' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_format_init_header' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_init' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_size' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_write' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='tlv_cer_default_limits' size='32' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_default_limits' size='32' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_der_schema_default_limits' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_dol_default_limits' size='16' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_codec_amount' size='24' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_schema' size='16' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_structure_schema' size='24' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_account_type' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_acquirer_identifier' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_additional_terminal_capabilities' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_adf_name' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_afl' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_aid_terminal' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_aip' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_amount_authorised' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_amount_authorised_binary' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_amount_other' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_amount_other_binary' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_amount_reference_currency' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_cryptogram' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_currency_code' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_currency_exponent' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_discretionary_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_effective_date' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_expiration_date' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_label' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_preferred_name' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_priority_indicator' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_reference_currency' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_reference_currency_exponent' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_usage_control' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_version_card' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_application_version_terminal' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_asrpd' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_atc' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_authorisation_code' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_authorisation_response_code' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_bht1' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_bht2' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_bht_format_owner' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_bht_format_type' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_bic' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_creation_datetime' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_creator' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_data_mac' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_format_owner' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_format_type' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_header_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_header_version' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_information_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_matching_parameters' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_matching_parameters_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_product_id' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_solution_id' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_subtype' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_terminal_capabilities' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_try_counters_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_type' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_validity_period' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_biometric_verification_data_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_bit_count' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_ca_public_key_index' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_ca_public_key_index_terminal' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_card_bit_group_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_cardholder_name' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_cardholder_name_extended' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_cdol1' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_cdol2' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_command_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_cryptogram_information_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_cvm_list' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_cvm_results' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_data_authentication_code' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_ddf_name' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_ddol' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_df_name' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_directory_discretionary_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_enciphered_biometric_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_enciphered_biometric_key_seed' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_facial_try_counter' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_fci_issuer_discretionary_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_fci_proprietary_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_fci_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_finger_try_counter' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_group_bit' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_iban' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_icc_dynamic_number' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_icc_pin_public_key_certificate' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_icc_pin_public_key_exponent' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_icc_pin_public_key_remainder' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_icc_public_key_certificate' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_icc_public_key_exponent' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_icc_public_key_remainder' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_ifd_serial_number' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_iin' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_iin_extended' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_iris_try_counter' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_action_code_default' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_action_code_denial' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_action_code_online' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_application_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_authentication_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_code_table_index' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_country_alpha2' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_country_alpha3' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_country_code' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_public_key_certificate' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_public_key_exponent' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_public_key_remainder' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_script_command' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_script_identifier' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_script_template1' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_script_template2' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_issuer_url' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_language_preference' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_last4_pan' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_last_online_atc' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_log_entry' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_log_format' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_lower_consecutive_offline_limit' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_merchant_category_code' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_merchant_identifier' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_merchant_name_and_location' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_offline_bit_group_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_online_bit_group_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_palm_try_counter' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_pan' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_pan_sequence_number' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_payment_account_reference' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_pdol' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_pin_try_counter' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_pos_entry_mode' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_preferred_attempts_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_preferred_facial_attempts' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_preferred_finger_attempts' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_preferred_iris_attempts' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_preferred_palm_attempts' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_preferred_voice_attempts' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_read_record_template' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_response_template1' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_response_template2' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_sda_tag_list' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_service_code' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_sfi' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_signed_dynamic_application_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_signed_static_application_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_tc_hash_value' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_tdol' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_terminal_capabilities' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_terminal_country_code' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_terminal_floor_limit' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_terminal_identification' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_terminal_risk_management_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_terminal_type' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_token_requestor_id' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_track1_discretionary_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_track2_discretionary_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_track2_equivalent_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_transaction_currency_code' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_transaction_currency_exponent' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_transaction_date' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_transaction_pin_data' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_transaction_reference_currency_code' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_transaction_reference_currency_exponent' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_transaction_sequence_counter' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_transaction_time' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_transaction_type' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_tsi' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_tvr' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_unpredictable_number' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_upper_consecutive_offline_limit' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_verification_biometric_solution_id' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_verification_biometric_type' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_emv_tag_voice_try_counter' size='9' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_format_ber' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_format_bluetooth_ltv' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_format_cer' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_format_default' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_format_der' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_reader_format_fixed_1byte' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_format_ber' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_format_bluetooth_ltv' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_format_cer' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_format_default' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_format_der' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='tlv_writer_format_fixed_1byte' size='40' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='tlv/src/codec/codec.c' language='LANG_C11'>
+    <type-decl name='char' size-in-bits='8' id='type-id-1'/>
+    <enum-decl name='tlv_codec_result' id='type-id-2'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_CODEC_OK' value='0'/>
+      <enumerator name='TLV_CODEC_ERR_NULL_ARG' value='1'/>
+      <enumerator name='TLV_CODEC_ERR_BUFFER_TOO_SHORT' value='2'/>
+      <enumerator name='TLV_CODEC_ERR_INVALID_VALUE' value='3'/>
+      <enumerator name='TLV_CODEC_ERR_UNSUPPORTED' value='4'/>
+      <enumerator name='TLV_CODEC_ERR_INVALID_STRUCTURE' value='5'/>
+    </enum-decl>
+    <class-decl name='tlv_codec' size-in-bits='192' is-struct='yes' visibility='default' id='type-id-4'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='context' type-id='type-id-5' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='decode' type-id='type-id-6' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='encode' type-id='type-id-7' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='__uint8_t' type-id='type-id-8' id='type-id-9'/>
+    <typedef-decl name='size_t' type-id='type-id-10' id='type-id-11'/>
+    <typedef-decl name='tlv_codec_result_t' type-id='type-id-2' id='type-id-12'/>
+    <typedef-decl name='tlv_codec_t' type-id='type-id-4' id='type-id-13'/>
+    <typedef-decl name='uint8_t' type-id='type-id-9' id='type-id-14'/>
+    <type-decl name='unnamed-enum-underlying-type-32' is-anonymous='yes' size-in-bits='32' alignment-in-bits='32' id='type-id-3'/>
+    <type-decl name='unsigned char' size-in-bits='8' id='type-id-8'/>
+    <type-decl name='unsigned long int' size-in-bits='64' id='type-id-10'/>
+    <qualified-type-def type-id='type-id-1' const='yes' id='type-id-15'/>
+    <pointer-type-def type-id='type-id-15' size-in-bits='64' id='type-id-16'/>
+    <qualified-type-def type-id='type-id-13' const='yes' id='type-id-17'/>
+    <pointer-type-def type-id='type-id-17' size-in-bits='64' id='type-id-18'/>
+    <qualified-type-def type-id='type-id-14' const='yes' id='type-id-19'/>
+    <pointer-type-def type-id='type-id-19' size-in-bits='64' id='type-id-20'/>
+    <pointer-type-def type-id='type-id-11' size-in-bits='64' id='type-id-21'/>
+    <pointer-type-def type-id='type-id-22' size-in-bits='64' id='type-id-6'/>
+    <pointer-type-def type-id='type-id-23' size-in-bits='64' id='type-id-7'/>
+    <pointer-type-def type-id='type-id-14' size-in-bits='64' id='type-id-24'/>
+    <function-decl name='tlv_codec_decode' mangled-name='tlv_codec_decode' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_codec_decode'>
+      <parameter type-id='type-id-18' name='codec'/>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-5' name='value'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='tlv_codec_encode' mangled-name='tlv_codec_encode' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_codec_encode'>
+      <parameter type-id='type-id-18' name='codec'/>
+      <parameter type-id='type-id-5' name='value'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='tlv_codec_strerror' mangled-name='tlv_codec_strerror' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_codec_strerror'>
+      <parameter type-id='type-id-12' name='result'/>
+      <return type-id='type-id-16'/>
+    </function-decl>
+    <type-decl name='void' id='type-id-25'/>
+    <pointer-type-def type-id='type-id-25' id='type-id-5'/>
+    <function-type size-in-bits='64' id='type-id-22'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-12'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-23'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-12'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/codec/emv.c' language='LANG_C11'>
+    <var-decl name='tlv_emv_codec_amount' type-id='type-id-17' mangled-name='tlv_emv_codec_amount' visibility='default' elf-symbol-id='tlv_emv_codec_amount'/>
+    <function-decl name='tlv_read_uint' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-26'/>
+      <parameter type-id='type-id-27'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_write_uint' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-26'/>
+      <parameter type-id='type-id-29'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_emv_value_kind_description' mangled-name='tlv_emv_value_kind_description' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_emv_value_kind_description'>
+      <parameter type-id='type-id-30' name='kind'/>
+      <return type-id='type-id-16'/>
+    </function-decl>
+    <function-decl name='memcpy' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-5'/>
+    </function-decl>
+    <function-decl name='memset' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-31'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-5'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/codec/structure.c' language='LANG_C11'>
+    <enum-decl name='tlv_result' id='type-id-32'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_OK' value='0'/>
+      <enumerator name='TLV_ERR_BUFFER_TOO_SHORT' value='1'/>
+      <enumerator name='TLV_ERR_INVALID_LENGTH' value='2'/>
+      <enumerator name='TLV_ERR_NULL_ARG' value='3'/>
+      <enumerator name='TLV_ERR_OUT_OF_MEMORY' value='4'/>
+      <enumerator name='TLV_ERR_END_OF_BUFFER' value='5'/>
+      <enumerator name='TLV_ERR_INVALID_TAG' value='6'/>
+      <enumerator name='TLV_ERR_VISITOR' value='7'/>
+      <enumerator name='TLV_ERR_LIMIT' value='8'/>
+      <enumerator name='TLV_ERR_SCHEMA' value='9'/>
+      <enumerator name='TLV_ERR_INVALID_ARG' value='10'/>
+      <enumerator name='TLV_ERR_INVALID_TAG_SIZE' value='11'/>
+      <enumerator name='TLV_ERR_INVALID_BYTE_ORDER' value='12'/>
+      <enumerator name='TLV_ERR_OVERFLOW' value='13'/>
+      <enumerator name='TLV_ERR_INVALID_VALUE' value='14'/>
+      <enumerator name='TLV_ERR_UNSUPPORTED_TYPE' value='15'/>
+      <enumerator name='TLV_ERR_SCHEMA_MISSING' value='16'/>
+    </enum-decl>
+    <enum-decl name='tlv_schema_kind' id='type-id-33'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_SCHEMA_ANY' value='0'/>
+      <enumerator name='TLV_SCHEMA_PRIMITIVE' value='1'/>
+      <enumerator name='TLV_SCHEMA_CONSTRUCTED' value='2'/>
+    </enum-decl>
+    <enum-decl name='tlv_visit_result' id='type-id-34'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_VISIT_CONTINUE' value='0'/>
+      <enumerator name='TLV_VISIT_STOP' value='1'/>
+      <enumerator name='TLV_VISIT_ERROR' value='2'/>
+    </enum-decl>
+    <type-decl name='int' size-in-bits='32' id='type-id-31'/>
+    <class-decl name='tlv_reader_format' size-in-bits='320' is-struct='yes' visibility='default' id='type-id-35'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='context' type-id='type-id-5' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='read_tag' type-id='type-id-36' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='read_length' type-id='type-id-37' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='read_value_bounds' type-id='type-id-38' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='read_element' type-id='type-id-39' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_schema_entry_t' size-in-bits='320' is-struct='yes' naming-typedef-id='type-id-40' visibility='default' id='type-id-41'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='tag' type-id='type-id-42' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='min_length' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='max_length' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='flags' type-id='type-id-43' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_structure_codec' size-in-bits='576' is-struct='yes' visibility='default' id='type-id-44'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='context' type-id='type-id-5' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='reader_format' type-id='type-id-45' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='writer_format' type-id='type-id-46' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='is_constructed' type-id='type-id-47' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='schema' type-id='type-id-48' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='max_depth' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='max_elements' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='448'>
+        <var-decl name='decode' type-id='type-id-49' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='512'>
+        <var-decl name='encode' type-id='type-id-50' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_structure_rule' size-in-bits='576' is-struct='yes' visibility='default' id='type-id-51'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='entry' type-id='type-id-40' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='min_occurs' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='max_occurs' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='448'>
+        <var-decl name='kind' type-id='type-id-52' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='512'>
+        <var-decl name='children' type-id='type-id-53' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_structure_schema' size-in-bits='192' is-struct='yes' visibility='default' id='type-id-54'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='rules' type-id='type-id-55' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='count' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='allow_unknown' type-id='type-id-31' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_tag_t' size-in-bits='72' is-struct='yes' naming-typedef-id='type-id-42' visibility='default' id='type-id-56'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='data' type-id='type-id-57' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='size' type-id='type-id-14' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_value_t' size-in-bits='128' is-struct='yes' naming-typedef-id='type-id-58' visibility='default' id='type-id-59'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='data' type-id='type-id-20' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='length' type-id='type-id-60' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_view_t' size-in-bits='256' is-struct='yes' naming-typedef-id='type-id-61' visibility='default' id='type-id-62'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='tag' type-id='type-id-42' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='value' type-id='type-id-58' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_writer_format' size-in-bits='320' is-struct='yes' visibility='default' id='type-id-63'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='context' type-id='type-id-5' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='write_tag' type-id='type-id-64' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='write_length' type-id='type-id-65' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='length_size' type-id='type-id-66' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='write_header' type-id='type-id-67' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='__uint32_t' type-id='type-id-68' id='type-id-69'/>
+    <typedef-decl name='__uint64_t' type-id='type-id-10' id='type-id-70'/>
+    <typedef-decl name='tlv_is_constructed_fn' type-id='type-id-71' id='type-id-47'/>
+    <typedef-decl name='tlv_length_size_fn' type-id='type-id-72' id='type-id-66'/>
+    <typedef-decl name='tlv_length_t' type-id='type-id-29' id='type-id-60'/>
+    <typedef-decl name='tlv_read_element_fn' type-id='type-id-73' id='type-id-39'/>
+    <typedef-decl name='tlv_read_length_fn' type-id='type-id-74' id='type-id-37'/>
+    <typedef-decl name='tlv_read_tag_fn' type-id='type-id-75' id='type-id-36'/>
+    <typedef-decl name='tlv_read_value_bounds_fn' type-id='type-id-76' id='type-id-38'/>
+    <typedef-decl name='tlv_reader_format_t' type-id='type-id-35' id='type-id-77'/>
+    <typedef-decl name='tlv_result_t' type-id='type-id-32' id='type-id-28'/>
+    <typedef-decl name='tlv_schema_entry_t' type-id='type-id-41' id='type-id-40'/>
+    <typedef-decl name='tlv_schema_kind_t' type-id='type-id-33' id='type-id-52'/>
+    <typedef-decl name='tlv_structure_codec_t' type-id='type-id-44' id='type-id-78'/>
+    <typedef-decl name='tlv_structure_rule_t' type-id='type-id-51' id='type-id-79'/>
+    <typedef-decl name='tlv_structure_schema_t' type-id='type-id-54' id='type-id-80'/>
+    <typedef-decl name='tlv_tag_t' type-id='type-id-56' id='type-id-42'/>
+    <typedef-decl name='tlv_tree_visitor_t' type-id='type-id-81' id='type-id-82'/>
+    <typedef-decl name='tlv_value_t' type-id='type-id-59' id='type-id-58'/>
+    <typedef-decl name='tlv_view_t' type-id='type-id-62' id='type-id-61'/>
+    <typedef-decl name='tlv_visit_result_t' type-id='type-id-34' id='type-id-83'/>
+    <typedef-decl name='tlv_write_header_fn' type-id='type-id-84' id='type-id-67'/>
+    <typedef-decl name='tlv_write_length_fn' type-id='type-id-85' id='type-id-65'/>
+    <typedef-decl name='tlv_write_tag_fn' type-id='type-id-86' id='type-id-64'/>
+    <typedef-decl name='tlv_writer_format_t' type-id='type-id-63' id='type-id-87'/>
+    <typedef-decl name='uint32_t' type-id='type-id-69' id='type-id-43'/>
+    <typedef-decl name='uint64_t' type-id='type-id-70' id='type-id-29'/>
+    <array-type-def dimensions='1' type-id='type-id-14' size-in-bits='64' id='type-id-57'>
+      <subrange length='8' lower-bound='0' upper-bound='7' type-id='type-id-10' id='type-id-88'/>
+    </array-type-def>
+    <type-decl name='unsigned int' size-in-bits='32' id='type-id-68'/>
+    <qualified-type-def type-id='type-id-77' const='yes' id='type-id-89'/>
+    <pointer-type-def type-id='type-id-89' size-in-bits='64' id='type-id-45'/>
+    <qualified-type-def type-id='type-id-78' const='yes' id='type-id-90'/>
+    <pointer-type-def type-id='type-id-90' size-in-bits='64' id='type-id-91'/>
+    <qualified-type-def type-id='type-id-79' const='yes' id='type-id-92'/>
+    <pointer-type-def type-id='type-id-92' size-in-bits='64' id='type-id-55'/>
+    <qualified-type-def type-id='type-id-54' const='yes' id='type-id-93'/>
+    <pointer-type-def type-id='type-id-93' size-in-bits='64' id='type-id-53'/>
+    <qualified-type-def type-id='type-id-80' const='yes' id='type-id-94'/>
+    <pointer-type-def type-id='type-id-94' size-in-bits='64' id='type-id-48'/>
+    <qualified-type-def type-id='type-id-42' const='yes' id='type-id-95'/>
+    <pointer-type-def type-id='type-id-95' size-in-bits='64' id='type-id-96'/>
+    <qualified-type-def type-id='type-id-61' const='yes' id='type-id-97'/>
+    <pointer-type-def type-id='type-id-97' size-in-bits='64' id='type-id-98'/>
+    <qualified-type-def type-id='type-id-87' const='yes' id='type-id-99'/>
+    <pointer-type-def type-id='type-id-99' size-in-bits='64' id='type-id-46'/>
+    <pointer-type-def type-id='type-id-100' size-in-bits='64' id='type-id-71'/>
+    <pointer-type-def type-id='type-id-42' size-in-bits='64' id='type-id-101'/>
+    <pointer-type-def type-id='type-id-102' size-in-bits='64' id='type-id-49'/>
+    <pointer-type-def type-id='type-id-103' size-in-bits='64' id='type-id-50'/>
+    <pointer-type-def type-id='type-id-104' size-in-bits='64' id='type-id-76'/>
+    <pointer-type-def type-id='type-id-105' size-in-bits='64' id='type-id-74'/>
+    <pointer-type-def type-id='type-id-106' size-in-bits='64' id='type-id-75'/>
+    <pointer-type-def type-id='type-id-107' size-in-bits='64' id='type-id-73'/>
+    <pointer-type-def type-id='type-id-108' size-in-bits='64' id='type-id-72'/>
+    <pointer-type-def type-id='type-id-109' size-in-bits='64' id='type-id-86'/>
+    <pointer-type-def type-id='type-id-110' size-in-bits='64' id='type-id-84'/>
+    <pointer-type-def type-id='type-id-111' size-in-bits='64' id='type-id-85'/>
+    <pointer-type-def type-id='type-id-112' size-in-bits='64' id='type-id-81'/>
+    <function-decl name='tlv_walk_tree' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-45'/>
+      <parameter type-id='type-id-47'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-82'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_schema_validate' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-45'/>
+      <parameter type-id='type-id-47'/>
+      <parameter type-id='type-id-48'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_structure_decode' mangled-name='tlv_structure_decode' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_structure_decode'>
+      <parameter type-id='type-id-91' name='codec'/>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-5' name='value'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='tlv_structure_encode' mangled-name='tlv_structure_encode' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_structure_encode'>
+      <parameter type-id='type-id-91' name='codec'/>
+      <parameter type-id='type-id-5' name='value'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-type size-in-bits='64' id='type-id-102'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-45'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-12'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-103'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-46'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-12'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-104'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-96'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <parameter type-id='type-id-21'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-105'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-106'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-101'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-107'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-101'/>
+      <parameter type-id='type-id-21'/>
+      <parameter type-id='type-id-21'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-109'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-96'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-110'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-96'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-111'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-108'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-112'>
+      <parameter type-id='type-id-98'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-5'/>
+      <return type-id='type-id-83'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-100'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-96'/>
+      <return type-id='type-id-31'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/copy.c' language='LANG_C11'>
+    <function-decl name='tlv_length_to_size' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-60'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_encoded_size' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-42'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-46'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_write' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-46'/>
+      <parameter type-id='type-id-42'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_copy_encoded' mangled-name='tlv_copy_encoded' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_copy_encoded'>
+      <parameter type-id='type-id-20' name='encoded_data'/>
+      <parameter type-id='type-id-11' name='encoded_length'/>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_copy_value' mangled-name='tlv_copy_value' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_copy_value'>
+      <parameter type-id='type-id-98' name='view'/>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_copy_view' mangled-name='tlv_copy_view' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_copy_view'>
+      <parameter type-id='type-id-98' name='view'/>
+      <parameter type-id='type-id-46' name='format'/>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='memmove' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-5'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/endian.c' language='LANG_C11'>
+    <function-decl name='tlv_endian_native' mangled-name='tlv_endian_native' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_endian_native'>
+      <return type-id='type-id-26'/>
+    </function-decl>
+    <function-decl name='tlv_read_u16_be' mangled-name='tlv_read_u16_be' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_read_u16_be'>
+      <parameter type-id='type-id-20' name='data'/>
+      <return type-id='type-id-113'/>
+    </function-decl>
+    <function-decl name='tlv_read_u16_le' mangled-name='tlv_read_u16_le' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_read_u16_le'>
+      <parameter type-id='type-id-20' name='data'/>
+      <return type-id='type-id-113'/>
+    </function-decl>
+    <function-decl name='tlv_read_u32_be' mangled-name='tlv_read_u32_be' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_read_u32_be'>
+      <parameter type-id='type-id-20' name='data'/>
+      <return type-id='type-id-43'/>
+    </function-decl>
+    <function-decl name='tlv_read_u32_le' mangled-name='tlv_read_u32_le' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_read_u32_le'>
+      <parameter type-id='type-id-20' name='data'/>
+      <return type-id='type-id-43'/>
+    </function-decl>
+    <function-decl name='tlv_write_u16_be' mangled-name='tlv_write_u16_be' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_write_u16_be'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-113' name='value'/>
+      <return type-id='type-id-25'/>
+    </function-decl>
+    <function-decl name='tlv_write_u16_le' mangled-name='tlv_write_u16_le' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_write_u16_le'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-113' name='value'/>
+      <return type-id='type-id-25'/>
+    </function-decl>
+    <function-decl name='tlv_write_u32_be' mangled-name='tlv_write_u32_be' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_write_u32_be'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-43' name='value'/>
+      <return type-id='type-id-25'/>
+    </function-decl>
+    <function-decl name='tlv_write_u32_le' mangled-name='tlv_write_u32_le' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_write_u32_le'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-43' name='value'/>
+      <return type-id='type-id-25'/>
+    </function-decl>
+    <function-decl name='tlv_read_u64_be' mangled-name='tlv_read_u64_be' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_read_u64_be'>
+      <parameter type-id='type-id-20' name='data'/>
+      <return type-id='type-id-29'/>
+    </function-decl>
+    <function-decl name='tlv_read_u64_le' mangled-name='tlv_read_u64_le' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_read_u64_le'>
+      <parameter type-id='type-id-20' name='data'/>
+      <return type-id='type-id-29'/>
+    </function-decl>
+    <function-decl name='tlv_write_u64_be' mangled-name='tlv_write_u64_be' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_write_u64_be'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-29' name='value'/>
+      <return type-id='type-id-25'/>
+    </function-decl>
+    <function-decl name='tlv_write_u64_le' mangled-name='tlv_write_u64_le' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_write_u64_le'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-29' name='value'/>
+      <return type-id='type-id-25'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/error.c' language='LANG_C11'>
+    <function-decl name='tlv_strerror' mangled-name='tlv_strerror' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_strerror'>
+      <parameter type-id='type-id-28' name='result'/>
+      <return type-id='type-id-16'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/formats/asn1/ber.c' language='LANG_C11'>
+    <var-decl name='tlv_reader_format_ber' type-id='type-id-89' mangled-name='tlv_reader_format_ber' visibility='default' elf-symbol-id='tlv_reader_format_ber'/>
+    <var-decl name='tlv_writer_format_ber' type-id='type-id-99' mangled-name='tlv_writer_format_ber' visibility='default' elf-symbol-id='tlv_writer_format_ber'/>
+    <function-decl name='tlv_ber_is_constructed' mangled-name='tlv_ber_is_constructed' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_ber_is_constructed'>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-96' name='tag'/>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_ber_indefinite_encoded_size' mangled-name='tlv_ber_indefinite_encoded_size' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_ber_indefinite_encoded_size'>
+      <parameter type-id='type-id-42' name='tag'/>
+      <parameter type-id='type-id-11' name='length'/>
+      <parameter type-id='type-id-21' name='size'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_ber_write_indefinite' mangled-name='tlv_ber_write_indefinite' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_ber_write_indefinite'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-42' name='tag'/>
+      <parameter type-id='type-id-20' name='value'/>
+      <parameter type-id='type-id-11' name='length'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_ber_writer_write_indefinite' mangled-name='tlv_ber_writer_write_indefinite' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_ber_writer_write_indefinite'>
+      <parameter type-id='type-id-114' name='writer'/>
+      <parameter type-id='type-id-42' name='tag'/>
+      <parameter type-id='type-id-20' name='value'/>
+      <parameter type-id='type-id-11' name='length'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_ber_length_decode' mangled-name='tlv_ber_length_decode' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_ber_length_decode'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='data_size'/>
+      <parameter type-id='type-id-115' name='value'/>
+      <parameter type-id='type-id-21' name='consumed'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_ber_length_encode' mangled-name='tlv_ber_length_encode' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_ber_length_encode'>
+      <parameter type-id='type-id-60' name='value'/>
+      <parameter type-id='type-id-24' name='out'/>
+      <parameter type-id='type-id-11' name='out_capacity'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/formats/asn1/ber_internal.c' language='LANG_C11'>
+    <function-decl name='tlv_length_from_size' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-115'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <var-decl name='tlv_ber_reader_wire' type-id='type-id-89' visibility='default'/>
+    <var-decl name='tlv_ber_writer_wire' type-id='type-id-99' visibility='default'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/formats/asn1/cer.c' language='LANG_C11'>
+    <var-decl name='tlv_reader_format_cer' type-id='type-id-89' mangled-name='tlv_reader_format_cer' visibility='default' elf-symbol-id='tlv_reader_format_cer'/>
+    <var-decl name='tlv_writer_format_cer' type-id='type-id-99' mangled-name='tlv_writer_format_cer' visibility='default' elf-symbol-id='tlv_writer_format_cer'/>
+    <function-decl name='tlv_asn1_read_identifier' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-101'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_write_identifier' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-96'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_read_minimal_length' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_ber_scan_contents' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-31'/>
+      <parameter type-id='type-id-21'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_cer_is_constructed' mangled-name='tlv_cer_is_constructed' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_cer_is_constructed'>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-96' name='tag'/>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_cer_tag_make' mangled-name='tlv_cer_tag_make' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_cer_tag_make'>
+      <parameter type-id='type-id-116' name='tag_class'/>
+      <parameter type-id='type-id-31' name='constructed'/>
+      <parameter type-id='type-id-29' name='number'/>
+      <parameter type-id='type-id-101' name='tag'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_cer_tag_number' mangled-name='tlv_cer_tag_number' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_cer_tag_number'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-27' name='number'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/formats/asn1/der.c' language='LANG_C11'>
+    <enum-decl name='tlv_asn1_class' id='type-id-117'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_ASN1_UNIVERSAL' value='0'/>
+      <enumerator name='TLV_ASN1_APPLICATION' value='1'/>
+      <enumerator name='TLV_ASN1_CONTEXT_SPECIFIC' value='2'/>
+      <enumerator name='TLV_ASN1_PRIVATE' value='3'/>
+    </enum-decl>
+    <typedef-decl name='tlv_asn1_class_t' type-id='type-id-117' id='type-id-116'/>
+    <var-decl name='tlv_reader_format_der' type-id='type-id-89' mangled-name='tlv_reader_format_der' visibility='default' elf-symbol-id='tlv_reader_format_der'/>
+    <var-decl name='tlv_writer_format_der' type-id='type-id-99' mangled-name='tlv_writer_format_der' visibility='default' elf-symbol-id='tlv_writer_format_der'/>
+    <function-decl name='tlv_der_is_constructed' mangled-name='tlv_der_is_constructed' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_is_constructed'>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-96' name='tag'/>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_der_tag_make' mangled-name='tlv_der_tag_make' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_tag_make'>
+      <parameter type-id='type-id-116' name='tag_class'/>
+      <parameter type-id='type-id-31' name='constructed'/>
+      <parameter type-id='type-id-29' name='number'/>
+      <parameter type-id='type-id-101' name='tag'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_tag_number' mangled-name='tlv_der_tag_number' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_tag_number'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-27' name='number'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/formats/bluetooth/bluetooth_ltv.c' language='LANG_C11'>
+    <var-decl name='tlv_reader_format_bluetooth_ltv' type-id='type-id-89' mangled-name='tlv_reader_format_bluetooth_ltv' visibility='default' elf-symbol-id='tlv_reader_format_bluetooth_ltv'/>
+    <var-decl name='tlv_writer_format_bluetooth_ltv' type-id='type-id-99' mangled-name='tlv_writer_format_bluetooth_ltv' visibility='default' elf-symbol-id='tlv_writer_format_bluetooth_ltv'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/formats/default/default.c' language='LANG_C11'>
+    <var-decl name='tlv_reader_format_default' type-id='type-id-89' mangled-name='tlv_reader_format_default' visibility='default' elf-symbol-id='tlv_reader_format_default'/>
+    <var-decl name='tlv_writer_format_default' type-id='type-id-99' mangled-name='tlv_writer_format_default' visibility='default' elf-symbol-id='tlv_writer_format_default'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/formats/fixed/fixed_1byte.c' language='LANG_C11'>
+    <var-decl name='tlv_reader_format_fixed_1byte' type-id='type-id-89' mangled-name='tlv_reader_format_fixed_1byte' visibility='default' elf-symbol-id='tlv_reader_format_fixed_1byte'/>
+    <var-decl name='tlv_writer_format_fixed_1byte' type-id='type-id-99' mangled-name='tlv_writer_format_fixed_1byte' visibility='default' elf-symbol-id='tlv_writer_format_fixed_1byte'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/formats/format.c' language='LANG_C11'>
+    <pointer-type-def type-id='type-id-77' size-in-bits='64' id='type-id-118'/>
+    <pointer-type-def type-id='type-id-87' size-in-bits='64' id='type-id-119'/>
+    <function-decl name='tlv_reader_format_init' mangled-name='tlv_reader_format_init' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_reader_format_init'>
+      <parameter type-id='type-id-118' name='format'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-36' name='read_tag'/>
+      <parameter type-id='type-id-37' name='read_length'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_writer_format_init' mangled-name='tlv_writer_format_init' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_writer_format_init'>
+      <parameter type-id='type-id-119' name='format'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-64' name='write_tag'/>
+      <parameter type-id='type-id-65' name='write_length'/>
+      <parameter type-id='type-id-66' name='length_size'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_reader_format_init_element' mangled-name='tlv_reader_format_init_element' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_reader_format_init_element'>
+      <parameter type-id='type-id-118' name='format'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-39' name='read_element'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_writer_format_init_header' mangled-name='tlv_writer_format_init_header' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_writer_format_init_header'>
+      <parameter type-id='type-id-119' name='format'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-67' name='write_header'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/length.c' language='LANG_C11'>
+    <pointer-type-def type-id='type-id-60' size-in-bits='64' id='type-id-115'/>
+    <function-decl name='tlv_length_validate_native' mangled-name='tlv_length_validate_native' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_length_validate_native'>
+      <parameter type-id='type-id-60' name='length'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/profiles/cer.c' language='LANG_C11'>
+    <class-decl name='tlv_cer_limits' size-in-bits='256' is-struct='yes' visibility='default' id='type-id-120'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='max_depth' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='max_input_size' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='max_value_size' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='max_elements' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='tlv_cer_limits_t' type-id='type-id-120' id='type-id-121'/>
+    <typedef-decl name='tlv_cer_visitor_t' type-id='type-id-81' id='type-id-122'/>
+    <qualified-type-def type-id='type-id-121' const='yes' id='type-id-123'/>
+    <pointer-type-def type-id='type-id-123' size-in-bits='64' id='type-id-124'/>
+    <pointer-type-def type-id='type-id-125' size-in-bits='64' id='type-id-126'/>
+    <var-decl name='tlv_cer_default_limits' type-id='type-id-123' mangled-name='tlv_cer_default_limits' visibility='default' elf-symbol-id='tlv_cer_default_limits'/>
+    <function-decl name='tlv_cer_walk' mangled-name='tlv_cer_walk' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_cer_walk'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-124' name='limits'/>
+      <parameter type-id='type-id-122' name='visitor'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_cer_walk_strict' mangled-name='tlv_cer_walk_strict' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_cer_walk_strict'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-124' name='limits'/>
+      <parameter type-id='type-id-122' name='visitor'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_cer_read' mangled-name='tlv_cer_read' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_cer_read'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-124' name='limits'/>
+      <parameter type-id='type-id-127' name='view'/>
+      <parameter type-id='type-id-21' name='consumed'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_cer_read_strict' mangled-name='tlv_cer_read_strict' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_cer_read_strict'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-124' name='limits'/>
+      <parameter type-id='type-id-127' name='view'/>
+      <parameter type-id='type-id-21' name='consumed'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_cer_write' mangled-name='tlv_cer_write' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_cer_write'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-42' name='tag'/>
+      <parameter type-id='type-id-20' name='value'/>
+      <parameter type-id='type-id-11' name='length'/>
+      <parameter type-id='type-id-124' name='limits'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_cer_write_strict' mangled-name='tlv_cer_write_strict' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_cer_write_strict'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-42' name='tag'/>
+      <parameter type-id='type-id-20' name='value'/>
+      <parameter type-id='type-id-11' name='length'/>
+      <parameter type-id='type-id-124' name='limits'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_cer_write_segmented_string' mangled-name='tlv_cer_write_segmented_string' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_cer_write_segmented_string'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-42' name='tag'/>
+      <parameter type-id='type-id-20' name='content'/>
+      <parameter type-id='type-id-11' name='content_length'/>
+      <parameter type-id='type-id-124' name='limits'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <class-decl name='tlv_cer_type_info' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-128'/>
+    <typedef-decl name='tlv_cer_type_info_t' type-id='type-id-128' id='type-id-129'/>
+    <function-decl name='tlv_cer_type_info' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-29'/>
+      <return type-id='type-id-129'/>
+    </function-decl>
+    <function-decl name='tlv_cer_validate_universal_value' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-29'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <class-decl name='tlv_cer_segment_state' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-130'/>
+    <typedef-decl name='tlv_cer_segment_state_t' type-id='type-id-130' id='type-id-125'/>
+    <function-decl name='tlv_cer_segment_state_init' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-126'/>
+      <parameter type-id='type-id-29'/>
+      <parameter type-id='type-id-129'/>
+      <parameter type-id='type-id-31'/>
+      <return type-id='type-id-25'/>
+    </function-decl>
+    <function-decl name='tlv_cer_segment_state_add' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-126'/>
+      <parameter type-id='type-id-96'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_cer_segment_state_finish' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-126'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/profiles/cer_values_internal.c' language='LANG_C11'>
+    <qualified-type-def type-id='type-id-131' const='yes' id='type-id-132'/>
+    <pointer-type-def type-id='type-id-132' size-in-bits='64' id='type-id-133'/>
+    <pointer-type-def type-id='type-id-131' size-in-bits='64' id='type-id-134'/>
+    <function-decl name='tlv_asn1_validate_bit_string' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_validate_numeric_string' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_validate_printable_string' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_validate_ia5_string' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_validate_visible_string' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_validate_universal_string' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_validate_bmp_string' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_validate_universal_value' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-29'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <class-decl name='tlv_asn1_utf8_stream' is-struct='yes' visibility='default' is-declaration-only='yes' id='type-id-135'/>
+    <typedef-decl name='tlv_asn1_utf8_stream_t' type-id='type-id-135' id='type-id-131'/>
+    <function-decl name='tlv_asn1_utf8_stream_init' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-134'/>
+      <return type-id='type-id-25'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_utf8_stream_update' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-134'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_asn1_utf8_stream_finish' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-133'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/profiles/der.c' language='LANG_C11'>
+    <class-decl name='tlv_der_limits' size-in-bits='256' is-struct='yes' visibility='default' id='type-id-136'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='max_depth' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='max_input_size' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='max_value_size' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='max_elements' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='tlv_der_limits_t' type-id='type-id-136' id='type-id-137'/>
+    <typedef-decl name='tlv_der_visitor_t' type-id='type-id-81' id='type-id-138'/>
+    <qualified-type-def type-id='type-id-137' const='yes' id='type-id-139'/>
+    <pointer-type-def type-id='type-id-139' size-in-bits='64' id='type-id-140'/>
+    <var-decl name='tlv_der_default_limits' type-id='type-id-139' mangled-name='tlv_der_default_limits' visibility='default' elf-symbol-id='tlv_der_default_limits'/>
+    <function-decl name='tlv_der_walk' mangled-name='tlv_der_walk' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_walk'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-140' name='limits'/>
+      <parameter type-id='type-id-138' name='visitor'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_walk_strict' mangled-name='tlv_der_walk_strict' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_walk_strict'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-140' name='limits'/>
+      <parameter type-id='type-id-138' name='visitor'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_read' mangled-name='tlv_der_read' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_read'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-140' name='limits'/>
+      <parameter type-id='type-id-127' name='view'/>
+      <parameter type-id='type-id-21' name='consumed'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_read_strict' mangled-name='tlv_der_read_strict' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_read_strict'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-140' name='limits'/>
+      <parameter type-id='type-id-127' name='view'/>
+      <parameter type-id='type-id-21' name='consumed'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_write' mangled-name='tlv_der_write' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_write'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-42' name='tag'/>
+      <parameter type-id='type-id-20' name='value'/>
+      <parameter type-id='type-id-11' name='length'/>
+      <parameter type-id='type-id-140' name='limits'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_write_strict' mangled-name='tlv_der_write_strict' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_write_strict'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-42' name='tag'/>
+      <parameter type-id='type-id-20' name='value'/>
+      <parameter type-id='type-id-11' name='length'/>
+      <parameter type-id='type-id-140' name='limits'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_validate_universal_value' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-29'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/profiles/der_schema.c' language='LANG_C11'>
+    <enum-decl name='tlv_der_presence' id='type-id-141'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_DER_REQUIRED' value='0'/>
+      <enumerator name='TLV_DER_OPTIONAL' value='1'/>
+      <enumerator name='TLV_DER_DEFAULT' value='2'/>
+    </enum-decl>
+    <enum-decl name='tlv_der_schema_kind' id='type-id-142'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_DER_SCHEMA_UNIVERSAL' value='0'/>
+      <enumerator name='TLV_DER_SCHEMA_SEQUENCE' value='1'/>
+      <enumerator name='TLV_DER_SCHEMA_SET' value='2'/>
+      <enumerator name='TLV_DER_SCHEMA_SET_OF' value='3'/>
+      <enumerator name='TLV_DER_SCHEMA_CHOICE' value='4'/>
+      <enumerator name='TLV_DER_SCHEMA_ANY' value='5'/>
+    </enum-decl>
+    <enum-decl name='tlv_der_tagging_mode' id='type-id-143'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_DER_TAG_NONE' value='0'/>
+      <enumerator name='TLV_DER_TAG_IMPLICIT' value='1'/>
+      <enumerator name='TLV_DER_TAG_EXPLICIT' value='2'/>
+    </enum-decl>
+    <class-decl name='tlv_der_schema_component' size-in-bits='384' is-struct='yes' visibility='default' id='type-id-144'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='type' type-id='type-id-145' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='tagging' type-id='type-id-146' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='tag_class' type-id='type-id-116' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='tag_number' type-id='type-id-29' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='presence' type-id='type-id-147' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='default_encoding' type-id='type-id-20' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='default_encoding_length' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_der_schema_limits' size-in-bits='320' is-struct='yes' visibility='default' id='type-id-148'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='base' type-id='type-id-137' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='max_set_elements' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_der_schema_record' size-in-bits='128' is-struct='yes' visibility='default' id='type-id-149'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='offset' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='length' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_der_schema_type' size-in-bits='448' is-struct='yes' visibility='default' id='type-id-150'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='kind' type-id='type-id-151' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='universal_number' type-id='type-id-29' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='components' type-id='type-id-152' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='component_count' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='element' type-id='type-id-152' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='min_elements' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='max_elements' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='tlv_der_presence_t' type-id='type-id-141' id='type-id-147'/>
+    <typedef-decl name='tlv_der_schema_component_t' type-id='type-id-144' id='type-id-153'/>
+    <typedef-decl name='tlv_der_schema_encode_fn' type-id='type-id-154' id='type-id-155'/>
+    <typedef-decl name='tlv_der_schema_kind_t' type-id='type-id-142' id='type-id-151'/>
+    <typedef-decl name='tlv_der_schema_limits_t' type-id='type-id-148' id='type-id-156'/>
+    <typedef-decl name='tlv_der_schema_record_t' type-id='type-id-149' id='type-id-157'/>
+    <typedef-decl name='tlv_der_schema_type_t' type-id='type-id-150' id='type-id-158'/>
+    <typedef-decl name='tlv_der_tagging_mode_t' type-id='type-id-143' id='type-id-146'/>
+    <qualified-type-def type-id='type-id-153' const='yes' id='type-id-159'/>
+    <pointer-type-def type-id='type-id-159' size-in-bits='64' id='type-id-152'/>
+    <qualified-type-def type-id='type-id-156' const='yes' id='type-id-160'/>
+    <pointer-type-def type-id='type-id-160' size-in-bits='64' id='type-id-161'/>
+    <qualified-type-def type-id='type-id-158' const='yes' id='type-id-162'/>
+    <pointer-type-def type-id='type-id-162' size-in-bits='64' id='type-id-145'/>
+    <pointer-type-def type-id='type-id-157' size-in-bits='64' id='type-id-163'/>
+    <pointer-type-def type-id='type-id-164' size-in-bits='64' id='type-id-154'/>
+    <var-decl name='tlv_der_schema_default_limits' type-id='type-id-160' mangled-name='tlv_der_schema_default_limits' visibility='default' elf-symbol-id='tlv_der_schema_default_limits'/>
+    <function-decl name='tlv_tag_equal' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-96'/>
+      <parameter type-id='type-id-96'/>
+      <parameter type-id='type-id-165'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_read_entry' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-140'/>
+      <parameter type-id='type-id-127'/>
+      <parameter type-id='type-id-21'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_schema_check' mangled-name='tlv_der_schema_check' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_schema_check'>
+      <parameter type-id='type-id-145' name='root'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_schema_read' mangled-name='tlv_der_schema_read' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_schema_read'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-145' name='root'/>
+      <parameter type-id='type-id-161' name='limits'/>
+      <parameter type-id='type-id-127' name='view'/>
+      <parameter type-id='type-id-21' name='consumed'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_der_schema_write' mangled-name='tlv_der_schema_write' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_der_schema_write'>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-145' name='root'/>
+      <parameter type-id='type-id-155' name='encode'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-161' name='limits'/>
+      <parameter type-id='type-id-24' name='scratch_bytes'/>
+      <parameter type-id='type-id-11' name='scratch_bytes_capacity'/>
+      <parameter type-id='type-id-163' name='scratch'/>
+      <parameter type-id='type-id-11' name='scratch_capacity'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='memcmp' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-type size-in-bits='64' id='type-id-164'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-152'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <parameter type-id='type-id-165'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/profiles/der_values.c' language='LANG_C11'>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/profiles/dol.c' language='LANG_C11'>
+    <enum-decl name='tlv_dol_format' id='type-id-166'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_DOL_FORMAT_BINARY' value='0'/>
+      <enumerator name='TLV_DOL_FORMAT_NUMERIC' value='1'/>
+    </enum-decl>
+    <class-decl name='tlv_dol_entry' size-in-bits='192' is-struct='yes' visibility='default' id='type-id-167'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='tag' type-id='type-id-42' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='requested_length' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='tlv_dol_limits' size-in-bits='128' is-struct='yes' visibility='default' id='type-id-168'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='max_entries' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='max_value_length' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='tlv_dol_entry_t' type-id='type-id-167' id='type-id-169'/>
+    <typedef-decl name='tlv_dol_format_t' type-id='type-id-166' id='type-id-170'/>
+    <typedef-decl name='tlv_dol_limits_t' type-id='type-id-168' id='type-id-171'/>
+    <typedef-decl name='tlv_dol_resolve_fn' type-id='type-id-172' id='type-id-173'/>
+    <typedef-decl name='tlv_dol_visit_fn' type-id='type-id-174' id='type-id-175'/>
+    <qualified-type-def type-id='type-id-169' const='yes' id='type-id-176'/>
+    <pointer-type-def type-id='type-id-176' size-in-bits='64' id='type-id-177'/>
+    <qualified-type-def type-id='type-id-171' const='yes' id='type-id-178'/>
+    <pointer-type-def type-id='type-id-178' size-in-bits='64' id='type-id-179'/>
+    <pointer-type-def type-id='type-id-170' size-in-bits='64' id='type-id-180'/>
+    <pointer-type-def type-id='type-id-181' size-in-bits='64' id='type-id-172'/>
+    <pointer-type-def type-id='type-id-182' size-in-bits='64' id='type-id-174'/>
+    <var-decl name='tlv_dol_default_limits' type-id='type-id-178' mangled-name='tlv_dol_default_limits' visibility='default' elf-symbol-id='tlv_dol_default_limits'/>
+    <function-decl name='tlv_dol_read' mangled-name='tlv_dol_read' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_dol_read'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-179' name='limits'/>
+      <parameter type-id='type-id-175' name='visit'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_dol_write' mangled-name='tlv_dol_write' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_dol_write'>
+      <parameter type-id='type-id-20' name='dol'/>
+      <parameter type-id='type-id-11' name='dol_size'/>
+      <parameter type-id='type-id-24' name='data'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-179' name='limits'/>
+      <parameter type-id='type-id-173' name='resolve'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <parameter type-id='type-id-21' name='written'/>
+      <parameter type-id='type-id-21' name='error_offset'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-type size-in-bits='64' id='type-id-181'>
+      <parameter type-id='type-id-177'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <parameter type-id='type-id-180'/>
+      <parameter type-id='type-id-165'/>
+      <parameter type-id='type-id-5'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+    <function-type size-in-bits='64' id='type-id-182'>
+      <parameter type-id='type-id-177'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-5'/>
+      <return type-id='type-id-28'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/profiles/emv.c' language='LANG_C11'>
+    <enum-decl name='tlv_emv_context_t' naming-typedef-id='type-id-183' id='type-id-184'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_EMV_CONTEXT_BASE' value='0'/>
+      <enumerator name='TLV_EMV_CONTEXT_BIT' value='1'/>
+      <enumerator name='TLV_EMV_CONTEXT_BHT' value='2'/>
+      <enumerator name='TLV_EMV_CONTEXT_BHT_FORMAT' value='3'/>
+      <enumerator name='TLV_EMV_CONTEXT_BIT_GROUP' value='4'/>
+      <enumerator name='TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS' value='5'/>
+      <enumerator name='TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS' value='6'/>
+      <enumerator name='TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION' value='7'/>
+      <enumerator name='TLV_EMV_CONTEXT_COUNT' value='8'/>
+    </enum-decl>
+    <enum-decl name='tlv_emv_value_kind_t' naming-typedef-id='type-id-30' id='type-id-185'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_EMV_VALUE_BYTES' value='0'/>
+      <enumerator name='TLV_EMV_VALUE_TEXT' value='1'/>
+      <enumerator name='TLV_EMV_VALUE_TEMPLATE' value='2'/>
+      <enumerator name='TLV_EMV_VALUE_NUMBER' value='3'/>
+      <enumerator name='TLV_EMV_VALUE_FLAGS' value='4'/>
+      <enumerator name='TLV_EMV_VALUE_DIGITS' value='5'/>
+      <enumerator name='TLV_EMV_VALUE_DATE' value='6'/>
+      <enumerator name='TLV_EMV_VALUE_TIME' value='7'/>
+      <enumerator name='TLV_EMV_VALUE_ACCOUNT' value='8'/>
+      <enumerator name='TLV_EMV_VALUE_CRYPTOGRAM' value='9'/>
+      <enumerator name='TLV_EMV_VALUE_BIOMETRIC' value='10'/>
+      <enumerator name='TLV_EMV_VALUE_NUMBER_LIST' value='11'/>
+      <enumerator name='TLV_EMV_VALUE_AFL' value='12'/>
+      <enumerator name='TLV_EMV_VALUE_CVM_RESULT' value='13'/>
+      <enumerator name='TLV_EMV_VALUE_TRACK2' value='14'/>
+    </enum-decl>
+    <class-decl name='tlv_emv_definition_t' size-in-bits='320' is-struct='yes' naming-typedef-id='type-id-186' visibility='default' id='type-id-187'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='schema' type-id='type-id-188' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='name' type-id='type-id-16' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='value_kind' type-id='type-id-30' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='codec' type-id='type-id-18' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='length_step' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='tlv_emv_context_t' type-id='type-id-184' id='type-id-183'/>
+    <typedef-decl name='tlv_emv_definition_t' type-id='type-id-187' id='type-id-186'/>
+    <typedef-decl name='tlv_emv_value_kind_t' type-id='type-id-185' id='type-id-30'/>
+    <pointer-type-def type-id='type-id-1' size-in-bits='64' id='type-id-189'/>
+    <qualified-type-def type-id='type-id-186' const='yes' id='type-id-190'/>
+    <pointer-type-def type-id='type-id-190' size-in-bits='64' id='type-id-191'/>
+    <var-decl name='tlv_emv_schema' type-id='type-id-192' mangled-name='tlv_emv_schema' visibility='default' elf-symbol-id='tlv_emv_schema'/>
+    <var-decl name='tlv_emv_tag_iin' type-id='type-id-95' mangled-name='tlv_emv_tag_iin' visibility='default' elf-symbol-id='tlv_emv_tag_iin'/>
+    <var-decl name='tlv_emv_tag_adf_name' type-id='type-id-95' mangled-name='tlv_emv_tag_adf_name' visibility='default' elf-symbol-id='tlv_emv_tag_adf_name'/>
+    <var-decl name='tlv_emv_tag_application_label' type-id='type-id-95' mangled-name='tlv_emv_tag_application_label' visibility='default' elf-symbol-id='tlv_emv_tag_application_label'/>
+    <var-decl name='tlv_emv_tag_track2_equivalent_data' type-id='type-id-95' mangled-name='tlv_emv_tag_track2_equivalent_data' visibility='default' elf-symbol-id='tlv_emv_tag_track2_equivalent_data'/>
+    <var-decl name='tlv_emv_tag_pan' type-id='type-id-95' mangled-name='tlv_emv_tag_pan' visibility='default' elf-symbol-id='tlv_emv_tag_pan'/>
+    <var-decl name='tlv_emv_tag_application_template' type-id='type-id-95' mangled-name='tlv_emv_tag_application_template' visibility='default' elf-symbol-id='tlv_emv_tag_application_template'/>
+    <var-decl name='tlv_emv_tag_fci_template' type-id='type-id-95' mangled-name='tlv_emv_tag_fci_template' visibility='default' elf-symbol-id='tlv_emv_tag_fci_template'/>
+    <var-decl name='tlv_emv_tag_read_record_template' type-id='type-id-95' mangled-name='tlv_emv_tag_read_record_template' visibility='default' elf-symbol-id='tlv_emv_tag_read_record_template'/>
+    <var-decl name='tlv_emv_tag_issuer_script_template1' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_script_template1' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_script_template1'/>
+    <var-decl name='tlv_emv_tag_issuer_script_template2' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_script_template2' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_script_template2'/>
+    <var-decl name='tlv_emv_tag_directory_discretionary_template' type-id='type-id-95' mangled-name='tlv_emv_tag_directory_discretionary_template' visibility='default' elf-symbol-id='tlv_emv_tag_directory_discretionary_template'/>
+    <var-decl name='tlv_emv_tag_response_template2' type-id='type-id-95' mangled-name='tlv_emv_tag_response_template2' visibility='default' elf-symbol-id='tlv_emv_tag_response_template2'/>
+    <var-decl name='tlv_emv_tag_response_template1' type-id='type-id-95' mangled-name='tlv_emv_tag_response_template1' visibility='default' elf-symbol-id='tlv_emv_tag_response_template1'/>
+    <var-decl name='tlv_emv_tag_amount_authorised_binary' type-id='type-id-95' mangled-name='tlv_emv_tag_amount_authorised_binary' visibility='default' elf-symbol-id='tlv_emv_tag_amount_authorised_binary'/>
+    <var-decl name='tlv_emv_tag_aip' type-id='type-id-95' mangled-name='tlv_emv_tag_aip' visibility='default' elf-symbol-id='tlv_emv_tag_aip'/>
+    <var-decl name='tlv_emv_tag_command_template' type-id='type-id-95' mangled-name='tlv_emv_tag_command_template' visibility='default' elf-symbol-id='tlv_emv_tag_command_template'/>
+    <var-decl name='tlv_emv_tag_df_name' type-id='type-id-95' mangled-name='tlv_emv_tag_df_name' visibility='default' elf-symbol-id='tlv_emv_tag_df_name'/>
+    <var-decl name='tlv_emv_tag_issuer_script_command' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_script_command' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_script_command'/>
+    <var-decl name='tlv_emv_tag_application_priority_indicator' type-id='type-id-95' mangled-name='tlv_emv_tag_application_priority_indicator' visibility='default' elf-symbol-id='tlv_emv_tag_application_priority_indicator'/>
+    <var-decl name='tlv_emv_tag_sfi' type-id='type-id-95' mangled-name='tlv_emv_tag_sfi' visibility='default' elf-symbol-id='tlv_emv_tag_sfi'/>
+    <var-decl name='tlv_emv_tag_authorisation_code' type-id='type-id-95' mangled-name='tlv_emv_tag_authorisation_code' visibility='default' elf-symbol-id='tlv_emv_tag_authorisation_code'/>
+    <var-decl name='tlv_emv_tag_authorisation_response_code' type-id='type-id-95' mangled-name='tlv_emv_tag_authorisation_response_code' visibility='default' elf-symbol-id='tlv_emv_tag_authorisation_response_code'/>
+    <var-decl name='tlv_emv_tag_cdol1' type-id='type-id-95' mangled-name='tlv_emv_tag_cdol1' visibility='default' elf-symbol-id='tlv_emv_tag_cdol1'/>
+    <var-decl name='tlv_emv_tag_cdol2' type-id='type-id-95' mangled-name='tlv_emv_tag_cdol2' visibility='default' elf-symbol-id='tlv_emv_tag_cdol2'/>
+    <var-decl name='tlv_emv_tag_cvm_list' type-id='type-id-95' mangled-name='tlv_emv_tag_cvm_list' visibility='default' elf-symbol-id='tlv_emv_tag_cvm_list'/>
+    <var-decl name='tlv_emv_tag_ca_public_key_index' type-id='type-id-95' mangled-name='tlv_emv_tag_ca_public_key_index' visibility='default' elf-symbol-id='tlv_emv_tag_ca_public_key_index'/>
+    <var-decl name='tlv_emv_tag_issuer_public_key_certificate' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_public_key_certificate' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_public_key_certificate'/>
+    <var-decl name='tlv_emv_tag_issuer_authentication_data' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_authentication_data' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_authentication_data'/>
+    <var-decl name='tlv_emv_tag_issuer_public_key_remainder' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_public_key_remainder' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_public_key_remainder'/>
+    <var-decl name='tlv_emv_tag_signed_static_application_data' type-id='type-id-95' mangled-name='tlv_emv_tag_signed_static_application_data' visibility='default' elf-symbol-id='tlv_emv_tag_signed_static_application_data'/>
+    <var-decl name='tlv_emv_tag_afl' type-id='type-id-95' mangled-name='tlv_emv_tag_afl' visibility='default' elf-symbol-id='tlv_emv_tag_afl'/>
+    <var-decl name='tlv_emv_tag_tvr' type-id='type-id-95' mangled-name='tlv_emv_tag_tvr' visibility='default' elf-symbol-id='tlv_emv_tag_tvr'/>
+    <var-decl name='tlv_emv_tag_tdol' type-id='type-id-95' mangled-name='tlv_emv_tag_tdol' visibility='default' elf-symbol-id='tlv_emv_tag_tdol'/>
+    <var-decl name='tlv_emv_tag_tc_hash_value' type-id='type-id-95' mangled-name='tlv_emv_tag_tc_hash_value' visibility='default' elf-symbol-id='tlv_emv_tag_tc_hash_value'/>
+    <var-decl name='tlv_emv_tag_transaction_pin_data' type-id='type-id-95' mangled-name='tlv_emv_tag_transaction_pin_data' visibility='default' elf-symbol-id='tlv_emv_tag_transaction_pin_data'/>
+    <var-decl name='tlv_emv_tag_transaction_date' type-id='type-id-95' mangled-name='tlv_emv_tag_transaction_date' visibility='default' elf-symbol-id='tlv_emv_tag_transaction_date'/>
+    <var-decl name='tlv_emv_tag_tsi' type-id='type-id-95' mangled-name='tlv_emv_tag_tsi' visibility='default' elf-symbol-id='tlv_emv_tag_tsi'/>
+    <var-decl name='tlv_emv_tag_transaction_type' type-id='type-id-95' mangled-name='tlv_emv_tag_transaction_type' visibility='default' elf-symbol-id='tlv_emv_tag_transaction_type'/>
+    <var-decl name='tlv_emv_tag_ddf_name' type-id='type-id-95' mangled-name='tlv_emv_tag_ddf_name' visibility='default' elf-symbol-id='tlv_emv_tag_ddf_name'/>
+    <var-decl name='tlv_emv_tag_fci_proprietary_template' type-id='type-id-95' mangled-name='tlv_emv_tag_fci_proprietary_template' visibility='default' elf-symbol-id='tlv_emv_tag_fci_proprietary_template'/>
+    <var-decl name='tlv_emv_tag_cardholder_name' type-id='type-id-95' mangled-name='tlv_emv_tag_cardholder_name' visibility='default' elf-symbol-id='tlv_emv_tag_cardholder_name'/>
+    <var-decl name='tlv_emv_tag_application_expiration_date' type-id='type-id-95' mangled-name='tlv_emv_tag_application_expiration_date' visibility='default' elf-symbol-id='tlv_emv_tag_application_expiration_date'/>
+    <var-decl name='tlv_emv_tag_application_effective_date' type-id='type-id-95' mangled-name='tlv_emv_tag_application_effective_date' visibility='default' elf-symbol-id='tlv_emv_tag_application_effective_date'/>
+    <var-decl name='tlv_emv_tag_issuer_country_code' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_country_code' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_country_code'/>
+    <var-decl name='tlv_emv_tag_transaction_currency_code' type-id='type-id-95' mangled-name='tlv_emv_tag_transaction_currency_code' visibility='default' elf-symbol-id='tlv_emv_tag_transaction_currency_code'/>
+    <var-decl name='tlv_emv_tag_language_preference' type-id='type-id-95' mangled-name='tlv_emv_tag_language_preference' visibility='default' elf-symbol-id='tlv_emv_tag_language_preference'/>
+    <var-decl name='tlv_emv_tag_service_code' type-id='type-id-95' mangled-name='tlv_emv_tag_service_code' visibility='default' elf-symbol-id='tlv_emv_tag_service_code'/>
+    <var-decl name='tlv_emv_tag_pan_sequence_number' type-id='type-id-95' mangled-name='tlv_emv_tag_pan_sequence_number' visibility='default' elf-symbol-id='tlv_emv_tag_pan_sequence_number'/>
+    <var-decl name='tlv_emv_tag_transaction_currency_exponent' type-id='type-id-95' mangled-name='tlv_emv_tag_transaction_currency_exponent' visibility='default' elf-symbol-id='tlv_emv_tag_transaction_currency_exponent'/>
+    <var-decl name='tlv_emv_tag_issuer_url' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_url' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_url'/>
+    <var-decl name='tlv_emv_tag_iban' type-id='type-id-95' mangled-name='tlv_emv_tag_iban' visibility='default' elf-symbol-id='tlv_emv_tag_iban'/>
+    <var-decl name='tlv_emv_tag_bic' type-id='type-id-95' mangled-name='tlv_emv_tag_bic' visibility='default' elf-symbol-id='tlv_emv_tag_bic'/>
+    <var-decl name='tlv_emv_tag_issuer_country_alpha2' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_country_alpha2' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_country_alpha2'/>
+    <var-decl name='tlv_emv_tag_issuer_country_alpha3' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_country_alpha3' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_country_alpha3'/>
+    <var-decl name='tlv_emv_tag_account_type' type-id='type-id-95' mangled-name='tlv_emv_tag_account_type' visibility='default' elf-symbol-id='tlv_emv_tag_account_type'/>
+    <var-decl name='tlv_emv_tag_biometric_information_template' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_information_template' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_information_template'/>
+    <var-decl name='tlv_emv_tag_acquirer_identifier' type-id='type-id-95' mangled-name='tlv_emv_tag_acquirer_identifier' visibility='default' elf-symbol-id='tlv_emv_tag_acquirer_identifier'/>
+    <var-decl name='tlv_emv_tag_amount_authorised' type-id='type-id-95' mangled-name='tlv_emv_tag_amount_authorised' visibility='default' elf-symbol-id='tlv_emv_tag_amount_authorised'/>
+    <var-decl name='tlv_emv_tag_amount_other' type-id='type-id-95' mangled-name='tlv_emv_tag_amount_other' visibility='default' elf-symbol-id='tlv_emv_tag_amount_other'/>
+    <var-decl name='tlv_emv_tag_amount_other_binary' type-id='type-id-95' mangled-name='tlv_emv_tag_amount_other_binary' visibility='default' elf-symbol-id='tlv_emv_tag_amount_other_binary'/>
+    <var-decl name='tlv_emv_tag_application_discretionary_data' type-id='type-id-95' mangled-name='tlv_emv_tag_application_discretionary_data' visibility='default' elf-symbol-id='tlv_emv_tag_application_discretionary_data'/>
+    <var-decl name='tlv_emv_tag_aid_terminal' type-id='type-id-95' mangled-name='tlv_emv_tag_aid_terminal' visibility='default' elf-symbol-id='tlv_emv_tag_aid_terminal'/>
+    <var-decl name='tlv_emv_tag_application_usage_control' type-id='type-id-95' mangled-name='tlv_emv_tag_application_usage_control' visibility='default' elf-symbol-id='tlv_emv_tag_application_usage_control'/>
+    <var-decl name='tlv_emv_tag_application_version_card' type-id='type-id-95' mangled-name='tlv_emv_tag_application_version_card' visibility='default' elf-symbol-id='tlv_emv_tag_application_version_card'/>
+    <var-decl name='tlv_emv_tag_application_version_terminal' type-id='type-id-95' mangled-name='tlv_emv_tag_application_version_terminal' visibility='default' elf-symbol-id='tlv_emv_tag_application_version_terminal'/>
+    <var-decl name='tlv_emv_tag_asrpd' type-id='type-id-95' mangled-name='tlv_emv_tag_asrpd' visibility='default' elf-symbol-id='tlv_emv_tag_asrpd'/>
+    <var-decl name='tlv_emv_tag_cardholder_name_extended' type-id='type-id-95' mangled-name='tlv_emv_tag_cardholder_name_extended' visibility='default' elf-symbol-id='tlv_emv_tag_cardholder_name_extended'/>
+    <var-decl name='tlv_emv_tag_iin_extended' type-id='type-id-95' mangled-name='tlv_emv_tag_iin_extended' visibility='default' elf-symbol-id='tlv_emv_tag_iin_extended'/>
+    <var-decl name='tlv_emv_tag_issuer_action_code_default' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_action_code_default' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_action_code_default'/>
+    <var-decl name='tlv_emv_tag_issuer_action_code_denial' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_action_code_denial' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_action_code_denial'/>
+    <var-decl name='tlv_emv_tag_issuer_action_code_online' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_action_code_online' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_action_code_online'/>
+    <var-decl name='tlv_emv_tag_issuer_application_data' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_application_data' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_application_data'/>
+    <var-decl name='tlv_emv_tag_issuer_code_table_index' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_code_table_index' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_code_table_index'/>
+    <var-decl name='tlv_emv_tag_application_preferred_name' type-id='type-id-95' mangled-name='tlv_emv_tag_application_preferred_name' visibility='default' elf-symbol-id='tlv_emv_tag_application_preferred_name'/>
+    <var-decl name='tlv_emv_tag_last_online_atc' type-id='type-id-95' mangled-name='tlv_emv_tag_last_online_atc' visibility='default' elf-symbol-id='tlv_emv_tag_last_online_atc'/>
+    <var-decl name='tlv_emv_tag_lower_consecutive_offline_limit' type-id='type-id-95' mangled-name='tlv_emv_tag_lower_consecutive_offline_limit' visibility='default' elf-symbol-id='tlv_emv_tag_lower_consecutive_offline_limit'/>
+    <var-decl name='tlv_emv_tag_merchant_category_code' type-id='type-id-95' mangled-name='tlv_emv_tag_merchant_category_code' visibility='default' elf-symbol-id='tlv_emv_tag_merchant_category_code'/>
+    <var-decl name='tlv_emv_tag_merchant_identifier' type-id='type-id-95' mangled-name='tlv_emv_tag_merchant_identifier' visibility='default' elf-symbol-id='tlv_emv_tag_merchant_identifier'/>
+    <var-decl name='tlv_emv_tag_pin_try_counter' type-id='type-id-95' mangled-name='tlv_emv_tag_pin_try_counter' visibility='default' elf-symbol-id='tlv_emv_tag_pin_try_counter'/>
+    <var-decl name='tlv_emv_tag_issuer_script_identifier' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_script_identifier' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_script_identifier'/>
+    <var-decl name='tlv_emv_tag_token_requestor_id' type-id='type-id-95' mangled-name='tlv_emv_tag_token_requestor_id' visibility='default' elf-symbol-id='tlv_emv_tag_token_requestor_id'/>
+    <var-decl name='tlv_emv_tag_terminal_country_code' type-id='type-id-95' mangled-name='tlv_emv_tag_terminal_country_code' visibility='default' elf-symbol-id='tlv_emv_tag_terminal_country_code'/>
+    <var-decl name='tlv_emv_tag_terminal_floor_limit' type-id='type-id-95' mangled-name='tlv_emv_tag_terminal_floor_limit' visibility='default' elf-symbol-id='tlv_emv_tag_terminal_floor_limit'/>
+    <var-decl name='tlv_emv_tag_terminal_identification' type-id='type-id-95' mangled-name='tlv_emv_tag_terminal_identification' visibility='default' elf-symbol-id='tlv_emv_tag_terminal_identification'/>
+    <var-decl name='tlv_emv_tag_terminal_risk_management_data' type-id='type-id-95' mangled-name='tlv_emv_tag_terminal_risk_management_data' visibility='default' elf-symbol-id='tlv_emv_tag_terminal_risk_management_data'/>
+    <var-decl name='tlv_emv_tag_ifd_serial_number' type-id='type-id-95' mangled-name='tlv_emv_tag_ifd_serial_number' visibility='default' elf-symbol-id='tlv_emv_tag_ifd_serial_number'/>
+    <var-decl name='tlv_emv_tag_track1_discretionary_data' type-id='type-id-95' mangled-name='tlv_emv_tag_track1_discretionary_data' visibility='default' elf-symbol-id='tlv_emv_tag_track1_discretionary_data'/>
+    <var-decl name='tlv_emv_tag_track2_discretionary_data' type-id='type-id-95' mangled-name='tlv_emv_tag_track2_discretionary_data' visibility='default' elf-symbol-id='tlv_emv_tag_track2_discretionary_data'/>
+    <var-decl name='tlv_emv_tag_transaction_time' type-id='type-id-95' mangled-name='tlv_emv_tag_transaction_time' visibility='default' elf-symbol-id='tlv_emv_tag_transaction_time'/>
+    <var-decl name='tlv_emv_tag_ca_public_key_index_terminal' type-id='type-id-95' mangled-name='tlv_emv_tag_ca_public_key_index_terminal' visibility='default' elf-symbol-id='tlv_emv_tag_ca_public_key_index_terminal'/>
+    <var-decl name='tlv_emv_tag_upper_consecutive_offline_limit' type-id='type-id-95' mangled-name='tlv_emv_tag_upper_consecutive_offline_limit' visibility='default' elf-symbol-id='tlv_emv_tag_upper_consecutive_offline_limit'/>
+    <var-decl name='tlv_emv_tag_payment_account_reference' type-id='type-id-95' mangled-name='tlv_emv_tag_payment_account_reference' visibility='default' elf-symbol-id='tlv_emv_tag_payment_account_reference'/>
+    <var-decl name='tlv_emv_tag_last4_pan' type-id='type-id-95' mangled-name='tlv_emv_tag_last4_pan' visibility='default' elf-symbol-id='tlv_emv_tag_last4_pan'/>
+    <var-decl name='tlv_emv_tag_application_cryptogram' type-id='type-id-95' mangled-name='tlv_emv_tag_application_cryptogram' visibility='default' elf-symbol-id='tlv_emv_tag_application_cryptogram'/>
+    <var-decl name='tlv_emv_tag_cryptogram_information_data' type-id='type-id-95' mangled-name='tlv_emv_tag_cryptogram_information_data' visibility='default' elf-symbol-id='tlv_emv_tag_cryptogram_information_data'/>
+    <var-decl name='tlv_emv_tag_icc_pin_public_key_certificate' type-id='type-id-95' mangled-name='tlv_emv_tag_icc_pin_public_key_certificate' visibility='default' elf-symbol-id='tlv_emv_tag_icc_pin_public_key_certificate'/>
+    <var-decl name='tlv_emv_tag_icc_pin_public_key_exponent' type-id='type-id-95' mangled-name='tlv_emv_tag_icc_pin_public_key_exponent' visibility='default' elf-symbol-id='tlv_emv_tag_icc_pin_public_key_exponent'/>
+    <var-decl name='tlv_emv_tag_icc_pin_public_key_remainder' type-id='type-id-95' mangled-name='tlv_emv_tag_icc_pin_public_key_remainder' visibility='default' elf-symbol-id='tlv_emv_tag_icc_pin_public_key_remainder'/>
+    <var-decl name='tlv_emv_tag_biometric_terminal_capabilities' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_terminal_capabilities' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_terminal_capabilities'/>
+    <var-decl name='tlv_emv_tag_card_bit_group_template' type-id='type-id-95' mangled-name='tlv_emv_tag_card_bit_group_template' visibility='default' elf-symbol-id='tlv_emv_tag_card_bit_group_template'/>
+    <var-decl name='tlv_emv_tag_issuer_public_key_exponent' type-id='type-id-95' mangled-name='tlv_emv_tag_issuer_public_key_exponent' visibility='default' elf-symbol-id='tlv_emv_tag_issuer_public_key_exponent'/>
+    <var-decl name='tlv_emv_tag_terminal_capabilities' type-id='type-id-95' mangled-name='tlv_emv_tag_terminal_capabilities' visibility='default' elf-symbol-id='tlv_emv_tag_terminal_capabilities'/>
+    <var-decl name='tlv_emv_tag_cvm_results' type-id='type-id-95' mangled-name='tlv_emv_tag_cvm_results' visibility='default' elf-symbol-id='tlv_emv_tag_cvm_results'/>
+    <var-decl name='tlv_emv_tag_terminal_type' type-id='type-id-95' mangled-name='tlv_emv_tag_terminal_type' visibility='default' elf-symbol-id='tlv_emv_tag_terminal_type'/>
+    <var-decl name='tlv_emv_tag_atc' type-id='type-id-95' mangled-name='tlv_emv_tag_atc' visibility='default' elf-symbol-id='tlv_emv_tag_atc'/>
+    <var-decl name='tlv_emv_tag_unpredictable_number' type-id='type-id-95' mangled-name='tlv_emv_tag_unpredictable_number' visibility='default' elf-symbol-id='tlv_emv_tag_unpredictable_number'/>
+    <var-decl name='tlv_emv_tag_pdol' type-id='type-id-95' mangled-name='tlv_emv_tag_pdol' visibility='default' elf-symbol-id='tlv_emv_tag_pdol'/>
+    <var-decl name='tlv_emv_tag_pos_entry_mode' type-id='type-id-95' mangled-name='tlv_emv_tag_pos_entry_mode' visibility='default' elf-symbol-id='tlv_emv_tag_pos_entry_mode'/>
+    <var-decl name='tlv_emv_tag_amount_reference_currency' type-id='type-id-95' mangled-name='tlv_emv_tag_amount_reference_currency' visibility='default' elf-symbol-id='tlv_emv_tag_amount_reference_currency'/>
+    <var-decl name='tlv_emv_tag_application_reference_currency' type-id='type-id-95' mangled-name='tlv_emv_tag_application_reference_currency' visibility='default' elf-symbol-id='tlv_emv_tag_application_reference_currency'/>
+    <var-decl name='tlv_emv_tag_transaction_reference_currency_code' type-id='type-id-95' mangled-name='tlv_emv_tag_transaction_reference_currency_code' visibility='default' elf-symbol-id='tlv_emv_tag_transaction_reference_currency_code'/>
+    <var-decl name='tlv_emv_tag_transaction_reference_currency_exponent' type-id='type-id-95' mangled-name='tlv_emv_tag_transaction_reference_currency_exponent' visibility='default' elf-symbol-id='tlv_emv_tag_transaction_reference_currency_exponent'/>
+    <var-decl name='tlv_emv_tag_additional_terminal_capabilities' type-id='type-id-95' mangled-name='tlv_emv_tag_additional_terminal_capabilities' visibility='default' elf-symbol-id='tlv_emv_tag_additional_terminal_capabilities'/>
+    <var-decl name='tlv_emv_tag_transaction_sequence_counter' type-id='type-id-95' mangled-name='tlv_emv_tag_transaction_sequence_counter' visibility='default' elf-symbol-id='tlv_emv_tag_transaction_sequence_counter'/>
+    <var-decl name='tlv_emv_tag_application_currency_code' type-id='type-id-95' mangled-name='tlv_emv_tag_application_currency_code' visibility='default' elf-symbol-id='tlv_emv_tag_application_currency_code'/>
+    <var-decl name='tlv_emv_tag_application_reference_currency_exponent' type-id='type-id-95' mangled-name='tlv_emv_tag_application_reference_currency_exponent' visibility='default' elf-symbol-id='tlv_emv_tag_application_reference_currency_exponent'/>
+    <var-decl name='tlv_emv_tag_application_currency_exponent' type-id='type-id-95' mangled-name='tlv_emv_tag_application_currency_exponent' visibility='default' elf-symbol-id='tlv_emv_tag_application_currency_exponent'/>
+    <var-decl name='tlv_emv_tag_data_authentication_code' type-id='type-id-95' mangled-name='tlv_emv_tag_data_authentication_code' visibility='default' elf-symbol-id='tlv_emv_tag_data_authentication_code'/>
+    <var-decl name='tlv_emv_tag_icc_public_key_certificate' type-id='type-id-95' mangled-name='tlv_emv_tag_icc_public_key_certificate' visibility='default' elf-symbol-id='tlv_emv_tag_icc_public_key_certificate'/>
+    <var-decl name='tlv_emv_tag_icc_public_key_exponent' type-id='type-id-95' mangled-name='tlv_emv_tag_icc_public_key_exponent' visibility='default' elf-symbol-id='tlv_emv_tag_icc_public_key_exponent'/>
+    <var-decl name='tlv_emv_tag_icc_public_key_remainder' type-id='type-id-95' mangled-name='tlv_emv_tag_icc_public_key_remainder' visibility='default' elf-symbol-id='tlv_emv_tag_icc_public_key_remainder'/>
+    <var-decl name='tlv_emv_tag_ddol' type-id='type-id-95' mangled-name='tlv_emv_tag_ddol' visibility='default' elf-symbol-id='tlv_emv_tag_ddol'/>
+    <var-decl name='tlv_emv_tag_sda_tag_list' type-id='type-id-95' mangled-name='tlv_emv_tag_sda_tag_list' visibility='default' elf-symbol-id='tlv_emv_tag_sda_tag_list'/>
+    <var-decl name='tlv_emv_tag_signed_dynamic_application_data' type-id='type-id-95' mangled-name='tlv_emv_tag_signed_dynamic_application_data' visibility='default' elf-symbol-id='tlv_emv_tag_signed_dynamic_application_data'/>
+    <var-decl name='tlv_emv_tag_icc_dynamic_number' type-id='type-id-95' mangled-name='tlv_emv_tag_icc_dynamic_number' visibility='default' elf-symbol-id='tlv_emv_tag_icc_dynamic_number'/>
+    <var-decl name='tlv_emv_tag_log_entry' type-id='type-id-95' mangled-name='tlv_emv_tag_log_entry' visibility='default' elf-symbol-id='tlv_emv_tag_log_entry'/>
+    <var-decl name='tlv_emv_tag_merchant_name_and_location' type-id='type-id-95' mangled-name='tlv_emv_tag_merchant_name_and_location' visibility='default' elf-symbol-id='tlv_emv_tag_merchant_name_and_location'/>
+    <var-decl name='tlv_emv_tag_log_format' type-id='type-id-95' mangled-name='tlv_emv_tag_log_format' visibility='default' elf-symbol-id='tlv_emv_tag_log_format'/>
+    <var-decl name='tlv_emv_tag_fci_issuer_discretionary_data' type-id='type-id-95' mangled-name='tlv_emv_tag_fci_issuer_discretionary_data' visibility='default' elf-symbol-id='tlv_emv_tag_fci_issuer_discretionary_data'/>
+    <var-decl name='tlv_emv_tag_offline_bit_group_template' type-id='type-id-95' mangled-name='tlv_emv_tag_offline_bit_group_template' visibility='default' elf-symbol-id='tlv_emv_tag_offline_bit_group_template'/>
+    <var-decl name='tlv_emv_tag_online_bit_group_template' type-id='type-id-95' mangled-name='tlv_emv_tag_online_bit_group_template' visibility='default' elf-symbol-id='tlv_emv_tag_online_bit_group_template'/>
+    <var-decl name='tlv_emv_tag_biometric_try_counters_template' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_try_counters_template' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_try_counters_template'/>
+    <var-decl name='tlv_emv_tag_preferred_attempts_template' type-id='type-id-95' mangled-name='tlv_emv_tag_preferred_attempts_template' visibility='default' elf-symbol-id='tlv_emv_tag_preferred_attempts_template'/>
+    <var-decl name='tlv_emv_tag_biometric_verification_data_template' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_verification_data_template' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_verification_data_template'/>
+    <var-decl name='tlv_emv_tag_biometric_header_template' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_header_template' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_header_template'/>
+    <var-decl name='tlv_emv_tag_biometric_header_version' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_header_version' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_header_version'/>
+    <var-decl name='tlv_emv_tag_biometric_type' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_type' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_type'/>
+    <var-decl name='tlv_emv_tag_biometric_subtype' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_subtype' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_subtype'/>
+    <var-decl name='tlv_emv_tag_biometric_creation_datetime' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_creation_datetime' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_creation_datetime'/>
+    <var-decl name='tlv_emv_tag_biometric_creator' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_creator' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_creator'/>
+    <var-decl name='tlv_emv_tag_biometric_validity_period' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_validity_period' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_validity_period'/>
+    <var-decl name='tlv_emv_tag_biometric_product_id' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_product_id' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_product_id'/>
+    <var-decl name='tlv_emv_tag_biometric_format_owner' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_format_owner' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_format_owner'/>
+    <var-decl name='tlv_emv_tag_biometric_format_type' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_format_type' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_format_type'/>
+    <var-decl name='tlv_emv_tag_biometric_solution_id' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_solution_id' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_solution_id'/>
+    <var-decl name='tlv_emv_tag_biometric_matching_parameters' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_matching_parameters' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_matching_parameters'/>
+    <var-decl name='tlv_emv_tag_bht1' type-id='type-id-95' mangled-name='tlv_emv_tag_bht1' visibility='default' elf-symbol-id='tlv_emv_tag_bht1'/>
+    <var-decl name='tlv_emv_tag_bht2' type-id='type-id-95' mangled-name='tlv_emv_tag_bht2' visibility='default' elf-symbol-id='tlv_emv_tag_bht2'/>
+    <var-decl name='tlv_emv_tag_biometric_matching_parameters_template' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_matching_parameters_template' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_matching_parameters_template'/>
+    <var-decl name='tlv_emv_tag_bht_format_owner' type-id='type-id-95' mangled-name='tlv_emv_tag_bht_format_owner' visibility='default' elf-symbol-id='tlv_emv_tag_bht_format_owner'/>
+    <var-decl name='tlv_emv_tag_bht_format_type' type-id='type-id-95' mangled-name='tlv_emv_tag_bht_format_type' visibility='default' elf-symbol-id='tlv_emv_tag_bht_format_type'/>
+    <var-decl name='tlv_emv_tag_bit_count' type-id='type-id-95' mangled-name='tlv_emv_tag_bit_count' visibility='default' elf-symbol-id='tlv_emv_tag_bit_count'/>
+    <var-decl name='tlv_emv_tag_group_bit' type-id='type-id-95' mangled-name='tlv_emv_tag_group_bit' visibility='default' elf-symbol-id='tlv_emv_tag_group_bit'/>
+    <var-decl name='tlv_emv_tag_facial_try_counter' type-id='type-id-95' mangled-name='tlv_emv_tag_facial_try_counter' visibility='default' elf-symbol-id='tlv_emv_tag_facial_try_counter'/>
+    <var-decl name='tlv_emv_tag_finger_try_counter' type-id='type-id-95' mangled-name='tlv_emv_tag_finger_try_counter' visibility='default' elf-symbol-id='tlv_emv_tag_finger_try_counter'/>
+    <var-decl name='tlv_emv_tag_iris_try_counter' type-id='type-id-95' mangled-name='tlv_emv_tag_iris_try_counter' visibility='default' elf-symbol-id='tlv_emv_tag_iris_try_counter'/>
+    <var-decl name='tlv_emv_tag_palm_try_counter' type-id='type-id-95' mangled-name='tlv_emv_tag_palm_try_counter' visibility='default' elf-symbol-id='tlv_emv_tag_palm_try_counter'/>
+    <var-decl name='tlv_emv_tag_voice_try_counter' type-id='type-id-95' mangled-name='tlv_emv_tag_voice_try_counter' visibility='default' elf-symbol-id='tlv_emv_tag_voice_try_counter'/>
+    <var-decl name='tlv_emv_tag_preferred_facial_attempts' type-id='type-id-95' mangled-name='tlv_emv_tag_preferred_facial_attempts' visibility='default' elf-symbol-id='tlv_emv_tag_preferred_facial_attempts'/>
+    <var-decl name='tlv_emv_tag_preferred_finger_attempts' type-id='type-id-95' mangled-name='tlv_emv_tag_preferred_finger_attempts' visibility='default' elf-symbol-id='tlv_emv_tag_preferred_finger_attempts'/>
+    <var-decl name='tlv_emv_tag_preferred_iris_attempts' type-id='type-id-95' mangled-name='tlv_emv_tag_preferred_iris_attempts' visibility='default' elf-symbol-id='tlv_emv_tag_preferred_iris_attempts'/>
+    <var-decl name='tlv_emv_tag_preferred_palm_attempts' type-id='type-id-95' mangled-name='tlv_emv_tag_preferred_palm_attempts' visibility='default' elf-symbol-id='tlv_emv_tag_preferred_palm_attempts'/>
+    <var-decl name='tlv_emv_tag_preferred_voice_attempts' type-id='type-id-95' mangled-name='tlv_emv_tag_preferred_voice_attempts' visibility='default' elf-symbol-id='tlv_emv_tag_preferred_voice_attempts'/>
+    <var-decl name='tlv_emv_tag_verification_biometric_type' type-id='type-id-95' mangled-name='tlv_emv_tag_verification_biometric_type' visibility='default' elf-symbol-id='tlv_emv_tag_verification_biometric_type'/>
+    <var-decl name='tlv_emv_tag_verification_biometric_solution_id' type-id='type-id-95' mangled-name='tlv_emv_tag_verification_biometric_solution_id' visibility='default' elf-symbol-id='tlv_emv_tag_verification_biometric_solution_id'/>
+    <var-decl name='tlv_emv_tag_enciphered_biometric_key_seed' type-id='type-id-95' mangled-name='tlv_emv_tag_enciphered_biometric_key_seed' visibility='default' elf-symbol-id='tlv_emv_tag_enciphered_biometric_key_seed'/>
+    <var-decl name='tlv_emv_tag_enciphered_biometric_data' type-id='type-id-95' mangled-name='tlv_emv_tag_enciphered_biometric_data' visibility='default' elf-symbol-id='tlv_emv_tag_enciphered_biometric_data'/>
+    <var-decl name='tlv_emv_tag_biometric_data_mac' type-id='type-id-95' mangled-name='tlv_emv_tag_biometric_data_mac' visibility='default' elf-symbol-id='tlv_emv_tag_biometric_data_mac'/>
+    <function-decl name='tlv_schema_find' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-193'/>
+      <parameter type-id='type-id-96'/>
+      <return type-id='type-id-188'/>
+    </function-decl>
+    <function-decl name='tlv_schema_validate_length' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-188'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='emv_value_decode' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-20'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-11'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='emv_value_encode' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-5'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-24'/>
+      <parameter type-id='type-id-11'/>
+      <parameter type-id='type-id-21'/>
+      <return type-id='type-id-12'/>
+    </function-decl>
+    <function-decl name='tlv_emv_schema_for' mangled-name='tlv_emv_schema_for' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_emv_schema_for'>
+      <parameter type-id='type-id-183' name='context'/>
+      <return type-id='type-id-193'/>
+    </function-decl>
+    <function-decl name='tlv_emv_child_context' mangled-name='tlv_emv_child_context' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_emv_child_context'>
+      <parameter type-id='type-id-183' name='context'/>
+      <parameter type-id='type-id-96' name='tag'/>
+      <return type-id='type-id-183'/>
+    </function-decl>
+    <function-decl name='tlv_emv_find' mangled-name='tlv_emv_find' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_emv_find'>
+      <parameter type-id='type-id-183' name='context'/>
+      <parameter type-id='type-id-96' name='tag'/>
+      <return type-id='type-id-191'/>
+    </function-decl>
+    <function-decl name='tlv_emv_validate_length' mangled-name='tlv_emv_validate_length' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_emv_validate_length'>
+      <parameter type-id='type-id-191' name='definition'/>
+      <parameter type-id='type-id-11' name='length'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_emv_display_label' mangled-name='tlv_emv_display_label' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_emv_display_label'>
+      <parameter type-id='type-id-16' name='name'/>
+      <return type-id='type-id-16'/>
+    </function-decl>
+    <function-decl name='tlv_emv_titlecase_name' mangled-name='tlv_emv_titlecase_name' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_emv_titlecase_name'>
+      <parameter type-id='type-id-16' name='name'/>
+      <parameter type-id='type-id-189' name='buffer'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='toupper' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-31'/>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='strcmp' visibility='default' binding='global' size-in-bits='64'>
+      <parameter type-id='type-id-16'/>
+      <parameter type-id='type-id-16'/>
+      <return type-id='type-id-31'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/profiles/emv_schema.c' language='LANG_C11'>
+    <var-decl name='tlv_emv_structure_schema' type-id='type-id-94' mangled-name='tlv_emv_structure_schema' visibility='default' elf-symbol-id='tlv_emv_structure_schema'/>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/reader/reader.c' language='LANG_C11'>
+    <class-decl name='tlv_reader' size-in-bits='256' is-struct='yes' visibility='default' id='type-id-194'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='format' type-id='type-id-45' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='data' type-id='type-id-20' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='size' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='pos' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='tlv_reader_t' type-id='type-id-194' id='type-id-195'/>
+    <qualified-type-def type-id='type-id-195' const='yes' id='type-id-196'/>
+    <pointer-type-def type-id='type-id-196' size-in-bits='64' id='type-id-197'/>
+    <pointer-type-def type-id='type-id-195' size-in-bits='64' id='type-id-198'/>
+    <pointer-type-def type-id='type-id-61' size-in-bits='64' id='type-id-127'/>
+    <function-decl name='tlv_reader_init' mangled-name='tlv_reader_init' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_reader_init'>
+      <parameter type-id='type-id-198' name='reader'/>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-45' name='format'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_reader_at_end' mangled-name='tlv_reader_at_end' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_reader_at_end'>
+      <parameter type-id='type-id-197' name='reader'/>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_read' mangled-name='tlv_read' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_read'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-45' name='format'/>
+      <parameter type-id='type-id-127' name='out_entry'/>
+      <parameter type-id='type-id-21' name='consumed'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_reader_next' mangled-name='tlv_reader_next' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_reader_next'>
+      <parameter type-id='type-id-198' name='reader'/>
+      <parameter type-id='type-id-127' name='out_entry'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/reader/scanner.c' language='LANG_C11'>
+    <class-decl name='tlv_schema_t' size-in-bits='128' is-struct='yes' naming-typedef-id='type-id-199' visibility='default' id='type-id-200'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='entries' type-id='type-id-188' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='count' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='tlv_schema_t' type-id='type-id-200' id='type-id-199'/>
+    <qualified-type-def type-id='type-id-40' const='yes' id='type-id-201'/>
+    <pointer-type-def type-id='type-id-201' size-in-bits='64' id='type-id-188'/>
+    <qualified-type-def type-id='type-id-199' const='yes' id='type-id-192'/>
+    <pointer-type-def type-id='type-id-192' size-in-bits='64' id='type-id-193'/>
+    <function-decl name='tlv_scan' mangled-name='tlv_scan' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_scan'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-11' name='start'/>
+      <parameter type-id='type-id-45' name='format'/>
+      <parameter type-id='type-id-193' name='schema'/>
+      <parameter type-id='type-id-127' name='out_entry'/>
+      <parameter type-id='type-id-21' name='out_offset'/>
+      <parameter type-id='type-id-21' name='consumed'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/reader/walker.c' language='LANG_C11'>
+    <typedef-decl name='tlv_visitor_t' type-id='type-id-202' id='type-id-203'/>
+    <pointer-type-def type-id='type-id-204' size-in-bits='64' id='type-id-202'/>
+    <function-decl name='tlv_walk' mangled-name='tlv_walk' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_walk'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-45' name='format'/>
+      <parameter type-id='type-id-203' name='visitor'/>
+      <parameter type-id='type-id-5' name='context'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-type size-in-bits='64' id='type-id-204'>
+      <parameter type-id='type-id-98'/>
+      <parameter type-id='type-id-5'/>
+      <return type-id='type-id-83'/>
+    </function-type>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/schemas/schema.c' language='LANG_C11'>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/schemas/structure.c' language='LANG_C11'>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/tag.c' language='LANG_C11'>
+    <enum-decl name='tlv_byte_order' id='type-id-205'>
+      <underlying-type type-id='type-id-3'/>
+      <enumerator name='TLV_BYTE_ORDER_UNKNOWN' value='0'/>
+      <enumerator name='TLV_BYTE_ORDER_BIG_ENDIAN' value='1'/>
+      <enumerator name='TLV_BYTE_ORDER_LITTLE_ENDIAN' value='2'/>
+    </enum-decl>
+    <typedef-decl name='__uint16_t' type-id='type-id-206' id='type-id-207'/>
+    <typedef-decl name='tlv_byte_order_t' type-id='type-id-205' id='type-id-26'/>
+    <typedef-decl name='uint16_t' type-id='type-id-207' id='type-id-113'/>
+    <type-decl name='unsigned short int' size-in-bits='16' id='type-id-206'/>
+    <pointer-type-def type-id='type-id-31' size-in-bits='64' id='type-id-165'/>
+    <pointer-type-def type-id='type-id-113' size-in-bits='64' id='type-id-208'/>
+    <pointer-type-def type-id='type-id-43' size-in-bits='64' id='type-id-209'/>
+    <pointer-type-def type-id='type-id-29' size-in-bits='64' id='type-id-27'/>
+    <function-decl name='tlv_tag_equal_bytes' mangled-name='tlv_tag_equal_bytes' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_equal_bytes'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-165' name='equal'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_equal_u8' mangled-name='tlv_tag_equal_u8' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_equal_u8'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-14' name='value'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-165' name='equal'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_equal_u16' mangled-name='tlv_tag_equal_u16' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_equal_u16'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-113' name='value'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-165' name='equal'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_equal_u32' mangled-name='tlv_tag_equal_u32' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_equal_u32'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-43' name='value'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-165' name='equal'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_equal_u64' mangled-name='tlv_tag_equal_u64' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_equal_u64'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-29' name='value'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-165' name='equal'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_to_u8' mangled-name='tlv_tag_to_u8' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_to_u8'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-24' name='value'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_to_u16' mangled-name='tlv_tag_to_u16' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_to_u16'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-208' name='value'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_to_u32' mangled-name='tlv_tag_to_u32' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_to_u32'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-209' name='value'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_to_u64' mangled-name='tlv_tag_to_u64' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_to_u64'>
+      <parameter type-id='type-id-96' name='tag'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-27' name='value'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_from_bytes' mangled-name='tlv_tag_from_bytes' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_from_bytes'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-101' name='tag'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_from_u8' mangled-name='tlv_tag_from_u8' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_from_u8'>
+      <parameter type-id='type-id-14' name='value'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-101' name='tag'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_from_u16' mangled-name='tlv_tag_from_u16' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_from_u16'>
+      <parameter type-id='type-id-113' name='value'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-101' name='tag'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_from_u32' mangled-name='tlv_tag_from_u32' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_from_u32'>
+      <parameter type-id='type-id-43' name='value'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-101' name='tag'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_tag_from_u64' mangled-name='tlv_tag_from_u64' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_tag_from_u64'>
+      <parameter type-id='type-id-29' name='value'/>
+      <parameter type-id='type-id-11' name='size'/>
+      <parameter type-id='type-id-26' name='order'/>
+      <parameter type-id='type-id-101' name='tag'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/value.c' language='LANG_C11'>
+    <qualified-type-def type-id='type-id-58' const='yes' id='type-id-210'/>
+    <pointer-type-def type-id='type-id-210' size-in-bits='64' id='type-id-211'/>
+    <pointer-type-def type-id='type-id-58' size-in-bits='64' id='type-id-212'/>
+    <function-decl name='tlv_value_init' mangled-name='tlv_value_init' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_value_init'>
+      <parameter type-id='type-id-20' name='data'/>
+      <parameter type-id='type-id-60' name='length'/>
+      <parameter type-id='type-id-212' name='value'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_value_validate' mangled-name='tlv_value_validate' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_value_validate'>
+      <parameter type-id='type-id-211' name='value'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='tlv/src/writer/writer.c' language='LANG_C11'>
+    <class-decl name='tlv_writer' size-in-bits='256' is-struct='yes' visibility='default' id='type-id-213'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='format' type-id='type-id-46' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='buf' type-id='type-id-24' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='capacity' type-id='type-id-11' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='pos' type-id='type-id-11' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='tlv_writer_t' type-id='type-id-213' id='type-id-214'/>
+    <qualified-type-def type-id='type-id-214' const='yes' id='type-id-215'/>
+    <pointer-type-def type-id='type-id-215' size-in-bits='64' id='type-id-216'/>
+    <pointer-type-def type-id='type-id-214' size-in-bits='64' id='type-id-114'/>
+    <function-decl name='tlv_writer_init' mangled-name='tlv_writer_init' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_writer_init'>
+      <parameter type-id='type-id-114' name='writer'/>
+      <parameter type-id='type-id-24' name='buf'/>
+      <parameter type-id='type-id-11' name='capacity'/>
+      <parameter type-id='type-id-46' name='format'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_writer_write' mangled-name='tlv_writer_write' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_writer_write'>
+      <parameter type-id='type-id-114' name='writer'/>
+      <parameter type-id='type-id-42' name='tag'/>
+      <parameter type-id='type-id-20' name='value'/>
+      <parameter type-id='type-id-11' name='length'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_writer_copy_view' mangled-name='tlv_writer_copy_view' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_writer_copy_view'>
+      <parameter type-id='type-id-114' name='writer'/>
+      <parameter type-id='type-id-98' name='view'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_writer_copy_encoded' mangled-name='tlv_writer_copy_encoded' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_writer_copy_encoded'>
+      <parameter type-id='type-id-114' name='writer'/>
+      <parameter type-id='type-id-20' name='encoded_data'/>
+      <parameter type-id='type-id-11' name='encoded_length'/>
+      <return type-id='type-id-28'/>
+    </function-decl>
+    <function-decl name='tlv_writer_size' mangled-name='tlv_writer_size' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_writer_size'>
+      <parameter type-id='type-id-216' name='writer'/>
+      <return type-id='type-id-11'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='generated/src/config.c' language='LANG_C11'>
+    <function-decl name='tlv_config_format_default' mangled-name='tlv_config_format_default' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_config_format_default'>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_config_format_fixed_1byte' mangled-name='tlv_config_format_fixed_1byte' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_config_format_fixed_1byte'>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_config_format_bluetooth_ltv' mangled-name='tlv_config_format_bluetooth_ltv' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_config_format_bluetooth_ltv'>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_config_format_asn1' mangled-name='tlv_config_format_asn1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_config_format_asn1'>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_config_format_ber' mangled-name='tlv_config_format_ber' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_config_format_ber'>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_config_format_der' mangled-name='tlv_config_format_der' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_config_format_der'>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_config_format_cer' mangled-name='tlv_config_format_cer' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_config_format_cer'>
+      <return type-id='type-id-31'/>
+    </function-decl>
+    <function-decl name='tlv_config_profile_emv' mangled-name='tlv_config_profile_emv' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_config_profile_emv'>
+      <return type-id='type-id-31'/>
+    </function-decl>
+  </abi-instr>
+  <abi-instr address-size='64' path='generated/src/version.c' language='LANG_C11'>
+    <function-decl name='tlv_version_major' mangled-name='tlv_version_major' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_version_major'>
+      <return type-id='type-id-43'/>
+    </function-decl>
+    <function-decl name='tlv_version_minor' mangled-name='tlv_version_minor' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_version_minor'>
+      <return type-id='type-id-43'/>
+    </function-decl>
+    <function-decl name='tlv_version_patch' mangled-name='tlv_version_patch' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_version_patch'>
+      <return type-id='type-id-43'/>
+    </function-decl>
+    <function-decl name='tlv_version_revision' mangled-name='tlv_version_revision' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_version_revision'>
+      <return type-id='type-id-29'/>
+    </function-decl>
+    <function-decl name='tlv_version_prerelease' mangled-name='tlv_version_prerelease' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_version_prerelease'>
+      <return type-id='type-id-16'/>
+    </function-decl>
+    <function-decl name='tlv_version_string' mangled-name='tlv_version_string' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_version_string'>
+      <return type-id='type-id-16'/>
+    </function-decl>
+    <function-decl name='tlv_version_git_commit_hash' mangled-name='tlv_version_git_commit_hash' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_version_git_commit_hash'>
+      <return type-id='type-id-16'/>
+    </function-decl>
+    <function-decl name='tlv_version_git_branch' mangled-name='tlv_version_git_branch' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_version_git_branch'>
+      <return type-id='type-id-16'/>
+    </function-decl>
+    <function-decl name='tlv_version_git_tag' mangled-name='tlv_version_git_tag' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_version_git_tag'>
+      <return type-id='type-id-16'/>
+    </function-decl>
+    <function-decl name='tlv_version_git_repo' mangled-name='tlv_version_git_repo' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_version_git_repo'>
+      <return type-id='type-id-16'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

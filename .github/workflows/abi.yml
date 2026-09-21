@@ -1,0 +1,66 @@
+name: ABI Compatibility
+
+# Compares the C shared library of a pull request with its baseline using
+# libabigail's abidiff; see docs/development/abi-compatibility.md. Before 1.0.0
+# an incompatible change is reported but does not fail the job.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tlv/**'
+      - 'cmake/**'
+      - '**/CMakeLists.txt'
+      - 'scripts/abi/check.py'
+      - 'scripts/abi/test_check.py'
+      - 'scripts/abi/suppressions.abignore'
+      - 'scripts/abi/baseline.abi'
+      - '.github/workflows/abi.yml'
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tlv/**'
+      - 'cmake/**'
+      - '**/CMakeLists.txt'
+      - 'scripts/abi/check.py'
+      - 'scripts/abi/test_check.py'
+      - 'scripts/abi/suppressions.abignore'
+      - 'scripts/abi/baseline.abi'
+      - '.github/workflows/abi.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: abi-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  abi:
+    name: ABI Compatibility
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          # Tags are needed to tell whether the version is before 1.0.0.
+          fetch-depth: 0
+
+      - name: Install libabigail
+        run: sudo apt-get update && sudo apt-get install -y abigail-tools ninja-build
+
+      - name: Check the ABI against the baseline
+        run: python3 scripts/abi/check.py --output-dir build/abi/report
+
+      - name: Upload the ABI report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: abi-report
+          path: build/abi/report/
+          if-no-files-found: ignore
+
+      # The mutation tests exercise check.py itself, so on pull requests
+      # they only run when the ABI scripts or this workflow changed.
+      - name: Self-test the ABI check
+        run: python3 scripts/abi/test_check.py --only-if-changed "${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || '' }}"
