@@ -17,6 +17,7 @@ native applications. Nothing you enter is uploaded.
       <select id="otlv-pg-format" disabled>
         <option value="default">Default TLV</option>
         <option value="fixed-1byte">Fixed 1-byte TLV</option>
+        <option value="bluetooth-ltv">Bluetooth LTV</option>
         <option value="ber">BER-TLV</option>
         <option value="der">DER-TLV</option>
       </select>
@@ -60,8 +61,10 @@ buttons to copy the tag, the value or the whole encoded element. With the
 In [BER-TLV](../formats/asn1/ber.md) and
 [DER-TLV](../formats/asn1/der.md) constructed elements nest their children; the
 [Default](../formats/default/README.md) and
-[Fixed 1-byte](../formats/fixed/README.md) formats have opaque values, so their
-elements are flat. EMV data is BER-TLV.
+[Fixed 1-byte](../formats/fixed/README.md) and
+[Bluetooth LTV](../formats/bluetooth/README.md) formats have opaque values, so
+their elements are flat. Bluetooth LTV puts the length byte before the type, so
+in the hex view and the element details the length is shown before the tag. EMV data is BER-TLV.
 
 Invalid or truncated input reports the parser error with its code, message and
 input offset, together with every element read before the failure.

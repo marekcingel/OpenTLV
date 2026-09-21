@@ -38,6 +38,12 @@ const SAMPLES = [
     hex: "01 03 AA BB CC 04 01 2A",
   },
   {
+    name: "Bluetooth LTV: advertising data",
+    format: "bluetooth-ltv",
+    profile: "none",
+    hex: "02 01 06 03 09 48 69",
+  },
+  {
     name: "Truncated input (parser error)",
     format: "ber",
     profile: "emv",
@@ -59,7 +65,7 @@ function spaced(hex) {
 
 // Nodes in preorder, which is also the order of their bytes in the input.
 // `start`/`end` bound the whole encoded element, `headerEnd` where its value begins.
-function flatten(elements) {
+function flatten(elements, lengthFirst) {
   const nodes = [];
   const visit = (item, parent) => {
     const node = {
@@ -72,6 +78,11 @@ function flatten(elements) {
       end: item.offset + item.headerSize + item.length,
       tagSize: item.tag.length / 2,
     };
+    // Bluetooth LTV encodes the length before the tag; other formats the tag first.
+    const tagSize = node.tagSize;
+    node.tagStart = lengthFirst ? node.headerEnd - tagSize : node.start;
+    node.lengthStart = lengthFirst ? node.start : node.start + tagSize;
+    node.lengthEnd = lengthFirst ? node.headerEnd - tagSize : node.headerEnd;
     nodes.push(node);
     if (parent) parent.children.push(node);
     for (const child of item.children ?? []) visit(child, node);
@@ -173,8 +184,8 @@ async function start() {
     }
     const { bytes, profile } = session;
     const { item } = selected;
-    const tagBytes = bytes.subarray(selected.start, selected.start + selected.tagSize);
-    const lengthBytes = bytes.subarray(selected.start + selected.tagSize, selected.headerEnd);
+    const tagBytes = bytes.subarray(selected.tagStart, selected.tagStart + selected.tagSize);
+    const lengthBytes = bytes.subarray(selected.lengthStart, selected.lengthEnd);
     const valueBytes = bytes.subarray(selected.headerEnd, selected.end);
     const encoded = bytes.subarray(selected.start, selected.end);
     const path = [];
@@ -216,9 +227,8 @@ async function start() {
     treeRows.forEach((row, id) => row.classList.toggle("otlv-pg-selected", node !== null && id === node.id));
     byteCells.forEach((cell, index) => {
       const inside = node !== null && index >= node.start && index < node.end;
-      const tagEnd = node ? node.start + node.tagSize : 0;
-      cell.classList.toggle("otlv-pg-b-tag", inside && index < tagEnd);
-      cell.classList.toggle("otlv-pg-b-len", inside && index >= tagEnd && index < node.headerEnd);
+      cell.classList.toggle("otlv-pg-b-tag", inside && index >= node.tagStart && index < node.tagStart + node.tagSize);
+      cell.classList.toggle("otlv-pg-b-len", inside && index >= node.lengthStart && index < node.lengthEnd);
       cell.classList.toggle("otlv-pg-b-val", inside && index >= node.headerEnd);
     });
     renderDetail();
@@ -292,7 +302,7 @@ async function start() {
   }
 
   function renderResult(bytes, result, profile) {
-    const nodes = flatten(result.elements);
+    const nodes = flatten(result.elements, result.format === "bluetooth-ltv");
     session = { bytes, result, nodes, profile };
     treeRows = [];
     byteCells = [];

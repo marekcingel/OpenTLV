@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add the Bluetooth LTV format to the WebAssembly module and the browser playground, which now shows the length before the type for this format. (#222)
+- Expand the [Bluetooth LTV](docs/formats/bluetooth/README.md) documentation with the logical model, length semantics, comparison with conventional TLV, parsing, encoding, unknown types, malformed input and limitations. (#222)
 - Add dedicated Bluetooth LTV conformance tests (vectors, boundary lengths, truncation, malformed lengths, round trips and walker offsets) and include the format, with seed corpus, in the fuzz harnesses. (#221)
 - Add the Bluetooth LTV (Length | Type | Value) format behind `OPENTLV_FORMAT_BLUETOOTH_LTV`, with optional `read_element` and `write_header` format callbacks for formats whose length precedes the type; see [Bluetooth LTV](docs/formats/bluetooth/README.md). (#220)
 - Add a Rust guide covering Cargo setup, reading, writing, error handling, ownership and the relationship to the C API, runnable `reader` and `writer` examples for the `opentlv` crate, and a `missing_docs` lint that requires Rustdoc on the public API; see [Using OpenTLV from Rust](docs/guides/rust.md). (#160)
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the WebAssembly build failing to compile the Bluetooth LTV format selection because the format header was not included. (#222)
 - Fix a Clang `-Wmissing-field-initializers` error in the architecture and Bluetooth LTV tests. (#220)
 - Fix Rust formatting and clippy findings and a Rust reader test that expected the wrong error for a truncated length. (#159)
 - Fix the Rust bindings build failing on Windows because the CMake source path had a `\\?\` prefix that MSVC cannot open. (#158)

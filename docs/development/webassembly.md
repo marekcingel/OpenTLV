@@ -47,8 +47,8 @@ const result = opentlv.parse(
 );
 ```
 
-`parse` takes a `Uint8Array`, a `format` (`default`, `fixed-1byte`, `ber` or
-`der`; default `default`) and optionally a `profile` (`none` or `emv`; default
+`parse` takes a `Uint8Array`, a `format` (`default`, `fixed-1byte`, `bluetooth-ltv`,
+`ber` or `der`; default `default`) and optionally a `profile` (`none` or `emv`; default
 `none`) and returns:
 
 ```json

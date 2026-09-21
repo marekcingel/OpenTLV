@@ -5,6 +5,9 @@
 #include <string.h>
 
 #include "tlv/tlv.h"
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#include "tlv/formats/bluetooth/bluetooth_ltv.h"
+#endif
 #include "tlv/version.h"
 
 enum {
@@ -201,6 +204,9 @@ static const tlv_reader_format_t* select_format(const char* name, int* ber, int*
 #endif
 #if OPENTLV_FORMAT_FIXED_1BYTE
     if (!strcmp(name, "fixed-1byte")) return &tlv_reader_format_fixed_1byte;
+#endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+    if (!strcmp(name, "bluetooth-ltv")) return &tlv_reader_format_bluetooth_ltv;
 #endif
 #if OPENTLV_FORMAT_BER
     if (!strcmp(name, "ber")) {

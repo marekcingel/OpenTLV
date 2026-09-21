@@ -46,7 +46,7 @@ extern "C" {
 typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 
 /*
- * Parses `size` bytes as `format` ("default", "fixed-1byte", "ber" or "der").
+ * Parses `size` bytes as `format` ("default", "fixed-1byte", "bluetooth-ltv", "ber" or "der").
  * `profile` annotates elements with dictionary metadata: NULL, "" or "none"
  * for none, or "emv" (EMV Contact Book 3 tags) with the "ber" format.
  * Returns NULL only when memory runs out. An unknown format or profile, or

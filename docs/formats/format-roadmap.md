@@ -34,7 +34,6 @@ introducing protocol-specific branches in the generic parser.
 | Networking | PEAP | Defined TLV structures, independently from TLS transport and authentication state machines. [Microsoft PEAP TLV](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-peap/fa418c4b-b11e-47a5-b86f-d74a9150b822) |
 | Networking | RADIUS | Base attribute framing; the length includes Type and Length. Vendor-specific and extended attributes need separately defined coverage. [RFC 2865, section 5](https://www.rfc-editor.org/rfc/rfc2865.html#section-5) |
 | IoT | OMA LwM2M TLV | Packed TLV headers and resource/container interpretation; separate from CoAP and device management. [LwM2M Core 1.2.2](https://www.openmobilealliance.org/release/LightweightM2M/V1_2_2-20240613-A/HTML-Version/OMA-TS-LightweightM2M_Core-V1_2_2-20240613-A.html) |
-| Wireless | Bluetooth LE advertising data | Length-Type-Value (LTV) structures; an adjacent framing family with a different field order, not a Bluetooth stack. [Bluetooth SIG overview](https://www.bluetooth.com/wp-content/uploads/2023/02/2301_5.4_Tech_Overview_FINAL.pdf) |
 
 ## Generic processing extensions
 
@@ -52,8 +51,9 @@ bounded iterative traversal. It does not allocate an object tree. See
 
 1. Add configurable fixed-width framing to cover more application protocols.
 2. Assess DGI, NDN, and RADIUS as concrete adapters with different length rules.
-3. Assess packed and reordered headers through LwM2M and Bluetooth advertising;
-   derive any generic contract extension from those requirements.
+3. Assess packed headers through LwM2M; derive any further generic contract
+   extension from those requirements (reordered headers are covered by
+   [Bluetooth LTV](bluetooth/README.md)).
 4. Add mixed-format traversal and incremental parsing as separately scoped core work.
 5. Expand semantic profiles and ASN.1 canonical validation with explicit standard
    coverage, independently of basic wire-format support.
