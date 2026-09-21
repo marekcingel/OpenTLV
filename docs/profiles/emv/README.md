@@ -216,6 +216,11 @@ tlv_result_t rc = tlv_schema_validate(wire, size, &tlv_reader_format_ber,
 
 This backs the `opentlv` CLI's `validate --profile emv`.
 
+To report every violation with its path (for example `6F/84`) and offset in a
+single pass, or to define schemas for other templates such as the Read Record
+Template (`70`) for a specific kernel, use `tlv_schema_validate_all()`; see
+[Reporting every violation](../../guides/schemas.md#reporting-every-violation).
+
 ## Data Object Lists (PDOL/CDOL/DDOL)
 
 Include `tlv/profiles/dol.h`. A Data Object List is a sequence of tag/

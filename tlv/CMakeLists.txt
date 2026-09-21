@@ -21,6 +21,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/reader/walker.c
     src/schemas/schema.c
     src/schemas/structure.c
+    src/schemas/report.c
     src/writer/writer.c
     src/error.c
     ${OpenTLV_BINARY_DIR}/generated/src/version.c

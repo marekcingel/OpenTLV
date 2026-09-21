@@ -105,3 +105,40 @@ TEST(Integration_EmvSchema, AcceptsSeveralTopLevelTemplatesConcatenated) {
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, validate(wire, &offset));
     EXPECT_EQ(2u, offset);
 }
+
+TEST(Integration_EmvSchema, ReportsFciViolationsWithPathsInOnePass) {
+    // 6F 08 | 50 01 41 (unexpected under 6F) | A5 03 87 01 01 (valid); DF Name is missing
+    const std::vector<uint8_t> wire{0x6F, 0x08, 0x50, 0x01, 0x41, 0xA5, 0x03, 0x87, 0x01, 0x01};
+    tlv_schema_issue_t         issues[4];
+    tlv_schema_report_t        report = {issues, 4, 0};
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_reader_format_ber,
+                                      tlv_ber_is_constructed, &tlv_emv_structure_schema,
+                                      TLV_WALK_MAX_DEPTH, 1000, TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
+                                      &report, nullptr));
+    ASSERT_EQ(2u, report.count);
+    char text[32];
+    for (size_t i = 0; i < report.count; ++i) {
+        ASSERT_EQ(TLV_OK, tlv_schema_issue_path_string(&issues[i], text, sizeof(text), nullptr));
+        if (issues[i].kind == TLV_SCHEMA_ISSUE_MISSING) {
+            EXPECT_STREQ("6F/84", text);
+            EXPECT_EQ(0u, issues[i].offset);
+        } else {
+            EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, issues[i].kind);
+            EXPECT_STREQ("6F/50", text);
+            EXPECT_EQ(2u, issues[i].offset);
+        }
+    }
+}
+
+TEST(Integration_EmvSchema, ReportAgreesWithFailFastValidationOnConformingInput) {
+    const std::vector<uint8_t> wire{0x6F, 0x09, 0x84, 0x07, 0xA0, 0x00,
+                                    0x00, 0x00, 0x03, 0x10, 0x10};
+    tlv_schema_report_t        report = {nullptr, 0, 99};
+    EXPECT_EQ(TLV_OK, validate(wire));
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_all(wire.data(), wire.size(), &tlv_reader_format_ber,
+                                              tlv_ber_is_constructed, &tlv_emv_structure_schema,
+                                              TLV_WALK_MAX_DEPTH, 1000,
+                                              TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
+    EXPECT_EQ(0u, report.count);
+}

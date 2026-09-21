@@ -60,6 +60,26 @@ TEST(Integration_TLV_CPP, LayeredTraversalAndSchema) {
     EXPECT_TRUE(tlv::validate(bytes, tlv_reader_format_default, nullptr, schema, 0, 2));
 }
 
+TEST(Integration_TLV_CPP, ValidateAllCountsViolationsAndReportsTagPaths) {
+    const uint8_t                data[] = {2, 0};
+    const tlv::bytes             bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
+    const tlv_structure_rule_t   rule = {{{{1}, 1}, 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
+    const tlv_structure_schema_t schema = {&rule, 1, 0};
+    tlv_schema_issue_t           issues[4];
+    auto                         count =
+        tlv::validate_all(bytes, tlv_reader_format_default, nullptr, schema, 0, 2, issues, 4);
+    ASSERT_TRUE(count);
+    ASSERT_EQ(2u, *count); // Tag 1 is missing and tag 2 is unexpected.
+    char path[8];
+    ASSERT_EQ(TLV_OK, tlv_schema_issue_path_string(&issues[0], path, sizeof(path), nullptr));
+    EXPECT_STREQ("01", path);
+
+    auto conforming = tlv::validate_all(tlv::bytes(), tlv_reader_format_default, nullptr,
+                                        tlv_structure_schema_t{nullptr, 0, 0}, 0, 2, nullptr, 0);
+    ASSERT_TRUE(conforming);
+    EXPECT_EQ(0u, *conforming);
+}
+
 namespace {
 struct pair_value {
     uint8_t first, second;
