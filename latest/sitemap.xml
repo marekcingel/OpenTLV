@@ -53,6 +53,10 @@
          <lastmod>2026-09-21</lastmod>
     </url>
     <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/formats/format-catalogue/</loc>
+         <lastmod>2026-09-21</lastmod>
+    </url>
+    <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/formats/format-examples/</loc>
          <lastmod>2026-09-21</lastmod>
     </url>
@@ -121,6 +125,10 @@
          <lastmod>2026-09-21</lastmod>
     </url>
     <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/guides/select-components/</loc>
+         <lastmod>2026-09-21</lastmod>
+    </url>
+    <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/playground/</loc>
          <lastmod>2026-09-21</lastmod>
     </url>
@@ -150,6 +158,10 @@
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/reference/cxx-api/</loc>
+         <lastmod>2026-09-21</lastmod>
+    </url>
+    <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/reference/errors/</loc>
          <lastmod>2026-09-21</lastmod>
     </url>
 </urlset>

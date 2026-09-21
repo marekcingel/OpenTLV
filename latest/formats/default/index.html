@@ -995,6 +995,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/rust/" class="md-nav__link">
         
   
@@ -1201,6 +1229,17 @@
     <span class="md-ellipsis">
       
         Minimal C usage
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layout-and-typical-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout and typical use
       
     </span>
   </a>
@@ -1466,6 +1505,34 @@
     
   
     Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
   
 
     
@@ -1967,6 +2034,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2233,6 +2328,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#layout-and-typical-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout and typical use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#byte-example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,14 +2433,29 @@
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">           </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x2A</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="p">}</span>
 </code></pre></div>
+<h2 id="layout-and-typical-use">Layout and typical use<a class="headerlink" href="#layout-and-typical-use" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>+--------+--------------------------+-------------------------+
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>| Tag    | Length                   | Value                   |
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>| 1 byte | 1 to 3 bytes             | Length bytes, opaque    |
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>+--------+--------------------------+-------------------------+
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Length forms:  00-7F          one byte, the length itself
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>               81 nn          two bytes, length 0-255
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>               82 nn nn       three bytes, length 0-65,535 (big-endian)
+</code></pre></div>
+<p>The length counts the value only, not the tag or the length field. Nothing inside the
+value is interpreted, so a value that contains further TLVs is just bytes to this
+format. Use it for compact application-defined records that need a one-byte tag but
+values longer than 255 bytes. For nesting or multi-byte tags use
+<a href="../asn1/ber/">BER-TLV</a>.</p>
 <h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
 <p>One raw tag byte and a definite BER-style length, up to 65,535 value bytes.
 The tag has no built-in constructed-bit interpretation.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>01 03 AA BB CC
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Element (5 bytes)
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>|-- Tag:    01
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>|-- Length: 03 = 3 value bytes
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>`-- Value:  AA BB CC
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>01 03 AA BB CC
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Element (5 bytes)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>|-- Tag:    01
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>|-- Length: 03 = 3 value bytes
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>`-- Value:  AA BB CC
 </code></pre></div>
 <p>For 128 value bytes, the header is <code>01 81 80</code>, followed by all 128 payload
 bytes. This format supports BER-style lengths, not multi-byte BER tags.

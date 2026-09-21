@@ -765,6 +765,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#include-only-what-you-need" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include only what you need
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1093,6 +1104,34 @@
     
   
     Scanning and recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
   
 
     
@@ -1488,6 +1527,34 @@
     
   
     Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
   
 
     
@@ -1989,6 +2056,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2266,6 +2361,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#include-only-what-you-need" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include only what you need
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#build-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2436,6 +2542,25 @@ is the explicit codec convenience function for existing <code>T::tag</code> type
 helper retains its temporary <code>std::vector</code> and may allocate; raw I/O and the C
 codec wrappers do not allocate. C++ errors and user-defined object types may
 also allocate according to their representation.</p>
+<h2 id="include-only-what-you-need">Include only what you need<a class="headerlink" href="#include-only-what-you-need" title="Permanent link">&para;</a></h2>
+<p>A build contains only the components it asks for. A project that needs just the
+generic core builds just the core. A project that also needs BER enables BER and gets
+no other format. Formats and profiles are selectable components (see
+<a href="#build-configuration">Build configuration</a>), and each concrete component is compiled
+into the library only when it is enabled. Dependencies between components are explicit,
+for example the ASN.1 chain below, and nothing is pulled in implicitly. The header-only
+C++ wrapper adds cost only for the headers a program includes.</p>
+<p>Every new format or profile, including the candidates in the
+<a href="../../formats/format-roadmap/">format expansion candidates</a>, follows the same rule: its
+own option, and no code or dependency added to builds that do not enable it.</p>
+<p>Language bindings are expected to follow the same rule: a binding should expose a
+component only when the matching C component is enabled, so a binding build can also be
+limited to what it needs. <strong>This is not implemented yet for the Rust bindings.</strong>
+<code>opentlv-sys</code> configures the C library with its default options, so all built-in
+components are included, and the <code>opentlv</code> crate has no Cargo features for choosing
+components. Mapping the component options to Cargo features is a requirement for
+future work; see <a href="../../development/rust/#build">Rust bindings</a>. Ready-made CMake recipes are in
+<a href="../../guides/select-components/">building only the components you need</a>.</p>
 <h2 id="build-configuration">Build configuration<a class="headerlink" href="#build-configuration" title="Permanent link">&para;</a></h2>
 <p>All generic facilities are always available. These concrete components default
 to ON and can be disabled independently:</p>

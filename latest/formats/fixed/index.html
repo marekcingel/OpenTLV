@@ -995,6 +995,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/rust/" class="md-nav__link">
         
   
@@ -1236,6 +1264,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#layout-and-typical-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout and typical use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#byte-example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1466,6 +1505,34 @@
     
   
     Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
   
 
     
@@ -1967,6 +2034,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2233,6 +2328,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#layout-and-typical-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layout and typical use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#byte-example" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2340,13 +2446,24 @@ and exactly that many value bytes. For example, <code>01 03 AA BB CC</code> enco
 longer than 255 bytes returns <code>TLV_ERR_INVALID_LENGTH</code>. Missing length or
 value bytes return <code>TLV_ERR_BUFFER_TOO_SHORT</code>. An empty input is the end of
 the stream (<code>TLV_ERR_END_OF_BUFFER</code>). Multiple records may be concatenated.</p>
+<h2 id="layout-and-typical-use">Layout and typical use<a class="headerlink" href="#layout-and-typical-use" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>+--------+--------+-------------------------+
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>| Tag    | Length | Value                   |
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>| 1 byte | 1 byte | Length bytes (0-255)    |
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>+--------+--------+-------------------------+
+</code></pre></div>
+<p>The header is always two bytes, and the length counts the value only. There are no
+long forms and no special length values, so <code>80</code> is an ordinary length. Use it for
+small internal records and device protocol fields where every value fits in 255
+bytes. For a different tag width, length width or byte order use the
+<a href="configurable/">configurable fixed-width TLV</a>.</p>
 <h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
 <p>One tag byte and one unsigned length byte, up to 255 value bytes.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>02 02 10 20
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Element (4 bytes)
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>|-- Tag:    02
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>|-- Length: 02 = 2 value bytes
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>`-- Value:  10 20
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>02 02 10 20
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Element (4 bytes)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>|-- Tag:    02
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>|-- Length: 02 = 2 value bytes
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>`-- Value:  10 20
 </code></pre></div>
 <p>For 128 value bytes, the header is <code>02 80</code>, followed by all 128 payload
 bytes: <code>80</code> is an ordinary length here, not a BER indefinite-length marker.

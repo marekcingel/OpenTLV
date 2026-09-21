@@ -995,6 +995,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guides/rust/" class="md-nav__link">
         
   
@@ -1370,6 +1398,34 @@
     
   
     Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
   
 
     
@@ -1858,6 +1914,34 @@
     
   
     Compilers and build settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
   
 
     
@@ -2548,6 +2632,11 @@ compiler. On Windows use the MSVC Rust toolchain with Visual Studio.</p>
 <p>By default the build script configures and builds the OpenTLV C library from the
 repository root with CMake, as a static Release library inside Cargo's <code>target</code>
 directory, and links it. The C++ layer, CLI, tests and examples are not built.</p>
+<p>The build script passes no <code>OPENTLV_FORMAT_*</code> or <code>OPENTLV_PROFILE_*</code> options, so the
+C library is built with its default components, all built-in formats and profiles. The
+crates define no Cargo features for selecting components. Choosing components from Cargo
+(the <a href="../../concepts/architecture/#include-only-what-you-need">include only what you need</a>
+rule) is not implemented yet.</p>
 <h2 id="continuous-integration-and-quality-checks">Continuous integration and quality checks<a class="headerlink" href="#continuous-integration-and-quality-checks" title="Permanent link">&para;</a></h2>
 <p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/rust.yml">Rust Bindings workflow</a>
 runs on every push and pull request to <code>main</code> and fails on any of:</p>

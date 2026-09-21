@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/guides/schemas/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/guides/select-components/">
       
       
-        <link rel="prev" href="../memory/">
+        <link rel="prev" href="../scanner/">
       
       
-        <link rel="next" href="../codecs/">
+        <link rel="next" href="../rust/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Schemas and length validation - OpenTLV</title>
+        <title>Building only the components you need - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#optional-c-schemas" class="md-skip">
+        <a href="#build-only-the-components-you-need" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Schemas and length validation
+              Building only the components you need
             
           </span>
         </div>
@@ -885,37 +885,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Schemas and length validation
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../schemas/" class="md-nav__link">
         
   
   
@@ -931,37 +904,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#complete-structure-validation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Complete structure validation
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1055,10 +997,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../select-components/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1074,6 +1043,120 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#recipes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recipes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Recipes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-and-ber" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core and BER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-ber-der-and-emv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core, BER, DER and EMV
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-and-bluetooth-ltv-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core and Bluetooth LTV only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#everything" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Everything
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you get
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2251,10 +2334,93 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#complete-structure-validation" class="md-nav__link">
+  <a href="#recipes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Complete structure validation
+        Recipes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Recipes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-and-ber" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core and BER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-ber-der-and-emv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core, BER, DER and EMV
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-and-bluetooth-ltv-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core and Bluetooth LTV only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#everything" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Everything
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you get
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
       
     </span>
   </a>
@@ -2278,7 +2444,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/guides/schemas.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/guides/select-components.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2286,77 +2452,123 @@
   
 
 
-<h1 id="optional-c-schemas">Optional C schemas<a class="headerlink" href="#optional-c-schemas" title="Permanent link">&para;</a></h1>
-<p>Include <code>tlv/schemas/schema.h</code> to describe known tags using constant tables.
-This engine is format-agnostic and expresses occurrence, nesting and
-membership only; it has no ASN.1 semantics. For DER-specific canonical rules
-it cannot express (SET/SET OF ordering, CHOICE, implicit/explicit tagging,
-DEFAULT omission), see
-<a href="../../profiles/der/#schema-aware-validation-and-encoding">schema-aware DER validation and encoding</a>,
-a distinct schema type built for that purpose.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_schema_entry_t</span><span class="w"> </span><span class="n">entries</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="cm">/* tag bytes, tag size, minimum length, maximum length, flags */</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="p">{{{</span><span class="mh">0x01</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w">       </span><span class="cm">/* Exactly four bytes. */</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">{{{</span><span class="mh">0x02</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w">      </span><span class="cm">/* Zero through 32 bytes, inclusive. */</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">{{{</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">},</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE_MAX</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">}</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">};</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_schema_t</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">entries</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">entries</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">};</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="cm">/* After successfully parsing a tlv_view_t named view: */</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_schema_entry_t</span><span class="o">*</span><span class="w"> </span><span class="n">rule</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_find</span><span class="p">(</span><span class="o">&amp;</span><span class="n">schema</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">);</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rule</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="cm">/* Unknown tag: the application decides whether to accept or reject it. */</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate_length</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">length</span><span class="p">);</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="cm">/* TLV_OK or TLV_ERR_INVALID_LENGTH. */</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">result</span><span class="p">;</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="p">}</span>
+<h1 id="build-only-the-components-you-need">Build only the components you need<a class="headerlink" href="#build-only-the-components-you-need" title="Permanent link">&para;</a></h1>
+<p>OpenTLV builds only the components you ask for. This guide gives ready-made CMake
+recipes for the common selections. For the principle and the option reference, see
+<a href="../../concepts/architecture/#include-only-what-you-need">include only what you need</a> and
+<a href="../../concepts/architecture/#build-configuration">build configuration</a>.</p>
+<p>The generic core (reader, writer, walker, schemas, value codecs and the format
+callbacks) is always built. Each format and profile is an option that defaults to ON.
+Turn off what you do not use.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Component</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OPENTLV_FORMAT_DEFAULT</code></td>
+<td><a href="../../formats/default/">Default TLV</a></td>
+</tr>
+<tr>
+<td><code>OPENTLV_FORMAT_FIXED_1BYTE</code></td>
+<td><a href="../../formats/fixed/">Fixed 1-byte TLV</a></td>
+</tr>
+<tr>
+<td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
+<td><a href="../../formats/bluetooth/">Bluetooth LTV</a></td>
+</tr>
+<tr>
+<td><code>OPENTLV_FORMAT_ASN1</code></td>
+<td>The ASN.1 group; must be ON for BER, DER, CER and EMV</td>
+</tr>
+<tr>
+<td><code>OPENTLV_FORMAT_BER</code></td>
+<td><a href="../../formats/asn1/ber/">BER-TLV</a>; must be ON for DER, CER and EMV</td>
+</tr>
+<tr>
+<td><code>OPENTLV_FORMAT_DER</code></td>
+<td><a href="../../formats/asn1/der/">DER-TLV</a>; must be ON for EMV</td>
+</tr>
+<tr>
+<td><code>OPENTLV_FORMAT_CER</code></td>
+<td><a href="../../formats/asn1/cer/">CER-TLV</a>; independent of DER</td>
+</tr>
+<tr>
+<td><code>OPENTLV_PROFILE_EMV</code></td>
+<td><a href="../../profiles/emv/">EMV profile</a></td>
+</tr>
+</tbody>
+</table>
+<p>Turning an option OFF also turns OFF everything below it in the chain
+<code>ASN1 -&gt; BER -&gt; DER -&gt; EMV</code>, with CER a sibling of DER under BER. The
+<a href="../../formats/fixed/configurable/">configurable fixed-width format</a> is a C++ header and
+has no CMake option.</p>
+<h2 id="recipes">Recipes<a class="headerlink" href="#recipes" title="Permanent link">&para;</a></h2>
+<p>Each recipe starts from a clean build directory; replace <code>build</code> with your own. Every
+option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
+<h3 id="core-only">Core only<a class="headerlink" href="#core-only" title="Permanent link">&para;</a></h3>
+<p>Use this when you supply your own <a href="../../formats/custom/">format callbacks</a>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED_1BYTE<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_BLUETOOTH_LTV<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
-<p>The reader does not use schemas and can parse unknown tags and values outside
-schema constraints. Validation is an explicit application step.</p>
-<p>Lookup performs a linear scan without allocation or runtime registration. It
-compares tag size and active bytes, returns a borrowed entry pointer, and selects
-the first match for duplicate tags. Tables need not be sorted. Keep their storage
-alive while using returned pointers. An empty schema can use <code>{NULL, 0}</code>.</p>
-<p>Equal length bounds specify an exact length; <code>SIZE_MAX</code> allows any representable
-upper length. Reversed bounds always fail validation. Flags are reserved and
-currently ignored; initialize them to zero for future compatibility.</p>
-<h2 id="complete-structure-validation">Complete structure validation<a class="headerlink" href="#complete-structure-validation" title="Permanent link">&para;</a></h2>
-<p><code>tlv_structure_schema_t</code> defines rules within a parent. Each
-<code>tlv_structure_rule_t</code> contains an existing length entry, <code>min_occurs</code>,
-<code>max_occurs</code>, <code>kind</code> and optional <code>children</code> schema. Required singleton fields
-use 1/1; optional fields use 0/1; repeatable fields can use <code>SIZE_MAX</code> as their
-maximum. Tags must be unique within the rule table. <code>allow_unknown</code> explicitly
-controls unlisted children. <code>kind</code> is ANY, PRIMITIVE or CONSTRUCTED. Child schemas
-require CONSTRUCTED and are checked even for an empty container.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/schemas/schema.h"</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_structure_rule_t</span><span class="w"> </span><span class="n">rules</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">{{</span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_PRIMITIVE</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">{{</span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE_MAX</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_ANY</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">};</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_structure_schema_t</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">rules</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="cm">/* tlv_schema_validate(data, size, format, is_constructed, &amp;message, 16, 1000, &amp;offset); */</span>
+<h3 id="core-and-ber">Core and BER<a class="headerlink" href="#core-and-ber" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED_1BYTE<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_BLUETOOTH_LTV<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>-DOPENTLV_FORMAT_DER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_PROFILE_EMV<span class="o">=</span>OFF
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
-<p><code>tlv_schema_validate</code> checks complete framing and nesting, then lengths,
-occurrences and child membership. It never decodes values. Invalid rule tables,
-unknown tags, excessive occurrences and kind mismatches return <code>TLV_ERR_SCHEMA</code>,
-with the offset anchored to the actual offending element; length failures
-retain <code>TLV_ERR_INVALID_LENGTH</code>, anchored the same way. A missing required
-field (an occurrence count below its rule's <code>min_occurs</code>) instead returns
-<code>TLV_ERR_SCHEMA_MISSING</code>, with the offset at the end of its parent's value - a
-scope boundary rather than an element, which can coincide with the start of
-an unrelated sibling in the enclosing scope. Distinguish the two codes before
-using the offset to look up a tag. Framing and resource errors propagate.
-Success leaves the offset unchanged.</p>
-<p>No allocation or C recursion is used. Each scope is rescanned for each rule;
-complexity is <code>O(rules * rules + elements * rules)</code> per scope. Tables must remain immutable.
-Sibling ordering and cross-field/value semantics are application concerns.
-<code>tlv::validate</code> exposes these same rules through the C++ API. For a concrete
-structure schema built on this engine, see
-<a href="../../profiles/emv/#structural-validation">EMV structural validation</a>.</p>
-<p>See also the <a href="../../reference/c-api/#schemas">C API reference: schemas</a> and the <a href="../../reference/cxx-api/">C++ API reference</a>.</p>
+<h3 id="core-ber-der-and-emv">Core, BER, DER and EMV<a class="headerlink" href="#core-ber-der-and-emv" title="Permanent link">&para;</a></h3>
+<p>EMV needs DER and DER needs BER, so all three are on. CER is off.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED_1BYTE<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_BLUETOOTH_LTV<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
+</code></pre></div>
+<h3 id="core-and-bluetooth-ltv-only">Core and Bluetooth LTV only<a class="headerlink" href="#core-and-bluetooth-ltv-only" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED_1BYTE<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
+</code></pre></div>
+<h3 id="everything">Everything<a class="headerlink" href="#everything" title="Permanent link">&para;</a></h3>
+<p>The default. No options are needed.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel
+</code></pre></div>
+<h2 id="what-you-get">What you get<a class="headerlink" href="#what-you-get" title="Permanent link">&para;</a></h2>
+<p>These recipes were checked by configuring each one and building the <code>tlv</code> library target
+with MSVC in Release as a shared library. The generated <code>tlv/config.h</code> matched each recipe,
+and the symbols of the disabled formats were absent from the built library. As an
+illustration only (the sizes depend on the compiler, settings and platform), the shared
+library was about 26 KB for the core only and about 107 KB with everything.</p>
+<p>Confirm your own selection from the generated <code>tlv/config.h</code>, which defines each option
+as <code>1</code> or <code>0</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/config.h"</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="cp">#if OPENTLV_FORMAT_BER</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/formats/asn1/ber.h"</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="cm">/* use tlv_reader_format_ber */</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="cp">#endif</span>
+</code></pre></div>
+<p>Use these macros when your code has to compile against a reduced build. Including the
+header of a disabled component does not provide its symbols.</p>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Tests, examples and the CLI that need a disabled component are omitted from that build.
+  The recipes above were checked by building the <code>tlv</code> library target.</li>
+<li>The C++ wrapper adds cost only for the headers you include.</li>
+<li>The Rust bindings do not choose components yet: they build the C library with its
+  default options. See
+  <a href="../../concepts/architecture/#include-only-what-you-need">include only what you need</a>.</li>
+<li>A future format follows the same rule, with its own option; see the
+  <a href="../../formats/format-roadmap/">format expansion candidates</a>.</li>
+</ul>
 
 
 
@@ -2394,7 +2606,7 @@ structure schema built on this engine, see
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../memory/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Memory ownership">
+          <a href="../scanner/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Scanning and recovery">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2404,20 +2616,20 @@ structure schema built on this engine, see
                 Previous
               </span>
               <div class="md-ellipsis">
-                Memory ownership
+                Scanning and recovery
               </div>
             </div>
           </a>
         
         
           
-          <a href="../codecs/" class="md-footer__link md-footer__link--next" aria-label="Next: Value codecs">
+          <a href="../rust/" class="md-footer__link md-footer__link--next" aria-label="Next: Using OpenTLV from Rust">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Value codecs
+                Using OpenTLV from Rust
               </div>
             </div>
             <div class="md-footer__button md-icon">

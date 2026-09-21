@@ -995,6 +995,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/rust/" class="md-nav__link">
         
   
@@ -1151,6 +1179,17 @@
     <span class="md-ellipsis">
       
         Choose a format
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compare-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compare formats
       
     </span>
   </a>
@@ -1505,6 +1544,34 @@
     
   
     Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
   
 
     
@@ -2006,6 +2073,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2250,6 +2345,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#compare-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compare formats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reading-one-element" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2418,6 +2524,109 @@ Profile semantics are documented separately.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="compare-formats">Compare formats<a class="headerlink" href="#compare-formats" title="Permanent link">&para;</a></h2>
+<p>All rows are TLV formats: they differ in header layout, limits, nesting and how they are
+built. Each format keeps its own page with the byte layout and a worked example.</p>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Tag</th>
+<th>Length field</th>
+<th>Largest value</th>
+<th>Field order on the wire</th>
+<th>Nesting for the tree walker</th>
+<th>Build option</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="default/#layout-and-typical-use">Default TLV</a></td>
+<td>1 byte</td>
+<td>1 byte below <code>80</code>, or <code>81 nn</code>, <code>82 nn nn</code></td>
+<td>65,535 bytes</td>
+<td>tag, length, value</td>
+<td>none (opaque values)</td>
+<td><code>OPENTLV_FORMAT_DEFAULT</code></td>
+</tr>
+<tr>
+<td><a href="fixed/#layout-and-typical-use">Fixed 1-byte TLV</a></td>
+<td>1 byte</td>
+<td>1 byte</td>
+<td>255 bytes</td>
+<td>tag, length, value</td>
+<td>none (opaque values)</td>
+<td><code>OPENTLV_FORMAT_FIXED_1BYTE</code></td>
+</tr>
+<tr>
+<td><a href="bluetooth/#wire-layout-and-logical-model">Bluetooth LTV</a></td>
+<td>1-byte type</td>
+<td>1 byte, counting the type and the value</td>
+<td>254 bytes</td>
+<td>length, type, value</td>
+<td>none</td>
+<td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
+</tr>
+<tr>
+<td><a href="fixed/configurable/#wire-layout">Configurable fixed-width TLV</a> (C++)</td>
+<td>1 to 8 bytes</td>
+<td>1 to 8 bytes, big or little endian</td>
+<td>set by the length width</td>
+<td>tag, length, value</td>
+<td>none (opaque values)</td>
+<td>none (C++ header)</td>
+</tr>
+<tr>
+<td><a href="asn1/ber/#layout-and-typical-use">BER-TLV</a></td>
+<td>1 to <code>TLV_TAG_CAPACITY</code> bytes (multi-byte tags)</td>
+<td>short, long, or indefinite for constructed values</td>
+<td>up to <code>SIZE_MAX</code></td>
+<td>identifier, length, contents (and EOC)</td>
+<td><code>tlv_ber_is_constructed</code></td>
+<td><code>OPENTLV_FORMAT_BER</code></td>
+</tr>
+<tr>
+<td><a href="asn1/der/#layout-and-typical-use">DER-TLV</a></td>
+<td>as BER</td>
+<td>definite, shortest form only</td>
+<td>definite lengths</td>
+<td>identifier, length, contents</td>
+<td><code>tlv_der_is_constructed</code></td>
+<td><code>OPENTLV_FORMAT_DER</code></td>
+</tr>
+<tr>
+<td><a href="asn1/cer/#layout-and-typical-use">CER-TLV</a></td>
+<td>as BER</td>
+<td>primitive: definite, shortest; constructed: indefinite</td>
+<td>definite lengths for primitives</td>
+<td>identifier, length, contents (and EOC)</td>
+<td><code>tlv_cer_is_constructed</code></td>
+<td><code>OPENTLV_FORMAT_CER</code></td>
+</tr>
+<tr>
+<td><a href="custom/">Application-defined</a></td>
+<td>1 to <code>TLV_TAG_CAPACITY</code> raw bytes</td>
+<td>your rules</td>
+<td>your rules</td>
+<td>any, through <code>read_element</code> and <code>write_header</code></td>
+<td>your predicate</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<p>Notes for choosing:</p>
+<ul>
+<li>Only BER, DER and CER carry a constructed bit, so only they nest by themselves.
+  The other formats hold opaque values; nesting is then up to your predicate.</li>
+<li>DER and CER are BER with restrictions: they share the tag layout and differ in how
+  lengths are chosen. Their generic readers check framing only; canonical values come from
+  the profile functions.</li>
+<li>Bluetooth LTV is the built-in example of a format that puts the length before the type.</li>
+<li>Every format reads values in place and writes into caller-owned storage.</li>
+<li>To build only some of them, see <a href="../guides/select-components/">build only the components you need</a>.</li>
+</ul>
+<p>Formats that are not implemented yet are catalogued in
+<a href="format-roadmap/">format expansion candidates</a>.</p>
 <p>All formats follow the <a href="../guides/memory/">shared memory ownership rules</a>.</p>
 <p>For canonical ASN.1 framing, nested validation, limits and error offsets, see
 <a href="../profiles/der/">ASN.1 DER-TLV</a> and its sibling <a href="../profiles/cer/">ASN.1 CER-TLV</a>.
