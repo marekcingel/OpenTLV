@@ -16,6 +16,7 @@
 #include "tlv++/registry.hpp"
 #include "tlv++/structure.hpp"
 #include "tlv++/walker.hpp"
+#include "tlv++/query.hpp"
 #include "tlv++/schema.hpp"
 #if OPENTLV_FORMAT_BER
 #include "tlv++/ber.hpp"

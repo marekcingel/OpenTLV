@@ -41,6 +41,7 @@ tlv/
     bluetooth/ bluetooth_ltv.h
     asn1/    ber.h, der.h
   reader/    reader.h, walker.h, scanner.h
+  query/     query.h
   writer/    writer.h
   schemas/   schema.h
   codec/     codec.h, structure.h, emv.h

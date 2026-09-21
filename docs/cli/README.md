@@ -51,6 +51,7 @@ otlv encode --format ber --input capture.json --output-encoding binary --output-
 otlv dump --format ber --input damaged.bin --recover --tree
 otlv validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010"
 otlv tag 9F02 --profile emv
+otlv query 6F/A5/50 --format ber --input card.bin --value
 ```
 
 `dump`, `validate` and `decode` require an explicit `--format` and exactly one input
@@ -265,6 +266,45 @@ with code 2; `encode` takes `--format`, `--tag`, `--value`, `--input`,
 too long for `fixed-1byte`) reports `otlv: cannot encode element N: <reason>`
 and exits with code 1; N counts elements from zero in document order. Exceeded
 limits and unreadable or unwritable files exit with code 3.
+
+### Path queries
+
+`query` prints the elements addressed by a path of hexadecimal tags, so a
+script can read one value from nested data without post-processing the whole
+dump. The path is a positional argument and the input options are the same as
+for `dump`.
+
+```sh
+otlv query 6F/A5/50 --format ber --input card.bin
+otlv query 6F/A5/50 --format ber --input card.bin --value
+otlv query 6F/A5/50 --format ber --input card.bin --output json
+```
+
+```text
+offset=8 tag=50 length=2 value=4142
+```
+
+`6F/A5/50` means a top-level `6F`, its direct child `A5` and that element's
+direct child `50`. Every element reached this way is printed in document
+order; a tag that occurs several times can therefore produce several lines.
+Tags are hex in either case, separated by one `/`; spaces, empty steps and a
+leading or trailing `/` are usage errors. This first version supports exact tag
+paths only, with no wildcards, indexes or recursive search. The syntax and
+matching come from the library ([Path queries](../guides/queries.md)), not
+from the CLI.
+
+- Text output is one line per match in the format of `dump`, without nesting.
+- `--value` prints only the value bytes of each match as one line of hex, an
+  empty line for an empty value.
+- `--output json` prints `{"matches":[...]}`; each match has `path`, `offset`,
+  `tag`, `length` and `value`. It cannot be combined with `--value`.
+- A path of more than one tag needs `--format ber` or `--format der`, the
+  formats that have nested values; other formats accept one-tag paths.
+- The whole input is still parsed, so damaged data after a match fails the
+  command with exit code 1, and `--max-depth`, `--max-elements` and
+  `--max-input-size` apply as for `dump`.
+- No match is reported as `otlv: no match for query ...` with exit code 5, so a
+  script can tell a missing element from invalid data.
 
 ### Tag lookup
 
@@ -538,6 +578,7 @@ distinguish it from a format/framing error.
 | 2 | Invalid command, option, hex input, JSON document, or unavailable format |
 | 3 | I/O failure, allocation failure, or exceeded resource limit |
 | 4 | `--recover` skipped damaged data: the output is incomplete |
+| 5 | `query` matched no element |
 
 Automatic format detection, custom text input syntax, full ASN.1 value
 validation, EMV kernel behavior, and prebuilt release binaries are outside the

@@ -3,6 +3,7 @@
 #include "tlv++/writer.hpp"
 #include "tlv++/walker.hpp"
 #include "tlv++/schema.hpp"
+#include "tlv++/query.hpp"
 #if defined(OPENTLV_TLVPP_CODEC_HPP) || defined(OPENTLV_CODEC_H)
 #error Low-level APIs must not depend on the codec layer
 #endif
@@ -38,6 +39,47 @@ TEST(Integration_TLV_CPP, BerIndefiniteRoundTripAndTraversal) {
     EXPECT_EQ(2u, visits);
     EXPECT_FALSE(tlv::ber_write_indefinite(buffer, 7, tlv_tag_t{{0x30}, 1}, value));
     EXPECT_FALSE(tlv::ber_write_indefinite(buffer, sizeof(buffer), tlv_tag_t{{4}, 1}, value));
+}
+
+TEST(Integration_TLV_CPP, BerPathQuery) {
+    // 6F { 84, A5 { 50 "AB" } }, then a top-level 50.
+    const uint8_t    wire[] = {0x6F, 0x0A, 0x84, 0x02, 0xAA, 0xBB, 0xA5, 0x04,
+                               0x50, 0x02, 0x41, 0x42, 0x50, 0x01, 0xFF};
+    const tlv::bytes input(reinterpret_cast<const tlv::byte*>(wire), sizeof(wire));
+
+    size_t offset = 99;
+    EXPECT_FALSE(tlv::query::parse("6F//50", &offset));
+    EXPECT_EQ(3u, offset);
+
+    auto path = tlv::query::parse("6F/A5/50");
+    ASSERT_TRUE(path);
+    EXPECT_EQ(3u, path->size());
+    EXPECT_EQ(3u, path->c_query().count);
+    size_t visits = 0;
+    EXPECT_TRUE(path->walk(input, tlv_reader_format_ber, tlv_ber_is_constructed, 8, 100,
+                           [&](const tlv::entry& item, size_t depth, size_t at) {
+                               EXPECT_EQ(2u, depth);
+                               EXPECT_EQ(8u, at);
+                               EXPECT_EQ(2u, item.value.size());
+                               EXPECT_EQ(0x41, static_cast<int>(item.value[0]));
+                               ++visits;
+                               return TLV_VISIT_CONTINUE;
+                           }));
+    EXPECT_EQ(1u, visits);
+
+    auto missing = tlv::query::parse("6F/A5/51");
+    ASSERT_TRUE(missing);
+    EXPECT_TRUE(missing->walk(input, tlv_reader_format_ber, tlv_ber_is_constructed, 8, 100,
+                              [](const tlv::entry&, size_t, size_t) {
+                                  ADD_FAILURE();
+                                  return TLV_VISIT_CONTINUE;
+                              }));
+    size_t failed_at = 0;
+    auto   limited = path->walk(
+        input, tlv_reader_format_ber, tlv_ber_is_constructed, 1, 100,
+        [](const tlv::entry&, size_t, size_t) { return TLV_VISIT_CONTINUE; }, &failed_at);
+    ASSERT_FALSE(limited);
+    EXPECT_EQ(TLV_ERR_LIMIT, limited.error().code);
 }
 #endif
 

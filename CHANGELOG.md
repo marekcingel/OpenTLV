@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add path queries such as `6F/A5/50`: `tlv_query_parse()` and `tlv_query_walk()` (and `tlv::query`) address nested elements by their tags without allocating, and the new `otlv query` command prints the matches with `--value` or `--output json` and exits with code 5 when nothing matches; see [Path queries](docs/guides/queries.md). (#251)
 - Add `tlv_schema_validate_all()` (and `tlv::validate_all`), which checks template contents against a structure schema and reports every violation with its path, such as `70/77/9F36`, and byte offset; see [Reporting every violation](docs/guides/schemas.md#reporting-every-violation). (#57)
 - Add an ABI Compatibility CI check that compares the `tlv` C shared library with a stored `abidw` baseline and reports incompatible changes, without failing before 1.0.0; see [C ABI compatibility](docs/development/abi-compatibility.md). (#19)
 - Extend the `otlv` CLI with `decode` and `encode --input` for a [versioned JSON document](docs/cli/json-schema.md), `validate --emv-check dictionary` and `--emv-context` for context-dependent EMV length checks, and `--recover` for `dump` and `decode`, which reports skipped byte ranges and exits with the new status 4; see the [command-line tool](docs/cli/README.md). (#110)
