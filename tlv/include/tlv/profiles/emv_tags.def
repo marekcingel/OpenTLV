@@ -48,7 +48,6 @@ EMV_TAG(BASE, tsi, 1, 0x9B, 0, 2, 2, 1, FLAGS, 0)
 EMV_TAG(BASE, transaction_type, 1, 0x9C, 0, 1, 1, 1, NUMBER, 2)
 EMV_TAG(BASE, ddf_name, 1, 0x9D, 0, 5, 16, 1, BYTES, 0)
 EMV_TAG(BASE, fci_proprietary_template, 1, 0xA5, 0, 0, SIZE_MAX, 1, TEMPLATE, 0)
-#if TLV_TAG_CAPACITY >= 2
 EMV_TAG(BASE, cardholder_name, 2, 0x5F, 0x20, 2, 26, 1, TEXT, 0)
 EMV_TAG(BASE, application_expiration_date, 2, 0x5F, 0x24, 3, 3, 1, DATE, 0)
 EMV_TAG(BASE, application_effective_date, 2, 0x5F, 0x25, 3, 3, 1, DATE, 0)
@@ -145,7 +144,6 @@ EMV_TAG(BASE, online_bit_group_template, 2, 0xBF, 0x4B, 0, SIZE_MAX, 1, TEMPLATE
 EMV_TAG(BASE, biometric_try_counters_template, 2, 0xBF, 0x4C, 0, SIZE_MAX, 1, TEMPLATE, 0)
 EMV_TAG(BASE, preferred_attempts_template, 2, 0xBF, 0x4D, 0, SIZE_MAX, 1, TEMPLATE, 0)
 EMV_TAG(BASE, biometric_verification_data_template, 2, 0xBF, 0x4E, 0, SIZE_MAX, 1, TEMPLATE, 0)
-#endif
 EMV_END(BASE)
 
 /* Context-specific meanings: never fall back to BASE for unknown children. */
@@ -174,34 +172,26 @@ EMV_TAG(BHT_FORMAT, bht_format_type, 1, 0x88, 0, 2, 2, 1, NUMBER, 0)
 EMV_END(BHT_FORMAT)
 EMV_BEGIN(BIT_GROUP)
 EMV_TAG(BIT_GROUP, bit_count, 1, 0x02, 0, 1, 1, 1, NUMBER, 0)
-#if TLV_TAG_CAPACITY >= 2
 EMV_TAG(BIT_GROUP, group_bit, 2, 0x7F, 0x60, 0, SIZE_MAX, 1, TEMPLATE, 0)
-#endif
 EMV_END(BIT_GROUP)
 EMV_BEGIN(BIOMETRIC_COUNTERS)
-#if TLV_TAG_CAPACITY >= 2
 EMV_TAG(BIOMETRIC_COUNTERS, facial_try_counter, 2, 0xDF, 0x50, 1, 1, 1, NUMBER, 0)
 EMV_TAG(BIOMETRIC_COUNTERS, finger_try_counter, 2, 0xDF, 0x51, 1, 1, 1, NUMBER, 0)
 EMV_TAG(BIOMETRIC_COUNTERS, iris_try_counter, 2, 0xDF, 0x52, 1, 1, 1, NUMBER, 0)
 EMV_TAG(BIOMETRIC_COUNTERS, palm_try_counter, 2, 0xDF, 0x53, 1, 1, 1, NUMBER, 0)
 EMV_TAG(BIOMETRIC_COUNTERS, voice_try_counter, 2, 0xDF, 0x54, 1, 1, 1, NUMBER, 0)
-#endif
 EMV_END(BIOMETRIC_COUNTERS)
 EMV_BEGIN(BIOMETRIC_ATTEMPTS)
-#if TLV_TAG_CAPACITY >= 2
 EMV_TAG(BIOMETRIC_ATTEMPTS, preferred_facial_attempts, 2, 0xDF, 0x50, 1, 1, 1, NUMBER, 0)
 EMV_TAG(BIOMETRIC_ATTEMPTS, preferred_finger_attempts, 2, 0xDF, 0x51, 1, 1, 1, NUMBER, 0)
 EMV_TAG(BIOMETRIC_ATTEMPTS, preferred_iris_attempts, 2, 0xDF, 0x52, 1, 1, 1, NUMBER, 0)
 EMV_TAG(BIOMETRIC_ATTEMPTS, preferred_palm_attempts, 2, 0xDF, 0x53, 1, 1, 1, NUMBER, 0)
 EMV_TAG(BIOMETRIC_ATTEMPTS, preferred_voice_attempts, 2, 0xDF, 0x54, 1, 1, 1, NUMBER, 0)
-#endif
 EMV_END(BIOMETRIC_ATTEMPTS)
 EMV_BEGIN(BIOMETRIC_VERIFICATION)
 EMV_TAG(BIOMETRIC_VERIFICATION, verification_biometric_type, 1, 0x81, 0, 1, 3, 1, BIOMETRIC, 0)
 EMV_TAG(BIOMETRIC_VERIFICATION, verification_biometric_solution_id, 1, 0x90, 0, 0, SIZE_MAX, 1, BYTES, 0)
-#if TLV_TAG_CAPACITY >= 2
 EMV_TAG(BIOMETRIC_VERIFICATION, enciphered_biometric_key_seed, 2, 0xDF, 0x50, 1, SIZE_MAX, 1, BYTES, 0)
 EMV_TAG(BIOMETRIC_VERIFICATION, enciphered_biometric_data, 2, 0xDF, 0x51, 0, SIZE_MAX, 1, BYTES, 0)
 EMV_TAG(BIOMETRIC_VERIFICATION, biometric_data_mac, 2, 0xDF, 0x52, 8, 8, 1, BYTES, 0)
-#endif
 EMV_END(BIOMETRIC_VERIFICATION)

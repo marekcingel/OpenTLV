@@ -1,6 +1,7 @@
 #ifndef OPENTLV_CODEC_H
 #define OPENTLV_CODEC_H
 
+#include "tlv/error.h"
 #include "tlv/export.h"
 #include <stddef.h>
 #include <stdint.h>

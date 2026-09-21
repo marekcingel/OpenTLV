@@ -150,15 +150,11 @@ TEST(Unit_TLVEndian, NativeOrderMatchesIntegerStorage) {
         EXPECT_EQ(TLV_BYTE_ORDER_LITTLE_ENDIAN, order);
     else
         EXPECT_EQ(TLV_BYTE_ORDER_UNKNOWN, order);
-#if TLV_TAG_CAPACITY >= 4
     if (order != TLV_BYTE_ORDER_UNKNOWN) {
-        tlv_tag_t tag = {{0}, 4};
-        std::memcpy(tag.data, bytes, sizeof(bytes));
-        uint32_t result = 0;
-        ASSERT_EQ(TLV_OK, tlv_tag_to_u32(&tag, order, &result));
+        uint64_t result = 0;
+        ASSERT_EQ(TLV_OK, tlv_read_uint(bytes, sizeof(bytes), order, &result));
         EXPECT_EQ(original, result);
     }
-#endif
 }
 
 TEST(Unit_TLVEndian, CheckedWidthsExactBytesAndPadding) {

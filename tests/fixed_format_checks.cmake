@@ -18,9 +18,8 @@ function(opentlv_check_fixed_format)
     set(header "#include <tlv++/fixed_format.hpp>\n")
     set(cases
         "valid_minimum|1, 1, TLV_BYTE_ORDER_BIG_ENDIAN|1"
-        "valid_widest|TLV_TAG_CAPACITY, 8, TLV_BYTE_ORDER_LITTLE_ENDIAN|1"
+        "valid_widest|255, 8, TLV_BYTE_ORDER_LITTLE_ENDIAN|1"
         "zero_tag_width|0, 1, TLV_BYTE_ORDER_BIG_ENDIAN|0"
-        "oversized_tag_width|TLV_TAG_CAPACITY + 1, 1, TLV_BYTE_ORDER_BIG_ENDIAN|0"
         "zero_length_width|1, 0, TLV_BYTE_ORDER_BIG_ENDIAN|0"
         "oversized_length_width|1, 9, TLV_BYTE_ORDER_BIG_ENDIAN|0"
         "unknown_byte_order|1, 1, TLV_BYTE_ORDER_UNKNOWN|0"

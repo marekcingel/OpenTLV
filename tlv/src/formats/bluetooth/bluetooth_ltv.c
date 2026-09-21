@@ -14,8 +14,7 @@ static tlv_result_t read_element(const void* context, const uint8_t* data, size_
     length = data[0];
     if (!length) return TLV_ERR_INVALID_LENGTH;
     if (length > size - 1) return TLV_ERR_BUFFER_TOO_SHORT;
-    *tag = (tlv_tag_t){{0}, 1};
-    tag->data[0] = data[1];
+    *tag = tlv_tag(data + 1, 1);
     *header_size = 2;
     *value_size = length - 1;
     *trailer_size = 0;
@@ -26,6 +25,7 @@ static tlv_result_t write_header(const void* context, uint8_t* data, size_t capa
                                  const tlv_tag_t* tag, size_t length, size_t* written) {
     (void)context;
     if (tag->size != 1) return TLV_ERR_INVALID_TAG_SIZE;
+    if (!tag->data) return TLV_ERR_NULL_ARG;
     if (length > LTV_MAX_VALUE) return TLV_ERR_INVALID_LENGTH;
     *written = 2;
     if (!data) return TLV_OK;

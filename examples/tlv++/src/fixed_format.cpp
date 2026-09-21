@@ -14,8 +14,7 @@ int main() {
     tlv::writer               writer(buf.data(), buf.size(), format::writer());
 
     const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
-    auto                           written =
-        writer.write(tlv::tag_t{{0x12, 0x34}, 2}, tlv::bytes(value.data(), value.size()));
+    auto written = writer.write(TLV_TAG(0x12, 0x34), tlv::bytes(value.data(), value.size()));
     if (!written) {
         std::cerr << "write error: " << written.error().message << "\n";
         return 1;

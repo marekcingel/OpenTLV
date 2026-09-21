@@ -1,9 +1,10 @@
 #include "common.h"
+#include "tlv/formats/asn1/ber.h"
 #include "tlv/profiles/dol.h"
 
 static tlv_result_t visit_count(const tlv_dol_entry_t* entry, size_t index, void* context) {
     (void)index;
-    FUZZ_CHECK(entry->tag.size > 0 && entry->tag.size <= TLV_TAG_CAPACITY);
+    FUZZ_CHECK(entry->tag.size > 0 && entry->tag.size <= TLV_ASN1_TAG_MAX_SIZE);
     FUZZ_CHECK(entry->requested_length <= 255);
     ++*(size_t*)context;
     return TLV_OK;

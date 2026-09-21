@@ -29,9 +29,9 @@ TEST(Integration_TLV_CPP, test_writer_reader_roundtrip) {
     std::array<tlv::byte, 64> buf{};
     tlv::writer               w(buf.data(), buf.size(), tlv_writer_format_default);
 
-    auto r1 = w.write(tlv::tag_t{{0x01}, 1}, to_bytes("hi"));
+    auto r1 = w.write(TLV_TAG(0x01), to_bytes("hi"));
     ASSERT_TRUE(r1.has_value());
-    auto r2 = w.write(tlv::tag_t{{0x02}, 1}, to_bytes("x"));
+    auto r2 = w.write(TLV_TAG(0x02), to_bytes("x"));
     ASSERT_TRUE(r2.has_value());
 
     tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_reader_format_default);
@@ -52,8 +52,8 @@ TEST(Integration_TLV_CPP, test_writer_reader_roundtrip) {
 // --- Codec concept test ---
 
 struct greeting {
-    static constexpr tlv::tag_t tag = {{0x10}, 1};
-    std::string                 text;
+    static const tlv::tag_t tag;
+    std::string             text;
 
     void encode(std::vector<tlv::byte>& out) const {
         out.resize(text.size());
@@ -68,7 +68,8 @@ struct greeting {
     }
 };
 
-constexpr tlv::tag_t greeting::tag;
+const tlv::tag_t greeting::tag = TLV_TAG(0x10);
+
 static_assert(tlv::is_tlv_codec<greeting>::value, "greeting must satisfy TLV codec interface");
 
 TEST(Integration_TLV_CPP, test_codec_write_via_writer) {

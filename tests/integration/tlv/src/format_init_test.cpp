@@ -40,7 +40,7 @@ TEST(Integration_FormatDefault, IndependentReferenceInputsAndOutputs) {
         std::vector<uint8_t> value(item.length, 0xAB);
         size_t               written = 0;
         ASSERT_EQ(TLV_OK, tlv_write(output.data(), output.size(), &tlv_writer_format_default,
-                                    tlv_tag_t{{0x9F}, 1}, value.data(), value.size(), &written));
+                                    TLV_TAG(0x9F), value.data(), value.size(), &written));
         EXPECT_EQ(wire.size(), written);
         EXPECT_EQ(wire, output);
     }

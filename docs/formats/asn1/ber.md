@@ -14,7 +14,7 @@
 
 ## Scope and limits
 
-Multi-byte tags up to TLV_TAG_CAPACITY; definite lengths and constructed indefinite input. Ordinary writes use definite lengths.
+Multi-byte tags of up to `TLV_ASN1_TAG_MAX_SIZE` (8) bytes; definite lengths and constructed indefinite input. Ordinary writes use definite lengths.
 
 See [shared memory ownership rules](../../guides/memory.md) before retaining a parsed view.
 
@@ -28,7 +28,7 @@ This complete example writes and reads one opaque byte. Exit code zero means suc
 #include "tlv/writer/writer.h"
 
 int main(void) {
-    const tlv_tag_t tag = {{0x04}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x04);
     const uint8_t value[] = {0x2A};
     uint8_t output[8];
     size_t written = 0, consumed = 0;
@@ -50,7 +50,7 @@ the writer for raw BER-TLV tags
 such as `5A`, `5F 2A`, `9F 1C`, and `9F 81 01`. Tags retain their wire bytes,
 including class and constructed bits. High-tag-number form ends at the first
 subsequent byte with bit 7 clear; its first subsequent byte must have a nonzero
-low seven-bit value. Tags must fit `TLV_TAG_CAPACITY`. The format accepts raw
+low seven-bit value. Tags longer than `TLV_ASN1_TAG_MAX_SIZE` (8) bytes are rejected with `TLV_ERR_INVALID_TAG_SIZE`; that is a limit of the BER family of formats, not of `tlv_tag_t`. Tags read by the format borrow the input. The format accepts raw
 identifiers such as `9F 1C` without enforcing ASN.1 tag-number minimality or
 universal-tag semantics. Definite values remain opaque during single-element
 reading; resolving an indefinite element inspects descendant framing.
@@ -91,7 +91,7 @@ Single-element definite reads still defer child validation to tree traversal.
 Use the BER-specific functions for an already encoded sequence of children:
 
 ```c
-const tlv_tag_t sequence = {{0x30}, 1};
+const tlv_tag_t sequence = TLV_TAG(0x30);
 const uint8_t children[] = {0x04, 0x02, 0x00, 0x00};
 uint8_t output[8];
 size_t required, written;
@@ -183,9 +183,9 @@ value payload to be present.
 These framing rules follow [ITU-T X.690 (02/2021), sections 8.1.3 and 8.1.5](https://www.itu.int/rec/T-REC-X.690-202102-I/en).
 
 Malformed tags and unterminated tags on write return `TLV_ERR_INVALID_TAG`,
-unless continuation requires bytes beyond capacity. Empty tags on write and
-tags exceeding capacity return `TLV_ERR_INVALID_TAG_SIZE`. Missing tag continuation or length bytes return
-`TLV_ERR_BUFFER_TOO_SHORT`; a continuation requiring bytes beyond tag capacity
+unless continuation requires bytes beyond `TLV_ASN1_TAG_MAX_SIZE`. Empty tags on write and
+tags longer than `TLV_ASN1_TAG_MAX_SIZE` return `TLV_ERR_INVALID_TAG_SIZE`. Missing tag continuation or length bytes return
+`TLV_ERR_BUFFER_TOO_SHORT`; a continuation requiring bytes beyond `TLV_ASN1_TAG_MAX_SIZE`
 returns `TLV_ERR_INVALID_TAG_SIZE` even if those bytes are missing. Empty input to
 the generic reader returns `TLV_ERR_END_OF_BUFFER`. All BER-specific encoding
 and validation live in the format callbacks.

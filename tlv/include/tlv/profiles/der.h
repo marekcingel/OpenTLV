@@ -1,6 +1,7 @@
 #ifndef OPENTLV_DER_H
 #define OPENTLV_DER_H
 
+#include "tlv/error.h"
 #include "tlv/formats/asn1/der.h"
 #include "tlv/reader/walker.h"
 #include "tlv/export.h"

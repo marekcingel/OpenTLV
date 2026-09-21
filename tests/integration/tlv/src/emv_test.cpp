@@ -48,9 +48,7 @@ TEST(Integration_Emv, AllDefinitionsUseGenericBerAndSchemas) {
         for (size_t i = 0; i < schema->count; ++i) {
             const auto& entry = schema->entries[i];
             unsigned    tag = entry.tag.data[0];
-#if TLV_TAG_CAPACITY >= 2
             if (entry.tag.size == 2) tag = (tag << 8) | entry.tag.data[1];
-#endif
             ASSERT_TRUE(unique.insert(tag).second) << ctx << ": duplicate tag " << tag;
             const auto* definition = tlv_emv_find(context, &entry.tag);
             ASSERT_NE(nullptr, definition);
@@ -97,7 +95,6 @@ TEST(Integration_Emv, NumbersFlagsAndDecimalConstraints) {
     check_vector<uint64_t>(find(tlv_emv_tag_aip)->codec,
                            TLV_EMV_AIP_SDA_SUPPORTED | TLV_EMV_AIP_CDA_SUPPORTED, {0x41, 0});
     check_vector<uint64_t>(find(tlv_emv_tag_transaction_type)->codec, 20, {0x20});
-#if TLV_TAG_CAPACITY >= 2
     check_vector<uint64_t>(find(tlv_emv_tag_atc)->codec, 258, {1, 2});
     check_vector<uint64_t>(find(tlv_emv_tag_transaction_currency_code)->codec, 978, {0x09, 0x78});
     check_vector<uint64_t>(find(tlv_emv_tag_issuer_public_key_exponent)->codec, 65537, {1, 0, 1});
@@ -117,7 +114,6 @@ TEST(Integration_Emv, NumbersFlagsAndDecimalConstraints) {
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
               tlv_codec_encode(find(tlv_emv_tag_transaction_currency_code)->codec, &number,
                                sizeof(number), nullptr, 0, &written));
-#endif
 }
 
 TEST(Integration_Emv, PanPreservesLeadingZeroesAndStripsOnlyTrailingPadding) {
@@ -156,7 +152,6 @@ TEST(Integration_Emv, DatesTimesAndEnums) {
                                sizeof(date)));
     check_vector(find(tlv_emv_tag_biometric_type, TLV_EMV_CONTEXT_BHT)->codec,
                  TLV_EMV_BIOMETRIC_PALM, {2, 0, 0});
-#if TLV_TAG_CAPACITY >= 2
     check_vector(find(tlv_emv_tag_transaction_time)->codec, tlv_emv_time_t{23, 59, 58},
                  {0x23, 0x59, 0x58});
     check_vector(find(tlv_emv_tag_account_type)->codec, TLV_EMV_ACCOUNT_CREDIT, {0x30});
@@ -167,10 +162,8 @@ TEST(Integration_Emv, DatesTimesAndEnums) {
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
               tlv_codec_decode(find(tlv_emv_tag_account_type)->codec, bad_account, 1, &account,
                                sizeof(account)));
-#endif
 }
 
-#if TLV_TAG_CAPACITY >= 2
 TEST(Integration_Emv, CurrencyListsAreNotSingleNumbers) {
     check_vector(find(tlv_emv_tag_application_reference_currency)->codec,
                  tlv_emv_number_list_t{{978, 840, 0, 0}, 2}, {0x09, 0x78, 0x08, 0x40});
@@ -182,9 +175,7 @@ TEST(Integration_Emv, CurrencyListsAreNotSingleNumbers) {
               tlv_codec_decode(find(tlv_emv_tag_application_reference_currency)->codec, odd, 3,
                                &list, sizeof(list)));
 }
-#endif
 
-#if TLV_TAG_CAPACITY >= 2
 TEST(Integration_Emv, FramingSchemaAndValueValidationAreIndependent) {
     const uint8_t wire[] = {0x9F, 0x02, 6, 0, 0, 0, 0, 0, 0xFA, 0x9F, 0x02, 0, 0xDF, 0x01, 0};
     tlv_reader_t  reader;
@@ -204,7 +195,6 @@ TEST(Integration_Emv, FramingSchemaAndValueValidationAreIndependent) {
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
     EXPECT_EQ(nullptr, tlv_schema_find(&tlv_emv_schema, &view.tag));
 }
-#endif
 
 TEST(Integration_Emv, AmountCodecKnownVectorsAndLimits) {
     const uint64_t amounts[] = {0, 123456789012ULL, 999999999999ULL};

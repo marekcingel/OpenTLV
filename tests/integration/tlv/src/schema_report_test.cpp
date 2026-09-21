@@ -5,28 +5,27 @@
 #include <string>
 #include <vector>
 
-#if TLV_TAG_CAPACITY >= 2
 namespace {
 using Wire = std::vector<uint8_t>;
 
 // Template 77: AIP (82) and Application Cryptogram-like tag 9F36 are required, nothing else.
 const tlv_structure_rule_t rules77[] = {
-    {{{{0x82}, 1}, 2, 2, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{{{0x9F, 0x36}, 2}, 2, 2, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(0x82), 2, 2, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(0x9F, 0x36), 2, 2, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
 };
 const tlv_structure_schema_t schema77 = {rules77, 2, 0};
 
 // Template 70: 5A required; 5F24 optional once; 77 optional once; 9F4A may repeat.
 const tlv_structure_rule_t rules70[] = {
-    {{{{0x5A}, 1}, 1, 10, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{{{0x5F, 0x24}, 2}, 3, 3, 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{{{0x77}, 1}, 0, SIZE_MAX, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &schema77},
-    {{{{0x9F, 0x4A}, 2}, 0, SIZE_MAX, 0}, 0, SIZE_MAX, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(0x5A), 1, 10, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(0x5F, 0x24), 3, 3, 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(0x77), 0, SIZE_MAX, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &schema77},
+    {{TLV_TAG(0x9F, 0x4A), 0, SIZE_MAX, 0}, 0, SIZE_MAX, TLV_SCHEMA_PRIMITIVE, nullptr},
 };
 const tlv_structure_schema_t schema70 = {rules70, 4, 1};
 
 const tlv_structure_rule_t rootRules[] = {
-    {{{{0x70}, 1}, 0, SIZE_MAX, 0}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &schema70},
+    {{TLV_TAG(0x70), 0, SIZE_MAX, 0}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &schema70},
 };
 const tlv_structure_schema_t rootSchema = {rootRules, 1, 1};
 
@@ -88,7 +87,8 @@ TEST(Integration_SchemaReport, ReportsMissingRequiredTagWithFullPathAndParentOff
 }
 
 TEST(Integration_SchemaReport, ReportsMissingTopLevelTagWithoutOffset) {
-    Outcome out = run(Wire{});
+    const Wire wire = {};
+    Outcome    out = run(wire);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(1u, out.count);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, out.issues[0].kind);
@@ -97,7 +97,8 @@ TEST(Integration_SchemaReport, ReportsMissingTopLevelTagWithoutOffset) {
 }
 
 TEST(Integration_SchemaReport, ReportsEmptyContainerRequirements) {
-    Outcome out = run(Wire{0x70, 0x00});
+    const Wire wire = {0x70, 0x00};
+    Outcome    out = run(wire);
     ASSERT_EQ(1u, out.count);
     EXPECT_EQ("70/5A", pathOf(out.issues[0]));
     EXPECT_EQ(0u, out.issues[0].offset);
@@ -148,11 +149,12 @@ TEST(Integration_SchemaReport, ReportsUnexpectedTagAndLengthAndHonoursUnknownPol
 
 TEST(Integration_SchemaReport, ReportsPrimitiveConstructedMismatchAndDoesNotDescend) {
     static const tlv_structure_rule_t kindRules[] = {
-        {{{{0x5A}, 1}, 0, SIZE_MAX, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, nullptr},
-        {{{{0x6F}, 1}, 0, SIZE_MAX, 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+        {{TLV_TAG(0x5A), 0, SIZE_MAX, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, nullptr},
+        {{TLV_TAG(0x6F), 0, SIZE_MAX, 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
     };
     static const tlv_structure_schema_t kindSchema = {kindRules, 2, 0};
-    Outcome                             out = run(Wire{0x5A, 0x01, 0x00, 0x6F, 0x00}, kindSchema);
+    const Wire                          wire = {0x5A, 0x01, 0x00, 0x6F, 0x00};
+    Outcome                             out = run(wire, kindSchema);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(2u, out.count);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_KIND, out.issues[0].kind);
@@ -183,22 +185,24 @@ TEST(Integration_SchemaReport, ReportsSeveralViolationsInOnePass) {
 }
 
 TEST(Integration_SchemaReport, CountsAllViolationsWhenStorageIsSmaller) {
-    Outcome out = run(Wire{0x70, 0x00, 0x70, 0x00}, rootSchema, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, 1);
+    const Wire wire = {0x70, 0x00, 0x70, 0x00};
+    Outcome    out = run(wire, rootSchema, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, 1);
     EXPECT_EQ(TLV_ERR_SCHEMA, out.rc);
     EXPECT_EQ(3u, out.count); // A duplicate 70, and 5A missing under each 70.
     EXPECT_EQ(1u, out.issues.size());
 
     tlv_schema_report_t report = {nullptr, 0, 99};
-    const Wire          wire = {0x70, 0x00};
+    const Wire          count_only = {0x70, 0x00};
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_reader_format_ber,
+              tlv_schema_validate_all(count_only.data(), count_only.size(), &tlv_reader_format_ber,
                                       tlv_ber_is_constructed, &rootSchema, TLV_WALK_MAX_DEPTH, 1000,
                                       TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     EXPECT_EQ(1u, report.count);
 }
 
 TEST(Integration_SchemaReport, WireErrorsAbortWithoutViolations) {
-    Outcome out = run(Wire{0x70, 0x05, 0x5A, 0x01});
+    const Wire wire = {0x70, 0x05, 0x5A, 0x01};
+    Outcome    out = run(wire);
     EXPECT_NE(TLV_OK, out.rc);
     EXPECT_NE(TLV_ERR_SCHEMA, out.rc);
     EXPECT_EQ(0u, out.count);
@@ -231,7 +235,7 @@ TEST(Integration_SchemaReport, RejectsInvalidArgumentsAndRuleTables) {
 TEST(Integration_SchemaReport, LimitsSchemaNestingToThePathCapacity) {
     static tlv_structure_schema_t recursive;
     static tlv_structure_rule_t   recursiveRules[1];
-    recursiveRules[0] = {{{{0x6F}, 1}, 0, SIZE_MAX, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive};
+    recursiveRules[0] = {{TLV_TAG(0x6F), 0, SIZE_MAX, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive};
     recursive = {recursiveRules, 1, 0};
 
     Wire wire = {0x6F, 0x00};
@@ -254,9 +258,9 @@ TEST(Integration_SchemaReport, LimitsSchemaNestingToThePathCapacity) {
 TEST(Integration_SchemaReport, FormatsPathsAndKindNames) {
     tlv_schema_issue_t issue = {};
     issue.kind = TLV_SCHEMA_ISSUE_MISSING;
-    issue.path[0] = {{0x70}, 1};
-    issue.path[1] = {{0x77}, 1};
-    issue.path[2] = {{0x9F, 0x36}, 2};
+    issue.path[0] = TLV_TAG(0x70);
+    issue.path[1] = TLV_TAG(0x77);
+    issue.path[2] = TLV_TAG(0x9F, 0x36);
     issue.path_length = 3;
 
     char   text[16];
@@ -285,4 +289,3 @@ TEST(Integration_SchemaReport, FormatsPathsAndKindNames) {
     EXPECT_STREQ("length", tlv_schema_issue_kind_string(TLV_SCHEMA_ISSUE_LENGTH));
     EXPECT_STREQ("unknown", tlv_schema_issue_kind_string(static_cast<tlv_schema_issue_kind_t>(0)));
 }
-#endif

@@ -5,7 +5,7 @@
 #include "tlv/formats/fixed/fixed_1byte.h"
 
 int main() {
-    const tlv::tag_t               tag{{0x01}, 1};
+    const tlv::tag_t               tag = TLV_TAG(0x01);
     const std::array<tlv::byte, 3> value = {
         static_cast<tlv::byte>(0xAA), static_cast<tlv::byte>(0xBB), static_cast<tlv::byte>(0xCC)};
     std::array<tlv::byte, 5> buffer{};

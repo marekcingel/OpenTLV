@@ -19,7 +19,7 @@ Profile semantics are documented separately.
 | Need | Start with | Boundary |
 | --- | --- | --- |
 | Small internal records with fixed header sizes | [Fixed 1-byte TLV](fixed/README.md) | Values up to 255 bytes |
-| Fixed tag and length widths, or a length byte order, chosen at compile time (C++) | [Configurable fixed-width TLV](fixed/configurable.md) | Widths up to `TLV_TAG_CAPACITY` and 8 bytes |
+| Fixed tag and length widths, or a length byte order, chosen at compile time (C++) | [Configurable fixed-width TLV](fixed/configurable.md) | Any tag width, length widths up to 8 bytes |
 | One-byte tags with larger payloads | [Default TLV](default/README.md) | Values up to 65,535 bytes |
 | Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
@@ -39,10 +39,10 @@ built. Each format keeps its own page with the byte layout and a worked example.
 | [Fixed 1-byte TLV](fixed/README.md#layout-and-typical-use) | 1 byte | 1 byte | 255 bytes | tag, length, value | none (opaque values) | `OPENTLV_FORMAT_FIXED_1BYTE` |
 | [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
 | [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) (C++) | 1 to 8 bytes | 1 to 8 bytes, big or little endian | set by the length width | tag, length, value | none (opaque values) | none (C++ header) |
-| [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to `TLV_TAG_CAPACITY` bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_ber_is_constructed` | `OPENTLV_FORMAT_BER` |
+| [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_ber_is_constructed` | `OPENTLV_FORMAT_BER` |
 | [DER-TLV](asn1/der.md#layout-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_der_is_constructed` | `OPENTLV_FORMAT_DER` |
 | [CER-TLV](asn1/cer.md#layout-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_cer_is_constructed` | `OPENTLV_FORMAT_CER` |
-| [Application-defined](custom/README.md) | 1 to `TLV_TAG_CAPACITY` raw bytes | your rules | your rules | any, through `read_element` and `write_header` | your predicate | none |
+| [Application-defined](custom/README.md) | any number of raw bytes | your rules | your rules | any, through `read_element` and `write_header` | your predicate | none |
 
 Notes for choosing:
 
@@ -128,7 +128,7 @@ Include `tlv/writer/writer.h`. Query the complete encoded size without providing
 bytes, then write into a caller-owned buffer:
 
 ```c
-const tlv_tag_t tag = {{0x01}, 1};
+const tlv_tag_t tag = TLV_TAG(0x01);
 const uint8_t value[] = {0xAA, 0xBB, 0xCC};
 uint8_t buffer[5];
 size_t required, written;
@@ -189,9 +189,10 @@ and report consumed or written bytes through their output pointer.
 query. `length_size` validates a value length and returns its encoded size.
 The writer checks total capacity before invoking the actual encoding callbacks,
 which must write exactly the queried sizes. No temporary heap buffer is needed.
-Tags are copied into `tlv_tag_t`; decoded values borrow the input buffer.
-A tag must consume at least one byte and contain 1 through `TLV_TAG_CAPACITY`
-raw bytes. A format may use a zero-byte length field for an implicit length.
+A `tlv_tag_t` borrows raw bytes and has no length limit; a format's reader
+returns a tag that references the input buffer, as decoded values do. A tag must
+consume at least one byte, and the format decides which lengths (and whether an
+empty tag) it accepts. A format may use a zero-byte length field for an implicit length.
 
 When non-NULL, `read_value_bounds(context, tag, data, size, &length_size,
 &value_size, &trailer_size)` replaces `read_length` during element parsing.

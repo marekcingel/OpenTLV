@@ -1,6 +1,7 @@
 #ifndef OPENTLV_SCANNER_H
 #define OPENTLV_SCANNER_H
 
+#include "tlv/error.h"
 #include "tlv/formats/format.h"
 #include "tlv/schemas/schema.h"
 #include "tlv/export.h"

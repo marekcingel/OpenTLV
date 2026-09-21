@@ -21,9 +21,21 @@ tlv::bytes to_bytes(const std::string& s) {
     return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
 }
 
-tlv::tag_t make_tag(std::size_t width) {
-    tlv::tag_t tag = {{0}, static_cast<std::uint8_t>(width)};
-    for (std::size_t i = 0; i < width; ++i) tag.data[i] = static_cast<std::uint8_t>(0xA1 + i);
+// Owns the bytes of a tag, which tlv::tag_t only borrows. A temporary is valid
+// for the full expression it appears in; keep a named object for longer uses.
+struct owned_tag {
+    std::array<std::uint8_t, 16> bytes{};
+    std::size_t                  size = 0;
+
+    operator tlv::tag_t() const {
+        return tlv_tag(bytes.data(), size);
+    }
+};
+
+owned_tag make_tag(std::size_t width) {
+    owned_tag tag;
+    tag.size = width;
+    for (std::size_t i = 0; i < width; ++i) tag.bytes[i] = static_cast<std::uint8_t>(0xA1 + i);
     return tag;
 }
 
@@ -38,7 +50,8 @@ template <std::size_t T, std::size_t L, tlv_byte_order_t O> void check_layout_an
     ASSERT_TRUE(w.write(make_tag(T), to_bytes(value)).has_value());
     ASSERT_EQ(w.size(), T + L + value.size());
 
-    const tlv::tag_t expected_tag = make_tag(T);
+    const owned_tag  expected_owner = make_tag(T);
+    const tlv::tag_t expected_tag = expected_owner;
     for (std::size_t i = 0; i < T; ++i) {
         EXPECT_EQ(static_cast<std::uint8_t>(buf[i]), expected_tag.data[i]);
     }
@@ -70,8 +83,9 @@ TEST(Unit_TLV_CPP_FixedFormat, test_supported_configurations_round_trip) {
     check_layout_and_round_trip<4, 4, LE>();
     check_layout_and_round_trip<3, 8, BE>();
     check_layout_and_round_trip<3, 8, LE>();
-    check_layout_and_round_trip<TLV_TAG_CAPACITY, 2, BE>();
-    check_layout_and_round_trip<TLV_TAG_CAPACITY, 2, LE>();
+    // Tags longer than the built-in formats accept work as well.
+    check_layout_and_round_trip<8, 2, BE>();
+    check_layout_and_round_trip<12, 2, LE>();
 }
 
 TEST(Unit_TLV_CPP_FixedFormat, test_length_byte_order_does_not_change_the_tag) {
@@ -221,9 +235,10 @@ TEST(Unit_TLV_CPP_FixedFormat, test_insufficient_output_capacity_is_reported) {
 
 TEST(Unit_TLV_CPP_FixedFormat, test_writer_callbacks_report_short_capacity) {
     using format = tlv::fixed_format<2, 2, BE>;
-    std::uint8_t buf[4] = {};
-    std::size_t  written = 0;
-    tlv::tag_t   tag = make_tag(2);
+    std::uint8_t    buf[4] = {};
+    std::size_t     written = 0;
+    const owned_tag tag_owner = make_tag(2);
+    tlv::tag_t      tag = tag_owner;
 
     EXPECT_EQ(format::writer().write_tag(nullptr, buf, 1, &tag, &written),
               TLV_ERR_BUFFER_TOO_SHORT);
@@ -271,7 +286,7 @@ TEST(Unit_TLV_CPP_FixedFormat, test_works_with_the_c_api) {
     using format = tlv::fixed_format<1, 2, BE>;
     std::uint8_t       buf[16] = {};
     const std::uint8_t value[2] = {0xDE, 0xAD};
-    const tlv_tag_t    tag = {{0x10}, 1};
+    const tlv_tag_t    tag = TLV_TAG(0x10);
     size_t             written = 0;
     ASSERT_EQ(tlv_write(buf, sizeof(buf), &format::writer(), tag, value, sizeof(value), &written),
               TLV_OK);
@@ -295,7 +310,7 @@ TEST(Unit_TLV_CPP_FixedFormat, test_one_byte_configuration_matches_the_builtin_f
         std::vector<std::uint8_t> value(length, 0x5A);
         std::uint8_t              expected[300] = {};
         std::uint8_t              actual[300] = {};
-        const tlv_tag_t           tag = {{0x7F}, 1};
+        const tlv_tag_t           tag = TLV_TAG(0x7F);
         size_t                    expected_size = 0, actual_size = 0;
 
         ASSERT_EQ(tlv_write(expected, sizeof(expected), &tlv_writer_format_fixed_1byte, tag,

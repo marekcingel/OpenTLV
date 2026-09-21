@@ -59,20 +59,17 @@ pub const TLV_BYTE_ORDER_BIG_ENDIAN: tlv_byte_order_t = 1;
 /// Least significant byte first (`TLV_BYTE_ORDER_LITTLE_ENDIAN`).
 pub const TLV_BYTE_ORDER_LITTLE_ENDIAN: tlv_byte_order_t = 2;
 
-/// Inline tag storage capacity in bytes (`TLV_TAG_CAPACITY`, default 8).
+/// A borrowed raw TLV tag (`tlv_tag_t`): a pointer to bytes and their count.
 ///
-/// This is part of the C ABI: it must match the capacity the C library was
-/// built with.
-pub const TLV_TAG_CAPACITY: usize = 8;
-
-/// A raw TLV tag with inline storage (`tlv_tag_t`).
+/// The type does not own the bytes and has no length limit. The layout does
+/// not depend on any C build configuration.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_tag_t {
-    /// Tag bytes in wire order.
-    pub data: [u8; TLV_TAG_CAPACITY],
-    /// Number of valid bytes in `data`.
-    pub size: u8,
+    /// Tag bytes in wire order; may be null only when `size` is zero.
+    pub data: *const u8,
+    /// Number of bytes in `data`.
+    pub size: usize,
 }
 
 /// A non-owning view of a TLV value (`tlv_value_t`).
@@ -85,7 +82,7 @@ pub struct tlv_value_t {
     pub length: tlv_length_t,
 }
 
-/// A decoded TLV element: an inline tag and a borrowed value (`tlv_view_t`).
+/// A decoded TLV element: a borrowed tag and a borrowed value (`tlv_view_t`).
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_view_t {
@@ -298,21 +295,10 @@ extern "C" {
     pub fn tlv_strerror(result: tlv_result_t) -> *const c_char;
     /// Narrows a length to the native `size_t`.
     pub fn tlv_length_to_size(length: tlv_length_t, size: *mut usize) -> tlv_result_t;
-    /// Constructs a tag from raw bytes.
-    pub fn tlv_tag_from_bytes(data: *const u8, size: usize, tag: *mut tlv_tag_t) -> tlv_result_t;
-    /// Constructs a tag of `size` bytes from a 64-bit value.
-    pub fn tlv_tag_from_u64(
-        value: u64,
-        size: usize,
-        order: tlv_byte_order_t,
-        tag: *mut tlv_tag_t,
-    ) -> tlv_result_t;
-    /// Converts a tag of 1..8 bytes to a 64-bit value.
-    pub fn tlv_tag_to_u64(
-        tag: *const tlv_tag_t,
-        order: tlv_byte_order_t,
-        value: *mut u64,
-    ) -> tlv_result_t;
+    /// Tests whether two tags have the same size and bytes.
+    pub fn tlv_tag_equal(lhs: tlv_tag_t, rhs: tlv_tag_t) -> bool;
+    /// Orders two tags lexicographically by their bytes.
+    pub fn tlv_tag_compare(lhs: tlv_tag_t, rhs: tlv_tag_t) -> c_int;
 }
 
 /// Nesting predicate passed to schema validation (`tlv_is_constructed_fn`).

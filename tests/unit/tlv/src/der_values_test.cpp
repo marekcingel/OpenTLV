@@ -10,7 +10,7 @@
 namespace {
 
 std::vector<uint8_t> wrap(uint8_t tag_byte, const std::vector<uint8_t>& content) {
-    const tlv_tag_t tag{{tag_byte}, 1};
+    const tlv_tag_t tag = tlv_tag(&tag_byte, 1);
     size_t          required = 0, written = 0;
     EXPECT_EQ(TLV_OK, tlv_der_write(nullptr, 0, tag, content.empty() ? nullptr : content.data(),
                                     content.size(), nullptr, &required, nullptr));
@@ -174,12 +174,12 @@ TEST(Unit_DerValues, GeneralizedTime) {
 TEST(Unit_DerValues, UnsupportedTypesAreExplicitInStrictMode) {
     /* TeletexString (20): recognized ASN.1 type without an implemented rule. */
     check(0x14, {'x'}, TLV_ERR_UNSUPPORTED_TYPE);
-    if (TLV_TAG_CAPACITY < 2) return;
     /* Tag number 37: beyond the assigned range documented as supported;
      * needs the high-tag-number form, so it is built directly rather than
      * through the single-byte-tag wrap() helper. */
     tlv_tag_t tag{};
-    ASSERT_EQ(TLV_OK, tlv_der_tag_make(TLV_ASN1_UNIVERSAL, 0, 37, &tag));
+    uint8_t   storage[TLV_ASN1_TAG_MAX_SIZE];
+    ASSERT_EQ(TLV_OK, tlv_der_tag_make(TLV_ASN1_UNIVERSAL, 0, 37, storage, &tag));
     size_t required = 0, written = 0;
     ASSERT_EQ(TLV_OK, tlv_der_write(nullptr, 0, tag, nullptr, 0, nullptr, &required, nullptr));
     std::vector<uint8_t> data(required);
@@ -228,7 +228,7 @@ TEST(Unit_DerValues, WalkStrictVisitsAndReportsInvalidContent) {
 }
 
 TEST(Unit_DerValues, WriteStrictLeavesOutputAndWrittenUnchangedOnFailure) {
-    const tlv_tag_t tag{{0x01}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x01);
     const uint8_t   bad_value[] = {0x02};
     uint8_t         output[8];
     std::fill(std::begin(output), std::end(output), 0xEE);

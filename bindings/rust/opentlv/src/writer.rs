@@ -22,7 +22,7 @@ use crate::tag::Tag;
 /// ```
 /// use opentlv::{encoded_size, Format, Tag};
 ///
-/// let tag = Tag::from_bytes(&[0x01]).unwrap();
+/// let tag = Tag::from_bytes(&[0x01]);
 /// assert_eq!(encoded_size(&tag, 3, Format::Default).unwrap(), 5);
 /// ```
 pub fn encoded_size(tag: &Tag, value_len: usize, format: Format) -> Result<usize> {
@@ -46,8 +46,8 @@ pub fn encoded_size(tag: &Tag, value_len: usize, format: Format) -> Result<usize
 ///
 /// let mut buf = [0u8; 16];
 /// let mut writer = Writer::new(&mut buf);
-/// writer.write(&Tag::from_bytes(&[0x01]).unwrap(), &[0xAA, 0xBB]).unwrap();
-/// writer.write(&Tag::from_bytes(&[0x02]).unwrap(), &[]).unwrap();
+/// writer.write(&Tag::from_bytes(&[0x01]), &[0xAA, 0xBB]).unwrap();
+/// writer.write(&Tag::from_bytes(&[0x02]), &[]).unwrap();
 /// assert_eq!(writer.written(), &[0x01, 0x02, 0xAA, 0xBB, 0x02, 0x00]);
 /// ```
 #[derive(Debug)]

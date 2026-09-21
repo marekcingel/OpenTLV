@@ -185,8 +185,8 @@ These are reusable requirements collected from the candidates. Not one of them i
 commitment. The **fit** column is by inspection of the callback contract in
 [`format.h`](../../tlv/include/tlv/formats/format.h): `read_element` sees the bytes from
 the start of an element and reports the tag, the header size, the value size and the
-trailer size; `write_header` writes only the header. A tag is 1 to `TLV_TAG_CAPACITY`
-(8) raw bytes. **No candidate has been prototyped against these callbacks.**
+trailer size; `write_header` writes only the header. A tag is any
+number of raw bytes the format accepts. **No candidate has been prototyped against these callbacks.**
 
 | Requirement | Seen in | Fit with the current callbacks |
 | --- | --- | --- |

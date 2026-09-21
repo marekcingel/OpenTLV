@@ -1,6 +1,7 @@
 #ifndef OPENTLV_WALKER_H
 #define OPENTLV_WALKER_H
 
+#include "tlv/error.h"
 #include "tlv/formats/format.h"
 #include "tlv/export.h"
 

@@ -7,7 +7,7 @@ use opentlv::{
 };
 
 fn tag(bytes: &[u8]) -> Tag {
-    Tag::from_bytes(bytes).unwrap()
+    Tag::from_bytes(bytes)
 }
 
 fn codec(context: Context, bytes: &[u8]) -> Codec {

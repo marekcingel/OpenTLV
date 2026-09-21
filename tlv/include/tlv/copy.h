@@ -1,6 +1,7 @@
 #ifndef OPENTLV_COPY_H
 #define OPENTLV_COPY_H
 
+#include "tlv/error.h"
 #include "tlv/view.h"
 #include "tlv/formats/format.h"
 #include "tlv/export.h"

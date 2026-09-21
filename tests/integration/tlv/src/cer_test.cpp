@@ -179,9 +179,9 @@ TEST(Integration_Cer, WriteConstructedProducesCanonicalIndefiniteFraming) {
     const uint8_t children[] = {0x02, 1, 5, 0x04, 1, 'x'};
     uint8_t       output[64];
     size_t        required = 0, written = 0;
-    ASSERT_EQ(TLV_OK, tlv_cer_write(nullptr, 0, (tlv_tag_t{{0x30}, 1}), children, sizeof(children),
+    ASSERT_EQ(TLV_OK, tlv_cer_write(nullptr, 0, (TLV_TAG(0x30)), children, sizeof(children),
                                     nullptr, &required, nullptr));
-    ASSERT_EQ(TLV_OK, tlv_cer_write(output, sizeof(output), (tlv_tag_t{{0x30}, 1}), children,
+    ASSERT_EQ(TLV_OK, tlv_cer_write(output, sizeof(output), (TLV_TAG(0x30)), children,
                                     sizeof(children), nullptr, &written, nullptr));
     EXPECT_EQ(required, written);
     ASSERT_EQ(sizeof(children) + 4, written); /* tag + 0x80 + children + EOC */
@@ -200,9 +200,8 @@ TEST(Integration_Cer, WriteConstructedProducesCanonicalIndefiniteFraming) {
 TEST(Integration_Cer, WriteRejectsOversizedPrimitiveForSegmentableTypeEvenNonStrict) {
     std::vector<uint8_t> value(1001, 'a');
     size_t               written = 99, offset = 99;
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_cer_write(nullptr, 0, (tlv_tag_t{{0x04}, 1}), value.data(), value.size(), nullptr,
-                            &written, &offset));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_cer_write(nullptr, 0, (TLV_TAG(0x04)), value.data(),
+                                                    value.size(), nullptr, &written, &offset));
     EXPECT_EQ(99u, written);
 }
 
@@ -212,7 +211,7 @@ TEST(Integration_Cer, FailedWritePreservesOutputAndSize) {
     std::memset(output, 0xEE, sizeof(output));
     size_t written = 99, offset = 99;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_cer_write(output, 1, (tlv_tag_t{{0x30}, 1}), children, sizeof(children), nullptr,
+              tlv_cer_write(output, 1, (TLV_TAG(0x30)), children, sizeof(children), nullptr,
                             &written, &offset));
     EXPECT_EQ(99u, written);
     for (auto byte : output) EXPECT_EQ(0xEE, byte);
@@ -225,11 +224,11 @@ TEST(Integration_Cer, WriteSegmentedStringSingleAndMultiSegment) {
         uint8_t              output[1010];
         size_t               required = 0, written = 0;
         ASSERT_EQ(TLV_OK,
-                  tlv_cer_write_segmented_string(nullptr, 0, (tlv_tag_t{{0x04}, 1}), content.data(),
+                  tlv_cer_write_segmented_string(nullptr, 0, (TLV_TAG(0x04)), content.data(),
                                                  content.size(), nullptr, &required, nullptr));
-        ASSERT_EQ(TLV_OK, tlv_cer_write_segmented_string(
-                              output, sizeof(output), (tlv_tag_t{{0x04}, 1}), content.data(),
-                              content.size(), nullptr, &written, nullptr));
+        ASSERT_EQ(TLV_OK, tlv_cer_write_segmented_string(output, sizeof(output), (TLV_TAG(0x04)),
+                                                         content.data(), content.size(), nullptr,
+                                                         &written, nullptr));
         EXPECT_EQ(required, written);
         EXPECT_EQ(0x04, output[0]);
         EXPECT_EQ(0x82, output[1]); /* long-form length: 1000 needs two octets */
@@ -246,11 +245,11 @@ TEST(Integration_Cer, WriteSegmentedStringSingleAndMultiSegment) {
         uint8_t              output[1050];
         size_t               required = 0, written = 0;
         ASSERT_EQ(TLV_OK,
-                  tlv_cer_write_segmented_string(nullptr, 0, (tlv_tag_t{{0x04}, 1}), content.data(),
+                  tlv_cer_write_segmented_string(nullptr, 0, (TLV_TAG(0x04)), content.data(),
                                                  content.size(), nullptr, &required, nullptr));
-        ASSERT_EQ(TLV_OK, tlv_cer_write_segmented_string(
-                              output, sizeof(output), (tlv_tag_t{{0x04}, 1}), content.data(),
-                              content.size(), nullptr, &written, nullptr));
+        ASSERT_EQ(TLV_OK, tlv_cer_write_segmented_string(output, sizeof(output), (TLV_TAG(0x04)),
+                                                         content.data(), content.size(), nullptr,
+                                                         &written, nullptr));
         EXPECT_EQ(required, written);
         tlv_view_t view{};
         size_t     consumed;

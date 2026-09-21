@@ -14,10 +14,7 @@ TEST(Integration_Ber, TagsAndLengthsRoundTrip) {
     const std::vector<std::vector<uint8_t>> tags = {
         {0x5A}, {0x5F, 0x2A}, {0x9F, 0x1C}, {0x9F, 0x81, 0x01}, {0xBF, 0x81, 0x80, 0x00}};
     for (const auto& bytes : tags) {
-        if (bytes.size() > TLV_TAG_CAPACITY) continue;
-        tlv_tag_t tag{};
-        tag.size = static_cast<uint8_t>(bytes.size());
-        std::memcpy(tag.data, bytes.data(), bytes.size());
+        const tlv_tag_t tag = tlv_tag(bytes.data(), bytes.size());
         for (size_t length : {0u, 1u, 127u, 128u, 255u, 256u, 65535u, 65536u}) {
             SCOPED_TRACE(length);
             std::vector<uint8_t> value(length, 0xAB);
@@ -28,7 +25,7 @@ TEST(Integration_Ber, TagsAndLengthsRoundTrip) {
             ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data.data(), data.size(), &ber_writer));
             ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, value.data(), length));
             EXPECT_EQ(required, writer.pos);
-            ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0x5A}, 1}), nullptr, 0));
+            ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0x5A)), nullptr, 0));
             EXPECT_EQ(0, std::memcmp(bytes.data(), data.data(), bytes.size()));
             tlv_reader_t reader;
             ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data.data(), data.size(), &ber));
@@ -88,7 +85,7 @@ TEST(Integration_Ber, IndefiniteReferenceEncodingsAndRoundTrip) {
                                                       {0x30, 0x80, 0x04, 2, 0, 0, 0, 0, 0x04, 0},
                                                       {0x30, 6, 0x30, 0x80, 0, 0, 0x04, 0},
                                                       {0x30, 0x80, 0x30, 2, 0x04, 0, 0, 0}};
-    const tlv_tag_t                         tag = {{0x30}, 1};
+    const tlv_tag_t                         tag = TLV_TAG(0x30);
     for (const auto& value : values) {
         std::vector<uint8_t> expected = {0x30, 0x80};
         expected.insert(expected.end(), value.begin(), value.end());
@@ -118,7 +115,7 @@ TEST(Integration_Ber, IndefiniteReferenceEncodingsAndRoundTrip) {
         EXPECT_TRUE(tlv_reader_at_end(&reader));
         // Every proper prefix of a valid outer element is truncated.
         for (size_t size = 1; size < required; ++size) {
-            view = tlv_view_t{tlv_tag_t{{0xEE}, 1}, {nullptr, 42}};
+            view = tlv_view_t{TLV_TAG(0xEE), {nullptr, 42}};
             used = 999;
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_read(output.data(), size, &ber, &view, &used));
             EXPECT_EQ(999u, used);
@@ -155,7 +152,7 @@ TEST(Integration_Ber, IndefiniteMalformedInputIsAtomic) {
     for (const auto& item : cases) {
         tlv_reader_t reader{};
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, item.wire.data(), item.wire.size(), &ber));
-        tlv_view_t view = {tlv_tag_t{{0xEE}, 1}, {nullptr, 42}};
+        tlv_view_t view = {TLV_TAG(0xEE), {nullptr, 42}};
         EXPECT_EQ(item.result, tlv_reader_next(&reader, &view));
         EXPECT_EQ(0u, reader.pos);
         EXPECT_EQ(0xEE, view.tag.data[0]);
@@ -175,7 +172,7 @@ TEST(Integration_Ber, IndefiniteNestingLimitIncludesDefiniteScopes) {
         ASSERT_EQ(TLV_OK, tlv_read(wire.data(), wire.size(), &ber, &view, &used));
         EXPECT_EQ(wire.size(), used);
         std::vector<uint8_t> out(wire.size());
-        ASSERT_EQ(TLV_OK, tlv_ber_write_indefinite(out.data(), out.size(), tlv_tag_t{{0x30}, 1},
+        ASSERT_EQ(TLV_OK, tlv_ber_write_indefinite(out.data(), out.size(), TLV_TAG(0x30),
                                                    view.value.data, view.value.length, &used));
         EXPECT_EQ(wire, out);
         const size_t midpoint = 2 * TLV_BER_MAX_DEPTH;
@@ -184,9 +181,8 @@ TEST(Integration_Ber, IndefiniteNestingLimitIncludesDefiniteScopes) {
         if (!definite_child) wire.insert(wire.begin() + midpoint + 2, {0, 0});
         EXPECT_EQ(TLV_ERR_LIMIT, tlv_read(wire.data(), wire.size(), &ber, &view, &used));
         out.assign(wire.size(), 0xEE);
-        EXPECT_EQ(TLV_ERR_LIMIT,
-                  tlv_ber_write_indefinite(out.data(), out.size(), tlv_tag_t{{0x30}, 1},
-                                           wire.data() + 2, wire.size() - 4, &used));
+        EXPECT_EQ(TLV_ERR_LIMIT, tlv_ber_write_indefinite(out.data(), out.size(), TLV_TAG(0x30),
+                                                          wire.data() + 2, wire.size() - 4, &used));
         for (auto byte : out) EXPECT_EQ(0xEE, byte);
     }
 }

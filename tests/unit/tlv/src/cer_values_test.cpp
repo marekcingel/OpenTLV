@@ -37,7 +37,7 @@ std::vector<Segment> segments_of(const tlv_view_t& view) {
 /* Builds canonical CER bytes for logical content via tlv_cer_write_segmented_string. */
 std::vector<uint8_t> write_segmented(uint8_t                     primitive_tag_byte,
                                      const std::vector<uint8_t>& content) {
-    const tlv_tag_t tag{{primitive_tag_byte}, 1};
+    const tlv_tag_t tag = tlv_tag(&primitive_tag_byte, 1);
     size_t          required = 0, written = 0;
     EXPECT_EQ(TLV_OK, tlv_cer_write_segmented_string(nullptr, 0, tag,
                                                      content.empty() ? nullptr : content.data(),
@@ -259,7 +259,7 @@ TEST(Unit_CerValues, CharacterStringRejectsInvalidCharsetPerSegment) {
 
     uint8_t output[1520];
     size_t  written = 0;
-    ASSERT_EQ(TLV_OK, tlv_cer_write(output, sizeof(output), (tlv_tag_t{{0x32}, 1}), children.data(),
+    ASSERT_EQ(TLV_OK, tlv_cer_write(output, sizeof(output), (TLV_TAG(0x32)), children.data(),
                                     children.size(), nullptr, &written, nullptr));
     tlv_view_t view{};
     size_t     consumed = 0, offset = 99;

@@ -16,24 +16,26 @@ TEST(Unit_Cer, AlwaysConstructedSetRequiresConstructedForm) {
      * either form at the raw tag level -- CER's own profile decides the
      * legal form contextually (segmentable vs. not, and by content length). */
     for (uint64_t number = 0; number <= 36; ++number) {
-        if (number >= 31 && TLV_TAG_CAPACITY < 2) continue;
         const bool must_construct =
             number == 8 || number == 11 || number == 16 || number == 17 || number == 29;
         for (int constructed : {0, 1}) {
             tlv_tag_t  tag{};
+            uint8_t    storage[TLV_ASN1_TAG_MAX_SIZE];
             const bool invalid_universal =
                 number == 0 || number == 15 || (must_construct && !constructed);
             EXPECT_EQ(invalid_universal ? TLV_ERR_INVALID_TAG : TLV_OK,
-                      tlv_cer_tag_make(TLV_ASN1_UNIVERSAL, constructed, number, &tag));
-            EXPECT_EQ(TLV_OK,
-                      tlv_cer_tag_make(TLV_ASN1_CONTEXT_SPECIFIC, constructed, number, &tag));
+                      tlv_cer_tag_make(TLV_ASN1_UNIVERSAL, constructed, number, storage, &tag));
+            EXPECT_EQ(TLV_OK, tlv_cer_tag_make(TLV_ASN1_CONTEXT_SPECIFIC, constructed, number,
+                                               storage, &tag));
         }
     }
 }
 
 TEST(Unit_Cer, TagClassAndConstructedAccessors) {
     tlv_tag_t tag{};
-    ASSERT_EQ(TLV_OK, tlv_cer_tag_make(TLV_ASN1_APPLICATION, 1, 4, &tag));
+    uint8_t   storage[TLV_ASN1_TAG_MAX_SIZE];
+    ASSERT_EQ(TLV_OK, tlv_cer_tag_make(TLV_ASN1_APPLICATION, 1, 4, storage, &tag));
+    EXPECT_EQ(storage, tag.data);
     EXPECT_EQ(TLV_ASN1_APPLICATION, tlv_cer_tag_class(&tag));
     EXPECT_EQ(1, tlv_cer_tag_is_constructed(&tag));
     uint64_t number = 0;
@@ -51,7 +53,7 @@ TEST(Unit_Cer, EmptyArgumentsAndVisitorControl) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_cer_walk(nullptr, 1, nullptr, nullptr, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_cer_read(nullptr, 0, nullptr, nullptr, &used, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG,
-              tlv_cer_write(nullptr, 1, (tlv_tag_t{{4}, 1}), nullptr, 0, nullptr, &used, nullptr));
+              tlv_cer_write(nullptr, 1, (TLV_TAG(4)), nullptr, 0, nullptr, &used, nullptr));
     const uint8_t data[] = {4, 0, 0xFF};
     auto          stop = [](const tlv_view_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
     auto          error = [](const tlv_view_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
@@ -65,18 +67,13 @@ TEST(Unit_Cer, TagSizeErrorsPreserveOutputs) {
     tlv_tag_t tag{};
     uint64_t  number = 42;
     size_t    written = 99;
-    uint8_t   output[TLV_TAG_CAPACITY] = {0xEE};
+    uint8_t   output[TLV_ASN1_TAG_MAX_SIZE] = {0xEE};
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_cer_tag_number(&tag, &number));
     EXPECT_EQ(42u, number);
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
               tlv_writer_format_cer.write_tag(nullptr, output, sizeof(output), &tag, &written));
     EXPECT_EQ(99u, written);
     EXPECT_EQ(0xEE, output[0]);
-#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
-    tag.size = TLV_TAG_CAPACITY + 1;
-    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_cer_tag_number(&tag, &number));
-    EXPECT_EQ(42u, number);
-#endif
 }
 
 TEST(Unit_Cer, PrimitiveIndefiniteAndConstructedDefiniteAreRejected) {

@@ -28,7 +28,7 @@ This complete example writes and reads one opaque byte. Exit code zero means suc
 #include "tlv/writer/writer.h"
 
 int main(void) {
-    const tlv_tag_t tag = {{0x04}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x04);
     const uint8_t value[] = {0x2A};
     uint8_t output[8];
     size_t written = 0, consumed = 0;

@@ -18,12 +18,12 @@ int main() {
         return tlv::bytes(reinterpret_cast<const tlv::byte*>(s.data()), s.size());
     };
 
-    tlv::expected<void, tlv::error> r = w.write(tlv::tag_t{{0x01}, 1}, to_bytes("hello"));
+    tlv::expected<void, tlv::error> r = w.write(TLV_TAG(0x01), to_bytes("hello"));
     if (!r) {
         std::cerr << "write error: " << r.error().message << "\n";
         return 1;
     }
-    r = w.write(tlv::tag_t{{0x02}, 1}, to_bytes("world"));
+    r = w.write(TLV_TAG(0x02), to_bytes("world"));
     if (!r) {
         std::cerr << "write error: " << r.error().message << "\n";
         return 1;

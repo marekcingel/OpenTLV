@@ -8,7 +8,7 @@
 /**
  * @file
  * @ingroup core
- * @brief Decoded TLV element view: an inline tag plus a borrowed value.
+ * @brief Decoded TLV element view: a borrowed tag plus a borrowed value.
  */
 
 /** @addtogroup core
@@ -16,16 +16,17 @@
  */
 
 /**
- * @brief A decoded TLV element: an inline tag and a borrowed value.
+ * @brief A decoded TLV element: a borrowed tag and a borrowed value.
  *
- * The tag is stored inline. The value borrows the original input storage, so
- * copying a view copies the tag but neither copies the value bytes nor
- * extends their lifetime; the input must outlive every copy of the view.
+ * Both the tag and the value normally reference the original input storage.
+ * Copying a view copies only the tag and value descriptors, never their
+ * bytes, and does not extend their lifetime: the storage they reference must
+ * outlive every copy of the view.
  *
  * @note This plain type does not validate its fields or impose a wire format.
  */
 typedef struct {
-    /** Element tag, stored inline. */
+    /** Element tag; borrows the original input storage. */
     tlv_tag_t tag;
     /** Element value; borrows the original input storage. */
     tlv_value_t value;

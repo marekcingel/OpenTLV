@@ -3,9 +3,9 @@
 #include <ctype.h>
 #include <string.h>
 
-#define EMV_WIRE_1(b1, b2) {{b1}, 1}
-#define EMV_WIRE_2(b1, b2) {{b1, b2}, 2}
-#define EMV_WIRE(size, b1, b2) EMV_WIRE_##size(b1, b2)
+#define EMV_BYTES_1(b1, b2) {b1}
+#define EMV_BYTES_2(b1, b2) {b1, b2}
+#define EMV_BYTES(size, b1, b2) EMV_BYTES_##size(b1, b2)
 #define EMV_COUNT(array) (sizeof(array) / sizeof((array)[0]))
 
 /* Each context has its own indices: BER tag bytes alone do not identify
@@ -24,17 +24,18 @@
 
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
-    const tlv_tag_t tlv_emv_tag_##name = EMV_WIRE(size, b1, b2);
+    static const uint8_t emv_tag_bytes_##name[] = EMV_BYTES(size, b1, b2);                         \
+    const tlv_tag_t tlv_emv_tag_##name = {emv_tag_bytes_##name, size};
 #define EMV_END(scope)
 #include "tlv/profiles/emv_tags.def"
 #undef EMV_BEGIN
 #undef EMV_TAG
 #undef EMV_END
 
-/* A leading sentinel makes even an empty reduced-capacity table valid C99. */
-#define EMV_BEGIN(scope) static const tlv_schema_entry_t entries_##scope[] = {{{{0}, 0}, 0, 0, 0},
+/* A leading sentinel keeps a scope with no entries valid C99. */
+#define EMV_BEGIN(scope) static const tlv_schema_entry_t entries_##scope[] = {{{NULL, 0}, 0, 0, 0},
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
-    {EMV_WIRE(size, b1, b2), min, max, 0},
+    {{emv_tag_bytes_##name, size}, min, max, 0},
 #define EMV_END(scope)                                                                             \
     }                                                                                              \
     ;
@@ -127,23 +128,17 @@ const tlv_schema_t* tlv_emv_schema_for(tlv_emv_context_t context) {
 
 tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const tlv_tag_t* tag) {
     unsigned value;
-    if (!tag) return TLV_EMV_CONTEXT_COUNT;
+    if (!tag || !tag->data) return TLV_EMV_CONTEXT_COUNT;
+    if (tag->size < 1) return TLV_EMV_CONTEXT_COUNT;
     value = tag->data[0];
-#if TLV_TAG_CAPACITY >= 2
     if (tag->size == 2)
         value = (value << 8) | tag->data[1];
     else if (tag->size != 1)
         return TLV_EMV_CONTEXT_COUNT;
-#else
-    if (tag->size != 1) return TLV_EMV_CONTEXT_COUNT;
-#endif
-#if TLV_TAG_CAPACITY >= 2
     if (context == TLV_EMV_CONTEXT_BASE || context == TLV_EMV_CONTEXT_BIT_GROUP) {
         if (value == tlv_emv_tag_biometric_information_template_u64) return TLV_EMV_CONTEXT_BIT;
     }
-#endif
     if (context == TLV_EMV_CONTEXT_BASE) {
-#if TLV_TAG_CAPACITY >= 2
         switch (value) {
             case tlv_emv_tag_offline_bit_group_template_u64:
             case tlv_emv_tag_online_bit_group_template_u64: return TLV_EMV_CONTEXT_BIT_GROUP;
@@ -155,7 +150,6 @@ tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const tlv_tag
                 return TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION;
             default: break;
         }
-#endif
         /* Only known templates inherit BASE, avoiding guesses in proprietary containers. */
         if (tlv_emv_find(TLV_EMV_CONTEXT_BASE, tag)) return TLV_EMV_CONTEXT_BASE;
     }

@@ -29,18 +29,23 @@ TEST(Unit_Ber, InvalidAndNonminimalLengths) {
     EXPECT_EQ(4u, used);
     size_t total = 42;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_encoded_size((tlv_tag_t{{0x5A}, 1}), SIZE_MAX, &ber_writer, &total));
+              tlv_encoded_size((TLV_TAG(0x5A)), SIZE_MAX, &ber_writer, &total));
     EXPECT_EQ(42u, total);
 }
 
-TEST(Unit_Ber, TagCapacityAndContinuation) {
-    std::vector<uint8_t> bytes(TLV_TAG_CAPACITY, 0x81);
-    bytes.front() = TLV_TAG_CAPACITY == 1 ? 0x5A : 0x9F;
-    if (TLV_TAG_CAPACITY > 1) bytes.back() = 0x01;
+TEST(Unit_Ber, TagSizeLimitAndContinuation) {
+    // The longest tag the format accepts: a high-tag-number identifier of TLV_ASN1_TAG_MAX_SIZE
+    // bytes.
+    std::vector<uint8_t> bytes(TLV_ASN1_TAG_MAX_SIZE, 0x81);
+    bytes.front() = 0x9F;
+    bytes.back() = 0x01;
     tlv_tag_t tag{};
     size_t    used = 0;
     ASSERT_EQ(TLV_OK, ber.read_tag(nullptr, bytes.data(), bytes.size(), &tag, &used));
     EXPECT_EQ(bytes.size(), used);
+    // The tag borrows the input rather than copying it.
+    EXPECT_EQ(bytes.data(), tag.data);
+    EXPECT_EQ(bytes.size(), tag.size);
     ASSERT_EQ(TLV_OK, ber_writer.write_tag(nullptr, nullptr, 0, &tag, &used));
     std::vector<uint8_t> output(bytes.size(), 0xEE);
     for (size_t capacity = 0; capacity < bytes.size(); ++capacity) {
@@ -50,14 +55,17 @@ TEST(Unit_Ber, TagCapacityAndContinuation) {
     }
     ASSERT_EQ(TLV_OK, ber_writer.write_tag(nullptr, output.data(), output.size(), &tag, &used));
     EXPECT_EQ(bytes, output);
-    bytes.assign(TLV_TAG_CAPACITY + 1, 0x81);
+    // One byte more than the format supports is rejected, however the tag ends.
+    bytes.assign(TLV_ASN1_TAG_MAX_SIZE + 1, 0x81);
     bytes[0] = 0x9F;
     bytes.back() = 1;
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
               ber.read_tag(nullptr, bytes.data(), bytes.size(), &tag, &used));
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
-              ber.read_tag(nullptr, bytes.data(), TLV_TAG_CAPACITY, &tag, &used));
-    for (size_t size = 0; size < TLV_TAG_CAPACITY; ++size)
+              ber.read_tag(nullptr, bytes.data(), TLV_ASN1_TAG_MAX_SIZE, &tag, &used));
+    tag = tlv_tag(bytes.data(), bytes.size());
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, ber_writer.write_tag(nullptr, nullptr, 0, &tag, &used));
+    for (size_t size = 0; size < TLV_ASN1_TAG_MAX_SIZE; ++size)
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, ber.read_tag(nullptr, bytes.data(), size, &tag, &used));
 }
 
@@ -65,31 +73,23 @@ TEST(Unit_Ber, InvalidTagsAndWriterState) {
     const std::vector<std::vector<uint8_t>> invalid = {
         {}, {0x9F}, {0x5A, 1}, {0x9F, 0}, {0x9F, 0x80, 1}, {0x9F, 0x81}, {0x9F, 1, 1}};
     for (const auto& bytes : invalid) {
-        if (bytes.size() > TLV_TAG_CAPACITY) continue;
-        tlv_tag_t tag{};
-        tag.size = static_cast<uint8_t>(bytes.size());
-        if (!bytes.empty()) std::memcpy(tag.data, bytes.data(), bytes.size());
-        uint8_t data[16];
+        const tlv_tag_t tag = tlv_tag(bytes.empty() ? nullptr : bytes.data(), bytes.size());
+        uint8_t         data[16];
         std::memset(data, 0xEE, sizeof(data));
         tlv_writer_t writer;
         ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &ber_writer));
-        EXPECT_EQ(bytes.empty() || (bytes.size() == TLV_TAG_CAPACITY && (bytes.back() & 0x80))
-                      ? TLV_ERR_INVALID_TAG_SIZE
-                      : TLV_ERR_INVALID_TAG,
+        EXPECT_EQ(bytes.empty() ? TLV_ERR_INVALID_TAG_SIZE : TLV_ERR_INVALID_TAG,
                   tlv_writer_write(&writer, tag, nullptr, 0));
         EXPECT_EQ(0u, writer.pos);
         for (auto byte : data) EXPECT_EQ(0xEE, byte);
     }
-    if (TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE) {
-        tlv_tag_t tag = {{0x5A}, 0};
-        tag.size = static_cast<uint8_t>(TLV_TAG_CAPACITY + 1);
-        size_t used;
-        EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, ber_writer.write_tag(nullptr, nullptr, 0, &tag, &used));
-    }
+    // A tag whose bytes are missing is reported before its size is looked at.
+    size_t          used;
+    const tlv_tag_t missing = tlv_tag(nullptr, 1);
+    EXPECT_EQ(TLV_ERR_NULL_ARG, ber_writer.write_tag(nullptr, nullptr, 0, &missing, &used));
     const uint8_t invalid_tag[] = {0x9F, 0x80, 1};
     tlv_tag_t     tag{};
-    size_t        used;
-    EXPECT_EQ(TLV_TAG_CAPACITY == 1 ? TLV_ERR_INVALID_TAG_SIZE : TLV_ERR_INVALID_TAG,
+    EXPECT_EQ(TLV_ERR_INVALID_TAG,
               ber.read_tag(nullptr, invalid_tag, sizeof(invalid_tag), &tag, &used));
 }
 
@@ -99,7 +99,7 @@ TEST(Unit_Ber, TruncationPreservesReaderOutput) {
     for (size_t size = 0; size < data.size(); ++size) {
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data.data(), size, &ber));
-        tlv_view_t view = {tlv_tag_t{{0xEE}, 1}, {nullptr, 42}};
+        tlv_view_t view = {TLV_TAG(0xEE), {nullptr, 42}};
         EXPECT_EQ(size ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER,
                   tlv_reader_next(&reader, &view));
         EXPECT_EQ(0u, reader.pos);
@@ -110,7 +110,7 @@ TEST(Unit_Ber, TruncationPreservesReaderOutput) {
 }
 
 TEST(Unit_Ber, IndefiniteWriterCapacityValidationAndDefault) {
-    const tlv_tag_t tag = {{0x30}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x30);
     const uint8_t   value[] = {0x04, 2, 0, 0};
     uint8_t         output[16];
     size_t          written = 999;
@@ -131,14 +131,12 @@ TEST(Unit_Ber, IndefiniteWriterCapacityValidationAndDefault) {
     }
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_ber_indefinite_encoded_size(tag, SIZE_MAX, &written));
     EXPECT_EQ(999u, written);
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_ber_indefinite_encoded_size(TLV_TAG(4), 0, &written));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_ber_indefinite_encoded_size(tlv_tag_t{{4}, 1}, 0, &written));
-    EXPECT_EQ(
-        TLV_ERR_INVALID_LENGTH,
-        tlv_ber_write_indefinite(output, sizeof(output), tlv_tag_t{{4}, 1}, nullptr, 0, &written));
+              tlv_ber_write_indefinite(output, sizeof(output), TLV_TAG(4), nullptr, 0, &written));
     EXPECT_EQ(999u, written);
     for (auto byte : output) EXPECT_EQ(0xEE, byte);
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_ber_indefinite_encoded_size(tlv_tag_t{{0}, 1}, 0, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_ber_indefinite_encoded_size(TLV_TAG(0), 0, &written));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_indefinite_encoded_size(tag, 0, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_write_indefinite(nullptr, 4, tag, nullptr, 0, &written));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,

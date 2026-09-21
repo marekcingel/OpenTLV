@@ -10,7 +10,7 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
 }
 static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
                               const tlv_tag_t* tag, size_t* used) {
-    if (tag->size && (tag->data[0] == 0 || tag->data[0] == TLV_ASN1_CONSTRUCTED_BIT))
+    if (tag->size && tag->data && (tag->data[0] == 0 || tag->data[0] == TLV_ASN1_CONSTRUCTED_BIT))
         return TLV_ERR_INVALID_TAG;
     return tlv_ber_writer_wire.write_tag(context, data, capacity, tag, used);
 }

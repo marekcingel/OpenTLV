@@ -1,6 +1,7 @@
 #ifndef OPENTLV_PROFILES_EMV_H
 #define OPENTLV_PROFILES_EMV_H
 
+#include "tlv/error.h"
 #include "tlv/schemas/schema.h"
 #include "tlv/codec/emv.h"
 #include "tlv/export.h"
@@ -20,8 +21,8 @@ extern "C" {
  * elements are not tags.
  *
  * Use #tlv_reader_format_ber with generic I/O; this profile does not parse
- * TLV. Tag constants that exceed #TLV_TAG_CAPACITY are omitted from all
- * tables.
+ * TLV. Every tag constant borrows constant static bytes and is always
+ * available.
  */
 
 /** @addtogroup profiles

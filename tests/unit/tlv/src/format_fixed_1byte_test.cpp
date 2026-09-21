@@ -10,7 +10,7 @@ TEST(Unit_Fixed1Byte, TruncationPreservesReaderAndOutput) {
     for (size_t size = 0; size < sizeof(data); ++size) {
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, size, &tlv_reader_format_fixed_1byte));
-        tlv_view_t entry = {tlv_tag_t{{0xEE}, 1}, {nullptr, 42}};
+        tlv_view_t entry = {TLV_TAG(0xEE), {nullptr, 42}};
         EXPECT_EQ(size ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER,
                   tlv_reader_next(&reader, &entry));
         EXPECT_EQ(0u, reader.pos);
@@ -26,12 +26,13 @@ TEST(Unit_Fixed1Byte, InvalidWritesPreserveBufferAndPosition) {
     uint8_t      value[256] = {};
     tlv_writer_t writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &tlv_writer_format_fixed_1byte));
-    const tlv_tag_t tag = {{1}, 1};
+    const tlv_tag_t tag = TLV_TAG(1);
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, tag, value, 256));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_writer_write(&writer, tag, value, std::numeric_limits<size_t>::max()));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_writer_write(&writer, (tlv_tag_t{{0}, 0}), nullptr, 0));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_writer_write(&writer, (tlv_tag_t{{0}, 2}), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+              tlv_writer_write(&writer, (tlv_tag(nullptr, 0)), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_writer_write(&writer, TLV_TAG(0, 0), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
     for (auto byte : data) EXPECT_EQ(0xEE, byte);
     for (size_t capacity = 0; capacity < 5; ++capacity) {
@@ -44,7 +45,7 @@ TEST(Unit_Fixed1Byte, InvalidWritesPreserveBufferAndPosition) {
 
 TEST(Unit_Fixed1Byte, CallbacksRejectMissingBytes) {
     const auto& format = tlv_reader_format_fixed_1byte;
-    tlv_tag_t   tag = {{0xFF}, 1};
+    tlv_tag_t   tag = TLV_TAG(0xFF);
     size_t      used = 0, length = 0;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, format.read_tag(nullptr, nullptr, 0, &tag, &used));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, format.read_length(nullptr, nullptr, 0, &length, &used));

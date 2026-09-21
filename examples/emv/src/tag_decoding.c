@@ -146,7 +146,7 @@ static int build_record(uint8_t* content, size_t capacity, size_t* content_size)
 
     /* A proprietary issuer tag absent from the Book 3 dictionary. */
     {
-        const tlv_tag_t      proprietary = {{0xDF, 0x01}, 2};
+        const tlv_tag_t      proprietary = TLV_TAG(0xDF, 0x01);
         static const uint8_t proprietary_value[] = {0xAA, 0xBB, 0xCC};
         CHECK(tlv_writer_write(&writer, proprietary, proprietary_value, sizeof(proprietary_value)));
     }

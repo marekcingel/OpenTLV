@@ -8,7 +8,7 @@ namespace controlled {
 inline tlv_result_t read_tag(const void*, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* used) {
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    *tag = tlv_tag_t{{data[0]}, 1};
+    *tag = tlv_tag(data, 1);
     *used = 1;
     return TLV_OK;
 }

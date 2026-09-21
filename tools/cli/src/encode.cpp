@@ -10,6 +10,7 @@
 #include "input.hpp"
 #include "json_model.hpp"
 #include "tlv/config.h"
+#include "tlv/formats/asn1/ber.h"
 #include "tlv/writer/writer.h"
 #if OPENTLV_FORMAT_DEFAULT
 #include "tlv/formats/default/default.h"
@@ -58,8 +59,8 @@ const tlv_writer_format_t* select_writer(const char* name) {
 // Builds the element list from --tag/--value.
 int specs_from_options(const cli::options& o, std::vector<cli::commands::element_spec>& specs) {
     cli::commands::element_spec spec;
-    int                         rc = cli::decode_hex(o.tag, TLV_TAG_CAPACITY, spec.tag);
-    if (rc == 3) return fail(2, "tag is longer than the supported tag capacity");
+    int                         rc = cli::decode_hex(o.tag, TLV_ASN1_TAG_MAX_SIZE, spec.tag);
+    if (rc == 3) return fail(2, "tag is longer than the longest tag a supported format accepts");
     if (rc) return rc;
     if (spec.tag.empty()) return fail(2, "tag must not be empty");
     if (o.value && (rc = cli::decode_hex(o.value, o.max_input, spec.value))) return rc;
@@ -67,13 +68,9 @@ int specs_from_options(const cli::options& o, std::vector<cli::commands::element
     return 0;
 }
 
-// Builds a tlv_tag_t from validated-length tag bytes (size <= TLV_TAG_CAPACITY).
+// Builds a tlv_tag_t that borrows `bytes`, which must outlive the tag.
 tlv_tag_t make_tag(const std::vector<uint8_t>& bytes) {
-    tlv_tag_t tag;
-    std::memset(&tag, 0, sizeof tag);
-    std::memcpy(tag.data, bytes.data(), bytes.size());
-    tag.size = (uint8_t)bytes.size();
-    return tag;
+    return tlv_tag(bytes.data(), bytes.size());
 }
 
 std::string hex_text(const std::vector<uint8_t>& bytes) {

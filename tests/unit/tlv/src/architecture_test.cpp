@@ -19,7 +19,7 @@ namespace {
 // Deliberately different from BER: bit 7 identifies a container.
 tlv_result_t tag_read(const void*, const uint8_t* data, size_t size, tlv_tag_t* tag, size_t* used) {
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    *tag = tlv_tag_t{{data[0]}, 1};
+    *tag = tlv_tag(data, 1);
     *used = 1;
     return TLV_OK;
 }
@@ -57,8 +57,8 @@ int constructed(const void*, const tlv_tag_t* tag) {
 const tlv_reader_format_t  format = {nullptr, tag_read, length_read, nullptr, nullptr};
 const tlv_writer_format_t  writer_format = {nullptr, tag_write, length_write, length_size, nullptr};
 const tlv_structure_rule_t child_rules[] = {
-    {{{{1}, 1}, 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{{{2}, 1}, 1, 1, 0}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr}};
+    {{TLV_TAG(1), 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(2), 1, 1, 0}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr}};
 const tlv_structure_schema_t children = {child_rules, 2, 0};
 TEST(Unit_Architecture, GenericValueBoundsAndTrailerValidation) {
     struct Bounds {
@@ -90,7 +90,7 @@ TEST(Unit_Architecture, GenericValueBoundsAndTrailerValidation) {
                                {1, 1, 2, TLV_ERR_LIMIT}};
     for (const auto& failure : failures) {
         bounds = failure;
-        view = tlv_view_t{tlv_tag_t{{0xEE}, 1}, {nullptr, 42}};
+        view = tlv_view_t{TLV_TAG(0xEE), {nullptr, 42}};
         used = 999;
         EXPECT_NE(TLV_OK, tlv_read(wire, sizeof(wire), &framed, &view, &used));
         EXPECT_EQ(999u, used);
@@ -159,8 +159,8 @@ tlv_codec_result_t object_encode(const void*, const tlv_writer_format_t* selecte
     std::memcpy(&input, value, sizeof(input));
     tlv_writer_t writer{};
     if (tlv_writer_init(&writer, data, capacity, selected) != TLV_OK ||
-        tlv_writer_write(&writer, tlv_tag_t{{1}, 1}, &input.first, 1) != TLV_OK ||
-        tlv_writer_write(&writer, tlv_tag_t{{2}, 1}, &input.second, 1) != TLV_OK)
+        tlv_writer_write(&writer, TLV_TAG(1), &input.first, 1) != TLV_OK ||
+        tlv_writer_write(&writer, TLV_TAG(2), &input.second, 1) != TLV_OK)
         return TLV_CODEC_ERR_INVALID_VALUE;
     *written = tlv_writer_size(&writer);
     return TLV_CODEC_OK;

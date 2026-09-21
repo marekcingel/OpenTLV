@@ -5,23 +5,6 @@
 
 namespace {
 
-tlv_tag_t Tag1(uint8_t b) {
-    tlv_tag_t tag{};
-    tlv_tag_from_u8(b, 1, TLV_BYTE_ORDER_BIG_ENDIAN, &tag);
-    return tag;
-}
-
-tlv_tag_t Tag2(uint16_t v) {
-    tlv_tag_t tag{};
-    tlv_tag_from_u16(v, 2, TLV_BYTE_ORDER_BIG_ENDIAN, &tag);
-    return tag;
-}
-
-bool TagsEqual(const tlv_tag_t& a, const tlv_tag_t& b) {
-    int equal = 0;
-    return tlv_tag_equal(&a, &b, &equal) == TLV_OK && equal;
-}
-
 tlv_result_t CollectVisitor(const tlv_dol_entry_t* entry, size_t index, void* context) {
     (void)index;
     static_cast<std::vector<tlv_dol_entry_t>*>(context)->push_back(*entry);
@@ -81,9 +64,9 @@ TEST(Unit_Dol, ReadParsesEntriesInOrder) {
     std::vector<tlv_dol_entry_t> entries;
     EXPECT_EQ(TLV_OK, Read(data, &entries));
     ASSERT_EQ(2u, entries.size());
-    EXPECT_TRUE(TagsEqual(entries[0].tag, Tag2(0x9F02)));
+    EXPECT_TRUE(tlv_tag_equal(entries[0].tag, TLV_TAG(0x9F, 0x02)));
     EXPECT_EQ(6u, entries[0].requested_length);
-    EXPECT_TRUE(TagsEqual(entries[1].tag, Tag1(0x5A)));
+    EXPECT_TRUE(tlv_tag_equal(entries[1].tag, TLV_TAG(0x5A)));
     EXPECT_EQ(8u, entries[1].requested_length);
 }
 

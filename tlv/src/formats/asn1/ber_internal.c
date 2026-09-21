@@ -9,7 +9,7 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
     if ((data[0] & TLV_ASN1_TAG_NUMBER_MASK) == TLV_ASN1_TAG_NUMBER_MASK) {
         for (;;) {
-            if (count == TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
+            if (count == TLV_ASN1_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG_SIZE;
             if (count == size) return TLV_ERR_BUFFER_TOO_SHORT;
             /* The first base-128 digit must be nonzero. Keep raw tag bytes,
              * including BER-TLV identifiers such as 9F 1C. */
@@ -17,9 +17,7 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
             if (!(data[count++] & TLV_BER_TAG_DIGIT_CONTINUATION_BIT)) break;
         }
     }
-    *tag = (tlv_tag_t){{0}, 0};
-    memcpy(tag->data, data, count);
-    tag->size = (uint8_t)count;
+    *tag = tlv_tag(data, count);
     *consumed = count;
     return TLV_OK;
 }
@@ -29,7 +27,8 @@ static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacit
     tlv_tag_t parsed;
     size_t count;
     tlv_result_t rc;
-    if (!tag->size || tag->size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
+    if (!tag->size || tag->size > TLV_ASN1_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG_SIZE;
+    if (!tag->data) return TLV_ERR_NULL_ARG;
     rc = read_tag(context, tag->data, tag->size, &parsed, &count);
     if (rc == TLV_ERR_INVALID_TAG_SIZE) return rc;
     if (rc != TLV_OK || count != tag->size) return TLV_ERR_INVALID_TAG;

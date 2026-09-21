@@ -4,7 +4,7 @@
 #include "tlv/writer/writer.h"
 
 int main(void) {
-    const tlv_tag_t tag = {{0x01}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x01);
     const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
     uint8_t         buffer[5];
     size_t          written = 0, consumed = 0;

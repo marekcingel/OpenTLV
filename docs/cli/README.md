@@ -233,7 +233,7 @@ For a single element, `--format` and `--tag` are required; `--value` is
 optional and defaults to an empty value. `--tag` and `--value` use the same hex
 syntax as `--hex` (case-insensitive, complete byte pairs, optional whitespace
 between pairs). `--value` is limited by `--max-input-size`; a tag longer than
-the library's tag capacity is rejected.
+8 bytes, the longest tag any built-in format accepts, is rejected.
 
 `--input PATH` reads a JSON document instead (`-` for stdin, read as bytes on
 Windows too); it cannot be combined with `--tag` or `--value`. Every length is

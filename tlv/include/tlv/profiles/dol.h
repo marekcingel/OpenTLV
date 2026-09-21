@@ -1,6 +1,7 @@
 #ifndef OPENTLV_PROFILES_DOL_H
 #define OPENTLV_PROFILES_DOL_H
 
+#include "tlv/error.h"
 #include "tlv/tag.h"
 #include "tlv/export.h"
 #include <stddef.h>
@@ -26,7 +27,7 @@ extern "C" {
  *          then look for value bytes that were never encoded.
  *
  * Tags are ordinary BER tags (tlv/formats/asn1/ber.h), read generically up to
- * #TLV_TAG_CAPACITY; every currently assigned EMV tag is one or two bytes,
+ * #TLV_ASN1_TAG_MAX_SIZE bytes; every currently assigned EMV tag is one or two bytes,
  * but this component itself imposes no such restriction. Each requested
  * length is exactly one raw unsigned byte (0..255): there is no BER long
  * form and no value bytes follow it. No allocation and no recursion are used.
@@ -43,7 +44,7 @@ extern "C" {
  * reported as its own entry.
  */
 typedef struct tlv_dol_entry {
-    /** Requested tag. */
+    /** Requested tag; borrows the DOL bytes given to the reader, valid only for the callback. */
     tlv_tag_t tag;
     /** Number of bytes a command using this DOL should receive for the tag. */
     size_t requested_length;
@@ -69,8 +70,7 @@ typedef tlv_result_t (*tlv_dol_visit_fn)(const tlv_dol_entry_t* entry, size_t in
  *
  * No currently defined EMV data element eligible for a DOL entry exceeds it
  * (Annex A's largest bounded field is 252 bytes). Not configurable, matching
- * #TLV_TAG_MAX_SUPPORTED_SIZE's convention for a hard architectural bound
- * rather than a runtime one.
+ * the other fixed limits of the library, a hard bound rather than a runtime one.
  */
 enum { TLV_DOL_MAX_VALUE_LENGTH = UINT8_MAX };
 

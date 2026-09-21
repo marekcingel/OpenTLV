@@ -20,8 +20,9 @@ std::vector<uint8_t> encode_stream(std::size_t value_size, std::size_t entry_cou
         return std::vector<uint8_t>();
     }
     for (std::size_t i = 0; i < entry_count; ++i) {
-        if (tlv_writer_write(&writer, (tlv_tag_t{{static_cast<uint8_t>(i)}, 1}), value.data(),
-                             value.size()) != TLV_OK) {
+        const uint8_t tag_byte = static_cast<uint8_t>(i);
+        if (tlv_writer_write(&writer, tlv_tag(&tag_byte, 1), value.data(), value.size()) !=
+            TLV_OK) {
             return std::vector<uint8_t>();
         }
     }
@@ -58,7 +59,7 @@ void encode_entries(benchmark::State& state) {
         benchmark::DoNotOptimize(
             tlv_writer_init(&writer, output.data(), output.size(), &tlv_writer_format_default));
         benchmark::DoNotOptimize(
-            tlv_writer_write(&writer, (tlv_tag_t{{0x42}, 1}), value.data(), value.size()));
+            tlv_writer_write(&writer, (TLV_TAG(0x42)), value.data(), value.size()));
         benchmark::ClobberMemory();
     }
     state.SetBytesProcessed(state.iterations() * static_cast<int64_t>(value.size()));

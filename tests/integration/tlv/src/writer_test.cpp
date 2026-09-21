@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace {
-const tlv_tag_t tag = {{0xFF}, 1};
+const tlv_tag_t tag = TLV_TAG(0xFF);
 }
 
 TEST(Integration_Writer, SizesWireEncodingAndRoundTripsAtLengthBoundaries) {

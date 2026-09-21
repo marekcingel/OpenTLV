@@ -8,7 +8,7 @@ fn parses_multiple_entries() {
     let entries: Vec<_> = Reader::new(&data).collect::<Result<_, _>>().unwrap();
 
     assert_eq!(entries.len(), 3);
-    assert_eq!(entries[0].tag(), &Tag::from_bytes(&[0x01]).unwrap());
+    assert_eq!(entries[0].tag(), &Tag::from_bytes(&[0x01]));
     assert_eq!(entries[0].value(), b"abc");
     assert_eq!(entries[1].tag().as_bytes(), &[0x02]);
     assert!(entries[1].value().is_empty());

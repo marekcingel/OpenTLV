@@ -23,7 +23,7 @@ tlv_visit_result_t count_element(const tlv_view_t*, void* context) {
 
 tlv_result_t empty_header(const void*, const uint8_t*, size_t, tlv_tag_t* tag, size_t* header,
                           size_t* value, size_t* trailer) {
-    *tag = tlv_tag_t{{1}, 1};
+    *tag = TLV_TAG(1);
     *header = 0;
     *value = 0;
     *trailer = 0;
@@ -75,7 +75,7 @@ TEST(Unit_BluetoothLtv, AcceptsEmptyAndMaximumValues) {
 }
 
 TEST(Unit_BluetoothLtv, RejectsZeroLengthAndTruncation) {
-    tlv_view_t    view = {tlv_tag_t{{0xEE}, 1}, {nullptr, 42}};
+    tlv_view_t    view = {TLV_TAG(0xEE), {nullptr, 42}};
     size_t        consumed = 42;
     const uint8_t zero[] = {0x00, 0x00};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
@@ -90,7 +90,7 @@ TEST(Unit_BluetoothLtv, RejectsZeroLengthAndTruncation) {
 }
 
 TEST(Unit_BluetoothLtv, WritesLengthBeforeType) {
-    const tlv_tag_t tag = {{0x09}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x09);
     const uint8_t   value[] = {'H', 'i'};
     uint8_t         out[8] = {};
     size_t          written = 0;
@@ -107,7 +107,7 @@ TEST(Unit_BluetoothLtv, WriterEnforcesLimitsWithoutWriting) {
     uint8_t         out[300];
     uint8_t         value[300] = {};
     size_t          written = 0;
-    const tlv_tag_t tag = {{0x01}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x01);
     std::memset(out, 0xEE, sizeof(out));
     EXPECT_EQ(TLV_OK, tlv_write(out, sizeof(out), &writer_format, tag, value, 254, &written));
     EXPECT_EQ(256u, written);
@@ -115,10 +115,10 @@ TEST(Unit_BluetoothLtv, WriterEnforcesLimitsWithoutWriting) {
     std::memset(out, 0xEE, sizeof(out));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_write(out, sizeof(out), &writer_format, tag, value, 255, &written));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_write(out, sizeof(out), &writer_format,
-                                                  tlv_tag_t{{1, 2}, 2}, value, 1, &written));
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
-              tlv_write(out, sizeof(out), &writer_format, tlv_tag_t{{0}, 0}, value, 1, &written));
+              tlv_write(out, sizeof(out), &writer_format, TLV_TAG(1, 2), value, 1, &written));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+              tlv_write(out, sizeof(out), &writer_format, tlv_tag(nullptr, 0), value, 1, &written));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write(out, 3, &writer_format, tag, value, 2, &written));
     EXPECT_EQ(4u, written);
     for (size_t i = 0; i < sizeof(out); ++i) EXPECT_EQ(0xEE, out[i]);
@@ -130,9 +130,9 @@ TEST(Unit_BluetoothLtv, WriterRoundTripsThroughReader) {
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buffer, sizeof(buffer), &writer_format));
     const uint8_t flags[] = {0x06};
     const uint8_t name[] = {'H', 'i'};
-    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tlv_tag_t{{0x01}, 1}, flags, 1));
-    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tlv_tag_t{{0x09}, 1}, name, 2));
-    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tlv_tag_t{{0x0A}, 1}, nullptr, 0));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, TLV_TAG(0x01), flags, 1));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, TLV_TAG(0x09), name, 2));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, TLV_TAG(0x0A), nullptr, 0));
     const uint8_t expected[] = {0x02, 0x01, 0x06, 0x03, 0x09, 'H', 'i', 0x01, 0x0A};
     ASSERT_EQ(sizeof(expected), tlv_writer_size(&writer));
     EXPECT_EQ(0, std::memcmp(expected, buffer, sizeof(expected)));
@@ -151,7 +151,7 @@ TEST(Unit_BluetoothLtv, WriterRoundTripsThroughReader) {
 TEST(Unit_BluetoothLtv, GenericScannerWalkerAndTreeWalkWork) {
     tlv_view_t               view;
     size_t                   offset = 0, consumed = 0;
-    const tlv_schema_entry_t entries[] = {{tlv_tag_t{{0x09}, 1}, 0, 8, 0}};
+    const tlv_schema_entry_t entries[] = {{TLV_TAG(0x09), 0, 8, 0}};
     const tlv_schema_t       schema = {entries, 1};
     ASSERT_EQ(TLV_OK, tlv_scan(advertising, sizeof(advertising), 0, &reader_format, &schema, &view,
                                &offset, &consumed));

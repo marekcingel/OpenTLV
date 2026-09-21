@@ -68,20 +68,34 @@ Outcome walk(const char* text, const std::vector<uint8_t>& input = data,
 TEST(Unit_Query, ParsesTagsInEitherCase) {
     const tlv_query_t query = parse("6F/a5/50");
     ASSERT_EQ(3u, query.count);
-    EXPECT_EQ(0x6F, query.steps[0].data[0]);
-    EXPECT_EQ(1, query.steps[0].size);
-    EXPECT_EQ(0xA5, query.steps[1].data[0]);
-    EXPECT_EQ(0x50, query.steps[2].data[0]);
+    EXPECT_EQ(0x6F, tlv_query_step(&query, 0).data[0]);
+    EXPECT_EQ(1u, tlv_query_step(&query, 0).size);
+    EXPECT_EQ(0xA5, tlv_query_step(&query, 1).data[0]);
+    EXPECT_EQ(0x50, tlv_query_step(&query, 2).data[0]);
     EXPECT_EQ(1u, parse("00").count);
-#if TLV_TAG_CAPACITY >= 2
     const tlv_query_t wide = parse("9f02/DF8101");
-    EXPECT_EQ(2, wide.steps[0].size);
-    EXPECT_EQ(0x9F, wide.steps[0].data[0]);
-    EXPECT_EQ(0x02, wide.steps[0].data[1]);
-#endif
-#if TLV_TAG_CAPACITY >= 3
-    EXPECT_EQ(3, parse("DF8101").steps[0].size);
-#endif
+    EXPECT_EQ(2u, tlv_query_step(&wide, 0).size);
+    EXPECT_EQ(0x9F, tlv_query_step(&wide, 0).data[0]);
+    EXPECT_EQ(0x02, tlv_query_step(&wide, 0).data[1]);
+    EXPECT_EQ(3u, tlv_query_step(&wide, 1).size);
+    // Steps past the end are empty.
+    EXPECT_EQ(0u, tlv_query_step(&wide, 2).size);
+    EXPECT_EQ(0u, tlv_query_step(nullptr, 0).size);
+}
+
+TEST(Unit_Query, TagsOfAnyLengthAreKeptWithinTheTotalByteLimit) {
+    // Tags longer than any built-in format accepts still parse; only the total is limited.
+    std::string twelve;
+    for (int i = 0; i < 12; ++i) twelve += "AB";
+    const tlv_query_t query = parse((twelve + "/6F").c_str());
+    ASSERT_EQ(2u, query.count);
+    EXPECT_EQ(12u, tlv_query_step(&query, 0).size);
+    EXPECT_EQ(0xAB, tlv_query_step(&query, 0).data[11]);
+    EXPECT_EQ(1u, tlv_query_step(&query, 1).size);
+    // A query is a value: copies stay valid and independent.
+    tlv_query_t copy = query;
+    EXPECT_TRUE(tlv_tag_equal(tlv_query_step(&copy, 0), tlv_query_step(&query, 0)));
+    EXPECT_NE(tlv_query_step(&copy, 0).data, tlv_query_step(&query, 0).data);
 }
 
 TEST(Unit_Query, RejectsSyntaxErrorsAtTheOffendingPosition) {
@@ -107,10 +121,14 @@ TEST(Unit_Query, RejectsInvalidArgumentsAndLimits) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_query_parse("6F", nullptr, nullptr));
 
     std::string wide;
-    for (int i = 0; i <= TLV_TAG_CAPACITY; ++i) wide += "AB";
+    for (int i = 0; i <= TLV_QUERY_MAX_BYTES; ++i) wide += "AB";
     size_t offset = 99;
-    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_query_parse(("6F/" + wide).c_str(), &query, &offset));
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_query_parse(("6F/" + wide).c_str(), &query, &offset));
     EXPECT_EQ(3u, offset);
+    std::string exact;
+    for (int i = 0; i < TLV_QUERY_MAX_BYTES; ++i) exact += "AB";
+    EXPECT_EQ(TLV_OK, tlv_query_parse(exact.c_str(), &query, nullptr));
+    EXPECT_EQ(static_cast<size_t>(TLV_QUERY_MAX_BYTES), tlv_query_step(&query, 0).size);
 
     std::string deepest = "6F";
     for (int i = 1; i < TLV_QUERY_MAX_STEPS; ++i) deepest += "/6F";
@@ -132,9 +150,9 @@ TEST(Unit_Query, MatcherRejectsInvalidQueries) {
     query.count = TLV_QUERY_MAX_STEPS + 1;
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_matcher_init(&matcher, &query));
     query = parse("6F");
-    query.steps[0].size = 0;
+    query.ends[0] = 0; // An empty step.
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_query_matcher_init(&matcher, &query));
-    query.steps[0].size = TLV_TAG_CAPACITY + 1;
+    query.ends[0] = TLV_QUERY_MAX_BYTES + 1; // A step beyond the stored bytes.
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_query_matcher_init(&matcher, &query));
 }
 
@@ -142,7 +160,7 @@ TEST(Unit_Query, MatcherFollowsAPreorderTraversal) {
     const tlv_query_t   query = parse("01/02");
     tlv_query_matcher_t matcher;
     ASSERT_EQ(TLV_OK, tlv_query_matcher_init(&matcher, &query));
-    const tlv_tag_t t1 = {{1}, 1}, t2 = {{2}, 1}, t3 = {{3}, 1};
+    const tlv_tag_t t1 = TLV_TAG(1), t2 = TLV_TAG(2), t3 = TLV_TAG(3);
     EXPECT_EQ(0, tlv_query_matcher_visit(&matcher, &t2, 0)); // Wrong top-level tag.
     EXPECT_EQ(0, tlv_query_matcher_visit(&matcher, &t2, 1)); // Child of an unmatched element.
     EXPECT_EQ(0, tlv_query_matcher_visit(&matcher, &t1, 0));

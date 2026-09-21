@@ -10,7 +10,7 @@ TEST(Integration_Fixed1Byte, ExampleWireBytes) {
     uint8_t       data[sizeof(expected)] = {};
     tlv_writer_t  writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &tlv_writer_format_fixed_1byte));
-    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{1}, 1}), expected + 2, 3));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(1)), expected + 2, 3));
     EXPECT_EQ(sizeof(expected), tlv_writer_size(&writer));
     EXPECT_EQ(0, std::memcmp(expected, data, sizeof(data)));
 }
@@ -24,9 +24,10 @@ TEST(Integration_Fixed1Byte, EveryTagAndLengthRoundTrip) {
         tlv_writer_t writer;
         ASSERT_EQ(TLV_OK,
                   tlv_writer_init(&writer, data, sizeof(data), &tlv_writer_format_fixed_1byte));
-        const tlv_tag_t tag = {{static_cast<uint8_t>(byte)}, 1};
+        const uint8_t   tag_byte = static_cast<uint8_t>(byte);
+        const tlv_tag_t tag = tlv_tag(&tag_byte, 1);
         ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, value, byte));
-        ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0}, 1}), nullptr, 0));
+        ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0)), nullptr, 0));
         EXPECT_EQ(byte + 4, tlv_writer_size(&writer));
         EXPECT_EQ(byte, data[0]);
         EXPECT_EQ(byte, data[1]);

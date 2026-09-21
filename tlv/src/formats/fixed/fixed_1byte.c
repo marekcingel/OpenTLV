@@ -6,8 +6,7 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
                              size_t* consumed) {
     (void)context;
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    *tag = (tlv_tag_t){{0}, 1};
-    tag->data[0] = data[0];
+    *tag = tlv_tag(data, 1);
     *consumed = 1;
     return TLV_OK;
 }
@@ -16,6 +15,7 @@ static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacit
                               const tlv_tag_t* tag, size_t* written) {
     (void)context;
     if (tag->size != 1) return TLV_ERR_INVALID_TAG_SIZE;
+    if (!tag->data) return TLV_ERR_NULL_ARG;
     *written = 1;
     if (!data) return TLV_OK;
     if (!capacity) return TLV_ERR_BUFFER_TOO_SHORT;

@@ -1,138 +1,84 @@
 //! The TLV tag type.
 
 use std::fmt;
-use std::hash::{Hash, Hasher};
+use std::ptr;
+use std::slice;
 
 use opentlv_sys as sys;
 
 use crate::error::{Error, Result};
 
-/// Byte order of a multi-byte integer.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub enum ByteOrder {
-    /// Most significant byte first.
-    BigEndian,
-    /// Least significant byte first.
-    LittleEndian,
-}
-
-impl ByteOrder {
-    fn to_raw(self) -> sys::tlv_byte_order_t {
-        match self {
-            ByteOrder::BigEndian => sys::TLV_BYTE_ORDER_BIG_ENDIAN,
-            ByteOrder::LittleEndian => sys::TLV_BYTE_ORDER_LITTLE_ENDIAN,
-        }
-    }
-}
-
-/// A TLV tag: up to [`Tag::CAPACITY`] raw bytes in wire order.
+/// A TLV tag: an arbitrary sequence of raw bytes in wire order.
 ///
-/// A tag owns its bytes and is `Copy`. Whether the bytes form a valid tag for
-/// a particular format or profile is a separate question; this type only
-/// enforces the size limit. Tags compare equal when their bytes are equal.
-#[derive(Clone, Copy)]
+/// A tag owns its bytes and has no length limit. Whether the bytes form a valid
+/// tag, and how long a tag may be, is decided by the [`Format`](crate::Format)
+/// or profile a tag is used with, and which tags are allowed is decided by a
+/// schema. Tags compare equal when their bytes are equal and are ordered
+/// lexicographically by their bytes.
+///
+/// The C library's `tlv_tag_t` only borrows its bytes. This type owns them, so
+/// a tag can be stored in a schema or kept after the input it came from is
+/// gone; it is cloned, not copied.
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Tag {
-    raw: sys::tlv_tag_t,
+    bytes: Vec<u8>,
 }
 
 impl Tag {
-    /// Maximum number of bytes a tag can hold.
-    pub const CAPACITY: usize = sys::TLV_TAG_CAPACITY;
-
-    fn empty_raw() -> sys::tlv_tag_t {
-        sys::tlv_tag_t {
-            data: [0; sys::TLV_TAG_CAPACITY],
-            size: 0,
-        }
-    }
-
     /// Creates a tag from raw bytes in wire order.
     ///
-    /// # Errors
-    ///
-    /// [`Error::InvalidTagSize`] if `bytes` is longer than [`Tag::CAPACITY`].
-    pub fn from_bytes(bytes: &[u8]) -> Result<Tag> {
-        let mut raw = Self::empty_raw();
-        // SAFETY: `bytes` is a valid slice of `bytes.len()` readable bytes and
-        // `raw` is a valid, writable `tlv_tag_t`.
-        let code = unsafe { sys::tlv_tag_from_bytes(bytes.as_ptr(), bytes.len(), &mut raw) };
-        Error::check(code)?;
-        Ok(Tag { raw })
-    }
-
-    /// Creates a tag of exactly `size` bytes holding the numeric `value`.
-    ///
-    /// Unused most-significant bytes are zero. For example, `0x9F02` with size
-    /// 2 and [`ByteOrder::BigEndian`] is the bytes `9F 02`.
-    ///
-    /// # Errors
-    ///
-    /// [`Error::InvalidTagSize`] if `size` is 0 or above the supported range;
-    /// [`Error::Overflow`] if `value` does not fit in `size` bytes.
-    pub fn from_u64(value: u64, size: usize, order: ByteOrder) -> Result<Tag> {
-        let mut raw = Self::empty_raw();
-        // SAFETY: `raw` is a valid, writable `tlv_tag_t`.
-        let code = unsafe { sys::tlv_tag_from_u64(value, size, order.to_raw(), &mut raw) };
-        Error::check(code)?;
-        Ok(Tag { raw })
-    }
-
-    /// Validates a raw tag received from the C library and normalizes it.
-    pub(crate) fn from_raw(raw: &sys::tlv_tag_t) -> Result<Tag> {
-        let size = usize::from(raw.size);
-        match raw.data.get(..size) {
-            Some(bytes) => Tag::from_bytes(bytes),
-            None => Err(Error::InvalidTagSize),
+    /// There is no size limit; the bytes are not validated against any format.
+    pub fn from_bytes(bytes: &[u8]) -> Tag {
+        Tag {
+            bytes: bytes.to_vec(),
         }
     }
 
-    /// Returns the underlying C tag, for passing by value to the C library.
+    /// Copies a tag received from the C library.
+    ///
+    /// # Safety
+    ///
+    /// If `raw.data` is non-null, it must point to `raw.size` readable bytes.
+    pub(crate) unsafe fn from_raw(raw: &sys::tlv_tag_t) -> Result<Tag> {
+        if raw.size == 0 {
+            return Ok(Tag::default());
+        }
+        if raw.data.is_null() {
+            return Err(Error::NullArg);
+        }
+        // SAFETY: non-null, and the caller guarantees `raw.size` readable bytes.
+        Ok(Tag::from_bytes(unsafe {
+            slice::from_raw_parts(raw.data, raw.size)
+        }))
+    }
+
+    /// Returns a C tag that borrows this tag's bytes.
+    ///
+    /// The result must not outlive `self` or be used after `self` changes.
     pub(crate) fn raw(&self) -> sys::tlv_tag_t {
-        self.raw
+        sys::tlv_tag_t {
+            data: if self.bytes.is_empty() {
+                ptr::null()
+            } else {
+                self.bytes.as_ptr()
+            },
+            size: self.bytes.len(),
+        }
     }
 
     /// Returns the tag bytes in wire order.
     pub fn as_bytes(&self) -> &[u8] {
-        &self.raw.data[..usize::from(self.raw.size)]
+        &self.bytes
     }
 
     /// Returns the number of bytes in the tag.
     pub fn len(&self) -> usize {
-        usize::from(self.raw.size)
+        self.bytes.len()
     }
 
     /// Returns `true` if the tag has no bytes.
     pub fn is_empty(&self) -> bool {
-        self.raw.size == 0
-    }
-
-    /// Interprets the tag bytes as an unsigned integer with the given byte order.
-    ///
-    /// This is a plain integer read, not a BER tag-number decode.
-    ///
-    /// # Errors
-    ///
-    /// [`Error::InvalidTagSize`] for an empty tag or one longer than 8 bytes.
-    pub fn to_u64(&self, order: ByteOrder) -> Result<u64> {
-        let mut value = 0u64;
-        // SAFETY: both pointers refer to valid, live locals/fields.
-        let code = unsafe { sys::tlv_tag_to_u64(&self.raw, order.to_raw(), &mut value) };
-        Error::check(code)?;
-        Ok(value)
-    }
-}
-
-impl PartialEq for Tag {
-    fn eq(&self, other: &Tag) -> bool {
-        self.as_bytes() == other.as_bytes()
-    }
-}
-
-impl Eq for Tag {}
-
-impl Hash for Tag {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.as_bytes().hash(state);
+        self.bytes.is_empty()
     }
 }
 
@@ -142,11 +88,15 @@ impl AsRef<[u8]> for Tag {
     }
 }
 
-impl TryFrom<&[u8]> for Tag {
-    type Error = Error;
-
-    fn try_from(bytes: &[u8]) -> Result<Tag> {
+impl From<&[u8]> for Tag {
+    fn from(bytes: &[u8]) -> Tag {
         Tag::from_bytes(bytes)
+    }
+}
+
+impl From<Vec<u8>> for Tag {
+    fn from(bytes: Vec<u8>) -> Tag {
+        Tag { bytes }
     }
 }
 
@@ -172,7 +122,7 @@ mod tests {
 
     #[test]
     fn from_bytes_keeps_wire_order() {
-        let tag = Tag::from_bytes(&[0x9F, 0x02]).unwrap();
+        let tag = Tag::from_bytes(&[0x9F, 0x02]);
         assert_eq!(tag.as_bytes(), &[0x9F, 0x02]);
         assert_eq!(tag.len(), 2);
         assert!(!tag.is_empty());
@@ -180,93 +130,97 @@ mod tests {
 
     #[test]
     fn empty_tag_is_allowed() {
-        let tag = Tag::from_bytes(&[]).unwrap();
+        let tag = Tag::from_bytes(&[]);
         assert!(tag.is_empty());
         assert_eq!(tag.as_bytes(), &[] as &[u8]);
+        assert_eq!(tag, Tag::default());
     }
 
     #[test]
-    fn full_capacity_is_allowed_and_more_is_rejected() {
-        let bytes = [0xAB; Tag::CAPACITY + 1];
-        assert!(Tag::from_bytes(&bytes[..Tag::CAPACITY]).is_ok());
-        assert_eq!(Tag::from_bytes(&bytes), Err(Error::InvalidTagSize));
-    }
-
-    #[test]
-    fn from_u64_pads_and_orders_bytes() {
-        let big = Tag::from_u64(0x9F02, 3, ByteOrder::BigEndian).unwrap();
-        assert_eq!(big.as_bytes(), &[0x00, 0x9F, 0x02]);
-        let little = Tag::from_u64(0x9F02, 2, ByteOrder::LittleEndian).unwrap();
-        assert_eq!(little.as_bytes(), &[0x02, 0x9F]);
-    }
-
-    #[test]
-    fn from_u64_reports_errors() {
-        assert_eq!(
-            Tag::from_u64(0x1_0000, 2, ByteOrder::BigEndian),
-            Err(Error::Overflow)
-        );
-        assert_eq!(
-            Tag::from_u64(1, 0, ByteOrder::BigEndian),
-            Err(Error::InvalidTagSize)
-        );
-        assert_eq!(
-            Tag::from_u64(1, Tag::CAPACITY + 1, ByteOrder::BigEndian),
-            Err(Error::InvalidTagSize)
-        );
-    }
-
-    #[test]
-    fn to_u64_round_trips() {
-        let tag = Tag::from_bytes(&[0x9F, 0x02]).unwrap();
-        assert_eq!(tag.to_u64(ByteOrder::BigEndian), Ok(0x9F02));
-        assert_eq!(tag.to_u64(ByteOrder::LittleEndian), Ok(0x029F));
-    }
-
-    #[test]
-    fn to_u64_rejects_empty_and_oversized_tags() {
-        let empty = Tag::from_bytes(&[]).unwrap();
-        assert_eq!(
-            empty.to_u64(ByteOrder::BigEndian),
-            Err(Error::InvalidTagSize)
-        );
-        if Tag::CAPACITY > 8 {
-            let long = Tag::from_bytes(&[1; 9]).unwrap();
-            assert_eq!(
-                long.to_u64(ByteOrder::BigEndian),
-                Err(Error::InvalidTagSize)
-            );
+    fn tags_have_no_length_limit() {
+        for size in [1, 8, 9, 12, 255, 256, 1000] {
+            let bytes = vec![0xAB; size];
+            let tag = Tag::from_bytes(&bytes);
+            assert_eq!(tag.len(), size);
+            assert_eq!(tag.as_bytes(), bytes.as_slice());
         }
     }
 
     #[test]
-    fn equality_and_hash_use_bytes_only() {
-        let a = Tag::from_bytes(&[0x5F, 0x2A]).unwrap();
-        let b = Tag::try_from(&[0x5F, 0x2A][..]).unwrap();
-        let c = Tag::from_bytes(&[0x5F]).unwrap();
+    fn equality_ordering_and_hash_use_bytes_only() {
+        let a = Tag::from_bytes(&[0x5F, 0x2A]);
+        let b = Tag::from(&[0x5F, 0x2A][..]);
+        let c = Tag::from_bytes(&[0x5F]);
         assert_eq!(a, b);
         assert_ne!(a, c);
+        // Lexicographic: a prefix orders first, and bytes are unsigned.
+        assert!(c < a);
+        assert!(Tag::from_bytes(&[0x7F]) < Tag::from_bytes(&[0x80]));
         let set: HashSet<Tag> = [a, b, c].into_iter().collect();
         assert_eq!(set.len(), 2);
     }
 
     #[test]
+    fn ordering_matches_the_c_comparison() {
+        let cases: [(&[u8], &[u8]); 5] = [
+            (&[0x9F, 0x02], &[0x9F, 0x03]),
+            (&[0x9F], &[0x9F, 0x00]),
+            (&[], &[0x00]),
+            (&[0x7F], &[0x80]),
+            (
+                &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13],
+            ),
+        ];
+        for (lhs, rhs) in cases {
+            let (l, r) = (Tag::from_bytes(lhs), Tag::from_bytes(rhs));
+            // SAFETY: both tags borrow live `Tag`s for the calls.
+            let (c_order, c_equal) = unsafe {
+                (
+                    sys::tlv_tag_compare(l.raw(), r.raw()),
+                    sys::tlv_tag_equal(l.raw(), r.raw()),
+                )
+            };
+            assert_eq!(l.cmp(&r), c_order.cmp(&0), "{lhs:?} vs {rhs:?}");
+            assert_eq!(l == r, c_equal);
+        }
+    }
+
+    #[test]
     fn formats_as_hex() {
-        let tag = Tag::from_bytes(&[0x9F, 0x02]).unwrap();
+        let tag = Tag::from_bytes(&[0x9F, 0x02]);
         assert_eq!(tag.to_string(), "9F02");
         assert_eq!(format!("{tag:?}"), "Tag(9F02)");
     }
 
     #[test]
-    fn from_raw_normalizes_and_validates() {
-        let mut raw = Tag::empty_raw();
-        raw.data = [0x11; Tag::CAPACITY];
-        raw.size = 2;
-        let tag = Tag::from_raw(&raw).unwrap();
-        assert_eq!(tag.as_bytes(), &[0x11, 0x11]);
-        assert_eq!(tag, Tag::from_bytes(&[0x11, 0x11]).unwrap());
+    fn raw_borrows_the_bytes_and_from_raw_copies_them() {
+        let tag = Tag::from_bytes(&[0x11, 0x22, 0x33]);
+        let raw = tag.raw();
+        assert_eq!(raw.size, 3);
+        assert_eq!(raw.data, tag.as_bytes().as_ptr());
+        // SAFETY: `raw` borrows `tag`, which is alive.
+        let copy = unsafe { Tag::from_raw(&raw) }.unwrap();
+        assert_eq!(copy, tag);
+        assert_ne!(copy.as_bytes().as_ptr(), tag.as_bytes().as_ptr());
+    }
 
-        raw.size = u8::try_from(Tag::CAPACITY + 1).unwrap();
-        assert_eq!(Tag::from_raw(&raw), Err(Error::InvalidTagSize));
+    #[test]
+    fn empty_tags_use_a_null_pointer() {
+        let raw = Tag::default().raw();
+        assert!(raw.data.is_null());
+        assert_eq!(raw.size, 0);
+        // SAFETY: a null pointer with zero size is valid.
+        assert_eq!(unsafe { Tag::from_raw(&raw) }, Ok(Tag::default()));
+    }
+
+    #[test]
+    fn from_raw_rejects_null_data_with_a_size() {
+        let raw = sys::tlv_tag_t {
+            data: ptr::null(),
+            size: 2,
+        };
+        // SAFETY: the null pointer is rejected before any read.
+        assert_eq!(unsafe { Tag::from_raw(&raw) }, Err(Error::NullArg));
     }
 }

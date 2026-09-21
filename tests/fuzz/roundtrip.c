@@ -1,5 +1,9 @@
 #include "formats.h"
 
+/* Candidate tags up to this size are tried, which reaches past the longest tag any format accepts.
+ */
+#define FUZZ_MAX_TAG_SIZE 16
+
 static void check_roundtrip(size_t format, tlv_tag_t tag, const uint8_t* value, size_t length) {
     size_t       total = SIZE_MAX, written = SIZE_MAX, consumed = SIZE_MAX;
     tlv_result_t rc = tlv_encoded_size(tag, length, fuzz_formats[format].writer, &total);
@@ -7,7 +11,7 @@ static void check_roundtrip(size_t format, tlv_tag_t tag, const uint8_t* value, 
         FUZZ_CHECK(total == SIZE_MAX);
         return;
     }
-    FUZZ_CHECK(total >= length && total - length <= TLV_TAG_CAPACITY + sizeof(size_t) + 2);
+    FUZZ_CHECK(total >= length && total - length <= FUZZ_MAX_TAG_SIZE + sizeof(size_t) + 2);
     FUZZ_CHECK(total > 0);
     uint8_t* encoded = (uint8_t*)malloc(total);
     FUZZ_CHECK(encoded != NULL);
@@ -32,16 +36,14 @@ static void check_roundtrip(size_t format, tlv_tag_t tag, const uint8_t* value, 
 }
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-    tlv_tag_t tag = {{0}, 0};
-    size_t    tag_size = size ? data[0] % (TLV_TAG_CAPACITY + 1) : 0;
+    size_t tag_size = size ? data[0] % (FUZZ_MAX_TAG_SIZE + 1) : 0;
     if (size && tag_size > size - 1) tag_size = size - 1;
-    tag.size = (uint8_t)tag_size;
-    if (tag_size) memcpy(tag.data, data + 1, tag_size);
-    size_t prefix = size ? 1 + tag_size : 0;
+    tlv_tag_t tag = tag_size ? tlv_tag(data + 1, tag_size) : tlv_tag(NULL, 0);
+    size_t    prefix = size ? 1 + tag_size : 0;
     for (size_t i = 0; fuzz_formats[i].reader; ++i) {
         check_roundtrip(i, tag, data + prefix, size - prefix);
         /* Always exercise successful writes, even when the random tag is invalid. */
-        tlv_tag_t primitive = {{0x04}, 1};
+        tlv_tag_t primitive = TLV_TAG(0x04);
         check_roundtrip(i, primitive, data, size);
     }
     return 0;

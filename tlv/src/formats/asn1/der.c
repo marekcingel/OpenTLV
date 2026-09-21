@@ -33,7 +33,8 @@ static tlv_result_t der_write_tag(const void* context, uint8_t* data, size_t cap
     tlv_tag_t parsed;
     size_t count;
     tlv_result_t rc;
-    if (!tag->size || tag->size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
+    if (!tag->size || tag->size > TLV_ASN1_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG_SIZE;
+    if (!tag->data) return TLV_ERR_NULL_ARG;
     rc = der_read_tag(context, tag->data, tag->size, &parsed, &count);
     if (rc == TLV_ERR_INVALID_TAG_SIZE) return rc;
     if (rc != TLV_OK || count != tag->size) return TLV_ERR_INVALID_TAG;
@@ -71,33 +72,34 @@ const tlv_writer_format_t tlv_writer_format_der = {.context = NULL,
                                                    .length_size = der_length_size};
 
 tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
-                              tlv_tag_t* tag) {
-    tlv_tag_t result = {{0}, 1};
+                              uint8_t* storage, tlv_tag_t* tag) {
+    uint8_t bytes[TLV_ASN1_TAG_MAX_SIZE] = {0};
+    tlv_tag_t result = tlv_tag(bytes, 1);
     size_t written;
-    if (!tag) return TLV_ERR_NULL_ARG;
+    if (!storage || !tag) return TLV_ERR_NULL_ARG;
     if ((unsigned)tag_class > (unsigned)TLV_ASN1_PRIVATE || (constructed != 0 && constructed != 1))
         return TLV_ERR_INVALID_TAG;
-    result.data[0] = (uint8_t)(((unsigned)tag_class << TLV_ASN1_CLASS_SHIFT) |
-                               (constructed ? TLV_ASN1_CONSTRUCTED_BIT : 0));
+    bytes[0] = (uint8_t)(((unsigned)tag_class << TLV_ASN1_CLASS_SHIFT) |
+                         (constructed ? TLV_ASN1_CONSTRUCTED_BIT : 0));
     if (number < TLV_ASN1_LOW_TAG_LIMIT)
-        result.data[0] |= (uint8_t)number;
+        bytes[0] |= (uint8_t)number;
     else {
         uint8_t digits[10];
         size_t count = 0;
-        result.data[0] |= TLV_ASN1_TAG_NUMBER_MASK;
+        bytes[0] |= TLV_ASN1_TAG_NUMBER_MASK;
         do {
             digits[count++] = (uint8_t)(number & TLV_BER_TAG_DIGIT_MASK);
             number >>= TLV_BER_TAG_DIGIT_BITS;
         } while (number);
-        if (count + 1 > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
-        result.size = (uint8_t)(count + 1);
+        if (count + 1 > TLV_ASN1_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG_SIZE;
+        result.size = count + 1;
         for (size_t i = 0; i < count; ++i)
-            result.data[i + 1] =
-                (uint8_t)(digits[count - i - 1] |
-                          (i + 1 < count ? TLV_BER_TAG_DIGIT_CONTINUATION_BIT : 0));
+            bytes[i + 1] = (uint8_t)(digits[count - i - 1] |
+                                     (i + 1 < count ? TLV_BER_TAG_DIGIT_CONTINUATION_BIT : 0));
     }
     if (der_write_tag(NULL, NULL, 0, &result, &written) != TLV_OK) return TLV_ERR_INVALID_TAG;
-    *tag = result;
+    memcpy(storage, bytes, result.size);
+    *tag = tlv_tag(storage, result.size);
     return TLV_OK;
 }
 

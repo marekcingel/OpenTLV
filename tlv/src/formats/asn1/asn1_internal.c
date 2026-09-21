@@ -27,7 +27,8 @@ tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data, size_
     tlv_tag_t parsed;
     size_t count;
     tlv_result_t rc;
-    if (!tag->size || tag->size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
+    if (!tag->size || tag->size > TLV_ASN1_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG_SIZE;
+    if (!tag->data) return TLV_ERR_NULL_ARG;
     rc = tlv_asn1_read_identifier(context, tag->data, tag->size, &parsed, &count);
     if (rc == TLV_ERR_INVALID_TAG_SIZE) return rc;
     if (rc != TLV_OK || count != tag->size) return TLV_ERR_INVALID_TAG;

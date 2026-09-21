@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **Breaking:** Remove `TLV_TAG_CAPACITY`, `tlv_tag_from_bytes()`, `tlv_tag_equal_bytes()` and the numeric `tlv_tag_to_u*()`, `tlv_tag_from_u*()` and `tlv_tag_equal_u*()`; use `tlv_tag()` and `tlv_tag_equal()` instead, and the Rust `Tag` loses `ByteOrder`, `from_u64` and `to_u64`. (#256)
+
 ### Added
 
+- Add `tlv_tag()` and `TLV_TAG(...)` to build tags from runtime or literal bytes, `tlv_tag_equal()` and `tlv_tag_compare()` for value-like comparison by contents, `tlv_query_step()` to read a query tag, and `TLV_ASN1_TAG_MAX_SIZE` for the tag length limit of BER, CER and DER; see [Tags are borrowed](docs/concepts/core-types.md#tags-are-borrowed). (#256)
 - Add path queries such as `6F/A5/50`: `tlv_query_parse()` and `tlv_query_walk()` (and `tlv::query`) address nested elements by their tags without allocating, and the new `otlv query` command prints the matches with `--value` or `--output json` and exits with code 5 when nothing matches; see [Path queries](docs/guides/queries.md). (#251)
 - Add `tlv_schema_validate_all()` (and `tlv::validate_all`), which checks template contents against a structure schema and reports every violation with its path, such as `70/77/9F36`, and byte offset; see [Reporting every violation](docs/guides/schemas.md#reporting-every-violation). (#57)
 - Add an ABI Compatibility CI check that compares the `tlv` C shared library with a stored `abidw` baseline and reports incompatible changes, without failing before 1.0.0; see [C ABI compatibility](docs/development/abi-compatibility.md). (#19)
@@ -32,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Change `tlv_tag_t` to a borrowed pointer and size with no length limit, so tags of any length work without rebuilding OpenTLV; tags read from input now reference the input buffer, `tlv_tag_equal()` takes tags by value and returns `bool`, `tlv_der_tag_make()` and `tlv_cer_tag_make()` take caller-provided storage, `tlv_query_t` no longer exposes `steps` (use `tlv_query_step()`), and the Rust `Tag` is no longer `Copy`; see [Memory ownership](docs/guides/memory.md#tags). (#256)
 - Speed up CI with three levels: minimal checks on pull requests (plus the required CodeQL scan with a smaller query set and no examples), a lighter set after merge to `main` and the full validation on release and `-rc` tags; see the [development workflow](docs/development/workflow.md). (#231)
 - Move to a trunk-based workflow: `main` is the only long-lived branch, the `develop` branch is removed, and the `latest` documentation is published from `main`. (#228)
 

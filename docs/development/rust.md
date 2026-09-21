@@ -20,15 +20,16 @@ The `opentlv` crate exposes these safe types; none of them exposes a raw pointer
 
 | Type | Wraps | Notes |
 | --- | --- | --- |
-| `Tag` | `tlv_tag_t` | Owned, `Copy`; built with `from_bytes` or `from_u64`, read with `as_bytes` or `to_u64` |
-| `Entry<'a>` | `tlv_view_t` | A `Tag` plus a value borrowed as `&'a [u8]` |
+| `Tag` | `tlv_tag_t` | Owned bytes of any length, `Clone` but not `Copy`; built with `from_bytes`, read with `as_bytes` |
+| `Entry<'a>` | `tlv_view_t` | A `Tag` (copied out of the input) plus a value borrowed as `&'a [u8]` |
 | `Error` | `tlv_result_t` | One variant per `TLV_ERR_*` code, plus `Unknown(code)`; implements `std::error::Error` |
 | `Result<T>` | | Alias for `std::result::Result<T, Error>` |
-| `ByteOrder` | `tlv_byte_order_t` | Byte order for numeric tag conversions |
 
-`Tag::CAPACITY` mirrors the C `TLV_TAG_CAPACITY` (default 8). The layout of
-`tlv_tag_t` is part of the C ABI, so the bindings only support a library built
-with the default capacity.
+The C `tlv_tag_t` is a borrowed pointer and size (`opentlv_sys::tlv_tag_t`), so
+its layout does not depend on how the library was built. `Tag` owns its bytes
+because the safe API cannot hand out a pointer whose lifetime C does not track;
+it converts to a borrowed C tag only for the duration of each call. A tag has no
+length limit; a format may reject some lengths.
 
 ## Reader
 
@@ -59,7 +60,7 @@ need no `unsafe`.
 ```rust
 let mut buf = [0u8; 64];
 let mut writer = opentlv::Writer::new(&mut buf);
-writer.write(&opentlv::Tag::from_bytes(&[0x01])?, b"abc")?;
+writer.write(&opentlv::Tag::from_bytes(&[0x01]), b"abc")?;
 let encoded: &[u8] = writer.written();
 ```
 
@@ -90,7 +91,7 @@ which tags are constructed) and `ValidationLimits`, and returns
 offset.
 
 ```rust
-let tag = opentlv::Tag::from_bytes(&[0x84])?;
+let tag = opentlv::Tag::from_bytes(&[0x84]);
 let schema = opentlv::StructureSchema::new(
     [opentlv::StructureRule::new(tag).length(5, 16).required_once()],
     false,
@@ -109,7 +110,7 @@ is the amount codec; every other codec comes from the EMV dictionary:
 ```rust
 use opentlv::emv::{self, Context};
 
-let tag = opentlv::Tag::from_bytes(&[0x9A])?;
+let tag = opentlv::Tag::from_bytes(&[0x9A]);
 let definition = emv::find(Context::Base, &tag).unwrap();
 let date = definition.codec().unwrap().decode(&[0x25, 0x12, 0x31])?;
 ```

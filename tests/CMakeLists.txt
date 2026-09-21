@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(tests)
 
 include(format_type_checks.cmake)
-include(tag_configuration_checks.cmake)
+include(tag_layout_checks.cmake)
 include(fixed_format_checks.cmake)
 
 include(FetchContent)

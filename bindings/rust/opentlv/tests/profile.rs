@@ -5,7 +5,7 @@ use opentlv::{
 };
 
 fn tag(bytes: &[u8]) -> Tag {
-    Tag::from_bytes(bytes).unwrap()
+    Tag::from_bytes(bytes)
 }
 
 #[test]

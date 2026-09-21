@@ -59,16 +59,16 @@ static int sequential_io(void) {
     size_t       prebuilt_size;
     puts("\nSequential writer and zero-copy reader (default format)");
     CHECK(tlv_writer_init(&writer, buffer, sizeof(buffer), &tlv_writer_format_default));
-    CHECK(tlv_writer_write(&writer, (tlv_tag_t){{1}, 1}, (const uint8_t*)"hello", 5));
-    CHECK(tlv_writer_write(&writer, (tlv_tag_t){{2}, 1}, (const uint8_t*)"world", 5));
+    CHECK(tlv_writer_write(&writer, TLV_TAG(1), (const uint8_t*)"hello", 5));
+    CHECK(tlv_writer_write(&writer, TLV_TAG(2), (const uint8_t*)"world", 5));
     /* tlv_writer_copy_view appends a view (borrowed value, no ownership transfer)
      * at the writer's current position, serialized with the writer's format. */
-    view.tag = (tlv_tag_t){{3}, 1};
+    view.tag = TLV_TAG(3);
     CHECK(tlv_value_init((const uint8_t*)"copied", 6, &view.value));
     CHECK(tlv_writer_copy_view(&writer, &view));
     /* tlv_writer_copy_encoded appends an exact, already-encoded byte range
      * (e.g. produced separately by tlv_write) without reinterpreting it. */
-    CHECK(tlv_write(prebuilt, sizeof(prebuilt), &tlv_writer_format_default, (tlv_tag_t){{4}, 1},
+    CHECK(tlv_write(prebuilt, sizeof(prebuilt), &tlv_writer_format_default, TLV_TAG(4),
                     (const uint8_t*)"exact", 5, &prebuilt_size));
     CHECK(tlv_writer_copy_encoded(&writer, prebuilt, prebuilt_size));
     printf("Wrote %zu bytes\n", tlv_writer_size(&writer));
@@ -84,7 +84,7 @@ static int sequential_io(void) {
 static int single_element_and_copies(void) {
     uint8_t         input[32], owned[8], exact[32], serialized[32];
     const uint8_t   value[] = {0xAB, 0xCD};
-    const tlv_tag_t tag = {{0x42}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x42);
     tlv_view_t      view;
     size_t          required, encoded_size, consumed, written;
     tlv_result_t    result;
@@ -109,7 +109,9 @@ static int single_element_and_copies(void) {
     printf("Required serialized-view storage: %zu bytes\n", required);
     CHECK(tlv_copy_view(&view, &tlv_writer_format_fixed_1byte, serialized, sizeof(serialized),
                         &written));
-    /* Keep the inline tag; redirect the value to caller-owned storage. */
+    /* The tag and the value both borrow the original input; point them at
+     * storage that outlives it before the input is reused. */
+    view.tag = tag;
     view.value.data = owned;
     memset(input, 0, sizeof(input));
     puts("Value after reusing input:");
@@ -121,14 +123,10 @@ static int single_element_and_copies(void) {
 }
 
 static int ber_format(void) {
-#if TLV_TAG_CAPACITY >= 2
-    const tlv_tag_t tag = {{0x9F, 0x1C}, 2};
-#else
-    const tlv_tag_t tag = {{0x5A}, 1};
-#endif
-    uint8_t    value[128] = {0}, encoded[144];
-    size_t     required, written, consumed;
-    tlv_view_t view;
+    const tlv_tag_t tag = TLV_TAG(0x9F, 0x1C);
+    uint8_t         value[128] = {0}, encoded[144];
+    size_t          required, written, consumed;
+    tlv_view_t      view;
     puts("\nBER: multi-byte tag when supported, long-form length");
     CHECK(tlv_encoded_size(tag, sizeof(value), &tlv_writer_format_ber, &required));
     CHECK(tlv_write(encoded, sizeof(encoded), &tlv_writer_format_ber, tag, value, sizeof(value),
@@ -160,10 +158,10 @@ static int cer_format(void) {
     size_t        required, written, consumed;
     tlv_view_t    view;
     puts("\nCER: nested indefinite-length container");
-    CHECK(tlv_cer_write(NULL, 0, (tlv_tag_t){{0x30}, 1}, integer_child, sizeof(integer_child), NULL,
+    CHECK(tlv_cer_write(NULL, 0, TLV_TAG(0x30), integer_child, sizeof(integer_child), NULL,
                         &required, NULL));
-    CHECK(tlv_cer_write(nested, sizeof(nested), (tlv_tag_t){{0x30}, 1}, integer_child,
-                        sizeof(integer_child), NULL, &written, NULL));
+    CHECK(tlv_cer_write(nested, sizeof(nested), TLV_TAG(0x30), integer_child, sizeof(integer_child),
+                        NULL, &written, NULL));
     CHECK(tlv_cer_read(nested, written, NULL, &view, &consumed, NULL));
     printf("Encoded %zu bytes (tag + 0x80 + child + EOC), consumed %zu\n", written, consumed);
 
@@ -175,8 +173,8 @@ static int cer_format(void) {
         size_t  seg_written, value_size, i;
         for (i = 0; i < sizeof(content); ++i) content[i] = (uint8_t)i;
         puts("CER: segmented OCTET STRING, segments accessed without copying");
-        CHECK(tlv_cer_write_segmented_string(segmented, sizeof(segmented), (tlv_tag_t){{0x04}, 1},
-                                             content, sizeof(content), NULL, &seg_written, NULL));
+        CHECK(tlv_cer_write_segmented_string(segmented, sizeof(segmented), TLV_TAG(0x04), content,
+                                             sizeof(content), NULL, &seg_written, NULL));
         CHECK(tlv_cer_read_strict(segmented, seg_written, NULL, &view, &consumed, NULL));
         printf("Constructed: %d, encoded %zu bytes\n", tlv_cer_tag_is_constructed(&view.tag),
                consumed);
@@ -190,9 +188,12 @@ static int cer_format(void) {
 }
 #endif
 
+/* A schema table holds borrowed tags, so their bytes need static storage. */
+static const uint8_t            tag_one[] = {1};
+static const uint8_t            tag_two[] = {2};
 static const tlv_schema_entry_t schema_entries[] = {
-    {{{1}, 1}, 2, 2, 0}, /* Exact length. */
-    {{{2}, 1}, 0, 4, 0}  /* Inclusive length range. */
+    {{tag_one, sizeof(tag_one)}, 2, 2, 0}, /* Exact length. */
+    {{tag_two, sizeof(tag_two)}, 0, 4, 0}  /* Inclusive length range. */
 };
 static const tlv_schema_t schema = {schema_entries,
                                     sizeof(schema_entries) / sizeof(schema_entries[0])};
@@ -281,8 +282,8 @@ static int codecs_and_endian(void) {
     CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), NULL, 0, &required));
     printf("Codec needs %zu bytes\n", required);
     CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), raw, sizeof(raw), &written));
-    CHECK(tlv_write(encoded, sizeof(encoded), &tlv_writer_format_fixed_1byte, (tlv_tag_t){{3}, 1},
-                    raw, written, &encoded_size));
+    CHECK(tlv_write(encoded, sizeof(encoded), &tlv_writer_format_fixed_1byte, TLV_TAG(3), raw,
+                    written, &encoded_size));
     CHECK(tlv_read(encoded, encoded_size, &tlv_reader_format_fixed_1byte, &view, &consumed));
     {
         size_t value_length;
@@ -341,8 +342,8 @@ static int custom_format(void) {
                                  write_length_le16, length_size_le16));
     /* format and its optional immutable context must outlive their users. */
     puts("\nCustom format: one-byte tag, two-byte little-endian length");
-    CHECK(tlv_write(encoded, sizeof(encoded), &writer_format, (tlv_tag_t){{1}, 1}, value,
-                    sizeof(value), &written));
+    CHECK(tlv_write(encoded, sizeof(encoded), &writer_format, TLV_TAG(1), value, sizeof(value),
+                    &written));
     CHECK(tlv_read(encoded, written, &format, &view, &consumed));
     print_view(&view);
     return 0;

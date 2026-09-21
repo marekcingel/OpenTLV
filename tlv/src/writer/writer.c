@@ -17,7 +17,7 @@ static tlv_result_t encoded_sizes(tlv_tag_t tag, size_t length, const tlv_writer
                                   size_t* tag_size, size_t* length_size, size_t* total) {
     tlv_result_t rc;
     if (!tlv_writer_format_usable(format)) return TLV_ERR_NULL_ARG;
-    if (!tag.size || tag.size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
+    if (tag.size && !tag.data) return TLV_ERR_NULL_ARG;
     if (format->write_header) {
         /* The header is everything before the value, whatever order its fields use. */
         *tag_size = 0;

@@ -62,15 +62,15 @@ Bytes encode_all(const std::vector<Element>& elements) {
     for (const Element& e : elements) {
         size_t size = 0;
         EXPECT_EQ(TLV_OK,
-                  tlv_encoded_size(tlv_tag_t{{e.type}, 1}, e.value.size(), &writer_format, &size));
+                  tlv_encoded_size(tlv_tag(&e.type, 1), e.value.size(), &writer_format, &size));
         total += size;
     }
     Bytes        out(total);
     tlv_writer_t writer;
     EXPECT_EQ(TLV_OK, tlv_writer_init(&writer, out.data(), out.size(), &writer_format));
     for (const Element& e : elements)
-        EXPECT_EQ(TLV_OK, tlv_writer_write(&writer, tlv_tag_t{{e.type}, 1}, e.value.data(),
-                                           e.value.size()));
+        EXPECT_EQ(TLV_OK,
+                  tlv_writer_write(&writer, tlv_tag(&e.type, 1), e.value.data(), e.value.size()));
     EXPECT_EQ(total, tlv_writer_size(&writer));
     return out;
 }
@@ -203,7 +203,7 @@ TEST(Unit_BluetoothLtvConformance, EncodingRejectsValuesAboveMaximum) {
     const Bytes     value(256, 0x11);
     Bytes           out(300, 0xEE);
     size_t          written = 0, size = 99;
-    const tlv_tag_t tag = {{0x09}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x09);
     for (size_t length : {255u, 256u}) {
         EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_encoded_size(tag, length, &writer_format, &size));
         EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write(out.data(), out.size(), &writer_format, tag,

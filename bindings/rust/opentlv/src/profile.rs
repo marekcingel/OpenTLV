@@ -345,7 +345,7 @@ impl Profile {
     /// use opentlv::{Profile, Strictness, Tag};
     ///
     /// let mut out = [0u8; 8];
-    /// let tag = Tag::from_bytes(&[0x04]).unwrap(); // OCTET STRING
+    /// let tag = Tag::from_bytes(&[0x04]); // OCTET STRING
     /// let limits = Profile::Der.default_limits();
     /// let n = Profile::Der.write(&tag, &[0xAB], &limits, Strictness::Strict, &mut out).unwrap();
     /// assert_eq!(&out[..n], &[0x04, 0x01, 0xAB]);

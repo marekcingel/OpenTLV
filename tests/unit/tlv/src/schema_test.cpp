@@ -3,31 +3,33 @@
 #include <gtest/gtest.h>
 
 namespace {
-static const tlv_schema_entry_t entries[] = {{{{2}, 1}, 2, 4, 0},
-                                             {{{1}, 1}, 3, 3, 0},
-                                             {{{0x9F, 0x02}, 2}, 0, SIZE_MAX, UINT32_MAX},
-                                             {{{2}, 1}, 9, 9, 0},
-                                             {{{0}, 0}, 0, 0, 0}};
+static const tlv_schema_entry_t entries[] = {{TLV_TAG(2), 2, 4, 0},
+                                             {TLV_TAG(1), 3, 3, 0},
+                                             {TLV_TAG(0x9F, 0x02), 0, SIZE_MAX, UINT32_MAX},
+                                             {TLV_TAG(2), 9, 9, 0},
+                                             {tlv_tag(nullptr, 0), 0, 0, 0}};
 static const tlv_schema_t       schema = {entries, sizeof(entries) / sizeof(entries[0])};
 } // namespace
 
 TEST(Unit_Schema, FindsUnsortedTagsAndReturnsFirstDuplicate) {
-    tlv_tag_t tag = {{1}, 1};
+    tlv_tag_t tag = TLV_TAG(1);
     EXPECT_EQ(&entries[1], tlv_schema_find(&schema, &tag));
-    tag.data[0] = 2;
+    tag = TLV_TAG(2);
     EXPECT_EQ(&entries[0], tlv_schema_find(&schema, &tag));
-    tag = {{0x9F, 0x02}, 2};
+    tag = TLV_TAG(0x9F, 0x02);
     EXPECT_EQ(&entries[2], tlv_schema_find(&schema, &tag));
-    tag.size = 1;
+    tag = TLV_TAG(0x9F);
     EXPECT_EQ(nullptr, tlv_schema_find(&schema, &tag));
-    tag = {{1, 0xFF}, 1}; // Inactive bytes do not participate in comparison.
+    // A tag matches by contents, whatever memory backs it or follows it.
+    const uint8_t other_memory[] = {1, 0xFF};
+    tag = tlv_tag(other_memory, 1);
     EXPECT_EQ(&entries[1], tlv_schema_find(&schema, &tag));
-    tag.size = 0;
+    tag = tlv_tag(nullptr, 0);
     EXPECT_EQ(&entries[4], tlv_schema_find(&schema, &tag));
 }
 
 TEST(Unit_Schema, HandlesEmptyMissingAndInvalidInputs) {
-    tlv_tag_t tag = {{7}, 1};
+    tlv_tag_t tag = TLV_TAG(7);
     EXPECT_EQ(nullptr, tlv_schema_find(&schema, &tag));
     EXPECT_EQ(nullptr, tlv_schema_find(nullptr, &tag));
     EXPECT_EQ(nullptr, tlv_schema_find(&schema, nullptr));
@@ -35,14 +37,6 @@ TEST(Unit_Schema, HandlesEmptyMissingAndInvalidInputs) {
     const tlv_schema_t missing = {nullptr, 1};
     EXPECT_EQ(nullptr, tlv_schema_find(&empty, &tag));
     EXPECT_EQ(nullptr, tlv_schema_find(&missing, &tag));
-#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
-    tag.size = TLV_TAG_CAPACITY + 1;
-    EXPECT_EQ(nullptr, tlv_schema_find(&schema, &tag));
-    const tlv_schema_entry_t invalid_entries[] = {{tag, 0, 0, 0}, entries[0]};
-    const tlv_schema_t       invalid = {invalid_entries, 2};
-    tag = {{2}, 1};
-    EXPECT_EQ(&invalid_entries[1], tlv_schema_find(&invalid, &tag));
-#endif
 }
 
 TEST(Unit_Schema, ValidatesExactAndInclusiveRangeLengths) {
@@ -57,6 +51,6 @@ TEST(Unit_Schema, ValidatesExactAndInclusiveRangeLengths) {
     EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&entries[4], 0));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&entries[4], 1));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_schema_validate_length(nullptr, 0));
-    const tlv_schema_entry_t reversed = {{{1}, 1}, 4, 2, 0};
+    const tlv_schema_entry_t reversed = {TLV_TAG(1), 4, 2, 0};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&reversed, 3));
 }

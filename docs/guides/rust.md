@@ -53,7 +53,7 @@ use opentlv::{Format, Tag, Writer};
 
 let mut buf = [0u8; 64];
 let mut writer = Writer::with_format(&mut buf, Format::Ber);
-writer.write(&Tag::from_bytes(&[0x50])?, b"VISA")?;
+writer.write(&Tag::from_bytes(&[0x50]), b"VISA")?;
 let encoded: &[u8] = writer.written();
 ```
 
@@ -97,9 +97,13 @@ Every fallible call returns `opentlv::Result<T>`, an alias for
 - While a `Writer` exists it holds the only `&mut` to its buffer. `written()`
   borrows the writer; `finish()` consumes it and returns the buffer with its
   full lifetime.
-- Schemas own their C tables and free them on `Drop`.
-- The C layout of `tlv_tag_t` is part of the ABI, so the bindings require a
-  library built with the default `TLV_TAG_CAPACITY`.
+- `Tag` owns its bytes, while the C `tlv_tag_t` only borrows them. Reading an
+  entry copies its tag out of the input, so a `Tag` stays valid after the input
+  is gone; the value stays zero-copy.
+- Schemas own their C tables, and the tags those tables borrow, and free them
+  on `Drop`.
+- The layout of `tlv_tag_t` is a pointer and a size, independent of any C build
+  configuration, so the bindings work with a library built any way.
 
 ## Relationship to the C API
 
