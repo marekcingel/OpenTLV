@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['data_0',['data',['../../../c-api/html/structtlv__reader.html#af1b8dc22d88017047e6e67f3dfa6fef4',1,'tlv_reader::data'],['../../../c-api/html/structtlv__tag__t.html#a2e881623150c61177107e028ecd749a4',1,'tlv_tag_t::data'],['../../../c-api/html/structtlv__value__t.html#ac13fdbdff04aee2d78c55bc5752e26ac',1,'tlv_value_t::data'],['../classtlv_1_1span.html#a3e038f5065fe97b2ffb45b05c483382b',1,'tlv::span::data()']]],
+  ['data_0',['data',['../classtlv_1_1span.html#a3e038f5065fe97b2ffb45b05c483382b',1,'tlv::span::data()'],['../../../c-api/html/structtlv__value__t.html#ac13fdbdff04aee2d78c55bc5752e26ac',1,'tlv_value_t::data'],['../../../c-api/html/structtlv__tag__t.html#a2e881623150c61177107e028ecd749a4',1,'tlv_tag_t::data'],['../../../c-api/html/structtlv__reader.html#af1b8dc22d88017047e6e67f3dfa6fef4',1,'tlv_reader::data']]],
   ['day_1',['day',['../../../c-api/html/structtlv__emv__date__t.html#a416eccbd4d5275a1603ae7f0adcb18a1',1,'tlv_emv_date_t']]],
   ['decode_2',['decode',['../classtlv_1_1codec__registry.html#aa2cfccafba682895eb6a4009d3d4d7ab',1,'tlv::codec_registry::decode()'],['../../../c-api/html/structtlv__structure__codec.html#a9e34f511b51fde7b5383fee45526159a',1,'tlv_structure_codec::decode'],['../../../c-api/html/structtlv__codec.html#a4c13053a47bc19b0d35c3397a3d53c12',1,'tlv_codec::decode']]],
   ['decode_5fstructure_3',['decode_structure',['../namespacetlv.html#ae837d8525cd5f419b84f66d98feb8f10',1,'tlv']]],
@@ -11,5 +11,9 @@ var searchData=
   ['der_2eh_8',['der.h',['../../../c-api/html/profiles_2der_8h.html',1,'(Global Namespace)'],['../../../c-api/html/formats_2asn1_2der_8h.html',1,'(Global Namespace)']]],
   ['der_5fschema_2eh_9',['der_schema.h',['../../../c-api/html/der__schema_8h.html',1,'']]],
   ['discretionary_5fdata_10',['discretionary_data',['../../../c-api/html/structtlv__emv__track2__t.html#a7cbe744cad008fb5eeb43439ef0ccfc0',1,'tlv_emv_track2_t']]],
-  ['dol_2eh_11',['dol.h',['../../../c-api/html/dol_8h.html',1,'']]]
+  ['document_11',['document',['../classtlv_1_1document.html#a21d3dd045aa4ead04d484d876746bd05',1,'tlv::document::document(const document &amp;)=delete'],['../classtlv_1_1document.html#ac79c129c070b990636ba2cb2f683b1f1',1,'tlv::document::document(document &amp;&amp;other) noexcept'],['../classtlv_1_1document.html',1,'tlv::document'],['../../../c-api/html/group__document.html',1,'Mutable document']]],
+  ['document_2eh_12',['document.h',['../../../c-api/html/document_8h.html',1,'']]],
+  ['document_2ehpp_13',['document.hpp',['../document_8hpp.html',1,'']]],
+  ['document_5fformat_14',['document_format',['../structtlv_1_1document__format.html#afe76f53c08794f46c64e5fbaa3e05a0f',1,'tlv::document_format::document_format()'],['../structtlv_1_1document__format.html',1,'tlv::document_format']]],
+  ['dol_2eh_15',['dol.h',['../../../c-api/html/dol_8h.html',1,'']]]
 ];

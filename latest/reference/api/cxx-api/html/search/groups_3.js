@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['profiles_0',['Profiles',['../../../c-api/html/group__profiles.html',1,'']]]
+  ['formats_0',['Formats',['../../../c-api/html/group__formats.html',1,'']]]
 ];

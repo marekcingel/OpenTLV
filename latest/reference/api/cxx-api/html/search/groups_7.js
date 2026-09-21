@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['utilities_0',['utilities',['../../../c-api/html/group__copy.html',1,'Copy utilities'],['../../../c-api/html/group__core.html',1,'Core types and utilities']]]
+  ['scanning_0',['Traversal and scanning',['../../../c-api/html/group__traversal.html',1,'']]],
+  ['schemas_1',['Schemas',['../../../c-api/html/group__schemas.html',1,'']]]
 ];

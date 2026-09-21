@@ -1119,6 +1119,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../document/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mutable documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../select-components/" class="md-nav__link">
         
   
@@ -2501,6 +2529,10 @@
 <tr>
 <td>Value codecs</td>
 <td>Representation-dependent; some results borrow input. Follow the selected codec contract.</td>
+</tr>
+<tr>
+<td><code>tlv_document_t</code> (optional)</td>
+<td>Owns a copy of everything in it and allocates; nodes and the tags and values read from them borrow from the document. See <a href="../document/#ownership-and-lifetime">mutable documents</a>.</td>
 </tr>
 </tbody>
 </table>

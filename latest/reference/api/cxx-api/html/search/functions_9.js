@@ -1,4 +1,9 @@
 var searchData=
 [
-  ['parse_0',['parse',['../classtlv_1_1query.html#a14847e1e517af00592812012d260df8f',1,'tlv::query']]]
+  ['operator_20bool_0',['operator bool',['../classtlv_1_1expected.html#aa7416d628d14efc1867538bb39c02cba',1,'tlv::expected::operator bool()'],['../classtlv_1_1expected_3_01void_00_01E_01_4.html#ab7d0042d906f20c7fa218454f9321672',1,'tlv::expected&lt; void, E &gt;::operator bool()'],['../classtlv_1_1node.html#af681e39f15d54f02de3909f721d9eacc',1,'tlv::node::operator bool()']]],
+  ['operator_2a_1',['operator*',['../classtlv_1_1expected.html#a8c5b7d459696d8ff38b917aa2ec436e4',1,'tlv::expected::operator*()'],['../classtlv_1_1expected.html#af0432b57f00ab6945c0adce078f229d5',1,'tlv::expected::operator*() const'],['../classtlv_1_1node__iterator.html#a99d29fc91ee3c47ac0519c3b0eca229d',1,'tlv::node_iterator::operator*() const']]],
+  ['operator_2b_2b_2',['operator++',['../classtlv_1_1node__iterator.html#aa88adb99b61a4ae4ed7b59fd2e6561a0',1,'tlv::node_iterator::operator++()'],['../classtlv_1_1node__iterator.html#ab52736fa771deb27620c295d3c1b426b',1,'tlv::node_iterator::operator++(int)']]],
+  ['operator_2d_3e_3',['operator-&gt;',['../classtlv_1_1expected.html#a755c433e62ce9c6826b6a123fea392f0',1,'tlv::expected::operator-&gt;()'],['../classtlv_1_1expected.html#afb1a10bb581acbc3d059d08de9f76b47',1,'tlv::expected::operator-&gt;() const'],['../classtlv_1_1node__iterator.html#a8a807764006542403e1ee761c2405ca2',1,'tlv::node_iterator::operator-&gt;()']]],
+  ['operator_3d_4',['operator=',['../classtlv_1_1any.html#a39e190e870142a362f6a832989feac9a',1,'tlv::any::operator=()'],['../classtlv_1_1expected.html#a74c1d907dd1c9ae9f34fba30d8c5e917',1,'tlv::expected::operator=()'],['../classtlv_1_1document.html#a093232fe37856efb9a4ff523e0752633',1,'tlv::document::operator=(const document &amp;)=delete'],['../classtlv_1_1document.html#a40afd1d0ba93a40a3aa0cc09895fda63',1,'tlv::document::operator=(document &amp;&amp;other) noexcept']]],
+  ['operator_5b_5d_5',['operator[]',['../classtlv_1_1span.html#ab87b031b0e1bca83a53613de87ab4fc6',1,'tlv::span']]]
 ];

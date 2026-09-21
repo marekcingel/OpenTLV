@@ -9,5 +9,7 @@ var searchData=
   ['der_2eh_6',['der.h',['../formats_2asn1_2der_8h.html',1,'(Global Namespace)'],['../profiles_2der_8h.html',1,'(Global Namespace)']]],
   ['der_5fschema_2eh_7',['der_schema.h',['../der__schema_8h.html',1,'']]],
   ['discretionary_5fdata_8',['discretionary_data',['../structtlv__emv__track2__t.html#a7cbe744cad008fb5eeb43439ef0ccfc0',1,'tlv_emv_track2_t']]],
-  ['dol_2eh_9',['dol.h',['../dol_8h.html',1,'']]]
+  ['document_9',['Mutable document',['../group__document.html',1,'']]],
+  ['document_2eh_10',['document.h',['../document_8h.html',1,'']]],
+  ['dol_2eh_11',['dol.h',['../dol_8h.html',1,'']]]
 ];

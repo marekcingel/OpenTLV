@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['validate_0',['validate',['../namespacetlv.html#aa9d7868f8b5cd05c072f676f96b657f4',1,'tlv']]],
-  ['validate_5fall_1',['validate_all',['../namespacetlv.html#a2fd1943be24f223853c11e715930c5cd',1,'tlv']]]
+  ['unexpected_0',['unexpected',['../classtlv_1_1unexpected.html#aa7d0e7b38a7082bd5e6eb941a670297b',1,'tlv::unexpected::unexpected(const E &amp;error)'],['../classtlv_1_1unexpected.html#aac8b7070998b27dd4eda18e8a3440f01',1,'tlv::unexpected::unexpected(E &amp;&amp;error)']]]
 ];
