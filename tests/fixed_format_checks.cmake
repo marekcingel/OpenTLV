@@ -33,9 +33,11 @@ function(opentlv_check_fixed_format)
         set(result "OPENTLV_FIXED_FORMAT_${name}")
         unset(${result} CACHE)
         check_cxx_source_compiles("${header}
-            const tlv_reader_format_t& reader = tlv::fixed_format<${arguments}>::reader();
-            const tlv_writer_format_t& writer = tlv::fixed_format<${arguments}>::writer();
-            int main() { return &reader == nullptr || &writer == nullptr; }" ${result})
+            int main() {
+                const tlv_reader_format_t& reader = tlv::fixed_format<${arguments}>::reader();
+                const tlv_writer_format_t& writer = tlv::fixed_format<${arguments}>::writer();
+                return reader.read_tag == nullptr || writer.write_tag == nullptr;
+            }" ${result})
         if(valid AND NOT ${result})
             message(FATAL_ERROR "Valid fixed_format case ${name} must compile")
         elseif(NOT valid AND ${result})
