@@ -995,6 +995,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../guides/queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../guides/select-components/" class="md-nav__link">
         
   
@@ -1813,6 +1841,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#path-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path queries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tag-lookup" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2617,6 +2656,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#path-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path queries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tag-lookup" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2779,6 +2829,7 @@ and <code>tlv++</code> libraries themselves remain dependency-free.</p>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>damaged.bin<span class="w"> </span>--recover<span class="w"> </span>--tree
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02050000000010"</span>
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>otlv<span class="w"> </span>tag<span class="w"> </span>9F02<span class="w"> </span>--profile<span class="w"> </span>emv
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>card.bin<span class="w"> </span>--value
 </code></pre></div>
 <p><code>dump</code>, <code>validate</code> and <code>decode</code> require an explicit <code>--format</code> and exactly one input
 source. <code>--input -</code> reads binary stdin, including on Windows. File input is
@@ -2949,17 +3000,50 @@ with code 2; <code>encode</code> takes <code>--format</code>, <code>--tag</code>
 too long for <code>fixed-1byte</code>) reports <code>otlv: cannot encode element N: &lt;reason&gt;</code>
 and exits with code 1; N counts elements from zero in document order. Exceeded
 limits and unreadable or unwritable files exit with code 3.</p>
+<h3 id="path-queries">Path queries<a class="headerlink" href="#path-queries" title="Permanent link">&para;</a></h3>
+<p><code>query</code> prints the elements addressed by a path of hexadecimal tags, so a
+script can read one value from nested data without post-processing the whole
+dump. The path is a positional argument and the input options are the same as
+for <code>dump</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>card.bin
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>card.bin<span class="w"> </span>--value
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>card.bin<span class="w"> </span>--output<span class="w"> </span>json
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>offset=8 tag=50 length=2 value=4142
+</code></pre></div>
+<p><code>6F/A5/50</code> means a top-level <code>6F</code>, its direct child <code>A5</code> and that element's
+direct child <code>50</code>. Every element reached this way is printed in document
+order; a tag that occurs several times can therefore produce several lines.
+Tags are hex in either case, separated by one <code>/</code>; spaces, empty steps and a
+leading or trailing <code>/</code> are usage errors. This first version supports exact tag
+paths only, with no wildcards, indexes or recursive search. The syntax and
+matching come from the library (<a href="../guides/queries/">Path queries</a>), not
+from the CLI.</p>
+<ul>
+<li>Text output is one line per match in the format of <code>dump</code>, without nesting.</li>
+<li><code>--value</code> prints only the value bytes of each match as one line of hex, an
+  empty line for an empty value.</li>
+<li><code>--output json</code> prints <code>{"matches":[...]}</code>; each match has <code>path</code>, <code>offset</code>,
+  <code>tag</code>, <code>length</code> and <code>value</code>. It cannot be combined with <code>--value</code>.</li>
+<li>A path of more than one tag needs <code>--format ber</code> or <code>--format der</code>, the
+  formats that have nested values; other formats accept one-tag paths.</li>
+<li>The whole input is still parsed, so damaged data after a match fails the
+  command with exit code 1, and <code>--max-depth</code>, <code>--max-elements</code> and
+  <code>--max-input-size</code> apply as for <code>dump</code>.</li>
+<li>No match is reported as <code>otlv: no match for query ...</code> with exit code 5, so a
+  script can tell a missing element from invalid data.</li>
+</ul>
 <h3 id="tag-lookup">Tag lookup<a class="headerlink" href="#tag-lookup" title="Permanent link">&para;</a></h3>
 <p><code>tag</code> looks up one BER tag in the OpenTLV EMV dictionary, so the CLI can serve
 as a quick tag reference. The metadata comes from the profile layer
 (<code>tlv_emv_find</code> in the base context); the CLI keeps no dictionary of its own.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>otlv<span class="w"> </span>tag<span class="w"> </span>9F02<span class="w"> </span>--profile<span class="w"> </span>emv
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>otlv<span class="w"> </span>tag<span class="w"> </span>9F02<span class="w"> </span>--profile<span class="w"> </span>emv
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Tag:         9F02
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Name:        Amount Authorised
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Type:        Numeric value (binary or decimal BCD, tag-dependent)
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>Form:        Primitive
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>Length:      6
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>Tag:         9F02
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>Name:        Amount Authorised
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>Type:        Numeric value (binary or decimal BCD, tag-dependent)
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>Form:        Primitive
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>Length:      6
 </code></pre></div>
 <p>The tag is a positional argument in the same hex syntax as <code>--hex</code>, and must
 be exactly one complete BER tag. <code>--profile emv</code> is required. <code>Length step</code> is
@@ -2975,12 +3059,12 @@ incomplete tag, an unknown profile, or any option other than <code>--profile</co
 <code>--output</code> exits with code 2.</p>
 <p><code>tags</code> lists every tag in the dictionary (base context), sorted by tag, when
 you do not know which tag to look up:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>otlv<span class="w"> </span>tags<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--search<span class="w"> </span>amount
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>otlv<span class="w"> </span>tags<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--search<span class="w"> </span>amount
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>81      Amount Authorised Binary
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>9F02    Amount Authorised
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>9F03    Amount Other
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>81      Amount Authorised Binary
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>9F02    Amount Authorised
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>9F03    Amount Other
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>...
 </code></pre></div>
 <p><code>--search TEXT</code> keeps only tags whose displayed name contains <code>TEXT</code>
 (case-insensitive). <code>--output json</code> prints <code>{"profile":"emv","tags":[...]}</code>
@@ -2990,12 +3074,12 @@ no matches is not an error: it prints nothing (or an empty array) and exits 0.
 rejected by every other command.</p>
 <h3 id="pdol-dol-inspection">PDOL / DOL inspection<a class="headerlink" href="#pdol-dol-inspection" title="Permanent link">&para;</a></h3>
 <p>Use <code>--pdol</code> to read a raw PDOL value as ordered tag/length pairs:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--pdol<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02069F1A02"</span><span class="w"> </span>--profile<span class="w"> </span>emv
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--pdol<span class="w"> </span>--input<span class="w"> </span>pdol.hex<span class="w"> </span>--input-encoding<span class="w"> </span>hex
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--pdol<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02069F1A02"</span><span class="w"> </span>--profile<span class="w"> </span>emv
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--pdol<span class="w"> </span>--input<span class="w"> </span>pdol.hex<span class="w"> </span>--input-encoding<span class="w"> </span>hex
 </code></pre></div>
 <p>Without annotations, the output is:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>offset=0 tag=9F02 requested-length=6
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>offset=3 tag=9F1A requested-length=2
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>offset=0 tag=9F02 requested-length=6
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>offset=3 tag=9F1A requested-length=2
 </code></pre></div>
 <p>Supply the contents of tag <code>9F38</code>, not its enclosing TLV header. Ordinary TLV
 dumping still leaves that value opaque. The same pair layout is used by other
@@ -3025,8 +3109,8 @@ field (its offset is the end of the enclosing element's value, not a tag);
 every other violation (a forbidden/unknown/duplicate tag reports
 <code>TLV_ERR_SCHEMA</code>, a length outside bounds reports <code>TLV_ERR_INVALID_LENGTH</code>)
 includes the offending tag:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F00"</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>otlv:<span class="w"> </span>schema<span class="w"> </span>TLV_ERR_SCHEMA_MISSING<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">2</span>:<span class="w"> </span>required<span class="w"> </span>schema<span class="w"> </span>field<span class="w"> </span>missing
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F00"</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>otlv:<span class="w"> </span>schema<span class="w"> </span>TLV_ERR_SCHEMA_MISSING<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">2</span>:<span class="w"> </span>required<span class="w"> </span>schema<span class="w"> </span>field<span class="w"> </span>missing
 </code></pre></div>
 <p>The exit code contract is unchanged (1 for a schema violation, 3 for an
 exceeded limit). Unmodeled top-level tags, such as the Read Record Template,
@@ -3064,8 +3148,8 @@ input that has already parsed as valid BER:</p>
 and the library's <code>tlv_emv_validate_length</code>. It reports the first offending
 element as <code>otlv: dictionary TLV_ERR_INVALID_LENGTH at byte N tag=T: ...</code> with
 exit code 1:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02050000000010"</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>otlv:<span class="w"> </span>dictionary<span class="w"> </span>TLV_ERR_INVALID_LENGTH<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>9F02:<span class="w"> </span>invalid<span class="w"> </span>length<span class="w"> </span>encoding
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02050000000010"</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>otlv:<span class="w"> </span>dictionary<span class="w"> </span>TLV_ERR_INVALID_LENGTH<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>9F02:<span class="w"> </span>invalid<span class="w"> </span>length<span class="w"> </span>encoding
 </code></pre></div>
 <p>What runs, and what does not:</p>
 <ul>
@@ -3134,8 +3218,8 @@ so select it explicitly with <code>--emv-context NAME</code>, for <code>dump</co
 </tr>
 </tbody>
 </table>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--emv-context<span class="w"> </span>bht<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"820101"</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--emv-context<span class="w"> </span>bht<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"82020101"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--emv-context<span class="w"> </span>bht<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"820101"</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--emv-context<span class="w"> </span>bht<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"82020101"</span>
 </code></pre></div>
 <p>The first prints the element as <code>Biometric Subtype</code>; the second fails because
 <code>82</code> is 1 byte in that context. Contexts never fall back to the base
@@ -3149,14 +3233,14 @@ dictionary. The structural schema models base-context templates only, so
 recovery scanner (<code>tlv_scan</code>): when the element at the current offset cannot
 be read, or its contents are malformed, the scanner looks at each following
 offset for the next plausible element, and the bytes in between are skipped.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"5A0112 0000 5A0134"</span><span class="w"> </span>--recover
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nv">offset</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>5A<span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="m">12</span>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>skipped<span class="w"> </span><span class="nv">offset</span><span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="nv">error</span><span class="o">=</span>TLV_ERR_INVALID_TAG<span class="w"> </span>error-offset<span class="o">=</span><span class="m">3</span>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="nv">offset</span><span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>5A<span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="m">34</span>
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>otlv:<span class="w"> </span>skipped<span class="w"> </span><span class="m">2</span><span class="w"> </span>byte<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>at<span class="w"> </span>offset<span class="w"> </span><span class="m">3</span>:<span class="w"> </span>TLV_ERR_INVALID_TAG<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">3</span>:<span class="w"> </span>invalid<span class="w"> </span>tag
-<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>otlv:<span class="w"> </span>output<span class="w"> </span>is<span class="w"> </span>incomplete:<span class="w"> </span>recovery<span class="w"> </span>skipped<span class="w"> </span><span class="m">1</span><span class="w"> </span>range<span class="o">(</span>s<span class="o">)</span>,<span class="w"> </span><span class="m">2</span><span class="w"> </span>byte<span class="o">(</span>s<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>total
-<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">$?</span>
-<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="m">4</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"5A0112 0000 5A0134"</span><span class="w"> </span>--recover
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nv">offset</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>5A<span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="m">12</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>skipped<span class="w"> </span><span class="nv">offset</span><span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="nv">error</span><span class="o">=</span>TLV_ERR_INVALID_TAG<span class="w"> </span>error-offset<span class="o">=</span><span class="m">3</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="nv">offset</span><span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>5A<span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="m">34</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>otlv:<span class="w"> </span>skipped<span class="w"> </span><span class="m">2</span><span class="w"> </span>byte<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>at<span class="w"> </span>offset<span class="w"> </span><span class="m">3</span>:<span class="w"> </span>TLV_ERR_INVALID_TAG<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">3</span>:<span class="w"> </span>invalid<span class="w"> </span>tag
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>otlv:<span class="w"> </span>output<span class="w"> </span>is<span class="w"> </span>incomplete:<span class="w"> </span>recovery<span class="w"> </span>skipped<span class="w"> </span><span class="m">1</span><span class="w"> </span>range<span class="o">(</span>s<span class="o">)</span>,<span class="w"> </span><span class="m">2</span><span class="w"> </span>byte<span class="o">(</span>s<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>total
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">$?</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="m">4</span>
 </code></pre></div>
 <ul>
 <li><strong>Skipped ranges</strong> are reported where they occur (<code>skipped offset= length=
@@ -3266,6 +3350,10 @@ distinguish it from a format/framing error.</p>
 <tr>
 <td>4</td>
 <td><code>--recover</code> skipped damaged data: the output is incomplete</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>query</code> matched no element</td>
 </tr>
 </tbody>
 </table>

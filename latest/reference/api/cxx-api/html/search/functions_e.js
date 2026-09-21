@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['_7eexpected_0',['~expected',['../classtlv_1_1expected.html#a5d1402f16e10bff140616b4bd80a7e7e',1,'tlv::expected']]]
+  ['validate_0',['validate',['../namespacetlv.html#aa9d7868f8b5cd05c072f676f96b657f4',1,'tlv']]],
+  ['validate_5fall_1',['validate_all',['../namespacetlv.html#a2fd1943be24f223853c11e715930c5cd',1,'tlv']]]
 ];

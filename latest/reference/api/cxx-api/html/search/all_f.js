@@ -1,17 +1,18 @@
 var searchData=
 [
-  ['scanner_2eh_0',['scanner.h',['../../../c-api/html/scanner_8h.html',1,'']]],
-  ['scanning_1',['Traversal and scanning',['../../../c-api/html/group__traversal.html',1,'']]],
-  ['schema_2',['schema',['../../../c-api/html/structtlv__emv__definition__t.html#ab08d765707b9ab4c10ab750fe73a39c7',1,'tlv_emv_definition_t::schema'],['../../../c-api/html/structtlv__structure__codec.html#ad1b73f09c5429c78705c38dd1262fa70',1,'tlv_structure_codec::schema']]],
-  ['schema_2eh_3',['schema.h',['../../../c-api/html/schema_8h.html',1,'']]],
-  ['schema_2ehpp_4',['schema.hpp',['../schema_8hpp.html',1,'']]],
-  ['schemas_5',['Schemas',['../../../c-api/html/group__schemas.html',1,'']]],
-  ['second_6',['second',['../../../c-api/html/structtlv__emv__time__t.html#a16a6606a560663b11f0c3723a075b1b7',1,'tlv_emv_time_t']]],
-  ['service_5fcode_7',['service_code',['../../../c-api/html/structtlv__emv__track2__t.html#a643381aca3485e3c695bdae768b56c60',1,'tlv_emv_track2_t']]],
-  ['sfi_8',['sfi',['../../../c-api/html/structtlv__emv__afl__entry__t.html#ae330664c393ef8834734e50cbfde0180',1,'tlv_emv_afl_entry_t']]],
-  ['size_9',['size',['../../../c-api/html/structtlv__reader.html#a9bbe580b9ec656247f5ae64b8605bd9b',1,'tlv_reader::size'],['../../../c-api/html/structtlv__tag__t.html#ad8631dad157a932eea0d69275efc1c01',1,'tlv_tag_t::size'],['../classtlv_1_1span.html#af9763dc55004193c455ecbb1e817909a',1,'tlv::span::size()'],['../classtlv_1_1writer.html#af0324c106107f6790d44846a2904aaa9',1,'tlv::writer::size()']]],
-  ['span_10',['span',['../classtlv_1_1span.html',1,'tlv::span&lt; T &gt;'],['../classtlv_1_1span.html#a0bda0703f37c736b0a2bf3c77205d114',1,'tlv::span::span()'],['../classtlv_1_1span.html#ab8c70860e2ea0fc3bde54c4a17786d41',1,'tlv::span::span(T *data, std::size_t size)']]],
-  ['span_3c_20const_20byte_20_3e_11',['span&lt; const byte &gt;',['../classtlv_1_1span.html',1,'tlv']]],
-  ['structure_2eh_12',['structure.h',['../../../c-api/html/structure_8h.html',1,'']]],
-  ['structure_2ehpp_13',['structure.hpp',['../structure_8hpp.html',1,'']]]
+  ['read_5felement_0',['read_element',['../../../c-api/html/structtlv__reader__format.html#aaddfeb86acbf16a398f7f077d3b40c4c',1,'tlv_reader_format']]],
+  ['read_5flength_1',['read_length',['../../../c-api/html/structtlv__reader__format.html#a33c149d9ed3608896c438355814b7a60',1,'tlv_reader_format']]],
+  ['read_5ftag_2',['read_tag',['../../../c-api/html/structtlv__reader__format.html#a44aaa4443deb83a4d417765232d69a46',1,'tlv_reader_format']]],
+  ['read_5fvalue_5fbounds_3',['read_value_bounds',['../../../c-api/html/structtlv__reader__format.html#ab118933b04db65b5f92bf8815f4eeb30',1,'tlv_reader_format']]],
+  ['reader_4',['reader',['../classtlv_1_1reader.html',1,'tlv::reader'],['../../../c-api/html/group__reader.html',1,'Reader'],['../classtlv_1_1fixed__format.html#a6cd5e4d4c6b305c8c7baeb930096ae8a',1,'tlv::fixed_format::reader()'],['../classtlv_1_1reader.html#acf97e5d4f7835c1af1fbe0aa932c8464',1,'tlv::reader::reader()']]],
+  ['reader_2eh_5',['reader.h',['../../../c-api/html/reader_8h.html',1,'']]],
+  ['reader_2ehpp_6',['reader.hpp',['../reader_8hpp.html',1,'']]],
+  ['reader_5fformat_7',['reader_format',['../../../c-api/html/structtlv__structure__codec.html#a35402922653f8247700639f7358875f0',1,'tlv_structure_codec']]],
+  ['reference_8',['OpenTLV C++ API reference',['../index.html',1,'']]],
+  ['register_5fdecoder_9',['register_decoder',['../classtlv_1_1codec__registry.html#a14c4e2d3bfa97d1f09d7fd5aa63af06c',1,'tlv::codec_registry']]],
+  ['register_5ftype_10',['register_type',['../classtlv_1_1codec__registry.html#a09d6fdf21a113f3aa4a949058b73680a',1,'tlv::codec_registry']]],
+  ['registry_2ehpp_11',['registry.hpp',['../registry_8hpp.html',1,'']]],
+  ['requested_5flength_12',['requested_length',['../../../c-api/html/structtlv__dol__entry.html#ad7d90dafcda0066d578a7277cf26cff5',1,'tlv_dol_entry']]],
+  ['result_13',['result',['../../../c-api/html/structtlv__emv__cvm__result__t.html#a7c8a7469f4a61bbd4f1cce74ac4f442a',1,'tlv_emv_cvm_result_t']]],
+  ['rules_14',['rules',['../../../c-api/html/structtlv__structure__schema.html#ad62cc59285c58f7e141b9caa00d1d241',1,'tlv_structure_schema']]]
 ];

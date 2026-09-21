@@ -71,6 +71,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#files">Files</a> &#124;
+<a href="#nested-classes">Data Structures</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
@@ -80,6 +81,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>
 Files</h2></td></tr>
+<tr class="memitem:query_8h" id="r_query_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="query_8h.html">query.h</a></td></tr>
+<tr class="memdesc:query_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Path queries that address TLV elements by their nested tags. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:scanner_8h" id="r_scanner_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scanner_8h.html">scanner.h</a></td></tr>
 <tr class="memdesc:scanner_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recovery scan for a plausible TLV element at any byte offset. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -87,8 +91,23 @@ Files</h2></td></tr>
 <tr class="memdesc:walker_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visitor-based traversal of sequential and nested TLV elements. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query.html">tlv_query</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A parsed query: the tags to follow from a top-level element down to the addressed ones.  <a href="structtlv__query.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query__matcher.html">tlv_query_matcher</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Incremental matcher that decides which elements of a preorder traversal a query addresses.  <a href="structtlv__query__matcher.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:ga747ab1ec662ee8b640d522f981f35ec2" id="r_ga747ab1ec662ee8b640d522f981f35ec2"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query.html">tlv_query</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a></td></tr>
+<tr class="memdesc:ga747ab1ec662ee8b640d522f981f35ec2"><td class="mdescLeft">&#160;</td><td class="mdescRight">A parsed query: the tags to follow from a top-level element down to the addressed ones.  <br /></td></tr>
+<tr class="separator:ga747ab1ec662ee8b640d522f981f35ec2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga043ec7e39913845558eb965739e80968" id="r_ga043ec7e39913845558eb965739e80968"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__matcher.html">tlv_query_matcher</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga043ec7e39913845558eb965739e80968">tlv_query_matcher_t</a></td></tr>
+<tr class="memdesc:ga043ec7e39913845558eb965739e80968"><td class="mdescLeft">&#160;</td><td class="mdescRight">Incremental matcher that decides which elements of a preorder traversal a query addresses.  <br /></td></tr>
+<tr class="separator:ga043ec7e39913845558eb965739e80968"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5685cbc116854f9874253489cb769622" id="r_ga5685cbc116854f9874253489cb769622"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#ga32dd2f26caa5ae7507636430b13cc961">tlv_visit_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a></td></tr>
 <tr class="memdesc:ga5685cbc116854f9874253489cb769622"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value a visitor callback returns to control traversal.  <br /></td></tr>
 <tr class="separator:ga5685cbc116854f9874253489cb769622"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -101,19 +120,35 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
+<tr class="memitem:gabc5c98fcc1211af2b80116dd6e0a035d" id="r_gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggabc5c98fcc1211af2b80116dd6e0a035da6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> = TLV_WALK_MAX_DEPTH + 1
+ }</td></tr>
+<tr class="memdesc:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of tags in a query: one per nesting level, <code>0..TLV_WALK_MAX_DEPTH</code>.  <a href="group__traversal.html#gabc5c98fcc1211af2b80116dd6e0a035d">More...</a><br /></td></tr>
+<tr class="separator:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga32dd2f26caa5ae7507636430b13cc961" id="r_ga32dd2f26caa5ae7507636430b13cc961"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga32dd2f26caa5ae7507636430b13cc961">tlv_visit_result</a> { <a class="el" href="group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a528d33a0f3bf7971e02fbe57c479f86d">TLV_VISIT_CONTINUE</a> = 0
 , <a class="el" href="group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a> = 1
 , <a class="el" href="group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> = 2
  }</td></tr>
 <tr class="memdesc:ga32dd2f26caa5ae7507636430b13cc961"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value a visitor callback returns to control traversal.  <a href="group__traversal.html#ga32dd2f26caa5ae7507636430b13cc961">More...</a><br /></td></tr>
 <tr class="separator:ga32dd2f26caa5ae7507636430b13cc961"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabc5c98fcc1211af2b80116dd6e0a035d" id="r_gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggabc5c98fcc1211af2b80116dd6e0a035da03f8984ca3e48d080f644fc40d810053">TLV_WALK_MAX_DEPTH</a> = 64
+<tr class="memitem:gac36f475ca5b446f4fde4c9b90bec77c8" id="r_gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggac36f475ca5b446f4fde4c9b90bec77c8a03f8984ca3e48d080f644fc40d810053">TLV_WALK_MAX_DEPTH</a> = 64
  }</td></tr>
-<tr class="memdesc:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum <code>max_depth</code> accepted by <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>.  <a href="group__traversal.html#gabc5c98fcc1211af2b80116dd6e0a035d">More...</a><br /></td></tr>
-<tr class="separator:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum <code>max_depth</code> accepted by <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>.  <a href="group__traversal.html#gac36f475ca5b446f4fde4c9b90bec77c8">More...</a><br /></td></tr>
+<tr class="separator:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:gac6cc1fdb84b230eec2b4bd26e5da8385" id="r_gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385">tlv_query_parse</a> (const char *text, <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query, size_t *error_offset)</td></tr>
+<tr class="memdesc:gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the text of a query.  <br /></td></tr>
+<tr class="separator:gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafff68da0dab28a553e3b2c27c2c8188c" id="r_gafff68da0dab28a553e3b2c27c2c8188c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gafff68da0dab28a553e3b2c27c2c8188c">tlv_query_matcher_init</a> (<a class="el" href="group__traversal.html#ga043ec7e39913845558eb965739e80968">tlv_query_matcher_t</a> *matcher, const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query)</td></tr>
+<tr class="memdesc:gafff68da0dab28a553e3b2c27c2c8188c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepares a matcher for one traversal.  <br /></td></tr>
+<tr class="separator:gafff68da0dab28a553e3b2c27c2c8188c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0e74dd731f126a653107597a94749412" id="r_ga0e74dd731f126a653107597a94749412"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga0e74dd731f126a653107597a94749412">tlv_query_matcher_visit</a> (<a class="el" href="group__traversal.html#ga043ec7e39913845558eb965739e80968">tlv_query_matcher_t</a> *matcher, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t depth)</td></tr>
+<tr class="memdesc:ga0e74dd731f126a653107597a94749412"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether the next element of a preorder traversal is addressed by the query.  <br /></td></tr>
+<tr class="separator:ga0e74dd731f126a653107597a94749412"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga164aeb302a7d138d9f56407ba9bbc5cb" id="r_ga164aeb302a7d138d9f56407ba9bbc5cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga164aeb302a7d138d9f56407ba9bbc5cb">tlv_query_walk</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format, <a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query, size_t max_depth, size_t max_elements, <a class="el" href="group__traversal.html#gaad2659d5c77d5f5ba1fd8608c141378c">tlv_tree_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
+<tr class="memdesc:ga164aeb302a7d138d9f56407ba9bbc5cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls a visitor for every element a query addresses.  <br /></td></tr>
+<tr class="separator:ga164aeb302a7d138d9f56407ba9bbc5cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga36b32f551d81a9b1c940a1428e2e4e0d" id="r_ga36b32f551d81a9b1c940a1428e2e4e0d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga36b32f551d81a9b1c940a1428e2e4e0d">tlv_scan</a> (const uint8_t *data, size_t size, size_t start, const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format, const <a class="el" href="structtlv__schema__t.html">tlv_schema_t</a> *schema, <a class="el" href="structtlv__view__t.html">tlv_view_t</a> *out_entry, size_t *out_offset, size_t *consumed)</td></tr>
 <tr class="memdesc:ga36b32f551d81a9b1c940a1428e2e4e0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first complete candidate element at or after an offset.  <br /></td></tr>
 <tr class="separator:ga36b32f551d81a9b1c940a1428e2e4e0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,6 +162,41 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Walking nested elements and scanning paths with caller-owned state. Guides: <a href="https://marekcingel.github.io/OpenTLV/guides/scanner/">scanning and recovery</a>. </p>
 <h2 class="groupheader">Typedef Documentation</h2>
+<a id="ga043ec7e39913845558eb965739e80968" name="ga043ec7e39913845558eb965739e80968"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga043ec7e39913845558eb965739e80968">&#9670;&#160;</a></span>tlv_query_matcher_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query__matcher.html">tlv_query_matcher</a> <a class="el" href="group__traversal.html#ga043ec7e39913845558eb965739e80968">tlv_query_matcher_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Incremental matcher that decides which elements of a preorder traversal a query addresses. </p>
+<p>This is the state behind <a class="el" href="group__traversal.html#ga164aeb302a7d138d9f56407ba9bbc5cb" title="Calls a visitor for every element a query addresses.">tlv_query_walk()</a>, exposed so that any preorder traversal can run a query, such as the DER walker or a caller's own. Set it up with <a class="el" href="group__traversal.html#gafff68da0dab28a553e3b2c27c2c8188c" title="Prepares a matcher for one traversal.">tlv_query_matcher_init()</a> and feed it every element, in order, with <a class="el" href="group__traversal.html#ga0e74dd731f126a653107597a94749412" title="Reports whether the next element of a preorder traversal is addressed by the query.">tlv_query_matcher_visit()</a>. The fields are private. </p>
+
+</div>
+</div>
+<a id="ga747ab1ec662ee8b640d522f981f35ec2" name="ga747ab1ec662ee8b640d522f981f35ec2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga747ab1ec662ee8b640d522f981f35ec2">&#9670;&#160;</a></span>tlv_query_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__query.html">tlv_query</a> <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>A parsed query: the tags to follow from a top-level element down to the addressed ones. </p>
+<p>The structure is self-contained, never allocates and never points to other memory. Build it with <a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385" title="Parses the text of a query.">tlv_query_parse()</a>; a zero-initialized query has no tags and is rejected by the functions that take one.</p>
+<dl class="section warning"><dt>Warning</dt><dd>Its layout depends on <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>, so it is part of the ABI in the same way as <a class="el" href="structtlv__tag__t.html" title="A TLV tag stored as raw bytes, independent of host endianness or TLV profile.">tlv_tag_t</a>. </dd></dl>
+
+</div>
+</div>
 <a id="gaad2659d5c77d5f5ba1fd8608c141378c" name="gaad2659d5c77d5f5ba1fd8608c141378c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaad2659d5c77d5f5ba1fd8608c141378c">&#9670;&#160;</a></span>tlv_tree_visitor_t</h2>
 
@@ -206,9 +276,28 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Maximum number of tags in a query: one per nesting level, <code>0..TLV_WALK_MAX_DEPTH</code>. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggabc5c98fcc1211af2b80116dd6e0a035da6e916ad17ed0c10580e0541c0b859b13" name="ggabc5c98fcc1211af2b80116dd6e0a035da6e916ad17ed0c10580e0541c0b859b13"></a>TLV_QUERY_MAX_STEPS&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="gac36f475ca5b446f4fde4c9b90bec77c8" name="gac36f475ca5b446f4fde4c9b90bec77c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac36f475ca5b446f4fde4c9b90bec77c8">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
 <p>Maximum <code>max_depth</code> accepted by <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggabc5c98fcc1211af2b80116dd6e0a035da03f8984ca3e48d080f644fc40d810053" name="ggabc5c98fcc1211af2b80116dd6e0a035da03f8984ca3e48d080f644fc40d810053"></a>TLV_WALK_MAX_DEPTH&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggac36f475ca5b446f4fde4c9b90bec77c8a03f8984ca3e48d080f644fc40d810053" name="ggac36f475ca5b446f4fde4c9b90bec77c8a03f8984ca3e48d080f644fc40d810053"></a>TLV_WALK_MAX_DEPTH&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -238,6 +327,259 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="gafff68da0dab28a553e3b2c27c2c8188c" name="gafff68da0dab28a553e3b2c27c2c8188c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafff68da0dab28a553e3b2c27c2c8188c">&#9670;&#160;</a></span>tlv_query_matcher_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_matcher_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga043ec7e39913845558eb965739e80968">tlv_query_matcher_t</a> *&#160;</td>
+          <td class="paramname"><em>matcher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *&#160;</td>
+          <td class="paramname"><em>query</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Prepares a matcher for one traversal. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">matcher</td><td>Matcher to initialize. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">query</td><td>Parsed query; borrowed and must outlive the matcher.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>matcher</code> or <code>query</code> is <code>NULL</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>query</code> has no tags or more than <a class="el" href="group__traversal.html#ggabc5c98fcc1211af2b80116dd6e0a035da6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if a query tag has a size outside <code>1..TLV_TAG_CAPACITY</code>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never allocates. On failure <code>*matcher</code> is unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="ga0e74dd731f126a653107597a94749412" name="ga0e74dd731f126a653107597a94749412"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0e74dd731f126a653107597a94749412">&#9670;&#160;</a></span>tlv_query_matcher_visit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_query_matcher_visit </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga043ec7e39913845558eb965739e80968">tlv_query_matcher_t</a> *&#160;</td>
+          <td class="paramname"><em>matcher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>depth</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reports whether the next element of a preorder traversal is addressed by the query. </p>
+<p>Call it once for every element in preorder, including elements the query cannot reach, with the same <code>depth</code> values <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a> passes to its visitor.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">matcher</td><td>Matcher set up by <a class="el" href="group__traversal.html#gafff68da0dab28a553e3b2c27c2c8188c" title="Prepares a matcher for one traversal.">tlv_query_matcher_init()</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag of the element. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">depth</td><td>Nesting depth of the element; zero for a top-level element.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Nonzero if the element is addressed by the query, zero if it is not or if an argument is <code>NULL</code>. </dd></dl>
+
+</div>
+</div>
+<a id="gac6cc1fdb84b230eec2b4bd26e5da8385" name="gac6cc1fdb84b230eec2b4bd26e5da8385"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac6cc1fdb84b230eec2b4bd26e5da8385">&#9670;&#160;</a></span>tlv_query_parse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_parse </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>text</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *&#160;</td>
+          <td class="paramname"><em>query</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>error_offset</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Parses the text of a query. </p>
+<p>The text is one or more tags in hexadecimal, separated by a single <code>/</code>, for example <code>6F/A5/50</code> or <code>9f02</code>. Each tag has an even, nonzero number of digits in either case and at most <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a> bytes. Whitespace, empty steps and a leading or trailing <code>/</code> are rejected. The tag bytes are not checked against any format or profile.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">text</td><td>NUL-terminated query text. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">query</td><td>Receives the parsed query. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error_offset</td><td>Optional. On failure receives the index in <code>text</code> of the offending character, or of the start of the offending tag; unchanged on success.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>text</code> or <code>query</code> is <code>NULL</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for a syntax error: an empty step, an odd number of digits, or a character other than a hexadecimal digit or <code>/</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if a tag is longer than <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a> bytes. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the query has more than <a class="el" href="group__traversal.html#ggabc5c98fcc1211af2b80116dd6e0a035da6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> tags.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never allocates. On failure <code>*query</code> is unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="ga164aeb302a7d138d9f56407ba9bbc5cb" name="ga164aeb302a7d138d9f56407ba9bbc5cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga164aeb302a7d138d9f56407ba9bbc5cb">&#9670;&#160;</a></span>tlv_query_walk()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_query_walk </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td>
+          <td class="paramname"><em>is_constructed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *&#160;</td>
+          <td class="paramname"><em>query</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gaad2659d5c77d5f5ba1fd8608c141378c">tlv_tree_visitor_t</a>&#160;</td>
+          <td class="paramname"><em>visitor</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>error_offset</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Calls a visitor for every element a query addresses. </p>
+<p>Traverses the input in preorder like <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a> and calls <code>visitor</code> for each element addressed by <code>query</code>, in document order, with that element's depth (always <code>query-&gt;count - 1</code>) and absolute offset. An element is addressed when its tag equals the last query tag and its ancestors, from the top level down, match the earlier ones.</p>
+<p>The whole input is traversed unless the visitor stops, so malformed data after the last match is reported like any other error. Values are only entered when <code>is_constructed</code> says so; with a <code>NULL</code> predicate only one-tag queries can match.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Input buffer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Input size in bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Reader format. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">is_constructed</td><td>Predicate receiving <code>format-&gt;context</code>, or <code>NULL</code> to treat every value as opaque. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">query</td><td>Parsed query. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_depth</td><td>Maximum nesting depth, <code>0..TLV_WALK_MAX_DEPTH</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_elements</td><td>Bound on all traversed elements, matching or not. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">visitor</td><td>Callback per addressed element. Required. Its view borrows <code>data</code> and is valid only during the call. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Passed to the visitor unchanged; may be <code>NULL</code>. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error_offset</td><td>Optional. On failure receives the failing element's absolute offset; unchanged on success.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> at the end of input, or when the visitor returns <a class="el" href="group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>query</code> or <code>visitor</code> is <code>NULL</code>, or as for <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>. </dd>
+<dd>
+Any error of <a class="el" href="group__traversal.html#gafff68da0dab28a553e3b2c27c2c8188c" title="Prepares a matcher for one traversal.">tlv_query_matcher_init()</a> for an invalid <code>query</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a8698f95616bfbe8d38147acebb9a5f4d">TLV_ERR_VISITOR</a> if the visitor returns <a class="el" href="group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> or an unknown result. </dd>
+<dd>
+Any other error of <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>, propagated unchanged.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never allocates and does not recurse. No match is not an error: the visitor is simply never called. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Visitor effects are not rolled back on error. The input and format must remain valid and unchanged during the call. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree</a> </dd></dl>
+
+</div>
+</div>
 <a id="ga36b32f551d81a9b1c940a1428e2e4e0d" name="ga36b32f551d81a9b1c940a1428e2e4e0d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga36b32f551d81a9b1c940a1428e2e4e0d">&#9670;&#160;</a></span>tlv_scan()</h2>
 
@@ -481,7 +823,7 @@ Any reader error, propagated unchanged.</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success or when the visitor returns <a class="el" href="group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if <code>max_depth</code> exceeds <a class="el" href="group__traversal.html#ggabc5c98fcc1211af2b80116dd6e0a035da03f8984ca3e48d080f644fc40d810053">TLV_WALK_MAX_DEPTH</a>, or the depth or element limit is exceeded. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if <code>max_depth</code> exceeds <a class="el" href="group__traversal.html#ggac36f475ca5b446f4fde4c9b90bec77c8a03f8984ca3e48d080f644fc40d810053">TLV_WALK_MAX_DEPTH</a>, or the depth or element limit is exceeded. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a8698f95616bfbe8d38147acebb9a5f4d">TLV_ERR_VISITOR</a> if the visitor requests an error stop. </dd>
 <dd>
