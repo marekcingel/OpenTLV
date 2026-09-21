@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/development/webassembly/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/development/workflow/">
       
       
-        <link rel="prev" href="../fuzzing/">
+        <link rel="prev" href="../../reference/errors/">
       
       
-        <link rel="next" href="../rust/">
+        <link rel="next" href="../documentation-layout/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>WebAssembly build - OpenTLV</title>
+        <title>Development workflow - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#webassembly-build-experimental" class="md-skip">
+        <a href="#development-workflow" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              WebAssembly build
+              Development workflow
             
           </span>
         </div>
@@ -427,7 +427,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../workflow/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -2051,10 +2051,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../workflow/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2070,6 +2097,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#branches-and-pull-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Branches and pull requests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-runs-where" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What runs where
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#releasing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Releasing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-checks-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the checks locally
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2135,37 +2226,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    WebAssembly build
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../webassembly/" class="md-nav__link">
         
   
   
@@ -2181,70 +2245,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#build" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#use-from-javascript" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Use from JavaScript
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#documentation-playground" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Documentation playground
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#testing" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Testing
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2340,10 +2340,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#build" class="md-nav__link">
+  <a href="#branches-and-pull-requests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build
+        Branches and pull requests
       
     </span>
   </a>
@@ -2351,10 +2351,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#use-from-javascript" class="md-nav__link">
+  <a href="#what-runs-where" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Use from JavaScript
+        What runs where
       
     </span>
   </a>
@@ -2362,10 +2362,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#documentation-playground" class="md-nav__link">
+  <a href="#releasing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Documentation playground
+        Releasing
       
     </span>
   </a>
@@ -2373,10 +2373,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#testing" class="md-nav__link">
+  <a href="#running-the-checks-locally" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Testing
+        Running the checks locally
       
     </span>
   </a>
@@ -2400,7 +2400,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/development/webassembly.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/development/workflow.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2408,111 +2408,183 @@
   
 
 
-<h1 id="webassembly-build-experimental">WebAssembly build (experimental)<a class="headerlink" href="#webassembly-build-experimental" title="Permanent link">&para;</a></h1>
-<p>The optional <code>OPENTLV_BUILD_WASM</code> build compiles the OpenTLV C core to
-WebAssembly with <a href="https://emscripten.org/">Emscripten</a>, so browser tooling runs
-the same parser as native applications. It defaults to <code>OFF</code> and adds nothing
-to normal C and C++ builds.</p>
-<p>The first interface is intentionally small: it parses a byte buffer and returns
-the element structure or the parser error. It wraps the existing C API in
-<code>bindings/wasm/src/opentlv_wasm.c</code>; no parsing logic is duplicated. Editing, schemas,
-schemas and OTDL are not exposed; the EMV dictionary is available as an annotation profile (below).</p>
-<h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
-<p>Install and activate an Emscripten SDK (CI pins the version set in
-<code>.github/workflows/wasm.yml</code>), then:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>emcmake<span class="w"> </span>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-wasm<span class="w"> </span>-G<span class="w"> </span>Ninja<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_BUILD_WASM<span class="o">=</span>ON<span class="w"> </span>-DOPENTLV_BUILD_CXX<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_CLI<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-DOPENTLV_BUILD_TESTS<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_EXAMPLES<span class="o">=</span>OFF
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-wasm<span class="w"> </span>--target<span class="w"> </span>opentlv-wasm
-</code></pre></div>
-<p>The artifacts are written to <code>build-wasm/bindings/wasm/dist/</code>:</p>
+<h1 id="development-workflow">Development workflow<a class="headerlink" href="#development-workflow" title="Permanent link">&para;</a></h1>
+<p>OpenTLV uses a trunk-based workflow: <code>main</code> is the only long-lived branch.
+Work happens on short-lived feature branches that are merged into <code>main</code>
+through pull requests, and releases are cut by tagging <code>main</code>.</p>
+<p>Continuous integration has three levels. Each level answers a different
+question, so the expensive checks stay off the path of everyday development.</p>
 <table>
 <thead>
 <tr>
-<th>File</th>
-<th>Purpose</th>
+<th>Level</th>
+<th>Trigger</th>
+<th>Question it answers</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>opentlv.mjs</code></td>
-<td>JavaScript entry point (<code>loadOpenTLV</code>, <code>hexToBytes</code>)</td>
+<td>Pull request</td>
+<td>Pull request to <code>main</code></td>
+<td>Is this change safe to merge?</td>
 </tr>
 <tr>
-<td><code>opentlv-core.js</code></td>
-<td>Generated Emscripten ES module loader</td>
+<td>Main</td>
+<td>Push (merge) to <code>main</code></td>
+<td>Does <code>main</code> still work?</td>
 </tr>
 <tr>
-<td><code>opentlv-core.wasm</code></td>
-<td>The compiled OpenTLV core</td>
+<td>Release</td>
+<td>Tag <code>X.Y.Z</code> or <code>X.Y.Z-rc.N</code></td>
+<td>Does everything work, on every platform?</td>
 </tr>
 </tbody>
 </table>
-<p>Serve the three files from the same directory. With the same Emscripten version
-and configuration the artifacts are byte-for-byte identical; CI builds twice
-and compares them. Format options such as <code>OPENTLV_FORMAT_BER</code> apply as in
-native builds, and a compiled-out format is rejected as an invalid argument.</p>
-<h2 id="use-from-javascript">Use from JavaScript<a class="headerlink" href="#use-from-javascript" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">loadOpenTLV</span><span class="p">,</span><span class="w"> </span><span class="nx">hexToBytes</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./opentlv.mjs"</span><span class="p">;</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">const</span><span class="w"> </span><span class="nx">opentlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">loadOpenTLV</span><span class="p">();</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">opentlv</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nx">hexToBytes</span><span class="p">(</span><span class="s2">"6F 0A 84 03 41 42 43 A5 03 50 01 01"</span><span class="p">),</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">format</span><span class="o">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">);</span>
-</code></pre></div>
-<p><code>parse</code> takes a <code>Uint8Array</code>, a <code>format</code> (<code>default</code>, <code>fixed-1byte</code>, <code>bluetooth-ltv</code>,
-<code>ber</code> or <code>der</code>; default <code>default</code>) and optionally a <code>profile</code> (<code>none</code> or <code>emv</code>; default
-<code>none</code>) and returns:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="p">,</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="p">{</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">      </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6F"</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nt">"headerSize"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"constructed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">      </span><span class="nt">"children"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">"84"</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">"headerSize"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"constructed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"414243"</span><span class="w"> </span><span class="p">},</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A5"</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">"headerSize"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"constructed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">          </span><span class="nt">"children"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"tag"</span><span class="p">:</span><span class="w"> </span><span class="s2">"50"</span><span class="p">,</span><span class="w"> </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"headerSize"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"constructed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"01"</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">          </span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">      </span><span class="p">]</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="p">}</span>
-</code></pre></div>
-<p>Tags and values are uppercase hexadecimal. Only BER and DER elements can be
-constructed; the other formats return flat elements with opaque values. An
-element occupies <code>headerSize + length</code> encoded bytes from <code>offset</code>, the first
-bytes being its encoded <code>tag</code>; a constructed element's value is the byte range
-its <code>children</code> cover.</p>
-<p>With <code>profile: "emv"</code> (BER only; other formats report an invalid-argument
-error) the result also has <code>"profile": "emv"</code>. Every element the
-<a href="../../profiles/emv/">EMV dictionary</a> knows carries <code>symbol</code> (the
-dictionary name), <code>name</code> (a display name) and <code>lengthValid</code> (whether <code>length</code>
-is permitted for the tag); other elements carry none of these.</p>
-<p>Invalid input does not throw. The result carries an <code>error</code> object with the
-numeric <code>code</code> of <code>tlv_result_t</code>, its <code>message</code> and the input <code>offset</code>, together
-with every element read before the failure:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"default"</span><span class="p">,</span><span class="w"> </span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">],</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buffer too short"</span><span class="p">,</span><span class="w"> </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
-</code></pre></div>
-<p><code>parse</code> throws only for programming errors (a non-<code>Uint8Array</code> argument) or
-when memory runs out. Input is processed entirely in the browser. A single
-call reads at most 65,536 elements and 64 levels of nesting.</p>
-<h2 id="documentation-playground">Documentation playground<a class="headerlink" href="#documentation-playground" title="Permanent link">&para;</a></h2>
-<p>The <a href="../../playground/">TLV playground</a> in the documentation site is built
-on this module: <code>docs/playground/playground.js</code> calls <code>parse</code> once and renders
-the result as tree, hex and JSON views, with no parsing logic of its own; the
-JSON view serializes the parse result itself. The Documentation workflow builds the
-module and <code>tools/docs/hooks.py</code> publishes it as <code>playground/wasm/</code>. To try it
-locally, build the module as above and run <code>mkdocs serve</code>; use
-<code>OPENTLV_WASM_DIR</code> if the build directory is not <code>build-wasm</code>. Without the
-module the site still builds and the playground page says it is unavailable.</p>
-<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
-<p><code>bindings/wasm/test/smoke.mjs</code> runs the module in Node.js and is registered with CTest
-when <code>node</code> is found:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>ctest<span class="w"> </span>--test-dir<span class="w"> </span>build-wasm<span class="w"> </span>-L<span class="w"> </span>wasm<span class="w"> </span>--output-on-failure
-</code></pre></div>
+<h2 id="branches-and-pull-requests">Branches and pull requests<a class="headerlink" href="#branches-and-pull-requests" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Create a branch from <code>main</code>, for example <code>feature/123-short-description</code>.</li>
+<li>Open a pull request into <code>main</code>. There is no <code>develop</code> branch.</li>
+<li>Wait for the pull request checks and merge when they pass.</li>
+<li>Record user-facing changes in <code>CHANGELOG.md</code> under <code>## [Unreleased]</code>.</li>
+</ol>
+<h2 id="what-runs-where">What runs where<a class="headerlink" href="#what-runs-where" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th style="text-align: center;">Pull request</th>
+<th style="text-align: center;">Main</th>
+<th style="text-align: center;">Release tag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pre-commit (formatting, whitespace, Markdown lint)</td>
+<td style="text-align: center;">always</td>
+<td style="text-align: center;">yes</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>Clang 18 Debug build with unit and integration tests</td>
+<td style="text-align: center;">always</td>
+<td style="text-align: center;">yes, with coverage and examples</td>
+<td style="text-align: center;">yes, with coverage and examples</td>
+</tr>
+<tr>
+<td>clang-tidy</td>
+<td style="text-align: center;">if C/C++ sources or CMake changed</td>
+<td style="text-align: center;">yes</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>cppcheck</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">yes</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>C-only build</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Debug</td>
+<td style="text-align: center;">Debug and Release</td>
+</tr>
+<tr>
+<td>Clang 18 Release build with tests</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>GCC and MSVC (x64, x86) builds with tests</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>CodeQL (required by the repository rules)</td>
+<td style="text-align: center;">always</td>
+<td style="text-align: center;">yes</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>Fuzzing</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">yes</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>Benchmarks (build only)</td>
+<td style="text-align: center;">if benchmarks or <code>tlv</code> changed</td>
+<td style="text-align: center;">same</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>Rust bindings on Linux</td>
+<td style="text-align: center;">if Rust, <code>tlv</code> or CMake changed</td>
+<td style="text-align: center;">yes</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>Rust bindings on Windows and macOS</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>WebAssembly build and smoke test</td>
+<td style="text-align: center;">if <code>tlv</code>, WebAssembly or CMake changed</td>
+<td style="text-align: center;">yes</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>WebAssembly reproducibility (two builds, identical hashes)</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>Documentation validation</td>
+<td style="text-align: center;">if documentation or public headers changed</td>
+<td style="text-align: center;">yes</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>Documentation publishing</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"><code>latest</code></td>
+<td style="text-align: center;"><code>stable</code> (not for <code>-rc</code> tags)</td>
+</tr>
+</tbody>
+</table>
+<p>"If ... changed" rows use path filters, so a pull request that touches only
+documentation does not build the C library and a pull request that touches only
+the C library does not build the documentation. Pre-commit always runs.</p>
+<p>CodeQL runs on every pull request because the repository rules require it, and
+it runs in parallel with the Clang build. CodeQL and fuzzing also run weekly on
+<code>main</code>.</p>
+<p>A pull request that keeps a path-filtered check from running does not block
+on it. If you make one of these checks a required status check in branch
+protection, a pull request that skips it stays pending, so require only the
+checks that always run (pre-commit and the Clang build).</p>
+<p>Benchmarks are never run in CI. They are only built, when they or the library
+change, to confirm they still compile; run them locally.</p>
+<h2 id="releasing">Releasing<a class="headerlink" href="#releasing" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Update <code>CHANGELOG.md</code> and the version, and merge to <code>main</code>.</li>
+<li>Tag a release candidate, for example <code>1.0.0-rc.1</code>, and push the tag. This
+   runs the complete validation (the Release column above) but does not publish
+   documentation.</li>
+<li>Fix anything the release candidate finds on <code>main</code> and tag <code>1.0.0-rc.2</code>,
+   and so on.</li>
+<li>Tag the release, for example <code>1.0.0</code>. The same checks run again on the
+   released commit and the versioned documentation is published.</li>
+</ol>
+<p>Push release tags in ascending order, because the most recently published tag
+becomes <code>stable</code> (see <a href="https://github.com/marekcingel/OpenTLV/blob/main/CONTRIBUTING.md#publishing">Publishing</a>).</p>
+<h2 id="running-the-checks-locally">Running the checks locally<a class="headerlink" href="#running-the-checks-locally" title="Permanent link">&para;</a></h2>
+<p>The pull request checks are reproducible locally; see
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> for <code>pre-commit</code>, <code>clang-tidy</code>,
+<code>cppcheck</code> and the documentation build.</p>
 
 
 
@@ -2550,7 +2622,7 @@ when <code>node</code> is found:</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../fuzzing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Fuzzing">
+          <a href="../../reference/errors/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Error codes">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2560,20 +2632,20 @@ when <code>node</code> is found:</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Fuzzing
+                Error codes
               </div>
             </div>
           </a>
         
         
           
-          <a href="../rust/" class="md-footer__link md-footer__link--next" aria-label="Next: Rust bindings">
+          <a href="../documentation-layout/" class="md-footer__link md-footer__link--next" aria-label="Next: Where documentation belongs">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Rust bindings
+                Where documentation belongs
               </div>
             </div>
             <div class="md-footer__button md-icon">
