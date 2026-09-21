@@ -81,4 +81,46 @@ Sibling ordering and cross-field/value semantics are application concerns.
 structure schema built on this engine, see
 [EMV structural validation](../profiles/emv/README.md#structural-validation).
 
+## Reporting every violation
+
+`tlv_schema_validate` stops at the first violation. To validate a template's
+contents and get all problems at once, call `tlv_schema_validate_all` with the
+same `tlv_structure_schema_t`. The rules, including tag and length bounds, are
+not duplicated: a template schema is an ordinary structure schema whose rules
+say which tags are required (`min_occurs`), which may repeat (`max_occurs`),
+which children each constructed tag may hold (`children`), and whether unknown
+tags are accepted (`allow_unknown`, or an override for the whole call with
+`tlv_schema_unknown_policy_t`).
+
+```c
+tlv_schema_issue_t  issues[16];
+tlv_schema_report_t report = {issues, 16, 0};
+tlv_result_t rc = tlv_schema_validate_all(data, size, &tlv_reader_format_ber,
+                                          tlv_ber_is_constructed, &template_schema, 16, 1000,
+                                          TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &offset);
+if (rc == TLV_ERR_SCHEMA) {
+    for (size_t i = 0; i < report.count && i < report.capacity; ++i) {
+        char path[64];
+        (void)tlv_schema_issue_path_string(&issues[i], path, sizeof(path), NULL);
+        printf("%s at %s", tlv_schema_issue_kind_string(issues[i].kind), path);
+        if (issues[i].has_offset) printf(" (offset %zu)", issues[i].offset);
+        printf("\n");
+    }
+}
+```
+
+Each `tlv_schema_issue_t` has a `kind` (`MISSING`, `DUPLICATE`, `UNEXPECTED`,
+`KIND` for a primitive/constructed mismatch, `LENGTH`), the `path` from the
+outermost scope to the affected tag (`70/77/9F36` as text), and the byte
+`offset` of the element. A missing tag has no element of its own, so its offset
+is that of the enclosing element; a tag missing at the top level has no offset
+(`has_offset` is zero). The return value is `TLV_OK`, `TLV_ERR_SCHEMA` when
+violations were found (`report.count` is the total, even beyond `capacity`), or
+another error. A malformed or truncated wire encoding is not a violation: it
+aborts the call with the reader's error and no violations are reported.
+An element rejected as unexpected or of the wrong form is not descended into,
+but its siblings are still checked. Paths are limited to `TLV_SCHEMA_PATH_MAX`
+tags; a schema nested deeper returns `TLV_ERR_LIMIT`. `tlv::validate_all`
+wraps the same call in C++.
+
 See also the [C API reference: schemas](../reference/c-api.md#schemas) and the [C++ API reference](../reference/cxx-api.md).

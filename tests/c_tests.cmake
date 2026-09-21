@@ -22,6 +22,7 @@ set(SOURCES
     src/reader_test.cpp
     src/scanner_test.cpp
     src/schema_test.cpp
+    src/schema_report_test.cpp
     src/walker_test.cpp
     src/writer_test.cpp
     src/format_init_test.cpp
@@ -71,7 +72,7 @@ if(NOT (OPENTLV_FORMAT_BER AND OPENTLV_PROFILE_EMV))
     list(REMOVE_ITEM SOURCES src/emv_test.cpp src/emv_schema_test.cpp src/dol_test.cpp src/tag_c_test.c)
 endif()
 if(NOT (OPENTLV_FORMAT_BER))
-    list(REMOVE_ITEM SOURCES src/format_ber_test.cpp)
+    list(REMOVE_ITEM SOURCES src/format_ber_test.cpp src/schema_report_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_FIXED_1BYTE))
     list(REMOVE_ITEM SOURCES src/format_fixed_1byte_test.cpp)
