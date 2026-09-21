@@ -1,11 +1,14 @@
 name: CodeQL
 
-# Runs after merge and weekly instead of on pull requests, keeping the slow
-# traced build off the pull request critical path.
+# Required for pull requests by the repository rules, so it has no path filter:
+# a skipped run would leave the required check pending. It runs in parallel with
+# the Clang build, so it only lengthens pull request feedback if it is slower.
 on:
   push:
     branches: [main]
     tags: ['[0-9]*.[0-9]*.[0-9]*']
+  pull_request:
+    branches: [main]
   schedule:
     # Re-runs the security-extended query suite against unchanged code every
     # Monday, so newly published queries still get applied between pushes.

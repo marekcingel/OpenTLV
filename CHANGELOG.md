@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Speed up CI with three levels: minimal checks on pull requests, a lighter set after merge to `main` and the full validation on release and `-rc` tags; see the [development workflow](docs/development/workflow.md). (#231)
+- Speed up CI with three levels: minimal checks on pull requests (plus the required CodeQL scan), a lighter set after merge to `main` and the full validation on release and `-rc` tags; see the [development workflow](docs/development/workflow.md). (#231)
 - Move to a trunk-based workflow: `main` is the only long-lived branch, the `develop` branch is removed, and the `latest` documentation is published from `main`. (#228)
 
 ### Fixed

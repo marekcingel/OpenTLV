@@ -31,7 +31,7 @@ question, so the expensive checks stay off the path of everyday development.
 | C-only build | | Debug | Debug and Release |
 | Clang 18 Release build with tests | | | yes |
 | GCC and MSVC (x64, x86) builds with tests | | | yes |
-| CodeQL | | yes | yes |
+| CodeQL (required by the repository rules) | always | yes | yes |
 | Fuzzing | | yes | yes |
 | Benchmarks (build only) | if benchmarks or `tlv` changed | same | yes |
 | Rust bindings on Linux | if Rust, `tlv` or CMake changed | yes | yes |
@@ -45,7 +45,9 @@ question, so the expensive checks stay off the path of everyday development.
 documentation does not build the C library and a pull request that touches only
 the C library does not build the documentation. Pre-commit always runs.
 
-CodeQL and fuzzing also run weekly on `main`.
+CodeQL runs on every pull request because the repository rules require it, and
+it runs in parallel with the Clang build. CodeQL and fuzzing also run weekly on
+`main`.
 
 A pull request that keeps a path-filtered check from running does not block
 on it. If you make one of these checks a required status check in branch
