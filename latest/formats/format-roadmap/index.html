@@ -2312,11 +2312,6 @@ introducing protocol-specific branches in the generic parser.</p>
 <td>OMA LwM2M TLV</td>
 <td>Packed TLV headers and resource/container interpretation; separate from CoAP and device management. <a href="https://www.openmobilealliance.org/release/LightweightM2M/V1_2_2-20240613-A/HTML-Version/OMA-TS-LightweightM2M_Core-V1_2_2-20240613-A.html">LwM2M Core 1.2.2</a></td>
 </tr>
-<tr>
-<td>Wireless</td>
-<td>Bluetooth LE advertising data</td>
-<td>Length-Type-Value (LTV) structures; an adjacent framing family with a different field order, not a Bluetooth stack. <a href="https://www.bluetooth.com/wp-content/uploads/2023/02/2301_5.4_Tech_Overview_FINAL.pdf">Bluetooth SIG overview</a></td>
-</tr>
 </tbody>
 </table>
 <h2 id="generic-processing-extensions">Generic processing extensions<a class="headerlink" href="#generic-processing-extensions" title="Permanent link">&para;</a></h2>
@@ -2334,8 +2329,9 @@ bounded iterative traversal. It does not allocate an object tree. See
 <ol>
 <li>Add configurable fixed-width framing to cover more application protocols.</li>
 <li>Assess DGI, NDN, and RADIUS as concrete adapters with different length rules.</li>
-<li>Assess packed and reordered headers through LwM2M and Bluetooth advertising;
-   derive any generic contract extension from those requirements.</li>
+<li>Assess packed headers through LwM2M; derive any further generic contract
+   extension from those requirements (reordered headers are covered by
+   <a href="../bluetooth/">Bluetooth LTV</a>).</li>
 <li>Add mixed-format traversal and incremental parsing as separately scoped core work.</li>
 <li>Expand semantic profiles and ASN.1 canonical validation with explicit standard
    coverage, independently of basic wire-format support.</li>

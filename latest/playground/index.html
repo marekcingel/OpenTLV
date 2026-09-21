@@ -2213,6 +2213,7 @@ native applications. Nothing you enter is uploaded.</p>
       <select id="otlv-pg-format" disabled>
         <option value="default">Default TLV</option>
         <option value="fixed-1byte">Fixed 1-byte TLV</option>
+        <option value="bluetooth-ltv">Bluetooth LTV</option>
         <option value="ber">BER-TLV</option>
         <option value="der">DER-TLV</option>
       </select>
@@ -2254,8 +2255,10 @@ buttons to copy the tag, the value or the whole encoded element. With the
 <p>In <a href="../formats/asn1/ber/">BER-TLV</a> and
 <a href="../formats/asn1/der/">DER-TLV</a> constructed elements nest their children; the
 <a href="../formats/default/">Default</a> and
-<a href="../formats/fixed/">Fixed 1-byte</a> formats have opaque values, so their
-elements are flat. EMV data is BER-TLV.</p>
+<a href="../formats/fixed/">Fixed 1-byte</a> and
+<a href="../formats/bluetooth/">Bluetooth LTV</a> formats have opaque values, so
+their elements are flat. Bluetooth LTV puts the length byte before the type, so
+in the hex view and the element details the length is shown before the tag. EMV data is BER-TLV.</p>
 <p>Invalid or truncated input reports the parser error with its code, message and
 input offset, together with every element read before the failure.</p>
 <h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>

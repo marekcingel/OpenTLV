@@ -10,7 +10,7 @@
 import createOpenTLV from "./opentlv-core.js";
 
 /** Formats the module can parse (a build may compile out some of them). */
-export const FORMATS = Object.freeze(["default", "fixed-1byte", "ber", "der"]);
+export const FORMATS = Object.freeze(["default", "fixed-1byte", "bluetooth-ltv", "ber", "der"]);
 
 /** Profiles that annotate elements with known tag names ("none" adds nothing). */
 export const PROFILES = Object.freeze(["none", "emv"]);
