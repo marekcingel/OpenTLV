@@ -28,8 +28,8 @@ children. For the structure
 `50` anywhere else, and when a tag repeats it addresses every element the path
 reaches, in document order.
 
-Tags are read in either case, must have an even number of digits and are at
-most `TLV_TAG_CAPACITY` bytes. Whitespace, empty steps and a leading or trailing
+Tags are read in either case, must have an even number of digits and are of
+any length, within `TLV_QUERY_MAX_BYTES` (512) tag bytes in total. Whitespace, empty steps and a leading or trailing
 `/` are errors. The tag bytes are compared as they are, so the query does not
 depend on a format or profile. A path of more than one tag needs a reader
 format whose values can be constructed and a matching `is_constructed`

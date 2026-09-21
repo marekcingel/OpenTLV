@@ -128,7 +128,8 @@ impl Definition {
 
     /// Returns the tag the definition describes.
     pub fn tag(&self) -> Tag {
-        Tag::from_raw(&self.entry().tag).expect("dictionary tags are valid")
+        // SAFETY: dictionary tags borrow immutable static bytes.
+        unsafe { Tag::from_raw(&self.entry().tag) }.expect("dictionary tags are valid")
     }
 
     /// Returns the representation of the value.
@@ -178,7 +179,7 @@ impl Definition {
 /// use opentlv::emv::{self, Context};
 /// use opentlv::{Tag, Value};
 ///
-/// let aip = emv::find(Context::Base, &Tag::from_bytes(&[0x82]).unwrap()).unwrap();
+/// let aip = emv::find(Context::Base, &Tag::from_bytes(&[0x82])).unwrap();
 /// assert_eq!(aip.name(), "aip");
 /// assert_eq!(aip.codec().unwrap().decode(&[0x20, 0x00]).unwrap(), Value::Flags(0x2000));
 /// ```

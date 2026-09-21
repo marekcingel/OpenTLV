@@ -25,7 +25,7 @@ namespace {
 std::string hex_string(const tlv_tag_t& tag) {
     static const char digits[] = "0123456789ABCDEF";
     std::string       result;
-    for (uint8_t i = 0; i < tag.size; ++i) {
+    for (size_t i = 0; i < tag.size; ++i) {
         result += digits[tag.data[i] >> 4];
         result += digits[tag.data[i] & 0xF];
     }
@@ -66,15 +66,15 @@ std::string lowercase(std::string text) {
 bool tag_less(const tlv_emv_definition_t* a, const tlv_emv_definition_t* b) {
     const tlv_tag_t& x = a->schema->tag;
     const tlv_tag_t& y = b->schema->tag;
-    return std::lexicographical_compare(x.data, x.data + x.size, y.data, y.data + y.size);
+    return tlv_tag_compare(x, y) < 0;
 }
 
 // Decodes the argument and requires it to be exactly one complete BER tag.
-int parse_tag(const char* text, tlv_tag_t& tag) {
-    std::vector<uint8_t> bytes;
-    size_t               used = 0;
-    int                  rc = cli::decode_hex(text, TLV_TAG_CAPACITY, bytes);
-    if (rc == 3) return fail(2, "tag is longer than the supported tag capacity");
+// The parsed tag borrows `bytes`, which must outlive it.
+int parse_tag(const char* text, std::vector<uint8_t>& bytes, tlv_tag_t& tag) {
+    size_t used = 0;
+    int    rc = cli::decode_hex(text, TLV_ASN1_TAG_MAX_SIZE, bytes);
+    if (rc == 3) return fail(2, "tag is longer than the longest tag a supported format accepts");
     if (rc) return rc;
     if (bytes.empty()) return fail(2, "tag must not be empty");
     if (tlv_reader_format_ber.read_tag(tlv_reader_format_ber.context, bytes.data(), bytes.size(),
@@ -92,8 +92,9 @@ namespace commands {
 
 int tag(const options& o) {
 #if OPENTLV_PROFILE_EMV
-    tlv_tag_t parsed;
-    int       rc = parse_tag(o.tag, parsed);
+    std::vector<uint8_t> bytes;
+    tlv_tag_t            parsed;
+    int                  rc = parse_tag(o.tag, bytes, parsed);
     if (rc) return rc;
 
     const tlv_emv_definition_t* definition = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &parsed);

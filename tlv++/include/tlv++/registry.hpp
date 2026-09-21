@@ -2,7 +2,9 @@
 #define OPENTLV_TLVPP_REGISTRY_HPP
 
 #include <functional>
+#include <cstdint>
 #include <map>
+#include <vector>
 
 #include "tlv++/codec.hpp"
 
@@ -19,7 +21,9 @@ namespace tlv {
  * Complements the compile-time TlvCodec concept. Useful, for example, for
  * pluggable formats whose types are not all known at compile time.
  *
- * @note Registering and decoding may allocate.
+ * @note Registering and decoding may allocate. The registry copies the bytes
+ *       of every registered tag, so the tag passed to register_decoder() only
+ *       has to stay valid for the duration of the call.
  */
 class codec_registry {
 public:
@@ -35,7 +39,7 @@ public:
      * @param decoder Decoder called with the element's value bytes.
      */
     void register_decoder(tag_t tag, decoder_fn decoder) {
-        decoders_[tag] = std::move(decoder);
+        decoders_[key(tag)] = std::move(decoder);
     }
 
     /**
@@ -71,10 +75,11 @@ public:
      *         decoder is registered for `tag`.
      */
     TLV_NODISCARD expected<any, error> decode(tag_t tag, bytes data) const {
-        if (decoders_.count(tag) == 0) {
+        const auto found = decoders_.find(key(tag));
+        if (found == decoders_.end()) {
             return unexpected<error>(error{TLV_ERR_INVALID_LENGTH, "unregistered tag"});
         }
-        return decoders_.at(tag)(data);
+        return found->second(data);
     }
 
     /**
@@ -85,23 +90,18 @@ public:
      * @return `true` if a decoder is registered.
      */
     TLV_NODISCARD bool has_decoder(tag_t tag) const {
-        return decoders_.find(tag) != decoders_.end();
+        return decoders_.find(key(tag)) != decoders_.end();
     }
 
 private:
-    struct tag_less {
-        bool operator()(const tag_t& left, const tag_t& right) const {
-            const size_t common = left.size < right.size ? left.size : right.size;
-            for (size_t i = 0; i < common && i < TLV_TAG_CAPACITY; ++i) {
-                if (left.data[i] != right.data[i]) {
-                    return left.data[i] < right.data[i];
-                }
-            }
-            return left.size < right.size;
-        }
-    };
+    /** Owning copy of a tag's bytes; ordered lexicographically like tlv_tag_compare(). */
+    using tag_key = std::vector<std::uint8_t>;
 
-    std::map<tag_t, decoder_fn, tag_less> decoders_;
+    static tag_key key(tag_t tag) {
+        return tag.data ? tag_key(tag.data, tag.data + tag.size) : tag_key();
+    }
+
+    std::map<tag_key, decoder_fn> decoders_;
 };
 
 } // namespace tlv

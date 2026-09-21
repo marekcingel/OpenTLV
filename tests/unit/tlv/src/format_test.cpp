@@ -3,15 +3,14 @@
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>
-
-#if TLV_TAG_CAPACITY >= 2
+#include <vector>
 
 namespace {
 // Two raw tag bytes, and a configurable fixed-width little-endian length.
 const size_t width = 2;
 tlv_result_t read_tag(const void*, const uint8_t* data, size_t size, tlv_tag_t* tag, size_t* used) {
     if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
-    *tag = tlv_tag_t{{data[0], data[1]}, 2};
+    *tag = tlv_tag(data, 2);
     *used = 2;
     return TLV_OK;
 }
@@ -54,7 +53,7 @@ TEST(Unit_Format, TruncationPreservesReaderStateAndOutput) {
     for (size_t size = 1; size < sizeof(data); ++size) {
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, size, &fixed));
-        tlv_view_t entry = {tlv_tag_t{{0xEE}, 1}, {nullptr, 42}};
+        tlv_view_t entry = {TLV_TAG(0xEE), {nullptr, 42}};
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &entry));
         EXPECT_EQ(0u, reader.pos);
         EXPECT_EQ(0xEE, entry.tag.data[0]);
@@ -67,10 +66,10 @@ TEST(Unit_Format, WriterPreflightDoesNotModifyBuffer) {
     std::memset(data, 0xEE, sizeof(data));
     tlv_writer_t writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &fixed_writer));
-    const tlv_tag_t tag = {{1, 2}, 2};
+    const tlv_tag_t tag = TLV_TAG(1, 2);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_write(&writer, tag, data, 2));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, tag, data, 65536));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_writer_write(&writer, (tlv_tag_t{{1}, 1}), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_writer_write(&writer, (TLV_TAG(1)), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
     for (auto byte : data) EXPECT_EQ(0xEE, byte);
 }
@@ -128,16 +127,99 @@ TEST(Unit_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
     };
     tlv_writer_t writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &output_format));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_writer_write(&writer, (tlv_tag_t{{1, 2}, 2}), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, (TLV_TAG(1, 2)), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
     output_format.write_length = [](const void*, uint8_t*, size_t, size_t, size_t* used) {
         *used = 3;
         return TLV_OK;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_writer_write(&writer, (tlv_tag_t{{1, 2}, 2}), nullptr, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, (TLV_TAG(1, 2)), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
 }
 
-#endif // TLV_TAG_CAPACITY >= 2
+namespace {
+// A format whose tag width is chosen at runtime, as a format loaded from a
+// description would: nothing about the width is known when OpenTLV is built.
+struct RuntimeTagFormat {
+    size_t tag_width;
+};
+
+const size_t& width_of(const void* ctx) {
+    return static_cast<const RuntimeTagFormat*>(ctx)->tag_width;
+}
+tlv_result_t runtime_read_tag(const void* ctx, const uint8_t* data, size_t size, tlv_tag_t* tag,
+                              size_t* used) {
+    if (size < width_of(ctx)) return TLV_ERR_BUFFER_TOO_SHORT;
+    *tag = tlv_tag(data, width_of(ctx));
+    *used = width_of(ctx);
+    return TLV_OK;
+}
+tlv_result_t runtime_write_tag(const void* ctx, uint8_t* data, size_t size, const tlv_tag_t* tag,
+                               size_t* used) {
+    if (tag->size != width_of(ctx)) return TLV_ERR_INVALID_TAG_SIZE;
+    *used = tag->size;
+    if (!data) return TLV_OK;
+    if (size < tag->size) return TLV_ERR_BUFFER_TOO_SHORT;
+    std::memcpy(data, tag->data, tag->size);
+    return TLV_OK;
+}
+tlv_result_t one_byte_length_size(const void*, size_t length, size_t* used) {
+    if (length > 255) return TLV_ERR_INVALID_LENGTH;
+    *used = 1;
+    return TLV_OK;
+}
+tlv_result_t one_byte_read_length(const void*, const uint8_t* data, size_t size, size_t* length,
+                                  size_t* used) {
+    if (size < 1) return TLV_ERR_BUFFER_TOO_SHORT;
+    *length = data[0];
+    *used = 1;
+    return TLV_OK;
+}
+tlv_result_t one_byte_write_length(const void* ctx, uint8_t* data, size_t size, size_t length,
+                                   size_t* used) {
+    const auto rc = one_byte_length_size(ctx, length, used);
+    if (rc != TLV_OK) return rc;
+    if (size < 1) return TLV_ERR_BUFFER_TOO_SHORT;
+    data[0] = static_cast<uint8_t>(length);
+    return TLV_OK;
+}
+} // namespace
+
+TEST(Unit_Format, RuntimeDefinedTagWidthsRoundTripWithoutRebuilding) {
+    // Widths above the former default capacity of 8, including the 12 bytes of the motivating case.
+    for (size_t tag_width :
+         {size_t(1), size_t(2), size_t(8), size_t(9), size_t(12), size_t(64), size_t(300)}) {
+        SCOPED_TRACE(tag_width);
+        const RuntimeTagFormat    context = {tag_width};
+        const tlv_reader_format_t reader_format = {&context, runtime_read_tag, one_byte_read_length,
+                                                   nullptr, nullptr};
+        const tlv_writer_format_t writer_format = {
+            &context, runtime_write_tag, one_byte_write_length, one_byte_length_size, nullptr};
+        std::vector<uint8_t> tag_bytes(tag_width);
+        for (size_t i = 0; i < tag_width; ++i) tag_bytes[i] = static_cast<uint8_t>(0x10 + i);
+        const uint8_t value[] = {0xAA, 0xBB};
+
+        std::vector<uint8_t> wire(tag_width + 1 + sizeof(value));
+        size_t               written = 0;
+        ASSERT_EQ(TLV_OK, tlv_write(wire.data(), wire.size(), &writer_format,
+                                    tlv_tag(tag_bytes.data(), tag_bytes.size()), value,
+                                    sizeof(value), &written));
+        EXPECT_EQ(wire.size(), written);
+
+        tlv_view_t view{};
+        size_t     consumed = 0;
+        ASSERT_EQ(TLV_OK, tlv_read(wire.data(), wire.size(), &reader_format, &view, &consumed));
+        EXPECT_EQ(wire.size(), consumed);
+        // The tag is a window onto the input, not a copy.
+        EXPECT_EQ(wire.data(), view.tag.data);
+        EXPECT_EQ(tag_width, view.tag.size);
+        EXPECT_TRUE(tlv_tag_equal(view.tag, tlv_tag(tag_bytes.data(), tag_bytes.size())));
+        EXPECT_EQ(sizeof(value), static_cast<size_t>(view.value.length));
+
+        // The format, not the tag type, rejects a tag of another width.
+        std::vector<uint8_t> other(tag_width + 1, 0x42);
+        EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+                  tlv_write(wire.data(), wire.size(), &writer_format,
+                            tlv_tag(other.data(), other.size()), value, sizeof(value), &written));
+    }
+}

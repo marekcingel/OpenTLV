@@ -18,7 +18,7 @@ use crate::tag::Tag;
 /// Length rule for one tag of a [`LengthSchema`].
 ///
 /// Bounds are inclusive; equal bounds specify an exact length.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct LengthRule {
     /// Tag the rule describes.
     pub tag: Tag,
@@ -52,9 +52,14 @@ impl LengthRule {
         }
     }
 
-    fn from_raw(raw: &sys::tlv_schema_entry_t) -> Result<LengthRule> {
+    /// # Safety
+    ///
+    /// `raw.tag` must reference readable bytes, as the entries of a live
+    /// schema table do.
+    unsafe fn from_raw(raw: &sys::tlv_schema_entry_t) -> Result<LengthRule> {
         Ok(LengthRule {
-            tag: Tag::from_raw(&raw.tag)?,
+            // SAFETY: the caller guarantees the tag bytes are readable.
+            tag: unsafe { Tag::from_raw(&raw.tag) }?,
             min_length: raw.min_length,
             max_length: raw.max_length,
         })
@@ -63,7 +68,11 @@ impl LengthRule {
 
 #[derive(Debug)]
 enum Table {
-    Owned(Vec<sys::tlv_schema_entry_t>),
+    Owned {
+        entries: Vec<sys::tlv_schema_entry_t>,
+        // Kept alive because `entries` borrows their bytes.
+        _tags: Vec<Tag>,
+    },
     Static(&'static sys::tlv_schema_t),
 }
 
@@ -75,8 +84,8 @@ enum Table {
 /// ```
 /// use opentlv::{LengthRule, LengthSchema, Tag};
 ///
-/// let tag = Tag::from_bytes(&[0x01]).unwrap();
-/// let schema = LengthSchema::new([LengthRule::new(tag, 2, 4)]);
+/// let tag = Tag::from_bytes(&[0x01]);
+/// let schema = LengthSchema::new([LengthRule::new(tag.clone(), 2, 4)]);
 /// assert!(schema.validate_length(&tag, 3).is_ok());
 /// assert!(schema.validate_length(&tag, 5).is_err());
 /// ```
@@ -93,8 +102,18 @@ unsafe impl Sync for LengthSchema {}
 impl LengthSchema {
     /// Creates a schema from `rules`. Earlier rules win for a repeated tag.
     pub fn new(rules: impl IntoIterator<Item = LengthRule>) -> LengthSchema {
+        let mut entries = Vec::new();
+        let mut tags = Vec::new();
+        for rule in rules {
+            entries.push(rule.raw());
+            // Moving a tag moves its handle, not the heap bytes the entry borrows.
+            tags.push(rule.tag);
+        }
         LengthSchema {
-            table: Table::Owned(rules.into_iter().map(|rule| rule.raw()).collect()),
+            table: Table::Owned {
+                entries,
+                _tags: tags,
+            },
         }
     }
 
@@ -116,7 +135,7 @@ impl LengthSchema {
 
     fn with_raw<R>(&self, f: impl FnOnce(&sys::tlv_schema_t) -> R) -> R {
         match &self.table {
-            Table::Owned(entries) => f(&sys::tlv_schema_t {
+            Table::Owned { entries, .. } => f(&sys::tlv_schema_t {
                 entries: entries.as_ptr(),
                 count: entries.len(),
             }),
@@ -147,7 +166,9 @@ impl LengthSchema {
     /// Returns the rule for `tag`, or `None` if the schema does not know it.
     pub fn find(&self, tag: &Tag) -> Option<LengthRule> {
         self.find_raw(tag)
-            .and_then(|raw| LengthRule::from_raw(&raw).ok())
+            // SAFETY: the entry comes from this schema's table, whose tag bytes
+            // are alive for as long as `self`.
+            .and_then(|raw| unsafe { LengthRule::from_raw(&raw) }.ok())
     }
 
     /// Checks that a value of `length` bytes is permitted for `tag`.
@@ -195,7 +216,7 @@ impl Kind {
 /// ```
 /// use opentlv::{Kind, StructureRule, Tag};
 ///
-/// let rule = StructureRule::new(Tag::from_bytes(&[0x84]).unwrap())
+/// let rule = StructureRule::new(Tag::from_bytes(&[0x84]))
 ///     .length(5, 16)
 ///     .required_once()
 ///     .kind(Kind::Primitive);
@@ -265,6 +286,8 @@ impl StructureRule {
 /// addresses stored in parent tables stay valid when the schema is moved.
 struct Compiled {
     rules: Vec<sys::tlv_structure_rule_t>,
+    // Kept alive because `rules` borrows their bytes.
+    _tags: Vec<Tag>,
     // Kept alive because `rules` points to their C tables.
     _children: Vec<StructureSchema>,
     raw: sys::tlv_structure_schema_t,
@@ -285,7 +308,7 @@ enum Backing {
 /// ```
 /// use opentlv::{Format, StructureRule, StructureSchema, Tag, ValidationLimits};
 ///
-/// let tag = Tag::from_bytes(&[0x01]).unwrap();
+/// let tag = Tag::from_bytes(&[0x01]);
 /// let schema = StructureSchema::new([StructureRule::new(tag).required_once()], false);
 /// let limits = ValidationLimits::default();
 /// assert!(schema.validate(&[0x01, 0x00], Format::Default, &limits).is_ok());
@@ -318,6 +341,7 @@ impl StructureSchema {
     ) -> StructureSchema {
         let mut raw_rules = Vec::new();
         let mut children = Vec::new();
+        let mut tags = Vec::new();
         for rule in rules {
             let child_ptr = match rule.children {
                 Some(child) => {
@@ -339,6 +363,8 @@ impl StructureSchema {
                 kind: rule.kind.raw(),
                 children: child_ptr,
             });
+            // Moving a tag moves its handle, not the heap bytes the rule borrows.
+            tags.push(rule.tag);
         }
         let mut compiled = Box::new(Compiled {
             raw: sys::tlv_structure_schema_t {
@@ -347,6 +373,7 @@ impl StructureSchema {
                 allow_unknown: allow_unknown as i32,
             },
             rules: raw_rules,
+            _tags: tags,
             _children: children,
         });
         // The vector is never resized again, so its buffer address is stable.

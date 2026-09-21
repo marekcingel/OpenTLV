@@ -3,7 +3,7 @@
 use opentlv::{encoded_size, Error, Format, Reader, Tag, Writer};
 
 fn tag(bytes: &[u8]) -> Tag {
-    Tag::from_bytes(bytes).unwrap()
+    Tag::from_bytes(bytes)
 }
 
 #[test]
@@ -54,7 +54,7 @@ fn empty_buffer_rejects_every_entry() {
 fn empty_tag_is_an_error() {
     let mut buf = [0u8; 8];
     let mut writer = Writer::new(&mut buf);
-    let empty = Tag::from_bytes(&[]).unwrap();
+    let empty = Tag::from_bytes(&[]);
     assert!(writer.write(&empty, &[]).is_err());
     assert_eq!(writer.position(), 0);
 }

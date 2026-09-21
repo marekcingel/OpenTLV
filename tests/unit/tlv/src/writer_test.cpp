@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace {
-const tlv_tag_t tag = {{0xFF}, 1};
+const tlv_tag_t tag = TLV_TAG(0xFF);
 }
 
 TEST(Unit_Writer, EveryInsufficientCapacityReportsRequiredSizeAndPreservesBuffer) {
@@ -33,7 +33,7 @@ TEST(Unit_Writer, EveryInsufficientCapacityReportsRequiredSizeAndPreservesBuffer
 // untouched on TLV_ERR_BUFFER_TOO_SHORT). Reproduces that exact call shape here so
 // the size-feedback contract for a zero-length value is covered without fuzzing.
 TEST(Unit_Writer, ZeroLengthValueUndersizedWriteThenRoundTripRegression) {
-    const tlv_tag_t primitive = {{0x04}, 1};
+    const tlv_tag_t primitive = TLV_TAG(0x04);
     size_t          total = 0;
     ASSERT_EQ(TLV_OK, tlv_encoded_size(primitive, 0, &controlled::writer, &total));
     std::vector<uint8_t> encoded(total, 0xA5);
@@ -134,7 +134,7 @@ TEST(Unit_Writer, StatefulAppendFailureAndRetry) {
 TEST(Unit_Writer, CopyViewAppendsAtCurrentPositionAndAdvances) {
     uint8_t          data[8];
     const uint8_t    value[] = {0x11, 0x22};
-    const tlv_view_t view = {{{0xAB}, 1}, {value, sizeof(value)}};
+    const tlv_view_t view = {TLV_TAG(0xAB), {value, sizeof(value)}};
     tlv_writer_t     writer;
     std::memset(data, 0xEE, sizeof(data));
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
@@ -151,7 +151,7 @@ TEST(Unit_Writer, CopyViewAppendsAtCurrentPositionAndAdvances) {
 TEST(Unit_Writer, CopyViewInsufficientCapacityLeavesPositionAndDoesNotExposeSize) {
     uint8_t          data[3];
     const uint8_t    value[] = {0x11, 0x22};
-    const tlv_view_t view = {{{0xAB}, 1}, {value, sizeof(value)}};
+    const tlv_view_t view = {TLV_TAG(0xAB), {value, sizeof(value)}};
     tlv_writer_t     writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_copy_view(&writer, &view));
@@ -161,8 +161,8 @@ TEST(Unit_Writer, CopyViewInsufficientCapacityLeavesPositionAndDoesNotExposeSize
 TEST(Unit_Writer, CopyViewInvalidArguments) {
     uint8_t          data[8];
     const uint8_t    byte = 0xAB;
-    const tlv_view_t view = {{{0xAB}, 1}, {&byte, 1}};
-    tlv_view_t       invalid_view = {{{0xAB}, 1}, {nullptr, 1}};
+    const tlv_view_t view = {TLV_TAG(0xAB), {&byte, 1}};
+    tlv_view_t       invalid_view = {TLV_TAG(0xAB), {nullptr, 1}};
     tlv_writer_t     writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_copy_view(nullptr, &view));
@@ -172,7 +172,7 @@ TEST(Unit_Writer, CopyViewInvalidArguments) {
 
 TEST(Unit_Writer, CopyViewNullBufferZeroCapacityIsNotASizeQuery) {
     const uint8_t    value[] = {0x11};
-    const tlv_view_t view = {{{0xAB}, 1}, {value, sizeof(value)}};
+    const tlv_view_t view = {TLV_TAG(0xAB), {value, sizeof(value)}};
     tlv_writer_t     writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &controlled::writer));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_copy_view(&writer, &view));
@@ -181,7 +181,7 @@ TEST(Unit_Writer, CopyViewNullBufferZeroCapacityIsNotASizeQuery) {
 
 TEST(Unit_Writer, CopyViewInvalidPositionGreaterThanCapacity) {
     uint8_t          data[8];
-    const tlv_view_t view = {{{0xAB}, 1}, {nullptr, 0}};
+    const tlv_view_t view = {TLV_TAG(0xAB), {nullptr, 0}};
     tlv_writer_t     writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
     writer.pos = writer.capacity + 1;
@@ -256,13 +256,13 @@ TEST(Unit_Writer, SequentialRoundTripCombiningWriteAndBothCopyHelpers) {
     uint8_t          separately_encoded[8];
     const uint8_t    first_value[] = {0x01, 0x02};
     const uint8_t    view_value[] = {0xAA, 0xBB, 0xCC};
-    const tlv_tag_t  view_tag = {{0x22}, 1};
+    const tlv_tag_t  view_tag = TLV_TAG(0x22);
     const tlv_view_t view = {view_tag, {view_value, sizeof(view_value)}};
     size_t           encoded_written = 0;
     tlv_writer_t     writer;
 
     ASSERT_EQ(TLV_OK, tlv_write(separately_encoded, sizeof(separately_encoded), &controlled::writer,
-                                tlv_tag_t{{0x33}, 1}, view_value, 1, &encoded_written));
+                                TLV_TAG(0x33), view_value, 1, &encoded_written));
 
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, first_value, sizeof(first_value)));

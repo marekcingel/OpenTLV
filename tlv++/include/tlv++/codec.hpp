@@ -19,7 +19,8 @@ namespace tlv {
  * TLV.
  *
  * `T` satisfies the trait when it provides:
- * - a static member `tag` convertible to #tag_t,
+ * - a static member `tag` convertible to #tag_t. The tag only borrows its bytes, so they must
+ *   have static storage (for example `static const tlv::tag_t tag;` defined with `TLV_TAG(...)`),
  * - `void encode(std::vector<byte>&) const` appending its encoded value, and
  * - a static `decode(bytes)` returning the decoded value.
  *

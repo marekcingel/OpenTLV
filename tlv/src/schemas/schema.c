@@ -4,13 +4,11 @@
 const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, const tlv_tag_t* tag) {
     size_t i;
     if (!schema || !tag || (!schema->entries && schema->count != 0)) return NULL;
-#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
-    if (tag->size > TLV_TAG_CAPACITY) return NULL;
-#endif
+    if (tag->size && !tag->data) return NULL;
     for (i = 0; i < schema->count; ++i) {
         const tlv_schema_entry_t* entry = &schema->entries[i];
-        if (entry->tag.size == tag->size && memcmp(entry->tag.data, tag->data, tag->size) == 0)
-            return entry;
+        if (entry->tag.size && !entry->tag.data) continue;
+        if (tlv_tag_equal(entry->tag, *tag)) return entry;
     }
     return NULL;
 }

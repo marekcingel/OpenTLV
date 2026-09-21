@@ -20,9 +20,11 @@ On failure it remains unchanged. Insufficient capacity returns
 ```c
 #include "tlv/copy.h"
 #include "tlv/reader/reader.h"
+#include <string.h>
 
 uint8_t input[] = {1, 2, 0xAB, 0xCD};
 uint8_t storage[16];
+uint8_t tag_storage[8]; /* The fixed 1-byte format's tags are one byte long. */
 tlv_view_t view;
 size_t consumed, required, written;
 tlv_result_t result = tlv_read(input, sizeof(input), &tlv_reader_format_fixed_1byte,
@@ -32,10 +34,13 @@ if (result == TLV_OK) {
     if (result == TLV_OK && required <= sizeof(storage)) {
         result = tlv_copy_value(&view, storage, sizeof(storage), &written);
         if (result == TLV_OK) {
-            /* Retain the inline tag and point the view at the owned copy. */
+            /* The tag and the value both borrow input. Copy the tag bytes as
+             * well, then point the view at the owned copies. */
+            memcpy(tag_storage, view.tag.data, view.tag.size);
+            view.tag = tlv_tag(tag_storage, view.tag.size);
             view.value.data = storage;
             view.value.length = written;
-            /* input may now be reused; storage must outlive view. */
+            /* input may now be reused; storage and tag_storage must outlive view. */
         }
     }
 }

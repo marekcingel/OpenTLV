@@ -7,7 +7,7 @@ use opentlv::{
 };
 
 fn tag(bytes: &[u8]) -> Tag {
-    Tag::from_bytes(bytes).unwrap()
+    Tag::from_bytes(bytes)
 }
 
 fn limits() -> ValidationLimits {
@@ -52,7 +52,10 @@ fn emv_length_schema_uses_the_builtin_dictionary() {
     let schema = LengthSchema::emv();
     assert!(!schema.is_empty());
     let amount = tag(&[0x9F, 0x02]);
-    assert_eq!(schema.find(&amount), Some(LengthRule::exact(amount, 6)));
+    assert_eq!(
+        schema.find(&amount),
+        Some(LengthRule::exact(amount.clone(), 6))
+    );
     assert_eq!(schema.validate_length(&amount, 6), Ok(()));
     assert_eq!(
         schema.validate_length(&amount, 5),
@@ -238,4 +241,19 @@ fn moving_a_schema_keeps_nested_tables_valid() {
     for schema in schemas {
         assert_eq!(schema.validate(&data, Format::Ber, &limits()), Ok(()));
     }
+}
+
+#[test]
+fn schemas_hold_tags_longer_than_any_built_in_format_accepts() {
+    let long = tag(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    let schema = LengthSchema::new([LengthRule::exact(long.clone(), 3)]);
+    assert_eq!(schema.find(&long), Some(LengthRule::exact(long.clone(), 3)));
+    assert_eq!(schema.validate_length(&long, 3), Ok(()));
+    assert_eq!(schema.validate_length(&long, 4), Err(Error::InvalidLength));
+    // A tag that differs only in its last byte is a different tag.
+    let other = tag(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13]);
+    assert_eq!(schema.find(&other), None);
+    // The schema owns its tags, so it outlives the tag it was built from.
+    drop(long);
+    assert_eq!(schema.len(), 1);
 }

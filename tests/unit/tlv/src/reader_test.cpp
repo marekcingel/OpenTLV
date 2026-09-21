@@ -22,7 +22,8 @@ struct Config {
     size_t       tag_bytes = 2;
     size_t       length_bytes = 2;
     size_t       value_bytes = 2;
-    uint8_t      tag_size = 1;
+    size_t       tag_size = 1;
+    bool         tag_without_data = false;
     tlv_result_t tag_error = TLV_OK;
     tlv_result_t length_error = TLV_OK;
 };
@@ -30,12 +31,12 @@ struct Config {
 tlv_reader_format_t make_format(const Config* config) {
     tlv_reader_format_t format{};
     format.context = config;
-    format.read_tag = [](const void* ctx, const uint8_t*, size_t size, tlv_tag_t* tag,
+    format.read_tag = [](const void* ctx, const uint8_t* data, size_t size, tlv_tag_t* tag,
                          size_t* used) {
         const auto& c = *static_cast<const Config*>(ctx);
         if (c.tag_error != TLV_OK) return c.tag_error;
         if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
-        *tag = tlv_tag_t{{0x42}, c.tag_size};
+        *tag = tlv_tag(c.tag_without_data || !c.tag_size ? nullptr : data, c.tag_size);
         *used = c.tag_bytes;
         return TLV_OK;
     };
@@ -53,7 +54,7 @@ tlv_reader_format_t make_format(const Config* config) {
 
 void expect_failure(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
                     tlv_result_t error) {
-    tlv_view_t view = {tlv_tag_t{{0xEE}, 1}, {data, 42}};
+    tlv_view_t view = {TLV_TAG(0xEE), {data, 42}};
     size_t     consumed = 99;
     EXPECT_EQ(error, tlv_read(data, size, format, &view, &consumed));
     EXPECT_EQ(99u, consumed);
@@ -76,7 +77,7 @@ TEST(Unit_Reader, CustomFormatAndEveryTruncatedPrefix) {
     tlv_view_t view{};
     size_t     consumed = 0;
     ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &format, &view, &consumed));
-    EXPECT_EQ(0x42, view.tag.data[0]);
+    EXPECT_EQ(data, view.tag.data);
     EXPECT_EQ(data + 4, view.value.data);
     EXPECT_EQ(2u, view.value.length);
     EXPECT_EQ(6u, consumed);
@@ -112,12 +113,18 @@ TEST(Unit_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     config.tag_bytes = std::numeric_limits<size_t>::max();
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
     config = Config{};
+    // Whether an empty tag is acceptable is up to the format, not the reader.
     config.tag_size = 0;
-    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG_SIZE);
-#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
-    config.tag_size = TLV_TAG_CAPACITY + 1;
-    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG_SIZE);
-#endif
+    {
+        tlv_view_t view{};
+        size_t     consumed = 0;
+        ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &format, &view, &consumed));
+        EXPECT_EQ(0u, view.tag.size);
+    }
+    // A tag that claims bytes but has no pointer is malformed.
+    config = Config{};
+    config.tag_without_data = true;
+    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
     config = Config{};
     config.value_bytes = std::numeric_limits<size_t>::max();
     expect_failure(data, sizeof(data), &format, TLV_ERR_BUFFER_TOO_SHORT);

@@ -1,6 +1,7 @@
 #ifndef OPENTLV_FORMAT_H
 #define OPENTLV_FORMAT_H
 
+#include "tlv/error.h"
 #include "tlv/view.h"
 #include "tlv/export.h"
 
@@ -19,8 +20,11 @@ extern "C" {
  * tlv_reader_format_init() and tlv_writer_format_init().
  *
  * Callbacks must not allocate, retain buffers, or access memory beyond the
- * size or capacity they are given. All sizes are in bytes. Tags must fit
- * #TLV_TAG_CAPACITY; unsupported tag sizes return #TLV_ERR_INVALID_TAG_SIZE.
+ * size or capacity they are given. All sizes are in bytes. A format defines
+ * its own tag encoding and valid tag lengths, and rejects tags it does not
+ * support, for example with #TLV_ERR_INVALID_TAG_SIZE; #tlv_tag_t itself has no
+ * length limit. A reader callback returns a tag that borrows the input bytes it
+ * was given, and it must not point the tag anywhere else.
  * Callback errors propagate unchanged through the generic reader and writer.
  */
 

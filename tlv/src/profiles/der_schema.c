@@ -20,22 +20,39 @@ static int universal_is_constructed(uint64_t number) {
     return number == 8 || number == 11 || number == 16 || number == 17 || number == 29;
 }
 
-static int tags_equal(const tlv_tag_t* a, const tlv_tag_t* b) {
-    int equal = 0;
-    return tlv_tag_equal(a, b, &equal) == TLV_OK && equal;
+/* A tag that owns its bytes, so it can be built, copied and sorted locally;
+ * tlv_tag_t itself only borrows. */
+typedef struct {
+    uint8_t bytes[TLV_ASN1_TAG_MAX_SIZE];
+    size_t size;
+} owned_tag_t;
+
+static tlv_tag_t owned_view(const owned_tag_t* owned) {
+    return tlv_tag(owned->bytes, owned->size);
+}
+
+static tlv_result_t owned_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
+                               owned_tag_t* owned) {
+    tlv_tag_t tag;
+    tlv_result_t rc = tlv_der_tag_make(tag_class, constructed, number, owned->bytes, &tag);
+    if (rc == TLV_OK) owned->size = tag.size;
+    return rc;
+}
+
+static int tags_equal(const owned_tag_t* a, const tlv_tag_t* b) {
+    return tlv_tag_equal(owned_view(a), *b);
 }
 
 /* The fixed wire identifier a SEQUENCE/SET/SET-OF/UNIVERSAL type carries when
  * untagged. CHOICE and ANY have no single fixed identifier and are rejected. */
-static tlv_result_t kind_identifier(const tlv_der_schema_type_t* type, tlv_tag_t* tag) {
+static tlv_result_t kind_identifier(const tlv_der_schema_type_t* type, owned_tag_t* tag) {
     switch (type->kind) {
-        case TLV_DER_SCHEMA_SEQUENCE: return tlv_der_tag_make(TLV_ASN1_UNIVERSAL, 1, 16, tag);
+        case TLV_DER_SCHEMA_SEQUENCE: return owned_make(TLV_ASN1_UNIVERSAL, 1, 16, tag);
         case TLV_DER_SCHEMA_SET:
-        case TLV_DER_SCHEMA_SET_OF: return tlv_der_tag_make(TLV_ASN1_UNIVERSAL, 1, 17, tag);
+        case TLV_DER_SCHEMA_SET_OF: return owned_make(TLV_ASN1_UNIVERSAL, 1, 17, tag);
         case TLV_DER_SCHEMA_UNIVERSAL:
-            return tlv_der_tag_make(TLV_ASN1_UNIVERSAL,
-                                    universal_is_constructed(type->universal_number),
-                                    type->universal_number, tag);
+            return owned_make(TLV_ASN1_UNIVERSAL, universal_is_constructed(type->universal_number),
+                              type->universal_number, tag);
         default: return TLV_ERR_SCHEMA;
     }
 }
@@ -61,12 +78,12 @@ static int type_is_constructed(const tlv_der_schema_type_t* type) {
  * (UNIVERSAL/SEQUENCE/SET/SET_OF) or is untagged ANY. */
 static const tlv_der_schema_component_t* resolve_at(const tlv_der_schema_component_t* component,
                                                     const tlv_tag_t* wire_tag, size_t depth) {
-    tlv_tag_t expected;
+    owned_tag_t expected;
     if (depth > TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return NULL;
     if (component->tagging != TLV_DER_TAG_NONE) {
         int constructed =
             component->tagging == TLV_DER_TAG_EXPLICIT ? 1 : type_is_constructed(component->type);
-        if (tlv_der_tag_make(component->tag_class, constructed, component->tag_number, &expected) !=
+        if (owned_make(component->tag_class, constructed, component->tag_number, &expected) !=
             TLV_OK)
             return NULL;
         return tags_equal(&expected, wire_tag) ? component : NULL;
@@ -138,20 +155,21 @@ static tlv_result_t check_type(const tlv_der_schema_type_t* type, size_t depth) 
              * distinctness when its type is visited recursively above. */
             for (i = 0; i < type->component_count; ++i) {
                 const tlv_der_schema_component_t* ci = &type->components[i];
-                tlv_tag_t probe;
+                owned_tag_t probe;
+                tlv_tag_t probe_view;
                 if (ci->tagging != TLV_DER_TAG_NONE) {
                     int constructed =
                         ci->tagging == TLV_DER_TAG_EXPLICIT ? 1 : type_is_constructed(ci->type);
-                    if (tlv_der_tag_make(ci->tag_class, constructed, ci->tag_number, &probe) !=
-                        TLV_OK)
+                    if (owned_make(ci->tag_class, constructed, ci->tag_number, &probe) != TLV_OK)
                         return TLV_ERR_SCHEMA;
                 } else if (ci->type->kind == TLV_DER_SCHEMA_CHOICE) {
                     continue;
                 } else if (kind_identifier(ci->type, &probe) != TLV_OK) {
                     return TLV_ERR_SCHEMA;
                 }
+                probe_view = owned_view(&probe);
                 for (j = 0; j < type->component_count; ++j) {
-                    if (j != i && resolve_at(&type->components[j], &probe, 0) != NULL)
+                    if (j != i && resolve_at(&type->components[j], &probe_view, 0) != NULL)
                         return TLV_ERR_SCHEMA;
                 }
             }
@@ -548,11 +566,11 @@ static tlv_result_t wrap_and_store(der_schema_write_ctx_t* wctx, tlv_tag_t tag, 
  * alternative supplies its own; an untagged ANY has none to emit either,
  * since it is only ever written via the caller's own bytes as a sibling
  * leaf, never wrapped by this helper). */
-static tlv_result_t component_tag(const tlv_der_schema_component_t* component, tlv_tag_t* tag) {
+static tlv_result_t component_tag(const tlv_der_schema_component_t* component, owned_tag_t* tag) {
     if (component->tagging != TLV_DER_TAG_NONE) {
         int constructed =
             component->tagging == TLV_DER_TAG_EXPLICIT ? 1 : type_is_constructed(component->type);
-        return tlv_der_tag_make(component->tag_class, constructed, component->tag_number, tag);
+        return owned_make(component->tag_class, constructed, component->tag_number, tag);
     }
     if (component->type->kind == TLV_DER_SCHEMA_ANY ||
         component->type->kind == TLV_DER_SCHEMA_CHOICE)
@@ -627,12 +645,12 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
                                        const tlv_der_schema_type_t* type, size_t depth,
                                        size_t* out_off, size_t* out_len) {
     size_t offs[TLV_DER_SCHEMA_MAX_COMPONENTS], lens[TLV_DER_SCHEMA_MAX_COMPONENTS];
-    tlv_tag_t tags[TLV_DER_SCHEMA_MAX_COMPONENTS];
+    owned_tag_t tags[TLV_DER_SCHEMA_MAX_COMPONENTS];
     size_t present = 0, i, total = 0, base, pos;
     for (i = 0; i < type->component_count; ++i) {
         int component_absent = 0;
         size_t off, len;
-        tlv_tag_t tag;
+        owned_tag_t tag;
         tlv_result_t rc =
             encode_at(wctx, &type->components[i], 0, depth, 0, &component_absent, &off, &len);
         if (rc != TLV_OK) return rc;
@@ -649,14 +667,15 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
     }
     for (i = 1; i < present; ++i) {
         size_t off_i = offs[i], len_i = lens[i];
-        tlv_tag_t tag_i = tags[i];
+        owned_tag_t tag_i = tags[i];
         size_t j = i;
         while (j > 0) {
-            tlv_asn1_class_t ca = tlv_der_tag_class(&tags[j - 1]), cb = tlv_der_tag_class(&tag_i);
+            tlv_tag_t prev_view = owned_view(&tags[j - 1]), view_i = owned_view(&tag_i);
+            tlv_asn1_class_t ca = tlv_der_tag_class(&prev_view), cb = tlv_der_tag_class(&view_i);
             uint64_t na = 0, nb = 0;
             int out_of_order;
-            tlv_der_tag_number(&tags[j - 1], &na);
-            tlv_der_tag_number(&tag_i, &nb);
+            tlv_der_tag_number(&prev_view, &na);
+            tlv_der_tag_number(&view_i, &nb);
             out_of_order = ca > cb || (ca == cb && na > nb);
             if (!out_of_order) break;
             offs[j] = offs[j - 1];
@@ -796,7 +815,7 @@ static tlv_result_t produce_natural_encoding(der_schema_write_ctx_t* wctx,
                                              const tlv_der_schema_component_t* callback_component,
                                              size_t index, size_t depth, size_t schema_depth,
                                              int* absent, size_t* out_off, size_t* out_len) {
-    tlv_tag_t tag;
+    owned_tag_t tag;
     size_t content_off, content_len;
     tlv_result_t rc;
     *absent = 0;
@@ -807,7 +826,7 @@ static tlv_result_t produce_natural_encoding(der_schema_write_ctx_t* wctx,
     rc = produce_raw_content(wctx, type, callback_component, index, depth, &content_off,
                              &content_len);
     if (rc != TLV_OK) return rc;
-    return wrap_and_store(wctx, tag, content_off, content_len, out_off, out_len);
+    return wrap_and_store(wctx, owned_view(&tag), content_off, content_len, out_off, out_len);
 }
 
 /* Encodes one real, caller-visible component or SET OF element (component
@@ -842,7 +861,7 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
                                       absent, out_off, out_len);
         if (rc != TLV_OK) return rc;
     } else {
-        tlv_tag_t tag;
+        owned_tag_t tag;
         size_t content_off, content_len;
         rc = component_tag(component, &tag);
         if (rc != TLV_OK) return rc;
@@ -859,7 +878,7 @@ static tlv_result_t encode_at(der_schema_write_ctx_t* wctx,
                                      &content_len);
             if (rc != TLV_OK) return rc;
         }
-        rc = wrap_and_store(wctx, tag, content_off, content_len, out_off, out_len);
+        rc = wrap_and_store(wctx, owned_view(&tag), content_off, content_len, out_off, out_len);
         if (rc != TLV_OK) return rc;
     }
 

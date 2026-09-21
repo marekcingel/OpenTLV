@@ -1,6 +1,7 @@
 #ifndef OPENTLV_FORMATS_BER_H
 #define OPENTLV_FORMATS_BER_H
 
+#include "tlv/error.h"
 #include "tlv/formats/format.h"
 #include "tlv/writer/writer.h"
 #include "tlv/length.h"
@@ -52,13 +53,18 @@ enum {
     /** Mask of the low-tag-number field. */
     TLV_ASN1_TAG_NUMBER_MASK = 0x1F,
     /** Low-tag-number value that escapes to high-tag-number form. */
-    TLV_ASN1_LOW_TAG_LIMIT = 31
+    TLV_ASN1_LOW_TAG_LIMIT = 31,
+    /**
+     * Longest tag, in bytes, that the BER, CER and DER formats read, write or
+     * construct. This is a limit of these formats, not of #tlv_tag_t.
+     */
+    TLV_ASN1_TAG_MAX_SIZE = 8
 };
 
 /**
  * @brief Reader format for raw BER-TLV.
  *
- * Accepts tags up to #TLV_TAG_CAPACITY, including high-tag-number form, and
+ * Accepts tags up to #TLV_ASN1_TAG_MAX_SIZE bytes, including high-tag-number form, and
  * definite lengths up to `SIZE_MAX`. Reads accept nonminimal definite lengths
  * and constructed indefinite lengths. Tag bytes are preserved (including
  * `9F 1C`); ASN.1 semantics are not validated.

@@ -14,7 +14,7 @@ static void set_offset(size_t* out, size_t offset) {
 
 tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, size_t* error_offset) {
     tlv_query_t parsed;
-    size_t pos = 0;
+    size_t pos = 0, used = 0;
     if (!text || !query) return TLV_ERR_NULL_ARG;
     memset(&parsed, 0, sizeof parsed);
     for (;;) {
@@ -35,14 +35,15 @@ tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, size_t* error
             set_offset(error_offset, start);
             return TLV_ERR_LIMIT;
         }
-        if (digits / 2 > TLV_TAG_CAPACITY) {
+        if (digits / 2 > TLV_QUERY_MAX_BYTES - used) {
             set_offset(error_offset, start);
-            return TLV_ERR_INVALID_TAG_SIZE;
+            return TLV_ERR_LIMIT;
         }
         for (size_t i = 0; i < digits / 2; ++i)
-            parsed.steps[parsed.count].data[i] =
+            parsed.bytes[used + i] =
                 (uint8_t)(hex_digit(text[start + 2 * i]) << 4 | hex_digit(text[start + 2 * i + 1]));
-        parsed.steps[parsed.count++].size = (uint8_t)(digits / 2);
+        used += digits / 2;
+        parsed.ends[parsed.count++] = (uint16_t)used;
         if (!text[pos]) break;
         ++pos; /* The separator; another tag must follow. */
     }
@@ -50,11 +51,18 @@ tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, size_t* error
     return TLV_OK;
 }
 
+tlv_tag_t tlv_query_step(const tlv_query_t* query, size_t index) {
+    size_t begin;
+    if (!query || index >= query->count || index >= TLV_QUERY_MAX_STEPS) return tlv_tag(NULL, 0);
+    begin = index == 0 ? 0 : query->ends[index - 1];
+    return tlv_tag(query->bytes + begin, query->ends[index] - begin);
+}
+
 tlv_result_t tlv_query_matcher_init(tlv_query_matcher_t* matcher, const tlv_query_t* query) {
     if (!matcher || !query) return TLV_ERR_NULL_ARG;
     if (!query->count || query->count > TLV_QUERY_MAX_STEPS) return TLV_ERR_INVALID_ARG;
-    for (size_t i = 0; i < query->count; ++i)
-        if (!query->steps[i].size || query->steps[i].size > TLV_TAG_CAPACITY)
+    for (size_t i = 0, begin = 0; i < query->count; begin = query->ends[i++])
+        if (query->ends[i] <= begin || query->ends[i] > TLV_QUERY_MAX_BYTES)
             return TLV_ERR_INVALID_TAG_SIZE;
     matcher->query = query;
     matcher->matched = 0;
@@ -69,9 +77,7 @@ int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_t* tag, 
     if (depth > matcher->matched) return 0;
     matcher->matched = depth;
     if (depth >= query->count) return 0;
-    if (query->steps[depth].size != tag->size ||
-        memcmp(query->steps[depth].data, tag->data, tag->size) != 0)
-        return 0;
+    if (!tlv_tag_equal(tlv_query_step(query, depth), *tag)) return 0;
     matcher->matched = depth + 1;
     return depth + 1 == query->count;
 }

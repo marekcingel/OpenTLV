@@ -1,6 +1,7 @@
 #ifndef OPENTLV_WRITER_H
 #define OPENTLV_WRITER_H
 
+#include "tlv/error.h"
 #include "tlv/formats/format.h"
 #include "tlv/export.h"
 

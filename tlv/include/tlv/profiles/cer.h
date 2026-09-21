@@ -1,6 +1,7 @@
 #ifndef OPENTLV_CER_H
 #define OPENTLV_CER_H
 
+#include "tlv/error.h"
 #include "tlv/formats/asn1/cer.h"
 #include "tlv/reader/walker.h"
 #include "tlv/export.h"

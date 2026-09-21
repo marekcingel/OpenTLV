@@ -17,7 +17,7 @@ TEST(Integration_Reader, EmptyValueAndBerLength) {
 namespace {
 void expect_failure(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
                     tlv_result_t error) {
-    tlv_view_t view = {tlv_tag_t{{0xEE}, 1}, {data, 42}};
+    tlv_view_t view = {TLV_TAG(0xEE), {data, 42}};
     size_t     consumed = 99;
     EXPECT_EQ(error, tlv_read(data, size, format, &view, &consumed));
     EXPECT_EQ(99u, consumed);

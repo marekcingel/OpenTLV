@@ -21,11 +21,12 @@ namespace tlv {
  * Every element is `TagWidth` raw tag bytes, then a length field of
  * `LengthWidth` bytes in byte order `Order`, then that many value bytes. The
  * length counts only the value; it excludes the header. Tag bytes are copied
- * unchanged in wire order, so `Order` applies to the length field only.
+ * unchanged in wire order, so `Order` applies to the length field only. Tags
+ * read by this format borrow the input bytes.
  *
  * | Parameter     | Supported values                                  |
  * | ------------- | ------------------------------------------------- |
- * | `TagWidth`    | 1 to #TLV_TAG_CAPACITY bytes                      |
+ * | `TagWidth`    | 1 or more bytes                                   |
  * | `LengthWidth` | 1 to 8 bytes                                      |
  * | `Order`       | #TLV_BYTE_ORDER_BIG_ENDIAN, #TLV_BYTE_ORDER_LITTLE_ENDIAN |
  *
@@ -50,8 +51,7 @@ namespace tlv {
  */
 template <std::size_t TagWidth, std::size_t LengthWidth, tlv_byte_order_t Order>
 class fixed_format {
-    static_assert(TagWidth >= 1 && TagWidth <= TLV_TAG_CAPACITY,
-                  "fixed_format: TagWidth must be between 1 and TLV_TAG_CAPACITY");
+    static_assert(TagWidth >= 1, "fixed_format: TagWidth must be at least 1");
     static_assert(LengthWidth >= 1 && LengthWidth <= 8,
                   "fixed_format: LengthWidth must be between 1 and 8");
     static_assert(Order == TLV_BYTE_ORDER_BIG_ENDIAN || Order == TLV_BYTE_ORDER_LITTLE_ENDIAN,
@@ -92,9 +92,7 @@ private:
     static tlv_result_t read_tag(const void*, const std::uint8_t* data, std::size_t size,
                                  tlv_tag_t* tag, std::size_t* consumed) {
         if (size < TagWidth) return TLV_ERR_BUFFER_TOO_SHORT;
-        tlv_tag_t result = {{0}, static_cast<std::uint8_t>(TagWidth)};
-        for (std::size_t i = 0; i < TagWidth; ++i) result.data[i] = data[i];
-        *tag = result;
+        *tag = tlv_tag(data, TagWidth);
         *consumed = TagWidth;
         return TLV_OK;
     }
@@ -114,6 +112,7 @@ private:
     static tlv_result_t write_tag(const void*, std::uint8_t* data, std::size_t capacity,
                                   const tlv_tag_t* tag, std::size_t* written) {
         if (tag->size != TagWidth) return TLV_ERR_INVALID_TAG_SIZE;
+        if (!tag->data) return TLV_ERR_NULL_ARG;
         *written = TagWidth;
         if (!data) return TLV_OK;
         if (capacity < TagWidth) return TLV_ERR_BUFFER_TOO_SHORT;

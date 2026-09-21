@@ -37,9 +37,7 @@ TEST(Integration_Codec, ExplicitConversionBetweenFramingOperations) {
     uint16_t  value = 0x1234, decoded = 0;
     uint8_t   raw[2], framed[4];
     size_t    raw_size = 0, framed_size = 0, consumed = 0;
-    tlv_tag_t tag = {};
-    tag.size = 1;
-    tag.data[0] = 1;
+    tlv_tag_t tag = TLV_TAG(1);
     ASSERT_EQ(tlv_codec_encode(&scalar, &value, sizeof(value), raw, sizeof(raw), &raw_size),
               TLV_CODEC_OK);
     ASSERT_EQ(tlv_write(framed, sizeof(framed), &tlv_writer_format_fixed_1byte, tag, raw, raw_size,

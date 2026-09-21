@@ -32,12 +32,12 @@ tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_reader_format_
                                   &value_length, &trailer_size);
         if (rc != TLV_OK) return rc;
         if (!length_size || length_size > remaining) return TLV_ERR_INVALID_LENGTH;
-        if (!entry.tag.size || entry.tag.size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
+        if (entry.tag.size && !entry.tag.data) return TLV_ERR_INVALID_TAG;
     } else {
         rc = format->read_tag(format->context, data, remaining, &entry.tag, &tag_size);
         if (rc != TLV_OK) return rc;
         if (!tag_size || tag_size > remaining) return TLV_ERR_INVALID_TAG;
-        if (!entry.tag.size || entry.tag.size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_TAG_SIZE;
+        if (entry.tag.size && !entry.tag.data) return TLV_ERR_INVALID_TAG;
         remaining -= tag_size;
         if (format->read_value_bounds)
             rc = format->read_value_bounds(format->context, &entry.tag, data + tag_size, remaining,

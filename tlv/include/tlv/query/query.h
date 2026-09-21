@@ -1,6 +1,7 @@
 #ifndef OPENTLV_QUERY_H
 #define OPENTLV_QUERY_H
 
+#include "tlv/error.h"
 #include "tlv/reader/walker.h"
 #include "tlv/tag.h"
 #include "tlv/export.h"
@@ -34,20 +35,25 @@ extern "C" {
 /** @brief Maximum number of tags in a query: one per nesting level, `0..TLV_WALK_MAX_DEPTH`. */
 enum { TLV_QUERY_MAX_STEPS = TLV_WALK_MAX_DEPTH + 1 };
 
+/** @brief Maximum total number of tag bytes in a query, across all of its tags. */
+enum { TLV_QUERY_MAX_BYTES = 512 };
+
 /**
  * @brief A parsed query: the tags to follow from a top-level element down to the addressed ones.
  *
- * The structure is self-contained, never allocates and never points to other
- * memory. Build it with tlv_query_parse(); a zero-initialized query has no
- * tags and is rejected by the functions that take one.
- *
- * @warning Its layout depends on #TLV_TAG_CAPACITY, so it is part of the ABI
- *          in the same way as #tlv_tag_t.
+ * The structure is self-contained: it holds a copy of every tag's bytes, never
+ * allocates and never points to other memory, so it can be copied freely. Build
+ * it with tlv_query_parse() and read its tags with tlv_query_step(); a
+ * zero-initialized query has no tags and is rejected by the functions that
+ * take one. Each tag may have any length as long as all tags together stay
+ * within #TLV_QUERY_MAX_BYTES.
  */
 typedef struct tlv_query {
-    /** Tags to follow, `steps[0]` for a top-level element; only the first `count` are valid. */
-    tlv_tag_t steps[TLV_QUERY_MAX_STEPS];
-    /** Number of valid entries in `steps`, `1..TLV_QUERY_MAX_STEPS` for a parsed query. */
+    /** Private: the bytes of all tags, one after another. */
+    uint8_t bytes[TLV_QUERY_MAX_BYTES];
+    /** Private: for each tag, the offset in `bytes` just past its last byte. */
+    uint16_t ends[TLV_QUERY_MAX_STEPS];
+    /** Number of tags, `1..TLV_QUERY_MAX_STEPS` for a parsed query. */
     size_t count;
 } tlv_query_t;
 
@@ -56,7 +62,7 @@ typedef struct tlv_query {
  *
  * The text is one or more tags in hexadecimal, separated by a single `/`, for
  * example `6F/A5/50` or `9f02`. Each tag has an even, nonzero number of digits
- * in either case and at most #TLV_TAG_CAPACITY bytes. Whitespace, empty steps
+ * in either case. Whitespace, empty steps
  * and a leading or trailing `/` are rejected. The tag bytes are not checked
  * against any format or profile.
  *
@@ -70,12 +76,24 @@ typedef struct tlv_query {
  * @return #TLV_ERR_NULL_ARG if `text` or `query` is `NULL`.
  * @return #TLV_ERR_INVALID_ARG for a syntax error: an empty step, an odd number
  *         of digits, or a character other than a hexadecimal digit or `/`.
- * @return #TLV_ERR_INVALID_TAG_SIZE if a tag is longer than #TLV_TAG_CAPACITY bytes.
- * @return #TLV_ERR_LIMIT if the query has more than #TLV_QUERY_MAX_STEPS tags.
+ * @return #TLV_ERR_LIMIT if the query has more than #TLV_QUERY_MAX_STEPS tags or
+ *         more than #TLV_QUERY_MAX_BYTES tag bytes in total.
  *
  * @note Never allocates. On failure `*query` is unchanged.
  */
 TLV_API tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query, size_t* error_offset);
+
+/**
+ * @brief Returns one tag of a query.
+ *
+ * @param[in] query Parsed query.
+ * @param[in] index Position of the tag, `0` for the top-level element.
+ *
+ * @return A tag that borrows the bytes stored in `query`, valid for as long as
+ *         `query` is alive and unchanged. The empty tag if `query` is `NULL`
+ *         or `index` is not below `query->count`.
+ */
+TLV_API tlv_tag_t tlv_query_step(const tlv_query_t* query, size_t index);
 
 /**
  * @brief Incremental matcher that decides which elements of a preorder traversal a query addresses.
@@ -101,7 +119,6 @@ typedef struct tlv_query_matcher {
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `matcher` or `query` is `NULL`.
  * @return #TLV_ERR_INVALID_ARG if `query` has no tags or more than #TLV_QUERY_MAX_STEPS.
- * @return #TLV_ERR_INVALID_TAG_SIZE if a query tag has a size outside `1..TLV_TAG_CAPACITY`.
  *
  * @note Never allocates. On failure `*matcher` is unchanged.
  */

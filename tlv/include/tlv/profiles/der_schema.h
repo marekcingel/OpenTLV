@@ -1,6 +1,7 @@
 #ifndef OPENTLV_DER_SCHEMA_H
 #define OPENTLV_DER_SCHEMA_H
 
+#include "tlv/error.h"
 #include "tlv/profiles/der.h"
 #include "tlv/formats/asn1/der.h"
 #include "tlv/view.h"

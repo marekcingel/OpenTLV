@@ -59,7 +59,7 @@ Built-in components are enabled by default and can be selected with
     - [x] **Default TLV** - one-byte tags, definite BER-style lengths up to 65,535 bytes. [Details](docs/formats/README.md#generic-interface) [Tree and bytes](docs/formats/default/README.md#byte-example)
     - [x] **Fixed 1-byte TLV** - one-byte tags and lengths, values up to 255 bytes. [Details](docs/formats/fixed/README.md) [Tree and bytes](docs/formats/fixed/README.md#byte-example)
     - [x] **Bluetooth LTV** - length-before-type framing used by Bluetooth advertising data, values up to 254 bytes. [Details](docs/formats/bluetooth/README.md) [Tree and bytes](docs/formats/bluetooth/README.md#byte-example)
-    - [x] **Configurable fixed-width TLV (C++)** - compile-time tag width (up to `TLV_TAG_CAPACITY`), length width (1-8 bytes) and length byte order. [Details](docs/formats/fixed/configurable.md)
+    - [x] **Configurable fixed-width TLV (C++)** - compile-time tag width, length width (1-8 bytes) and length byte order. [Details](docs/formats/fixed/configurable.md)
   - **ASN.1-related encodings**
     - [x] **BER-TLV** - multi-byte tags. [Scope](docs/formats/asn1/ber.md) [Tree and bytes](docs/formats/asn1/ber.md#byte-example)
       - [x] Definite-length reading and writing
@@ -136,7 +136,7 @@ This complete C example ([source](examples/tlv/src/quick_start.c), built and run
 #include "tlv/writer/writer.h"
 
 int main(void) {
-    const tlv_tag_t tag = {{0x01}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x01);
     const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
     uint8_t         buffer[5];
     size_t          written = 0, consumed = 0;

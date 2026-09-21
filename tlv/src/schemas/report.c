@@ -5,7 +5,7 @@
 #include <string.h>
 
 static int same_tag(const tlv_tag_t* a, const tlv_tag_t* b) {
-    return a->size == b->size && memcmp(a->data, b->data, a->size) == 0;
+    return tlv_tag_equal(*a, *b);
 }
 
 typedef struct frame {
@@ -44,7 +44,7 @@ static tlv_result_t check_table(const tlv_structure_schema_t* schema) {
     if (!schema->rules && schema->count) return TLV_ERR_INVALID_ARG;
     for (size_t i = 0; i < schema->count; ++i) {
         const tlv_structure_rule_t* rule = &schema->rules[i];
-        if (!rule->entry.tag.size || rule->entry.tag.size > TLV_TAG_CAPACITY ||
+        if (!rule->entry.tag.size || !rule->entry.tag.data ||
             rule->entry.min_length > rule->entry.max_length ||
             rule->min_occurs > rule->max_occurs || rule->kind < TLV_SCHEMA_ANY ||
             rule->kind > TLV_SCHEMA_CONSTRUCTED ||
@@ -186,7 +186,7 @@ tlv_result_t tlv_schema_issue_path_string(const tlv_schema_issue_t* issue, char*
     if (!issue->path_length || issue->path_length > TLV_SCHEMA_PATH_MAX) return TLV_ERR_INVALID_ARG;
     for (size_t i = 0; i < issue->path_length; ++i) {
         const tlv_tag_t* tag = &issue->path[i];
-        if (!tag->size || tag->size > TLV_TAG_CAPACITY) return TLV_ERR_INVALID_ARG;
+        if (!tag->size || !tag->data) return TLV_ERR_INVALID_ARG;
         for (size_t j = 0; j < tag->size; ++j) {
             if (needed + 2 < capacity) {
                 out[needed] = hex[tag->data[j] >> 4];

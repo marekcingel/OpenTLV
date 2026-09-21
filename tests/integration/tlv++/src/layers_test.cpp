@@ -18,7 +18,7 @@ TEST(Integration_TLV_CPP, BerIndefiniteRoundTripAndTraversal) {
     tlv::byte        buffer[8]{};
     const uint8_t    children[] = {4, 2, 0, 0};
     const tlv::bytes value(reinterpret_cast<const tlv::byte*>(children), sizeof(children));
-    auto written = tlv::ber_write_indefinite(buffer, sizeof(buffer), tlv_tag_t{{0x30}, 1}, value);
+    auto written = tlv::ber_write_indefinite(buffer, sizeof(buffer), TLV_TAG(0x30), value);
     ASSERT_TRUE(written);
     EXPECT_EQ(8u, *written);
     tlv::reader reader(tlv::bytes(buffer, *written), tlv_reader_format_ber);
@@ -37,8 +37,8 @@ TEST(Integration_TLV_CPP, BerIndefiniteRoundTripAndTraversal) {
                                    return TLV_VISIT_CONTINUE;
                                }));
     EXPECT_EQ(2u, visits);
-    EXPECT_FALSE(tlv::ber_write_indefinite(buffer, 7, tlv_tag_t{{0x30}, 1}, value));
-    EXPECT_FALSE(tlv::ber_write_indefinite(buffer, sizeof(buffer), tlv_tag_t{{4}, 1}, value));
+    EXPECT_FALSE(tlv::ber_write_indefinite(buffer, 7, TLV_TAG(0x30), value));
+    EXPECT_FALSE(tlv::ber_write_indefinite(buffer, sizeof(buffer), TLV_TAG(4), value));
 }
 
 TEST(Integration_TLV_CPP, BerPathQuery) {
@@ -97,15 +97,15 @@ TEST(Integration_TLV_CPP, LayeredTraversalAndSchema) {
                                  });
     ASSERT_TRUE(result);
     EXPECT_EQ(2u, visits);
-    const tlv_structure_rule_t   rule = {{{{1}, 1}, 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
+    const tlv_structure_rule_t rule = {{TLV_TAG(1), 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
     const tlv_structure_schema_t schema = {&rule, 1, 1};
     EXPECT_TRUE(tlv::validate(bytes, tlv_reader_format_default, nullptr, schema, 0, 2));
 }
 
 TEST(Integration_TLV_CPP, ValidateAllCountsViolationsAndReportsTagPaths) {
-    const uint8_t                data[] = {2, 0};
-    const tlv::bytes             bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
-    const tlv_structure_rule_t   rule = {{{{1}, 1}, 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
+    const uint8_t              data[] = {2, 0};
+    const tlv::bytes           bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
+    const tlv_structure_rule_t rule = {{TLV_TAG(1), 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
     const tlv_structure_schema_t schema = {&rule, 1, 0};
     tlv_schema_issue_t           issues[4];
     auto                         count =
@@ -148,9 +148,9 @@ tlv_codec_result_t encode_pair(const void*, const tlv_writer_format_t* format, c
         return TLV_CODEC_OK;
     }
     size_t first = 0, second = 0;
-    if (tlv_write(data, capacity, format, tlv_tag_t{{1}, 1}, &pair.first, 1, &first) != TLV_OK ||
-        tlv_write(data + first, capacity - first, format, tlv_tag_t{{2}, 1}, &pair.second, 1,
-                  &second) != TLV_OK)
+    if (tlv_write(data, capacity, format, TLV_TAG(1), &pair.first, 1, &first) != TLV_OK ||
+        tlv_write(data + first, capacity - first, format, TLV_TAG(2), &pair.second, 1, &second) !=
+            TLV_OK)
         return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
     *written = first + second;
     return TLV_CODEC_OK;

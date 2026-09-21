@@ -4,14 +4,12 @@
 #include <cstring>
 #include <limits>
 
-#if TLV_TAG_CAPACITY >= 2
-
 namespace {
 // Two raw tag bytes, and a configurable fixed-width little-endian length.
 const size_t width = 2;
 tlv_result_t read_tag(const void*, const uint8_t* data, size_t size, tlv_tag_t* tag, size_t* used) {
     if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
-    *tag = tlv_tag_t{{data[0], data[1]}, 2};
+    *tag = tlv_tag(data, 2);
     *used = 2;
     return TLV_OK;
 }
@@ -55,14 +53,13 @@ TEST(Integration_Format, CustomFormatRoundTripAndWireBytes) {
     std::memset(value, 0xAB, sizeof(value));
     tlv_writer_t writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &fixed_writer));
-    ASSERT_EQ(TLV_OK,
-              tlv_writer_write(&writer, (tlv_tag_t{{0x9F, 0x02}, 2}), value, sizeof(value)));
-    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0xAA, 0xBB}, 2}), nullptr, 0));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0x9F, 0x02)), value, sizeof(value)));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0xAA, 0xBB)), nullptr, 0));
     EXPECT_EQ(sizeof(data), tlv_writer_size(&writer));
     const uint8_t header[] = {0x9F, 0x02, 0x2C, 0x01};
     EXPECT_EQ(0, std::memcmp(header, data, sizeof(header)));
     size_t          required = 0, written = 0;
-    const tlv_tag_t tag = {{0x9F, 0x02}, 2};
+    const tlv_tag_t tag = TLV_TAG(0x9F, 0x02);
     ASSERT_EQ(TLV_OK, tlv_encoded_size(tag, sizeof(value), &fixed_writer, &required));
     EXPECT_EQ(304u, required);
     uint8_t direct[304] = {};
@@ -85,5 +82,3 @@ TEST(Integration_Format, CustomFormatRoundTripAndWireBytes) {
     EXPECT_EQ(0u, entry.value.length);
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 }
-
-#endif // TLV_TAG_CAPACITY >= 2

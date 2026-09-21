@@ -124,11 +124,12 @@ responsibility with caller-owned storage.
 ## Encode
 
 ```c
+uint8_t tag_bytes[TLV_ASN1_TAG_MAX_SIZE]; /* the tag borrows these bytes */
 tlv_tag_t tag;
 const uint8_t children[] = {0x02, 1, 42};
 uint8_t output[16];
 size_t required, written, error_offset;
-tlv_result_t rc = tlv_cer_tag_make(TLV_ASN1_UNIVERSAL, 1, 16, &tag); /* SEQUENCE */
+tlv_result_t rc = tlv_cer_tag_make(TLV_ASN1_UNIVERSAL, 1, 16, tag_bytes, &tag); /* SEQUENCE */
 if (rc == TLV_OK)
     rc = tlv_cer_write(NULL, 0, tag, children, sizeof(children), NULL,
                        &required, &error_offset);
@@ -155,8 +156,9 @@ length:
 uint8_t content[2500]; /* fill with logical OCTET STRING data */
 uint8_t output[2600];
 size_t written, error_offset;
+uint8_t tag_bytes[TLV_ASN1_TAG_MAX_SIZE];
 tlv_tag_t octet_string;
-tlv_cer_tag_make(TLV_ASN1_UNIVERSAL, 0, 4, &octet_string); /* primitive OCTET STRING */
+tlv_cer_tag_make(TLV_ASN1_UNIVERSAL, 0, 4, tag_bytes, &octet_string); /* primitive OCTET STRING */
 tlv_cer_write_segmented_string(output, sizeof(output), octet_string,
                               content, sizeof(content), NULL, &written, &error_offset);
 /* Success: two 1000-octet segments plus a 500-octet final segment. */

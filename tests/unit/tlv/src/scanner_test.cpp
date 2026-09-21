@@ -9,14 +9,14 @@ tlv_result_t read_pair_tag(const void* context, const uint8_t* data, size_t size
     if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
     if (data[0] != *static_cast<const uint8_t*>(context) || data[1] != 0x1C)
         return TLV_ERR_INVALID_TAG;
-    *tag = {{0x9F, 0x1C}, 2};
+    *tag = TLV_TAG(0x9F, 0x1C);
     *used = 2;
     return TLV_OK;
 }
 
 class Unit_Scanner : public ::testing::Test {
 protected:
-    tlv_view_t view = {{{0xAA}, 1}, {nullptr, 99}};
+    tlv_view_t view = {TLV_TAG(0xAA), {nullptr, 99}};
     size_t     offset = 88;
     size_t     consumed = 77;
 
@@ -73,7 +73,7 @@ TEST_F(Unit_Scanner, UsesCustomTagCallbackAndContext) {
     format.context = &prefix;
     format.read_tag = read_pair_tag;
     const uint8_t            data[] = {0xFF, 0xFF, 0x9F, 0x1C, 1, 0xAA};
-    const tlv_schema_entry_t rule = {{{0x9F, 0x1C}, 2}, 1, 1, 0};
+    const tlv_schema_entry_t rule = {TLV_TAG(0x9F, 0x1C), 1, 1, 0};
     const tlv_schema_t       filter = {&rule, 1};
     ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 1, &filter, &format));
     EXPECT_EQ(2u, offset);

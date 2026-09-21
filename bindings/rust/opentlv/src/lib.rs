@@ -28,7 +28,7 @@
 //! # fn main() -> opentlv::Result<()> {
 //! let mut buf = [0u8; 16];
 //! let mut writer = Writer::with_format(&mut buf, Format::Ber);
-//! writer.write(&Tag::from_bytes(&[0x50])?, b"VISA")?;
+//! writer.write(&Tag::from_bytes(&[0x50]), b"VISA")?;
 //!
 //! for entry in Reader::with_format(writer.written(), Format::Ber) {
 //!     let entry = entry?;
@@ -53,7 +53,7 @@
 //!
 //! # Ownership and lifetimes
 //!
-//! [`Tag`] is an owned `Copy` value. [`Reader<'a>`](Reader) borrows its input
+//! [`Tag`] is an owned value of any length. [`Reader<'a>`](Reader) borrows its input
 //! and yields [`Entry<'a>`](Entry) values that are zero-copy slices of it, so
 //! entries outlive the reader but not the input. [`Writer<'a>`](Writer)
 //! exclusively borrows a caller-owned output buffer and never allocates.
@@ -92,7 +92,7 @@ pub use reader::Reader;
 pub use schema::{
     Kind, LengthRule, LengthSchema, SchemaError, StructureRule, StructureSchema, ValidationLimits,
 };
-pub use tag::{ByteOrder, Tag};
+pub use tag::Tag;
 pub use writer::{encoded_size, Writer};
 
 use std::ffi::CStr;

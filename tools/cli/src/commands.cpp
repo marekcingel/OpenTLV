@@ -266,7 +266,7 @@ std::string query_path(const tlv_query_t& query) {
     std::string path;
     for (size_t i = 0; i < query.count; ++i) {
         if (i) path += '/';
-        path += hex_string(query.steps[i].data, query.steps[i].size);
+        path += hex_string(tlv_query_step(&query, i).data, tlv_query_step(&query, i).size);
     }
     return path;
 }

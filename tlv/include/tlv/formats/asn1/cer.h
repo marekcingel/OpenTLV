@@ -1,6 +1,7 @@
 #ifndef OPENTLV_FORMATS_CER_H
 #define OPENTLV_FORMATS_CER_H
 
+#include "tlv/error.h"
 #include "tlv/formats/format.h"
 #include "tlv/formats/asn1/ber.h"
 #include "tlv/export.h"
@@ -57,19 +58,20 @@ static inline int tlv_cer_tag_is_constructed(const tlv_tag_t* tag) {
  * @param[in]  tag_class   ASN.1 class.
  * @param[in]  constructed Nonzero for constructed form, zero for primitive.
  * @param[in]  number      Tag number.
- * @param[out] tag         Destination tag.
+ * @param[out] storage     Destination for the tag bytes; #TLV_ASN1_TAG_MAX_SIZE
+ *                         writable bytes. Must outlive every use of the tag.
+ * @param[out] tag         Receives a tag that borrows `storage`.
  *
  * @return #TLV_OK on success.
- * @return #TLV_ERR_NULL_ARG if `tag` is `NULL`.
+ * @return #TLV_ERR_NULL_ARG if `storage` or `tag` is `NULL`.
  * @return #TLV_ERR_INVALID_TAG if the encoding is invalid or the number
  *         exceeds `uint64_t`.
- * @return #TLV_ERR_INVALID_TAG_SIZE if the tag would be empty or exceed
- *         #TLV_TAG_CAPACITY.
+ * @return #TLV_ERR_INVALID_TAG_SIZE if the tag would exceed #TLV_ASN1_TAG_MAX_SIZE.
  *
  * @note The destination is unchanged on failure.
  */
 TLV_API tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
-                                      tlv_tag_t* tag);
+                                      uint8_t* storage, tlv_tag_t* tag);
 /**
  * @brief Extracts the numeric tag number from a CER tag.
  *
@@ -83,7 +85,7 @@ TLV_API tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructe
  * @return #TLV_ERR_INVALID_TAG if the encoding is invalid or the number
  *         exceeds `uint64_t`.
  * @return #TLV_ERR_INVALID_TAG_SIZE for an empty tag or one exceeding
- *         #TLV_TAG_CAPACITY.
+ *         #TLV_ASN1_TAG_MAX_SIZE.
  *
  * @note `*number` is unchanged on failure.
  */

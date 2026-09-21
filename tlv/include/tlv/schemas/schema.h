@@ -1,6 +1,7 @@
 #ifndef OPENTLV_SCHEMA_H
 #define OPENTLV_SCHEMA_H
 
+#include "tlv/error.h"
 #include "tlv/view.h"
 #include "tlv/formats/format.h"
 #include "tlv/export.h"
@@ -25,7 +26,7 @@ extern "C" {
  * Length bounds are inclusive; equal bounds specify an exact length.
  */
 typedef struct {
-    /** Tag this entry describes. */
+    /** Tag this entry describes; borrows its bytes, which must outlive the schema. */
     tlv_tag_t tag;
     /** Minimum permitted value length in bytes, inclusive. */
     size_t min_length;
@@ -54,15 +55,16 @@ typedef struct {
 /**
  * @brief Looks up a tag's entry by linear search.
  *
- * Matches by tag size and active bytes, including empty tags. Entries with
- * invalid tag sizes are skipped. No sorting is required.
+ * Matches by tag size and bytes with tlv_tag_equal(), so a tag matches
+ * regardless of the memory backing it. Entries with an invalid tag are
+ * skipped. No sorting is required.
  *
  * @param[in] schema Schema to search.
  * @param[in] tag    Tag to find.
  *
  * @return The first matching entry, borrowed from the schema's table.
- * @return `NULL` for an unknown tag, `NULL` arguments, a missing nonempty
- *         table, or a tag size exceeding #TLV_TAG_CAPACITY.
+ * @return `NULL` for an unknown tag, `NULL` arguments, or a missing nonempty
+ *         table.
  */
 TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, const tlv_tag_t* tag);
 
@@ -210,7 +212,11 @@ typedef enum tlv_schema_unknown_policy {
 typedef struct tlv_schema_issue {
     /** What is wrong. */
     tlv_schema_issue_kind_t kind;
-    /** Tags from the outermost scope to the affected tag; `path_length` entries are valid. */
+    /**
+     * Tags from the outermost scope to the affected tag; `path_length` entries
+     * are valid. They borrow the input buffer, or the schema for a missing tag,
+     * so both must outlive the issue.
+     */
     tlv_tag_t path[TLV_SCHEMA_PATH_MAX];
     /** Number of valid entries in `path`, at least one. */
     size_t path_length;

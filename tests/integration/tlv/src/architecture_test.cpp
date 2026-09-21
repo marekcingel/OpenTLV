@@ -19,7 +19,7 @@ namespace {
 // Deliberately different from BER: bit 7 identifies a container.
 tlv_result_t tag_read(const void*, const uint8_t* data, size_t size, tlv_tag_t* tag, size_t* used) {
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    *tag = tlv_tag_t{{data[0]}, 1};
+    *tag = tlv_tag(data, 1);
     *used = 1;
     return TLV_OK;
 }
@@ -57,11 +57,11 @@ int constructed(const void*, const tlv_tag_t* tag) {
 const tlv_reader_format_t  format = {nullptr, tag_read, length_read, nullptr, nullptr};
 const tlv_writer_format_t  writer_format = {nullptr, tag_write, length_write, length_size, nullptr};
 const tlv_structure_rule_t child_rules[] = {
-    {{{{1}, 1}, 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{{{2}, 1}, 1, 1, 0}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr}};
+    {{TLV_TAG(1), 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(2), 1, 1, 0}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr}};
 const tlv_structure_schema_t children = {child_rules, 2, 0};
 const tlv_structure_rule_t   parent_rules[] = {
-    {{{{0x80}, 1}, 0, 255, 0}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &children}};
+    {{TLV_TAG(0x80), 0, 255, 0}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &children}};
 const tlv_structure_schema_t schema = {parent_rules, 1, 0};
 
 #if OPENTLV_FORMAT_BER
@@ -80,8 +80,8 @@ TEST(Integration_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies) {
     EXPECT_EQ((std::vector<size_t>{0, 0, 1, 2, 2, 4, 3, 6, 1, 11, 0, 15}), visits);
     tlv_structure_schema_t     recursive{};
     const tlv_structure_rule_t rules[] = {
-        {{{{0x30}, 1}, 0, 100, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive},
-        {{{{4}, 1}, 0, 1, 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr}};
+        {{TLV_TAG(0x30), 0, 100, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive},
+        {{TLV_TAG(4), 0, 1, 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr}};
     recursive = tlv_structure_schema_t{rules, 2, 0};
     EXPECT_EQ(TLV_OK, tlv_schema_validate(wire, sizeof(wire), &tlv_reader_format_ber,
                                           tlv_ber_is_constructed, &recursive, 3, 6, nullptr));
@@ -112,10 +112,10 @@ TEST(Integration_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies) {
     // An empty indefinite scope still enforces required children.
     const uint8_t              empty[] = {0x30, 0x80, 0, 0};
     const tlv_structure_rule_t required = {
-        {{{4}, 1}, 0, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
+        {TLV_TAG(4), 0, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
     const tlv_structure_schema_t child = {&required, 1, 0};
     const tlv_structure_rule_t   parent = {
-        {{{0x30}, 1}, 0, 100, 0}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &child};
+        {TLV_TAG(0x30), 0, 100, 0}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &child};
     const tlv_structure_schema_t root = {&parent, 1, 0};
     EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
               tlv_schema_validate(empty, sizeof(empty), &tlv_reader_format_ber,
@@ -201,7 +201,7 @@ TEST(Integration_Architecture, MaximumDepthAndEmptyChildSchemaUseTheSameBoundary
     }
     tlv_structure_schema_t recursive{};
     tlv_structure_rule_t   rule = {
-        {{{0x80}, 1}, 0, 255, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive};
+        {TLV_TAG(0x80), 0, 255, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive};
     recursive.rules = &rule;
     recursive.count = 1;
     EXPECT_EQ(TLV_OK,
@@ -268,8 +268,8 @@ tlv_codec_result_t object_encode(const void*, const tlv_writer_format_t* selecte
     std::memcpy(&input, value, sizeof(input));
     tlv_writer_t writer{};
     if (tlv_writer_init(&writer, data, capacity, selected) != TLV_OK ||
-        tlv_writer_write(&writer, tlv_tag_t{{1}, 1}, &input.first, 1) != TLV_OK ||
-        tlv_writer_write(&writer, tlv_tag_t{{2}, 1}, &input.second, 1) != TLV_OK)
+        tlv_writer_write(&writer, TLV_TAG(1), &input.first, 1) != TLV_OK ||
+        tlv_writer_write(&writer, TLV_TAG(2), &input.second, 1) != TLV_OK)
         return TLV_CODEC_ERR_INVALID_VALUE;
     *written = tlv_writer_size(&writer);
     return TLV_CODEC_OK;

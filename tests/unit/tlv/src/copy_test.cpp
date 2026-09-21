@@ -7,7 +7,7 @@
 
 TEST(Unit_Copy, InsufficientCapacityLeavesOutputsUnchanged) {
     const uint8_t    value[] = {0xAB, 0xCD};
-    const tlv_view_t view = {{{1}, 1}, {value, sizeof(value)}};
+    const tlv_view_t view = {TLV_TAG(1), {value, sizeof(value)}};
     for (size_t capacity = 0; capacity < 4; ++capacity) {
         uint8_t output[] = {0xEE, 0xEE, 0xEE, 0xEE};
         size_t  written = 99;
@@ -25,7 +25,7 @@ TEST(Unit_Copy, InsufficientCapacityLeavesOutputsUnchanged) {
 }
 
 TEST(Unit_Copy, EmptyValuesAndOverlappingByteRanges) {
-    const tlv_view_t empty = {{{1}, 1}, {nullptr, 0}};
+    const tlv_view_t empty = {TLV_TAG(1), {nullptr, 0}};
     size_t           written = 99;
     uint8_t          output[2] = {};
     EXPECT_EQ(TLV_OK, tlv_copy_value(&empty, nullptr, 0, &written));
@@ -48,7 +48,7 @@ TEST(Unit_Copy, EmptyValuesAndOverlappingByteRanges) {
 
 TEST(Unit_Copy, InvalidArgumentsAndEncodingErrors) {
     uint8_t    byte = 0xEE;
-    tlv_view_t view = {{{1}, 1}, {&byte, 1}};
+    tlv_view_t view = {TLV_TAG(1), {&byte, 1}};
     size_t     written = 99;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_value(nullptr, &byte, 1, &written));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_value(&view, nullptr, 1, &written));

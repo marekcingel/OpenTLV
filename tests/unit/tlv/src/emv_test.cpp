@@ -39,14 +39,18 @@ void check_vector(const tlv_codec_t* codec, const T& expected, std::initializer_
 }
 } // namespace
 
+// The big-endian value of a tag of at most two bytes.
+unsigned number_of(const tlv_tag_t& tag) {
+    unsigned number = 0;
+    for (size_t i = 0; i < tag.size; ++i) number = (number << 8) | tag.data[i];
+    return number;
+}
+
 TEST(Unit_Emv, PublicTagConstantsMatchDefinitions) {
-    int equal = 0;
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
     EXPECT_NE(nullptr, find(tlv_emv_tag_##name, TLV_EMV_CONTEXT_##scope));                         \
-    ASSERT_EQ(TLV_OK, tlv_tag_equal_u64(&tlv_emv_tag_##name, tlv_emv_tag_##name##_u64,             \
-                                        TLV_BYTE_ORDER_BIG_ENDIAN, &equal));                       \
-    EXPECT_EQ(1, equal);
+    EXPECT_EQ(static_cast<unsigned>(tlv_emv_tag_##name##_u64), number_of(tlv_emv_tag_##name));
 #define EMV_END(scope)
 #include "tlv/profiles/emv_tags.def"
 #undef EMV_BEGIN
@@ -61,13 +65,8 @@ TEST(Unit_Emv, ScopeAndInvalidLookup) {
     EXPECT_EQ(nullptr, tlv_emv_schema_for(TLV_EMV_CONTEXT_COUNT));
     EXPECT_EQ(nullptr, tlv_emv_find(TLV_EMV_CONTEXT_BASE, nullptr));
     EXPECT_EQ(nullptr, tlv_emv_find(TLV_EMV_CONTEXT_COUNT, &tlv_emv_tag_aip));
-    const tlv_tag_t empty = {{0}, 0};
+    const tlv_tag_t empty = tlv_tag(nullptr, 0);
     EXPECT_EQ(nullptr, find(empty));
-#if TLV_TAG_CAPACITY < TLV_TAG_MAX_SUPPORTED_SIZE
-    tlv_tag_t invalid = {{0x82}, TLV_TAG_CAPACITY + 1};
-    EXPECT_EQ(nullptr, find(invalid));
-#endif
-#if TLV_TAG_CAPACITY >= 3
     // Contact Book 3 defines one/two-byte tags. Kernel 2's three-byte tag
     // is still readable through generic BER but absent from every EMV table.
     const uint8_t wire[] = {0xDF, 0x81, 0x29, 0};
@@ -77,7 +76,6 @@ TEST(Unit_Emv, ScopeAndInvalidLookup) {
     EXPECT_EQ(3u, view.tag.size);
     for (int c = 0; c < TLV_EMV_CONTEXT_COUNT; ++c)
         EXPECT_EQ(nullptr, find(view.tag, static_cast<tlv_emv_context_t>(c)));
-#endif
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_emv_validate_length(nullptr, 1));
 }
 
@@ -92,7 +90,6 @@ TEST(Unit_Emv, ContextPreventsTagCollisions) {
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(biometric, 4));
     EXPECT_EQ(nullptr, find(tlv_emv_tag_tvr, TLV_EMV_CONTEXT_BHT));
     EXPECT_EQ(1u, find(tlv_emv_tag_aip, TLV_EMV_CONTEXT_BHT)->schema->max_length);
-#if TLV_TAG_CAPACITY >= 2
     const auto* counter = find(tlv_emv_tag_iris_try_counter, TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS);
     const auto* mac = find(tlv_emv_tag_iris_try_counter, TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION);
     ASSERT_NE(nullptr, counter);
@@ -101,24 +98,23 @@ TEST(Unit_Emv, ContextPreventsTagCollisions) {
     EXPECT_EQ(8u, mac->schema->max_length);
     EXPECT_EQ(nullptr, mac->codec);
     EXPECT_EQ(nullptr, find(tlv_emv_tag_iris_try_counter));
-#endif
 }
 
 TEST(Unit_Emv, ChildContextTracksNestedTemplates) {
     EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, nullptr));
 
-    const tlv_tag_t zero_size = {{0}, 0};
+    const tlv_tag_t zero_size = tlv_tag(nullptr, 0);
     EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &zero_size));
 
     // A known, non-template BASE tag keeps its children in BASE.
     EXPECT_EQ(TLV_EMV_CONTEXT_BASE, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &tlv_emv_tag_aip));
     // An unrecognized proprietary tag has no defined child context.
-    const tlv_tag_t proprietary = {{0x9E}, 1};
+    const tlv_tag_t proprietary = TLV_TAG(0x9E);
     EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &proprietary));
 
     // A1 under BIT opens the BHT; A1/A2 under BHT open its level-2 BHT_FORMAT.
-    const tlv_tag_t bht_open = {{0xA1}, 1};
-    const tlv_tag_t bht_close = {{0xA2}, 1};
+    const tlv_tag_t bht_open = TLV_TAG(0xA1);
+    const tlv_tag_t bht_close = TLV_TAG(0xA2);
     EXPECT_EQ(TLV_EMV_CONTEXT_BHT, tlv_emv_child_context(TLV_EMV_CONTEXT_BIT, &bht_open));
     EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BIT, &bht_close));
     EXPECT_EQ(TLV_EMV_CONTEXT_BHT_FORMAT, tlv_emv_child_context(TLV_EMV_CONTEXT_BHT, &bht_open));
@@ -126,7 +122,6 @@ TEST(Unit_Emv, ChildContextTracksNestedTemplates) {
     // BHT_FORMAT has no further nesting of its own.
     EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BHT_FORMAT, &bht_open));
 
-#if TLV_TAG_CAPACITY >= 2
     // The Biometric Information Template (7F60) switches its children to BIT,
     // whether read directly under BASE or nested inside a BIT group.
     EXPECT_EQ(
@@ -151,27 +146,19 @@ TEST(Unit_Emv, ChildContextTracksNestedTemplates) {
                                     &tlv_emv_tag_biometric_verification_data_template));
 
     // The two tag bytes are composed big-endian before lookup, not just the first byte.
-    const tlv_tag_t low_byte_only = {{0xBF, 0x00}, 2};
+    const tlv_tag_t low_byte_only = TLV_TAG(0xBF, 0x00);
     EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &low_byte_only));
 
     // Outside BASE/BIT_GROUP, the biometric template tag carries no special context.
     EXPECT_EQ(
         TLV_EMV_CONTEXT_COUNT,
         tlv_emv_child_context(TLV_EMV_CONTEXT_BHT, &tlv_emv_tag_biometric_information_template));
-#else
-    // TLV_TAG_CAPACITY == 1: a two-byte tag can never legitimately occur, but
-    // this is the exact shape that once tripped a compile-time -Warray-bounds
-    // error (an unguarded tag->data[1] read in tlv_emv_child_context).
-    const tlv_tag_t oversized = {{0xBF}, 2};
-    EXPECT_EQ(TLV_EMV_CONTEXT_COUNT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &oversized));
-#endif
 }
 
 TEST(Unit_Emv, NonContiguousLengthRules) {
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_afl), 5));
     EXPECT_EQ(TLV_OK, tlv_schema_validate_length(find(tlv_emv_tag_afl)->schema, 5));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_cvm_list), 11));
-#if TLV_TAG_CAPACITY >= 2
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_bic), 9));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_emv_validate_length(find(tlv_emv_tag_language_preference), 3));
@@ -179,7 +166,6 @@ TEST(Unit_Emv, NonContiguousLengthRules) {
               tlv_emv_validate_length(find(tlv_emv_tag_issuer_public_key_exponent), 2));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_emv_validate_length(find(tlv_emv_tag_application_reference_currency), 3));
-#endif
 }
 
 TEST(Unit_Emv, SemanticErrorsAndUnalignedStorage) {
@@ -214,7 +200,6 @@ TEST(Unit_Emv, SemanticErrorsAndUnalignedStorage) {
     tlv_emv_biometric_type_t bio;
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
               tlv_codec_decode(bio_codec, invalid_bio_bytes, 1, &bio, sizeof(bio)));
-#if TLV_TAG_CAPACITY >= 2
     const auto*          time_codec = find(tlv_emv_tag_transaction_time)->codec;
     const tlv_emv_time_t bad_times[] = {{24, 0, 0}, {0, 60, 0}, {0, 0, 60}};
     for (const auto& time : bad_times)
@@ -251,7 +236,6 @@ TEST(Unit_Emv, SemanticErrorsAndUnalignedStorage) {
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
               tlv_codec_encode(find(tlv_emv_tag_account_type)->codec, &invalid_account,
                                sizeof(invalid_account), nullptr, 0, &written));
-#endif
 }
 
 TEST(Unit_Emv, AmountCodecRejectsInvalidInputs) {
@@ -323,11 +307,9 @@ TEST(Unit_Emv, AflCodecRejectsMalformedEntries) {
 TEST(Unit_Emv, CvmResultCodecPreservesRawFields) {
     EXPECT_EQ(0x00, TLV_EMV_CVM_RESULT_UNKNOWN);
     EXPECT_EQ(0x01, TLV_EMV_CVM_RESULT_FAILED);
-#if TLV_TAG_CAPACITY >= 2
     const auto*                codec = find(tlv_emv_tag_cvm_results)->codec;
     const tlv_emv_cvm_result_t expected = {0x1F, 0x00, TLV_EMV_CVM_RESULT_SUCCESSFUL};
     check_vector(codec, expected, {0x1F, 0x00, 0x02});
-#endif
 }
 
 TEST(Unit_Emv, Track2CodecRoundTripsWithAndWithoutPadding) {
@@ -412,7 +394,6 @@ TEST(Unit_Emv, NamedBitFlagConstantsMatchWireBitPositions) {
                          TLV_EMV_TSI_TERMINAL_RISK_MANAGEMENT_PERFORMED;
     check_vector(find(tlv_emv_tag_tsi)->codec, tsi, {0x88, 0x00});
 
-#if TLV_TAG_CAPACITY >= 2
     const uint64_t capabilities = TLV_EMV_TERMINAL_CAPABILITIES_MAGNETIC_STRIPE |
                                   TLV_EMV_TERMINAL_CAPABILITIES_ENCIPHERED_PIN_FOR_ONLINE |
                                   TLV_EMV_TERMINAL_CAPABILITIES_DDA;
@@ -428,7 +409,6 @@ TEST(Unit_Emv, NamedBitFlagConstantsMatchWireBitPositions) {
                                 TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_CODE_TABLE_5;
     check_vector(find(tlv_emv_tag_additional_terminal_capabilities)->codec, additional,
                  {0xA0, 0x80, 0x20, 0x41, 0x11});
-#endif
 }
 
 TEST(Unit_Emv, ValueKindDescriptionCoversEveryKind) {
@@ -484,29 +464,21 @@ TEST(Unit_Emv, CoversContactBook3TagSet) {
             const auto& tag = schema->entries[i].tag;
             ASSERT_LE(tag.size, 2u);
             unsigned number = tag.data[0];
-#if TLV_TAG_CAPACITY >= 2
             if (tag.size == 2) number = (number << 8) | tag.data[1];
-#endif
             actual.insert(number);
         }
     }
-    std::set<unsigned> wanted;
-    for (unsigned tag : expected) {
-        if (TLV_TAG_CAPACITY >= 2 || tag <= 255) wanted.insert(tag);
-    }
+    const std::set<unsigned> wanted(std::begin(expected), std::end(expected));
     EXPECT_EQ(wanted, actual);
 }
 
 TEST(Unit_Emv, NumericConstantsInSwitch) {
-    uint64_t value = 0;
-    ASSERT_EQ(TLV_OK, tlv_tag_to_u64(&tlv_emv_tag_aip, TLV_BYTE_ORDER_BIG_ENDIAN, &value));
+    const unsigned value = number_of(tlv_emv_tag_aip);
     switch (value) {
         case tlv_emv_tag_aip_u64: EXPECT_EQ(0x82u, value); break;
         default: FAIL() << "AIP case did not match";
     }
-#if TLV_TAG_CAPACITY >= 2
     EXPECT_EQ(0x9f02, tlv_emv_tag_amount_authorised_u64);
-#endif
 }
 
 extern "C" int tlv_test_c_tag_switch(void);

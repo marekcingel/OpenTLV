@@ -21,23 +21,22 @@ There is no separate EMV parser and the reader never interprets values.
 The existing `tlv_emv_tag_*` objects use the universal `tlv_tag_t`.
 Each has a numeric integer constant expression with the `_u64` suffix,
 such as `tlv_emv_tag_aip_u64` (`0x82`), usable in C and C++ `case` labels.
-Both forms follow the configured tag capacity.
 
 ```c
-/* Inside a function; tag points to a tlv_tag_t. */
-uint64_t number;
-if (tlv_tag_to_u64(tag, TLV_BYTE_ORDER_BIG_ENDIAN, &number) == TLV_OK) {
-    switch (number) {
-    case tlv_emv_tag_aip_u64:
-        /* Handle AIP. */
-        break;
-    default:
-        break;
-    }
+/* Inside a function; tag is a tlv_tag_t of at most two bytes. */
+unsigned number = 0;
+size_t i;
+for (i = 0; i < tag.size; ++i) number = (number << 8) | tag.data[i];
+switch (number) {
+case tlv_emv_tag_aip_u64:
+    /* Handle AIP. */
+    break;
+default:
+    break;
 }
 ```
 
-See [tag comparison and numeric conversion](../../concepts/core-types.md#tag-comparison-and-numeric-conversion)
+See [tag comparison](../../concepts/core-types.md#tag-comparison)
 for conversion limits and exact versus numeric equality.
 
 `tlv_emv_schema` is the base dictionary, compatible with `tlv_schema_find()`
@@ -186,8 +185,8 @@ dictionary and length schemas do not enforce a definite-only encoding policy.
 APDU status bytes and EMV
 padding are handled by the caller. Book 3 defines one- and two-byte tags;
 three-byte tags remain readable by generic BER but are unknown to this profile.
-With `TLV_TAG_CAPACITY == 1`, two-byte constants and entries are omitted;
-configure the macro consistently for the library and all consumers.
+Every tag constant borrows constant static bytes, so the tables and constants
+are the same in every build.
 
 ## Structural validation
 
@@ -284,7 +283,7 @@ long values truncated from the left.
 value `resolve` may report as available, and must not exceed the fixed
 `TLV_DOL_MAX_VALUE_LENGTH` (255, matching the single-byte requested-length
 field's own range). `tlv_dol_default_limits` selects generous defaults for
-both. No allocation is used; tags follow the configured `TLV_TAG_CAPACITY`.
+both. No allocation is used; the tags of an entry borrow the DOL bytes, valid only during the callback.
 
 ```text
 9F 02 06 5A 08

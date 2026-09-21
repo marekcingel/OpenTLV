@@ -11,6 +11,9 @@ use std::path::PathBuf;
 use opentlv::emv::{self, Context};
 use opentlv::{encoded_size, Codec, Format, Limits, Profile, Reader, Strictness, Tag, Writer};
 
+/// Candidate tags up to this size are tried, which reaches past the longest tag any format accepts.
+const MAX_TAG_SIZE: usize = 16;
+
 /// Reads every seed file of one corpus directory as `(file name, bytes)`.
 fn seeds(harness: &str) -> Vec<(String, Vec<u8>)> {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -108,18 +111,14 @@ fn every_roundtrip_seed_round_trips_in_every_format() {
     for (name, data) in seeds("roundtrip") {
         // Layout (see tests/fuzz/README.md): a tag size byte, that many tag
         // bytes, then the value. Every input is also a value under tag 0x04.
-        let tag_len = data
-            .first()
-            .map_or(0, |b| *b as usize % (Tag::CAPACITY + 1));
+        let tag_len = data.first().map_or(0, |b| *b as usize % (MAX_TAG_SIZE + 1));
         let tag_len = tag_len.min(data.len().saturating_sub(1));
         let prefix = if data.is_empty() { 0 } else { 1 + tag_len };
         let candidate = Tag::from_bytes(&data[data.len().min(1)..data.len().min(1) + tag_len]);
-        let primitive = Tag::from_bytes(&[0x04]).unwrap();
+        let primitive = Tag::from_bytes(&[0x04]);
 
         for format in Format::ALL {
-            if let Ok(tag) = &candidate {
-                check_roundtrip(&name, format, tag, &data[prefix..]);
-            }
+            check_roundtrip(&name, format, &candidate, &data[prefix..]);
             check_roundtrip(&name, format, &primitive, &data);
         }
     }
@@ -175,9 +174,7 @@ fn every_emv_codec_round_trips_on_every_codec_seed() {
         for raw in 0..=0xFFFFu16 {
             let bytes = raw.to_be_bytes();
             let bytes = if raw <= 0xFF { &bytes[1..] } else { &bytes[..] };
-            let Ok(tag) = Tag::from_bytes(bytes) else {
-                continue;
-            };
+            let tag = Tag::from_bytes(bytes);
             if let Some(codec) = emv::find(context, &tag).and_then(|d| d.codec()) {
                 codecs.push((format!("{context:?}/{tag:?}"), codec));
             }

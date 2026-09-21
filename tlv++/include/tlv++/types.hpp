@@ -47,12 +47,12 @@ using bytes = span<const byte>;
 /**
  * @brief A decoded TLV item on the C++ side.
  *
- * The value points into the original buffer (zero-copy) and is not owned.
+ * The tag and the value point into the original buffer (zero-copy) and are not owned.
  *
  * @warning The caller must keep the original buffer alive while the entry is used.
  */
 struct entry {
-    /** Item tag, stored inline. */
+    /** Item tag; borrows the original buffer. */
     tag_t tag;
     /** Item value; borrows the original buffer. */
     bytes value;

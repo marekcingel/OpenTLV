@@ -85,7 +85,7 @@ TEST(Integration_TLV, writer_writes_short_form_entry) {
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_writer_format_default));
 
     const uint8_t value[] = {'a', 'b', 'c'};
-    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0x01}, 1}), value, sizeof(value)));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0x01)), value, sizeof(value)));
 
     ASSERT_EQ(5, tlv_writer_size(&writer));
     ASSERT_EQ(0x01, buf[0]);
@@ -100,7 +100,7 @@ TEST(Integration_TLV, writer_writes_long_form_1byte_length) {
 
     uint8_t value[200];
     memset(value, 'A', sizeof(value));
-    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0x05}, 1}), value, sizeof(value)));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0x05)), value, sizeof(value)));
 
     ASSERT_EQ(1 + 2 + 200, tlv_writer_size(&writer));
     ASSERT_EQ(0x05, buf[0]);
@@ -113,8 +113,8 @@ TEST(Integration_TLV, writer_reader_roundtrip) {
     tlv_writer_t writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_writer_format_default));
 
-    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0x01}, 1}), (const uint8_t*)"hi", 2));
-    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (tlv_tag_t{{0x02}, 1}), (const uint8_t*)"x", 1));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0x01)), (const uint8_t*)"hi", 2));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0x02)), (const uint8_t*)"x", 1));
 
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK,

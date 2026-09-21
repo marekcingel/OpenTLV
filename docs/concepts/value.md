@@ -59,6 +59,9 @@ typedef struct {
 } tlv_view_t;
 ```
 
+`view.tag` is a borrowed `tlv_tag_t`: like the value, it points into the input
+the view was read from and must not outlive it.
+
 Readers construct `view.value` directly (its fields, not through
 `tlv_value_init()`) after validating a decoded length against the input
 buffer, so an internal reader-produced view is always representation-valid.

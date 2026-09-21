@@ -65,7 +65,7 @@ Save the example as `main.c`. It is
 #include "tlv/writer/writer.h"
 
 int main(void) {
-    const tlv_tag_t tag = {{0x01}, 1};
+    const tlv_tag_t tag = TLV_TAG(0x01);
     const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
     uint8_t         buffer[5];
     size_t          written = 0, consumed = 0;
@@ -119,7 +119,7 @@ instead of `tlv`; this target propagates the C library and include paths.
 #include "tlv/formats/fixed/fixed_1byte.h"
 
 int main() {
-    const tlv::tag_t               tag{{0x01}, 1};
+    const tlv::tag_t               tag = TLV_TAG(0x01);
     const std::array<tlv::byte, 3> value = {
         static_cast<tlv::byte>(0xAA), static_cast<tlv::byte>(0xBB), static_cast<tlv::byte>(0xCC)};
     std::array<tlv::byte, 5> buffer{};
@@ -278,14 +278,11 @@ ctest --test-dir build-integration -C Release --output-on-failure --no-tests=err
 Both groups follow the enabled format/profile options and `OPENTLV_BUILD_CXX`.
 Generic contract tests use controlled callbacks where appropriate and remain
 available without built-in formats. Compile-time format direction checks run
-when tests are enabled. Alternate tag-capacity targets remain part of their
-respective groups: types use capacities 1/16/255, BER and DER use 1/16/255, and
-EMV uses 1/2/3. Each alternate target compiles its implementation with the same
-`TLV_TAG_CAPACITY` as its tests; it does not link the differently laid-out main
-library.
+when tests are enabled. Tags have no compile-time capacity, so tag lengths are
+runtime test input and every test links the same library build.
 
 CI runs both labels. The Clang Debug coverage artifact measures the combined
-unit and integration runs, including alternate-capacity targets, before examples
+unit and integration runs before examples
 or installed-package checks execute. Package verification remains available via
 `python scripts/check_package.py <release-build> --cxx ON` (or `OFF` for C-only).
 

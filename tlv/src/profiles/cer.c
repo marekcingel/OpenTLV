@@ -508,9 +508,8 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
              * low-tag-number form, so the constructed wrapper tag is the
              * primitive tag with bit 0x20 set; segments below keep the
              * original primitive-form tag bytes. */
-            tlv_tag_t constructed_tag = tag;
-            constructed_tag.data[0] = (uint8_t)(constructed_tag.data[0] | 0x20);
-            memcpy(out, constructed_tag.data, tag_size);
+            memcpy(out, tag.data, tag_size);
+            out[0] = (uint8_t)(out[0] | 0x20);
             out += tag_size;
             *out++ = 0x80;
             for (size_t i = 0; i < num_non_final; ++i) {

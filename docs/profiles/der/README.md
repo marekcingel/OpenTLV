@@ -60,10 +60,11 @@ remain unchanged on failure. Keep the input alive while using returned views.
 Class and constructed accessors require a valid DER tag. `tlv_der_tag_number`
 validates a tag and extracts a `uint64_t`; larger numbers return
 `TLV_ERR_INVALID_TAG` without changing the output. Raw parsing accepts tags up
-to `TLV_TAG_CAPACITY` (default 8 bytes, configurable from 1 to 255 consistently
-across library and consumers), including numbers larger than `uint64_t`.
-`tlv_der_tag_make(class, constructed, number, &tag)` creates minimal wire bytes
-from a `uint64_t`, rejects invalid universal forms or insufficient tag capacity,
+to `TLV_ASN1_TAG_MAX_SIZE` (8 bytes), including numbers larger than `uint64_t`.
+`tlv_der_tag_make(class, constructed, number, storage, &tag)` creates minimal
+wire bytes from a `uint64_t` in `storage` (`TLV_ASN1_TAG_MAX_SIZE` writable
+bytes, which the tag then borrows), rejects invalid universal forms or a tag
+longer than `TLV_ASN1_TAG_MAX_SIZE`,
 and leaves the output unchanged on failure. Empty tags and insufficient tag
 capacity return `TLV_ERR_INVALID_TAG_SIZE`; invalid encodings return
 `TLV_ERR_INVALID_TAG`. `constructed` must be 0 or 1.
@@ -99,11 +100,12 @@ element count; primitive value bytes are not scanned.
 ## Encode
 
 ```c
+uint8_t tag_bytes[TLV_ASN1_TAG_MAX_SIZE]; /* the tag borrows these bytes */
 tlv_tag_t tag;
 const uint8_t children[] = {0x02, 1, 42};
 uint8_t output[5];
 size_t required, written, error_offset;
-tlv_result_t rc = tlv_der_tag_make(TLV_ASN1_UNIVERSAL, 1, 16, &tag);
+tlv_result_t rc = tlv_der_tag_make(TLV_ASN1_UNIVERSAL, 1, 16, tag_bytes, &tag);
 if (rc == TLV_OK)
     rc = tlv_der_write(NULL, 0, tag, children, sizeof(children), NULL,
                        &required, &error_offset);

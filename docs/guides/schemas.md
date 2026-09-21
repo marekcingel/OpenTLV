@@ -9,11 +9,16 @@ DEFAULT omission), see
 a distinct schema type built for that purpose.
 
 ```c
+/* A schema entry borrows its tag bytes, so they need static storage. */
+static const uint8_t tag_01[] = {0x01};
+static const uint8_t tag_02[] = {0x02};
+static const uint8_t tag_9f02[] = {0x9F, 0x02};
+
 static const tlv_schema_entry_t entries[] = {
-    /* tag bytes, tag size, minimum length, maximum length, flags */
-    {{{0x01}, 1}, 4, 4, 0},       /* Exactly four bytes. */
-    {{{0x02}, 1}, 0, 32, 0},      /* Zero through 32 bytes, inclusive. */
-    {{{0x9F, 0x02}, 2}, 1, SIZE_MAX, 0}
+    /* tag (bytes, size), minimum length, maximum length, flags */
+    {{tag_01, sizeof(tag_01)}, 4, 4, 0},       /* Exactly four bytes. */
+    {{tag_02, sizeof(tag_02)}, 0, 32, 0},      /* Zero through 32 bytes, inclusive. */
+    {{tag_9f02, sizeof(tag_9f02)}, 1, SIZE_MAX, 0}
 };
 static const tlv_schema_t schema = {
     entries, sizeof(entries) / sizeof(entries[0])
@@ -34,9 +39,25 @@ The reader does not use schemas and can parse unknown tags and values outside
 schema constraints. Validation is an explicit application step.
 
 Lookup performs a linear scan without allocation or runtime registration. It
-compares tag size and active bytes, returns a borrowed entry pointer, and selects
-the first match for duplicate tags. Tables need not be sorted. Keep their storage
-alive while using returned pointers. An empty schema can use `{NULL, 0}`.
+compares tags with `tlv_tag_equal()` (size and bytes, whatever memory backs them),
+returns a borrowed entry pointer, and selects the first match for duplicate
+tags. Tables need not be sorted. Keep their storage, including the bytes of
+every tag in it, alive while using returned pointers. An empty schema can use
+`{NULL, 0}`.
+
+## What a tag is, what a format allows and what a schema requires
+
+These are three separate questions:
+
+- A `tlv_tag_t` is arbitrary raw bytes with a length. It has no maximum length
+  and knows nothing about encodings.
+- A **format** defines how tags are encoded and which tag lengths are valid. BER
+  accepts 1 to 8 bytes, the default format exactly one, and a format defined at
+  runtime can accept any length, such as 12 bytes. A format rejects the tags it
+  does not support, and decides whether an empty tag is valid.
+- A **schema** defines which tags are allowed or required in a scope and how
+  long their values may be. A schema entry can hold a tag of any length; whether
+  such a tag can ever appear in the input is up to the format that reads it.
 
 Equal length bounds specify an exact length; `SIZE_MAX` allows any representable
 upper length. Reversed bounds always fail validation. Flags are reserved and
@@ -54,9 +75,11 @@ require CONSTRUCTED and are checked even for an empty container.
 
 ```c
 #include "tlv/schemas/schema.h"
+static const uint8_t tag_1[] = {1};
+static const uint8_t tag_2[] = {2};
 static const tlv_structure_rule_t rules[] = {
-    { { {{1}, 1}, 1, 8, 0 }, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL },
-    { { {{2}, 1}, 0, 255, 0 }, 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL }
+    { { { tag_1, sizeof(tag_1) }, 1, 8, 0 }, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL },
+    { { { tag_2, sizeof(tag_2) }, 0, 255, 0 }, 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL }
 };
 static const tlv_structure_schema_t message = {rules, 2, 0};
 /* tlv_schema_validate(data, size, format, is_constructed, &message, 16, 1000, &offset); */
@@ -112,7 +135,8 @@ if (rc == TLV_ERR_SCHEMA) {
 Each `tlv_schema_issue_t` has a `kind` (`MISSING`, `DUPLICATE`, `UNEXPECTED`,
 `KIND` for a primitive/constructed mismatch, `LENGTH`), the `path` from the
 outermost scope to the affected tag (`70/77/9F36` as text), and the byte
-`offset` of the element. A missing tag has no element of its own, so its offset
+`offset` of the element. The path tags borrow the input that was validated (and
+the schema, for a missing tag), so both must outlive the issue. A missing tag has no element of its own, so its offset
 is that of the enclosing element; a tag missing at the top level has no offset
 (`has_offset` is zero). The return value is `TLV_OK`, `TLV_ERR_SCHEMA` when
 violations were found (`report.count` is the total, even beyond `capacity`), or
