@@ -26,6 +26,7 @@ Documentation is grouped by purpose. See
 - [Value codecs](guides/codecs.md)
 - [Copy helpers](guides/copy.md)
 - [TLV scanning and recovery](guides/scanner.md)
+- [Building only the components you need](guides/select-components.md)
 
 ## Formats
 
@@ -33,6 +34,7 @@ Documentation is grouped by purpose. See
 - [Formats, reading, writing, traversal, and custom callbacks](formats/README.md)
 - [Format trees and byte examples](formats/format-examples.md)
 - [Format expansion candidates and proposed priorities](formats/format-roadmap.md)
+- [Format candidate catalogue: specifications, components and limits](formats/format-catalogue.md)
 
 ## Profiles
 
@@ -54,6 +56,7 @@ Documentation is grouped by purpose. See
 - [Generated C API reference](reference/c-api.md)
 - [Generated C++ API reference](reference/cxx-api.md)
 - [Supported compilers and build settings](reference/compilers.md)
+- [Error codes](reference/errors.md)
 
 ## Development
 

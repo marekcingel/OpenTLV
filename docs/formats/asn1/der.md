@@ -45,6 +45,26 @@ int main(void) {
 }
 ```
 
+## Layout and typical use
+
+DER uses the [BER layout](ber.md#layout-and-typical-use) with one encoding chosen for
+every value, so equal values always encode to the same bytes.
+
+```text
++------------------+----------------------+-----------------------+
+| Identifier       | Length               | Contents              |
+| 1+ bytes (tag)   | shortest definite    | Length bytes          |
+|                  | form only            | (child elements if    |
+|                  |                      |  constructed)         |
++------------------+----------------------+-----------------------+
+```
+
+There is no indefinite length and no end-of-contents marker, and the length uses the
+fewest octets possible. Typical uses are signed or hashed structures such as
+certificates and keys, where the exact bytes must be reproducible. The generic reader
+checks only this framing; canonical values and ordering come from the `_strict`
+functions and [schemas](../../profiles/der/README.md).
+
 ## Byte example
 
 ```text

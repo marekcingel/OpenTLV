@@ -116,6 +116,7 @@ nav:
       - Value codecs: guides/codecs.md
       - Copy helpers: guides/copy.md
       - Scanning and recovery: guides/scanner.md
+      - Building only the components you need: guides/select-components.md
       - Using OpenTLV from Rust: guides/rust.md
   - Formats:
       - Overview: formats/README.md
@@ -129,6 +130,7 @@ nav:
       - Custom formats: formats/custom/README.md
       - Format examples: formats/format-examples.md
       - Format roadmap: formats/format-roadmap.md
+      - Format candidate catalogue: formats/format-catalogue.md
   - Profiles:
       - DER: profiles/der/README.md
       - CER: profiles/cer/README.md
@@ -142,6 +144,7 @@ nav:
       - C API: reference/c-api.md
       - C++ API: reference/cxx-api.md
       - Compilers and build settings: reference/compilers.md
+      - Error codes: reference/errors.md
   - Development:
       - Where documentation belongs: development/documentation-layout.md
       - Fuzzing: development/fuzzing.md

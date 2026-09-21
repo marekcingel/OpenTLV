@@ -190,6 +190,35 @@ returns `TLV_ERR_INVALID_TAG_SIZE` even if those bytes are missing. Empty input 
 the generic reader returns `TLV_ERR_END_OF_BUFFER`. All BER-specific encoding
 and validation live in the format callbacks.
 
+## Layout and typical use
+
+An element is identifier octets, length octets, and contents. A constructed value's
+contents are more elements with the same layout, so the structure is recursive.
+
+```text
++------------------+----------------------+-----------------------+---------+
+| Identifier       | Length               | Contents              | EOC     |
+| 1+ bytes (tag)   | 1+ bytes             | Length bytes          | 00 00   |
+|                  |                      | (child elements if    | only if |
+|                  |                      |  constructed)         | length  |
+|                  |                      |                       | is 80   |
++------------------+----------------------+-----------------------+---------+
+```
+
+| Part | Forms |
+| --- | --- |
+| Identifier, first octet | Bits 8-7 class (universal, application, context-specific, private), bit 6 constructed, bits 5-1 tag number |
+| Identifier, high tag numbers | Tag number bits 5-1 all set (`1F`), then the number in following octets, seven bits each, with bit 8 set on every octet except the last |
+| Length, short | One octet `00`-`7F`: the length itself |
+| Length, long | `81`-`FE` (`80` plus the count `n`), then `n` length octets |
+| Length, indefinite | `80`, constructed values only; contents end with the end-of-contents marker `00 00` |
+
+The definite length covers the contents (all children with their headers), not the
+identifier or the length octets. Typical uses are ASN.1-based protocols and smart-card
+data objects, where BER is the framing and the meaning of each tag comes from a
+[profile](../../profiles/emv/README.md) or a schema. See [DER](der.md) and [CER](cer.md)
+for the canonical restrictions of this layout.
+
 ## Byte example
 
 ### Definite constructed value

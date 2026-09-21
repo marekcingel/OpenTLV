@@ -28,6 +28,36 @@ Profile semantics are documented separately.
 | EMV Contact Book 3 data objects | [BER plus EMV profile](../profiles/emv/README.md) | Dictionary/codecs, not a transaction engine |
 | Application-specific framing | [Custom callbacks](custom/README.md) | Application supplies wire rules |
 
+## Compare formats
+
+All rows are TLV formats: they differ in header layout, limits, nesting and how they are
+built. Each format keeps its own page with the byte layout and a worked example.
+
+| Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree walker | Build option |
+| --- | --- | --- | --- | --- | --- | --- |
+| [Default TLV](default/README.md#layout-and-typical-use) | 1 byte | 1 byte below `80`, or `81 nn`, `82 nn nn` | 65,535 bytes | tag, length, value | none (opaque values) | `OPENTLV_FORMAT_DEFAULT` |
+| [Fixed 1-byte TLV](fixed/README.md#layout-and-typical-use) | 1 byte | 1 byte | 255 bytes | tag, length, value | none (opaque values) | `OPENTLV_FORMAT_FIXED_1BYTE` |
+| [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
+| [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) (C++) | 1 to 8 bytes | 1 to 8 bytes, big or little endian | set by the length width | tag, length, value | none (opaque values) | none (C++ header) |
+| [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to `TLV_TAG_CAPACITY` bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_ber_is_constructed` | `OPENTLV_FORMAT_BER` |
+| [DER-TLV](asn1/der.md#layout-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_der_is_constructed` | `OPENTLV_FORMAT_DER` |
+| [CER-TLV](asn1/cer.md#layout-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_cer_is_constructed` | `OPENTLV_FORMAT_CER` |
+| [Application-defined](custom/README.md) | 1 to `TLV_TAG_CAPACITY` raw bytes | your rules | your rules | any, through `read_element` and `write_header` | your predicate | none |
+
+Notes for choosing:
+
+- Only BER, DER and CER carry a constructed bit, so only they nest by themselves.
+  The other formats hold opaque values; nesting is then up to your predicate.
+- DER and CER are BER with restrictions: they share the tag layout and differ in how
+  lengths are chosen. Their generic readers check framing only; canonical values come from
+  the profile functions.
+- Bluetooth LTV is the built-in example of a format that puts the length before the type.
+- Every format reads values in place and writes into caller-owned storage.
+- To build only some of them, see [build only the components you need](../guides/select-components.md).
+
+Formats that are not implemented yet are catalogued in
+[format expansion candidates](format-roadmap.md).
+
 All formats follow the [shared memory ownership rules](../guides/memory.md).
 
 For canonical ASN.1 framing, nested validation, limits and error offsets, see

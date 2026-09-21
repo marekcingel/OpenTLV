@@ -45,6 +45,25 @@ int main(void) {
 }
 ```
 
+## Layout and typical use
+
+```text
++--------+--------------------------+-------------------------+
+| Tag    | Length                   | Value                   |
+| 1 byte | 1 to 3 bytes             | Length bytes, opaque    |
++--------+--------------------------+-------------------------+
+
+Length forms:  00-7F          one byte, the length itself
+               81 nn          two bytes, length 0-255
+               82 nn nn       three bytes, length 0-65,535 (big-endian)
+```
+
+The length counts the value only, not the tag or the length field. Nothing inside the
+value is interpreted, so a value that contains further TLVs is just bytes to this
+format. Use it for compact application-defined records that need a one-byte tag but
+values longer than 255 bytes. For nesting or multi-byte tags use
+[BER-TLV](../asn1/ber.md).
+
 ## Byte example
 
 One raw tag byte and a definite BER-style length, up to 65,535 value bytes.
