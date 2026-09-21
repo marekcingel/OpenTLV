@@ -92,7 +92,7 @@ Files</h2></td></tr>
 <tr class="memdesc:length_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build-independent 64-bit TLV length type and checked conversions to <code>size_t</code>. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:tag_8h" id="r_tag_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tag_8h.html">tag.h</a></td></tr>
-<tr class="memdesc:tag_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw TLV tag type with checked construction, comparison and numeric conversion. <br /></td></tr>
+<tr class="memdesc:tag_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed raw TLV tag type with construction and comparison. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:tlv_8h" id="r_tlv_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tlv_8h.html">tlv.h</a></td></tr>
 <tr class="memdesc:tlv_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience header for the configured C API. <br /></td></tr>
@@ -101,7 +101,7 @@ Files</h2></td></tr>
 <tr class="memdesc:value_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-owning, read-only TLV value type. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:view_8h" id="r_view_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="view_8h.html">view.h</a></td></tr>
-<tr class="memdesc:view_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded TLV element view: an inline tag plus a borrowed value. <br /></td></tr>
+<tr class="memdesc:view_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded TLV element view: a borrowed tag plus a borrowed value. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:config_8h" id="r_config_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config_8h.html">config.h</a></td></tr>
 <tr class="memdesc:config_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generated library feature configuration. <br /></td></tr>
@@ -113,23 +113,20 @@ Files</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A TLV tag stored as raw bytes, independent of host endianness or TLV profile.  <a href="structtlv__tag__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A TLV tag: a borrowed sequence of raw bytes in wire order.  <a href="structtlv__tag__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__value__t.html">tlv_value_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-owning, read-only view of a TLV value.  <a href="structtlv__value__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__view__t.html">tlv_view_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A decoded TLV element: an inline tag and a borrowed value.  <a href="structtlv__view__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A decoded TLV element: a borrowed tag and a borrowed value.  <a href="structtlv__view__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:ga39b5b41239d927be70168dec7934d447" id="r_ga39b5b41239d927be70168dec7934d447"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga39b5b41239d927be70168dec7934d447">TLV_TAG_MAX_SUPPORTED_SIZE</a>&#160;&#160;&#160;UINT8_MAX</td></tr>
-<tr class="memdesc:ga39b5b41239d927be70168dec7934d447"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed <code>uint8_t</code> representation limit for tag sizes.  <br /></td></tr>
-<tr class="separator:ga39b5b41239d927be70168dec7934d447"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaf06da2c35af6874a318108f9bc07da99" id="r_gaf06da2c35af6874a318108f9bc07da99"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99">TLV_TAG_CAPACITY</a>&#160;&#160;&#160;8</td></tr>
-<tr class="memdesc:gaf06da2c35af6874a318108f9bc07da99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inline storage capacity of a <a class="el" href="structtlv__tag__t.html" title="A TLV tag stored as raw bytes, independent of host endianness or TLV profile.">tlv_tag_t</a>, in bytes (default 8).  <br /></td></tr>
-<tr class="separator:gaf06da2c35af6874a318108f9bc07da99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga62240f1e8115a67ac51e5b00855a240b" id="r_ga62240f1e8115a67ac51e5b00855a240b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b">TLV_TAG</a>(...)&#160;&#160;&#160;    (<a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0">tlv_tag</a>((const uint8_t[]){__VA_ARGS__}, sizeof((const uint8_t[]){__VA_ARGS__})))</td></tr>
+<tr class="memdesc:ga62240f1e8115a67ac51e5b00855a240b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds an allocation-free tag from literal bytes, e.g. <code><a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b" title="Builds an allocation-free tag from literal bytes, e.g. TLV_TAG(0x9F, 0x02).">TLV_TAG(0x9F, 0x02)</a></code>.  <br /></td></tr>
+<tr class="separator:ga62240f1e8115a67ac51e5b00855a240b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab8c74ff779970d9fc8a46f2a647a71fe" id="r_gab8c74ff779970d9fc8a46f2a647a71fe"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gab8c74ff779970d9fc8a46f2a647a71fe">OPENTLV_FORMAT_DEFAULT</a>&#160;&#160;&#160;1</td></tr>
 <tr class="separator:gab8c74ff779970d9fc8a46f2a647a71fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5f01989ff4b80b60a481a55a1ee7b2e4" id="r_ga5f01989ff4b80b60a481a55a1ee7b2e4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5f01989ff4b80b60a481a55a1ee7b2e4">OPENTLV_FORMAT_FIXED_1BYTE</a>&#160;&#160;&#160;1</td></tr>
@@ -152,19 +149,19 @@ Macros</h2></td></tr>
 <tr class="separator:gad062a7eec07ec5320048c3ce7557a06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga78642a629438a71c59f9442c78fd2c87" id="r_ga78642a629438a71c59f9442c78fd2c87"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga78642a629438a71c59f9442c78fd2c87">OPENTLV_VERSION_PATCH</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:ga78642a629438a71c59f9442c78fd2c87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa451b8da102d59f7b9458bc8e2f0bf97" id="r_gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97">OPENTLV_VERSION_REVISION</a>&#160;&#160;&#160;45</td></tr>
+<tr class="memitem:gaa451b8da102d59f7b9458bc8e2f0bf97" id="r_gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97">OPENTLV_VERSION_REVISION</a>&#160;&#160;&#160;47</td></tr>
 <tr class="separator:gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga33d8e893fc2c2576f9fd8c31cee2256b" id="r_ga33d8e893fc2c2576f9fd8c31cee2256b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga33d8e893fc2c2576f9fd8c31cee2256b">OPENTLV_VERSION_PRERELEASE</a>&#160;&#160;&#160;&quot;&quot;</td></tr>
 <tr class="separator:ga33d8e893fc2c2576f9fd8c31cee2256b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga193562e270081cce2e0ec2cf3dc9becf" id="r_ga193562e270081cce2e0ec2cf3dc9becf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga193562e270081cce2e0ec2cf3dc9becf">OPENTLV_VERSION_STRING</a>&#160;&#160;&#160;&quot;0.6.0&quot;</td></tr>
 <tr class="separator:ga193562e270081cce2e0ec2cf3dc9becf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1d93d56a9fc48abd91435938fca018a1" id="r_ga1d93d56a9fc48abd91435938fca018a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1d93d56a9fc48abd91435938fca018a1">OPENTLV_GIT_COMMIT_HASH</a>&#160;&#160;&#160;&quot;c9b764d&quot;</td></tr>
+<tr class="memitem:ga1d93d56a9fc48abd91435938fca018a1" id="r_ga1d93d56a9fc48abd91435938fca018a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1d93d56a9fc48abd91435938fca018a1">OPENTLV_GIT_COMMIT_HASH</a>&#160;&#160;&#160;&quot;ab035ea&quot;</td></tr>
 <tr class="separator:ga1d93d56a9fc48abd91435938fca018a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1a408e73a0b7c9dd1117ad1cb59fa238" id="r_ga1a408e73a0b7c9dd1117ad1cb59fa238"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1a408e73a0b7c9dd1117ad1cb59fa238">OPENTLV_GIT_BRANCH</a>&#160;&#160;&#160;&quot;main&quot;</td></tr>
 <tr class="separator:ga1a408e73a0b7c9dd1117ad1cb59fa238"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2eb763ab60d23634a1db498f2eadde3c" id="r_ga2eb763ab60d23634a1db498f2eadde3c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga2eb763ab60d23634a1db498f2eadde3c">OPENTLV_GIT_TAG</a>&#160;&#160;&#160;&quot;0.6.0&quot;</td></tr>
 <tr class="separator:ga2eb763ab60d23634a1db498f2eadde3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5efa726a1d139abae3b566638e2ac0fd" id="r_ga5efa726a1d139abae3b566638e2ac0fd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5efa726a1d139abae3b566638e2ac0fd">OPENTLV_GIT_REPO_VERSION</a>&#160;&#160;&#160;&quot;0.6.0-45-c9b764d&quot;</td></tr>
+<tr class="memitem:ga5efa726a1d139abae3b566638e2ac0fd" id="r_ga5efa726a1d139abae3b566638e2ac0fd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5efa726a1d139abae3b566638e2ac0fd">OPENTLV_GIT_REPO_VERSION</a>&#160;&#160;&#160;&quot;0.6.0-47-ab035ea&quot;</td></tr>
 <tr class="separator:ga5efa726a1d139abae3b566638e2ac0fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -273,51 +270,15 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5379ba9130ae0652419c1c9d50f45d6b" id="r_ga5379ba9130ae0652419c1c9d50f45d6b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5379ba9130ae0652419c1c9d50f45d6b">tlv_length_validate_native</a> (<a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> length)</td></tr>
 <tr class="memdesc:ga5379ba9130ae0652419c1c9d50f45d6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether a length fits the current build's <code>size_t</code> range.  <br /></td></tr>
 <tr class="separator:ga5379ba9130ae0652419c1c9d50f45d6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaadb6b011d2add6d09a608bd83e850db4" id="r_gaadb6b011d2add6d09a608bd83e850db4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaadb6b011d2add6d09a608bd83e850db4">tlv_tag_equal</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *a, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *b, int *equal)</td></tr>
-<tr class="memdesc:gaadb6b011d2add6d09a608bd83e850db4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compares two tags by size and bytes.  <br /></td></tr>
-<tr class="separator:gaadb6b011d2add6d09a608bd83e850db4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaf1e509940a2007954021fb137f04afc6" id="r_gaf1e509940a2007954021fb137f04afc6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaf1e509940a2007954021fb137f04afc6">tlv_tag_equal_bytes</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, const uint8_t *data, size_t size, int *equal)</td></tr>
-<tr class="memdesc:gaf1e509940a2007954021fb137f04afc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compares a tag against raw bytes, including length and leading zeros.  <br /></td></tr>
-<tr class="separator:gaf1e509940a2007954021fb137f04afc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab1c968876e8e8bddfa926ef6c773de72" id="r_gab1c968876e8e8bddfa926ef6c773de72"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gab1c968876e8e8bddfa926ef6c773de72">tlv_tag_equal_u8</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint8_t value, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, int *equal)</td></tr>
-<tr class="memdesc:gab1c968876e8e8bddfa926ef6c773de72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compares a tag numerically against an 8-bit value.  <br /></td></tr>
-<tr class="separator:gab1c968876e8e8bddfa926ef6c773de72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab62bba863eb480fdcb4936af73fc9b98" id="r_gab62bba863eb480fdcb4936af73fc9b98"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gab62bba863eb480fdcb4936af73fc9b98">tlv_tag_equal_u16</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint16_t value, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, int *equal)</td></tr>
-<tr class="memdesc:gab62bba863eb480fdcb4936af73fc9b98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compares a tag numerically against a 16-bit value.  <br /></td></tr>
-<tr class="separator:gab62bba863eb480fdcb4936af73fc9b98"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga78d87b7ef6c6ea95badacc1786aa58de" id="r_ga78d87b7ef6c6ea95badacc1786aa58de"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga78d87b7ef6c6ea95badacc1786aa58de">tlv_tag_equal_u32</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint32_t value, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, int *equal)</td></tr>
-<tr class="memdesc:ga78d87b7ef6c6ea95badacc1786aa58de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compares a tag numerically against a 32-bit value.  <br /></td></tr>
-<tr class="separator:ga78d87b7ef6c6ea95badacc1786aa58de"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaeaeae79ce9d9662af64498b2b3268ba4" id="r_gaeaeae79ce9d9662af64498b2b3268ba4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaeaeae79ce9d9662af64498b2b3268ba4">tlv_tag_equal_u64</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint64_t value, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, int *equal)</td></tr>
-<tr class="memdesc:gaeaeae79ce9d9662af64498b2b3268ba4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compares a tag numerically against a 64-bit value.  <br /></td></tr>
-<tr class="separator:gaeaeae79ce9d9662af64498b2b3268ba4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga422cd87193f446c8f939c4a3bcb52d71" id="r_ga422cd87193f446c8f939c4a3bcb52d71"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga422cd87193f446c8f939c4a3bcb52d71">tlv_tag_to_u8</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, uint8_t *value)</td></tr>
-<tr class="memdesc:ga422cd87193f446c8f939c4a3bcb52d71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a tag to an unsigned 8-bit integer.  <br /></td></tr>
-<tr class="separator:ga422cd87193f446c8f939c4a3bcb52d71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9524591e1e2e8447536fe01a2354096d" id="r_ga9524591e1e2e8447536fe01a2354096d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga9524591e1e2e8447536fe01a2354096d">tlv_tag_to_u16</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, uint16_t *value)</td></tr>
-<tr class="memdesc:ga9524591e1e2e8447536fe01a2354096d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a tag to an unsigned 16-bit integer.  <br /></td></tr>
-<tr class="separator:ga9524591e1e2e8447536fe01a2354096d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa88c6daec65d9a6fffc9edf1c1208257" id="r_gaa88c6daec65d9a6fffc9edf1c1208257"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa88c6daec65d9a6fffc9edf1c1208257">tlv_tag_to_u32</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, uint32_t *value)</td></tr>
-<tr class="memdesc:gaa88c6daec65d9a6fffc9edf1c1208257"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a tag to an unsigned 32-bit integer.  <br /></td></tr>
-<tr class="separator:gaa88c6daec65d9a6fffc9edf1c1208257"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga4d64cc11db3dd2e75a96b6deba3e6126" id="r_ga4d64cc11db3dd2e75a96b6deba3e6126"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126">tlv_tag_to_u64</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, uint64_t *value)</td></tr>
-<tr class="memdesc:ga4d64cc11db3dd2e75a96b6deba3e6126"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a tag to an unsigned 64-bit integer.  <br /></td></tr>
-<tr class="separator:ga4d64cc11db3dd2e75a96b6deba3e6126"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gac40afdff957ffc02fca2bd18e399334f" id="r_gac40afdff957ffc02fca2bd18e399334f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gac40afdff957ffc02fca2bd18e399334f">tlv_tag_from_bytes</a> (const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:gac40afdff957ffc02fca2bd18e399334f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a tag from raw bytes.  <br /></td></tr>
-<tr class="separator:gac40afdff957ffc02fca2bd18e399334f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa7df6abd864d18d92fa76537fbe37c6a" id="r_gaa7df6abd864d18d92fa76537fbe37c6a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa7df6abd864d18d92fa76537fbe37c6a">tlv_tag_from_u8</a> (uint8_t value, size_t size, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:gaa7df6abd864d18d92fa76537fbe37c6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs an explicitly sized raw tag from an 8-bit value.  <br /></td></tr>
-<tr class="separator:gaa7df6abd864d18d92fa76537fbe37c6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga696a23c2bd90739824543d1453d99a98" id="r_ga696a23c2bd90739824543d1453d99a98"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga696a23c2bd90739824543d1453d99a98">tlv_tag_from_u16</a> (uint16_t value, size_t size, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:ga696a23c2bd90739824543d1453d99a98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs an explicitly sized raw tag from a 16-bit value.  <br /></td></tr>
-<tr class="separator:ga696a23c2bd90739824543d1453d99a98"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gacf7cc8e07f6db3f25d9dbe3d51afc0cb" id="r_gacf7cc8e07f6db3f25d9dbe3d51afc0cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gacf7cc8e07f6db3f25d9dbe3d51afc0cb">tlv_tag_from_u32</a> (uint32_t value, size_t size, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:gacf7cc8e07f6db3f25d9dbe3d51afc0cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs an explicitly sized raw tag from a 32-bit value.  <br /></td></tr>
-<tr class="separator:gacf7cc8e07f6db3f25d9dbe3d51afc0cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gae78ec835460b6d458d5e4a1910812c7c" id="r_gae78ec835460b6d458d5e4a1910812c7c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gae78ec835460b6d458d5e4a1910812c7c">tlv_tag_from_u64</a> (uint64_t value, size_t size, <a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> order, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:gae78ec835460b6d458d5e4a1910812c7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs an explicitly sized raw tag from a 64-bit value.  <br /></td></tr>
-<tr class="separator:gae78ec835460b6d458d5e4a1910812c7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga552f068e013290aec4dec3556559fbf0" id="r_ga552f068e013290aec4dec3556559fbf0"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0">tlv_tag</a> (const uint8_t *data, size_t size)</td></tr>
+<tr class="memdesc:ga552f068e013290aec4dec3556559fbf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a tag that borrows <code>size</code> bytes at <code>data</code>.  <br /></td></tr>
+<tr class="separator:ga552f068e013290aec4dec3556559fbf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaeb5a71787b6d5f11175d261f3a5a7395" id="r_gaeb5a71787b6d5f11175d261f3a5a7395"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaeb5a71787b6d5f11175d261f3a5a7395">tlv_tag_equal</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> lhs, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> rhs)</td></tr>
+<tr class="memdesc:gaeb5a71787b6d5f11175d261f3a5a7395"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tests whether two tags have the same size and bytes.  <br /></td></tr>
+<tr class="separator:gaeb5a71787b6d5f11175d261f3a5a7395"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6e4293fe48f08cdd07e0d75a07d578a1" id="r_ga6e4293fe48f08cdd07e0d75a07d578a1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga6e4293fe48f08cdd07e0d75a07d578a1">tlv_tag_compare</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> lhs, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> rhs)</td></tr>
+<tr class="memdesc:ga6e4293fe48f08cdd07e0d75a07d578a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orders two tags lexicographically by their bytes.  <br /></td></tr>
+<tr class="separator:ga6e4293fe48f08cdd07e0d75a07d578a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac0c10d36b962c8c765ccdc8d757c145c" id="r_gac0c10d36b962c8c765ccdc8d757c145c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gac0c10d36b962c8c765ccdc8d757c145c">tlv_value_init</a> (const uint8_t *data, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> length, <a class="el" href="structtlv__value__t.html">tlv_value_t</a> *value)</td></tr>
 <tr class="memdesc:gac0c10d36b962c8c765ccdc8d757c145c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a value view into caller-owned storage.  <br /></td></tr>
 <tr class="separator:gac0c10d36b962c8c765ccdc8d757c145c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -483,7 +444,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_GIT_COMMIT_HASH&#160;&#160;&#160;&quot;c9b764d&quot;</td>
+          <td class="memname">#define OPENTLV_GIT_COMMIT_HASH&#160;&#160;&#160;&quot;ab035ea&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -497,7 +458,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_GIT_REPO_VERSION&#160;&#160;&#160;&quot;0.6.0-45-c9b764d&quot;</td>
+          <td class="memname">#define OPENTLV_GIT_REPO_VERSION&#160;&#160;&#160;&quot;0.6.0-47-ab035ea&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -595,7 +556,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_VERSION_REVISION&#160;&#160;&#160;45</td>
+          <td class="memname">#define OPENTLV_VERSION_REVISION&#160;&#160;&#160;47</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -616,38 +577,24 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="gaf06da2c35af6874a318108f9bc07da99" name="gaf06da2c35af6874a318108f9bc07da99"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaf06da2c35af6874a318108f9bc07da99">&#9670;&#160;</a></span>TLV_TAG_CAPACITY</h2>
+<a id="ga62240f1e8115a67ac51e5b00855a240b" name="ga62240f1e8115a67ac51e5b00855a240b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga62240f1e8115a67ac51e5b00855a240b">&#9670;&#160;</a></span>TLV_TAG</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define TLV_TAG_CAPACITY&#160;&#160;&#160;8</td>
+          <td class="memname">#define TLV_TAG</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em></td><td>)</td>
+          <td>&#160;&#160;&#160;    (<a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0">tlv_tag</a>((const uint8_t[]){__VA_ARGS__}, sizeof((const uint8_t[]){__VA_ARGS__})))</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Inline storage capacity of a <a class="el" href="structtlv__tag__t.html" title="A TLV tag stored as raw bytes, independent of host endianness or TLV profile.">tlv_tag_t</a>, in bytes (default 8). </p>
-<p>Must be between 1 and <a class="el" href="group__core.html#ga39b5b41239d927be70168dec7934d447" title="Fixed uint8_t representation limit for tag sizes.">TLV_TAG_MAX_SUPPORTED_SIZE</a>.</p>
-<dl class="section warning"><dt>Warning</dt><dd>This affects the layout of <a class="el" href="structtlv__tag__t.html" title="A TLV tag stored as raw bytes, independent of host endianness or TLV profile.">tlv_tag_t</a> and everything containing it, so it is part of the ABI. Override it consistently when building the library and every consumer. </dd></dl>
-
-</div>
-</div>
-<a id="ga39b5b41239d927be70168dec7934d447" name="ga39b5b41239d927be70168dec7934d447"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga39b5b41239d927be70168dec7934d447">&#9670;&#160;</a></span>TLV_TAG_MAX_SUPPORTED_SIZE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define TLV_TAG_MAX_SUPPORTED_SIZE&#160;&#160;&#160;UINT8_MAX</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Fixed <code>uint8_t</code> representation limit for tag sizes. </p>
-<p>This is not a configurable or protocol limit; defining it before including this header is a compile-time error. </p>
+<p>Builds an allocation-free tag from literal bytes, e.g. <code><a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b" title="Builds an allocation-free tag from literal bytes, e.g. TLV_TAG(0x9F, 0x02).">TLV_TAG(0x9F, 0x02)</a></code>. </p>
+<p>Every argument must be a constant byte value. The tag references constant storage that the compiler provides: in C++ it has static storage duration, so the tag may be stored and returned freely. In C it is a compound literal that lives until the end of the enclosing block (at file scope it is static), so do not return it or keep it beyond that block. </p>
 
 </div>
 </div>
@@ -1329,372 +1276,17 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="gaadb6b011d2add6d09a608bd83e850db4" name="gaadb6b011d2add6d09a608bd83e850db4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaadb6b011d2add6d09a608bd83e850db4">&#9670;&#160;</a></span>tlv_tag_equal()</h2>
+<a id="ga552f068e013290aec4dec3556559fbf0" name="ga552f068e013290aec4dec3556559fbf0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga552f068e013290aec4dec3556559fbf0">&#9670;&#160;</a></span>tlv_tag()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_equal </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>a</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>b</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>equal</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Compares two tags by size and bytes. </p>
-<p>Compares the full valid range of both tags and ignores unused storage. Two empty tags compare equal.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">a</td><td>First tag. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">b</td><td>Second tag. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">equal</td><td>Receives 1 if the tags are equal, 0 otherwise. Must point to a writable <code>int</code>.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a valid comparison. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if a required pointer is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if either size exceeds <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On every failure <code>*equal</code> is unchanged. </dd></dl>
-
-</div>
-</div>
-<a id="gaf1e509940a2007954021fb137f04afc6" name="gaf1e509940a2007954021fb137f04afc6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaf1e509940a2007954021fb137f04afc6">&#9670;&#160;</a></span>tlv_tag_equal_bytes()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_equal_bytes </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>equal</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Compares a tag against raw bytes, including length and leading zeros. </p>
-<p>The same result, output, and capacity rules as <a class="el" href="group__core.html#gaadb6b011d2add6d09a608bd83e850db4" title="Compares two tags by size and bytes.">tlv_tag_equal()</a> apply.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to compare. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Bytes to compare against; <code>size</code> readable bytes. May be <code>NULL</code> only when <code>size</code> is zero. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Number of bytes in <code>data</code>. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">equal</td><td>Receives 1 if the tag equals the bytes, 0 otherwise.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a valid comparison. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if a required pointer is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if the tag size exceeds <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On every failure <code>*equal</code> is unchanged. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__core.html#gaadb6b011d2add6d09a608bd83e850db4" title="Compares two tags by size and bytes.">tlv_tag_equal</a> </dd></dl>
-
-</div>
-</div>
-<a id="gab62bba863eb480fdcb4936af73fc9b98" name="gab62bba863eb480fdcb4936af73fc9b98"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gab62bba863eb480fdcb4936af73fc9b98">&#9670;&#160;</a></span>tlv_tag_equal_u16()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_equal_u16 </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint16_t&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>equal</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Compares a tag numerically against a 16-bit value. </p>
-<p>Interprets the tag as an unsigned integer as <a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64()</a> does, with the same input errors, and compares it to <code>value</code>. Zero padding at the most significant end does not affect equality. The tag value is never truncated to the argument type.</p>
-<p>Required pointers are checked before the tag size, then the byte order.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to compare. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Value to compare against. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order of the tag bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">equal</td><td>Receives 1 for equality, 0 for mismatch. Must point to a writable <code>int</code>.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a valid comparison. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>tag</code> or <code>equal</code> is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty tag or one longer than 8 bytes. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> if <code>order</code> is unknown or invalid.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On every failure <code>*equal</code> is unchanged. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64</a>   </dd></dl>
-
-</div>
-</div>
-<a id="ga78d87b7ef6c6ea95badacc1786aa58de" name="ga78d87b7ef6c6ea95badacc1786aa58de"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga78d87b7ef6c6ea95badacc1786aa58de">&#9670;&#160;</a></span>tlv_tag_equal_u32()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_equal_u32 </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>equal</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Compares a tag numerically against a 32-bit value. </p>
-<p>Interprets the tag as an unsigned integer as <a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64()</a> does, with the same input errors, and compares it to <code>value</code>. Zero padding at the most significant end does not affect equality. The tag value is never truncated to the argument type.</p>
-<p>Required pointers are checked before the tag size, then the byte order.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to compare. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Value to compare against. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order of the tag bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">equal</td><td>Receives 1 for equality, 0 for mismatch. Must point to a writable <code>int</code>.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a valid comparison. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>tag</code> or <code>equal</code> is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty tag or one longer than 8 bytes. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> if <code>order</code> is unknown or invalid.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On every failure <code>*equal</code> is unchanged. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64</a>   </dd></dl>
-
-</div>
-</div>
-<a id="gaeaeae79ce9d9662af64498b2b3268ba4" name="gaeaeae79ce9d9662af64498b2b3268ba4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaeaeae79ce9d9662af64498b2b3268ba4">&#9670;&#160;</a></span>tlv_tag_equal_u64()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_equal_u64 </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint64_t&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>equal</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Compares a tag numerically against a 64-bit value. </p>
-<p>Interprets the tag as an unsigned integer as <a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64()</a> does, with the same input errors, and compares it to <code>value</code>. Zero padding at the most significant end does not affect equality. The tag value is never truncated to the argument type.</p>
-<p>Required pointers are checked before the tag size, then the byte order.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to compare. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Value to compare against. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order of the tag bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">equal</td><td>Receives 1 for equality, 0 for mismatch. Must point to a writable <code>int</code>.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a valid comparison. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>tag</code> or <code>equal</code> is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty tag or one longer than 8 bytes. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> if <code>order</code> is unknown or invalid.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On every failure <code>*equal</code> is unchanged. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64</a>   </dd></dl>
-
-</div>
-</div>
-<a id="gab1c968876e8e8bddfa926ef6c773de72" name="gab1c968876e8e8bddfa926ef6c773de72"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gab1c968876e8e8bddfa926ef6c773de72">&#9670;&#160;</a></span>tlv_tag_equal_u8()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_equal_u8 </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>equal</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Compares a tag numerically against an 8-bit value. </p>
-<p>Interprets the tag as an unsigned integer as <a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64()</a> does, with the same input errors, and compares it to <code>value</code>. Zero padding at the most significant end does not affect equality. The tag value is never truncated to the argument type.</p>
-<p>Required pointers are checked before the tag size, then the byte order.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to compare. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Value to compare against. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order of the tag bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">equal</td><td>Receives 1 for equality, 0 for mismatch. Must point to a writable <code>int</code>.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for a valid comparison. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>tag</code> or <code>equal</code> is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty tag or one longer than 8 bytes. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> if <code>order</code> is unknown or invalid.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On every failure <code>*equal</code> is unchanged. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64</a> </dd></dl>
-
-</div>
-</div>
-<a id="gac40afdff957ffc02fca2bd18e399334f" name="gac40afdff957ffc02fca2bd18e399334f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gac40afdff957ffc02fca2bd18e399334f">&#9670;&#160;</a></span>tlv_tag_from_bytes()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_from_bytes </td>
+          <td class="memname">static <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tlv_tag </td>
           <td>(</td>
           <td class="paramtype">const uint8_t *&#160;</td>
           <td class="paramname"><em>data</em>, </td>
@@ -1703,13 +1295,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1717,56 +1303,43 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
-<p>Constructs a tag from raw bytes. </p>
-<p>The bytes are copied into the tag; no profile-specific validity is checked. The length is checked before narrowing to <code>uint8_t</code>. On success unused tag bytes are zeroed.</p>
+<p>Builds a tag that borrows <code>size</code> bytes at <code>data</code>. </p>
+<p>Nothing is copied or validated. <code>data</code> may be <code>NULL</code> only when <code>size</code> is zero.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Source bytes; <code>size</code> readable bytes. May be <code>NULL</code> only when <code>size</code> is zero. May overlap the destination. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Number of bytes, <code>0..TLV_TAG_CAPACITY</code>. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Destination tag.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Tag bytes; must outlive every use of the returned tag. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Number of bytes in <code>data</code>.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if a required pointer is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if <code>size</code> exceeds <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On failure the destination is unchanged. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A tag referencing <code>data</code>. </dd></dl>
 
 </div>
 </div>
-<a id="ga696a23c2bd90739824543d1453d99a98" name="ga696a23c2bd90739824543d1453d99a98"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga696a23c2bd90739824543d1453d99a98">&#9670;&#160;</a></span>tlv_tag_from_u16()</h2>
+<a id="ga6e4293fe48f08cdd07e0d75a07d578a1" name="ga6e4293fe48f08cdd07e0d75a07d578a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6e4293fe48f08cdd07e0d75a07d578a1">&#9670;&#160;</a></span>tlv_tag_compare()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_from_u16 </td>
+          <td class="memname">int tlv_tag_compare </td>
           <td>(</td>
-          <td class="paramtype">uint16_t&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td>
+          <td class="paramname"><em>lhs</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td>
+          <td class="paramname"><em>rhs</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1776,59 +1349,37 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Constructs an explicitly sized raw tag from a 16-bit value. </p>
-<p>Builds a tag of <code>size</code> bytes (1..8, within <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>). Zero padding is written at the most significant end in the selected byte order. The same destination guarantees as <a class="el" href="group__core.html#gac40afdff957ffc02fca2bd18e399334f" title="Constructs a tag from raw bytes.">tlv_tag_from_bytes()</a> apply.</p>
+<p>Orders two tags lexicographically by their bytes. </p>
+<p>Compares byte by byte as unsigned values; if one tag is a prefix of the other, the shorter tag orders first. The bytes are never interpreted as an integer, so the result does not depend on host endianness.</p>
+<dl class="section pre"><dt>Precondition</dt><dd>Both tags are valid: <code>data</code> is not <code>NULL</code> when <code>size &gt; 0</code>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Numeric tag value. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Tag size in bytes. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order used to lay out the bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Destination tag.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">lhs</td><td>First tag. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rhs</td><td>Second tag.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>tag</code> is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if <code>size</code> is invalid. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if <code>value</code> does not fit in <code>size</code> bytes. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> if <code>order</code> is unsupported.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On failure the destination is unchanged.   </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A negative value if <code>lhs</code> orders before <code>rhs</code>, zero if the tags are equal, and a positive value if <code>lhs</code> orders after <code>rhs</code>. </dd></dl>
 
 </div>
 </div>
-<a id="gacf7cc8e07f6db3f25d9dbe3d51afc0cb" name="gacf7cc8e07f6db3f25d9dbe3d51afc0cb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gacf7cc8e07f6db3f25d9dbe3d51afc0cb">&#9670;&#160;</a></span>tlv_tag_from_u32()</h2>
+<a id="gaeb5a71787b6d5f11175d261f3a5a7395" name="gaeb5a71787b6d5f11175d261f3a5a7395"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaeb5a71787b6d5f11175d261f3a5a7395">&#9670;&#160;</a></span>tlv_tag_equal()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_from_u32 </td>
+          <td class="memname">bool tlv_tag_equal </td>
           <td>(</td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td>
+          <td class="paramname"><em>lhs</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td>
+          <td class="paramname"><em>rhs</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1838,357 +1389,18 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Constructs an explicitly sized raw tag from a 32-bit value. </p>
-<p>Builds a tag of <code>size</code> bytes (1..8, within <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>). Zero padding is written at the most significant end in the selected byte order. The same destination guarantees as <a class="el" href="group__core.html#gac40afdff957ffc02fca2bd18e399334f" title="Constructs a tag from raw bytes.">tlv_tag_from_bytes()</a> apply.</p>
+<p>Tests whether two tags have the same size and bytes. </p>
+<p>Compares contents, not pointer identity, so tags backed by different memory are equal when their bytes match. Two empty tags are equal.</p>
+<dl class="section pre"><dt>Precondition</dt><dd>Both tags are valid: <code>data</code> is not <code>NULL</code> when <code>size &gt; 0</code>. An invalid tag is a contract violation, not a comparable value.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd><code>tlv_tag_equal(a, b)</code> is true exactly when <code>tlv_tag_compare(a, b) == 0</code>.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Numeric tag value. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Tag size in bytes. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order used to lay out the bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Destination tag.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">lhs</td><td>First tag. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rhs</td><td>Second tag.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>tag</code> is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if <code>size</code> is invalid. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if <code>value</code> does not fit in <code>size</code> bytes. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> if <code>order</code> is unsupported.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On failure the destination is unchanged.   </dd></dl>
-
-</div>
-</div>
-<a id="gae78ec835460b6d458d5e4a1910812c7c" name="gae78ec835460b6d458d5e4a1910812c7c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gae78ec835460b6d458d5e4a1910812c7c">&#9670;&#160;</a></span>tlv_tag_from_u64()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_from_u64 </td>
-          <td>(</td>
-          <td class="paramtype">uint64_t&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Constructs an explicitly sized raw tag from a 64-bit value. </p>
-<p>Builds a tag of <code>size</code> bytes (1..8, within <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>). Zero padding is written at the most significant end in the selected byte order. The same destination guarantees as <a class="el" href="group__core.html#gac40afdff957ffc02fca2bd18e399334f" title="Constructs a tag from raw bytes.">tlv_tag_from_bytes()</a> apply.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Numeric tag value. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Tag size in bytes. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order used to lay out the bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Destination tag.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>tag</code> is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if <code>size</code> is invalid. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if <code>value</code> does not fit in <code>size</code> bytes. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> if <code>order</code> is unsupported.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On failure the destination is unchanged.   </dd></dl>
-
-</div>
-</div>
-<a id="gaa7df6abd864d18d92fa76537fbe37c6a" name="gaa7df6abd864d18d92fa76537fbe37c6a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaa7df6abd864d18d92fa76537fbe37c6a">&#9670;&#160;</a></span>tlv_tag_from_u8()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_from_u8 </td>
-          <td>(</td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Constructs an explicitly sized raw tag from an 8-bit value. </p>
-<p>Builds a tag of <code>size</code> bytes (1..8, within <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>). Zero padding is written at the most significant end in the selected byte order. The same destination guarantees as <a class="el" href="group__core.html#gac40afdff957ffc02fca2bd18e399334f" title="Constructs a tag from raw bytes.">tlv_tag_from_bytes()</a> apply.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Numeric tag value. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Tag size in bytes. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order used to lay out the bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Destination tag.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>tag</code> is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if <code>size</code> is invalid. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if <code>value</code> does not fit in <code>size</code> bytes. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> if <code>order</code> is unsupported.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On failure the destination is unchanged. </dd></dl>
-
-</div>
-</div>
-<a id="ga9524591e1e2e8447536fe01a2354096d" name="ga9524591e1e2e8447536fe01a2354096d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga9524591e1e2e8447536fe01a2354096d">&#9670;&#160;</a></span>tlv_tag_to_u16()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_to_u16 </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint16_t *&#160;</td>
-          <td class="paramname"><em>value</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Converts a tag to an unsigned 16-bit integer. </p>
-<p>Follows the same input rules as <a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64()</a>. Zero padding is accepted within the 8-byte input limit. The result must fit the destination type.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to convert. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order of the tag bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>Receives the numeric value.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if the value exceeds the destination type's maximum. </dd>
-<dd>
-Any error of <a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64()</a> for invalid arguments.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd><code>*value</code> is unchanged on every failure.   </dd></dl>
-
-</div>
-</div>
-<a id="gaa88c6daec65d9a6fffc9edf1c1208257" name="gaa88c6daec65d9a6fffc9edf1c1208257"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaa88c6daec65d9a6fffc9edf1c1208257">&#9670;&#160;</a></span>tlv_tag_to_u32()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_to_u32 </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint32_t *&#160;</td>
-          <td class="paramname"><em>value</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Converts a tag to an unsigned 32-bit integer. </p>
-<p>Follows the same input rules as <a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64()</a>. Zero padding is accepted within the 8-byte input limit. The result must fit the destination type.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to convert. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order of the tag bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>Receives the numeric value.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if the value exceeds the destination type's maximum. </dd>
-<dd>
-Any error of <a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64()</a> for invalid arguments.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd><code>*value</code> is unchanged on every failure.   </dd></dl>
-
-</div>
-</div>
-<a id="ga4d64cc11db3dd2e75a96b6deba3e6126" name="ga4d64cc11db3dd2e75a96b6deba3e6126"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga4d64cc11db3dd2e75a96b6deba3e6126">&#9670;&#160;</a></span>tlv_tag_to_u64()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_to_u64 </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint64_t *&#160;</td>
-          <td class="paramname"><em>value</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Converts a tag to an unsigned 64-bit integer. </p>
-<p>Interprets 1..8 raw bytes using the explicit input byte order, including zero padding at the most significant end. This is not a BER tag-number decode.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to convert. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order of the tag bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>Receives the numeric value.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if a required pointer is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty tag, a size exceeding <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>, or a size above 8. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> if <code>order</code> is unknown or invalid.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd><code>*value</code> is unchanged on failure. </dd></dl>
-
-</div>
-</div>
-<a id="ga422cd87193f446c8f939c4a3bcb52d71" name="ga422cd87193f446c8f939c4a3bcb52d71"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga422cd87193f446c8f939c4a3bcb52d71">&#9670;&#160;</a></span>tlv_tag_to_u8()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_to_u8 </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
-          <td class="paramname"><em>tag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td>
-          <td class="paramname"><em>order</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>value</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Converts a tag to an unsigned 8-bit integer. </p>
-<p>Follows the same input rules as <a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64()</a>. Zero padding is accepted within the 8-byte input limit. The result must fit the destination type.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to convert. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">order</td><td>Byte order of the tag bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>Receives the numeric value.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if the value exceeds the destination type's maximum. </dd>
-<dd>
-Any error of <a class="el" href="group__core.html#ga4d64cc11db3dd2e75a96b6deba3e6126" title="Converts a tag to an unsigned 64-bit integer.">tlv_tag_to_u64()</a> for invalid arguments.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd><code>*value</code> is unchanged on every failure. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><code>true</code> if both tags have the same size and bytes. </dd></dl>
 
 </div>
 </div>

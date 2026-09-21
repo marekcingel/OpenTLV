@@ -4,6 +4,5 @@ var searchData=
   ['second_1',['second',['../structtlv__emv__time__t.html#a16a6606a560663b11f0c3723a075b1b7',1,'tlv_emv_time_t']]],
   ['service_5fcode_2',['service_code',['../structtlv__emv__track2__t.html#a643381aca3485e3c695bdae768b56c60',1,'tlv_emv_track2_t']]],
   ['sfi_3',['sfi',['../structtlv__emv__afl__entry__t.html#ae330664c393ef8834734e50cbfde0180',1,'tlv_emv_afl_entry_t']]],
-  ['size_4',['size',['../structtlv__reader.html#a9bbe580b9ec656247f5ae64b8605bd9b',1,'tlv_reader::size'],['../structtlv__tag__t.html#ad8631dad157a932eea0d69275efc1c01',1,'tlv_tag_t::size']]],
-  ['steps_5',['steps',['../structtlv__query.html#a389fe40bc5698f4774bfb3b05567882c',1,'tlv_query']]]
+  ['size_4',['size',['../structtlv__reader.html#a9bbe580b9ec656247f5ae64b8605bd9b',1,'tlv_reader::size'],['../structtlv__tag__t.html#a63521b77cae7ea90d23dc67c22ef0bea',1,'tlv_tag_t::size']]]
 ];

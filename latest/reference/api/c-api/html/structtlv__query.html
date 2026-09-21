@@ -82,16 +82,32 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a389fe40bc5698f4774bfb3b05567882c" id="r_a389fe40bc5698f4774bfb3b05567882c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query.html#a389fe40bc5698f4774bfb3b05567882c">steps</a> [<a class="el" href="group__traversal.html#ggabc5c98fcc1211af2b80116dd6e0a035da6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>]</td></tr>
-<tr class="separator:a389fe40bc5698f4774bfb3b05567882c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46e17ab6db9d8691d81b59f0717cc00b" id="r_a46e17ab6db9d8691d81b59f0717cc00b"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query.html#a46e17ab6db9d8691d81b59f0717cc00b">bytes</a> [<a class="el" href="group__traversal.html#ggac36f475ca5b446f4fde4c9b90bec77c8a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>]</td></tr>
+<tr class="separator:a46e17ab6db9d8691d81b59f0717cc00b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4156969b9c8faaef42fa21c2f76a1736" id="r_a4156969b9c8faaef42fa21c2f76a1736"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query.html#a4156969b9c8faaef42fa21c2f76a1736">ends</a> [<a class="el" href="group__traversal.html#ggabc5c98fcc1211af2b80116dd6e0a035da6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>]</td></tr>
+<tr class="separator:a4156969b9c8faaef42fa21c2f76a1736"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b3db2153a7e28356947e91bf3837d92" id="r_a7b3db2153a7e28356947e91bf3837d92"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__query.html#a7b3db2153a7e28356947e91bf3837d92">count</a></td></tr>
 <tr class="separator:a7b3db2153a7e28356947e91bf3837d92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A parsed query: the tags to follow from a top-level element down to the addressed ones. </p>
-<p>The structure is self-contained, never allocates and never points to other memory. Build it with <a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385" title="Parses the text of a query.">tlv_query_parse()</a>; a zero-initialized query has no tags and is rejected by the functions that take one.</p>
-<dl class="section warning"><dt>Warning</dt><dd>Its layout depends on <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>, so it is part of the ABI in the same way as <a class="el" href="structtlv__tag__t.html" title="A TLV tag stored as raw bytes, independent of host endianness or TLV profile.">tlv_tag_t</a>. </dd></dl>
+<p>The structure is self-contained: it holds a copy of every tag's bytes, never allocates and never points to other memory, so it can be copied freely. Build it with <a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385" title="Parses the text of a query.">tlv_query_parse()</a> and read its tags with <a class="el" href="group__traversal.html#ga1d2bf69dfc017ebbac2be367da2d9c23" title="Returns one tag of a query.">tlv_query_step()</a>; a zero-initialized query has no tags and is rejected by the functions that take one. Each tag may have any length as long as all tags together stay within <a class="el" href="group__traversal.html#ggac36f475ca5b446f4fde4c9b90bec77c8a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a id="a46e17ab6db9d8691d81b59f0717cc00b" name="a46e17ab6db9d8691d81b59f0717cc00b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46e17ab6db9d8691d81b59f0717cc00b">&#9670;&#160;</a></span>bytes</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t tlv_query::bytes[<a class="el" href="group__traversal.html#ggac36f475ca5b446f4fde4c9b90bec77c8a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Private: the bytes of all tags, one after another. </p>
+
+</div>
+</div>
 <a id="a7b3db2153a7e28356947e91bf3837d92" name="a7b3db2153a7e28356947e91bf3837d92"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7b3db2153a7e28356947e91bf3837d92">&#9670;&#160;</a></span>count</h2>
 
@@ -103,22 +119,22 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Number of valid entries in <code>steps</code>, <code>1..TLV_QUERY_MAX_STEPS</code> for a parsed query. </p>
+<p>Number of tags, <code>1..TLV_QUERY_MAX_STEPS</code> for a parsed query. </p>
 
 </div>
 </div>
-<a id="a389fe40bc5698f4774bfb3b05567882c" name="a389fe40bc5698f4774bfb3b05567882c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a389fe40bc5698f4774bfb3b05567882c">&#9670;&#160;</a></span>steps</h2>
+<a id="a4156969b9c8faaef42fa21c2f76a1736" name="a4156969b9c8faaef42fa21c2f76a1736"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4156969b9c8faaef42fa21c2f76a1736">&#9670;&#160;</a></span>ends</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tlv_query::steps[<a class="el" href="group__traversal.html#ggabc5c98fcc1211af2b80116dd6e0a035da6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>]</td>
+          <td class="memname">uint16_t tlv_query::ends[<a class="el" href="group__traversal.html#ggabc5c98fcc1211af2b80116dd6e0a035da6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>]</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Tags to follow, <code>steps[0]</code> for a top-level element; only the first <code>count</code> are valid. </p>
+<p>Private: for each tag, the offset in <code>bytes</code> just past its last byte. </p>
 
 </div>
 </div>

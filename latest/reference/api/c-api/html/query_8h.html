@@ -84,7 +84,8 @@ $(function() {
 
 <p>Path queries that address TLV elements by their nested tags.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="walker_8h.html">tlv/reader/walker.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="walker_8h.html">tlv/reader/walker.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="tag_8h.html">tlv/tag.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
@@ -112,12 +113,19 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of tags in a query: one per nesting level, <code>0..TLV_WALK_MAX_DEPTH</code>.  <a href="group__traversal.html#gabc5c98fcc1211af2b80116dd6e0a035d">More...</a><br /></td></tr>
 <tr class="separator:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac36f475ca5b446f4fde4c9b90bec77c8" id="r_gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggac36f475ca5b446f4fde4c9b90bec77c8a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> = 512
+ }</td></tr>
+<tr class="memdesc:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum total number of tag bytes in a query, across all of its tags.  <a href="group__traversal.html#gac36f475ca5b446f4fde4c9b90bec77c8">More...</a><br /></td></tr>
+<tr class="separator:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:gac6cc1fdb84b230eec2b4bd26e5da8385" id="r_gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385">tlv_query_parse</a> (const char *text, <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query, size_t *error_offset)</td></tr>
 <tr class="memdesc:gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the text of a query.  <br /></td></tr>
 <tr class="separator:gac6cc1fdb84b230eec2b4bd26e5da8385"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1d2bf69dfc017ebbac2be367da2d9c23" id="r_ga1d2bf69dfc017ebbac2be367da2d9c23"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga1d2bf69dfc017ebbac2be367da2d9c23">tlv_query_step</a> (const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query, size_t index)</td></tr>
+<tr class="memdesc:ga1d2bf69dfc017ebbac2be367da2d9c23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns one tag of a query.  <br /></td></tr>
+<tr class="separator:ga1d2bf69dfc017ebbac2be367da2d9c23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafff68da0dab28a553e3b2c27c2c8188c" id="r_gafff68da0dab28a553e3b2c27c2c8188c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gafff68da0dab28a553e3b2c27c2c8188c">tlv_query_matcher_init</a> (<a class="el" href="group__traversal.html#ga043ec7e39913845558eb965739e80968">tlv_query_matcher_t</a> *matcher, const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query)</td></tr>
 <tr class="memdesc:gafff68da0dab28a553e3b2c27c2c8188c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepares a matcher for one traversal.  <br /></td></tr>
 <tr class="separator:gafff68da0dab28a553e3b2c27c2c8188c"><td class="memSeparator" colspan="2">&#160;</td></tr>

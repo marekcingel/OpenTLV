@@ -95,7 +95,7 @@ Static Public Attributes</h2></td></tr>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />
 struct tlv::is_tlv_codec&lt; T &gt;</div><p>Trait for the interface every payload type must satisfy to be encoded and decoded through TLV. </p>
 <p><code>T</code> satisfies the trait when it provides:</p><ul>
-<li>a static member <code>tag</code> convertible to <a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611" title="C++ alias for the C tag type, tlv_tag_t.">tag_t</a>,</li>
+<li>a static member <code>tag</code> convertible to <a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611" title="C++ alias for the C tag type, tlv_tag_t.">tag_t</a>. The tag only borrows its bytes, so they must have static storage (for example <code>static const <a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611" title="C++ alias for the C tag type, tlv_tag_t.">tlv::tag_t</a> tag;</code> defined with <code><a class="elRef" href="../../c-api/html/group__core.html#ga62240f1e8115a67ac51e5b00855a240b">TLV_TAG(...)</a></code>),</li>
 <li><code>void encode(std::vector&lt;byte&gt;&amp;) const</code> appending its encoded value, and</li>
 <li>a static <code>decode(bytes)</code> returning the decoded value.</li>
 </ul>

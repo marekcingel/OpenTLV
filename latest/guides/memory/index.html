@@ -931,6 +931,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tags
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#writing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2396,6 +2407,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tags
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#writing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2458,11 +2480,11 @@
 </tr>
 <tr>
 <td><code>tlv_tag_t</code></td>
-<td>Stores tag bytes inline; copying it copies the tag.</td>
+<td>Borrows its bytes (a pointer and a size); does not allocate, own or copy them, and has no length limit. Copying a tag copies only the pointer and the size.</td>
 </tr>
 <tr>
 <td><code>tlv_view_t</code></td>
-<td>Stores a tag inline and a borrowed <code>tlv_value_t</code> value. Copying a view does not copy its payload.</td>
+<td>Holds a borrowed <code>tlv_tag_t</code> and a borrowed <code>tlv_value_t</code>. Copying a view copies neither the tag bytes nor the payload.</td>
 </tr>
 <tr>
 <td>Reader</td>
@@ -2485,8 +2507,37 @@
 <h2 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">&para;</a></h2>
 <p>Keep the input buffer alive and unchanged while using any view into it, including
 nested child views. Reusing a receive buffer invalidates the previous values.
-A successful read copies tag bytes but does not copy the value or allocate a tree.
-Do not return a borrowed view into a local array that goes out of scope.</p>
+A successful read copies neither the tag nor the value and does not allocate a
+tree: <code>view.tag</code> and <code>view.value</code> both point into the input. Do not return a
+borrowed view into a local array that goes out of scope.</p>
+<h2 id="tags">Tags<a class="headerlink" href="#tags" title="Permanent link">&para;</a></h2>
+<p>A <code>tlv_tag_t</code> is a pointer and a size. The bytes it refers to must stay valid,
+and unchanged, for as long as the tag is used, and copying the tag never extends
+that lifetime.</p>
+<ul>
+<li>A tag read from input references the input buffer.</li>
+<li><code>TLV_TAG(0x9F, 0x02)</code> refers to constant storage the compiler provides. In
+  C++ that storage is static; in C it is a compound literal that lives until the
+  end of the enclosing block.</li>
+<li><code>tlv_tag(data, size)</code> refers to whatever <code>data</code> points to.</li>
+<li><code>tlv_der_tag_make()</code> and <code>tlv_cer_tag_make()</code> write into caller-provided
+  <code>storage</code>, which has to outlive the tag.</li>
+<li>APIs do not retain a tag beyond the call unless their documentation says so.
+  Structures that hold tags, such as a <code>tlv_schema_entry_t</code>, a
+  <code>tlv_dol_entry_t</code>, a <code>tlv_schema_issue_t</code> path, or a reader's view, therefore
+  borrow the bytes too: a schema table needs its tag bytes to have static (or
+  otherwise long) storage, and a validation report's paths point into the input
+  that was validated, or into the schema for a missing tag.</li>
+<li>A <code>tlv_query_t</code> is the exception: it copies the tag bytes it parses, so it is
+  a self-contained value, and <code>tlv_query_step()</code> returns tags that borrow it.</li>
+<li>An empty tag is <code>{ NULL, 0 }</code>. <code>{ NULL, size }</code> with a nonzero size is invalid.</li>
+</ul>
+<p>To keep a tag after its input is gone, copy its bytes into your own storage and
+build a new tag over the copy.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">kept</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">memcpy</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="p">);</span><span class="w">   </span><span class="cm">/* the format bounded the size */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">stable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_tag</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="p">);</span>
+</code></pre></div>
 <p>To retain data independently, use the <a href="../copy/">copy helpers</a> with caller-owned
 storage. <code>tlv_copy_value</code> copies payload bytes; <code>tlv_copy_encoded</code> preserves a full
 encoded range; <code>tlv_copy_view</code> re-encodes with a selected writer format.

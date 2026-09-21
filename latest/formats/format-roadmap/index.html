@@ -2905,8 +2905,8 @@ so a candidate's "components" show which layers stay separate.</p>
 commitment. The <strong>fit</strong> column is by inspection of the callback contract in
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/include/tlv/formats/format.h"><code>format.h</code></a>: <code>read_element</code> sees the bytes from
 the start of an element and reports the tag, the header size, the value size and the
-trailer size; <code>write_header</code> writes only the header. A tag is 1 to <code>TLV_TAG_CAPACITY</code>
-(8) raw bytes. <strong>No candidate has been prototyped against these callbacks.</strong></p>
+trailer size; <code>write_header</code> writes only the header. A tag is any
+number of raw bytes the format accepts. <strong>No candidate has been prototyped against these callbacks.</strong></p>
 <table>
 <thead>
 <tr>

@@ -82,7 +82,8 @@ $(function() {
 
 <p>ASN.1 DER reader and writer formats with tag accessors.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="format_8h.html">tlv/formats/format.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="format_8h.html">tlv/formats/format.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ber_8h.html">tlv/formats/asn1/ber.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
@@ -94,9 +95,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gaa5eccd67b4c817b42fee5a7f1b7deeaf" id="r_gaa5eccd67b4c817b42fee5a7f1b7deeaf"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa5eccd67b4c817b42fee5a7f1b7deeaf">tlv_der_tag_is_constructed</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:gaa5eccd67b4c817b42fee5a7f1b7deeaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether a DER tag has the constructed bit set.  <br /></td></tr>
 <tr class="separator:gaa5eccd67b4c817b42fee5a7f1b7deeaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga099091d20793a5b2284b9d63062f26de" id="r_ga099091d20793a5b2284b9d63062f26de"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga099091d20793a5b2284b9d63062f26de">tlv_der_tag_make</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tag_class, int constructed, uint64_t number, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:ga099091d20793a5b2284b9d63062f26de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a canonical DER tag.  <br /></td></tr>
-<tr class="separator:ga099091d20793a5b2284b9d63062f26de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3c625de093ad67ce3e9fc53e005bf0a5" id="r_ga3c625de093ad67ce3e9fc53e005bf0a5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga3c625de093ad67ce3e9fc53e005bf0a5">tlv_der_tag_make</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tag_class, int constructed, uint64_t number, uint8_t *storage, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
+<tr class="memdesc:ga3c625de093ad67ce3e9fc53e005bf0a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a canonical DER tag.  <br /></td></tr>
+<tr class="separator:ga3c625de093ad67ce3e9fc53e005bf0a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9606f21059cc40176ea75a68ac10d400" id="r_ga9606f21059cc40176ea75a68ac10d400"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga9606f21059cc40176ea75a68ac10d400">tlv_der_tag_number</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint64_t *number)</td></tr>
 <tr class="memdesc:ga9606f21059cc40176ea75a68ac10d400"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the numeric tag number from a DER tag.  <br /></td></tr>
 <tr class="separator:ga9606f21059cc40176ea75a68ac10d400"><td class="memSeparator" colspan="2">&#160;</td></tr>

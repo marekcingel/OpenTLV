@@ -2597,7 +2597,7 @@ Profile semantics are documented separately.</p>
 <tr>
 <td>Fixed tag and length widths, or a length byte order, chosen at compile time (C++)</td>
 <td><a href="fixed/configurable/">Configurable fixed-width TLV</a></td>
-<td>Widths up to <code>TLV_TAG_CAPACITY</code> and 8 bytes</td>
+<td>Any tag width, length widths up to 8 bytes</td>
 </tr>
 <tr>
 <td>One-byte tags with larger payloads</td>
@@ -2690,7 +2690,7 @@ built. Each format keeps its own page with the byte layout and a worked example.
 </tr>
 <tr>
 <td><a href="asn1/ber/#layout-and-typical-use">BER-TLV</a></td>
-<td>1 to <code>TLV_TAG_CAPACITY</code> bytes (multi-byte tags)</td>
+<td>1 to 8 bytes (multi-byte tags)</td>
 <td>short, long, or indefinite for constructed values</td>
 <td>up to <code>SIZE_MAX</code></td>
 <td>identifier, length, contents (and EOC)</td>
@@ -2717,7 +2717,7 @@ built. Each format keeps its own page with the byte layout and a worked example.
 </tr>
 <tr>
 <td><a href="custom/">Application-defined</a></td>
-<td>1 to <code>TLV_TAG_CAPACITY</code> raw bytes</td>
+<td>any number of raw bytes</td>
 <td>your rules</td>
 <td>your rules</td>
 <td>any, through <code>read_element</code> and <code>write_header</code></td>
@@ -2793,7 +2793,7 @@ even when they contain nested TLVs.</p>
 <h2 id="writing-one-element">Writing one element<a class="headerlink" href="#writing-one-element" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/writer/writer.h</code>. Query the complete encoded size without providing value
 bytes, then write into a caller-owned buffer:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="mh">0x01</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x01</span><span class="p">);</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xAA</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBB</span><span class="p">,</span><span class="w"> </span><span class="mh">0xCC</span><span class="p">};</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">;</span>
@@ -2847,9 +2847,10 @@ and report consumed or written bytes through their output pointer.</p>
 query. <code>length_size</code> validates a value length and returns its encoded size.
 The writer checks total capacity before invoking the actual encoding callbacks,
 which must write exactly the queried sizes. No temporary heap buffer is needed.
-Tags are copied into <code>tlv_tag_t</code>; decoded values borrow the input buffer.
-A tag must consume at least one byte and contain 1 through <code>TLV_TAG_CAPACITY</code>
-raw bytes. A format may use a zero-byte length field for an implicit length.</p>
+A <code>tlv_tag_t</code> borrows raw bytes and has no length limit; a format's reader
+returns a tag that references the input buffer, as decoded values do. A tag must
+consume at least one byte, and the format decides which lengths (and whether an
+empty tag) it accepts. A format may use a zero-byte length field for an implicit length.</p>
 <p>When non-NULL, <code>read_value_bounds(context, tag, data, size, &amp;length_size,
 &amp;value_size, &amp;trailer_size)</code> replaces <code>read_length</code> during element parsing.
 Its bounded input begins immediately after the parsed tag. It reports three

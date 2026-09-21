@@ -85,7 +85,8 @@ $(function() {
 
 <p>Data Object List (DOL) parsing and construction (EMV Contact Book 3 v4.4, section 5.4).  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="tag_8h.html">tlv/tag.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="tag_8h.html">tlv/tag.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 <code>#include &lt;stddef.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
@@ -148,7 +149,7 @@ Variables</h2></td></tr>
 <div class="textblock"><p>Data Object List (DOL) parsing and construction (EMV Contact Book 3 v4.4, section 5.4). </p>
 <p>PDOL, CDOL1/CDOL2 and DDOL all share one wire format: a flat sequence of (tag, requested length) entries with no value bytes of their own. Each entry requests how a later command's data should be formatted, not a serialized value. This makes a DOL value a dedicated component rather than ordinary TLV structure.</p>
 <dl class="section warning"><dt>Warning</dt><dd>Do not read a DOL with <a class="el" href="group__reader.html#ga928a8bb49ea003c9dfa4fdcfcb98ab0c" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__traversal.html#gac0fecbef142180084b87bea1a79913a4" title="Visits each sequential element using the generic reader.">tlv_walk()</a>: they would misinterpret the one raw length byte as a BER length field and then look for value bytes that were never encoded.</dd></dl>
-<p>Tags are ordinary BER tags (<a class="el" href="ber_8h.html" title="ASN.1 BER reader and writer formats, indefinite-length framing and length codec.">tlv/formats/asn1/ber.h</a>), read generically up to <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>; every currently assigned EMV tag is one or two bytes, but this component itself imposes no such restriction. Each requested length is exactly one raw unsigned byte (0..255): there is no BER long form and no value bytes follow it. No allocation and no recursion are used. </p>
+<p>Tags are ordinary BER tags (<a class="el" href="ber_8h.html" title="ASN.1 BER reader and writer formats, indefinite-length framing and length codec.">tlv/formats/asn1/ber.h</a>), read generically up to <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> bytes; every currently assigned EMV tag is one or two bytes, but this component itself imposes no such restriction. Each requested length is exactly one raw unsigned byte (0..255): there is no BER long form and no value bytes follow it. No allocation and no recursion are used. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

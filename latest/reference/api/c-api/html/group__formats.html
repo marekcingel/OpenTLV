@@ -161,10 +161,14 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gae888c73e721d0ad6ba3ecea514ae7626"><td class="mdescLeft">&#160;</td><td class="mdescRight">ASN.1 identifier-octet class bits (ITU-T X.690 section 8.1).  <a href="group__formats.html#gae888c73e721d0ad6ba3ecea514ae7626">More...</a><br /></td></tr>
 <tr class="separator:gae888c73e721d0ad6ba3ecea514ae7626"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga99fb83031ce9923c84392b4e92f956b5" id="r_ga99fb83031ce9923c84392b4e92f956b5"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a4dba2bfb2ef0ea7a98c348eb5a9035b3">TLV_ASN1_CLASS_SHIFT</a> = 6
+<tr class="memitem:ga99fb83031ce9923c84392b4e92f956b5" id="r_ga99fb83031ce9923c84392b4e92f956b5"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+&#160;&#160;<a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a4dba2bfb2ef0ea7a98c348eb5a9035b3">TLV_ASN1_CLASS_SHIFT</a> = 6
 , <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a5cff02341914e111cec22fe3e5e24fb0">TLV_ASN1_CONSTRUCTED_BIT</a> = 0x20
 , <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a2e2c2b4dd29b5cf253e9b46bdbaf4952">TLV_ASN1_TAG_NUMBER_MASK</a> = 0x1F
 , <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5ad6b5d7306421b68182b7adc716e360ab">TLV_ASN1_LOW_TAG_LIMIT</a> = 31
+, <br />
+&#160;&#160;<a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> = 8
+<br />
  }</td></tr>
 <tr class="memdesc:ga99fb83031ce9923c84392b4e92f956b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Identifier octet bit layout below the class field (X.690 section 8.1.2).  <a href="group__formats.html#ga99fb83031ce9923c84392b4e92f956b5">More...</a><br /></td></tr>
 <tr class="separator:ga99fb83031ce9923c84392b4e92f956b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -203,9 +207,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga12d961bb8b8945954393eafdf273afd0" id="r_ga12d961bb8b8945954393eafdf273afd0"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga12d961bb8b8945954393eafdf273afd0">tlv_cer_tag_is_constructed</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:ga12d961bb8b8945954393eafdf273afd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether a CER tag has the constructed bit set.  <br /></td></tr>
 <tr class="separator:ga12d961bb8b8945954393eafdf273afd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad4302d0d9ba57e91b3119578a0a34649" id="r_gad4302d0d9ba57e91b3119578a0a34649"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gad4302d0d9ba57e91b3119578a0a34649">tlv_cer_tag_make</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tag_class, int constructed, uint64_t number, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:gad4302d0d9ba57e91b3119578a0a34649"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a canonical CER tag.  <br /></td></tr>
-<tr class="separator:gad4302d0d9ba57e91b3119578a0a34649"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5104df5484b24bdd26fd2215cb1d789d" id="r_ga5104df5484b24bdd26fd2215cb1d789d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5104df5484b24bdd26fd2215cb1d789d">tlv_cer_tag_make</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tag_class, int constructed, uint64_t number, uint8_t *storage, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
+<tr class="memdesc:ga5104df5484b24bdd26fd2215cb1d789d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a canonical CER tag.  <br /></td></tr>
+<tr class="separator:ga5104df5484b24bdd26fd2215cb1d789d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7e3338cca2446efea28535a91ce48c79" id="r_ga7e3338cca2446efea28535a91ce48c79"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga7e3338cca2446efea28535a91ce48c79">tlv_cer_tag_number</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint64_t *number)</td></tr>
 <tr class="memdesc:ga7e3338cca2446efea28535a91ce48c79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the numeric tag number from a CER tag.  <br /></td></tr>
 <tr class="separator:ga7e3338cca2446efea28535a91ce48c79"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -218,9 +222,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gaa5eccd67b4c817b42fee5a7f1b7deeaf" id="r_gaa5eccd67b4c817b42fee5a7f1b7deeaf"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa5eccd67b4c817b42fee5a7f1b7deeaf">tlv_der_tag_is_constructed</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:gaa5eccd67b4c817b42fee5a7f1b7deeaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether a DER tag has the constructed bit set.  <br /></td></tr>
 <tr class="separator:gaa5eccd67b4c817b42fee5a7f1b7deeaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga099091d20793a5b2284b9d63062f26de" id="r_ga099091d20793a5b2284b9d63062f26de"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga099091d20793a5b2284b9d63062f26de">tlv_der_tag_make</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tag_class, int constructed, uint64_t number, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:ga099091d20793a5b2284b9d63062f26de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a canonical DER tag.  <br /></td></tr>
-<tr class="separator:ga099091d20793a5b2284b9d63062f26de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3c625de093ad67ce3e9fc53e005bf0a5" id="r_ga3c625de093ad67ce3e9fc53e005bf0a5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga3c625de093ad67ce3e9fc53e005bf0a5">tlv_der_tag_make</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tag_class, int constructed, uint64_t number, uint8_t *storage, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
+<tr class="memdesc:ga3c625de093ad67ce3e9fc53e005bf0a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a canonical DER tag.  <br /></td></tr>
+<tr class="separator:ga3c625de093ad67ce3e9fc53e005bf0a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9606f21059cc40176ea75a68ac10d400" id="r_ga9606f21059cc40176ea75a68ac10d400"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga9606f21059cc40176ea75a68ac10d400">tlv_der_tag_number</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint64_t *number)</td></tr>
 <tr class="memdesc:ga9606f21059cc40176ea75a68ac10d400"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the numeric tag number from a DER tag.  <br /></td></tr>
 <tr class="separator:ga9606f21059cc40176ea75a68ac10d400"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -608,6 +612,8 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="gga99fb83031ce9923c84392b4e92f956b5a2e2c2b4dd29b5cf253e9b46bdbaf4952" name="gga99fb83031ce9923c84392b4e92f956b5a2e2c2b4dd29b5cf253e9b46bdbaf4952"></a>TLV_ASN1_TAG_NUMBER_MASK&#160;</td><td class="fielddoc"><p>Mask of the low-tag-number field. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga99fb83031ce9923c84392b4e92f956b5ad6b5d7306421b68182b7adc716e360ab" name="gga99fb83031ce9923c84392b4e92f956b5ad6b5d7306421b68182b7adc716e360ab"></a>TLV_ASN1_LOW_TAG_LIMIT&#160;</td><td class="fielddoc"><p>Low-tag-number value that escapes to high-tag-number form. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e" name="gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e"></a>TLV_ASN1_TAG_MAX_SIZE&#160;</td><td class="fielddoc"><p>Longest tag, in bytes, that the BER, CER and DER formats read, write or construct. This is a limit of these formats, not of <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of raw bytes in wire order.">tlv_tag_t</a>. </p>
 </td></tr>
 </table>
 
@@ -1126,8 +1132,8 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 
 </div>
 </div>
-<a id="gad4302d0d9ba57e91b3119578a0a34649" name="gad4302d0d9ba57e91b3119578a0a34649"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gad4302d0d9ba57e91b3119578a0a34649">&#9670;&#160;</a></span>tlv_cer_tag_make()</h2>
+<a id="ga5104df5484b24bdd26fd2215cb1d789d" name="ga5104df5484b24bdd26fd2215cb1d789d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5104df5484b24bdd26fd2215cb1d789d">&#9670;&#160;</a></span>tlv_cer_tag_make()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1153,6 +1159,12 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>storage</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
           <td class="paramname"><em>tag</em>&#160;</td>
         </tr>
@@ -1165,23 +1177,24 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </div><div class="memdoc">
 
 <p>Constructs a canonical CER tag. </p>
-<p>Identical rules and error conventions to <a class="el" href="group__formats.html#ga099091d20793a5b2284b9d63062f26de" title="Constructs a canonical DER tag.">tlv_der_tag_make()</a>: ASN.1 identifier octets (X.690 section 8.1) are not specific to any single encoding-rule profile.</p>
+<p>Identical rules and error conventions to <a class="el" href="group__formats.html#ga3c625de093ad67ce3e9fc53e005bf0a5" title="Constructs a canonical DER tag.">tlv_der_tag_make()</a>: ASN.1 identifier octets (X.690 section 8.1) are not specific to any single encoding-rule profile.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">tag_class</td><td>ASN.1 class. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">constructed</td><td>Nonzero for constructed form, zero for primitive. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">number</td><td>Tag number. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Destination tag.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">storage</td><td>Destination for the tag bytes; <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> writable bytes. Must outlive every use of the tag. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Receives a tag that borrows <code>storage</code>.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>tag</code> is <code>NULL</code>. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>storage</code> or <code>tag</code> is <code>NULL</code>. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> if the encoding is invalid or the number exceeds <code>uint64_t</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if the tag would be empty or exceed <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if the tag would exceed <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The destination is unchanged on failure. </dd></dl>
 
 </div>
@@ -1227,7 +1240,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> if the encoding is invalid or the number exceeds <code>uint64_t</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty tag or one exceeding <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty tag or one exceeding <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd><code>*number</code> is unchanged on failure. </dd></dl>
 
 </div>
@@ -1341,8 +1354,8 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 
 </div>
 </div>
-<a id="ga099091d20793a5b2284b9d63062f26de" name="ga099091d20793a5b2284b9d63062f26de"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga099091d20793a5b2284b9d63062f26de">&#9670;&#160;</a></span>tlv_der_tag_make()</h2>
+<a id="ga3c625de093ad67ce3e9fc53e005bf0a5" name="ga3c625de093ad67ce3e9fc53e005bf0a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3c625de093ad67ce3e9fc53e005bf0a5">&#9670;&#160;</a></span>tlv_der_tag_make()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1368,6 +1381,12 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>storage</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
           <td class="paramname"><em>tag</em>&#160;</td>
         </tr>
@@ -1380,23 +1399,24 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </div><div class="memdoc">
 
 <p>Constructs a canonical DER tag. </p>
-<p>Raw parsing supports the full configured tag capacity.</p>
+<p>Raw parsing supports tags up to <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> bytes.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">tag_class</td><td>ASN.1 class. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">constructed</td><td>Nonzero for constructed form, zero for primitive. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">number</td><td>Tag number. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Destination tag.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">storage</td><td>Destination for the tag bytes; <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> writable bytes. Must outlive every use of the tag. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Receives a tag that borrows <code>storage</code>.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>tag</code> is <code>NULL</code>. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>storage</code> or <code>tag</code> is <code>NULL</code>. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> if the encoding is invalid or the number exceeds <code>uint64_t</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if the tag would be empty or exceed <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if the tag would exceed <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The destination is unchanged on failure. </dd></dl>
 
 </div>
@@ -1441,7 +1461,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> if the encoding is invalid or the number exceeds <code>uint64_t</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty tag or one exceeding <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty tag or one exceeding <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd><code>*number</code> is unchanged on failure. </dd></dl>
 
 </div>
@@ -1685,7 +1705,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </div><div class="memdoc">
 
 <p>Reader format for raw BER-TLV. </p>
-<p>Accepts tags up to <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>, including high-tag-number form, and definite lengths up to <code>SIZE_MAX</code>. Reads accept nonminimal definite lengths and constructed indefinite lengths. Tag bytes are preserved (including <code>9F 1C</code>); ASN.1 semantics are not validated.</p>
+<p>Accepts tags up to <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> bytes, including high-tag-number form, and definite lengths up to <code>SIZE_MAX</code>. Reads accept nonminimal definite lengths and constructed indefinite lengths. Tag bytes are preserved (including <code>9F 1C</code>); ASN.1 semantics are not validated.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__formats.html#ga578b925016c88f98190f1636a173eeea" title="Writer format for raw BER-TLV.">tlv_writer_format_ber</a> </dd></dl>
 
 </div>

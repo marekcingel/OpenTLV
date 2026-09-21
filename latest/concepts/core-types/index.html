@@ -749,10 +749,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tag-comparison-and-numeric-conversion" class="md-nav__link">
+  <a href="#tags-are-borrowed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tag comparison and numeric conversion
+        Tags are borrowed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tag-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag comparison
       
     </span>
   </a>
@@ -2385,10 +2396,21 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tag-comparison-and-numeric-conversion" class="md-nav__link">
+  <a href="#tags-are-borrowed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tag comparison and numeric conversion
+        Tags are borrowed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tag-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag comparison
       
     </span>
   </a>
@@ -2460,123 +2482,109 @@ come from <code>&lt;tlv/error.h&gt;</code>. Tags and their configuration are dec
 <li>There is no separate native byte-range struct. Native byte ranges in the
   public API are passed as an explicit <code>const uint8_t*</code>/<code>size_t</code> pair, for
   example <code>tlv_copy_encoded(encoded_data, encoded_length, ...)</code>.</li>
-<li><code>tlv_tag_t</code> stores raw tag bytes in wire order and their actual <code>size</code>.
-  It performs no integer conversion or profile-specific validation.</li>
-<li><code>tlv_view_t</code> (in <code>&lt;tlv/view.h&gt;</code>) stores a tag inline and a borrowed
-  <code>tlv_value_t</code> value. The caller must keep the value storage alive while
-  using the view. Copying the view copies the tag and the value's pointer
-  and length, not the value bytes. <code>tlv_view_t</code>/<code>tlv_value_t</code> are plain
-  structs containing a pointer; unlike <code>tlv_length_t</code>'s numeric range, their
-  in-memory layout is <strong>not</strong> guaranteed to match across architectures, and
-  must never be treated as a portable wire encoding.</li>
+<li><code>tlv_tag_t</code> is a small non-owning type: a <code>const uint8_t* data</code> pointer and
+  a <code>size_t size</code>. It represents arbitrary raw tag bytes in wire order and
+  nothing else. It owns no memory, allocates none, has no storage capacity or
+  maximum length, and carries no format-specific metadata.</li>
+<li><code>tlv_view_t</code> (in <code>&lt;tlv/view.h&gt;</code>) holds a borrowed <code>tlv_tag_t</code> and a
+  borrowed <code>tlv_value_t</code> value. The caller must keep the storage of both alive
+  while using the view; for a reader-produced view that is the input buffer.
+  Copying the view copies only the tag's and value's pointers and lengths, not
+  any bytes. <code>tlv_view_t</code>/<code>tlv_value_t</code> are plain structs containing pointers;
+  unlike <code>tlv_length_t</code>'s numeric range, their in-memory layout is <strong>not</strong>
+  guaranteed to match across architectures, and must never be treated as a
+  portable wire encoding.</li>
 </ul>
-<p>All types support zero initialization and require no dynamic allocation.
-An empty tag has size zero; individual formats decide whether it is valid.</p>
-<p><code>TLV_TAG_MAX_SUPPORTED_SIZE</code> is the fixed representation limit <code>UINT8_MAX</code>
-(255), imposed by the <code>uint8_t size</code> field. It is not configurable and is not
-a protocol limit. <code>TLV_TAG_CAPACITY</code> is the compile-time inline storage
-capacity (default 8); <code>tag.size</code> is the current number of valid bytes (0 through
-capacity). Empty tags are valid for raw construction and comparison; numeric
-conversion and TLV I/O require nonempty tags.</p>
-<p>Define <code>TLV_TAG_CAPACITY</code> at compile time, for example <code>-DTLV_TAG_CAPACITY=16</code>
-(<code>/DTLV_TAG_CAPACITY=16</code> with MSVC). The allowed range is 1 through
-<code>TLV_TAG_MAX_SUPPORTED_SIZE</code>; configurations outside it fail preprocessing.
-Use the same capacity in the library and every C/C++ consumer: capacity affects
-structure layout and ABI. Rebuild both when changing it. This is a preprocessor
-setting, not a CMake cache option.</p>
-<p>Migrate existing <code>TLV_TAG_MAX_SIZE</code> definitions to <code>TLV_TAG_CAPACITY</code>.
-The old name is no longer supported or provided as an alias. Only
-<code>TLV_TAG_CAPACITY</code> configures storage; leaving it undefined selects 8.
-Equal capacities retain the existing structure layout.</p>
-<p>Direct assignment to the public <code>size</code> field can truncate values outside the
-<code>uint8_t</code> range before the library can validate them (for example, 256 becomes
-zero). Use construction helpers with <code>size_t</code> lengths for checked input. These
-validate the length before narrowing, including lengths 256 and 257 at capacity 255.</p>
-<p>The reader returns <code>tlv_view_t</code>: it copies the tag into inline storage and
-borrows the value directly from the input buffer. The writer accepts
-<code>tlv_tag_t</code>, and the C++ layer uses the same type for tags and codec keys.
-Tag and length restrictions depend on the selected format; the default format
-uses one tag byte, while BER and DER support multi-byte tags.
+<p>All types support zero initialization and require no dynamic allocation.</p>
+<h2 id="tags-are-borrowed">Tags are borrowed<a class="headerlink" href="#tags-are-borrowed" title="Permanent link">&para;</a></h2>
+<p><code>tlv_tag_t</code> refers to bytes that somebody else owns, exactly as <code>tlv_value_t</code>
+does for values:</p>
+<ul>
+<li>Copying a <code>tlv_tag_t</code> copies the pointer and the size, not the bytes.</li>
+<li>The referenced bytes must stay valid, and unchanged, for as long as the tag
+  is used.</li>
+<li>OpenTLV functions never retain a tag past the call unless their
+  documentation says so.</li>
+<li><code>{ NULL, 0 }</code> is the empty tag. <code>{ NULL, size }</code> with <code>size &gt; 0</code> is invalid.</li>
+<li>Reader-produced tags normally reference the input buffer that was parsed, so
+  reading stays zero-copy. A tag stays valid only as long as that buffer does.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bytes</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">};</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_tag</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">bytes</span><span class="p">));</span><span class="w">   </span><span class="cm">/* borrows `bytes` */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">same</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">);</span><span class="w">            </span><span class="cm">/* literal bytes, no allocation */</span>
+</code></pre></div>
+<p><code>tlv_tag(data, size)</code> builds a tag from runtime data and checks nothing.
+<code>TLV_TAG(0x9F, 0x02)</code> builds a tag from constant bytes without allocating. In
+C++ the bytes have static storage duration, so the tag can be stored and
+returned freely. In C it is a compound literal that lives until the end of its
+enclosing block, so do not return it from a function. <code>TLV_TAG()</code> is not a
+constant expression; for a static table in C, declare a <code>static const uint8_t</code>
+array and initialize the tag as <code>{ bytes, sizeof(bytes) }</code>.</p>
+<p>Several layers are involved, and each has its own job:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What it decides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlv_tag_t</code></td>
+<td>Nothing: it is arbitrary raw bytes with a length.</td>
+</tr>
+<tr>
+<td>A <strong>format</strong></td>
+<td>How tags are encoded and which tag lengths are valid. The default format accepts one byte, BER and DER accept 1 to 8 bytes, and a format defined at runtime can accept 12. A tag a format does not support is rejected by that format, for example with <code>TLV_ERR_INVALID_TAG_SIZE</code>. Whether an empty tag is valid is also the format's decision.</td>
+</tr>
+<tr>
+<td>A <strong>schema</strong></td>
+<td>Which tags are allowed or required and how long their values may be.</td>
+</tr>
+</tbody>
+</table>
+<p>A <code>tlv_tag_t</code> of any length can be created, compared, stored in a schema and
+passed to a format; only a format rejects lengths it does not support.</p>
+<p>There is no <code>TLV_TAG_CAPACITY</code> and no <code>TLV_TAG_MAX_SUPPORTED_SIZE</code>. The layout
+of <code>tlv_tag_t</code> no longer depends on a compile-time setting, so the library and
+its consumers, including other languages' bindings, never have to be rebuilt to
+agree on it, and tests for different tag lengths run in a single build.</p>
+<p>The reader returns <code>tlv_view_t</code> with the tag and value borrowed from the input
+buffer. The writer accepts <code>tlv_tag_t</code> by value and only reads it during the
+call, and the C++ layer uses the same type for tags. A codec registry, or any
+container that has to keep a tag, must copy the bytes.
 See <a href="../../guides/memory/">memory ownership and lifetime</a> for shared buffer rules.</p>
-<h2 id="tag-comparison-and-numeric-conversion">Tag comparison and numeric conversion<a class="headerlink" href="#tag-comparison-and-numeric-conversion" title="Permanent link">&para;</a></h2>
-<p>All <code>tlv_tag_equal*</code> functions return <code>tlv_result_t</code> and take a final <code>int* equal</code>
-output argument. A valid comparison returns <code>TLV_OK</code> and stores 1 for equality
-or 0 for mismatch. Mismatch is not an error. Null required pointers return
-<code>TLV_ERR_NULL_ARG</code>; sizes above capacity return <code>TLV_ERR_INVALID_TAG_SIZE</code>.
-The output remains unchanged on every failure. Supply a writable <code>int</code>.</p>
-<p>When migrating from the predicate API, add <code>&amp;equal</code> and check the returned
-status before using <code>equal</code>; do not use the status itself as a boolean match.</p>
-<p><code>tlv_tag_equal(a, b, &amp;equal)</code> compares the size and valid bytes, ignoring unused
-storage. Two empty tags compare equal. It supports the full configured capacity,
-including tags longer than 8 bytes.</p>
-<p><code>tlv_tag_equal_bytes(tag, data, size, &amp;equal)</code> compares a tag against an array
-without constructing another <code>tlv_tag_t</code>. Length and leading zeros are
-significant. <code>data</code> may be null only when <code>size</code> is zero; otherwise the caller
-must provide <code>size</code> readable bytes. Sizes above <code>TLV_TAG_CAPACITY</code> are invalid.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">expected</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x82</span><span class="p">};</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">int</span><span class="w"> </span><span class="n">equal</span><span class="p">;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_tag_equal_bytes</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">expected</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">equal</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">equal</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="cm">/* The length and bytes match exactly. */</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">}</span>
+<h2 id="tag-comparison">Tag comparison<a class="headerlink" href="#tag-comparison" title="Permanent link">&para;</a></h2>
+<p>Comparison is by contents, never by pointer identity, so tags backed by
+different memory compare as equal when their bytes match.</p>
+<p><code>bool tlv_tag_equal(lhs, rhs)</code> is true when both tags have the same size and
+bytes. Two empty tags are equal, whatever their pointers. Both functions require valid tags (see
+below): an invalid tag is a contract violation, not a comparable value.</p>
+<p><code>int tlv_tag_compare(lhs, rhs)</code> orders tags lexicographically by their bytes,
+comparing them as unsigned values. If one tag is a prefix of the other, the
+shorter one orders first. It returns a negative value, zero or a positive value.
+The bytes are never read as an integer, so the result does not depend on the
+host's byte order: <code>01 FF</code> orders before <code>02 00</code>, and <code>01 00 00</code> orders before
+<code>02</code>. <code>tlv_tag_equal(a, b)</code> is true exactly when <code>tlv_tag_compare(a, b) == 0</code>.
+Validate input at the API boundary; the comparison itself does no checking.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_tag_equal</span><span class="p">(</span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="cm">/* The same bytes, wherever they are stored. */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">}</span>
 </code></pre></div>
-<p><code>tlv_tag_to_u64(tag, order, &amp;value)</code> interprets 1 to 8 bytes using the explicit
-<code>tlv_byte_order_t</code> from <code>&lt;tlv/endian.h&gt;</code>. With <code>TLV_BYTE_ORDER_BIG_ENDIAN</code>,
-<code>9F 02</code> becomes <code>0x9F02</code>; with <code>TLV_BYTE_ORDER_LITTLE_ENDIAN</code>, it becomes
-<code>0x029F</code>. It does not decode the ASN.1 tag number.
-Null arguments return <code>TLV_ERR_NULL_ARG</code>; empty tags, sizes exceeding capacity,
-and tags longer than 8 bytes return <code>TLV_ERR_INVALID_TAG_SIZE</code>. The output stays
-unchanged on failure, including for long tags with zero padding. Unknown or
-invalid byte order returns <code>TLV_ERR_INVALID_BYTE_ORDER</code>.</p>
-<p><code>tlv_tag_to_u8</code>, <code>tlv_tag_to_u16</code>, and <code>tlv_tag_to_u32</code> provide checked
-conversions into <code>uint8_t</code>, <code>uint16_t</code>, and <code>uint32_t</code>. They use the same input
-rules as <code>tlv_tag_to_u64</code> and return <code>TLV_ERR_OVERFLOW</code> if the numeric value
-exceeds the destination type's maximum, leaving the output unchanged.
-Zero padding at the most significant end is accepted within the 8-byte input
-limit: big-endian <code>00 FF</code> and little-endian <code>FF 00</code> both fit in <code>uint8_t</code>.</p>
-<p><code>tlv_tag_equal_u8</code>, <code>tlv_tag_equal_u16</code>, <code>tlv_tag_equal_u32</code>, and
-<code>tlv_tag_equal_u64</code> compare against a value of the corresponding unsigned type.
-Pass the explicit input byte order before the output argument, e.g.
-<code>tlv_tag_equal_u16(tag, 0x9F02, TLV_BYTE_ORDER_BIG_ENDIAN, &amp;equal)</code>.
-They use <code>tlv_tag_to_u64</code> and propagate its errors, including
-<code>TLV_ERR_INVALID_BYTE_ORDER</code>. Required pointers are validated before tag size,
-then byte order. Valid unequal values return <code>TLV_OK</code> with <code>*equal == 0</code>.
-The tag value is never truncated to the argument type.
-With big-endian input, leading zeros do not affect numeric equality: <code>00 82</code> and <code>82</code> both equal
-<code>0x82</code> numerically, but differ under exact comparison. All helpers are
-allocation-free and available in C and C++.</p>
-<p><code>tlv_endian_native()</code> reports the executing platform's byte order (or
-<code>TLV_BYTE_ORDER_UNKNOWN</code> for mixed byte order). Pass it explicitly only when
-the input represents a native integer's storage. Protocol byte order remains
-independent of the host. Raw tag and byte-array comparisons do not take a byte
-order and still compare exact bytes and length.</p>
+<p>A tag is identity, not a number: <code>tlv_tag_t</code> has no integer conversion and no
+byte order. To compare against a known tag, compare its wire bytes with
+<code>TLV_TAG(0x9F, 0x02)</code> rather than an integer. A format or profile that needs a
+numeric view of its own tags, such as the ASN.1 tag number of
+<code>tlv_der_tag_number()</code>, provides it in its own layer.</p>
 <h2 id="constructing-tags">Constructing tags<a class="headerlink" href="#constructing-tags" title="Permanent link">&para;</a></h2>
-<p><code>tlv_tag_from_bytes(data, size, &amp;tag)</code> copies up to <code>TLV_TAG_CAPACITY</code> bytes.
-Zero size creates an empty tag and permits null <code>data</code>. Source and destination
-may overlap. Excessive size returns <code>TLV_ERR_INVALID_TAG_SIZE</code>; missing required
-pointers return <code>TLV_ERR_NULL_ARG</code>.</p>
-<p><code>tlv_tag_from_u8/u16/u32/u64(value, size, order, &amp;tag)</code> encodes an unsigned
-value into exactly <code>size</code> bytes (1..8, within capacity). Size is explicit:
-<code>0x82</code> can become <code>82</code>, big-endian <code>00 82</code>, or little-endian <code>82 00</code>.
-A value that does not fit the requested size returns <code>TLV_ERR_OVERFLOW</code>;
-zero size, size above capacity, or size above 8 returns <code>TLV_ERR_INVALID_TAG_SIZE</code>. Unsupported byte order returns <code>TLV_ERR_INVALID_BYTE_ORDER</code>.</p>
-<p>All constructors leave the destination unchanged on failure and zero unused
-storage on success. They allocate no memory and do not validate BER or EMV rules.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="p">;</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_tag_from_u16</span><span class="p">(</span><span class="mh">0x9F02</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tag</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="cm">/* tag contains the exact bytes 9F 02. */</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">}</span>
-</code></pre></div>
+<p>Use <code>tlv_tag(data, size)</code> or <code>TLV_TAG(...)</code> to describe bytes you already have;
+no copy is made. Constructors of a format, such as <code>tlv_der_tag_make()</code>, write
+the bytes into caller-provided storage and return a tag that borrows it, so the
+storage must outlive the tag. They allocate no memory.</p>
 <h2 id="tag-errors">Tag errors<a class="headerlink" href="#tag-errors" title="Permanent link">&para;</a></h2>
-<p><code>TLV_ERR_INVALID_TAG_SIZE</code> identifies sizes unsupported by an operation.
-<code>TLV_ERR_OVERFLOW</code> identifies an otherwise valid numeric value or input that
-does not fit the requested destination type or encoded width.
-<code>TLV_ERR_INVALID_TAG</code> identifies malformed tag encoding. Size failures
-previously returning <code>TLV_ERR_INVALID_TAG</code> now return <code>TLV_ERR_INVALID_TAG_SIZE</code>,
-and numeric range failures previously returning <code>TLV_ERR_INVALID_TAG</code> now return
-<code>TLV_ERR_OVERFLOW</code>; update callers that check specific errors. <code>TLV_ERR_INVALID_LENGTH</code>
-remains a value-length error, and invalid schema definitions retain schema-specific
-errors. Comparison helpers still return 0 for invalid inputs. Existing error-code
-numeric values are unchanged.</p>
+<p><code>TLV_ERR_INVALID_TAG_SIZE</code> identifies a tag length a format does not support; it
+is never produced because a tag is "too long for <code>tlv_tag_t</code>".
+<code>TLV_ERR_INVALID_TAG</code> identifies malformed tag encoding.</p>
 <p>See also the <a href="../../reference/c-api/#core-types-and-utilities">C API reference: core types</a>.</p>
 
 

@@ -82,7 +82,8 @@ $(function() {
 
 <p>ASN.1 CER reader and writer formats with tag accessors.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="format_8h.html">tlv/formats/format.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="format_8h.html">tlv/formats/format.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ber_8h.html">tlv/formats/asn1/ber.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
@@ -94,9 +95,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga12d961bb8b8945954393eafdf273afd0" id="r_ga12d961bb8b8945954393eafdf273afd0"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga12d961bb8b8945954393eafdf273afd0">tlv_cer_tag_is_constructed</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:ga12d961bb8b8945954393eafdf273afd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether a CER tag has the constructed bit set.  <br /></td></tr>
 <tr class="separator:ga12d961bb8b8945954393eafdf273afd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad4302d0d9ba57e91b3119578a0a34649" id="r_gad4302d0d9ba57e91b3119578a0a34649"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gad4302d0d9ba57e91b3119578a0a34649">tlv_cer_tag_make</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tag_class, int constructed, uint64_t number, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:gad4302d0d9ba57e91b3119578a0a34649"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a canonical CER tag.  <br /></td></tr>
-<tr class="separator:gad4302d0d9ba57e91b3119578a0a34649"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5104df5484b24bdd26fd2215cb1d789d" id="r_ga5104df5484b24bdd26fd2215cb1d789d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5104df5484b24bdd26fd2215cb1d789d">tlv_cer_tag_make</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tag_class, int constructed, uint64_t number, uint8_t *storage, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
+<tr class="memdesc:ga5104df5484b24bdd26fd2215cb1d789d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a canonical CER tag.  <br /></td></tr>
+<tr class="separator:ga5104df5484b24bdd26fd2215cb1d789d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7e3338cca2446efea28535a91ce48c79" id="r_ga7e3338cca2446efea28535a91ce48c79"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga7e3338cca2446efea28535a91ce48c79">tlv_cer_tag_number</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint64_t *number)</td></tr>
 <tr class="memdesc:ga7e3338cca2446efea28535a91ce48c79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the numeric tag number from a CER tag.  <br /></td></tr>
 <tr class="separator:ga7e3338cca2446efea28535a91ce48c79"><td class="memSeparator" colspan="2">&#160;</td></tr>

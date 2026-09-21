@@ -2592,21 +2592,20 @@ together in <a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/includ
 There is no separate EMV parser and the reader never interprets values.
 The existing <code>tlv_emv_tag_*</code> objects use the universal <code>tlv_tag_t</code>.
 Each has a numeric integer constant expression with the <code>_u64</code> suffix,
-such as <code>tlv_emv_tag_aip_u64</code> (<code>0x82</code>), usable in C and C++ <code>case</code> labels.
-Both forms follow the configured tag capacity.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">/* Inside a function; tag points to a tlv_tag_t. */</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">uint64_t</span><span class="w"> </span><span class="n">number</span><span class="p">;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_tag_to_u64</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">number</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">number</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="no">tlv_emv_tag_aip_u64</span><span class="p">:</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">        </span><span class="cm">/* Handle AIP. */</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">default</span><span class="o">:</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">        </span><span class="k">break</span><span class="p">;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="p">}</span>
+such as <code>tlv_emv_tag_aip_u64</code> (<code>0x82</code>), usable in C and C++ <code>case</code> labels.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">/* Inside a function; tag is a tlv_tag_t of at most two bytes. */</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">unsigned</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">number</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">number</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">case</span><span class="w"> </span><span class="no">tlv_emv_tag_aip_u64</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="cm">/* Handle AIP. */</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">default</span><span class="o">:</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">}</span>
 </code></pre></div>
-<p>See <a href="../../concepts/core-types/#tag-comparison-and-numeric-conversion">tag comparison and numeric conversion</a>
+<p>See <a href="../../concepts/core-types/#tag-comparison">tag comparison</a>
 for conversion limits and exact versus numeric equality.</p>
 <p><code>tlv_emv_schema</code> is the base dictionary, compatible with <code>tlv_schema_find()</code>
 and <code>tlv_schema_validate_length()</code>. <code>tlv_emv_find(context, tag)</code> returns an
@@ -2814,8 +2813,8 @@ dictionary and length schemas do not enforce a definite-only encoding policy.
 APDU status bytes and EMV
 padding are handled by the caller. Book 3 defines one- and two-byte tags;
 three-byte tags remain readable by generic BER but are unknown to this profile.
-With <code>TLV_TAG_CAPACITY == 1</code>, two-byte constants and entries are omitted;
-configure the macro consistently for the library and all consumers.</p>
+Every tag constant borrows constant static bytes, so the tables and constants
+are the same in every build.</p>
 <h2 id="structural-validation">Structural validation<a class="headerlink" href="#structural-validation" title="Permanent link">&para;</a></h2>
 <p><code>tlv_emv_structure_schema</code> (<code>tlv/profiles/emv_schema.h</code>) is a
 <code>tlv_structure_schema_t</code> for <code>tlv_schema_validate()</code> that fills the gap above:
@@ -2897,7 +2896,7 @@ long values truncated from the left.</p>
 value <code>resolve</code> may report as available, and must not exceed the fixed
 <code>TLV_DOL_MAX_VALUE_LENGTH</code> (255, matching the single-byte requested-length
 field's own range). <code>tlv_dol_default_limits</code> selects generous defaults for
-both. No allocation is used; tags follow the configured <code>TLV_TAG_CAPACITY</code>.</p>
+both. No allocation is used; the tags of an entry borrow the DOL bytes, valid only during the callback.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>9F 02 06 5A 08
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>|-- Entry 1: tag 9F 02 (Amount, Authorised), requested length 06
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>`-- Entry 2: tag 5A (PAN), requested length 08

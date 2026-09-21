@@ -74,7 +74,6 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classtlv_1_1codec__registry-members.html">List of all members</a>  </div>
@@ -112,7 +111,7 @@ Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Registry for types that must be decoded at runtime. </p>
 <p>Complements the compile-time TlvCodec concept. Useful, for example, for pluggable formats whose types are not all known at compile time.</p>
-<dl class="section note"><dt>Note</dt><dd>Registering and decoding may allocate. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Registering and decoding may allocate. The registry copies the bytes of every registered tag, so the tag passed to <a class="el" href="classtlv_1_1codec__registry.html#a14c4e2d3bfa97d1f09d7fd5aa63af06c" title="Registers a decoder for a tag.">register_decoder()</a> only has to stay valid for the duration of the call. </dd></dl>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a0d9ec95bf207d6e4d8cdc4c1f110a70d" name="a0d9ec95bf207d6e4d8cdc4c1f110a70d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0d9ec95bf207d6e4d8cdc4c1f110a70d">&#9670;&#160;</a></span>decoder_fn</h2>

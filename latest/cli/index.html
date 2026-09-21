@@ -2970,7 +2970,7 @@ two input modes: one element from <code>--tag</code>/<code>--value</code>, or a 
 optional and defaults to an empty value. <code>--tag</code> and <code>--value</code> use the same hex
 syntax as <code>--hex</code> (case-insensitive, complete byte pairs, optional whitespace
 between pairs). <code>--value</code> is limited by <code>--max-input-size</code>; a tag longer than
-the library's tag capacity is rejected.</p>
+8 bytes, the longest tag any built-in format accepts, is rejected.</p>
 <p><code>--input PATH</code> reads a JSON document instead (<code>-</code> for stdin, read as bytes on
 Windows too); it cannot be combined with <code>--tag</code> or <code>--value</code>. Every length is
 derived while encoding, children are written inside their parent, and BER

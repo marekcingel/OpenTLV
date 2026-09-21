@@ -110,12 +110,12 @@ Static Public Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;std::size_t TagWidth, std::size_t LengthWidth, <a class="elRef" href="../../c-api/html/group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> Order&gt;<br />
 class tlv::fixed_format&lt; TagWidth, LengthWidth, Order &gt;</div><p>A fixed-width TLV format selected at compile time. </p>
-<p>Every element is <code>TagWidth</code> raw tag bytes, then a length field of <code>LengthWidth</code> bytes in byte order <code>Order</code>, then that many value bytes. The length counts only the value; it excludes the header. Tag bytes are copied unchanged in wire order, so <code>Order</code> applies to the length field only.</p>
+<p>Every element is <code>TagWidth</code> raw tag bytes, then a length field of <code>LengthWidth</code> bytes in byte order <code>Order</code>, then that many value bytes. The length counts only the value; it excludes the header. Tag bytes are copied unchanged in wire order, so <code>Order</code> applies to the length field only. Tags read by this format borrow the input bytes.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Parameter   </th><th class="markdownTableHeadNone">Supported values    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>TagWidth</code>   </td><td class="markdownTableBodyNone">1 to <a class="elRef" href="../../c-api/html/group__core.html#gaf06da2c35af6874a318108f9bc07da99">TLV_TAG_CAPACITY</a> bytes    </td></tr>
+<td class="markdownTableBodyNone"><code>TagWidth</code>   </td><td class="markdownTableBodyNone">1 or more bytes    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>LengthWidth</code>   </td><td class="markdownTableBodyNone">1 to 8 bytes    </td></tr>
 <tr class="markdownTableRowOdd">

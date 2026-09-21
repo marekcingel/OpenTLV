@@ -84,7 +84,8 @@ $(function() {
 
 <p>ASN.1 BER reader and writer formats, indefinite-length framing and length codec.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="format_8h.html">tlv/formats/format.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="format_8h.html">tlv/formats/format.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="writer_8h.html">tlv/writer/writer.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="length_8h.html">tlv/length.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
@@ -104,10 +105,14 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gae888c73e721d0ad6ba3ecea514ae7626"><td class="mdescLeft">&#160;</td><td class="mdescRight">ASN.1 identifier-octet class bits (ITU-T X.690 section 8.1).  <a href="group__formats.html#gae888c73e721d0ad6ba3ecea514ae7626">More...</a><br /></td></tr>
 <tr class="separator:gae888c73e721d0ad6ba3ecea514ae7626"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga99fb83031ce9923c84392b4e92f956b5" id="r_ga99fb83031ce9923c84392b4e92f956b5"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a4dba2bfb2ef0ea7a98c348eb5a9035b3">TLV_ASN1_CLASS_SHIFT</a> = 6
+<tr class="memitem:ga99fb83031ce9923c84392b4e92f956b5" id="r_ga99fb83031ce9923c84392b4e92f956b5"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+&#160;&#160;<a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a4dba2bfb2ef0ea7a98c348eb5a9035b3">TLV_ASN1_CLASS_SHIFT</a> = 6
 , <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a5cff02341914e111cec22fe3e5e24fb0">TLV_ASN1_CONSTRUCTED_BIT</a> = 0x20
 , <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a2e2c2b4dd29b5cf253e9b46bdbaf4952">TLV_ASN1_TAG_NUMBER_MASK</a> = 0x1F
 , <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5ad6b5d7306421b68182b7adc716e360ab">TLV_ASN1_LOW_TAG_LIMIT</a> = 31
+, <br />
+&#160;&#160;<a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> = 8
+<br />
  }</td></tr>
 <tr class="memdesc:ga99fb83031ce9923c84392b4e92f956b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Identifier octet bit layout below the class field (X.690 section 8.1.2).  <a href="group__formats.html#ga99fb83031ce9923c84392b4e92f956b5">More...</a><br /></td></tr>
 <tr class="separator:ga99fb83031ce9923c84392b4e92f956b5"><td class="memSeparator" colspan="2">&#160;</td></tr>

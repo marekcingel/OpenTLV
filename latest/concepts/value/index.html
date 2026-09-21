@@ -2459,6 +2459,8 @@ A NULL <code>value</code> returns <code>TLV_ERR_NULL_ARG</code>.</p>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">tlv_value_t</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span><span class="w"> </span><span class="n">tlv_view_t</span><span class="p">;</span>
 </code></pre></div>
+<p><code>view.tag</code> is a borrowed <code>tlv_tag_t</code>: like the value, it points into the input
+the view was read from and must not outlive it.</p>
 <p>Readers construct <code>view.value</code> directly (its fields, not through
 <code>tlv_value_init()</code>) after validating a decoded length against the input
 buffer, so an internal reader-produced view is always representation-valid.

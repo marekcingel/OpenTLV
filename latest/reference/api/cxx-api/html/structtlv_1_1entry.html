@@ -94,7 +94,7 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A decoded TLV item on the C++ side. </p>
-<p>The value points into the original buffer (zero-copy) and is not owned.</p>
+<p>The tag and the value point into the original buffer (zero-copy) and are not owned.</p>
 <dl class="section warning"><dt>Warning</dt><dd>The caller must keep the original buffer alive while the entry is used. </dd></dl>
 </div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="ae41fc7ed25a6f595f8997694c432001f" name="ae41fc7ed25a6f595f8997694c432001f"></a>
@@ -108,7 +108,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Item tag, stored inline. </p>
+<p>Item tag; borrows the original buffer. </p>
 
 </div>
 </div>

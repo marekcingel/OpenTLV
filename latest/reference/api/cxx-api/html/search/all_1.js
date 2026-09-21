@@ -7,5 +7,5 @@ var searchData=
   ['bluetooth_5fltv_2eh_4',['bluetooth_ltv.h',['../../../c-api/html/bluetooth__ltv_8h.html',1,'']]],
   ['buf_5',['buf',['../../../c-api/html/structtlv__writer.html#a37ce6d8aacd5dd9ac7ddd58a45d5e428',1,'tlv_writer']]],
   ['byte_6',['byte',['../namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51',1,'tlv']]],
-  ['bytes_7',['bytes',['../namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d',1,'tlv']]]
+  ['bytes_7',['bytes',['../../../c-api/html/structtlv__query.html#a46e17ab6db9d8691d81b59f0717cc00b',1,'tlv_query::bytes'],['../namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d',1,'tlv::bytes']]]
 ];

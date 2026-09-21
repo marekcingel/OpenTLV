@@ -2531,8 +2531,8 @@ return; this page explains what each code means and what to check first.</p>
 <tr>
 <td><code>TLV_ERR_INVALID_TAG_SIZE</code></td>
 <td>11</td>
-<td>A tag size is outside the range the operation supports.</td>
-<td>Empty tags, and tags larger than <code>TLV_TAG_CAPACITY</code> (8 bytes by default).</td>
+<td>A tag size is outside the range the operation or format supports.</td>
+<td>A tag length the selected format rejects (for example more than 8 bytes for BER, CER and DER, or anything but one byte for the default format), or an empty tag where the operation needs bytes. Also the numeric tag conversions for empty tags and tags longer than 8 bytes. <code>tlv_tag_t</code> itself has no size limit.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_INVALID_BYTE_ORDER</code></td>

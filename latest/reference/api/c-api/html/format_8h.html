@@ -83,7 +83,8 @@ $(function() {
 
 <p>Reader and writer format descriptors that define a TLV wire encoding.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="view_8h.html">tlv/view.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="view_8h.html">tlv/view.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -149,7 +150,7 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Reader and writer format descriptors that define a TLV wire encoding. </p>
 <p>A format is a pair of stateless callback tables (one for reading, one for writing) plus an optional borrowed, immutable context. Concrete formats live under <code>tlv/formats/</code>; custom formats are built with <a class="el" href="group__formats.html#gac1eaa4bac80b5831d2a84fc0b3977fb7" title="Initializes a reader format in caller-owned storage.">tlv_reader_format_init()</a> and <a class="el" href="group__formats.html#ga349e7133b934011befb1319e5eef9d86" title="Initializes a writer format in caller-owned storage.">tlv_writer_format_init()</a>.</p>
-<p>Callbacks must not allocate, retain buffers, or access memory beyond the size or capacity they are given. All sizes are in bytes. Tags must fit <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a>; unsupported tag sizes return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a>. Callback errors propagate unchanged through the generic reader and writer. </p>
+<p>Callbacks must not allocate, retain buffers, or access memory beyond the size or capacity they are given. All sizes are in bytes. A format defines its own tag encoding and valid tag lengths, and rejects tags it does not support, for example with <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a>; <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of raw bytes in wire order.">tlv_tag_t</a> itself has no length limit. A reader callback returns a tag that borrows the input bytes it was given, and it must not point the tag anywhere else. Callback errors propagate unchanged through the generic reader and writer. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

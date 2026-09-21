@@ -75,51 +75,52 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>A TLV tag stored as raw bytes, independent of host endianness or TLV profile.  
+<p>A TLV tag: a borrowed sequence of raw bytes in wire order.  
  <a href="structtlv__tag__t.html#details">More...</a></p>
 
 <p><code>#include &lt;tag.h&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a86dae633e06380242084541707591656" id="r_a86dae633e06380242084541707591656"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tag__t.html#a86dae633e06380242084541707591656">data</a> [8]</td></tr>
-<tr class="separator:a86dae633e06380242084541707591656"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8631dad157a932eea0d69275efc1c01" id="r_ad8631dad157a932eea0d69275efc1c01"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tag__t.html#ad8631dad157a932eea0d69275efc1c01">size</a></td></tr>
-<tr class="separator:ad8631dad157a932eea0d69275efc1c01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e881623150c61177107e028ecd749a4" id="r_a2e881623150c61177107e028ecd749a4"><td class="memItemLeft" align="right" valign="top">const uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tag__t.html#a2e881623150c61177107e028ecd749a4">data</a></td></tr>
+<tr class="separator:a2e881623150c61177107e028ecd749a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63521b77cae7ea90d23dc67c22ef0bea" id="r_a63521b77cae7ea90d23dc67c22ef0bea"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tag__t.html#a63521b77cae7ea90d23dc67c22ef0bea">size</a></td></tr>
+<tr class="separator:a63521b77cae7ea90d23dc67c22ef0bea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A TLV tag stored as raw bytes, independent of host endianness or TLV profile. </p>
-<p>The tag is a self-contained value with inline storage; it never points to external memory. Empty tags support raw construction and comparison, but operations that require a nonempty tag reject them.</p>
-<dl class="section note"><dt>Note</dt><dd>Assigning <code>size</code> directly may truncate before validation; use the tlv_tag_from_* construction helpers for checked <code>size_t</code> lengths. </dd></dl>
+<div class="textblock"><p>A TLV tag: a borrowed sequence of raw bytes in wire order. </p>
+<p>A tag is only a pointer and a length. It does not own, allocate or copy memory and imposes no OpenTLV-specific maximum length. It carries no format metadata; the selected format or schema decides whether the bytes form a valid tag. Copying a <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of raw bytes in wire order.">tlv_tag_t</a> copies the pointer and length, not the bytes.</p>
+<p>The referenced bytes must stay valid, and unchanged, for as long as the tag is used. OpenTLV functions never retain a borrowed tag beyond the call unless their documentation says so. Tags produced by a reader reference the input buffer that was parsed.</p>
+<p><code>{ NULL, 0 }</code> is the empty tag. <code>{ NULL, size }</code> with <code>size &gt; 0</code> is invalid. Whether an empty tag is acceptable for reading or writing is decided by the format.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b" title="Builds an allocation-free tag from literal bytes, e.g. TLV_TAG(0x9F, 0x02).">TLV_TAG</a>, <a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0" title="Builds a tag that borrows size bytes at data.">tlv_tag</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a id="a86dae633e06380242084541707591656" name="a86dae633e06380242084541707591656"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a86dae633e06380242084541707591656">&#9670;&#160;</a></span>data</h2>
+<a id="a2e881623150c61177107e028ecd749a4" name="a2e881623150c61177107e028ecd749a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e881623150c61177107e028ecd749a4">&#9670;&#160;</a></span>data</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t tlv_tag_t::data[8]</td>
+          <td class="memname">const uint8_t* tlv_tag_t::data</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Inline storage for up to <a class="el" href="group__core.html#gaf06da2c35af6874a318108f9bc07da99" title="Inline storage capacity of a tlv_tag_t, in bytes (default 8).">TLV_TAG_CAPACITY</a> raw bytes in wire order. </p>
+<p>Raw tag bytes in wire order; <code>size</code> readable bytes, or <code>NULL</code> when <code>size</code> is zero. </p>
 
 </div>
 </div>
-<a id="ad8631dad157a932eea0d69275efc1c01" name="ad8631dad157a932eea0d69275efc1c01"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8631dad157a932eea0d69275efc1c01">&#9670;&#160;</a></span>size</h2>
+<a id="a63521b77cae7ea90d23dc67c22ef0bea" name="a63521b77cae7ea90d23dc67c22ef0bea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63521b77cae7ea90d23dc67c22ef0bea">&#9670;&#160;</a></span>size</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">uint8_t tlv_tag_t::size</td>
+          <td class="memname">size_t tlv_tag_t::size</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Number of valid bytes in <code>data</code>, <code>0..TLV_TAG_CAPACITY</code>.</p>
-<p>Zero is an empty tag. Whether the bytes form a valid tag is a separate, format- or profile-specific question. <code>uint8_t</code> limits the supported capacity to <a class="el" href="group__core.html#ga39b5b41239d927be70168dec7934d447" title="Fixed uint8_t representation limit for tag sizes.">TLV_TAG_MAX_SUPPORTED_SIZE</a>. </p>
+<p>Number of bytes in <code>data</code>. </p>
 
 </div>
 </div>

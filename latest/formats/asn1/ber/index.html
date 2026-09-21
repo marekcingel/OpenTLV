@@ -2632,7 +2632,7 @@
 </tbody>
 </table>
 <h2 id="scope-and-limits">Scope and limits<a class="headerlink" href="#scope-and-limits" title="Permanent link">&para;</a></h2>
-<p>Multi-byte tags up to TLV_TAG_CAPACITY; definite lengths and constructed indefinite input. Ordinary writes use definite lengths.</p>
+<p>Multi-byte tags of up to <code>TLV_ASN1_TAG_MAX_SIZE</code> (8) bytes; definite lengths and constructed indefinite input. Ordinary writes use definite lengths.</p>
 <p>See <a href="../../../guides/memory/">shared memory ownership rules</a> before retaining a parsed view.</p>
 <h2 id="minimal-c-usage">Minimal C usage<a class="headerlink" href="#minimal-c-usage" title="Permanent link">&para;</a></h2>
 <p>This complete example writes and reads one opaque byte. Exit code zero means success.</p>
@@ -2641,7 +2641,7 @@
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/writer/writer.h"</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="mh">0x04</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">};</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x04</span><span class="p">);</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x2A</span><span class="p">};</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -2662,7 +2662,7 @@ the writer for raw BER-TLV tags
 such as <code>5A</code>, <code>5F 2A</code>, <code>9F 1C</code>, and <code>9F 81 01</code>. Tags retain their wire bytes,
 including class and constructed bits. High-tag-number form ends at the first
 subsequent byte with bit 7 clear; its first subsequent byte must have a nonzero
-low seven-bit value. Tags must fit <code>TLV_TAG_CAPACITY</code>. The format accepts raw
+low seven-bit value. Tags longer than <code>TLV_ASN1_TAG_MAX_SIZE</code> (8) bytes are rejected with <code>TLV_ERR_INVALID_TAG_SIZE</code>; that is a limit of the BER family of formats, not of <code>tlv_tag_t</code>. Tags read by the format borrow the input. The format accepts raw
 identifiers such as <code>9F 1C</code> without enforcing ASN.1 tag-number minimality or
 universal-tag semantics. Definite values remain opaque during single-element
 reading; resolving an indefinite element inspects descendant framing.</p>
@@ -2695,7 +2695,7 @@ Single-element definite reads still defer child validation to tree traversal.</p
 <h3 id="explicit-indefinite-writing">Explicit indefinite writing<a class="headerlink" href="#explicit-indefinite-writing" title="Permanent link">&para;</a></h3>
 <p><code>tlv_write</code>, <code>tlv_writer_write</code>, and <code>tlv_encoded_size</code> retain definite BER output.
 Use the BER-specific functions for an already encoded sequence of children:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">sequence</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="mh">0x30</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">};</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">sequence</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x30</span><span class="p">);</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">children</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x04</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">};</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">;</span>
@@ -2776,9 +2776,9 @@ outputs unchanged on failure, and neither allocates or requires the length's
 value payload to be present.</p>
 <p>These framing rules follow <a href="https://www.itu.int/rec/T-REC-X.690-202102-I/en">ITU-T X.690 (02/2021), sections 8.1.3 and 8.1.5</a>.</p>
 <p>Malformed tags and unterminated tags on write return <code>TLV_ERR_INVALID_TAG</code>,
-unless continuation requires bytes beyond capacity. Empty tags on write and
-tags exceeding capacity return <code>TLV_ERR_INVALID_TAG_SIZE</code>. Missing tag continuation or length bytes return
-<code>TLV_ERR_BUFFER_TOO_SHORT</code>; a continuation requiring bytes beyond tag capacity
+unless continuation requires bytes beyond <code>TLV_ASN1_TAG_MAX_SIZE</code>. Empty tags on write and
+tags longer than <code>TLV_ASN1_TAG_MAX_SIZE</code> return <code>TLV_ERR_INVALID_TAG_SIZE</code>. Missing tag continuation or length bytes return
+<code>TLV_ERR_BUFFER_TOO_SHORT</code>; a continuation requiring bytes beyond <code>TLV_ASN1_TAG_MAX_SIZE</code>
 returns <code>TLV_ERR_INVALID_TAG_SIZE</code> even if those bytes are missing. Empty input to
 the generic reader returns <code>TLV_ERR_END_OF_BUFFER</code>. All BER-specific encoding
 and validation live in the format callbacks.</p>
