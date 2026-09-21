@@ -135,6 +135,12 @@ def compare(baseline_file, candidate_file, output_dir, mode):
         "--leaf-changes-only", "--impacted-interfaces", "--no-show-locs",
     )
     _, summary = abidiff(args, baseline_file, candidate_file, "--stat")
+    if not summary.strip():
+        # abidiff --stat prints nothing when the ABI is unchanged.
+        summary = (
+            "Functions changes summary: 0 Removed, 0 Changed, 0 Added function\n"
+            "Variables changes summary: 0 Removed, 0 Changed, 0 Added variable\n"
+        )
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "abidiff.txt").write_text(report, encoding="utf-8")
     (output_dir / "abidiff-summary.txt").write_text(summary, encoding="utf-8")
