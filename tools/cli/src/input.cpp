@@ -95,4 +95,25 @@ int read_input(const options& o, std::vector<uint8_t>& data) {
     return rc;
 }
 
+int read_text(const char* path, std::size_t limit, std::string& text) {
+    std::ifstream file;
+    std::istream* stream = &std::cin;
+    int           ch;
+    if (strcmp(path, "-")) {
+        file.open(path, std::ios::binary);
+        if (!file) return fail(3, "cannot open input file");
+        stream = &file;
+    }
+#ifdef _WIN32
+    else if (_setmode(_fileno(stdin), _O_BINARY) == -1)
+        return fail(3, "cannot set binary stdin mode");
+#endif
+    while ((ch = stream->get()) != std::char_traits<char>::eof()) {
+        if (text.size() == limit) return fail(3, "input-size limit exceeded");
+        text.push_back((char)ch);
+    }
+    if (stream->bad()) return fail(3, "cannot read input");
+    return 0;
+}
+
 } // namespace cli

@@ -137,6 +137,7 @@ nav:
       - EMV: profiles/emv/README.md
   - CLI:
       - otlv command line: cli/README.md
+      - TLV JSON document: cli/json-schema.md
   - Playground:
       - TLV playground: playground/index.md
   - Reference:

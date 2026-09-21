@@ -9,8 +9,11 @@
 #include "console_color.hpp"
 #include "decode.hpp"
 #include "diagnostics.hpp"
+#include "json_model.hpp"
 #include "presentation.hpp"
 #include "tlv/config.h"
+#include "tlv/reader/reader.h"
+#include "tlv/reader/scanner.h"
 #include "tlv/reader/walker.h"
 #include "tlv++/walker.hpp"
 #if OPENTLV_FORMAT_DEFAULT
@@ -29,12 +32,15 @@
 #include "tlv/profiles/der.h"
 #endif
 #if OPENTLV_PROFILE_EMV
+#include "tlv/profiles/emv.h"
 #include "tlv/profiles/emv_schema.h"
 #endif
 
 using cli::fail;
 
 namespace {
+
+typedef nlohmann::ordered_json ordered_json;
 
 const tlv_reader_format_t* select_format(const char* name) {
 #if OPENTLV_FORMAT_DEFAULT
@@ -59,33 +65,55 @@ const tlv_reader_format_t* select_format(const char* name) {
 typedef struct output_context {
     const cli::options* options;
     const uint8_t*      data;
-    int                 ber;
-    cli_presentation_t  presentation;
+    // Absolute offset of the slice being walked. Visitors receive offsets
+    // relative to that slice; recovery walks each intact top-level element
+    // as its own slice of `data`.
+    size_t                base;
+    int                   ber;
+    tlv_is_constructed_fn constructed; // BER/DER nesting predicate, NULL for other formats
+    cli_presentation_t    presentation;
     // --output json only: elements not yet attached to their parent's nested
     // "elements" array, one per currently open depth (stack.size() == the
     // depth of the next element to be attached), and the finished document's
     // top-level array.
     std::vector<nlohmann::json> json_stack;
     nlohmann::json              json_root = nlohmann::json::array();
+    // decode only: the same structure for the versioned document, whose
+    // constructed elements carry "children".
+    std::vector<ordered_json> document_stack;
+    ordered_json              document_root = ordered_json::array();
 } output_context_t;
 
 bool is_json(const cli::options& o) {
     return !strcmp(o.output, "json");
 }
 
-// Attaches every element on the json_stack deeper than target_depth to its
-// parent's "elements" array (or json_root, for a closing top-level element),
-// converting the preorder traversal into a nested document as each
-// element's subtree finishes.
-void json_flush(output_context_t& out, size_t target_depth) {
-    while (out.json_stack.size() > target_depth) {
-        nlohmann::json child = std::move(out.json_stack.back());
-        out.json_stack.pop_back();
-        if (out.json_stack.empty())
-            out.json_root.push_back(std::move(child));
+bool is_decode_command(const cli::options& o) {
+    return !strcmp(o.command, "decode");
+}
+
+// Attaches every element on `stack` deeper than target_depth to its parent's
+// `key` array (or `root`, for a closing top-level element), converting the
+// preorder traversal into a nested document as each element's subtree
+// finishes.
+template <class Json>
+void flush_stack(std::vector<Json>& stack, Json& root, size_t target_depth, const char* key) {
+    while (stack.size() > target_depth) {
+        Json child = std::move(stack.back());
+        stack.pop_back();
+        if (stack.empty())
+            root.push_back(std::move(child));
         else
-            out.json_stack.back()["elements"].push_back(std::move(child));
+            stack.back()[key].push_back(std::move(child));
     }
+}
+
+void json_flush(output_context_t& out, size_t target_depth) {
+    flush_stack(out.json_stack, out.json_root, target_depth, "elements");
+}
+
+void document_flush(output_context_t& out, size_t target_depth) {
+    flush_stack(out.document_stack, out.document_root, target_depth, "children");
 }
 
 // Prints `length` bytes as uppercase hex ("0A1B..."), restoring std::cout's
@@ -120,18 +148,25 @@ std::string hex_string(const uint8_t* data, size_t length) {
 }
 
 // Adds the "name" and, if requested, "description" EMV dictionary fields to
-// a --output json element object, from the same lookup the text renderer uses.
-void json_emv(nlohmann::json& object, const cli_presentation_t& presentation,
-              const tlv_view_t* view, size_t depth, int describe) {
+// a JSON element object, from the same lookup the text renderer uses. A tag
+// unknown in its context is labelled only when `label_unknown`; the decode
+// document leaves it unnamed.
+template <class Json>
+void json_emv(Json& object, const cli_presentation_t& presentation, const tlv_view_t* view,
+              size_t depth, int describe, bool label_unknown = true) {
     const cli_emv_info info = cli_presentation_emv_info(&presentation, view, depth, describe);
-    object["name"] = info.known ? info.name : "Unknown EMV tag in this context";
+    if (info.known)
+        object["name"] = info.name;
+    else if (label_unknown)
+        object["name"] = "Unknown EMV tag in this context";
     if (info.has_description) object["description"] = info.description;
 }
 
-// Adds the "decoded" or "decode_error" field to a --output json element
-// object, or neither for a tag/value kind with no codec.
-void json_decode(nlohmann::json& object, const cli_presentation_t& presentation,
-                 const tlv_view_t* view, size_t depth) {
+// Adds the "decoded" or "decode_error" field to a JSON element object, or
+// neither for a tag/value kind with no codec.
+template <class Json>
+void json_decode(Json& object, const cli_presentation_t& presentation, const tlv_view_t* view,
+                 size_t depth) {
     const cli::decode_result result = cli::decode_emv_value(presentation.contexts[depth], view);
     if (result.status == cli::decode_status::ok)
         object["decoded"] = result.text;
@@ -143,7 +178,8 @@ tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth, size_t of
                                  void* context) {
     output_context_t* out = (output_context_t*)context;
     size_t            i;
-    int               indefinite = out->ber && out->data[offset + view->tag.size] == 0x80;
+    offset += out->base;
+    int indefinite = out->ber && out->data[offset + view->tag.size] == 0x80;
     cli_presentation_visit(&out->presentation, view, depth, indefinite);
     if (!out->options->tree && depth) return TLV_VISIT_CONTINUE;
     if (is_json(*out->options)) {
@@ -186,6 +222,32 @@ tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth, size_t of
     }
     std::cout << "\n";
     return std::cout ? TLV_VISIT_CONTINUE : TLV_VISIT_ERROR;
+}
+
+// decode's visitor: builds the versioned document (docs/cli/json-schema.md).
+// A primitive carries its raw "value"; a constructed element carries its
+// "children" instead, plus an explicit "length_mode" for BER.
+tlv_visit_result_t decode_element(const tlv_view_t* view, size_t depth, size_t offset,
+                                  void* context) {
+    output_context_t* out = (output_context_t*)context;
+    offset += out->base;
+    const bool indefinite = out->ber && out->data[offset + view->tag.size] == 0x80;
+    cli_presentation_visit(&out->presentation, view, depth, indefinite);
+    ordered_json object;
+    object["tag"] = hex_string(view->tag.data, view->tag.size);
+    if (out->options->profile) {
+        json_emv(object, out->presentation, view, depth, out->options->describe, false);
+        if (out->options->decode) json_decode(object, out->presentation, view, depth);
+    }
+    if (out->constructed && out->constructed(NULL, &view->tag)) {
+        if (out->ber) object["length_mode"] = indefinite ? "indefinite" : "definite";
+        object["children"] = ordered_json::array();
+    } else {
+        object["value"] = hex_string(view->value.data, (size_t)view->value.length);
+    }
+    document_flush(*out, depth);
+    out->document_stack.push_back(std::move(object));
+    return TLV_VISIT_CONTINUE;
 }
 
 const char* error_name(tlv_result_t rc) {
@@ -267,6 +329,168 @@ tlv_result_t walk_pdol(const uint8_t* data, size_t size, const tlv_reader_format
     return TLV_OK;
 }
 
+// What every walk of the input needs to know about the selected format.
+struct walk_env {
+    const cli::options*        options;
+    const tlv_reader_format_t* format;
+    tlv_is_constructed_fn      predicate; // BER nesting predicate for the generic walker
+    bool                       is_der;
+};
+
+// Walks `slice_size` bytes of `slice`, which starts at absolute offset `base`
+// of the input, allowing at most `max_elements` elements. On failure
+// *error_offset receives the failing element's absolute offset.
+tlv_result_t walk_slice(const walk_env& env, const uint8_t* slice, size_t slice_size, size_t base,
+                        size_t max_elements, tlv_tree_visitor_t visitor, void* context,
+                        size_t* error_offset) {
+    const cli::options& o = *env.options;
+    size_t              relative = 0;
+    tlv_result_t        result;
+#if OPENTLV_FORMAT_DER
+    if (env.is_der) {
+        tlv_der_limits_t limits = {o.max_depth, o.max_input, o.max_input, max_elements};
+        result = tlv_der_walk(slice, slice_size, &limits, visitor, context, &relative);
+    } else
+#endif
+    {
+        // The C++ walker owns the callback adapter and exposes borrowed entries.
+        const auto walked = tlv::walk_tree(
+            tlv::bytes(reinterpret_cast<const tlv::byte*>(slice), slice_size), *env.format,
+            env.predicate, o.max_depth, max_elements,
+            [visitor, context](const tlv::entry& entry, size_t depth, size_t offset) {
+                if (!visitor) return TLV_VISIT_CONTINUE;
+                // Presentation shares this view adapter with the unwrapped DER API.
+                const tlv_view_t raw = {entry.tag,
+                                        {reinterpret_cast<const uint8_t*>(entry.value.data()),
+                                         static_cast<tlv_length_t>(entry.value.size())}};
+                return visitor(&raw, depth, offset, context);
+            },
+            &relative);
+        result = walked ? TLV_OK : walked.error().code;
+    }
+    if (result != TLV_OK) *error_offset = base + relative;
+    return result;
+}
+
+tlv_visit_result_t count_element(const tlv_view_t*, size_t, size_t, void* context) {
+    ++*static_cast<size_t*>(context);
+    return TLV_VISIT_CONTINUE;
+}
+
+// A byte range --recover skipped, and the first error that made it unreadable.
+struct skipped_range {
+    size_t       offset;
+    size_t       length;
+    tlv_result_t error;
+    size_t       error_offset;
+};
+
+// Prints a text-mode "skipped" line inline, where the range sits in the input.
+void print_skipped(const skipped_range& range) {
+    std::cout << "skipped offset=" << range.offset << " length=" << range.length
+              << " error=" << error_name(range.error) << " error-offset=" << range.error_offset
+              << "\n";
+}
+
+// Recovery scan over the top-level elements. Each element that reads cleanly
+// and whose whole subtree validates is walked (and printed) like normal
+// input; where one does not, tlv_scan() looks for the next offset a plausible
+// element starts at, and the bytes in between are recorded as skipped.
+// Resource limits are not damage and still fail the run.
+tlv_result_t walk_recovering(const walk_env& env, const uint8_t* data, size_t size,
+                             output_context_t& out, tlv_tree_visitor_t visitor,
+                             std::vector<skipped_range>& skipped, size_t* error_offset) {
+    const cli::options& o = *env.options;
+    const bool          inline_text = visitor == print_element && !is_json(o);
+    size_t              pos = 0, budget = o.max_elements;
+    bool                skipping = false;
+    skipped_range       current = {0, 0, TLV_OK, 0};
+
+    auto close_range = [&](size_t end) {
+        current.length = end - current.offset;
+        skipped.push_back(current);
+        if (inline_text) print_skipped(current);
+        skipping = false;
+    };
+    while (pos < size) {
+        tlv_view_t   entry;
+        size_t       consumed = 0, fault = pos, count = 0;
+        tlv_result_t rc = tlv_read(data + pos, size - pos, env.format, &entry, &consumed);
+        if (rc == TLV_OK)
+            rc = walk_slice(env, data + pos, consumed, pos, budget, count_element, &count, &fault);
+        if (rc == TLV_ERR_LIMIT || rc == TLV_ERR_OUT_OF_MEMORY) {
+            *error_offset = fault;
+            return rc;
+        }
+        if (rc == TLV_OK) {
+            if (skipping) close_range(pos);
+            out.base = pos;
+            rc = walk_slice(env, data + pos, consumed, pos, budget, visitor, &out, &fault);
+            if (rc != TLV_OK) {
+                *error_offset = fault;
+                return rc;
+            }
+            budget -= count;
+            pos += consumed;
+            continue;
+        }
+        if (!skipping) {
+            skipping = true;
+            current.offset = pos;
+            current.error = rc;
+            current.error_offset = fault;
+        }
+        tlv_view_t next;
+        size_t     next_offset, next_size;
+        if (tlv_scan(data, size, pos + 1, env.format, NULL, &next, &next_offset, &next_size) !=
+            TLV_OK)
+            break;
+        pos = next_offset;
+    }
+    if (skipping) close_range(size);
+    return TLV_OK;
+}
+
+#if OPENTLV_PROFILE_EMV
+// The dictionary check's state: the first element whose length the EMV
+// dictionary, in that element's context, does not permit.
+struct dictionary_check {
+    cli_presentation_t presentation;
+    tlv_result_t       result;
+    size_t             offset;
+};
+
+tlv_visit_result_t check_dictionary_element(const tlv_view_t* view, size_t depth, size_t offset,
+                                            void* context) {
+    dictionary_check* check = (dictionary_check*)context;
+    cli_presentation_visit(&check->presentation, view, depth, 0);
+    const tlv_emv_definition_t* definition =
+        tlv_emv_find((tlv_emv_context_t)check->presentation.contexts[depth], &view->tag);
+    // A tag without a dictionary entry in its context is preserved unchecked.
+    if (!definition) return TLV_VISIT_CONTINUE;
+    const tlv_result_t rc = tlv_emv_validate_length(definition, (size_t)view->value.length);
+    if (rc == TLV_OK) return TLV_VISIT_CONTINUE;
+    check->result = rc;
+    check->offset = offset;
+    return TLV_VISIT_STOP;
+}
+#endif
+
+// The "skipped" array shared by dump's and decode's JSON documents.
+template <class Json> Json skipped_json(const std::vector<skipped_range>& skipped) {
+    Json array = Json::array();
+    for (const skipped_range& range : skipped) {
+        Json object;
+        object["offset"] = range.offset;
+        object["length"] = range.length;
+        object["error"] = error_name(range.error);
+        object["error_offset"] = range.error_offset;
+        object["message"] = tlv_strerror(range.error);
+        array.push_back(std::move(object));
+    }
+    return array;
+}
+
 } // namespace
 
 namespace cli {
@@ -297,14 +521,16 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     tlv_result_t               result;
     tlv_tree_visitor_t         visitor;
     output_context_t           output;
-    // Set when the diagnostic below reports the separate schema-structure
-    // pass (--profile emv on validate) rather than the format/framing walk,
-    // so the two stay distinguishable in output.
-    bool schema_stage = false;
+    std::vector<skipped_range> skipped;
+    // Names the separate EMV pass ("schema", "dictionary") the diagnostic
+    // below reports, as opposed to the format/framing walk, so the two stay
+    // distinguishable in output.
+    const char* stage = "";
     // Identity, not the format name string, is the single source of truth for
     // format-specific behavior below (indefinite-length display, --tree
     // support, and DER's own schema-driven walker).
-    int is_ber = 0, is_der = 0, structured;
+    int        is_ber = 0, is_der = 0, structured;
+    const bool decoding = is_decode_command(o);
 
     if (!format) return fail(2, "unknown or disabled format; use otlv formats");
 #if OPENTLV_FORMAT_BER
@@ -318,65 +544,91 @@ int execute(const options& o, const uint8_t* data, size_t size) {
 
     output.options = &o;
     output.data = data;
+    output.base = 0;
     output.ber = is_ber;
+    output.constructed = NULL;
     cli_presentation_init(&output.presentation, data, size, o.color, o.pretty);
-    visitor = !strcmp(o.command, "dump") ? print_element : NULL;
+    output.presentation.contexts[0] = o.emv_context;
+    visitor = decoding ? decode_element : !strcmp(o.command, "dump") ? print_element : NULL;
 #if OPENTLV_FORMAT_BER
     if (structured) predicate = tlv_ber_is_constructed;
+    if (is_ber) output.constructed = tlv_ber_is_constructed;
 #endif
+#if OPENTLV_FORMAT_DER
+    if (is_der) output.constructed = tlv_der_is_constructed;
+#endif
+    const walk_env env = {&o, format, predicate, is_der != 0};
     if (o.pdol)
         result = walk_pdol(data, size, format, &output, &error_offset);
+    else if (o.recover)
+        result = walk_recovering(env, data, size, output, visitor, skipped, &error_offset);
     else
-#if OPENTLV_FORMAT_DER
-        if (is_der) {
-        tlv_der_limits_t limits = {o.max_depth, o.max_input, o.max_input, o.max_elements};
-        result = tlv_der_walk(data, size, &limits, visitor, &output, &error_offset);
-    } else
-#endif
-    {
-        // The C++ walker owns the callback adapter and exposes borrowed entries.
-        const auto walked = tlv::walk_tree(
-            tlv::bytes(reinterpret_cast<const tlv::byte*>(data), size), *format, predicate,
-            o.max_depth, o.max_elements,
-            [&output, visitor](const tlv::entry& entry, size_t depth, size_t offset) {
-                if (!visitor) return TLV_VISIT_CONTINUE;
-                // Presentation shares this view adapter with the unwrapped DER API.
-                const tlv_view_t raw = {entry.tag,
-                                        {reinterpret_cast<const uint8_t*>(entry.value.data()),
-                                         static_cast<tlv_length_t>(entry.value.size())}};
-                return visitor(&raw, depth, offset, &output);
-            },
-            &error_offset);
-        result = walked ? TLV_OK : walked.error().code;
-    }
+        result = walk_slice(env, data, size, 0, o.max_elements, visitor, &output, &error_offset);
 #if OPENTLV_PROFILE_EMV
-    // Schema structure is checked only once the input has already parsed
-    // cleanly, and only for validate: dump's --profile only annotates tags,
-    // and --pdol's raw tag/length pairs are not a TLV structure to check.
+    // EMV checks run only once the input has already parsed cleanly, and only
+    // for validate: dump's --profile only annotates tags, and --pdol's raw
+    // tag/length pairs are not a TLV structure to check.
     if (result == TLV_OK && o.profile && !o.pdol && !strcmp(o.command, "validate")) {
-        size_t       schema_offset = error_offset;
-        tlv_result_t schema_result =
-            tlv_schema_validate(data, size, format, predicate, &tlv_emv_structure_schema,
-                                o.max_depth, o.max_elements, &schema_offset);
-        if (schema_result != TLV_OK) {
-            result = schema_result;
-            error_offset = schema_offset;
-            schema_stage = true;
+        if (o.emv_check & emv_check_structure) {
+            size_t       schema_offset = error_offset;
+            tlv_result_t schema_result =
+                tlv_schema_validate(data, size, format, predicate, &tlv_emv_structure_schema,
+                                    o.max_depth, o.max_elements, &schema_offset);
+            if (schema_result != TLV_OK) {
+                result = schema_result;
+                error_offset = schema_offset;
+                stage = "schema ";
+            }
+        }
+        if (result == TLV_OK && (o.emv_check & emv_check_dictionary)) {
+            dictionary_check check;
+            memset(&check, 0, sizeof check);
+            check.presentation.data = data;
+            check.presentation.ends[0] = size;
+            check.presentation.contexts[0] = o.emv_context;
+            check.result = TLV_OK;
+            result = walk_slice(env, data, size, 0, o.max_elements, check_dictionary_element,
+                                &check, &error_offset);
+            if (result == TLV_OK && check.result != TLV_OK) {
+                result = check.result;
+                error_offset = check.offset;
+                stage = "dictionary ";
+            }
         }
     }
 #endif
-    if (is_json(o)) {
+    const bool incomplete = !skipped.empty();
+    if (decoding) {
+        // A failed export prints nothing: a partial document would look like
+        // a complete one. Recovery reports what it skipped in the document.
+        if (result == TLV_OK) {
+            document_flush(output, 0);
+            ordered_json document;
+            document["schema"] = json_model::schema_name;
+            document["version"] = (int)json_model::schema_version;
+            document["format"] = o.format;
+            document["elements"] = std::move(output.document_root);
+            if (o.recover) {
+                document["complete"] = !incomplete;
+                document["skipped"] = skipped_json<ordered_json>(skipped);
+            }
+            std::cout << document.dump() << "\n";
+        }
+    } else if (is_json(o)) {
         json_flush(output, 0);
         nlohmann::json document;
         document["elements"] = std::move(output.json_root);
+        if (o.recover) {
+            document["complete"] = !incomplete;
+            document["skipped"] = skipped_json<nlohmann::json>(skipped);
+        }
         std::cout << document.dump() << "\n";
     }
     cli_presentation_restore(&output.presentation);
     int rc = flush_stdout();
     if (rc) return rc;
     if (result != TLV_OK) {
-        std::cerr << "otlv: " << (schema_stage ? "schema " : "") << error_name(result)
-                  << " at byte " << error_offset;
+        std::cerr << "otlv: " << stage << error_name(result) << " at byte " << error_offset;
         // TLV_ERR_SCHEMA_MISSING's offset is the end of the parent's value
         // (a scope boundary, not an element) and can coincide with the start
         // of an unrelated sibling in the enclosing scope, so no tag is
@@ -389,6 +641,18 @@ int execute(const options& o, const uint8_t* data, size_t size) {
             std::cerr << " tag=" << hex_string(tag.data, tag.size);
         std::cerr << ": " << tlv_strerror(result) << "\n";
         return result == TLV_ERR_LIMIT || result == TLV_ERR_OUT_OF_MEMORY ? 3 : 1;
+    }
+    if (incomplete) {
+        size_t bytes = 0;
+        for (const skipped_range& range : skipped) {
+            std::cerr << "otlv: skipped " << range.length << " byte(s) at offset " << range.offset
+                      << ": " << error_name(range.error) << " at byte " << range.error_offset
+                      << ": " << tlv_strerror(range.error) << "\n";
+            bytes += range.length;
+        }
+        std::cerr << "otlv: output is incomplete: recovery skipped " << skipped.size()
+                  << " range(s), " << bytes << " byte(s) in total\n";
+        return 4;
     }
     return 0;
 }

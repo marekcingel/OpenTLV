@@ -25,7 +25,7 @@ on:
       - 'scripts/check_doc_examples.py'
       - 'examples/**'
       - 'tlv/include/**'
-      - 'tlv++/include/**'
+      - 'tlv\+\+/include/**'
       - 'bindings/wasm/**'
       - 'README.md'
       - '.markdownlint.json'

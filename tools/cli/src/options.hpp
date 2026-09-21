@@ -4,10 +4,12 @@
 
 namespace cli {
 
-// Parses and validates opentlv's "dump"/"validate" command-line arguments.
+// Parses and validates otlv's command-line arguments.
 // Fields are set to their command-line defaults on construction and
 // overwritten by parse(); on failure it prints a diagnostic (via cli::fail)
 // and returns a nonzero exit code, matching this CLI's exit-code contract.
+enum { emv_check_structure = 1, emv_check_dictionary = 2 };
+
 class options {
 public:
     int         parse(int argc, char** argv);
@@ -28,11 +30,19 @@ public:
     int         hex_input = 0;
     int         pdol = 0;
     int         decode = 0;
+    // dump/decode only: resynchronize after damaged data instead of failing.
+    int recover = 0;
+    // EMV dictionary context (tlv_emv_context_t) the top-level elements start in.
+    int emv_context = 0;
+    // validate --profile emv only: bit mask of emv_check_* (0 = default).
+    int         emv_check = 0;
     const char* output = "text";
     // encode only: tag/value hex text and whether to emit raw bytes.
     const char* tag = nullptr;
     const char* value = nullptr;
     int         binary_output = 0;
+    // encode only: write the encoded bytes to this file instead of stdout.
+    const char* output_file = nullptr;
     // tags only: case-insensitive name filter.
     const char* search = nullptr;
 };

@@ -379,3 +379,357 @@ if(HAS_EMV)
     check(0 "\"tag\":\"9F02\"" tags --profile emv --output json)
     check(0 "\"tag\":\"6F\"" tags --profile emv --output json)
 endif()
+
+# JSON export and import (#110): decode, encode --input and the versioned document.
+# Runs the CLI and requires the exit code and the exact stdout. An empty
+# stderr pattern requires empty stderr.
+function(run_cli expected_code expected_stdout stderr_pattern)
+    execute_process(COMMAND "${CLI}" ${ARGN} RESULT_VARIABLE result
+        OUTPUT_VARIABLE output ERROR_VARIABLE error)
+    if(NOT "${result}" STREQUAL "${expected_code}")
+        message(FATAL_ERROR "${ARGN}: expected exit ${expected_code}, got ${result}\n${output}\n${error}")
+    endif()
+    if(NOT "${output}" STREQUAL "${expected_stdout}")
+        message(FATAL_ERROR "${ARGN}: unexpected stdout\n--- expected\n${expected_stdout}\n--- actual\n${output}")
+    endif()
+    if("${stderr_pattern}" STREQUAL "")
+        if(NOT "${error}" STREQUAL "")
+            message(FATAL_ERROR "${ARGN}: unexpected stderr: ${error}")
+        endif()
+    elseif(NOT "${error}" MATCHES "${stderr_pattern}")
+        message(FATAL_ERROR "${ARGN}: expected stderr /${stderr_pattern}/, got '${error}'")
+    endif()
+    set(last_output "${output}" PARENT_SCOPE)
+endfunction()
+
+set(json_dir "${CMAKE_CURRENT_BINARY_DIR}")
+set(bad_json "${json_dir}/cli-bad.json")
+set(doc_head [=[{"schema":"opentlv.tlv","version":1]=])
+
+# Option combinations.
+check(2 "not valid for decode" decode --format ber --hex AA --tree)
+check(2 "not valid for decode" decode --format ber --hex AA --output json)
+check(2 "not valid for decode" decode --format ber --hex AA --pdol)
+check(2 "not valid for decode" decode --format ber --hex AA --force-color)
+check(2 "not valid for decode" decode --format ber --hex AA --tag 5A)
+check(2 "disabled format" decode --format unknown --hex " ")
+check(2 "exactly one" decode --format ber)
+check(2 "--recover requires dump or decode" validate --format ber --hex AA --recover)
+check(2 "not valid for encode" encode --format ber --tag 5A --recover)
+check(2 "not valid for tag" tag 9F02 --profile emv --recover)
+check(2 "cannot be combined with --pdol" dump --format ber --pdol --hex " " --recover)
+check(2 "duplicate" dump --format ber --hex " " --recover --recover)
+check(2 "--emv-check requires validate" dump --format ber --hex " " --profile emv --emv-check all)
+check(2 "not valid for decode" decode --format ber --hex " " --profile emv --emv-check all)
+check(2 "--emv-context requires --profile" dump --format ber --hex " " --emv-context bit)
+check(2 "--emv-check requires --profile" validate --format ber --hex " " --emv-check all)
+check(2 "option requires encode" dump --format ber --hex " " --output-file out.bin)
+check(2 "not both" encode --format ber --tag 5A --input in.json)
+check(2 "--value requires --tag" encode --format ber --input in.json --value AA)
+check(2 "not valid for encode" encode --format ber --input in.json --hex AA)
+check(2 "not valid for encode" encode --format ber --input in.json --input-encoding hex)
+check(2 "0..64" encode --format ber --input in.json --max-depth 65)
+check(3 "cannot open" encode --format ber --input "${json_dir}/nonexistent-cli-input.json")
+check(2 "disabled format" encode --format unknown --input "${json_dir}/nonexistent-cli-input.json")
+
+# Every enabled format: decode, then encode reproduces the input bytes, and
+# the resource limits apply to decode.
+foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed-1byte" "BER|ber" "DER|der" "BLUETOOTH_LTV|bluetooth-ltv")
+    string(REPLACE "|" ";" parts "${pair}")
+    list(GET parts 0 flag)
+    list(GET parts 1 name)
+    if(NOT HAS_${flag})
+        continue()
+    endif()
+    if(name STREQUAL "bluetooth-ltv")
+        set(hex "03 09 41 42 02 01 06")
+        set(elements [=[[{"tag":"09","value":"4142"},{"tag":"01","value":"06"}]]=])
+    else()
+        set(hex "04 01 AA 04 00 04 01 AA")
+        set(elements [=[[{"tag":"04","value":"AA"},{"tag":"04","value":""},{"tag":"04","value":"AA"}]]=])
+    endif()
+    string(REPLACE " " "" compact_hex "${hex}")
+    # Duplicate tags, empty values and element order are kept.
+    run_cli(0 "${doc_head},\"format\":\"${name}\",\"elements\":${elements}}\n" "" decode --format "${name}" --hex "${hex}")
+    file(WRITE "${json_dir}/cli-doc.json" "${last_output}")
+    run_cli(0 "${compact_hex}\n" "" encode --format "${name}" --input "${json_dir}/cli-doc.json")
+    # The "format" member is optional; when present it must match --format.
+    file(WRITE "${bad_json}" "${doc_head},\"elements\":${elements}}")
+    run_cli(0 "${compact_hex}\n" "" encode --format "${name}" --input "${bad_json}")
+    file(WRITE "${bad_json}" "${doc_head},\"format\":\"other\",\"elements\":${elements}}")
+    check(2 "does not match --format ${name}" encode --format "${name}" --input "${bad_json}")
+    file(WRITE "${bad_json}" "${doc_head},\"elements\":[]}")
+    run_cli(0 "\n" "" encode --format "${name}" --input "${bad_json}")
+    # A failed export prints nothing: a partial document would look complete.
+    run_cli(1 "" "TLV_ERR_" decode --format "${name}" --hex "0402AA")
+    check(3 "input-size limit" decode --format "${name}" --hex "${hex}" --max-input-size 2)
+    check(3 "TLV_ERR_LIMIT" decode --format "${name}" --hex "${hex}" --max-elements 1)
+    check(3 "input-size limit" encode --format "${name}" --input "${json_dir}/cli-doc.json" --max-input-size 20)
+    check(3 "element limit" encode --format "${name}" --input "${json_dir}/cli-doc.json" --max-elements 1)
+endforeach()
+if(HAS_DEFAULT)
+    # Constructed elements exist only in BER and DER.
+    file(WRITE "${bad_json}" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"30","children":[]}]}]=])
+    check(2 "format default has no constructed elements" encode --format default --input "${bad_json}")
+endif()
+
+if(HAS_BER)
+    # Invalid JSON and documents that do not follow the schema.
+    file(WRITE "${bad_json}" "")
+    check(2 "invalid JSON document" encode --format ber --input "${bad_json}")
+    foreach(bad IN ITEMS
+            "{bad"
+            "[]"
+            "\"text\""
+            "{\"schema\":\"opentlv.tlv\",\"version\":1,\"elements\":[],}"
+            "{\"schema\":\"opentlv.tlv\",\"version\":1,\"elements\":[]} trailing")
+        file(WRITE "${bad_json}" "${bad}")
+        check(2 "invalid JSON|must be a JSON object" encode --format ber --input "${bad_json}")
+    endforeach()
+    function(rejects pattern content)
+        file(WRITE "${bad_json}" "${content}")
+        check(2 "${pattern}" encode --format ber --input "${bad_json}")
+    endfunction()
+    rejects("missing member .schema." [=[{"version":1,"elements":[]}]=])
+    rejects("missing member .version." [=[{"schema":"opentlv.tlv","elements":[]}]=])
+    rejects("missing member .elements." [=[{"schema":"opentlv.tlv","version":1}]=])
+    rejects("unknown schema" [=[{"schema":"other","version":1,"elements":[]}]=])
+    rejects("unsupported JSON schema version 2" [=[{"schema":"opentlv.tlv","version":2,"elements":[]}]=])
+    rejects("wrong type" [=[{"schema":"opentlv.tlv","version":"1","elements":[]}]=])
+    rejects("wrong type" [=[{"schema":"opentlv.tlv","version":1.5,"elements":[]}]=])
+    rejects("duplicate member .version." [=[{"schema":"opentlv.tlv","version":1,"version":1,"elements":[]}]=])
+    rejects("unknown member .extra." [=[{"schema":"opentlv.tlv","version":1,"elements":[],"extra":1}]=])
+    rejects("wrong type" [=[{"schema":"opentlv.tlv","version":1,"elements":{}}]=])
+    rejects("elements must be JSON objects" [=[{"schema":"opentlv.tlv","version":1,"elements":["04"]}]=])
+    # Lengths are derived when encoding, so a length member is not accepted.
+    rejects("unknown member .length." [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"04","length":1,"value":"AA"}]}]=])
+    rejects("duplicate member .value." [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"04","value":"AA","value":"BB"}]}]=])
+    rejects("element without .tag." [=[{"schema":"opentlv.tlv","version":1,"elements":[{"value":"AA"}]}]=])
+    rejects("must not be empty" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"","value":"AA"}]}]=])
+    rejects("complete hexadecimal byte pairs" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"5","value":"AA"}]}]=])
+    rejects("complete hexadecimal byte pairs" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"5A","value":"A"}]}]=])
+    rejects("complete hexadecimal byte pairs" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"5A","value":"0x12"}]}]=])
+    rejects("complete hexadecimal byte pairs" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"5A","value":"12 34"}]}]=])
+    rejects("wrong type" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"5A","value":18}]}]=])
+    rejects("tag is longer" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"0102030405060708090A","value":""}]}]=])
+    rejects("exactly one of" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"5A"}]}]=])
+    rejects("exactly one of" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"30","value":"","children":[]}]}]=])
+    rejects("only to constructed" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"5A","value":"12","length_mode":"definite"}]}]=])
+    rejects("must be .definite. or .indefinite." [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"30","children":[],"length_mode":"long"}]}]=])
+    rejects("wrong type" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"30","children":{}}]}]=])
+    # The representation must match the tag: primitive tags carry a value,
+    # constructed tags carry children.
+    rejects("cannot encode element 0: tag 5A is primitive; use .value." [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"5A","children":[]}]}]=])
+    rejects("cannot encode element 0: tag 30 is constructed; use .children." [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"30","value":"0401AA"}]}]=])
+    rejects("cannot encode element 1: tag 04 is primitive" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"30","children":[{"tag":"04","children":[]}]}]}]=])
+    # A tag the writer rejects is reported like an invalid single element.
+    file(WRITE "${bad_json}" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"00","value":"AA"}]}]=])
+    check(1 "cannot encode element 0: " encode --format ber --input "${bad_json}")
+
+    # Nested structures with definite and indefinite lengths, derived lengths
+    # and an empty constructed element.
+    set(nested_doc [=[{"schema":"opentlv.tlv","version":1,"format":"ber","elements":[{"tag":"E1","length_mode":"definite","children":[{"tag":"5A","value":"12"},{"tag":"5A","value":"12"},{"tag":"30","length_mode":"indefinite","children":[{"tag":"04","value":"AA"},{"tag":"30","length_mode":"definite","children":[]}]}]}]}]=])
+    set(nested_hex "E10F5A01125A011230800401AA30000000")
+    file(WRITE "${json_dir}/cli-nested.json" "${nested_doc}\n")
+    run_cli(0 "${nested_hex}\n" "" encode --format ber --input "${json_dir}/cli-nested.json")
+    run_cli(0 "${nested_doc}\n" "" decode --format ber --hex "${nested_hex}")
+    check(0 "encoding=indefinite" dump --format ber --hex "${nested_hex}" --tree)
+    check(0 "^$" validate --format ber --hex "${nested_hex}")
+    check(3 "nesting depth limit" encode --format ber --input "${json_dir}/cli-nested.json" --max-depth 1)
+    run_cli(0 "${nested_hex}\n" "" encode --format ber --input "${json_dir}/cli-nested.json" --max-depth 2)
+    check(3 "element limit" encode --format ber --input "${json_dir}/cli-nested.json" --max-elements 5)
+    run_cli(0 "${nested_hex}\n" "" encode --format ber --input "${json_dir}/cli-nested.json" --max-elements 6)
+    # Round-trip preserves structure and raw primitive values, not the encoding
+    # of lengths: a non-minimal length is written minimally.
+    run_cli(0 "${doc_head},\"format\":\"ber\",\"elements\":[{\"tag\":\"5A\",\"value\":\"12\"}]}\n" "" decode --format ber --hex "5A810112")
+    file(WRITE "${json_dir}/cli-nonminimal.json" "${last_output}")
+    run_cli(0 "5A0112\n" "" encode --format ber --input "${json_dir}/cli-nonminimal.json")
+    # A long value derives a long-form length.
+    string(REPEAT "AB" 200 long_value)
+    file(WRITE "${bad_json}" "${doc_head},\"elements\":[{\"tag\":\"5A\",\"value\":\"${long_value}\"}]}")
+    run_cli(0 "5A81C8${long_value}\n" "" encode --format ber --input "${bad_json}")
+    # Lowercase hex is accepted and normalized to uppercase.
+    file(WRITE "${bad_json}" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"9f02","value":"00000000aBcD"}]}]=])
+    run_cli(0 "9F020600000000ABCD\n" "" encode --format ber --input "${bad_json}")
+    # Round trip through a binary file and the library reader.
+    set(bin "${json_dir}/cli-json-roundtrip.bin")
+    execute_process(COMMAND "${CLI}" encode --format ber --input "${json_dir}/cli-nested.json"
+        --output-encoding binary --output-file "${bin}" RESULT_VARIABLE result ERROR_VARIABLE error)
+    if(NOT result EQUAL 0 OR NOT error STREQUAL "")
+        message(FATAL_ERROR "encode --output-file failed: ${result} ${error}")
+    endif()
+    file(READ "${bin}" file_hex HEX)
+    string(TOUPPER "${file_hex}" file_hex)
+    if(NOT file_hex STREQUAL nested_hex)
+        message(FATAL_ERROR "Binary output file ${file_hex} differs from ${nested_hex}")
+    endif()
+    check(0 "^$" validate --format ber --input "${bin}")
+    # Binary stdout and stdin: no newline translation on Windows.
+    set(newline_hex "0A0D1A")
+    file(WRITE "${bad_json}" "${doc_head},\"elements\":[{\"tag\":\"04\",\"value\":\"${newline_hex}FF\"}]}")
+    execute_process(COMMAND "${CLI}" encode --format ber --input - --output-encoding binary
+        INPUT_FILE "${bad_json}" OUTPUT_FILE "${bin}" RESULT_VARIABLE result ERROR_VARIABLE error)
+    if(NOT result EQUAL 0 OR NOT error STREQUAL "")
+        message(FATAL_ERROR "encode from stdin to binary stdout failed: ${result} ${error}")
+    endif()
+    file(READ "${bin}" file_hex HEX)
+    string(TOUPPER "${file_hex}" file_hex)
+    if(NOT file_hex STREQUAL "0404${newline_hex}FF")
+        message(FATAL_ERROR "Binary stdout ${file_hex} differs from 0404${newline_hex}FF")
+    endif()
+    file(REMOVE "${bin}")
+    # A hex --output-file gets the same text as stdout, and a rejected document
+    # creates no file.
+    execute_process(COMMAND "${CLI}" encode --format ber --input "${json_dir}/cli-nested.json"
+        --output-file "${bin}" RESULT_VARIABLE result ERROR_VARIABLE error)
+    file(READ "${bin}" file_text)
+    if(NOT result EQUAL 0 OR NOT file_text STREQUAL "${nested_hex}\n")
+        message(FATAL_ERROR "Hex output file failed: ${result} ${error} '${file_text}'")
+    endif()
+    file(REMOVE "${bin}")
+    file(WRITE "${bad_json}" "{bad")
+    check(2 "invalid JSON" encode --format ber --input "${bad_json}" --output-file "${bin}")
+    if(EXISTS "${bin}")
+        message(FATAL_ERROR "A rejected document must not create the output file")
+    endif()
+    check(3 "cannot open output file" encode --format ber --input "${json_dir}/cli-nested.json" --output-file "${json_dir}")
+endif()
+
+if(HAS_DER)
+    run_cli(0 "${doc_head},\"format\":\"der\",\"elements\":[{\"tag\":\"30\",\"children\":[{\"tag\":\"04\",\"value\":\"AA\"}]}]}\n" "" decode --format der --hex "3003 0401AA")
+    file(WRITE "${bad_json}" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"30","children":[{"tag":"04","value":"AA"}]}]}]=])
+    run_cli(0 "30030401AA\n" "" encode --format der --input "${bad_json}")
+    # DER has no indefinite lengths.
+    file(WRITE "${bad_json}" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"30","length_mode":"indefinite","children":[]}]}]=])
+    check(2 "indefinite length requires format ber, not der" encode --format der --input "${bad_json}")
+    if(HAS_BER)
+        run_cli(0 "30800000\n" "" encode --format ber --input "${bad_json}")
+    endif()
+endif()
+
+# EMV profile (#110): dictionary annotations, explicit context and checks.
+if(HAS_EMV)
+    # Known tags are annotated; unknown tags stay raw and unnamed.
+    run_cli(0 "${doc_head},\"format\":\"ber\",\"elements\":[{\"tag\":\"9F02\",\"name\":\"Amount Authorised\",\"value\":\"000000001000\"},{\"tag\":\"DF01\",\"value\":\"00\"}]}\n" "" decode --format ber --profile emv --hex "9F0206000000001000 DF010100")
+    file(WRITE "${json_dir}/cli-emv.json" "${last_output}")
+    # Annotations are informational and ignored when encoding.
+    run_cli(0 "9F0206000000001000DF010100\n" "" encode --format ber --input "${json_dir}/cli-emv.json")
+    check(0 "\"description\":\"Numeric value" decode --format ber --profile emv --describe --hex "9F0206000000001000")
+    check(0 "\"decoded\":\"1000\"" decode --format ber --profile emv --decode --hex "9F0206000000001000")
+    check(0 "\"decode_error\":\"Invalid codec value\"" decode --format ber --profile emv --decode --hex "9F0206FFFFFFFFFFFF")
+    check(2 "--decode requires --profile" decode --format ber --hex "9F0206000000001000" --decode)
+    check(2 "requires --format ber" decode --format der --profile emv --hex " ")
+    # Context-dependent names: the same tag is named per enclosing template.
+    check(0 "\"tag\":\"7F60\",\"name\":\"Biometric Information Template\",\"length_mode\":\"definite\",\"children\":\\[{\"tag\":\"A1\",\"name\":\"Biometric Header Template\"" decode --format ber --profile emv --hex "7F6005A103820101")
+    check(0 "\"tag\":\"A1\",\"name\":\"Biometric Header Template\"" decode --format ber --profile emv --emv-context bit --hex "A103820101")
+    check(0 "\"tag\":\"A1\",\"length_mode\":\"definite\"" decode --format ber --profile emv --hex "A103820101")
+    if(last_output MATCHES "\"name\"")
+        message(FATAL_ERROR "A tag unknown in the base context must not be named: ${last_output}")
+    endif()
+    check(0 "name=\"Biometric Subtype\"" dump --format ber --profile emv --emv-context bht --hex "820101")
+    check(2 "unknown EMV context" dump --format ber --profile emv --emv-context nowhere --hex " ")
+    check(2 "unknown EMV context" decode --format ber --profile emv --emv-context BIT --hex " ")
+    check(2 "EMV check must be" validate --format ber --profile emv --emv-check everything --hex " ")
+    check(2 "requires the base EMV context" validate --format ber --profile emv --emv-context bit --hex " ")
+    check(2 "requires the base EMV context" validate --format ber --profile emv --emv-check all --emv-context bit --hex " ")
+    check(2 "--pdol cannot use" dump --format ber --pdol --profile emv --emv-context bit --hex " ")
+
+    # Dictionary check: known tags must have a permitted length; unknown tags
+    # are not errors. The default check stays the structure check.
+    check(0 "^$" validate --format ber --profile emv --emv-check dictionary --hex "9F0206000000001000 DF010100")
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=9F02: " validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010")
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 7 tag=9F02: " validate --format ber --profile emv --emv-check dictionary --hex "DF010100 5A0112 9F02050000000010")
+    check(0 "^$" validate --format ber --profile emv --hex "9F02050000000010")
+    check(0 "^$" validate --format ber --profile emv --emv-check structure --hex "9F02050000000010")
+    # The dictionary check reaches the children of known templates.
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 2 tag=84: " validate --format ber --profile emv --emv-check dictionary --hex "6F0684045A0301AA")
+    # all runs the structure check first, then the dictionary check.
+    check(0 "^$" validate --format ber --profile emv --emv-check all --hex "6F098407A0000000031010")
+    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 2: " validate --format ber --profile emv --emv-check all --hex "6F00")
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 11 tag=9F02: " validate --format ber --profile emv --emv-check all --hex "6F098407A0000000031010 9F02050000000010")
+    # A framing error is still reported before any EMV check runs.
+    check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" validate --format ber --profile emv --emv-check dictionary --hex "9F0206")
+    check(3 "TLV_ERR_LIMIT" validate --format ber --profile emv --emv-check dictionary --max-elements 0 --hex "9F02050000000010")
+    # The same length is valid or not depending on the context: 82 is the
+    # Application Interchange Profile (2 bytes) in the base context and a
+    # 1-byte Biometric Subtype inside a Biometric Header Template.
+    check(0 "^$" validate --format ber --profile emv --emv-check dictionary --hex "82020101")
+    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=82: " validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "82020101")
+    check(0 "^$" validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "820101")
+    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 5 tag=82: " validate --format ber --profile emv --emv-check dictionary --hex "7F6006A10482020101")
+    check(0 "^$" validate --format ber --profile emv --emv-check dictionary --hex "7F6005A103820101")
+else()
+    check(2 "EMV profile is disabled" decode --format ber --hex " " --profile emv)
+    check(2 "EMV profile is disabled" dump --format ber --hex " " --profile emv --emv-context bit)
+endif()
+
+# Recovery scanning (#110): --recover on dump and decode; validate stays strict.
+# Matches a pattern against stdout, for commands that exit nonzero.
+function(check_out expected pattern)
+    execute_process(COMMAND "${CLI}" ${ARGN} RESULT_VARIABLE result
+        OUTPUT_VARIABLE output ERROR_VARIABLE error)
+    if(NOT "${result}" STREQUAL "${expected}")
+        message(FATAL_ERROR "${ARGN}: expected exit ${expected}, got ${result}\n${output}\n${error}")
+    endif()
+    if(NOT "${output}" MATCHES "${pattern}")
+        message(FATAL_ERROR "${ARGN}: expected stdout /${pattern}/, got '${output}'")
+    endif()
+endfunction()
+
+if(HAS_BER)
+    set(damaged "5A0112 0000 5A0134")
+    run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
+        "^otlv: skipped 2 byte\\(s\\) at offset 3: TLV_ERR_INVALID_TAG at byte 3: invalid tag\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
+        dump --format ber --hex "${damaged}" --recover)
+    # Without --recover the same input fails at the first error, and validate
+    # stays strict.
+    check(1 "TLV_ERR_INVALID_TAG at byte 3" dump --format ber --hex "${damaged}")
+    check(1 "TLV_ERR_INVALID_TAG at byte 3" validate --format ber --hex "${damaged}")
+    run_cli(1 "" "TLV_ERR_INVALID_TAG at byte 3" decode --format ber --hex "${damaged}")
+
+    # Truncated trailing data is one skipped range up to the end of the input.
+    set(cut_json [=[{"complete":false,"elements":[{"length":1,"offset":0,"tag":"5A","value":"12"}],"skipped":[{"error":"TLV_ERR_BUFFER_TOO_SHORT","error_offset":3,"length":3,"message":"buffer too short","offset":3}]}]=])
+    run_cli(4 "${cut_json}\n" "skipped 3 byte\\(s\\) at offset 3" dump --format ber --hex "5A0112 5A05 AA" --recover --output json)
+
+    # decode marks the document incomplete and lists every skipped range.
+    run_cli(4 "${doc_head},\"format\":\"ber\",\"elements\":[{\"tag\":\"E1\",\"length_mode\":\"definite\",\"children\":[{\"tag\":\"5A\",\"value\":\"12\"}]}],\"complete\":false,\"skipped\":[{\"offset\":0,\"length\":2,\"error\":\"TLV_ERR_INVALID_TAG\",\"error_offset\":0,\"message\":\"invalid tag\"},{\"offset\":7,\"length\":1,\"error\":\"TLV_ERR_INVALID_TAG\",\"error_offset\":7,\"message\":\"invalid tag\"}]}\n"
+        "recovery skipped 2 range\\(s\\), 3 byte\\(s\\) in total" decode --format ber --hex "0000 E1 03 5A 01 12 00" --recover)
+
+    # An undamaged input is complete and exits 0.
+    run_cli(0 "${doc_head},\"format\":\"ber\",\"elements\":[{\"tag\":\"5A\",\"value\":\"12\"},{\"tag\":\"5A\",\"value\":\"34\"}],\"complete\":true,\"skipped\":[]}\n" "" decode --format ber --hex "5A0112 5A0134" --recover)
+    set(clean_json [=[{"complete":true,"elements":[{"length":1,"offset":0,"tag":"5A","value":"12"}],"skipped":[]}]=])
+    run_cli(0 "${clean_json}\n" "" dump --format ber --hex "5A0112" --recover --output json)
+    run_cli(0 "" "" dump --format ber --hex " " --recover)
+    check(0 "offset=2 tag=5A" dump --format ber --hex "E1035A0112" --recover --tree)
+
+    # Recovered elements keep their absolute offsets.
+    check_out(4 "^skipped offset=0 length=2 [^\n]*\noffset=2 tag=E1 length=3 value=5A0112\n  offset=4 tag=5A length=1 value=12\n$"
+        dump --format ber --hex "0000 E1035A0112" --recover --tree)
+    # Damage inside a constructed element rejects it as a whole, but a
+    # plausible element inside it is still found and reported as top-level.
+    check_out(4 "^skipped offset=0 length=2 [^\n]*\noffset=2 tag=5A length=1 value=12\nskipped offset=5 length=2 "
+        dump --format ber --hex "E1055A0112 0000" --recover --tree)
+    # A truncated indefinite-length element is damage too.
+    check_out(4 "^offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 [^\n]*\noffset=5 tag=04 length=1 value=AA\n$"
+        dump --format ber --hex "5A0112 30800401AA" --recover)
+    # Intact indefinite-length elements survive recovery.
+    check_out(4 "^offset=0 tag=30 length=3 encoding=indefinite value=0401AA\nskipped offset=7 length=2 "
+        dump --format ber --hex "30800401AA0000 0000" --recover)
+
+    # Resource limits are not damage: they fail the run with exit 3.
+    check(3 "TLV_ERR_LIMIT at byte 3 tag=5A" dump --format ber --hex "5A0112 5A0134" --recover --max-elements 1)
+    check(3 "input-size limit" dump --format ber --hex "5A0112" --recover --max-input-size 2)
+    check(3 "TLV_ERR_LIMIT" dump --format ber --hex "E1035A0112 0000" --recover --tree --max-depth 0)
+    run_cli(3 "" "TLV_ERR_LIMIT" decode --format ber --hex "E1035A0112 0000" --recover --max-depth 0)
+endif()
+if(HAS_DEFAULT)
+    check_out(4 "^offset=0 tag=04 length=1 value=AA\nskipped offset=3 length=3 error=TLV_ERR_BUFFER_TOO_SHORT error-offset=3\n$"
+        dump --format default --hex "0401AA 04 05 AA" --recover)
+endif()
+if(HAS_DER)
+    check_out(4 "^offset=0 tag=04 length=1 value=AA\nskipped offset=3 length=2 " dump --format der --hex "0401AA 04 05" --recover)
+    run_cli(0 "${doc_head},\"format\":\"der\",\"elements\":[{\"tag\":\"04\",\"value\":\"AA\"}],\"complete\":true,\"skipped\":[]}\n" "" decode --format der --hex "0401AA" --recover)
+endif()
+if(HAS_BLUETOOTH_LTV)
+    check_out(4 "^offset=0 tag=01 length=1 value=06\nskipped offset=3 length=3 " dump --format bluetooth-ltv --hex "02 01 06 05 09 41" --recover)
+endif()

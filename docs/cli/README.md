@@ -1,7 +1,9 @@
 # Command-line tool
 
 The optional `otlv` executable inspects and structurally validates TLV
-data using the public C library through the `tlv++` wrapper. Building it
+data, converts it to and from a [versioned JSON document](json-schema.md), and
+recovers elements from damaged input, using the public C library through the
+`tlv++` wrapper. Building it
 requires a C++11 (or newer) compiler; the underlying library itself remains a
 dependency-free C99 core, so this requirement affects only the CLI target.
 
@@ -23,7 +25,8 @@ and requires `OPENTLV_BUILD_CXX=ON` (also the default); a C-only build
 `OPENTLV_BUILD_CLI_TESTS` initially defaults to `OPENTLV_BUILD_TESTS`; CLI
 tests use CMake only and can run with library unit/integration tests disabled.
 Building the CLI fetches [nlohmann/json](https://github.com/nlohmann/json)
-(header-only, used for `--output json`) via CMake `FetchContent`; the `tlv`
+(header-only, used for JSON output and the JSON document of `decode` and
+`encode --input`) via CMake `FetchContent`; the `tlv`
 and `tlv++` libraries themselves remain dependency-free.
 
 ## Commands
@@ -43,10 +46,14 @@ otlv dump --format ber --profile emv --decode --hex "9F0206000000001000"
 otlv dump --format ber --profile emv --decode --output json --hex "9F0206000000001000"
 otlv validate --format ber --profile emv --input input.bin
 otlv encode --format ber --tag 9F02 --value 000000001000
+otlv decode --format ber --profile emv --input capture.bin > capture.json
+otlv encode --format ber --input capture.json --output-encoding binary --output-file out.bin
+otlv dump --format ber --input damaged.bin --recover --tree
+otlv validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010"
 otlv tag 9F02 --profile emv
 ```
 
-`dump` and `validate` require an explicit `--format` and exactly one input
+`dump`, `validate` and `decode` require an explicit `--format` and exactly one input
 source. `--input -` reads binary stdin, including on Windows. File input is
 binary as well by default. Use `--input-encoding hex` for hex text files or
 hex text on stdin; `--input-encoding binary` explicitly selects binary input.
@@ -118,13 +125,16 @@ BER traversal. Unknown tags remain raw and are labelled unknown in the current
 context; unknown containers do not cause their descendants to be guessed as
 ordinary EMV tags. Primitive BER values remain opaque, including EMV elements
 that describe embedded structures. A standalone context-specific fragment has
-no enclosing context and begins in the base dictionary.
+no enclosing context and begins in the base dictionary unless you select
+another one with `--emv-context NAME` (see [EMV contexts](#emv-contexts)).
 
-The EMV profile must be compiled in. `--describe`, `--decode`, `--output`, and
-color flags are dump-only options; `--describe` and `--decode` require
-`--profile emv`. `--profile emv` itself is also accepted by `validate`, where
-it selects EMV schema validation instead of annotating output (see below).
-EMV annotations and schema validation both require BER.
+The EMV profile must be compiled in. `--describe`, `--decode` and
+`--emv-context` are accepted by `dump` and `decode` (and require
+`--profile emv`); `--output` and the color flags are dump-only.
+`--profile emv` itself is also accepted by `validate`, where it selects EMV
+checks instead of annotating output (see below). EMV annotations and checks
+both require BER, selected with `--format ber`; the wire format and the
+profile are separate options, so `--format der --profile emv` is an error.
 
 ### Value decoding
 
@@ -173,36 +183,88 @@ document containing the elements parsed before the failure, matching the
 partial-output-on-failure behavior described above; the diagnostic itself is
 always reported separately, on stderr.
 
+### JSON export
+
+`decode` parses the input like `dump --tree` and prints it as the
+[versioned JSON document](json-schema.md): tags and primitive values as
+hexadecimal strings, constructed elements as nested `children` arrays, and for
+BER an explicit `length_mode` of `definite` or `indefinite`:
+
+```sh
+otlv decode --format ber --hex "E1 05 5A 01 12 5A 00 30 80 04 01 AA 00 00"
+```
+
+```json
+{"schema":"opentlv.tlv","version":1,"format":"ber","elements":[{"tag":"E1","length_mode":"definite","children":[{"tag":"5A","value":"12"},{"tag":"5A","value":""}]},{"tag":"30","length_mode":"indefinite","children":[{"tag":"04","value":"AA"}]}]}
+```
+
+`decode` takes the input, limit and profile options of `dump` (`--format`,
+`--input`/`--hex`, `--input-encoding`, `--max-*`, `--profile emv`,
+`--describe`, `--decode`, `--emv-context`, `--recover`) and rejects the text
+presentation options (`--tree`, `--pretty`, colors, `--output`, `--pdol`).
+The whole input is always parsed as a tree, so BER and DER nesting is followed
+up to `--max-depth`. A failed export prints nothing on stdout, unlike `dump`,
+so a partial document is never mistaken for a complete one. With
+`--profile emv` each known element carries its dictionary `name`; unknown tags
+carry only their raw `tag` and `value`.
+
+Offsets are not part of the document. Use `dump --output json` when you need
+them.
+
 ### Encoding
 
-`encode` writes one TLV element with the OpenTLV writer for the format chosen
-by `--format`, so the format alone determines the tag and length encoding:
+`encode` writes TLV data with the OpenTLV writer for the format chosen by
+`--format`, so the format alone determines the tag and length encoding. It has
+two input modes: one element from `--tag`/`--value`, or a whole
+[JSON document](json-schema.md) from `--input`.
 
 ```sh
 otlv encode --format ber --tag 9F02 --value 000000001000
+otlv encode --format ber --input elements.json
+otlv encode --format ber --input - --output-encoding binary --output-file out.bin
 ```
 
 ```text
 9F0206000000001000
 ```
 
-`--format` and `--tag` are required; `--value` is optional and defaults to an
-empty value. `--tag` and `--value` use the same hex syntax as `--hex`
-(case-insensitive, complete byte pairs, optional whitespace between pairs).
-`--value` is limited by `--max-input-size`; a tag longer than the library's
-tag capacity is rejected. Output is uppercase hex followed by a newline by
-default; `--output-encoding binary` writes the raw encoded bytes with no
-newline, including on Windows. Either output can be read back with `otlv dump`
-(`--input -`, plus `--input-encoding hex` for the hex form).
+For a single element, `--format` and `--tag` are required; `--value` is
+optional and defaults to an empty value. `--tag` and `--value` use the same hex
+syntax as `--hex` (case-insensitive, complete byte pairs, optional whitespace
+between pairs). `--value` is limited by `--max-input-size`; a tag longer than
+the library's tag capacity is rejected.
 
-The writer validates the tag and length before anything is printed, so a
-rejected element produces no output. Malformed hex, unknown or disabled
-formats, and options other than `--format`, `--tag`, `--value`,
-`--output-encoding`, and `--max-input-size` exit with code 2. An element the
-format cannot encode (an invalid BER tag, or a value too long for
-`fixed-1byte`) reports `otlv: cannot encode element N: <reason>` and exits
-with code 1. Internally, encoding runs over a list of element specs, so
-structured multi-element input can be added as another source for that list.
+`--input PATH` reads a JSON document instead (`-` for stdin, read as bytes on
+Windows too); it cannot be combined with `--tag` or `--value`. Every length is
+derived while encoding, children are written inside their parent, and BER
+elements marked `"length_mode":"indefinite"` get the `80` length and the
+end-of-contents octets. Before anything is printed the encoded bytes are read
+back with the format's reader and checked like `otlv validate` does, so the
+output is always accepted by the library reader and structural validator.
+`--max-input-size` limits the JSON text and the encoded bytes, `--max-depth`
+the nesting of `children` and `--max-elements` the number of elements. Nothing
+about the JSON is guessed: a document that does not follow the
+[schema](json-schema.md), names another format than `--format`, or needs a
+representation the format lacks (children under `default`, indefinite length
+under `der`) is rejected. The round trip `decode` then `encode` preserves
+element structure and raw primitive values but not the exact bytes of length
+fields; see [Round trip](json-schema.md#round-trip).
+
+Output is uppercase hex followed by a newline by default;
+`--output-encoding binary` writes the raw encoded bytes with no newline,
+including on Windows. `--output-file PATH` writes the result to a file instead
+of stdout, and only after the whole document was accepted, so a rejected
+document leaves no file behind. Either encoding can be read back with
+`otlv dump` (`--input -`, plus `--input-encoding hex` for the hex form).
+
+Nothing is printed for a rejected input. Malformed hex, an invalid JSON
+document, unknown or disabled formats, and options `encode` does not take exit
+with code 2; `encode` takes `--format`, `--tag`, `--value`, `--input`,
+`--output-encoding`, `--output-file`, `--max-input-size`, `--max-depth` and
+`--max-elements`. An element the writer rejects (an invalid BER tag, or a value
+too long for `fixed-1byte`) reports `otlv: cannot encode element N: <reason>`
+and exits with code 1; N counts elements from zero in document order. Exceeded
+limits and unreadable or unwritable files exit with code 3.
 
 ### Tag lookup
 
@@ -314,6 +376,124 @@ The exit code contract is unchanged (1 for a schema violation, 3 for an
 exceeded limit). Unmodeled top-level tags, such as the Read Record Template,
 are accepted unchecked; this is not a full EMV transaction or value validator.
 
+### EMV checks
+
+`validate --profile emv` runs the checks chosen by `--emv-check`, always on
+input that has already parsed as valid BER:
+
+| `--emv-check` | Checks | Diagnostic prefix |
+| --- | --- | --- |
+| `structure` (default) | The structural schema above. | `schema` |
+| `dictionary` | Every element whose tag is in the EMV dictionary, in the context it appears in, has a length the dictionary permits (its bounds and length step). | `dictionary` |
+| `all` | `structure`, then `dictionary`; the first failure is reported. | either |
+
+The dictionary check uses the same lookup and contexts as `dump --profile emv`
+and the library's `tlv_emv_validate_length`. It reports the first offending
+element as `otlv: dictionary TLV_ERR_INVALID_LENGTH at byte N tag=T: ...` with
+exit code 1:
+
+```sh
+$ otlv validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010"
+otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=9F02: invalid length encoding
+```
+
+What runs, and what does not:
+
+- Tags with no dictionary entry in their context are **not** errors; they are
+  preserved and left unchecked. The dictionary check does not require a tag to
+  be known, does not check that mandatory tags are present outside the
+  templates the structural schema models, and does not decode or check values
+  (BCD digits, dates, enumerations); `--decode` shows those diagnostics
+  without failing.
+- Children of a container are looked up in that container's context, and
+  containers the dictionary does not know contribute no context, so their
+  children are unchecked (as they are labelled unknown by `dump`).
+- Neither check is an EMV kernel, transaction, or cryptographic validation,
+  and cross-tag rules (for example that a tag must agree with another) are out
+  of scope.
+- `--emv-check` applies to `validate` only, and not with `--pdol`.
+
+### EMV contexts
+
+The dictionary is context dependent: the same tag can mean different things
+inside different templates (for example `82` is the 2-byte Application
+Interchange Profile at the top level but a 1-byte Biometric Subtype inside a
+Biometric Header Template). During a walk the CLI switches context on known
+containers such as the Biometric Information Template `7F60`. A fragment cut
+out of such a container has no enclosing element to say which context applies,
+so select it explicitly with `--emv-context NAME`, for `dump`, `decode` and
+`validate --emv-check dictionary`:
+
+| Name | Context |
+| --- | --- |
+| `base` (default) | Ordinary application data. |
+| `bit` | Inside `7F60` (Biometric Information Template). |
+| `bht` | Inside `A1` within `7F60` (Biometric Header Template). |
+| `bht-format` | Inside a level-2 `A1`/`A2` within the BHT. |
+| `bit-group` | Inside `BF4A`/`BF4B` or a terminal group. |
+| `biometric-counters` | Inside `BF4C`. |
+| `biometric-attempts` | Inside `BF4D`. |
+| `biometric-verification` | Inside `BF4E`. |
+
+```sh
+otlv dump --format ber --profile emv --emv-context bht --hex "820101"
+otlv validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "82020101"
+```
+
+The first prints the element as `Biometric Subtype`; the second fails because
+`82` is 1 byte in that context. Contexts never fall back to the base
+dictionary. The structural schema models base-context templates only, so
+`--emv-check structure` (and `all`) require the base context; use
+`--emv-check dictionary` with any other. `--emv-context` requires
+`--profile emv` and cannot be combined with `--pdol`.
+
+### Recovery scanning
+
+`dump` and `decode` stop at the first damaged byte by default. With
+`--recover` they instead resynchronize and keep going, using the library's
+recovery scanner (`tlv_scan`): when the element at the current offset cannot
+be read, or its contents are malformed, the scanner looks at each following
+offset for the next plausible element, and the bytes in between are skipped.
+
+```sh
+$ otlv dump --format ber --hex "5A0112 0000 5A0134" --recover
+offset=0 tag=5A length=1 value=12
+skipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3
+offset=5 tag=5A length=1 value=34
+otlv: skipped 2 byte(s) at offset 3: TLV_ERR_INVALID_TAG at byte 3: invalid tag
+otlv: output is incomplete: recovery skipped 1 range(s), 2 byte(s) in total
+$ echo $?
+4
+```
+
+- **Skipped ranges** are reported where they occur (`skipped offset= length=
+  error= error-offset=` lines in `dump` text output), and again on stderr with
+  a summary. `error` and `error-offset` describe the first failure that made
+  the range unreadable; the offset of that failure can lie inside or after the
+  range.
+- **Incomplete output.** In `--output json` and in `decode`, the document
+  gains `"complete":false` and a `"skipped"` array of objects with `offset`,
+  `length`, `error`, `error_offset` and `message`. An undamaged input under
+  `--recover` reports `"complete":true` and an empty array. A recovered
+  `decode` document is incomplete and is rejected by `encode`.
+- **Exit status 4** means recovery skipped data, so the output is incomplete;
+  it is distinct from 1 (strict failure). Without `--recover`, or when nothing
+  was skipped, the exit codes are unchanged.
+- **Offsets** are absolute positions in the input. A recovered element is
+  always reported as a top-level element, even when the scanner found it inside
+  a damaged constructed element.
+- **Limits are not damage.** `--max-input-size`, `--max-depth` and
+  `--max-elements` still fail the run with exit code 3, and `--max-elements`
+  counts only the elements that were output.
+- **Heuristic.** The scanner accepts what looks like a well-formed element
+  (syntactic checks only, no dictionary or schema), so a match is not proof of
+  an original element boundary; damaged bytes can be mistaken for an element,
+  and an element inside a skipped range can be output where a byte-level
+  decoder would have skipped it. Treat recovered output as evidence for
+  inspection, not as a repaired copy.
+- `validate` stays strict and rejects `--recover`, as do `--pdol` and `encode`.
+  It is the only command whose exit status certifies that the input is valid.
+
 ### Validation and limits
 
 `validate` is silent on success. Both commands consume all concatenated
@@ -348,15 +528,17 @@ promise the exact corrupted byte. A `TLV_ERR_SCHEMA_MISSING` failure (a
 missing mandatory tag) never prints a `tag=` field: its offset is the end of
 the enclosing element's value, not a tag, and could otherwise coincide with
 an unrelated sibling at the enclosing scope. An EMV schema violation
-(`validate --profile emv`) is additionally prefixed with `schema` to
+(`validate --profile emv`) is additionally prefixed with `schema` (or `dictionary`, for `--emv-check dictionary`) to
 distinguish it from a format/framing error.
 
 | Code | Meaning |
 | --- | --- |
 | 0 | Success |
-| 1 | Invalid TLV data |
-| 2 | Invalid command, option, hex input, or unavailable format |
+| 1 | Invalid TLV data, or an element `encode` cannot write |
+| 2 | Invalid command, option, hex input, JSON document, or unavailable format |
 | 3 | I/O failure, allocation failure, or exceeded resource limit |
+| 4 | `--recover` skipped damaged data: the output is incomplete |
 
-Encoding, EMV semantic validation, recovery scanning, and prebuilt release
-binaries are outside this initial CLI scope.
+Automatic format detection, custom text input syntax, full ASN.1 value
+validation, EMV kernel behavior, and prebuilt release binaries are outside the
+scope of the CLI.

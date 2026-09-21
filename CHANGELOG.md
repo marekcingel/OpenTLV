@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Extend the `otlv` CLI with `decode` and `encode --input` for a [versioned JSON document](docs/cli/json-schema.md), `validate --emv-check dictionary` and `--emv-context` for context-dependent EMV length checks, and `--recover` for `dump` and `decode`, which reports skipped byte ranges and exits with the new status 4; see the [command-line tool](docs/cli/README.md). (#110)
 - Expand the [format expansion candidates](docs/formats/format-roadmap.md) with a catalogue tree, scope rules and framing requirements, and add a [candidate catalogue](docs/formats/format-catalogue.md) with specifications, components, variants, limits and per-row verification for protocol, ASN.1 (including the X.680 notation layer), smart-card and telecom candidates, summarized in the README, and add a block layout with typical use to the Default, Fixed 1-byte, BER, DER and CER format pages and block diagrams of verified candidate wire layouts to the candidate catalogue. (#84)
 - Document the rule that a build includes only the components it enables, including for language bindings, and the current gap in the Rust bindings; see [architecture](docs/concepts/architecture.md#include-only-what-you-need). (#7)
 - Add a format comparison table to the format overview, a [Building only the components you need](docs/guides/select-components.md) guide with verified CMake recipes, and an [Error codes](docs/reference/errors.md) reference. (#7)
@@ -33,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the documentation workflow being rejected on pull requests because the `tlv++/include/**` path filter was invalid; the `+` characters are now escaped. (#110)
 - Fix the WebAssembly build failing to compile the Bluetooth LTV format selection because the format header was not included. (#222)
 - Fix a Clang `-Wmissing-field-initializers` error in the architecture and Bluetooth LTV tests. (#220)
 - Fix Rust formatting and clippy findings and a Rust reader test that expected the wrong error for a truncated length. (#159)
