@@ -2,6 +2,7 @@
 #define OPENTLV_CLI_INPUT_HPP
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <vector>
 #include "options.hpp"
 
@@ -18,6 +19,11 @@ int decode_hex(const char* text, std::size_t limit, std::vector<uint8_t>& data);
 // here). Returns 0 on success or a CLI exit code (see diagnostics.hpp) on
 // failure; on failure `data` may still hold a partial result.
 int read_input(const options& o, std::vector<uint8_t>& data);
+
+// Reads a whole text document (for example the JSON of "encode --input") from a
+// file or, for "-", binary stdin, so no newline translation occurs on Windows.
+// Returns 0, or 3 when the file cannot be read or is larger than `limit` bytes.
+int read_text(const char* path, std::size_t limit, std::string& text);
 
 } // namespace cli
 #endif

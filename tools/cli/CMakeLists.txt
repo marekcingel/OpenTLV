@@ -5,6 +5,7 @@ set(HEADERS
     src/diagnostics.hpp
     src/encode.hpp
     src/input.hpp
+    src/json_model.hpp
     src/options.hpp
     src/presentation.hpp
     src/tag.hpp
@@ -15,6 +16,7 @@ set(SOURCES
     src/decode.cpp
     src/encode.cpp
     src/input.cpp
+    src/json_model.cpp
     src/main.cpp
     src/options.cpp
     src/presentation.cpp
@@ -31,8 +33,8 @@ target_include_directories(otlv
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# Header-only, fetched only for the CLI: --output json (tools/cli/src/commands.cpp)
-# is the sole nlohmann/json consumer. tlv and tlv++ remain dependency-free.
+# Header-only, fetched only for the CLI: --output json, decode and encode --input
+# (tools/cli/src) are the only nlohmann/json consumers. tlv and tlv++ remain dependency-free.
 include(FetchContent)
 FetchContent_Declare(
     nlohmann_json
