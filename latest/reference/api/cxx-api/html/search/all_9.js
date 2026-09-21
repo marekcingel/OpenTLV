@@ -6,5 +6,6 @@ var searchData=
   ['length_2eh_3',['length.h',['../../../c-api/html/length_8h.html',1,'']]],
   ['length_5fsize_4',['length_size',['../../../c-api/html/structtlv__writer__format.html#ac9cb9b30b66a6fb111306f614224446f',1,'tlv_writer_format']]],
   ['length_5fstep_5',['length_step',['../../../c-api/html/structtlv__emv__definition__t.html#ae3c95a529c4e07f5f7305f5230edf2ba',1,'tlv_emv_definition_t']]],
-  ['lifetime_6',['Ownership and lifetime',['../index.html#ownership',1,'']]]
+  ['length_5fwidth_6',['length_width',['../classtlv_1_1fixed__format.html#a42ba70cef40e3966b78bae4985bf8055',1,'tlv::fixed_format']]],
+  ['lifetime_7',['Ownership and lifetime',['../index.html#ownership',1,'']]]
 ];

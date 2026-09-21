@@ -1171,6 +1171,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../fixed/configurable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable fixed-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../bluetooth/" class="md-nav__link">
         
   
@@ -2268,11 +2296,6 @@ introducing protocol-specific branches in the generic parser.</p>
 </thead>
 <tbody>
 <tr>
-<td>Generic</td>
-<td>Configurable fixed-width TLV</td>
-<td>Reusable tag/length widths and byte order; distinguish payload length from total encoded length. Custom callbacks are already supported.</td>
-</tr>
-<tr>
 <td>ASN.1</td>
 <td>Full DER validation</td>
 <td>Extend beyond structural framing to canonical values and ordering. Schema-dependent semantics need an explicit scope. <a href="../../profiles/der/#supported-scope">Current limits</a></td>
@@ -2327,7 +2350,6 @@ bounded iterative traversal. It does not allocate an object tree. See
 <a href="../../concepts/architecture/#traversal-and-recovery">architecture</a>.</p>
 <h2 id="proposed-order">Proposed order<a class="headerlink" href="#proposed-order" title="Permanent link">&para;</a></h2>
 <ol>
-<li>Add configurable fixed-width framing to cover more application protocols.</li>
 <li>Assess DGI, NDN, and RADIUS as concrete adapters with different length rules.</li>
 <li>Assess packed headers through LwM2M; derive any further generic contract
    extension from those requirements (reordered headers are covered by
