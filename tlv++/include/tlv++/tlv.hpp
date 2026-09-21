@@ -10,6 +10,7 @@
 
 #include "tlv/tlv.h"
 #include "tlv++/codec.hpp"
+#include "tlv++/fixed_format.hpp"
 #include "tlv++/reader.hpp"
 #include "tlv++/writer.hpp"
 #include "tlv++/registry.hpp"

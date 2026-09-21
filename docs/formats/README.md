@@ -6,6 +6,7 @@ Profile semantics are documented separately.
 
 - [Default TLV](default/README.md)
 - [Fixed 1-byte TLV](fixed/README.md)
+- [Configurable fixed-width TLV (C++)](fixed/configurable.md)
 - [Bluetooth LTV](bluetooth/README.md)
 - [BER-TLV](asn1/ber.md)
 - [DER-TLV](asn1/der.md)
@@ -18,6 +19,7 @@ Profile semantics are documented separately.
 | Need | Start with | Boundary |
 | --- | --- | --- |
 | Small internal records with fixed header sizes | [Fixed 1-byte TLV](fixed/README.md) | Values up to 255 bytes |
+| Fixed tag and length widths, or a length byte order, chosen at compile time (C++) | [Configurable fixed-width TLV](fixed/configurable.md) | Widths up to `TLV_TAG_CAPACITY` and 8 bytes |
 | One-byte tags with larger payloads | [Default TLV](default/README.md) | Values up to 65,535 bytes |
 | Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |

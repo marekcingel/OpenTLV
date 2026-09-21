@@ -25,7 +25,6 @@ introducing protocol-specific branches in the generic parser.
 
 | Area | Candidate | Intended boundary and reference |
 | --- | --- | --- |
-| Generic | Configurable fixed-width TLV | Reusable tag/length widths and byte order; distinguish payload length from total encoded length. Custom callbacks are already supported. |
 | ASN.1 | Full DER validation | Extend beyond structural framing to canonical values and ordering. Schema-dependent semantics need an explicit scope. [Current limits](../profiles/der/README.md#supported-scope) |
 | ASN.1 | Full CER validation | Extend beyond structural framing, EOC placement and canonical segmentation to full value/ordering semantics. Schema-dependent rules need an explicit scope. [Current limits](../profiles/cer/README.md#supported-scope) |
 | Smart cards | GlobalPlatform DGI | DGI field encoding and length handling, separately from APDU transport and card management. [Card Specification 2.3, section 11.1.12](https://globalplatform.org/wp-content/uploads/2018/03/GPC_Specification_v2.3.pdf) |
@@ -49,13 +48,12 @@ bounded iterative traversal. It does not allocate an object tree. See
 
 ## Proposed order
 
-1. Add configurable fixed-width framing to cover more application protocols.
-2. Assess DGI, NDN, and RADIUS as concrete adapters with different length rules.
-3. Assess packed headers through LwM2M; derive any further generic contract
+1. Assess DGI, NDN, and RADIUS as concrete adapters with different length rules.
+2. Assess packed headers through LwM2M; derive any further generic contract
    extension from those requirements (reordered headers are covered by
    [Bluetooth LTV](bluetooth/README.md)).
-4. Add mixed-format traversal and incremental parsing as separately scoped core work.
-5. Expand semantic profiles and ASN.1 canonical validation with explicit standard
+3. Add mixed-format traversal and incremental parsing as separately scoped core work.
+4. Expand semantic profiles and ASN.1 canonical validation with explicit standard
    coverage, independently of basic wire-format support.
 
 These priorities are proposals. A format adapter can be useful without a full

@@ -32,3 +32,8 @@ add_executable(example-tlv++-quick-start src/quick_start.cpp)
 target_link_libraries(example-tlv++-quick-start PRIVATE tlv++)
 opentlv_configure_compiler(example-tlv++-quick-start)
 opentlv_copy_shared_runtime(example-tlv++-quick-start)
+
+add_executable(example-tlv++-fixed-format src/fixed_format.cpp)
+target_link_libraries(example-tlv++-fixed-format PRIVATE tlv++)
+opentlv_configure_compiler(example-tlv++-fixed-format)
+opentlv_copy_shared_runtime(example-tlv++-fixed-format)
