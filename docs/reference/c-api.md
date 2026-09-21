@@ -59,6 +59,11 @@ and [memory ownership](../guides/memory.md).
 [Generated reference](api/c-api/html/group__copy.html). Read first:
 [copy helpers](../guides/copy.md).
 
+## Mutable document
+
+[Generated reference](api/c-api/html/group__document.html). Read first:
+[mutable documents](../guides/document.md).
+
 ## Other entry points
 
 [Files](api/c-api/html/files.html) and

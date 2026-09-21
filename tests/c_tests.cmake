@@ -25,6 +25,7 @@ set(SOURCES
     src/schema_report_test.cpp
     src/walker_test.cpp
     src/query_test.cpp
+    src/document_test.cpp
     src/writer_test.cpp
     src/format_init_test.cpp
     src/format_test.cpp
@@ -109,6 +110,10 @@ if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED_1BYTE))
         list(REMOVE_ITEM SOURCES src/writer_test.cpp)
     endif()
+endif()
+
+if(NOT OPENTLV_DOCUMENT)
+    list(REMOVE_ITEM SOURCES src/document_test.cpp)
 endif()
 
 add_executable(${test_target}

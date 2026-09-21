@@ -11,6 +11,9 @@ set(SOURCES
 
 if(test_group STREQUAL "unit")
     list(APPEND SOURCES src/test_fixed_format.cpp)
+    if(OPENTLV_DOCUMENT)
+        list(APPEND SOURCES src/test_document.cpp)
+    endif()
 endif()
 
 if(test_group STREQUAL "integration")

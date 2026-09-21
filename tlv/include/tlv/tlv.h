@@ -41,5 +41,8 @@
 #if OPENTLV_PROFILE_EMV
 #include "tlv/profiles/emv.h"
 #endif
+#if OPENTLV_DOCUMENT
+#include "tlv/document/document.h"
+#endif
 
 #endif /* OPENTLV_TLV_H */

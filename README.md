@@ -92,6 +92,9 @@ generic core. Protocol entries above refer to their data encodings and explicitl
 named profile functionality, not complete networking or device stacks.
 
 Tree traversal visits borrowed values without building an allocated object tree.
+Applications that must change a message can opt into the separate, allocating
+[mutable document](docs/guides/document.md), which parses TLV into an owned tree
+and encodes it again.
 For definite-length containers, the value length covers the complete child
 encodings; indefinite BER containers use EOC termination. See
 [nested traversal](docs/formats/README.md#nested-traversal),

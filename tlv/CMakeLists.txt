@@ -71,6 +71,10 @@ if(OPENTLV_PROFILE_EMV)
     target_sources(${PROJECT_NAME} PRIVATE
         src/profiles/emv.c src/codec/emv.c src/profiles/dol.c src/profiles/emv_schema.c)
 endif()
+if(OPENTLV_DOCUMENT)
+    # The only component that allocates; nothing else in the library depends on it.
+    target_sources(${PROJECT_NAME} PRIVATE src/document/document.c)
+endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     C_VISIBILITY_PRESET hidden
