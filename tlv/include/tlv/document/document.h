@@ -1,7 +1,7 @@
 #ifndef OPENTLV_DOCUMENT_H
 #define OPENTLV_DOCUMENT_H
 
-#include "tlv/document/export.h"
+#include "tlv/export.h"
 #include "tlv/error.h"
 #include "tlv/formats/format.h"
 #include "tlv/query/query.h"
@@ -31,9 +31,8 @@ extern "C" {
  * works with any format: the reader and writer formats and the nesting
  * predicate are passed in #tlv_document_options_t, exactly as for
  * tlv_walk_tree(). Nothing in the allocation-free core depends on it. It is
- * compiled into its own library (`tlv_document`, option
- * `OPENTLV_BUILD_DOCUMENT`) that links `tlv`, and it is the only OpenTLV
- * component that allocates memory.
+ * an optional component (`OPENTLV_DOCUMENT`, see tlv/config.h) and the only
+ * OpenTLV component that allocates memory.
  *
  * **Ownership.** A #tlv_document_t owns every node, tag and value in it.
  * Nodes are handed out as #tlv_node_t pointers that borrow from the document:
