@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Expand the [format expansion candidates](docs/formats/format-roadmap.md) with a catalogue tree, scope rules and framing requirements, and add a [candidate catalogue](docs/formats/format-catalogue.md) with specifications, components, variants, limits and per-row verification for protocol, ASN.1 (including the X.680 notation layer), smart-card and telecom candidates, summarized in the README, and add a block layout with typical use to the Default, Fixed 1-byte, BER, DER and CER format pages and block diagrams of verified candidate wire layouts to the candidate catalogue. (#84)
+- Document the rule that a build includes only the components it enables, including for language bindings, and the current gap in the Rust bindings; see [architecture](docs/concepts/architecture.md#include-only-what-you-need). (#7)
+- Add a format comparison table to the format overview, a [Building only the components you need](docs/guides/select-components.md) guide with verified CMake recipes, and an [Error codes](docs/reference/errors.md) reference. (#7)
+- Add README badges for the Rust bindings, WebAssembly, static analysis, CodeQL, fuzzing and documentation workflows. (#7)
 - Add the C++ `tlv::fixed_format` template for compile-time configurable fixed-width TLV formats; see [Configurable fixed-width TLV](docs/formats/fixed/configurable.md). (#7)
 - Add the Bluetooth LTV format to the WebAssembly module and the browser playground, which now shows the length before the type for this format. (#222)
 - Expand the [Bluetooth LTV](docs/formats/bluetooth/README.md) documentation with the logical model, length semantics, comparison with conventional TLV, parsing, encoding, unknown types, malformed input and limitations. (#222)

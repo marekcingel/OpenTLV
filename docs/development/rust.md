@@ -146,6 +146,12 @@ By default the build script configures and builds the OpenTLV C library from the
 repository root with CMake, as a static Release library inside Cargo's `target`
 directory, and links it. The C++ layer, CLI, tests and examples are not built.
 
+The build script passes no `OPENTLV_FORMAT_*` or `OPENTLV_PROFILE_*` options, so the
+C library is built with its default components, all built-in formats and profiles. The
+crates define no Cargo features for selecting components. Choosing components from Cargo
+(the [include only what you need](../concepts/architecture.md#include-only-what-you-need)
+rule) is not implemented yet.
+
 ## Continuous integration and quality checks
 
 The [Rust Bindings workflow](https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/rust.yml)

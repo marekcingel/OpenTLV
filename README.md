@@ -3,6 +3,12 @@
 [![GCC build and tests](https://github.com/marekcingel/OpenTLV/actions/workflows/build-gcc.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/build-gcc.yml?query=branch%3Amain)
 [![Clang build and tests](https://github.com/marekcingel/OpenTLV/actions/workflows/build-clang.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/build-clang.yml?query=branch%3Amain)
 [![MSVC build and tests](https://github.com/marekcingel/OpenTLV/actions/workflows/build-msvc.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/build-msvc.yml?query=branch%3Amain)
+[![Rust bindings](https://github.com/marekcingel/OpenTLV/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/rust.yml?query=branch%3Amain)
+[![WebAssembly build](https://github.com/marekcingel/OpenTLV/actions/workflows/wasm.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/wasm.yml?query=branch%3Amain)
+[![Static analysis](https://github.com/marekcingel/OpenTLV/actions/workflows/static-analysis.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/static-analysis.yml?query=branch%3Amain)
+[![CodeQL](https://github.com/marekcingel/OpenTLV/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/codeql.yml?query=branch%3Amain)
+[![C API fuzzing](https://github.com/marekcingel/OpenTLV/actions/workflows/fuzz.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/fuzz.yml?query=branch%3Amain)
+[![Documentation](https://github.com/marekcingel/OpenTLV/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/docs.yml?query=branch%3Amain)
 
 **Read, write, and inspect Tag-Length-Value data in C and C++.**
 OpenTLV provides a dependency-free C99 core and a header-only C++11+ wrapper.
@@ -21,6 +27,7 @@ when the application needs to own its buffers and control memory use.
 - **Zero-copy value reads:** parsed values borrow the input buffer.
 - **Selectable formats and profiles:** use built-in encodings or supply custom callbacks.
 - **Composable processing:** add traversal, schemas, value codecs, or recovery scanning as needed.
+- **Include only what you need:** build just the core, or add a single format such as BER; components you leave out are not compiled. Bindings should follow the same rule, but the Rust bindings do not select components yet. See [architecture](docs/concepts/architecture.md#include-only-what-you-need).
 
 The C++ layer offers convenience wrappers; error strings and dynamic containers
 can allocate. Applications requiring strictly allocation-free behavior should use
@@ -90,8 +97,27 @@ encodings; indefinite BER containers use EOC termination. See
 [nested traversal](docs/formats/README.md#nested-traversal),
 [value codecs](docs/guides/codecs.md), and [architecture](docs/concepts/architecture.md).
 
-See [format expansion candidates](docs/formats/format-roadmap.md) for references,
-implementation boundaries, and proposed priorities. Scheduled work is tracked
+### Candidate formats (not implemented)
+
+OpenTLV covers binary formats encoded as TLV; only a different field order or
+packing is accepted as a variation. The catalogue lists possible future built-in
+formats. **Listing is not a commitment and not a claim of support**, and TLV framing
+support never means full protocol support.
+
+| Area | Candidates | Relationship to existing support |
+| --- | --- | --- |
+| Protocols using BER | LDAP, SNMP | Profiles over [BER-TLV](docs/formats/asn1/ber.md) |
+| ASN.1 notation (X.680) | Wider type coverage, BER/CER schema variants, open types, optional schema generator | Extends the [DER schema subset](docs/profiles/der/README.md#schema-aware-validation-and-encoding) |
+| ASN.1 profiles | X.509, PKCS#1, PKCS#7, PKCS#8, PKCS#10, CMS/S-MIME, Kerberos, OCSP | Schemas over [DER/BER](docs/profiles/der/README.md) |
+| Smart cards and SIM | ISO 7816 (BER-TLV and SIMPLE-TLV), GlobalPlatform beyond DGI, eSIM, SIM Toolkit, NFC tag TLV container | BER reuse plus new adapters |
+| Networking | LLDP, IS-IS, DHCPv4/DHCPv6, LDP, RFC 5444 TLV blocks, Diameter | New adapters |
+| Telecommunications | PFCP, GTPv2-C, GTPv1-C, NAS | New adapters and profiles |
+| Excluded (not TLV) | CBOR, CWT, COSE, QUIC frames, NDEF records, ASN.1 PER/OER/XER (S1AP, X2AP, NGAP) | Different encodings; out of scope |
+
+See [format expansion candidates](docs/formats/format-roadmap.md) for the catalogue
+tree, scope rules, framing requirements, and proposed priorities, and the
+[candidate catalogue](docs/formats/format-catalogue.md) for specifications, required
+components, variants, limitations, and what was checked against the primary text. Scheduled work is tracked
 in [issues](https://github.com/marekcingel/OpenTLV/issues).
 
 See [format trees and byte examples](docs/formats/format-examples.md) for a field-by-field

@@ -62,6 +62,21 @@ longer than 255 bytes returns `TLV_ERR_INVALID_LENGTH`. Missing length or
 value bytes return `TLV_ERR_BUFFER_TOO_SHORT`. An empty input is the end of
 the stream (`TLV_ERR_END_OF_BUFFER`). Multiple records may be concatenated.
 
+## Layout and typical use
+
+```text
++--------+--------+-------------------------+
+| Tag    | Length | Value                   |
+| 1 byte | 1 byte | Length bytes (0-255)    |
++--------+--------+-------------------------+
+```
+
+The header is always two bytes, and the length counts the value only. There are no
+long forms and no special length values, so `80` is an ordinary length. Use it for
+small internal records and device protocol fields where every value fits in 255
+bytes. For a different tag width, length width or byte order use the
+[configurable fixed-width TLV](configurable.md).
+
 ## Byte example
 
 One tag byte and one unsigned length byte, up to 255 value bytes.

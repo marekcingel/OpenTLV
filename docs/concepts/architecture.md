@@ -105,6 +105,29 @@ helper retains its temporary `std::vector` and may allocate; raw I/O and the C
 codec wrappers do not allocate. C++ errors and user-defined object types may
 also allocate according to their representation.
 
+## Include only what you need
+
+A build contains only the components it asks for. A project that needs just the
+generic core builds just the core. A project that also needs BER enables BER and gets
+no other format. Formats and profiles are selectable components (see
+[Build configuration](#build-configuration)), and each concrete component is compiled
+into the library only when it is enabled. Dependencies between components are explicit,
+for example the ASN.1 chain below, and nothing is pulled in implicitly. The header-only
+C++ wrapper adds cost only for the headers a program includes.
+
+Every new format or profile, including the candidates in the
+[format expansion candidates](../formats/format-roadmap.md), follows the same rule: its
+own option, and no code or dependency added to builds that do not enable it.
+
+Language bindings are expected to follow the same rule: a binding should expose a
+component only when the matching C component is enabled, so a binding build can also be
+limited to what it needs. **This is not implemented yet for the Rust bindings.**
+`opentlv-sys` configures the C library with its default options, so all built-in
+components are included, and the `opentlv` crate has no Cargo features for choosing
+components. Mapping the component options to Cargo features is a requirement for
+future work; see [Rust bindings](../development/rust.md#build). Ready-made CMake recipes are in
+[building only the components you need](../guides/select-components.md).
+
 ## Build configuration
 
 All generic facilities are always available. These concrete components default

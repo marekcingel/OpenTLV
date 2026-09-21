@@ -57,6 +57,24 @@ int main(void) {
 }
 ```
 
+## Layout and typical use
+
+CER uses the [BER layout](ber.md#layout-and-typical-use) and makes the choice of length
+form depend on the kind of value.
+
+```text
+Primitive:    | Identifier | shortest definite Length | Contents |
+
+Constructed:  | Identifier | 80 | child elements ... | 00 00 |
+```
+
+A primitive value always has a minimal definite length. A constructed value always has
+the indefinite length `80` and ends with `00 00`. Long strings are split into
+segments by the canonical rules. Typical uses are canonical encodings that can be
+produced in one pass without knowing the total length in advance. Generic I/O checks
+only the current element's identifier and length; nested framing is checked by the
+[CER profile](../../profiles/cer/README.md).
+
 ## Byte example: nested indefinite-length containers
 
 ```text
