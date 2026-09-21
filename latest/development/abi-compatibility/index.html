@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/formats/fixed/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/development/abi-compatibility/">
       
       
-        <link rel="prev" href="../default/">
+        <link rel="prev" href="../workflow/">
       
       
-        <link rel="next" href="configurable/">
+        <link rel="next" href="../documentation-layout/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Fixed 1-byte TLV - OpenTLV</title>
+        <title>C ABI compatibility - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#fixed-1-byte-tlv" class="md-skip">
+        <a href="#c-abi-compatibility" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Fixed 1-byte TLV
+              C ABI compatibility
             
           </span>
         </div>
@@ -321,13 +321,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
           
   
   
@@ -423,11 +421,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../development/workflow/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../workflow/" class="md-tabs__link">
           
   
   
@@ -1055,31 +1055,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1097,7 +1092,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1115,7 +1110,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../formats/" class="md-nav__link">
         
   
   
@@ -1143,7 +1138,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../default/" class="md-nav__link">
+      <a href="../../formats/default/" class="md-nav__link">
         
   
   
@@ -1168,37 +1163,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fixed 1-byte TLV
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../formats/fixed/" class="md-nav__link">
         
   
   
@@ -1214,81 +1182,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#api-and-build" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API and build
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scope-and-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope and limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#minimal-c-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Minimal C usage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#layout-and-typical-use" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Layout and typical use
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#byte-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Byte example
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1301,7 +1194,7 @@
   
   
     <li class="md-nav__item">
-      <a href="configurable/" class="md-nav__link">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
   
@@ -1329,7 +1222,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bluetooth/" class="md-nav__link">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
         
   
   
@@ -1357,7 +1250,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/ber/" class="md-nav__link">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
   
@@ -1385,7 +1278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/der/" class="md-nav__link">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
         
   
   
@@ -1413,7 +1306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/cer/" class="md-nav__link">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
         
   
   
@@ -1441,7 +1334,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../custom/" class="md-nav__link">
+      <a href="../../formats/custom/" class="md-nav__link">
         
   
   
@@ -1469,7 +1362,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-examples/" class="md-nav__link">
+      <a href="../../formats/format-examples/" class="md-nav__link">
         
   
   
@@ -1497,7 +1390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-roadmap/" class="md-nav__link">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
         
   
   
@@ -1525,7 +1418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-catalogue/" class="md-nav__link">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
         
   
   
@@ -2101,26 +1994,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
             
   
   
@@ -2138,7 +2036,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2156,7 +2054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/workflow/" class="md-nav__link">
+      <a href="../workflow/" class="md-nav__link">
         
   
   
@@ -2181,10 +2079,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../development/abi-compatibility/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C ABI compatibility
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2200,6 +2125,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Baseline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-breaks-the-abi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What breaks the ABI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#intentional-breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intentional breaking changes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-check-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the check locally
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2212,7 +2212,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/documentation-layout/" class="md-nav__link">
+      <a href="../documentation-layout/" class="md-nav__link">
         
   
   
@@ -2240,7 +2240,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/fuzzing/" class="md-nav__link">
+      <a href="../fuzzing/" class="md-nav__link">
         
   
   
@@ -2268,7 +2268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/webassembly/" class="md-nav__link">
+      <a href="../webassembly/" class="md-nav__link">
         
   
   
@@ -2296,7 +2296,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/rust/" class="md-nav__link">
+      <a href="../rust/" class="md-nav__link">
         
   
   
@@ -2379,10 +2379,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#api-and-build" class="md-nav__link">
+  <a href="#baseline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        API and build
+        Baseline
       
     </span>
   </a>
@@ -2390,10 +2390,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scope-and-limits" class="md-nav__link">
+  <a href="#what-breaks-the-abi" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scope and limits
+        What breaks the ABI
       
     </span>
   </a>
@@ -2401,10 +2401,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#minimal-c-usage" class="md-nav__link">
+  <a href="#ci-behavior" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Minimal C usage
+        CI behavior
       
     </span>
   </a>
@@ -2412,10 +2412,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#layout-and-typical-use" class="md-nav__link">
+  <a href="#intentional-breaking-changes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Layout and typical use
+        Intentional breaking changes
       
     </span>
   </a>
@@ -2423,10 +2423,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#byte-example" class="md-nav__link">
+  <a href="#running-the-check-locally" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Byte example
+        Running the check locally
       
     </span>
   </a>
@@ -2450,7 +2450,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/formats/fixed/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/development/abi-compatibility.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2458,101 +2458,79 @@
   
 
 
-<h1 id="fixed-1-byte-tlv">Fixed 1-byte TLV<a class="headerlink" href="#fixed-1-byte-tlv" title="Permanent link">&para;</a></h1>
-<p><a href="../">Format documentation</a></p>
-<h2 id="api-and-build">API and build<a class="headerlink" href="#api-and-build" title="Permanent link">&para;</a></h2>
+<h1 id="c-abi-compatibility">C ABI compatibility<a class="headerlink" href="#c-abi-compatibility" title="Permanent link">&para;</a></h1>
+<p>The <code>tlv</code> C shared library exports a public ABI: the functions and data marked
+<code>TLV_API</code>, and the layout of the public types in <code>tlv/include/</code>. The <strong>ABI
+Compatibility</strong> CI job compares the library built from a pull request with a
+stored ABI baseline using <a href="https://sourceware.org/libabigail/">libabigail</a>
+(<code>abidw</code> and <code>abidiff</code>).</p>
+<p>Out of scope: private and internal symbols (hidden by
+<code>-fvisibility=hidden</code>), static libraries, the header-only C++ layer (<code>tlv++</code>),
+source and behavioral compatibility, and Windows/MSVC.</p>
+<h2 id="baseline">Baseline<a class="headerlink" href="#baseline" title="Permanent link">&para;</a></h2>
+<p>The baseline is the file <code>scripts/abi/baseline.abi</code>, an <code>abidw</code> dump of the
+public ABI that is committed to the repository. CI builds the library from the
+pull request as a Debug shared library, dumps its ABI in the same way and
+compares the two dumps. Nothing is built for the baseline.</p>
 <table>
 <thead>
 <tr>
-<th>Setting</th>
-<th>Value</th>
+<th>Version</th>
+<th>What the baseline holds</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Format header</td>
-<td><code>tlv/formats/fixed/fixed_1byte.h</code></td>
+<td>Before 1.0.0</td>
+<td>The ABI accepted on <code>main</code>; updated in the pull request that changes the ABI on purpose</td>
 </tr>
 <tr>
-<td>Reader descriptor</td>
-<td><code>tlv_reader_format_fixed_1byte</code></td>
-</tr>
-<tr>
-<td>Writer descriptor</td>
-<td><code>tlv_writer_format_fixed_1byte</code></td>
-</tr>
-<tr>
-<td>CMake option (default ON)</td>
-<td><code>OPENTLV_FORMAT_FIXED_1BYTE</code></td>
-</tr>
-<tr>
-<td>Link target</td>
-<td><code>tlv</code></td>
+<td>1.0.0 and later</td>
+<td>The ABI of the latest stable release of the current major version, for example the newest <code>1.x.y</code>; updated only when a release is cut</td>
 </tr>
 </tbody>
 </table>
-<h2 id="scope-and-limits">Scope and limits<a class="headerlink" href="#scope-and-limits" title="Permanent link">&para;</a></h2>
-<p>One tag byte and one unsigned length byte; at most 255 value bytes. Values are opaque.</p>
-<p>See <a href="../../guides/memory/">shared memory ownership rules</a> before retaining a parsed view.</p>
-<h2 id="minimal-c-usage">Minimal C usage<a class="headerlink" href="#minimal-c-usage" title="Permanent link">&para;</a></h2>
-<p>This complete example writes and reads one opaque byte. Exit code zero means success.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/formats/fixed/fixed_1byte.h"</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/reader.h"</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/writer/writer.h"</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="mh">0x04</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">};</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x2A</span><span class="p">};</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">tlv_view_t</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_write</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_writer_format_fixed_1byte</span><span class="p">,</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">                  </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_fixed_1byte</span><span class="p">,</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">                 </span><span class="o">&amp;</span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">           </span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x04</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">length</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">           </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x2A</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="p">}</span>
+<p>Because the file is part of the pull request, an ABI change is visible in the
+diff and reviewed like any other change.</p>
+<p>The dump depends on the compiler and on the libabigail version, so generate it
+on Linux with the same toolchain as CI (Ubuntu 24.04, GCC, <code>abigail-tools</code>).</p>
+<h2 id="what-breaks-the-abi">What breaks the ABI<a class="headerlink" href="#what-breaks-the-abi" title="Permanent link">&para;</a></h2>
+<p>These changes are incompatible:</p>
+<ul>
+<li>removing or renaming an exported function or variable, or making it hidden;</li>
+<li>changing a parameter or return type of an exported function;</li>
+<li>changing the order, type or offset of a member of a public structure;</li>
+<li>changing the size or alignment of a public type, which includes adding a
+  member to a public structure;</li>
+<li>changing an enumeration so that its representation changes.</li>
+</ul>
+<p>Adding a new exported function is compatible.</p>
+<h2 id="ci-behavior">CI behavior<a class="headerlink" href="#ci-behavior" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The job runs for pull requests that touch <code>tlv/</code>, <code>cmake/</code>, a
+  <code>CMakeLists.txt</code> or the ABI scripts. Documentation-only changes skip it.</li>
+<li>The log shows a summary and the affected symbols and types. The full report
+  is stored as the <code>abi-report</code> artifact.</li>
+<li>Before 1.0.0 an incompatible change is reported as a warning and does not
+  fail the job, because the API is still allowed to change. From 1.0.0 it
+  fails the job.</li>
+</ul>
+<h2 id="intentional-breaking-changes">Intentional breaking changes<a class="headerlink" href="#intentional-breaking-changes" title="Permanent link">&para;</a></h2>
+<p>A breaking change must be described in the pull request (tick "ABI changed"
+and "Breaking change"), have a <code>CHANGELOG.md</code> entry and, from 1.0.0, target a
+new major version. Before 1.0.0, regenerate the baseline in the same pull
+request (see below). From 1.0.0, update it only as part of the major-version
+transition or when a release is cut.</p>
+<p>Suppressions live in <code>scripts/abi/suppressions.abignore</code>. Add one only for a
+confirmed implementation detail that is not part of the public ABI, with a
+comment saying why.</p>
+<h2 id="running-the-check-locally">Running the check locally<a class="headerlink" href="#running-the-check-locally" title="Permanent link">&para;</a></h2>
+<p>Install libabigail (<code>abigail-tools</code> on Debian and Ubuntu) and run:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>scripts/abi/check.py<span class="w"> </span>--mode<span class="w"> </span>enforce<span class="w">   </span><span class="c1"># compare with the stored baseline</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>scripts/abi/check.py<span class="w"> </span>--update<span class="w">         </span><span class="c1"># regenerate scripts/abi/baseline.abi</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>python<span class="w"> </span>scripts/abi/test_check.py<span class="w">             </span><span class="c1"># mutation tests of the check itself</span>
 </code></pre></div>
-<p>Use <code>tlv_reader_format_fixed_1byte</code> and <code>tlv_writer_format_fixed_1byte</code> for a one-byte tag, a one-byte unsigned length,
-and exactly that many value bytes. For example, <code>01 03 AA BB CC</code> encodes tag
-<code>01</code> and the three-byte value <code>AA BB CC</code>. All tag bytes are valid, including
-<code>00</code> and <code>FF</code>; lengths range from 0 to 255, with no BER-style prefixes.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">tlv_reader_t</span><span class="w"> </span><span class="n">reader</span><span class="p">;</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">tlv_reader_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_fixed_1byte</span><span class="p">);</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">tlv_writer_t</span><span class="w"> </span><span class="n">writer</span><span class="p">;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">tlv_writer_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">writer</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">capacity</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_writer_format_fixed_1byte</span><span class="p">);</span>
-</code></pre></div>
-<p>Writing a tag whose size is not 1 returns <code>TLV_ERR_INVALID_TAG_SIZE</code>; a value
-longer than 255 bytes returns <code>TLV_ERR_INVALID_LENGTH</code>. Missing length or
-value bytes return <code>TLV_ERR_BUFFER_TOO_SHORT</code>. An empty input is the end of
-the stream (<code>TLV_ERR_END_OF_BUFFER</code>). Multiple records may be concatenated.</p>
-<h2 id="layout-and-typical-use">Layout and typical use<a class="headerlink" href="#layout-and-typical-use" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>+--------+--------+-------------------------+
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>| Tag    | Length | Value                   |
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>| 1 byte | 1 byte | Length bytes (0-255)    |
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>+--------+--------+-------------------------+
-</code></pre></div>
-<p>The header is always two bytes, and the length counts the value only. There are no
-long forms and no special length values, so <code>80</code> is an ordinary length. Use it for
-small internal records and device protocol fields where every value fits in 255
-bytes. For a different tag width, length width or byte order use the
-<a href="configurable/">configurable fixed-width TLV</a>.</p>
-<h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
-<p>One tag byte and one unsigned length byte, up to 255 value bytes.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>02 02 10 20
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Element (4 bytes)
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>|-- Tag:    02
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>|-- Length: 02 = 2 value bytes
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>`-- Value:  10 20
-</code></pre></div>
-<p>For 128 value bytes, the header is <code>02 80</code>, followed by all 128 payload
-bytes: <code>80</code> is an ordinary length here, not a BER indefinite-length marker.
-Use <code>tlv_reader_format_fixed_1byte</code> / <code>tlv_writer_format_fixed_1byte</code>.
-<a href="./">Fixed format</a></p>
+<p>The report is written to <code>build/abi/report/</code>.</p>
 
 
 
@@ -2590,7 +2568,7 @@ Use <code>tlv_reader_format_fixed_1byte</code> / <code>tlv_writer_format_fixed_1
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../default/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Default TLV">
+          <a href="../workflow/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Development workflow">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2600,20 +2578,20 @@ Use <code>tlv_reader_format_fixed_1byte</code> / <code>tlv_writer_format_fixed_1
                 Previous
               </span>
               <div class="md-ellipsis">
-                Default TLV
+                Development workflow
               </div>
             </div>
           </a>
         
         
           
-          <a href="configurable/" class="md-footer__link md-footer__link--next" aria-label="Next: Configurable fixed-width TLV">
+          <a href="../documentation-layout/" class="md-footer__link md-footer__link--next" aria-label="Next: Where documentation belongs">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Configurable fixed-width TLV
+                Where documentation belongs
               </div>
             </div>
             <div class="md-footer__button md-icon">
