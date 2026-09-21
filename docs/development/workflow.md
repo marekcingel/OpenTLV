@@ -32,7 +32,7 @@ question, so the expensive checks stay off the path of everyday development.
 | Clang 18 Release build with tests | | | yes |
 | GCC and MSVC (x64, x86) builds with tests | | | yes |
 | CodeQL (required by the repository rules) | always | yes | yes |
-| C ABI compatibility (`abidiff`, see [ABI](abi-compatibility.md)) | if `tlv`, CMake or `scripts/check_abi.py` changed | yes | yes |
+| C ABI compatibility (`abidiff`, see [ABI](abi-compatibility.md)) | if `tlv`, CMake or `scripts/abi/check.py` changed | yes | yes |
 | Fuzzing | | yes | yes |
 | Benchmarks (build only) | if benchmarks or `tlv` changed | same | yes |
 | Rust bindings on Linux | if Rust, `tlv` or CMake changed | yes | yes |

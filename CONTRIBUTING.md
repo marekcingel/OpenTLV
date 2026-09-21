@@ -272,7 +272,7 @@ right at the finding; prefer fixing a finding over suppressing it.
 ## C ABI compatibility
 
 The **ABI Compatibility** CI job compares the `tlv` shared library with a
-baseline. Run it locally with `python scripts/check_abi.py`; the baseline rules, what
+baseline. Run it locally with `python scripts/abi/check.py`; the baseline rules, what
 counts as a breaking change and how to document one are in
 [C ABI compatibility](docs/development/abi-compatibility.md).
 

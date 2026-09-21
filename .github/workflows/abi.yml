@@ -10,10 +10,10 @@ on:
       - 'tlv/**'
       - 'cmake/**'
       - '**/CMakeLists.txt'
-      - 'scripts/check_abi.py'
-      - 'scripts/test_check_abi.py'
-      - 'scripts/abi_suppressions.abignore'
-      - 'scripts/abi_baseline.abi'
+      - 'scripts/abi/check.py'
+      - 'scripts/abi/test_check.py'
+      - 'scripts/abi/suppressions.abignore'
+      - 'scripts/abi/baseline.abi'
       - '.github/workflows/abi.yml'
     tags: ['[0-9]*.[0-9]*.[0-9]*']
   pull_request:
@@ -22,10 +22,10 @@ on:
       - 'tlv/**'
       - 'cmake/**'
       - '**/CMakeLists.txt'
-      - 'scripts/check_abi.py'
-      - 'scripts/test_check_abi.py'
-      - 'scripts/abi_suppressions.abignore'
-      - 'scripts/abi_baseline.abi'
+      - 'scripts/abi/check.py'
+      - 'scripts/abi/test_check.py'
+      - 'scripts/abi/suppressions.abignore'
+      - 'scripts/abi/baseline.abi'
       - '.github/workflows/abi.yml'
 
 permissions:
@@ -50,7 +50,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y abigail-tools ninja-build
 
       - name: Check the ABI against the baseline
-        run: python3 scripts/check_abi.py --output-dir build/abi/report
+        run: python3 scripts/abi/check.py --output-dir build/abi/report
 
       - name: Upload the ABI report
         if: always()
@@ -60,7 +60,7 @@ jobs:
           path: build/abi/report/
           if-no-files-found: ignore
 
-      # The mutation tests exercise check_abi.py itself, so on pull requests
+      # The mutation tests exercise check.py itself, so on pull requests
       # they only run when the ABI scripts or this workflow changed.
       - name: Self-test the ABI check
-        run: python3 scripts/test_check_abi.py --only-if-changed "${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || '' }}"
+        run: python3 scripts/abi/test_check.py --only-if-changed "${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || '' }}"

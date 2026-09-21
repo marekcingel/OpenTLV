@@ -1,5 +1,5 @@
-"""Self-test for check_abi.py: apply known ABI mutations to a copy of the working
-tree and check that check_abi.py (in enforce mode) reacts as the compatibility
+"""Self-test for check.py: apply known ABI mutations to a copy of the working
+tree and check that check.py (in enforce mode) reacts as the compatibility
 policy requires."""
 
 import argparse
@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import sys
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 ENDIAN_H = "tlv/include/tlv/endian.h"
 ENDIAN_C = "tlv/src/endian.c"
 VALUE_H = "tlv/include/tlv/value.h"
@@ -65,7 +65,7 @@ def private_change(root):
     append(root, ENDIAN_C, "\nint tlv_abi_test_hidden(void) { return 1; }\n")
 
 
-# (mutation, expected check_abi.py exit status)
+# (mutation, expected check.py exit status)
 CASES = [
     (remove_export, 1),
     (change_signature, 1),
@@ -86,7 +86,7 @@ def main():
     if options.only_if_changed:
         changed = subprocess.run(
             ["git", "-C", str(REPO_ROOT), "diff", "--quiet", f"{options.only_if_changed}...HEAD", "--",
-             "scripts/check_abi.py", "scripts/test_check_abi.py", "scripts/abi_suppressions.abignore",
+             "scripts/abi/check.py", "scripts/abi/test_check.py", "scripts/abi/suppressions.abignore",
              ".github/workflows/abi.yml"],
             check=False,
         ).returncode != 0
@@ -97,7 +97,7 @@ def main():
     copy_tree(work_dir / "baseline")
     baseline_file = work_dir / "baseline.abi"
     subprocess.run(
-        [sys.executable, str(REPO_ROOT / "scripts" / "check_abi.py"), "--update",
+        [sys.executable, str(REPO_ROOT / "scripts" / "abi" / "check.py"), "--update",
          "--candidate-dir", str(work_dir / "baseline"), "--baseline-file", str(baseline_file),
          "--work-dir", str(work_dir / "run-baseline")],
         check=True,
@@ -110,7 +110,7 @@ def main():
         copy_tree(candidate)
         mutation(candidate)
         result = subprocess.run(
-            [sys.executable, str(REPO_ROOT / "scripts" / "check_abi.py"), "--mode", "enforce",
+            [sys.executable, str(REPO_ROOT / "scripts" / "abi" / "check.py"), "--mode", "enforce",
              "--baseline-file", str(baseline_file), "--candidate-dir", str(candidate),
              "--work-dir", str(work_dir / f"run-{name}"),
              "--output-dir", str(work_dir / f"report-{name}")],

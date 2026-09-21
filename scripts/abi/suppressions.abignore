@@ -1,4 +1,4 @@
-# libabigail suppression rules for scripts/check_abi.py.
+# libabigail suppression rules for scripts/abi/check.py.
 #
 # Add a rule only for a confirmed implementation detail that is not part of the
 # public ABI, and say why. Private symbols are already hidden by

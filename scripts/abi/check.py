@@ -1,6 +1,6 @@
 """Compare the ABI of the OpenTLV C shared library with the stored ABI baseline.
 
-The baseline is an ``abidw`` dump committed as scripts/abi_baseline.abi (see
+The baseline is an ``abidw`` dump committed as scripts/abi/baseline.abi (see
 docs/development/abi-compatibility.md). The candidate library is built from the
 working tree and compared with it using ``abidiff``. ``--update`` regenerates
 the baseline from the working tree; do this only for an intentional ABI change
@@ -22,10 +22,10 @@ import shutil
 import subprocess
 import sys
 
-SCRIPTS_DIR = Path(__file__).resolve().parent
-REPO_ROOT = SCRIPTS_DIR.parent
-DEFAULT_BASELINE = SCRIPTS_DIR / "abi_baseline.abi"
-SUPPRESSIONS = SCRIPTS_DIR / "abi_suppressions.abignore"
+ABI_DIR = Path(__file__).resolve().parent
+REPO_ROOT = ABI_DIR.parent.parent
+DEFAULT_BASELINE = ABI_DIR / "baseline.abi"
+SUPPRESSIONS = ABI_DIR / "suppressions.abignore"
 
 # Keep machine-specific paths and source locations out of the stored dump.
 DUMP_OPTIONS = ["--no-corpus-path", "--no-comp-dir-path", "--no-show-locs"]
@@ -203,7 +203,7 @@ def main():
         output_dir = (options.output_dir or work_dir / "report").resolve()
         return compare(options.baseline_file.resolve(), candidate_file, output_dir, mode)
     except (CheckError, subprocess.CalledProcessError) as error:
-        print(f"check_abi: {error}", file=sys.stderr)
+        print(f"check: {error}", file=sys.stderr)
         return 2
 
 

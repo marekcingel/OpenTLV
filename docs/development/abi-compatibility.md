@@ -12,7 +12,7 @@ source and behavioral compatibility, and Windows/MSVC.
 
 ## Baseline
 
-The baseline is the file `scripts/abi_baseline.abi`, an `abidw` dump of the
+The baseline is the file `scripts/abi/baseline.abi`, an `abidw` dump of the
 public ABI that is committed to the repository. CI builds the library from the
 pull request as a Debug shared library, dumps its ABI in the same way and
 compares the two dumps. Nothing is built for the baseline.
@@ -59,7 +59,7 @@ new major version. Before 1.0.0, regenerate the baseline in the same pull
 request (see below). From 1.0.0, update it only as part of the major-version
 transition or when a release is cut.
 
-Suppressions live in `scripts/abi_suppressions.abignore`. Add one only for a
+Suppressions live in `scripts/abi/suppressions.abignore`. Add one only for a
 confirmed implementation detail that is not part of the public ABI, with a
 comment saying why.
 
@@ -68,9 +68,9 @@ comment saying why.
 Install libabigail (`abigail-tools` on Debian and Ubuntu) and run:
 
 ```sh
-python scripts/check_abi.py --mode enforce   # compare with the stored baseline
-python scripts/check_abi.py --update         # regenerate scripts/abi_baseline.abi
-python scripts/test_check_abi.py             # mutation tests of the check itself
+python scripts/abi/check.py --mode enforce   # compare with the stored baseline
+python scripts/abi/check.py --update         # regenerate scripts/abi/baseline.abi
+python scripts/abi/test_check.py             # mutation tests of the check itself
 ```
 
 The report is written to `build/abi/report/`.
