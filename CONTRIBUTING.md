@@ -269,6 +269,13 @@ resolve) are fixed with a
 `NOLINT`/`NOLINTNEXTLINE`/`NOLINTBEGIN`-`NOLINTEND` comment explaining why,
 right at the finding; prefer fixing a finding over suppressing it.
 
+## C ABI compatibility
+
+The **ABI Compatibility** CI job compares the `tlv` shared library with a
+baseline. Run it locally with `python scripts/check_abi.py`; the baseline rules, what
+counts as a breaking change and how to document one are in
+[C ABI compatibility](docs/development/abi-compatibility.md).
+
 ## Documentation site
 
 The [docs/](docs) directory is also built into a [MkDocs](https://www.mkdocs.org/)

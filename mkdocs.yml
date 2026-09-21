@@ -148,6 +148,7 @@ nav:
       - Error codes: reference/errors.md
   - Development:
       - Development workflow: development/workflow.md
+      - C ABI compatibility: development/abi-compatibility.md
       - Where documentation belongs: development/documentation-layout.md
       - Fuzzing: development/fuzzing.md
       - WebAssembly build: development/webassembly.md
