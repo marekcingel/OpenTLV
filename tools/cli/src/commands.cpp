@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <ios>
 #include <iostream>
+#include <string>
 #include <utility>
 #include <vector>
 #include <nlohmann/json.hpp>
@@ -12,6 +13,7 @@
 #include "json_model.hpp"
 #include "presentation.hpp"
 #include "tlv/config.h"
+#include "tlv/query/query.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/scanner.h"
 #include "tlv/reader/walker.h"
@@ -82,6 +84,10 @@ typedef struct output_context {
     // constructed elements carry "children".
     std::vector<ordered_json> document_stack;
     ordered_json              document_root = ordered_json::array();
+    // query only: the matcher deciding which elements are addressed and how
+    // many were.
+    tlv_query_matcher_t matcher;
+    size_t              matches;
 } output_context_t;
 
 bool is_json(const cli::options& o) {
@@ -90,6 +96,10 @@ bool is_json(const cli::options& o) {
 
 bool is_decode_command(const cli::options& o) {
     return !strcmp(o.command, "decode");
+}
+
+bool is_query_command(const cli::options& o) {
+    return !strcmp(o.command, "query");
 }
 
 // Attaches every element on `stack` deeper than target_depth to its parent's
@@ -248,6 +258,47 @@ tlv_visit_result_t decode_element(const tlv_view_t* view, size_t depth, size_t o
     document_flush(*out, depth);
     out->document_stack.push_back(std::move(object));
     return TLV_VISIT_CONTINUE;
+}
+
+// The query path as text: uppercase hex tags joined by "/", however the user
+// spelled it.
+std::string query_path(const tlv_query_t& query) {
+    std::string path;
+    for (size_t i = 0; i < query.count; ++i) {
+        if (i) path += '/';
+        path += hex_string(query.steps[i].data, query.steps[i].size);
+    }
+    return path;
+}
+
+// query's visitor: prints each element the path addresses. Text output is
+// the dump line without nesting, --value prints only the value bytes, and
+// --output json collects the elements into one document printed at the end.
+tlv_visit_result_t query_element(const tlv_view_t* view, size_t depth, size_t offset,
+                                 void* context) {
+    output_context_t* out = (output_context_t*)context;
+    if (!tlv_query_matcher_visit(&out->matcher, &view->tag, depth)) return TLV_VISIT_CONTINUE;
+    ++out->matches;
+    if (is_json(*out->options)) {
+        nlohmann::json object;
+        object["path"] = query_path(out->options->query);
+        object["offset"] = offset;
+        object["tag"] = hex_string(view->tag.data, view->tag.size);
+        object["length"] = (uint64_t)view->value.length;
+        object["value"] = hex_string(view->value.data, (size_t)view->value.length);
+        out->json_root.push_back(std::move(object));
+        return TLV_VISIT_CONTINUE;
+    }
+    if (out->options->value_only) {
+        print_hex(view->value.data, (size_t)view->value.length);
+    } else {
+        std::cout << "offset=" << offset << " tag=";
+        print_hex(view->tag.data, view->tag.size);
+        std::cout << " length=" << view->value.length << " value=";
+        print_hex(view->value.data, (size_t)view->value.length);
+    }
+    std::cout << "\n";
+    return std::cout ? TLV_VISIT_CONTINUE : TLV_VISIT_ERROR;
 }
 
 const char* error_name(tlv_result_t rc) {
@@ -531,6 +582,7 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     // support, and DER's own schema-driven walker).
     int        is_ber = 0, is_der = 0, structured;
     const bool decoding = is_decode_command(o);
+    const bool querying = is_query_command(o);
 
     if (!format) return fail(2, "unknown or disabled format; use otlv formats");
 #if OPENTLV_FORMAT_BER
@@ -549,7 +601,13 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     output.constructed = NULL;
     cli_presentation_init(&output.presentation, data, size, o.color, o.pretty);
     output.presentation.contexts[0] = o.emv_context;
-    visitor = decoding ? decode_element : !strcmp(o.command, "dump") ? print_element : NULL;
+    output.matches = 0;
+    if (querying && tlv_query_matcher_init(&output.matcher, &o.query) != TLV_OK)
+        return fail(2, "invalid query");
+    visitor = querying                     ? query_element
+              : decoding                   ? decode_element
+              : !strcmp(o.command, "dump") ? print_element
+                                           : NULL;
 #if OPENTLV_FORMAT_BER
     if (structured) predicate = tlv_ber_is_constructed;
     if (is_ber) output.constructed = tlv_ber_is_constructed;
@@ -614,6 +672,12 @@ int execute(const options& o, const uint8_t* data, size_t size) {
             }
             std::cout << document.dump() << "\n";
         }
+    } else if (querying) {
+        if (result == TLV_OK && is_json(o)) {
+            nlohmann::json document;
+            document["matches"] = std::move(output.json_root);
+            std::cout << document.dump() << "\n";
+        }
     } else if (is_json(o)) {
         json_flush(output, 0);
         nlohmann::json document;
@@ -641,6 +705,10 @@ int execute(const options& o, const uint8_t* data, size_t size) {
             std::cerr << " tag=" << hex_string(tag.data, tag.size);
         std::cerr << ": " << tlv_strerror(result) << "\n";
         return result == TLV_ERR_LIMIT || result == TLV_ERR_OUT_OF_MEMORY ? 3 : 1;
+    }
+    if (querying && !output.matches) {
+        std::cerr << "otlv: no match for query " << query_path(o.query) << "\n";
+        return 5;
     }
     if (incomplete) {
         size_t bytes = 0;

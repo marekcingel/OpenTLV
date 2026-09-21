@@ -24,6 +24,7 @@ set(SOURCES
     src/schema_test.cpp
     src/schema_report_test.cpp
     src/walker_test.cpp
+    src/query_test.cpp
     src/writer_test.cpp
     src/format_init_test.cpp
     src/format_test.cpp

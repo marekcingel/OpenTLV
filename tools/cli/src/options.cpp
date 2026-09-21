@@ -130,9 +130,17 @@ int options::parse(int argc, char** argv) {
     const bool listing = argc > 1 && !strcmp(command, "tags");
     const bool decoding = argc > 1 && !strcmp(command, "decode");
     const bool validating = argc > 1 && !strcmp(command, "validate");
-    if (strcmp(command, "dump") && !validating && !decoding && !encoding && !lookup && !listing)
+    const bool querying = argc > 1 && !strcmp(command, "query");
+    if (strcmp(command, "dump") && !validating && !decoding && !encoding && !lookup && !listing &&
+        !querying)
         return fail(2, "unknown command; use --help");
     i = 2;
+    if (querying) {
+        // query takes the path as a positional argument: otlv query 6F/A5/50 --format ber ...
+        if (argc < 3 || !strncmp(argv[2], "--", 2)) return fail(2, "query requires a path");
+        path = argv[2];
+        i = 3;
+    }
     if (lookup) {
         // tag takes the tag bytes as a positional argument: otlv tag 9F02 --profile emv
         if (argc < 3 || !strncmp(argv[2], "--", 2)) return fail(2, "tag requires a hex tag");
@@ -151,14 +159,19 @@ int options::parse(int argc, char** argv) {
                                         opt_recover | opt_emv_context;
         const unsigned encode_options =
             opt_format | opt_input | opt_max_input | opt_max_depth | opt_max_elements | encode_only;
+        const unsigned query_options = opt_format | opt_input | opt_hex | opt_max_input |
+                                       opt_max_depth | opt_max_elements | opt_input_encoding |
+                                       opt_output | opt_value;
         if (lookup       ? !(bit & (opt_profile | opt_output))
             : listing    ? !(bit & (opt_profile | opt_output | opt_search))
+            : querying   ? !(bit & query_options)
             : encoding   ? !(bit & encode_options)
             : decoding   ? !(bit & decode_options)
             : validating ? (bit & (encode_only | opt_search | opt_recover))
                          : (bit & (encode_only | opt_search | opt_emv_check)))
             return fail(2, lookup                ? "option is not valid for tag"
                            : listing             ? "option is not valid for tags"
+                           : querying            ? "option is not valid for query"
                            : encoding            ? "option is not valid for encode"
                            : decoding            ? "option is not valid for decode"
                            : (bit & encode_only) ? "option requires encode"
@@ -193,6 +206,10 @@ int options::parse(int argc, char** argv) {
         }
         if (bit == opt_recover) {
             recover = 1;
+            continue;
+        }
+        if (bit == opt_value && querying) {
+            value_only = 1;
             continue;
         }
         if (++i == argc) return fail(2, "missing option value");
@@ -266,6 +283,18 @@ int options::parse(int argc, char** argv) {
     if (!format || (!!input + !!hex) != 1)
         return fail(2, "specify --format and exactly one of --input or --hex");
     if (max_depth > TLV_WALK_MAX_DEPTH) return fail(2, "maximum depth must be in 0..64");
+    if (querying) {
+        const tlv_result_t rc = tlv_query_parse(path, &query, nullptr);
+        if (rc == TLV_ERR_INVALID_ARG)
+            return fail(2, "invalid query path; use hexadecimal tags separated by /");
+        if (rc == TLV_ERR_INVALID_TAG_SIZE) return fail(2, "query tag is too long");
+        if (rc != TLV_OK) return fail(2, "query path has too many tags");
+        if (query.count > 1 && strcmp(format, "ber") && strcmp(format, "der"))
+            return fail(2, "a query with nested tags requires --format ber or der");
+        if (value_only && strcmp(output, "text"))
+            return fail(2, "--value cannot be combined with --output json");
+        return 0;
+    }
     if (tree && strcmp(command, "dump")) return fail(2, "--tree requires dump");
     if (pdol && (strcmp(format, "ber") || tree || decode))
         return fail(2, "--pdol requires --format ber and cannot use --tree, --pretty, or --decode");
@@ -304,6 +333,8 @@ void options::usage() {
            "[--output-encoding hex|binary]\n"
            "       otlv encode --format NAME --input JSON_PATH|- "
            "[--output-encoding hex|binary] [--output-file PATH]\n"
+           "       otlv query PATH --format NAME (--input PATH|- | --hex BYTES) [--value] "
+           "[--output text|json]\n"
            "       otlv tag HEX --profile emv [--output text|json]\n"
            "       otlv tags --profile emv [--search TEXT] [--output text|json]\n"
            "       otlv formats | --help | --version\n"
@@ -331,11 +362,15 @@ void options::usage() {
            "  --max-elements N       Maximum visited elements (default 100000)\n"
            "  --search TEXT          tags: only tags whose name contains TEXT "
            "(case-insensitive)\n"
+           "  --value                query: print only the values of the addressed elements\n"
            "  --tag HEX              encode: tag bytes in wire order\n"
            "  --value HEX            encode: value bytes (default: empty)\n"
            "  --output-encoding NAME encode: hex (default, one line) or binary\n"
            "  --output-file PATH     encode: write the result to PATH instead of stdout\n"
            "decode prints the versioned JSON document that encode --input reads.\n"
+           "query prints every element addressed by a path of hexadecimal tags such as "
+           "6F/A5/50 (a top-level 6F, its child A5, its child 50); nested paths need "
+           "--format ber or der. Exit code 5 means nothing matched.\n"
            "tag looks up one BER tag in the EMV dictionary; an unknown tag is a result "
            "(exit 0), not an error; tags lists the dictionary.\n"
            "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"

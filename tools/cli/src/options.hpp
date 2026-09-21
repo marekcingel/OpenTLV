@@ -1,6 +1,7 @@
 #ifndef OPENTLV_CLI_OPTIONS_HPP
 #define OPENTLV_CLI_OPTIONS_HPP
 #include <cstddef>
+#include "tlv/query/query.h"
 
 namespace cli {
 
@@ -45,6 +46,11 @@ public:
     const char* output_file = nullptr;
     // tags only: case-insensitive name filter.
     const char* search = nullptr;
+    // query only: the path text, its parsed form and whether to print only
+    // the values of the addressed elements.
+    const char* path = nullptr;
+    tlv_query_t query = {};
+    int         value_only = 0;
 };
 
 } // namespace cli
