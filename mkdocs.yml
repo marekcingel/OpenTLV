@@ -146,6 +146,7 @@ nav:
       - Compilers and build settings: reference/compilers.md
       - Error codes: reference/errors.md
   - Development:
+      - Development workflow: development/workflow.md
       - Where documentation belongs: development/documentation-layout.md
       - Fuzzing: development/fuzzing.md
       - WebAssembly build: development/webassembly.md

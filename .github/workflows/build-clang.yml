@@ -10,6 +10,13 @@ on:
 permissions:
   contents: read
 
+# Pull requests get the fast path: one Debug build with unit and integration
+# tests. Pushes to main add coverage, the examples and a C-only Debug build.
+# Release tags also build Release. Benchmarks have their own workflow.
+concurrency:
+  group: clang-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   clang:
     permissions:
@@ -19,14 +26,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - build_type: Debug
-            cxx_standard: 23
-          - build_type: Release
-            cxx_standard: 23
+        build_type: ${{ fromJSON(startsWith(github.ref, 'refs/tags/') && '["Debug", "Release"]' || '["Debug"]') }}
+        cxx_standard: [23]
     env:
       CC: clang-18
       CXX: clang++-18
+      # Coverage and examples stay off the pull request path.
+      COVERAGE: ${{ github.event_name != 'pull_request' && matrix.build_type == 'Debug' }}
+      EXAMPLES: ${{ github.event_name != 'pull_request' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -36,8 +43,13 @@ jobs:
       - name: Install Clang
         run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
 
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: clang-18-${{ matrix.build_type }}-${{ matrix.cxx_standard }}
+
       - name: Install coverage tools
-        if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
+        if: env.COVERAGE == 'true'
         run: |
           sudo apt-get install -y llvm-18 python3-venv
           python3 -m venv "$RUNNER_TEMP/coverage-venv"
@@ -53,15 +65,16 @@ jobs:
           -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }}
           -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_WARNINGS_AS_ERRORS=ON
-          -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=ON
-          -DOPENTLV_BUILD_BENCHMARKS=ON
-          ${{ matrix.build_type == 'Debug' && matrix.cxx_standard == 23 && '-DCMAKE_C_FLAGS=--coverage -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_EXE_LINKER_FLAGS=--coverage -DCMAKE_SHARED_LINKER_FLAGS=--coverage' || '' }}
+          -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=${{ env.EXAMPLES == 'true' && 'ON' || 'OFF' }}
+          -DOPENTLV_BUILD_BENCHMARKS=OFF
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          ${{ env.COVERAGE == 'true' && '-DCMAKE_C_FLAGS=--coverage -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_EXE_LINKER_FLAGS=--coverage -DCMAKE_SHARED_LINKER_FLAGS=--coverage' || '' }}
 
       - name: Build
         run: cmake --build build --parallel
 
       - name: Reset coverage counters before unit and integration tests
-        if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
+        if: env.COVERAGE == 'true'
         # GoogleTest discovery can execute instrumented binaries during the build.
         run: find build -type f -name '*.gcda' -delete
 
@@ -71,7 +84,7 @@ jobs:
           ctest --test-dir build -L integration --output-on-failure --no-tests=error
 
       - name: Generate unit and integration test coverage report
-        if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
+        if: env.COVERAGE == 'true'
         # Collect before examples run and search only the main build tree.
         run: |
           test -n "$(find build -type f -name '*.gcno' -print -quit)" || { echo '::error::Missing coverage instrumentation data'; exit 1; }
@@ -91,7 +104,7 @@ jobs:
 
       - name: Upload coverage report
         id: coverage-artifact
-        if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
+        if: env.COVERAGE == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-clang-debug-unit-integration
@@ -99,7 +112,7 @@ jobs:
           if-no-files-found: error
 
       - name: Summarize coverage
-        if: matrix.build_type == 'Debug' && matrix.cxx_standard == 23
+        if: env.COVERAGE == 'true'
         env:
           COVERAGE_ARTIFACT_URL: ${{ steps.coverage-artifact.outputs.artifact-url }}
         run: |
@@ -118,11 +131,31 @@ jobs:
           PY
 
       - name: Run C and C++ examples (also the ones embedded in the documentation)
+        if: env.EXAMPLES == 'true'
         run: |
           ./build/examples/tlv/example-tlv
           ./build/examples/tlv/example-tlv-quick-start
           ./build/examples/tlv++/example-tlv++
           ./build/examples/tlv++/example-tlv++-quick-start
+
+  c-only:
+    permissions:
+      contents: read
+    name: Clang 18 / C-only / ${{ matrix.build_type }}
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: ${{ fromJSON(startsWith(github.ref, 'refs/tags/') && '["Debug", "Release"]' || '["Debug"]') }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install Clang
+        run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
 
       - name: Verify C-only build
         run: |

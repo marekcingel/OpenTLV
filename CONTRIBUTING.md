@@ -26,6 +26,10 @@ Before opening a pull request:
 For substantial API or architecture changes, discuss the proposed scope in an
 issue first. Repository-specific instructions are in [AGENTS.md](AGENTS.md).
 
+For the branch model, what CI runs on pull requests, on `main` and on release
+tags, and how to cut a release, see the
+[development workflow](docs/development/workflow.md).
+
 ## Public API documentation
 
 The public headers ([tlv/include/tlv](tlv/include/tlv) and

@@ -1,10 +1,11 @@
 name: CodeQL
 
+# Runs after merge and weekly instead of on pull requests, keeping the slow
+# traced build off the pull request critical path.
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
   schedule:
     # Re-runs the security-extended query suite against unchanged code every
     # Monday, so newly published queries still get applied between pushes.
