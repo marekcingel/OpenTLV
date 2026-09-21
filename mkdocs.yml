@@ -117,6 +117,7 @@ nav:
       - Copy helpers: guides/copy.md
       - Scanning and recovery: guides/scanner.md
       - Path queries: guides/queries.md
+      - Mutable documents: guides/document.md
       - Building only the components you need: guides/select-components.md
       - Using OpenTLV from Rust: guides/rust.md
   - Formats:

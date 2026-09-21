@@ -21,5 +21,8 @@
 #if OPENTLV_FORMAT_BER
 #include "tlv++/ber.hpp"
 #endif
+#if OPENTLV_DOCUMENT
+#include "tlv++/document.hpp"
+#endif
 
 #endif // OPENTLV_TLVPP_TLV_HPP

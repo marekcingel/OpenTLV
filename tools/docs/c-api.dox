@@ -53,3 +53,7 @@
  * Copying views and encoded bytes into caller-owned storage.
  * Guides: @docs{guides/copy,copy helpers}.
  */
+/** @defgroup document Mutable document
+ * Optional owned tree of elements that can be searched, changed and encoded again; the only allocating component.
+ * Guides: @docs{guides/document,mutable documents}.
+ */

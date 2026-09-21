@@ -19,6 +19,7 @@ Turn off what you do not use.
 | `OPENTLV_FORMAT_DER` | [DER-TLV](../formats/asn1/der.md); must be ON for EMV |
 | `OPENTLV_FORMAT_CER` | [CER-TLV](../formats/asn1/cer.md); independent of DER |
 | `OPENTLV_PROFILE_EMV` | [EMV profile](../profiles/emv/README.md) |
+| `OPENTLV_DOCUMENT` | [Mutable document](document.md); allocates memory, so turn it OFF for allocation-free builds. Independent of every format |
 
 Turning an option OFF also turns OFF everything below it in the chain
 `ASN1 -> BER -> DER -> EMV`, with CER a sibling of DER under BER. The

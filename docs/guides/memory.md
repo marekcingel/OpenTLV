@@ -11,6 +11,7 @@
 | Writer | Borrows output storage, its format descriptor, and context. The caller provides capacity. |
 | Visitor | Receives a temporary view; a copied view still borrows the input. |
 | Value codecs | Representation-dependent; some results borrow input. Follow the selected codec contract. |
+| `tlv_document_t` (optional) | Owns a copy of everything in it and allocates; nodes and the tags and values read from them borrow from the document. See [mutable documents](document.md#ownership-and-lifetime). |
 
 ## Reading
 

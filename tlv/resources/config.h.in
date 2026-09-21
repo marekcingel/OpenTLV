@@ -22,6 +22,7 @@
 #cmakedefine01 OPENTLV_FORMAT_DER
 #cmakedefine01 OPENTLV_FORMAT_CER
 #cmakedefine01 OPENTLV_PROFILE_EMV
+#cmakedefine01 OPENTLV_DOCUMENT
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,6 +39,7 @@ TLV_API int tlv_config_format_ber(void);
 TLV_API int tlv_config_format_der(void);
 TLV_API int tlv_config_format_cer(void);
 TLV_API int tlv_config_profile_emv(void);
+TLV_API int tlv_config_document(void);
 
 #ifdef __cplusplus
 }

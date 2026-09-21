@@ -42,6 +42,7 @@ tlv/
     asn1/    ber.h, der.h
   reader/    reader.h, walker.h, scanner.h
   query/     query.h
+  document/  document.h
   writer/    writer.h
   schemas/   schema.h
   codec/     codec.h, structure.h, emv.h
@@ -56,6 +57,16 @@ source files. `config.h` and `version.h` are generated into the build include
 directory. The public aggregate `tlv/tlv.h` includes enabled components; generic
 headers include only their direct contracts. Use explicit headers for small
 consumers. C++ common types are in `tlv++/types.hpp`, independent of codecs.
+
+## Mutable document
+
+`document/document.h` is a layer above the reader, writer and query facilities. It
+parses input into an owned tree, lets the tree be searched, changed, extended and
+shortened, and encodes it again through the writer. It is the only component that
+allocates, it can use a caller-supplied allocator, and it is the `OPENTLV_DOCUMENT`
+option. Nothing below it depends on it, so the reader, writer and walker stay
+zero-copy and allocation-free whether or not it is built. See
+[mutable documents](../guides/document.md).
 
 ## Traversal and recovery
 
@@ -144,6 +155,7 @@ to ON and can be disabled independently:
 | `OPENTLV_FORMAT_DER` | DER format and bounded DER profile operations |
 | `OPENTLV_FORMAT_CER` | CER format and bounded CER profile operations |
 | `OPENTLV_PROFILE_EMV` | EMV dictionary, schemas and value codecs |
+| `OPENTLV_DOCUMENT` | Optional [mutable document](../guides/document.md); the only component that allocates |
 
 `OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`, and
 `OPENTLV_PROFILE_EMV` form a chain (ASN1 -> BER -> DER -> EMV): disabling an

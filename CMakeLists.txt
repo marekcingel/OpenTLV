@@ -42,6 +42,7 @@ option(OPENTLV_FORMAT_BER "Include the BER wire format" ON)
 option(OPENTLV_FORMAT_DER "Include the DER wire format and validation profile" ON)
 option(OPENTLV_FORMAT_CER "Include the CER wire format and validation profile" ON)
 option(OPENTLV_PROFILE_EMV "Include the EMV dictionary, schemas and codecs" ON)
+option(OPENTLV_DOCUMENT "Include the allocating mutable document API" ON)
 
 if(OPENTLV_BUILD_WASM)
     if(NOT EMSCRIPTEN)

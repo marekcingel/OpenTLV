@@ -31,3 +31,7 @@ int tlv_config_format_cer(void) {
 int tlv_config_profile_emv(void) {
     return OPENTLV_PROFILE_EMV;
 }
+
+int tlv_config_document(void) {
+    return OPENTLV_DOCUMENT;
+}

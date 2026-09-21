@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an optional mutable document (`tlv_document_parse()`, `tlv_node_set_value()`, `tlv_document_insert()`, `tlv_node_erase()`, `tlv_document_encode()` and the C++ `tlv::document`); it allocates and can be left out with `OPENTLV_DOCUMENT=OFF`; see [Mutable documents](docs/guides/document.md). (#171)
 - Add `tlv_tag()` and `TLV_TAG(...)` to build tags from runtime or literal bytes, `tlv_tag_equal()` and `tlv_tag_compare()` for value-like comparison by contents, `tlv_query_step()` to read a query tag, and `TLV_ASN1_TAG_MAX_SIZE` for the tag length limit of BER, CER and DER; see [Tags are borrowed](docs/concepts/core-types.md#tags-are-borrowed). (#256)
 - Add path queries such as `6F/A5/50`: `tlv_query_parse()` and `tlv_query_walk()` (and `tlv::query`) address nested elements by their tags without allocating, and the new `otlv query` command prints the matches with `--value` or `--output json` and exits with code 5 when nothing matches; see [Path queries](docs/guides/queries.md). (#251)
 - Add `tlv_schema_validate_all()` (and `tlv::validate_all`), which checks template contents against a structure schema and reports every violation with its path, such as `70/77/9F36`, and byte offset; see [Reporting every violation](docs/guides/schemas.md#reporting-every-violation). (#57)
