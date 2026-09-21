@@ -9,6 +9,10 @@ set(SOURCES
     src/test_tlvpp.cpp
 )
 
+if(test_group STREQUAL "unit")
+    list(APPEND SOURCES src/test_fixed_format.cpp)
+endif()
+
 if(test_group STREQUAL "integration")
     list(APPEND SOURCES src/layers_test.cpp)
 endif()

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add the C++ `tlv::fixed_format<TagWidth, LengthWidth, Order>` template for compile-time configurable fixed-width TLV formats, with an example, tests and compile-time rejection of unsupported widths; see [Configurable fixed-width TLV](docs/formats/fixed/configurable.md). (#7)
 - Add the Bluetooth LTV format to the WebAssembly module and the browser playground, which now shows the length before the type for this format. (#222)
 - Expand the [Bluetooth LTV](docs/formats/bluetooth/README.md) documentation with the logical model, length semantics, comparison with conventional TLV, parsing, encoding, unknown types, malformed input and limitations. (#222)
 - Add dedicated Bluetooth LTV conformance tests (vectors, boundary lengths, truncation, malformed lengths, round trips and walker offsets) and include the format, with seed corpus, in the fuzz harnesses. (#221)
