@@ -37,7 +37,7 @@ jobs:
           -DCMAKE_CXX_STANDARD=${{ matrix.cxx_standard }}
           -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=ON
-          -DOPENTLV_BUILD_BENCHMARKS=ON
+          -DOPENTLV_BUILD_BENCHMARKS=OFF
 
       - name: Build
         run: cmake --build build --parallel

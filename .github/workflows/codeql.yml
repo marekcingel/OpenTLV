@@ -1,8 +1,12 @@
 name: CodeQL
 
+# Required for pull requests by the repository rules, so it has no path filter:
+# a skipped run would leave the required check pending. It runs in parallel with
+# the Clang build, so it only lengthens pull request feedback if it is slower.
 on:
   push:
     branches: [main]
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
   pull_request:
     branches: [main]
   schedule:
@@ -35,7 +39,9 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: cpp
-          queries: security-extended
+          # Pull requests leave this empty (the default suite) to stay fast; main, tags and the
+          # weekly run use the broader security-extended suite.
+          queries: ${{ github.event_name != 'pull_request' && 'security-extended' || '' }}
 
       # A real build is required so CodeQL can trace the exact compiler
       # invocations; unlike the cppcheck/clang-tidy jobs in static-analysis.yml
@@ -50,7 +56,8 @@ jobs:
           -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
           -DCMAKE_CXX_STANDARD=23 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_WARNINGS_AS_ERRORS=ON
-          -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=ON
+          -DOPENTLV_BUILD_TESTS=ON
+          -DOPENTLV_BUILD_EXAMPLES=${{ github.event_name == 'pull_request' && 'OFF' || 'ON' }}
 
       - name: Build
         run: cmake --build build --parallel

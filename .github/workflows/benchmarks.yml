@@ -1,0 +1,62 @@
+name: Benchmarks Build
+
+# Only verifies that the Google Benchmark suites still build; they are run
+# locally. Triggered by changes to the benchmarks or to the library they link,
+# and by every release tag (path filters do not apply to tags).
+on:
+  push:
+    branches: [main]
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
+    paths:
+      - 'benchmarks/**'
+      - 'tlv/**'
+      - 'cmake/**'
+      - '**/CMakeLists.txt'
+      - '.github/workflows/benchmarks.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'benchmarks/**'
+      - 'tlv/**'
+      - 'cmake/**'
+      - '**/CMakeLists.txt'
+      - '.github/workflows/benchmarks.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmarks-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  benchmarks:
+    permissions:
+      contents: read
+    name: Clang 18 / Release / benchmarks
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Clang
+        run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: benchmarks
+
+      - name: Configure CMake
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
+          -DOPENTLV_WARNINGS_AS_ERRORS=ON
+          -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+          -DOPENTLV_BUILD_BENCHMARKS=ON
+
+      - name: Build benchmarks
+        run: cmake --build build --target benchmark-tlv --parallel

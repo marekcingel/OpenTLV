@@ -10,6 +10,12 @@ on:
 permissions:
   contents: read
 
+# Pull requests run pre-commit and clang-tidy (the latter only when C or C++
+# sources or the build change). cppcheck runs on pushes to main and on tags.
+concurrency:
+  group: static-analysis-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   pre-commit:
     permissions:
@@ -34,6 +40,7 @@ jobs:
     permissions:
       contents: read
     name: cppcheck
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     # ubuntu-24.04's apt package (2.13.0) predates this pin; built from
     # source since upstream only publishes a Windows installer, not a Linux
@@ -129,10 +136,38 @@ jobs:
                   )
           PY
 
+  changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    name: detect changed components
+    runs-on: ubuntu-24.04
+    outputs:
+      native: ${{ github.event_name != 'pull_request' || steps.filter.outputs.native }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            native:
+              - 'tlv/**'
+              - 'tlv++/**'
+              - 'tests/**'
+              - 'examples/**'
+              - 'cmake/**'
+              - '**/CMakeLists.txt'
+              - '.clang-tidy'
+              - '.github/workflows/static-analysis.yml'
+
   clang-tidy:
     permissions:
       contents: read
     name: clang-tidy
+    needs: changes
+    if: needs.changes.outputs.native == 'true'
     runs-on: ubuntu-24.04
     env:
       CC: clang-18
