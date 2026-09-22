@@ -3,6 +3,7 @@
 
 #include "tlv/error.h"
 #include "tlv/export.h"
+#include "tlv/tag.h"
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -49,6 +50,87 @@ typedef struct tlv_diagnostic_context {
     const struct tlv_diagnostic_context* next;
 } tlv_diagnostic_context_t;
 
+/** @brief Maximum number of tags a #tlv_diagnostic_path_t can hold. */
+enum { TLV_DIAGNOSTIC_PATH_MAX = 32 };
+
+/**
+ * @brief Bounded, allocation-free stack of the tags enclosing a #tlv_diagnostic_t.
+ *
+ * A caller that traverses nested constructed TLVs, for example with
+ * tlv_walk_tree() or by recursing into a value's bytes, builds a path by
+ * calling tlv_diagnostic_path_push() with the tag of each element it
+ * descends into and tlv_diagnostic_path_pop() when it returns to the
+ * parent. `tags` then lists the enclosing elements outermost first, so it
+ * identifies the exact branch of a document that led to a diagnostic even
+ * when the same tag repeats at different depths. Nothing is copied or
+ * allocated: pushing a tag stores its borrowed `data`/`size` pair, which
+ * must stay valid, and unchanged, for as long as the path is used.
+ *
+ * Path tracking is entirely opt-in: a #tlv_diagnostic_t that is never given
+ * a path costs nothing beyond the one `NULL` pointer in `path`.
+ */
+typedef struct tlv_diagnostic_path {
+    /** Enclosing tags, outermost first; `length` entries are valid. */
+    tlv_tag_t tags[TLV_DIAGNOSTIC_PATH_MAX];
+    /** Number of valid entries in `tags`. */
+    size_t length;
+} tlv_diagnostic_path_t;
+
+/**
+ * @brief Initializes a path as empty.
+ *
+ * @param[out] path Path to initialize; must not be `NULL`.
+ */
+TLV_API void tlv_diagnostic_path_init(tlv_diagnostic_path_t* path);
+
+/**
+ * @brief Pushes a tag onto the end of a path.
+ *
+ * Call this when descending into the constructed element identified by
+ * `tag`, before visiting its children.
+ *
+ * @param[in,out] path Path to update; must not be `NULL`.
+ * @param[in]     tag  Tag of the element being descended into; borrowed, and must stay
+ *                     valid for as long as the path is used.
+ *
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG if `path` is `NULL`.
+ * @return #TLV_ERR_LIMIT if the path already holds #TLV_DIAGNOSTIC_PATH_MAX
+ *         tags; `path` is unchanged.
+ */
+TLV_API tlv_result_t tlv_diagnostic_path_push(tlv_diagnostic_path_t* path, tlv_tag_t tag);
+
+/**
+ * @brief Pops the last tag off a path.
+ *
+ * Call this when returning from the constructed element last pushed, after
+ * visiting its children. Popping an empty path is a no-op.
+ *
+ * @param[in,out] path Path to update; must not be `NULL`.
+ */
+TLV_API void tlv_diagnostic_path_pop(tlv_diagnostic_path_t* path);
+
+/**
+ * @brief Formats a path as uppercase hexadecimal tags joined by `" > "`.
+ *
+ * For example `"6F > A5 > BF0C > 61 > 4F"`. An empty path formats as an
+ * empty string. The text is NUL-terminated when it fits.
+ *
+ * @param[in]  path     Path to format.
+ * @param[out] out      Destination; may be `NULL` only if `capacity` is zero.
+ * @param[in]  capacity Size of `out` in bytes, including the terminator.
+ * @param[out] length   Receives the text length without the terminator, also
+ *                      when `out` is too small. May be `NULL`.
+ *
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG if `path` or a required `out` is `NULL`.
+ * @return #TLV_ERR_INVALID_ARG if `path->length` exceeds #TLV_DIAGNOSTIC_PATH_MAX
+ *         or a tag in `path` is invalid.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is below `*length + 1`.
+ */
+TLV_API tlv_result_t tlv_diagnostic_path_string(const tlv_diagnostic_path_t* path, char* out,
+                                                size_t capacity, size_t* length);
+
 /**
  * @brief A structured diagnostic: a stable code plus the state that produced it.
  *
@@ -79,6 +161,8 @@ typedef struct tlv_diagnostic {
     const char* actual;
     /** Innermost context first, outermost last; `NULL` if nothing has been attached. */
     const tlv_diagnostic_context_t* contexts;
+    /** Enclosing tags leading to this diagnostic, or `NULL` if not tracked. */
+    const tlv_diagnostic_path_t* path;
 } tlv_diagnostic_t;
 
 /**
@@ -121,6 +205,18 @@ TLV_API void tlv_diagnostic_set_offset(tlv_diagnostic_t* diagnostic, size_t offs
 TLV_API void tlv_diagnostic_add_context(tlv_diagnostic_t* diagnostic,
                                         tlv_diagnostic_context_t* context, const char* layer,
                                         const char* key, const char* value);
+
+/**
+ * @brief Sets the hierarchical path a diagnostic refers to.
+ *
+ * @param[in,out] diagnostic Diagnostic to update; must not be `NULL`.
+ * @param[in]     path       Borrowed path of enclosing tags, or `NULL` to clear it.
+ *
+ * @warning `path` and the tags it holds must stay valid, and unchanged, for
+ *          as long as the diagnostic is used.
+ */
+TLV_API void tlv_diagnostic_set_path(tlv_diagnostic_t* diagnostic,
+                                     const tlv_diagnostic_path_t* path);
 
 /**
  * @brief Returns a short name for a severity.
