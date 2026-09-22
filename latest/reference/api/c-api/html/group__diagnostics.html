@@ -90,6 +90,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__diagnostic__context.html">tlv_diagnostic_context</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One piece of context a layer has attached to a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a>.  <a href="structtlv__diagnostic__context.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__diagnostic__path.html">tlv_diagnostic_path</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded, allocation-free stack of the tags enclosing a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a>.  <a href="structtlv__diagnostic__path.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__diagnostic.html">tlv_diagnostic</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A structured diagnostic: a stable code plus the state that produced it.  <a href="structtlv__diagnostic.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -102,6 +105,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga9294663a1d15f6e62a5a84433931f692" id="r_ga9294663a1d15f6e62a5a84433931f692"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__diagnostic__context.html">tlv_diagnostic_context</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692">tlv_diagnostic_context_t</a></td></tr>
 <tr class="memdesc:ga9294663a1d15f6e62a5a84433931f692"><td class="mdescLeft">&#160;</td><td class="mdescRight">One piece of context a layer has attached to a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:ga9294663a1d15f6e62a5a84433931f692"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga72515e07c0b698c80077f8f144d4e33e" id="r_ga72515e07c0b698c80077f8f144d4e33e"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__diagnostic__path.html">tlv_diagnostic_path</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a></td></tr>
+<tr class="memdesc:ga72515e07c0b698c80077f8f144d4e33e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded, allocation-free stack of the tags enclosing a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a>.  <br /></td></tr>
+<tr class="separator:ga72515e07c0b698c80077f8f144d4e33e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2118f30a61e0b0b3ba5d20c73a740b2e" id="r_ga2118f30a61e0b0b3ba5d20c73a740b2e"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__diagnostic.html">tlv_diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a></td></tr>
 <tr class="memdesc:ga2118f30a61e0b0b3ba5d20c73a740b2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">A structured diagnostic: a stable code plus the state that produced it.  <br /></td></tr>
 <tr class="separator:ga2118f30a61e0b0b3ba5d20c73a740b2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -114,9 +120,25 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga729a8f4831990a946f096b7f3db4ce7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">How serious a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> is.  <a href="group__diagnostics.html#ga729a8f4831990a946f096b7f3db4ce7d">More...</a><br /></td></tr>
 <tr class="separator:ga729a8f4831990a946f096b7f3db4ce7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga99fb83031ce9923c84392b4e92f956b5" id="r_ga99fb83031ce9923c84392b4e92f956b5"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__diagnostics.html#gga99fb83031ce9923c84392b4e92f956b5ae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a> = 32
+ }</td></tr>
+<tr class="memdesc:ga99fb83031ce9923c84392b4e92f956b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of tags a <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e" title="Bounded, allocation-free stack of the tags enclosing a tlv_diagnostic_t.">tlv_diagnostic_path_t</a> can hold.  <a href="group__diagnostics.html#ga99fb83031ce9923c84392b4e92f956b5">More...</a><br /></td></tr>
+<tr class="separator:ga99fb83031ce9923c84392b4e92f956b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga843d5d67f62d1759098bb3b5d0b1fbde" id="r_ga843d5d67f62d1759098bb3b5d0b1fbde"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga843d5d67f62d1759098bb3b5d0b1fbde">tlv_diagnostic_path_init</a> (<a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *path)</td></tr>
+<tr class="memdesc:ga843d5d67f62d1759098bb3b5d0b1fbde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a path as empty.  <br /></td></tr>
+<tr class="separator:ga843d5d67f62d1759098bb3b5d0b1fbde"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9dcad106e7fcf65699ecb0bfc305c15f" id="r_ga9dcad106e7fcf65699ecb0bfc305c15f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga9dcad106e7fcf65699ecb0bfc305c15f">tlv_diagnostic_path_push</a> (<a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *path, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag)</td></tr>
+<tr class="memdesc:ga9dcad106e7fcf65699ecb0bfc305c15f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pushes a tag onto the end of a path.  <br /></td></tr>
+<tr class="separator:ga9dcad106e7fcf65699ecb0bfc305c15f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafc1535fda14d5f60d3a9b4f443b38d47" id="r_gafc1535fda14d5f60d3a9b4f443b38d47"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#gafc1535fda14d5f60d3a9b4f443b38d47">tlv_diagnostic_path_pop</a> (<a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *path)</td></tr>
+<tr class="memdesc:gafc1535fda14d5f60d3a9b4f443b38d47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pops the last tag off a path.  <br /></td></tr>
+<tr class="separator:gafc1535fda14d5f60d3a9b4f443b38d47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga647030df9ea3e982a3d76b8c1b6e4541" id="r_ga647030df9ea3e982a3d76b8c1b6e4541"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga647030df9ea3e982a3d76b8c1b6e4541">tlv_diagnostic_path_string</a> (const <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *path, char *out, size_t capacity, size_t *length)</td></tr>
+<tr class="memdesc:ga647030df9ea3e982a3d76b8c1b6e4541"><td class="mdescLeft">&#160;</td><td class="mdescRight">Formats a path as uppercase hexadecimal tags joined by <code>" &gt; "</code>.  <br /></td></tr>
+<tr class="separator:ga647030df9ea3e982a3d76b8c1b6e4541"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaebfdc9021b42321df2daae0c81830f41" id="r_gaebfdc9021b42321df2daae0c81830f41"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#gaebfdc9021b42321df2daae0c81830f41">tlv_diagnostic_init</a> (<a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *diagnostic, <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> code, <a class="el" href="group__diagnostics.html#gacb09b23a905d4d2bb22ec41eb9fbc913">tlv_diagnostic_severity_t</a> severity)</td></tr>
 <tr class="memdesc:gaebfdc9021b42321df2daae0c81830f41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a diagnostic with a code and severity, and no location, expectation or context.  <br /></td></tr>
 <tr class="separator:gaebfdc9021b42321df2daae0c81830f41"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -126,6 +148,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5bb5f0bb7eb066ffc093e012714c8a33" id="r_ga5bb5f0bb7eb066ffc093e012714c8a33"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga5bb5f0bb7eb066ffc093e012714c8a33">tlv_diagnostic_add_context</a> (<a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *diagnostic, <a class="el" href="group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692">tlv_diagnostic_context_t</a> *context, const char *layer, const char *key, const char *value)</td></tr>
 <tr class="memdesc:ga5bb5f0bb7eb066ffc093e012714c8a33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attaches one context entry to a diagnostic.  <br /></td></tr>
 <tr class="separator:ga5bb5f0bb7eb066ffc093e012714c8a33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga572c3f8fa1a23f08b059a2e8614a6732" id="r_ga572c3f8fa1a23f08b059a2e8614a6732"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga572c3f8fa1a23f08b059a2e8614a6732">tlv_diagnostic_set_path</a> (<a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *diagnostic, const <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *path)</td></tr>
+<tr class="memdesc:ga572c3f8fa1a23f08b059a2e8614a6732"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the hierarchical path a diagnostic refers to.  <br /></td></tr>
+<tr class="separator:ga572c3f8fa1a23f08b059a2e8614a6732"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga57d7cdcd11cae7c56e7abbda241357ef" id="r_ga57d7cdcd11cae7c56e7abbda241357ef"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga57d7cdcd11cae7c56e7abbda241357ef">tlv_diagnostic_severity_string</a> (<a class="el" href="group__diagnostics.html#gacb09b23a905d4d2bb22ec41eb9fbc913">tlv_diagnostic_severity_t</a> severity)</td></tr>
 <tr class="memdesc:ga57d7cdcd11cae7c56e7abbda241357ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a short name for a severity.  <br /></td></tr>
 <tr class="separator:ga57d7cdcd11cae7c56e7abbda241357ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,6 +172,24 @@ Functions</h2></td></tr>
 
 <p>One piece of context a layer has attached to a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a>. </p>
 <p>A context node is caller-provided storage linked onto a diagnostic's <code>contexts</code> chain by <a class="el" href="group__diagnostics.html#ga5bb5f0bb7eb066ffc093e012714c8a33" title="Attaches one context entry to a diagnostic.">tlv_diagnostic_add_context()</a>; nothing is copied or allocated. <code>layer</code>, <code>key</code> and <code>value</code> are borrowed and must stay valid, and <code>context</code> itself must stay valid and unmoved, for as long as the diagnostic is used. </p>
+
+</div>
+</div>
+<a id="ga72515e07c0b698c80077f8f144d4e33e" name="ga72515e07c0b698c80077f8f144d4e33e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga72515e07c0b698c80077f8f144d4e33e">&#9670;&#160;</a></span>tlv_diagnostic_path_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__diagnostic__path.html">tlv_diagnostic_path</a> <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bounded, allocation-free stack of the tags enclosing a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a>. </p>
+<p>A caller that traverses nested constructed TLVs, for example with <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a> or by recursing into a value's bytes, builds a path by calling <a class="el" href="group__diagnostics.html#ga9dcad106e7fcf65699ecb0bfc305c15f" title="Pushes a tag onto the end of a path.">tlv_diagnostic_path_push()</a> with the tag of each element it descends into and <a class="el" href="group__diagnostics.html#gafc1535fda14d5f60d3a9b4f443b38d47" title="Pops the last tag off a path.">tlv_diagnostic_path_pop()</a> when it returns to the parent. <code>tags</code> then lists the enclosing elements outermost first, so it identifies the exact branch of a document that led to a diagnostic even when the same tag repeats at different depths. Nothing is copied or allocated: pushing a tag stores its borrowed <code>data</code>/<code>size</code> pair, which must stay valid, and unchanged, for as long as the path is used.</p>
+<p>Path tracking is entirely opt-in: a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> that is never given a path costs nothing beyond the one <code>NULL</code> pointer in <code>path</code>. </p>
 
 </div>
 </div>
@@ -185,6 +228,25 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="ga99fb83031ce9923c84392b4e92f956b5" name="ga99fb83031ce9923c84392b4e92f956b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga99fb83031ce9923c84392b4e92f956b5">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Maximum number of tags a <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e" title="Bounded, allocation-free stack of the tags enclosing a tlv_diagnostic_t.">tlv_diagnostic_path_t</a> can hold. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga99fb83031ce9923c84392b4e92f956b5ae375da42dfacade67967c61e3f9c0057" name="gga99fb83031ce9923c84392b4e92f956b5ae375da42dfacade67967c61e3f9c0057"></a>TLV_DIAGNOSTIC_PATH_MAX&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
 <a id="ga729a8f4831990a946f096b7f3db4ce7d" name="ga729a8f4831990a946f096b7f3db4ce7d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga729a8f4831990a946f096b7f3db4ce7d">&#9670;&#160;</a></span>tlv_diagnostic_severity</h2>
 
@@ -314,6 +376,161 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga843d5d67f62d1759098bb3b5d0b1fbde" name="ga843d5d67f62d1759098bb3b5d0b1fbde"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga843d5d67f62d1759098bb3b5d0b1fbde">&#9670;&#160;</a></span>tlv_diagnostic_path_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tlv_diagnostic_path_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initializes a path as empty. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">path</td><td>Path to initialize; must not be <code>NULL</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gafc1535fda14d5f60d3a9b4f443b38d47" name="gafc1535fda14d5f60d3a9b4f443b38d47"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafc1535fda14d5f60d3a9b4f443b38d47">&#9670;&#160;</a></span>tlv_diagnostic_path_pop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tlv_diagnostic_path_pop </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pops the last tag off a path. </p>
+<p>Call this when returning from the constructed element last pushed, after visiting its children. Popping an empty path is a no-op.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">path</td><td>Path to update; must not be <code>NULL</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga9dcad106e7fcf65699ecb0bfc305c15f" name="ga9dcad106e7fcf65699ecb0bfc305c15f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9dcad106e7fcf65699ecb0bfc305c15f">&#9670;&#160;</a></span>tlv_diagnostic_path_push()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_diagnostic_path_push </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td>
+          <td class="paramname"><em>tag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pushes a tag onto the end of a path. </p>
+<p>Call this when descending into the constructed element identified by <code>tag</code>, before visiting its children.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">path</td><td>Path to update; must not be <code>NULL</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag of the element being descended into; borrowed, and must stay valid for as long as the path is used.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>path</code> is <code>NULL</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the path already holds <a class="el" href="group__diagnostics.html#gga99fb83031ce9923c84392b4e92f956b5ae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a> tags; <code>path</code> is unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="ga647030df9ea3e982a3d76b8c1b6e4541" name="ga647030df9ea3e982a3d76b8c1b6e4541"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga647030df9ea3e982a3d76b8c1b6e4541">&#9670;&#160;</a></span>tlv_diagnostic_path_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_diagnostic_path_string </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *&#160;</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Formats a path as uppercase hexadecimal tags joined by <code>" &gt; "</code>. </p>
+<p>For example <code>"6F &gt; A5 &gt; BF0C &gt; 61 &gt; 4F"</code>. An empty path formats as an empty string. The text is NUL-terminated when it fits.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">path</td><td>Path to format. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">out</td><td>Destination; may be <code>NULL</code> only if <code>capacity</code> is zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Size of <code>out</code> in bytes, including the terminator. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">length</td><td>Receives the text length without the terminator, also when <code>out</code> is too small. May be <code>NULL</code>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>path</code> or a required <code>out</code> is <code>NULL</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>path-&gt;length</code> exceeds <a class="el" href="group__diagnostics.html#gga99fb83031ce9923c84392b4e92f956b5ae375da42dfacade67967c61e3f9c0057">TLV_DIAGNOSTIC_PATH_MAX</a> or a tag in <code>path</code> is invalid. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> is below <code>*length + 1</code>. </dd></dl>
+
+</div>
+</div>
 <a id="ga49d8ae760e9ee15d18fea4b07aa89f50" name="ga49d8ae760e9ee15d18fea4b07aa89f50"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga49d8ae760e9ee15d18fea4b07aa89f50">&#9670;&#160;</a></span>tlv_diagnostic_set_offset()</h2>
 
@@ -349,6 +566,44 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>Also sets <code>has_offset</code> to nonzero. </dd></dl>
+
+</div>
+</div>
+<a id="ga572c3f8fa1a23f08b059a2e8614a6732" name="ga572c3f8fa1a23f08b059a2e8614a6732"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga572c3f8fa1a23f08b059a2e8614a6732">&#9670;&#160;</a></span>tlv_diagnostic_set_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tlv_diagnostic_set_path </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *&#160;</td>
+          <td class="paramname"><em>path</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the hierarchical path a diagnostic refers to. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">diagnostic</td><td>Diagnostic to update; must not be <code>NULL</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">path</td><td>Borrowed path of enclosing tags, or <code>NULL</code> to clear it.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section warning"><dt>Warning</dt><dd><code>path</code> and the tags it holds must stay valid, and unchanged, for as long as the diagnostic is used. </dd></dl>
 
 </div>
 </div>

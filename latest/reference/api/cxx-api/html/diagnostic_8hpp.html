@@ -84,6 +84,7 @@ $(function() {
 <p>C++ wrapper for the structured diagnostic model.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="elRef" href="../../c-api/html/diagnostic_8h.html">tlv/diagnostic.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
@@ -99,6 +100,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ad25d4ec98046df7826d97ce6a7ff5e2d" id="r_ad25d4ec98046df7826d97ce6a7ff5e2d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ad25d4ec98046df7826d97ce6a7ff5e2d">tlv::diagnostic_context</a> = <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692">tlv_diagnostic_context_t</a></td></tr>
 <tr class="memdesc:ad25d4ec98046df7826d97ce6a7ff5e2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the C diagnostic context type, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692">tlv_diagnostic_context_t</a>.  <br /></td></tr>
 <tr class="separator:ad25d4ec98046df7826d97ce6a7ff5e2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a362165fd39d879542d984a7aa5c5f1af" id="r_a362165fd39d879542d984a7aa5c5f1af"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">tlv::diagnostic_path</a> = <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a></td></tr>
+<tr class="memdesc:a362165fd39d879542d984a7aa5c5f1af"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the C diagnostic path type, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a>.  <br /></td></tr>
+<tr class="separator:a362165fd39d879542d984a7aa5c5f1af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -108,6 +112,18 @@ Functions</h2></td></tr>
 <tr class="memitem:a5ce58d107ecb735b70e8754f43860b35" id="r_a5ce58d107ecb735b70e8754f43860b35"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a5ce58d107ecb735b70e8754f43860b35">tlv::add_context</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;target, <a class="el" href="namespacetlv.html#ad25d4ec98046df7826d97ce6a7ff5e2d">diagnostic_context</a> &amp;context, const char *layer, const char *key, const char *value)</td></tr>
 <tr class="memdesc:a5ce58d107ecb735b70e8754f43860b35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attaches one context entry to a diagnostic.  <br /></td></tr>
 <tr class="separator:a5ce58d107ecb735b70e8754f43860b35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a743e6cef95a14fa9bee005771e2a3183" id="r_a743e6cef95a14fa9bee005771e2a3183"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">diagnostic_path</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a743e6cef95a14fa9bee005771e2a3183">tlv::make_diagnostic_path</a> ()</td></tr>
+<tr class="memdesc:a743e6cef95a14fa9bee005771e2a3183"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds an empty hierarchical path.  <br /></td></tr>
+<tr class="separator:a743e6cef95a14fa9bee005771e2a3183"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec51347a6ceab2cdb43d02bcf931876c" id="r_aec51347a6ceab2cdb43d02bcf931876c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aec51347a6ceab2cdb43d02bcf931876c">tlv::push_path</a> (<a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">diagnostic_path</a> &amp;path, <a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag)</td></tr>
+<tr class="memdesc:aec51347a6ceab2cdb43d02bcf931876c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pushes a tag onto the end of a path.  <br /></td></tr>
+<tr class="separator:aec51347a6ceab2cdb43d02bcf931876c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad094f25b69c1d02f418afbe4be0234e" id="r_aad094f25b69c1d02f418afbe4be0234e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aad094f25b69c1d02f418afbe4be0234e">tlv::pop_path</a> (<a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">diagnostic_path</a> &amp;path)</td></tr>
+<tr class="memdesc:aad094f25b69c1d02f418afbe4be0234e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pops the last tag off a path.  <br /></td></tr>
+<tr class="separator:aad094f25b69c1d02f418afbe4be0234e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ebd1f785dffded6a41e5887546d0447" id="r_a1ebd1f785dffded6a41e5887546d0447"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a1ebd1f785dffded6a41e5887546d0447">tlv::set_path</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;target, const <a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">diagnostic_path</a> &amp;path)</td></tr>
+<tr class="memdesc:a1ebd1f785dffded6a41e5887546d0447"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the hierarchical path a diagnostic refers to.  <br /></td></tr>
+<tr class="separator:a1ebd1f785dffded6a41e5887546d0447"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>C++ wrapper for the structured diagnostic model. </p>

@@ -96,6 +96,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:a70d20591dd788e580fe028230ff6ba58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac9905f3a42112057b24550b7e6c689c3" id="r_ac9905f3a42112057b24550b7e6c689c3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692">tlv_diagnostic_context_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__diagnostic.html#ac9905f3a42112057b24550b7e6c689c3">contexts</a></td></tr>
 <tr class="separator:ac9905f3a42112057b24550b7e6c689c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95612fb75bb2e70bef01a62ba8953075" id="r_a95612fb75bb2e70bef01a62ba8953075"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__diagnostic.html#a95612fb75bb2e70bef01a62ba8953075">path</a></td></tr>
+<tr class="separator:a95612fb75bb2e70bef01a62ba8953075"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A structured diagnostic: a stable code plus the state that produced it. </p>
@@ -189,6 +191,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Input or output byte offset the diagnostic refers to; valid only if <code>has_offset</code> is nonzero. </p>
+
+</div>
+</div>
+<a id="a95612fb75bb2e70bef01a62ba8953075" name="a95612fb75bb2e70bef01a62ba8953075"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95612fb75bb2e70bef01a62ba8953075">&#9670;&#160;</a></span>path</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a>* tlv_diagnostic::path</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Enclosing tags leading to this diagnostic, or <code>NULL</code> if not tracked. </p>
 
 </div>
 </div>
