@@ -124,6 +124,9 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:ga04e8743e1faf9788e1425ef13b971e83" id="r_ga04e8743e1faf9788e1425ef13b971e83"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga04e8743e1faf9788e1425ef13b971e83">TLV_LENGTH_MAX</a>&#160;&#160;&#160;UINT64_MAX</td></tr>
+<tr class="memdesc:ga04e8743e1faf9788e1425ef13b971e83"><td class="mdescLeft">&#160;</td><td class="mdescRight">The largest value a <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a> can hold.  <br /></td></tr>
+<tr class="separator:ga04e8743e1faf9788e1425ef13b971e83"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga62240f1e8115a67ac51e5b00855a240b" id="r_ga62240f1e8115a67ac51e5b00855a240b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b">TLV_TAG</a>(...)&#160;&#160;&#160;    (<a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0">tlv_tag</a>((const uint8_t[]){__VA_ARGS__}, sizeof((const uint8_t[]){__VA_ARGS__})))</td></tr>
 <tr class="memdesc:ga62240f1e8115a67ac51e5b00855a240b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds an allocation-free tag from literal bytes, e.g. <code><a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b" title="Builds an allocation-free tag from literal bytes, e.g. TLV_TAG(0x9F, 0x02).">TLV_TAG(0x9F, 0x02)</a></code>.  <br /></td></tr>
 <tr class="separator:ga62240f1e8115a67ac51e5b00855a240b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -151,19 +154,19 @@ Macros</h2></td></tr>
 <tr class="separator:gad062a7eec07ec5320048c3ce7557a06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga78642a629438a71c59f9442c78fd2c87" id="r_ga78642a629438a71c59f9442c78fd2c87"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga78642a629438a71c59f9442c78fd2c87">OPENTLV_VERSION_PATCH</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:ga78642a629438a71c59f9442c78fd2c87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa451b8da102d59f7b9458bc8e2f0bf97" id="r_gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97">OPENTLV_VERSION_REVISION</a>&#160;&#160;&#160;63</td></tr>
+<tr class="memitem:gaa451b8da102d59f7b9458bc8e2f0bf97" id="r_gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97">OPENTLV_VERSION_REVISION</a>&#160;&#160;&#160;65</td></tr>
 <tr class="separator:gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga33d8e893fc2c2576f9fd8c31cee2256b" id="r_ga33d8e893fc2c2576f9fd8c31cee2256b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga33d8e893fc2c2576f9fd8c31cee2256b">OPENTLV_VERSION_PRERELEASE</a>&#160;&#160;&#160;&quot;&quot;</td></tr>
 <tr class="separator:ga33d8e893fc2c2576f9fd8c31cee2256b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga193562e270081cce2e0ec2cf3dc9becf" id="r_ga193562e270081cce2e0ec2cf3dc9becf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga193562e270081cce2e0ec2cf3dc9becf">OPENTLV_VERSION_STRING</a>&#160;&#160;&#160;&quot;0.6.0&quot;</td></tr>
 <tr class="separator:ga193562e270081cce2e0ec2cf3dc9becf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1d93d56a9fc48abd91435938fca018a1" id="r_ga1d93d56a9fc48abd91435938fca018a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1d93d56a9fc48abd91435938fca018a1">OPENTLV_GIT_COMMIT_HASH</a>&#160;&#160;&#160;&quot;13f3ffd&quot;</td></tr>
+<tr class="memitem:ga1d93d56a9fc48abd91435938fca018a1" id="r_ga1d93d56a9fc48abd91435938fca018a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1d93d56a9fc48abd91435938fca018a1">OPENTLV_GIT_COMMIT_HASH</a>&#160;&#160;&#160;&quot;481fc4e&quot;</td></tr>
 <tr class="separator:ga1d93d56a9fc48abd91435938fca018a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1a408e73a0b7c9dd1117ad1cb59fa238" id="r_ga1a408e73a0b7c9dd1117ad1cb59fa238"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1a408e73a0b7c9dd1117ad1cb59fa238">OPENTLV_GIT_BRANCH</a>&#160;&#160;&#160;&quot;main&quot;</td></tr>
 <tr class="separator:ga1a408e73a0b7c9dd1117ad1cb59fa238"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2eb763ab60d23634a1db498f2eadde3c" id="r_ga2eb763ab60d23634a1db498f2eadde3c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga2eb763ab60d23634a1db498f2eadde3c">OPENTLV_GIT_TAG</a>&#160;&#160;&#160;&quot;0.6.0&quot;</td></tr>
 <tr class="separator:ga2eb763ab60d23634a1db498f2eadde3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5efa726a1d139abae3b566638e2ac0fd" id="r_ga5efa726a1d139abae3b566638e2ac0fd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5efa726a1d139abae3b566638e2ac0fd">OPENTLV_GIT_REPO_VERSION</a>&#160;&#160;&#160;&quot;0.6.0-63-13f3ffd&quot;</td></tr>
+<tr class="memitem:ga5efa726a1d139abae3b566638e2ac0fd" id="r_ga5efa726a1d139abae3b566638e2ac0fd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5efa726a1d139abae3b566638e2ac0fd">OPENTLV_GIT_REPO_VERSION</a>&#160;&#160;&#160;&quot;0.6.0-65-481fc4e&quot;</td></tr>
 <tr class="separator:ga5efa726a1d139abae3b566638e2ac0fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -272,6 +275,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5379ba9130ae0652419c1c9d50f45d6b" id="r_ga5379ba9130ae0652419c1c9d50f45d6b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5379ba9130ae0652419c1c9d50f45d6b">tlv_length_validate_native</a> (<a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> length)</td></tr>
 <tr class="memdesc:ga5379ba9130ae0652419c1c9d50f45d6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether a length fits the current build's <code>size_t</code> range.  <br /></td></tr>
 <tr class="separator:ga5379ba9130ae0652419c1c9d50f45d6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad9f97cddeccf82d11aa080ee5ddbf052" id="r_gad9f97cddeccf82d11aa080ee5ddbf052"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gad9f97cddeccf82d11aa080ee5ddbf052">tlv_length_add</a> (<a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> a, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> b, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> *sum)</td></tr>
+<tr class="memdesc:gad9f97cddeccf82d11aa080ee5ddbf052"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds two lengths, detecting overflow.  <br /></td></tr>
+<tr class="separator:gad9f97cddeccf82d11aa080ee5ddbf052"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga552f068e013290aec4dec3556559fbf0" id="r_ga552f068e013290aec4dec3556559fbf0"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0">tlv_tag</a> (const uint8_t *data, size_t size)</td></tr>
 <tr class="memdesc:ga552f068e013290aec4dec3556559fbf0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a tag that borrows <code>size</code> bytes at <code>data</code>.  <br /></td></tr>
 <tr class="separator:ga552f068e013290aec4dec3556559fbf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -281,12 +287,36 @@ Functions</h2></td></tr>
 <tr class="memitem:ga6e4293fe48f08cdd07e0d75a07d578a1" id="r_ga6e4293fe48f08cdd07e0d75a07d578a1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga6e4293fe48f08cdd07e0d75a07d578a1">tlv_tag_compare</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> lhs, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> rhs)</td></tr>
 <tr class="memdesc:ga6e4293fe48f08cdd07e0d75a07d578a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orders two tags lexicographically by their bytes.  <br /></td></tr>
 <tr class="separator:ga6e4293fe48f08cdd07e0d75a07d578a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4d0c2b8a2ebcfd9173cd3f961e4dcbae" id="r_ga4d0c2b8a2ebcfd9173cd3f961e4dcbae"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga4d0c2b8a2ebcfd9173cd3f961e4dcbae">tlv_tag_is_empty</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag)</td></tr>
+<tr class="memdesc:ga4d0c2b8a2ebcfd9173cd3f961e4dcbae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tests whether a tag has zero length.  <br /></td></tr>
+<tr class="separator:ga4d0c2b8a2ebcfd9173cd3f961e4dcbae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga55f1a1e373b90d20379113074eefe2e4" id="r_ga55f1a1e373b90d20379113074eefe2e4"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga55f1a1e373b90d20379113074eefe2e4">tlv_tag_hash</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag)</td></tr>
+<tr class="memdesc:ga55f1a1e373b90d20379113074eefe2e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes a hash of a tag's bytes.  <br /></td></tr>
+<tr class="separator:ga55f1a1e373b90d20379113074eefe2e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3ecda7f62add0dd73cb7ab22651ec265" id="r_ga3ecda7f62add0dd73cb7ab22651ec265"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga3ecda7f62add0dd73cb7ab22651ec265">tlv_tag_copy</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, uint8_t *data, size_t capacity, size_t *written)</td></tr>
+<tr class="memdesc:ga3ecda7f62add0dd73cb7ab22651ec265"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies a tag's bytes into caller-owned storage.  <br /></td></tr>
+<tr class="separator:ga3ecda7f62add0dd73cb7ab22651ec265"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac0c10d36b962c8c765ccdc8d757c145c" id="r_gac0c10d36b962c8c765ccdc8d757c145c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gac0c10d36b962c8c765ccdc8d757c145c">tlv_value_init</a> (const uint8_t *data, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> length, <a class="el" href="structtlv__value__t.html">tlv_value_t</a> *value)</td></tr>
 <tr class="memdesc:gac0c10d36b962c8c765ccdc8d757c145c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a value view into caller-owned storage.  <br /></td></tr>
 <tr class="separator:gac0c10d36b962c8c765ccdc8d757c145c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9d330a8cacc89909ea0d3e215da6614d" id="r_ga9d330a8cacc89909ea0d3e215da6614d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga9d330a8cacc89909ea0d3e215da6614d">tlv_value_validate</a> (const <a class="el" href="structtlv__value__t.html">tlv_value_t</a> *value)</td></tr>
 <tr class="memdesc:ga9d330a8cacc89909ea0d3e215da6614d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a value view's representation and pointer requirements.  <br /></td></tr>
 <tr class="separator:ga9d330a8cacc89909ea0d3e215da6614d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab2fa1a88d68b4f29132c536ec4001eb8" id="r_gab2fa1a88d68b4f29132c536ec4001eb8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gab2fa1a88d68b4f29132c536ec4001eb8">tlv_value_equal</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> lhs, <a class="el" href="structtlv__value__t.html">tlv_value_t</a> rhs)</td></tr>
+<tr class="memdesc:gab2fa1a88d68b4f29132c536ec4001eb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tests whether two values have the same length and bytes.  <br /></td></tr>
+<tr class="separator:gab2fa1a88d68b4f29132c536ec4001eb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3c0eb7859ee8dfeee6632c53c0fbe7ce" id="r_ga3c0eb7859ee8dfeee6632c53c0fbe7ce"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga3c0eb7859ee8dfeee6632c53c0fbe7ce">tlv_value_compare</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> lhs, <a class="el" href="structtlv__value__t.html">tlv_value_t</a> rhs)</td></tr>
+<tr class="memdesc:ga3c0eb7859ee8dfeee6632c53c0fbe7ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orders two values lexicographically by their bytes.  <br /></td></tr>
+<tr class="separator:ga3c0eb7859ee8dfeee6632c53c0fbe7ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga589216e85ef008bcb5533e4beb94dd71" id="r_ga589216e85ef008bcb5533e4beb94dd71"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga589216e85ef008bcb5533e4beb94dd71">tlv_value_is_empty</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> value)</td></tr>
+<tr class="memdesc:ga589216e85ef008bcb5533e4beb94dd71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tests whether a value has zero length.  <br /></td></tr>
+<tr class="separator:ga589216e85ef008bcb5533e4beb94dd71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga01015c5a64ea202ec46e08cf2c38ce54" id="r_ga01015c5a64ea202ec46e08cf2c38ce54"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga01015c5a64ea202ec46e08cf2c38ce54">tlv_value_slice</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> value, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> offset, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> length, <a class="el" href="structtlv__value__t.html">tlv_value_t</a> *out)</td></tr>
+<tr class="memdesc:ga01015c5a64ea202ec46e08cf2c38ce54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a sub-view over part of a value, without copying.  <br /></td></tr>
+<tr class="separator:ga01015c5a64ea202ec46e08cf2c38ce54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4a4d0f914281c34ff22bfa151146891e" id="r_ga4a4d0f914281c34ff22bfa151146891e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga4a4d0f914281c34ff22bfa151146891e">tlv_value_copy</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> value, uint8_t *data, size_t capacity, size_t *written)</td></tr>
+<tr class="memdesc:ga4a4d0f914281c34ff22bfa151146891e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies a value's bytes into caller-owned storage.  <br /></td></tr>
+<tr class="separator:ga4a4d0f914281c34ff22bfa151146891e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga68ed64e63494e6f7010fa0a55707dc5d" id="r_ga68ed64e63494e6f7010fa0a55707dc5d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga68ed64e63494e6f7010fa0a55707dc5d">tlv_config_format_default</a> (void)</td></tr>
 <tr class="separator:ga68ed64e63494e6f7010fa0a55707dc5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga4ebfc6b798bd8b192622957951336414" id="r_ga4ebfc6b798bd8b192622957951336414"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga4ebfc6b798bd8b192622957951336414">tlv_config_format_fixed_1byte</a> (void)</td></tr>
@@ -462,7 +492,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_GIT_COMMIT_HASH&#160;&#160;&#160;&quot;13f3ffd&quot;</td>
+          <td class="memname">#define OPENTLV_GIT_COMMIT_HASH&#160;&#160;&#160;&quot;481fc4e&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -476,7 +506,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_GIT_REPO_VERSION&#160;&#160;&#160;&quot;0.6.0-63-13f3ffd&quot;</td>
+          <td class="memname">#define OPENTLV_GIT_REPO_VERSION&#160;&#160;&#160;&quot;0.6.0-65-481fc4e&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -574,7 +604,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_VERSION_REVISION&#160;&#160;&#160;63</td>
+          <td class="memname">#define OPENTLV_VERSION_REVISION&#160;&#160;&#160;65</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -592,6 +622,23 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga04e8743e1faf9788e1425ef13b971e83" name="ga04e8743e1faf9788e1425ef13b971e83"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga04e8743e1faf9788e1425ef13b971e83">&#9670;&#160;</a></span>TLV_LENGTH_MAX</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_LENGTH_MAX&#160;&#160;&#160;UINT64_MAX</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The largest value a <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a> can hold. </p>
+<p>Always <code>UINT64_MAX</code>, independent of build configuration or the current build's <code>size_t</code> width. Distinct from <code>SIZE_MAX</code>, which bounds what <a class="el" href="group__core.html#ga2a4636b839fffa233c97ca36488f19d5" title="Narrows a tlv_length_t to the current build&#39;s native size.">tlv_length_to_size()</a> accepts in the current build. </p>
 
 </div>
 </div>
@@ -932,6 +979,56 @@ Functions</h2></td></tr>
 <p>Returns the native <code>uint32_t</code> byte order of the executing platform. </p>
 <dl class="section return"><dt>Returns</dt><dd>The native byte order, or <a class="el" href="group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875a8c64ee31263faaaf39b9896f25598ced">TLV_BYTE_ORDER_UNKNOWN</a> for an unsupported mixed byte order.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>This describes the executing platform, not the format of incoming data. </dd></dl>
+
+</div>
+</div>
+<a id="gad9f97cddeccf82d11aa080ee5ddbf052" name="gad9f97cddeccf82d11aa080ee5ddbf052"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad9f97cddeccf82d11aa080ee5ddbf052">&#9670;&#160;</a></span>tlv_length_add()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_length_add </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a>&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a>&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> *&#160;</td>
+          <td class="paramname"><em>sum</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds two lengths, detecting overflow. </p>
+<p>Neither operand is range-checked against <code>size_t</code>; this only guards the <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a> addition itself, for example when composing a header length and a value length before a native-size conversion.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">a</td><td>First addend. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">b</td><td>Second addend. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">sum</td><td>Receives <code>a + b</code>. Required.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>sum</code> is <code>NULL</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if <code>a + b</code> exceeds <a class="el" href="group__core.html#ga04e8743e1faf9788e1425ef13b971e83" title="The largest value a tlv_length_t can hold.">TLV_LENGTH_MAX</a>; <code>*sum</code> is unchanged. </dd></dl>
 
 </div>
 </div>
@@ -1399,6 +1496,63 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga3ecda7f62add0dd73cb7ab22651ec265" name="ga3ecda7f62add0dd73cb7ab22651ec265"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3ecda7f62add0dd73cb7ab22651ec265">&#9670;&#160;</a></span>tlv_tag_copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tag_copy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>written</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copies a tag's bytes into caller-owned storage. </p>
+<p>With <code>data == NULL</code> and <code>capacity == 0</code>, reports the required size in <code>*written</code> without copying. Overlapping source and destination byte ranges are supported.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag whose bytes are copied. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Destination buffer. <code>NULL</code> with zero <code>capacity</code> queries the required size. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Destination capacity in bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">written</td><td>Receives <code>tag.size</code> (the required size for a query). Required.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>written</code> is <code>NULL</code>, if <code>data</code> is <code>NULL</code> with a nonzero <code>capacity</code>, or if <code>tag.data</code> is <code>NULL</code> with a nonzero <code>tag.size</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> is insufficient; <code>*written</code> is unchanged. </dd></dl>
+
+</div>
+</div>
 <a id="gaeb5a71787b6d5f11175d261f3a5a7395" name="gaeb5a71787b6d5f11175d261f3a5a7395"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaeb5a71787b6d5f11175d261f3a5a7395">&#9670;&#160;</a></span>tlv_tag_equal()</h2>
 
@@ -1437,6 +1591,202 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>true</code> if both tags have the same size and bytes. </dd></dl>
+
+</div>
+</div>
+<a id="ga55f1a1e373b90d20379113074eefe2e4" name="ga55f1a1e373b90d20379113074eefe2e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga55f1a1e373b90d20379113074eefe2e4">&#9670;&#160;</a></span>tlv_tag_hash()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_tag_hash </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td>
+          <td class="paramname"><em>tag</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Computes a hash of a tag's bytes. </p>
+<p>Two tags for which <a class="el" href="group__core.html#gaeb5a71787b6d5f11175d261f3a5a7395" title="Tests whether two tags have the same size and bytes.">tlv_tag_equal()</a> is true always hash equal. The hash value is not a wire encoding: it may differ across builds, platforms and OpenTLV versions, so it must never be persisted or sent to another process.</p>
+<dl class="section pre"><dt>Precondition</dt><dd>The tag is valid: <code>data</code> is not <code>NULL</code> when <code>size &gt; 0</code>.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to hash.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A hash of <code>tag</code>'s bytes. </dd></dl>
+
+</div>
+</div>
+<a id="ga4d0c2b8a2ebcfd9173cd3f961e4dcbae" name="ga4d0c2b8a2ebcfd9173cd3f961e4dcbae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4d0c2b8a2ebcfd9173cd3f961e4dcbae">&#9670;&#160;</a></span>tlv_tag_is_empty()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tlv_tag_is_empty </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td>
+          <td class="paramname"><em>tag</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Tests whether a tag has zero length. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Tag to test.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>true</code> if <code>tag.size</code> is zero. </dd></dl>
+
+</div>
+</div>
+<a id="ga3c0eb7859ee8dfeee6632c53c0fbe7ce" name="ga3c0eb7859ee8dfeee6632c53c0fbe7ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3c0eb7859ee8dfeee6632c53c0fbe7ce">&#9670;&#160;</a></span>tlv_value_compare()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_value_compare </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structtlv__value__t.html">tlv_value_t</a>&#160;</td>
+          <td class="paramname"><em>lhs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv__value__t.html">tlv_value_t</a>&#160;</td>
+          <td class="paramname"><em>rhs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Orders two values lexicographically by their bytes. </p>
+<p>Compares byte by byte as unsigned values; if one value is a prefix of the other, the shorter value orders first.</p>
+<dl class="section pre"><dt>Precondition</dt><dd>Both values are valid: <a class="el" href="group__core.html#ga9d330a8cacc89909ea0d3e215da6614d" title="Validates a value view&#39;s representation and pointer requirements.">tlv_value_validate()</a> returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">lhs</td><td>First value. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rhs</td><td>Second value.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A negative value if <code>lhs</code> orders before <code>rhs</code>, zero if the values are equal, and a positive value if <code>lhs</code> orders after <code>rhs</code>. </dd></dl>
+
+</div>
+</div>
+<a id="ga4a4d0f914281c34ff22bfa151146891e" name="ga4a4d0f914281c34ff22bfa151146891e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4a4d0f914281c34ff22bfa151146891e">&#9670;&#160;</a></span>tlv_value_copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_value_copy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structtlv__value__t.html">tlv_value_t</a>&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>written</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copies a value's bytes into caller-owned storage. </p>
+<p>With <code>data == NULL</code> and <code>capacity == 0</code>, reports the required size in <code>*written</code> without copying. Overlapping source and destination byte ranges are supported.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Value whose bytes are copied. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Destination buffer. <code>NULL</code> with zero <code>capacity</code> queries the required size. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Destination capacity in bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">written</td><td>Receives the value size (the required size for a query). Required.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>written</code> is <code>NULL</code>, if <code>data</code> is <code>NULL</code> with a nonzero <code>capacity</code>, or if <code>value.data</code> is <code>NULL</code> with a nonzero <code>value.length</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if <code>value.length</code> exceeds the native size range. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> is insufficient; <code>*written</code> is unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="gab2fa1a88d68b4f29132c536ec4001eb8" name="gab2fa1a88d68b4f29132c536ec4001eb8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab2fa1a88d68b4f29132c536ec4001eb8">&#9670;&#160;</a></span>tlv_value_equal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tlv_value_equal </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structtlv__value__t.html">tlv_value_t</a>&#160;</td>
+          <td class="paramname"><em>lhs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv__value__t.html">tlv_value_t</a>&#160;</td>
+          <td class="paramname"><em>rhs</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Tests whether two values have the same length and bytes. </p>
+<p>Compares contents, not pointer identity, so values backed by different memory are equal when their bytes match. Two empty values are equal.</p>
+<dl class="section pre"><dt>Precondition</dt><dd>Both values are valid: <a class="el" href="group__core.html#ga9d330a8cacc89909ea0d3e215da6614d" title="Validates a value view&#39;s representation and pointer requirements.">tlv_value_validate()</a> returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>. An invalid value is a contract violation, not a comparable value.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd><code>tlv_value_equal(a, b)</code> is true exactly when <code>tlv_value_compare(a, b) == 0</code>.</dd></dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">lhs</td><td>First value. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rhs</td><td>Second value.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>true</code> if both values have the same length and bytes. </dd></dl>
 
 </div>
 </div>
@@ -1488,6 +1838,93 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if <code>length</code> cannot be represented by the current build's <code>size_t</code>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd><code>*value</code> is unchanged on every failure. Allocation bounds of <code>data</code> remain the caller's responsibility. </dd></dl>
+
+</div>
+</div>
+<a id="ga589216e85ef008bcb5533e4beb94dd71" name="ga589216e85ef008bcb5533e4beb94dd71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga589216e85ef008bcb5533e4beb94dd71">&#9670;&#160;</a></span>tlv_value_is_empty()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tlv_value_is_empty </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structtlv__value__t.html">tlv_value_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Tests whether a value has zero length. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Value to test.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>true</code> if <code>value.length</code> is zero. </dd></dl>
+
+</div>
+</div>
+<a id="ga01015c5a64ea202ec46e08cf2c38ce54" name="ga01015c5a64ea202ec46e08cf2c38ce54"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga01015c5a64ea202ec46e08cf2c38ce54">&#9670;&#160;</a></span>tlv_value_slice()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_value_slice </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structtlv__value__t.html">tlv_value_t</a>&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a>&#160;</td>
+          <td class="paramname"><em>offset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a>&#160;</td>
+          <td class="paramname"><em>length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv__value__t.html">tlv_value_t</a> *&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Builds a sub-view over part of a value, without copying. </p>
+<p>The result borrows the same storage as <code>value</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Value to slice. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">offset</td><td>Start of the sub-range, in bytes from <code>value.data</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">length</td><td>Length of the sub-range in bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">out</td><td>Receives the sliced sub-view. Required.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>out</code> is <code>NULL</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if <code>value</code> is not representable by the current build's <code>size_t</code>, or if <code>offset + length</code> exceeds <code>value.length</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if <code>offset + length</code> overflows <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd><code>*out</code> is unchanged on every failure. </dd></dl>
 
 </div>
 </div>

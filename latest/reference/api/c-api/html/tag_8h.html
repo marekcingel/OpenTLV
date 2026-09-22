@@ -83,7 +83,8 @@ $(function() {
 
 <p>Borrowed raw TLV tag type with construction and comparison.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;tlv/export.h&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;tlv/export.h&quot;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &lt;stddef.h&gt;</code><br />
@@ -111,6 +112,15 @@ Functions</h2></td></tr>
 <tr class="memitem:ga6e4293fe48f08cdd07e0d75a07d578a1" id="r_ga6e4293fe48f08cdd07e0d75a07d578a1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga6e4293fe48f08cdd07e0d75a07d578a1">tlv_tag_compare</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> lhs, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> rhs)</td></tr>
 <tr class="memdesc:ga6e4293fe48f08cdd07e0d75a07d578a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orders two tags lexicographically by their bytes.  <br /></td></tr>
 <tr class="separator:ga6e4293fe48f08cdd07e0d75a07d578a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4d0c2b8a2ebcfd9173cd3f961e4dcbae" id="r_ga4d0c2b8a2ebcfd9173cd3f961e4dcbae"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga4d0c2b8a2ebcfd9173cd3f961e4dcbae">tlv_tag_is_empty</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag)</td></tr>
+<tr class="memdesc:ga4d0c2b8a2ebcfd9173cd3f961e4dcbae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tests whether a tag has zero length.  <br /></td></tr>
+<tr class="separator:ga4d0c2b8a2ebcfd9173cd3f961e4dcbae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga55f1a1e373b90d20379113074eefe2e4" id="r_ga55f1a1e373b90d20379113074eefe2e4"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga55f1a1e373b90d20379113074eefe2e4">tlv_tag_hash</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag)</td></tr>
+<tr class="memdesc:ga55f1a1e373b90d20379113074eefe2e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes a hash of a tag's bytes.  <br /></td></tr>
+<tr class="separator:ga55f1a1e373b90d20379113074eefe2e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3ecda7f62add0dd73cb7ab22651ec265" id="r_ga3ecda7f62add0dd73cb7ab22651ec265"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga3ecda7f62add0dd73cb7ab22651ec265">tlv_tag_copy</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, uint8_t *data, size_t capacity, size_t *written)</td></tr>
+<tr class="memdesc:ga3ecda7f62add0dd73cb7ab22651ec265"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies a tag's bytes into caller-owned storage.  <br /></td></tr>
+<tr class="separator:ga3ecda7f62add0dd73cb7ab22651ec265"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Borrowed raw TLV tag type with construction and comparison. </p>

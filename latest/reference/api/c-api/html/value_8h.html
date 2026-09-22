@@ -85,6 +85,7 @@ $(function() {
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="length_8h.html">tlv/length.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -101,6 +102,21 @@ Functions</h2></td></tr>
 <tr class="memitem:ga9d330a8cacc89909ea0d3e215da6614d" id="r_ga9d330a8cacc89909ea0d3e215da6614d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga9d330a8cacc89909ea0d3e215da6614d">tlv_value_validate</a> (const <a class="el" href="structtlv__value__t.html">tlv_value_t</a> *value)</td></tr>
 <tr class="memdesc:ga9d330a8cacc89909ea0d3e215da6614d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a value view's representation and pointer requirements.  <br /></td></tr>
 <tr class="separator:ga9d330a8cacc89909ea0d3e215da6614d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab2fa1a88d68b4f29132c536ec4001eb8" id="r_gab2fa1a88d68b4f29132c536ec4001eb8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gab2fa1a88d68b4f29132c536ec4001eb8">tlv_value_equal</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> lhs, <a class="el" href="structtlv__value__t.html">tlv_value_t</a> rhs)</td></tr>
+<tr class="memdesc:gab2fa1a88d68b4f29132c536ec4001eb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tests whether two values have the same length and bytes.  <br /></td></tr>
+<tr class="separator:gab2fa1a88d68b4f29132c536ec4001eb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3c0eb7859ee8dfeee6632c53c0fbe7ce" id="r_ga3c0eb7859ee8dfeee6632c53c0fbe7ce"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga3c0eb7859ee8dfeee6632c53c0fbe7ce">tlv_value_compare</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> lhs, <a class="el" href="structtlv__value__t.html">tlv_value_t</a> rhs)</td></tr>
+<tr class="memdesc:ga3c0eb7859ee8dfeee6632c53c0fbe7ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Orders two values lexicographically by their bytes.  <br /></td></tr>
+<tr class="separator:ga3c0eb7859ee8dfeee6632c53c0fbe7ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga589216e85ef008bcb5533e4beb94dd71" id="r_ga589216e85ef008bcb5533e4beb94dd71"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga589216e85ef008bcb5533e4beb94dd71">tlv_value_is_empty</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> value)</td></tr>
+<tr class="memdesc:ga589216e85ef008bcb5533e4beb94dd71"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tests whether a value has zero length.  <br /></td></tr>
+<tr class="separator:ga589216e85ef008bcb5533e4beb94dd71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga01015c5a64ea202ec46e08cf2c38ce54" id="r_ga01015c5a64ea202ec46e08cf2c38ce54"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga01015c5a64ea202ec46e08cf2c38ce54">tlv_value_slice</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> value, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> offset, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> length, <a class="el" href="structtlv__value__t.html">tlv_value_t</a> *out)</td></tr>
+<tr class="memdesc:ga01015c5a64ea202ec46e08cf2c38ce54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a sub-view over part of a value, without copying.  <br /></td></tr>
+<tr class="separator:ga01015c5a64ea202ec46e08cf2c38ce54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4a4d0f914281c34ff22bfa151146891e" id="r_ga4a4d0f914281c34ff22bfa151146891e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga4a4d0f914281c34ff22bfa151146891e">tlv_value_copy</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> value, uint8_t *data, size_t capacity, size_t *written)</td></tr>
+<tr class="memdesc:ga4a4d0f914281c34ff22bfa151146891e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies a value's bytes into caller-owned storage.  <br /></td></tr>
+<tr class="separator:ga4a4d0f914281c34ff22bfa151146891e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Non-owning, read-only TLV value type. </p>

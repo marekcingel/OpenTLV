@@ -2484,6 +2484,10 @@ current build; use the conversions below before native-size use.</p>
 <td><code>tlv_length_validate_native(length)</code></td>
 <td>Check whether <code>length</code> fits <code>size_t</code>, without converting it.</td>
 </tr>
+<tr>
+<td><code>tlv_length_add(a, b, &amp;sum)</code></td>
+<td>Add two lengths, detecting <code>tlv_length_t</code> overflow.</td>
+</tr>
 </tbody>
 </table>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/length.h"</span>
@@ -2510,6 +2514,12 @@ caller's responsibility.</p>
 <code>tlv_length_to_size()</code>, without an output parameter and without accessing any
 memory: <code>TLV_OK</code> when <code>length</code> fits <code>size_t</code>, <code>TLV_ERR_INVALID_LENGTH</code>
 otherwise.</p>
+<p><code>TLV_LENGTH_MAX</code> is <code>UINT64_MAX</code>, the largest value a <code>tlv_length_t</code> can hold;
+it is distinct from <code>SIZE_MAX</code>, which bounds <code>tlv_length_to_size()</code> instead.
+<code>tlv_length_add(a, b, &amp;sum)</code> adds two lengths and returns <code>TLV_ERR_OVERFLOW</code>
+if <code>a + b</code> would exceed <code>TLV_LENGTH_MAX</code>, for composing lengths (such as a
+header length and a value length) before a native-size conversion, without
+risking silent <code>tlv_length_t</code> wraparound.</p>
 <h2 id="x86-and-x64">x86 and x64<a class="headerlink" href="#x86-and-x64" title="Permanent link">&para;</a></h2>
 <p>The <em>numeric range</em> of <code>tlv_length_t</code> is identical on every platform, but
 <code>size_t</code> is narrower on a 32-bit build. <code>UINT32_MAX + 1</code> is a real,

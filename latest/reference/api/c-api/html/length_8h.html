@@ -74,6 +74,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">length.h File Reference<div class="ingroups"><a class="el" href="group__core.html">Core types and utilities</a></div></div></div>
@@ -87,6 +88,12 @@ $(function() {
 <code>#include &lt;stddef.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:ga04e8743e1faf9788e1425ef13b971e83" id="r_ga04e8743e1faf9788e1425ef13b971e83"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga04e8743e1faf9788e1425ef13b971e83">TLV_LENGTH_MAX</a>&#160;&#160;&#160;UINT64_MAX</td></tr>
+<tr class="memdesc:ga04e8743e1faf9788e1425ef13b971e83"><td class="mdescLeft">&#160;</td><td class="mdescRight">The largest value a <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a> can hold.  <br /></td></tr>
+<tr class="separator:ga04e8743e1faf9788e1425ef13b971e83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:ga718439fac4bc0901b7e7f52c88fcc1ee" id="r_ga718439fac4bc0901b7e7f52c88fcc1ee"><td class="memItemLeft" align="right" valign="top">typedef uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a></td></tr>
@@ -104,6 +111,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5379ba9130ae0652419c1c9d50f45d6b" id="r_ga5379ba9130ae0652419c1c9d50f45d6b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5379ba9130ae0652419c1c9d50f45d6b">tlv_length_validate_native</a> (<a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> length)</td></tr>
 <tr class="memdesc:ga5379ba9130ae0652419c1c9d50f45d6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether a length fits the current build's <code>size_t</code> range.  <br /></td></tr>
 <tr class="separator:ga5379ba9130ae0652419c1c9d50f45d6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad9f97cddeccf82d11aa080ee5ddbf052" id="r_gad9f97cddeccf82d11aa080ee5ddbf052"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gad9f97cddeccf82d11aa080ee5ddbf052">tlv_length_add</a> (<a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> a, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> b, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> *sum)</td></tr>
+<tr class="memdesc:gad9f97cddeccf82d11aa080ee5ddbf052"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds two lengths, detecting overflow.  <br /></td></tr>
+<tr class="separator:gad9f97cddeccf82d11aa080ee5ddbf052"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Build-independent 64-bit TLV length type and checked conversions to <code>size_t</code>. </p>

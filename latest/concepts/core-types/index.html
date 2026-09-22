@@ -771,6 +771,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#other-tag-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other tag operations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#constructing-tags" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2474,6 +2485,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#other-tag-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other tag operations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#constructing-tags" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2632,6 +2654,19 @@ byte order. To compare against a known tag, compare its wire bytes with
 <code>TLV_TAG(0x9F, 0x02)</code> rather than an integer. A format or profile that needs a
 numeric view of its own tags, such as the ASN.1 tag number of
 <code>tlv_der_tag_number()</code>, provides it in its own layer.</p>
+<h2 id="other-tag-operations">Other tag operations<a class="headerlink" href="#other-tag-operations" title="Permanent link">&para;</a></h2>
+<p><code>tlv_tag_is_empty(tag)</code> tests whether <code>tag.size</code> is zero.</p>
+<p><code>tlv_tag_hash(tag)</code> hashes a tag's bytes for use as a key in a caller-provided
+hash table; two tags for which <code>tlv_tag_equal()</code> is true always hash equal.
+The hash is not a wire encoding and may differ across builds, platforms and
+OpenTLV versions, so never persist it or send it to another process.</p>
+<p><code>tlv_tag_copy(tag, data, capacity, &amp;written)</code> copies a tag's bytes into
+caller-owned storage, following the same query-size-with-<code>NULL</code>,
+<code>TLV_ERR_BUFFER_TOO_SHORT</code> and overlap-safe conventions as <code>tlv_copy_encoded()</code>
+(see <a href="../../guides/memory/">memory ownership and lifetime</a>); there is no
+generic <code>TLV_TAG_MAX_SIZE</code>, since <code>tlv_tag_t</code> imposes no maximum length --
+size the destination from a prior <code>tlv_tag_copy(tag, NULL, 0, &amp;written)</code>
+query, or from a format's own tag-size limit such as <code>TLV_ASN1_TAG_MAX_SIZE</code>.</p>
 <h2 id="constructing-tags">Constructing tags<a class="headerlink" href="#constructing-tags" title="Permanent link">&para;</a></h2>
 <p>Use <code>tlv_tag(data, size)</code> or <code>TLV_TAG(...)</code> to describe bytes you already have;
 no copy is made. Constructors of a format, such as <code>tlv_der_tag_make()</code>, write
