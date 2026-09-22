@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `otlv --diagnostics human|compact|json` to render a `dump`/`validate`/`decode`/`query` failure as multi-line human-readable text (the new default), the CLI's original one-line wording, or a single-line JSON object with the same fields; see [Diagnostics and exit codes](docs/cli/README.md#diagnostics-and-exit-codes). (#264)
 - Add `tlv_schema_validate_all_diag()` (and the C++ `tlv::validate_all_diag`), which reports every schema violation as a `tlv_schema_diagnostic_t`: the affected tag, path and offset alongside the schema field name and the expected-versus-actual detail for the violated rule (occurrence counts, length bounds, or a primitive/constructed mismatch); `tlv_schema_entry_t` gains an optional `name` field for this. See [Schema diagnostics](docs/guides/diagnostics.md#schema-diagnostics). (#263)
 - Add `tlv_write_diag()` and `tlv_writer_write_diag()` (and the C++ `tlv::writer::write(tag_t, bytes, writer_diagnostic&)`), which behave like `tlv_write()` and `tlv_writer_write()` but also fill a `tlv_writer_diagnostic_t` on failure with the encoding step, tag, requested length, required encoded size and available capacity; see [Writer diagnostics](docs/guides/diagnostics.md#writer-diagnostics). (#262)
 - Add a hierarchical path to diagnostics (`tlv_diagnostic_path_t`, `tlv_diagnostic_path_push()`, `tlv_diagnostic_path_pop()`, `tlv_diagnostic_set_path()`, `tlv_diagnostic_path_string()`, and the C++ `tlv::push_path`/`tlv::pop_path`/`tlv::set_path`), a bounded, allocation-free stack of enclosing tags a caller builds while traversing nested TLVs, such as with `tlv_walk_tree()`, so a `tlv_diagnostic_t` can identify the exact branch of a document that produced it, for example `6F > A5 > BF0C > 61 > 4F`; see [Hierarchical paths](docs/guides/diagnostics.md#hierarchical-paths). (#261)
@@ -43,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Change `otlv`'s default failure output from a single line to the new `--diagnostics human` format; pass `--diagnostics compact` for the previous wording. (#264)
 - **Breaking:** Change `tlv_tag_t` to a borrowed pointer and size with no length limit, so tags of any length work without rebuilding OpenTLV; tags read from input now reference the input buffer, `tlv_tag_equal()` takes tags by value and returns `bool`, `tlv_der_tag_make()` and `tlv_cer_tag_make()` take caller-provided storage, `tlv_query_t` no longer exposes `steps` (use `tlv_query_step()`), and the Rust `Tag` is no longer `Copy`; see [Memory ownership](docs/guides/memory.md#tags). (#256)
 - Speed up CI with three levels: minimal checks on pull requests (plus the required CodeQL scan with a smaller query set and no examples), a lighter set after merge to `main` and the full validation on release and `-rc` tags; see the [development workflow](docs/development/workflow.md). (#231)
 - Move to a trunk-based workflow: `main` is the only long-lived branch, the `develop` branch is removed, and the `latest` documentation is published from `main`. (#228)

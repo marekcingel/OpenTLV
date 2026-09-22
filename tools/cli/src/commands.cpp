@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 #include "console_color.hpp"
 #include "decode.hpp"
+#include "diagnostic_render.hpp"
 #include "diagnostics.hpp"
 #include "json_model.hpp"
 #include "presentation.hpp"
@@ -38,6 +39,7 @@
 #include "tlv/profiles/emv_schema.h"
 #endif
 
+using cli::error_name;
 using cli::fail;
 
 namespace {
@@ -301,30 +303,6 @@ tlv_visit_result_t query_element(const tlv_view_t* view, size_t depth, size_t of
     return std::cout ? TLV_VISIT_CONTINUE : TLV_VISIT_ERROR;
 }
 
-const char* error_name(tlv_result_t rc) {
-    switch (rc) {
-#define ERROR_NAME(e)                                                                              \
-    case e: return #e
-        ERROR_NAME(TLV_OK);
-        ERROR_NAME(TLV_ERR_BUFFER_TOO_SHORT);
-        ERROR_NAME(TLV_ERR_INVALID_LENGTH);
-        ERROR_NAME(TLV_ERR_NULL_ARG);
-        ERROR_NAME(TLV_ERR_OUT_OF_MEMORY);
-        ERROR_NAME(TLV_ERR_END_OF_BUFFER);
-        ERROR_NAME(TLV_ERR_INVALID_TAG);
-        ERROR_NAME(TLV_ERR_VISITOR);
-        ERROR_NAME(TLV_ERR_LIMIT);
-        ERROR_NAME(TLV_ERR_SCHEMA);
-        ERROR_NAME(TLV_ERR_SCHEMA_MISSING);
-        ERROR_NAME(TLV_ERR_INVALID_ARG);
-        ERROR_NAME(TLV_ERR_INVALID_TAG_SIZE);
-        ERROR_NAME(TLV_ERR_INVALID_BYTE_ORDER);
-        ERROR_NAME(TLV_ERR_OVERFLOW);
-#undef ERROR_NAME
-        default: return "TLV_ERR_UNKNOWN";
-    }
-}
-
 /* Reads the tag at the start of an element, including for formats that parse whole elements
  * (whose tag is only known once the element is well-formed). */
 bool read_tag_at(const tlv_reader_format_t* format, const uint8_t* data, size_t size,
@@ -577,12 +555,18 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     // below reports, as opposed to the format/framing walk, so the two stay
     // distinguishable in output.
     const char* stage = "";
+    // Filled by the schema check below when it finds a violation, for the
+    // richer rendering format_schema_diagnostic() gives it.
+    tlv_schema_diagnostic_t schema_diag;
+    bool                    has_schema_diag = false;
     // Identity, not the format name string, is the single source of truth for
     // format-specific behavior below (indefinite-length display, --tree
     // support, and DER's own schema-driven walker).
-    int        is_ber = 0, is_der = 0, structured;
-    const bool decoding = is_decode_command(o);
-    const bool querying = is_query_command(o);
+    int                    is_ber = 0, is_der = 0, structured;
+    const bool             decoding = is_decode_command(o);
+    const bool             querying = is_query_command(o);
+    cli::diagnostic_format diag_format;
+    cli::parse_diagnostic_format(o.diagnostics, &diag_format);
 
     if (!format) return fail(2, "unknown or disabled format; use otlv formats");
 #if OPENTLV_FORMAT_BER
@@ -628,14 +612,29 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     // tag/length pairs are not a TLV structure to check.
     if (result == TLV_OK && o.profile && !o.pdol && !strcmp(o.command, "validate")) {
         if (o.emv_check & emv_check_structure) {
-            size_t       schema_offset = error_offset;
-            tlv_result_t schema_result =
-                tlv_schema_validate(data, size, format, predicate, &tlv_emv_structure_schema,
-                                    o.max_depth, o.max_elements, &schema_offset);
+            tlv_schema_diagnostic_t        diag;
+            tlv_schema_diagnostic_report_t report = {&diag, 1, 0};
+            size_t                         schema_offset = error_offset;
+            tlv_result_t                   schema_result = tlv_schema_validate_all_diag(
+                data, size, format, predicate, &tlv_emv_structure_schema, o.max_depth,
+                o.max_elements, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &schema_offset);
+            // tlv_schema_validate_all_diag() only reports the generic
+            // TLV_ERR_SCHEMA itself and leaves *error_offset alone for a
+            // violation (multiple can exist); the specific code and offset
+            // tlv_schema_validate() would have returned live on the first
+            // recorded diagnostic instead.
+            if (report.count) {
+                schema_result = diag.diagnostic.code;
+                if (diag.diagnostic.has_offset) schema_offset = diag.diagnostic.offset;
+            }
             if (schema_result != TLV_OK) {
                 result = schema_result;
                 error_offset = schema_offset;
                 stage = "schema ";
+                if (report.count) {
+                    schema_diag = diag;
+                    has_schema_diag = true;
+                }
             }
         }
         if (result == TLV_OK && (o.emv_check & emv_check_dictionary)) {
@@ -692,18 +691,32 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     int rc = flush_stdout();
     if (rc) return rc;
     if (result != TLV_OK) {
-        std::cerr << "otlv: " << stage << error_name(result) << " at byte " << error_offset;
-        // TLV_ERR_SCHEMA_MISSING's offset is the end of the parent's value
-        // (a scope boundary, not an element) and can coincide with the start
-        // of an unrelated sibling in the enclosing scope, so no tag is
-        // printed for it. Every other result's offset anchors the actual
-        // element, so a tag read there is always accurate.
-        tlv_tag_t tag;
-        size_t    used;
-        if (result != TLV_ERR_SCHEMA_MISSING && error_offset < size &&
-            read_tag_at(format, data + error_offset, size - error_offset, &tag, &used))
-            std::cerr << " tag=" << hex_string(tag.data, tag.size);
-        std::cerr << ": " << tlv_strerror(result) << "\n";
+        std::string rendered;
+        if (has_schema_diag) {
+            rendered = cli::format_schema_diagnostic(schema_diag, diag_format);
+        } else {
+            tlv::diagnostic diag = tlv::make_diagnostic(result, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+            tlv_diagnostic_set_offset(&diag, error_offset);
+            // TLV_ERR_SCHEMA_MISSING's offset is the end of the parent's value
+            // (a scope boundary, not an element) and can coincide with the start
+            // of an unrelated sibling in the enclosing scope, so no tag is
+            // printed for it. Every other result's offset anchors the actual
+            // element, so a tag read there is always accurate.
+            tlv_tag_t   tag;
+            size_t      used;
+            std::string tag_hex;
+            if (result != TLV_ERR_SCHEMA_MISSING && error_offset < size &&
+                read_tag_at(format, data + error_offset, size - error_offset, &tag, &used))
+                tag_hex = hex_string(tag.data, tag.size);
+            std::string stage_name(stage);
+            if (!stage_name.empty() && stage_name.back() == ' ') stage_name.pop_back();
+            rendered = cli::format_diagnostic(diag, diag_format, stage_name.c_str(),
+                                              tag_hex.empty() ? nullptr : tag_hex.c_str());
+        }
+        if (diag_format == cli::diagnostic_format::json)
+            std::cerr << rendered << "\n";
+        else
+            std::cerr << "otlv: " << rendered << "\n";
         return result == TLV_ERR_LIMIT || result == TLV_ERR_OUT_OF_MEMORY ? 3 : 1;
     }
     if (querying && !output.matches) {
@@ -713,9 +726,19 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     if (incomplete) {
         size_t bytes = 0;
         for (const skipped_range& range : skipped) {
-            std::cerr << "otlv: skipped " << range.length << " byte(s) at offset " << range.offset
-                      << ": " << error_name(range.error) << " at byte " << range.error_offset
-                      << ": " << tlv_strerror(range.error) << "\n";
+            tlv::diagnostic diag =
+                tlv::make_diagnostic(range.error, TLV_DIAGNOSTIC_SEVERITY_WARNING);
+            tlv_diagnostic_set_offset(&diag, range.error_offset);
+            const std::string rendered = cli::format_diagnostic(diag, diag_format, "", nullptr);
+            if (diag_format == cli::diagnostic_format::json) {
+                nlohmann::json wrapper = nlohmann::json::parse(rendered);
+                wrapper["skipped_offset"] = range.offset;
+                wrapper["skipped_length"] = range.length;
+                std::cerr << wrapper.dump() << "\n";
+            } else {
+                std::cerr << "otlv: skipped " << range.length << " byte(s) at offset "
+                          << range.offset << ": " << rendered << "\n";
+            }
             bytes += range.length;
         }
         std::cerr << "otlv: output is incomplete: recovery skipped " << skipped.size()

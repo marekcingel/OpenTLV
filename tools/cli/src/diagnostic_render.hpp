@@ -1,0 +1,41 @@
+#ifndef OPENTLV_CLI_DIAGNOSTIC_RENDER_HPP
+#define OPENTLV_CLI_DIAGNOSTIC_RENDER_HPP
+#include <string>
+#include "tlv/error.h"
+#include "tlv++/diagnostic.hpp"
+#include "tlv++/schema.hpp"
+
+// Renders tlv::diagnostic and tlv::schema_diagnostic for otlv's --diagnostics
+// option. Kept separate from commands.cpp so this stays easy to lift into
+// tlv++ later: everything here operates on the library's own diagnostic
+// types, and only the JSON writer (nlohmann) and the symbolic error-name
+// table are CLI-specific.
+
+namespace cli {
+
+enum class diagnostic_format { human, compact, json };
+
+// Parses --diagnostics's value ("human", "compact" or "json"); returns false
+// for anything else, leaving *out unchanged.
+bool parse_diagnostic_format(const char* name, diagnostic_format* out);
+
+// Returns the symbolic name of a result code, e.g. "TLV_ERR_SCHEMA_MISSING",
+// or "TLV_ERR_UNKNOWN" for a value with no matching case.
+const char* error_name(tlv_result_t code);
+
+// Renders a base diagnostic: a format/read failure, or one skipped --recover
+// range. `stage`, when non-empty (for example "dictionary"), names the layer
+// that produced it, distinguishing it from a plain framing/format error.
+// `tag_hex`, when non-null, is the affected element's tag as hex text --
+// tlv_diagnostic_t itself carries no tag field.
+std::string format_diagnostic(const tlv::diagnostic& diagnostic, diagnostic_format format,
+                              const char* stage, const char* tag_hex);
+
+// Renders a schema violation, which already carries its own tag, path, field
+// name and expected-versus-actual detail computed by
+// tlv_schema_validate_all_diag().
+std::string format_schema_diagnostic(const tlv::schema_diagnostic& diagnostic,
+                                     diagnostic_format             format);
+
+} // namespace cli
+#endif

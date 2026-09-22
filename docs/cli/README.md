@@ -421,19 +421,25 @@ are accepted unchecked; this is not a full EMV transaction or value validator.
 `validate --profile emv` runs the checks chosen by `--emv-check`, always on
 input that has already parsed as valid BER:
 
-| `--emv-check` | Checks | Diagnostic prefix |
+| `--emv-check` | Checks | `compact` prefix |
 | --- | --- | --- |
 | `structure` (default) | The structural schema above. | `schema` |
 | `dictionary` | Every element whose tag is in the EMV dictionary, in the context it appears in, has a length the dictionary permits (its bounds and length step). | `dictionary` |
 | `all` | `structure`, then `dictionary`; the first failure is reported. | either |
 
+The `compact` prefix distinguishes the two checks on one line; `human` and
+`json` do the same with structured detail instead: a structural violation
+carries a `path` and, for most kinds, a `field` name, while a dictionary
+violation carries a `dictionary` `stage`.
+
 The dictionary check uses the same lookup and contexts as `dump --profile emv`
 and the library's `tlv_emv_validate_length`. It reports the first offending
-element as `otlv: dictionary TLV_ERR_INVALID_LENGTH at byte N tag=T: ...` with
-exit code 1:
+element, labeled `dictionary`, with exit code 1; see
+[Diagnostics and exit codes](#diagnostics-and-exit-codes) for the `--diagnostics`
+renderers. In `compact` form:
 
 ```sh
-$ otlv validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010"
+$ otlv validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010" --diagnostics compact
 otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=9F02: invalid length encoding
 ```
 
@@ -559,17 +565,50 @@ they are not a wall-clock timeout or incremental streaming interface.
 
 ## Diagnostics and exit codes
 
-Command output goes to stdout; diagnostics go to stderr. Library failures
-include the symbolic `TLV_ERR_*` name, description, and byte offset, plus the
-tag at that offset when one is available. Generic traversal reports the
-failing element; errors resolving an indefinite BER container may identify
-that container. DER can identify individual failing fields. Offsets do not
-promise the exact corrupted byte. A `TLV_ERR_SCHEMA_MISSING` failure (a
-missing mandatory tag) never prints a `tag=` field: its offset is the end of
-the enclosing element's value, not a tag, and could otherwise coincide with
-an unrelated sibling at the enclosing scope. An EMV schema violation
-(`validate --profile emv`) is additionally prefixed with `schema` (or `dictionary`, for `--emv-check dictionary`) to
-distinguish it from a format/framing error.
+Command output goes to stdout; diagnostics go to stderr. `--diagnostics NAME`
+selects how a failure is rendered: `human` (the default), `compact`, or
+`json`. Library failures include the symbolic `TLV_ERR_*` code, a
+description, and a byte offset, plus the affected tag when one is available.
+Generic traversal reports the failing element; errors resolving an
+indefinite BER container may identify that container. DER can identify
+individual failing fields. Offsets do not promise the exact corrupted byte.
+
+`human` prints one field per line:
+
+```sh
+$ otlv validate --format ber --profile emv --hex "6F048402AABB"
+otlv: error: invalid length encoding
+
+code: TLV_ERR_INVALID_LENGTH
+offset: 0x2 (2)
+path: 6F
+tag: 84
+field: df_name
+expected length: 5..16
+actual length: 2
+```
+
+`compact` prints the same detail on one line: this is the CLI's original
+wording (`otlv: schema TLV_ERR_INVALID_LENGTH at byte 2 tag=84: invalid
+length encoding` for the example above), kept for scripts that scrape
+stderr. `json` prints a single-line JSON object with the same fields
+(`code`, `message`, `offset`, `tag`, `path`, `field`, and so on), for
+scripts that would otherwise have to reparse the human or compact text; a
+`--recover` run additionally wraps each skipped range's diagnostic with the
+`skipped_offset`/`skipped_length` of the range it recovered from.
+
+An EMV schema violation (`validate --profile emv`) additionally carries the
+schema field name and the expected-versus-actual detail for the violated
+rule (occurrence counts, length bounds, or a primitive/constructed
+mismatch), and a dictionary-length violation (`--emv-check dictionary`) is
+labeled `dictionary` (see [EMV checks](#emv-checks)) to distinguish it from
+the structural schema check. `TLV_ERR_SCHEMA_MISSING` (a missing mandatory
+tag) reports the tag that is absent and the offset of its enclosing
+element, since the missing tag itself has no position of its own.
+
+Formatting is presentation only, layered on top of the library's structured
+diagnostics; see [Diagnostics](../guides/diagnostics.md) for the underlying
+model.
 
 | Code | Meaning |
 | --- | --- |
