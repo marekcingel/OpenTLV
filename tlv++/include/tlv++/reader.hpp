@@ -12,6 +12,9 @@ namespace tlv {
  * @brief C++ wrapper for sequential zero-copy reading.
  */
 
+/** @brief C++ alias for the reader-specific diagnostic type, #tlv_reader_diagnostic_t. */
+using reader_diagnostic = tlv_reader_diagnostic_t;
+
 /**
  * @brief Thin, safe C++ wrapper around #tlv_reader_t.
  *
@@ -70,6 +73,36 @@ public:
 
         tlv_view_t   raw{};
         tlv_result_t rc = tlv_reader_next(&impl_, &raw);
+        if (rc != TLV_OK) {
+            return unexpected<error>(error::from_c(rc));
+        }
+
+        size_t length;
+        rc = tlv_length_to_size(raw.value.length, &length);
+        if (rc != TLV_OK) {
+            return unexpected<error>(error::from_c(rc));
+        }
+
+        return entry{raw.tag, bytes(reinterpret_cast<const byte*>(raw.value.data), length)};
+    }
+
+    /**
+     * @brief Reads the next element and advances the reader, with diagnostic detail on failure.
+     *
+     * Behaves like next(), and additionally fills `out_diagnostic` when the
+     * read fails; wraps tlv_reader_next_diag().
+     *
+     * @param[out] out_diagnostic Receives detail on failure; left unchanged on success.
+     *
+     * @return Same as next().
+     */
+    TLV_NODISCARD expected<entry, error> next(reader_diagnostic& out_diagnostic) {
+        if (!init_ok_) {
+            return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
+        }
+
+        tlv_view_t   raw{};
+        tlv_result_t rc = tlv_reader_next_diag(&impl_, &raw, &out_diagnostic);
         if (rc != TLV_OK) {
             return unexpected<error>(error::from_c(rc));
         }

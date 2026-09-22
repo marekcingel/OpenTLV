@@ -48,6 +48,22 @@ TEST(Unit_TLV_CPP, test_reader_reports_end_of_buffer) {
     EXPECT_TRUE(e2.error().code == TLV_ERR_END_OF_BUFFER);
 }
 
+TEST(Unit_TLV_CPP, test_reader_next_diag_reports_value_exceeding_available_bytes) {
+    std::array<tlv::byte, 2> buf{{static_cast<tlv::byte>(0xAB), static_cast<tlv::byte>(6)}};
+    tlv::reader              reader(tlv::bytes(buf.data(), buf.size()), controlled::reader);
+
+    tlv::reader_diagnostic diagnostic{};
+    auto                   e = reader.next(diagnostic);
+    ASSERT_FALSE(e.has_value());
+    EXPECT_TRUE(e.error().code == TLV_ERR_BUFFER_TOO_SHORT);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.operation);
+    ASSERT_TRUE(diagnostic.has_declared_length);
+    EXPECT_EQ(6u, diagnostic.declared_length);
+    ASSERT_TRUE(diagnostic.has_available);
+    EXPECT_EQ(0u, diagnostic.available);
+}
+
 // --- Codec concept test ---
 
 struct greeting {

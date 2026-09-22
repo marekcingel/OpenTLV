@@ -1,6 +1,7 @@
 #include "controlled_format.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
+#include <cstring>
 #include <limits>
 
 TEST(Unit_Reader, ReadsOnlyFirstElementAndBorrowsValue) {
@@ -139,4 +140,135 @@ TEST(Unit_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     config = Config{};
     config.length_error = TLV_ERR_INVALID_LENGTH;
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_LENGTH);
+}
+
+TEST(Unit_ReaderDiagnostic, ReadDiagLeavesDiagnosticUnchangedOnSuccess) {
+    const uint8_t           data[] = {0xAB, 2, 0xCD, 0xEF};
+    tlv_view_t              view{};
+    size_t                  consumed = 0;
+    tlv_reader_diagnostic_t diagnostic;
+    std::memset(&diagnostic, 0xAA, sizeof(diagnostic));
+    unsigned char before[sizeof(diagnostic)];
+    std::memcpy(before, &diagnostic, sizeof(before));
+
+    ASSERT_EQ(TLV_OK, tlv_read_diag(data, sizeof(data), &controlled::reader, &view, &consumed,
+                                    &diagnostic));
+
+    EXPECT_EQ(0, std::memcmp(before, &diagnostic, sizeof(before)));
+}
+
+TEST(Unit_ReaderDiagnostic, ReadDiagAcceptsANullOutParameter) {
+    const uint8_t data[] = {0xAB, 2, 0xCD};
+    tlv_view_t    view{};
+    size_t        consumed = 0;
+
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_read_diag(data, sizeof(data), &controlled::reader, &view, &consumed, nullptr));
+}
+
+TEST(Unit_ReaderDiagnostic, ReadDiagReportsValueExceedingAvailableBytes) {
+    // Tag 0xAB declares a 6-byte value but only 4 bytes remain, matching the
+    // motivating example: code, offset, tag, declared_length and available.
+    const uint8_t           data[] = {0xAB, 6, 0, 0, 0, 0};
+    tlv_view_t              view{};
+    size_t                  consumed = 0;
+    tlv_reader_diagnostic_t diagnostic;
+
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_read_diag(data, sizeof(data), &controlled::reader,
+                                                      &view, &consumed, &diagnostic));
+
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_ERROR, diagnostic.diagnostic.severity);
+    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
+    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.operation);
+    ASSERT_NE(0, diagnostic.has_tag);
+    ASSERT_EQ(1u, diagnostic.tag.size);
+    EXPECT_EQ(0xAB, diagnostic.tag.data[0]);
+    ASSERT_NE(0, diagnostic.has_tag_offset);
+    EXPECT_EQ(0u, diagnostic.tag_offset);
+    ASSERT_NE(0, diagnostic.has_length_offset);
+    EXPECT_EQ(1u, diagnostic.length_offset);
+    ASSERT_NE(0, diagnostic.has_value_offset);
+    EXPECT_EQ(2u, diagnostic.value_offset);
+    ASSERT_NE(0, diagnostic.has_declared_length);
+    EXPECT_EQ(6u, diagnostic.declared_length);
+    ASSERT_NE(0, diagnostic.has_available);
+    EXPECT_EQ(4u, diagnostic.available);
+    ASSERT_NE(0, diagnostic.has_enclosing_end);
+    EXPECT_EQ(sizeof(data), diagnostic.enclosing_end);
+}
+
+TEST(Unit_ReaderDiagnostic, ReadDiagReportsATruncatedTag) {
+    tlv_view_t              view{};
+    size_t                  consumed = 0;
+    tlv_reader_diagnostic_t diagnostic;
+
+    ASSERT_EQ(TLV_ERR_END_OF_BUFFER,
+              tlv_read_diag(nullptr, 0, &controlled::reader, &view, &consumed, &diagnostic));
+
+    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_READER_OP_TAG, diagnostic.operation);
+    EXPECT_EQ(0, diagnostic.has_tag);
+    ASSERT_NE(0, diagnostic.has_available);
+    EXPECT_EQ(0u, diagnostic.available);
+}
+
+TEST(Unit_ReaderDiagnostic, ReadDiagReportsATruncatedLengthWithTheDecodedTag) {
+    const uint8_t           data[] = {0xAB};
+    tlv_view_t              view{};
+    size_t                  consumed = 0;
+    tlv_reader_diagnostic_t diagnostic;
+
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_read_diag(data, sizeof(data), &controlled::reader,
+                                                      &view, &consumed, &diagnostic));
+
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_READER_OP_LENGTH, diagnostic.operation);
+    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
+    EXPECT_EQ(1u, diagnostic.diagnostic.offset);
+    ASSERT_NE(0, diagnostic.has_tag);
+    EXPECT_EQ(0xAB, diagnostic.tag.data[0]);
+    ASSERT_NE(0, diagnostic.has_length_offset);
+    EXPECT_EQ(1u, diagnostic.length_offset);
+}
+
+TEST(Unit_ReaderDiagnostic, ReaderNextDiagReportsOffsetsAbsoluteWithinTheBuffer) {
+    const uint8_t data[] = {0xAB, 1, 0xCD, 0xEF, 6, 0, 0, 0, 0};
+    tlv_reader_t  reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::reader));
+
+    tlv_view_t view{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+    EXPECT_EQ(3u, reader.pos);
+
+    tlv_reader_diagnostic_t diagnostic;
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next_diag(&reader, &view, &diagnostic));
+
+    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
+    EXPECT_EQ(5u, diagnostic.diagnostic.offset);
+    ASSERT_NE(0, diagnostic.has_tag_offset);
+    EXPECT_EQ(3u, diagnostic.tag_offset);
+    ASSERT_NE(0, diagnostic.has_length_offset);
+    EXPECT_EQ(4u, diagnostic.length_offset);
+    ASSERT_NE(0, diagnostic.has_value_offset);
+    EXPECT_EQ(5u, diagnostic.value_offset);
+    ASSERT_NE(0, diagnostic.has_enclosing_end);
+    EXPECT_EQ(sizeof(data), diagnostic.enclosing_end);
+    EXPECT_EQ(3u, reader.pos);
+}
+
+TEST(Unit_ReaderDiagnostic, ReaderNextDiagReportsEndOfBufferAtTheCurrentPosition) {
+    const uint8_t data[] = {0xAB, 1, 0xCD};
+    tlv_reader_t  reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::reader));
+
+    tlv_view_t view{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+    EXPECT_TRUE(tlv_reader_at_end(&reader));
+
+    tlv_reader_diagnostic_t diagnostic;
+    ASSERT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next_diag(&reader, &view, &diagnostic));
+    ASSERT_NE(0, diagnostic.has_tag_offset);
+    EXPECT_EQ(sizeof(data), diagnostic.tag_offset);
 }

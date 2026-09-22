@@ -38,6 +38,41 @@ tlv_diagnostic_add_context(&diagnostic, &schema_context, "schema", "field", "Amo
 caller supplies storage for each context node and its `layer`, `key` and
 `value` strings, and that storage must outlive the diagnostic.
 
+## Reader diagnostics
+
+The reader is the first layer to enrich a diagnostic: `tlv_read_diag()` and
+`tlv_reader_next_diag()` behave exactly like `tlv_read()` and
+`tlv_reader_next()`, and additionally fill an optional
+`tlv_reader_diagnostic_t` when parsing fails, so the existing lightweight
+functions remain usable without paying for diagnostics.
+
+```c
+#include "tlv/reader/reader.h"
+
+tlv_view_t entry;
+size_t     consumed;
+tlv_reader_diagnostic_t diagnostic;
+
+tlv_result_t rc = tlv_read_diag(data, size, &format, &entry, &consumed, &diagnostic);
+if (rc != TLV_OK) {
+    /* diagnostic.diagnostic.code   == rc
+     * diagnostic.diagnostic.offset == the offset of the field that failed
+     * diagnostic.operation         == which step failed (tag, length, value or trailer)
+     * diagnostic.declared_length / diagnostic.available, when set, describe
+     * a value or trailer that didn't fit the input */
+}
+```
+
+For a tag whose declared value length exceeds the bytes left in the input,
+`diagnostic.operation` is `TLV_READER_OP_VALUE`, `diagnostic.has_tag` is set,
+and `declared_length`/`available` report the mismatch directly, without
+having to re-parse the input to find it. Every field is a fixed-size value or
+a borrowed pointer, so filling a `tlv_reader_diagnostic_t` never allocates,
+and `tag` borrows the input like any tag a reader produces.
+
+`tlv_reader_next_diag()` reports the same fields with offsets absolute within
+the reader's buffer, not relative to the element being read.
+
 ## Scope
 
 The core `tlv_diagnostic_t` type is independent of any wire format, schema or
