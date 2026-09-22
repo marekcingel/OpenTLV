@@ -37,6 +37,7 @@ enum : unsigned {
     opt_emv_context = 2097152,
     opt_emv_check = 4194304,
     opt_output_file = 8388608,
+    opt_diagnostics = 16777216,
     // Options only encode takes.
     encode_only = opt_tag | opt_value | opt_output_encoding | opt_output_file
 };
@@ -111,6 +112,7 @@ unsigned option_bit(const char* arg) {
         {"--emv-context", opt_emv_context},
         {"--emv-check", opt_emv_check},
         {"--output-file", opt_output_file},
+        {"--diagnostics", opt_diagnostics},
     };
     for (const auto& entry : table)
         if (!strcmp(arg, entry.name)) return entry.bit;
@@ -156,12 +158,12 @@ int options::parse(int argc, char** argv) {
         const unsigned decode_options = opt_format | opt_input | opt_hex | opt_max_input |
                                         opt_max_depth | opt_max_elements | opt_describe |
                                         opt_profile | opt_input_encoding | opt_decode |
-                                        opt_recover | opt_emv_context;
+                                        opt_recover | opt_emv_context | opt_diagnostics;
         const unsigned encode_options =
             opt_format | opt_input | opt_max_input | opt_max_depth | opt_max_elements | encode_only;
         const unsigned query_options = opt_format | opt_input | opt_hex | opt_max_input |
                                        opt_max_depth | opt_max_elements | opt_input_encoding |
-                                       opt_output | opt_value;
+                                       opt_output | opt_value | opt_diagnostics;
         if (lookup       ? !(bit & (opt_profile | opt_output))
             : listing    ? !(bit & (opt_profile | opt_output | opt_search))
             : querying   ? !(bit & query_options)
@@ -258,6 +260,10 @@ int options::parse(int argc, char** argv) {
             if (strcmp(argv[i], "text") && strcmp(argv[i], "json"))
                 return fail(2, "output must be text or json");
             output = argv[i];
+        } else if (bit == opt_diagnostics) {
+            if (strcmp(argv[i], "human") && strcmp(argv[i], "compact") && strcmp(argv[i], "json"))
+                return fail(2, "diagnostics must be human, compact or json");
+            diagnostics = argv[i];
         } else if (!number(argv[i], bit == opt_max_input   ? &max_input
                                     : bit == opt_max_depth ? &max_depth
                                                            : &max_elements))
@@ -354,6 +360,8 @@ void options::usage() {
            "  --recover              dump, decode: skip damaged bytes and keep reading; the "
            "output is marked incomplete and the exit code is 4\n"
            "  --output text|json     Print text (default) or a hierarchical JSON document\n"
+           "  --diagnostics NAME     Shape of a failure diagnostic: human (default), compact "
+           "or json\n"
            "  --input-encoding NAME  binary (default) or hex, for --input\n"
            "  --force-color          Emit ANSI colors even when redirected\n"
            "  --no-color             Disable colors (default: auto for terminals)\n"

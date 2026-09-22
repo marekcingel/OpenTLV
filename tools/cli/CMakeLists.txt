@@ -2,6 +2,7 @@ set(HEADERS
     src/commands.hpp
     src/console_color.hpp
     src/decode.hpp
+    src/diagnostic_render.hpp
     src/diagnostics.hpp
     src/encode.hpp
     src/input.hpp
@@ -13,6 +14,7 @@ set(HEADERS
 
 set(SOURCES
     src/commands.cpp
+    src/diagnostic_render.cpp
     src/decode.cpp
     src/encode.cpp
     src/input.cpp

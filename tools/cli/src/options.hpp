@@ -38,6 +38,9 @@ public:
     // validate --profile emv only: bit mask of emv_check_* (0 = default).
     int         emv_check = 0;
     const char* output = "text";
+    // dump/validate/decode/query only: shape of the diagnostic printed on
+    // failure, or of a --recover skipped range.
+    const char* diagnostics = "human";
     // encode only: tag/value hex text and whether to emit raw bytes.
     const char* tag = nullptr;
     const char* value = nullptr;

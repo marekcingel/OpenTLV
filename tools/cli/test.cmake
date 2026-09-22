@@ -108,8 +108,8 @@ foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed-1byte" "BER|ber" "DER|der")
         set(truncated_offset 0)
         set(trailing_offset 3)
     endif()
-    check(1 "TLV_ERR_.*byte ${truncated_offset}" validate --format "${name}" --hex "0402AA")
-    check(1 "TLV_ERR_.*byte ${trailing_offset}" dump --format "${name}" --hex "0401AA04")
+    check(1 "TLV_ERR_.*byte ${truncated_offset}" validate --format "${name}" --hex "0402AA" --diagnostics compact)
+    check(1 "TLV_ERR_.*byte ${trailing_offset}" dump --format "${name}" --hex "0401AA04" --diagnostics compact)
     if(NOT last_output MATCHES "offset=0")
         message(FATAL_ERROR "Expected partial dump before trailing error")
     endif()
@@ -159,11 +159,11 @@ if(HAS_BER)
     check(0 "requested-length=0" dump --format ber --pdol --hex "9F0200")
     check(0 "^$" validate --format ber --pdol --hex "9F02069F0206")
     check(0 "^$" validate --format ber --pdol --hex " ")
-    check(1 "TLV_ERR_.*byte 0" validate --format ber --pdol --hex "9F")
-    check(1 "TLV_ERR_BUFFER_TOO_SHORT.*byte 2" validate --format ber --pdol --hex "9F02")
+    check(1 "TLV_ERR_.*byte 0" validate --format ber --pdol --hex "9F" --diagnostics compact)
+    check(1 "TLV_ERR_BUFFER_TOO_SHORT.*byte 2" validate --format ber --pdol --hex "9F02" --diagnostics compact)
     check(1 "TLV_ERR_INVALID_TAG_SIZE" validate --format ber --pdol --hex "DF810101")
     check(1 "TLV_ERR_INVALID_TAG" validate --format ber --pdol --hex "0000")
-    check(3 "TLV_ERR_LIMIT.*byte 3" validate --format ber --pdol --hex "9F02069F1A02" --max-elements 1)
+    check(3 "TLV_ERR_LIMIT.*byte 3" validate --format ber --pdol --hex "9F02069F1A02" --max-elements 1 --diagnostics compact)
     check(2 "cannot use" dump --format ber --pdol --hex " " --pretty)
     check(2 "cannot use" dump --format ber --pdol --hex " " --profile emv --decode)
     check(2 "requires --format ber" dump --format der --pdol --hex " ")
@@ -204,7 +204,7 @@ if(HAS_BER)
     check(2 "cannot be combined" query 6F --format ber --hex "${query_hex}" --value --output json)
     check(2 "requires --format ber or der" query 6F/A5 --format default --hex "0100")
     check(2 "duplicate" query 6F --format ber --hex "${query_hex}" --value --value)
-    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 0 tag=6F" query 6F --format ber --hex "6F05")
+    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 0 tag=6F" query 6F --format ber --hex "6F05" --diagnostics compact)
     check(3 "TLV_ERR_LIMIT" query 6F/A5/50 --format ber --hex "${query_hex}" --max-depth 1)
     check(3 "TLV_ERR_LIMIT" query 6F --format ber --hex "${query_hex}" --max-elements 1)
     if(HAS_DER)
@@ -233,35 +233,55 @@ if(HAS_EMV)
     # tags, length constraints and nesting, with a tag/offset diagnostic
     # distinguishable from an ordinary format error.
     check(0 "^$" validate --format ber --profile emv --hex "6F098407A0000000031010") # DF Name only.
-    # Missing mandatory DF Name: the distinct TLV_ERR_SCHEMA_MISSING (not
-    # TLV_ERR_SCHEMA) never prints a tag, since its offset is only the end of
-    # the FCI Template's (empty) value, not an element.
-    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 2: required schema field missing\n$"
-        validate --format ber --profile emv --hex "6F00")
+    # Missing mandatory DF Name: the distinct TLV_ERR_SCHEMA_MISSING is
+    # reported with tlv_schema_validate_all_diag()'s own tag (the absent
+    # field, borrowed from the schema) and offset (the enclosing FCI
+    # Template's tag, not the end of its value as tlv_schema_validate() would
+    # report), both reliable since they come from the diagnostic itself
+    # rather than a re-read of the input.
+    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=84: required schema field missing\n$"
+        validate --format ber --profile emv --hex "6F00" --diagnostics compact)
     check(1 "schema TLV_ERR_SCHEMA at byte 11 tag=50:" # Application Label forbidden directly under the FCI Template.
-        validate --format ber --profile emv --hex "6F0C8407A0000000031010500141")
+        validate --format ber --profile emv --hex "6F0C8407A0000000031010500141" --diagnostics compact)
     check(1 "schema TLV_ERR_SCHEMA at byte 11 tag=84:" validate --format ber --profile emv # Duplicate DF Name.
-        --hex "6F128407A00000000310108407A0000000031010")
+        --hex "6F128407A00000000310108407A0000000031010" --diagnostics compact)
     check(1 "schema TLV_ERR_INVALID_LENGTH at byte 2 tag=84:" # DF Name shorter than the dictionary minimum.
-        validate --format ber --profile emv --hex "6F048402AABB")
+        validate --format ber --profile emv --hex "6F048402AABB" --diagnostics compact)
     check(0 "^$" validate --format ber --profile emv # A nested, known-optional FCI Proprietary Template child.
         --hex "6F0C84053132333435A503500141")
     check(0 "^$" validate --format ber --profile emv --hex "770A82021980940408010100") # GPO response format 2: AIP + AFL.
-    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 6: required schema field missing\n$"
-        validate --format ber --profile emv --hex "770482021980") # Missing mandatory AFL.
+    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=94: required schema field missing\n$"
+        validate --format ber --profile emv --hex "770482021980" --diagnostics compact) # Missing mandatory AFL.
     check(0 "^$" validate --format ber --profile emv --hex "7003DF0100") # Unmodeled top-level template: accepted unchecked.
     check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" # A plain format error is not labeled "schema".
-        validate --format ber --profile emv --hex "6F0AFF")
-    # A missing-required-field offset is the end of its parent's (here,
-    # empty) value, which coincides with the unrelated sibling GPO response
-    # (770A...) that follows; TLV_ERR_SCHEMA_MISSING's dedicated diagnostic
-    # (no "tag=") avoids misattributing the failure to that sibling.
-    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 2: required schema field missing\n$"
-        validate --format ber --profile emv --hex "6F00770A82021980940408010100")
+        validate --format ber --profile emv --hex "6F0AFF" --diagnostics compact)
+    # A missing-required-field's offset now anchors the enclosing FCI
+    # Template's own tag (here, the same 6F at offset 0 that starts the whole
+    # input), not a value-end boundary that could coincide with the unrelated
+    # sibling GPO response (770A...) that follows.
+    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=84: required schema field missing\n$"
+        validate --format ber --profile emv --hex "6F00770A82021980940408010100" --diagnostics compact)
     check(0 "tag=6F" dump --format ber --profile emv --hex "6F00") # dump's --profile never runs schema checks.
+
+    # --diagnostics (#264): human (the default) and json render the same
+    # tlv_schema_diagnostic_t as compact, which is exercised throughout this
+    # file and matches the pre-#264 wording.
+    check(1 "^otlv: error: required schema field missing\n\ncode: TLV_ERR_SCHEMA_MISSING\noffset: 0x0 \\(0\\)\npath: 6F\ntag: 84\nfield: df_name\nexpected occurrences: 1\\.\\.1\nactual occurrences: 0\n$"
+        validate --format ber --profile emv --hex "6F00")
+    check(1 "\"code\":\"TLV_ERR_SCHEMA_MISSING\",\"field\":\"df_name\",\"kind\":\"missing\",\"max_occurs\":1,\"message\":\"required schema field missing\",\"min_occurs\":1,\"occurs\":0,\"offset\":0,\"path\":\"6F\",\"severity\":\"error\",\"tag\":\"84\""
+        validate --format ber --profile emv --hex "6F00" --diagnostics json)
 else()
     check(2 "EMV profile is disabled" dump --format ber --hex " " --profile emv)
     check(2 "EMV profile is disabled" validate --format ber --hex " " --profile emv)
+endif()
+check(2 "diagnostics must be human, compact or json" validate --format ber --hex " " --diagnostics bogus)
+if(HAS_DEFAULT)
+    # A plain (non-schema) diagnostic renders the same way: human is
+    # multi-line with a machine-readable code line, json is a flat object.
+    check(1 "^otlv: error: buffer too short\n\ncode: TLV_ERR_BUFFER_TOO_SHORT\noffset: 0x0 \\(0\\)\ntag: 04\n$"
+        validate --format default --hex "0402AA")
+    check(1 "^{\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"message\":\"buffer too short\",\"offset\":0,\"severity\":\"error\",\"tag\":\"04\"}\n$"
+        validate --format default --hex "0402AA" --diagnostics json)
 endif()
 if(HAS_DER)
     check(1 "TLV_ERR_" validate --format der --hex "30800401AA0000")
@@ -333,8 +353,8 @@ if(HAS_BLUETOOTH_LTV)
     check(0 "offset=0 tag=09 length=2 value=4142\noffset=4 tag=01 length=1 value=06" dump --format bluetooth-ltv --hex "03 09 41 42 02 01 06")
     check(0 "^{\"elements\":\\[{\"length\":2,\"offset\":0,\"tag\":\"09\",\"value\":\"4142\"}\\]}\n$" dump --format bluetooth-ltv --hex "03 09 41 42" --output json)
     check(0 "^$" validate --format bluetooth-ltv --hex "02 01 06 01 FF")
-    check(1 "TLV_ERR_INVALID_LENGTH at byte 3" validate --format bluetooth-ltv --hex "02 01 06 00")
-    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 3" validate --format bluetooth-ltv --hex "02 01 06 05 09 41")
+    check(1 "TLV_ERR_INVALID_LENGTH at byte 3" validate --format bluetooth-ltv --hex "02 01 06 00" --diagnostics compact)
+    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 3" validate --format bluetooth-ltv --hex "02 01 06 05 09 41" --diagnostics compact)
     round_trip(bluetooth-ltv 09 414243)
     check(0 "^03094142\n$" encode --format bluetooth-ltv --tag 09 --value 4142)
     check(1 "cannot encode element 0: " encode --format bluetooth-ltv --tag 0102 --value AA)
@@ -663,26 +683,26 @@ if(HAS_EMV)
     # Dictionary check: known tags must have a permitted length; unknown tags
     # are not errors. The default check stays the structure check.
     check(0 "^$" validate --format ber --profile emv --emv-check dictionary --hex "9F0206000000001000 DF010100")
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=9F02: " validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010")
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 7 tag=9F02: " validate --format ber --profile emv --emv-check dictionary --hex "DF010100 5A0112 9F02050000000010")
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=9F02: " validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010" --diagnostics compact)
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 7 tag=9F02: " validate --format ber --profile emv --emv-check dictionary --hex "DF010100 5A0112 9F02050000000010" --diagnostics compact)
     check(0 "^$" validate --format ber --profile emv --hex "9F02050000000010")
     check(0 "^$" validate --format ber --profile emv --emv-check structure --hex "9F02050000000010")
     # The dictionary check reaches the children of known templates.
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 2 tag=84: " validate --format ber --profile emv --emv-check dictionary --hex "6F0684045A0301AA")
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 2 tag=84: " validate --format ber --profile emv --emv-check dictionary --hex "6F0684045A0301AA" --diagnostics compact)
     # all runs the structure check first, then the dictionary check.
     check(0 "^$" validate --format ber --profile emv --emv-check all --hex "6F098407A0000000031010")
-    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 2: " validate --format ber --profile emv --emv-check all --hex "6F00")
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 11 tag=9F02: " validate --format ber --profile emv --emv-check all --hex "6F098407A0000000031010 9F02050000000010")
+    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=84: " validate --format ber --profile emv --emv-check all --hex "6F00" --diagnostics compact)
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 11 tag=9F02: " validate --format ber --profile emv --emv-check all --hex "6F098407A0000000031010 9F02050000000010" --diagnostics compact)
     # A framing error is still reported before any EMV check runs.
-    check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" validate --format ber --profile emv --emv-check dictionary --hex "9F0206")
+    check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" validate --format ber --profile emv --emv-check dictionary --hex "9F0206" --diagnostics compact)
     check(3 "TLV_ERR_LIMIT" validate --format ber --profile emv --emv-check dictionary --max-elements 0 --hex "9F02050000000010")
     # The same length is valid or not depending on the context: 82 is the
     # Application Interchange Profile (2 bytes) in the base context and a
     # 1-byte Biometric Subtype inside a Biometric Header Template.
     check(0 "^$" validate --format ber --profile emv --emv-check dictionary --hex "82020101")
-    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=82: " validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "82020101")
+    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=82: " validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "82020101" --diagnostics compact)
     check(0 "^$" validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "820101")
-    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 5 tag=82: " validate --format ber --profile emv --emv-check dictionary --hex "7F6006A10482020101")
+    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 5 tag=82: " validate --format ber --profile emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics compact)
     check(0 "^$" validate --format ber --profile emv --emv-check dictionary --hex "7F6005A103820101")
 else()
     check(2 "EMV profile is disabled" decode --format ber --hex " " --profile emv)
@@ -706,12 +726,17 @@ if(HAS_BER)
     set(damaged "5A0112 0000 5A0134")
     run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
         "^otlv: skipped 2 byte\\(s\\) at offset 3: TLV_ERR_INVALID_TAG at byte 3: invalid tag\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
-        dump --format ber --hex "${damaged}" --recover)
+        dump --format ber --hex "${damaged}" --recover --diagnostics compact)
+    # json wraps each skipped range's diagnostic with the range it recovered
+    # from, since a schema-free tlv_diagnostic_t has no room for that itself.
+    run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
+        "^\\{\"code\":\"TLV_ERR_INVALID_TAG\",\"message\":\"invalid tag\",\"offset\":3,\"severity\":\"warning\",\"skipped_length\":2,\"skipped_offset\":3\\}\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
+        dump --format ber --hex "${damaged}" --recover --diagnostics json)
     # Without --recover the same input fails at the first error, and validate
     # stays strict.
-    check(1 "TLV_ERR_INVALID_TAG at byte 3" dump --format ber --hex "${damaged}")
-    check(1 "TLV_ERR_INVALID_TAG at byte 3" validate --format ber --hex "${damaged}")
-    run_cli(1 "" "TLV_ERR_INVALID_TAG at byte 3" decode --format ber --hex "${damaged}")
+    check(1 "TLV_ERR_INVALID_TAG at byte 3" dump --format ber --hex "${damaged}" --diagnostics compact)
+    check(1 "TLV_ERR_INVALID_TAG at byte 3" validate --format ber --hex "${damaged}" --diagnostics compact)
+    run_cli(1 "" "TLV_ERR_INVALID_TAG at byte 3" decode --format ber --hex "${damaged}" --diagnostics compact)
 
     # Truncated trailing data is one skipped range up to the end of the input.
     set(cut_json [=[{"complete":false,"elements":[{"length":1,"offset":0,"tag":"5A","value":"12"}],"skipped":[{"error":"TLV_ERR_BUFFER_TOO_SHORT","error_offset":3,"length":3,"message":"buffer too short","offset":3}]}]=])
@@ -743,7 +768,7 @@ if(HAS_BER)
         dump --format ber --hex "30800401AA0000 0000" --recover)
 
     # Resource limits are not damage: they fail the run with exit 3.
-    check(3 "TLV_ERR_LIMIT at byte 3 tag=5A" dump --format ber --hex "5A0112 5A0134" --recover --max-elements 1)
+    check(3 "TLV_ERR_LIMIT at byte 3 tag=5A" dump --format ber --hex "5A0112 5A0134" --recover --max-elements 1 --diagnostics compact)
     check(3 "input-size limit" dump --format ber --hex "5A0112" --recover --max-input-size 2)
     check(3 "TLV_ERR_LIMIT" dump --format ber --hex "E1035A0112 0000" --recover --tree --max-depth 0)
     run_cli(3 "" "TLV_ERR_LIMIT" decode --format ber --hex "E1035A0112 0000" --recover --max-depth 0)
