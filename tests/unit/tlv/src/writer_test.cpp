@@ -320,3 +320,125 @@ TEST(Unit_Writer, ImplicitZeroByteLength) {
     EXPECT_EQ(tag.data[0], view.tag.data[0]);
     EXPECT_EQ(0u, view.value.length);
 }
+
+TEST(Unit_WriterDiagnostic, WriteDiagLeavesDiagnosticUnchangedOnSuccess) {
+    uint8_t                 data[2] = {};
+    size_t                  written = 0;
+    tlv_writer_diagnostic_t diagnostic;
+    std::memset(&diagnostic, 0xAA, sizeof(diagnostic));
+    unsigned char before[sizeof(diagnostic)];
+    std::memcpy(before, &diagnostic, sizeof(before));
+
+    ASSERT_EQ(TLV_OK, tlv_write_diag(data, sizeof(data), &controlled::writer, tag, nullptr, 0,
+                                     &written, &diagnostic));
+
+    EXPECT_EQ(0, std::memcmp(before, &diagnostic, sizeof(before)));
+}
+
+TEST(Unit_WriterDiagnostic, WriteDiagAcceptsANullOutParameter) {
+    const uint8_t value[] = {0x11, 0x22, 0x33};
+    uint8_t       data[1];
+    size_t        written = 0;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write_diag(data, sizeof(data), &controlled::writer, tag,
+                                                       value, sizeof(value), &written, nullptr));
+}
+
+TEST(Unit_WriterDiagnostic, WriteDiagReportsRequiredSizeExceedingAvailableCapacity) {
+    // Tag 0xFF requires 5 bytes (1 tag + 1 length + 3 value) while only 3 remain,
+    // matching the motivating example: code, offset, tag, required and available.
+    const uint8_t           value[] = {0x11, 0x22, 0x33};
+    uint8_t                 data[3];
+    size_t                  written = 99;
+    tlv_writer_diagnostic_t diagnostic;
+
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_write_diag(data, sizeof(data), &controlled::writer, tag, value, sizeof(value),
+                             &written, &diagnostic));
+
+    EXPECT_EQ(5u, written);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_ERROR, diagnostic.diagnostic.severity);
+    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
+    EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_WRITER_OP_VALUE, diagnostic.operation);
+    ASSERT_NE(0, diagnostic.has_tag);
+    ASSERT_EQ(1u, diagnostic.tag.size);
+    EXPECT_EQ(0xFF, diagnostic.tag.data[0]);
+    ASSERT_NE(0, diagnostic.has_length);
+    EXPECT_EQ(sizeof(value), diagnostic.length);
+    ASSERT_NE(0, diagnostic.has_required);
+    EXPECT_EQ(5u, diagnostic.required);
+    ASSERT_NE(0, diagnostic.has_available);
+    EXPECT_EQ(3u, diagnostic.available);
+}
+
+TEST(Unit_WriterDiagnostic, WriteDiagReportsAnUnsupportedTag) {
+    uint8_t                 data[4] = {};
+    size_t                  written = 0;
+    tlv_writer_diagnostic_t diagnostic;
+
+    ASSERT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+              tlv_write_diag(data, sizeof(data), &controlled::writer, tlv_tag_t{}, nullptr, 0,
+                             &written, &diagnostic));
+
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_WRITER_OP_TAG, diagnostic.operation);
+    ASSERT_NE(0, diagnostic.has_tag);
+    EXPECT_EQ(0u, diagnostic.tag.size);
+}
+
+TEST(Unit_WriterDiagnostic, WriteDiagReportsAnUnsupportedLengthWithTheValidatedTag) {
+    const uint8_t           value[] = {0x11};
+    uint8_t                 data[4] = {};
+    size_t                  written = 0;
+    tlv_writer_diagnostic_t diagnostic;
+
+    ASSERT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write_diag(data, sizeof(data), &controlled::writer, tag,
+                                                     value, 256, &written, &diagnostic));
+
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_WRITER_OP_LENGTH, diagnostic.operation);
+    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
+    EXPECT_EQ(1u, diagnostic.diagnostic.offset);
+    ASSERT_NE(0, diagnostic.has_tag);
+    EXPECT_EQ(0xFF, diagnostic.tag.data[0]);
+    ASSERT_NE(0, diagnostic.has_length);
+    EXPECT_EQ(256u, diagnostic.length);
+}
+
+TEST(Unit_WriterDiagnostic, WriterWriteDiagReportsOffsetsAbsoluteWithinTheBuffer) {
+    uint8_t      data[4] = {};
+    tlv_writer_t writer;
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, TLV_TAG(0xAB), nullptr, 0));
+    EXPECT_EQ(2u, writer.pos);
+
+    const uint8_t           value[] = {0x11, 0x22, 0x33};
+    tlv_writer_diagnostic_t diagnostic;
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_writer_write_diag(&writer, tag, value, sizeof(value), &diagnostic));
+
+    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
+    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    ASSERT_NE(0, diagnostic.has_required);
+    EXPECT_EQ(5u, diagnostic.required);
+    ASSERT_NE(0, diagnostic.has_available);
+    EXPECT_EQ(2u, diagnostic.available);
+    EXPECT_EQ(2u, writer.pos);
+}
+
+TEST(Unit_WriterDiagnostic, WriterWriteDiagReportsInvalidStateAtTheCurrentPosition) {
+    uint8_t      data[4] = {};
+    tlv_writer_t writer;
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    writer.pos = writer.capacity + 1;
+
+    tlv_writer_diagnostic_t diagnostic;
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_writer_write_diag(&writer, tag, nullptr, 0, &diagnostic));
+    ASSERT_NE(0, diagnostic.diagnostic.has_offset);
+    EXPECT_EQ(writer.capacity + 1, diagnostic.diagnostic.offset);
+    ASSERT_NE(0, diagnostic.has_available);
+    EXPECT_EQ(0u, diagnostic.available);
+}

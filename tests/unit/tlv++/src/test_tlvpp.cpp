@@ -48,6 +48,22 @@ TEST(Unit_TLV_CPP, test_reader_reports_end_of_buffer) {
     EXPECT_TRUE(e2.error().code == TLV_ERR_END_OF_BUFFER);
 }
 
+TEST(Unit_TLV_CPP, test_writer_write_diag_reports_required_exceeding_available_capacity) {
+    std::array<tlv::byte, 1> buf{};
+    tlv::writer              w(buf.data(), buf.size(), controlled::writer);
+
+    tlv::writer_diagnostic diagnostic{};
+    auto                   e = w.write(TLV_TAG(0x01), to_bytes("ab"), diagnostic);
+    ASSERT_FALSE(e.has_value());
+    EXPECT_TRUE(e.error().code == TLV_ERR_BUFFER_TOO_SHORT);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_WRITER_OP_VALUE, diagnostic.operation);
+    ASSERT_TRUE(diagnostic.has_required);
+    EXPECT_EQ(4u, diagnostic.required);
+    ASSERT_TRUE(diagnostic.has_available);
+    EXPECT_EQ(1u, diagnostic.available);
+}
+
 TEST(Unit_TLV_CPP, test_reader_next_diag_reports_value_exceeding_available_bytes) {
     std::array<tlv::byte, 2> buf{{static_cast<tlv::byte>(0xAB), static_cast<tlv::byte>(6)}};
     tlv::reader              reader(tlv::bytes(buf.data(), buf.size()), controlled::reader);

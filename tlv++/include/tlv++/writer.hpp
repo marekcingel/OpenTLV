@@ -11,6 +11,9 @@ namespace tlv {
  * @brief C++ wrapper for sequential writing into a caller-owned buffer.
  */
 
+/** @brief C++ alias for the writer-specific diagnostic type, #tlv_writer_diagnostic_t. */
+using writer_diagnostic = tlv_writer_diagnostic_t;
+
 /**
  * @brief Thin C++ wrapper around #tlv_writer_t.
  *
@@ -50,6 +53,30 @@ public:
     TLV_NODISCARD expected<void, error> write(tag_t tag, bytes value) {
         tlv_result_t rc = tlv_writer_write(
             &impl_, tag, reinterpret_cast<const uint8_t*>(value.data()), value.size());
+        if (rc != TLV_OK) {
+            return unexpected<error>(error::from_c(rc));
+        }
+        return {};
+    }
+
+    /**
+     * @brief Writes one element with the given tag and raw value bytes, with diagnostic detail on
+     * failure.
+     *
+     * Behaves like write(), and additionally fills `out_diagnostic` when the
+     * write fails; wraps tlv_writer_write_diag().
+     *
+     * @param tag            Element tag.
+     * @param value          Value bytes; not retained.
+     * @param out_diagnostic Receives detail on failure; left unchanged on success.
+     *
+     * @return Same as write().
+     */
+    TLV_NODISCARD expected<void, error> write(tag_t tag, bytes value,
+                                              writer_diagnostic& out_diagnostic) {
+        tlv_result_t rc =
+            tlv_writer_write_diag(&impl_, tag, reinterpret_cast<const uint8_t*>(value.data()),
+                                  value.size(), &out_diagnostic);
         if (rc != TLV_OK) {
             return unexpected<error>(error::from_c(rc));
         }

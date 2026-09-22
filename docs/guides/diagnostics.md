@@ -73,6 +73,42 @@ and `tag` borrows the input like any tag a reader produces.
 `tlv_reader_next_diag()` reports the same fields with offsets absolute within
 the reader's buffer, not relative to the element being read.
 
+## Writer diagnostics
+
+The writer enriches a diagnostic the same way: `tlv_write_diag()` and
+`tlv_writer_write_diag()` behave exactly like `tlv_write()` and
+`tlv_writer_write()`, and additionally fill an optional
+`tlv_writer_diagnostic_t` when encoding fails.
+
+```c
+#include "tlv/writer/writer.h"
+
+size_t written;
+tlv_writer_diagnostic_t diagnostic;
+
+tlv_result_t rc = tlv_write_diag(data, capacity, &format, tag, value, length, &written,
+                                 &diagnostic);
+if (rc != TLV_OK) {
+    /* diagnostic.diagnostic.code   == rc
+     * diagnostic.diagnostic.offset == the output offset the element would have started at
+     * diagnostic.operation         == which step failed (tag, length or value)
+     * diagnostic.length            == the value length that was requested
+     * diagnostic.required / diagnostic.available, when set, describe an
+     * element that didn't fit the destination */
+}
+```
+
+For a tag that requires more bytes than remain in the destination,
+`diagnostic.operation` is `TLV_WRITER_OP_VALUE`, `diagnostic.has_tag` is set,
+and `required`/`available` report the mismatch directly: writing tag `5F2A`
+that needs 5 bytes with only 3 remaining fills `diagnostic.required` with `5`
+and `diagnostic.available` with `3`. Every field is a fixed-size value or a
+borrowed pointer, so filling a `tlv_writer_diagnostic_t` never allocates, and
+`tag` borrows the tag passed to the failing call.
+
+`tlv_writer_write_diag()` reports the same fields with the offset absolute
+within the writer's buffer, not relative to the element being written.
+
 ## Hierarchical paths
 
 An offset alone does not say which branch of a nested document a diagnostic
