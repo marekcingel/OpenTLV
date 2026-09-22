@@ -10,7 +10,7 @@ set(SOURCES
 )
 
 if(test_group STREQUAL "unit")
-    list(APPEND SOURCES src/test_fixed_format.cpp)
+    list(APPEND SOURCES src/test_fixed_format.cpp src/test_diagnostic.cpp)
     if(OPENTLV_DOCUMENT)
         list(APPEND SOURCES src/test_document.cpp)
     endif()

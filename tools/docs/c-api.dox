@@ -21,6 +21,11 @@
  * Tags, lengths, values, views, byte order, errors and build metadata.
  * Guides: @docs{concepts/core-types,C core types}, @docs{concepts/value,borrowed values} and @docs{guides/memory,memory ownership}.
  */
+/** @defgroup diagnostics Diagnostics
+ * Structured diagnostic model shared across OpenTLV layers: a stable code, severity, location and
+ * nested context, independent of any wire format or protocol.
+ * Guides: @docs{guides/diagnostics,diagnostics}.
+ */
 /** @defgroup reader Reader
  * Stateless reading and stateful iteration over encoded elements.
  * Guides: @docs{formats,formats}.

@@ -22,6 +22,7 @@ Documentation is grouped by purpose. See
 ## Guides
 
 - [Memory ownership and lifetime](guides/memory.md)
+- [Diagnostics](guides/diagnostics.md)
 - [Schemas and length validation](guides/schemas.md)
 - [Value codecs](guides/codecs.md)
 - [Copy helpers](guides/copy.md)
