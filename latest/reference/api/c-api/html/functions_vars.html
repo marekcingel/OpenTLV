@@ -76,6 +76,7 @@ $(function() {
 <li>allocate&#160;:&#160;<a class="el" href="structtlv__allocator.html#a9c77692919a8a17c4b4e414d3d243649">tlv_allocator</a></li>
 <li>allocator&#160;:&#160;<a class="el" href="structtlv__document__options.html#a0e2f53c9f3d13eb9f709bf4fe2eff380">tlv_document_options</a></li>
 <li>allow_unknown&#160;:&#160;<a class="el" href="structtlv__structure__schema.html#aaee701c6ab8ff5e90a4f4c086f1e7471">tlv_structure_schema</a></li>
+<li>available&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25">tlv_reader_diagnostic</a></li>
 </ul>
 
 
@@ -103,15 +104,18 @@ $(function() {
 <h3><a id="index_d" name="index_d"></a>- d -</h3><ul>
 <li>data&#160;:&#160;<a class="el" href="structtlv__reader.html#af1b8dc22d88017047e6e67f3dfa6fef4">tlv_reader</a>, <a class="el" href="structtlv__tag__t.html#a2e881623150c61177107e028ecd749a4">tlv_tag_t</a>, <a class="el" href="structtlv__value__t.html#ac13fdbdff04aee2d78c55bc5752e26ac">tlv_value_t</a></li>
 <li>day&#160;:&#160;<a class="el" href="structtlv__emv__date__t.html#a416eccbd4d5275a1603ae7f0adcb18a1">tlv_emv_date_t</a></li>
+<li>declared_length&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a81eee24f713410be871415e2cdf230ae">tlv_reader_diagnostic</a></li>
 <li>decode&#160;:&#160;<a class="el" href="structtlv__codec.html#a4c13053a47bc19b0d35c3397a3d53c12">tlv_codec</a>, <a class="el" href="structtlv__structure__codec.html#a9e34f511b51fde7b5383fee45526159a">tlv_structure_codec</a></li>
 <li>default_encoding&#160;:&#160;<a class="el" href="structtlv__der__schema__component.html#aca25c82efae817e3e7cf4b551b0a22c5">tlv_der_schema_component</a></li>
 <li>default_encoding_length&#160;:&#160;<a class="el" href="structtlv__der__schema__component.html#ad7061eee6977d55d14840c304e907e71">tlv_der_schema_component</a></li>
+<li>diagnostic&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a85cf1aa3370e9ce63c71af72de65080e">tlv_reader_diagnostic</a></li>
 <li>discretionary_data&#160;:&#160;<a class="el" href="structtlv__emv__track2__t.html#a7cbe744cad008fb5eeb43439ef0ccfc0">tlv_emv_track2_t</a></li>
 </ul>
 
 
 <h3><a id="index_e" name="index_e"></a>- e -</h3><ul>
 <li>element&#160;:&#160;<a class="el" href="structtlv__der__schema__type.html#a83d876c87cf11c118840e09dc8e68aaf">tlv_der_schema_type</a></li>
+<li>enclosing_end&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a6cf95a0947823bf620f9c9e23af56204">tlv_reader_diagnostic</a></li>
 <li>encode&#160;:&#160;<a class="el" href="structtlv__codec.html#aee40d5f01a1b83dced9d3d4964114ed2">tlv_codec</a>, <a class="el" href="structtlv__structure__codec.html#a785388ba1b841b5b8ceb2c61deccf19b">tlv_structure_codec</a></li>
 <li>ends&#160;:&#160;<a class="el" href="structtlv__query.html#a4156969b9c8faaef42fa21c2f76a1736">tlv_query</a></li>
 <li>entries&#160;:&#160;<a class="el" href="structtlv__emv__afl__t.html#a55a690afb6938e114ca2eb1672528dbc">tlv_emv_afl_t</a>, <a class="el" href="structtlv__schema__t.html#a7178c1efc7365bee14dd1877f3d2ac4d">tlv_schema_t</a></li>
@@ -130,7 +134,14 @@ $(function() {
 
 
 <h3><a id="index_h" name="index_h"></a>- h -</h3><ul>
+<li>has_available&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#ad8c5b4e399b244b80af9cb9f337b5500">tlv_reader_diagnostic</a></li>
+<li>has_declared_length&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#af395445dc836c194302d65d90a2a87ab">tlv_reader_diagnostic</a></li>
+<li>has_enclosing_end&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a17f9af2423e34719a85f55d4198e32c1">tlv_reader_diagnostic</a></li>
+<li>has_length_offset&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a3faff202fe13b892b8ebe87f4f1f7be6">tlv_reader_diagnostic</a></li>
 <li>has_offset&#160;:&#160;<a class="el" href="structtlv__diagnostic.html#a7429b6c846dda33d542b19212c4b5b9c">tlv_diagnostic</a>, <a class="el" href="structtlv__schema__issue.html#a697fd9a2094ae8953c6b363b622e76e3">tlv_schema_issue</a></li>
+<li>has_tag&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a001f84c033ec647e64a750b724609631">tlv_reader_diagnostic</a></li>
+<li>has_tag_offset&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a577e5d8b5ee7d8355f4f6d580d99674a">tlv_reader_diagnostic</a></li>
+<li>has_value_offset&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a04cc9a9397cf268c4d60d0e608a5dd9d">tlv_reader_diagnostic</a></li>
 <li>hour&#160;:&#160;<a class="el" href="structtlv__emv__time__t.html#ab165e8e1ceb98443b381e4175f915800">tlv_emv_time_t</a></li>
 </ul>
 
@@ -151,6 +162,7 @@ $(function() {
 <li>last_record&#160;:&#160;<a class="el" href="structtlv__emv__afl__entry__t.html#aa7eab05b4e5246bf3d344a1ef3998547">tlv_emv_afl_entry_t</a></li>
 <li>layer&#160;:&#160;<a class="el" href="structtlv__diagnostic__context.html#abc29d8b14c2c0de737ae8ef2b69093f5">tlv_diagnostic_context</a></li>
 <li>length&#160;:&#160;<a class="el" href="structtlv__der__schema__record.html#ac7a9ddfecd2721e3481ded4c2b8e98dd">tlv_der_schema_record</a>, <a class="el" href="structtlv__value__t.html#a4687106f190c23063c384094120edef4">tlv_value_t</a></li>
+<li>length_offset&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a8b0f5c76fb0e1b24211f7f01116bb994">tlv_reader_diagnostic</a></li>
 <li>length_size&#160;:&#160;<a class="el" href="structtlv__writer__format.html#ac9cb9b30b66a6fb111306f614224446f">tlv_writer_format</a></li>
 <li>length_step&#160;:&#160;<a class="el" href="structtlv__emv__definition__t.html#ae3c95a529c4e07f5f7305f5230edf2ba">tlv_emv_definition_t</a></li>
 </ul>
@@ -185,6 +197,7 @@ $(function() {
 <h3><a id="index_o" name="index_o"></a>- o -</h3><ul>
 <li>offline_auth_record_count&#160;:&#160;<a class="el" href="structtlv__emv__afl__entry__t.html#a77a2a108261b65e6a1f463af8dc06505">tlv_emv_afl_entry_t</a></li>
 <li>offset&#160;:&#160;<a class="el" href="structtlv__der__schema__record.html#a2cccc1b6168839b35b3c85b84e7a532b">tlv_der_schema_record</a>, <a class="el" href="structtlv__diagnostic.html#a969e40206405a7b642395115d14b1ae7">tlv_diagnostic</a>, <a class="el" href="structtlv__schema__issue.html#a9488e25d134c31327b6950361031202a">tlv_schema_issue</a></li>
+<li>operation&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a16279bb35f837ad2b9905ffdebd5db58">tlv_reader_diagnostic</a></li>
 </ul>
 
 
@@ -226,9 +239,10 @@ $(function() {
 
 
 <h3><a id="index_t" name="index_t"></a>- t -</h3><ul>
-<li>tag&#160;:&#160;<a class="el" href="structtlv__dol__entry.html#a84e22a57248f00d867425accb2b8a4c5">tlv_dol_entry</a>, <a class="el" href="structtlv__schema__entry__t.html#a61639de072c14a9b1dccac9921e1deaf">tlv_schema_entry_t</a>, <a class="el" href="structtlv__view__t.html#a6702456988ebce470018fc53c9ce4c03">tlv_view_t</a></li>
+<li>tag&#160;:&#160;<a class="el" href="structtlv__dol__entry.html#a84e22a57248f00d867425accb2b8a4c5">tlv_dol_entry</a>, <a class="el" href="structtlv__reader__diagnostic.html#a6650aaf509ab822e612a1c67c2d87768">tlv_reader_diagnostic</a>, <a class="el" href="structtlv__schema__entry__t.html#a61639de072c14a9b1dccac9921e1deaf">tlv_schema_entry_t</a>, <a class="el" href="structtlv__view__t.html#a6702456988ebce470018fc53c9ce4c03">tlv_view_t</a></li>
 <li>tag_class&#160;:&#160;<a class="el" href="structtlv__der__schema__component.html#a7fd819f3eabc32b261d337b8c6f897e6">tlv_der_schema_component</a></li>
 <li>tag_number&#160;:&#160;<a class="el" href="structtlv__der__schema__component.html#aa4e26a3673b62c7d5e018e379ee21c2f">tlv_der_schema_component</a></li>
+<li>tag_offset&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a25df7c08fcc21519563ced6d2f8bc4fe">tlv_reader_diagnostic</a></li>
 <li>tagging&#160;:&#160;<a class="el" href="structtlv__der__schema__component.html#a094fe0a9d8596a84fe3b78692bfa822c">tlv_der_schema_component</a></li>
 <li>type&#160;:&#160;<a class="el" href="structtlv__der__schema__component.html#ac16fed11955c787aa76adafe522a68a6">tlv_der_schema_component</a>, <a class="el" href="structtlv__emv__cryptogram__info__t.html#abdeb36953d909a4087ecbb57b8a7b992">tlv_emv_cryptogram_info_t</a></li>
 </ul>
@@ -242,6 +256,7 @@ $(function() {
 <h3><a id="index_v" name="index_v"></a>- v -</h3><ul>
 <li>value&#160;:&#160;<a class="el" href="structtlv__diagnostic__context.html#a118faa9735506854b24dbd6641258a9f">tlv_diagnostic_context</a>, <a class="el" href="structtlv__view__t.html#a684f886ee452f847eb2a754fa0aac83a">tlv_view_t</a></li>
 <li>value_kind&#160;:&#160;<a class="el" href="structtlv__emv__definition__t.html#a55f9a8a0844e6b2e186a31ca333cb52d">tlv_emv_definition_t</a></li>
+<li>value_offset&#160;:&#160;<a class="el" href="structtlv__reader__diagnostic.html#a127768d8dadf9a9999d478f1d0d0fc6c">tlv_reader_diagnostic</a></li>
 <li>values&#160;:&#160;<a class="el" href="structtlv__emv__number__list__t.html#a83b499386232ab168480bb96c5a8e23c">tlv_emv_number_list_t</a></li>
 </ul>
 

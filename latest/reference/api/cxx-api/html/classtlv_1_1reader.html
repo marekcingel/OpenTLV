@@ -96,6 +96,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4b007c661cebbcbf2bfa5a8ccc25b3d6" id="r_a4b007c661cebbcbf2bfa5a8ccc25b3d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1entry.html">entry</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader.html#a4b007c661cebbcbf2bfa5a8ccc25b3d6">next</a> ()</td></tr>
 <tr class="memdesc:a4b007c661cebbcbf2bfa5a8ccc25b3d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the next element and advances the reader.  <br /></td></tr>
 <tr class="separator:a4b007c661cebbcbf2bfa5a8ccc25b3d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e1467f33be6e9d236b4fdd9ba8b5ac7" id="r_a6e1467f33be6e9d236b4fdd9ba8b5ac7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1entry.html">entry</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader.html#a6e1467f33be6e9d236b4fdd9ba8b5ac7">next</a> (<a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> &amp;out_diagnostic)</td></tr>
+<tr class="memdesc:a6e1467f33be6e9d236b4fdd9ba8b5ac7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the next element and advances the reader, with diagnostic detail on failure.  <br /></td></tr>
+<tr class="separator:a6e1467f33be6e9d236b4fdd9ba8b5ac7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Thin, safe C++ wrapper around <a class="elRef" href="../../c-api/html/group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a>. </p>
@@ -178,7 +181,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="a4b007c661cebbcbf2bfa5a8ccc25b3d6" name="a4b007c661cebbcbf2bfa5a8ccc25b3d6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4b007c661cebbcbf2bfa5a8ccc25b3d6">&#9670;&#160;</a></span>next()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b007c661cebbcbf2bfa5a8ccc25b3d6">&#9670;&#160;</a></span>next() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -204,6 +207,42 @@ Public Member Functions</h2></td></tr>
 <p>The returned entry's value borrows the original buffer.</p>
 <dl class="section return"><dt>Returns</dt><dd>The next entry, or an error: <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if the reader failed to initialize, <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> when no further element exists, or any error of <a class="elRef" href="../../c-api/html/group__reader.html#ga91c8fedabb172582e19deb52c50d4c50">tlv_reader_next()</a> or <a class="elRef" href="../../c-api/html/group__core.html#ga2a4636b839fffa233c97ca36488f19d5">tlv_length_to_size()</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On error the reader position is unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="a6e1467f33be6e9d236b4fdd9ba8b5ac7" name="a6e1467f33be6e9d236b4fdd9ba8b5ac7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e1467f33be6e9d236b4fdd9ba8b5ac7">&#9670;&#160;</a></span>next() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="structtlv_1_1entry.html">entry</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::reader::next </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> &amp;&#160;</td>
+          <td class="paramname"><em>out_diagnostic</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reads the next element and advances the reader, with diagnostic detail on failure. </p>
+<p>Behaves like <a class="el" href="classtlv_1_1reader.html#a4b007c661cebbcbf2bfa5a8ccc25b3d6" title="Reads the next element and advances the reader.">next()</a>, and additionally fills <code>out_diagnostic</code> when the read fails; wraps <a class="elRef" href="../../c-api/html/group__reader.html#ga3e48b486f453b0711f43fc5c5dcad641">tlv_reader_next_diag()</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">out_diagnostic</td><td>Receives detail on failure; left unchanged on success.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Same as <a class="el" href="classtlv_1_1reader.html#a4b007c661cebbcbf2bfa5a8ccc25b3d6" title="Reads the next element and advances the reader.">next()</a>. </dd></dl>
 
 </div>
 </div>

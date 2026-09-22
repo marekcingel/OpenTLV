@@ -740,6 +740,7 @@ $(function() {
 <li>tlv_query_t&#160;:&#160;<a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">query.h</a></li>
 <li>tlv_query_walk()&#160;:&#160;<a class="el" href="group__traversal.html#ga164aeb302a7d138d9f56407ba9bbc5cb">query.h</a></li>
 <li>tlv_read()&#160;:&#160;<a class="el" href="group__reader.html#ga928a8bb49ea003c9dfa4fdcfcb98ab0c">reader.h</a></li>
+<li>tlv_read_diag()&#160;:&#160;<a class="el" href="group__reader.html#ga3ba43f4374c3e1c8594a7f20660a1e9e">reader.h</a></li>
 <li>tlv_read_element_fn&#160;:&#160;<a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">format.h</a></li>
 <li>tlv_read_length_fn&#160;:&#160;<a class="el" href="group__formats.html#ga28b862bc888dc1227d98bf02c7aede33">format.h</a></li>
 <li>tlv_read_tag_fn&#160;:&#160;<a class="el" href="group__formats.html#ga42a852e645b64b1d92281ba236613b67">format.h</a></li>
@@ -752,6 +753,8 @@ $(function() {
 <li>tlv_read_uint()&#160;:&#160;<a class="el" href="group__core.html#ga8b23502601c29d6c00ba732ffb58c706">endian.h</a></li>
 <li>tlv_read_value_bounds_fn&#160;:&#160;<a class="el" href="group__formats.html#ga15290eae4856feaaafa58d0104831d50">format.h</a></li>
 <li>tlv_reader_at_end()&#160;:&#160;<a class="el" href="group__reader.html#gab5cb4a6d23f0adb8adbe00cce73bd148">reader.h</a></li>
+<li>tlv_reader_diagnostic_init()&#160;:&#160;<a class="el" href="group__reader.html#gac84de34d64c807e7cedc9b80442e95df">reader.h</a></li>
+<li>tlv_reader_diagnostic_t&#160;:&#160;<a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">reader.h</a></li>
 <li>tlv_reader_format_ber&#160;:&#160;<a class="el" href="group__formats.html#ga0fca6210debe5a4230394a95fc7ad156">ber.h</a></li>
 <li>tlv_reader_format_bluetooth_ltv&#160;:&#160;<a class="el" href="group__formats.html#gaef5c2c9cf896b280a7c855ad9ae4fb4d">bluetooth_ltv.h</a></li>
 <li>tlv_reader_format_cer&#160;:&#160;<a class="el" href="group__formats.html#gaa7288816a33df8ba2bd152cab354f6d0">cer.h</a></li>
@@ -763,6 +766,13 @@ $(function() {
 <li>tlv_reader_format_t&#160;:&#160;<a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">format.h</a></li>
 <li>tlv_reader_init()&#160;:&#160;<a class="el" href="group__reader.html#ga80ac48c8339e27d2fa57ee70a879f313">reader.h</a></li>
 <li>tlv_reader_next()&#160;:&#160;<a class="el" href="group__reader.html#ga91c8fedabb172582e19deb52c50d4c50">reader.h</a></li>
+<li>tlv_reader_next_diag()&#160;:&#160;<a class="el" href="group__reader.html#ga3e48b486f453b0711f43fc5c5dcad641">reader.h</a></li>
+<li>TLV_READER_OP_LENGTH&#160;:&#160;<a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9ab2ef28f1c15271f57e8fa922246f52ba">reader.h</a></li>
+<li>TLV_READER_OP_TAG&#160;:&#160;<a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9af1b48765f73e5817a480f3dd7b2840f4">reader.h</a></li>
+<li>TLV_READER_OP_TRAILER&#160;:&#160;<a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9ad54e12920a4a87d370894c493f3079bd">reader.h</a></li>
+<li>TLV_READER_OP_VALUE&#160;:&#160;<a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9a4a5f66bddd713974726228f5daef5717">reader.h</a></li>
+<li>tlv_reader_operation&#160;:&#160;<a class="el" href="group__reader.html#ga1eb19dea4cfcbb788587e7a3208430a9">reader.h</a></li>
+<li>tlv_reader_operation_t&#160;:&#160;<a class="el" href="group__reader.html#gabf8b5b14db678fec0ef62a89e62ed22f">reader.h</a></li>
 <li>tlv_reader_t&#160;:&#160;<a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">reader.h</a></li>
 <li>tlv_result&#160;:&#160;<a class="el" href="group__core.html#ga516c7250563ee9332e2f45f2d203ae61">error.h</a></li>
 <li>tlv_result_t&#160;:&#160;<a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">error.h</a></li>
@@ -771,8 +781,8 @@ $(function() {
 <li>TLV_SCHEMA_CONSTRUCTED&#160;:&#160;<a class="el" href="group__schemas.html#gga5c8a305dce94f119abad5b7137d21f51a3127834146a11209244a4045ffa26242">schema.h</a></li>
 <li>tlv_schema_find()&#160;:&#160;<a class="el" href="group__schemas.html#gab16e87ef133a0a302ada88c41d48a471">schema.h</a></li>
 <li>TLV_SCHEMA_ISSUE_DUPLICATE&#160;:&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">schema.h</a></li>
-<li>TLV_SCHEMA_ISSUE_KIND&#160;:&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda38bc5113a24c5cd1ec20ea2a9eff5db9">schema.h</a></li>
 <li>tlv_schema_issue_kind&#160;:&#160;<a class="el" href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">schema.h</a></li>
+<li>TLV_SCHEMA_ISSUE_KIND&#160;:&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda38bc5113a24c5cd1ec20ea2a9eff5db9">schema.h</a></li>
 <li>tlv_schema_issue_kind_string()&#160;:&#160;<a class="el" href="group__schemas.html#ga7f8651f7f1f83f182b82bdb42e07c519">schema.h</a></li>
 <li>tlv_schema_issue_kind_t&#160;:&#160;<a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">schema.h</a></li>
 <li>TLV_SCHEMA_ISSUE_LENGTH&#160;:&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f">schema.h</a></li>
