@@ -75,3 +75,140 @@ TEST(Unit_Diagnostic, SeverityStringFallsBackForAnUnrecognizedValue) {
     EXPECT_STREQ("unknown",
                  tlv_diagnostic_severity_string(static_cast<tlv_diagnostic_severity_t>(99)));
 }
+
+TEST(Unit_Diagnostic, SetPathSetsAndClearsTheField) {
+    tlv_diagnostic_t diagnostic;
+    tlv_diagnostic_init(&diagnostic, TLV_ERR_END_OF_BUFFER, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+
+    tlv_diagnostic_set_path(&diagnostic, &path);
+    EXPECT_EQ(&path, diagnostic.path);
+
+    tlv_diagnostic_set_path(&diagnostic, nullptr);
+    EXPECT_EQ(nullptr, diagnostic.path);
+}
+
+TEST(Unit_Diagnostic, SetPathIgnoresANullDiagnostic) {
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+    tlv_diagnostic_set_path(nullptr, &path);
+}
+
+TEST(Unit_Diagnostic, PathInitStartsEmpty) {
+    tlv_diagnostic_path_t path;
+    std::memset(&path, 0xAA, sizeof(path));
+
+    tlv_diagnostic_path_init(&path);
+
+    EXPECT_EQ(0u, path.length);
+}
+
+TEST(Unit_Diagnostic, PathInitIgnoresANullPath) {
+    tlv_diagnostic_path_init(nullptr);
+}
+
+TEST(Unit_Diagnostic, PathPushAppendsTagsInOrder) {
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+
+    EXPECT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, TLV_TAG(0x6F)));
+    EXPECT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, TLV_TAG(0xA5)));
+
+    ASSERT_EQ(2u, path.length);
+    EXPECT_TRUE(tlv_tag_equal(path.tags[0], TLV_TAG(0x6F)));
+    EXPECT_TRUE(tlv_tag_equal(path.tags[1], TLV_TAG(0xA5)));
+}
+
+TEST(Unit_Diagnostic, PathPushReturnsLimitWhenFullAndLeavesThePathUnchanged) {
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+    for (int i = 0; i < TLV_DIAGNOSTIC_PATH_MAX; ++i)
+        ASSERT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, TLV_TAG(0x01)));
+
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_diagnostic_path_push(&path, TLV_TAG(0x02)));
+    EXPECT_EQ(static_cast<size_t>(TLV_DIAGNOSTIC_PATH_MAX), path.length);
+}
+
+TEST(Unit_Diagnostic, PathPushReturnsNullArgForANullPath) {
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_diagnostic_path_push(nullptr, TLV_TAG(0x6F)));
+}
+
+TEST(Unit_Diagnostic, PathPopRemovesTheLastTag) {
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+    tlv_diagnostic_path_push(&path, TLV_TAG(0x6F));
+    tlv_diagnostic_path_push(&path, TLV_TAG(0xA5));
+
+    tlv_diagnostic_path_pop(&path);
+
+    ASSERT_EQ(1u, path.length);
+    EXPECT_TRUE(tlv_tag_equal(path.tags[0], TLV_TAG(0x6F)));
+}
+
+TEST(Unit_Diagnostic, PathPopIgnoresAnEmptyOrNullPath) {
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+
+    tlv_diagnostic_path_pop(&path);
+    EXPECT_EQ(0u, path.length);
+
+    tlv_diagnostic_path_pop(nullptr);
+}
+
+TEST(Unit_Diagnostic, PathStringFormatsTagsJoinedByArrow) {
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+    tlv_diagnostic_path_push(&path, TLV_TAG(0x6F));
+    tlv_diagnostic_path_push(&path, TLV_TAG(0xA5));
+    tlv_diagnostic_path_push(&path, TLV_TAG(0xBF, 0x0C));
+
+    char   buffer[64];
+    size_t length = 0;
+    EXPECT_EQ(TLV_OK, tlv_diagnostic_path_string(&path, buffer, sizeof(buffer), &length));
+
+    EXPECT_STREQ("6F > A5 > BF0C", buffer);
+    EXPECT_EQ(std::strlen(buffer), length);
+}
+
+TEST(Unit_Diagnostic, PathStringFormatsAnEmptyPathAsAnEmptyString) {
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+
+    char   buffer[8];
+    size_t length = 123;
+    EXPECT_EQ(TLV_OK, tlv_diagnostic_path_string(&path, buffer, sizeof(buffer), &length));
+
+    EXPECT_STREQ("", buffer);
+    EXPECT_EQ(0u, length);
+}
+
+TEST(Unit_Diagnostic, PathStringReturnsBufferTooShortAndStillReportsTheLength) {
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+    tlv_diagnostic_path_push(&path, TLV_TAG(0x6F));
+    tlv_diagnostic_path_push(&path, TLV_TAG(0xA5));
+
+    char   buffer[4];
+    size_t length = 0;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_diagnostic_path_string(&path, buffer, sizeof(buffer), &length));
+
+    EXPECT_EQ(std::strlen("6F > A5"), length);
+}
+
+TEST(Unit_Diagnostic, PathStringRejectsAnInvalidTagInThePath) {
+    tlv_diagnostic_path_t path;
+    tlv_diagnostic_path_init(&path);
+    ASSERT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, tlv_tag(nullptr, 0)));
+
+    char buffer[8];
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_diagnostic_path_string(&path, buffer, sizeof(buffer), nullptr));
+}
+
+TEST(Unit_Diagnostic, PathStringReturnsNullArgForANullPath) {
+    char buffer[8];
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_diagnostic_path_string(nullptr, buffer, sizeof(buffer), nullptr));
+}

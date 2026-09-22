@@ -73,6 +73,56 @@ and `tag` borrows the input like any tag a reader produces.
 `tlv_reader_next_diag()` reports the same fields with offsets absolute within
 the reader's buffer, not relative to the element being read.
 
+## Hierarchical paths
+
+An offset alone does not say which branch of a nested document a diagnostic
+came from: the same tag can appear at several depths. `tlv_diagnostic_path_t`
+is a bounded, allocation-free stack of the tags enclosing a diagnostic,
+outermost first, that a caller builds while descending into nested
+constructed elements, for example with `tlv_walk_tree()`:
+
+```c
+#include "tlv/diagnostic.h"
+#include "tlv/reader/walker.h"
+
+tlv_diagnostic_path_t path;
+tlv_diagnostic_path_init(&path);
+
+tlv_visit_result_t on_element(const tlv_view_t* view, size_t depth, size_t offset, void* context) {
+    while (path.length > depth) tlv_diagnostic_path_pop(&path);
+    if (is_constructed(NULL, &view->tag)) tlv_diagnostic_path_push(&path, view->tag);
+    /* ... validate view, using `path` as the location of the current element's parent ... */
+    return TLV_VISIT_CONTINUE;
+}
+
+tlv_walk_tree(data, size, &format, is_constructed, TLV_WALK_MAX_DEPTH, SIZE_MAX, on_element, NULL,
+             NULL);
+```
+
+Popping back to `depth` before pushing keeps `path` in sync with preorder
+traversal: a sibling at the same depth replaces the previous element's tag,
+and returning to an ancestor drops everything below it. When a diagnostic is
+produced, attach the path with `tlv_diagnostic_set_path()`:
+
+```c
+tlv_diagnostic_t diagnostic;
+tlv_diagnostic_init(&diagnostic, TLV_ERR_INVALID_LENGTH, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+tlv_diagnostic_set_offset(&diagnostic, offset);
+tlv_diagnostic_set_path(&diagnostic, &path);
+
+char text[128];
+tlv_diagnostic_path_string(diagnostic.path, text, sizeof(text), NULL);
+/* text == "6F > A5 > BF0C > 61" for the element enclosing the failing 4F */
+```
+
+Pushing beyond `TLV_DIAGNOSTIC_PATH_MAX` tags returns `TLV_ERR_LIMIT` and
+leaves the path unchanged. Nothing is copied or allocated: a pushed tag
+borrows the input like any tag a reader produces, and `path` itself must stay
+valid, and unchanged, for as long as the diagnostic is used. Tracking a path
+is entirely opt-in: a diagnostic that is never given one, and code that never
+builds a `tlv_diagnostic_path_t`, pay nothing beyond the one `NULL` pointer in
+`tlv_diagnostic_t::path`.
+
 ## Scope
 
 The core `tlv_diagnostic_t` type is independent of any wire format, schema or
