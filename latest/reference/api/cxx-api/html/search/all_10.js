@@ -9,10 +9,11 @@ var searchData=
   ['second_6',['second',['../../../c-api/html/structtlv__emv__time__t.html#a16a6606a560663b11f0c3723a075b1b7',1,'tlv_emv_time_t']]],
   ['service_5fcode_7',['service_code',['../../../c-api/html/structtlv__emv__track2__t.html#a643381aca3485e3c695bdae768b56c60',1,'tlv_emv_track2_t']]],
   ['set_8',['set',['../classtlv_1_1node.html#a4c3e99fcadd919d83ef5d5418bf08d09',1,'tlv::node']]],
-  ['sfi_9',['sfi',['../../../c-api/html/structtlv__emv__afl__entry__t.html#ae330664c393ef8834734e50cbfde0180',1,'tlv_emv_afl_entry_t']]],
-  ['size_10',['size',['../../../c-api/html/structtlv__reader.html#a9bbe580b9ec656247f5ae64b8605bd9b',1,'tlv_reader::size'],['../../../c-api/html/structtlv__tag__t.html#a63521b77cae7ea90d23dc67c22ef0bea',1,'tlv_tag_t::size'],['../classtlv_1_1span.html#af9763dc55004193c455ecbb1e817909a',1,'tlv::span::size()'],['../classtlv_1_1document.html#a88f7e5693ade570f9f9137db51c56ba2',1,'tlv::document::size()'],['../classtlv_1_1query.html#a2cd66da393d6b030f76a61cf7c6b1a67',1,'tlv::query::size()'],['../classtlv_1_1writer.html#af0324c106107f6790d44846a2904aaa9',1,'tlv::writer::size()']]],
-  ['span_11',['span',['../classtlv_1_1span.html',1,'tlv::span&lt; T &gt;'],['../classtlv_1_1span.html#a0bda0703f37c736b0a2bf3c77205d114',1,'tlv::span::span()'],['../classtlv_1_1span.html#ab8c70860e2ea0fc3bde54c4a17786d41',1,'tlv::span::span(T *data, std::size_t size)']]],
-  ['span_3c_20const_20byte_20_3e_12',['span&lt; const byte &gt;',['../classtlv_1_1span.html',1,'tlv']]],
-  ['structure_2eh_13',['structure.h',['../../../c-api/html/structure_8h.html',1,'']]],
-  ['structure_2ehpp_14',['structure.hpp',['../structure_8hpp.html',1,'']]]
+  ['severity_9',['severity',['../../../c-api/html/structtlv__diagnostic.html#a459ddb0d3fa969231b84c675cc180eba',1,'tlv_diagnostic']]],
+  ['sfi_10',['sfi',['../../../c-api/html/structtlv__emv__afl__entry__t.html#ae330664c393ef8834734e50cbfde0180',1,'tlv_emv_afl_entry_t']]],
+  ['size_11',['size',['../../../c-api/html/structtlv__reader.html#a9bbe580b9ec656247f5ae64b8605bd9b',1,'tlv_reader::size'],['../../../c-api/html/structtlv__tag__t.html#a63521b77cae7ea90d23dc67c22ef0bea',1,'tlv_tag_t::size'],['../classtlv_1_1span.html#af9763dc55004193c455ecbb1e817909a',1,'tlv::span::size()'],['../classtlv_1_1document.html#a88f7e5693ade570f9f9137db51c56ba2',1,'tlv::document::size()'],['../classtlv_1_1query.html#a2cd66da393d6b030f76a61cf7c6b1a67',1,'tlv::query::size()'],['../classtlv_1_1writer.html#af0324c106107f6790d44846a2904aaa9',1,'tlv::writer::size()']]],
+  ['span_12',['span',['../classtlv_1_1span.html',1,'tlv::span&lt; T &gt;'],['../classtlv_1_1span.html#a0bda0703f37c736b0a2bf3c77205d114',1,'tlv::span::span()'],['../classtlv_1_1span.html#ab8c70860e2ea0fc3bde54c4a17786d41',1,'tlv::span::span(T *data, std::size_t size)']]],
+  ['span_3c_20const_20byte_20_3e_13',['span&lt; const byte &gt;',['../classtlv_1_1span.html',1,'tlv']]],
+  ['structure_2eh_14',['structure.h',['../../../c-api/html/structure_8h.html',1,'']]],
+  ['structure_2ehpp_15',['structure.hpp',['../structure_8hpp.html',1,'']]]
 ];

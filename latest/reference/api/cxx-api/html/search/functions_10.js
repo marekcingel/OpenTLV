@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['walk_0',['walk',['../classtlv_1_1query.html#abdf65bf721a7979419d1d9f5712b979c',1,'tlv::query']]],
-  ['walk_5ftree_1',['walk_tree',['../namespacetlv.html#a60ce384d98c97179259694ad5224cf36',1,'tlv']]],
-  ['write_2',['write',['../classtlv_1_1writer.html#a5f4d451ec3f70797b9471ca99e171510',1,'tlv::writer']]],
-  ['write_5fvalue_3',['write_value',['../namespacetlv.html#a4010f369042bb38cdc7ce33bdef47aa5',1,'tlv']]],
-  ['writer_4',['writer',['../classtlv_1_1fixed__format.html#a6f4605e7d164b93630b84af3a4d1f397',1,'tlv::fixed_format::writer()'],['../classtlv_1_1writer.html#a48fc8c4fd63407ed16203fee92e3c7c6',1,'tlv::writer::writer()']]]
+  ['validate_0',['validate',['../namespacetlv.html#aa9d7868f8b5cd05c072f676f96b657f4',1,'tlv']]],
+  ['validate_5fall_1',['validate_all',['../namespacetlv.html#a2fd1943be24f223853c11e715930c5cd',1,'tlv']]],
+  ['value_2',['value',['../classtlv_1_1node.html#a81116ae366e799a3b79b795eb62a3c3f',1,'tlv::node']]]
 ];

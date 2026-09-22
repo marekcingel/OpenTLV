@@ -147,6 +147,12 @@ Concepts</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:a00ca9c69c35ef11f6a22b7eda1b115ba" id="r_a00ca9c69c35ef11f6a22b7eda1b115ba"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> = <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a></td></tr>
+<tr class="memdesc:a00ca9c69c35ef11f6a22b7eda1b115ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the C diagnostic type, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a>.  <br /></td></tr>
+<tr class="separator:a00ca9c69c35ef11f6a22b7eda1b115ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad25d4ec98046df7826d97ce6a7ff5e2d" id="r_ad25d4ec98046df7826d97ce6a7ff5e2d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ad25d4ec98046df7826d97ce6a7ff5e2d">diagnostic_context</a> = <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692">tlv_diagnostic_context_t</a></td></tr>
+<tr class="memdesc:ad25d4ec98046df7826d97ce6a7ff5e2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the C diagnostic context type, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692">tlv_diagnostic_context_t</a>.  <br /></td></tr>
+<tr class="separator:ad25d4ec98046df7826d97ce6a7ff5e2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b31c4b301052e8137584ed7baf54611" id="r_a2b31c4b301052e8137584ed7baf54611"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> = <a class="elRef" href="../../c-api/html/structtlv__tag__t.html">tlv_tag_t</a></td></tr>
 <tr class="memdesc:a2b31c4b301052e8137584ed7baf54611"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the C tag type, <a class="elRef" href="../../c-api/html/structtlv__tag__t.html">tlv_tag_t</a>.  <br /></td></tr>
 <tr class="separator:a2b31c4b301052e8137584ed7baf54611"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -172,6 +178,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a9d612bad7c17a6fa1fe6929b882d91ba"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a9d612bad7c17a6fa1fe6929b882d91ba">any_cast</a> (const <a class="el" href="classtlv_1_1any.html">any</a> &amp;value)</td></tr>
 <tr class="memdesc:a9d612bad7c17a6fa1fe6929b882d91ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the value held by a pre-C++17 <a class="el" href="classtlv_1_1any.html" title="Minimal copyable type-erased value holder for pre-C++17 builds.">tlv::any</a>.  <br /></td></tr>
 <tr class="separator:a9d612bad7c17a6fa1fe6929b882d91ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d0a36fc765ca92cdc9ce5fc59fb1bd5" id="r_a0d0a36fc765ca92cdc9ce5fc59fb1bd5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a0d0a36fc765ca92cdc9ce5fc59fb1bd5">make_diagnostic</a> (<a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> code, <a class="elRef" href="../../c-api/html/group__diagnostics.html#gacb09b23a905d4d2bb22ec41eb9fbc913">tlv_diagnostic_severity_t</a> severity)</td></tr>
+<tr class="memdesc:a0d0a36fc765ca92cdc9ce5fc59fb1bd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a diagnostic with a code and severity, and no location, expectation or context.  <br /></td></tr>
+<tr class="separator:a0d0a36fc765ca92cdc9ce5fc59fb1bd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ce58d107ecb735b70e8754f43860b35" id="r_a5ce58d107ecb735b70e8754f43860b35"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a5ce58d107ecb735b70e8754f43860b35">add_context</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;target, <a class="el" href="namespacetlv.html#ad25d4ec98046df7826d97ce6a7ff5e2d">diagnostic_context</a> &amp;context, const char *layer, const char *key, const char *value)</td></tr>
+<tr class="memdesc:a5ce58d107ecb735b70e8754f43860b35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attaches one context entry to a diagnostic.  <br /></td></tr>
+<tr class="separator:a5ce58d107ecb735b70e8754f43860b35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9d7868f8b5cd05c072f676f96b657f4" id="r_aa9d7868f8b5cd05c072f676f96b657f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa9d7868f8b5cd05c072f676f96b657f4">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> &amp;format, <a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, size_t *error_offset=nullptr)</td></tr>
 <tr class="memdesc:aa9d7868f8b5cd05c072f676f96b657f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates framing, nesting, lengths and occurrence counts against a schema.  <br /></td></tr>
 <tr class="separator:aa9d7868f8b5cd05c072f676f96b657f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -209,6 +221,38 @@ Functions</h2></td></tr>
 
 <p>Non-owning, read-only view of bytes. </p>
 <p>The caller owns the storage and must keep it alive while the view is used. </p>
+
+</div>
+</div>
+<a id="a00ca9c69c35ef11f6a22b7eda1b115ba" name="a00ca9c69c35ef11f6a22b7eda1b115ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a00ca9c69c35ef11f6a22b7eda1b115ba">&#9670;&#160;</a></span>diagnostic</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">tlv::diagnostic</a> = typedef <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>C++ alias for the C diagnostic type, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a>. </p>
+
+</div>
+</div>
+<a id="ad25d4ec98046df7826d97ce6a7ff5e2d" name="ad25d4ec98046df7826d97ce6a7ff5e2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad25d4ec98046df7826d97ce6a7ff5e2d">&#9670;&#160;</a></span>diagnostic_context</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#ad25d4ec98046df7826d97ce6a7ff5e2d">tlv::diagnostic_context</a> = typedef <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692">tlv_diagnostic_context_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>C++ alias for the C diagnostic context type, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga9294663a1d15f6e62a5a84433931f692">tlv_diagnostic_context_t</a>. </p>
 
 </div>
 </div>
@@ -252,6 +296,73 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a5ce58d107ecb735b70e8754f43860b35" name="a5ce58d107ecb735b70e8754f43860b35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ce58d107ecb735b70e8754f43860b35">&#9670;&#160;</a></span>add_context()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tlv::add_context </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;&#160;</td>
+          <td class="paramname"><em>target</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#ad25d4ec98046df7826d97ce6a7ff5e2d">diagnostic_context</a> &amp;&#160;</td>
+          <td class="paramname"><em>context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>layer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Attaches one context entry to a diagnostic. </p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga5bb5f0bb7eb066ffc093e012714c8a33">tlv_diagnostic_add_context()</a>; the same borrowing and lifetime rules apply.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">target</td><td>Diagnostic to update. </td></tr>
+    <tr><td class="paramname">context</td><td>Caller-owned storage for the new entry; every field is overwritten. </td></tr>
+    <tr><td class="paramname">layer</td><td>Borrowed name of the layer adding context, for example <code>"ber"</code>. </td></tr>
+    <tr><td class="paramname">key</td><td>Borrowed name of the attribute, for example <code>"declared_length"</code>. </td></tr>
+    <tr><td class="paramname">value</td><td>Borrowed formatted value of the attribute. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="a9d612bad7c17a6fa1fe6929b882d91ba" name="a9d612bad7c17a6fa1fe6929b882d91ba"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9d612bad7c17a6fa1fe6929b882d91ba">&#9670;&#160;</a></span>any_cast()</h2>
 
@@ -462,6 +573,53 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The number of bytes written (or required, for a size query), or the <a class="elRef" href="../../c-api/html/group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> reported by the codec.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>On error the contents of <code>data</code> are unspecified. </dd></dl>
+
+</div>
+</div>
+<a id="a0d0a36fc765ca92cdc9ce5fc59fb1bd5" name="a0d0a36fc765ca92cdc9ce5fc59fb1bd5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d0a36fc765ca92cdc9ce5fc59fb1bd5">&#9670;&#160;</a></span>make_diagnostic()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> tlv::make_diagnostic </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td>
+          <td class="paramname"><em>code</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__diagnostics.html#gacb09b23a905d4d2bb22ec41eb9fbc913">tlv_diagnostic_severity_t</a>&#160;</td>
+          <td class="paramname"><em>severity</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Builds a diagnostic with a code and severity, and no location, expectation or context. </p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__diagnostics.html#gaebfdc9021b42321df2daae0c81830f41">tlv_diagnostic_init()</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">code</td><td>Stable code identifying the failure or observation. </td></tr>
+    <tr><td class="paramname">severity</td><td>How serious the diagnostic is.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The initialized diagnostic. </dd></dl>
 
 </div>
 </div>

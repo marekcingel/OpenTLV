@@ -1,5 +1,5 @@
 var searchData=
 [
   ['offline_5fauth_5frecord_5fcount_0',['offline_auth_record_count',['../../../c-api/html/structtlv__emv__afl__entry__t.html#a77a2a108261b65e6a1f463af8dc06505',1,'tlv_emv_afl_entry_t']]],
-  ['offset_1',['offset',['../../../c-api/html/structtlv__der__schema__record.html#a2cccc1b6168839b35b3c85b84e7a532b',1,'tlv_der_schema_record::offset'],['../../../c-api/html/structtlv__schema__issue.html#a9488e25d134c31327b6950361031202a',1,'tlv_schema_issue::offset']]]
+  ['offset_1',['offset',['../../../c-api/html/structtlv__der__schema__record.html#a2cccc1b6168839b35b3c85b84e7a532b',1,'tlv_der_schema_record::offset'],['../../../c-api/html/structtlv__diagnostic.html#a969e40206405a7b642395115d14b1ae7',1,'tlv_diagnostic::offset'],['../../../c-api/html/structtlv__schema__issue.html#a9488e25d134c31327b6950361031202a',1,'tlv_schema_issue::offset']]]
 ];

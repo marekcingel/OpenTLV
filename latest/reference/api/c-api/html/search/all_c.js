@@ -1,7 +1,7 @@
 var searchData=
 [
   ['offline_5fauth_5frecord_5fcount_0',['offline_auth_record_count',['../structtlv__emv__afl__entry__t.html#a77a2a108261b65e6a1f463af8dc06505',1,'tlv_emv_afl_entry_t']]],
-  ['offset_1',['offset',['../structtlv__der__schema__record.html#a2cccc1b6168839b35b3c85b84e7a532b',1,'tlv_der_schema_record::offset'],['../structtlv__schema__issue.html#a9488e25d134c31327b6950361031202a',1,'tlv_schema_issue::offset']]],
+  ['offset_1',['offset',['../structtlv__diagnostic.html#a969e40206405a7b642395115d14b1ae7',1,'tlv_diagnostic::offset'],['../structtlv__der__schema__record.html#a2cccc1b6168839b35b3c85b84e7a532b',1,'tlv_der_schema_record::offset'],['../structtlv__schema__issue.html#a9488e25d134c31327b6950361031202a',1,'tlv_schema_issue::offset']]],
   ['opentlv_20c_20api_20reference_2',['OpenTLV C API reference',['../index.html',1,'']]],
   ['opentlv_5fdocument_3',['OPENTLV_DOCUMENT',['../group__core.html#ga320d5efa11483229ed4348153ce20270',1,'config.h']]],
   ['opentlv_5fformat_5fasn1_4',['OPENTLV_FORMAT_ASN1',['../group__core.html#gadeb7a2dd1dfa1e9bef83dc24d0092d67',1,'config.h']]],

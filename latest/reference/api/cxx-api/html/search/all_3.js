@@ -10,10 +10,15 @@ var searchData=
   ['default_5fencoding_5flength_7',['default_encoding_length',['../../../c-api/html/structtlv__der__schema__component.html#ad7061eee6977d55d14840c304e907e71',1,'tlv_der_schema_component']]],
   ['der_2eh_8',['der.h',['../../../c-api/html/profiles_2der_8h.html',1,'(Global Namespace)'],['../../../c-api/html/formats_2asn1_2der_8h.html',1,'(Global Namespace)']]],
   ['der_5fschema_2eh_9',['der_schema.h',['../../../c-api/html/der__schema_8h.html',1,'']]],
-  ['discretionary_5fdata_10',['discretionary_data',['../../../c-api/html/structtlv__emv__track2__t.html#a7cbe744cad008fb5eeb43439ef0ccfc0',1,'tlv_emv_track2_t']]],
-  ['document_11',['document',['../classtlv_1_1document.html#a21d3dd045aa4ead04d484d876746bd05',1,'tlv::document::document(const document &amp;)=delete'],['../classtlv_1_1document.html#ac79c129c070b990636ba2cb2f683b1f1',1,'tlv::document::document(document &amp;&amp;other) noexcept'],['../classtlv_1_1document.html',1,'tlv::document'],['../../../c-api/html/group__document.html',1,'Mutable document']]],
-  ['document_2eh_12',['document.h',['../../../c-api/html/document_8h.html',1,'']]],
-  ['document_2ehpp_13',['document.hpp',['../document_8hpp.html',1,'']]],
-  ['document_5fformat_14',['document_format',['../structtlv_1_1document__format.html#afe76f53c08794f46c64e5fbaa3e05a0f',1,'tlv::document_format::document_format()'],['../structtlv_1_1document__format.html',1,'tlv::document_format']]],
-  ['dol_2eh_15',['dol.h',['../../../c-api/html/dol_8h.html',1,'']]]
+  ['diagnostic_10',['diagnostic',['../namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba',1,'tlv']]],
+  ['diagnostic_2eh_11',['diagnostic.h',['../../../c-api/html/diagnostic_8h.html',1,'']]],
+  ['diagnostic_2ehpp_12',['diagnostic.hpp',['../diagnostic_8hpp.html',1,'']]],
+  ['diagnostic_5fcontext_13',['diagnostic_context',['../namespacetlv.html#ad25d4ec98046df7826d97ce6a7ff5e2d',1,'tlv']]],
+  ['diagnostics_14',['Diagnostics',['../../../c-api/html/group__diagnostics.html',1,'']]],
+  ['discretionary_5fdata_15',['discretionary_data',['../../../c-api/html/structtlv__emv__track2__t.html#a7cbe744cad008fb5eeb43439ef0ccfc0',1,'tlv_emv_track2_t']]],
+  ['document_16',['document',['../classtlv_1_1document.html',1,'tlv::document'],['../classtlv_1_1document.html#a21d3dd045aa4ead04d484d876746bd05',1,'tlv::document::document(const document &amp;)=delete'],['../classtlv_1_1document.html#ac79c129c070b990636ba2cb2f683b1f1',1,'tlv::document::document(document &amp;&amp;other) noexcept'],['../../../c-api/html/group__document.html',1,'Mutable document']]],
+  ['document_2eh_17',['document.h',['../../../c-api/html/document_8h.html',1,'']]],
+  ['document_2ehpp_18',['document.hpp',['../document_8hpp.html',1,'']]],
+  ['document_5fformat_19',['document_format',['../structtlv_1_1document__format.html#afe76f53c08794f46c64e5fbaa3e05a0f',1,'tlv::document_format::document_format()'],['../structtlv_1_1document__format.html',1,'tlv::document_format']]],
+  ['dol_2eh_20',['dol.h',['../../../c-api/html/dol_8h.html',1,'']]]
 ];

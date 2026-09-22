@@ -1,7 +1,7 @@
 var searchData=
 [
   ['offline_5fauth_5frecord_5fcount_0',['offline_auth_record_count',['../../../c-api/html/structtlv__emv__afl__entry__t.html#a77a2a108261b65e6a1f463af8dc06505',1,'tlv_emv_afl_entry_t']]],
-  ['offset_1',['offset',['../../../c-api/html/structtlv__der__schema__record.html#a2cccc1b6168839b35b3c85b84e7a532b',1,'tlv_der_schema_record::offset'],['../../../c-api/html/structtlv__schema__issue.html#a9488e25d134c31327b6950361031202a',1,'tlv_schema_issue::offset']]],
+  ['offset_1',['offset',['../../../c-api/html/structtlv__der__schema__record.html#a2cccc1b6168839b35b3c85b84e7a532b',1,'tlv_der_schema_record::offset'],['../../../c-api/html/structtlv__diagnostic.html#a969e40206405a7b642395115d14b1ae7',1,'tlv_diagnostic::offset'],['../../../c-api/html/structtlv__schema__issue.html#a9488e25d134c31327b6950361031202a',1,'tlv_schema_issue::offset']]],
   ['opentlv_20c_20api_20reference_2',['OpenTLV C++ API reference',['../index.html',1,'']]],
   ['operator_20bool_3',['operator bool',['../classtlv_1_1expected.html#aa7416d628d14efc1867538bb39c02cba',1,'tlv::expected::operator bool()'],['../classtlv_1_1expected_3_01void_00_01E_01_4.html#ab7d0042d906f20c7fa218454f9321672',1,'tlv::expected&lt; void, E &gt;::operator bool()'],['../classtlv_1_1node.html#af681e39f15d54f02de3909f721d9eacc',1,'tlv::node::operator bool() const']]],
   ['operator_21_3d_4',['operator!=',['../classtlv_1_1node.html#af312b28e0944681c4dc9efd864d780a4',1,'tlv::node::operator!='],['../classtlv_1_1node__iterator.html#a37b1e0b98d6481e1c6d24bfd422dd4c9',1,'tlv::node_iterator::operator!=']]],
