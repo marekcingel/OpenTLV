@@ -97,7 +97,8 @@ TEST(Integration_TLV_CPP, LayeredTraversalAndSchema) {
                                  });
     ASSERT_TRUE(result);
     EXPECT_EQ(2u, visits);
-    const tlv_structure_rule_t rule = {{TLV_TAG(1), 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
+    const tlv_structure_rule_t rule = {
+        {TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
     const tlv_structure_schema_t schema = {&rule, 1, 1};
     EXPECT_TRUE(tlv::validate(bytes, tlv_reader_format_default, nullptr, schema, 0, 2));
 }
@@ -105,7 +106,8 @@ TEST(Integration_TLV_CPP, LayeredTraversalAndSchema) {
 TEST(Integration_TLV_CPP, ValidateAllCountsViolationsAndReportsTagPaths) {
     const uint8_t              data[] = {2, 0};
     const tlv::bytes           bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
-    const tlv_structure_rule_t rule = {{TLV_TAG(1), 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
+    const tlv_structure_rule_t rule = {
+        {TLV_TAG(1), 1, 1, 0, "one"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
     const tlv_structure_schema_t schema = {&rule, 1, 0};
     tlv_schema_issue_t           issues[4];
     auto                         count =
@@ -118,6 +120,29 @@ TEST(Integration_TLV_CPP, ValidateAllCountsViolationsAndReportsTagPaths) {
 
     auto conforming = tlv::validate_all(tlv::bytes(), tlv_reader_format_default, nullptr,
                                         tlv_structure_schema_t{nullptr, 0, 0}, 0, 2, nullptr, 0);
+    ASSERT_TRUE(conforming);
+    EXPECT_EQ(0u, *conforming);
+}
+
+TEST(Integration_TLV_CPP, ValidateAllDiagReportsFieldNamesAndPaths) {
+    const uint8_t              data[] = {2, 0};
+    const tlv::bytes           bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
+    const tlv_structure_rule_t rule = {
+        {TLV_TAG(1), 1, 1, 0, "one"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
+    const tlv_structure_schema_t schema = {&rule, 1, 0};
+    tlv_schema_diagnostic_t      diagnostics[4];
+    auto count = tlv::validate_all_diag(bytes, tlv_reader_format_default, nullptr, schema, 0, 2,
+                                        diagnostics, 4);
+    ASSERT_TRUE(count);
+    ASSERT_EQ(2u, *count); // Tag 1 is missing and tag 2 is unexpected.
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostics[0].kind);
+    EXPECT_STREQ("one", diagnostics[0].field);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, diagnostics[1].kind);
+    EXPECT_EQ(nullptr, diagnostics[1].field);
+
+    auto conforming =
+        tlv::validate_all_diag(tlv::bytes(), tlv_reader_format_default, nullptr,
+                               tlv_structure_schema_t{nullptr, 0, 0}, 0, 2, nullptr, 0);
     ASSERT_TRUE(conforming);
     EXPECT_EQ(0u, *conforming);
 }

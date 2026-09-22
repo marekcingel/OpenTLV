@@ -4,6 +4,7 @@
 #include "tlv/error.h"
 #include "tlv/view.h"
 #include "tlv/formats/format.h"
+#include "tlv/diagnostic.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -34,6 +35,9 @@ typedef struct {
     size_t max_length;
     /** Reserved for future extensions; currently ignored. */
     uint32_t flags;
+    /** Borrowed name of the field this entry describes, for example `"df_name"`, or `NULL` if
+     * unnamed. Used only for diagnostics; never affects validation. */
+    const char* name;
 } tlv_schema_entry_t;
 
 /**
@@ -328,6 +332,120 @@ TLV_API const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind);
  */
 TLV_API tlv_result_t tlv_schema_issue_path_string(const tlv_schema_issue_t* issue, char* out,
                                                   size_t capacity, size_t* length);
+
+/**
+ * @brief Structured detail for one violation found by tlv_schema_validate_all_diag().
+ *
+ * Pairs a #tlv_diagnostic_t (code, severity and the offset of the affected
+ * element) with the schema-specific detail needed to explain the violation:
+ * which rule it breaks, the tag involved, the enclosing path, the schema
+ * field name if the rule has one, and the expected-versus-actual detail for
+ * whichever of `kind`'s cases applies. A field not applicable to `kind` is
+ * left unset, indicated by its paired `has_*` flag being zero. Every field is
+ * a fixed-size value or a borrowed pointer, so filling one never allocates.
+ *
+ * `diagnostic.path` is left `NULL`; `path` below holds the same information
+ * as a plain value so that copying a `tlv_schema_diagnostic_t` out of a
+ * report array never leaves a dangling self-reference. A caller that wants
+ * `path` reachable through `diagnostic.path` sets it explicitly with
+ * tlv_diagnostic_set_path() after the copy has a stable address.
+ *
+ * @see tlv_schema_diagnostic_init
+ */
+typedef struct tlv_schema_diagnostic {
+    /** Code (derived from `kind`), severity and offset of the affected element. */
+    tlv_diagnostic_t diagnostic;
+    /** Which rule was violated; same meaning as #tlv_schema_issue_t::kind. */
+    tlv_schema_issue_kind_t kind;
+    /** Affected tag; for #TLV_SCHEMA_ISSUE_MISSING, the tag that is absent. Borrows the input
+     * buffer, or the schema for a missing tag. */
+    tlv_tag_t tag;
+    /** Tags of the scopes enclosing `tag`, outermost first; does not include `tag` itself. */
+    tlv_diagnostic_path_t path;
+    /** Borrowed schema name for `tag` (the violated rule's `entry.name`), or `NULL` if the rule
+     * has none or no rule matched (#TLV_SCHEMA_ISSUE_UNEXPECTED). */
+    const char* field;
+    /** Nonzero if `min_occurs`, `max_occurs` and `occurs` are set (#TLV_SCHEMA_ISSUE_MISSING,
+     * #TLV_SCHEMA_ISSUE_DUPLICATE). */
+    int has_occurs;
+    /** Minimum permitted occurrences of `tag` in its parent. */
+    size_t min_occurs;
+    /** Maximum permitted occurrences of `tag` in its parent. */
+    size_t max_occurs;
+    /** Occurrences found so far at the point of the violation. */
+    size_t occurs;
+    /** Nonzero if `min_length`, `max_length` and `actual_length` are set
+     * (#TLV_SCHEMA_ISSUE_LENGTH). */
+    int has_length;
+    /** Minimum permitted value length in bytes, inclusive. */
+    size_t min_length;
+    /** Maximum permitted value length in bytes, inclusive. */
+    size_t max_length;
+    /** Actual value length in bytes. */
+    size_t actual_length;
+    /** Nonzero if `expected_form` and `actual_constructed` are set (#TLV_SCHEMA_ISSUE_KIND). */
+    int has_form;
+    /** Form the rule requires. */
+    tlv_schema_kind_t expected_form;
+    /** Nonzero if the actual value was constructed, zero if primitive. */
+    int actual_constructed;
+} tlv_schema_diagnostic_t;
+
+/**
+ * @brief Resets a schema diagnostic to all-unset.
+ *
+ * @param[out] diagnostic Diagnostic to initialize; must not be `NULL`.
+ */
+TLV_API void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic);
+
+/**
+ * @brief Caller-provided storage for the violations of tlv_schema_validate_all_diag().
+ *
+ * @see tlv_schema_validate_all_diag
+ */
+typedef struct tlv_schema_diagnostic_report {
+    /** Destination for the first `capacity` violations; may be `NULL` only if `capacity` is
+     * zero. */
+    tlv_schema_diagnostic_t* diagnostics;
+    /** Number of entries `diagnostics` can hold. */
+    size_t capacity;
+    /** Receives the total number of violations found, which can exceed `capacity`. */
+    size_t count;
+} tlv_schema_diagnostic_report_t;
+
+/**
+ * @brief Validates a TLV structure and reports every schema violation as a
+ * #tlv_schema_diagnostic_t.
+ *
+ * Behaves exactly like tlv_schema_validate_all(): same rules, same violation
+ * order, same wire-level-error-aborts-before-any-violation behavior, no
+ * allocation and no recursion. Additionally, each recorded violation carries
+ * the schema field name (if the rule has one) and the expected-versus-actual
+ * detail for its kind, so it can be reported without re-inspecting the input
+ * or the schema.
+ *
+ * @param[in]     data          Encoded input.
+ * @param[in]     size          Input size in bytes.
+ * @param[in]     format        Reader format.
+ * @param[in]     is_constructed Nesting predicate, or `NULL` to treat values as opaque.
+ * @param[in]     schema        Structural schema to validate against.
+ * @param[in]     max_depth     Maximum nesting depth, as for tlv_walk_tree().
+ * @param[in]     max_elements  Maximum total elements, as for tlv_walk_tree().
+ * @param[in]     unknown       Policy for tags without a rule.
+ * @param[in,out] report        Receives the violations; `count` is set on #TLV_OK
+ *                              and #TLV_ERR_SCHEMA and is zero on other errors.
+ * @param[out]    error_offset  Optional. Receives the failing offset for errors
+ *                              other than #TLV_ERR_SCHEMA; see tlv_walk_tree().
+ *
+ * @return Same as tlv_schema_validate_all().
+ *
+ * @see tlv_schema_validate_all
+ */
+TLV_API tlv_result_t tlv_schema_validate_all_diag(
+    const uint8_t* data, size_t size, const tlv_reader_format_t* format,
+    tlv_is_constructed_fn is_constructed, const tlv_structure_schema_t* schema, size_t max_depth,
+    size_t max_elements, tlv_schema_unknown_policy_t unknown,
+    tlv_schema_diagnostic_report_t* report, size_t* error_offset);
 
 #ifdef __cplusplus
 }

@@ -73,7 +73,7 @@ TEST_F(Unit_Scanner, UsesCustomTagCallbackAndContext) {
     format.context = &prefix;
     format.read_tag = read_pair_tag;
     const uint8_t            data[] = {0xFF, 0xFF, 0x9F, 0x1C, 1, 0xAA};
-    const tlv_schema_entry_t rule = {TLV_TAG(0x9F, 0x1C), 1, 1, 0};
+    const tlv_schema_entry_t rule = {TLV_TAG(0x9F, 0x1C), 1, 1, 0, nullptr};
     const tlv_schema_t       filter = {&rule, 1};
     ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 1, &filter, &format));
     EXPECT_EQ(2u, offset);

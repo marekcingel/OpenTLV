@@ -57,8 +57,8 @@ int constructed(const void*, const tlv_tag_t* tag) {
 const tlv_reader_format_t  format = {nullptr, tag_read, length_read, nullptr, nullptr};
 const tlv_writer_format_t  writer_format = {nullptr, tag_write, length_write, length_size, nullptr};
 const tlv_structure_rule_t child_rules[] = {
-    {{TLV_TAG(1), 1, 1, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{TLV_TAG(2), 1, 1, 0}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr}};
+    {{TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(2), 1, 1, 0, nullptr}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr}};
 const tlv_structure_schema_t children = {child_rules, 2, 0};
 TEST(Unit_Architecture, GenericValueBoundsAndTrailerValidation) {
     struct Bounds {
