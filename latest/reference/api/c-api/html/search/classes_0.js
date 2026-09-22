@@ -39,5 +39,6 @@ var searchData=
   ['tlv_5fvalue_5ft_36',['tlv_value_t',['../structtlv__value__t.html',1,'']]],
   ['tlv_5fview_5ft_37',['tlv_view_t',['../structtlv__view__t.html',1,'']]],
   ['tlv_5fwriter_38',['tlv_writer',['../structtlv__writer.html',1,'']]],
-  ['tlv_5fwriter_5fformat_39',['tlv_writer_format',['../structtlv__writer__format.html',1,'']]]
+  ['tlv_5fwriter_5fdiagnostic_39',['tlv_writer_diagnostic',['../structtlv__writer__diagnostic.html',1,'']]],
+  ['tlv_5fwriter_5fformat_40',['tlv_writer_format',['../structtlv__writer__format.html',1,'']]]
 ];

@@ -12,5 +12,5 @@ var searchData=
   ['any_5fcast_9',['any_cast',['../classtlv_1_1any.html#a0aa4d319ff98d186f07bf6e1679a8372',1,'tlv::any::any_cast'],['../namespacetlv.html#a9d612bad7c17a6fa1fe6929b882d91ba',1,'tlv::any_cast()']]],
   ['api_20reference_10',['OpenTLV C++ API reference',['../index.html',1,'']]],
   ['at_5fend_11',['at_end',['../classtlv_1_1reader.html#a3e4090f5af6710f43cbf9fca4941fb63',1,'tlv::reader']]],
-  ['available_12',['available',['../../../c-api/html/structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic']]]
+  ['available_12',['available',['../../../c-api/html/structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic::available'],['../../../c-api/html/structtlv__writer__diagnostic.html#a90e2b7f189630d152336f5b2af44e233',1,'tlv_writer_diagnostic::available']]]
 ];

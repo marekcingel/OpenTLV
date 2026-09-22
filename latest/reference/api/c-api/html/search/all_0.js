@@ -7,5 +7,5 @@ var searchData=
   ['and_20scanning_4',['Traversal and scanning',['../group__traversal.html',1,'']]],
   ['and_20utilities_5',['Core types and utilities',['../group__core.html',1,'']]],
   ['api_20reference_6',['OpenTLV C API reference',['../index.html',1,'']]],
-  ['available_7',['available',['../structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic']]]
+  ['available_7',['available',['../structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic::available'],['../structtlv__writer__diagnostic.html#a90e2b7f189630d152336f5b2af44e233',1,'tlv_writer_diagnostic::available']]]
 ];

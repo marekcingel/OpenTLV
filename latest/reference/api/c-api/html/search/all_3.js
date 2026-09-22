@@ -9,7 +9,7 @@ var searchData=
   ['default_5fencoding_5flength_6',['default_encoding_length',['../structtlv__der__schema__component.html#ad7061eee6977d55d14840c304e907e71',1,'tlv_der_schema_component']]],
   ['der_2eh_7',['der.h',['../formats_2asn1_2der_8h.html',1,'(Global Namespace)'],['../profiles_2der_8h.html',1,'(Global Namespace)']]],
   ['der_5fschema_2eh_8',['der_schema.h',['../der__schema_8h.html',1,'']]],
-  ['diagnostic_9',['diagnostic',['../structtlv__reader__diagnostic.html#a85cf1aa3370e9ce63c71af72de65080e',1,'tlv_reader_diagnostic']]],
+  ['diagnostic_9',['diagnostic',['../structtlv__writer__diagnostic.html#aabf5e7151b6a404fbbb8156d45eeafb7',1,'tlv_writer_diagnostic::diagnostic'],['../structtlv__reader__diagnostic.html#a85cf1aa3370e9ce63c71af72de65080e',1,'tlv_reader_diagnostic::diagnostic']]],
   ['diagnostic_2eh_10',['diagnostic.h',['../diagnostic_8h.html',1,'']]],
   ['diagnostics_11',['Diagnostics',['../group__diagnostics.html',1,'']]],
   ['discretionary_5fdata_12',['discretionary_data',['../structtlv__emv__track2__t.html#a7cbe744cad008fb5eeb43439ef0ccfc0',1,'tlv_emv_track2_t']]],

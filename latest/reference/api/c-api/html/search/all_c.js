@@ -22,5 +22,5 @@ var searchData=
   ['opentlv_5fversion_5fprerelease_19',['OPENTLV_VERSION_PRERELEASE',['../group__core.html#ga33d8e893fc2c2576f9fd8c31cee2256b',1,'version.h']]],
   ['opentlv_5fversion_5frevision_20',['OPENTLV_VERSION_REVISION',['../group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97',1,'version.h']]],
   ['opentlv_5fversion_5fstring_21',['OPENTLV_VERSION_STRING',['../group__core.html#ga193562e270081cce2e0ec2cf3dc9becf',1,'version.h']]],
-  ['operation_22',['operation',['../structtlv__reader__diagnostic.html#a16279bb35f837ad2b9905ffdebd5db58',1,'tlv_reader_diagnostic']]]
+  ['operation_22',['operation',['../structtlv__writer__diagnostic.html#ad38578a4ed1275942fda0c6a22736522',1,'tlv_writer_diagnostic::operation'],['../structtlv__reader__diagnostic.html#a16279bb35f837ad2b9905ffdebd5db58',1,'tlv_reader_diagnostic::operation']]]
 ];

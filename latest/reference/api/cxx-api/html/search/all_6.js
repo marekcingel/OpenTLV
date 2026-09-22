@@ -1,14 +1,16 @@
 var searchData=
 [
-  ['has_5favailable_0',['has_available',['../../../c-api/html/structtlv__reader__diagnostic.html#ad8c5b4e399b244b80af9cb9f337b5500',1,'tlv_reader_diagnostic']]],
+  ['has_5favailable_0',['has_available',['../../../c-api/html/structtlv__writer__diagnostic.html#a9095ac7df00c56f081f12bf9911ffb9d',1,'tlv_writer_diagnostic::has_available'],['../../../c-api/html/structtlv__reader__diagnostic.html#ad8c5b4e399b244b80af9cb9f337b5500',1,'tlv_reader_diagnostic::has_available']]],
   ['has_5fdeclared_5flength_1',['has_declared_length',['../../../c-api/html/structtlv__reader__diagnostic.html#af395445dc836c194302d65d90a2a87ab',1,'tlv_reader_diagnostic']]],
   ['has_5fdecoder_2',['has_decoder',['../classtlv_1_1codec__registry.html#a3cfb3b874b991a629c5393c4f8a979c5',1,'tlv::codec_registry']]],
   ['has_5fenclosing_5fend_3',['has_enclosing_end',['../../../c-api/html/structtlv__reader__diagnostic.html#a17f9af2423e34719a85f55d4198e32c1',1,'tlv_reader_diagnostic']]],
-  ['has_5flength_5foffset_4',['has_length_offset',['../../../c-api/html/structtlv__reader__diagnostic.html#a3faff202fe13b892b8ebe87f4f1f7be6',1,'tlv_reader_diagnostic']]],
-  ['has_5foffset_5',['has_offset',['../../../c-api/html/structtlv__diagnostic.html#a7429b6c846dda33d542b19212c4b5b9c',1,'tlv_diagnostic::has_offset'],['../../../c-api/html/structtlv__schema__issue.html#a697fd9a2094ae8953c6b363b622e76e3',1,'tlv_schema_issue::has_offset']]],
-  ['has_5ftag_6',['has_tag',['../../../c-api/html/structtlv__reader__diagnostic.html#a001f84c033ec647e64a750b724609631',1,'tlv_reader_diagnostic']]],
-  ['has_5ftag_5foffset_7',['has_tag_offset',['../../../c-api/html/structtlv__reader__diagnostic.html#a577e5d8b5ee7d8355f4f6d580d99674a',1,'tlv_reader_diagnostic']]],
-  ['has_5fvalue_8',['has_value',['../classtlv_1_1expected.html#ad7c8f7a23f7e4f8c41a2f984fd88e95d',1,'tlv::expected::has_value()'],['../classtlv_1_1expected_3_01void_00_01E_01_4.html#af248152ed73fd09ac9cbbdb938c6f928',1,'tlv::expected&lt; void, E &gt;::has_value()']]],
-  ['has_5fvalue_5foffset_9',['has_value_offset',['../../../c-api/html/structtlv__reader__diagnostic.html#a04cc9a9397cf268c4d60d0e608a5dd9d',1,'tlv_reader_diagnostic']]],
-  ['hour_10',['hour',['../../../c-api/html/structtlv__emv__time__t.html#ab165e8e1ceb98443b381e4175f915800',1,'tlv_emv_time_t']]]
+  ['has_5flength_4',['has_length',['../../../c-api/html/structtlv__writer__diagnostic.html#a44be030dede43da5c15b1ae53671be42',1,'tlv_writer_diagnostic']]],
+  ['has_5flength_5foffset_5',['has_length_offset',['../../../c-api/html/structtlv__reader__diagnostic.html#a3faff202fe13b892b8ebe87f4f1f7be6',1,'tlv_reader_diagnostic']]],
+  ['has_5foffset_6',['has_offset',['../../../c-api/html/structtlv__schema__issue.html#a697fd9a2094ae8953c6b363b622e76e3',1,'tlv_schema_issue::has_offset'],['../../../c-api/html/structtlv__diagnostic.html#a7429b6c846dda33d542b19212c4b5b9c',1,'tlv_diagnostic::has_offset']]],
+  ['has_5frequired_7',['has_required',['../../../c-api/html/structtlv__writer__diagnostic.html#af8b1162c96c3c1e7db7f0bc3922dc41e',1,'tlv_writer_diagnostic']]],
+  ['has_5ftag_8',['has_tag',['../../../c-api/html/structtlv__reader__diagnostic.html#a001f84c033ec647e64a750b724609631',1,'tlv_reader_diagnostic::has_tag'],['../../../c-api/html/structtlv__writer__diagnostic.html#a31140e1746baf41690b7e014a650fab4',1,'tlv_writer_diagnostic::has_tag']]],
+  ['has_5ftag_5foffset_9',['has_tag_offset',['../../../c-api/html/structtlv__reader__diagnostic.html#a577e5d8b5ee7d8355f4f6d580d99674a',1,'tlv_reader_diagnostic']]],
+  ['has_5fvalue_10',['has_value',['../classtlv_1_1expected.html#ad7c8f7a23f7e4f8c41a2f984fd88e95d',1,'tlv::expected::has_value()'],['../classtlv_1_1expected_3_01void_00_01E_01_4.html#af248152ed73fd09ac9cbbdb938c6f928',1,'tlv::expected&lt; void, E &gt;::has_value()']]],
+  ['has_5fvalue_5foffset_11',['has_value_offset',['../../../c-api/html/structtlv__reader__diagnostic.html#a04cc9a9397cf268c4d60d0e608a5dd9d',1,'tlv_reader_diagnostic']]],
+  ['hour_12',['hour',['../../../c-api/html/structtlv__emv__time__t.html#ab165e8e1ceb98443b381e4175f915800',1,'tlv_emv_time_t']]]
 ];
