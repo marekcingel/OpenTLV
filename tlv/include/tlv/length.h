@@ -33,6 +33,16 @@ extern "C" {
 typedef uint64_t tlv_length_t;
 
 /**
+ * @def TLV_LENGTH_MAX
+ * @brief The largest value a #tlv_length_t can hold.
+ *
+ * Always `UINT64_MAX`, independent of build configuration or the current
+ * build's `size_t` width. Distinct from `SIZE_MAX`, which bounds what
+ * tlv_length_to_size() accepts in the current build.
+ */
+#define TLV_LENGTH_MAX UINT64_MAX
+
+/**
  * @brief Converts a native size to a #tlv_length_t.
  *
  * The conversion is lossless: every `size_t` value fits #tlv_length_t, so it
@@ -78,6 +88,24 @@ TLV_API tlv_result_t tlv_length_to_size(tlv_length_t length, size_t* size);
  *       sufficient capacity.
  */
 TLV_API tlv_result_t tlv_length_validate_native(tlv_length_t length);
+
+/**
+ * @brief Adds two lengths, detecting overflow.
+ *
+ * Neither operand is range-checked against `size_t`; this only guards the
+ * #tlv_length_t addition itself, for example when composing a header length
+ * and a value length before a native-size conversion.
+ *
+ * @param[in]  a   First addend.
+ * @param[in]  b   Second addend.
+ * @param[out] sum Receives `a + b`. Required.
+ *
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG if `sum` is `NULL`.
+ * @return #TLV_ERR_OVERFLOW if `a + b` exceeds #TLV_LENGTH_MAX; `*sum` is
+ *         unchanged.
+ */
+TLV_API tlv_result_t tlv_length_add(tlv_length_t a, tlv_length_t b, tlv_length_t* sum);
 
 #ifdef __cplusplus
 }

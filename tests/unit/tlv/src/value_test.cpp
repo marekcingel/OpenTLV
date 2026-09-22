@@ -98,3 +98,114 @@ TEST(Unit_TLVValue, ValidateDoesNotProveSufficientAllocationBounds) {
     const tlv_value_t value = {&byte, 1000};
     EXPECT_EQ(TLV_OK, tlv_value_validate(&value));
 }
+
+TEST(Unit_TLVValue, EqualComparesContentsNotPointers) {
+    const uint8_t a[] = {0x01, 0x02, 0x03};
+    const uint8_t b[] = {0x01, 0x02, 0x03};
+    ASSERT_NE(a, b);
+    EXPECT_TRUE(tlv_value_equal({a, sizeof(a)}, {b, sizeof(b)}));
+    EXPECT_TRUE(tlv_value_equal({a, sizeof(a)}, {a, sizeof(a)}));
+    EXPECT_TRUE(tlv_value_equal({nullptr, 0}, {nullptr, 0}));
+}
+
+TEST(Unit_TLVValue, EqualRejectsDifferentBytesAndLengths) {
+    const uint8_t a[] = {0x01, 0x02, 0x03};
+    const uint8_t b[] = {0x01, 0x02, 0x04};
+    EXPECT_FALSE(tlv_value_equal({a, sizeof(a)}, {b, sizeof(b)}));
+    EXPECT_FALSE(tlv_value_equal({a, sizeof(a)}, {a, 2}));
+}
+
+TEST(Unit_TLVValue, CompareIsLexicographicAndAgreesWithEqual) {
+    const uint8_t a[] = {0x01, 0xFF};
+    const uint8_t b[] = {0x02, 0x00};
+    const uint8_t prefix[] = {0x01};
+    EXPECT_LT(tlv_value_compare({a, sizeof(a)}, {b, sizeof(b)}), 0);
+    EXPECT_GT(tlv_value_compare({b, sizeof(b)}, {a, sizeof(a)}), 0);
+    EXPECT_LT(tlv_value_compare({prefix, sizeof(prefix)}, {a, sizeof(a)}), 0);
+    EXPECT_EQ(0, tlv_value_compare({a, sizeof(a)}, {a, sizeof(a)}));
+    EXPECT_EQ(tlv_value_equal({a, sizeof(a)}, {b, sizeof(b)}),
+              tlv_value_compare({a, sizeof(a)}, {b, sizeof(b)}) == 0);
+}
+
+TEST(Unit_TLVValue, IsEmpty) {
+    const uint8_t byte = 0;
+    EXPECT_TRUE(tlv_value_is_empty({nullptr, 0}));
+    EXPECT_TRUE(tlv_value_is_empty({&byte, 0}));
+    EXPECT_FALSE(tlv_value_is_empty({&byte, 1}));
+}
+
+TEST(Unit_TLVValue, SliceBorrowsASubRange) {
+    const uint8_t     bytes[] = {0x10, 0x11, 0x12, 0x13, 0x14};
+    const tlv_value_t value = {bytes, sizeof(bytes)};
+    tlv_value_t       part{reinterpret_cast<const uint8_t*>(0x1), 99};
+    ASSERT_EQ(TLV_OK, tlv_value_slice(value, 1, 3, &part));
+    EXPECT_EQ(bytes + 1, part.data);
+    EXPECT_EQ(3u, part.length);
+    EXPECT_TRUE(tlv_value_equal(part, tlv_value_t{bytes + 1, 3}));
+}
+
+TEST(Unit_TLVValue, SliceAcceptsTheFullRangeAndAnEmptyTrailingRange) {
+    const uint8_t     bytes[] = {0x10, 0x11};
+    const tlv_value_t value = {bytes, sizeof(bytes)};
+    tlv_value_t       part{};
+    ASSERT_EQ(TLV_OK, tlv_value_slice(value, 0, 2, &part));
+    EXPECT_EQ(bytes, part.data);
+    EXPECT_EQ(2u, part.length);
+    ASSERT_EQ(TLV_OK, tlv_value_slice(value, 2, 0, &part));
+    EXPECT_EQ(nullptr, part.data);
+    EXPECT_EQ(0u, part.length);
+}
+
+TEST(Unit_TLVValue, SliceRejectsNullOutput) {
+    const uint8_t bytes[] = {0x10};
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_value_slice({bytes, 1}, 0, 1, nullptr));
+}
+
+TEST(Unit_TLVValue, SliceRejectsARangeExceedingTheValue) {
+    const uint8_t     bytes[] = {0x10, 0x11};
+    const tlv_value_t value = {bytes, sizeof(bytes)};
+    tlv_value_t       part{reinterpret_cast<const uint8_t*>(0x1), 99};
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_value_slice(value, 1, 2, &part));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_value_slice(value, 3, 0, &part));
+    EXPECT_EQ(reinterpret_cast<const uint8_t*>(0x1), part.data);
+    EXPECT_EQ(99u, part.length);
+}
+
+TEST(Unit_TLVValue, SliceDetectsOffsetPlusLengthOverflow) {
+    const uint8_t bytes[] = {0x10};
+    tlv_value_t   part{};
+    EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_value_slice({bytes, 1}, UINT64_MAX, 1, &part));
+}
+
+TEST(Unit_TLVValue, CopyReportsRequiredSizeWithNullDestination) {
+    const uint8_t bytes[] = {0x01, 0x02, 0x03};
+    size_t        written = 0;
+    EXPECT_EQ(TLV_OK, tlv_value_copy({bytes, sizeof(bytes)}, nullptr, 0, &written));
+    EXPECT_EQ(3u, written);
+}
+
+TEST(Unit_TLVValue, CopyWritesBytesAndSupportsOverlap) {
+    uint8_t bytes[] = {1, 2, 3, 4};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_OK, tlv_value_copy({bytes, 3}, bytes + 1, 3, &written));
+    EXPECT_EQ(3u, written);
+    const uint8_t expected[] = {1, 1, 2, 3};
+    EXPECT_EQ(0, std::memcmp(expected, bytes, 4));
+}
+
+TEST(Unit_TLVValue, CopyRejectsInsufficientCapacityAndLeavesOutputsUnchanged) {
+    const uint8_t bytes[] = {1, 2, 3};
+    uint8_t       output[2] = {0xEE, 0xEE};
+    size_t        written = 99;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_value_copy({bytes, 3}, output, 2, &written));
+    EXPECT_EQ(99u, written);
+    EXPECT_EQ(0xEE, output[0]);
+}
+
+TEST(Unit_TLVValue, CopyRejectsNullArguments) {
+    uint8_t byte = 0xEE;
+    size_t  written = 99;
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_value_copy({&byte, 1}, nullptr, 1, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_value_copy({&byte, 1}, &byte, 1, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_value_copy({nullptr, 1}, nullptr, 0, &written));
+}

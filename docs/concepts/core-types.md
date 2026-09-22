@@ -111,6 +111,23 @@ byte order. To compare against a known tag, compare its wire bytes with
 numeric view of its own tags, such as the ASN.1 tag number of
 `tlv_der_tag_number()`, provides it in its own layer.
 
+## Other tag operations
+
+`tlv_tag_is_empty(tag)` tests whether `tag.size` is zero.
+
+`tlv_tag_hash(tag)` hashes a tag's bytes for use as a key in a caller-provided
+hash table; two tags for which `tlv_tag_equal()` is true always hash equal.
+The hash is not a wire encoding and may differ across builds, platforms and
+OpenTLV versions, so never persist it or send it to another process.
+
+`tlv_tag_copy(tag, data, capacity, &written)` copies a tag's bytes into
+caller-owned storage, following the same query-size-with-`NULL`,
+`TLV_ERR_BUFFER_TOO_SHORT` and overlap-safe conventions as `tlv_copy_encoded()`
+(see [memory ownership and lifetime](../guides/memory.md)); there is no
+generic `TLV_TAG_MAX_SIZE`, since `tlv_tag_t` imposes no maximum length --
+size the destination from a prior `tlv_tag_copy(tag, NULL, 0, &written)`
+query, or from a format's own tag-size limit such as `TLV_ASN1_TAG_MAX_SIZE`.
+
 ## Constructing tags
 
 Use `tlv_tag(data, size)` or `TLV_TAG(...)` to describe bytes you already have;
