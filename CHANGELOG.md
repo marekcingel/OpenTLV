@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `tlv_read_diag()` and `tlv_reader_next_diag()` (and the C++ `tlv::reader::next(reader_diagnostic&)`), which behave like `tlv_read()` and `tlv_reader_next()` but also fill a `tlv_reader_diagnostic_t` on failure with the parsing step, tag, field offsets, declared length and available bytes; see [Reader diagnostics](docs/guides/diagnostics.md#reader-diagnostics). (#260)
 - Add a structured diagnostic model (`tlv_diagnostic_t`, `tlv_diagnostic_init()`, `tlv_diagnostic_set_offset()`, `tlv_diagnostic_add_context()`) that layers such as the reader, writer and schema validation can share and enrich with nested context instead of defining their own error-reporting shape; allocation-free and independent of any format or protocol; see [Diagnostics](docs/guides/diagnostics.md). (#259)
 - Add an optional mutable document (`tlv_document_parse()`, `tlv_node_set_value()`, `tlv_document_insert()`, `tlv_node_erase()`, `tlv_document_encode()` and the C++ `tlv::document`); it allocates and can be left out with `OPENTLV_DOCUMENT=OFF`; see [Mutable documents](docs/guides/document.md). (#171)
 - Add `tlv_tag()` and `TLV_TAG(...)` to build tags from runtime or literal bytes, `tlv_tag_equal()` and `tlv_tag_compare()` for value-like comparison by contents, `tlv_query_step()` to read a query tag, and `TLV_ASN1_TAG_MAX_SIZE` for the tag length limit of BER, CER and DER; see [Tags are borrowed](docs/concepts/core-types.md#tags-are-borrowed). (#256)
