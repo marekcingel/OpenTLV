@@ -13,6 +13,7 @@
 #include "tlv/codec/codec.h"
 #include "tlv/codec/structure.h"
 #include "tlv/copy.h"
+#include "tlv/diagnostic.h"
 #include "tlv/endian.h"
 #include "tlv/formats/format.h"
 

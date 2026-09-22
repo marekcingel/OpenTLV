@@ -12,6 +12,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/codec/structure.c
     src/formats/format.c
     src/copy.c
+    src/diagnostic.c
     src/tag.c
     src/endian.c
     src/length.c

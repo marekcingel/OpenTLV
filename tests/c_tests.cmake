@@ -13,6 +13,7 @@ set(SOURCES
     src/tag_c_test.c
     src/codec_test.cpp
     src/copy_test.cpp
+    src/diagnostic_test.cpp
     src/endian_test.cpp
     src/endian_c_test.c
     src/length_test.cpp

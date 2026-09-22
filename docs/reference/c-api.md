@@ -17,6 +17,11 @@ that explain it.
 [logical lengths](../concepts/length.md), [byte order](../concepts/endian.md)
 and [memory ownership](../guides/memory.md).
 
+## Diagnostics
+
+[Generated reference](api/c-api/html/group__diagnostics.html). Read first:
+[diagnostics](../guides/diagnostics.md).
+
 ## Reader
 
 [Generated reference](api/c-api/html/group__reader.html). Read first:

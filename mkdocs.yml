@@ -112,6 +112,7 @@ nav:
       - Byte order: concepts/endian.md
   - Guides:
       - Memory ownership: guides/memory.md
+      - Diagnostics: guides/diagnostics.md
       - Schemas and length validation: guides/schemas.md
       - Value codecs: guides/codecs.md
       - Copy helpers: guides/copy.md
