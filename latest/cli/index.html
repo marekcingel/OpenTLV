@@ -3179,7 +3179,7 @@ input that has already parsed as valid BER:</p>
 <tr>
 <th><code>--emv-check</code></th>
 <th>Checks</th>
-<th>Diagnostic prefix</th>
+<th><code>compact</code> prefix</th>
 </tr>
 </thead>
 <tbody>
@@ -3200,11 +3200,16 @@ input that has already parsed as valid BER:</p>
 </tr>
 </tbody>
 </table>
+<p>The <code>compact</code> prefix distinguishes the two checks on one line; <code>human</code> and
+<code>json</code> do the same with structured detail instead: a structural violation
+carries a <code>path</code> and, for most kinds, a <code>field</code> name, while a dictionary
+violation carries a <code>dictionary</code> <code>stage</code>.</p>
 <p>The dictionary check uses the same lookup and contexts as <code>dump --profile emv</code>
 and the library's <code>tlv_emv_validate_length</code>. It reports the first offending
-element as <code>otlv: dictionary TLV_ERR_INVALID_LENGTH at byte N tag=T: ...</code> with
-exit code 1:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02050000000010"</span>
+element, labeled <code>dictionary</code>, with exit code 1; see
+<a href="#diagnostics-and-exit-codes">Diagnostics and exit codes</a> for the <code>--diagnostics</code>
+renderers. In <code>compact</code> form:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02050000000010"</span><span class="w"> </span>--diagnostics<span class="w"> </span>compact
 <a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>otlv:<span class="w"> </span>dictionary<span class="w"> </span>TLV_ERR_INVALID_LENGTH<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>9F02:<span class="w"> </span>invalid<span class="w"> </span>length<span class="w"> </span>encoding
 </code></pre></div>
 <p>What runs, and what does not:</p>
@@ -3368,17 +3373,44 @@ no descent. BER indefinite-length resolution also has the library's fixed
 the allocation-free library core. Limits constrain accepted input and traversal;
 they are not a wall-clock timeout or incremental streaming interface.</p>
 <h2 id="diagnostics-and-exit-codes">Diagnostics and exit codes<a class="headerlink" href="#diagnostics-and-exit-codes" title="Permanent link">&para;</a></h2>
-<p>Command output goes to stdout; diagnostics go to stderr. Library failures
-include the symbolic <code>TLV_ERR_*</code> name, description, and byte offset, plus the
-tag at that offset when one is available. Generic traversal reports the
-failing element; errors resolving an indefinite BER container may identify
-that container. DER can identify individual failing fields. Offsets do not
-promise the exact corrupted byte. A <code>TLV_ERR_SCHEMA_MISSING</code> failure (a
-missing mandatory tag) never prints a <code>tag=</code> field: its offset is the end of
-the enclosing element's value, not a tag, and could otherwise coincide with
-an unrelated sibling at the enclosing scope. An EMV schema violation
-(<code>validate --profile emv</code>) is additionally prefixed with <code>schema</code> (or <code>dictionary</code>, for <code>--emv-check dictionary</code>) to
-distinguish it from a format/framing error.</p>
+<p>Command output goes to stdout; diagnostics go to stderr. <code>--diagnostics NAME</code>
+selects how a failure is rendered: <code>human</code> (the default), <code>compact</code>, or
+<code>json</code>. Library failures include the symbolic <code>TLV_ERR_*</code> code, a
+description, and a byte offset, plus the affected tag when one is available.
+Generic traversal reports the failing element; errors resolving an
+indefinite BER container may identify that container. DER can identify
+individual failing fields. Offsets do not promise the exact corrupted byte.</p>
+<p><code>human</code> prints one field per line:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F048402AABB"</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>otlv:<span class="w"> </span>error:<span class="w"> </span>invalid<span class="w"> </span>length<span class="w"> </span>encoding
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>code:<span class="w"> </span>TLV_ERR_INVALID_LENGTH
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>offset:<span class="w"> </span>0x2<span class="w"> </span><span class="o">(</span><span class="m">2</span><span class="o">)</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>path:<span class="w"> </span>6F
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>tag:<span class="w"> </span><span class="m">84</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>field:<span class="w"> </span>df_name
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>expected<span class="w"> </span>length:<span class="w"> </span><span class="m">5</span>..16
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>actual<span class="w"> </span>length:<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
+<p><code>compact</code> prints the same detail on one line: this is the CLI's original
+wording (<code>otlv: schema TLV_ERR_INVALID_LENGTH at byte 2 tag=84: invalid
+length encoding</code> for the example above), kept for scripts that scrape
+stderr. <code>json</code> prints a single-line JSON object with the same fields
+(<code>code</code>, <code>message</code>, <code>offset</code>, <code>tag</code>, <code>path</code>, <code>field</code>, and so on), for
+scripts that would otherwise have to reparse the human or compact text; a
+<code>--recover</code> run additionally wraps each skipped range's diagnostic with the
+<code>skipped_offset</code>/<code>skipped_length</code> of the range it recovered from.</p>
+<p>An EMV schema violation (<code>validate --profile emv</code>) additionally carries the
+schema field name and the expected-versus-actual detail for the violated
+rule (occurrence counts, length bounds, or a primitive/constructed
+mismatch), and a dictionary-length violation (<code>--emv-check dictionary</code>) is
+labeled <code>dictionary</code> (see <a href="#emv-checks">EMV checks</a>) to distinguish it from
+the structural schema check. <code>TLV_ERR_SCHEMA_MISSING</code> (a missing mandatory
+tag) reports the tag that is absent and the offset of its enclosing
+element, since the missing tag itself has no position of its own.</p>
+<p>Formatting is presentation only, layered on top of the library's structured
+diagnostics; see <a href="../guides/diagnostics/">Diagnostics</a> for the underlying
+model.</p>
 <table>
 <thead>
 <tr>
