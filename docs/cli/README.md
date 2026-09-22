@@ -567,11 +567,12 @@ they are not a wall-clock timeout or incremental streaming interface.
 
 Command output goes to stdout; diagnostics go to stderr. `--diagnostics NAME`
 selects how a failure is rendered: `human` (the default), `compact`, or
-`json`. Library failures include the symbolic `TLV_ERR_*` code, a
-description, and a byte offset, plus the affected tag when one is available.
-Generic traversal reports the failing element; errors resolving an
-indefinite BER container may identify that container. DER can identify
-individual failing fields. Offsets do not promise the exact corrupted byte.
+`json`. All three describe the same underlying detail, collected
+independently of how it is presented: the symbolic `TLV_ERR_*` code, a
+description, a byte offset, the affected tag when known, and, for a failure
+inside a constructed element, the hierarchical path of tags enclosing it
+(`dump`, `validate`, `decode` and `query` all track this, not just `dump`).
+Offsets do not promise the exact corrupted byte.
 
 `human` prints one field per line:
 
@@ -597,14 +598,42 @@ scripts that would otherwise have to reparse the human or compact text; a
 `--recover` run additionally wraps each skipped range's diagnostic with the
 `skipped_offset`/`skipped_length` of the range it recovered from.
 
+A plain wire-level failure (no `--profile emv`) additionally reports which
+step failed (`tag`, `length`, `value` or `trailer`) and, for a value or
+trailer that does not fit, the declared length versus the bytes actually
+available:
+
+```sh
+$ otlv validate --format default --hex "0402AA"
+otlv: error: buffer too short
+
+code: TLV_ERR_BUFFER_TOO_SHORT
+offset: 0x2 (2)
+tag: 04
+while reading: value
+declared length: 2
+available: 1
+```
+
+This declared-length/available detail comes from re-reading the failing
+element on its own once the walk has located it, bounded to the value it
+actually sits in (not necessarily the whole input); it is shown whenever
+that re-read reproduces the original failure exactly. BER and DER's
+constructed-length handling does not currently surface it back through this
+path, so a BER/DER value-length overrun shows the step, offset, tag and
+path, but not the two length lines above; every other format does.
+
 An EMV schema violation (`validate --profile emv`) additionally carries the
 schema field name and the expected-versus-actual detail for the violated
 rule (occurrence counts, length bounds, or a primitive/constructed
-mismatch), and a dictionary-length violation (`--emv-check dictionary`) is
-labeled `dictionary` (see [EMV checks](#emv-checks)) to distinguish it from
-the structural schema check. `TLV_ERR_SCHEMA_MISSING` (a missing mandatory
-tag) reports the tag that is absent and the offset of its enclosing
-element, since the missing tag itself has no position of its own.
+mismatch), computed directly by the schema check, so it is unaffected by
+that BER limitation. A dictionary-length violation (`--emv-check
+dictionary`) is labeled `dictionary` (see [EMV checks](#emv-checks)) and
+similarly reports the permitted-versus-actual length and the dictionary
+field name. `TLV_ERR_SCHEMA_MISSING` (a missing mandatory tag) reports the
+tag that is absent and the offset of its enclosing element — both borrowed
+from the schema itself, and so reliable — since the missing tag itself has
+no position of its own.
 
 Formatting is presentation only, layered on top of the library's structured
 diagnostics; see [Diagnostics](../guides/diagnostics.md) for the underlying

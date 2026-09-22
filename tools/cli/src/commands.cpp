@@ -3,12 +3,14 @@
 #include <iomanip>
 #include <ios>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
 #include <nlohmann/json.hpp>
 #include "console_color.hpp"
 #include "decode.hpp"
+#include "diagnostic_collect.hpp"
 #include "diagnostic_render.hpp"
 #include "diagnostics.hpp"
 #include "json_model.hpp"
@@ -76,6 +78,14 @@ typedef struct output_context {
     int                   ber;
     tlv_is_constructed_fn constructed; // BER/DER nesting predicate, NULL for other formats
     cli_presentation_t    presentation;
+    // Diagnostic collection, independent of `presentation` (which exists
+    // only for display bookkeeping): `predicate` is the same nesting
+    // predicate passed to the walk (walk_env::predicate, not necessarily
+    // `constructed` above -- BER and DER share one walker predicate but
+    // have distinct display ones), and `scope` tracks the path and value
+    // boundaries enclosing whichever element was last visited.
+    tlv_is_constructed_fn predicate;
+    cli::diagnostic_scope scope;
     // --output json only: elements not yet attached to their parent's nested
     // "elements" array, one per currently open depth (stack.size() == the
     // depth of the next element to be attached), and the finished document's
@@ -190,6 +200,7 @@ tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth, size_t of
                                  void* context) {
     output_context_t* out = (output_context_t*)context;
     size_t            i;
+    cli::diagnostic_scope_visit(out->scope, out->data, view, depth, out->predicate);
     offset += out->base;
     int indefinite = out->ber && out->data[offset + view->tag.size] == 0x80;
     cli_presentation_visit(&out->presentation, view, depth, indefinite);
@@ -242,6 +253,7 @@ tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth, size_t of
 tlv_visit_result_t decode_element(const tlv_view_t* view, size_t depth, size_t offset,
                                   void* context) {
     output_context_t* out = (output_context_t*)context;
+    cli::diagnostic_scope_visit(out->scope, out->data, view, depth, out->predicate);
     offset += out->base;
     const bool indefinite = out->ber && out->data[offset + view->tag.size] == 0x80;
     cli_presentation_visit(&out->presentation, view, depth, indefinite);
@@ -279,6 +291,7 @@ std::string query_path(const tlv_query_t& query) {
 tlv_visit_result_t query_element(const tlv_view_t* view, size_t depth, size_t offset,
                                  void* context) {
     output_context_t* out = (output_context_t*)context;
+    cli::diagnostic_scope_visit(out->scope, out->data, view, depth, out->predicate);
     if (!tlv_query_matcher_visit(&out->matcher, &view->tag, depth)) return TLV_VISIT_CONTINUE;
     ++out->matches;
     if (is_json(*out->options)) {
@@ -406,6 +419,18 @@ tlv_visit_result_t count_element(const tlv_view_t*, size_t, size_t, void* contex
     return TLV_VISIT_CONTINUE;
 }
 
+// validate has no display visitor of its own (a NULL visitor validates
+// only); this one exists solely to keep output.scope current, so a failure
+// the walk doesn't itself annotate (a value that overruns its own
+// container, not the whole buffer) can still be reported with the path and
+// boundary enclosing it.
+tlv_visit_result_t track_scope_element(const tlv_view_t* view, size_t depth, size_t,
+                                       void* context) {
+    output_context_t* out = (output_context_t*)context;
+    cli::diagnostic_scope_visit(out->scope, out->data, view, depth, out->predicate);
+    return TLV_VISIT_CONTINUE;
+}
+
 // A byte range --recover skipped, and the first error that made it unreadable.
 struct skipped_range {
     size_t       offset;
@@ -482,25 +507,43 @@ tlv_result_t walk_recovering(const walk_env& env, const uint8_t* data, size_t si
 
 #if OPENTLV_PROFILE_EMV
 // The dictionary check's state: the first element whose length the EMV
-// dictionary, in that element's context, does not permit.
+// dictionary, in that element's context, does not permit, plus enough
+// detail -- independent of `presentation`, which exists only for display
+// bookkeeping -- to report it richly: the path enclosing it, the permitted
+// length versus the actual one, and the dictionary field name.
 struct dictionary_check {
-    cli_presentation_t presentation;
-    tlv_result_t       result;
-    size_t             offset;
+    cli_presentation_t       presentation;
+    const uint8_t*           data;
+    tlv_is_constructed_fn    predicate;
+    cli::diagnostic_scope    scope;
+    tlv_result_t             result;
+    size_t                   offset;
+    std::string              expected;
+    std::string              actual;
+    const char*              field_name;
+    tlv_diagnostic_context_t field_context;
 };
 
 tlv_visit_result_t check_dictionary_element(const tlv_view_t* view, size_t depth, size_t offset,
                                             void* context) {
     dictionary_check* check = (dictionary_check*)context;
+    cli::diagnostic_scope_visit(check->scope, check->data, view, depth, check->predicate);
     cli_presentation_visit(&check->presentation, view, depth, 0);
     const tlv_emv_definition_t* definition =
         tlv_emv_find((tlv_emv_context_t)check->presentation.contexts[depth], &view->tag);
     // A tag without a dictionary entry in its context is preserved unchecked.
     if (!definition) return TLV_VISIT_CONTINUE;
-    const tlv_result_t rc = tlv_emv_validate_length(definition, (size_t)view->value.length);
+    const size_t       value_length = (size_t)view->value.length;
+    const tlv_result_t rc = tlv_emv_validate_length(definition, value_length);
     if (rc == TLV_OK) return TLV_VISIT_CONTINUE;
     check->result = rc;
     check->offset = offset;
+    std::ostringstream expected;
+    expected << definition->schema->min_length << ".." << definition->schema->max_length;
+    if (definition->length_step > 1) expected << " (step " << definition->length_step << ")";
+    check->expected = expected.str();
+    check->actual = std::to_string(value_length);
+    check->field_name = definition->name; // borrowed from the immutable dictionary tables
     return TLV_VISIT_STOP;
 }
 #endif
@@ -591,7 +634,7 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     visitor = querying                     ? query_element
               : decoding                   ? decode_element
               : !strcmp(o.command, "dump") ? print_element
-                                           : NULL;
+                                           : track_scope_element;
 #if OPENTLV_FORMAT_BER
     if (structured) predicate = tlv_ber_is_constructed;
     if (is_ber) output.constructed = tlv_ber_is_constructed;
@@ -599,6 +642,8 @@ int execute(const options& o, const uint8_t* data, size_t size) {
 #if OPENTLV_FORMAT_DER
     if (is_der) output.constructed = tlv_der_is_constructed;
 #endif
+    output.predicate = predicate;
+    cli::diagnostic_scope_init(output.scope, size);
     const walk_env env = {&o, format, predicate, is_der != 0};
     if (o.pdol)
         result = walk_pdol(data, size, format, &output, &error_offset);
@@ -607,6 +652,17 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     else
         result = walk_slice(env, data, size, 0, o.max_elements, visitor, &output, &error_offset);
 #if OPENTLV_PROFILE_EMV
+    // Declared here, not inside the block below, so the final diagnostic
+    // report can still read it even when only the schema check ran (in
+    // which case `check.result` stays TLV_OK and is simply never used).
+    dictionary_check check;
+    memset(&check.presentation, 0, sizeof check.presentation);
+    check.data = data;
+    check.predicate = predicate;
+    cli::diagnostic_scope_init(check.scope, size);
+    check.result = TLV_OK;
+    check.offset = 0;
+    check.field_name = nullptr;
     // EMV checks run only once the input has already parsed cleanly, and only
     // for validate: dump's --profile only annotates tags, and --pdol's raw
     // tag/length pairs are not a TLV structure to check.
@@ -638,12 +694,9 @@ int execute(const options& o, const uint8_t* data, size_t size) {
             }
         }
         if (result == TLV_OK && (o.emv_check & emv_check_dictionary)) {
-            dictionary_check check;
-            memset(&check, 0, sizeof check);
             check.presentation.data = data;
             check.presentation.ends[0] = size;
             check.presentation.contexts[0] = o.emv_context;
-            check.result = TLV_OK;
             result = walk_slice(env, data, size, 0, o.max_elements, check_dictionary_element,
                                 &check, &error_offset);
             if (result == TLV_OK && check.result != TLV_OK) {
@@ -692,26 +745,66 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     if (rc) return rc;
     if (result != TLV_OK) {
         std::string rendered;
+        // TLV_ERR_SCHEMA_MISSING's offset (from tlv_schema_validate_all_diag(),
+        // above) anchors the enclosing element's own tag, and its tag is the
+        // absent one -- both borrowed from the schema/diagnostic itself, so
+        // both are reliable; a re-read at the offset is only needed, and only
+        // safe, for every other result, whose offset anchors an actual element.
+        std::string stage_name(stage);
+        if (!stage_name.empty() && stage_name.back() == ' ') stage_name.pop_back();
+        tlv_tag_t   tag;
+        size_t      used;
+        std::string tag_hex;
+        if (result != TLV_ERR_SCHEMA_MISSING && error_offset < size &&
+            read_tag_at(format, data + error_offset, size - error_offset, &tag, &used))
+            tag_hex = hex_string(tag.data, tag.size);
+        const char* tag_hex_ptr = tag_hex.empty() ? nullptr : tag_hex.c_str();
+
         if (has_schema_diag) {
             rendered = cli::format_schema_diagnostic(schema_diag, diag_format);
-        } else {
+        }
+#if OPENTLV_PROFILE_EMV
+        else if (stage_name == "dictionary" && check.result == result) {
             tlv::diagnostic diag = tlv::make_diagnostic(result, TLV_DIAGNOSTIC_SEVERITY_ERROR);
             tlv_diagnostic_set_offset(&diag, error_offset);
-            // TLV_ERR_SCHEMA_MISSING's offset is the end of the parent's value
-            // (a scope boundary, not an element) and can coincide with the start
-            // of an unrelated sibling in the enclosing scope, so no tag is
-            // printed for it. Every other result's offset anchors the actual
-            // element, so a tag read there is always accurate.
-            tlv_tag_t   tag;
-            size_t      used;
-            std::string tag_hex;
-            if (result != TLV_ERR_SCHEMA_MISSING && error_offset < size &&
-                read_tag_at(format, data + error_offset, size - error_offset, &tag, &used))
-                tag_hex = hex_string(tag.data, tag.size);
-            std::string stage_name(stage);
-            if (!stage_name.empty() && stage_name.back() == ' ') stage_name.pop_back();
-            rendered = cli::format_diagnostic(diag, diag_format, stage_name.c_str(),
-                                              tag_hex.empty() ? nullptr : tag_hex.c_str());
+            if (check.scope.path.length) tlv_diagnostic_set_path(&diag, &check.scope.path);
+            if (!check.expected.empty()) diag.expected = check.expected.c_str();
+            if (!check.actual.empty()) diag.actual = check.actual.c_str();
+            if (check.field_name)
+                tlv_diagnostic_add_context(&diag, &check.field_context, "dictionary", "field",
+                                           check.field_name);
+            rendered = cli::format_diagnostic(diag, diag_format, "dictionary", tag_hex_ptr);
+        }
+#endif
+        else {
+            // A wire-level error the walk already found at `error_offset`
+            // has no tlv_reader_diagnostic_t of its own (neither
+            // tlv_walk_tree() nor tlv_der_walk() produce one); re-deriving
+            // it, bounded to its enclosing scope, adds the failing step and
+            // declared-length-versus-available detail when it can be
+            // reproduced exactly. Not attempted for --pdol, whose flat
+            // tag/length pairs the reader-diagnostic model doesn't describe,
+            // nor for DER: tlv_der_walk()'s own error_offset is not always a
+            // tlv_read()-style element start the way tlv_walk_tree()'s is
+            // (it comes from DER's own recursive validator), so re-reading
+            // one element there could coincidentally reproduce the same
+            // result code at the wrong field instead of failing the way
+            // TLV_ERR_LIMIT/TLV_ERR_VISITOR do.
+            tlv_reader_diagnostic_t reader_diag;
+            bool                    derived =
+                !o.pdol && !is_der &&
+                cli::diagnostic_scope_derive_reader_diagnostic(output.scope, format, data, size,
+                                                               error_offset, result, &reader_diag);
+            if (derived) {
+                if (output.scope.path.length)
+                    tlv_diagnostic_set_path(&reader_diag.diagnostic, &output.scope.path);
+                rendered = cli::format_reader_diagnostic(reader_diag, diag_format);
+            } else {
+                tlv::diagnostic diag = tlv::make_diagnostic(result, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+                tlv_diagnostic_set_offset(&diag, error_offset);
+                rendered =
+                    cli::format_diagnostic(diag, diag_format, stage_name.c_str(), tag_hex_ptr);
+            }
         }
         if (diag_format == cli::diagnostic_format::json)
             std::cerr << rendered << "\n";
@@ -725,11 +818,29 @@ int execute(const options& o, const uint8_t* data, size_t size) {
     }
     if (incomplete) {
         size_t bytes = 0;
+        // Every skipped range starts as its own top-level element (see
+        // walk_recovering()), so this scope's path stays empty; a range
+        // whose recorded failure is actually nested in that element's
+        // subtree (not the top-level read itself) simply won't reproduce
+        // through the derivation below and falls back to the plain form.
+        // Never attempted for DER; see the same rationale where the final
+        // wire-error case above excludes it.
+        cli::diagnostic_scope range_scope;
+        cli::diagnostic_scope_init(range_scope, size);
         for (const skipped_range& range : skipped) {
-            tlv::diagnostic diag =
-                tlv::make_diagnostic(range.error, TLV_DIAGNOSTIC_SEVERITY_WARNING);
-            tlv_diagnostic_set_offset(&diag, range.error_offset);
-            const std::string rendered = cli::format_diagnostic(diag, diag_format, "", nullptr);
+            tlv_reader_diagnostic_t reader_diag;
+            std::string             rendered;
+            if (!is_der && cli::diagnostic_scope_derive_reader_diagnostic(
+                               range_scope, format, data, size, range.error_offset, range.error,
+                               &reader_diag)) {
+                reader_diag.diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_WARNING;
+                rendered = cli::format_reader_diagnostic(reader_diag, diag_format);
+            } else {
+                tlv::diagnostic diag =
+                    tlv::make_diagnostic(range.error, TLV_DIAGNOSTIC_SEVERITY_WARNING);
+                tlv_diagnostic_set_offset(&diag, range.error_offset);
+                rendered = cli::format_diagnostic(diag, diag_format, "", nullptr);
+            }
             if (diag_format == cli::diagnostic_format::json) {
                 nlohmann::json wrapper = nlohmann::json::parse(rendered);
                 wrapper["skipped_offset"] = range.offset;

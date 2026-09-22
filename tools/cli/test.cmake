@@ -101,13 +101,21 @@ foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed-1byte" "BER|ber" "DER|der")
     endforeach()
     check(0 "offset=3 tag=04 length=0 value=" dump --format "${name}" --hex "0401AA0400")
     check(0 "^$" validate --format "${name}" --hex "0401AA" --max-input-size 3 --max-elements 1)
+    # DER's own walker (excluded from the reader-diagnostic re-derivation --
+    # its error_offset is not always a re-readable element start) keeps the
+    # base offset it always had; every other format's compact/human/json
+    # rendering now derives a full reader diagnostic, whose offset is the
+    # specific field that overran (the value, here) rather than the
+    # element's start, and (for BER's tag/length grammar) puts the trailing
+    # case's truncated length field one byte later than a bare element start.
     if(name STREQUAL "der")
         set(truncated_offset 2)
-        set(trailing_offset 4)
+    elseif(name STREQUAL "ber")
+        set(truncated_offset 1)
     else()
-        set(truncated_offset 0)
-        set(trailing_offset 3)
+        set(truncated_offset 2)
     endif()
+    set(trailing_offset 4)
     check(1 "TLV_ERR_.*byte ${truncated_offset}" validate --format "${name}" --hex "0402AA" --diagnostics compact)
     check(1 "TLV_ERR_.*byte ${trailing_offset}" dump --format "${name}" --hex "0401AA04" --diagnostics compact)
     if(NOT last_output MATCHES "offset=0")
@@ -204,7 +212,9 @@ if(HAS_BER)
     check(2 "cannot be combined" query 6F --format ber --hex "${query_hex}" --value --output json)
     check(2 "requires --format ber or der" query 6F/A5 --format default --hex "0100")
     check(2 "duplicate" query 6F --format ber --hex "${query_hex}" --value --value)
-    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 0 tag=6F" query 6F --format ber --hex "6F05" --diagnostics compact)
+    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 1 tag=6F" query 6F --format ber --hex "6F05" --diagnostics compact)
+    # query's own visitor tracks the enclosing path too, not just dump's.
+    check(1 "path: 6F > A5" query 6F/A5/50 --format ber --hex "6F09A507500141AABB1000")
     check(3 "TLV_ERR_LIMIT" query 6F/A5/50 --format ber --hex "${query_hex}" --max-depth 1)
     check(3 "TLV_ERR_LIMIT" query 6F --format ber --hex "${query_hex}" --max-elements 1)
     if(HAS_DER)
@@ -247,6 +257,10 @@ if(HAS_EMV)
         --hex "6F128407A00000000310108407A0000000031010" --diagnostics compact)
     check(1 "schema TLV_ERR_INVALID_LENGTH at byte 2 tag=84:" # DF Name shorter than the dictionary minimum.
         validate --format ber --profile emv --hex "6F048402AABB" --diagnostics compact)
+    # A violation nested two levels down (87 inside the optional A5 inside
+    # 6F) reports the full enclosing path, not just its immediate parent.
+    check(1 "path: 6F > A5\ntag: 87\nfield: application_priority_indicator"
+        validate --format ber --profile emv --hex "6F0F8407A0000000031010A5048702AABB")
     check(0 "^$" validate --format ber --profile emv # A nested, known-optional FCI Proprietary Template child.
         --hex "6F0C84053132333435A503500141")
     check(0 "^$" validate --format ber --profile emv --hex "770A82021980940408010100") # GPO response format 2: AIP + AFL.
@@ -276,11 +290,14 @@ else()
 endif()
 check(2 "diagnostics must be human, compact or json" validate --format ber --hex " " --diagnostics bogus)
 if(HAS_DEFAULT)
-    # A plain (non-schema) diagnostic renders the same way: human is
+    # A plain wire-level diagnostic renders the same way: human is
     # multi-line with a machine-readable code line, json is a flat object.
-    check(1 "^otlv: error: buffer too short\n\ncode: TLV_ERR_BUFFER_TOO_SHORT\noffset: 0x0 \\(0\\)\ntag: 04\n$"
+    # "default" (unlike BER/DER) surfaces a full reader diagnostic for a
+    # value that overruns its input, including the declared-length-versus-
+    # available detail the issue asked for.
+    check(1 "^otlv: error: buffer too short\n\ncode: TLV_ERR_BUFFER_TOO_SHORT\noffset: 0x2 \\(2\\)\ntag: 04\nwhile reading: value\ndeclared length: 2\navailable: 1\n$"
         validate --format default --hex "0402AA")
-    check(1 "^{\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"message\":\"buffer too short\",\"offset\":0,\"severity\":\"error\",\"tag\":\"04\"}\n$"
+    check(1 "^{\"available\":1,\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"declared_length\":2,\"message\":\"buffer too short\",\"offset\":2,\"operation\":\"value\",\"severity\":\"error\",\"tag\":\"04\"}\n$"
         validate --format default --hex "0402AA" --diagnostics json)
 endif()
 if(HAS_DER)
@@ -703,6 +720,13 @@ if(HAS_EMV)
     check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=82: " validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "82020101" --diagnostics compact)
     check(0 "^$" validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "820101")
     check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 5 tag=82: " validate --format ber --profile emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics compact)
+    # The same violation, nested two levels down (82 inside A1 inside 7F60),
+    # also reports the enclosing path, the permitted-versus-actual length,
+    # and the dictionary field name -- in both human and json.
+    check(1 "path: 7F60 > A1\nstage: dictionary\nexpected: 1\\.\\.1\nactual: 2\ndictionary field: biometric_subtype"
+        validate --format ber --profile emv --emv-check dictionary --hex "7F6006A10482020101")
+    check(1 "\"expected\":\"1..1\",\"message\":\"invalid length encoding\",\"offset\":5,\"path\":\"7F60 > A1\",\"severity\":\"error\",\"stage\":\"dictionary\",\"tag\":\"82\""
+        validate --format ber --profile emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics json)
     check(0 "^$" validate --format ber --profile emv --emv-check dictionary --hex "7F6005A103820101")
 else()
     check(2 "EMV profile is disabled" decode --format ber --hex " " --profile emv)
@@ -725,12 +749,12 @@ endfunction()
 if(HAS_BER)
     set(damaged "5A0112 0000 5A0134")
     run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
-        "^otlv: skipped 2 byte\\(s\\) at offset 3: TLV_ERR_INVALID_TAG at byte 3: invalid tag\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
+        "^otlv: skipped 2 byte\\(s\\) at offset 3: TLV_ERR_INVALID_TAG at byte 3 while reading tag: invalid tag\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
         dump --format ber --hex "${damaged}" --recover --diagnostics compact)
     # json wraps each skipped range's diagnostic with the range it recovered
     # from, since a schema-free tlv_diagnostic_t has no room for that itself.
     run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
-        "^\\{\"code\":\"TLV_ERR_INVALID_TAG\",\"message\":\"invalid tag\",\"offset\":3,\"severity\":\"warning\",\"skipped_length\":2,\"skipped_offset\":3\\}\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
+        "^\\{\"code\":\"TLV_ERR_INVALID_TAG\",\"message\":\"invalid tag\",\"offset\":3,\"operation\":\"tag\",\"severity\":\"warning\",\"skipped_length\":2,\"skipped_offset\":3\\}\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
         dump --format ber --hex "${damaged}" --recover --diagnostics json)
     # Without --recover the same input fails at the first error, and validate
     # stays strict.
