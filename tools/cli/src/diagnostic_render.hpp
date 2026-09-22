@@ -3,6 +3,7 @@
 #include <string>
 #include "tlv/error.h"
 #include "tlv++/diagnostic.hpp"
+#include "tlv++/reader.hpp"
 #include "tlv++/schema.hpp"
 
 // Renders tlv::diagnostic and tlv::schema_diagnostic for otlv's --diagnostics
@@ -35,6 +36,12 @@ std::string format_diagnostic(const tlv::diagnostic& diagnostic, diagnostic_form
 // name and expected-versus-actual detail computed by
 // tlv_schema_validate_all_diag().
 std::string format_schema_diagnostic(const tlv::schema_diagnostic& diagnostic,
+                                     diagnostic_format             format);
+
+// Renders a reader (wire-level parsing) diagnostic: which step failed, the
+// tag being processed if one was already decoded, and, for a value or
+// trailer that didn't fit, the declared length versus the bytes available.
+std::string format_reader_diagnostic(const tlv::reader_diagnostic& diagnostic,
                                      diagnostic_format             format);
 
 } // namespace cli
