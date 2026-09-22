@@ -124,6 +124,12 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__report.html">tlv_schema_report</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-provided storage for the violations of <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.  <a href="structtlv__schema__report.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html">tlv_schema_diagnostic</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured detail for one violation found by <a class="el" href="group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d" title="Validates a TLV structure and reports every schema violation as a tlv_schema_diagnostic_t.">tlv_schema_validate_all_diag()</a>.  <a href="structtlv__schema__diagnostic.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic__report.html">tlv_schema_diagnostic_report</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-provided storage for the violations of <a class="el" href="group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d" title="Validates a TLV structure and reports every schema violation as a tlv_schema_diagnostic_t.">tlv_schema_validate_all_diag()</a>.  <a href="structtlv__schema__diagnostic__report.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -172,6 +178,12 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gaf4de86f71e20230eeae932f3f45939ef" id="r_gaf4de86f71e20230eeae932f3f45939ef"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__report.html">tlv_schema_report</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gaf4de86f71e20230eeae932f3f45939ef">tlv_schema_report_t</a></td></tr>
 <tr class="memdesc:gaf4de86f71e20230eeae932f3f45939ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-provided storage for the violations of <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.  <br /></td></tr>
 <tr class="separator:gaf4de86f71e20230eeae932f3f45939ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga76559fb9baaff706b34cab6954926c98" id="r_ga76559fb9baaff706b34cab6954926c98"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__diagnostic.html">tlv_schema_diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a></td></tr>
+<tr class="memdesc:ga76559fb9baaff706b34cab6954926c98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured detail for one violation found by <a class="el" href="group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d" title="Validates a TLV structure and reports every schema violation as a tlv_schema_diagnostic_t.">tlv_schema_validate_all_diag()</a>.  <br /></td></tr>
+<tr class="separator:ga76559fb9baaff706b34cab6954926c98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2a417abf41a0ea0175f5f5a594940077" id="r_ga2a417abf41a0ea0175f5f5a594940077"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__diagnostic__report.html">tlv_schema_diagnostic_report</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga2a417abf41a0ea0175f5f5a594940077">tlv_schema_diagnostic_report_t</a></td></tr>
+<tr class="memdesc:ga2a417abf41a0ea0175f5f5a594940077"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-provided storage for the violations of <a class="el" href="group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d" title="Validates a TLV structure and reports every schema violation as a tlv_schema_diagnostic_t.">tlv_schema_validate_all_diag()</a>.  <br /></td></tr>
+<tr class="separator:ga2a417abf41a0ea0175f5f5a594940077"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -264,6 +276,12 @@ Functions</h2></td></tr>
 <tr class="memitem:ga9dbac48a6edf2a70ca47ad501deee221" id="r_ga9dbac48a6edf2a70ca47ad501deee221"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga9dbac48a6edf2a70ca47ad501deee221">tlv_schema_issue_path_string</a> (const <a class="el" href="group__schemas.html#ga220ba990eff95fed9600d98e8bdda35b">tlv_schema_issue_t</a> *issue, char *out, size_t capacity, size_t *length)</td></tr>
 <tr class="memdesc:ga9dbac48a6edf2a70ca47ad501deee221"><td class="mdescLeft">&#160;</td><td class="mdescRight">Formats the path of a violation as uppercase hexadecimal tags joined by <code>/</code>.  <br /></td></tr>
 <tr class="separator:ga9dbac48a6edf2a70ca47ad501deee221"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3b0f2029a9060eab1d2fddc71269bd3e" id="r_ga3b0f2029a9060eab1d2fddc71269bd3e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3b0f2029a9060eab1d2fddc71269bd3e">tlv_schema_diagnostic_init</a> (<a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga3b0f2029a9060eab1d2fddc71269bd3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets a schema diagnostic to all-unset.  <br /></td></tr>
+<tr class="separator:ga3b0f2029a9060eab1d2fddc71269bd3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0635e52eab4f1fe64276cd7dd429078d" id="r_ga0635e52eab4f1fe64276cd7dd429078d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d">tlv_schema_validate_all_diag</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format, <a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> *schema, size_t max_depth, size_t max_elements, <a class="el" href="group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown, <a class="el" href="group__schemas.html#ga2a417abf41a0ea0175f5f5a594940077">tlv_schema_diagnostic_report_t</a> *report, size_t *error_offset)</td></tr>
+<tr class="memdesc:ga0635e52eab4f1fe64276cd7dd429078d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a TLV structure and reports every schema violation as a <a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98" title="Structured detail for one violation found by tlv_schema_validate_all_diag().">tlv_schema_diagnostic_t</a>.  <br /></td></tr>
+<tr class="separator:ga0635e52eab4f1fe64276cd7dd429078d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -425,6 +443,42 @@ Variables</h2></td></tr>
 
 <p>How a component's identifier relates to its underlying type's own. </p>
 <p>IMPLICIT is invalid on a CHOICE-typed component, because CHOICE has no natural tag to replace; use EXPLICIT. <a class="el" href="group__schemas.html#ga59d197cec631bb55fa2f992d4ba2b9a5" title="One-time structural self-check of a schema table.">tlv_der_schema_check()</a> rejects it. </p>
+
+</div>
+</div>
+<a id="ga2a417abf41a0ea0175f5f5a594940077" name="ga2a417abf41a0ea0175f5f5a594940077"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2a417abf41a0ea0175f5f5a594940077">&#9670;&#160;</a></span>tlv_schema_diagnostic_report_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__schema__diagnostic__report.html">tlv_schema_diagnostic_report</a> <a class="el" href="group__schemas.html#ga2a417abf41a0ea0175f5f5a594940077">tlv_schema_diagnostic_report_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Caller-provided storage for the violations of <a class="el" href="group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d" title="Validates a TLV structure and reports every schema violation as a tlv_schema_diagnostic_t.">tlv_schema_validate_all_diag()</a>. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d" title="Validates a TLV structure and reports every schema violation as a tlv_schema_diagnostic_t.">tlv_schema_validate_all_diag</a> </dd></dl>
+
+</div>
+</div>
+<a id="ga76559fb9baaff706b34cab6954926c98" name="ga76559fb9baaff706b34cab6954926c98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga76559fb9baaff706b34cab6954926c98">&#9670;&#160;</a></span>tlv_schema_diagnostic_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__schema__diagnostic.html">tlv_schema_diagnostic</a> <a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Structured detail for one violation found by <a class="el" href="group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d" title="Validates a TLV structure and reports every schema violation as a tlv_schema_diagnostic_t.">tlv_schema_validate_all_diag()</a>. </p>
+<p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> (code, severity and the offset of the affected element) with the schema-specific detail needed to explain the violation: which rule it breaks, the tag involved, the enclosing path, the schema field name if the rule has one, and the expected-versus-actual detail for whichever of <code>kind</code>'s cases applies. A field not applicable to <code>kind</code> is left unset, indicated by its paired <code>has_*</code> flag being zero. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates.</p>
+<p><code>diagnostic.path</code> is left <code>NULL</code>; <code>path</code> below holds the same information as a plain value so that copying a <code>tlv_schema_diagnostic_t</code> out of a report array never leaves a dangling self-reference. A caller that wants <code>path</code> reachable through <code>diagnostic.path</code> sets it explicitly with <a class="el" href="group__diagnostics.html#ga572c3f8fa1a23f08b059a2e8614a6732" title="Sets the hierarchical path a diagnostic refers to.">tlv_diagnostic_set_path()</a> after the copy has a stable address.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga3b0f2029a9060eab1d2fddc71269bd3e" title="Resets a schema diagnostic to all-unset.">tlv_schema_diagnostic_init</a> </dd></dl>
 
 </div>
 </div>
@@ -1002,6 +1056,32 @@ Any callback error, propagated unchanged.</dd></dl>
 
 </div>
 </div>
+<a id="ga3b0f2029a9060eab1d2fddc71269bd3e" name="ga3b0f2029a9060eab1d2fddc71269bd3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3b0f2029a9060eab1d2fddc71269bd3e">&#9670;&#160;</a></span>tlv_schema_diagnostic_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tlv_schema_diagnostic_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resets a schema diagnostic to all-unset. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Diagnostic to initialize; must not be <code>NULL</code>. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="gab16e87ef133a0a302ada88c41d48a471" name="gab16e87ef133a0a302ada88c41d48a471"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gab16e87ef133a0a302ada88c41d48a471">&#9670;&#160;</a></span>tlv_schema_find()</h2>
 
@@ -1324,6 +1404,102 @@ Any other error of <a class="el" href="group__traversal.html#ga8155c00623d790e33
 <dd>
 Any other error of <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga9dbac48a6edf2a70ca47ad501deee221" title="Formats the path of a violation as uppercase hexadecimal tags joined by /.">tlv_schema_issue_path_string</a> </dd></dl>
+
+</div>
+</div>
+<a id="ga0635e52eab4f1fe64276cd7dd429078d" name="ga0635e52eab4f1fe64276cd7dd429078d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0635e52eab4f1fe64276cd7dd429078d">&#9670;&#160;</a></span>tlv_schema_validate_all_diag()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_schema_validate_all_diag </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td>
+          <td class="paramname"><em>is_constructed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> *&#160;</td>
+          <td class="paramname"><em>schema</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a>&#160;</td>
+          <td class="paramname"><em>unknown</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__schemas.html#ga2a417abf41a0ea0175f5f5a594940077">tlv_schema_diagnostic_report_t</a> *&#160;</td>
+          <td class="paramname"><em>report</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>error_offset</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validates a TLV structure and reports every schema violation as a <a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98" title="Structured detail for one violation found by tlv_schema_validate_all_diag().">tlv_schema_diagnostic_t</a>. </p>
+<p>Behaves exactly like <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>: same rules, same violation order, same wire-level-error-aborts-before-any-violation behavior, no allocation and no recursion. Additionally, each recorded violation carries the schema field name (if the rule has one) and the expected-versus-actual detail for its kind, so it can be reported without re-inspecting the input or the schema.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Encoded input. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Input size in bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Reader format. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">is_constructed</td><td>Nesting predicate, or <code>NULL</code> to treat values as opaque. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">schema</td><td>Structural schema to validate against. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_depth</td><td>Maximum nesting depth, as for <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_elements</td><td>Maximum total elements, as for <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">unknown</td><td>Policy for tags without a rule. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">report</td><td>Receives the violations; <code>count</code> is set on <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> and <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> and is zero on other errors. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error_offset</td><td>Optional. Receives the failing offset for errors other than <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a>; see <a class="el" href="group__traversal.html#ga8155c00623d790e33085c517e99c4fee" title="Traverses nested elements in preorder.">tlv_walk_tree()</a>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Same as <a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all()</a>.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db" title="Validates a TLV structure and reports every schema violation.">tlv_schema_validate_all</a> </dd></dl>
 
 </div>
 </div>

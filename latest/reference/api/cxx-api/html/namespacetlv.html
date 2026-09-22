@@ -159,6 +159,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:aec6151f23d86b874b79d9d2ae021e568" id="r_aec6151f23d86b874b79d9d2ae021e568"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> = <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a></td></tr>
 <tr class="memdesc:aec6151f23d86b874b79d9d2ae021e568"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the reader-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:aec6151f23d86b874b79d9d2ae021e568"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e03c6255ccb433c2413b3b7906bab8c" id="r_a4e03c6255ccb433c2413b3b7906bab8c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> = <a class="elRef" href="../../c-api/html/group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a></td></tr>
+<tr class="memdesc:a4e03c6255ccb433c2413b3b7906bab8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the schema-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a>.  <br /></td></tr>
+<tr class="separator:a4e03c6255ccb433c2413b3b7906bab8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b31c4b301052e8137584ed7baf54611" id="r_a2b31c4b301052e8137584ed7baf54611"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> = <a class="elRef" href="../../c-api/html/structtlv__tag__t.html">tlv_tag_t</a></td></tr>
 <tr class="memdesc:a2b31c4b301052e8137584ed7baf54611"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the C tag type, <a class="elRef" href="../../c-api/html/structtlv__tag__t.html">tlv_tag_t</a>.  <br /></td></tr>
 <tr class="separator:a2b31c4b301052e8137584ed7baf54611"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -211,6 +214,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a2fd1943be24f223853c11e715930c5cd" id="r_a2fd1943be24f223853c11e715930c5cd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a2fd1943be24f223853c11e715930c5cd">validate_all</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> &amp;format, <a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, <a class="elRef" href="../../c-api/html/group__schemas.html#ga220ba990eff95fed9600d98e8bdda35b">tlv_schema_issue_t</a> *issues, size_t capacity, <a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown=<a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a>, size_t *error_offset=nullptr)</td></tr>
 <tr class="memdesc:a2fd1943be24f223853c11e715930c5cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a structure and reports every schema violation.  <br /></td></tr>
 <tr class="separator:a2fd1943be24f223853c11e715930c5cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4f93d02900b427fe08d86b0eba67427" id="r_ae4f93d02900b427fe08d86b0eba67427"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae4f93d02900b427fe08d86b0eba67427">validate_all_diag</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> &amp;format, <a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> *diagnostics, size_t capacity, <a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown=<a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a>, size_t *error_offset=nullptr)</td></tr>
+<tr class="memdesc:ae4f93d02900b427fe08d86b0eba67427"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a structure and reports every schema violation as a <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c" title="C++ alias for the schema-specific diagnostic type, tlv_schema_diagnostic_t.">schema_diagnostic</a>.  <br /></td></tr>
+<tr class="separator:ae4f93d02900b427fe08d86b0eba67427"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae837d8525cd5f419b84f66d98feb8f10" id="r_ae837d8525cd5f419b84f66d98feb8f10"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:ae837d8525cd5f419b84f66d98feb8f10"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; T, <a class="elRef" href="../../c-api/html/group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae837d8525cd5f419b84f66d98feb8f10">decode_structure</a> (const <a class="elRef" href="../../c-api/html/group__codecs.html#gaa8040b111c69624c529f37ede0fae9ce">tlv_structure_codec_t</a> &amp;codec, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data)</td></tr>
 <tr class="memdesc:ae837d8525cd5f419b84f66d98feb8f10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates and decodes a complete sequence into an application object.  <br /></td></tr>
@@ -306,6 +312,22 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>C++ alias for the reader-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a>. </p>
+
+</div>
+</div>
+<a id="a4e03c6255ccb433c2413b3b7906bab8c" name="a4e03c6255ccb433c2413b3b7906bab8c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e03c6255ccb433c2413b3b7906bab8c">&#9670;&#160;</a></span>schema_diagnostic</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">tlv::schema_diagnostic</a> = typedef <a class="elRef" href="../../c-api/html/group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>C++ alias for the schema-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a>. </p>
 
 </div>
 </div>
@@ -1032,6 +1054,110 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The total number of violations, which is zero if the data conforms and can exceed <code>capacity</code>; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#ga4c919c58faa26e2903a0cf004b2646db">tlv_schema_validate_all()</a> for invalid arguments or unparseable input.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/group__schemas.html#ga9dbac48a6edf2a70ca47ad501deee221">tlv_schema_issue_path_string</a> </dd></dl>
+
+</div>
+</div>
+<a id="ae4f93d02900b427fe08d86b0eba67427" name="ae4f93d02900b427fe08d86b0eba67427"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4f93d02900b427fe08d86b0eba67427">&#9670;&#160;</a></span>validate_all_diag()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::validate_all_diag </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td>
+          <td class="paramname"><em>is_constructed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>schema</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostics</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a>&#160;</td>
+          <td class="paramname"><em>unknown</em> = <code><a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>error_offset</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Validates a structure and reports every schema violation as a <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c" title="C++ alias for the schema-specific diagnostic type, tlv_schema_diagnostic_t.">schema_diagnostic</a>. </p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d">tlv_schema_validate_all_diag()</a>; the rules, order and storage conventions are the same as <a class="el" href="namespacetlv.html#a2fd1943be24f223853c11e715930c5cd" title="Validates a structure and reports every schema violation.">validate_all()</a>, and each diagnostic additionally carries the schema field name (if the rule has one) and the expected-versus-actual detail for its kind.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
+    <tr><td class="paramname">format</td><td>Reader format. </td></tr>
+    <tr><td class="paramname">is_constructed</td><td>Nesting predicate, or <code>nullptr</code> to treat values as opaque. </td></tr>
+    <tr><td class="paramname">schema</td><td>Structural schema; borrowed. </td></tr>
+    <tr><td class="paramname">max_depth</td><td>Maximum nesting depth. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Maximum total elements. </td></tr>
+    <tr><td class="paramname">diagnostics</td><td>Destination for the first <code>capacity</code> violations; may be <code>nullptr</code> only if <code>capacity</code> is zero. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Number of entries <code>diagnostics</code> can hold. </td></tr>
+    <tr><td class="paramname">unknown</td><td>Policy for tags without a rule. </td></tr>
+    <tr><td class="paramname">error_offset</td><td>Optional. On a wire-level failure receives the offset of the failure; see <a class="elRef" href="../../c-api/html/group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d">tlv_schema_validate_all_diag()</a>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The total number of violations, which is zero if the data conforms and can exceed <code>capacity</code>; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d">tlv_schema_validate_all_diag()</a> for invalid arguments or unparseable input.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> </dd></dl>
 
 </div>
 </div>

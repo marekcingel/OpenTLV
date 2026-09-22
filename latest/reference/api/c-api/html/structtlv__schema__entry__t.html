@@ -90,6 +90,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:a56f1304348bd68a763816e58a064377d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a97d895ef6074c5849a9abf35355930c6" id="r_a97d895ef6074c5849a9abf35355930c6"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__entry__t.html#a97d895ef6074c5849a9abf35355930c6">flags</a></td></tr>
 <tr class="separator:a97d895ef6074c5849a9abf35355930c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c944dfecb999762714e32e8e65d25ea" id="r_a8c944dfecb999762714e32e8e65d25ea"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__entry__t.html#a8c944dfecb999762714e32e8e65d25ea">name</a></td></tr>
+<tr class="separator:a8c944dfecb999762714e32e8e65d25ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Length rule for one tag in a <a class="el" href="structtlv__schema__t.html" title="Borrowed table of per-tag length rules.">tlv_schema_t</a>. </p>
@@ -137,6 +139,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Minimum permitted value length in bytes, inclusive. </p>
+
+</div>
+</div>
+<a id="a8c944dfecb999762714e32e8e65d25ea" name="a8c944dfecb999762714e32e8e65d25ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c944dfecb999762714e32e8e65d25ea">&#9670;&#160;</a></span>name</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* tlv_schema_entry_t::name</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Borrowed name of the field this entry describes, for example <code>"df_name"</code>, or <code>NULL</code> if unnamed. Used only for diagnostics; never affects validation. </p>
 
 </div>
 </div>

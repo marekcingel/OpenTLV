@@ -981,6 +981,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#schema-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#hierarchical-paths" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2496,6 +2507,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#schema-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#hierarchical-paths" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2567,6 +2589,9 @@ changing what it already says, by chaining caller-owned
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">tlv_diagnostic_context_t</span><span class="w"> </span><span class="n">schema_context</span><span class="p">;</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">tlv_diagnostic_add_context</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">schema_context</span><span class="p">,</span><span class="w"> </span><span class="s">"schema"</span><span class="p">,</span><span class="w"> </span><span class="s">"field"</span><span class="p">,</span><span class="w"> </span><span class="s">"AmountAuthorised"</span><span class="p">);</span>
 </code></pre></div>
+<p>This chaining is available to any layer, but schema validation itself reports
+its own violations directly as a <code>tlv_schema_diagnostic_t</code> with typed fields
+rather than chained context strings; see <a href="#schema-diagnostics">Schema diagnostics</a>.</p>
 <p><code>tlv_diagnostic_add_context()</code> links <code>context</code> onto the front of
 <code>diagnostic-&gt;contexts</code>, so the most recently added context is innermost and
 <code>contexts</code> can be walked from innermost to outermost. Nothing is copied: the
@@ -2631,40 +2656,86 @@ borrowed pointer, so filling a <code>tlv_writer_diagnostic_t</code> never alloca
 <code>tag</code> borrows the tag passed to the failing call.</p>
 <p><code>tlv_writer_write_diag()</code> reports the same fields with the offset absolute
 within the writer's buffer, not relative to the element being written.</p>
+<h2 id="schema-diagnostics">Schema diagnostics<a class="headerlink" href="#schema-diagnostics" title="Permanent link">&para;</a></h2>
+<p>Schema validation enriches a diagnostic the same way, but for every violation
+it finds, not just the first: <code>tlv_schema_validate_all_diag()</code> behaves
+exactly like <code>tlv_schema_validate_all()</code> (see
+<a href="../schemas/#reporting-every-violation">Reporting every violation</a>), and
+additionally fills each recorded violation as a <code>tlv_schema_diagnostic_t</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/schemas/schema.h"</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">tlv_schema_diagnostic_t</span><span class="w">        </span><span class="n">diagnostics</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">tlv_schema_diagnostic_report_t</span><span class="w"> </span><span class="n">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">diagnostics</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate_all_diag</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_ber</span><span class="p">,</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">                                               </span><span class="n">tlv_ber_is_constructed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">template_schema</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">                                               </span><span class="n">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">report</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_ERR_SCHEMA</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">count</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">capacity</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_schema_diagnostic_t</span><span class="o">*</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">diagnostics</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">path</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">        </span><span class="n">tlv_diagnostic_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">path</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">        </span><span class="cm">/* d-&gt;diagnostic.code   == TLV_ERR_SCHEMA_MISSING, TLV_ERR_INVALID_LENGTH or TLV_ERR_SCHEMA</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="cm">         * d-&gt;diagnostic.offset == the offset of the affected element, when d-&gt;diagnostic.has_offset</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="cm">         * path                == the scopes enclosing d-&gt;tag, for example "6F &gt; A5 &gt; BF0C &gt; 61"</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="cm">         * d-&gt;field             == the rule's schema name for d-&gt;tag, or NULL if it has none */</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="p">}</span>
+</code></pre></div>
+<p>For a value whose length is outside its rule's bounds, <code>d-&gt;kind</code> is
+<code>TLV_SCHEMA_ISSUE_LENGTH</code>, <code>d-&gt;diagnostic.code</code> is <code>TLV_ERR_INVALID_LENGTH</code>,
+and <code>d-&gt;has_length</code> is set, with <code>min_length</code>/<code>max_length</code> from the rule and
+<code>actual_length</code> from the value that violated it: validating a 4F (ADF Name)
+with only 3 bytes against a rule requiring 5 to 16 fills <code>min_length</code> with
+<code>5</code>, <code>max_length</code> with <code>16</code>, and <code>actual_length</code> with <code>3</code>. A missing or
+duplicate tag instead sets <code>has_occurs</code>, with <code>min_occurs</code>/<code>max_occurs</code> from
+the rule and <code>occurs</code> the number found; a primitive/constructed mismatch sets
+<code>has_form</code>, with <code>expected_form</code> from the rule and <code>actual_constructed</code>
+reporting what the value actually was. Only the fields for <code>kind</code> are set; the
+others are left zero. <code>field</code> and the fields for other kinds are <code>NULL</code> or
+unset for <code>TLV_SCHEMA_ISSUE_UNEXPECTED</code>, which matches no rule.</p>
+<p><code>d-&gt;path</code> is a plain <code>tlv_diagnostic_path_t</code> value, not reachable through
+<code>d-&gt;diagnostic.path</code> (which stays <code>NULL</code>): each <code>tlv_schema_diagnostic_t</code> in a
+report needs its own path, and wiring it through a pointer field would leave
+a dangling self-reference the moment the struct is copied out of the report
+array. Attach it explicitly with <code>tlv_diagnostic_set_path(&amp;d-&gt;diagnostic,
+&amp;d-&gt;path)</code> if code elsewhere expects to find a path on <code>d-&gt;diagnostic</code>.
+<code>tlv_schema_validate_all()</code> is unchanged and still reports <code>tlv_schema_issue_t</code>
+for callers that only need the tag, kind and path.</p>
 <h2 id="hierarchical-paths">Hierarchical paths<a class="headerlink" href="#hierarchical-paths" title="Permanent link">&para;</a></h2>
 <p>An offset alone does not say which branch of a nested document a diagnostic
 came from: the same tag can appear at several depths. <code>tlv_diagnostic_path_t</code>
 is a bounded, allocation-free stack of the tags enclosing a diagnostic,
 outermost first, that a caller builds while descending into nested
 constructed elements, for example with <code>tlv_walk_tree()</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/diagnostic.h"</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/walker.h"</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">tlv_diagnostic_path_t</span><span class="w"> </span><span class="n">path</span><span class="p">;</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">tlv_diagnostic_path_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">path</span><span class="p">);</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">tlv_visit_result_t</span><span class="w"> </span><span class="nf">on_element</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_view_t</span><span class="o">*</span><span class="w"> </span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">depth</span><span class="p">)</span><span class="w"> </span><span class="n">tlv_diagnostic_path_pop</span><span class="p">(</span><span class="o">&amp;</span><span class="n">path</span><span class="p">);</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_constructed</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">view</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">))</span><span class="w"> </span><span class="n">tlv_diagnostic_path_push</span><span class="p">(</span><span class="o">&amp;</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">);</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="cm">/* ... validate view, using `path` as the location of the current element's parent ... */</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">tlv_walk_tree</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="n">is_constructed</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_WALK_MAX_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE_MAX</span><span class="p">,</span><span class="w"> </span><span class="n">on_element</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">             </span><span class="nb">NULL</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/diagnostic.h"</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/walker.h"</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">tlv_diagnostic_path_t</span><span class="w"> </span><span class="n">path</span><span class="p">;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">tlv_diagnostic_path_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">path</span><span class="p">);</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">tlv_visit_result_t</span><span class="w"> </span><span class="nf">on_element</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_view_t</span><span class="o">*</span><span class="w"> </span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">depth</span><span class="p">)</span><span class="w"> </span><span class="n">tlv_diagnostic_path_pop</span><span class="p">(</span><span class="o">&amp;</span><span class="n">path</span><span class="p">);</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_constructed</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">view</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">))</span><span class="w"> </span><span class="n">tlv_diagnostic_path_push</span><span class="p">(</span><span class="o">&amp;</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="o">-&gt;</span><span class="n">tag</span><span class="p">);</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="cm">/* ... validate view, using `path` as the location of the current element's parent ... */</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="n">tlv_walk_tree</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="n">is_constructed</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_WALK_MAX_DEPTH</span><span class="p">,</span><span class="w"> </span><span class="n">SIZE_MAX</span><span class="p">,</span><span class="w"> </span><span class="n">on_element</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">             </span><span class="nb">NULL</span><span class="p">);</span>
 </code></pre></div>
 <p>Popping back to <code>depth</code> before pushing keeps <code>path</code> in sync with preorder
 traversal: a sibling at the same depth replaces the previous element's tag,
 and returning to an ancestor drops everything below it. When a diagnostic is
 produced, attach the path with <code>tlv_diagnostic_set_path()</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">tlv_diagnostic_t</span><span class="w"> </span><span class="n">diagnostic</span><span class="p">;</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">tlv_diagnostic_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_ERR_INVALID_LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_DIAGNOSTIC_SEVERITY_ERROR</span><span class="p">);</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">tlv_diagnostic_set_offset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">tlv_diagnostic_set_path</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">path</span><span class="p">);</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="kt">char</span><span class="w"> </span><span class="n">text</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">tlv_diagnostic_path_string</span><span class="p">(</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">text</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="cm">/* text == "6F &gt; A5 &gt; BF0C &gt; 61" for the element enclosing the failing 4F */</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">tlv_diagnostic_t</span><span class="w"> </span><span class="n">diagnostic</span><span class="p">;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">tlv_diagnostic_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_ERR_INVALID_LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_DIAGNOSTIC_SEVERITY_ERROR</span><span class="p">);</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">tlv_diagnostic_set_offset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">tlv_diagnostic_set_path</span><span class="p">(</span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">path</span><span class="p">);</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="kt">char</span><span class="w"> </span><span class="n">text</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">tlv_diagnostic_path_string</span><span class="p">(</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">text</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="cm">/* text == "6F &gt; A5 &gt; BF0C &gt; 61" for the element enclosing the failing 4F */</span>
 </code></pre></div>
 <p>Pushing beyond <code>TLV_DIAGNOSTIC_PATH_MAX</code> tags returns <code>TLV_ERR_LIMIT</code> and
 leaves the path unchanged. Nothing is copied or allocated: a pushed tag
