@@ -163,6 +163,61 @@ TEST(Unit_Tag, TagsLongerThanTheFormerDefaultCapacity) {
     }
 }
 
+TEST(Unit_Tag, IsEmpty) {
+    const uint8_t byte = 0;
+    EXPECT_TRUE(tlv_tag_is_empty(tlv_tag(nullptr, 0)));
+    EXPECT_TRUE(tlv_tag_is_empty(tlv_tag(&byte, 0)));
+    EXPECT_FALSE(tlv_tag_is_empty(TLV_TAG(0x9F)));
+}
+
+TEST(Unit_Tag, HashAgreesWithEqual) {
+    const std::vector<uint8_t> a = {0x9F, 0x02};
+    const std::vector<uint8_t> b = {0x9F, 0x02};
+    EXPECT_EQ(tlv_tag_hash(view_of(a)), tlv_tag_hash(view_of(b)));
+    EXPECT_EQ(tlv_tag_hash(tlv_tag(nullptr, 0)), tlv_tag_hash(tlv_tag(nullptr, 0)));
+}
+
+TEST(Unit_Tag, HashUsuallyDiffersForDifferentBytes) {
+    // Not a correctness requirement (any hash may collide), but a sanity
+    // check that the function is not a constant.
+    EXPECT_NE(tlv_tag_hash(TLV_TAG(0x9F, 0x02)), tlv_tag_hash(TLV_TAG(0x9F, 0x03)));
+    EXPECT_NE(tlv_tag_hash(TLV_TAG(0x9F)), tlv_tag_hash(tlv_tag(nullptr, 0)));
+}
+
+TEST(Unit_Tag, CopyReportsRequiredSizeWithNullDestination) {
+    const tlv_tag_t tag = TLV_TAG(0x9F, 0x02);
+    size_t          written = 0;
+    EXPECT_EQ(TLV_OK, tlv_tag_copy(tag, nullptr, 0, &written));
+    EXPECT_EQ(2u, written);
+}
+
+TEST(Unit_Tag, CopyWritesBytesAndSupportsOverlap) {
+    uint8_t bytes[] = {1, 2, 3, 4};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_OK, tlv_tag_copy(tlv_tag(bytes, 3), bytes + 1, 3, &written));
+    EXPECT_EQ(3u, written);
+    const uint8_t expected[] = {1, 1, 2, 3};
+    EXPECT_EQ(0, std::memcmp(expected, bytes, 4));
+}
+
+TEST(Unit_Tag, CopyRejectsInsufficientCapacityAndLeavesOutputsUnchanged) {
+    const tlv_tag_t tag = TLV_TAG(1, 2, 3);
+    uint8_t         output[2] = {0xEE, 0xEE};
+    size_t          written = 99;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tag_copy(tag, output, 2, &written));
+    EXPECT_EQ(99u, written);
+    EXPECT_EQ(0xEE, output[0]);
+}
+
+TEST(Unit_Tag, CopyRejectsNullArguments) {
+    const tlv_tag_t tag = TLV_TAG(0x9F);
+    uint8_t         byte = 0xEE;
+    size_t          written = 99;
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_tag_copy(tag, nullptr, 1, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_tag_copy(tag, &byte, 1, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_tag_copy(tlv_tag(nullptr, 1), nullptr, 0, &written));
+}
+
 TEST(Unit_Tag, TwelveByteTagFromRuntimeData) {
     const uint8_t   bytes[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
                                0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C};

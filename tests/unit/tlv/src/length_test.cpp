@@ -68,3 +68,32 @@ TEST(Unit_TLVLength, ValidateNativeDoesNotAccessMemoryForOversizedLength) {
         EXPECT_EQ(TLV_OK, tlv_length_validate_native(UINT64_MAX));
     }
 }
+
+TEST(Unit_TLVLength, MaxIsTheFull64BitRange) {
+    EXPECT_EQ(UINT64_MAX, static_cast<uint64_t>(TLV_LENGTH_MAX));
+}
+
+TEST(Unit_TLVLength, AddSumsWithinRange) {
+    tlv_length_t sum = 99;
+    ASSERT_EQ(TLV_OK, tlv_length_add(2, 3, &sum));
+    EXPECT_EQ(5u, sum);
+    sum = 99;
+    ASSERT_EQ(TLV_OK, tlv_length_add(0, 0, &sum));
+    EXPECT_EQ(0u, sum);
+    sum = 99;
+    ASSERT_EQ(TLV_OK, tlv_length_add(TLV_LENGTH_MAX, 0, &sum));
+    EXPECT_EQ(TLV_LENGTH_MAX, sum);
+}
+
+TEST(Unit_TLVLength, AddDetectsOverflowAndLeavesOutputUnchanged) {
+    tlv_length_t sum = 99;
+    EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_length_add(TLV_LENGTH_MAX, 1, &sum));
+    EXPECT_EQ(99u, sum);
+    sum = 99;
+    EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_length_add(1, TLV_LENGTH_MAX, &sum));
+    EXPECT_EQ(99u, sum);
+}
+
+TEST(Unit_TLVLength, AddRejectsNullOutput) {
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_length_add(1, 2, nullptr));
+}

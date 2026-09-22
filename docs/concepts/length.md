@@ -18,6 +18,7 @@ current build; use the conversions below before native-size use.
 | `tlv_length_from_size(size, &length)` | Convert a native `size_t` into `tlv_length_t`. |
 | `tlv_length_to_size(length, &size)` | Convert a `tlv_length_t` into the current build's `size_t`. |
 | `tlv_length_validate_native(length)` | Check whether `length` fits `size_t`, without converting it. |
+| `tlv_length_add(a, b, &sum)` | Add two lengths, detecting `tlv_length_t` overflow. |
 
 ```c
 #include "tlv/length.h"
@@ -47,6 +48,13 @@ caller's responsibility.
 `tlv_length_to_size()`, without an output parameter and without accessing any
 memory: `TLV_OK` when `length` fits `size_t`, `TLV_ERR_INVALID_LENGTH`
 otherwise.
+
+`TLV_LENGTH_MAX` is `UINT64_MAX`, the largest value a `tlv_length_t` can hold;
+it is distinct from `SIZE_MAX`, which bounds `tlv_length_to_size()` instead.
+`tlv_length_add(a, b, &sum)` adds two lengths and returns `TLV_ERR_OVERFLOW`
+if `a + b` would exceed `TLV_LENGTH_MAX`, for composing lengths (such as a
+header length and a value length) before a native-size conversion, without
+risking silent `tlv_length_t` wraparound.
 
 ## x86 and x64
 

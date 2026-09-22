@@ -1,6 +1,7 @@
 #ifndef OPENTLV_TAG_H
 #define OPENTLV_TAG_H
 
+#include "tlv/error.h"
 #include "tlv/export.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -119,6 +120,53 @@ TLV_API bool tlv_tag_equal(tlv_tag_t lhs, tlv_tag_t rhs);
  *         equal, and a positive value if `lhs` orders after `rhs`.
  */
 TLV_API int tlv_tag_compare(tlv_tag_t lhs, tlv_tag_t rhs);
+
+/**
+ * @brief Tests whether a tag has zero length.
+ *
+ * @param[in] tag Tag to test.
+ *
+ * @return `true` if `tag.size` is zero.
+ */
+TLV_API bool tlv_tag_is_empty(tlv_tag_t tag);
+
+/**
+ * @brief Computes a hash of a tag's bytes.
+ *
+ * Two tags for which tlv_tag_equal() is true always hash equal. The hash
+ * value is not a wire encoding: it may differ across builds, platforms and
+ * OpenTLV versions, so it must never be persisted or sent to another process.
+ *
+ * @pre The tag is valid: `data` is not `NULL` when `size > 0`.
+ *
+ * @param[in] tag Tag to hash.
+ *
+ * @return A hash of `tag`'s bytes.
+ */
+TLV_API size_t tlv_tag_hash(tlv_tag_t tag);
+
+/**
+ * @brief Copies a tag's bytes into caller-owned storage.
+ *
+ * With `data == NULL` and `capacity == 0`, reports the required size in
+ * `*written` without copying. Overlapping source and destination byte ranges
+ * are supported.
+ *
+ * @param[in]  tag      Tag whose bytes are copied.
+ * @param[out] data     Destination buffer. `NULL` with zero `capacity`
+ *                      queries the required size.
+ * @param[in]  capacity Destination capacity in bytes.
+ * @param[out] written  Receives `tag.size` (the required size for a query).
+ *                      Required.
+ *
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG if `written` is `NULL`, if `data` is `NULL` with
+ *         a nonzero `capacity`, or if `tag.data` is `NULL` with a nonzero
+ *         `tag.size`.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient; `*written`
+ *         is unchanged.
+ */
+TLV_API tlv_result_t tlv_tag_copy(tlv_tag_t tag, uint8_t* data, size_t capacity, size_t* written);
 
 #ifdef __cplusplus
 }

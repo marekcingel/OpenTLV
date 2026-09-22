@@ -19,12 +19,8 @@ tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encoded_length
 
 tlv_result_t tlv_copy_value(const tlv_view_t* view, uint8_t* data, size_t capacity,
                             size_t* written) {
-    size_t length;
-    tlv_result_t rc;
     if (!view) return TLV_ERR_NULL_ARG;
-    rc = tlv_length_to_size(view->value.length, &length);
-    if (rc != TLV_OK) return rc;
-    return tlv_copy_encoded(view->value.data, length, data, capacity, written);
+    return tlv_value_copy(view->value, data, capacity, written);
 }
 
 tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_writer_format_t* format, uint8_t* data,
