@@ -3375,11 +3375,12 @@ they are not a wall-clock timeout or incremental streaming interface.</p>
 <h2 id="diagnostics-and-exit-codes">Diagnostics and exit codes<a class="headerlink" href="#diagnostics-and-exit-codes" title="Permanent link">&para;</a></h2>
 <p>Command output goes to stdout; diagnostics go to stderr. <code>--diagnostics NAME</code>
 selects how a failure is rendered: <code>human</code> (the default), <code>compact</code>, or
-<code>json</code>. Library failures include the symbolic <code>TLV_ERR_*</code> code, a
-description, and a byte offset, plus the affected tag when one is available.
-Generic traversal reports the failing element; errors resolving an
-indefinite BER container may identify that container. DER can identify
-individual failing fields. Offsets do not promise the exact corrupted byte.</p>
+<code>json</code>. All three describe the same underlying detail, collected
+independently of how it is presented: the symbolic <code>TLV_ERR_*</code> code, a
+description, a byte offset, the affected tag when known, and, for a failure
+inside a constructed element, the hierarchical path of tags enclosing it
+(<code>dump</code>, <code>validate</code>, <code>decode</code> and <code>query</code> all track this, not just <code>dump</code>).
+Offsets do not promise the exact corrupted byte.</p>
 <p><code>human</code> prints one field per line:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F048402AABB"</span>
 <a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>otlv:<span class="w"> </span>error:<span class="w"> </span>invalid<span class="w"> </span>length<span class="w"> </span>encoding
@@ -3400,14 +3401,38 @@ stderr. <code>json</code> prints a single-line JSON object with the same fields
 scripts that would otherwise have to reparse the human or compact text; a
 <code>--recover</code> run additionally wraps each skipped range's diagnostic with the
 <code>skipped_offset</code>/<code>skipped_length</code> of the range it recovered from.</p>
+<p>A plain wire-level failure (no <code>--profile emv</code>) additionally reports which
+step failed (<code>tag</code>, <code>length</code>, <code>value</code> or <code>trailer</code>) and, for a value or
+trailer that does not fit, the declared length versus the bytes actually
+available:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>default<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"0402AA"</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>otlv:<span class="w"> </span>error:<span class="w"> </span>buffer<span class="w"> </span>too<span class="w"> </span>short
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>code:<span class="w"> </span>TLV_ERR_BUFFER_TOO_SHORT
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>offset:<span class="w"> </span>0x2<span class="w"> </span><span class="o">(</span><span class="m">2</span><span class="o">)</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>tag:<span class="w"> </span><span class="m">04</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="k">while</span><span class="w"> </span>reading:<span class="w"> </span>value
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>declared<span class="w"> </span>length:<span class="w"> </span><span class="m">2</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>available:<span class="w"> </span><span class="m">1</span>
+</code></pre></div>
+<p>This declared-length/available detail comes from re-reading the failing
+element on its own once the walk has located it, bounded to the value it
+actually sits in (not necessarily the whole input); it is shown whenever
+that re-read reproduces the original failure exactly. BER and DER's
+constructed-length handling does not currently surface it back through this
+path, so a BER/DER value-length overrun shows the step, offset, tag and
+path, but not the two length lines above; every other format does.</p>
 <p>An EMV schema violation (<code>validate --profile emv</code>) additionally carries the
 schema field name and the expected-versus-actual detail for the violated
 rule (occurrence counts, length bounds, or a primitive/constructed
-mismatch), and a dictionary-length violation (<code>--emv-check dictionary</code>) is
-labeled <code>dictionary</code> (see <a href="#emv-checks">EMV checks</a>) to distinguish it from
-the structural schema check. <code>TLV_ERR_SCHEMA_MISSING</code> (a missing mandatory
-tag) reports the tag that is absent and the offset of its enclosing
-element, since the missing tag itself has no position of its own.</p>
+mismatch), computed directly by the schema check, so it is unaffected by
+that BER limitation. A dictionary-length violation (<code>--emv-check
+dictionary</code>) is labeled <code>dictionary</code> (see <a href="#emv-checks">EMV checks</a>) and
+similarly reports the permitted-versus-actual length and the dictionary
+field name. <code>TLV_ERR_SCHEMA_MISSING</code> (a missing mandatory tag) reports the
+tag that is absent and the offset of its enclosing element — both borrowed
+from the schema itself, and so reliable — since the missing tag itself has
+no position of its own.</p>
 <p>Formatting is presentation only, layered on top of the library's structured
 diagnostics; see <a href="../guides/diagnostics/">Diagnostics</a> for the underlying
 model.</p>
