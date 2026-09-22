@@ -317,6 +317,8 @@ pub struct tlv_schema_entry_t {
     pub max_length: usize,
     /// Reserved; currently ignored.
     pub flags: u32,
+    /// Borrowed name of the field this entry describes, or null if unnamed.
+    pub name: *const c_char,
 }
 
 /// Borrowed table of per-tag length rules (`tlv_schema_t`).

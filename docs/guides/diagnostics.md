@@ -32,6 +32,10 @@ tlv_diagnostic_context_t schema_context;
 tlv_diagnostic_add_context(&diagnostic, &schema_context, "schema", "field", "AmountAuthorised");
 ```
 
+This chaining is available to any layer, but schema validation itself reports
+its own violations directly as a `tlv_schema_diagnostic_t` with typed fields
+rather than chained context strings; see [Schema diagnostics](#schema-diagnostics).
+
 `tlv_diagnostic_add_context()` links `context` onto the front of
 `diagnostic->contexts`, so the most recently added context is innermost and
 `contexts` can be walked from innermost to outermost. Nothing is copied: the
@@ -108,6 +112,58 @@ borrowed pointer, so filling a `tlv_writer_diagnostic_t` never allocates, and
 
 `tlv_writer_write_diag()` reports the same fields with the offset absolute
 within the writer's buffer, not relative to the element being written.
+
+## Schema diagnostics
+
+Schema validation enriches a diagnostic the same way, but for every violation
+it finds, not just the first: `tlv_schema_validate_all_diag()` behaves
+exactly like `tlv_schema_validate_all()` (see
+[Reporting every violation](schemas.md#reporting-every-violation)), and
+additionally fills each recorded violation as a `tlv_schema_diagnostic_t`.
+
+```c
+#include "tlv/schemas/schema.h"
+
+tlv_schema_diagnostic_t        diagnostics[16];
+tlv_schema_diagnostic_report_t report = {diagnostics, 16, 0};
+
+tlv_result_t rc = tlv_schema_validate_all_diag(data, size, &tlv_reader_format_ber,
+                                               tlv_ber_is_constructed, &template_schema, 16, 1000,
+                                               TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &offset);
+if (rc == TLV_ERR_SCHEMA) {
+    for (size_t i = 0; i < report.count && i < report.capacity; ++i) {
+        const tlv_schema_diagnostic_t* d = &diagnostics[i];
+        char path[64];
+        tlv_diagnostic_path_string(&d->path, path, sizeof(path), NULL);
+        /* d->diagnostic.code   == TLV_ERR_SCHEMA_MISSING, TLV_ERR_INVALID_LENGTH or TLV_ERR_SCHEMA
+         * d->diagnostic.offset == the offset of the affected element, when d->diagnostic.has_offset
+         * path                == the scopes enclosing d->tag, for example "6F > A5 > BF0C > 61"
+         * d->field             == the rule's schema name for d->tag, or NULL if it has none */
+    }
+}
+```
+
+For a value whose length is outside its rule's bounds, `d->kind` is
+`TLV_SCHEMA_ISSUE_LENGTH`, `d->diagnostic.code` is `TLV_ERR_INVALID_LENGTH`,
+and `d->has_length` is set, with `min_length`/`max_length` from the rule and
+`actual_length` from the value that violated it: validating a 4F (ADF Name)
+with only 3 bytes against a rule requiring 5 to 16 fills `min_length` with
+`5`, `max_length` with `16`, and `actual_length` with `3`. A missing or
+duplicate tag instead sets `has_occurs`, with `min_occurs`/`max_occurs` from
+the rule and `occurs` the number found; a primitive/constructed mismatch sets
+`has_form`, with `expected_form` from the rule and `actual_constructed`
+reporting what the value actually was. Only the fields for `kind` are set; the
+others are left zero. `field` and the fields for other kinds are `NULL` or
+unset for `TLV_SCHEMA_ISSUE_UNEXPECTED`, which matches no rule.
+
+`d->path` is a plain `tlv_diagnostic_path_t` value, not reachable through
+`d->diagnostic.path` (which stays `NULL`): each `tlv_schema_diagnostic_t` in a
+report needs its own path, and wiring it through a pointer field would leave
+a dangling self-reference the moment the struct is copied out of the report
+array. Attach it explicitly with `tlv_diagnostic_set_path(&d->diagnostic,
+&d->path)` if code elsewhere expects to find a path on `d->diagnostic`.
+`tlv_schema_validate_all()` is unchanged and still reports `tlv_schema_issue_t`
+for callers that only need the tag, kind and path.
 
 ## Hierarchical paths
 

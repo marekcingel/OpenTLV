@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 namespace {
-const tlv_schema_entry_t rules[] = {{TLV_TAG(0x42), 1, 2, 0}};
+const tlv_schema_entry_t rules[] = {{TLV_TAG(0x42), 1, 2, 0, nullptr}};
 const tlv_schema_t       schema = {rules, 1};
 
 class Integration_Scanner : public ::testing::Test {
@@ -66,7 +66,7 @@ TEST_F(Integration_Scanner, EmptyAndReversedSchemasRejectAllCandidates) {
     const tlv_schema_t empty = {nullptr, 0};
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, sizeof(data), 0, &empty));
     unchanged();
-    const tlv_schema_entry_t reversed_rule = {TLV_TAG(0x42), 2, 1, 0};
+    const tlv_schema_entry_t reversed_rule = {TLV_TAG(0x42), 2, 1, 0, nullptr};
     const tlv_schema_t       reversed = {&reversed_rule, 1};
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, sizeof(data), 0, &reversed));
     unchanged();

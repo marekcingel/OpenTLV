@@ -15,10 +15,10 @@ static const uint8_t tag_02[] = {0x02};
 static const uint8_t tag_9f02[] = {0x9F, 0x02};
 
 static const tlv_schema_entry_t entries[] = {
-    /* tag (bytes, size), minimum length, maximum length, flags */
-    {{tag_01, sizeof(tag_01)}, 4, 4, 0},       /* Exactly four bytes. */
-    {{tag_02, sizeof(tag_02)}, 0, 32, 0},      /* Zero through 32 bytes, inclusive. */
-    {{tag_9f02, sizeof(tag_9f02)}, 1, SIZE_MAX, 0}
+    /* tag (bytes, size), minimum length, maximum length, flags, name */
+    {{tag_01, sizeof(tag_01)}, 4, 4, 0, "counter"},   /* Exactly four bytes. */
+    {{tag_02, sizeof(tag_02)}, 0, 32, 0, NULL},       /* Zero through 32 bytes, inclusive. */
+    {{tag_9f02, sizeof(tag_9f02)}, 1, SIZE_MAX, 0, NULL}
 };
 static const tlv_schema_t schema = {
     entries, sizeof(entries) / sizeof(entries[0])
@@ -61,7 +61,10 @@ These are three separate questions:
 
 Equal length bounds specify an exact length; `SIZE_MAX` allows any representable
 upper length. Reversed bounds always fail validation. Flags are reserved and
-currently ignored; initialize them to zero for future compatibility.
+currently ignored; initialize them to zero for future compatibility. `name` is
+an optional, borrowed field name such as `"counter"`, used only by
+[schema diagnostics](diagnostics.md#schema-diagnostics); leave it `NULL` if
+the entry has none.
 
 ## Complete structure validation
 
@@ -78,8 +81,8 @@ require CONSTRUCTED and are checked even for an empty container.
 static const uint8_t tag_1[] = {1};
 static const uint8_t tag_2[] = {2};
 static const tlv_structure_rule_t rules[] = {
-    { { { tag_1, sizeof(tag_1) }, 1, 8, 0 }, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL },
-    { { { tag_2, sizeof(tag_2) }, 0, 255, 0 }, 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL }
+    { { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter" }, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL },
+    { { { tag_2, sizeof(tag_2) }, 0, 255, 0, NULL }, 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL }
 };
 static const tlv_structure_schema_t message = {rules, 2, 0};
 /* tlv_schema_validate(data, size, format, is_constructed, &message, 16, 1000, &offset); */
@@ -146,5 +149,19 @@ An element rejected as unexpected or of the wrong form is not descended into,
 but its siblings are still checked. Paths are limited to `TLV_SCHEMA_PATH_MAX`
 tags; a schema nested deeper returns `TLV_ERR_LIMIT`. `tlv::validate_all`
 wraps the same call in C++.
+
+## Diagnostics for a violation
+
+`tlv_schema_issue_t` is compact but only says which rule and tag failed. To
+also get the schema field name and the expected-versus-actual detail behind a
+violation, call `tlv_schema_validate_all_diag()` instead of
+`tlv_schema_validate_all()`: same rules, order and storage conventions,
+but each violation is a `tlv_schema_diagnostic_t` that pairs a
+`tlv_diagnostic_t` (code, offset) with the enclosing `path`, the affected
+`tag`, the rule's `field` name (its entry's `name`, or `NULL` if unnamed),
+and, depending on `kind`, occurrence counts, length bounds or the
+primitive/constructed mismatch. See
+[Schema diagnostics](diagnostics.md#schema-diagnostics) for the fields and a
+worked example. `tlv::validate_all_diag` wraps the same call in C++.
 
 See also the [C API reference: schemas](../reference/c-api.md#schemas) and the [C++ API reference](../reference/cxx-api.md).

@@ -192,8 +192,8 @@ static int cer_format(void) {
 static const uint8_t            tag_one[] = {1};
 static const uint8_t            tag_two[] = {2};
 static const tlv_schema_entry_t schema_entries[] = {
-    {{tag_one, sizeof(tag_one)}, 2, 2, 0}, /* Exact length. */
-    {{tag_two, sizeof(tag_two)}, 0, 4, 0}  /* Inclusive length range. */
+    {{tag_one, sizeof(tag_one)}, 2, 2, 0, NULL}, /* Exact length. */
+    {{tag_two, sizeof(tag_two)}, 0, 4, 0, NULL}  /* Inclusive length range. */
 };
 static const tlv_schema_t schema = {schema_entries,
                                     sizeof(schema_entries) / sizeof(schema_entries[0])};
