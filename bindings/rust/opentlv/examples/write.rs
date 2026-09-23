@@ -32,7 +32,11 @@ fn main() -> Result<()> {
     let mut document = Writer::with_format(&mut document_buf, Format::Ber);
     document.write(&Tag::from_bytes(&[0x6F]), &value)?;
 
-    println!("wrote {} bytes: {:02X?}", document.written().len(), document.written());
+    println!(
+        "wrote {} bytes: {:02X?}",
+        document.written().len(),
+        document.written()
+    );
     assert_eq!(document.written(), &EXPECTED);
     Ok(())
 }

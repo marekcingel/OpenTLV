@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix `cargo fmt --all --check` failures in the Rust `quick_start` and `write` examples. (#282)
+
 ### Changed
 
 - Split the C `basic_usage.c` "API tour" into one focused example per topic (`sequential_io.c`, `copies.c`, `schema_walk_and_scan.c`, `codecs_and_endian.c`, `custom_format.c`, and the BER/CER builtins under `builtins/asn1/`), each its own small self-checking program registered as a `ctest` entry, instead of one large file mixing unrelated topics. (#282)

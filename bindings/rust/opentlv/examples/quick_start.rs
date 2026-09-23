@@ -14,13 +14,21 @@ fn main() -> Result<()> {
     let mut buf = [0u8; 5];
     let mut writer = Writer::with_format(&mut buf, Format::Fixed1Byte);
     writer.write(&tag, &value)?;
-    println!("wrote {} bytes: {:02X?}", writer.written().len(), writer.written());
+    println!(
+        "wrote {} bytes: {:02X?}",
+        writer.written().len(),
+        writer.written()
+    );
 
     let mut reader = Reader::with_format(writer.written(), Format::Fixed1Byte);
     let entry = reader.next_entry().expect("one entry was written")?;
     assert_eq!(entry.tag(), &tag);
     assert_eq!(entry.value(), &value);
     assert!(reader.is_at_end());
-    println!("read tag {:02X?} value {:02X?}", entry.tag().as_bytes(), entry.value());
+    println!(
+        "read tag {:02X?} value {:02X?}",
+        entry.tag().as_bytes(),
+        entry.value()
+    );
     Ok(())
 }
