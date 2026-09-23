@@ -789,6 +789,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/bindings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2528,7 +2556,10 @@ to normal C and C++ builds.</p>
 <p>The first interface is intentionally small: it parses a byte buffer and returns
 the element structure or the parser error. It wraps the existing C API in
 <code>bindings/wasm/src/opentlv_wasm.c</code>; no parsing logic is duplicated. Editing, schemas,
-schemas and OTDL are not exposed; the EMV dictionary is available as an annotation profile (below).</p>
+schemas and OTDL are not exposed; the EMV dictionary is available as an annotation profile (below).
+Unlike a general-purpose binding, it does not follow the Reader/Writer/Entry
+shape of the <a href="../../concepts/bindings/">language bindings conceptual model</a>; see
+that page for why.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Install and activate an Emscripten SDK (CI pins the version set in
 <code>.github/workflows/wasm.yml</code>), then:</p>

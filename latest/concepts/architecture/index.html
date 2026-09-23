@@ -929,6 +929,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bindings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2890,6 +2918,10 @@ is built only when that component is enabled.</p>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-minimal<span class="w"> </span>--parallel
 </code></pre></div>
 <h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>
+<p>OpenTLV is before 1.0.0, so the public API is still allowed to change; see
+<a href="../../development/abi-compatibility/">C ABI compatibility</a>. This section is a
+best-effort record of the breaking changes below, not a compatibility
+guarantee or an exhaustive migration guide.</p>
 <p>Update flat includes to the folders above (<code>tlv/reader.h</code> becomes
 <code>tlv/reader/reader.h</code>, and so on). Concrete format declarations use
 <code>tlv/builtins/fixed/default.h</code>, <code>tlv/builtins/fixed/fixed_1byte.h</code>,

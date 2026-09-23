@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/reference/errors/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/bindings/">
       
       
-        <link rel="prev" href="../compilers/">
+        <link rel="prev" href="../endian/">
       
       
-        <link rel="next" href="../../development/workflow/">
+        <link rel="next" href="../../guides/memory/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Error codes - OpenTLV</title>
+        <title>Language bindings - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#error-codes" class="md-skip">
+        <a href="#common-conceptual-model-for-language-bindings" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Error codes
+              Language bindings
             
           </span>
         </div>
@@ -281,11 +281,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../concepts/architecture/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture/" class="md-tabs__link">
           
   
   
@@ -401,13 +403,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../reference/" class="md-tabs__link">
           
   
   
@@ -601,26 +601,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -638,7 +643,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -656,7 +661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -684,7 +689,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/core-types/" class="md-nav__link">
+      <a href="../core-types/" class="md-nav__link">
         
   
   
@@ -712,7 +717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/value/" class="md-nav__link">
+      <a href="../value/" class="md-nav__link">
         
   
   
@@ -740,7 +745,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/length/" class="md-nav__link">
+      <a href="../length/" class="md-nav__link">
         
   
   
@@ -768,7 +773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/endian/" class="md-nav__link">
+      <a href="../endian/" class="md-nav__link">
         
   
   
@@ -793,10 +798,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../concepts/bindings/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language bindings
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -812,6 +844,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-c-api-is-the-binding-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The C API is the binding boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core concepts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adapting-ergonomics-not-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adapting ergonomics, not architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-across-current-bindings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status across current bindings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1907,31 +2014,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
             
   
   
@@ -1949,7 +2051,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1967,7 +2069,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../reference/" class="md-nav__link">
         
   
   
@@ -1995,7 +2097,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../c-api/" class="md-nav__link">
+      <a href="../../reference/c-api/" class="md-nav__link">
         
   
   
@@ -2023,7 +2125,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cxx-api/" class="md-nav__link">
+      <a href="../../reference/cxx-api/" class="md-nav__link">
         
   
   
@@ -2051,7 +2153,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../compilers/" class="md-nav__link">
+      <a href="../../reference/compilers/" class="md-nav__link">
         
   
   
@@ -2076,37 +2178,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Error codes
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../reference/errors/" class="md-nav__link">
         
   
   
@@ -2122,59 +2197,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#codes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Codes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#offsets-and-diagnosis" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Offsets and diagnosis
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See also
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2469,10 +2491,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#codes" class="md-nav__link">
+  <a href="#the-c-api-is-the-binding-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Codes
+        The C API is the binding boundary
       
     </span>
   </a>
@@ -2480,10 +2502,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#offsets-and-diagnosis" class="md-nav__link">
+  <a href="#core-concepts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Offsets and diagnosis
+        Core concepts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adapting-ergonomics-not-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adapting ergonomics, not architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-across-current-bindings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status across current bindings
       
     </span>
   </a>
@@ -2518,7 +2562,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/reference/errors.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/bindings.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2526,150 +2570,172 @@
   
 
 
-<h1 id="error-codes">Error codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h1>
-<p>Every C function that can fail returns a <code>tlv_result_t</code> from <code>tlv/error.h</code>. Zero is
-success and every other value is an error. <code>tlv_strerror</code> returns a static, readable
-description of any code and <code>"unknown error"</code> for an unrecognized one; never free or
-modify the string. The Rust <code>Error</code> type maps every <code>TLV_ERR_*</code> code.</p>
-<p>Unless a function says otherwise, an error leaves its output parameters unchanged. A
-writer also keeps its position unchanged on failure, but an encoding callback failure can
-leave modified bytes beyond that position. Each function documents which codes it can
-return; this page explains what each code means and what to check first.</p>
-<h2 id="codes">Codes<a class="headerlink" href="#codes" title="Permanent link">&para;</a></h2>
+<h1 id="common-conceptual-model-for-language-bindings">Common conceptual model for language bindings<a class="headerlink" href="#common-conceptual-model-for-language-bindings" title="Permanent link">&para;</a></h1>
+<p>OpenTLV ships one C library (<code>tlv</code>) and is expected to grow bindings for
+several languages. A header-only C++ wrapper (<code>tlv++</code>) ships in this
+repository today, an experimental Rust crate (<code>opentlv</code>, in <code>bindings/rust/</code>)
+is under active development, and further bindings may follow. Without a
+shared contract, each binding could invent its own vocabulary for the same
+operation, for example <code>Reader</code> in C++, <code>parse()</code> in Python, <code>Parser</code> in Rust,
+and <code>Decoder</code> elsewhere, and a developer who already knows OpenTLV in one
+language would have to relearn it in the next.</p>
+<p>This page is the design contract every official binding follows: the primary
+concepts below stay recognizable in every binding's public API, even where
+syntax and idiom differ.</p>
+<blockquote>
+<p>Bindings should preserve the OpenTLV conceptual model while adapting its
+ergonomics to the target language.</p>
+</blockquote>
+<h2 id="the-c-api-is-the-binding-boundary">The C API is the binding boundary<a class="headerlink" href="#the-c-api-is-the-binding-boundary" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                    OpenTLV C API
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                         |
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    +----------+---------+---------+----------+
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    |          |         |         |          |
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>   C++       Rust        Go      Python       ...
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    |          |         |         |          |
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>   C++       Rust        Go       Python    &lt;language&gt;
+</code></pre></div>
+<p>C++ and Rust ship today; Go and Python are illustrative here, not yet
+scaffolded, to show the contract extends past the two current bindings (Go is
+also planned; Python is the example from the original design request). The
+trailing <code>...</code> stands for any further binding.</p>
+<p>The public OpenTLV C API (see the <a href="../../reference/c-api/">C API reference</a>) is
+the single language boundary every binding wraps. A binding calls into the C
+library directly for parsing, encoding, validation and codec work instead of
+reimplementing it, and it does not depend on another language's binding: the
+Rust crate does not sit on top of the C++ wrapper, and a future binding would
+not sit on top of Rust either. This keeps behavior identical across languages,
+since one C implementation backs every one of them, and lets each binding be
+built and shipped independently of the others. <code>tlv++</code> differs only in build
+shape, not in boundary: it is header-only and compiles directly against the C
+headers instead of linking a separately built library, but it still wraps only
+the public C API. See <a href="../../guides/rust/#relationship-to-the-c-api">relationship to the C
+API</a> for how the Rust crate holds
+to this in practice.</p>
+<h2 id="core-concepts">Core concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Code</th>
-<th>Value</th>
-<th>Meaning</th>
-<th>What to check</th>
+<th>Concept</th>
+<th>Responsibility</th>
+<th>C</th>
+<th>C++ (<code>tlv++</code>)</th>
+<th>Rust (<code>opentlv</code>, experimental)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>TLV_OK</code></td>
-<td>0</td>
-<td>The operation succeeded.</td>
-<td></td>
+<td>Reader</td>
+<td>Read-only parsing and traversal</td>
+<td><code>tlv_reader_t</code>, <code>tlv_reader_next()</code></td>
+<td><code>tlv::reader</code></td>
+<td><code>Reader&lt;'a&gt;</code></td>
 </tr>
 <tr>
-<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
-<td>1</td>
-<td>A supplied buffer is too small for the data or the output.</td>
-<td>Reading: the input ends before the tag, length or value does (truncated input). Writing: the output capacity is smaller than <code>tlv_encoded_size</code> reports.</td>
+<td>Writer</td>
+<td>Construction and serialization</td>
+<td><code>tlv_writer_t</code></td>
+<td><code>tlv::writer</code></td>
+<td><code>Writer&lt;'a&gt;</code></td>
 </tr>
 <tr>
-<td><code>TLV_ERR_INVALID_LENGTH</code></td>
-<td>2</td>
-<td>A length is malformed, out of range, or does not fit <code>size_t</code>.</td>
-<td>The format's length limits (for example 255 for <a href="../../formats/fixed/">Fixed 1-byte TLV</a>, 65,535 for <a href="../../formats/default/">Default TLV</a>), the reserved BER length prefix <code>FF</code>, or a total that overflows <code>size_t</code>.</td>
+<td>Document</td>
+<td>Optional owning, mutable representation</td>
+<td><code>tlv_document_t</code></td>
+<td><code>tlv::document</code></td>
+<td>not bound yet</td>
 </tr>
 <tr>
-<td><code>TLV_ERR_NULL_ARG</code></td>
-<td>3</td>
-<td>A required pointer argument is <code>NULL</code>.</td>
-<td>Required outputs and descriptors; <code>NULL</code> data is valid only with size zero.</td>
+<td>Entry</td>
+<td>One TLV entry, or a view onto one</td>
+<td><code>tlv_view_t</code></td>
+<td><code>tlv::entry</code></td>
+<td><code>Entry&lt;'a&gt;</code></td>
 </tr>
 <tr>
-<td><code>TLV_ERR_OUT_OF_MEMORY</code></td>
-<td>4</td>
-<td>An allocation failed.</td>
-<td>No current C core function returns it, because the core reads and writes without allocating. It is reserved for code that allocates.</td>
+<td>Tag</td>
+<td>The TLV tag abstraction: raw identifying bytes</td>
+<td><code>tlv_tag_t</code></td>
+<td><code>tlv::tag_t</code> (alias)</td>
+<td><code>Tag</code></td>
 </tr>
 <tr>
-<td><code>TLV_ERR_END_OF_BUFFER</code></td>
-<td>5</td>
-<td>No further element exists, or the input is empty.</td>
-<td>Normal end of iteration with <code>tlv_reader_next</code>; for a single read, empty input.</td>
+<td>Schema</td>
+<td>Structural validation: tags, lengths, occurrence and nesting rules</td>
+<td><code>tlv_schema_t</code>, <code>tlv_structure_schema_t</code></td>
+<td>same C types, wrapped by <code>tlv::validate</code>/<code>tlv::validate_all</code></td>
+<td><code>LengthSchema</code>, <code>StructureSchema</code></td>
 </tr>
 <tr>
-<td><code>TLV_ERR_INVALID_TAG</code></td>
-<td>6</td>
-<td>A tag is malformed or invalid for the format or profile.</td>
-<td>Unterminated multi-byte BER tags, or a tag the profile rejects.</td>
+<td>Codec</td>
+<td>Typed encoding and decoding of a value</td>
+<td><code>tlv_codec_t</code>, <code>tlv_structure_codec_t</code></td>
+<td><code>TlvCodec</code> concept, <code>tlv::decode_structure&lt;T&gt;</code>/<code>encode_structure</code></td>
+<td><code>Codec</code></td>
 </tr>
 <tr>
-<td><code>TLV_ERR_VISITOR</code></td>
-<td>7</td>
-<td>A visitor callback requested an error stop.</td>
-<td>Your visitor returned <code>TLV_VISIT_ERROR</code> or an unknown result.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_LIMIT</code></td>
-<td>8</td>
-<td>A configured depth, size or element-count limit was exceeded.</td>
-<td>The limits passed to the tree walker or profile function, <code>TLV_WALK_MAX_DEPTH</code> (64), <code>TLV_BER_MAX_DEPTH</code> (64). Limits are inclusive and zero is a real limit.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_SCHEMA</code></td>
-<td>9</td>
-<td>Input violates a schema rule.</td>
-<td>The error offset points at the offending element: a forbidden or unknown tag, a duplicate or excess occurrence, a kind mismatch, or an invalid rule table.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_INVALID_ARG</code></td>
-<td>10</td>
-<td>An argument has an invalid value that no more specific code describes.</td>
-<td>A required callback missing from a format descriptor, or an invalid option value.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_INVALID_TAG_SIZE</code></td>
-<td>11</td>
-<td>A tag size is outside the range the operation or format supports.</td>
-<td>A tag length the selected format rejects (for example more than 8 bytes for BER, CER and DER, or anything but one byte for the default format), or an empty tag where the operation needs bytes. Also the numeric tag conversions for empty tags and tags longer than 8 bytes. <code>tlv_tag_t</code> itself has no size limit.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_INVALID_BYTE_ORDER</code></td>
-<td>12</td>
-<td>A byte order is unknown or unsupported.</td>
-<td>The <code>TLV_BYTE_ORDER_*</code> value passed to the integer conversion functions in <code>tlv/endian.h</code> and <code>tlv/tag.h</code>.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_OVERFLOW</code></td>
-<td>13</td>
-<td>An unsigned value cannot fit the requested numeric width.</td>
-<td>The value against the destination width in the same integer conversion functions.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_INVALID_VALUE</code></td>
-<td>14</td>
-<td>Universal primitive content is malformed or fails a canonical DER rule.</td>
-<td>Strict DER or CER functions and schema-aware DER validation: for example a noncanonical BOOLEAN, INTEGER, string or time value, or a wrongly ordered SET.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_UNSUPPORTED_TYPE</code></td>
-<td>15</td>
-<td>A universal tag number has no implemented canonical validation.</td>
-<td>Strict mode returns this instead of silently accepting a type it does not check; see the list in the <a href="../../profiles/der/#strict-universal-value-validation">DER profile</a>.</td>
-</tr>
-<tr>
-<td><code>TLV_ERR_SCHEMA_MISSING</code></td>
-<td>16</td>
-<td>A required field is absent.</td>
-<td>Its offset is the end of the enclosing parent's value, not an element; see below.</td>
+<td>Diagnostics</td>
+<td>Structured diagnostic information for a failure</td>
+<td><code>tlv_diagnostic_t</code></td>
+<td><code>tlv::diagnostic</code> (alias)</td>
+<td><code>SchemaError</code>, <code>ProfileError</code>, <code>CodecError</code> (each carries the failing offset; no unified diagnostic type yet)</td>
 </tr>
 </tbody>
 </table>
-<h2 id="offsets-and-diagnosis">Offsets and diagnosis<a class="headerlink" href="#offsets-and-diagnosis" title="Permanent link">&para;</a></h2>
-<p>Several APIs report an <code>error_offset</code> that is changed only on failure. For the DER profile
-functions it identifies the start of the failing field, relative to the input: tag
-errors point to the tag, length errors to the length prefix, and truncated values to their
-value start, including missing fields at the end of the input. Value-size limits point to
-the length field and depth or count limits to the first disallowed element. Argument,
-configuration, total-size and destination-capacity errors use offset zero. The CER profile
-reports its own <code>error_offset</code>; see the <a href="../../profiles/cer/">CER profile</a>.</p>
-<p><code>TLV_ERR_SCHEMA_MISSING</code> is different from <code>TLV_ERR_SCHEMA</code>: its offset is the end of the
-parent's value, a scope boundary, and can coincide with the start of an unrelated sibling,
-so a tag read there is not reliably the cause. Every other schema violation returns
-<code>TLV_ERR_SCHEMA</code> with an offset anchored to the actual element.</p>
-<p>Custom format callback errors propagate unchanged through the generic reader and writer,
-so a custom format can return any of the codes above.</p>
+<p>A binding adopts a concept when it needs it, not all at once: the table above
+already shows gaps (Rust has no <code>Document</code> yet, and no single <code>Diagnostics</code>
+type), and future bindings will fill in concepts incrementally too. What the
+contract fixes is the name and role a concept gets once a binding does expose
+it, not a deadline for exposing all eight.</p>
+<h2 id="adapting-ergonomics-not-architecture">Adapting ergonomics, not architecture<a class="headerlink" href="#adapting-ergonomics-not-architecture" title="Permanent link">&para;</a></h2>
+<p>Bindings must adapt syntax and behavior to the conventions of their target
+language; they must not introduce a different conceptual architecture to do
+it. For example:</p>
+<ul>
+<li>Rust's <code>Reader</code> implements <code>Iterator&lt;Item = Result&lt;Entry&gt;&gt;</code>, so callers
+  write <code>for entry in reader { ... }</code> instead of an explicit <code>at_end()</code>/
+  <code>next()</code> loop. <code>tlv++</code>'s <code>reader</code> uses that explicit loop today (or a
+  visitor passed to <code>tlv::walk_tree</code>); a future C++ range-based <code>for</code> over a
+  <code>reader</code> would be the same adaptation applied there.</li>
+<li>A future Python binding could iterate the same reader concept with
+  <code>for entry in reader:</code>, and raise a native <code>Exception</code> from <code>Result</code>-style
+  errors instead of returning an error code.</li>
+<li>A future Go binding could return <code>(Entry, error)</code> pairs from a <code>Next()</code>
+  method, or a range-over-func iterator (<code>for entry, err := range
+  reader.All() { ... }</code>), matching Go's own error-handling convention instead
+  of Rust's <code>Result</code> or C's error codes.</li>
+<li>A future JavaScript binding could expose a reader as a JS iterable and
+  surface failures as native exceptions.</li>
+</ul>
+<p>The syntax changes; the concepts (a read-only, one-pass <code>Reader</code> yielding
+<code>Entry</code> values) do not.</p>
+<h2 id="status-across-current-bindings">Status across current bindings<a class="headerlink" href="#status-across-current-bindings" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>C++ (<code>tlv++</code>)</strong>: ships in this repository, header-only, and covers every
+  concept above except a standalone <code>Diagnostics</code> type (it reuses the C
+  <code>tlv_diagnostic_t</code> directly as <code>tlv::diagnostic</code>).</li>
+<li><strong>Rust (<code>opentlv</code>)</strong>: experimental, in <code>bindings/rust/</code>. Covers Reader,
+  Writer, Entry, Tag, Schema and Codec; <code>Document</code> and the callback-based
+  visitors, structure codecs and DOL profile are not bound yet. See <a href="../../development/rust/">Rust
+  bindings</a> and <a href="../../guides/rust/">using OpenTLV from
+  Rust</a>.</li>
+<li><strong>WebAssembly</strong>: in <code>bindings/wasm/</code>, a deliberately narrow <code>parse()</code>
+  function that returns a JSON element tree for browser tooling, not a
+  general-purpose object-oriented binding. It is a small embedding built on
+  the C API rather than a binding this contract's Reader/Writer/Entry shape
+  applies to. See <a href="../../development/webassembly/">WebAssembly build</a>.</li>
+<li><strong>Go</strong>: planned, not started yet. No <code>bindings/go/</code> directory exists; when
+  work on it begins, it follows this contract like the Rust crate does.</li>
+</ul>
 <h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../c-api/">C API reference</a> for the documented codes per function.</li>
-<li><a href="../../formats/#reading-one-element">Format documentation</a> for the reader and
-  writer error behavior.</li>
-<li><a href="../../guides/scanner/">Scanning and recovery</a> for continuing after an error.</li>
+<li><a href="../architecture/">Layered architecture</a> for how these concepts are
+  organized inside the C library and <code>tlv++</code> itself.</li>
+<li><a href="../../reference/c-api/">C API reference</a> and <a href="../../reference/cxx-api/">C++ API
+  reference</a>.</li>
+<li><a href="../../guides/rust/">Using OpenTLV from Rust</a> for a worked example of a
+  binding that follows this contract.</li>
 </ul>
 
 
@@ -2708,7 +2774,7 @@ so a custom format can return any of the codes above.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../compilers/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Compilers and build settings">
+          <a href="../endian/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Byte order">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2718,20 +2784,20 @@ so a custom format can return any of the codes above.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Compilers and build settings
+                Byte order
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../development/workflow/" class="md-footer__link md-footer__link--next" aria-label="Next: Development workflow">
+          <a href="../../guides/memory/" class="md-footer__link md-footer__link--next" aria-label="Next: Memory ownership">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Development workflow
+                Memory ownership
               </div>
             </div>
             <div class="md-footer__button md-icon">
