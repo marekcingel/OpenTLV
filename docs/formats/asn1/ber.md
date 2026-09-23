@@ -112,7 +112,7 @@ reports insufficient capacity; use the separate size query for sizing.
 `&tlv_writer_format_ber` and advances its position only on success.
 
 The C++ `tlv::reader`, traversal, and schema wrappers support indefinite input
-through the same BER descriptor. Include `tlv++/ber.hpp` for
+through the same BER descriptor. Include `tlv++/builtins/asn1/ber.hpp` for
 `tlv::ber_write_indefinite(buffer, capacity, tag, children)`, returning
 `expected<size_t, error>`. The ordinary C++ writer remains definite-length.
 The C core does not allocate; C++ error construction retains its existing

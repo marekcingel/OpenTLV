@@ -3,8 +3,8 @@
 #include <string>
 #include "tlv/error.h"
 #include "tlv++/diagnostic.hpp"
-#include "tlv++/reader.hpp"
-#include "tlv++/schema.hpp"
+#include "tlv++/reader/reader.hpp"
+#include "tlv++/schema/schema.hpp"
 
 // Renders tlv::diagnostic and tlv::schema_diagnostic for otlv's --diagnostics
 // option. Kept separate from commands.cpp so this stays easy to lift into

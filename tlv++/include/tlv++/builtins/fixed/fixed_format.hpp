@@ -1,5 +1,5 @@
-#ifndef OPENTLV_TLVPP_FIXED_FORMAT_HPP
-#define OPENTLV_TLVPP_FIXED_FORMAT_HPP
+#ifndef OPENTLV_TLVPP_BUILTINS_FIXED_FIXED_FORMAT_HPP
+#define OPENTLV_TLVPP_BUILTINS_FIXED_FIXED_FORMAT_HPP
 
 #include "tlv/endian.h"
 #include "tlv/format.h"
@@ -145,4 +145,4 @@ constexpr std::uint64_t fixed_format<TagWidth, LengthWidth, Order>::max_length;
 
 } // namespace tlv
 
-#endif // OPENTLV_TLVPP_FIXED_FORMAT_HPP
+#endif // OPENTLV_TLVPP_BUILTINS_FIXED_FIXED_FORMAT_HPP

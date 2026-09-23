@@ -1,5 +1,5 @@
-#ifndef OPENTLV_TLVPP_BER_HPP
-#define OPENTLV_TLVPP_BER_HPP
+#ifndef OPENTLV_TLVPP_BUILTINS_ASN1_BER_HPP
+#define OPENTLV_TLVPP_BUILTINS_ASN1_BER_HPP
 
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv++/types.hpp"

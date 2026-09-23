@@ -11,7 +11,7 @@ encodes the same bytes.
 
 | Setting | Value |
 | --- | --- |
-| Header | `tlv++/fixed_format.hpp` (also usable without the rest of `tlv++`) |
+| Header | `tlv++/builtins/fixed/fixed_format.hpp` (also usable without the rest of `tlv++`) |
 | Template | `tlv::fixed_format<TagWidth, LengthWidth, Order>` |
 | Reader descriptor | `fixed_format<...>::reader()` returns `const tlv_reader_format_t&` |
 | Writer descriptor | `fixed_format<...>::writer()` returns `const tlv_writer_format_t&` |
@@ -72,7 +72,7 @@ Errors match the built-in fixed format.
 #include <cstddef>
 #include <iostream>
 
-#include "tlv++/fixed_format.hpp"
+#include "tlv++/builtins/fixed/fixed_format.hpp"
 #include "tlv++/tlv.hpp"
 
 using format = tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>;

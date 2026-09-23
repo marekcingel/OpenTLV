@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reorganize `tlv++` headers to mirror the C library's layout: move `tlv++/reader.hpp`/`tlv++/walker.hpp` into `reader/`, `tlv++/writer.hpp` into `writer/`, `tlv++/query.hpp` into `query/`, `tlv++/schema.hpp` into `schema/`, `tlv++/codec.hpp`/`tlv++/structure.hpp`/`tlv++/registry.hpp` into `codec/`, `tlv++/document.hpp` into `document/`, and `tlv++/ber.hpp`/`tlv++/fixed_format.hpp` into `builtins/asn1/`/`builtins/fixed/`; update `#include` paths accordingly. See [architecture](docs/concepts/architecture.md#layout). (#280)
 - Reorganize the C library's `formats/` and `profiles/` folders into per-protocol `builtins/` folders (`asn1`, `emv`, `bluetooth`, `fixed`), keeping generic subsystems (`reader/`, `writer/`, `query/`, `schema/`, `codec/`, `document/`) at the top level; update `#include` paths accordingly, including the renamed `tlv/builtins/asn1/der_profile.h`, `tlv/builtins/asn1/cer_profile.h` and `tlv/builtins/emv/emv_codec.h`. See [architecture](docs/concepts/architecture.md#layout). (#279)
 
 ### Removed

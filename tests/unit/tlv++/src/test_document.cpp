@@ -1,5 +1,5 @@
 #include "controlled_format.h"
-#include "tlv++/document.hpp"
+#include "tlv++/document/document.hpp"
 
 #include <gtest/gtest.h>
 

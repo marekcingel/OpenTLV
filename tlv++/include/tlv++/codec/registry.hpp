@@ -6,7 +6,7 @@
 #include <map>
 #include <vector>
 
-#include "tlv++/codec.hpp"
+#include "tlv++/codec/codec.hpp"
 
 namespace tlv {
 

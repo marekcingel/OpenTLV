@@ -20,7 +20,7 @@
 #include "tlv/reader/reader.h"
 #include "tlv/reader/scanner.h"
 #include "tlv/reader/walker.h"
-#include "tlv++/walker.hpp"
+#include "tlv++/reader/walker.hpp"
 #if OPENTLV_FORMAT_DEFAULT
 #include "tlv/builtins/fixed/default.h"
 #endif

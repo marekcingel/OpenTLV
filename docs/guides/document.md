@@ -128,11 +128,11 @@ needs exclusive access.
 
 ## C++
 
-`tlv++/document.hpp` wraps the same API. `tlv::document` owns the tree and is
+`tlv++/document/document.hpp` wraps the same API. `tlv::document` owns the tree and is
 move-only; `tlv::node` is a cheap non-owning handle.
 
 ```cpp
-#include <tlv++/document.hpp>
+#include <tlv++/document/document.hpp>
 
 tlv::document_format format(tlv_reader_format_ber, tlv_writer_format_ber,
                             tlv_ber_is_constructed);

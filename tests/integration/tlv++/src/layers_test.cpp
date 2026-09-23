@@ -1,18 +1,18 @@
 // Keep this translation unit separate: low-level headers must not import codecs.
-#include "tlv++/reader.hpp"
-#include "tlv++/writer.hpp"
-#include "tlv++/walker.hpp"
-#include "tlv++/schema.hpp"
-#include "tlv++/query.hpp"
+#include "tlv++/reader/reader.hpp"
+#include "tlv++/writer/writer.hpp"
+#include "tlv++/reader/walker.hpp"
+#include "tlv++/schema/schema.hpp"
+#include "tlv++/query/query.hpp"
 #if defined(OPENTLV_TLVPP_CODEC_HPP) || defined(OPENTLV_CODEC_H)
 #error Low-level APIs must not depend on the codec layer
 #endif
 #include "tlv/builtins/fixed/default.h"
-#include "tlv++/structure.hpp"
+#include "tlv++/codec/structure.hpp"
 #include <gtest/gtest.h>
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
-#include "tlv++/ber.hpp"
+#include "tlv++/builtins/asn1/ber.hpp"
 
 TEST(Integration_TLV_CPP, BerIndefiniteRoundTripAndTraversal) {
     tlv::byte        buffer[8]{};
