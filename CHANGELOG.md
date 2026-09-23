@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add experimental Python binding infrastructure under `bindings/python`: an
+  `_opentlv` native extension built with the CPython Limited API against the
+  public OpenTLV C API, and a minimal `opentlv` package exposing the library
+  version; see [Python bindings](docs/development/python.md). (#274)
 - Document the common conceptual model every language binding follows (Reader, Writer, Document, Entry, Tag, Schema, Codec, Diagnostics), the design principle that bindings adapt ergonomics rather than concepts, and the rule that the public OpenTLV C API is the binding boundary and a binding must not depend on another language's binding; see [Language bindings](docs/concepts/bindings.md). (#273)
 - Add a Rust tab, alongside C and C++, to the quick start example in [Getting started](docs/getting-started/README.md#quick-start); `scripts/check_doc_examples.py` now also verifies a documented example against a Rust binding source under `bindings/rust/*/examples/`. (#283)
 - Add a `README.md` to `examples/tlv/src/` and `examples/tlv++/src/` grouping their example files into "start here," use cases, API tour and builtins, so a newcomer has one entry point instead of a flat file listing. (#282)
