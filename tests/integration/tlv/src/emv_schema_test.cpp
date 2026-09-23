@@ -1,5 +1,5 @@
-#include "tlv/formats/asn1/ber.h"
-#include "tlv/profiles/emv_schema.h"
+#include "tlv/builtins/asn1/ber.h"
+#include "tlv/builtins/emv/emv_schema.h"
 #include "tlv/reader/walker.h"
 #include <gtest/gtest.h>
 #include <vector>

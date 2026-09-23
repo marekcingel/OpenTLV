@@ -1,10 +1,10 @@
-#include "tlv/formats/default/default.h"
-#include "tlv/formats/fixed/fixed_1byte.h"
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/fixed/default.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_CER
-#include "tlv/formats/asn1/cer.h"
-#include "tlv/profiles/cer.h"
+#include "tlv/builtins/asn1/cer.h"
+#include "tlv/builtins/asn1/cer_profile.h"
 #endif
 /* C API tour: all storage belongs to the caller; no heap allocation. */
 #include <inttypes.h>
@@ -16,7 +16,7 @@
 #include "tlv/length.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/scanner.h"
-#include "tlv/schemas/schema.h"
+#include "tlv/schema/schema.h"
 #include "tlv/version.h"
 #include "tlv/reader/walker.h"
 #include "tlv/writer/writer.h"

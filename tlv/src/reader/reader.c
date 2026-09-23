@@ -1,6 +1,6 @@
 #include "tlv/reader/reader.h"
 #include "tlv/length.h"
-#include "../formats/format_internal.h"
+#include "../format_internal.h"
 #include <string.h>
 
 void tlv_reader_diagnostic_init(tlv_reader_diagnostic_t* diagnostic) {

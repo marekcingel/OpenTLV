@@ -134,7 +134,7 @@ This complete C example ([source](examples/tlv/src/quick_start.c), built and run
 <!-- example: examples/tlv/src/quick_start.c -->
 ```c
 #include <string.h>
-#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 

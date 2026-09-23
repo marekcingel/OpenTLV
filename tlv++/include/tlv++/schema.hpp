@@ -1,7 +1,7 @@
 #ifndef OPENTLV_TLVPP_SCHEMA_HPP
 #define OPENTLV_TLVPP_SCHEMA_HPP
 #include "tlv++/types.hpp"
-#include "tlv/schemas/schema.h"
+#include "tlv/schema/schema.h"
 
 /**
  * @file schema.hpp

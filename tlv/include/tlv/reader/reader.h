@@ -3,7 +3,7 @@
 
 #include "tlv/error.h"
 #include "tlv/diagnostic.h"
-#include "tlv/formats/format.h"
+#include "tlv/format.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus

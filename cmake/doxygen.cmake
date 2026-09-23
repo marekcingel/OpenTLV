@@ -4,16 +4,16 @@ find_package(Doxygen 1.9.1 REQUIRED COMPONENTS doxygen)
 # declarations produced by the twice-included EMV X-macro dictionary. Inline
 # that dictionary in a documentation-only copy so both public constant forms
 # are parsed using their actual definitions, without maintaining a second list.
-set(_emv_header "${PROJECT_SOURCE_DIR}/tlv/include/tlv/profiles/emv.h")
-set(_emv_dictionary "${PROJECT_SOURCE_DIR}/tlv/include/tlv/profiles/emv_tags.def")
+set(_emv_header "${PROJECT_SOURCE_DIR}/tlv/include/tlv/builtins/emv/emv.h")
+set(_emv_dictionary "${PROJECT_SOURCE_DIR}/tlv/include/tlv/builtins/emv/emv_tags.def")
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${_emv_header}" "${_emv_dictionary}")
 file(READ "${_emv_header}" _emv_contents)
 file(READ "${_emv_dictionary}" _emv_entries)
-string(REPLACE "#include \"tlv/profiles/emv_tags.def\"" "${_emv_entries}"
+string(REPLACE "#include \"tlv/builtins/emv/emv_tags.def\"" "${_emv_entries}"
     _emv_contents "${_emv_contents}")
-file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/docs-input/tlv/profiles")
-file(WRITE "${PROJECT_BINARY_DIR}/docs-input/tlv/profiles/emv.h" "${_emv_contents}")
+file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/docs-input/tlv/builtins/emv")
+file(WRITE "${PROJECT_BINARY_DIR}/docs-input/tlv/builtins/emv/emv.h" "${_emv_contents}")
 
 # Base URL of the published documentation site, used by the @docs alias to
 # link generated API pages back to the guides and concepts.

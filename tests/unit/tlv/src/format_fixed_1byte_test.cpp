@@ -1,4 +1,4 @@
-#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>

@@ -1,6 +1,6 @@
 // Conformance tests for the Bluetooth LTV (Length | Type | Value) format. Every case goes through
 // the generic reader, writer and walker; there is no Bluetooth-specific parsing path here.
-#include "tlv/formats/bluetooth/bluetooth_ltv.h"
+#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/walker.h"
 #include "tlv/writer/writer.h"

@@ -394,7 +394,7 @@
       <return type-id='type-id-12'/>
     </function-type>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/codec/emv.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/emv/emv_codec.c' language='LANG_C11'>
     <var-decl name='tlv_emv_codec_amount' type-id='type-id-17' mangled-name='tlv_emv_codec_amount' visibility='default' elf-symbol-id='tlv_emv_codec_amount'/>
     <function-decl name='tlv_read_uint' visibility='default' binding='global' size-in-bits='64'>
       <parameter type-id='type-id-20'/>
@@ -907,7 +907,7 @@
       <return type-id='type-id-16'/>
     </function-decl>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/formats/asn1/ber.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/asn1/ber.c' language='LANG_C11'>
     <var-decl name='tlv_reader_format_ber' type-id='type-id-89' mangled-name='tlv_reader_format_ber' visibility='default' elf-symbol-id='tlv_reader_format_ber'/>
     <var-decl name='tlv_writer_format_ber' type-id='type-id-99' mangled-name='tlv_writer_format_ber' visibility='default' elf-symbol-id='tlv_writer_format_ber'/>
     <function-decl name='tlv_ber_is_constructed' mangled-name='tlv_ber_is_constructed' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_ber_is_constructed'>
@@ -952,7 +952,7 @@
       <return type-id='type-id-28'/>
     </function-decl>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/formats/asn1/ber_internal.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/asn1/ber_internal.c' language='LANG_C11'>
     <function-decl name='tlv_length_from_size' visibility='default' binding='global' size-in-bits='64'>
       <parameter type-id='type-id-11'/>
       <parameter type-id='type-id-115'/>
@@ -961,7 +961,7 @@
     <var-decl name='tlv_ber_reader_wire' type-id='type-id-89' visibility='default'/>
     <var-decl name='tlv_ber_writer_wire' type-id='type-id-99' visibility='default'/>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/formats/asn1/cer.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/asn1/cer.c' language='LANG_C11'>
     <var-decl name='tlv_reader_format_cer' type-id='type-id-89' mangled-name='tlv_reader_format_cer' visibility='default' elf-symbol-id='tlv_reader_format_cer'/>
     <var-decl name='tlv_writer_format_cer' type-id='type-id-99' mangled-name='tlv_writer_format_cer' visibility='default' elf-symbol-id='tlv_writer_format_cer'/>
     <function-decl name='tlv_asn1_read_identifier' visibility='default' binding='global' size-in-bits='64'>
@@ -1014,7 +1014,7 @@
       <return type-id='type-id-28'/>
     </function-decl>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/formats/asn1/der.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/asn1/der.c' language='LANG_C11'>
     <enum-decl name='tlv_asn1_class' id='type-id-117'>
       <underlying-type type-id='type-id-3'/>
       <enumerator name='TLV_ASN1_UNIVERSAL' value='0'/>
@@ -1043,19 +1043,19 @@
       <return type-id='type-id-28'/>
     </function-decl>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/formats/bluetooth/bluetooth_ltv.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/bluetooth/bluetooth_ltv.c' language='LANG_C11'>
     <var-decl name='tlv_reader_format_bluetooth_ltv' type-id='type-id-89' mangled-name='tlv_reader_format_bluetooth_ltv' visibility='default' elf-symbol-id='tlv_reader_format_bluetooth_ltv'/>
     <var-decl name='tlv_writer_format_bluetooth_ltv' type-id='type-id-99' mangled-name='tlv_writer_format_bluetooth_ltv' visibility='default' elf-symbol-id='tlv_writer_format_bluetooth_ltv'/>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/formats/default/default.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/fixed/default.c' language='LANG_C11'>
     <var-decl name='tlv_reader_format_default' type-id='type-id-89' mangled-name='tlv_reader_format_default' visibility='default' elf-symbol-id='tlv_reader_format_default'/>
     <var-decl name='tlv_writer_format_default' type-id='type-id-99' mangled-name='tlv_writer_format_default' visibility='default' elf-symbol-id='tlv_writer_format_default'/>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/formats/fixed/fixed_1byte.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/fixed/fixed_1byte.c' language='LANG_C11'>
     <var-decl name='tlv_reader_format_fixed_1byte' type-id='type-id-89' mangled-name='tlv_reader_format_fixed_1byte' visibility='default' elf-symbol-id='tlv_reader_format_fixed_1byte'/>
     <var-decl name='tlv_writer_format_fixed_1byte' type-id='type-id-99' mangled-name='tlv_writer_format_fixed_1byte' visibility='default' elf-symbol-id='tlv_writer_format_fixed_1byte'/>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/formats/format.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/format.c' language='LANG_C11'>
     <pointer-type-def type-id='type-id-77' size-in-bits='64' id='type-id-118'/>
     <pointer-type-def type-id='type-id-87' size-in-bits='64' id='type-id-119'/>
     <function-decl name='tlv_reader_format_init' mangled-name='tlv_reader_format_init' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='tlv_reader_format_init'>
@@ -1093,7 +1093,7 @@
       <return type-id='type-id-28'/>
     </function-decl>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/profiles/cer.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/asn1/cer_profile.c' language='LANG_C11'>
     <class-decl name='tlv_cer_limits' size-in-bits='256' is-struct='yes' visibility='default' id='type-id-120'>
       <data-member access='public' layout-offset-in-bits='0'>
         <var-decl name='max_depth' type-id='type-id-11' visibility='default'/>
@@ -1220,7 +1220,7 @@
       <return type-id='type-id-28'/>
     </function-decl>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/profiles/cer_values_internal.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/asn1/cer_values_internal.c' language='LANG_C11'>
     <qualified-type-def type-id='type-id-131' const='yes' id='type-id-132'/>
     <pointer-type-def type-id='type-id-132' size-in-bits='64' id='type-id-133'/>
     <pointer-type-def type-id='type-id-131' size-in-bits='64' id='type-id-134'/>
@@ -1282,7 +1282,7 @@
       <return type-id='type-id-28'/>
     </function-decl>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/profiles/der.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/asn1/der_profile.c' language='LANG_C11'>
     <class-decl name='tlv_der_limits' size-in-bits='256' is-struct='yes' visibility='default' id='type-id-136'>
       <data-member access='public' layout-offset-in-bits='0'>
         <var-decl name='max_depth' type-id='type-id-11' visibility='default'/>
@@ -1367,7 +1367,7 @@
       <return type-id='type-id-28'/>
     </function-decl>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/profiles/der_schema.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/asn1/der_schema.c' language='LANG_C11'>
     <enum-decl name='tlv_der_presence' id='type-id-141'>
       <underlying-type type-id='type-id-3'/>
       <enumerator name='TLV_DER_REQUIRED' value='0'/>
@@ -1531,9 +1531,9 @@
       <return type-id='type-id-28'/>
     </function-type>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/profiles/der_values.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/asn1/der_values.c' language='LANG_C11'>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/profiles/dol.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/emv/dol.c' language='LANG_C11'>
     <enum-decl name='tlv_dol_format' id='type-id-166'>
       <underlying-type type-id='type-id-3'/>
       <enumerator name='TLV_DOL_FORMAT_BINARY' value='0'/>
@@ -1608,7 +1608,7 @@
       <return type-id='type-id-28'/>
     </function-type>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/profiles/emv.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/emv/emv.c' language='LANG_C11'>
     <enum-decl name='tlv_emv_context_t' naming-typedef-id='type-id-183' id='type-id-184'>
       <underlying-type type-id='type-id-3'/>
       <enumerator name='TLV_EMV_CONTEXT_BASE' value='0'/>
@@ -1897,7 +1897,7 @@
       <return type-id='type-id-31'/>
     </function-decl>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/profiles/emv_schema.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/builtins/emv/emv_schema.c' language='LANG_C11'>
     <var-decl name='tlv_emv_structure_schema' type-id='type-id-94' mangled-name='tlv_emv_structure_schema' visibility='default' elf-symbol-id='tlv_emv_structure_schema'/>
   </abi-instr>
   <abi-instr address-size='64' path='tlv/src/reader/reader.c' language='LANG_C11'>
@@ -1988,9 +1988,9 @@
       <return type-id='type-id-83'/>
     </function-type>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/schemas/schema.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/schema/schema.c' language='LANG_C11'>
   </abi-instr>
-  <abi-instr address-size='64' path='tlv/src/schemas/structure.c' language='LANG_C11'>
+  <abi-instr address-size='64' path='tlv/src/schema/structure.c' language='LANG_C11'>
   </abi-instr>
   <abi-instr address-size='64' path='tlv/src/tag.c' language='LANG_C11'>
     <enum-decl name='tlv_byte_order' id='type-id-205'>

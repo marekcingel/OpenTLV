@@ -1,7 +1,7 @@
 #include "tlv/reader/walker.h"
 #include "tlv/reader/reader.h"
 #include "tlv/length.h"
-#include "../formats/format_internal.h"
+#include "../format_internal.h"
 
 static tlv_result_t tree_error(tlv_result_t rc, size_t offset, size_t* out) {
     if (out) *out = offset;

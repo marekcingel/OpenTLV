@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Reorganize the C library's `formats/` and `profiles/` folders into per-protocol `builtins/` folders (`asn1`, `emv`, `bluetooth`, `fixed`), keeping generic subsystems (`reader/`, `writer/`, `query/`, `schema/`, `codec/`, `document/`) at the top level; update `#include` paths accordingly, including the renamed `tlv/builtins/asn1/der_profile.h`, `tlv/builtins/asn1/cer_profile.h` and `tlv/builtins/emv/emv_codec.h`. See [architecture](docs/concepts/architecture.md#layout). (#279)
+
 ### Removed
 
 - **Breaking:** Remove `TLV_TAG_CAPACITY`, `tlv_tag_from_bytes()`, `tlv_tag_equal_bytes()` and the numeric `tlv_tag_to_u*()`, `tlv_tag_from_u*()` and `tlv_tag_equal_u*()`; use `tlv_tag()` and `tlv_tag_equal()` instead, and the Rust `Tag` loses `ByteOrder`, `from_u64` and `to_u64`. (#256)

@@ -78,10 +78,10 @@ so a candidate's "components" show which layers stay separate.
 
 | Component | Existing implementation | Role |
 | --- | --- | --- |
-| Format adapter | `tlv_reader_format_t` and `tlv_writer_format_t` in `tlv/formats/format.h`; the whole-element callbacks `read_element` and `write_header` handle any field order or packing | Splits bytes into tag, header, value and trailer, and writes a header. |
+| Format adapter | `tlv_reader_format_t` and `tlv_writer_format_t` in `tlv/format.h`; the whole-element callbacks `read_element` and `write_header` handle any field order or packing | Splits bytes into tag, header, value and trailer, and writes a header. |
 | Nesting predicate | `tlv_is_constructed_fn`, passed to the tree walker | Says which values contain children in the same format. |
-| Structure schema | `tlv_schema_t` and `tlv_structure_schema_t` in `tlv/schemas/schema.h` | Length bounds, occurrence and membership rules. |
-| DER schema | `tlv_der_schema_type_t` in `tlv/profiles/der_schema.h` | ASN.1 type rules with canonical DER semantics; a fixed, small subset. |
+| Structure schema | `tlv_schema_t` and `tlv_structure_schema_t` in `tlv/schema/schema.h` | Length bounds, occurrence and membership rules. |
+| DER schema | `tlv_der_schema_type_t` in `tlv/builtins/asn1/der_schema.h` | ASN.1 type rules with canonical DER semantics; a fixed, small subset. |
 | Value codecs | `tlv/codec/codec.h` and `tlv/codec/structure.h` | Decode and encode value contents. |
 | Dictionary | Tag tables like the [EMV profile](../profiles/emv/README.md) | Names and meanings for tags in one profile. |
 | Mixed-format traversal | Not implemented; see [generic processing extensions](#generic-processing-extensions) | Choose a different format per nesting level. |
@@ -183,7 +183,7 @@ Variants and open questions that these entries need before scoping:
 
 These are reusable requirements collected from the candidates. Not one of them is a
 commitment. The **fit** column is by inspection of the callback contract in
-[`format.h`](../../tlv/include/tlv/formats/format.h): `read_element` sees the bytes from
+[`format.h`](../../tlv/include/tlv/format.h): `read_element` sees the bytes from
 the start of an element and reports the tag, the header size, the value size and the
 trailer size; `write_header` writes only the header. A tag is any
 number of raw bytes the format accepts. **No candidate has been prototyped against these callbacks.**

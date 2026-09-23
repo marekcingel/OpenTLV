@@ -3,19 +3,19 @@
 
 #include "common.h"
 #if OPENTLV_FORMAT_DEFAULT
-#include "tlv/formats/default/default.h"
+#include "tlv/builtins/fixed/default.h"
 #endif
 #if OPENTLV_FORMAT_FIXED_1BYTE
-#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
 #endif
 #if OPENTLV_FORMAT_BLUETOOTH_LTV
-#include "tlv/formats/bluetooth/bluetooth_ltv.h"
+#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #endif
 #if OPENTLV_FORMAT_BER
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #endif
 #if OPENTLV_FORMAT_DER
-#include "tlv/formats/asn1/der.h"
+#include "tlv/builtins/asn1/der.h"
 #endif
 
 /* Raw-byte formats have no built-in nesting rule. This test convention lets

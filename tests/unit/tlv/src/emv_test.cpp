@@ -1,5 +1,5 @@
-#include "tlv/formats/asn1/ber.h"
-#include "tlv/profiles/emv.h"
+#include "tlv/builtins/asn1/ber.h"
+#include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
@@ -52,7 +52,7 @@ TEST(Unit_Emv, PublicTagConstantsMatchDefinitions) {
     EXPECT_NE(nullptr, find(tlv_emv_tag_##name, TLV_EMV_CONTEXT_##scope));                         \
     EXPECT_EQ(static_cast<unsigned>(tlv_emv_tag_##name##_u64), number_of(tlv_emv_tag_##name));
 #define EMV_END(scope)
-#include "tlv/profiles/emv_tags.def"
+#include "tlv/builtins/emv/emv_tags.def"
 #undef EMV_BEGIN
 #undef EMV_TAG
 #undef EMV_END

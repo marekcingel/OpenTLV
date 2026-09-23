@@ -6,7 +6,7 @@
 #include "tlv/config.h"
 #include "tlv/reader/walker.h"
 #if OPENTLV_PROFILE_EMV
-#include "tlv/profiles/emv.h"
+#include "tlv/builtins/emv/emv.h"
 #endif
 
 namespace {

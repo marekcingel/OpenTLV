@@ -3,7 +3,7 @@
 # justified exception, not a blanket silence: see the comment above it.
 
 # emv_tags.def is an X-macro table re-included with a different EMV_TAG
-# definition at each use, including one in tlv/src/profiles/emv.c that
+# definition at each use, including one in tlv/src/builtins/emv/emv.c that
 # dispatches per entry via token-pasting (EMV_CODEC_##kind). cppcheck's
 # preprocessor cannot resolve that pasted, per-entry macro name, which is
 # valid C the compilers (Clang/GCC/MSVC, all covered by CI) accept.

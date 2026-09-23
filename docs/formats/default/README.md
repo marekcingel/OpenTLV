@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Format header | `tlv/formats/default/default.h` |
+| Format header | `tlv/builtins/fixed/default.h` |
 | Reader descriptor | `tlv_reader_format_default` |
 | Writer descriptor | `tlv_writer_format_default` |
 | CMake option (default ON) | `OPENTLV_FORMAT_DEFAULT` |
@@ -23,7 +23,7 @@ See [shared memory ownership rules](../../guides/memory.md) before retaining a p
 This complete example writes and reads one opaque byte. Exit code zero means success.
 
 ```c
-#include "tlv/formats/default/default.h"
+#include "tlv/builtins/fixed/default.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 

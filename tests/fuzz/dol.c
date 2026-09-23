@@ -1,6 +1,6 @@
 #include "common.h"
-#include "tlv/formats/asn1/ber.h"
-#include "tlv/profiles/dol.h"
+#include "tlv/builtins/asn1/ber.h"
+#include "tlv/builtins/emv/dol.h"
 
 static tlv_result_t visit_count(const tlv_dol_entry_t* entry, size_t index, void* context) {
     (void)index;

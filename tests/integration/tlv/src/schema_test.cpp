@@ -1,5 +1,5 @@
-#include "tlv/formats/fixed/fixed_1byte.h"
-#include "tlv/schemas/schema.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
+#include "tlv/schema/schema.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
 

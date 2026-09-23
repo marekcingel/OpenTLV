@@ -9,9 +9,9 @@
  * response template purely to exercise one decoded value per TLV_EMV_VALUE_*
  * kind in one place; it is not a literal capture of any single response.
  */
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/length.h"
-#include "tlv/profiles/emv.h"
+#include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/walker.h"
 #include "tlv/writer/writer.h"

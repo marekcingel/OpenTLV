@@ -4,9 +4,9 @@ OUTPUT_DIRECTORY       = "@PROJECT_BINARY_DIR@/docs/c-api"
 INPUT                  = "@PROJECT_SOURCE_DIR@/tlv/include/tlv" \
                          "@PROJECT_BINARY_DIR@/generated/include/tlv/config.h" \
                          "@PROJECT_BINARY_DIR@/generated/include/tlv/version.h" \
-                         "@PROJECT_BINARY_DIR@/docs-input/tlv/profiles/emv.h" \
+                         "@PROJECT_BINARY_DIR@/docs-input/tlv/builtins/emv/emv.h" \
                          "@PROJECT_SOURCE_DIR@/tools/docs/c-api.dox"
-EXCLUDE                = "@PROJECT_SOURCE_DIR@/tlv/include/tlv/profiles/emv.h"
+EXCLUDE                = "@PROJECT_SOURCE_DIR@/tlv/include/tlv/builtins/emv/emv.h"
 FILE_PATTERNS          = *.h *.dox
 RECURSIVE              = YES
 STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@/tlv/include" \

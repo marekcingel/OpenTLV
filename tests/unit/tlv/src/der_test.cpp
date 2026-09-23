@@ -1,9 +1,9 @@
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #endif
-#include "tlv/formats/asn1/der.h"
-#include "tlv/profiles/der.h"
+#include "tlv/builtins/asn1/der.h"
+#include "tlv/builtins/asn1/der_profile.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>

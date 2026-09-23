@@ -1,6 +1,6 @@
 # ASN.1 DER-TLV
 
-Include `tlv/profiles/der.h` for allocation-free DER-TLV processing. Tags use the existing
+Include `tlv/builtins/asn1/der_profile.h` for allocation-free DER-TLV processing. Tags use the existing
 `tlv_tag_t` wire-byte representation; values are borrowed `tlv_value_t` ranges.
 The caller owns input and output storage. Existing BER behavior is unchanged.
 
@@ -26,7 +26,7 @@ contents are opaque by default: BOOLEAN representations, INTEGER minimality, BIT
 STRING padding, OID components and string/time/REAL encodings are only checked
 by the `_strict` functions described below. Schema constraints, implicit/explicit
 tagging, CHOICE resolution, DEFAULT omission and SET/SET OF ordering are still
-outside this scope: use [`tlv/profiles/der_schema.h`](#schema-aware-validation-and-encoding)
+outside this scope: use [`tlv/builtins/asn1/der_schema.h`](#schema-aware-validation-and-encoding)
 when those are required. Callers must supply canonical ASN.1 contents and
 ordering when full DER conformance is required beyond what `_strict` (or the
 schema-aware layer) covers. The encoder preserves contents and child order; it
@@ -35,7 +35,7 @@ does not convert arbitrary BER or repair noncanonical input.
 ## Read and inspect a tag
 
 ```c
-#include "tlv/profiles/der.h"
+#include "tlv/builtins/asn1/der_profile.h"
 
 const uint8_t input[] = {0x30, 3, 0x02, 1, 42};
 tlv_view_t view;
@@ -166,14 +166,14 @@ UNIVERSAL primitive tag number beyond 36.
 
 ## Schema-aware validation and encoding
 
-Include `tlv/profiles/der_schema.h` when canonical rules depend on ASN.1 type
+Include `tlv/builtins/asn1/der_schema.h` when canonical rules depend on ASN.1 type
 information that raw TLV structure alone cannot express: distinguishing SET
 from SET OF, validating implicitly tagged content against its underlying
 type, checking explicit-tag wrapper structure, resolving CHOICE alternatives,
 and enforcing REQUIRED/OPTIONAL/DEFAULT components (including DEFAULT
 omission). This is a fixed, small ASN.1 subset, **not an ASN.1 compiler or an
 unrestricted type system**; a schema is a borrowed, immutable, caller-authored
-static table, similar in spirit to [`tlv/schemas/schema.h`](../../guides/schemas.md)
+static table, similar in spirit to [`tlv/schema/schema.h`](../../guides/schemas.md)
 but distinct from it: `tlv_structure_schema_t` is format-agnostic and only
 expresses occurrence/membership, while `tlv_der_schema_type_t` is ASN.1-
 specific and expresses DER canonical semantics. A component's underlying

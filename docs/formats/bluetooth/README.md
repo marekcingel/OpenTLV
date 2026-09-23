@@ -11,7 +11,7 @@ only the format descriptor differs.
 
 | Setting | Value |
 | --- | --- |
-| Format header | `tlv/formats/bluetooth/bluetooth_ltv.h` |
+| Format header | `tlv/builtins/bluetooth/bluetooth_ltv.h` |
 | Reader descriptor | `tlv_reader_format_bluetooth_ltv` |
 | Writer descriptor | `tlv_writer_format_bluetooth_ltv` |
 | CMake option (default ON) | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
@@ -77,7 +77,7 @@ Select the format by passing `tlv_reader_format_bluetooth_ltv` to
 `view.value`.
 
 ```c
-#include "tlv/formats/bluetooth/bluetooth_ltv.h"
+#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/length.h"
 #include "tlv/reader/reader.h"
 
@@ -191,4 +191,4 @@ precedes its type, so Bluetooth LTV uses the optional whole-element callbacks
 size of everything before the value, and the value size in one step, so the
 reader, scanner, walker, schemas, copy helpers and the CLI work on it with no
 format-specific code. Bluetooth-specific wire rules stay in
-`tlv/src/formats/bluetooth/`.
+`tlv/src/builtins/bluetooth/`.

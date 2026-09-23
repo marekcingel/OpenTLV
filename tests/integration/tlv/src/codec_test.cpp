@@ -1,4 +1,4 @@
-#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
 #include <gtest/gtest.h>
 #include "tlv/codec/codec.h"
 #include "tlv/endian.h"

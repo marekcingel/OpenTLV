@@ -1,4 +1,4 @@
-#include "tlv/formats/format.h"
+#include "tlv/format.h"
 #include "tlv/config.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -6,7 +6,7 @@
 #include <cstring>
 #include <type_traits>
 #if OPENTLV_FORMAT_DEFAULT
-#include "tlv/formats/default/default.h"
+#include "tlv/builtins/fixed/default.h"
 #include <vector>
 #endif
 

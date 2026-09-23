@@ -1,7 +1,7 @@
 #ifndef OPENTLV_CODEC_STRUCTURE_H
 #define OPENTLV_CODEC_STRUCTURE_H
 #include "tlv/codec/codec.h"
-#include "tlv/schemas/schema.h"
+#include "tlv/schema/schema.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus

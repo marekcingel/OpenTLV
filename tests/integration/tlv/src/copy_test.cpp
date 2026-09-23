@@ -1,5 +1,5 @@
-#include "tlv/formats/fixed/fixed_1byte.h"
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/copy.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>

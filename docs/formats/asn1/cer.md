@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Format header | `tlv/formats/asn1/cer.h` |
+| Format header | `tlv/builtins/asn1/cer.h` |
 | Reader descriptor | `tlv_reader_format_cer` |
 | Writer descriptor | `tlv_writer_format_cer` |
 | CMake option (default ON) | `OPENTLV_FORMAT_CER` |
@@ -23,7 +23,7 @@ Canonical tag/length framing: a constructed value's length must be
 indefinite (EOC-terminated); a primitive value's length must be definite and
 minimally encoded. Generic I/O validates only the current element's
 identifier and length, not nested framing, EOC placement, or canonical
-string segmentation across descendants — use [tlv/profiles/cer.h](../../profiles/cer/README.md)
+string segmentation across descendants — use [tlv/builtins/asn1/cer_profile.h](../../profiles/cer/README.md)
 for that.
 
 See [shared memory ownership rules](../../guides/memory.md) before retaining a
@@ -35,7 +35,7 @@ This complete example writes and reads one opaque primitive byte. Exit code
 zero means success.
 
 ```c
-#include "tlv/formats/asn1/cer.h"
+#include "tlv/builtins/asn1/cer.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 

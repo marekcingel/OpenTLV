@@ -1,5 +1,5 @@
 #include "tlv/tag.h"
-#include "tlv/profiles/emv.h"
+#include "tlv/builtins/emv/emv.h"
 
 /* Compiled as C: enum constants must be valid integer constant expressions. */
 int tlv_test_c_tag_switch(void) {

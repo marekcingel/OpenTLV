@@ -1,4 +1,4 @@
-#include "tlv/formats/default/default.h"
+#include "tlv/builtins/fixed/default.h"
 /*
  * Simple example of using the tlv++ layer: writes two TLV items through
  * tlv::writer and reads them back through tlv::reader.

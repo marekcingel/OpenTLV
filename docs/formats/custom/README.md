@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Header | `tlv/formats/format.h` |
+| Header | `tlv/format.h` |
 | Reader setup | `tlv_reader_format_init` |
 | Writer setup | `tlv_writer_format_init` |
 | CMake option | None; generic callbacks are always available |

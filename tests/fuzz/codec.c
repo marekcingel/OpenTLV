@@ -1,5 +1,5 @@
 #include "common.h"
-#include "tlv/profiles/emv.h"
+#include "tlv/builtins/emv/emv.h"
 #include <string.h>
 
 #define FUZZ_CODEC_DIGITS_CAPACITY 4096
@@ -10,14 +10,14 @@ typedef struct {
 } fuzz_codec_entry;
 
 /* Every (context, tag) pair the EMV dictionary defines, so each tag's own
- * codec instance (one per definition; see tlv/src/profiles/emv.c) is fuzzed
+ * codec instance (one per definition; see tlv/src/builtins/emv/emv.c) is fuzzed
  * individually rather than only through one representative per value kind. */
 #define EMV_BEGIN(scope)
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
     {TLV_EMV_CONTEXT_##scope, &tlv_emv_tag_##name},
 #define EMV_END(scope)
 static const fuzz_codec_entry fuzz_codec_entries[] = {
-#include "tlv/profiles/emv_tags.def"
+#include "tlv/builtins/emv/emv_tags.def"
 };
 #undef EMV_BEGIN
 #undef EMV_TAG

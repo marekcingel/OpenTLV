@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 #if OPENTLV_FORMAT_FIXED_1BYTE
-#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
 #endif
 
 #include <array>

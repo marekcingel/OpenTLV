@@ -15,32 +15,32 @@
 #include "tlv/copy.h"
 #include "tlv/diagnostic.h"
 #include "tlv/endian.h"
-#include "tlv/formats/format.h"
+#include "tlv/format.h"
 
 #include "tlv/reader/reader.h"
 #include "tlv/reader/walker.h"
 #include "tlv/reader/scanner.h"
 #include "tlv/query/query.h"
 #include "tlv/writer/writer.h"
-#include "tlv/schemas/schema.h"
+#include "tlv/schema/schema.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_DEFAULT
-#include "tlv/formats/default/default.h"
+#include "tlv/builtins/fixed/default.h"
 #endif
 #if OPENTLV_FORMAT_FIXED_1BYTE
-#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
 #endif
 #if OPENTLV_FORMAT_BER
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #endif
 #if OPENTLV_FORMAT_DER
-#include "tlv/formats/asn1/der.h"
+#include "tlv/builtins/asn1/der.h"
 #endif
 #if OPENTLV_FORMAT_DER
-#include "tlv/profiles/der.h"
+#include "tlv/builtins/asn1/der_profile.h"
 #endif
 #if OPENTLV_PROFILE_EMV
-#include "tlv/profiles/emv.h"
+#include "tlv/builtins/emv/emv.h"
 #endif
 #if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"

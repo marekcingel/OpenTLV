@@ -2,7 +2,7 @@
 #include <cstring>
 
 #include "tlv++/tlv.hpp"
-#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
 
 int main() {
     const tlv::tag_t               tag = TLV_TAG(0x01);
