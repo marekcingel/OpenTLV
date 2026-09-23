@@ -6,18 +6,18 @@ set(HEADERS
 )
 
 set(SOURCES
-    src/test_tlvpp.cpp
+    test_tlvpp.cpp
 )
 
 if(test_group STREQUAL "unit")
-    list(APPEND SOURCES src/test_fixed_format.cpp src/test_diagnostic.cpp)
+    list(APPEND SOURCES builtins/fixed/test_fixed_format.cpp test_diagnostic.cpp)
     if(OPENTLV_DOCUMENT)
-        list(APPEND SOURCES src/test_document.cpp)
+        list(APPEND SOURCES document/test_document.cpp)
     endif()
 endif()
 
 if(test_group STREQUAL "integration")
-    list(APPEND SOURCES src/layers_test.cpp)
+    list(APPEND SOURCES layers_test.cpp)
 endif()
 
 add_executable(${test_target}
@@ -27,8 +27,7 @@ add_executable(${test_target}
 
 target_include_directories(${test_target}
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${OpenTLV_SOURCE_DIR}/tests/unit/tlv/src
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_link_libraries(${test_target} PRIVATE

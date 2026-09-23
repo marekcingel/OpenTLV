@@ -1,5 +1,6 @@
-//! Replays the C fuzz seed corpus (`tests/fuzz/corpus`) through the safe Rust
-//! API, so the bindings are checked against the same inputs as the C library.
+//! Replays the C fuzz seed corpus (the `corpus/` folder next to each fuzz
+//! harness under `tests/fuzz/`) through the safe Rust API, so the bindings
+//! are checked against the same inputs as the C library.
 //!
 //! The seeds are shared, never copied: a new seed added for the C harnesses is
 //! picked up here automatically. The checks are the same invariants the C
@@ -15,10 +16,13 @@ use opentlv::{encoded_size, Codec, Format, Limits, Profile, Reader, Strictness, 
 const MAX_TAG_SIZE: usize = 16;
 
 /// Reads every seed file of one corpus directory as `(file name, bytes)`.
-fn seeds(harness: &str) -> Vec<(String, Vec<u8>)> {
+///
+/// `path` is relative to `tests/fuzz/`, e.g. `corpus/read` or
+/// `builtins/asn1/corpus/der`, matching where each fuzz harness's own corpus lives.
+fn seeds(path: &str) -> Vec<(String, Vec<u8>)> {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../../tests/fuzz/corpus")
-        .join(harness);
+        .join("../../../tests/fuzz")
+        .join(path);
     let mut seeds: Vec<_> = fs::read_dir(&dir)
         .unwrap_or_else(|e| panic!("cannot read corpus {}: {e}", dir.display()))
         .map(|entry| {
@@ -27,14 +31,14 @@ fn seeds(harness: &str) -> Vec<(String, Vec<u8>)> {
             (name, fs::read(&path).unwrap())
         })
         .collect();
-    assert!(!seeds.is_empty(), "corpus {harness} is empty");
+    assert!(!seeds.is_empty(), "corpus {path} is empty");
     seeds.sort();
     seeds
 }
 
 #[test]
 fn reader_handles_every_read_seed_in_every_format() {
-    for (name, data) in seeds("read") {
+    for (name, data) in seeds("reader/corpus/read") {
         for format in Format::ALL {
             let mut reader = Reader::with_format(&data, format);
             let mut previous = 0;
@@ -71,7 +75,7 @@ fn reader_handles_every_read_seed_in_every_format() {
 
 #[test]
 fn profiles_are_consistent_on_every_der_seed() {
-    for (name, data) in seeds("der") {
+    for (name, data) in seeds("builtins/asn1/corpus/der") {
         for profile in [Profile::Der, Profile::Cer] {
             let limits = profile.default_limits();
             let canonical = profile.validate(&data, &limits, Strictness::Canonical);
@@ -108,8 +112,8 @@ fn profiles_are_consistent_on_every_der_seed() {
 
 #[test]
 fn every_roundtrip_seed_round_trips_in_every_format() {
-    for (name, data) in seeds("roundtrip") {
-        // Layout (see tests/fuzz/README.md): a tag size byte, that many tag
+    for (name, data) in seeds("corpus/roundtrip") {
+        // Layout (see docs/development/fuzzing.md#seed-corpus): a tag size byte, that many tag
         // bytes, then the value. Every input is also a value under tag 0x04.
         let tag_len = data.first().map_or(0, |b| *b as usize % (MAX_TAG_SIZE + 1));
         let tag_len = tag_len.min(data.len().saturating_sub(1));
@@ -186,7 +190,7 @@ fn every_emv_codec_round_trips_on_every_codec_seed() {
         codecs.len()
     );
 
-    for (seed, data) in seeds("codec") {
+    for (seed, data) in seeds("builtins/emv/corpus/codec") {
         for (codec_name, codec) in &codecs {
             let Ok(value) = codec.decode(&data) else {
                 continue;

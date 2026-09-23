@@ -10,7 +10,7 @@
 # #includes every header would compile, but its templates (codec, walker,
 # schema, the compat.hpp polyfills, ...) would never be instantiated and so
 # would never actually be analyzed. Instead this points clang-tidy at the
-# tlv++ unit test TU (tests/unit/tlv++/src/test_tlvpp.cpp), which already
+# tlv++ unit test TU (tests/unit/test_tlvpp.cpp), which already
 # #includes tlv++/tlv.hpp (transitively pulling in every other tlv++
 # header) and exercises it with real instantiations; --header-filter then
 # restricts *reported* findings to tlv++/include, but the test file's own
@@ -60,7 +60,7 @@ function(opentlv_add_clang_tidy_targets)
             COMMAND ${OPENTLV_CLANG_TIDY_EXECUTABLE}
                 -p "${CMAKE_BINARY_DIR}"
                 "--header-filter=${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../tlv++/include/.*"
-                "${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../tests/unit/tlv++/src/test_tlvpp.cpp"
+                "${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../tests/unit/test_tlvpp.cpp"
             COMMENT "Running clang-tidy static analysis on tlv++"
             VERBATIM
         )

@@ -246,12 +246,17 @@ for reads and a `tlv_writer_format_t` for writes. See
 
 ## Build and run tests
 
-Tests are classified by purpose under `tests/unit/{tlv,tlv++}` and
-`tests/integration/{tlv,tlv++}`. Unit tests exercise component contracts,
-including callback errors, storage and state guarantees. Integration tests
-exercise concrete wire formats, reference vectors, roundtrips, nested traversal,
-recovery and interactions between layers. A file containing both kinds of cases
-is split between the two directories; classify new cases by what they verify.
+Tests are classified by purpose under `tests/unit/` and `tests/integration/`,
+each mirroring the library's own subsystem/`builtins/<protocol>/` layout
+underneath (for example `tests/unit/reader/reader_test.cpp` and
+`tests/integration/reader/reader_test.cpp`). Unit tests exercise component
+contracts, including callback errors, storage and state guarantees.
+Integration tests exercise concrete wire formats, reference vectors,
+roundtrips, nested traversal, recovery and interactions between layers. A
+subsystem or built-in without an integration concern (nothing there combines
+multiple layers) has no file under `tests/integration/`. A file containing
+both kinds of cases is split between the two directories; classify new cases
+by what they verify. See [architecture](../concepts/architecture.md#layout).
 
 `OPENTLV_BUILD_TESTS` is the main switch. With it enabled, both
 `OPENTLV_BUILD_UNIT_TESTS` and `OPENTLV_BUILD_INTEGRATION_TESTS` default to `ON`.

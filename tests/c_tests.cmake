@@ -6,42 +6,42 @@ set(HEADERS
 )
 
 set(SOURCES
-    src/architecture_test.cpp
-    src/emv_test.cpp
-    src/emv_schema_test.cpp
-    src/dol_test.cpp
-    src/tag_c_test.c
-    src/codec_test.cpp
-    src/copy_test.cpp
-    src/diagnostic_test.cpp
-    src/endian_test.cpp
-    src/endian_c_test.c
-    src/length_test.cpp
-    src/value_test.cpp
-    src/dhcp_option_tests.cpp
-    src/test_tlv.cpp
-    src/reader_test.cpp
-    src/scanner_test.cpp
-    src/schema_test.cpp
-    src/schema_report_test.cpp
-    src/walker_test.cpp
-    src/query_test.cpp
-    src/document_test.cpp
-    src/writer_test.cpp
-    src/format_init_test.cpp
-    src/format_test.cpp
-    src/format_ber_test.cpp
-    src/der_test.cpp
-    src/der_values_test.cpp
-    src/der_schema_test.cpp
-    src/cer_test.cpp
-    src/cer_values_test.cpp
-    src/format_fixed_1byte_test.cpp
-    src/format_bluetooth_ltv_test.cpp
-    src/format_bluetooth_ltv_conformance_test.cpp
-    src/tag_test.cpp
-    src/view_test.cpp
-    src/versiontest.cpp
+    architecture_test.cpp
+    copy_test.cpp
+    diagnostic_test.cpp
+    endian_test.cpp
+    endian_c_test.c
+    length_test.cpp
+    value_test.cpp
+    tag_test.cpp
+    view_test.cpp
+    versiontest.cpp
+    format_init_test.cpp
+    format_test.cpp
+    test_tlv.cpp
+    reader/reader_test.cpp
+    reader/scanner_test.cpp
+    reader/walker_test.cpp
+    writer/writer_test.cpp
+    query/query_test.cpp
+    schema/schema_test.cpp
+    schema/schema_report_test.cpp
+    document/document_test.cpp
+    codec/codec_test.cpp
+    builtins/asn1/format_ber_test.cpp
+    builtins/asn1/der_test.cpp
+    builtins/asn1/der_values_test.cpp
+    builtins/asn1/der_schema_test.cpp
+    builtins/asn1/cer_test.cpp
+    builtins/asn1/cer_values_test.cpp
+    builtins/emv/emv_test.cpp
+    builtins/emv/emv_schema_test.cpp
+    builtins/emv/dol_test.cpp
+    builtins/emv/tag_c_test.c
+    builtins/bluetooth/format_bluetooth_ltv_test.cpp
+    builtins/bluetooth/format_bluetooth_ltv_conformance_test.cpp
+    builtins/fixed/format_fixed_1byte_test.cpp
+    builtins/fixed/dhcp_option_tests.cpp
 )
 
 # A split source exists only in the group containing relevant cases.
@@ -54,67 +54,69 @@ endforeach()
 # Tests that name an optional component follow the same feature selection.
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_FIXED_1BYTE))
-        list(REMOVE_ITEM SOURCES src/codec_test.cpp)
+        list(REMOVE_ITEM SOURCES codec/codec_test.cpp)
     endif()
 endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_FIXED_1BYTE AND OPENTLV_FORMAT_BER))
-        list(REMOVE_ITEM SOURCES src/copy_test.cpp)
+        list(REMOVE_ITEM SOURCES copy_test.cpp)
     endif()
 endif()
 if(NOT OPENTLV_FORMAT_DER)
-    list(REMOVE_ITEM SOURCES src/der_test.cpp src/der_values_test.cpp src/der_schema_test.cpp)
+    list(REMOVE_ITEM SOURCES builtins/asn1/der_test.cpp builtins/asn1/der_values_test.cpp
+                                 builtins/asn1/der_schema_test.cpp)
 endif()
 if(NOT OPENTLV_FORMAT_CER)
-    list(REMOVE_ITEM SOURCES src/cer_test.cpp src/cer_values_test.cpp)
+    list(REMOVE_ITEM SOURCES builtins/asn1/cer_test.cpp builtins/asn1/cer_values_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_DEFAULT))
-    list(REMOVE_ITEM SOURCES src/dhcp_option_tests.cpp)
+    list(REMOVE_ITEM SOURCES builtins/fixed/dhcp_option_tests.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_BER AND OPENTLV_PROFILE_EMV))
-    list(REMOVE_ITEM SOURCES src/emv_test.cpp src/emv_schema_test.cpp src/dol_test.cpp src/tag_c_test.c)
+    list(REMOVE_ITEM SOURCES builtins/emv/emv_test.cpp builtins/emv/emv_schema_test.cpp
+                                 builtins/emv/dol_test.cpp builtins/emv/tag_c_test.c)
 endif()
 if(NOT (OPENTLV_FORMAT_BER))
-    list(REMOVE_ITEM SOURCES src/format_ber_test.cpp src/schema_report_test.cpp)
+    list(REMOVE_ITEM SOURCES builtins/asn1/format_ber_test.cpp schema/schema_report_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_FIXED_1BYTE))
-    list(REMOVE_ITEM SOURCES src/format_fixed_1byte_test.cpp)
+    list(REMOVE_ITEM SOURCES builtins/fixed/format_fixed_1byte_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_BLUETOOTH_LTV))
-    list(REMOVE_ITEM SOURCES src/format_bluetooth_ltv_test.cpp
-                                 src/format_bluetooth_ltv_conformance_test.cpp)
+    list(REMOVE_ITEM SOURCES builtins/bluetooth/format_bluetooth_ltv_test.cpp
+                                 builtins/bluetooth/format_bluetooth_ltv_conformance_test.cpp)
 endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED_1BYTE))
-        list(REMOVE_ITEM SOURCES src/reader_test.cpp)
+        list(REMOVE_ITEM SOURCES reader/reader_test.cpp)
     endif()
 endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED_1BYTE))
-        list(REMOVE_ITEM SOURCES src/scanner_test.cpp)
+        list(REMOVE_ITEM SOURCES reader/scanner_test.cpp)
     endif()
 endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_FIXED_1BYTE))
-        list(REMOVE_ITEM SOURCES src/schema_test.cpp)
+        list(REMOVE_ITEM SOURCES schema/schema_test.cpp)
     endif()
 endif()
 if(NOT (OPENTLV_FORMAT_DEFAULT))
-    list(REMOVE_ITEM SOURCES src/test_tlv.cpp)
+    list(REMOVE_ITEM SOURCES test_tlv.cpp)
 endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED_1BYTE))
-        list(REMOVE_ITEM SOURCES src/walker_test.cpp)
+        list(REMOVE_ITEM SOURCES reader/walker_test.cpp)
     endif()
 endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED_1BYTE))
-        list(REMOVE_ITEM SOURCES src/writer_test.cpp)
+        list(REMOVE_ITEM SOURCES writer/writer_test.cpp)
     endif()
 endif()
 
 if(NOT OPENTLV_DOCUMENT)
-    list(REMOVE_ITEM SOURCES src/document_test.cpp)
+    list(REMOVE_ITEM SOURCES document/document_test.cpp)
 endif()
 
 add_executable(${test_target}
@@ -124,8 +126,7 @@ add_executable(${test_target}
 
 target_include_directories(${test_target}
     PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_link_libraries(${test_target} PRIVATE

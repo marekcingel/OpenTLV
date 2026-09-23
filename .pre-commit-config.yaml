@@ -2,7 +2,7 @@
 # (identify sniffs content, not .gitattributes), so trailing-whitespace and
 # end-of-file-fixer can silently corrupt them by adding/removing bytes.
 # Exclude the same paths .gitattributes marks `binary`.
-exclude: ^(tests/fuzz/corpus/|tools/cli/.*\.bin$)
+exclude: ^(tests/fuzz/(.*/)?corpus/|tools/cli/.*\.bin$)
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks

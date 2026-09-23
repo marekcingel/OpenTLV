@@ -56,10 +56,53 @@ not ordinary TLV structure and so is not exercised by any other target.
 Earlier visitor effects are not rolled back. The suite checks these documented
 exceptions rather than requiring every output to remain unchanged on error.
 
+## Seed corpus
+
+Each harness's checked-in seed corpus lives next to it, under a `corpus/`
+folder in the same subsystem or built-in directory of `tests/fuzz/`, which
+mirrors `tlv/src`'s own layout: `tests/fuzz/reader/corpus/read` and
+`tests/fuzz/reader/corpus/walk_tree` for the generic reader/walker targets,
+`tests/fuzz/corpus/roundtrip` for the cross-cutting round-trip target, and
+`tests/fuzz/builtins/asn1/corpus/{der,der_schema}` /
+`tests/fuzz/builtins/emv/corpus/{codec,dol}` for the built-in-specific ones.
+Checked-in seed files use the `.bin` extension to identify binary test inputs.
+Only seed inputs belong in these corpus directories; mutation discoveries and
+crash artifacts go under the build directory instead.
+
+`corpus/read`, `corpus/walk_tree`, and `builtins/asn1/corpus/der` contain raw
+TLV bytes, with no selector prefix. Every enabled format receives the same
+input. A seed may be valid for one format and invalid for another. Walker and
+DER limits are also derived from input bytes without removing them from the
+parsed input.
+
+Seed names describe framing cases: empty input/value, primitive values,
+concatenated elements, truncated tag/length/value, invalid/overflowing lengths,
+high-number tags, nested containers, BER indefinite framing and EOC errors,
+noncanonical DER framing, and depth-limit boundaries. `bluetooth-ltv-*` seeds
+cover the length-first layout: valid advertising data, zero-length padding,
+truncated and overrunning lengths, the maximum length byte, and type-only
+elements. The raw formats use `0x20` as a test-only constructed bit in the walker.
+
+`corpus/roundtrip` uses a different layout: byte 0 modulo
+`17` gives the candidate tag size, clamped to the remaining
+input size; subsequent bytes hold that tag, followed by its value. Empty input
+produces an empty candidate tag/value. Every input is also tested as a value
+with the valid primitive tag `04`, ensuring successful writes are exercised.
+Long-value seeds cover 127/128 and 255/256 length transitions, including the
+Bluetooth LTV 254/255-byte value limit.
+
+`builtins/emv/corpus/codec` also contains raw bytes with no selector prefix:
+every input is tried as the raw value of every EMV dictionary tag's codec, so
+a seed only needs to be interesting for one value kind (BCD/binary numbers,
+dates, times, account/biometric enums, cryptogram info, digit strings) to be
+useful. Names describe the targeted kind and boundary: valid/invalid BCD,
+calendar and clock range violations, undefined enum values, and digit strings
+with mid-string or leading padding nibbles.
+
 ## Run locally
 
 Run from the repository root. Keep discoveries in a writable build directory;
-the checked-in [seed corpus](../../tests/fuzz/README.md) is the second corpus path.
+the checked-in seed corpus (see [above](#seed-corpus)) is the second corpus path.
 For one target:
 
 ```sh
@@ -67,7 +110,7 @@ export ASAN_OPTIONS=abort_on_error=1:detect_leaks=1
 export UBSAN_OPTIONS=halt_on_error=1:abort_on_error=1:print_stacktrace=1
 mkdir -p build/fuzz/corpus/read build/fuzz/findings/read
 build/fuzz/tests/fuzz/fuzz_read \
-  build/fuzz/corpus/read tests/fuzz/corpus/read \
+  build/fuzz/corpus/read tests/fuzz/reader/corpus/read \
   -max_total_time=60 -max_len=4096 -timeout=10 -rss_limit_mb=2048 \
   -artifact_prefix=build/fuzz/findings/read/
 ```
@@ -77,11 +120,20 @@ For all enabled targets (Bash):
 ```bash
 set -o pipefail
 status=0
+declare -A corpus_dir=(
+  [read]=tests/fuzz/reader/corpus/read
+  [walk_tree]=tests/fuzz/reader/corpus/walk_tree
+  [roundtrip]=tests/fuzz/corpus/roundtrip
+  [der]=tests/fuzz/builtins/asn1/corpus/der
+  [der_schema]=tests/fuzz/builtins/asn1/corpus/der_schema
+  [codec]=tests/fuzz/builtins/emv/corpus/codec
+  [dol]=tests/fuzz/builtins/emv/corpus/dol
+)
 for target in read walk_tree der der_schema roundtrip codec dol; do
   executable="build/fuzz/tests/fuzz/fuzz_$target"
   [ -x "$executable" ] || continue
   mkdir -p "build/fuzz/corpus/$target" "build/fuzz/findings/$target"
-  "$executable" "build/fuzz/corpus/$target" "tests/fuzz/corpus/$target" \
+  "$executable" "build/fuzz/corpus/$target" "${corpus_dir[$target]}" \
     -max_total_time=60 -max_len=4096 -timeout=10 -rss_limit_mb=2048 \
     -artifact_prefix="build/fuzz/findings/$target/" \
     2>&1 | tee "build/fuzz/findings/$target/run.log" || status=1

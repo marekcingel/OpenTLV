@@ -55,10 +55,18 @@ jobs:
           set -o pipefail
           status=0
           mkdir -p build/fuzz/findings
+          declare -A corpus_dir=(
+            [read]=tests/fuzz/reader/corpus/read
+            [walk_tree]=tests/fuzz/reader/corpus/walk_tree
+            [roundtrip]=tests/fuzz/corpus/roundtrip
+            [der]=tests/fuzz/builtins/asn1/corpus/der
+            [der_schema]=tests/fuzz/builtins/asn1/corpus/der_schema
+            [codec]=tests/fuzz/builtins/emv/corpus/codec
+          )
           for target in read walk_tree der der_schema roundtrip codec; do
             mkdir -p "build/fuzz/findings/$target" "build/fuzz/corpus/$target"
             "build/fuzz/tests/fuzz/fuzz_$target" \
-              "build/fuzz/corpus/$target" "tests/fuzz/corpus/$target" \
+              "build/fuzz/corpus/$target" "${corpus_dir[$target]}" \
               -max_total_time=60 -max_len=4096 -timeout=10 -rss_limit_mb=2048 \
               -artifact_prefix="build/fuzz/findings/$target/" \
               2>&1 | tee "build/fuzz/findings/$target/run.log" || status=1
