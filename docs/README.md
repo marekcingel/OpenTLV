@@ -18,6 +18,7 @@ Documentation is grouped by purpose. See
 - [Borrowed TLV values](concepts/value.md)
 - [Logical TLV value lengths](concepts/length.md)
 - [Integer byte-order conversions](concepts/endian.md)
+- [Common conceptual model for language bindings](concepts/bindings.md)
 
 ## Guides
 

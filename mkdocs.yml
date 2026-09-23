@@ -110,6 +110,7 @@ nav:
       - Borrowed values: concepts/value.md
       - Logical lengths: concepts/length.md
       - Byte order: concepts/endian.md
+      - Language bindings: concepts/bindings.md
   - Guides:
       - Memory ownership: guides/memory.md
       - Diagnostics: guides/diagnostics.md

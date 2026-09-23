@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Document the common conceptual model every language binding follows (Reader, Writer, Document, Entry, Tag, Schema, Codec, Diagnostics), the design principle that bindings adapt ergonomics rather than concepts, and the rule that the public OpenTLV C API is the binding boundary and a binding must not depend on another language's binding; see [Language bindings](docs/concepts/bindings.md). (#273)
 - Add a Rust tab, alongside C and C++, to the quick start example in [Getting started](docs/getting-started/README.md#quick-start); `scripts/check_doc_examples.py` now also verifies a documented example against a Rust binding source under `bindings/rust/*/examples/`. (#283)
 - Add a `README.md` to `examples/tlv/src/` and `examples/tlv++/src/` grouping their example files into "start here," use cases, API tour and builtins, so a newcomer has one entry point instead of a flat file listing. (#282)
 - Add matching `parse`, `write`, `query` and `validate` use-case examples across C, C++ and Rust (Rust has no `query` example yet; the WASM/JS binding only has `parse`) that parse, build, address or check the same BER-TLV document, plus a Rust `quick_start` example matching the existing C and C++ ones; see `examples/tlv`, `examples/tlv++`, `bindings/rust/opentlv/examples` and `bindings/wasm/examples`. (#282)

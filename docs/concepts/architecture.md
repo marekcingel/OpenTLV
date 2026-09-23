@@ -248,6 +248,11 @@ cmake --build build-minimal --parallel
 
 ## Migration
 
+OpenTLV is before 1.0.0, so the public API is still allowed to change; see
+[C ABI compatibility](../development/abi-compatibility.md). This section is a
+best-effort record of the breaking changes below, not a compatibility
+guarantee or an exhaustive migration guide.
+
 Update flat includes to the folders above (`tlv/reader.h` becomes
 `tlv/reader/reader.h`, and so on). Concrete format declarations use
 `tlv/builtins/fixed/default.h`, `tlv/builtins/fixed/fixed_1byte.h`,
