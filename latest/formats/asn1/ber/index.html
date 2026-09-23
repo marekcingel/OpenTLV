@@ -2770,7 +2770,7 @@ reports insufficient capacity; use the separate size query for sizing.
 <code>tlv_ber_writer_write_indefinite</code> appends to a stateful writer initialized with
 <code>&amp;tlv_writer_format_ber</code> and advances its position only on success.</p>
 <p>The C++ <code>tlv::reader</code>, traversal, and schema wrappers support indefinite input
-through the same BER descriptor. Include <code>tlv++/ber.hpp</code> for
+through the same BER descriptor. Include <code>tlv++/builtins/asn1/ber.hpp</code> for
 <code>tlv::ber_write_indefinite(buffer, capacity, tag, children)</code>, returning
 <code>expected&lt;size_t, error&gt;</code>. The ordinary C++ writer remains definite-length.
 The C core does not allocate; C++ error construction retains its existing

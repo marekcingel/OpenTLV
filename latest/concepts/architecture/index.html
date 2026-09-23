@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#layered-opentlv-architecture-65-279" class="md-skip">
+        <a href="#layered-opentlv-architecture-65-279-280" class="md-skip">
           Skip to content
         </a>
       
@@ -2608,7 +2608,7 @@
   
 
 
-<h1 id="layered-opentlv-architecture-65-279">Layered OpenTLV architecture (#65, #279)<a class="headerlink" href="#layered-opentlv-architecture-65-279" title="Permanent link">&para;</a></h1>
+<h1 id="layered-opentlv-architecture-65-279-280">Layered OpenTLV architecture (#65, #279, #280)<a class="headerlink" href="#layered-opentlv-architecture-65-279-280" title="Permanent link">&para;</a></h1>
 <p>OpenTLV provides one C library (<code>tlv</code>) and a header-only C++ interface (<code>tlv++</code>)
 that links to it. Core is a logical responsibility, not a directory. Optional
 components are concrete formats and profiles, rather than entire layers.</p>
@@ -2704,6 +2704,31 @@ source files. <code>config.h</code> and <code>version.h</code> are generated int
 directory. The public aggregate <code>tlv/tlv.h</code> includes enabled components; generic
 headers include only their direct contracts. Use explicit headers for small
 consumers. C++ common types are in <code>tlv++/types.hpp</code>, independent of codecs.</p>
+<p>Public headers under <code>tlv++/include/tlv++/</code> mirror the same layout (#280),
+grouping the C++ wrapper for each generic subsystem alongside its C
+counterpart and each protocol's wrapper under <code>builtins/&lt;protocol&gt;/</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>tlv++/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  types.hpp, compat.hpp, diagnostic.hpp, tlv.hpp
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  reader/    reader.hpp, walker.hpp
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  query/     query.hpp
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  document/  document.hpp
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  writer/    writer.hpp
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  schema/    schema.hpp
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  codec/     codec.hpp, structure.hpp, registry.hpp
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  builtins/
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    fixed/ fixed_format.hpp
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    asn1/  ber.hpp
+</code></pre></div>
+<p><code>tlv++</code> is header-only, so there is no separate <code>tlv++/src/</code>. <code>registry.hpp</code>
+sits under <code>codec/</code> alongside <code>codec.hpp</code> and <code>structure.hpp</code>: it is a
+runtime-dispatch complement to the compile-time <code>TlvCodec</code> concept, with no C
+counterpart. Only the generic subsystems and protocols that already have a
+C++ wrapper get a folder; a protocol built-in only in C (Bluetooth LTV, EMV)
+has no <code>tlv++/builtins/&lt;protocol&gt;/</code> folder until a C++ wrapper for it exists.
+Every <code>tlv++</code> header keeps using full paths from the include root
+(<code>#include "tlv++/reader/reader.hpp"</code>, not a relative <code>#include
+"reader.hpp"</code>), so moving a header between folders only requires updating
+<code>#include</code> lines that name it, not every include inside sibling headers.</p>
 <h2 id="mutable-document">Mutable document<a class="headerlink" href="#mutable-document" title="Permanent link">&para;</a></h2>
 <p><code>document/document.h</code> is a layer above the reader, writer and query facilities. It
 parses input into an owned tree, lets the tree be searched, changed, extended and
@@ -2840,9 +2865,9 @@ config macros when supporting reduced builds.</p>
 omitted. Generic architecture tests use an application-defined format and run
 even when all built-ins are disabled. The benchmark uses the default format and
 is built only when that component is enabled.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-minimal<span class="w"> </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_FIXED_1BYTE<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-minimal<span class="w"> </span>--parallel
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-minimal<span class="w"> </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_FIXED_1BYTE<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-minimal<span class="w"> </span>--parallel
 </code></pre></div>
 <h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>
 <p>Update flat includes to the folders above (<code>tlv/reader.h</code> becomes
@@ -2863,6 +2888,21 @@ and consolidates under <code>tlv/builtins/emv/</code>: <code>tlv/profiles/emv.h<
 unchanged, and <code>tlv/codec/emv.h</code> (the semantic value codecs) becomes
 <code>tlv/builtins/emv/emv_codec.h</code> to avoid colliding with the umbrella EMV
 header. <code>tlv/schemas/schema.h</code> becomes <code>tlv/schema/schema.h</code>.</p>
+<p><code>tlv++</code>'s previously flat <code>tlv++/include/tlv++/*.hpp</code> headers (#280) move
+into the same folders as their C counterparts:
+<code>tlv++/reader.hpp</code>/<code>tlv++/walker.hpp</code> become
+<code>tlv++/reader/reader.hpp</code>/<code>tlv++/reader/walker.hpp</code>;
+<code>tlv++/writer.hpp</code>, <code>tlv++/query.hpp</code> and <code>tlv++/schema.hpp</code> become
+<code>tlv++/writer/writer.hpp</code>, <code>tlv++/query/query.hpp</code> and
+<code>tlv++/schema/schema.hpp</code>; <code>tlv++/codec.hpp</code>, <code>tlv++/structure.hpp</code> and
+<code>tlv++/registry.hpp</code> become <code>tlv++/codec/codec.hpp</code>,
+<code>tlv++/codec/structure.hpp</code> and <code>tlv++/codec/registry.hpp</code>;
+<code>tlv++/document.hpp</code> becomes <code>tlv++/document/document.hpp</code>; and
+<code>tlv++/ber.hpp</code>/<code>tlv++/fixed_format.hpp</code> become
+<code>tlv++/builtins/asn1/ber.hpp</code>/<code>tlv++/builtins/fixed/fixed_format.hpp</code>.
+<code>tlv++/types.hpp</code>, <code>tlv++/compat.hpp</code>, <code>tlv++/diagnostic.hpp</code> and the
+aggregate <code>tlv++/tlv.hpp</code> are unaffected. No type, function or namespace
+changed; only header locations did.</p>
 <p>Replace typed <code>writer.write(value)</code> with
 <code>tlv::write_value(writer, value)</code>. Raw <code>writer.write(tag, bytes)</code> is unchanged.
 Split custom descriptors into <code>tlv_reader_format_t</code> and <code>tlv_writer_format_t</code>.

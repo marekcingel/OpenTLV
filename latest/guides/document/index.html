@@ -2713,9 +2713,9 @@ that already uses the writer's spelling encodes back to identical bytes.</p>
 <p>A document is not synchronised: concurrent reads are fine, any modification
 needs exclusive access.</p>
 <h2 id="c">C++<a class="headerlink" href="#c" title="Permanent link">&para;</a></h2>
-<p><code>tlv++/document.hpp</code> wraps the same API. <code>tlv::document</code> owns the tree and is
+<p><code>tlv++/document/document.hpp</code> wraps the same API. <code>tlv::document</code> owns the tree and is
 move-only; <code>tlv::node</code> is a cheap non-owning handle.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv++/document.hpp&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv++/document/document.hpp&gt;</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">tlv</span><span class="o">::</span><span class="n">document_format</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="n">tlv_reader_format_ber</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_writer_format_ber</span><span class="p">,</span>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">                            </span><span class="n">tlv_ber_is_constructed</span><span class="p">);</span>

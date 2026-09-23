@@ -2531,13 +2531,13 @@ the object without generating bytes. Invalid framing/schema output returns
 on failure are unspecified and failed encoding reports zero written bytes.
 Object storage and encoded storage belong to the caller.</p>
 <p>C++ <code>tlv::decode_structure&lt;T&gt;</code> and <code>tlv::encode_structure</code> in
-<code>tlv++/structure.hpp</code> adapt this descriptor without allocating temporary output.
+<code>tlv++/codec/structure.hpp</code> adapt this descriptor without allocating temporary output.
 T must match the descriptor's representation and be default constructible.
 For a tested two-field mapping, see
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/integration/tlv/src/architecture_test.cpp"><code>architecture_test.cpp</code></a> and
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/tests/integration/tlv++/src/layers_test.cpp"><code>layers_test.cpp</code></a>.</p>
 <p>Existing tag-associated C++ codecs remain supported. Use
-<code>tlv::write_value(writer, value)</code> from <code>tlv++/codec.hpp</code> instead of the former
+<code>tlv::write_value(writer, value)</code> from <code>tlv++/codec/codec.hpp</code> instead of the former
 <code>writer.write(value)</code>. This explicit convenience helper may allocate a temporary
 vector. Raw readers/writers now include only <code>tlv++/types.hpp</code> and the C I/O
 contracts; they do not depend on codecs.</p>

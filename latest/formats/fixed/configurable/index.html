@@ -2559,7 +2559,7 @@ encodes the same bytes.</p>
 <tbody>
 <tr>
 <td>Header</td>
-<td><code>tlv++/fixed_format.hpp</code> (also usable without the rest of <code>tlv++</code>)</td>
+<td><code>tlv++/builtins/fixed/fixed_format.hpp</code> (also usable without the rest of <code>tlv++</code>)</td>
 </tr>
 <tr>
 <td>Template</td>
@@ -2662,7 +2662,7 @@ many value bytes.</p>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstddef&gt;</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/fixed_format.hpp"</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/builtins/fixed/fixed_format.hpp"</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/tlv.hpp"</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">using</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">fixed_format</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_LITTLE_ENDIAN</span><span class="o">&gt;</span><span class="p">;</span>
