@@ -2681,10 +2681,11 @@ Run <code>build/tlv_demo</code> (Ninja/Makefiles), or <code>build/Release/tlv_de
 (Visual Studio). Exit code zero indicates a successful round trip.</p>
 <p>Both programs are built by the <code>example-tlv-quick-start</code> and
 <code>example-tlv++-quick-start</code> targets whenever <code>OPENTLV_BUILD_EXAMPLES</code> is <code>ON</code>
-(the default) and run in CI. The <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/basic_usage.c">C API tour</a>,
-the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/basic_usage.cpp">C++ example</a> with the default
-format, and the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/emv/src/tag_decoding.c">EMV example</a> are further
-runnable examples.</p>
+(the default) and run in CI. The <a href="https://github.com/marekcingel/OpenTLV/tree/main/examples/tlv/src">C examples</a>, one topic
+per file (sequential I/O, explicit copies, schema validation, codecs, a custom
+format, and the BER and CER builtins), the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/basic_usage.cpp">C++ example</a>
+with the default format, and the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/builtins/emv/tag_decoding.c">EMV example</a>
+are further runnable examples.</p>
 <h2 id="install-and-generate-distribution-archives">Install and generate distribution archives<a class="headerlink" href="#install-and-generate-distribution-archives" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span>-G<span class="w"> </span>Ninja<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span>-DOPENTLV_BUILD_TESTS<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_EXAMPLES<span class="o">=</span>OFF
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel

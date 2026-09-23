@@ -2974,7 +2974,7 @@ with <code>tlv_emv_codec_amount</code> into caller-owned storage. Currency and d
 come from application context; the codec does not assign them. This one data
 object does not represent a complete or validated transaction.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/emv/src/tag_decoding.c">examples/emv/src/tag_decoding.c</a> walks
+<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/builtins/emv/tag_decoding.c">examples/tlv/src/builtins/emv/tag_decoding.c</a> walks
 a whole record instead of one element: it looks up every child tag with
 <code>tlv_emv_find()</code>, checks its length with <code>tlv_emv_validate_length()</code>, decodes it
 according to <code>value_kind</code>, and leaves a tag that is unknown or has an invalid
