@@ -1,6 +1,6 @@
 # ASN.1 CER-TLV
 
-Include `tlv/profiles/cer.h` for allocation-free CER-TLV processing. Tags use the existing
+Include `tlv/builtins/asn1/cer_profile.h` for allocation-free CER-TLV processing. Tags use the existing
 `tlv_tag_t` wire-byte representation; values are borrowed `tlv_value_t` ranges.
 The caller owns input and output storage. CER is a sibling of the
 [DER profile](../der/README.md): it reuses the shared BER wire helpers and, through
@@ -30,7 +30,7 @@ DEFAULT omission and SET/SET OF ordering remain outside this scope regardless.
 ## Read and traverse
 
 ```c
-#include "tlv/profiles/cer.h"
+#include "tlv/builtins/asn1/cer_profile.h"
 
 const uint8_t input[] = {0x30, 0x80, 0x02, 1, 42, 0, 0}; /* SEQUENCE(indefinite){ INTEGER 42 } */
 tlv_view_t view;

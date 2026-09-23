@@ -11,7 +11,7 @@
 #include <unistd.h>
 #endif
 #if OPENTLV_PROFILE_EMV
-#include "tlv/profiles/emv.h"
+#include "tlv/builtins/emv/emv.h"
 #endif
 
 static int environment_excludes_color(void) {

@@ -1,6 +1,6 @@
 #include "tlv/writer/writer.h"
 #include "tlv/length.h"
-#include "../formats/format_internal.h"
+#include "../format_internal.h"
 #include <string.h>
 
 tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity,

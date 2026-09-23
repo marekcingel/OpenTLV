@@ -2,8 +2,8 @@
 #define OPENTLV_SCANNER_H
 
 #include "tlv/error.h"
-#include "tlv/formats/format.h"
-#include "tlv/schemas/schema.h"
+#include "tlv/format.h"
+#include "tlv/schema/schema.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus

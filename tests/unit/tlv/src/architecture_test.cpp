@@ -5,11 +5,11 @@
 #include "tlv/codec/structure.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/copy.h"
 #endif
 #if OPENTLV_PROFILE_EMV
-#include "tlv/profiles/emv.h"
+#include "tlv/builtins/emv/emv.h"
 #endif
 #include <gtest/gtest.h>
 #include <cstring>

@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Format header | `tlv/formats/fixed/fixed_1byte.h` |
+| Format header | `tlv/builtins/fixed/fixed_1byte.h` |
 | Reader descriptor | `tlv_reader_format_fixed_1byte` |
 | Writer descriptor | `tlv_writer_format_fixed_1byte` |
 | CMake option (default ON) | `OPENTLV_FORMAT_FIXED_1BYTE` |
@@ -23,7 +23,7 @@ See [shared memory ownership rules](../../guides/memory.md) before retaining a p
 This complete example writes and reads one opaque byte. Exit code zero means success.
 
 ```c
-#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 

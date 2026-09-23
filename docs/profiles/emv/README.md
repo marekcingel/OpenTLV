@@ -1,6 +1,6 @@
 # EMV Contact Book 3 profile
 
-Include `tlv/profiles/emv.h` and link `tlv`. The supported set is explicitly
+Include `tlv/builtins/emv/emv.h` and link `tlv`. The supported set is explicitly
 **EMV Contact Book 3 v4.4 (October 2022)**, exposed as `TLV_EMV_SPECIFICATION`.
 It covers all tagged data elements in Annex A Tables 37/38, including the
 context-specific biometric meanings and nested tags in Annex C Tables 48/51/52.
@@ -11,7 +11,7 @@ this profile. Book 3 data elements without a tag are not assigned invented tags.
 The reference is [EMVCo Book 3 v4.4](https://www.emvco.com/specifications/book-3-application-specification-2/),
 also available as a [public copy of the specification](https://www.scribd.com/document/648236969/EMV-v4-4-Book-3-Application-Specification-1).
 Tag constants, schema entries, length steps, and codec bindings are maintained
-together in [emv_tags.def](../../../tlv/include/tlv/profiles/emv_tags.def).
+together in [emv_tags.def](../../../tlv/include/tlv/builtins/emv/emv_tags.def).
 
 ## Framing and lookup
 
@@ -45,7 +45,7 @@ immutable definition containing its schema entry, symbolic name, value kind,
 optional codec, and length step. Unknown tags and invalid contexts return NULL.
 
 ```c
-#include "tlv/profiles/emv.h"
+#include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
 
 /* Inside a function; wire contains an Amount, Authorised (Numeric) TLV. */
@@ -190,7 +190,7 @@ are the same in every build.
 
 ## Structural validation
 
-`tlv_emv_structure_schema` (`tlv/profiles/emv_schema.h`) is a
+`tlv_emv_structure_schema` (`tlv/builtins/emv/emv_schema.h`) is a
 `tlv_structure_schema_t` for `tlv_schema_validate()` that fills the gap above:
 mandatory/forbidden/duplicate tags, length bounds, and required nesting, for
 the FCI Template (`6F`, including its `A5` FCI Proprietary Template child),
@@ -200,8 +200,8 @@ Format 2 (`77`). Other top-level tags, including the Read Record Template
 and issuer for a generic schema and are accepted unchecked at the root.
 
 ```c
-#include "tlv/formats/asn1/ber.h"
-#include "tlv/profiles/emv_schema.h"
+#include "tlv/builtins/asn1/ber.h"
+#include "tlv/builtins/emv/emv_schema.h"
 
 /* Inside a function; wire/size hold one or more concatenated EMV elements. */
 size_t       offset;
@@ -210,7 +210,7 @@ tlv_result_t rc = tlv_schema_validate(wire, size, &tlv_reader_format_ber,
                                       64, 100000, &offset);
 /* TLV_OK, or an element-anchored TLV_ERR_SCHEMA/TLV_ERR_INVALID_LENGTH, or
  * TLV_ERR_SCHEMA_MISSING (a missing required tag) with offset at the end of
- * its parent's value instead - see tlv/schemas/schema.h. */
+ * its parent's value instead - see tlv/schema/schema.h. */
 ```
 
 This backs the `opentlv` CLI's `validate --profile emv`.
@@ -222,7 +222,7 @@ Template (`70`) for a specific kernel, use `tlv_schema_validate_all()`; see
 
 ## Data Object Lists (PDOL/CDOL/DDOL)
 
-Include `tlv/profiles/dol.h`. A Data Object List is a sequence of tag/
+Include `tlv/builtins/emv/dol.h`. A Data Object List is a sequence of tag/
 requested-length pairs with no value bytes of its own; PDOL, CDOL1, CDOL2 and
 DDOL all share this format (Book 3 section 5.4). Reading one with `tlv_read`
 or `tlv_walk` would misinterpret the one-byte requested length as a BER
@@ -230,7 +230,7 @@ length field, so this is a dedicated value component rather than ordinary
 TLV structure.
 
 ```c
-#include "tlv/profiles/dol.h"
+#include "tlv/builtins/emv/dol.h"
 
 /* Inside a function; pdol holds a PDOL value's raw bytes. */
 static tlv_result_t print_entry(const tlv_dol_entry_t* entry, size_t index, void* context) {

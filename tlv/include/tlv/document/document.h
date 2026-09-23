@@ -3,7 +3,7 @@
 
 #include "tlv/export.h"
 #include "tlv/error.h"
-#include "tlv/formats/format.h"
+#include "tlv/format.h"
 #include "tlv/query/query.h"
 #include "tlv/reader/walker.h"
 #include "tlv/tag.h"

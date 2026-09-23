@@ -6,7 +6,7 @@
 #include <set>
 #include <vector>
 #if OPENTLV_FORMAT_BER
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #endif
 
 namespace {

@@ -28,7 +28,7 @@ string. Without a predicate the document is a flat list.
 
 ```c
 #include "tlv/document/document.h"
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 
 tlv_document_options_t options;
 tlv_document_options_init(&options, &tlv_reader_format_ber,

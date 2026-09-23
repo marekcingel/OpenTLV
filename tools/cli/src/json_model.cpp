@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 #include "diagnostics.hpp"
 #include "tlv/config.h"
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/tag.h"
 
 namespace cli {

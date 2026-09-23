@@ -7,7 +7,7 @@
 #if defined(OPENTLV_TLVPP_CODEC_HPP) || defined(OPENTLV_CODEC_H)
 #error Low-level APIs must not depend on the codec layer
 #endif
-#include "tlv/formats/default/default.h"
+#include "tlv/builtins/fixed/default.h"
 #include "tlv++/structure.hpp"
 #include <gtest/gtest.h>
 #include "tlv/config.h"

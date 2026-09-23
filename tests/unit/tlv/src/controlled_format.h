@@ -1,7 +1,7 @@
 #ifndef OPENTLV_TEST_CONTROLLED_FORMAT_H
 #define OPENTLV_TEST_CONTROLLED_FORMAT_H
 
-#include "tlv/formats/format.h"
+#include "tlv/format.h"
 
 // Small callbacks for generic component contracts, independent of optional formats.
 namespace controlled {

@@ -1,5 +1,5 @@
 #include "common.h"
-#include "tlv/profiles/der.h"
+#include "tlv/builtins/asn1/der_profile.h"
 
 static void check_der(const uint8_t* data, size_t size, const tlv_der_limits_t* limits) {
     const tlv_der_limits_t* actual = limits ? limits : &tlv_der_default_limits;

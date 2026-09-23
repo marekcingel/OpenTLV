@@ -1,4 +1,4 @@
-# Layered OpenTLV architecture (#65)
+# Layered OpenTLV architecture (#65, #279)
 
 OpenTLV provides one C library (`tlv`) and a header-only C++ interface (`tlv++`)
 that links to it. Core is a logical responsibility, not a directory. Optional
@@ -20,6 +20,13 @@ format implementations never need to be named by the reader/writer. A codec
 does not have to use a schema. Existing C++ tag-associated codecs remain valid.
 Bindings are part of the codec area, not another architectural layer.
 
+Formats and profiles are roles, not folders: every concrete format or profile
+implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV, the fixed formats)
+lives under `builtins/<protocol>/`, grouped by protocol rather than by role,
+so all of a protocol's format, schema, codec and profile files sit together.
+Generic subsystems (`reader/`, `writer/`, `query/`, `schema/`, `codec/`,
+`document/`) never depend on `builtins/`.
+
 `reader/scanner` is a recovery utility above the raw reader and schema lookup.
 Its location groups reading-related tools, without classifying every file in
 that folder as the lowest-level core. Profiles compose lower facilities; lower
@@ -33,25 +40,33 @@ Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
 
 ```text
 tlv/
-  view.h, value.h, length.h, error.h, endian.h, copy.h, tlv.h
-  formats/
-    format.h
-    default/ default.h
-    fixed/   fixed_1byte.h
-    bluetooth/ bluetooth_ltv.h
-    asn1/    ber.h, der.h
+  view.h, value.h, length.h, error.h, endian.h, copy.h, format.h, tlv.h
   reader/    reader.h, walker.h, scanner.h
   query/     query.h
   document/  document.h
   writer/    writer.h
-  schemas/   schema.h
-  codec/     codec.h, structure.h, emv.h
-  profiles/  emv.h, emv_tags.def, der.h
+  schema/    schema.h
+  codec/     codec.h, structure.h
+  builtins/
+    fixed/     default.h, fixed_1byte.h
+    bluetooth/ bluetooth_ltv.h
+    asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
+    emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
 ```
 
 The tree shows the public layout; corresponding implementation files use `.c`.
-BER and DER share `src/formats/asn1/ber_internal.c` and its private header.
-The default encoding and fixed-width encodings have their own folders.
+Small fundamental types (`tag.h`, `length.h`, `value.h`, `view.h`, and the
+generic `format.h` descriptor contracts) sit directly under `tlv/`, alongside
+the generic subsystem folders. Every concrete format or profile OpenTLV ships
+lives under `builtins/<protocol>/`, so all of a protocol's functionality is
+in one place instead of scattered across role-based folders: EMV's schema,
+codec, DOL and umbrella profile header are all under `builtins/emv/`, and
+ASN.1's wire formats and bounded DER/CER profile operations are all under
+`builtins/asn1/`. Wire-level `der.h`/`cer.h` and the bounded profile headers
+that build on them would otherwise share a name, so the profile headers are
+`der_profile.h`/`cer_profile.h`; similarly `builtins/emv/emv_codec.h` (moved
+from `codec/emv.h`) is distinct from the umbrella `builtins/emv/emv.h`.
+BER and DER share `src/builtins/asn1/ber_internal.c` and its private header.
 Internal schema validation, BER helpers and EMV value codecs have dedicated
 source files. `config.h` and `version.h` are generated into the build include
 directory. The public aggregate `tlv/tlv.h` includes enabled components; generic
@@ -184,10 +199,25 @@ cmake --build build-minimal --parallel
 ## Migration
 
 Update flat includes to the folders above (`tlv/reader.h` becomes
-`tlv/reader/reader.h`, `tlv/format.h` becomes `tlv/formats/format.h`, and so on).
-Concrete format declarations use `tlv/formats/default/default.h`,
-`tlv/formats/fixed/fixed_1byte.h`, `tlv/formats/asn1/ber.h`, or
-`tlv/formats/asn1/der.h`; the public aggregate includes enabled formats.
+`tlv/reader/reader.h`, and so on). Concrete format declarations use
+`tlv/builtins/fixed/default.h`, `tlv/builtins/fixed/fixed_1byte.h`,
+`tlv/builtins/asn1/ber.h`, or `tlv/builtins/asn1/der.h`; the public
+aggregate includes enabled formats.
+
+`tlv/formats/` and `tlv/profiles/` (#279) no longer exist: every built-in
+protocol implementation moved under `builtins/<protocol>/`. Concrete format
+headers keep their names (`tlv/formats/asn1/der.h` becomes
+`tlv/builtins/asn1/der.h`); the bounded DER/CER profile headers are renamed
+to avoid colliding with the wire-format headers of the same name
+(`tlv/profiles/der.h` becomes `tlv/builtins/asn1/der_profile.h`,
+`tlv/profiles/cer.h` becomes `tlv/builtins/asn1/cer_profile.h`). EMV moves
+and consolidates under `tlv/builtins/emv/`: `tlv/profiles/emv.h` becomes
+`tlv/builtins/emv/emv.h`, `tlv/profiles/emv_schema.h`,
+`tlv/profiles/emv_tags.def` and `tlv/profiles/dol.h` move alongside it
+unchanged, and `tlv/codec/emv.h` (the semantic value codecs) becomes
+`tlv/builtins/emv/emv_codec.h` to avoid colliding with the umbrella EMV
+header. `tlv/schemas/schema.h` becomes `tlv/schema/schema.h`.
+
 Replace typed `writer.write(value)` with
 `tlv::write_value(writer, value)`. Raw `writer.write(tag, bytes)` is unchanged.
 Split custom descriptors into `tlv_reader_format_t` and `tlv_writer_format_t`.

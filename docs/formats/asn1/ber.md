@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Format header | `tlv/formats/asn1/ber.h` |
+| Format header | `tlv/builtins/asn1/ber.h` |
 | Reader descriptor | `tlv_reader_format_ber` |
 | Writer descriptor | `tlv_writer_format_ber` |
 | CMake option (default ON) | `OPENTLV_FORMAT_BER` |
@@ -23,7 +23,7 @@ See [shared memory ownership rules](../../guides/memory.md) before retaining a p
 This complete example writes and reads one opaque byte. Exit code zero means success.
 
 ```c
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
@@ -135,7 +135,7 @@ payload and of the format callbacks above. They use `tlv_length_t` (from
 every build regardless of the current build's `size_t` width:
 
 ```c
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/length.h"
 
 uint8_t out[TLV_BER_LENGTH_MAX_ENCODED_SIZE];

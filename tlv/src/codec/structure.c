@@ -1,6 +1,6 @@
 #include "tlv/codec/structure.h"
 #include "tlv/reader/walker.h"
-#include "../formats/format_internal.h"
+#include "../format_internal.h"
 
 static int valid_descriptor(const tlv_structure_codec_t* codec) {
     return codec && tlv_reader_format_usable(codec->reader_format);

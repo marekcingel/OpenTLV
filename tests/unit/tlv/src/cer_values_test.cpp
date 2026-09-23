@@ -1,9 +1,9 @@
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #endif
-#include "tlv/formats/asn1/cer.h"
-#include "tlv/profiles/cer.h"
+#include "tlv/builtins/asn1/cer.h"
+#include "tlv/builtins/asn1/cer_profile.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
 #include <cstring>

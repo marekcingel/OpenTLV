@@ -60,7 +60,7 @@ Save the example as `main.c`. It is
 <!-- example: examples/tlv/src/quick_start.c -->
 ```c
 #include <string.h>
-#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
@@ -116,7 +116,7 @@ instead of `tlv`; this target propagates the C library and include paths.
 #include <cstring>
 
 #include "tlv++/tlv.hpp"
-#include "tlv/formats/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed_1byte.h"
 
 int main() {
     const tlv::tag_t               tag = TLV_TAG(0x01);

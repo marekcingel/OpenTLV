@@ -1,5 +1,5 @@
-#include "tlv/profiles/der.h"
-#include "tlv/profiles/der_schema.h"
+#include "tlv/builtins/asn1/der_profile.h"
+#include "tlv/builtins/asn1/der_schema.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>

@@ -1,6 +1,6 @@
 # Optional C schemas
 
-Include `tlv/schemas/schema.h` to describe known tags using constant tables.
+Include `tlv/schema/schema.h` to describe known tags using constant tables.
 This engine is format-agnostic and expresses occurrence, nesting and
 membership only; it has no ASN.1 semantics. For DER-specific canonical rules
 it cannot express (SET/SET OF ordering, CHOICE, implicit/explicit tagging,
@@ -77,7 +77,7 @@ controls unlisted children. `kind` is ANY, PRIMITIVE or CONSTRUCTED. Child schem
 require CONSTRUCTED and are checked even for an empty container.
 
 ```c
-#include "tlv/schemas/schema.h"
+#include "tlv/schema/schema.h"
 static const uint8_t tag_1[] = {1};
 static const uint8_t tag_2[] = {2};
 static const tlv_structure_rule_t rules[] = {

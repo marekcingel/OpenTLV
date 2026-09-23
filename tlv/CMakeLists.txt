@@ -10,7 +10,7 @@ endif()
 add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/codec/codec.c
     src/codec/structure.c
-    src/formats/format.c
+    src/format.c
     src/copy.c
     src/diagnostic.c
     src/tag.c
@@ -21,9 +21,9 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/reader/scanner.c
     src/reader/walker.c
     src/query/query.c
-    src/schemas/schema.c
-    src/schemas/structure.c
-    src/schemas/report.c
+    src/schema/schema.c
+    src/schema/structure.c
+    src/schema/report.c
     src/writer/writer.c
     src/error.c
     ${OpenTLV_BINARY_DIR}/generated/src/version.c
@@ -31,46 +31,46 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
 )
 
 if(OPENTLV_FORMAT_DEFAULT)
-    target_sources(${PROJECT_NAME} PRIVATE src/formats/default/default.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/fixed/default.c)
 endif()
 if(OPENTLV_FORMAT_FIXED_1BYTE)
-    target_sources(${PROJECT_NAME} PRIVATE src/formats/fixed/fixed_1byte.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/fixed/fixed_1byte.c)
 endif()
 if(OPENTLV_FORMAT_BLUETOOTH_LTV)
-    target_sources(${PROJECT_NAME} PRIVATE src/formats/bluetooth/bluetooth_ltv.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/bluetooth/bluetooth_ltv.c)
 endif()
 if(OPENTLV_FORMAT_BER)
-    target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/ber.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/ber.c)
 endif()
 if(OPENTLV_FORMAT_DER)
-    target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/der.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/der.c)
 endif()
 if(OPENTLV_FORMAT_CER)
-    target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/cer.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/cer.c)
 endif()
 if(OPENTLV_FORMAT_BER)
     # DER and CER (below) cascade off whenever BER is OFF, so this single
     # guard covers the shared private BER wire helpers used by both.
-    target_sources(${PROJECT_NAME} PRIVATE src/formats/asn1/ber_internal.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/ber_internal.c)
 endif()
 if(OPENTLV_FORMAT_DER OR OPENTLV_FORMAT_CER)
     # Shared canonical identifier/length helpers and universal-value content
     # validators, usable by either sibling without requiring the other.
     target_sources(${PROJECT_NAME} PRIVATE
-        src/formats/asn1/asn1_internal.c
-        src/profiles/asn1_values_internal.c)
+        src/builtins/asn1/asn1_internal.c
+        src/builtins/asn1/asn1_values_internal.c)
 endif()
 if(OPENTLV_FORMAT_DER)
     target_sources(${PROJECT_NAME} PRIVATE
-        src/profiles/der.c src/profiles/der_values.c src/profiles/der_schema.c)
+        src/builtins/asn1/der_profile.c src/builtins/asn1/der_values.c src/builtins/asn1/der_schema.c)
 endif()
 if(OPENTLV_FORMAT_CER)
     target_sources(${PROJECT_NAME} PRIVATE
-        src/profiles/cer.c src/profiles/cer_values_internal.c)
+        src/builtins/asn1/cer_profile.c src/builtins/asn1/cer_values_internal.c)
 endif()
 if(OPENTLV_PROFILE_EMV)
     target_sources(${PROJECT_NAME} PRIVATE
-        src/profiles/emv.c src/codec/emv.c src/profiles/dol.c src/profiles/emv_schema.c)
+        src/builtins/emv/emv.c src/builtins/emv/emv_codec.c src/builtins/emv/dol.c src/builtins/emv/emv_schema.c)
 endif()
 if(OPENTLV_DOCUMENT)
     # The only component that allocates; nothing else in the library depends on it.

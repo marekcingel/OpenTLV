@@ -1,6 +1,6 @@
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/walker.h"
-#include "tlv/schemas/schema.h"
+#include "tlv/schema/schema.h"
 #include <cstring>
 #include <gtest/gtest.h>
 #include <string>

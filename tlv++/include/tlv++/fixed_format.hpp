@@ -2,7 +2,7 @@
 #define OPENTLV_TLVPP_FIXED_FORMAT_HPP
 
 #include "tlv/endian.h"
-#include "tlv/formats/format.h"
+#include "tlv/format.h"
 #include "tlv/tag.h"
 
 #include <cstddef>

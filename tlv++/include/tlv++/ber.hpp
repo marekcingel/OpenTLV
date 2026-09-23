@@ -1,7 +1,7 @@
 #ifndef OPENTLV_TLVPP_BER_HPP
 #define OPENTLV_TLVPP_BER_HPP
 
-#include "tlv/formats/asn1/ber.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv++/types.hpp"
 
 /**

@@ -122,7 +122,7 @@ exactly like `tlv_schema_validate_all()` (see
 additionally fills each recorded violation as a `tlv_schema_diagnostic_t`.
 
 ```c
-#include "tlv/schemas/schema.h"
+#include "tlv/schema/schema.h"
 
 tlv_schema_diagnostic_t        diagnostics[16];
 tlv_schema_diagnostic_report_t report = {diagnostics, 16, 0};

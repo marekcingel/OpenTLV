@@ -1,9 +1,9 @@
-#include "tlv/formats/bluetooth/bluetooth_ltv.h"
+#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/copy.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/scanner.h"
 #include "tlv/reader/walker.h"
-#include "tlv/schemas/schema.h"
+#include "tlv/schema/schema.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>

@@ -155,7 +155,7 @@ same encoder and advances its position only on success.
 
 ## Generic interface
 
-Include `tlv/formats/format.h` for the allocation-free, type-distinct descriptors:
+Include `tlv/format.h` for the allocation-free, type-distinct descriptors:
 
 - `tlv_reader_format_t`: `context`, `read_tag`, `read_length`, optional `read_value_bounds`, optional `read_element`.
 - `tlv_writer_format_t`: `context`, `write_tag`, `write_length`, `length_size`, optional `write_header`.
@@ -230,9 +230,9 @@ requires a descriptor and callbacks in application code, without parser edits.
 
 ## Nested traversal
 
-Concrete descriptors are declared in `tlv/formats/default/default.h`,
-`tlv/formats/fixed/fixed_1byte.h`, `tlv/formats/asn1/ber.h`,
-`tlv/formats/asn1/der.h`, and `tlv/formats/asn1/cer.h`. The generic `format.h`
+Concrete descriptors are declared in `tlv/builtins/fixed/default.h`,
+`tlv/builtins/fixed/fixed_1byte.h`, `tlv/builtins/asn1/ber.h`,
+`tlv/builtins/asn1/der.h`, and `tlv/builtins/asn1/cer.h`. The generic `format.h`
 declares only the contract.
 
 The separate optional `tlv_is_constructed_fn` traversal argument identifies

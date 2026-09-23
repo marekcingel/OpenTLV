@@ -13,8 +13,8 @@
 #include "presentation.hpp"
 #include "tlv/config.h"
 #if OPENTLV_PROFILE_EMV
-#include "tlv/formats/asn1/ber.h"
-#include "tlv/profiles/emv.h"
+#include "tlv/builtins/asn1/ber.h"
+#include "tlv/builtins/emv/emv.h"
 #endif
 
 using cli::fail;

@@ -89,7 +89,7 @@ state each of the following explicitly:
   `_u32`, `_u64`) documents the first in full and uses `@copydetails` on the
   rest, each with its own `@brief`.
 - Generated code, such as constants produced from
-  [emv_tags.def](tlv/include/tlv/profiles/emv_tags.def), is documented once on the
+  [emv_tags.def](tlv/include/tlv/builtins/emv/emv_tags.def), is documented once on the
   generating macro or in the header that expands it.
 - Preserve existing useful documentation when converting a comment; move its
   content into the structure above rather than rewriting it.

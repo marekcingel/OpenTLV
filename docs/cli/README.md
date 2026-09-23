@@ -157,7 +157,7 @@ does not fail because of it.
 
 Decoded output favors the codec's own C representation over further
 interpretation: numeric fields (including currency amounts, which the codec
-returns as unscaled minor units - see `tlv/codec/emv.h`) print as a plain
+returns as unscaled minor units - see `tlv/builtins/emv/emv_codec.h`) print as a plain
 decimal integer, bit flags print as hexadecimal, dates/times print as
 `YYYY-MM-DD`/`HH:MM:SS` (the century of a date is assumed, as the dictionary
 value itself does not carry one), and enumerated or composite kinds (account
