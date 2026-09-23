@@ -38,24 +38,20 @@ after linking. Consumers outside the build tree must make the installed
 runtime library discoverable by the platform loader at run time, for example
 by adding its directory to `PATH` on Windows or `LD_LIBRARY_PATH`/rpath on Linux.
 
-## Integrate with CMake
+## Quick start
 
-Place the checkout at `external/OpenTLV` in your application. OpenTLV has a C
-core and a header-only C++ wrapper; the steps below are the same for both apart
-from the language, the source file and the library you link. Choose your
-language in any tab group on this site and the choice is kept for the other
-tabbed examples. Without tabs (for example on GitHub) the C example is listed
-before the C++ one.
-
-The program writes `01 03 AA BB CC` with the fixed 1-byte format and reads the
-value back. Each is a complete program that CI builds and runs against the
-current API, and a check keeps its copy here identical to the source, so it
-stays valid as OpenTLV evolves.
+The program below writes `01 03 AA BB CC` with the fixed 1-byte format and
+reads the value back. Each version is a complete program that CI builds and
+runs against the current API, and a check keeps its copy here identical to the
+source, so it stays valid as OpenTLV evolves. Choose your language in any tab
+group on this site and the choice is kept for the other tabbed examples.
+Without tabs (for example on GitHub) the C example is listed first.
 
 /// tab | C
 
 Save the example as `main.c`. It is
-[examples/tlv/src/quick_start.c](../../examples/tlv/src/quick_start.c).
+[examples/tlv/src/quick_start.c](../../examples/tlv/src/quick_start.c). Place
+the checkout at `external/OpenTLV` in your application.
 
 <!-- example: examples/tlv/src/quick_start.c -->
 ```c
@@ -101,14 +97,20 @@ add_executable(tlv_demo main.c)
 target_link_libraries(tlv_demo PRIVATE tlv)
 ```
 
+Configure and build with the CMake commands from
+[Build from a checkout](#build-from-a-checkout), then run `build/tlv_demo`
+(Ninja/Makefiles) or `build/Release/tlv_demo.exe` (Visual Studio). Exit code
+zero indicates a successful round trip.
+
 ///
 
 /// tab | C++
 
 Save the example as `main.cpp`. It is
 [examples/tlv++/src/quick_start.cpp](../../examples/tlv++/src/quick_start.cpp).
-Enable `CXX` in `project`, set `OPENTLV_BUILD_CXX` to `ON`, and link `tlv++`
-instead of `tlv`; this target propagates the C library and include paths.
+Place the checkout at `external/OpenTLV` in your application. Enable `CXX` in
+`project`, set `OPENTLV_BUILD_CXX` to `ON`, and link `tlv++` instead of `tlv`;
+this target propagates the C library and include paths.
 
 <!-- example: examples/tlv++/src/quick_start.cpp -->
 ```cpp
@@ -156,19 +158,84 @@ add_executable(tlv_demo main.cpp)
 target_link_libraries(tlv_demo PRIVATE tlv++)
 ```
 
+Configure and build with the CMake commands from
+[Build from a checkout](#build-from-a-checkout), then run `build/tlv_demo`
+(Ninja/Makefiles) or `build/Release/tlv_demo.exe` (Visual Studio). Exit code
+zero indicates a successful round trip.
+
 ///
 
-Configure and build the application using the same CMake commands above.
-Run `build/tlv_demo` (Ninja/Makefiles), or `build/Release/tlv_demo.exe`
-(Visual Studio). Exit code zero indicates a successful round trip.
+/// tab | Rust
 
-Both programs are built by the `example-tlv-quick-start` and
+Save the example as `examples/quick_start.rs` in a crate that depends on
+`opentlv`. It is
+[bindings/rust/opentlv/examples/quick_start.rs](../../bindings/rust/opentlv/examples/quick_start.rs).
+The crate is not published to crates.io yet; depend on it by path from a
+checkout of the repository. See [Using OpenTLV from Rust](../guides/rust.md)
+for the full setup, including how to link a prebuilt library.
+
+<!-- example: bindings/rust/opentlv/examples/quick_start.rs -->
+```rust
+//! The simplest possible round trip: write one element with the fixed
+//! 1-byte format, then read it back. See parse.rs and write.rs for a nested
+//! BER document, and the C `quick_start.c` and C++ `quick_start.cpp`
+//! examples for the same round trip in those languages.
+//!
+//! Run with `cargo run --example quick_start` from `bindings/rust`.
+
+use opentlv::{Format, Reader, Result, Tag, Writer};
+
+fn main() -> Result<()> {
+    let tag = Tag::from_bytes(&[0x01]);
+    let value = [0xAA, 0xBB, 0xCC];
+
+    let mut buf = [0u8; 5];
+    let mut writer = Writer::with_format(&mut buf, Format::Fixed1Byte);
+    writer.write(&tag, &value)?;
+    println!(
+        "wrote {} bytes: {:02X?}",
+        writer.written().len(),
+        writer.written()
+    );
+
+    let mut reader = Reader::with_format(writer.written(), Format::Fixed1Byte);
+    let entry = reader.next_entry().expect("one entry was written")?;
+    assert_eq!(entry.tag(), &tag);
+    assert_eq!(entry.value(), &value);
+    assert!(reader.is_at_end());
+    println!(
+        "read tag {:02X?} value {:02X?}",
+        entry.tag().as_bytes(),
+        entry.value()
+    );
+    Ok(())
+}
+```
+
+Then use:
+
+```toml
+[dependencies]
+opentlv = { path = "OpenTLV/bindings/rust/opentlv" }
+```
+
+Run `cargo run --example quick_start` from `bindings/rust` in this
+repository's own checkout, or `cargo run --example quick_start` from your
+application once its `Cargo.toml` depends on `opentlv` and the file above is
+saved under its `examples/`. Exit code zero indicates a successful round trip.
+
+///
+
+Both C and C++ programs are built by the `example-tlv-quick-start` and
 `example-tlv++-quick-start` targets whenever `OPENTLV_BUILD_EXAMPLES` is `ON`
-(the default) and run in CI. The [C examples](../../examples/tlv/src/), one topic
-per file (sequential I/O, explicit copies, schema validation, codecs, a custom
-format, and the BER and CER builtins), the [C++ example](../../examples/tlv++/src/basic_usage.cpp)
-with the default format, and the [EMV example](../../examples/tlv/src/builtins/emv/tag_decoding.c)
-are further runnable examples.
+(the default) and run in CI; the Rust program is built by `cargo build
+--workspace --all-targets` in the Rust bindings CI workflow. The
+[C examples](../../examples/tlv/src/), one topic per file (sequential I/O,
+explicit copies, schema validation, codecs, a custom format, and the BER and
+CER builtins), the [C++ example](../../examples/tlv++/src/basic_usage.cpp)
+with the default format, the [EMV example](../../examples/tlv/src/builtins/emv/tag_decoding.c),
+and the further [Rust examples](../guides/rust.md) (reading, writing, and the
+`parse`, `write` and `validate` use cases) are further runnable examples.
 
 ## Install and generate distribution archives
 

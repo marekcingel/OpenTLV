@@ -5,10 +5,13 @@ A Markdown code block preceded by a marker comment
 
     <!-- example: examples/tlv/src/quick_start.c -->
 
-must contain exactly the contents of that file, and the file must be listed in
-a CMakeLists.txt under examples/ so CI compiles it. Editing either side without
-the other fails the check, so documented code cannot drift from code that
-builds against the current API.
+must contain exactly the contents of that file, and the file must be registered
+with its package's build: listed in a CMakeLists.txt under examples/ so CI
+compiles it, or, for a Rust binding example, placed directly under a
+bindings/rust/*/examples/ directory that Cargo auto-discovers and CI builds
+with `cargo build --all-targets`. Editing either side without the other fails
+the check, so documented code cannot drift from code that builds against the
+current API.
 
 Usage: python scripts/check_doc_examples.py [--fix]
 
@@ -32,13 +35,18 @@ def markdown_files():
 
 
 def is_built(source):
-    """True if a CMakeLists.txt in the source's example tree names the file."""
+    """True if the source is registered with its package's build."""
     rel = source.relative_to(ROOT)
-    directory = ROOT / rel.parts[0] / rel.parts[1]
-    return any(
-        source.relative_to(directory).as_posix() in cmake.read_text(encoding="utf-8")
-        for cmake in directory.glob("CMakeLists.txt")
-    )
+    parts = rel.parts
+    if parts[0] == "examples" and len(parts) > 2:
+        directory = ROOT / parts[0] / parts[1]
+        return any(
+            source.relative_to(directory).as_posix() in cmake.read_text(encoding="utf-8")
+            for cmake in directory.glob("CMakeLists.txt")
+        )
+    if parts[:2] == ("bindings", "rust") and "examples" in parts[:-1] and source.suffix == ".rs":
+        return True
+    return False
 
 
 def check(fix):
@@ -55,8 +63,8 @@ def check(fix):
             if not source.is_file():
                 errors.append(f"{name}: example source {match['path']} does not exist")
                 return match[0]
-            if not match["path"].startswith("examples/") or not is_built(source):
-                errors.append(f"{name}: {match['path']} is not built by an examples/ CMakeLists.txt")
+            if not is_built(source):
+                errors.append(f"{name}: {match['path']} is not registered with its package's build")
             expected = source.read_text(encoding="utf-8").replace("\r\n", "\n")
             if not expected.endswith("\n"):
                 expected += "\n"

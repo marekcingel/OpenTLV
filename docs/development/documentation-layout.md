@@ -100,7 +100,7 @@ Conventions:
 - Important tabbed examples are compiled sources: put the
   `<!-- example: examples/PATH -->` marker and the fenced block inside the tab,
   and the check below keeps the copy identical. See
-  [Getting started](../getting-started/README.md#integrate-with-cmake).
+  [Getting started](../getting-started/README.md#quick-start).
 
 The same mechanism extends to language bindings: add a tab per binding to the
 groups where it has an equivalent.
