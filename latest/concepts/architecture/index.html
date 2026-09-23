@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#layered-opentlv-architecture-65-279-280" class="md-skip">
+        <a href="#layered-opentlv-architecture-65-279-280-281" class="md-skip">
           Skip to content
         </a>
       
@@ -2608,7 +2608,7 @@
   
 
 
-<h1 id="layered-opentlv-architecture-65-279-280">Layered OpenTLV architecture (#65, #279, #280)<a class="headerlink" href="#layered-opentlv-architecture-65-279-280" title="Permanent link">&para;</a></h1>
+<h1 id="layered-opentlv-architecture-65-279-280-281">Layered OpenTLV architecture (#65, #279, #280, #281)<a class="headerlink" href="#layered-opentlv-architecture-65-279-280-281" title="Permanent link">&para;</a></h1>
 <p>OpenTLV provides one C library (<code>tlv</code>) and a header-only C++ interface (<code>tlv++</code>)
 that links to it. Core is a logical responsibility, not a directory. Optional
 components are concrete formats and profiles, rather than entire layers.</p>
@@ -2729,6 +2729,26 @@ Every <code>tlv++</code> header keeps using full paths from the include root
 (<code>#include "tlv++/reader/reader.hpp"</code>, not a relative <code>#include
 "reader.hpp"</code>), so moving a header between folders only requires updating
 <code>#include</code> lines that name it, not every include inside sibling headers.</p>
+<p><code>tests/unit/</code>, <code>tests/integration/</code> and <code>tests/fuzz/</code> (#281) each keep their
+own existing top-level meaning — component contracts, concrete wire formats
+and layer interactions, and libFuzzer harnesses, respectively (see
+<a href="../../getting-started/#build-and-run-tests">tests</a>) — and each
+independently mirrors <code>tlv/src</code>'s own layout underneath: a generic
+subsystem's tests sit under its own <code>reader/</code>, <code>writer/</code>, <code>query/</code>, <code>schema/</code>,
+<code>codec/</code> or <code>document/</code> folder, and a built-in's tests sit together under
+<code>builtins/&lt;protocol&gt;/</code>, regardless of whether they exercise its schema, codec,
+DOL or parser. Small core-type tests and cross-cutting tests (such as
+<code>architecture_test.cpp</code>, and the <code>tlv++</code> aggregate <code>test_tlvpp.cpp</code>) stay
+directly under <code>tests/unit/</code> or <code>tests/integration/</code>, without a subsystem
+folder, the same way <code>tag.h</code> and <code>value.h</code> sit directly under <code>tlv/</code>. A
+shared folder's C and C++ files are told apart by name, not by a separate
+<code>tlv</code>/<code>tlv++</code> folder (<code>document_test.cpp</code> next to <code>test_document.cpp</code>).
+<code>tests/fuzz/</code> uses the same subsystem/<code>builtins/&lt;protocol&gt;/</code> split for its
+harnesses, each with its checked-in seed corpus in a sibling <code>corpus/</code> folder
+(<code>tests/fuzz/reader/read.c</code> and <code>tests/fuzz/reader/corpus/read/</code>,
+<code>tests/fuzz/builtins/asn1/der.c</code> and its <code>corpus/der/</code>); it keeps its own
+<code>tests/fuzz/CMakeLists.txt</code> since <code>OPENTLV_BUILD_FUZZING</code> is independent of
+<code>OPENTLV_BUILD_TESTS</code>. Compile/API checks stay separate from this tree.</p>
 <h2 id="mutable-document">Mutable document<a class="headerlink" href="#mutable-document" title="Permanent link">&para;</a></h2>
 <p><code>document/document.h</code> is a layer above the reader, writer and query facilities. It
 parses input into an owned tree, lets the tree be searched, changed, extended and

@@ -2817,10 +2817,10 @@ runs on every push and pull request to <code>main</code> and fails on any of:</p
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>cargo<span class="w"> </span>clippy<span class="w"> </span>--workspace<span class="w"> </span>--all-targets<span class="w"> </span>--<span class="w"> </span>-D<span class="w"> </span>warnings
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>cargo<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--workspace
 </code></pre></div>
-<p><code>opentlv/tests/corpus.rs</code> replays the C fuzz seeds in <code>tests/fuzz/corpus</code>
-through the safe API (reader on every format, DER and CER profiles, writer and
-reader round trips, every EMV codec), so seeds added for the C harnesses also
-cover the bindings without being copied.</p>
+<p><code>opentlv/tests/corpus.rs</code> replays the C fuzz seeds (each harness's <code>corpus/</code>
+folder under <code>tests/fuzz/</code>) through the safe API (reader on every format, DER
+and CER profiles, writer and reader round trips, every EMV codec), so seeds
+added for the C harnesses also cover the bindings without being copied.</p>
 <h2 id="linking-a-prebuilt-library">Linking a prebuilt library<a class="headerlink" href="#linking-a-prebuilt-library" title="Permanent link">&para;</a></h2>
 <p>To link a library you built yourself, point <code>OPENTLV_LIB_DIR</code> at the directory
 containing it:</p>

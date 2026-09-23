@@ -2746,12 +2746,17 @@ example. Built-in descriptors are direction-specific: use a <code>tlv_reader_for
 for reads and a <code>tlv_writer_format_t</code> for writes. See
 <a href="../formats/#generic-interface">format contracts</a> and <a href="../concepts/architecture/#migration">migration</a>.</p>
 <h2 id="build-and-run-tests">Build and run tests<a class="headerlink" href="#build-and-run-tests" title="Permanent link">&para;</a></h2>
-<p>Tests are classified by purpose under <code>tests/unit/{tlv,tlv++}</code> and
-<code>tests/integration/{tlv,tlv++}</code>. Unit tests exercise component contracts,
-including callback errors, storage and state guarantees. Integration tests
-exercise concrete wire formats, reference vectors, roundtrips, nested traversal,
-recovery and interactions between layers. A file containing both kinds of cases
-is split between the two directories; classify new cases by what they verify.</p>
+<p>Tests are classified by purpose under <code>tests/unit/</code> and <code>tests/integration/</code>,
+each mirroring the library's own subsystem/<code>builtins/&lt;protocol&gt;/</code> layout
+underneath (for example <code>tests/unit/reader/reader_test.cpp</code> and
+<code>tests/integration/reader/reader_test.cpp</code>). Unit tests exercise component
+contracts, including callback errors, storage and state guarantees.
+Integration tests exercise concrete wire formats, reference vectors,
+roundtrips, nested traversal, recovery and interactions between layers. A
+subsystem or built-in without an integration concern (nothing there combines
+multiple layers) has no file under <code>tests/integration/</code>. A file containing
+both kinds of cases is split between the two directories; classify new cases
+by what they verify. See <a href="../concepts/architecture/#layout">architecture</a>.</p>
 <p><code>OPENTLV_BUILD_TESTS</code> is the main switch. With it enabled, both
 <code>OPENTLV_BUILD_UNIT_TESTS</code> and <code>OPENTLV_BUILD_INTEGRATION_TESTS</code> default to <code>ON</code>.
 An unfiltered CTest run executes both enabled groups. To select a group in an
