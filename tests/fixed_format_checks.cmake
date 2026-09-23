@@ -1,4 +1,4 @@
-# Compile tlv++/fixed_format.hpp with valid and invalid template parameters.
+# Compile tlv++/builtins/fixed/fixed_format.hpp with valid and invalid template parameters.
 # Positive controls prevent unrelated include failures from passing the negative cases.
 function(opentlv_check_fixed_format)
     if(NOT CMAKE_CXX_COMPILER_LOADED)
@@ -15,7 +15,7 @@ function(opentlv_check_fixed_format)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         set(CMAKE_REQUIRED_FLAGS "-std=c++11 -Wall -Wextra -Werror")
     endif()
-    set(header "#include <tlv++/fixed_format.hpp>\n")
+    set(header "#include <tlv++/builtins/fixed/fixed_format.hpp>\n")
     set(cases
         "valid_minimum|1, 1, TLV_BYTE_ORDER_BIG_ENDIAN|1"
         "valid_widest|255, 8, TLV_BYTE_ORDER_LITTLE_ENDIAN|1"

@@ -9,21 +9,21 @@
  */
 
 #include "tlv/tlv.h"
-#include "tlv++/codec.hpp"
+#include "tlv++/codec/codec.hpp"
 #include "tlv++/diagnostic.hpp"
-#include "tlv++/fixed_format.hpp"
-#include "tlv++/reader.hpp"
-#include "tlv++/writer.hpp"
-#include "tlv++/registry.hpp"
-#include "tlv++/structure.hpp"
-#include "tlv++/walker.hpp"
-#include "tlv++/query.hpp"
-#include "tlv++/schema.hpp"
+#include "tlv++/builtins/fixed/fixed_format.hpp"
+#include "tlv++/reader/reader.hpp"
+#include "tlv++/writer/writer.hpp"
+#include "tlv++/codec/registry.hpp"
+#include "tlv++/codec/structure.hpp"
+#include "tlv++/reader/walker.hpp"
+#include "tlv++/query/query.hpp"
+#include "tlv++/schema/schema.hpp"
 #if OPENTLV_FORMAT_BER
-#include "tlv++/ber.hpp"
+#include "tlv++/builtins/asn1/ber.hpp"
 #endif
 #if OPENTLV_DOCUMENT
-#include "tlv++/document.hpp"
+#include "tlv++/document/document.hpp"
 #endif
 
 #endif // OPENTLV_TLVPP_TLV_HPP

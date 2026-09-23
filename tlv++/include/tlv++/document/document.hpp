@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-#include "tlv++/query.hpp"
+#include "tlv++/query/query.hpp"
 #include "tlv++/types.hpp"
 #include "tlv/document/document.h"
 

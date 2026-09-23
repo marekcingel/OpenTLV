@@ -1,4 +1,4 @@
-# Layered OpenTLV architecture (#65, #279)
+# Layered OpenTLV architecture (#65, #279, #280)
 
 OpenTLV provides one C library (`tlv`) and a header-only C++ interface (`tlv++`)
 that links to it. Core is a logical responsibility, not a directory. Optional
@@ -72,6 +72,35 @@ source files. `config.h` and `version.h` are generated into the build include
 directory. The public aggregate `tlv/tlv.h` includes enabled components; generic
 headers include only their direct contracts. Use explicit headers for small
 consumers. C++ common types are in `tlv++/types.hpp`, independent of codecs.
+
+Public headers under `tlv++/include/tlv++/` mirror the same layout (#280),
+grouping the C++ wrapper for each generic subsystem alongside its C
+counterpart and each protocol's wrapper under `builtins/<protocol>/`:
+
+```text
+tlv++/
+  types.hpp, compat.hpp, diagnostic.hpp, tlv.hpp
+  reader/    reader.hpp, walker.hpp
+  query/     query.hpp
+  document/  document.hpp
+  writer/    writer.hpp
+  schema/    schema.hpp
+  codec/     codec.hpp, structure.hpp, registry.hpp
+  builtins/
+    fixed/ fixed_format.hpp
+    asn1/  ber.hpp
+```
+
+`tlv++` is header-only, so there is no separate `tlv++/src/`. `registry.hpp`
+sits under `codec/` alongside `codec.hpp` and `structure.hpp`: it is a
+runtime-dispatch complement to the compile-time `TlvCodec` concept, with no C
+counterpart. Only the generic subsystems and protocols that already have a
+C++ wrapper get a folder; a protocol built-in only in C (Bluetooth LTV, EMV)
+has no `tlv++/builtins/<protocol>/` folder until a C++ wrapper for it exists.
+Every `tlv++` header keeps using full paths from the include root
+(`#include "tlv++/reader/reader.hpp"`, not a relative `#include
+"reader.hpp"`), so moving a header between folders only requires updating
+`#include` lines that name it, not every include inside sibling headers.
 
 ## Mutable document
 
@@ -217,6 +246,22 @@ and consolidates under `tlv/builtins/emv/`: `tlv/profiles/emv.h` becomes
 unchanged, and `tlv/codec/emv.h` (the semantic value codecs) becomes
 `tlv/builtins/emv/emv_codec.h` to avoid colliding with the umbrella EMV
 header. `tlv/schemas/schema.h` becomes `tlv/schema/schema.h`.
+
+`tlv++`'s previously flat `tlv++/include/tlv++/*.hpp` headers (#280) move
+into the same folders as their C counterparts:
+`tlv++/reader.hpp`/`tlv++/walker.hpp` become
+`tlv++/reader/reader.hpp`/`tlv++/reader/walker.hpp`;
+`tlv++/writer.hpp`, `tlv++/query.hpp` and `tlv++/schema.hpp` become
+`tlv++/writer/writer.hpp`, `tlv++/query/query.hpp` and
+`tlv++/schema/schema.hpp`; `tlv++/codec.hpp`, `tlv++/structure.hpp` and
+`tlv++/registry.hpp` become `tlv++/codec/codec.hpp`,
+`tlv++/codec/structure.hpp` and `tlv++/codec/registry.hpp`;
+`tlv++/document.hpp` becomes `tlv++/document/document.hpp`; and
+`tlv++/ber.hpp`/`tlv++/fixed_format.hpp` become
+`tlv++/builtins/asn1/ber.hpp`/`tlv++/builtins/fixed/fixed_format.hpp`.
+`tlv++/types.hpp`, `tlv++/compat.hpp`, `tlv++/diagnostic.hpp` and the
+aggregate `tlv++/tlv.hpp` are unaffected. No type, function or namespace
+changed; only header locations did.
 
 Replace typed `writer.write(value)` with
 `tlv::write_value(writer, value)`. Raw `writer.write(tag, bytes)` is unchanged.

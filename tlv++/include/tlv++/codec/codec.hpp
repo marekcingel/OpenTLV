@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 #include "tlv++/types.hpp"
-#include "tlv++/writer.hpp"
+#include "tlv++/writer/writer.hpp"
 
 /**
  * @file codec.hpp

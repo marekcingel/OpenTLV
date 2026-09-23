@@ -87,7 +87,7 @@ if (tlv_query_matcher_visit(&matcher, &view->tag, depth)) {
 ## C++
 
 ```cpp
-#include "tlv++/query.hpp"
+#include "tlv++/query/query.hpp"
 
 size_t text_offset;
 auto query = tlv::query::parse("6F/A5/50", &text_offset);

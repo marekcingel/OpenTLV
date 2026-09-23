@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <iostream>
 
-#include "tlv++/fixed_format.hpp"
+#include "tlv++/builtins/fixed/fixed_format.hpp"
 #include "tlv++/tlv.hpp"
 
 using format = tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>;
