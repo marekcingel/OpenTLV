@@ -2,8 +2,8 @@ name: Rust Bindings
 
 # Builds and tests the experimental Rust bindings (bindings/rust) on every
 # platform and enforces rustfmt and clippy. The build script compiles the C
-# library with CMake, and tests/corpus.rs replays the C fuzz seed corpus in
-# tests/fuzz/corpus, so C changes are exercised through the bindings too.
+# library with CMake, and tests/corpus.rs replays the C fuzz seed corpus under
+# tests/fuzz/, so C changes are exercised through the bindings too.
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ on:
     paths:
       - 'bindings/rust/**'
       - 'tlv/**'
-      - 'tests/fuzz/corpus/**'
+      - 'tests/fuzz/**'
       - 'cmake/**'
       - '**/CMakeLists.txt'
       - '.github/workflows/rust.yml'

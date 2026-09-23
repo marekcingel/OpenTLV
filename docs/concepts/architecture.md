@@ -1,4 +1,4 @@
-# Layered OpenTLV architecture (#65, #279, #280)
+# Layered OpenTLV architecture (#65, #279, #280, #281)
 
 OpenTLV provides one C library (`tlv`) and a header-only C++ interface (`tlv++`)
 that links to it. Core is a logical responsibility, not a directory. Optional
@@ -101,6 +101,27 @@ Every `tlv++` header keeps using full paths from the include root
 (`#include "tlv++/reader/reader.hpp"`, not a relative `#include
 "reader.hpp"`), so moving a header between folders only requires updating
 `#include` lines that name it, not every include inside sibling headers.
+
+`tests/unit/`, `tests/integration/` and `tests/fuzz/` (#281) each keep their
+own existing top-level meaning — component contracts, concrete wire formats
+and layer interactions, and libFuzzer harnesses, respectively (see
+[tests](../getting-started/README.md#build-and-run-tests)) — and each
+independently mirrors `tlv/src`'s own layout underneath: a generic
+subsystem's tests sit under its own `reader/`, `writer/`, `query/`, `schema/`,
+`codec/` or `document/` folder, and a built-in's tests sit together under
+`builtins/<protocol>/`, regardless of whether they exercise its schema, codec,
+DOL or parser. Small core-type tests and cross-cutting tests (such as
+`architecture_test.cpp`, and the `tlv++` aggregate `test_tlvpp.cpp`) stay
+directly under `tests/unit/` or `tests/integration/`, without a subsystem
+folder, the same way `tag.h` and `value.h` sit directly under `tlv/`. A
+shared folder's C and C++ files are told apart by name, not by a separate
+`tlv`/`tlv++` folder (`document_test.cpp` next to `test_document.cpp`).
+`tests/fuzz/` uses the same subsystem/`builtins/<protocol>/` split for its
+harnesses, each with its checked-in seed corpus in a sibling `corpus/` folder
+(`tests/fuzz/reader/read.c` and `tests/fuzz/reader/corpus/read/`,
+`tests/fuzz/builtins/asn1/der.c` and its `corpus/der/`); it keeps its own
+`tests/fuzz/CMakeLists.txt` since `OPENTLV_BUILD_FUZZING` is independent of
+`OPENTLV_BUILD_TESTS`. Compile/API checks stay separate from this tree.
 
 ## Mutable document
 

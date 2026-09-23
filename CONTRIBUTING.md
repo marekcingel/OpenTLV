@@ -258,7 +258,7 @@ warning (never breaking a regular build) if clang-tidy isn't found or
 `OPENTLV_BUILD_CXX`/`OPENTLV_BUILD_TESTS`/`OPENTLV_BUILD_UNIT_TESTS`, all ON
 by default). tlv++ is header-only, so there's no translation unit of its
 own for clang-tidy to attach to; instead the target points clang-tidy at
-`tests/unit/tlv++/src/test_tlvpp.cpp`, which already includes and exercises
+`tests/unit/test_tlvpp.cpp`, which already includes and exercises
 every tlv++ header with real instantiations (a synthetic TU that just
 `#include`s the headers would compile but never instantiate their
 templates, so clang-tidy would have nothing to analyze inside them).

@@ -172,10 +172,10 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 ```
 
-`opentlv/tests/corpus.rs` replays the C fuzz seeds in `tests/fuzz/corpus`
-through the safe API (reader on every format, DER and CER profiles, writer and
-reader round trips, every EMV codec), so seeds added for the C harnesses also
-cover the bindings without being copied.
+`opentlv/tests/corpus.rs` replays the C fuzz seeds (each harness's `corpus/`
+folder under `tests/fuzz/`) through the safe API (reader on every format, DER
+and CER profiles, writer and reader round trips, every EMV codec), so seeds
+added for the C harnesses also cover the bindings without being copied.
 
 ## Linking a prebuilt library
 
