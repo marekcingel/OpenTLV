@@ -33,7 +33,22 @@ target_link_libraries(example-tlv++-quick-start PRIVATE tlv++)
 opentlv_configure_compiler(example-tlv++-quick-start)
 opentlv_copy_shared_runtime(example-tlv++-quick-start)
 
-add_executable(example-tlv++-fixed-format src/fixed_format.cpp)
-target_link_libraries(example-tlv++-fixed-format PRIVATE tlv++)
-opentlv_configure_compiler(example-tlv++-fixed-format)
-opentlv_copy_shared_runtime(example-tlv++-fixed-format)
+# Builtin-specific example: defines a fixed-width format at compile time.
+add_executable(example-tlv++-builtins-fixed-format src/builtins/fixed/fixed_format.cpp)
+target_link_libraries(example-tlv++-builtins-fixed-format PRIVATE tlv++)
+opentlv_configure_compiler(example-tlv++-builtins-fixed-format)
+opentlv_copy_shared_runtime(example-tlv++-builtins-fixed-format)
+
+# Use-case examples shared across languages: the same document is parsed,
+# written, queried and validated in examples/tlv, examples/tlv++ and
+# bindings/rust/opentlv/examples.
+if(OPENTLV_FORMAT_BER)
+    foreach(use_case parse write query validate)
+        add_executable(example-tlv++-${use_case} src/${use_case}.cpp)
+        target_link_libraries(example-tlv++-${use_case} PRIVATE tlv++)
+        opentlv_configure_compiler(example-tlv++-${use_case})
+        opentlv_copy_shared_runtime(example-tlv++-${use_case})
+        add_test(NAME Integration_example_tlv++_${use_case} COMMAND $<TARGET_FILE:example-tlv++-${use_case}>)
+        set_tests_properties(Integration_example_tlv++_${use_case} PROPERTIES LABELS "integration;examples")
+    endforeach()
+endif()

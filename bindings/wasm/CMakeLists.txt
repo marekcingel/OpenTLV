@@ -47,6 +47,13 @@ if(OPENTLV_BUILD_WASM_TESTS)
         add_test(NAME Integration_wasm
             COMMAND ${OPENTLV_NODE_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/test/smoke.mjs" "${_wasm_output_dir}")
         set_tests_properties(Integration_wasm PROPERTIES LABELS "integration;wasm")
+
+        # The "parse" use-case example shared with examples/tlv, examples/tlv++
+        # and bindings/rust/opentlv/examples; there is no "write", "query" or
+        # "validate" JS example yet, see examples/parse.mjs.
+        add_test(NAME Integration_example_wasm_parse
+            COMMAND ${OPENTLV_NODE_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/examples/parse.mjs" "${_wasm_output_dir}")
+        set_tests_properties(Integration_example_wasm_parse PROPERTIES LABELS "integration;examples;wasm")
     else()
         message(STATUS "node not found; skipping the WebAssembly smoke test.")
     endif()

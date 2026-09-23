@@ -22,7 +22,7 @@ See [shared memory ownership rules](../../guides/memory.md).
 ## C usage
 
 Use the complete custom-format implementation in the
-[C example](../../../examples/tlv/src/basic_usage.c), which includes callback
+[C example](../../../examples/tlv/src/custom_format.c), which includes callback
 implementations, descriptor initialization, writing, and reading.
 The [generic contract](../README.md#generic-interface) documents each callback.
 
@@ -41,6 +41,6 @@ Element (4 bytes)
 ```
 
 See the custom-format implementation in the
-[C example](../../../examples/tlv/src/basic_usage.c) and the
+[C example](../../../examples/tlv/src/custom_format.c) and the
 [callback contracts](../README.md#generic-interface). No built-in configurable
 fixed-width descriptor is implied by this example.

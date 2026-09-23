@@ -121,10 +121,12 @@ jobs:
       - name: Run C and C++ examples (also the ones embedded in the documentation)
         if: env.EXAMPLES == 'true'
         run: |
-          ./build/examples/tlv/example-tlv
           ./build/examples/tlv/example-tlv-quick-start
           ./build/examples/tlv++/example-tlv++
           ./build/examples/tlv++/example-tlv++-quick-start
+          # The other C examples (sequential_io, copies, schema_walk_and_scan,
+          # codecs_and_endian, custom_format, and the builtins) are exercised
+          # by the "ctest -L integration" step above instead.
 
   c-only:
     permissions:
@@ -149,5 +151,11 @@ jobs:
         run: |
           cmake -S . -B build-c -G Ninja -DCMAKE_C_COMPILER=clang-18 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=ON -DOPENTLV_BUILD_BENCHMARKS=OFF -DOPENTLV_WARNINGS_AS_ERRORS=ON
           cmake --build build-c --parallel
-          ./build-c/examples/tlv/example-tlv
           ./build-c/examples/tlv/example-tlv-quick-start
+          ./build-c/examples/tlv/example-tlv-sequential-io
+          ./build-c/examples/tlv/example-tlv-copies
+          ./build-c/examples/tlv/example-tlv-schema-walk-and-scan
+          ./build-c/examples/tlv/example-tlv-codecs-and-endian
+          ./build-c/examples/tlv/example-tlv-custom-format
+          ./build-c/examples/tlv/example-tlv-builtins-asn1-ber
+          ./build-c/examples/tlv/example-tlv-builtins-asn1-cer
