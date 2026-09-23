@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/formats/asn1/cer.h File Reference</title>
+<title>OpenTLV C API: tlv/builtins/asn1/cer.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_0a2251813a2f8fc32fda035b51d4c9be.html">formats</a></li><li class="navelem"><a class="el" href="dir_d894543283319ab9cc95aa83048e206c.html">asn1</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_68ef050ef5f29de0a07bb3959d18ba24.html">builtins</a></li><li class="navelem"><a class="el" href="dir_ecf412ed773d37aac121bdc75e323fd9.html">asn1</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -83,8 +83,8 @@ $(function() {
 <p>ASN.1 CER reader and writer formats with tag accessors.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="format_8h.html">tlv/formats/format.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="ber_8h.html">tlv/formats/asn1/ber.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="format_8h.html">tlv/format.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ber_8h.html">tlv/builtins/asn1/ber.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -116,7 +116,7 @@ Variables</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>ASN.1 CER reader and writer formats with tag accessors. </p>
-<p>The tag accessors here have identical semantics to the DER accessors in <a class="el" href="formats_2asn1_2der_8h.html" title="ASN.1 DER reader and writer formats with tag accessors.">tlv/formats/asn1/der.h</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c" title="ASN.1 identifier-octet class bits (ITU-T X.690 section 8.1).">tlv_asn1_class_t</a> is shared, declared in <a class="el" href="ber_8h.html" title="ASN.1 BER reader and writer formats, indefinite-length framing and length codec.">tlv/formats/asn1/ber.h</a>). They are duplicated rather than reused from der.h so CER never depends on the DER component being enabled. </p>
+<p>The tag accessors here have identical semantics to the DER accessors in <a class="el" href="der_8h.html" title="ASN.1 DER reader and writer formats with tag accessors.">tlv/builtins/asn1/der.h</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c" title="ASN.1 identifier-octet class bits (ITU-T X.690 section 8.1).">tlv_asn1_class_t</a> is shared, declared in <a class="el" href="ber_8h.html" title="ASN.1 BER reader and writer formats, indefinite-length framing and length codec.">tlv/builtins/asn1/ber.h</a>). They are duplicated rather than reused from <a class="el" href="der_8h.html" title="ASN.1 DER reader and writer formats with tag accessors.">der.h</a> so CER never depends on the DER component being enabled. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/formats/asn1/ber.h File Reference</title>
+<title>OpenTLV C API: tlv/builtins/asn1/ber.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_0a2251813a2f8fc32fda035b51d4c9be.html">formats</a></li><li class="navelem"><a class="el" href="dir_d894543283319ab9cc95aa83048e206c.html">asn1</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_68ef050ef5f29de0a07bb3959d18ba24.html">builtins</a></li><li class="navelem"><a class="el" href="dir_ecf412ed773d37aac121bdc75e323fd9.html">asn1</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -85,7 +85,7 @@ $(function() {
 <p>ASN.1 BER reader and writer formats, indefinite-length framing and length codec.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="format_8h.html">tlv/formats/format.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="format_8h.html">tlv/format.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="writer_8h.html">tlv/writer/writer.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="length_8h.html">tlv/length.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
@@ -105,25 +105,25 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gae888c73e721d0ad6ba3ecea514ae7626"><td class="mdescLeft">&#160;</td><td class="mdescRight">ASN.1 identifier-octet class bits (ITU-T X.690 section 8.1).  <a href="group__formats.html#gae888c73e721d0ad6ba3ecea514ae7626">More...</a><br /></td></tr>
 <tr class="separator:gae888c73e721d0ad6ba3ecea514ae7626"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gadc29c2ff13d900c2f185ee95427fb06c" id="r_gadc29c2ff13d900c2f185ee95427fb06c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
-&#160;&#160;<a class="el" href="group__formats.html#ggadc29c2ff13d900c2f185ee95427fb06ca4dba2bfb2ef0ea7a98c348eb5a9035b3">TLV_ASN1_CLASS_SHIFT</a> = 6
-, <a class="el" href="group__formats.html#ggadc29c2ff13d900c2f185ee95427fb06ca5cff02341914e111cec22fe3e5e24fb0">TLV_ASN1_CONSTRUCTED_BIT</a> = 0x20
-, <a class="el" href="group__formats.html#ggadc29c2ff13d900c2f185ee95427fb06ca2e2c2b4dd29b5cf253e9b46bdbaf4952">TLV_ASN1_TAG_NUMBER_MASK</a> = 0x1F
-, <a class="el" href="group__formats.html#ggadc29c2ff13d900c2f185ee95427fb06cad6b5d7306421b68182b7adc716e360ab">TLV_ASN1_LOW_TAG_LIMIT</a> = 31
+<tr class="memitem:ga06fc87d81c62e9abb8790b6e5713c55b" id="r_ga06fc87d81c62e9abb8790b6e5713c55b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+&#160;&#160;<a class="el" href="group__formats.html#gga06fc87d81c62e9abb8790b6e5713c55ba4dba2bfb2ef0ea7a98c348eb5a9035b3">TLV_ASN1_CLASS_SHIFT</a> = 6
+, <a class="el" href="group__formats.html#gga06fc87d81c62e9abb8790b6e5713c55ba5cff02341914e111cec22fe3e5e24fb0">TLV_ASN1_CONSTRUCTED_BIT</a> = 0x20
+, <a class="el" href="group__formats.html#gga06fc87d81c62e9abb8790b6e5713c55ba2e2c2b4dd29b5cf253e9b46bdbaf4952">TLV_ASN1_TAG_NUMBER_MASK</a> = 0x1F
+, <a class="el" href="group__formats.html#gga06fc87d81c62e9abb8790b6e5713c55bad6b5d7306421b68182b7adc716e360ab">TLV_ASN1_LOW_TAG_LIMIT</a> = 31
 , <br />
-&#160;&#160;<a class="el" href="group__formats.html#ggadc29c2ff13d900c2f185ee95427fb06cadb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> = 8
+&#160;&#160;<a class="el" href="group__formats.html#gga06fc87d81c62e9abb8790b6e5713c55badb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> = 8
 <br />
  }</td></tr>
-<tr class="memdesc:gadc29c2ff13d900c2f185ee95427fb06c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Identifier octet bit layout below the class field (X.690 section 8.1.2).  <a href="group__formats.html#gadc29c2ff13d900c2f185ee95427fb06c">More...</a><br /></td></tr>
-<tr class="separator:gadc29c2ff13d900c2f185ee95427fb06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga61dadd085c1777f559549e05962b2c9e" id="r_ga61dadd085c1777f559549e05962b2c9e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#gga61dadd085c1777f559549e05962b2c9eaab08cb05d4934f213e4a923a6232091c">TLV_BER_MAX_DEPTH</a> = 64
+<tr class="memdesc:ga06fc87d81c62e9abb8790b6e5713c55b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Identifier octet bit layout below the class field (X.690 section 8.1.2).  <a href="group__formats.html#ga06fc87d81c62e9abb8790b6e5713c55b">More...</a><br /></td></tr>
+<tr class="separator:ga06fc87d81c62e9abb8790b6e5713c55b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadf764cbdea00d65edcd07bb9953ad2b7" id="r_gadf764cbdea00d65edcd07bb9953ad2b7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#ggadf764cbdea00d65edcd07bb9953ad2b7aab08cb05d4934f213e4a923a6232091c">TLV_BER_MAX_DEPTH</a> = 64
  }</td></tr>
-<tr class="memdesc:ga61dadd085c1777f559549e05962b2c9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum simultaneous constructed scopes while resolving an indefinite element.  <a href="group__formats.html#ga61dadd085c1777f559549e05962b2c9e">More...</a><br /></td></tr>
-<tr class="separator:ga61dadd085c1777f559549e05962b2c9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga726ca809ffd3d67ab4b8476646f26635" id="r_ga726ca809ffd3d67ab4b8476646f26635"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#gga726ca809ffd3d67ab4b8476646f26635a64906a3a7749fb32293ae5bdf23ecc8b">TLV_BER_LENGTH_MAX_ENCODED_SIZE</a> = 9
+<tr class="memdesc:gadf764cbdea00d65edcd07bb9953ad2b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum simultaneous constructed scopes while resolving an indefinite element.  <a href="group__formats.html#gadf764cbdea00d65edcd07bb9953ad2b7">More...</a><br /></td></tr>
+<tr class="separator:gadf764cbdea00d65edcd07bb9953ad2b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga99fb83031ce9923c84392b4e92f956b5" id="r_ga99fb83031ce9923c84392b4e92f956b5"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a64906a3a7749fb32293ae5bdf23ecc8b">TLV_BER_LENGTH_MAX_ENCODED_SIZE</a> = 9
  }</td></tr>
-<tr class="memdesc:ga726ca809ffd3d67ab4b8476646f26635"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a>.  <a href="group__formats.html#ga726ca809ffd3d67ab4b8476646f26635">More...</a><br /></td></tr>
-<tr class="separator:ga726ca809ffd3d67ab4b8476646f26635"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:ga99fb83031ce9923c84392b4e92f956b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a>.  <a href="group__formats.html#ga99fb83031ce9923c84392b4e92f956b5">More...</a><br /></td></tr>
+<tr class="separator:ga99fb83031ce9923c84392b4e92f956b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>

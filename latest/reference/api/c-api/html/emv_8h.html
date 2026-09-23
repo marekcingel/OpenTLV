@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/profiles/emv.h File Reference</title>
+<title>OpenTLV C API: tlv/builtins/emv/emv.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_a3f9ba04959ce8c6652d691c0e4bba49.html">tlv</a></li><li class="navelem"><a class="el" href="dir_8d3e941f55336e71dae03beac84a70f6.html">profiles</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_a3f9ba04959ce8c6652d691c0e4bba49.html">tlv</a></li><li class="navelem"><a class="el" href="dir_8b82bffcd3c512cd15acf505c369c9fa.html">builtins</a></li><li class="navelem"><a class="el" href="dir_a223a79e409f8655c8a731ca9c3a41c6.html">emv</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -86,8 +86,8 @@ $(function() {
 <p>EMV Contact Book 3 data dictionary: tag constants, schemas and lookup.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="schema_8h.html">tlv/schemas/schema.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="tlv_2include_2tlv_2codec_2emv_8h.html">tlv/codec/emv.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="schema_8h.html">tlv/schema/schema.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="emv__codec_8h.html">tlv/builtins/emv/emv_codec.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -305,7 +305,7 @@ Enumerations</h2></td></tr>
 <tr class="memdesc:gab29f1aa0fa23a7292f008334812b6509"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dictionary context a tag is interpreted under.  <a href="group__profiles.html#gab29f1aa0fa23a7292f008334812b6509">More...</a><br /></td></tr>
 <tr class="separator:gab29f1aa0fa23a7292f008334812b6509"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Numeric tag constants</div></td></tr>
-<tr><td colspan="2"><div class="groupText"><p>Integer constants generated from tlv/profiles/emv_tags.def.</p>
+<tr><td colspan="2"><div class="groupText"><p>Integer constants generated from tlv/builtins/emv/emv_tags.def.</p>
 <p>Each dictionary entry produces an enumerator <code>tlv_emv_tag_&lt;name&gt;_u64</code>, for example <code>tlv_emv_tag_aip_u64</code>. These are integer constant expressions usable in C and C++ case labels. Names retain the dictionary suffix. Capacity filtering matches the raw tag objects. All current dictionary values fit in an <code>int</code>. </p>
 </div></td></tr>
 <tr class="memitem:ga80155586fa275b28773c9b203f52caba" id="r_ga80155586fa275b28773c9b203f52caba"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__profiles.html#gga80155586fa275b28773c9b203f52cabaaa5fba66faa9706100373cfe024d76017">tlv_emv_tag_iin_u64</a> = (( 1 ) == 1 ? ( 0x42 ) : (( 0x42 ) &lt;&lt; 8) | ( 0 ))
@@ -840,7 +840,7 @@ Variables</h2></td></tr>
 <tr class="memdesc:ga6bb3be06c9d27230b304d3e6167765ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">The dictionary schema for <a class="el" href="group__profiles.html#ggab29f1aa0fa23a7292f008334812b6509a74ce8a3185f9b46b3bf4722357e95fba">TLV_EMV_CONTEXT_BASE</a>; an immutable static table.  <br /></td></tr>
 <tr class="separator:ga6bb3be06c9d27230b304d3e6167765ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Tag objects</div></td></tr>
-<tr><td colspan="2"><div class="groupText"><p>Raw tag constants generated from tlv/profiles/emv_tags.def.</p>
+<tr><td colspan="2"><div class="groupText"><p>Raw tag constants generated from tlv/builtins/emv/emv_tags.def.</p>
 <p>Each dictionary entry produces a constant <code>tlv_emv_tag_&lt;name&gt;</code> of type <code>const <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of raw bytes in wire order.">tlv_tag_t</a></code>, the same universal tag type used by generic I/O. </p>
 </div></td></tr>
 <tr class="memitem:ga3fdffb2ccc8022e6f53f3d2440a6dabb" id="r_ga3fdffb2ccc8022e6f53f3d2440a6dabb"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__profiles.html#ga3fdffb2ccc8022e6f53f3d2440a6dabb">tlv_emv_tag_iin</a></td></tr>

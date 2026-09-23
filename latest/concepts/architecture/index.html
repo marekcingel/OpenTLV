@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#layered-opentlv-architecture-65" class="md-skip">
+        <a href="#layered-opentlv-architecture-65-279" class="md-skip">
           Skip to content
         </a>
       
@@ -2608,7 +2608,7 @@
   
 
 
-<h1 id="layered-opentlv-architecture-65">Layered OpenTLV architecture (#65)<a class="headerlink" href="#layered-opentlv-architecture-65" title="Permanent link">&para;</a></h1>
+<h1 id="layered-opentlv-architecture-65-279">Layered OpenTLV architecture (#65, #279)<a class="headerlink" href="#layered-opentlv-architecture-65-279" title="Permanent link">&para;</a></h1>
 <p>OpenTLV provides one C library (<code>tlv</code>) and a header-only C++ interface (<code>tlv++</code>)
 that links to it. Core is a logical responsibility, not a directory. Optional
 components are concrete formats and profiles, rather than entire layers.</p>
@@ -2658,6 +2658,12 @@ components are concrete formats and profiles, rather than entire layers.</p>
 format implementations never need to be named by the reader/writer. A codec
 does not have to use a schema. Existing C++ tag-associated codecs remain valid.
 Bindings are part of the codec area, not another architectural layer.</p>
+<p>Formats and profiles are roles, not folders: every concrete format or profile
+implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV, the fixed formats)
+lives under <code>builtins/&lt;protocol&gt;/</code>, grouped by protocol rather than by role,
+so all of a protocol's format, schema, codec and profile files sit together.
+Generic subsystems (<code>reader/</code>, <code>writer/</code>, <code>query/</code>, <code>schema/</code>, <code>codec/</code>,
+<code>document/</code>) never depend on <code>builtins/</code>.</p>
 <p><code>reader/scanner</code> is a recovery utility above the raw reader and schema lookup.
 Its location groups reading-related tools, without classifying every file in
 that folder as the lowest-level core. Profiles compose lower facilities; lower
@@ -2667,24 +2673,32 @@ backend; selecting DER does not require the public BER component.</p>
 <h2 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
 <p>Public headers under <code>tlv/include/tlv/</code> and sources under <code>tlv/src/</code> use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tlv/
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  view.h, value.h, length.h, error.h, endian.h, copy.h, tlv.h
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  formats/
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    format.h
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    default/ default.h
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    fixed/   fixed_1byte.h
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    bluetooth/ bluetooth_ltv.h
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    asn1/    ber.h, der.h
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  reader/    reader.h, walker.h, scanner.h
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  query/     query.h
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  document/  document.h
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  writer/    writer.h
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>  schemas/   schema.h
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>  codec/     codec.h, structure.h, emv.h
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>  profiles/  emv.h, emv_tags.def, der.h
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  view.h, value.h, length.h, error.h, endian.h, copy.h, format.h, tlv.h
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  reader/    reader.h, walker.h, scanner.h
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  query/     query.h
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  document/  document.h
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  writer/    writer.h
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  schema/    schema.h
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  codec/     codec.h, structure.h
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  builtins/
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    fixed/     default.h, fixed_1byte.h
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    bluetooth/ bluetooth_ltv.h
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
 </code></pre></div>
 <p>The tree shows the public layout; corresponding implementation files use <code>.c</code>.
-BER and DER share <code>src/formats/asn1/ber_internal.c</code> and its private header.
-The default encoding and fixed-width encodings have their own folders.
+Small fundamental types (<code>tag.h</code>, <code>length.h</code>, <code>value.h</code>, <code>view.h</code>, and the
+generic <code>format.h</code> descriptor contracts) sit directly under <code>tlv/</code>, alongside
+the generic subsystem folders. Every concrete format or profile OpenTLV ships
+lives under <code>builtins/&lt;protocol&gt;/</code>, so all of a protocol's functionality is
+in one place instead of scattered across role-based folders: EMV's schema,
+codec, DOL and umbrella profile header are all under <code>builtins/emv/</code>, and
+ASN.1's wire formats and bounded DER/CER profile operations are all under
+<code>builtins/asn1/</code>. Wire-level <code>der.h</code>/<code>cer.h</code> and the bounded profile headers
+that build on them would otherwise share a name, so the profile headers are
+<code>der_profile.h</code>/<code>cer_profile.h</code>; similarly <code>builtins/emv/emv_codec.h</code> (moved
+from <code>codec/emv.h</code>) is distinct from the umbrella <code>builtins/emv/emv.h</code>.
+BER and DER share <code>src/builtins/asn1/ber_internal.c</code> and its private header.
 Internal schema validation, BER helpers and EMV value codecs have dedicated
 source files. <code>config.h</code> and <code>version.h</code> are generated into the build include
 directory. The public aggregate <code>tlv/tlv.h</code> includes enabled components; generic
@@ -2832,11 +2846,24 @@ is built only when that component is enabled.</p>
 </code></pre></div>
 <h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>
 <p>Update flat includes to the folders above (<code>tlv/reader.h</code> becomes
-<code>tlv/reader/reader.h</code>, <code>tlv/format.h</code> becomes <code>tlv/formats/format.h</code>, and so on).
-Concrete format declarations use <code>tlv/formats/default/default.h</code>,
-<code>tlv/formats/fixed/fixed_1byte.h</code>, <code>tlv/formats/asn1/ber.h</code>, or
-<code>tlv/formats/asn1/der.h</code>; the public aggregate includes enabled formats.
-Replace typed <code>writer.write(value)</code> with
+<code>tlv/reader/reader.h</code>, and so on). Concrete format declarations use
+<code>tlv/builtins/fixed/default.h</code>, <code>tlv/builtins/fixed/fixed_1byte.h</code>,
+<code>tlv/builtins/asn1/ber.h</code>, or <code>tlv/builtins/asn1/der.h</code>; the public
+aggregate includes enabled formats.</p>
+<p><code>tlv/formats/</code> and <code>tlv/profiles/</code> (#279) no longer exist: every built-in
+protocol implementation moved under <code>builtins/&lt;protocol&gt;/</code>. Concrete format
+headers keep their names (<code>tlv/formats/asn1/der.h</code> becomes
+<code>tlv/builtins/asn1/der.h</code>); the bounded DER/CER profile headers are renamed
+to avoid colliding with the wire-format headers of the same name
+(<code>tlv/profiles/der.h</code> becomes <code>tlv/builtins/asn1/der_profile.h</code>,
+<code>tlv/profiles/cer.h</code> becomes <code>tlv/builtins/asn1/cer_profile.h</code>). EMV moves
+and consolidates under <code>tlv/builtins/emv/</code>: <code>tlv/profiles/emv.h</code> becomes
+<code>tlv/builtins/emv/emv.h</code>, <code>tlv/profiles/emv_schema.h</code>,
+<code>tlv/profiles/emv_tags.def</code> and <code>tlv/profiles/dol.h</code> move alongside it
+unchanged, and <code>tlv/codec/emv.h</code> (the semantic value codecs) becomes
+<code>tlv/builtins/emv/emv_codec.h</code> to avoid colliding with the umbrella EMV
+header. <code>tlv/schemas/schema.h</code> becomes <code>tlv/schema/schema.h</code>.</p>
+<p>Replace typed <code>writer.write(value)</code> with
 <code>tlv::write_value(writer, value)</code>. Raw <code>writer.write(tag, bytes)</code> is unchanged.
 Split custom descriptors into <code>tlv_reader_format_t</code> and <code>tlv_writer_format_t</code>.
 Use matching <code>tlv_reader_format_&lt;name&gt;</code> / <code>tlv_writer_format_&lt;name&gt;</code> constants

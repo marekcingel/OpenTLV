@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/profiles/cer.h File Reference</title>
+<title>OpenTLV C API: tlv/builtins/asn1/cer_profile.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_26637d7a613e76b90f6e44c54177eb99.html">profiles</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_68ef050ef5f29de0a07bb3959d18ba24.html">builtins</a></li><li class="navelem"><a class="el" href="dir_ecf412ed773d37aac121bdc75e323fd9.html">asn1</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -79,14 +79,14 @@ $(function() {
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
-  <div class="headertitle"><div class="title">cer.h File Reference<div class="ingroups"><a class="el" href="group__profiles.html">Profiles</a></div></div></div>
+  <div class="headertitle"><div class="title">cer_profile.h File Reference<div class="ingroups"><a class="el" href="group__profiles.html">Profiles</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
 <p>Bounded recursive CER validation, traversal and canonical writing.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="formats_2asn1_2cer_8h.html">tlv/formats/asn1/cer.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="cer_8h.html">tlv/builtins/asn1/cer.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="walker_8h.html">tlv/reader/walker.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
@@ -107,14 +107,14 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:ga0411cd49bb5b71852cecd93bcbf0ca2d" id="r_ga0411cd49bb5b71852cecd93bcbf0ca2d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__profiles.html#gga0411cd49bb5b71852cecd93bcbf0ca2da70d01b3961166116608d708541a6e515">TLV_CER_MAX_SEGMENT_OCTETS</a> = 1000
+<tr class="memitem:gabc6126af1d45847bc59afa0aa3216b04" id="r_gabc6126af1d45847bc59afa0aa3216b04"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__profiles.html#ggabc6126af1d45847bc59afa0aa3216b04a70d01b3961166116608d708541a6e515">TLV_CER_MAX_SEGMENT_OCTETS</a> = 1000
  }</td></tr>
-<tr class="memdesc:ga0411cd49bb5b71852cecd93bcbf0ca2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum content octets of a single CER string segment (ITU-T X.690 section 9.2).  <a href="group__profiles.html#ga0411cd49bb5b71852cecd93bcbf0ca2d">More...</a><br /></td></tr>
-<tr class="separator:ga0411cd49bb5b71852cecd93bcbf0ca2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabed82baf7f470b522273a3e37c24c600" id="r_gabed82baf7f470b522273a3e37c24c600"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__profiles.html#ggabed82baf7f470b522273a3e37c24c600a0ecd2bdcc87437a04f7935692c4f9c99">TLV_CER_MAX_DEPTH</a> = 64
+<tr class="memdesc:gabc6126af1d45847bc59afa0aa3216b04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum content octets of a single CER string segment (ITU-T X.690 section 9.2).  <a href="group__profiles.html#gabc6126af1d45847bc59afa0aa3216b04">More...</a><br /></td></tr>
+<tr class="separator:gabc6126af1d45847bc59afa0aa3216b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadc29c2ff13d900c2f185ee95427fb06c" id="r_gadc29c2ff13d900c2f185ee95427fb06c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__profiles.html#ggadc29c2ff13d900c2f185ee95427fb06ca0ecd2bdcc87437a04f7935692c4f9c99">TLV_CER_MAX_DEPTH</a> = 64
  }</td></tr>
-<tr class="memdesc:gabed82baf7f470b522273a3e37c24c600"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum <code>max_depth</code> accepted in <a class="el" href="group__profiles.html#ga0db492e34a92eb40b65521aaa818ea38" title="Inclusive resource limits for CER validation and writing.">tlv_cer_limits_t</a>.  <a href="group__profiles.html#gabed82baf7f470b522273a3e37c24c600">More...</a><br /></td></tr>
-<tr class="separator:gabed82baf7f470b522273a3e37c24c600"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:gadc29c2ff13d900c2f185ee95427fb06c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum <code>max_depth</code> accepted in <a class="el" href="group__profiles.html#ga0db492e34a92eb40b65521aaa818ea38" title="Inclusive resource limits for CER validation and writing.">tlv_cer_limits_t</a>.  <a href="group__profiles.html#gadc29c2ff13d900c2f185ee95427fb06c">More...</a><br /></td></tr>
+<tr class="separator:gadc29c2ff13d900c2f185ee95427fb06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>

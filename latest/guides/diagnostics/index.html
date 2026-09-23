@@ -2662,7 +2662,7 @@ it finds, not just the first: <code>tlv_schema_validate_all_diag()</code> behave
 exactly like <code>tlv_schema_validate_all()</code> (see
 <a href="../schemas/#reporting-every-violation">Reporting every violation</a>), and
 additionally fills each recorded violation as a <code>tlv_schema_diagnostic_t</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/schemas/schema.h"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/schema/schema.h"</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">tlv_schema_diagnostic_t</span><span class="w">        </span><span class="n">diagnostics</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">tlv_schema_diagnostic_report_t</span><span class="w"> </span><span class="n">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">diagnostics</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>

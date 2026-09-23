@@ -2967,7 +2967,7 @@ codec's own diagnostic; the element itself is still printed, and the command
 does not fail because of it.</p>
 <p>Decoded output favors the codec's own C representation over further
 interpretation: numeric fields (including currency amounts, which the codec
-returns as unscaled minor units - see <code>tlv/codec/emv.h</code>) print as a plain
+returns as unscaled minor units - see <code>tlv/builtins/emv/emv_codec.h</code>) print as a plain
 decimal integer, bit flags print as hexadecimal, dates/times print as
 <code>YYYY-MM-DD</code>/<code>HH:MM:SS</code> (the century of a date is assumed, as the dictionary
 value itself does not carry one), and enumerated or composite kinds (account

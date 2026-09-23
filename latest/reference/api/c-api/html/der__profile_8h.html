@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/profiles/der.h File Reference</title>
+<title>OpenTLV C API: tlv/builtins/asn1/der_profile.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_26637d7a613e76b90f6e44c54177eb99.html">profiles</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_68ef050ef5f29de0a07bb3959d18ba24.html">builtins</a></li><li class="navelem"><a class="el" href="dir_ecf412ed773d37aac121bdc75e323fd9.html">asn1</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -79,14 +79,14 @@ $(function() {
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
-  <div class="headertitle"><div class="title">der.h File Reference<div class="ingroups"><a class="el" href="group__profiles.html">Profiles</a></div></div></div>
+  <div class="headertitle"><div class="title">der_profile.h File Reference<div class="ingroups"><a class="el" href="group__profiles.html">Profiles</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
 <p>Bounded recursive DER validation, traversal and canonical writing.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="formats_2asn1_2der_8h.html">tlv/formats/asn1/der.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="der_8h.html">tlv/builtins/asn1/der.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="walker_8h.html">tlv/reader/walker.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
@@ -107,10 +107,10 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:gab04a0655cd1e3bcac5e8f48c18df1a57" id="r_gab04a0655cd1e3bcac5e8f48c18df1a57"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__profiles.html#ggab04a0655cd1e3bcac5e8f48c18df1a57a8f21d3c0458273344dfbb21429e60b44">TLV_DER_MAX_DEPTH</a> = 64
+<tr class="memitem:ga61dadd085c1777f559549e05962b2c9e" id="r_ga61dadd085c1777f559549e05962b2c9e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__profiles.html#gga61dadd085c1777f559549e05962b2c9ea8f21d3c0458273344dfbb21429e60b44">TLV_DER_MAX_DEPTH</a> = 64
  }</td></tr>
-<tr class="memdesc:gab04a0655cd1e3bcac5e8f48c18df1a57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum <code>max_depth</code> accepted in <a class="el" href="group__profiles.html#gad5f79801dce4d3f1d84333b9c9eeb165" title="Inclusive resource limits for DER validation and writing.">tlv_der_limits_t</a>.  <a href="group__profiles.html#gab04a0655cd1e3bcac5e8f48c18df1a57">More...</a><br /></td></tr>
-<tr class="separator:gab04a0655cd1e3bcac5e8f48c18df1a57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:ga61dadd085c1777f559549e05962b2c9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum <code>max_depth</code> accepted in <a class="el" href="group__profiles.html#gad5f79801dce4d3f1d84333b9c9eeb165" title="Inclusive resource limits for DER validation and writing.">tlv_der_limits_t</a>.  <a href="group__profiles.html#ga61dadd085c1777f559549e05962b2c9e">More...</a><br /></td></tr>
+<tr class="separator:ga61dadd085c1777f559549e05962b2c9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>

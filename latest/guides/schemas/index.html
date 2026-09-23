@@ -2521,7 +2521,7 @@
 
 
 <h1 id="optional-c-schemas">Optional C schemas<a class="headerlink" href="#optional-c-schemas" title="Permanent link">&para;</a></h1>
-<p>Include <code>tlv/schemas/schema.h</code> to describe known tags using constant tables.
+<p>Include <code>tlv/schema/schema.h</code> to describe known tags using constant tables.
 This engine is format-agnostic and expresses occurrence, nesting and
 membership only; it has no ASN.1 semantics. For DER-specific canonical rules
 it cannot express (SET/SET OF ordering, CHOICE, implicit/explicit tagging,
@@ -2588,7 +2588,7 @@ use 1/1; optional fields use 0/1; repeatable fields can use <code>SIZE_MAX</code
 maximum. Tags must be unique within the rule table. <code>allow_unknown</code> explicitly
 controls unlisted children. <code>kind</code> is ANY, PRIMITIVE or CONSTRUCTED. Child schemas
 require CONSTRUCTED and are checked even for an empty container.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/schemas/schema.h"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/schema/schema.h"</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag_1</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">};</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag_2</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">};</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_structure_rule_t</span><span class="w"> </span><span class="n">rules</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>

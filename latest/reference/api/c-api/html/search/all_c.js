@@ -2,7 +2,7 @@ var searchData=
 [
   ['occurs_0',['occurs',['../structtlv__schema__diagnostic.html#ae57e6b4e4fa3d9d3f4946bd6beb8f030',1,'tlv_schema_diagnostic']]],
   ['offline_5fauth_5frecord_5fcount_1',['offline_auth_record_count',['../structtlv__emv__afl__entry__t.html#a77a2a108261b65e6a1f463af8dc06505',1,'tlv_emv_afl_entry_t']]],
-  ['offset_2',['offset',['../structtlv__diagnostic.html#a969e40206405a7b642395115d14b1ae7',1,'tlv_diagnostic::offset'],['../structtlv__der__schema__record.html#a2cccc1b6168839b35b3c85b84e7a532b',1,'tlv_der_schema_record::offset'],['../structtlv__schema__issue.html#a9488e25d134c31327b6950361031202a',1,'tlv_schema_issue::offset']]],
+  ['offset_2',['offset',['../structtlv__der__schema__record.html#a2cccc1b6168839b35b3c85b84e7a532b',1,'tlv_der_schema_record::offset'],['../structtlv__diagnostic.html#a969e40206405a7b642395115d14b1ae7',1,'tlv_diagnostic::offset'],['../structtlv__schema__issue.html#a9488e25d134c31327b6950361031202a',1,'tlv_schema_issue::offset']]],
   ['opentlv_20c_20api_20reference_3',['OpenTLV C API reference',['../index.html',1,'']]],
   ['opentlv_5fdocument_4',['OPENTLV_DOCUMENT',['../group__core.html#ga320d5efa11483229ed4348153ce20270',1,'config.h']]],
   ['opentlv_5fformat_5fasn1_5',['OPENTLV_FORMAT_ASN1',['../group__core.html#gadeb7a2dd1dfa1e9bef83dc24d0092d67',1,'config.h']]],

@@ -2873,7 +2873,7 @@ The source value must not overlap the destination element. Callback errors
 propagate and may leave partially encoded bytes. <code>tlv_writer_write</code> uses the
 same encoder and advances its position only on success.</p>
 <h2 id="generic-interface">Generic interface<a class="headerlink" href="#generic-interface" title="Permanent link">&para;</a></h2>
-<p>Include <code>tlv/formats/format.h</code> for the allocation-free, type-distinct descriptors:</p>
+<p>Include <code>tlv/format.h</code> for the allocation-free, type-distinct descriptors:</p>
 <ul>
 <li><code>tlv_reader_format_t</code>: <code>context</code>, <code>read_tag</code>, <code>read_length</code>, optional <code>read_value_bounds</code>, optional <code>read_element</code>.</li>
 <li><code>tlv_writer_format_t</code>: <code>context</code>, <code>write_tag</code>, <code>write_length</code>, <code>length_size</code>, optional <code>write_header</code>.</li>
@@ -2937,9 +2937,9 @@ a two-byte tag and a fixed two-byte little-endian length, then uses the same
 generic reader and writer to round-trip multiple items. Adding a format only
 requires a descriptor and callbacks in application code, without parser edits.</p>
 <h2 id="nested-traversal">Nested traversal<a class="headerlink" href="#nested-traversal" title="Permanent link">&para;</a></h2>
-<p>Concrete descriptors are declared in <code>tlv/formats/default/default.h</code>,
-<code>tlv/formats/fixed/fixed_1byte.h</code>, <code>tlv/formats/asn1/ber.h</code>,
-<code>tlv/formats/asn1/der.h</code>, and <code>tlv/formats/asn1/cer.h</code>. The generic <code>format.h</code>
+<p>Concrete descriptors are declared in <code>tlv/builtins/fixed/default.h</code>,
+<code>tlv/builtins/fixed/fixed_1byte.h</code>, <code>tlv/builtins/asn1/ber.h</code>,
+<code>tlv/builtins/asn1/der.h</code>, and <code>tlv/builtins/asn1/cer.h</code>. The generic <code>format.h</code>
 declares only the contract.</p>
 <p>The separate optional <code>tlv_is_constructed_fn</code> traversal argument identifies
 values containing child TLVs in the same format. It receives the reader

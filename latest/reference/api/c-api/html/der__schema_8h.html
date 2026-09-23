@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/profiles/der_schema.h File Reference</title>
+<title>OpenTLV C API: tlv/builtins/asn1/der_schema.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_26637d7a613e76b90f6e44c54177eb99.html">profiles</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_68ef050ef5f29de0a07bb3959d18ba24.html">builtins</a></li><li class="navelem"><a class="el" href="dir_ecf412ed773d37aac121bdc75e323fd9.html">asn1</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -86,8 +86,8 @@ $(function() {
 <p>Schema-aware ASN.1 DER validation and encoding.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="profiles_2der_8h.html">tlv/profiles/der.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="formats_2asn1_2der_8h.html">tlv/formats/asn1/der.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="der__profile_8h.html">tlv/builtins/asn1/der_profile.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="der_8h.html">tlv/builtins/asn1/der.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="view_8h.html">tlv/view.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
@@ -159,14 +159,14 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gaf5151939698b214c757c2cc214f04f73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether a component must appear.  <a href="group__schemas.html#gaf5151939698b214c757c2cc214f04f73">More...</a><br /></td></tr>
 <tr class="separator:gaf5151939698b214c757c2cc214f04f73"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga385c44f6fb256e5716a2302a5b940388" id="r_ga385c44f6fb256e5716a2302a5b940388"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#gga385c44f6fb256e5716a2302a5b940388a798300a9168dc388bc12647ac3352a79">TLV_DER_SCHEMA_MAX_TYPE_DEPTH</a> = 32
+<tr class="memitem:ga726ca809ffd3d67ab4b8476646f26635" id="r_ga726ca809ffd3d67ab4b8476646f26635"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#gga726ca809ffd3d67ab4b8476646f26635a798300a9168dc388bc12647ac3352a79">TLV_DER_SCHEMA_MAX_TYPE_DEPTH</a> = 32
  }</td></tr>
-<tr class="memdesc:ga385c44f6fb256e5716a2302a5b940388"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bound on schema type-graph recursion while resolving a single wire position.  <a href="group__schemas.html#ga385c44f6fb256e5716a2302a5b940388">More...</a><br /></td></tr>
-<tr class="separator:ga385c44f6fb256e5716a2302a5b940388"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabc5c98fcc1211af2b80116dd6e0a035d" id="r_gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggabc5c98fcc1211af2b80116dd6e0a035da503cd8aa2cb92e1815c0e9acebc1db4d">TLV_DER_SCHEMA_MAX_COMPONENTS</a> = 64
+<tr class="memdesc:ga726ca809ffd3d67ab4b8476646f26635"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bound on schema type-graph recursion while resolving a single wire position.  <a href="group__schemas.html#ga726ca809ffd3d67ab4b8476646f26635">More...</a><br /></td></tr>
+<tr class="separator:ga726ca809ffd3d67ab4b8476646f26635"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0411cd49bb5b71852cecd93bcbf0ca2d" id="r_ga0411cd49bb5b71852cecd93bcbf0ca2d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#gga0411cd49bb5b71852cecd93bcbf0ca2da503cd8aa2cb92e1815c0e9acebc1db4d">TLV_DER_SCHEMA_MAX_COMPONENTS</a> = 64
  }</td></tr>
-<tr class="memdesc:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum direct components of one SEQUENCE, SET or CHOICE.  <a href="group__schemas.html#gabc5c98fcc1211af2b80116dd6e0a035d">More...</a><br /></td></tr>
-<tr class="separator:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:ga0411cd49bb5b71852cecd93bcbf0ca2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum direct components of one SEQUENCE, SET or CHOICE.  <a href="group__schemas.html#ga0411cd49bb5b71852cecd93bcbf0ca2d">More...</a><br /></td></tr>
+<tr class="separator:ga0411cd49bb5b71852cecd93bcbf0ca2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -188,8 +188,8 @@ Variables</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Schema-aware ASN.1 DER validation and encoding. </p>
-<p>A small, fixed subset of ASN.1 (SEQUENCE, SET, SET OF, CHOICE, UNIVERSAL leaves, IMPLICIT/EXPLICIT tagging, REQUIRED/OPTIONAL/DEFAULT components, and an unrestricted ANY escape hatch), layered on top of <a class="el" href="profiles_2der_8h.html" title="Bounded recursive DER validation, traversal and canonical writing.">tlv/profiles/der.h</a> to enforce canonical rules raw TLV structure alone cannot express: SET vs SET OF ordering, underlying-type validation of implicitly tagged content, explicit-tag wrapper structure, CHOICE resolution and DEFAULT-value omission.</p>
-<p>This is not an ASN.1 compiler or an unrestricted type system. Schemas are borrowed, immutable, caller-authored static tables (as with <a class="el" href="schema_8h.html" title="Length schemas and structural schemas for validating TLV data.">tlv/schemas/schema.h</a>'s <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf" title="Borrowed set of structural rules for one parent scope.">tlv_structure_schema_t</a>, which this module does not use or extend: that type is format-agnostic and has no ASN.1 semantics). Every entry point here is unconditionally as strict as <a class="el" href="group__profiles.html#ga0c17470b84cf9e86f8f741cec9afc03a" title="Strict counterpart of tlv_der_read().">tlv_der_read_strict()</a>: there is no permissive mode, so unresolved CHOICE tags, unsupported universal types and inconsistent schemas are always explicit errors. No allocation and no unbounded C recursion are used. </p>
+<p>A small, fixed subset of ASN.1 (SEQUENCE, SET, SET OF, CHOICE, UNIVERSAL leaves, IMPLICIT/EXPLICIT tagging, REQUIRED/OPTIONAL/DEFAULT components, and an unrestricted ANY escape hatch), layered on top of <a class="el" href="der__profile_8h.html" title="Bounded recursive DER validation, traversal and canonical writing.">tlv/builtins/asn1/der_profile.h</a> to enforce canonical rules raw TLV structure alone cannot express: SET vs SET OF ordering, underlying-type validation of implicitly tagged content, explicit-tag wrapper structure, CHOICE resolution and DEFAULT-value omission.</p>
+<p>This is not an ASN.1 compiler or an unrestricted type system. Schemas are borrowed, immutable, caller-authored static tables (as with <a class="el" href="schema_8h.html" title="Length schemas and structural schemas for validating TLV data.">tlv/schema/schema.h</a>'s <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf" title="Borrowed set of structural rules for one parent scope.">tlv_structure_schema_t</a>, which this module does not use or extend: that type is format-agnostic and has no ASN.1 semantics). Every entry point here is unconditionally as strict as <a class="el" href="group__profiles.html#ga0c17470b84cf9e86f8f741cec9afc03a" title="Strict counterpart of tlv_der_read().">tlv_der_read_strict()</a>: there is no permissive mode, so unresolved CHOICE tags, unsupported universal types and inconsistent schemas are always explicit errors. No allocation and no unbounded C recursion are used. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

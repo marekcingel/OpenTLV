@@ -2766,7 +2766,7 @@ so a candidate's "components" show which layers stay separate.</p>
 <tbody>
 <tr>
 <td>Format adapter</td>
-<td><code>tlv_reader_format_t</code> and <code>tlv_writer_format_t</code> in <code>tlv/formats/format.h</code>; the whole-element callbacks <code>read_element</code> and <code>write_header</code> handle any field order or packing</td>
+<td><code>tlv_reader_format_t</code> and <code>tlv_writer_format_t</code> in <code>tlv/format.h</code>; the whole-element callbacks <code>read_element</code> and <code>write_header</code> handle any field order or packing</td>
 <td>Splits bytes into tag, header, value and trailer, and writes a header.</td>
 </tr>
 <tr>
@@ -2776,12 +2776,12 @@ so a candidate's "components" show which layers stay separate.</p>
 </tr>
 <tr>
 <td>Structure schema</td>
-<td><code>tlv_schema_t</code> and <code>tlv_structure_schema_t</code> in <code>tlv/schemas/schema.h</code></td>
+<td><code>tlv_schema_t</code> and <code>tlv_structure_schema_t</code> in <code>tlv/schema/schema.h</code></td>
 <td>Length bounds, occurrence and membership rules.</td>
 </tr>
 <tr>
 <td>DER schema</td>
-<td><code>tlv_der_schema_type_t</code> in <code>tlv/profiles/der_schema.h</code></td>
+<td><code>tlv_der_schema_type_t</code> in <code>tlv/builtins/asn1/der_schema.h</code></td>
 <td>ASN.1 type rules with canonical DER semantics; a fixed, small subset.</td>
 </tr>
 <tr>
@@ -2959,7 +2959,7 @@ so a candidate's "components" show which layers stay separate.</p>
 <h2 id="framing-requirements">Framing requirements<a class="headerlink" href="#framing-requirements" title="Permanent link">&para;</a></h2>
 <p>These are reusable requirements collected from the candidates. Not one of them is a
 commitment. The <strong>fit</strong> column is by inspection of the callback contract in
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/include/tlv/formats/format.h"><code>format.h</code></a>: <code>read_element</code> sees the bytes from
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/include/tlv/format.h"><code>format.h</code></a>: <code>read_element</code> sees the bytes from
 the start of an element and reports the tag, the header size, the value size and the
 trailer size; <code>write_header</code> writes only the header. A tag is any
 number of raw bytes the format accepts. <strong>No candidate has been prototyped against these callbacks.</strong></p>

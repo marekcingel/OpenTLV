@@ -2587,7 +2587,7 @@
 
 
 <h1 id="asn1-der-tlv">ASN.1 DER-TLV<a class="headerlink" href="#asn1-der-tlv" title="Permanent link">&para;</a></h1>
-<p>Include <code>tlv/profiles/der.h</code> for allocation-free DER-TLV processing. Tags use the existing
+<p>Include <code>tlv/builtins/asn1/der_profile.h</code> for allocation-free DER-TLV processing. Tags use the existing
 <code>tlv_tag_t</code> wire-byte representation; values are borrowed <code>tlv_value_t</code> ranges.
 The caller owns input and output storage. Existing BER behavior is unchanged.</p>
 <h2 id="supported-scope">Supported scope<a class="headerlink" href="#supported-scope" title="Permanent link">&para;</a></h2>
@@ -2609,13 +2609,13 @@ contents are opaque by default: BOOLEAN representations, INTEGER minimality, BIT
 STRING padding, OID components and string/time/REAL encodings are only checked
 by the <code>_strict</code> functions described below. Schema constraints, implicit/explicit
 tagging, CHOICE resolution, DEFAULT omission and SET/SET OF ordering are still
-outside this scope: use <a href="#schema-aware-validation-and-encoding"><code>tlv/profiles/der_schema.h</code></a>
+outside this scope: use <a href="#schema-aware-validation-and-encoding"><code>tlv/builtins/asn1/der_schema.h</code></a>
 when those are required. Callers must supply canonical ASN.1 contents and
 ordering when full DER conformance is required beyond what <code>_strict</code> (or the
 schema-aware layer) covers. The encoder preserves contents and child order; it
 does not convert arbitrary BER or repair noncanonical input.</p>
 <h2 id="read-and-inspect-a-tag">Read and inspect a tag<a class="headerlink" href="#read-and-inspect-a-tag" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/profiles/der.h"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/der_profile.h"</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">input</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x30</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">};</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">tlv_view_t</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
@@ -2768,14 +2768,14 @@ TeletexString, VideotexString, GraphicString, GeneralString, TIME, DATE,
 TIME-OF-DAY, DATE-TIME, DURATION, OID-IRI, RELATIVE-OID-IRI, and any
 UNIVERSAL primitive tag number beyond 36.</p>
 <h2 id="schema-aware-validation-and-encoding">Schema-aware validation and encoding<a class="headerlink" href="#schema-aware-validation-and-encoding" title="Permanent link">&para;</a></h2>
-<p>Include <code>tlv/profiles/der_schema.h</code> when canonical rules depend on ASN.1 type
+<p>Include <code>tlv/builtins/asn1/der_schema.h</code> when canonical rules depend on ASN.1 type
 information that raw TLV structure alone cannot express: distinguishing SET
 from SET OF, validating implicitly tagged content against its underlying
 type, checking explicit-tag wrapper structure, resolving CHOICE alternatives,
 and enforcing REQUIRED/OPTIONAL/DEFAULT components (including DEFAULT
 omission). This is a fixed, small ASN.1 subset, <strong>not an ASN.1 compiler or an
 unrestricted type system</strong>; a schema is a borrowed, immutable, caller-authored
-static table, similar in spirit to <a href="../../guides/schemas/"><code>tlv/schemas/schema.h</code></a>
+static table, similar in spirit to <a href="../../guides/schemas/"><code>tlv/schema/schema.h</code></a>
 but distinct from it: <code>tlv_structure_schema_t</code> is format-agnostic and only
 expresses occurrence/membership, while <code>tlv_der_schema_type_t</code> is ASN.1-
 specific and expresses DER canonical semantics. A component's underlying
