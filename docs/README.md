@@ -8,8 +8,8 @@ Documentation is grouped by purpose. See
 ## Getting started
 
 - [Getting started: builds, CMake integration, and tests](getting-started/README.md)
-- Usage examples: [C](../examples/tlv/src/basic_usage.c) and [C++](../examples/tlv++/src/basic_usage.cpp)
-- [EMV tag decoding walkthrough](../examples/emv/src/tag_decoding.c)
+- Usage examples: [C](../examples/tlv/src/) and [C++](../examples/tlv++/src/basic_usage.cpp)
+- [EMV tag decoding walkthrough](../examples/tlv/src/builtins/emv/tag_decoding.c)
 
 ## Concepts
 

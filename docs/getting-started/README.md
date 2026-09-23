@@ -164,10 +164,11 @@ Run `build/tlv_demo` (Ninja/Makefiles), or `build/Release/tlv_demo.exe`
 
 Both programs are built by the `example-tlv-quick-start` and
 `example-tlv++-quick-start` targets whenever `OPENTLV_BUILD_EXAMPLES` is `ON`
-(the default) and run in CI. The [C API tour](../../examples/tlv/src/basic_usage.c),
-the [C++ example](../../examples/tlv++/src/basic_usage.cpp) with the default
-format, and the [EMV example](../../examples/emv/src/tag_decoding.c) are further
-runnable examples.
+(the default) and run in CI. The [C examples](../../examples/tlv/src/), one topic
+per file (sequential I/O, explicit copies, schema validation, codecs, a custom
+format, and the BER and CER builtins), the [C++ example](../../examples/tlv++/src/basic_usage.cpp)
+with the default format, and the [EMV example](../../examples/tlv/src/builtins/emv/tag_decoding.c)
+are further runnable examples.
 
 ## Install and generate distribution archives
 

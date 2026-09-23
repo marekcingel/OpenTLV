@@ -64,7 +64,7 @@ Errors match the built-in fixed format.
 
 ## Example
 
-<!-- example: examples/tlv++/src/fixed_format.cpp -->
+<!-- example: examples/tlv++/src/builtins/fixed/fixed_format.cpp -->
 ```cpp
 // Defines a fixed-width TLV format at compile time: two tag bytes and a
 // two-byte little-endian length, then writes and reads one element.

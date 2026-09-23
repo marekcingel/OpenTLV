@@ -315,7 +315,7 @@ object does not represent a complete or validated transaction.
 
 ## Example
 
-[examples/emv/src/tag_decoding.c](../../../examples/emv/src/tag_decoding.c) walks
+[examples/tlv/src/builtins/emv/tag_decoding.c](../../../examples/tlv/src/builtins/emv/tag_decoding.c) walks
 a whole record instead of one element: it looks up every child tag with
 `tlv_emv_find()`, checks its length with `tlv_emv_validate_length()`, decodes it
 according to `value_kind`, and leaves a tag that is unknown or has an invalid

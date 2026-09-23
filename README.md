@@ -171,10 +171,10 @@ cmake --build build --config Release --parallel
 ```
 
 See [getting started](docs/getting-started/README.md) for linking this example, CMake
-integration, C-only builds, and running tests. The [C](examples/tlv/src/basic_usage.c)
-and [C++](examples/tlv++/src/basic_usage.cpp) examples cover more of the API, and
-[examples/emv/src/tag_decoding.c](examples/emv/src/tag_decoding.c) walks a full
-EMV TLV record through tag lookup, length validation, and value decoding.
+integration, C-only builds, and running tests. The [C](examples/tlv/src/) examples
+cover more of the API, one topic per file, and the [C++](examples/tlv++/src/basic_usage.cpp)
+example covers the default format; [examples/tlv/src/builtins/emv/tag_decoding.c](examples/tlv/src/builtins/emv/tag_decoding.c)
+walks a full EMV TLV record through tag lookup, length validation, and value decoding.
 
 ## Documentation
 

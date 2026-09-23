@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix `cargo fmt --all --check` failures in the Rust `quick_start` and `write` examples. (#282)
+
 ### Changed
 
+- Split the C `basic_usage.c` "API tour" into one focused example per topic (`sequential_io.c`, `copies.c`, `schema_walk_and_scan.c`, `codecs_and_endian.c`, `custom_format.c`, and the BER/CER builtins under `builtins/asn1/`), each its own small self-checking program registered as a `ctest` entry, instead of one large file mixing unrelated topics. (#282)
+- Reorganize builtin-specific examples to mirror the library's layout: move `examples/tlv++/src/fixed_format.cpp` into `examples/tlv++/src/builtins/fixed/`, and merge the standalone `examples/emv` project into `examples/tlv/src/builtins/emv/tag_decoding.c`; their CMake targets and `ctest` entries are renamed to match. (#282)
 - Reorganize C and C++ tests to mirror the library's layout: within each of `tests/unit/`, `tests/integration/` and `tests/fuzz/`, move subsystem tests into `reader/`, `writer/`, `query/`, `schema/`, `codec/` and `document/`, and built-in tests into `builtins/asn1/`, `builtins/emv/`, `builtins/bluetooth/` and `builtins/fixed/`, with C and C++ tests of the same subsystem sharing a folder (told apart by name, e.g. `document_test.cpp` vs `test_document.cpp`); core-type and cross-cutting tests stay at each group's top level. Fuzz seed corpora move alongside their harness, under a sibling `corpus/`. See [architecture](docs/concepts/architecture.md#layout). (#281)
 - Unify GTest suite and test case naming for readability in test results: every suite now names its library (`Unit_Tlv_Endian`, `Unit_Tlvpp_Document`, ...), replacing a mix of suites with no library marker, a redundant `TLV` prefix, `TLV_CPP`, and `Tlvpp` styles; test case names are consistently PascalCase, dropping redundant `test_`/`_test` prefixes and suffixes. (#281)
 - Reorganize `tlv++` headers to mirror the C library's layout: move `tlv++/reader.hpp`/`tlv++/walker.hpp` into `reader/`, `tlv++/writer.hpp` into `writer/`, `tlv++/query.hpp` into `query/`, `tlv++/schema.hpp` into `schema/`, `tlv++/codec.hpp`/`tlv++/structure.hpp`/`tlv++/registry.hpp` into `codec/`, `tlv++/document.hpp` into `document/`, and `tlv++/ber.hpp`/`tlv++/fixed_format.hpp` into `builtins/asn1/`/`builtins/fixed/`; update `#include` paths accordingly. See [architecture](docs/concepts/architecture.md#layout). (#280)
@@ -20,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a `README.md` to `examples/tlv/src/` and `examples/tlv++/src/` grouping their example files into "start here," use cases, API tour and builtins, so a newcomer has one entry point instead of a flat file listing. (#282)
+- Add matching `parse`, `write`, `query` and `validate` use-case examples across C, C++ and Rust (Rust has no `query` example yet; the WASM/JS binding only has `parse`) that parse, build, address or check the same BER-TLV document, plus a Rust `quick_start` example matching the existing C and C++ ones; see `examples/tlv`, `examples/tlv++`, `bindings/rust/opentlv/examples` and `bindings/wasm/examples`. (#282)
 - Add generic, format-independent core utilities: `tlv_tag_is_empty()`, `tlv_tag_hash()` and `tlv_tag_copy()` for tags; `tlv_value_equal()`, `tlv_value_compare()`, `tlv_value_is_empty()`, `tlv_value_slice()` and `tlv_value_copy()` for values; and `TLV_LENGTH_MAX` and `tlv_length_add()` for overflow-safe length arithmetic; see [core types](docs/concepts/core-types.md), [borrowed values](docs/concepts/value.md) and [logical lengths](docs/concepts/length.md). (#265)
 - Extend `otlv --diagnostics`'s rendering beyond EMV schema violations: `dump`, `validate`, `decode` and `query` now all track the hierarchical path to a failure nested inside a constructed element, a plain wire error additionally reports the failing step and, where the format surfaces it, the declared length versus bytes available, and an EMV dictionary violation reports the permitted-versus-actual length and the dictionary field name; see [Diagnostics and exit codes](docs/cli/README.md#diagnostics-and-exit-codes). (#264)
 - Add `otlv --diagnostics human|compact|json` to render a `dump`/`validate`/`decode`/`query` failure as multi-line human-readable text (the new default), the CLI's original one-line wording, or a single-line JSON object with the same fields; see [Diagnostics and exit codes](docs/cli/README.md#diagnostics-and-exit-codes). (#264)
