@@ -2611,15 +2611,23 @@ submodule; <code>import opentlv_native</code> resolves straight to the compiled
 extension). For setup and usage, see <a href="../../guides/python/">Using OpenTLV from
 Python</a>. For the naming and shape this binding follows
 and adapts, see the <a href="../../concepts/bindings/">language bindings conceptual model</a>.</p>
-<p>This is infrastructure only: <code>opentlv-native</code> exposes just the linked
-library's version so far, proving the build, link and packaging pipeline
-end to end. Reader, Writer, Tag and the other conceptual-model types are not
-bound yet.</p>
+<p><code>opentlv-native</code> exposes the linked library's version, stateless
+element-parsing and -encoding calls (<code>read</code>, <code>write</code>, <code>encoded_size</code>)
+parameterized by wire format, <code>structure_validate</code> (a serialized rule tree
+in, a pass/fail with diagnostic detail out), <code>emv_decode_amount</code>/
+<code>emv_encode_amount</code> (the one concrete <code>tlv_codec_t</code> the public C API
+exports), and a <code>document_*</code>/<code>node_*</code> family wrapping <code>tlv_document_t</code>
+(as a <code>PyCapsule</code>) and <code>tlv_node_t</code> (as a plain integer; see
+<a href="../../guides/python/#relationship-to-the-c-api">relationship to the C API</a>).
+<code>opentlv</code> builds <code>Reader</code>, <code>Writer</code>, <code>Document</code>/<code>Node</code>, <code>Entry</code>, <code>Tag</code>,
+<code>Format</code>, <code>LengthSchema</code>/<code>StructureSchema</code>, the <code>OpenTLVError</code> exception
+hierarchy and the narrow <code>codec</code> submodule on top of it; see <a href="../../guides/python/">Using OpenTLV
+from Python</a>.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Requirements: Python 3.11 or newer, CMake 3.26 or newer and a C99 compiler.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>./bindings/python/opentlv-native<span class="w"> </span>./bindings/python/opentlv
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>pytest
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pytest<span class="w"> </span>bindings/python/tests
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pytest<span class="w"> </span>bindings/python/opentlv/tests
 </code></pre></div>
 <p><a href="https://scikit-build-core.readthedocs.io/">scikit-build-core</a> drives the
 <code>opentlv-native</code> build: it configures and builds the OpenTLV C library with
@@ -2650,8 +2658,8 @@ for example packages at <code>0.1.0</code> built against OpenTLV C library <code
 workflow</a>
 runs on every push and pull request to <code>main</code>: it installs both packages with
 <code>pip install ./bindings/python/opentlv-native ./bindings/python/opentlv</code> and
-runs <code>pytest bindings/python/tests</code> on Linux, and additionally on Windows and
-macOS for release tags.</p>
+runs <code>pytest bindings/python/opentlv/tests</code> on Linux, and additionally on
+Windows and macOS for release tags.</p>
 
 
 

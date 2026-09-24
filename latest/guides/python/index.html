@@ -1239,6 +1239,72 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validating
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codec
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#relationship-to-the-c-api" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2525,6 +2591,72 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validating
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codec
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#relationship-to-the-c-api" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2561,10 +2693,11 @@
 
 
 <h1 id="using-opentlv-from-python">Using OpenTLV from Python<a class="headerlink" href="#using-opentlv-from-python" title="Permanent link">&para;</a></h1>
-<p>The <code>opentlv</code> package is an experimental, infrastructure-only Python binding
-for OpenTLV: it currently exposes only the linked C library's version, as a
-proof that the native extension builds, links and packages correctly. For
-layout and build details, see <a href="../../development/python/">Python bindings</a>.</p>
+<p>The <code>opentlv</code> package is an experimental Python binding for OpenTLV. It binds
+<code>Reader</code>, <code>Writer</code>, <code>Document</code>/<code>Node</code>, <code>Entry</code>, <code>Tag</code>, <code>Format</code>,
+<code>LengthSchema</code>/<code>StructureSchema</code> and the <code>OpenTLVError</code> exception hierarchy,
+plus a narrow <code>codec</code> submodule (see <a href="#codec">Codec</a>). For layout and build
+details, see <a href="../../development/python/">Python bindings</a>.</p>
 <h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
 <p>Neither package is published to PyPI yet. Install both by path from a
 checkout of the repository, in one <code>pip install</code> call so the <code>opentlv</code>
@@ -2577,15 +2710,198 @@ see <a href="../../development/python/#build">Build</a>.</p>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">print</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
 </code></pre></div>
+<p>Runnable round-trip version:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/quick_start.py">quick_start.py</a>
+(<code>python examples/quick_start.py</code> from <code>bindings/python/opentlv</code>).</p>
+<h2 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">&para;</a></h2>
+<p><code>Reader</code> is a Python iterator over <code>Entry</code> values. Each <code>Entry</code> has a <code>Tag</code>
+and a <code>value</code> that is a zero-copy <code>memoryview</code> slice of your input.
+Constructed entries are not expanded automatically; create a new <code>Reader</code>
+over <code>entry.value</code> to descend.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">opentlv</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0xAA</span><span class="p">,</span> <span class="mh">0xBB</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">])</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+</code></pre></div>
+<p><code>data</code> may be <code>bytes</code>, <code>bytearray</code>, <code>memoryview</code>, or any other
+buffer-protocol object; the reader borrows it rather than copying it, so it
+must stay valid and unchanged for as long as the reader or its entries are
+used. <code>Reader(data)</code> uses <code>opentlv.Format.DEFAULT</code>; pass <code>format=</code> for
+another wire format, for example <code>opentlv.Reader(data, opentlv.Format.BER)</code>.</p>
+<p>Runnable version, parsing a nested BER document and handling truncated
+input:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/parse.py">parse.py</a>
+(<code>python examples/parse.py</code>).</p>
+<h2 id="writing">Writing<a class="headerlink" href="#writing" title="Permanent link">&para;</a></h2>
+<p><code>Writer</code> encodes into a buffer it owns and grows as needed, so <code>write</code> never
+fails for lack of space, only for an error the format itself reports (for
+example an unsupported tag size).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">opentlv</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">writer</span> <span class="o">=</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Writer</span><span class="p">()</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x50</span><span class="s2">"</span><span class="p">),</span> <span class="sa">b</span><span class="s2">"VISA"</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">data</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">bytes</span><span class="p">()</span>
+</code></pre></div>
+<p><code>write</code> accepts a <code>Tag</code> or raw <code>bytes</code> for the tag, and any buffer-protocol
+object for the value; <code>write_entry</code> appends a decoded <code>Entry</code>, for example
+one produced by a <code>Reader</code>, so reading and re-writing round-trips. Like
+<code>Reader</code>, <code>Writer(format=...)</code> selects the wire format.
+<code>opentlv.encoded_size(tag, value_length, format=...)</code> computes an element's
+encoded size without writing it.</p>
+<p>Runnable versions:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/write.py">write.py</a>
+builds a nested BER document bottom-up (<code>python examples/write.py</code>);
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/writer.py">writer.py</a>
+shows the growable buffer handling a value far larger than its initial
+capacity, and a genuine format error (<code>python examples/writer.py</code>).</p>
+<h2 id="validating">Validating<a class="headerlink" href="#validating" title="Permanent link">&para;</a></h2>
+<p><code>LengthSchema</code> is a pure Python per-tag length table (<code>validate_length</code> is a
+dict lookup and bounds check, so it never calls into C):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">opentlv</span><span class="w"> </span><span class="kn">import</span> <span class="n">LengthRule</span><span class="p">,</span> <span class="n">LengthSchema</span><span class="p">,</span> <span class="n">Tag</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">tag</span> <span class="o">=</span> <span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x9f\x02</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">schema</span> <span class="o">=</span> <span class="n">LengthSchema</span><span class="p">([</span><span class="n">LengthRule</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">6</span><span class="p">)])</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">schema</span><span class="o">.</span><span class="n">validate_length</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+</code></pre></div>
+<p><code>StructureSchema</code> validates framing, nesting, lengths, occurrence counts and
+child membership against a table of <code>StructureRule</code>s, running the C
+library's validator (<code>tlv_schema_validate</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">opentlv</span><span class="w"> </span><span class="kn">import</span> <span class="n">Format</span><span class="p">,</span> <span class="n">StructureRule</span><span class="p">,</span> <span class="n">StructureSchema</span><span class="p">,</span> <span class="n">Tag</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">tag</span> <span class="o">=</span> <span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x9f\x02</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">schema</span> <span class="o">=</span> <span class="n">StructureSchema</span><span class="p">([</span><span class="n">StructureRule</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">min_occurs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_occurs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>                                         <span class="n">min_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">6</span><span class="p">)])</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">Format</span><span class="o">.</span><span class="n">BER</span><span class="p">)</span>
+</code></pre></div>
+<p>A <code>StructureRule</code> is optional (0 to unrestricted occurrences) and accepts any
+length, kind and children by default; pass keyword arguments (<code>min_length</code>,
+<code>max_length</code>, <code>min_occurs</code>, <code>max_occurs</code>, <code>kind</code>, <code>children</code>) to restrict it,
+where Rust's builder methods (<code>.length()</code>, <code>.occurs()</code>, <code>.kind()</code>) become
+keyword arguments on the constructor instead. <code>children</code> nests another
+<code>StructureSchema</code> for the value's own elements and implies <code>Kind.CONSTRUCTED</code>;
+which tags are constructed depends on <code>format</code> (BER, CER and DER nest by
+their constructed bit; the default and fixed-1-byte formats never nest, so
+<code>children</code> only applies to BER, CER or DER data). <code>schema.validate()</code> raises
+<code>SchemaMissingError</code> for an absent required field, <code>SchemaError</code> for other
+rule violations (an unknown tag when <code>allow_unknown</code> is <code>False</code>, too many
+occurrences, a kind mismatch), or <code>InvalidLengthError</code> for a length failure,
+each carrying the failing <code>offset</code>.</p>
+<p>Runnable version, validating the document <code>parse.py</code> reads, and rejecting an
+incomplete one:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/validate.py">validate.py</a>
+(<code>python examples/validate.py</code>).</p>
+<h2 id="codec">Codec<a class="headerlink" href="#codec" title="Permanent link">&para;</a></h2>
+<p><code>opentlv.codec</code> binds the one concrete value codec the public OpenTLV C API
+exports, <code>tlv_emv_codec_amount</code>, for EMV format n12 amounts:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">opentlv</span><span class="w"> </span><span class="kn">import</span> <span class="n">codec</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">codec</span><span class="o">.</span><span class="n">encode_amount</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>            <span class="c1"># b"\x00\x00\x00\x01\x23\x45"</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">codec</span><span class="o">.</span><span class="n">decode_amount</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x00\x00\x00\x01\x23\x45</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># 12345</span>
+</code></pre></div>
+<p>This does not extend to the rest of Rust's <code>Codec</code>/<code>Value</code> model (dates,
+Track 2, AFL, CVM results, cryptogram info, and so on): the C functions that
+decode those (<code>emv_value_decode</code>/<code>emv_value_encode</code>) are declared only in a
+private header under <code>tlv/src/</code>, not in <code>tlv/include/</code>, so binding them would
+mean reimplementing that EMV decoding logic in Python instead of calling
+into C for it, unlike every other type this package binds. A <code>CodecError</code>
+(not an <code>OpenTLVError</code> subclass — <code>tlv_codec_result_t</code> is a separate error
+domain from <code>tlv_result_t</code>) carries the raw <code>tlv_codec_result_t</code> code as
+<code>.code</code>.</p>
+<p>Runnable version, decoding and encoding an EMV "Amount, Authorised" entry:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/codec.py">codec.py</a>
+(<code>python examples/codec.py</code>).</p>
+<h2 id="documents">Documents<a class="headerlink" href="#documents" title="Permanent link">&para;</a></h2>
+<p><code>Reader</code> and <code>Writer</code> are zero-copy and never allocate; <code>Document</code> is a
+separate, allocating convenience layer for changing an existing message. It
+parses input into an owned tree of <code>Node</code>s that can be searched, changed,
+extended and shortened, then encoded again:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">opentlv</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">Tag</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">with</span> <span class="n">Document</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">as</span> <span class="n">document</span><span class="p">:</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">node</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">first</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">node</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">"</span><span class="se">\xcc</span><span class="s2">"</span>                      <span class="c1"># replace a value</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">document</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x02</span><span class="s2">"</span><span class="p">),</span> <span class="sa">b</span><span class="s2">"</span><span class="se">\xaa</span><span class="s2">"</span><span class="p">)</span>     <span class="c1"># append a new top-level element</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="n">encoded</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+</code></pre></div>
+<p>Navigate with <code>document.first</code>/<code>for node in document</code> (top-level nodes, in
+encoding order), <code>node.first_child</code>/<code>for child in node</code> (a constructed
+node's children), <code>node.next</code>/<code>node.parent</code>, or search with
+<code>document.find(tag, parent=...)</code>, <code>node.find(tag)</code> or
+<code>document.find_path("6F/A5/50")</code> (a <code>/</code>-separated path of hexadecimal tags).
+<code>document.insert(tag, value, parent=..., before=...)</code> inserts a new element;
+assigning <code>node.value</code> replaces one. For both, a value of a tag the
+document's reader format treats as constructed (BER, CER and DER, by their
+constructed bit) is parsed as nested elements, the same way parsing does.
+<code>node.erase()</code> removes a node and its descendants. Every modification either
+succeeds completely or leaves the document unchanged, and raises an
+<code>OpenTLVError</code> subclass on failure, the same as <code>Reader</code>/<code>Writer</code>.</p>
+<p>A document owns every tag and value it holds — the only part of OpenTLV that
+allocates beyond a Python object's own memory — so close it deterministically
+with <code>close()</code> or a <code>with</code> block instead of waiting for garbage collection
+when that matters, for example for a large document. A node stays valid
+until it is erased, its value is replaced, or its document is closed or
+freed; using it afterwards is the same use-after-free hazard the C API
+itself has, not something this binding guards against.</p>
+<p>Runnable versions:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/document.py">document.py</a>
+replaces a value and appends an element in an existing message
+(<code>python examples/document.py</code>);
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/query.py">query.py</a>
+addresses a deeply nested element by path instead of navigating node by node,
+including a malformed query and a query with no match
+(<code>python examples/query.py</code>).</p>
+<h2 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<p>Every reading or writing failure raises a subclass of <code>opentlv.OpenTLVError</code>,
+one per C <code>TLV_ERR_*</code> code (<code>BufferTooShortError</code>, <code>InvalidLengthError</code>,
+<code>SchemaError</code>, and so on), so callers can catch a specific error type or the
+base class. <code>OpenTLVError.code</code> is the raw result code, and <code>str(error)</code> is
+the C <code>tlv_strerror</code> text. When the C API reports structured diagnostic
+detail for the failure, <code>offset</code>, <code>expected</code>, <code>actual</code>, <code>operation</code> and <code>tag</code>
+carry it, for both a <code>Reader</code> and a <code>Writer</code> failure; <code>length</code>, <code>required</code>
+and <code>available</code> carry additional detail only a <code>Writer</code> failure reports.
+Fields the failure does not report are <code>None</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="nb">list</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">truncated</span><span class="p">))</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">except</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">BufferTooShortError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2"> at offset </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">offset</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">operation</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+</code></pre></div>
+<p><code>Reader</code> yields entries until the first error, then raises <code>StopIteration</code> on
+every further call instead of retrying: the underlying C reader does not
+advance past malformed input.</p>
 <h2 id="relationship-to-the-c-api">Relationship to the C API<a class="headerlink" href="#relationship-to-the-c-api" title="Permanent link">&para;</a></h2>
 <p><code>opentlv-native</code> (imported as <code>opentlv_native</code>) is a native extension written
 directly against the CPython C API (no pybind11, cffi or Cython) and the
 CPython Limited API, declaring and calling the public OpenTLV C API;
 <code>opentlv</code> wraps it and contains no C API calls of its own, the same split as
-the Rust <code>opentlv-native</code>/<code>opentlv</code> crates. Only <code>tlv_version_string()</code> is
-called so far. Future work adds the Reader, Writer, Tag and other types from
-the <a href="../../concepts/bindings/">language bindings conceptual model</a>, each
-calling into the C API the same way the Rust and C++ bindings already do.</p>
+the Rust <code>opentlv-native</code>/<code>opentlv</code> crates. <code>opentlv-native</code> exposes element
+parsing (<code>tlv_read_diag</code>) and encoding (<code>tlv_write_diag</code>) as two stateless
+calls, <code>read(data, offset, format)</code> and <code>write(buffer, offset, tag, value,
+format)</code>; <code>opentlv.Reader</code> and <code>opentlv.Writer</code> keep their position in pure
+Python and call them repeatedly, the same sequential behavior
+<code>tlv_reader_next()</code>/<code>tlv_writer_write()</code> give other bindings, without needing
+to represent the C <code>tlv_reader_t</code>/<code>tlv_writer_t</code> structs on the Python side.
+Unlike the C writer, which reports <code>TLV_ERR_BUFFER_TOO_SHORT</code> for a
+caller-provided buffer that is too small, <code>opentlv.Writer</code> owns a growable
+<code>bytearray</code> and retries once after growing it to the exact required size
+(<code>required</code> on the resulting diagnostic), the same size
+<code>tlv_encoded_size()</code>/<code>opentlv.encoded_size()</code> reports. <code>StructureSchema</code>
+serializes its Python-owned rules (including nested <code>children</code> schemas) into
+an ephemeral C rule tree for the duration of one <code>structure_validate()</code> call,
+built and freed with plain <code>malloc</code>/<code>free</code>, rather than keeping a persistent
+native handle across calls the way it would for a schema reused many times;
+<code>LengthSchema</code> needs no such call at all, since its lookup and bounds check
+carry no wire-format semantics worth delegating to C. <code>codec.decode_amount</code>/
+<code>encode_amount</code> wrap <code>tlv_codec_decode</code>/<code>tlv_codec_encode</code> directly, passed
+the public <code>tlv_emv_codec_amount</code> descriptor. <code>opentlv.Document</code> wraps a
+<code>tlv_document_t*</code> in a <code>PyCapsule</code> that frees it (<code>tlv_document_free()</code>) when
+the capsule is garbage collected or <code>close()</code> drops Python's only reference
+to it; <code>opentlv.Node</code> wraps a borrowed <code>tlv_node_t*</code> as a plain integer,
+which needs no capsule of its own since nodes are freed with their document,
+not individually, and holds a reference to its <code>Document</code> so the capsule
+stays alive for as long as a node from it is reachable. This completes every
+type in the <a href="../../concepts/bindings/">language bindings conceptual
+model</a> this package's scope covers.</p>
 
 
 
