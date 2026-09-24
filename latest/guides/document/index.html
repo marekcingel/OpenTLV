@@ -1199,10 +1199,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#c" class="md-nav__link">
+  <a href="#other-languages" class="md-nav__link">
     <span class="md-ellipsis">
       
-        C++
+        Other languages
       
     </span>
   </a>
@@ -2624,10 +2624,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#c" class="md-nav__link">
+  <a href="#other-languages" class="md-nav__link">
     <span class="md-ellipsis">
       
-        C++
+        Other languages
       
     </span>
   </a>
@@ -2796,7 +2796,11 @@ that already uses the writer's spelling encodes back to identical bytes.</p>
 </table>
 <p>A document is not synchronised: concurrent reads are fine, any modification
 needs exclusive access.</p>
-<h2 id="c">C++<a class="headerlink" href="#c" title="Permanent link">&para;</a></h2>
+<h2 id="other-languages">Other languages<a class="headerlink" href="#other-languages" title="Permanent link">&para;</a></h2>
+<p>The sections above describe the C API; other bindings expose the same model.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">C++</label><label for="__tabbed_1_2">Python</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <p><code>tlv++/document/document.hpp</code> wraps the same API. <code>tlv::document</code> owns the tree and is
 move-only; <code>tlv::node</code> is a cheap non-owning handle.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv++/document/document.hpp&gt;</span>
@@ -2819,6 +2823,32 @@ move-only; <code>tlv::node</code> is a cheap non-owning handle.</p>
 <p>Handles stay valid when the document is moved. Children can be visited with
 <code>for (tlv::node child : tlv::node_range(parent.first_child()))</code>, and a path
 query works as <code>document.find(query)</code>.</p>
+</div>
+<div class="tabbed-block">
+<p><code>opentlv.Document</code> wraps the same API as a context manager; <code>Node</code> is a cheap
+non-owning handle.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">with</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Document</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Format</span><span class="o">.</span><span class="n">BER</span><span class="p">)</span> <span class="k">as</span> <span class="n">document</span><span class="p">:</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">fci</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">first</span>                       <span class="c1"># the 6F template</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">label</span> <span class="o">=</span> <span class="n">fci</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x50</span><span class="s2">"</span><span class="p">))</span>      <span class="c1"># a direct child of 6F</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">label</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">"NEW"</span>                        <span class="c1"># replace a value</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">document</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x9f\x02</span><span class="s2">"</span><span class="p">),</span> <span class="sa">b</span><span class="s2">"</span><span class="se">\x00\x00\x00\x00\x01\x00</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># append</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">encoded</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+</code></pre></div>
+<p>Navigate with <code>document.first</code>/<code>for node in document</code>, <code>node.first_child</code>/
+<code>for child in node</code>, <code>node.next</code>/<code>node.parent</code>, or search with
+<code>document.find(tag, parent=...)</code>, <code>node.find(tag)</code> or a
+<a href="../queries/">path query</a>, <code>document.find_path("6F/A5/50")</code>. Close the document
+deterministically with <code>close()</code> or a <code>with</code> block, since it is the only part
+of OpenTLV that allocates beyond a Python object's own memory. Runnable
+version, replacing a value and appending an element in an existing message:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/document.py">document.py</a>
+(<code>python examples/document.py</code>). See <a href="../python/#documents">Using OpenTLV from
+Python</a> for the full API, including error handling.</p>
+</div>
+</div>
+</div>
+<p>Rust does not bind <code>Document</code> yet; see the <a href="../../concepts/bindings/">language bindings conceptual
+model</a> for the binding coverage of each language.</p>
 <h2 id="limits-and-scope">Limits and scope<a class="headerlink" href="#limits-and-scope" title="Permanent link">&para;</a></h2>
 <ul>
 <li>The tree keeps decoded elements; it is not an editor for raw bytes. To patch

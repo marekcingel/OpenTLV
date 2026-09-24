@@ -2828,7 +2828,8 @@ extended and shortened, then encoded again:</p>
 encoding order), <code>node.first_child</code>/<code>for child in node</code> (a constructed
 node's children), <code>node.next</code>/<code>node.parent</code>, or search with
 <code>document.find(tag, parent=...)</code>, <code>node.find(tag)</code> or
-<code>document.find_path("6F/A5/50")</code> (a <code>/</code>-separated path of hexadecimal tags).
+<code>document.find_path("6F/A5/50")</code>, a <a href="../queries/">path query</a> (a <code>/</code>-separated
+path of hexadecimal tags).
 <code>document.insert(tag, value, parent=..., before=...)</code> inserts a new element;
 assigning <code>node.value</code> replaces one. For both, a value of a tag the
 document's reader format treats as constructed (BER, CER and DER, by their

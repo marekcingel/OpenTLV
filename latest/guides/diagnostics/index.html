@@ -1041,6 +1041,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#other-languages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other languages
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2623,6 +2634,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#other-languages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other languages
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2833,6 +2855,18 @@ builds a <code>tlv_diagnostic_path_t</code>, pay nothing beyond the one <code>NU
 protocol, so it carries no BER-, EMV- or CLI-specific fields; those layers
 attach their own detail through <code>contexts</code> instead. Rendering a diagnostic
 for humans is a separate concern and is not part of this type.</p>
+<h2 id="other-languages">Other languages<a class="headerlink" href="#other-languages" title="Permanent link">&para;</a></h2>
+<p>Python and Rust do not expose a shared <code>tlv_diagnostic_t</code>-shaped type; each
+reports failures in its own idiomatic error model instead. Python raises an
+<code>OpenTLVError</code> subclass per <code>TLV_ERR_*</code> code, with <code>offset</code>, <code>expected</code>,
+<code>actual</code>, <code>operation</code> and <code>tag</code> fields carrying the same detail a reader or
+writer diagnostic would (see <a href="../python/#error-handling">Using OpenTLV from Python: Error
+handling</a>). Rust returns a <code>Result&lt;T, Error&gt;</code> with
+one <code>Error</code> variant per code, plus separate <code>SchemaError</code>, <code>ProfileError</code> and
+<code>CodecError</code> types for layers that add context, rather than a single chained
+diagnostic (see <a href="../rust/#error-handling">Using OpenTLV from Rust: Error
+handling</a>). Neither binds hierarchical paths or
+context chaining yet.</p>
 
 
 

@@ -1042,6 +1042,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#other-languages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other languages
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2513,6 +2524,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#other-languages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other languages
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2625,6 +2647,16 @@ For a tested two-field mapping, see
 <code>writer.write(value)</code>. This explicit convenience helper may allocate a temporary
 vector. Raw readers/writers now include only <code>tlv++/types.hpp</code> and the C I/O
 contracts; they do not depend on codecs.</p>
+<h2 id="other-languages">Other languages<a class="headerlink" href="#other-languages" title="Permanent link">&para;</a></h2>
+<p>Python and Rust do not bind this generic callback model; each exposes its own,
+narrower codec surface instead of a <code>tlv_codec_t</code>/<code>tlv_structure_codec_t</code>
+equivalent. Python's <code>opentlv.codec</code> binds only the EMV amount codec (see
+<a href="../python/#codec">Using OpenTLV from Python: Codec</a>); Rust's <code>Codec</code>/<code>Value</code>
+cover the full EMV dictionary but reimplement its decoding logic rather than
+wrapping the C callbacks (see <a href="../../development/rust/#codecs-and-the-emv-dictionary">Rust bindings: Codecs and the EMV
+dictionary</a>). See the
+<a href="../../concepts/bindings/">language bindings conceptual model</a> for why the two
+diverge from the C/C++ shape described above.</p>
 <p>See also the <a href="../../reference/c-api/#codecs">C API reference: codecs</a>.</p>
 
 

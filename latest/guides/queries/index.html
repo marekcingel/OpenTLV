@@ -1126,28 +1126,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#c" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#c_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C++
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2535,28 +2513,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#c" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#c_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        C++
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2610,7 +2566,9 @@ format whose values can be constructed and a matching <code>is_constructed</code
 predicate, such as BER or DER; without a predicate only one-tag queries match.</p>
 <p>This is a deliberately small language. Wildcards, indexes, recursive search and
 predicates are not part of it.</p>
-<h2 id="c">C<a class="headerlink" href="#c" title="Permanent link">&para;</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">C</label><label for="__tabbed_1_2">C++</label><label for="__tabbed_1_3">Python</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/query/query.h"</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/ber.h"</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
@@ -2649,7 +2607,8 @@ element to a matcher instead:</p>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="cm">/* the element is addressed by the query */</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
 </code></pre></div>
-<h2 id="c_1">C++<a class="headerlink" href="#c_1" title="Permanent link">&para;</a></h2>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/query/query.hpp"</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">text_offset</span><span class="p">;</span>
@@ -2667,6 +2626,25 @@ element to a matcher instead:</p>
 <p><code>tlv::query</code> holds the parsed query by value and never allocates.
 <code>tlv::query::walk()</code> wraps <code>tlv_query_walk()</code> with the visitor conventions of
 <code>tlv::walk_tree()</code>.</p>
+</div>
+<div class="tabbed-block">
+<p><code>opentlv</code> does not bind the zero-copy walk directly; a query addresses
+elements of a <a href="../document/"><code>Document</code></a> instead, through <code>find_path()</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">with</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Document</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Format</span><span class="o">.</span><span class="n">BER</span><span class="p">)</span> <span class="k">as</span> <span class="n">document</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">label</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">find_path</span><span class="p">(</span><span class="s2">"6F/A5/50"</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="nb">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+</code></pre></div>
+<p>A malformed query raises <code>opentlv.InvalidArgError</code>; no match is simply
+<code>None</code>, the same as <code>document.find()</code>. Runnable version, including both
+cases:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/query.py">query.py</a>
+(<code>python examples/query.py</code>).</p>
+</div>
+</div>
+</div>
+<p>Rust does not bind path queries yet; see the <a href="../../concepts/bindings/">language bindings conceptual
+model</a> for the binding coverage of each language.</p>
 
 
 
