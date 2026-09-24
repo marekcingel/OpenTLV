@@ -3016,17 +3016,29 @@ dictionary:</p>
 INTEGER and ENUMERATED (<code>tlv_asn1_codec_integer</code>, <code>tlv_asn1_codec_enumerated</code>,
 <code>int64_t</code>), BIT STRING (<code>tlv_asn1_codec_bit_string</code>, <code>tlv_asn1_bit_string_t</code>),
 OCTET STRING (<code>tlv_asn1_codec_octet_string</code>, <code>tlv_asn1_octet_string_t</code>), NULL
-(<code>tlv_asn1_codec_null</code>, no representation) and OBJECT IDENTIFIER /
+(<code>tlv_asn1_codec_null</code>, no representation), OBJECT IDENTIFIER /
 RELATIVE-OID (<code>tlv_asn1_codec_oid</code>, <code>tlv_asn1_codec_relative_oid</code>, both
-<code>tlv_asn1_oid_t</code>, an arc array up to <code>TLV_ASN1_OID_MAX_ARCS</code>). BIT STRING and
-OCTET STRING decode into a representation that borrows the input value
-bytes; every other representation is self-contained.</p>
+<code>tlv_asn1_oid_t</code>, an arc array up to <code>TLV_ASN1_OID_MAX_ARCS</code>), the restricted
+character string types UTF8String, NumericString, PrintableString, IA5String
+and VisibleString (<code>tlv_asn1_codec_utf8_string</code>, <code>tlv_asn1_codec_numeric_string</code>,
+<code>tlv_asn1_codec_printable_string</code>, <code>tlv_asn1_codec_ia5_string</code>,
+<code>tlv_asn1_codec_visible_string</code>, all <code>tlv_asn1_string_t</code>), BMPString and
+UniversalString (<code>tlv_asn1_codec_bmp_string</code>, <code>tlv_asn1_bmp_string_t</code>, and
+<code>tlv_asn1_codec_universal_string</code>, <code>tlv_asn1_universal_string_t</code>, big-endian
+UCS-2/UCS-4 code units), and UTCTime and GeneralizedTime
+(<code>tlv_asn1_codec_utc_time</code>, <code>tlv_asn1_utc_time_t</code>, and
+<code>tlv_asn1_codec_generalized_time</code>, <code>tlv_asn1_generalized_time_t</code>, both a
+decoded calendar timestamp). BIT STRING, OCTET STRING, the restricted
+character string types, BMPString, UniversalString and GeneralizedTime's
+fractional-seconds part decode into a representation that borrows the input
+value bytes; every other representation is self-contained.</p>
 <p>Every codec enforces the same canonical content rules ITU-T X.690 section 11
 defines for DER and CER, even when the raw value was read through the more
-permissive <code>tlv_reader_format_ber</code>: for example a BOOLEAN of <code>01</code>, or a
-non-minimal two's complement INTEGER, is rejected with
-<code>TLV_CODEC_ERR_INVALID_VALUE</code>. See <code>tlv/builtins/asn1/asn1_codec.h</code> for each
-codec's exact content and representation rules.</p>
+permissive <code>tlv_reader_format_ber</code>: for example a BOOLEAN of <code>01</code>, a
+non-minimal two's complement INTEGER, or a UTCTime missing its trailing <code>Z</code>,
+is rejected with <code>TLV_CODEC_ERR_INVALID_VALUE</code>. See
+<code>tlv/builtins/asn1/asn1_codec.h</code> for each codec's exact content and
+representation rules.</p>
 <p>Malformed tags and unterminated tags on write return <code>TLV_ERR_INVALID_TAG</code>,
 unless continuation requires bytes beyond <code>TLV_ASN1_TAG_MAX_SIZE</code>. Empty tags on write and
 tags longer than <code>TLV_ASN1_TAG_MAX_SIZE</code> return <code>TLV_ERR_INVALID_TAG_SIZE</code>. Missing tag continuation or length bytes return

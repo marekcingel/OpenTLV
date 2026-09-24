@@ -12,5 +12,7 @@ var searchData=
   ['format_9',['format',['../../../c-api/html/structtlv__reader.html#aaaa5b3fbef818c1a803b707f8ba89323',1,'tlv_reader::format'],['../../../c-api/html/structtlv__writer.html#ac67cd27428c35f3ed581aad5e63e1db1',1,'tlv_writer::format']]],
   ['format_2eh_10',['format.h',['../../../c-api/html/format_8h.html',1,'']]],
   ['formats_11',['Formats',['../../../c-api/html/group__formats.html',1,'']]],
-  ['from_5fc_12',['from_c',['../structtlv_1_1error.html#aa8a240155b76d53763c77fe67c2956a6',1,'tlv::error']]]
+  ['fraction_5fdigits_12',['fraction_digits',['../../../c-api/html/structtlv__asn1__generalized__time.html#a7119fbeb3be4bb0f6d27918f68808f70',1,'tlv_asn1_generalized_time']]],
+  ['fraction_5fdigits_5flength_13',['fraction_digits_length',['../../../c-api/html/structtlv__asn1__generalized__time.html#a31f9a16f54ed2852cfe74ad1724336e1',1,'tlv_asn1_generalized_time']]],
+  ['from_5fc_14',['from_c',['../structtlv_1_1error.html#aa8a240155b76d53763c77fe67c2956a6',1,'tlv::error']]]
 ];
