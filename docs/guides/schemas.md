@@ -1,10 +1,14 @@
 # Optional C schemas
 
 Include `tlv/schema/schema.h` to describe known tags using constant tables.
-This engine is format-agnostic and expresses occurrence, nesting and
-membership only; it has no ASN.1 semantics. For DER-specific canonical rules
-it cannot express (SET/SET OF ordering, CHOICE, implicit/explicit tagging,
-DEFAULT omission), see
+This engine is format-agnostic: it expresses occurrence, ordering, mutually
+exclusive alternatives, nesting and membership using generic primitives, with
+no ASN.1-specific semantics. [Ordered, unordered and CHOICE-like
+structures](#ordered-unordered-and-choice-like-structures) below maps these
+primitives to the ASN.1 shapes they cover (SEQUENCE, SET, SET OF, CHOICE). For
+DER-specific canonical rules this engine still cannot express (implicit/explicit
+tagging, DEFAULT-value comparison against the encoded bytes, canonical SET/SET
+OF tag- or encoding-based sort order), see
 [schema-aware DER validation and encoding](../profiles/der/README.md#schema-aware-validation-and-encoding),
 a distinct schema type built for that purpose.
 
@@ -173,12 +177,90 @@ an unrelated sibling in the enclosing scope. Distinguish the two codes before
 using the offset to look up a tag. Framing and resource errors propagate.
 Success leaves the offset unchanged.
 
-No allocation or C recursion is used. Each scope is rescanned for each rule;
-complexity is `O(rules * rules + elements * rules)` per scope. Tables must remain immutable.
-Sibling ordering and cross-field/value semantics are application concerns.
-`tlv::validate` exposes these same rules through the C++ API. For a concrete
-structure schema built on this engine, see
+No allocation or C recursion is used. Each scope is rescanned for each rule and
+each group; complexity is `O((rules + groups) * (rules + elements))` per scope.
+Tables must remain immutable. Sibling order is a schema concern only when a
+scope opts into it (see below); cross-field/value semantics stay an
+application concern. `tlv::validate` exposes these same rules through the C++
+API. For a concrete structure schema built on this engine, see
 [EMV structural validation](../profiles/emv/README.md#structural-validation).
+
+## Ordered, unordered and CHOICE-like structures
+
+`tlv_structure_schema_t` has two more fields beyond `rules`, `count` and
+`allow_unknown`: `order` and `groups`/`group_count`. Together with
+`min_occurs`/`max_occurs`, they let a schema express the generic shapes ASN.1
+constructed types need, without any ASN.1-specific schema object:
+
+| Generic OpenTLV concept | ASN.1 equivalent |
+| --- | --- |
+| `order = TLV_SCHEMA_ORDER_ANY` (the default) | SET |
+| `order = TLV_SCHEMA_ORDER_SEQUENCE` | SEQUENCE |
+| A rule with `max_occurs = SIZE_MAX` | SET OF (with `order` left `ANY`) or SEQUENCE OF (with `order = TLV_SCHEMA_ORDER_SEQUENCE`) |
+| `min_occurs = 1` | a required member |
+| `min_occurs = 0` | an optional member, or a defaulted one (see below) |
+| A `tlv_structure_group_t` with `min_occurs = 1`, `max_occurs = 1`, and every member rule's own `min_occurs = 0` | CHOICE |
+
+`TLV_SCHEMA_ORDER_SEQUENCE` requires elements that match a rule to appear in
+the same relative order as their rules are listed in the table; repeated
+matches of one rule may still appear consecutively, and elements matching no
+rule are not constrained by it.
+
+A `tlv_structure_group_t` groups rules that share a nonzero
+`tlv_structure_rule_t::group`. Occurrence bounds then apply to the sum of
+matches across every member tag, instead of to each tag individually: a group
+with `min_occurs` 1 and `max_occurs` 1 requires exactly one occurrence of
+exactly one alternative. A member rule's own `min_occurs` must be 0, because
+requiredness is expressed by the group; its `max_occurs` still bounds how many
+times that one alternative may repeat.
+
+This is enough to express the ASN.1 example from
+[issue #308](https://github.com/marekcingel/OpenTLV/issues/308):
+
+```asn1
+Person ::= SEQUENCE {
+    id      INTEGER,
+    name    UTF8String,
+    comment UTF8String OPTIONAL
+}
+```
+
+/// tab | C
+
+```c
+static const tlv_structure_rule_t person_rules[] = {
+    {{TLV_TAG(1), 1, 8, 0, "id"}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL},
+    {{TLV_TAG(2), 0, 255, 0, "name"}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL},
+    {{TLV_TAG(3), 0, 255, 0, "comment"}, 0, 1, TLV_SCHEMA_PRIMITIVE, NULL},
+};
+static const tlv_structure_schema_t person_schema = {
+    person_rules, 3, 0, NULL, 0, TLV_SCHEMA_ORDER_SEQUENCE};
+```
+
+///
+
+/// tab | C++
+
+```cpp
+static const tlv_structure_rule_t person_rules[] = {
+    {{TLV_TAG(1), 1, 8, 0, "id"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(2), 0, 255, 0, "name"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(3), 0, 255, 0, "comment"}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+};
+static const tlv_structure_schema_t person_schema = {
+    person_rules, 3, 0, nullptr, 0, TLV_SCHEMA_ORDER_SEQUENCE};
+```
+
+///
+
+The reader still provides the nested TLV elements; the schema layer only
+validates their relationship (order, required/optional, and, with a `group`,
+mutual exclusivity), the same way it already validates occurrence and
+membership. DEFAULT has no dedicated representation here: since this engine
+never decodes values, a defaulted member is written the same way as an
+optional one (`min_occurs = 0`), and comparing an encoded value against its
+default stays a format-specific concern, as it already is for DER (see
+[schema-aware DER validation and encoding](../profiles/der/README.md#schema-aware-validation-and-encoding)).
 
 ## Reporting every violation
 

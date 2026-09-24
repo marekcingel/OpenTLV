@@ -26,7 +26,8 @@ typedef struct collector {
 
 /* Expected-versus-actual detail for one violation, filled only for the kinds
  * it applies to; `rule` is the matched rule, or NULL for
- * TLV_SCHEMA_ISSUE_UNEXPECTED, which has none. */
+ * TLV_SCHEMA_ISSUE_UNEXPECTED, which has none. For a group-level MISSING or
+ * DUPLICATE, `group` is set instead of `rule`. */
 typedef struct violation_detail {
     const tlv_structure_rule_t* rule;
     int has_occurs;
@@ -35,6 +36,7 @@ typedef struct violation_detail {
     size_t actual_length;
     int has_form;
     int actual_constructed;
+    const tlv_structure_group_t* group;
 } violation_detail_t;
 
 static tlv_result_t code_for_kind(tlv_schema_issue_kind_t kind) {
@@ -76,7 +78,17 @@ static void add_diagnostic(collector_t* c, tlv_schema_issue_kind_t kind, const t
     tlv_diagnostic_path_init(&diagnostic->path);
     for (size_t i = 1; i <= c->depth; ++i)
         (void)tlv_diagnostic_path_push(&diagnostic->path, c->frames[i].tag);
-    if (detail && detail->rule) {
+    if (detail && detail->group) {
+        const tlv_structure_group_t* group = detail->group;
+        diagnostic->field = group->name;
+        diagnostic->is_group = 1;
+        if (detail->has_occurs) {
+            diagnostic->has_occurs = 1;
+            diagnostic->min_occurs = group->min_occurs;
+            diagnostic->max_occurs = group->max_occurs;
+            diagnostic->occurs = detail->occurs;
+        }
+    } else if (detail && detail->rule) {
         const tlv_structure_rule_t* rule = detail->rule;
         diagnostic->field = rule->entry.name;
         if (detail->has_occurs) {
@@ -109,15 +121,36 @@ static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_ta
     if (c->diag_report) add_diagnostic(c, kind, tag, offset, detail);
 }
 
+static int group_index(const tlv_structure_schema_t* schema, uint32_t id) {
+    for (size_t g = 0; g < schema->group_count; ++g)
+        if (schema->groups[g].id == id) return (int)g;
+    return -1;
+}
+
 static tlv_result_t check_table(const tlv_structure_schema_t* schema) {
     if (!schema->rules && schema->count) return TLV_ERR_INVALID_ARG;
+    if (!schema->groups && schema->group_count) return TLV_ERR_INVALID_ARG;
+    if (schema->order != TLV_SCHEMA_ORDER_ANY && schema->order != TLV_SCHEMA_ORDER_SEQUENCE)
+        return TLV_ERR_INVALID_ARG;
+    for (size_t g = 0; g < schema->group_count; ++g) {
+        const tlv_structure_group_t* group = &schema->groups[g];
+        int has_member = 0;
+        if (!group->id || group->min_occurs > group->max_occurs) return TLV_ERR_INVALID_ARG;
+        for (size_t h = 0; h < g; ++h)
+            if (schema->groups[h].id == group->id) return TLV_ERR_INVALID_ARG;
+        for (size_t i = 0; i < schema->count; ++i)
+            if (schema->rules[i].group == group->id) has_member = 1;
+        if (!has_member) return TLV_ERR_INVALID_ARG;
+    }
     for (size_t i = 0; i < schema->count; ++i) {
         const tlv_structure_rule_t* rule = &schema->rules[i];
         if (!rule->entry.tag.size || !rule->entry.tag.data ||
             rule->entry.min_length > rule->entry.max_length ||
             rule->min_occurs > rule->max_occurs || rule->kind < TLV_SCHEMA_ANY ||
             rule->kind > TLV_SCHEMA_CONSTRUCTED ||
-            (rule->children && rule->kind != TLV_SCHEMA_CONSTRUCTED))
+            (rule->children && rule->kind != TLV_SCHEMA_CONSTRUCTED) ||
+            (rule->group && group_index(schema, rule->group) < 0) ||
+            (rule->group && rule->min_occurs != 0))
             return TLV_ERR_INVALID_ARG;
         for (size_t j = 0; j < i; ++j)
             if (same_tag(&rule->entry.tag, &schema->rules[j].entry.tag)) return TLV_ERR_INVALID_ARG;
@@ -139,15 +172,70 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* 
             rc = tlv_read(data + pos, frame->end - pos, format, &view, &used);
             if (rc != TLV_OK) return rc;
             if (same_tag(&rule->entry.tag, &view.tag) && ++count > rule->max_occurs) {
-                violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0};
+                violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0, NULL};
                 add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &view.tag, &pos, &detail);
             }
             pos += used;
         }
         if (count < rule->min_occurs) {
-            violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0};
+            violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0, NULL};
             add_issue(c, TLV_SCHEMA_ISSUE_MISSING, &rule->entry.tag,
                       c->depth ? &frame->offset : NULL, &detail);
+        }
+    }
+    for (size_t g = 0; g < frame->schema->group_count; ++g) {
+        const tlv_structure_group_t* group = &frame->schema->groups[g];
+        size_t count = 0, pos = frame->start;
+        const tlv_tag_t* first_tag = NULL;
+        for (size_t i = 0; i < frame->schema->count; ++i)
+            if (frame->schema->rules[i].group == group->id) {
+                first_tag = &frame->schema->rules[i].entry.tag;
+                break;
+            }
+        while (pos < frame->end) {
+            tlv_view_t view;
+            size_t used;
+            rc = tlv_read(data + pos, frame->end - pos, format, &view, &used);
+            if (rc != TLV_OK) return rc;
+            for (size_t i = 0; i < frame->schema->count; ++i)
+                if (frame->schema->rules[i].group == group->id &&
+                    same_tag(&frame->schema->rules[i].entry.tag, &view.tag)) {
+                    if (++count > group->max_occurs) {
+                        violation_detail_t detail = {NULL, 1, count, 0, 0, 0, 0, group};
+                        add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &view.tag, &pos, &detail);
+                    }
+                    break;
+                }
+            pos += used;
+        }
+        if (count < group->min_occurs) {
+            violation_detail_t detail = {NULL, 1, count, 0, 0, 0, 0, group};
+            add_issue(c, TLV_SCHEMA_ISSUE_MISSING, first_tag, c->depth ? &frame->offset : NULL,
+                      &detail);
+        }
+    }
+    if (frame->schema->order == TLV_SCHEMA_ORDER_SEQUENCE) {
+        size_t pos = frame->start;
+        size_t last_index = 0;
+        int have_last = 0;
+        while (pos < frame->end) {
+            tlv_view_t view;
+            size_t used;
+            rc = tlv_read(data + pos, frame->end - pos, format, &view, &used);
+            if (rc != TLV_OK) return rc;
+            for (size_t i = 0; i < frame->schema->count; ++i)
+                if (same_tag(&frame->schema->rules[i].entry.tag, &view.tag)) {
+                    if (have_last && i < last_index) {
+                        violation_detail_t detail = {
+                            &frame->schema->rules[i], 0, 0, 0, 0, 0, 0, NULL};
+                        add_issue(c, TLV_SCHEMA_ISSUE_ORDER, &view.tag, &pos, &detail);
+                    } else {
+                        last_index = i;
+                    }
+                    have_last = 1;
+                    break;
+                }
+            pos += used;
         }
     }
     return TLV_OK;
@@ -203,14 +291,14 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size,
             rc = tlv_length_to_size(view.value.length, &value_length);
             if (rc != TLV_OK) return rc;
             if (tlv_schema_validate_length(&rule->entry, value_length) != TLV_OK) {
-                violation_detail_t detail = {rule, 0, 0, 1, value_length, 0, 0};
+                violation_detail_t detail = {rule, 0, 0, 1, value_length, 0, 0, NULL};
                 add_issue(c, TLV_SCHEMA_ISSUE_LENGTH, &view.tag, &pos, &detail);
             }
             constructed = is_constructed && is_constructed(format->context, &view.tag);
             kind_ok = !((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
                         (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed));
             if (!kind_ok) {
-                violation_detail_t detail = {rule, 0, 0, 0, 0, 1, constructed};
+                violation_detail_t detail = {rule, 0, 0, 0, 0, 1, constructed, NULL};
                 add_issue(c, TLV_SCHEMA_ISSUE_KIND, &view.tag, &pos, &detail);
             }
             if (kind_ok && rule->children) {
@@ -283,6 +371,7 @@ const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind) {
         case TLV_SCHEMA_ISSUE_UNEXPECTED: return "unexpected";
         case TLV_SCHEMA_ISSUE_KIND: return "kind";
         case TLV_SCHEMA_ISSUE_LENGTH: return "length";
+        case TLV_SCHEMA_ISSUE_ORDER: return "order";
     }
     return "unknown";
 }

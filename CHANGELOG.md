@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix `tlv_structure_rule_t`/`tlv_structure_schema_t` initializers in the EMV
+  structural schema, examples and tests that Clang's
+  `-Wmissing-field-initializers` rejected under `-Werror` after those types
+  gained `group`/`order` fields. (#308)
 - Fix `cargo fmt --all --check` failures in the Rust `quick_start` and `write` examples. (#282)
 
 ### Changed
@@ -30,6 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `order` and `groups`/`group_count` to `tlv_structure_schema_t`, and
+  `group` to `tlv_structure_rule_t`, so a schema can require SEQUENCE-like
+  element order or express a CHOICE-like group of mutually exclusive
+  alternatives, on top of the existing required/optional/repeated members;
+  see
+  [Ordered, unordered and CHOICE-like structures](docs/guides/schemas.md#ordered-unordered-and-choice-like-structures). (#308)
 - Add `tlv_codec_t` codecs to `tlv/builtins/asn1/asn1_codec.h` for the ASN.1
   string and time universal types (UTF8String, NumericString,
   PrintableString, IA5String, VisibleString, BMPString, UniversalString,

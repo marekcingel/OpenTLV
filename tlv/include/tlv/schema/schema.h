@@ -108,7 +108,11 @@ struct tlv_structure_schema;
 typedef struct tlv_structure_rule {
     /** Tag and permitted value-length bounds for this rule. */
     tlv_schema_entry_t entry;
-    /** Minimum occurrences within the parent: 1 makes a field required; 0 makes it optional. */
+    /**
+     * Minimum occurrences within the parent: 1 makes a field required; 0
+     * makes it optional or, together with a default value maintained outside
+     * this schema-only engine, defaulted. Must be 0 when `group` is nonzero.
+     */
     size_t min_occurs;
     /** Maximum occurrences within the parent: 1 prohibits duplicates; `SIZE_MAX` is unrestricted.
      */
@@ -122,7 +126,61 @@ typedef struct tlv_structure_rule {
      * is still checked recursively.
      */
     const struct tlv_structure_schema* children;
+    /**
+     * Group this rule belongs to, or 0 if it stands alone (the default).
+     * A nonzero value must match the `id` of an entry in the enclosing
+     * #tlv_structure_schema_t::groups, and makes this rule one alternative of
+     * that #tlv_structure_group_t, modeling an ASN.1-style CHOICE among the
+     * group's member tags. `min_occurs` must be 0 for a grouped rule;
+     * `max_occurs` still bounds how many times this specific alternative may
+     * repeat, independently of the group's own bounds.
+     */
+    uint32_t group;
 } tlv_structure_rule_t;
+
+/**
+ * @brief Ordering required among a scope's matched elements.
+ *
+ * @see tlv_structure_schema_t::order
+ */
+typedef enum tlv_schema_order {
+    /** No relative order is required among matched elements, as for ASN.1 SET
+     * and SET OF (the default, and the engine's original behavior). */
+    TLV_SCHEMA_ORDER_ANY = 0,
+    /**
+     * Elements that match a rule must appear in the same relative order as
+     * their rules are listed in the table, as for ASN.1 SEQUENCE and
+     * SEQUENCE OF. Repeated matches of one rule may appear consecutively.
+     * Elements that match no rule (accepted only when `allow_unknown` is
+     * nonzero) are not constrained by this ordering.
+     */
+    TLV_SCHEMA_ORDER_SEQUENCE
+} tlv_schema_order_t;
+
+/**
+ * @brief A CHOICE-like group of mutually related alternative rules.
+ *
+ * Occurrence bounds apply to the sum of matches across every rule that
+ * shares this group's `id` through #tlv_structure_rule_t::group, instead of
+ * to each rule individually: `min_occurs` 1 and `max_occurs` 1 require
+ * exactly one occurrence of exactly one of the group's alternatives,
+ * modeling an ASN.1 CHOICE component; `min_occurs` 0 models an optional one.
+ *
+ * @see tlv_structure_rule_t::group, tlv_structure_schema_t::groups
+ */
+typedef struct tlv_structure_group {
+    /** Nonzero identifier, referenced by #tlv_structure_rule_t::group; unique within one
+     * #tlv_structure_schema_t::groups table. */
+    uint32_t id;
+    /** Minimum total occurrences across all member rules, inclusive. */
+    size_t min_occurs;
+    /** Maximum total occurrences across all member rules, inclusive; `SIZE_MAX` is unrestricted.
+     */
+    size_t max_occurs;
+    /** Borrowed name of the group, for example `"choice_field"`, for diagnostics; `NULL` if
+     * unnamed. Never affects validation. */
+    const char* name;
+} tlv_structure_group_t;
 
 /**
  * @brief Borrowed set of structural rules for one parent scope.
@@ -139,16 +197,31 @@ typedef struct tlv_structure_schema {
     size_t count;
     /** Nonzero accepts tags that match no rule. */
     int allow_unknown;
+    /** Borrowed table of alternative groups referenced by `rules[*].group`; may be `NULL` only
+     * when `group_count` is zero. */
+    const tlv_structure_group_t* groups;
+    /** Number of entries in `groups`. */
+    size_t group_count;
+    /** Ordering required among this scope's matched elements. */
+    tlv_schema_order_t order;
 } tlv_structure_schema_t;
 
 /**
- * @brief Validates framing, nesting, lengths, occurrence counts and child membership.
+ * @brief Validates framing, nesting, lengths, occurrence counts, ordering,
+ * alternative groups and child membership.
  *
  * Never decodes values. All tables are borrowed and immutable during use.
  * Limits and offsets follow tlv_walk_tree(). Uses bounded stack storage
  * without allocation or recursion. Counts are checked by rescanning each
- * scope per rule: O(rules * rules + elements * rules) per scope. Input and
- * schema errors leave no partial application objects.
+ * scope per rule and per group: O((rules + groups) * (rules + elements)) per
+ * scope. Input and schema errors leave no partial application objects.
+ *
+ * A scope whose #tlv_structure_schema_t::order is #TLV_SCHEMA_ORDER_SEQUENCE
+ * additionally requires matched elements to appear in the same relative
+ * order as their rules are listed. A scope with a nonempty
+ * #tlv_structure_schema_t::groups additionally requires, for each group, the
+ * total occurrences of its member tags to be within the group's own
+ * `min_occurs`/`max_occurs`, on top of each member's own per-rule bounds.
  *
  * `is_constructed` receives `format->context`; `NULL` treats values as opaque.
  *
@@ -162,14 +235,16 @@ typedef struct tlv_structure_schema {
  * @param[out] error_offset  Optional. Receives the offset of the failure; see below.
  *
  * @return #TLV_OK if the data conforms to the schema.
- * @return #TLV_ERR_SCHEMA_MISSING if a required field is absent (an
- *         occurrence count below its rule's `min_occurs`). The offset is the
- *         end of the parent's value: a scope boundary, not an element, which
- *         can coincide with the start of an unrelated sibling in the
- *         enclosing scope.
+ * @return #TLV_ERR_SCHEMA_MISSING if a required field or group is absent (an
+ *         occurrence count below its rule's or group's `min_occurs`). The
+ *         offset is the end of the parent's value: a scope boundary, not an
+ *         element, which can coincide with the start of an unrelated sibling
+ *         in the enclosing scope.
  * @return #TLV_ERR_SCHEMA for every other violation (forbidden or unknown
- *         tag, an occurrence count above `max_occurs`, kind mismatch, an
- *         invalid rule table), with the offset anchored to the offending element.
+ *         tag, an occurrence count above a rule's or group's `max_occurs`,
+ *         kind mismatch, an out-of-order element in a #TLV_SCHEMA_ORDER_SEQUENCE
+ *         scope, an invalid rule or group table), with the offset anchored to
+ *         the offending element.
  * @return #TLV_ERR_INVALID_LENGTH for a length failure, also element-anchored.
  * @return Any other error of tlv_walk_tree().
  */
@@ -193,7 +268,10 @@ typedef enum tlv_schema_issue_kind {
     /** A primitive value where a constructed one is required, or the reverse. */
     TLV_SCHEMA_ISSUE_KIND,
     /** A value length is outside the bounds of the tag's rule. */
-    TLV_SCHEMA_ISSUE_LENGTH
+    TLV_SCHEMA_ISSUE_LENGTH,
+    /** An element appears before an earlier-listed rule's element in a scope whose
+     * #tlv_structure_schema_t::order is #TLV_SCHEMA_ORDER_SEQUENCE. */
+    TLV_SCHEMA_ISSUE_ORDER
 } tlv_schema_issue_kind_t;
 
 /** @brief Unknown-tag policy applied by tlv_schema_validate_all(). */
@@ -211,7 +289,10 @@ typedef enum tlv_schema_unknown_policy {
  *
  * `path` lists the tags from the outermost scope to the affected tag, for
  * example `70`, `77`, `9F36` for the text `70/77/9F36`. For
- * #TLV_SCHEMA_ISSUE_MISSING the last entry is the tag that is absent.
+ * #TLV_SCHEMA_ISSUE_MISSING the last entry is the tag that is absent; for a
+ * missing or over-occurring #tlv_structure_group_t, it is the tag of the
+ * group's first member rule for #TLV_SCHEMA_ISSUE_MISSING, or the actual
+ * offending member's tag for #TLV_SCHEMA_ISSUE_DUPLICATE.
  */
 typedef struct tlv_schema_issue {
     /** What is wrong. */
@@ -256,12 +337,12 @@ typedef struct tlv_schema_report {
  * @brief Validates a TLV structure and reports every schema violation.
  *
  * Applies the same rules as tlv_schema_validate() (required and optional
- * tags, occurrence limits, parent-child membership, primitive or constructed
- * form, and per-tag length bounds), but continues after a violation and
- * records each one with the path to the affected tag and its byte offset.
- * The tag and length rules come from the same #tlv_structure_rule_t entries,
- * so nothing is defined twice. Never decodes values. No allocation and no
- * recursion.
+ * tags, occurrence limits, ordering, alternative groups, parent-child
+ * membership, primitive or constructed form, and per-tag length bounds), but
+ * continues after a violation and records each one with the path to the
+ * affected tag and its byte offset. The tag and length rules come from the
+ * same #tlv_structure_rule_t entries, so nothing is defined twice. Never
+ * decodes values. No allocation and no recursion.
  *
  * Wire-level errors (a truncated or malformed element, or an exceeded limit)
  * make the input unparseable and abort the call before any violation is
@@ -289,7 +370,7 @@ typedef struct tlv_schema_report {
  * @return #TLV_ERR_SCHEMA if at least one violation was found; `report->count`
  *         is their total number, of which the first `report->capacity` are stored.
  * @return #TLV_ERR_NULL_ARG for missing required arguments.
- * @return #TLV_ERR_INVALID_ARG for an invalid rule table or `unknown` value.
+ * @return #TLV_ERR_INVALID_ARG for an invalid rule or group table, or an invalid `unknown` value.
  * @return #TLV_ERR_LIMIT if the schema nests deeper than #TLV_SCHEMA_PATH_MAX
  *         tags, or as for tlv_walk_tree().
  * @return Any other error of tlv_walk_tree().
@@ -309,7 +390,7 @@ TLV_API tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size,
  *
  * @param[in] kind Violation kind.
  *
- * @return A static, NUL-terminated string such as `"missing"`, never `NULL`;
+ * @return A static, NUL-terminated string such as `"missing"` or `"order"`, never `NULL`;
  *         an unrecognized value yields `"unknown"`.
  */
 TLV_API const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind);
@@ -338,11 +419,19 @@ TLV_API tlv_result_t tlv_schema_issue_path_string(const tlv_schema_issue_t* issu
  *
  * Pairs a #tlv_diagnostic_t (code, severity and the offset of the affected
  * element) with the schema-specific detail needed to explain the violation:
- * which rule it breaks, the tag involved, the enclosing path, the schema
- * field name if the rule has one, and the expected-versus-actual detail for
- * whichever of `kind`'s cases applies. A field not applicable to `kind` is
- * left unset, indicated by its paired `has_*` flag being zero. Every field is
- * a fixed-size value or a borrowed pointer, so filling one never allocates.
+ * which rule or #tlv_structure_group_t it breaks, the tag involved, the
+ * enclosing path, the schema field or group name if it has one, and the
+ * expected-versus-actual detail for whichever of `kind`'s cases applies. A
+ * field not applicable to `kind` is left unset, indicated by its paired
+ * `has_*` flag being zero. Every field is a fixed-size value or a borrowed
+ * pointer, so filling one never allocates.
+ *
+ * #TLV_SCHEMA_ISSUE_MISSING and #TLV_SCHEMA_ISSUE_DUPLICATE can be reported
+ * against a #tlv_structure_group_t instead of a single #tlv_structure_rule_t,
+ * signaled by `is_group`: `tag` is then the group's first member rule's tag
+ * (missing) or the actual offending member's tag (duplicate), `field` is the
+ * group's `name`, and the occurrence fields are the group's own bounds and
+ * summed occurrences rather than one rule's.
  *
  * `diagnostic.path` is left `NULL`; `path` below holds the same information
  * as a plain value so that copying a `tlv_schema_diagnostic_t` out of a
@@ -362,17 +451,24 @@ typedef struct tlv_schema_diagnostic {
     tlv_tag_t tag;
     /** Tags of the scopes enclosing `tag`, outermost first; does not include `tag` itself. */
     tlv_diagnostic_path_t path;
-    /** Borrowed schema name for `tag` (the violated rule's `entry.name`), or `NULL` if the rule
-     * has none or no rule matched (#TLV_SCHEMA_ISSUE_UNEXPECTED). */
+    /** Borrowed schema name for `tag` (the violated rule's `entry.name`, or the violated group's
+     * `name` when `is_group` is nonzero), or `NULL` if it has none or no rule matched
+     * (#TLV_SCHEMA_ISSUE_UNEXPECTED). */
     const char* field;
+    /** Nonzero if this #TLV_SCHEMA_ISSUE_MISSING or #TLV_SCHEMA_ISSUE_DUPLICATE is reported
+     * against a #tlv_structure_group_t rather than a single #tlv_structure_rule_t. */
+    int is_group;
     /** Nonzero if `min_occurs`, `max_occurs` and `occurs` are set (#TLV_SCHEMA_ISSUE_MISSING,
      * #TLV_SCHEMA_ISSUE_DUPLICATE). */
     int has_occurs;
-    /** Minimum permitted occurrences of `tag` in its parent. */
+    /** Minimum permitted occurrences of `tag` in its parent, or of the group's members combined
+     * when `is_group` is nonzero. */
     size_t min_occurs;
-    /** Maximum permitted occurrences of `tag` in its parent. */
+    /** Maximum permitted occurrences of `tag` in its parent, or of the group's members combined
+     * when `is_group` is nonzero. */
     size_t max_occurs;
-    /** Occurrences found so far at the point of the violation. */
+    /** Occurrences found so far at the point of the violation, of `tag` or, when `is_group` is
+     * nonzero, of the group's members combined. */
     size_t occurs;
     /** Nonzero if `min_length`, `max_length` and `actual_length` are set
      * (#TLV_SCHEMA_ISSUE_LENGTH). */

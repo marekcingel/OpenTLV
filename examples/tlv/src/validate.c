@@ -17,24 +17,26 @@ static const uint8_t incomplete[] = {0x6F, 0x05, 0x84, 0x03, 0x41, 0x42, 0x43};
 
 static const uint8_t              application_label_tag[] = {0x50};
 static const tlv_structure_rule_t proprietary_rules[] = {
-    {{{application_label_tag, 1}, 1, 1, 0, NULL}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL}};
-static const tlv_structure_schema_t proprietary_schema = {proprietary_rules, 1, 0};
+    {{{application_label_tag, 1}, 1, 1, 0, NULL}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0}};
+static const tlv_structure_schema_t proprietary_schema = {proprietary_rules,   1, 0, NULL, 0,
+                                                          TLV_SCHEMA_ORDER_ANY};
 
 static const uint8_t              df_name_tag[] = {0x84};
 static const uint8_t              proprietary_tag[] = {0xA5};
 static const tlv_structure_rule_t fci_rules[] = {
-    {{{df_name_tag, 1}, 1, 16, 0, "df_name"}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL},
+    {{{df_name_tag, 1}, 1, 16, 0, "df_name"}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
     {{{proprietary_tag, 1}, 0, SIZE_MAX, 0, NULL},
      1,
      1,
      TLV_SCHEMA_CONSTRUCTED,
-     &proprietary_schema}};
-static const tlv_structure_schema_t fci_schema = {fci_rules, 2, 0};
+     &proprietary_schema,
+     0}};
+static const tlv_structure_schema_t fci_schema = {fci_rules, 2, 0, NULL, 0, TLV_SCHEMA_ORDER_ANY};
 
 static const uint8_t              fci_tag[] = {0x6F};
 static const tlv_structure_rule_t top_rules[] = {
-    {{{fci_tag, 1}, 0, SIZE_MAX, 0, NULL}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &fci_schema}};
-static const tlv_structure_schema_t top_schema = {top_rules, 1, 0};
+    {{{fci_tag, 1}, 0, SIZE_MAX, 0, NULL}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &fci_schema, 0}};
+static const tlv_structure_schema_t top_schema = {top_rules, 1, 0, NULL, 0, TLV_SCHEMA_ORDER_ANY};
 
 int main(void) {
     tlv_result_t result =
