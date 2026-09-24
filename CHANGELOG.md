@@ -34,6 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `tlv/schema/constraint.h` with `tlv_value_constraint_t` and
+  `tlv_value_constraint_validate()`, a generic value-range/allowed-values
+  constraint checked against a codec's decoded representation, for
+  ASN.1-style restrictions such as `INTEGER (0..255)`; the existing
+  `min_length`/`max_length` and `min_occurs`/`max_occurs` already cover SIZE
+  and collection-count constraints. See
+  [Value constraints on decoded values](docs/guides/schemas.md#value-constraints-on-decoded-values). (#309)
 - Add `order` and `groups`/`group_count` to `tlv_structure_schema_t`, and
   `group` to `tlv_structure_rule_t`, so a schema can require SEQUENCE-like
   element order or express a CHOICE-like group of mutually exclusive

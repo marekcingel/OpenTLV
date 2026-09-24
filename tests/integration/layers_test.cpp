@@ -13,6 +13,26 @@
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/ber.hpp"
+#include "tlv/builtins/asn1/asn1_codec.h"
+#include "tlv/schema/constraint.h"
+
+TEST(Integration_Tlvpp, Asn1IntegerCodecComposesWithValueRangeConstraint) {
+    // Version ::= INTEGER (0..255)
+    const tlv_value_constraint_t version_range = {TLV_VALUE_CONSTRAINT_RANGE, 0, 255, nullptr, 0};
+
+    const uint8_t in_range[] = {0x2A}; // 42
+    int64_t       version = -1;
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_integer, in_range, sizeof(in_range),
+                                             &version, sizeof(version)));
+    EXPECT_EQ(42, version);
+    EXPECT_EQ(TLV_OK, tlv_value_constraint_validate(&version_range, version));
+
+    const uint8_t out_of_range[] = {0x01, 0x2C}; // 300
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_integer, out_of_range,
+                                             sizeof(out_of_range), &version, sizeof(version)));
+    EXPECT_EQ(300, version);
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_value_constraint_validate(&version_range, version));
+}
 
 TEST(Integration_Tlvpp, BerIndefiniteRoundTripAndTraversal) {
     tlv::byte        buffer[8]{};

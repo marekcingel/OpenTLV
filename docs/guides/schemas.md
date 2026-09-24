@@ -262,6 +262,62 @@ optional one (`min_occurs = 0`), and comparing an encoded value against its
 default stays a format-specific concern, as it already is for DER (see
 [schema-aware DER validation and encoding](../profiles/der/README.md#schema-aware-validation-and-encoding)).
 
+## Value constraints on decoded values
+
+`tlv_structure_schema_t` never decodes values, so it cannot express an
+ASN.1-style constraint that depends on a value's *decoded* meaning, such as
+an INTEGER's numeric range or a fixed set of legal values. `tlv/schema/constraint.h`
+adds a small, generic `tlv_value_constraint_t` for exactly that: check it
+against the C value a codec's decode produces (see
+[value codecs](codecs.md)), separately from the wire-level checks above.
+
+```c
+#include "tlv/schema/constraint.h"
+#include "tlv/builtins/asn1/asn1_codec.h"
+
+/* Version ::= INTEGER (0..255) */
+static const tlv_value_constraint_t version_range = {
+    TLV_VALUE_CONSTRAINT_RANGE, 0, 255, NULL, 0
+};
+
+int64_t version;
+tlv_codec_decode(&tlv_asn1_codec_integer, view.value.data, view.value.length,
+                  &version, sizeof(version));
+tlv_result_t rc = tlv_value_constraint_validate(&version_range, version);
+/* TLV_OK, or TLV_ERR_SCHEMA if version is outside 0-255. */
+```
+
+A fixed set of legal values (`TLV_VALUE_CONSTRAINT_ALLOWED_VALUES`) works the same way:
+
+```c
+/* CurrencyCode ::= INTEGER (978 | 840 | 826) */
+static const int64_t currency_codes[] = {978, 840, 826};
+static const tlv_value_constraint_t currency_constraint = {
+    TLV_VALUE_CONSTRAINT_ALLOWED_VALUES, 0, 0, currency_codes, 3
+};
+```
+
+Together with the length and occurrence bounds `tlv_structure_schema_t`
+already has, this covers the ASN.1 constraints relevant to binary TLV
+validation without an ASN.1 constraint expression parser:
+
+| ASN.1 constraint | Generic OpenTLV concept | Represented by |
+| --- | --- | --- |
+| `SIZE(8)` (exact size) | size | Equal `min_length`/`max_length` on a #tlv_schema_entry_t |
+| `SIZE(1..1024)` (size range) | size-range | `min_length`/`max_length` on a #tlv_schema_entry_t |
+| `INTEGER (0..255)` (value range) | value-range | `tlv_value_constraint_t` with `kind = TLV_VALUE_CONSTRAINT_RANGE` |
+| a fixed set of legal values | allowed-values | `tlv_value_constraint_t` with `kind = TLV_VALUE_CONSTRAINT_ALLOWED_VALUES` |
+| exact `SIZE` of a SET OF/SEQUENCE OF | count | Equal `min_occurs`/`max_occurs` on a #tlv_structure_rule_t or #tlv_structure_group_t |
+| minimum `SIZE` | min-count | `min_occurs` |
+| maximum `SIZE` | max-count | `max_occurs` |
+
+For example, `OCTET STRING (SIZE(8))` needs nothing new:
+
+```c
+static const uint8_t tag_id[] = {0x04};
+static const tlv_schema_entry_t identifier = {{tag_id, sizeof(tag_id)}, 8, 8, 0, "identifier"};
+```
+
 ## Reporting every violation
 
 `tlv_schema_validate` stops at the first violation. To validate a template's
