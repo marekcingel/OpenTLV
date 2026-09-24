@@ -293,9 +293,29 @@ A fixed set of legal values (`TLV_VALUE_CONSTRAINT_ALLOWED_VALUES`) works the sa
 /* CurrencyCode ::= INTEGER (978 | 840 | 826) */
 static const int64_t currency_codes[] = {978, 840, 826};
 static const tlv_value_constraint_t currency_constraint = {
-    TLV_VALUE_CONSTRAINT_ALLOWED_VALUES, 0, 0, currency_codes, 3
+    TLV_VALUE_CONSTRAINT_ALLOWED_VALUES, 0, 0, currency_codes, 3, NULL
 };
 ```
+
+`allowed_value_names`, the trailing field left `NULL` above, optionally attaches a display
+name to each entry of `allowed_values` (an ASN.1 named number, as in `INTEGER {red(0), green(1),
+blue(2)}`), parallel to it and the same length. It is purely descriptive and
+`tlv_value_constraint_validate()` ignores it entirely; look a name up with
+`tlv_value_constraint_name()`:
+
+```c
+/* Color ::= INTEGER {red(0), green(1), blue(2)} */
+static const int64_t color_values[] = {0, 1, 2};
+static const char* const color_names[] = {"red", "green", "blue"};
+static const tlv_value_constraint_t color_constraint = {
+    TLV_VALUE_CONSTRAINT_ALLOWED_VALUES, 0, 0, color_values, 3, color_names
+};
+
+const char* name = tlv_value_constraint_name(&color_constraint, 1); /* "green" */
+```
+
+A `NULL` `allowed_value_names` array (as with `currency_constraint` above) means no entry has a
+name; a `NULL` entry within a non-`NULL` array means only that one value has none.
 
 Together with the length and occurrence bounds `tlv_structure_schema_t`
 already has, this covers the ASN.1 constraints relevant to binary TLV
@@ -307,6 +327,7 @@ validation without an ASN.1 constraint expression parser:
 | `SIZE(1..1024)` (size range) | size-range | `min_length`/`max_length` on a #tlv_schema_entry_t |
 | `INTEGER (0..255)` (value range) | value-range | `tlv_value_constraint_t` with `kind = TLV_VALUE_CONSTRAINT_RANGE` |
 | a fixed set of legal values | allowed-values | `tlv_value_constraint_t` with `kind = TLV_VALUE_CONSTRAINT_ALLOWED_VALUES` |
+| named numbers (`INTEGER {red(0), green(1)}`) | named allowed-values | `tlv_value_constraint_t`'s optional `allowed_value_names`, looked up with `tlv_value_constraint_name()` |
 | exact `SIZE` of a SET OF/SEQUENCE OF | count | Equal `min_occurs`/`max_occurs` on a #tlv_structure_rule_t or #tlv_structure_group_t |
 | minimum `SIZE` | min-count | `min_occurs` |
 | maximum `SIZE` | max-count | `max_occurs` |

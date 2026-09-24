@@ -278,6 +278,125 @@ tlv_result_t tlv_asn1_validate_generalized_time(const uint8_t* value, size_t len
     return (i == length - 1 && value[i] == 'Z') ? TLV_OK : TLV_ERR_INVALID_VALUE;
 }
 
+/* Generic TIME's concrete syntax is not reduced to a fixed digit form (see
+ * its own doc comment); it only needs to be legal VisibleString content. */
+tlv_result_t tlv_asn1_validate_time(const uint8_t* value, size_t length) {
+    if (length == 0) return TLV_ERR_INVALID_VALUE;
+    return tlv_asn1_validate_visible_string(value, length);
+}
+
+tlv_result_t tlv_asn1_validate_date(const uint8_t* value, size_t length) {
+    int mm, dd;
+    size_t i;
+    if (length != 8) return TLV_ERR_INVALID_VALUE;
+    for (i = 0; i < 8; ++i)
+        if (!is_digit(value[i])) return TLV_ERR_INVALID_VALUE;
+    mm = digit_pair(value + 4);
+    dd = digit_pair(value + 6);
+    return (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) ? TLV_OK : TLV_ERR_INVALID_VALUE;
+}
+
+tlv_result_t tlv_asn1_validate_time_of_day(const uint8_t* value, size_t length) {
+    int hh, mi, ss;
+    size_t i;
+    if (length != 6) return TLV_ERR_INVALID_VALUE;
+    for (i = 0; i < 6; ++i)
+        if (!is_digit(value[i])) return TLV_ERR_INVALID_VALUE;
+    hh = digit_pair(value);
+    mi = digit_pair(value + 2);
+    ss = digit_pair(value + 4);
+    return (hh <= 23 && mi <= 59 && ss <= 59) ? TLV_OK : TLV_ERR_INVALID_VALUE;
+}
+
+tlv_result_t tlv_asn1_validate_date_time(const uint8_t* value, size_t length) {
+    if (length != 14) return TLV_ERR_INVALID_VALUE;
+    if (tlv_asn1_validate_date(value, 8) != TLV_OK) return TLV_ERR_INVALID_VALUE;
+    return tlv_asn1_validate_time_of_day(value + 8, 6);
+}
+
+/* Consumes one or more ASCII digits starting at value[*pos], advancing *pos;
+ * returns 0 (leaving *pos unchanged) if there is no digit there. */
+static int duration_consume_digits(const uint8_t* value, size_t length, size_t* pos) {
+    size_t start = *pos;
+    while (*pos < length && is_digit(value[*pos])) ++*pos;
+    return *pos > start;
+}
+
+/* Each date-part component (Y=1, M=2, D=3) and time-part component (H=1,
+ * M=2, S=3) must appear in strictly increasing rank, so a single running
+ * "highest rank seen so far" per part both enforces fixed component order
+ * and rejects a repeated designator. */
+tlv_result_t tlv_asn1_validate_duration(const uint8_t* value, size_t length) {
+    size_t pos = 0;
+    int have_component = 0, in_time_part = 0, date_rank = 0, time_rank = 0;
+    if (length == 0) return TLV_ERR_INVALID_VALUE;
+    while (pos < length) {
+        int has_fraction = 0;
+        uint8_t designator;
+        int rank;
+        if (!in_time_part && value[pos] == 'T') {
+            in_time_part = 1;
+            ++pos;
+            continue;
+        }
+        if (!duration_consume_digits(value, length, &pos)) return TLV_ERR_INVALID_VALUE;
+        if (pos < length && value[pos] == '.') {
+            ++pos;
+            if (!duration_consume_digits(value, length, &pos)) return TLV_ERR_INVALID_VALUE;
+            has_fraction = 1;
+        }
+        if (pos >= length) return TLV_ERR_INVALID_VALUE; /* digits with no designator */
+        designator = value[pos++];
+        if (!in_time_part) {
+            switch (designator) {
+                case 'Y': rank = 1; break;
+                case 'M': rank = 2; break;
+                case 'D': rank = 3; break;
+                default: return TLV_ERR_INVALID_VALUE;
+            }
+            if (rank <= date_rank) return TLV_ERR_INVALID_VALUE;
+            date_rank = rank;
+        } else {
+            switch (designator) {
+                case 'H': rank = 1; break;
+                case 'M': rank = 2; break;
+                case 'S': rank = 3; break;
+                default: return TLV_ERR_INVALID_VALUE;
+            }
+            if (rank <= time_rank) return TLV_ERR_INVALID_VALUE;
+            /* Accept a fractional value only on the seconds component, not
+             * on M or H even when one of those is the lowest-order
+             * component present (ISO 8601 permits either). */
+            if (has_fraction && designator != 'S') return TLV_ERR_INVALID_VALUE;
+            time_rank = rank;
+        }
+        have_component = 1;
+    }
+    if (in_time_part && time_rank == 0)
+        return TLV_ERR_INVALID_VALUE; /* "T" with nothing after it */
+    return have_component ? TLV_OK : TLV_ERR_INVALID_VALUE;
+}
+
+/* Shared structural check for OID-IRI (absolute) and RELATIVE-OID-IRI (not). */
+static tlv_result_t validate_iri_arcs(const uint8_t* value, size_t length, int absolute) {
+    size_t i;
+    if (length == 0) return TLV_ERR_INVALID_VALUE;
+    if (tlv_asn1_validate_utf8(value, length) != TLV_OK) return TLV_ERR_INVALID_VALUE;
+    if (absolute ? value[0] != '/' : value[0] == '/') return TLV_ERR_INVALID_VALUE;
+    if (value[length - 1] == '/') return TLV_ERR_INVALID_VALUE;
+    for (i = 0; i + 1 < length; ++i)
+        if (value[i] == '/' && value[i + 1] == '/') return TLV_ERR_INVALID_VALUE;
+    return TLV_OK;
+}
+
+tlv_result_t tlv_asn1_validate_oid_iri(const uint8_t* value, size_t length) {
+    return validate_iri_arcs(value, length, 1);
+}
+
+tlv_result_t tlv_asn1_validate_relative_oid_iri(const uint8_t* value, size_t length) {
+    return validate_iri_arcs(value, length, 0);
+}
+
 tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* value,
                                                size_t length) {
     switch (number) {
@@ -285,12 +404,24 @@ tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* v
         case 2:
         case 10: return tlv_asn1_validate_integer(value, length);
         case 3: return tlv_asn1_validate_bit_string(value, length);
-        case 4: return tlv_asn1_validate_octet_string(value, length);
+        /* OCTET STRING (4) and the historical string types with no fixed,
+         * checkable character repertoire (ObjectDescriptor 7, TeletexString
+         * 20, VideotexString 21, GraphicString 25, GeneralString 27) all
+         * accept any byte sequence under X.690: their character sets are
+         * complex legacy (ISO 2022-based) encodings X.690 places no
+         * canonical byte-level restriction on. */
+        case 4:
+        case 7:
+        case 20:
+        case 21:
+        case 25:
+        case 27: return tlv_asn1_validate_octet_string(value, length);
         case 5: return tlv_asn1_validate_null(value, length);
         case 6:
         case 13: return tlv_asn1_validate_oid(value, length);
         case 9: return tlv_asn1_validate_real(value, length);
         case 12: return tlv_asn1_validate_utf8(value, length);
+        case 14: return tlv_asn1_validate_time(value, length);
         case 18: return tlv_asn1_validate_numeric_string(value, length);
         case 19: return tlv_asn1_validate_printable_string(value, length);
         case 22: return tlv_asn1_validate_ia5_string(value, length);
@@ -299,6 +430,12 @@ tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* v
         case 26: return tlv_asn1_validate_visible_string(value, length);
         case 28: return tlv_asn1_validate_universal_string(value, length);
         case 30: return tlv_asn1_validate_bmp_string(value, length);
+        case 31: return tlv_asn1_validate_date(value, length);
+        case 32: return tlv_asn1_validate_time_of_day(value, length);
+        case 33: return tlv_asn1_validate_date_time(value, length);
+        case 34: return tlv_asn1_validate_duration(value, length);
+        case 35: return tlv_asn1_validate_oid_iri(value, length);
+        case 36: return tlv_asn1_validate_relative_oid_iri(value, length);
         default: return TLV_ERR_UNSUPPORTED_TYPE;
     }
 }

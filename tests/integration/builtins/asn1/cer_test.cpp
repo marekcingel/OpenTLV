@@ -150,14 +150,15 @@ TEST(Integration_Tlv_Cer, StrictReadRejectsNoncanonicalContentButNonStrictAccept
     EXPECT_EQ(7u, offset);
 }
 
-TEST(Integration_Tlv_Cer, StrictRejectsUnsupportedUniversalTypeIncludingConstructed) {
-    /* TeletexString(20) primitive, and constructed (segmented) form. */
+TEST(Integration_Tlv_Cer, AcceptsUnconstrainedLegacyStringPrimitiveAndConstructed) {
+    /* TeletexString(20) is unconstrained (any byte sequence is valid content,
+     * like OCTET STRING), so both its primitive and constructed (segmented)
+     * form are accepted in strict mode. */
     const uint8_t primitive[] = {0x14, 1, 'x'};
     tlv_view_t    view{};
-    size_t        consumed = 0, offset = 99;
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_cer_read_strict(primitive, sizeof(primitive), nullptr,
-                                                            &view, &consumed, &offset));
-    EXPECT_EQ(2u, offset); /* value start, matching DER's content-error offset convention */
+    size_t        consumed = 0;
+    EXPECT_EQ(TLV_OK, tlv_cer_read_strict(primitive, sizeof(primitive), nullptr, &view, &consumed,
+                                          nullptr));
 
     std::vector<uint8_t> constructed = {0x34, 0x80};
     std::vector<uint8_t> seg1(1004, 'z'); /* tag + 3-byte length + 1000 content octets */
@@ -171,8 +172,8 @@ TEST(Integration_Tlv_Cer, StrictRejectsUnsupportedUniversalTypeIncludingConstruc
     constructed.push_back('y');
     constructed.push_back(0);
     constructed.push_back(0);
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE, tlv_cer_read_strict(constructed.data(), constructed.size(),
-                                                            nullptr, &view, &consumed, &offset));
+    EXPECT_EQ(TLV_OK, tlv_cer_read_strict(constructed.data(), constructed.size(), nullptr, &view,
+                                          &consumed, nullptr));
 }
 
 TEST(Integration_Tlv_Cer, WriteConstructedProducesCanonicalIndefiniteFraming) {

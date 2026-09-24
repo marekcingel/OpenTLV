@@ -34,6 +34,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an `extensible` field to `tlv_der_schema_type_t` `SEQUENCE`s, modeling
+  an ASN.1 extension marker (`...`): `tlv_der_schema_read()` accepts and
+  skips, as opaque well-formed DER-TLV elements, any content left over once
+  every declared component is matched or skipped, instead of rejecting it;
+  see
+  [Schema-aware validation and encoding](docs/profiles/der/README.md#schema-aware-validation-and-encoding). (#310)
+- Add `tlv_asn1_bit_string_test()` and `tlv_asn1_named_bit_find()` to
+  `tlv/builtins/asn1/asn1_codec.h`, for X.680's `NamedBitList` notation on
+  BIT STRING (for example `KeyUsage ::= BIT STRING {digitalSignature(0),
+  nonRepudiation(1), ...}`); see
+  [Universal-type value codecs](docs/formats/asn1/ber.md#universal-type-value-codecs). (#310)
+- Add `tlv_codec_t` codecs and canonical `_strict` content rules to
+  `tlv/builtins/asn1/asn1_codec.h` for 12 more universal types: ObjectDescriptor,
+  TeletexString, VideotexString, GraphicString and GeneralString (unconstrained,
+  like OCTET STRING); generic TIME, DATE, TIME-OF-DAY, DATE-TIME and DURATION;
+  and OID-IRI and RELATIVE-OID-IRI; see
+  [Universal-type value codecs](docs/formats/asn1/ber.md#universal-type-value-codecs). (#310)
+- Add an optional `allowed_value_names` field to `tlv_value_constraint_t` and
+  a new `tlv_value_constraint_name()` lookup, for ASN.1 named numbers (for
+  example `INTEGER {red(0), green(1), blue(2)}`) attached to an
+  allowed-values constraint; see
+  [Value constraints on decoded values](docs/guides/schemas.md#value-constraints-on-decoded-values). (#310)
+- Add a `constraint` field (`tlv_der_schema_leaf_constraint_t`) to
+  `tlv_der_schema_type_t` UNIVERSAL leaves, for ASN.1 SIZE and INTEGER/
+  ENUMERATED value-range constraints (for example `INTEGER (0..255)` or
+  `OCTET STRING (SIZE(1..16))`) checked by `tlv_der_schema_read()` and
+  `tlv_der_schema_write()` on top of a leaf's own canonical DER content
+  rules; see
+  [Schema-aware validation and encoding](docs/profiles/der/README.md#schema-aware-validation-and-encoding). (#310)
+- Add `TLV_DER_SCHEMA_SEQUENCE_OF` to `tlv/builtins/asn1/der_schema.h` for
+  ASN.1 SEQUENCE OF: like SET OF, but keeps elements in encoding order
+  instead of SET OF's canonical sort order; see
+  [Schema-aware validation and encoding](docs/profiles/der/README.md#schema-aware-validation-and-encoding). (#310)
 - Add `tlv/schema/constraint.h` with `tlv_value_constraint_t` and
   `tlv_value_constraint_validate()`, a generic value-range/allowed-values
   constraint checked against a codec's decoded representation, for

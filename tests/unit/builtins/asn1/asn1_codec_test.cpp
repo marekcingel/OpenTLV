@@ -120,6 +120,35 @@ TEST(Unit_Tlv_Asn1Codec, BitString) {
     EXPECT_EQ(0u, count);
 }
 
+TEST(Unit_Tlv_Asn1Codec, BitStringNamedBits) {
+    /* KeyUsage-style NamedBitList: digitalSignature(0), nonRepudiation(1),
+     * keyEncipherment(2), dataEncipherment(3), keyAgreement(4). Content 0xF0
+     * with 4 unused bits sets exactly the first four (1111 0000). */
+    const std::vector<uint8_t> raw = {0x04, 0xF0};
+    tlv_asn1_bit_string_t      decoded{};
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_bit_string, raw.data(), raw.size(),
+                                             &decoded, sizeof(decoded)));
+
+    EXPECT_TRUE(tlv_asn1_bit_string_test(&decoded, 0));
+    EXPECT_TRUE(tlv_asn1_bit_string_test(&decoded, 1));
+    EXPECT_TRUE(tlv_asn1_bit_string_test(&decoded, 2));
+    EXPECT_TRUE(tlv_asn1_bit_string_test(&decoded, 3));
+    /* Bit 4 falls within the encoded byte but among its unused (clear) bits. */
+    EXPECT_FALSE(tlv_asn1_bit_string_test(&decoded, 4));
+    /* Bit 8 is entirely beyond the one encoded content byte: implicitly clear,
+     * per X.680's NamedBitList convention, not an error. */
+    EXPECT_FALSE(tlv_asn1_bit_string_test(&decoded, 8));
+
+    static const tlv_asn1_named_bit_t kKeyUsage[] = {
+        {0, "digitalSignature"}, {1, "nonRepudiation"}, {2, "keyEncipherment"},
+        {3, "dataEncipherment"}, {4, "keyAgreement"},
+    };
+    EXPECT_STREQ("digitalSignature", tlv_asn1_named_bit_find(kKeyUsage, 5, 0));
+    EXPECT_STREQ("keyAgreement", tlv_asn1_named_bit_find(kKeyUsage, 5, 4));
+    EXPECT_EQ(nullptr, tlv_asn1_named_bit_find(kKeyUsage, 5, 99));
+    EXPECT_EQ(nullptr, tlv_asn1_named_bit_find(nullptr, 0, 0));
+}
+
 TEST(Unit_Tlv_Asn1Codec, OctetString) {
     const std::vector<uint8_t> raw = {0x00, 0xFF, 0x7F};
     tlv_asn1_octet_string_t    decoded{};
@@ -527,4 +556,302 @@ TEST(Unit_Tlv_Asn1Codec, GeneralizedTime) {
     EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
               tlv_codec_encode(&tlv_asn1_codec_generalized_time, &decoded, sizeof(decoded), small,
                                sizeof(small), &count));
+}
+
+TEST(Unit_Tlv_Asn1Codec, UnrestrictedLegacyStrings) {
+    /* ObjectDescriptor, TeletexString, VideotexString, GraphicString and
+     * GeneralString all accept any byte sequence, exactly like OCTET STRING. */
+    const std::vector<uint8_t> raw = {0x00, 0xFF, 'a', 0x1F};
+    for (const tlv_codec_t* codec :
+         {&tlv_asn1_codec_object_descriptor, &tlv_asn1_codec_teletex_string,
+          &tlv_asn1_codec_videotex_string, &tlv_asn1_codec_graphic_string,
+          &tlv_asn1_codec_general_string}) {
+        tlv_asn1_octet_string_t decoded{};
+        ASSERT_EQ(TLV_CODEC_OK,
+                  tlv_codec_decode(codec, raw.data(), raw.size(), &decoded, sizeof(decoded)));
+        ASSERT_EQ(raw.size(), decoded.length);
+        EXPECT_EQ(0, std::memcmp(decoded.data, raw.data(), raw.size()));
+
+        uint8_t encoded[8] = {};
+        size_t  written = 0;
+        ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(codec, &decoded, sizeof(decoded), encoded,
+                                                 sizeof(encoded), &written));
+        EXPECT_EQ(raw.size(), written);
+        EXPECT_EQ(0, std::memcmp(encoded, raw.data(), written));
+
+        tlv_asn1_octet_string_t empty_decoded{};
+        ASSERT_EQ(TLV_CODEC_OK,
+                  tlv_codec_decode(codec, nullptr, 0, &empty_decoded, sizeof(empty_decoded)));
+        EXPECT_EQ(0u, empty_decoded.length);
+        EXPECT_EQ(nullptr, empty_decoded.data);
+    }
+}
+
+TEST(Unit_Tlv_Asn1Codec, GenericTime) {
+    /* TIME's own check is only a VisibleString charset check; see its
+     * documented scope limitation. */
+    const std::vector<uint8_t> raw = {'1', '5', ':', '2', '7', ':', '3', '5'};
+    tlv_asn1_string_t          decoded{};
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_time, raw.data(), raw.size(), &decoded,
+                                             sizeof(decoded)));
+    ASSERT_EQ(raw.size(), decoded.length);
+    EXPECT_EQ(0, std::memcmp(decoded.data, raw.data(), raw.size()));
+
+    uint8_t encoded[16] = {};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(&tlv_asn1_codec_time, &decoded, sizeof(decoded),
+                                             encoded, sizeof(encoded), &written));
+    EXPECT_EQ(raw.size(), written);
+    EXPECT_EQ(0, std::memcmp(encoded, raw.data(), written));
+
+    tlv_asn1_string_t placeholder{};
+    const uint8_t     control_char[] = {0x1F};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_time, control_char, sizeof(control_char),
+                               &placeholder, sizeof(placeholder)));
+
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, tlv_codec_decode(&tlv_asn1_codec_time, nullptr, 0,
+                                                            &placeholder, sizeof(placeholder)));
+}
+
+TEST(Unit_Tlv_Asn1Codec, Date) {
+    /* "2012-12-21" encodes as the digit-only "20121221" (no '-' separators). */
+    const std::vector<uint8_t> raw = {'2', '0', '1', '2', '1', '2', '2', '1'};
+    tlv_asn1_date_t            decoded{};
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_date, raw.data(), raw.size(), &decoded,
+                                             sizeof(decoded)));
+    EXPECT_EQ(2012, decoded.year);
+    EXPECT_EQ(12, decoded.month);
+    EXPECT_EQ(21, decoded.day);
+
+    uint8_t encoded[8] = {};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(&tlv_asn1_codec_date, &decoded, sizeof(decoded),
+                                             encoded, sizeof(encoded), &written));
+    EXPECT_EQ(raw.size(), written);
+    EXPECT_EQ(0, std::memcmp(encoded, raw.data(), written));
+
+    tlv_asn1_date_t placeholder{};
+    const uint8_t   bad_month[] = {'2', '0', '1', '2', '1', '3', '2', '1'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_date, bad_month, sizeof(bad_month), &placeholder,
+                               sizeof(placeholder)));
+
+    tlv_asn1_date_t bad_field = decoded;
+    bad_field.day = 32;
+    size_t count = 99;
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_encode(&tlv_asn1_codec_date, &bad_field, sizeof(bad_field), encoded,
+                               sizeof(encoded), &count));
+
+    uint8_t small[1] = {};
+    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
+              tlv_codec_encode(&tlv_asn1_codec_date, &decoded, sizeof(decoded), small,
+                               sizeof(small), &count));
+}
+
+TEST(Unit_Tlv_Asn1Codec, TimeOfDay) {
+    /* "06:30:00" encodes as the digit-only "063000" (no ':' separators). */
+    const std::vector<uint8_t> raw = {'0', '6', '3', '0', '0', '0'};
+    tlv_asn1_time_of_day_t     decoded{};
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_time_of_day, raw.data(), raw.size(),
+                                             &decoded, sizeof(decoded)));
+    EXPECT_EQ(6, decoded.hour);
+    EXPECT_EQ(30, decoded.minute);
+    EXPECT_EQ(0, decoded.second);
+
+    uint8_t encoded[8] = {};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(&tlv_asn1_codec_time_of_day, &decoded, sizeof(decoded),
+                                             encoded, sizeof(encoded), &written));
+    EXPECT_EQ(raw.size(), written);
+    EXPECT_EQ(0, std::memcmp(encoded, raw.data(), written));
+
+    tlv_asn1_time_of_day_t placeholder{};
+    const uint8_t          bad_hour[] = {'2', '4', '0', '0', '0', '0'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_time_of_day, bad_hour, sizeof(bad_hour),
+                               &placeholder, sizeof(placeholder)));
+
+    tlv_asn1_time_of_day_t bad_field = decoded;
+    bad_field.second = 60;
+    size_t count = 99;
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_encode(&tlv_asn1_codec_time_of_day, &bad_field, sizeof(bad_field), encoded,
+                               sizeof(encoded), &count));
+
+    uint8_t small[1] = {};
+    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
+              tlv_codec_encode(&tlv_asn1_codec_time_of_day, &decoded, sizeof(decoded), small,
+                               sizeof(small), &count));
+}
+
+TEST(Unit_Tlv_Asn1Codec, DateTime) {
+    /* "1951-10-14T15:30:00" encodes as the digit-only "19511014153000". */
+    const std::vector<uint8_t> raw = {'1', '9', '5', '1', '1', '0', '1',
+                                      '4', '1', '5', '3', '0', '0', '0'};
+    tlv_asn1_date_time_t       decoded{};
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_date_time, raw.data(), raw.size(),
+                                             &decoded, sizeof(decoded)));
+    EXPECT_EQ(1951, decoded.year);
+    EXPECT_EQ(10, decoded.month);
+    EXPECT_EQ(14, decoded.day);
+    EXPECT_EQ(15, decoded.hour);
+    EXPECT_EQ(30, decoded.minute);
+    EXPECT_EQ(0, decoded.second);
+
+    uint8_t encoded[16] = {};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(&tlv_asn1_codec_date_time, &decoded, sizeof(decoded),
+                                             encoded, sizeof(encoded), &written));
+    EXPECT_EQ(raw.size(), written);
+    EXPECT_EQ(0, std::memcmp(encoded, raw.data(), written));
+
+    tlv_asn1_date_time_t placeholder{};
+    const uint8_t        too_short[] = {'1', '9', '5', '1'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_date_time, too_short, sizeof(too_short),
+                               &placeholder, sizeof(placeholder)));
+
+    tlv_asn1_date_time_t bad_field = decoded;
+    bad_field.month = 0;
+    size_t count = 99;
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_encode(&tlv_asn1_codec_date_time, &bad_field, sizeof(bad_field), encoded,
+                               sizeof(encoded), &count));
+
+    uint8_t small[1] = {};
+    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
+              tlv_codec_encode(&tlv_asn1_codec_date_time, &decoded, sizeof(decoded), small,
+                               sizeof(small), &count));
+}
+
+TEST(Unit_Tlv_Asn1Codec, Duration) {
+    /* A 2-year 10-month 15-day 10-hour 20-minute 30-second duration encodes
+     * as "2Y10M15DT10H20M30S" (the ISO 8601 string without its leading 'P'). */
+    const std::vector<uint8_t> raw = {'2', 'Y', '1', '0', 'M', '1', '5', 'D', 'T',
+                                      '1', '0', 'H', '2', '0', 'M', '3', '0', 'S'};
+    tlv_asn1_string_t          decoded{};
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_duration, raw.data(), raw.size(),
+                                             &decoded, sizeof(decoded)));
+    ASSERT_EQ(raw.size(), decoded.length);
+    EXPECT_EQ(0, std::memcmp(decoded.data, raw.data(), raw.size()));
+
+    uint8_t encoded[32] = {};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(&tlv_asn1_codec_duration, &decoded, sizeof(decoded),
+                                             encoded, sizeof(encoded), &written));
+    EXPECT_EQ(raw.size(), written);
+    EXPECT_EQ(0, std::memcmp(encoded, raw.data(), written));
+
+    /* A minimal duration: only a fractional-seconds component. */
+    const std::vector<uint8_t> raw_seconds = {'T', '1', '.', '5', 'S'};
+    tlv_asn1_string_t          decoded_seconds{};
+    ASSERT_EQ(TLV_CODEC_OK,
+              tlv_codec_decode(&tlv_asn1_codec_duration, raw_seconds.data(), raw_seconds.size(),
+                               &decoded_seconds, sizeof(decoded_seconds)));
+    ASSERT_EQ(raw_seconds.size(), decoded_seconds.length);
+
+    /* A single date-part component, not the first one in Y/M/D rank order,
+     * must still be accepted on its own (only relative order is enforced). */
+    const std::vector<uint8_t> raw_days_only = {'5', 'D'};
+    tlv_asn1_string_t          decoded_days_only{};
+    ASSERT_EQ(TLV_CODEC_OK,
+              tlv_codec_decode(&tlv_asn1_codec_duration, raw_days_only.data(), raw_days_only.size(),
+                               &decoded_days_only, sizeof(decoded_days_only)));
+    ASSERT_EQ(raw_days_only.size(), decoded_days_only.length);
+
+    tlv_asn1_string_t placeholder{};
+    const uint8_t     empty[1] = {};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, tlv_codec_decode(&tlv_asn1_codec_duration, empty, 0,
+                                                            &placeholder, sizeof(placeholder)));
+    /* Wrong component order (D before M). */
+    const uint8_t wrong_order[] = {'1', 'D', '1', 'M'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_duration, wrong_order, sizeof(wrong_order),
+                               &placeholder, sizeof(placeholder)));
+    /* 'T' with nothing after it. */
+    const uint8_t empty_time_part[] = {'1', 'Y', 'T'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_duration, empty_time_part, sizeof(empty_time_part),
+                               &placeholder, sizeof(placeholder)));
+    /* A leading 'P' is not part of the canonical wire content. */
+    const uint8_t leading_p[] = {'P', '1', 'Y'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_duration, leading_p, sizeof(leading_p), &placeholder,
+                               sizeof(placeholder)));
+    /* A repeated designator is rejected the same way as a wrong-order one. */
+    const uint8_t repeated[] = {'1', 'Y', '1', 'Y'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_duration, repeated, sizeof(repeated), &placeholder,
+                               sizeof(placeholder)));
+}
+
+TEST(Unit_Tlv_Asn1Codec, OidIri) {
+    const std::vector<uint8_t> raw = {'/', 'a', '/', 'b', 'b', '/', 'c', 'c', 'c'};
+    tlv_asn1_iri_t             decoded{};
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_oid_iri, raw.data(), raw.size(),
+                                             &decoded, sizeof(decoded)));
+    ASSERT_EQ(3u, decoded.count);
+    EXPECT_EQ(1u, decoded.arcs[0].length);
+    EXPECT_EQ(0, std::memcmp(decoded.arcs[0].data, "a", 1));
+    EXPECT_EQ(2u, decoded.arcs[1].length);
+    EXPECT_EQ(0, std::memcmp(decoded.arcs[1].data, "bb", 2));
+    EXPECT_EQ(3u, decoded.arcs[2].length);
+    EXPECT_EQ(0, std::memcmp(decoded.arcs[2].data, "ccc", 3));
+
+    uint8_t encoded[16] = {};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(&tlv_asn1_codec_oid_iri, &decoded, sizeof(decoded),
+                                             encoded, sizeof(encoded), &written));
+    EXPECT_EQ(raw.size(), written);
+    EXPECT_EQ(0, std::memcmp(encoded, raw.data(), written));
+
+    tlv_asn1_iri_t placeholder{};
+    const uint8_t  no_leading_slash[] = {'a', '/', 'b'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_oid_iri, no_leading_slash, sizeof(no_leading_slash),
+                               &placeholder, sizeof(placeholder)));
+    const uint8_t empty_arc[] = {'/', 'a', '/', '/', 'b'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_oid_iri, empty_arc, sizeof(empty_arc), &placeholder,
+                               sizeof(placeholder)));
+    const uint8_t trailing_slash[] = {'/', 'a', '/'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_oid_iri, trailing_slash, sizeof(trailing_slash),
+                               &placeholder, sizeof(placeholder)));
+
+    size_t         count = 99;
+    tlv_asn1_iri_t empty{};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_encode(&tlv_asn1_codec_oid_iri, &empty, sizeof(empty), encoded,
+                               sizeof(encoded), &count));
+
+    uint8_t small[1] = {};
+    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
+              tlv_codec_encode(&tlv_asn1_codec_oid_iri, &decoded, sizeof(decoded), small,
+                               sizeof(small), &count));
+}
+
+TEST(Unit_Tlv_Asn1Codec, RelativeOidIri) {
+    const std::vector<uint8_t> raw = {'x', '/', 'y'};
+    tlv_asn1_iri_t             decoded{};
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_asn1_codec_relative_oid_iri, raw.data(),
+                                             raw.size(), &decoded, sizeof(decoded)));
+    ASSERT_EQ(2u, decoded.count);
+    EXPECT_EQ(0, std::memcmp(decoded.arcs[0].data, "x", 1));
+    EXPECT_EQ(0, std::memcmp(decoded.arcs[1].data, "y", 1));
+
+    uint8_t encoded[8] = {};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(&tlv_asn1_codec_relative_oid_iri, &decoded,
+                                             sizeof(decoded), encoded, sizeof(encoded), &written));
+    EXPECT_EQ(raw.size(), written);
+    EXPECT_EQ(0, std::memcmp(encoded, raw.data(), written));
+
+    tlv_asn1_iri_t placeholder{};
+    const uint8_t  leading_slash[] = {'/', 'x'};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&tlv_asn1_codec_relative_oid_iri, leading_slash,
+                               sizeof(leading_slash), &placeholder, sizeof(placeholder)));
 }

@@ -20,3 +20,13 @@ tlv_result_t tlv_value_constraint_validate(const tlv_value_constraint_t* constra
         default: return TLV_ERR_SCHEMA;
     }
 }
+
+const char* tlv_value_constraint_name(const tlv_value_constraint_t* constraint, int64_t value) {
+    size_t i;
+    if (!constraint || constraint->kind != TLV_VALUE_CONSTRAINT_ALLOWED_VALUES ||
+        !constraint->allowed_values || !constraint->allowed_value_names)
+        return NULL;
+    for (i = 0; i < constraint->allowed_values_count; ++i)
+        if (constraint->allowed_values[i] == value) return constraint->allowed_value_names[i];
+    return NULL;
+}

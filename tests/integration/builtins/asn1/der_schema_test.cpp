@@ -6,8 +6,10 @@
 
 namespace {
 
-const tlv_der_schema_type_t kInteger = {TLV_DER_SCHEMA_UNIVERSAL, 2, nullptr, 0, nullptr, 0, 0};
-const tlv_der_schema_type_t kOctetString = {TLV_DER_SCHEMA_UNIVERSAL, 4, nullptr, 0, nullptr, 0, 0};
+const tlv_der_schema_type_t kInteger = {
+    TLV_DER_SCHEMA_UNIVERSAL, 2, nullptr, 0, nullptr, 0, 0, nullptr, 0};
+const tlv_der_schema_type_t kOctetString = {
+    TLV_DER_SCHEMA_UNIVERSAL, 4, nullptr, 0, nullptr, 0, 0, nullptr, 0};
 
 tlv_der_schema_component_t Required(const tlv_der_schema_type_t& type) {
     return {&type, TLV_DER_TAG_NONE, TLV_ASN1_UNIVERSAL, 0, TLV_DER_REQUIRED, nullptr, 0};
@@ -22,7 +24,8 @@ tlv_der_schema_component_t Required(const tlv_der_schema_type_t& type) {
  * schema-aware reader -- the exact distinction issue #63 introduces. */
 TEST(Integration_Tlv_DerSchema, SchemaRejectsNonCanonicalSetOrderGenericDerAccepts) {
     tlv_der_schema_component_t  components[2] = {Required(kInteger), Required(kOctetString)};
-    const tlv_der_schema_type_t set_type = {TLV_DER_SCHEMA_SET, 0, components, 2, nullptr, 0, 0};
+    const tlv_der_schema_type_t set_type = {
+        TLV_DER_SCHEMA_SET, 0, components, 2, nullptr, 0, 0, nullptr, 0};
 
     /* SET { OCTET STRING, INTEGER } encoded in declaration (non-canonical)
      * order: 31 06 04 01 01 02 01 05. */
@@ -65,15 +68,16 @@ static tlv_result_t ScriptEncode(const void* context, const tlv_der_schema_compo
         *written = entry.bytes.size();
         return TLV_OK;
     }
-    /* An unscripted container component (SEQUENCE/SET/SET OF/CHOICE, or the
-     * synthetic root wrapper) is reported present with no content of its
-     * own, since its bytes come from its children instead. An unscripted
-     * leaf (UNIVERSAL/ANY) -- including a SET OF element index beyond the
-     * scripted ones -- is reported absent. */
+    /* An unscripted container component (SEQUENCE/SET/SET OF/SEQUENCE OF/
+     * CHOICE, or the synthetic root wrapper) is reported present with no
+     * content of its own, since its bytes come from its children instead. An
+     * unscripted leaf (UNIVERSAL/ANY) -- including a SET OF or SEQUENCE OF
+     * element index beyond the scripted ones -- is reported absent. */
     switch (component->type->kind) {
         case TLV_DER_SCHEMA_SEQUENCE:
         case TLV_DER_SCHEMA_SET:
         case TLV_DER_SCHEMA_SET_OF:
+        case TLV_DER_SCHEMA_SEQUENCE_OF:
         case TLV_DER_SCHEMA_CHOICE:
             *absent = 0;
             *written = 0;
@@ -89,10 +93,11 @@ TEST(Integration_Tlv_DerSchema, CompositeStructureRoundTrips) {
     static const uint8_t        kZeroDefault[] = {0x02, 0x01, 0x00};
     tlv_der_schema_component_t  choice_alts[2] = {Required(kInteger), Required(kOctetString)};
     const tlv_der_schema_type_t choice_name = {
-        TLV_DER_SCHEMA_CHOICE, 0, choice_alts, 2, nullptr, 0, 0};
+        TLV_DER_SCHEMA_CHOICE, 0, choice_alts, 2, nullptr, 0, 0, nullptr, 0};
 
     tlv_der_schema_component_t  set_members[2] = {Required(kInteger), Required(kOctetString)};
-    const tlv_der_schema_type_t set_type = {TLV_DER_SCHEMA_SET, 0, set_members, 2, nullptr, 0, 0};
+    const tlv_der_schema_type_t set_type = {
+        TLV_DER_SCHEMA_SET, 0, set_members, 2, nullptr, 0, 0, nullptr, 0};
 
     tlv_der_schema_component_t root_components[3] = {
         {&kInteger, TLV_DER_TAG_EXPLICIT, TLV_ASN1_CONTEXT_SPECIFIC, 0, TLV_DER_DEFAULT,
@@ -101,7 +106,7 @@ TEST(Integration_Tlv_DerSchema, CompositeStructureRoundTrips) {
         {&choice_name, TLV_DER_TAG_NONE, TLV_ASN1_UNIVERSAL, 0, TLV_DER_REQUIRED, nullptr, 0},
     };
     const tlv_der_schema_type_t root = {
-        TLV_DER_SCHEMA_SEQUENCE, 0, root_components, 3, nullptr, 0, 0};
+        TLV_DER_SCHEMA_SEQUENCE, 0, root_components, 3, nullptr, 0, 0, nullptr, 0};
     ASSERT_EQ(TLV_OK, tlv_der_schema_check(&root, nullptr));
 
     std::vector<ScriptEntry> script = {

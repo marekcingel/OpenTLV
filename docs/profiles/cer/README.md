@@ -180,24 +180,29 @@ encounter additionally has its content validated against ASN.1 canonical rules �
 including, for a segmented constructed value, every segment, validated as it is
 encountered without ever concatenating them.
 
-| Group | Supported types |
-| --- | --- |
-| Simple | BOOLEAN, INTEGER, BIT STRING, OCTET STRING, NULL, OBJECT IDENTIFIER, RELATIVE-OID, REAL, ENUMERATED |
-| String | UTF8String, NumericString, PrintableString, IA5String, VisibleString, UniversalString, BMPString |
-| Date/time | UTCTime, GeneralizedTime |
+| Group | Supported types | Segmentable |
+| --- | --- | --- |
+| Simple | BOOLEAN, INTEGER, BIT STRING, OCTET STRING, NULL, OBJECT IDENTIFIER, RELATIVE-OID, REAL, ENUMERATED | BIT STRING, OCTET STRING only |
+| String | UTF8String, NumericString, PrintableString, IA5String, VisibleString, UniversalString, BMPString | Yes |
+| Unconstrained legacy string | ObjectDescriptor, TeletexString, VideotexString, GraphicString, GeneralString | Yes |
+| Date/time | UTCTime, GeneralizedTime, TIME, DATE, TIME-OF-DAY, DATE-TIME, DURATION | No |
+| OID-IRI | OID-IRI, RELATIVE-OID-IRI | No |
 
 These are exactly the rules ITU-T X.690 §11 documents as common to both CER and
 DER, so results agree with [DER's strict validation](../der/README.md#strict-universal-value-validation)
-wherever both apply (DER never segments; CER's segment-aware checks are additional).
-UTCTime and GeneralizedTime are never eligible for segmentation (always primitive,
-definite length), like every other simple type above.
+wherever both apply (DER never segments; CER's segment-aware checks are additional,
+per-segment for a type the "Segmentable" column marks "Yes"). Every type marked
+"No" is never eligible for segmentation (always primitive, definite length),
+including generic TIME/DATE/TIME-OF-DAY/DATE-TIME/DURATION/OID-IRI/RELATIVE-OID-IRI:
+their content is still validated, exactly as an ordinary primitive value.
 
 Recognized but explicitly unsupported (return `TLV_ERR_UNSUPPORTED_TYPE` in strict
-mode rather than being silently accepted, **including a constructed/segmented
-encoding**): ObjectDescriptor, TeletexString, VideotexString, GraphicString,
-GeneralString, TIME, DATE, TIME-OF-DAY, DATE-TIME, DURATION, OID-IRI,
-RELATIVE-OID-IRI, and any UNIVERSAL primitive tag number beyond 36 — the same set
-DER documents, since the underlying content validators are shared.
+mode rather than being silently accepted): any UNIVERSAL primitive tag number
+beyond 36. Unlike every case above, this one is never checked at all — CER only
+attempts universal-value validation for a tag number 36 or below in the first
+place, so an unrecognized higher number is accepted structurally (not reported
+as unsupported), a difference from DER's shared dispatch, which returns
+`TLV_ERR_UNSUPPORTED_TYPE` unconditionally for any number it does not recognize.
 
 ## Errors, offsets and limits
 
