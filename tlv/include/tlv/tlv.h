@@ -23,6 +23,7 @@
 #include "tlv/query/query.h"
 #include "tlv/writer/writer.h"
 #include "tlv/schema/schema.h"
+#include "tlv/schema/constraint.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_DEFAULT
 #include "tlv/builtins/fixed/default.h"

@@ -26,6 +26,7 @@ set(SOURCES
     query/query_test.cpp
     schema/schema_test.cpp
     schema/schema_report_test.cpp
+    schema/constraint_test.cpp
     document/document_test.cpp
     codec/codec_test.cpp
     builtins/asn1/format_ber_test.cpp
