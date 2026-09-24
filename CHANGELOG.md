@@ -30,6 +30,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `tlv_codec_t` codecs to `tlv/builtins/asn1/asn1_codec.h` for the ASN.1
+  string and time universal types (UTF8String, NumericString,
+  PrintableString, IA5String, VisibleString, BMPString, UniversalString,
+  UTCTime and GeneralizedTime); see
+  [BER-TLV](docs/formats/asn1/ber.md#universal-type-value-codecs). (#307)
 - Add `tlv/builtins/asn1/asn1_codec.h`, `tlv_codec_t` codecs for the ASN.1
   primitive universal types (BOOLEAN, INTEGER, ENUMERATED, BIT STRING, OCTET
   STRING, NULL, OBJECT IDENTIFIER and RELATIVE-OID), converting raw values

@@ -13,7 +13,7 @@ extern "C" {
 /**
  * @file
  * @ingroup codecs
- * @brief Value codecs for ASN.1 primitive universal types (ITU-T X.690).
+ * @brief Value codecs for ASN.1 primitive, string and time universal types (ITU-T X.690).
  *
  * Use tlv_codec_decode() and tlv_codec_encode() with these codecs on a raw
  * value already read by a BER-family format (#tlv_reader_format_ber, or a
@@ -29,10 +29,13 @@ extern "C" {
  * so on. A non-canonical but otherwise legal plain-BER encoding (for example
  * a BOOLEAN of `01`) is rejected with #TLV_CODEC_ERR_INVALID_VALUE.
  *
- * BIT STRING and OCTET STRING decode into a representation that borrows the
- * input value bytes; that input must then outlive the representation, as
- * with any zero-copy tlv_codec_t decode. Every other codec's representation
- * is self-contained.
+ * BIT STRING, OCTET STRING, the restricted character string types
+ * (UTF8String, NumericString, PrintableString, IA5String, VisibleString,
+ * BMPString, UniversalString) and the fractional-seconds part of
+ * GeneralizedTime decode into a representation that borrows the input value
+ * bytes; that input must then outlive the representation, as with any
+ * zero-copy tlv_codec_t decode. Every other codec's representation is
+ * self-contained.
  */
 
 /** @addtogroup codecs
@@ -165,6 +168,178 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_oid;
  * @see tlv_asn1_codec_oid
  */
 extern TLV_API const tlv_codec_t tlv_asn1_codec_relative_oid;
+
+/**
+ * @brief Decoded restricted character string content (X.690 section 8.23): borrowed bytes.
+ *
+ * Shared by every codec whose valid content is a byte sequence restricted to
+ * a fixed character set: UTF8String, NumericString, PrintableString,
+ * IA5String and VisibleString.
+ */
+typedef struct tlv_asn1_string {
+    /** Borrowed content bytes. `NULL` only when `length` is 0. */
+    const uint8_t* data;
+    /** Length of `data` in bytes. */
+    size_t length;
+} tlv_asn1_string_t;
+
+/**
+ * @brief UTF8String codec (X.690 section 8.23): #tlv_asn1_string_t.
+ *
+ * Decode requires well-formed UTF-8: no overlong encoding, no surrogate code
+ * point (U+D800-U+DFFF), no code point above U+10FFFF, and no truncated or
+ * malformed continuation byte. Encode enforces the same rule and reproduces
+ * the content unchanged.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_utf8_string;
+
+/**
+ * @brief NumericString codec (X.690 section 8.23): #tlv_asn1_string_t.
+ *
+ * Every content byte must be `0`-`9` or the space character; any other byte
+ * is #TLV_CODEC_ERR_INVALID_VALUE on decode or encode.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_numeric_string;
+
+/**
+ * @brief PrintableString codec (X.690 section 8.23): #tlv_asn1_string_t.
+ *
+ * Every content byte must be a letter, digit, space, or one of
+ * `'()+,-./:=?`; any other byte is #TLV_CODEC_ERR_INVALID_VALUE on decode or
+ * encode.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_printable_string;
+
+/**
+ * @brief IA5String codec (X.690 section 8.23): #tlv_asn1_string_t.
+ *
+ * Every content byte must be 7-bit ASCII (`0x00`-`0x7F`); any other byte is
+ * #TLV_CODEC_ERR_INVALID_VALUE on decode or encode.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_ia5_string;
+
+/**
+ * @brief VisibleString codec (X.690 section 8.23): #tlv_asn1_string_t.
+ *
+ * Every content byte must be a printable ASCII character, space through `~`
+ * (`0x20`-`0x7E`); any other byte is #TLV_CODEC_ERR_INVALID_VALUE on decode
+ * or encode.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_visible_string;
+
+/** @brief Decoded BMPString content (X.690 section 8.23): borrowed UCS-2 code units. */
+typedef struct tlv_asn1_bmp_string {
+    /** Borrowed content bytes, `length * 2` of them, big-endian UCS-2 code units.
+     *  `NULL` only when `length` is 0. */
+    const uint8_t* data;
+    /** Number of UCS-2 code units in `data`. */
+    size_t length;
+} tlv_asn1_bmp_string_t;
+
+/**
+ * @brief BMPString codec (X.690 section 8.23): #tlv_asn1_bmp_string_t.
+ *
+ * Decode requires content whose length is a multiple of 2 bytes and whose
+ * every big-endian 16-bit code unit is outside the surrogate range
+ * (U+D800-U+DFFF); use tlv_read_u16_be() on `data + 2 * i` to read code unit
+ * `i`. Encode enforces the same rule and reproduces the content unchanged.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_bmp_string;
+
+/** @brief Decoded UniversalString content (X.690 section 8.23): borrowed UCS-4 code points. */
+typedef struct tlv_asn1_universal_string {
+    /** Borrowed content bytes, `length * 4` of them, big-endian UCS-4 code points.
+     *  `NULL` only when `length` is 0. */
+    const uint8_t* data;
+    /** Number of UCS-4 code points in `data`. */
+    size_t length;
+} tlv_asn1_universal_string_t;
+
+/**
+ * @brief UniversalString codec (X.690 section 8.23): #tlv_asn1_universal_string_t.
+ *
+ * Decode requires content whose length is a multiple of 4 bytes and whose
+ * every big-endian 32-bit code point is at most U+10FFFF and outside the
+ * surrogate range (U+D800-U+DFFF); use tlv_read_u32_be() on `data + 4 * i` to
+ * read code point `i`. Encode enforces the same rule and reproduces the
+ * content unchanged.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_universal_string;
+
+/**
+ * @brief Decoded UTCTime content (X.690 section 8.26 and 11.8): a two-digit-year timestamp.
+ *
+ * Calendar fields are range-checked only (for example day 1-31); a
+ * calendar-invalid date such as 30 February is not detected.
+ */
+typedef struct tlv_asn1_utc_time {
+    /** Four-digit year, derived from the wire's two-digit year by the
+     *  convention X.680 recommends and widely used profiles (for example
+     *  RFC 5280) apply: 0-49 maps to 2000-2049, 50-99 maps to 1950-1999. */
+    int32_t year;
+    /** Month, 1-12. */
+    uint8_t month;
+    /** Day of month, 1-31. */
+    uint8_t day;
+    /** Hour, 0-23. */
+    uint8_t hour;
+    /** Minute, 0-59. */
+    uint8_t minute;
+    /** Second, 0-59. */
+    uint8_t second;
+} tlv_asn1_utc_time_t;
+
+/**
+ * @brief UTCTime codec (X.690 section 8.26 and 11.8): #tlv_asn1_utc_time_t.
+ *
+ * Decode requires the canonical `YYMMDDHHMMSSZ` form (13 bytes, UTC only,
+ * seconds mandatory) and range-checks every calendar field; `year` is
+ * derived from the two-digit wire year as #tlv_asn1_utc_time_t documents.
+ * Encode requires `year` in 1950-2049 (every other year has no two-digit
+ * representation under that same convention) and every other field in its
+ * documented range, and always reproduces the canonical form.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_utc_time;
+
+/**
+ * @brief Decoded GeneralizedTime content (X.690 section 8.26 and 11.7): a four-digit-year
+ * timestamp.
+ *
+ * Calendar fields are range-checked only (for example day 1-31); a
+ * calendar-invalid date such as 30 February is not detected.
+ */
+typedef struct tlv_asn1_generalized_time {
+    /** Four-digit year, taken from the wire as-is, 0-9999. */
+    int32_t year;
+    /** Month, 1-12. */
+    uint8_t month;
+    /** Day of month, 1-31. */
+    uint8_t day;
+    /** Hour, 0-23. */
+    uint8_t hour;
+    /** Minute, 0-59. */
+    uint8_t minute;
+    /** Second, 0-59. */
+    uint8_t second;
+    /** Borrowed decimal digits after the fractional-seconds `.`, excluding the `.`
+     *  and the trailing `Z`. `NULL` when there is no fractional part. */
+    const uint8_t* fraction_digits;
+    /** Length of `fraction_digits` in bytes; 0 when there is no fractional part. */
+    size_t fraction_digits_length;
+} tlv_asn1_generalized_time_t;
+
+/**
+ * @brief GeneralizedTime codec (X.690 section 8.26 and 11.7): #tlv_asn1_generalized_time_t.
+ *
+ * Decode requires the canonical `YYYYMMDDHHMMSS[.fraction]Z` form (UTC only,
+ * seconds mandatory, an optional fractional-seconds part whose digits never
+ * end in `0`) and range-checks every calendar field; the result borrows
+ * `fraction_digits`. Encode requires `year` in 0-9999 and every other field
+ * in its documented range, rejects a non-digit byte or a trailing `0` in
+ * `fraction_digits`, and rejects a `fraction_digits_length` of 0 paired with
+ * a non-`NULL` `fraction_digits` or vice versa.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_generalized_time;
 
 #ifdef __cplusplus
 }
