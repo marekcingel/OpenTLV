@@ -100,6 +100,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__bit__string.html">tlv_asn1_bit_string</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded BIT STRING content (X.690 section 8.6): unused-bit count and borrowed bits.  <a href="structtlv__asn1__bit__string.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__named__bit.html">tlv_asn1_named_bit</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One named bit of a BIT STRING (X.680's <code>NamedBitList</code> notation, for example <code>digitalSignature(0)</code> in a <code>KeyUsage</code>).  <a href="structtlv__asn1__named__bit.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__octet__string.html">tlv_asn1_octet_string</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.  <a href="structtlv__asn1__octet__string.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -120,6 +123,21 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__generalized__time.html">tlv_asn1_generalized_time</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded GeneralizedTime content (X.690 section 8.26 and 11.7): a four-digit-year timestamp.  <a href="structtlv__asn1__generalized__time.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__date.html">tlv_asn1_date</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded DATE content (X.690 section 11.x): a calendar date.  <a href="structtlv__asn1__date.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__time__of__day.html">tlv_asn1_time_of_day</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded TIME-OF-DAY content (X.690 section 11.x): a local time of day.  <a href="structtlv__asn1__time__of__day.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__date__time.html">tlv_asn1_date_time</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded DATE-TIME content (X.690 section 11.x): a DATE immediately followed by a TIME-OF-DAY.  <a href="structtlv__asn1__date__time.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__iri__arc.html">tlv_asn1_iri_arc</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One borrowed arc label of a <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a>.  <a href="structtlv__asn1__iri__arc.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__iri.html">tlv_asn1_iri</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.  <a href="structtlv__asn1__iri.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__emv__date__t.html">tlv_emv_date_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded EMV date (BCD <code>YYMMDD</code> on the wire).  <a href="structtlv__emv__date__t.html#details">More...</a><br /></td></tr>
@@ -157,6 +175,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gaec5421760b455d46e3e00715da90b1c1" id="r_gaec5421760b455d46e3e00715da90b1c1"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__bit__string.html">tlv_asn1_bit_string</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gaec5421760b455d46e3e00715da90b1c1">tlv_asn1_bit_string_t</a></td></tr>
 <tr class="memdesc:gaec5421760b455d46e3e00715da90b1c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded BIT STRING content (X.690 section 8.6): unused-bit count and borrowed bits.  <br /></td></tr>
 <tr class="separator:gaec5421760b455d46e3e00715da90b1c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad3f2cfce6e140ff762d95d6ab64175d5" id="r_gad3f2cfce6e140ff762d95d6ab64175d5"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__named__bit.html">tlv_asn1_named_bit</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gad3f2cfce6e140ff762d95d6ab64175d5">tlv_asn1_named_bit_t</a></td></tr>
+<tr class="memdesc:gad3f2cfce6e140ff762d95d6ab64175d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">One named bit of a BIT STRING (X.680's <code>NamedBitList</code> notation, for example <code>digitalSignature(0)</code> in a <code>KeyUsage</code>).  <br /></td></tr>
+<tr class="separator:gad3f2cfce6e140ff762d95d6ab64175d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac6dae34de85507f19c84c62a211a6ba3" id="r_gac6dae34de85507f19c84c62a211a6ba3"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__octet__string.html">tlv_asn1_octet_string</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3">tlv_asn1_octet_string_t</a></td></tr>
 <tr class="memdesc:gac6dae34de85507f19c84c62a211a6ba3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.  <br /></td></tr>
 <tr class="separator:gac6dae34de85507f19c84c62a211a6ba3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -178,6 +199,21 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga6b7ac701f8323dde5bde8fa9dd067f23" id="r_ga6b7ac701f8323dde5bde8fa9dd067f23"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__generalized__time.html">tlv_asn1_generalized_time</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga6b7ac701f8323dde5bde8fa9dd067f23">tlv_asn1_generalized_time_t</a></td></tr>
 <tr class="memdesc:ga6b7ac701f8323dde5bde8fa9dd067f23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded GeneralizedTime content (X.690 section 8.26 and 11.7): a four-digit-year timestamp.  <br /></td></tr>
 <tr class="separator:ga6b7ac701f8323dde5bde8fa9dd067f23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4f441c8dd486a7519386f3d1dbb93d43" id="r_ga4f441c8dd486a7519386f3d1dbb93d43"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__date.html">tlv_asn1_date</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga4f441c8dd486a7519386f3d1dbb93d43">tlv_asn1_date_t</a></td></tr>
+<tr class="memdesc:ga4f441c8dd486a7519386f3d1dbb93d43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded DATE content (X.690 section 11.x): a calendar date.  <br /></td></tr>
+<tr class="separator:ga4f441c8dd486a7519386f3d1dbb93d43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga32d5bc4d8095d7dd070dc544e5918bbb" id="r_ga32d5bc4d8095d7dd070dc544e5918bbb"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__time__of__day.html">tlv_asn1_time_of_day</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga32d5bc4d8095d7dd070dc544e5918bbb">tlv_asn1_time_of_day_t</a></td></tr>
+<tr class="memdesc:ga32d5bc4d8095d7dd070dc544e5918bbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded TIME-OF-DAY content (X.690 section 11.x): a local time of day.  <br /></td></tr>
+<tr class="separator:ga32d5bc4d8095d7dd070dc544e5918bbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga745be454ade2039cf94044b0323514df" id="r_ga745be454ade2039cf94044b0323514df"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__date__time.html">tlv_asn1_date_time</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga745be454ade2039cf94044b0323514df">tlv_asn1_date_time_t</a></td></tr>
+<tr class="memdesc:ga745be454ade2039cf94044b0323514df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded DATE-TIME content (X.690 section 11.x): a DATE immediately followed by a TIME-OF-DAY.  <br /></td></tr>
+<tr class="separator:ga745be454ade2039cf94044b0323514df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga31cb42f4cfa3c36222553da5231821c3" id="r_ga31cb42f4cfa3c36222553da5231821c3"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__iri__arc.html">tlv_asn1_iri_arc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga31cb42f4cfa3c36222553da5231821c3">tlv_asn1_iri_arc_t</a></td></tr>
+<tr class="memdesc:ga31cb42f4cfa3c36222553da5231821c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">One borrowed arc label of a <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a>.  <br /></td></tr>
+<tr class="separator:ga31cb42f4cfa3c36222553da5231821c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae8f1386c752002b7ef06f09984bac139" id="r_gae8f1386c752002b7ef06f09984bac139"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__iri.html">tlv_asn1_iri</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139">tlv_asn1_iri_t</a></td></tr>
+<tr class="memdesc:gae8f1386c752002b7ef06f09984bac139"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.  <br /></td></tr>
+<tr class="separator:gae8f1386c752002b7ef06f09984bac139"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6033534ecdbfc36953062aed6279562f" id="r_ga6033534ecdbfc36953062aed6279562f"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">tlv_codec_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a></td></tr>
 <tr class="memdesc:ga6033534ecdbfc36953062aed6279562f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result code of a value conversion.  <br /></td></tr>
 <tr class="separator:ga6033534ecdbfc36953062aed6279562f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -194,6 +230,10 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga06fc87d81c62e9abb8790b6e5713c55b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of arcs <a class="el" href="group__codecs.html#gac1de63672b92cfa7f106fc5de48674f3" title="Decoded OBJECT IDENTIFIER or RELATIVE-OID arc values (X.690 section 8.19 and 8.20).">tlv_asn1_oid_t</a> can hold.  <a href="group__codecs.html#ga06fc87d81c62e9abb8790b6e5713c55b">More...</a><br /></td></tr>
 <tr class="separator:ga06fc87d81c62e9abb8790b6e5713c55b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadf764cbdea00d65edcd07bb9953ad2b7" id="r_gadf764cbdea00d65edcd07bb9953ad2b7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggadf764cbdea00d65edcd07bb9953ad2b7a24a74458ddfa8d0662a32104b0233965">TLV_ASN1_IRI_MAX_ARCS</a> = 32
+ }</td></tr>
+<tr class="memdesc:gadf764cbdea00d65edcd07bb9953ad2b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of arcs <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a> can hold.  <a href="group__codecs.html#gadf764cbdea00d65edcd07bb9953ad2b7">More...</a><br /></td></tr>
+<tr class="separator:gadf764cbdea00d65edcd07bb9953ad2b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga26f5dc718be113048f862c727c8ed6c1" id="r_ga26f5dc718be113048f862c727c8ed6c1"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">tlv_emv_value_kind_t</a> { <br />
 &#160;&#160;<a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a4931c654f4ede2a6730c12d43624aaff">TLV_EMV_VALUE_BYTES</a>
 , <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ac18eb9cbac255b6372b3f5586f3c447e">TLV_EMV_VALUE_TEXT</a>
@@ -242,15 +282,15 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gaaf0044fa9cb624a58696e6660ffea8e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Biometric type; undefined values are rejected by the codec.  <a href="group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">More...</a><br /></td></tr>
 <tr class="separator:gaaf0044fa9cb624a58696e6660ffea8e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga385c44f6fb256e5716a2302a5b940388" id="r_ga385c44f6fb256e5716a2302a5b940388"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#gga385c44f6fb256e5716a2302a5b940388ae6c14b14e63e8a84a683cbad42f6284c">TLV_EMV_AFL_MAX_ENTRIES</a> = 63
+<tr class="memitem:gabc5c98fcc1211af2b80116dd6e0a035d" id="r_gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggabc5c98fcc1211af2b80116dd6e0a035dae6c14b14e63e8a84a683cbad42f6284c">TLV_EMV_AFL_MAX_ENTRIES</a> = 63
  }</td></tr>
-<tr class="memdesc:ga385c44f6fb256e5716a2302a5b940388"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of AFL entries: 252 / 4.  <a href="group__codecs.html#ga385c44f6fb256e5716a2302a5b940388">More...</a><br /></td></tr>
-<tr class="separator:ga385c44f6fb256e5716a2302a5b940388"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabc5c98fcc1211af2b80116dd6e0a035d" id="r_gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggabc5c98fcc1211af2b80116dd6e0a035da5f387811faa1c85d5b50891377301efb">TLV_EMV_TRACK2_PAN_MAX_DIGITS</a> = 19
-, <a class="el" href="group__codecs.html#ggabc5c98fcc1211af2b80116dd6e0a035daab83be4e64aafbbc8777f4f3b02c98be">TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS</a> = 30
- }</td></tr>
-<tr class="memdesc:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of PAN digits in Track 2 Equivalent Data, and of discretionary digits.  <a href="group__codecs.html#gabc5c98fcc1211af2b80116dd6e0a035d">More...</a><br /></td></tr>
+<tr class="memdesc:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of AFL entries: 252 / 4.  <a href="group__codecs.html#gabc5c98fcc1211af2b80116dd6e0a035d">More...</a><br /></td></tr>
 <tr class="separator:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac36f475ca5b446f4fde4c9b90bec77c8" id="r_gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggac36f475ca5b446f4fde4c9b90bec77c8a5f387811faa1c85d5b50891377301efb">TLV_EMV_TRACK2_PAN_MAX_DIGITS</a> = 19
+, <a class="el" href="group__codecs.html#ggac36f475ca5b446f4fde4c9b90bec77c8aab83be4e64aafbbc8777f4f3b02c98be">TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS</a> = 30
+ }</td></tr>
+<tr class="memdesc:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of PAN digits in Track 2 Equivalent Data, and of discretionary digits.  <a href="group__codecs.html#gac36f475ca5b446f4fde4c9b90bec77c8">More...</a><br /></td></tr>
+<tr class="separator:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5aefdf4a40140da8025256c425474b1a" id="r_ga5aefdf4a40140da8025256c425474b1a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">tlv_codec_result</a> { <br />
 &#160;&#160;<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> = 0
 , <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>
@@ -266,6 +306,12 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga0a63219cd73a7b4e0c6b8bd04d886743" id="r_ga0a63219cd73a7b4e0c6b8bd04d886743"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga0a63219cd73a7b4e0c6b8bd04d886743">tlv_asn1_bit_string_test</a> (const <a class="el" href="group__codecs.html#gaec5421760b455d46e3e00715da90b1c1">tlv_asn1_bit_string_t</a> *bits, size_t position)</td></tr>
+<tr class="memdesc:ga0a63219cd73a7b4e0c6b8bd04d886743"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tests whether one bit of a decoded BIT STRING is set.  <br /></td></tr>
+<tr class="separator:ga0a63219cd73a7b4e0c6b8bd04d886743"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabb62fecb5eff09ae46d803c0b6d77ba6" id="r_gabb62fecb5eff09ae46d803c0b6d77ba6"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gabb62fecb5eff09ae46d803c0b6d77ba6">tlv_asn1_named_bit_find</a> (const <a class="el" href="group__codecs.html#gad3f2cfce6e140ff762d95d6ab64175d5">tlv_asn1_named_bit_t</a> *names, size_t count, size_t position)</td></tr>
+<tr class="memdesc:gabb62fecb5eff09ae46d803c0b6d77ba6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Looks up a named bit's display name by position in a table.  <br /></td></tr>
+<tr class="separator:gabb62fecb5eff09ae46d803c0b6d77ba6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga79fa5b1488b431a86da823d7a27a29cb" id="r_ga79fa5b1488b431a86da823d7a27a29cb"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga79fa5b1488b431a86da823d7a27a29cb">tlv_emv_value_kind_description</a> (<a class="el" href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">tlv_emv_value_kind_t</a> kind)</td></tr>
 <tr class="memdesc:ga79fa5b1488b431a86da823d7a27a29cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes a value kind's C representation and wire meaning.  <br /></td></tr>
 <tr class="separator:ga79fa5b1488b431a86da823d7a27a29cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -338,6 +384,42 @@ Variables</h2></td></tr>
 <tr class="memitem:ga01e5c8070bb42847d83ef0d63060073b" id="r_ga01e5c8070bb42847d83ef0d63060073b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga01e5c8070bb42847d83ef0d63060073b">tlv_asn1_codec_generalized_time</a></td></tr>
 <tr class="memdesc:ga01e5c8070bb42847d83ef0d63060073b"><td class="mdescLeft">&#160;</td><td class="mdescRight">GeneralizedTime codec (X.690 section 8.26 and 11.7): <a class="el" href="group__codecs.html#ga6b7ac701f8323dde5bde8fa9dd067f23" title="Decoded GeneralizedTime content (X.690 section 8.26 and 11.7): a four-digit-year timestamp.">tlv_asn1_generalized_time_t</a>.  <br /></td></tr>
 <tr class="separator:ga01e5c8070bb42847d83ef0d63060073b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0893fc9a88a315796ce3f1856d9290a5" id="r_ga0893fc9a88a315796ce3f1856d9290a5"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga0893fc9a88a315796ce3f1856d9290a5">tlv_asn1_codec_object_descriptor</a></td></tr>
+<tr class="memdesc:ga0893fc9a88a315796ce3f1856d9290a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">ObjectDescriptor codec (X.690 section 11.2): <a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3" title="Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.">tlv_asn1_octet_string_t</a>.  <br /></td></tr>
+<tr class="separator:ga0893fc9a88a315796ce3f1856d9290a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga735d6d49dd2857f929989fd87381c9e7" id="r_ga735d6d49dd2857f929989fd87381c9e7"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga735d6d49dd2857f929989fd87381c9e7">tlv_asn1_codec_teletex_string</a></td></tr>
+<tr class="memdesc:ga735d6d49dd2857f929989fd87381c9e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">TeletexString codec (X.690 section 8.23 and 11.2): <a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3" title="Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.">tlv_asn1_octet_string_t</a>.  <br /></td></tr>
+<tr class="separator:ga735d6d49dd2857f929989fd87381c9e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad9898b65b9c11da218643a7a802fd0be" id="r_gad9898b65b9c11da218643a7a802fd0be"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gad9898b65b9c11da218643a7a802fd0be">tlv_asn1_codec_videotex_string</a></td></tr>
+<tr class="memdesc:gad9898b65b9c11da218643a7a802fd0be"><td class="mdescLeft">&#160;</td><td class="mdescRight">VideotexString codec (X.690 section 8.23 and 11.2): <a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3" title="Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.">tlv_asn1_octet_string_t</a>.  <br /></td></tr>
+<tr class="separator:gad9898b65b9c11da218643a7a802fd0be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2fb4591edf4047710be3a0e4cb13f5f5" id="r_ga2fb4591edf4047710be3a0e4cb13f5f5"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga2fb4591edf4047710be3a0e4cb13f5f5">tlv_asn1_codec_graphic_string</a></td></tr>
+<tr class="memdesc:ga2fb4591edf4047710be3a0e4cb13f5f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">GraphicString codec (X.690 section 8.23 and 11.2): <a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3" title="Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.">tlv_asn1_octet_string_t</a>.  <br /></td></tr>
+<tr class="separator:ga2fb4591edf4047710be3a0e4cb13f5f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab8874af3a04f35f73c641280c379ae08" id="r_gab8874af3a04f35f73c641280c379ae08"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gab8874af3a04f35f73c641280c379ae08">tlv_asn1_codec_general_string</a></td></tr>
+<tr class="memdesc:gab8874af3a04f35f73c641280c379ae08"><td class="mdescLeft">&#160;</td><td class="mdescRight">GeneralString codec (X.690 section 8.23 and 11.2): <a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3" title="Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.">tlv_asn1_octet_string_t</a>.  <br /></td></tr>
+<tr class="separator:gab8874af3a04f35f73c641280c379ae08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3d68e4bdc4ca38da8ff5c8258d5536ad" id="r_ga3d68e4bdc4ca38da8ff5c8258d5536ad"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga3d68e4bdc4ca38da8ff5c8258d5536ad">tlv_asn1_codec_time</a></td></tr>
+<tr class="memdesc:ga3d68e4bdc4ca38da8ff5c8258d5536ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic TIME codec (X.690 section 11.7 and X.680 clause 38): <a class="el" href="group__codecs.html#gaf086d7e5a7ab70e22f9a99a698c17fde" title="Decoded restricted character string content (X.690 section 8.23): borrowed bytes.">tlv_asn1_string_t</a>.  <br /></td></tr>
+<tr class="separator:ga3d68e4bdc4ca38da8ff5c8258d5536ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9c17d7325d8da7d91a6627bd521eb20d" id="r_ga9c17d7325d8da7d91a6627bd521eb20d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga9c17d7325d8da7d91a6627bd521eb20d">tlv_asn1_codec_date</a></td></tr>
+<tr class="memdesc:ga9c17d7325d8da7d91a6627bd521eb20d"><td class="mdescLeft">&#160;</td><td class="mdescRight">DATE codec (X.690 section 11.x): <a class="el" href="group__codecs.html#ga4f441c8dd486a7519386f3d1dbb93d43" title="Decoded DATE content (X.690 section 11.x): a calendar date.">tlv_asn1_date_t</a>.  <br /></td></tr>
+<tr class="separator:ga9c17d7325d8da7d91a6627bd521eb20d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad97388bb00b4ae438bfdc434a237a201" id="r_gad97388bb00b4ae438bfdc434a237a201"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gad97388bb00b4ae438bfdc434a237a201">tlv_asn1_codec_time_of_day</a></td></tr>
+<tr class="memdesc:gad97388bb00b4ae438bfdc434a237a201"><td class="mdescLeft">&#160;</td><td class="mdescRight">TIME-OF-DAY codec (X.690 section 11.x): <a class="el" href="group__codecs.html#ga32d5bc4d8095d7dd070dc544e5918bbb" title="Decoded TIME-OF-DAY content (X.690 section 11.x): a local time of day.">tlv_asn1_time_of_day_t</a>.  <br /></td></tr>
+<tr class="separator:gad97388bb00b4ae438bfdc434a237a201"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad2961396449158e5bbb852cc1877ab8b" id="r_gad2961396449158e5bbb852cc1877ab8b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gad2961396449158e5bbb852cc1877ab8b">tlv_asn1_codec_date_time</a></td></tr>
+<tr class="memdesc:gad2961396449158e5bbb852cc1877ab8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">DATE-TIME codec (X.690 section 11.x): <a class="el" href="group__codecs.html#ga745be454ade2039cf94044b0323514df" title="Decoded DATE-TIME content (X.690 section 11.x): a DATE immediately followed by a TIME-OF-DAY.">tlv_asn1_date_time_t</a>.  <br /></td></tr>
+<tr class="separator:gad2961396449158e5bbb852cc1877ab8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga29bed26b193f54926d35d4c6221c1aa6" id="r_ga29bed26b193f54926d35d4c6221c1aa6"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga29bed26b193f54926d35d4c6221c1aa6">tlv_asn1_codec_duration</a></td></tr>
+<tr class="memdesc:ga29bed26b193f54926d35d4c6221c1aa6"><td class="mdescLeft">&#160;</td><td class="mdescRight">DURATION codec (X.690 section 11.x): <a class="el" href="group__codecs.html#gaf086d7e5a7ab70e22f9a99a698c17fde" title="Decoded restricted character string content (X.690 section 8.23): borrowed bytes.">tlv_asn1_string_t</a>.  <br /></td></tr>
+<tr class="separator:ga29bed26b193f54926d35d4c6221c1aa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga05c19b8fe72e19337c852bf42594f05f" id="r_ga05c19b8fe72e19337c852bf42594f05f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga05c19b8fe72e19337c852bf42594f05f">tlv_asn1_codec_oid_iri</a></td></tr>
+<tr class="memdesc:ga05c19b8fe72e19337c852bf42594f05f"><td class="mdescLeft">&#160;</td><td class="mdescRight">OID-IRI codec (X.690 section 8.21 and 11.3): <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a>.  <br /></td></tr>
+<tr class="separator:ga05c19b8fe72e19337c852bf42594f05f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9914fddfd3432d314de4433e14ac3d90" id="r_ga9914fddfd3432d314de4433e14ac3d90"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga9914fddfd3432d314de4433e14ac3d90">tlv_asn1_codec_relative_oid_iri</a></td></tr>
+<tr class="memdesc:ga9914fddfd3432d314de4433e14ac3d90"><td class="mdescLeft">&#160;</td><td class="mdescRight">RELATIVE-OID-IRI codec (X.690 section 8.22 and 11.3): <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a>.  <br /></td></tr>
+<tr class="separator:ga9914fddfd3432d314de4433e14ac3d90"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga50927eb38e1526e39099baf48ce69748" id="r_ga50927eb38e1526e39099baf48ce69748"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga50927eb38e1526e39099baf48ce69748">tlv_emv_codec_amount</a></td></tr>
 <tr class="memdesc:ga50927eb38e1526e39099baf48ce69748"><td class="mdescLeft">&#160;</td><td class="mdescRight">Codec for amounts (format n12): six bytes of BCD to and from <code>uint64_t</code>.  <br /></td></tr>
 <tr class="separator:ga50927eb38e1526e39099baf48ce69748"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -377,6 +459,38 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="ga4f441c8dd486a7519386f3d1dbb93d43" name="ga4f441c8dd486a7519386f3d1dbb93d43"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4f441c8dd486a7519386f3d1dbb93d43">&#9670;&#160;</a></span>tlv_asn1_date_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__asn1__date.html">tlv_asn1_date</a> <a class="el" href="group__codecs.html#ga4f441c8dd486a7519386f3d1dbb93d43">tlv_asn1_date_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decoded DATE content (X.690 section 11.x): a calendar date. </p>
+
+</div>
+</div>
+<a id="ga745be454ade2039cf94044b0323514df" name="ga745be454ade2039cf94044b0323514df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga745be454ade2039cf94044b0323514df">&#9670;&#160;</a></span>tlv_asn1_date_time_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__asn1__date__time.html">tlv_asn1_date_time</a> <a class="el" href="group__codecs.html#ga745be454ade2039cf94044b0323514df">tlv_asn1_date_time_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decoded DATE-TIME content (X.690 section 11.x): a DATE immediately followed by a TIME-OF-DAY. </p>
+
+</div>
+</div>
 <a id="ga6b7ac701f8323dde5bde8fa9dd067f23" name="ga6b7ac701f8323dde5bde8fa9dd067f23"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga6b7ac701f8323dde5bde8fa9dd067f23">&#9670;&#160;</a></span>tlv_asn1_generalized_time_t</h2>
 
@@ -391,6 +505,55 @@ Variables</h2></td></tr>
 
 <p>Decoded GeneralizedTime content (X.690 section 8.26 and 11.7): a four-digit-year timestamp. </p>
 <p>Calendar fields are range-checked only (for example day 1-31); a calendar-invalid date such as 30 February is not detected. </p>
+
+</div>
+</div>
+<a id="ga31cb42f4cfa3c36222553da5231821c3" name="ga31cb42f4cfa3c36222553da5231821c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga31cb42f4cfa3c36222553da5231821c3">&#9670;&#160;</a></span>tlv_asn1_iri_arc_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__asn1__iri__arc.html">tlv_asn1_iri_arc</a> <a class="el" href="group__codecs.html#ga31cb42f4cfa3c36222553da5231821c3">tlv_asn1_iri_arc_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>One borrowed arc label of a <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a>. </p>
+
+</div>
+</div>
+<a id="gae8f1386c752002b7ef06f09984bac139" name="gae8f1386c752002b7ef06f09984bac139"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae8f1386c752002b7ef06f09984bac139">&#9670;&#160;</a></span>tlv_asn1_iri_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__asn1__iri.html">tlv_asn1_iri</a> <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139">tlv_asn1_iri_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels. </p>
+
+</div>
+</div>
+<a id="gad3f2cfce6e140ff762d95d6ab64175d5" name="gad3f2cfce6e140ff762d95d6ab64175d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad3f2cfce6e140ff762d95d6ab64175d5">&#9670;&#160;</a></span>tlv_asn1_named_bit_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__asn1__named__bit.html">tlv_asn1_named_bit</a> <a class="el" href="group__codecs.html#gad3f2cfce6e140ff762d95d6ab64175d5">tlv_asn1_named_bit_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>One named bit of a BIT STRING (X.680's <code>NamedBitList</code> notation, for example <code>digitalSignature(0)</code> in a <code>KeyUsage</code>). </p>
+<p>Purely descriptive: unrelated to <a class="el" href="group__codecs.html#ga0720b5fdcc52bf44ea6c6ee183f809ce" title="BIT STRING codec (X.690 section 8.6 and 11.2): tlv_asn1_bit_string_t.">tlv_asn1_codec_bit_string</a>'s own decode/encode, which never interpret individual bit positions. </p>
 
 </div>
 </div>
@@ -440,6 +603,22 @@ Variables</h2></td></tr>
 
 <p>Decoded restricted character string content (X.690 section 8.23): borrowed bytes. </p>
 <p>Shared by every codec whose valid content is a byte sequence restricted to a fixed character set: UTF8String, NumericString, PrintableString, IA5String and VisibleString. </p>
+
+</div>
+</div>
+<a id="ga32d5bc4d8095d7dd070dc544e5918bbb" name="ga32d5bc4d8095d7dd070dc544e5918bbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga32d5bc4d8095d7dd070dc544e5918bbb">&#9670;&#160;</a></span>tlv_asn1_time_of_day_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__asn1__time__of__day.html">tlv_asn1_time_of_day</a> <a class="el" href="group__codecs.html#ga32d5bc4d8095d7dd070dc544e5918bbb">tlv_asn1_time_of_day_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decoded TIME-OF-DAY content (X.690 section 11.x): a local time of day. </p>
 
 </div>
 </div>
@@ -560,8 +739,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ga385c44f6fb256e5716a2302a5b940388" name="ga385c44f6fb256e5716a2302a5b940388"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga385c44f6fb256e5716a2302a5b940388">&#9670;&#160;</a></span>anonymous enum</h2>
+<a id="gadf764cbdea00d65edcd07bb9953ad2b7" name="gadf764cbdea00d65edcd07bb9953ad2b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadf764cbdea00d65edcd07bb9953ad2b7">&#9670;&#160;</a></span>anonymous enum</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -572,10 +751,10 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Maximum number of AFL entries: 252 / 4. </p>
-<p>The largest AFL value permitted by the Book 3 dictionary (afl, tag 94) divided by the fixed four-byte entry size. </p>
+<p>Maximum number of arcs <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a> can hold. </p>
+<p>Generous for every OID-IRI or RELATIVE-OID-IRI seen in practice; decode reports <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> if the content needs more. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga385c44f6fb256e5716a2302a5b940388ae6c14b14e63e8a84a683cbad42f6284c" name="gga385c44f6fb256e5716a2302a5b940388ae6c14b14e63e8a84a683cbad42f6284c"></a>TLV_EMV_AFL_MAX_ENTRIES&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggadf764cbdea00d65edcd07bb9953ad2b7a24a74458ddfa8d0662a32104b0233965" name="ggadf764cbdea00d65edcd07bb9953ad2b7a24a74458ddfa8d0662a32104b0233965"></a>TLV_ASN1_IRI_MAX_ARCS&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -592,10 +771,30 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Maximum number of AFL entries: 252 / 4. </p>
+<p>The largest AFL value permitted by the Book 3 dictionary (afl, tag 94) divided by the fixed four-byte entry size. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggabc5c98fcc1211af2b80116dd6e0a035dae6c14b14e63e8a84a683cbad42f6284c" name="ggabc5c98fcc1211af2b80116dd6e0a035dae6c14b14e63e8a84a683cbad42f6284c"></a>TLV_EMV_AFL_MAX_ENTRIES&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="gac36f475ca5b446f4fde4c9b90bec77c8" name="gac36f475ca5b446f4fde4c9b90bec77c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac36f475ca5b446f4fde4c9b90bec77c8">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
 <p>Maximum number of PAN digits in Track 2 Equivalent Data, and of discretionary digits. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggabc5c98fcc1211af2b80116dd6e0a035da5f387811faa1c85d5b50891377301efb" name="ggabc5c98fcc1211af2b80116dd6e0a035da5f387811faa1c85d5b50891377301efb"></a>TLV_EMV_TRACK2_PAN_MAX_DIGITS&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ggabc5c98fcc1211af2b80116dd6e0a035daab83be4e64aafbbc8777f4f3b02c98be" name="ggabc5c98fcc1211af2b80116dd6e0a035daab83be4e64aafbbc8777f4f3b02c98be"></a>TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggac36f475ca5b446f4fde4c9b90bec77c8a5f387811faa1c85d5b50891377301efb" name="ggac36f475ca5b446f4fde4c9b90bec77c8a5f387811faa1c85d5b50891377301efb"></a>TLV_EMV_TRACK2_PAN_MAX_DIGITS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggac36f475ca5b446f4fde4c9b90bec77c8aab83be4e64aafbbc8777f4f3b02c98be" name="ggac36f475ca5b446f4fde4c9b90bec77c8aab83be4e64aafbbc8777f4f3b02c98be"></a>TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -763,6 +962,94 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ga0a63219cd73a7b4e0c6b8bd04d886743" name="ga0a63219cd73a7b4e0c6b8bd04d886743"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0a63219cd73a7b4e0c6b8bd04d886743">&#9670;&#160;</a></span>tlv_asn1_bit_string_test()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_asn1_bit_string_test </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__codecs.html#gaec5421760b455d46e3e00715da90b1c1">tlv_asn1_bit_string_t</a> *&#160;</td>
+          <td class="paramname"><em>bits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>position</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Tests whether one bit of a decoded BIT STRING is set. </p>
+<p>A DER-encoded BIT STRING omits trailing zero bits (its canonical content rule), so per X.680's <code>NamedBitList</code> convention a <code>position</code> at or beyond the encoded bit count (<code>8 * bits-&gt;length</code>) is implicitly clear rather than an error.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">bits</td><td>Decoded BIT STRING to test; must not be <code>NULL</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">position</td><td>Bit position, 0 = the most significant bit of the first content octet.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Nonzero if the bit is set. </dd>
+<dd>
+0 if the bit is clear, or <code>position</code> is at or beyond the encoded content. </dd></dl>
+
+</div>
+</div>
+<a id="gabb62fecb5eff09ae46d803c0b6d77ba6" name="gabb62fecb5eff09ae46d803c0b6d77ba6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabb62fecb5eff09ae46d803c0b6d77ba6">&#9670;&#160;</a></span>tlv_asn1_named_bit_find()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_asn1_named_bit_find </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__codecs.html#gad3f2cfce6e140ff762d95d6ab64175d5">tlv_asn1_named_bit_t</a> *&#160;</td>
+          <td class="paramname"><em>names</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>count</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>position</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Looks up a named bit's display name by position in a table. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">names</td><td>Borrowed table of named bits; may be <code>NULL</code> only when <code>count</code> is 0. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">count</td><td>Number of entries in <code>names</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">position</td><td>Bit position to find.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The borrowed, NUL-terminated name of the entry whose <code>position</code> matches. </dd>
+<dd>
+<code>NULL</code> if no entry matches. </dd></dl>
+
+</div>
+</div>
 <a id="ga7de8d4351e9f4b98cd480ec634eced7a" name="ga7de8d4351e9f4b98cd480ec634eced7a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga7de8d4351e9f4b98cd480ec634eced7a">&#9670;&#160;</a></span>tlv_codec_decode()</h2>
 
@@ -1182,6 +1469,81 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="ga9c17d7325d8da7d91a6627bd521eb20d" name="ga9c17d7325d8da7d91a6627bd521eb20d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9c17d7325d8da7d91a6627bd521eb20d">&#9670;&#160;</a></span>tlv_asn1_codec_date</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_date</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>DATE codec (X.690 section 11.x): <a class="el" href="group__codecs.html#ga4f441c8dd486a7519386f3d1dbb93d43" title="Decoded DATE content (X.690 section 11.x): a calendar date.">tlv_asn1_date_t</a>. </p>
+<p>Decode requires the canonical <code>YYYYMMDD</code> digit-only form (no <code>-</code> separators) and range-checks the calendar fields (for example day 1-31); a calendar-invalid date such as 30 February is not detected. Encode requires <code>year</code> in 0-9999 and every other field in its documented range, and always reproduces the canonical form. </p>
+
+</div>
+</div>
+<a id="gad2961396449158e5bbb852cc1877ab8b" name="gad2961396449158e5bbb852cc1877ab8b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad2961396449158e5bbb852cc1877ab8b">&#9670;&#160;</a></span>tlv_asn1_codec_date_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_date_time</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>DATE-TIME codec (X.690 section 11.x): <a class="el" href="group__codecs.html#ga745be454ade2039cf94044b0323514df" title="Decoded DATE-TIME content (X.690 section 11.x): a DATE immediately followed by a TIME-OF-DAY.">tlv_asn1_date_time_t</a>. </p>
+<p>Decode requires the canonical <code>YYYYMMDDHHMMSS</code> digit-only form (no <code>-</code>, <code>:</code> or <code>T</code> separators) and range-checks every calendar field. Encode requires <code>year</code> in 0-9999 and every other field in its documented range, and always reproduces the canonical form. </p>
+
+</div>
+</div>
+<a id="ga29bed26b193f54926d35d4c6221c1aa6" name="ga29bed26b193f54926d35d4c6221c1aa6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga29bed26b193f54926d35d4c6221c1aa6">&#9670;&#160;</a></span>tlv_asn1_codec_duration</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_duration</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>DURATION codec (X.690 section 11.x): <a class="el" href="group__codecs.html#gaf086d7e5a7ab70e22f9a99a698c17fde" title="Decoded restricted character string content (X.690 section 8.23): borrowed bytes.">tlv_asn1_string_t</a>. </p>
+<p>Content is the ISO 8601 duration string without its leading <code>P</code> designator, for example <code>2Y10M15DT10H20M30S</code>. Decode and encode validate designator/digit structure and component order (<code>Y</code>, <code>M</code>, <code>D</code>, then optionally <code>T</code> followed by <code>H</code>, <code>M</code>, <code>S</code>), but do not enforce ISO 8601's omission of zero-valued components, and accept a fractional value only on the seconds component. </p>
+
+</div>
+</div>
 <a id="ga5fdc030ed9902be839e5c4594daa380d" name="ga5fdc030ed9902be839e5c4594daa380d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga5fdc030ed9902be839e5c4594daa380d">&#9670;&#160;</a></span>tlv_asn1_codec_enumerated</h2>
 
@@ -1208,6 +1570,31 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="gab8874af3a04f35f73c641280c379ae08" name="gab8874af3a04f35f73c641280c379ae08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab8874af3a04f35f73c641280c379ae08">&#9670;&#160;</a></span>tlv_asn1_codec_general_string</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_general_string</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>GeneralString codec (X.690 section 8.23 and 11.2): <a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3" title="Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.">tlv_asn1_octet_string_t</a>. </p>
+<p>Same treatment as <a class="el" href="group__codecs.html#ga735d6d49dd2857f929989fd87381c9e7" title="TeletexString codec (X.690 section 8.23 and 11.2): tlv_asn1_octet_string_t.">tlv_asn1_codec_teletex_string</a>. </p>
+
+</div>
+</div>
 <a id="ga01e5c8070bb42847d83ef0d63060073b" name="ga01e5c8070bb42847d83ef0d63060073b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga01e5c8070bb42847d83ef0d63060073b">&#9670;&#160;</a></span>tlv_asn1_codec_generalized_time</h2>
 
@@ -1230,6 +1617,31 @@ Variables</h2></td></tr>
 
 <p>GeneralizedTime codec (X.690 section 8.26 and 11.7): <a class="el" href="group__codecs.html#ga6b7ac701f8323dde5bde8fa9dd067f23" title="Decoded GeneralizedTime content (X.690 section 8.26 and 11.7): a four-digit-year timestamp.">tlv_asn1_generalized_time_t</a>. </p>
 <p>Decode requires the canonical <code>YYYYMMDDHHMMSS[.fraction]Z</code> form (UTC only, seconds mandatory, an optional fractional-seconds part whose digits never end in <code>0</code>) and range-checks every calendar field; the result borrows <code>fraction_digits</code>. Encode requires <code>year</code> in 0-9999 and every other field in its documented range, rejects a non-digit byte or a trailing <code>0</code> in <code>fraction_digits</code>, and rejects a <code>fraction_digits_length</code> of 0 paired with a non-<code>NULL</code> <code>fraction_digits</code> or vice versa. </p>
+
+</div>
+</div>
+<a id="ga2fb4591edf4047710be3a0e4cb13f5f5" name="ga2fb4591edf4047710be3a0e4cb13f5f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2fb4591edf4047710be3a0e4cb13f5f5">&#9670;&#160;</a></span>tlv_asn1_codec_graphic_string</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_graphic_string</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>GraphicString codec (X.690 section 8.23 and 11.2): <a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3" title="Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.">tlv_asn1_octet_string_t</a>. </p>
+<p>Same treatment as <a class="el" href="group__codecs.html#ga735d6d49dd2857f929989fd87381c9e7" title="TeletexString codec (X.690 section 8.23 and 11.2): tlv_asn1_octet_string_t.">tlv_asn1_codec_teletex_string</a>. </p>
 
 </div>
 </div>
@@ -1333,6 +1745,31 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="ga0893fc9a88a315796ce3f1856d9290a5" name="ga0893fc9a88a315796ce3f1856d9290a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0893fc9a88a315796ce3f1856d9290a5">&#9670;&#160;</a></span>tlv_asn1_codec_object_descriptor</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_object_descriptor</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>ObjectDescriptor codec (X.690 section 11.2): <a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3" title="Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.">tlv_asn1_octet_string_t</a>. </p>
+<p>ObjectDescriptor is <code>[UNIVERSAL 7] IMPLICIT GraphicString</code>; like OCTET STRING, every byte sequence is valid content, since X.690 places no canonical byte-level restriction on GraphicString's character set. Decode and encode behave exactly as <a class="el" href="group__codecs.html#ga0f1d1d1dae25bad3a2ab4510fffb7989" title="OCTET STRING codec (X.690 section 8.7 and 11.2): tlv_asn1_octet_string_t.">tlv_asn1_codec_octet_string</a>. </p>
+
+</div>
+</div>
 <a id="ga0f1d1d1dae25bad3a2ab4510fffb7989" name="ga0f1d1d1dae25bad3a2ab4510fffb7989"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga0f1d1d1dae25bad3a2ab4510fffb7989">&#9670;&#160;</a></span>tlv_asn1_codec_octet_string</h2>
 
@@ -1384,6 +1821,32 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="ga05c19b8fe72e19337c852bf42594f05f" name="ga05c19b8fe72e19337c852bf42594f05f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga05c19b8fe72e19337c852bf42594f05f">&#9670;&#160;</a></span>tlv_asn1_codec_oid_iri</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_oid_iri</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>OID-IRI codec (X.690 section 8.21 and 11.3): <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a>. </p>
+<p>Content is the UTF-8 encoding of <code>/</code>-separated arc labels, with a leading <code>/</code> marking the absolute path (not itself an arc). Decode splits content into borrowed per-arc spans; encode joins them back with <code>/</code> separators and the leading <code>/</code>, rejecting an empty arc, a non-UTF-8 arc, or an arc containing <code>/</code>. Checks arc-separator structure only, not each arc's characters against the fuller RFC 3987 IRI-label restrictions X.680's IRI value notation defines.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga9914fddfd3432d314de4433e14ac3d90" title="RELATIVE-OID-IRI codec (X.690 section 8.22 and 11.3): tlv_asn1_iri_t.">tlv_asn1_codec_relative_oid_iri</a> </dd></dl>
+
+</div>
+</div>
 <a id="gaed2776ebc93a9c293db9c5d3143c5fb4" name="gaed2776ebc93a9c293db9c5d3143c5fb4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaed2776ebc93a9c293db9c5d3143c5fb4">&#9670;&#160;</a></span>tlv_asn1_codec_printable_string</h2>
 
@@ -1432,6 +1895,107 @@ Variables</h2></td></tr>
 <p>RELATIVE-OID codec (X.690 section 8.20 and 11.3): <a class="el" href="group__codecs.html#gac1de63672b92cfa7f106fc5de48674f3" title="Decoded OBJECT IDENTIFIER or RELATIVE-OID arc values (X.690 section 8.19 and 8.20).">tlv_asn1_oid_t</a>. </p>
 <p>Every content subidentifier decodes to exactly one arc, without OBJECT IDENTIFIER's first-subidentifier combining rule; <code>count</code> is therefore always at least 1 on success. Subidentifier encoding and arc-count rules otherwise match <a class="el" href="group__codecs.html#gaaf229cbc3ead749270839723d37f8fc7" title="OBJECT IDENTIFIER codec (X.690 section 8.19 and 11.3): tlv_asn1_oid_t.">tlv_asn1_codec_oid</a>.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#gaaf229cbc3ead749270839723d37f8fc7" title="OBJECT IDENTIFIER codec (X.690 section 8.19 and 11.3): tlv_asn1_oid_t.">tlv_asn1_codec_oid</a> </dd></dl>
+
+</div>
+</div>
+<a id="ga9914fddfd3432d314de4433e14ac3d90" name="ga9914fddfd3432d314de4433e14ac3d90"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9914fddfd3432d314de4433e14ac3d90">&#9670;&#160;</a></span>tlv_asn1_codec_relative_oid_iri</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_relative_oid_iri</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>RELATIVE-OID-IRI codec (X.690 section 8.22 and 11.3): <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a>. </p>
+<p>Same as <a class="el" href="group__codecs.html#ga05c19b8fe72e19337c852bf42594f05f" title="OID-IRI codec (X.690 section 8.21 and 11.3): tlv_asn1_iri_t.">tlv_asn1_codec_oid_iri</a>, except content has no leading <code>/</code> (it is a relative path) and encode does not add one.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga05c19b8fe72e19337c852bf42594f05f" title="OID-IRI codec (X.690 section 8.21 and 11.3): tlv_asn1_iri_t.">tlv_asn1_codec_oid_iri</a> </dd></dl>
+
+</div>
+</div>
+<a id="ga735d6d49dd2857f929989fd87381c9e7" name="ga735d6d49dd2857f929989fd87381c9e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga735d6d49dd2857f929989fd87381c9e7">&#9670;&#160;</a></span>tlv_asn1_codec_teletex_string</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_teletex_string</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>TeletexString codec (X.690 section 8.23 and 11.2): <a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3" title="Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.">tlv_asn1_octet_string_t</a>. </p>
+<p>TeletexString (T61String)'s character set is a complex legacy (ISO 2022-based) encoding X.690 places no canonical byte-level restriction on; every byte sequence is valid content, as with OCTET STRING. Decode and encode behave exactly as <a class="el" href="group__codecs.html#ga0f1d1d1dae25bad3a2ab4510fffb7989" title="OCTET STRING codec (X.690 section 8.7 and 11.2): tlv_asn1_octet_string_t.">tlv_asn1_codec_octet_string</a>. </p>
+
+</div>
+</div>
+<a id="ga3d68e4bdc4ca38da8ff5c8258d5536ad" name="ga3d68e4bdc4ca38da8ff5c8258d5536ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3d68e4bdc4ca38da8ff5c8258d5536ad">&#9670;&#160;</a></span>tlv_asn1_codec_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_time</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Generic TIME codec (X.690 section 11.7 and X.680 clause 38): <a class="el" href="group__codecs.html#gaf086d7e5a7ab70e22f9a99a698c17fde" title="Decoded restricted character string content (X.690 section 8.23): borrowed bytes.">tlv_asn1_string_t</a>. </p>
+<p>TIME's concrete ISO 8601-based syntax varies far more than DATE/TIME-OF-DAY/DATE-TIME/DURATION below (week dates, ordinal dates, fractional seconds, UTC offsets, intervals). Decode and encode only check VisibleString's character-set restriction, not the fuller ISO 8601 canonical-form grammar. </p>
+
+</div>
+</div>
+<a id="gad97388bb00b4ae438bfdc434a237a201" name="gad97388bb00b4ae438bfdc434a237a201"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad97388bb00b4ae438bfdc434a237a201">&#9670;&#160;</a></span>tlv_asn1_codec_time_of_day</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_time_of_day</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>TIME-OF-DAY codec (X.690 section 11.x): <a class="el" href="group__codecs.html#ga32d5bc4d8095d7dd070dc544e5918bbb" title="Decoded TIME-OF-DAY content (X.690 section 11.x): a local time of day.">tlv_asn1_time_of_day_t</a>. </p>
+<p>Decode requires the canonical <code>HHMMSS</code> digit-only form (no <code>:</code> separators) and range-checks every field. Encode requires every field in its documented range and always reproduces the canonical form. </p>
 
 </div>
 </div>
@@ -1507,6 +2071,31 @@ Variables</h2></td></tr>
 
 <p>UTF8String codec (X.690 section 8.23): <a class="el" href="group__codecs.html#gaf086d7e5a7ab70e22f9a99a698c17fde" title="Decoded restricted character string content (X.690 section 8.23): borrowed bytes.">tlv_asn1_string_t</a>. </p>
 <p>Decode requires well-formed UTF-8: no overlong encoding, no surrogate code point (U+D800-U+DFFF), no code point above U+10FFFF, and no truncated or malformed continuation byte. Encode enforces the same rule and reproduces the content unchanged. </p>
+
+</div>
+</div>
+<a id="gad9898b65b9c11da218643a7a802fd0be" name="gad9898b65b9c11da218643a7a802fd0be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad9898b65b9c11da218643a7a802fd0be">&#9670;&#160;</a></span>tlv_asn1_codec_videotex_string</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_asn1_codec_videotex_string</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>VideotexString codec (X.690 section 8.23 and 11.2): <a class="el" href="group__codecs.html#gac6dae34de85507f19c84c62a211a6ba3" title="Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.">tlv_asn1_octet_string_t</a>. </p>
+<p>Same treatment as <a class="el" href="group__codecs.html#ga735d6d49dd2857f929989fd87381c9e7" title="TeletexString codec (X.690 section 8.23 and 11.2): tlv_asn1_octet_string_t.">tlv_asn1_codec_teletex_string</a>: a complex legacy character set X.690 does not canonically restrict at the byte level. </p>
 
 </div>
 </div>

@@ -3016,9 +3016,10 @@ encoded (BER, CER, DER). OpenTLV's implemented BER/CER/DER framing and <code>_st
 universal value checks work at the X.690 level. The schema-aware DER layer is a small,
 hand-authored subset of X.680 type constructs
 (<a href="../../profiles/der/#schema-aware-validation-and-encoding">current scope</a>):
-universal types, <code>SEQUENCE</code>, <code>SET</code>, <code>SET OF</code>, <code>CHOICE</code>, <code>ANY</code>, IMPLICIT/EXPLICIT
-tagging, and <code>OPTIONAL</code>/<code>DEFAULT</code> components. It is not an ASN.1 compiler. Every ASN.1
-profile below depends on how much of X.680 these rows cover.</p>
+universal types, <code>SEQUENCE</code>, <code>SEQUENCE OF</code>, <code>SET</code>, <code>SET OF</code>, <code>CHOICE</code>, <code>ANY</code>,
+IMPLICIT/EXPLICIT tagging, <code>OPTIONAL</code>/<code>DEFAULT</code> components, and <code>SIZE</code>/value-range
+constraints on a leaf. It is not an ASN.1 compiler. Every ASN.1 profile below
+depends on how much of X.680 these rows cover.</p>
 <table>
 <thead>
 <tr>
@@ -3032,12 +3033,12 @@ profile below depends on how much of X.680 these rows cover.</p>
 </thead>
 <tbody>
 <tr>
-<td>Wider X.680 type coverage (<code>[?]</code>)</td>
+<td><code>AUTOMATIC TAGS</code> / <code>COMPONENTS OF</code></td>
 <td>X.680</td>
-<td>Constructs not in the current schema subset: <code>SEQUENCE OF</code>, <code>AUTOMATIC TAGS</code>, extension markers with unknown additions, <code>SIZE</code> and value-range constraints, named numbers and bits, <code>ENUMERATED</code> values, <code>COMPONENTS OF</code>. Also the universal types that strict mode rejects today (ObjectDescriptor, TeletexString, VideotexString, GraphicString, GeneralString, TIME, DATE, TIME-OF-DAY, DATE-TIME, DURATION, OID-IRI, RELATIVE-OID-IRI).</td>
-<td>DER schema, value codecs</td>
-<td>Extends <code>tlv_der_schema_type_t</code>. Must stay static, caller-owned tables without allocation. New kinds change the schema API and need a compatibility review. Constraint checking is value semantics beyond framing.</td>
-<td>Not verified: ITU-T recommendation not read. Current coverage read from the <a href="../../profiles/der/">DER profile</a>.</td>
+<td>Both are ASN.1 source-notation/compiler concerns resolved when a module is compiled, with no X.690 encoding-rule counterpart and no effect on binary content: <code>AUTOMATIC TAGS</code> is a convenience that assigns each component's context-specific tag number for the author, and <code>COMPONENTS OF</code> inlines another type's components by copy. A hand-authored <code>tlv_der_schema_type_t</code> table already states each component's explicit tag (or leaves it untagged) and already lists whatever components it needs, directly or by sharing entries; there is no distinct library capability to add.</td>
+<td>None</td>
+<td>None</td>
+<td>Confirmed by inspection: out of scope per issue #310's own exclusion of "ASN.1 compiler functionality".</td>
 </tr>
 <tr>
 <td>BER and CER schema variants (<code>[?]</code>)</td>

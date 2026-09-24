@@ -3032,6 +3032,33 @@ decoded calendar timestamp). BIT STRING, OCTET STRING, the restricted
 character string types, BMPString, UniversalString and GeneralizedTime's
 fractional-seconds part decode into a representation that borrows the input
 value bytes; every other representation is self-contained.</p>
+<p>X.680's <code>NamedBitList</code> notation (for example <code>KeyUsage ::= BIT STRING
+{digitalSignature(0), nonRepudiation(1), ...}</code>) attaches a display name to a
+bit position rather than adding a wire-format rule, so it needs no codec of
+its own: <code>tlv_asn1_bit_string_test()</code> tests whether one bit of an already-
+decoded <code>tlv_asn1_bit_string_t</code> is set (a position beyond the encoded content
+is implicitly clear, per DER's rule of omitting trailing zero bits, rather
+than an error), and <code>tlv_asn1_named_bit_find()</code> looks a bit's display name up
+by position in a caller-supplied <code>tlv_asn1_named_bit_t</code> table.</p>
+<p>A further group covers types X.690 places no canonical byte-level
+restriction on, or whose ISO 8601-based syntax this scope only partly
+canonicalizes; see <code>tlv/builtins/asn1/asn1_codec.h</code> for the exact,
+documented scope of each: ObjectDescriptor, TeletexString, VideotexString,
+GraphicString and GeneralString (<code>tlv_asn1_codec_object_descriptor</code>,
+<code>tlv_asn1_codec_teletex_string</code>, <code>tlv_asn1_codec_videotex_string</code>,
+<code>tlv_asn1_codec_graphic_string</code>, <code>tlv_asn1_codec_general_string</code>, all
+<code>tlv_asn1_octet_string_t</code>, unconstrained like OCTET STRING); generic TIME
+(<code>tlv_asn1_codec_time</code>, <code>tlv_asn1_string_t</code>, a VisibleString charset check
+only); DATE, TIME-OF-DAY and DATE-TIME (<code>tlv_asn1_codec_date</code>,
+<code>tlv_asn1_date_t</code>; <code>tlv_asn1_codec_time_of_day</code>, <code>tlv_asn1_time_of_day_t</code>;
+<code>tlv_asn1_codec_date_time</code>, <code>tlv_asn1_date_time_t</code>; digit-only ISO 8601
+basic forms with no separators); DURATION (<code>tlv_asn1_codec_duration</code>,
+<code>tlv_asn1_string_t</code>, the ISO 8601 duration string without its leading <code>P</code>);
+and OID-IRI and RELATIVE-OID-IRI (<code>tlv_asn1_codec_oid_iri</code>,
+<code>tlv_asn1_codec_relative_oid_iri</code>, both <code>tlv_asn1_iri_t</code>, an arc-label array
+up to <code>TLV_ASN1_IRI_MAX_ARCS</code>). DATE, TIME-OF-DAY and DATE-TIME's
+representations borrow nothing (self-contained); generic TIME, DURATION and
+OID-IRI/RELATIVE-OID-IRI's arc labels borrow the input value bytes.</p>
 <p>Every codec enforces the same canonical content rules ITU-T X.690 section 11
 defines for DER and CER, even when the raw value was read through the more
 permissive <code>tlv_reader_format_ber</code>: for example a BOOLEAN of <code>01</code>, a

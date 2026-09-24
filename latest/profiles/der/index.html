@@ -2835,22 +2835,39 @@ passing, so callers can tell "checked and canonical" apart from "not checked".</
 <td>UTF8String, NumericString, PrintableString, IA5String, VisibleString, UniversalString, BMPString</td>
 </tr>
 <tr>
+<td>Unconstrained legacy string</td>
+<td>ObjectDescriptor, TeletexString, VideotexString, GraphicString, GeneralString (any byte sequence is valid, like OCTET STRING; X.690 places no canonical byte-level restriction on their complex legacy character sets)</td>
+</tr>
+<tr>
 <td>Date/time</td>
-<td>UTCTime, GeneralizedTime</td>
+<td>UTCTime, GeneralizedTime, TIME, DATE, TIME-OF-DAY, DATE-TIME, DURATION</td>
+</tr>
+<tr>
+<td>OID-IRI</td>
+<td>OID-IRI, RELATIVE-OID-IRI</td>
 </tr>
 </tbody>
 </table>
 <p>UTCTime/GeneralizedTime checks are structural (digit patterns, mandatory <code>Z</code>,
 canonical fraction rules, and range checks such as month 01-12 or day 01-31);
 they do not perform full Gregorian calendar validation (e.g. do not detect
-"30 February"). Structured types (SEQUENCE, SET, EXTERNAL, EMBEDDED PDV,
-CHARACTER STRING) have no additional value semantics in this scope, and
-CHOICE/ANY have no wire tag of their own, so neither applies here.</p>
+"30 February"). DATE/TIME-OF-DAY/DATE-TIME have the same digit-pattern and
+range-check scope, but with no separators in their canonical <code>YYYYMMDD</code>/
+<code>HHMMSS</code>/<code>YYYYMMDDHHMMSS</code> content. DURATION checks designator/digit structure
+and component order but not ISO 8601's omission of zero-valued components.
+Generic TIME's concrete syntax varies far more than those fixed-form types
+(week dates, ordinal dates, fractional seconds, UTC offsets, intervals), so
+it only checks the VisibleString character-set restriction, not the fuller
+ISO 8601 canonical-form grammar. OID-IRI/RELATIVE-OID-IRI check UTF-8
+well-formedness and <code>/</code>-separated arc structure, not each arc's characters
+against the fuller RFC 3987 IRI-label restrictions. Structured types
+(SEQUENCE, SET, EXTERNAL, EMBEDDED PDV, CHARACTER STRING) have no additional
+value semantics in this scope, and CHOICE/ANY have no wire tag of their own,
+so neither applies here.</p>
 <p>Recognized but explicitly unsupported (return <code>TLV_ERR_UNSUPPORTED_TYPE</code> in
-strict mode rather than being silently accepted): ObjectDescriptor,
-TeletexString, VideotexString, GraphicString, GeneralString, TIME, DATE,
-TIME-OF-DAY, DATE-TIME, DURATION, OID-IRI, RELATIVE-OID-IRI, and any
-UNIVERSAL primitive tag number beyond 36.</p>
+strict mode rather than being silently accepted): any UNIVERSAL primitive tag
+number beyond 36. See <a href="../../formats/asn1/ber/#universal-type-value-codecs"><code>tlv/builtins/asn1/asn1_codec.h</code></a>
+for the matching value codecs.</p>
 <h2 id="schema-aware-validation-and-encoding">Schema-aware validation and encoding<a class="headerlink" href="#schema-aware-validation-and-encoding" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/builtins/asn1/der_schema.h</code> when canonical rules depend on ASN.1 type
 information that raw TLV structure alone cannot express: distinguishing SET
@@ -2866,11 +2883,15 @@ specific and expresses DER canonical semantics. A component's underlying
 <code>type</code> is always a <code>tlv_der_schema_type_t</code>, never the other kind of schema.</p>
 <p>Supported type kinds: <code>TLV_DER_SCHEMA_UNIVERSAL</code> (a specific universal tag
 number, content-validated the same way <code>_strict</code> validates it), <code>SEQUENCE</code>,
-<code>SET</code>, <code>SET_OF</code>, <code>CHOICE</code>, and <code>ANY</code> (exactly one well-formed DER-TLV element
-with no further ASN.1 semantics; legal untagged only as a direct SEQUENCE
-component, since its wildcard tag would make SET/CHOICE/SET-OF matching
-ambiguous). Each component of a SEQUENCE/SET/CHOICE, and a SET OF's element,
-carries a tagging mode (untagged, <code>TLV_DER_TAG_IMPLICIT</code> or
+<code>SET</code>, <code>SET_OF</code>, <code>SEQUENCE_OF</code>, <code>CHOICE</code>, and <code>ANY</code> (exactly one well-formed
+DER-TLV element with no further ASN.1 semantics; legal untagged only as a
+direct SEQUENCE component, since its wildcard tag would make SET/CHOICE/
+SET-OF matching ambiguous). <code>SEQUENCE_OF</code> repeats one element type like
+<code>SET_OF</code> (and shares its <code>min_elements</code>/<code>max_elements</code> bounds), but keeps
+elements in encoding order instead of requiring or enforcing the canonical
+sort order <code>SET_OF</code> does. Each component of a SEQUENCE/SET/CHOICE, and a SET
+OF's or SEQUENCE OF's element, carries a tagging mode (untagged,
+<code>TLV_DER_TAG_IMPLICIT</code> or
 <code>TLV_DER_TAG_EXPLICIT</code>, with a class and number for the latter two) and a
 presence (<code>TLV_DER_REQUIRED</code>, <code>TLV_DER_OPTIONAL</code>, or <code>TLV_DER_DEFAULT</code> with a
 complete canonical encoding to compare against). <code>tlv_der_schema_check</code>
@@ -2879,6 +2900,27 @@ CHOICE component tags, CHOICE alternatives required with no default, no
 IMPLICIT tagging of a CHOICE or ANY component, and bounds on component count
 and type-graph depth); <code>tlv_der_schema_read</code>/<code>tlv_der_schema_write</code> also
 enforce the depth bound live and do not require it to have been called first.</p>
+<p>A <code>TLV_DER_SCHEMA_UNIVERSAL</code> leaf's optional <code>constraint</code>
+(<code>tlv_der_schema_leaf_constraint_t</code>) adds ASN.1 <code>SIZE</code> and value-range checks
+on top of its own canonical DER content rules: <code>min_length</code>/<code>max_length</code> bound
+the raw content in bytes (an ASN.1 <code>SIZE</code> constraint, for example <code>OCTET
+STRING (SIZE(1..16))</code>), and <code>value_constraint</code> (a borrowed
+<a href="../../guides/schemas/#value-constraints-on-decoded-values"><code>tlv_value_constraint_t</code></a>)
+checks the leaf's decoded value, valid only when <code>universal_number</code> is 2
+(INTEGER) or 10 (ENUMERATED) — the two universal types X.680 allows a
+value-range or named-number constraint on, for example <code>INTEGER (0..255)</code>.
+<code>tlv_der_schema_check</code> rejects <code>min_length &gt; max_length</code> and a
+<code>value_constraint</code> on any other universal type; <code>tlv_der_schema_read</code> and
+<code>tlv_der_schema_write</code> both check <code>constraint</code> against the leaf's raw content.</p>
+<p>A <code>TLV_DER_SCHEMA_SEQUENCE</code>'s <code>extensible</code> flag models an ASN.1 extension
+marker (<code>...</code>): when set, <code>tlv_der_schema_read</code> accepts and skips, as one or
+more opaque well-formed DER-TLV elements (validated the same way as an <code>ANY</code>
+component but not otherwise interpreted), any content left over once every
+declared component has been matched or skipped — instead of rejecting it as
+a schema violation. <code>extensible</code> is ignored for every other kind, does not
+waive a <code>TLV_DER_REQUIRED</code> declared component, and has no effect on
+<code>tlv_der_schema_write</code> (which only ever writes the components a schema
+declares; there is nothing to write for an unknown future extension).</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_der_schema_type_t</span><span class="w"> </span><span class="n">integer_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">TLV_DER_SCHEMA_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">};</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_der_schema_type_t</span><span class="w"> </span><span class="n">octet_string_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">TLV_DER_SCHEMA_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">};</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_der_schema_component_t</span><span class="w"> </span><span class="n">set_components</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
@@ -2897,17 +2939,21 @@ ascending tag order and a SET OF whose elements are not encoded in ascending
 order of their complete encodings (both violations return
 <code>TLV_ERR_INVALID_VALUE</code>); validating SET/SET OF order needs no extra storage,
 since DER canonical order is checked with a single adjacent-pair scan.
-<code>tlv_der_schema_write</code> produces canonical output regardless of the order its
-<code>tlv_der_schema_encode_fn</code> callback is invoked in: it sorts SET components by
-effective tag (schema-bounded, needing no caller scratch) and SET OF elements
-by complete encoding (using the caller-supplied <code>scratch</code>/<code>scratch_capacity</code>
-records), and omits a DEFAULT component whose complete encoding equals its
-<code>default_encoding</code>. Unlike <code>tlv_der_write</code>, it always composes the complete
-output in a caller-supplied <code>scratch_bytes</code> arena first — needed to compare
-and reorder content before committing to it — so <code>scratch_bytes</code> and
-<code>scratch_bytes_capacity</code> are required even for a <code>NULL</code>-<code>data</code> size query;
-size <code>scratch_bytes_capacity</code> generously, since composing nested content can
-temporarily use more arena space than the final output size.</p>
+SEQUENCE OF elements are not order-checked, matching ASN.1, which does not
+constrain their order. <code>tlv_der_schema_write</code> produces canonical output
+regardless of the order its <code>tlv_der_schema_encode_fn</code> callback is invoked in:
+it sorts SET components by effective tag (schema-bounded, needing no caller
+scratch) and SET OF elements by complete encoding (using the caller-supplied
+<code>scratch</code>/<code>scratch_capacity</code> records), keeps SEQUENCE OF elements in the
+order the callback produced them (using the same <code>scratch</code>/<code>scratch_capacity</code>
+records, just without sorting), and omits a DEFAULT component whose complete
+encoding equals its <code>default_encoding</code>. Unlike <code>tlv_der_write</code>, it always
+composes the complete output in a caller-supplied <code>scratch_bytes</code> arena first
+— needed to compare and reorder content before committing to it — so
+<code>scratch_bytes</code> and <code>scratch_bytes_capacity</code> are required even for a
+<code>NULL</code>-<code>data</code> size query; size <code>scratch_bytes_capacity</code> generously, since
+composing nested content can temporarily use more arena space than the final
+output size.</p>
 <p>This API is <strong>unconditionally strict</strong>: there is no permissive mode, so every
 UNIVERSAL leaf is content-validated, and unresolved CHOICE tags, unsupported
 universal types, and schema self-check failures are always explicit errors
@@ -2915,7 +2961,8 @@ rather than silently accepted.</p>
 <p><code>tlv_der_schema_limits_t</code> extends <code>tlv_der_limits_t</code> (identical <code>max_depth</code>,
 <code>max_input_size</code>, <code>max_value_size</code>, <code>max_elements</code> semantics) with
 <code>max_set_elements</code>, which bounds <code>tlv_der_schema_write</code>'s SET OF sort-record
-capacity; <code>tlv_der_schema_default_limits</code> mirrors <code>tlv_der_default_limits</code>.
+and SEQUENCE OF composition-record capacity; <code>tlv_der_schema_default_limits</code>
+mirrors <code>tlv_der_default_limits</code>.
 <code>TLV_DER_SCHEMA_MAX_TYPE_DEPTH</code> (32) bounds CHOICE/EXPLICIT resolution
 recursion over the schema's own type graph — trusted, caller-authored data,
 not attacker input — guarding only against an accidentally self-referential

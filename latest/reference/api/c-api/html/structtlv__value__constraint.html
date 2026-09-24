@@ -92,11 +92,28 @@ Data Fields</h2></td></tr>
 <tr class="separator:af7b3a69161d7032211cbef9279c7f4c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5cd5033bbaa25ccd604c128a9bf9009c" id="r_a5cd5033bbaa25ccd604c128a9bf9009c"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__value__constraint.html#a5cd5033bbaa25ccd604c128a9bf9009c">allowed_values_count</a></td></tr>
 <tr class="separator:a5cd5033bbaa25ccd604c128a9bf9009c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0f768acd89f4d17f51fc3423b6c18c8" id="r_ab0f768acd89f4d17f51fc3423b6c18c8"><td class="memItemLeft" align="right" valign="top">const char *const  *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__value__constraint.html#ab0f768acd89f4d17f51fc3423b6c18c8">allowed_value_names</a></td></tr>
+<tr class="separator:ab0f768acd89f4d17f51fc3423b6c18c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fixed set of legal values. </p>
 <p>Checked against the C representation a <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785" title="Borrowed codec descriptor with an optional immutable context.">tlv_codec_t</a> decode produces (for example tlv_asn1_codec_integer's <code>int64_t</code>), not against raw TLV bytes; pair it with a codec's decode step. Byte-length and occurrence bounds are unrelated concerns already covered by <a class="el" href="structtlv__schema__entry__t.html" title="Length rule for one tag in a tlv_schema_t.">tlv_schema_entry_t</a>'s <code>min_length</code>/ <code>max_length</code> and <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>'s <code>min_occurs</code>/<code>max_occurs</code>. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a id="ab0f768acd89f4d17f51fc3423b6c18c8" name="ab0f768acd89f4d17f51fc3423b6c18c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0f768acd89f4d17f51fc3423b6c18c8">&#9670;&#160;</a></span>allowed_value_names</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* const* tlv_value_constraint::allowed_value_names</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional, borrowed display name for each entry of <code>allowed_values</code> (an ASN.1 named number, for example <code>red(0)</code>), parallel to it and the same <code>allowed_values_count</code> long; used only for <a class="el" href="group__schemas.html#gga9842d51d0f5706b1d13fea943bcb9defa53ba2ca9e7139f41f525ddc7d6989cba">TLV_VALUE_CONSTRAINT_ALLOWED_VALUES</a>. <code>NULL</code> for the whole array when no value has a name, or a <code>NULL</code> entry for a value that itself has none. Purely descriptive: ignored by <a class="el" href="group__schemas.html#ga3efa30eefa428cbeb06260392003c61e" title="Validates a decoded scalar value against a constraint.">tlv_value_constraint_validate()</a>; look a name up with <a class="el" href="group__schemas.html#ga9f65d8609fbecec1618cb1acde16e380" title="Looks up an allowed value&#39;s display name, such as an ASN.1 named number.">tlv_value_constraint_name()</a>. </p>
+
+</div>
+</div>
 <a id="af7b3a69161d7032211cbef9279c7f4c1" name="af7b3a69161d7032211cbef9279c7f4c1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af7b3a69161d7032211cbef9279c7f4c1">&#9670;&#160;</a></span>allowed_values</h2>
 

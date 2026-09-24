@@ -96,10 +96,14 @@ Data Fields</h2></td></tr>
 <tr class="separator:a5e3afccf47d027ab9161a232aebca96c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a208652914e0e773f6b1199df46152692" id="r_a208652914e0e773f6b1199df46152692"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__der__schema__type.html#a208652914e0e773f6b1199df46152692">max_elements</a></td></tr>
 <tr class="separator:a208652914e0e773f6b1199df46152692"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a12d1cca5abdbbfabff3df5bef18b9d" id="r_a2a12d1cca5abdbbfabff3df5bef18b9d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__schemas.html#gab1043e4daef73bad61a585cafd954bbb">tlv_der_schema_leaf_constraint_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__der__schema__type.html#a2a12d1cca5abdbbfabff3df5bef18b9d">constraint</a></td></tr>
+<tr class="separator:a2a12d1cca5abdbbfabff3df5bef18b9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fb638b1c2b866699d80b8bc09cc6aa5" id="r_a2fb638b1c2b866699d80b8bc09cc6aa5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__der__schema__type.html#a2fb638b1c2b866699d80b8bc09cc6aa5">extensible</a></td></tr>
+<tr class="separator:a2fb638b1c2b866699d80b8bc09cc6aa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>An ASN.1 type expression. </p>
-<p><code>components</code> and <code>component_count</code> apply to SEQUENCE, SET and CHOICE (at most <a class="el" href="group__schemas.html#ggabed82baf7f470b522273a3e37c24c600a503cd8aa2cb92e1815c0e9acebc1db4d">TLV_DER_SCHEMA_MAX_COMPONENTS</a> direct components). <code>element</code> applies to SET OF, with <code>min_elements</code> and <code>max_elements</code> (inclusive, <code>SIZE_MAX</code> for unbounded) bounding its element count. <code>universal_number</code> applies to <a class="el" href="group__schemas.html#gga7cd10cc4b1fb1564a59ead8643fb7d3baea74920078a033e42f6cd42ae2298f01">TLV_DER_SCHEMA_UNIVERSAL</a> leaves. Fields unused by a given kind are ignored. All pointers are borrowed and must outlive use. </p>
+<p><code>components</code> and <code>component_count</code> apply to SEQUENCE, SET and CHOICE (at most <a class="el" href="group__schemas.html#ggab04a0655cd1e3bcac5e8f48c18df1a57a503cd8aa2cb92e1815c0e9acebc1db4d">TLV_DER_SCHEMA_MAX_COMPONENTS</a> direct components). <code>element</code> applies to SET OF and SEQUENCE OF, with <code>min_elements</code> and <code>max_elements</code> (inclusive, <code>SIZE_MAX</code> for unbounded) bounding its element count. <code>universal_number</code> and <code>constraint</code> apply to <a class="el" href="group__schemas.html#gga7cd10cc4b1fb1564a59ead8643fb7d3baea74920078a033e42f6cd42ae2298f01">TLV_DER_SCHEMA_UNIVERSAL</a> leaves. <code>extensible</code> applies to SEQUENCE. Fields unused by a given kind are ignored. All pointers are borrowed and must outlive use. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a7157ebe8bf864e55f8b3f8449b75d325" name="a7157ebe8bf864e55f8b3f8449b75d325"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7157ebe8bf864e55f8b3f8449b75d325">&#9670;&#160;</a></span>component_count</h2>
@@ -131,6 +135,21 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a id="a2a12d1cca5abdbbfabff3df5bef18b9d" name="a2a12d1cca5abdbbfabff3df5bef18b9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a12d1cca5abdbbfabff3df5bef18b9d">&#9670;&#160;</a></span>constraint</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__schemas.html#gab1043e4daef73bad61a585cafd954bbb">tlv_der_schema_leaf_constraint_t</a>* tlv_der_schema_type::constraint</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional SIZE/value-range constraint on a <a class="el" href="group__schemas.html#gga7cd10cc4b1fb1564a59ead8643fb7d3baea74920078a033e42f6cd42ae2298f01">TLV_DER_SCHEMA_UNIVERSAL</a> leaf; <code>NULL</code> for none. </p>
+
+</div>
+</div>
 <a id="a83d876c87cf11c118840e09dc8e68aaf" name="a83d876c87cf11c118840e09dc8e68aaf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a83d876c87cf11c118840e09dc8e68aaf">&#9670;&#160;</a></span>element</h2>
 
@@ -142,7 +161,22 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Repeated element of a SET OF. </p>
+<p>Repeated element of a SET OF or SEQUENCE OF. </p>
+
+</div>
+</div>
+<a id="a2fb638b1c2b866699d80b8bc09cc6aa5" name="a2fb638b1c2b866699d80b8bc09cc6aa5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fb638b1c2b866699d80b8bc09cc6aa5">&#9670;&#160;</a></span>extensible</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_der_schema_type::extensible</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Whether a <a class="el" href="group__schemas.html#gga7cd10cc4b1fb1564a59ead8643fb7d3ba7084f82d345e43d6de6a7b037c742b78">TLV_DER_SCHEMA_SEQUENCE</a> tolerates an ASN.1 extension marker (<code>...</code>): nonzero to accept and skip, as opaque well-formed DER-TLV elements, any content left over after every declared component has been matched or skipped, instead of rejecting it as a schema violation. Ignored for every other kind. </p>
 
 </div>
 </div>
@@ -172,7 +206,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Maximum SET OF element count, inclusive; <code>SIZE_MAX</code> is unbounded. </p>
+<p>Maximum SET OF or SEQUENCE OF element count, inclusive; <code>SIZE_MAX</code> is unbounded. </p>
 
 </div>
 </div>
@@ -187,7 +221,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Minimum SET OF element count, inclusive. </p>
+<p>Minimum SET OF or SEQUENCE OF element count, inclusive. </p>
 
 </div>
 </div>

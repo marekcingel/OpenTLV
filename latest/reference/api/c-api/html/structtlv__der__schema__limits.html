@@ -116,7 +116,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Bounds the scratch record capacity <a class="el" href="group__schemas.html#ga6c1c758e294d5bc0374c39f544108145" title="Encodes a schema&#39;s canonical DER-TLV bytes.">tlv_der_schema_write()</a> needs to sort one SET OF's elements by their complete encodings. Not used by <a class="el" href="group__schemas.html#ga8c63b2a8a7d0a13cc0342f7d9b1c4f06" title="Validates encoded data against a schema.">tlv_der_schema_read()</a>, which validates SET/SET OF order with a single adjacent-pair scan and needs no scratch storage. </p>
+<p>Bounds the scratch record capacity <a class="el" href="group__schemas.html#ga6c1c758e294d5bc0374c39f544108145" title="Encodes a schema&#39;s canonical DER-TLV bytes.">tlv_der_schema_write()</a> needs to sort one SET OF's elements by their complete encodings, or to compose one SEQUENCE OF's elements in encoding order. Not used by <a class="el" href="group__schemas.html#ga8c63b2a8a7d0a13cc0342f7d9b1c4f06" title="Validates encoded data against a schema.">tlv_der_schema_read()</a>, which validates SET/SET OF order with a single adjacent-pair scan and needs no scratch storage. </p>
 
 </div>
 </div>
