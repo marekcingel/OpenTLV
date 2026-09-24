@@ -346,7 +346,7 @@ pub const TLV_SCHEMA_CONSTRUCTED: tlv_schema_kind_t = 2;
 pub struct tlv_structure_rule_t {
     /// Tag and permitted value-length bounds.
     pub entry: tlv_schema_entry_t,
-    /// Minimum occurrences within the parent.
+    /// Minimum occurrences within the parent. Must be 0 when `group` is nonzero.
     pub min_occurs: usize,
     /// Maximum occurrences within the parent; `usize::MAX` is unrestricted.
     pub max_occurs: usize,
@@ -354,6 +354,29 @@ pub struct tlv_structure_rule_t {
     pub kind: tlv_schema_kind_t,
     /// Schema for the value's children, or null.
     pub children: *const tlv_structure_schema_t,
+    /// Group this rule belongs to, or 0 if it stands alone (`tlv_structure_rule_t::group`).
+    pub group: u32,
+}
+
+/// Ordering required among a scope's matched elements (`tlv_schema_order_t`).
+pub type tlv_schema_order_t = c_int;
+/// No relative order is required among matched elements (`TLV_SCHEMA_ORDER_ANY`).
+pub const TLV_SCHEMA_ORDER_ANY: tlv_schema_order_t = 0;
+/// Matched elements must appear in rule-table order (`TLV_SCHEMA_ORDER_SEQUENCE`).
+pub const TLV_SCHEMA_ORDER_SEQUENCE: tlv_schema_order_t = 1;
+
+/// A CHOICE-like group of mutually related alternative rules (`tlv_structure_group_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_structure_group_t {
+    /// Nonzero identifier, referenced by `tlv_structure_rule_t::group`.
+    pub id: u32,
+    /// Minimum total occurrences across all member rules, inclusive.
+    pub min_occurs: usize,
+    /// Maximum total occurrences across all member rules, inclusive; `usize::MAX` is unrestricted.
+    pub max_occurs: usize,
+    /// Borrowed name of the group, for diagnostics, or null if unnamed.
+    pub name: *const c_char,
 }
 
 /// Borrowed set of structural rules for one parent scope (`tlv_structure_schema_t`).
@@ -366,6 +389,13 @@ pub struct tlv_structure_schema_t {
     pub count: usize,
     /// Nonzero accepts tags that match no rule.
     pub allow_unknown: c_int,
+    /// Borrowed table of alternative groups referenced by `rules[*].group`; may be null only
+    /// when `group_count` is zero.
+    pub groups: *const tlv_structure_group_t,
+    /// Number of entries in `groups`.
+    pub group_count: usize,
+    /// Ordering required among this scope's matched elements.
+    pub order: tlv_schema_order_t,
 }
 
 /// Result code of a value conversion (`tlv_codec_result_t`).

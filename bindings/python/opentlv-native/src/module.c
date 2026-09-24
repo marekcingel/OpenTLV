@@ -336,6 +336,9 @@ static tlv_structure_schema_t* build_structure_schema(PyObject* schema_obj) {
     schema->rules = NULL;
     schema->count = 0;
     schema->allow_unknown = allow_unknown;
+    schema->groups = NULL;
+    schema->group_count = 0;
+    schema->order = TLV_SCHEMA_ORDER_ANY;
     if (count > 0) {
         tlv_structure_rule_t* rules = calloc((size_t)count, sizeof(*rules));
         if (rules == NULL) {

@@ -364,6 +364,8 @@ impl StructureSchema {
                 max_occurs: rule.max_occurs,
                 kind: rule.kind.raw(),
                 children: child_ptr,
+                // Alternative groups (CHOICE) are not yet exposed by this crate.
+                group: 0,
             });
             // Moving a tag moves its handle, not the heap bytes the rule borrows.
             tags.push(rule.tag);
@@ -373,6 +375,11 @@ impl StructureSchema {
                 rules: ptr::null(),
                 count: raw_rules.len(),
                 allow_unknown: allow_unknown as i32,
+                // Alternative groups (CHOICE) and explicit ordering (SEQUENCE) are not yet
+                // exposed by this crate.
+                groups: ptr::null(),
+                group_count: 0,
+                order: native::TLV_SCHEMA_ORDER_ANY,
             },
             rules: raw_rules,
             _tags: tags,
