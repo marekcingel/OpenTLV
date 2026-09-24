@@ -249,18 +249,30 @@ A codec is provided for each of BOOLEAN (`tlv_asn1_codec_boolean`, `bool`),
 INTEGER and ENUMERATED (`tlv_asn1_codec_integer`, `tlv_asn1_codec_enumerated`,
 `int64_t`), BIT STRING (`tlv_asn1_codec_bit_string`, `tlv_asn1_bit_string_t`),
 OCTET STRING (`tlv_asn1_codec_octet_string`, `tlv_asn1_octet_string_t`), NULL
-(`tlv_asn1_codec_null`, no representation) and OBJECT IDENTIFIER /
+(`tlv_asn1_codec_null`, no representation), OBJECT IDENTIFIER /
 RELATIVE-OID (`tlv_asn1_codec_oid`, `tlv_asn1_codec_relative_oid`, both
-`tlv_asn1_oid_t`, an arc array up to `TLV_ASN1_OID_MAX_ARCS`). BIT STRING and
-OCTET STRING decode into a representation that borrows the input value
-bytes; every other representation is self-contained.
+`tlv_asn1_oid_t`, an arc array up to `TLV_ASN1_OID_MAX_ARCS`), the restricted
+character string types UTF8String, NumericString, PrintableString, IA5String
+and VisibleString (`tlv_asn1_codec_utf8_string`, `tlv_asn1_codec_numeric_string`,
+`tlv_asn1_codec_printable_string`, `tlv_asn1_codec_ia5_string`,
+`tlv_asn1_codec_visible_string`, all `tlv_asn1_string_t`), BMPString and
+UniversalString (`tlv_asn1_codec_bmp_string`, `tlv_asn1_bmp_string_t`, and
+`tlv_asn1_codec_universal_string`, `tlv_asn1_universal_string_t`, big-endian
+UCS-2/UCS-4 code units), and UTCTime and GeneralizedTime
+(`tlv_asn1_codec_utc_time`, `tlv_asn1_utc_time_t`, and
+`tlv_asn1_codec_generalized_time`, `tlv_asn1_generalized_time_t`, both a
+decoded calendar timestamp). BIT STRING, OCTET STRING, the restricted
+character string types, BMPString, UniversalString and GeneralizedTime's
+fractional-seconds part decode into a representation that borrows the input
+value bytes; every other representation is self-contained.
 
 Every codec enforces the same canonical content rules ITU-T X.690 section 11
 defines for DER and CER, even when the raw value was read through the more
-permissive `tlv_reader_format_ber`: for example a BOOLEAN of `01`, or a
-non-minimal two's complement INTEGER, is rejected with
-`TLV_CODEC_ERR_INVALID_VALUE`. See `tlv/builtins/asn1/asn1_codec.h` for each
-codec's exact content and representation rules.
+permissive `tlv_reader_format_ber`: for example a BOOLEAN of `01`, a
+non-minimal two's complement INTEGER, or a UTCTime missing its trailing `Z`,
+is rejected with `TLV_CODEC_ERR_INVALID_VALUE`. See
+`tlv/builtins/asn1/asn1_codec.h` for each codec's exact content and
+representation rules.
 
 Malformed tags and unterminated tags on write return `TLV_ERR_INVALID_TAG`,
 unless continuation requires bytes beyond `TLV_ASN1_TAG_MAX_SIZE`. Empty tags on write and
