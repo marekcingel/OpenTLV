@@ -16,7 +16,7 @@ checkout of the repository:
 opentlv = { path = "OpenTLV/bindings/rust/opentlv" }
 ```
 
-The build script of `opentlv-sys` builds the C library with CMake and links it,
+The build script of `opentlv-native` builds the C library with CMake and links it,
 so you need a Rust toolchain (1.70 or newer), CMake 3.16 or newer and a C99
 compiler. To link a library you built yourself, set `OPENTLV_LIB_DIR` (and
 optionally `OPENTLV_LINK_KIND`); see
@@ -107,7 +107,7 @@ Every fallible call returns `opentlv::Result<T>`, an alias for
 
 ## Relationship to the C API
 
-`opentlv-sys` declares the C functions as raw `extern "C"` items; `opentlv`
+`opentlv-native` declares the C functions as raw `extern "C"` items; `opentlv`
 wraps them and contains no `extern` blocks. The wrappers call the C library for
 all parsing, encoding, validation and codec work instead of reimplementing it,
 so behavior matches the C API, and the C error codes map one to one onto

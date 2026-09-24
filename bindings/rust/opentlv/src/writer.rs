@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 use std::mem::MaybeUninit;
 use std::slice;
 
-use opentlv_sys as sys;
+use opentlv_native as native;
 
 use crate::entry::Entry;
 use crate::error::{Error, Result};
@@ -30,7 +30,7 @@ pub fn encoded_size(tag: &Tag, value_len: usize, format: Format) -> Result<usize
     // SAFETY: `format.writer_raw()` points to a static format and `size` is
     // a valid, writable `usize`.
     let code =
-        unsafe { sys::tlv_encoded_size(tag.raw(), value_len, format.writer_raw(), &mut size) };
+        unsafe { native::tlv_encoded_size(tag.raw(), value_len, format.writer_raw(), &mut size) };
     Error::check(code)?;
     Ok(size)
 }
@@ -52,7 +52,7 @@ pub fn encoded_size(tag: &Tag, value_len: usize, format: Format) -> Result<usize
 /// ```
 #[derive(Debug)]
 pub struct Writer<'a> {
-    raw: sys::tlv_writer_t,
+    raw: native::tlv_writer_t,
     _buf: PhantomData<&'a mut [u8]>,
 }
 
@@ -65,12 +65,12 @@ impl<'a> Writer<'a> {
 
     /// Creates a writer for the given wire format.
     pub fn with_format(buf: &'a mut [u8], format: Format) -> Writer<'a> {
-        let mut raw = MaybeUninit::<sys::tlv_writer_t>::uninit();
+        let mut raw = MaybeUninit::<native::tlv_writer_t>::uninit();
         // SAFETY: `raw` is writable; `buf` is a valid slice (a non-null
         // pointer even when empty); `format.writer_raw()` points to a static
         // format.
         let code = unsafe {
-            sys::tlv_writer_init(
+            native::tlv_writer_init(
                 raw.as_mut_ptr(),
                 buf.as_mut_ptr(),
                 buf.len(),
@@ -79,7 +79,7 @@ impl<'a> Writer<'a> {
         };
         // Every argument is non-null and the built-in formats are complete, so
         // initialization cannot fail.
-        assert_eq!(code, sys::TLV_OK, "tlv_writer_init failed");
+        assert_eq!(code, native::TLV_OK, "tlv_writer_init failed");
         Writer {
             // SAFETY: `tlv_writer_init` succeeded and initialized every field.
             raw: unsafe { raw.assume_init() },
@@ -97,8 +97,9 @@ impl<'a> Writer<'a> {
     pub fn write(&mut self, tag: &Tag, value: &[u8]) -> Result<()> {
         // SAFETY: `self.raw` is initialized and its buffer is exclusively
         // borrowed for `'a`; `value` is a valid slice of `value.len()` bytes.
-        let code =
-            unsafe { sys::tlv_writer_write(&mut self.raw, tag.raw(), value.as_ptr(), value.len()) };
+        let code = unsafe {
+            native::tlv_writer_write(&mut self.raw, tag.raw(), value.as_ptr(), value.len())
+        };
         Error::check(code)
     }
 
@@ -114,7 +115,7 @@ impl<'a> Writer<'a> {
     /// Returns the number of bytes written so far.
     pub fn position(&self) -> usize {
         // SAFETY: `self.raw` was initialized by `tlv_writer_init`.
-        unsafe { sys::tlv_writer_size(&self.raw) }
+        unsafe { native::tlv_writer_size(&self.raw) }
     }
 
     /// Returns the total capacity of the output buffer in bytes.

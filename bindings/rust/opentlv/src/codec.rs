@@ -13,7 +13,7 @@ use std::mem::{self, MaybeUninit};
 use std::os::raw::c_char;
 use std::ptr;
 
-use opentlv_sys as sys;
+use opentlv_native as native;
 
 /// An error of a value conversion, mapped from a `tlv_codec_result_t`.
 ///
@@ -43,12 +43,12 @@ impl CodecError {
     /// Maps a raw `tlv_codec_result_t` to an error, or `None` for success.
     pub fn from_code(code: i32) -> Option<CodecError> {
         Some(match code {
-            sys::TLV_CODEC_OK => return None,
-            sys::TLV_CODEC_ERR_NULL_ARG => CodecError::NullArg,
-            sys::TLV_CODEC_ERR_BUFFER_TOO_SHORT => CodecError::BufferTooShort,
-            sys::TLV_CODEC_ERR_INVALID_VALUE => CodecError::InvalidValue,
-            sys::TLV_CODEC_ERR_UNSUPPORTED => CodecError::Unsupported,
-            sys::TLV_CODEC_ERR_INVALID_STRUCTURE => CodecError::InvalidStructure,
+            native::TLV_CODEC_OK => return None,
+            native::TLV_CODEC_ERR_NULL_ARG => CodecError::NullArg,
+            native::TLV_CODEC_ERR_BUFFER_TOO_SHORT => CodecError::BufferTooShort,
+            native::TLV_CODEC_ERR_INVALID_VALUE => CodecError::InvalidValue,
+            native::TLV_CODEC_ERR_UNSUPPORTED => CodecError::Unsupported,
+            native::TLV_CODEC_ERR_INVALID_STRUCTURE => CodecError::InvalidStructure,
             other => CodecError::Unknown(other),
         })
     }
@@ -56,16 +56,16 @@ impl CodecError {
     /// Returns the raw `tlv_codec_result_t` code of the error.
     pub fn code(self) -> i32 {
         match self {
-            CodecError::NullArg => sys::TLV_CODEC_ERR_NULL_ARG,
-            CodecError::BufferTooShort => sys::TLV_CODEC_ERR_BUFFER_TOO_SHORT,
-            CodecError::InvalidValue => sys::TLV_CODEC_ERR_INVALID_VALUE,
-            CodecError::Unsupported => sys::TLV_CODEC_ERR_UNSUPPORTED,
-            CodecError::InvalidStructure => sys::TLV_CODEC_ERR_INVALID_STRUCTURE,
+            CodecError::NullArg => native::TLV_CODEC_ERR_NULL_ARG,
+            CodecError::BufferTooShort => native::TLV_CODEC_ERR_BUFFER_TOO_SHORT,
+            CodecError::InvalidValue => native::TLV_CODEC_ERR_INVALID_VALUE,
+            CodecError::Unsupported => native::TLV_CODEC_ERR_UNSUPPORTED,
+            CodecError::InvalidStructure => native::TLV_CODEC_ERR_INVALID_STRUCTURE,
             CodecError::Unknown(code) => code,
         }
     }
 
-    fn check(code: sys::tlv_codec_result_t) -> CodecResult<()> {
+    fn check(code: native::tlv_codec_result_t) -> CodecResult<()> {
         match CodecError::from_code(code) {
             None => Ok(()),
             Some(err) => Err(err),
@@ -77,7 +77,7 @@ impl fmt::Display for CodecError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // SAFETY: `tlv_codec_strerror` returns a static NUL-terminated string
         // for every code.
-        let message = unsafe { CStr::from_ptr(sys::tlv_codec_strerror(self.code())) };
+        let message = unsafe { CStr::from_ptr(native::tlv_codec_strerror(self.code())) };
         f.write_str(&message.to_string_lossy())
     }
 }
@@ -124,44 +124,44 @@ pub enum ValueKind {
 }
 
 impl ValueKind {
-    pub(crate) fn from_raw(raw: sys::tlv_emv_value_kind_t) -> Option<ValueKind> {
+    pub(crate) fn from_raw(raw: native::tlv_emv_value_kind_t) -> Option<ValueKind> {
         Some(match raw {
-            sys::TLV_EMV_VALUE_BYTES => ValueKind::Bytes,
-            sys::TLV_EMV_VALUE_TEXT => ValueKind::Text,
-            sys::TLV_EMV_VALUE_TEMPLATE => ValueKind::Template,
-            sys::TLV_EMV_VALUE_NUMBER => ValueKind::Number,
-            sys::TLV_EMV_VALUE_FLAGS => ValueKind::Flags,
-            sys::TLV_EMV_VALUE_DIGITS => ValueKind::Digits,
-            sys::TLV_EMV_VALUE_DATE => ValueKind::Date,
-            sys::TLV_EMV_VALUE_TIME => ValueKind::Time,
-            sys::TLV_EMV_VALUE_ACCOUNT => ValueKind::Account,
-            sys::TLV_EMV_VALUE_CRYPTOGRAM => ValueKind::Cryptogram,
-            sys::TLV_EMV_VALUE_BIOMETRIC => ValueKind::Biometric,
-            sys::TLV_EMV_VALUE_NUMBER_LIST => ValueKind::NumberList,
-            sys::TLV_EMV_VALUE_AFL => ValueKind::Afl,
-            sys::TLV_EMV_VALUE_CVM_RESULT => ValueKind::CvmResult,
-            sys::TLV_EMV_VALUE_TRACK2 => ValueKind::Track2,
+            native::TLV_EMV_VALUE_BYTES => ValueKind::Bytes,
+            native::TLV_EMV_VALUE_TEXT => ValueKind::Text,
+            native::TLV_EMV_VALUE_TEMPLATE => ValueKind::Template,
+            native::TLV_EMV_VALUE_NUMBER => ValueKind::Number,
+            native::TLV_EMV_VALUE_FLAGS => ValueKind::Flags,
+            native::TLV_EMV_VALUE_DIGITS => ValueKind::Digits,
+            native::TLV_EMV_VALUE_DATE => ValueKind::Date,
+            native::TLV_EMV_VALUE_TIME => ValueKind::Time,
+            native::TLV_EMV_VALUE_ACCOUNT => ValueKind::Account,
+            native::TLV_EMV_VALUE_CRYPTOGRAM => ValueKind::Cryptogram,
+            native::TLV_EMV_VALUE_BIOMETRIC => ValueKind::Biometric,
+            native::TLV_EMV_VALUE_NUMBER_LIST => ValueKind::NumberList,
+            native::TLV_EMV_VALUE_AFL => ValueKind::Afl,
+            native::TLV_EMV_VALUE_CVM_RESULT => ValueKind::CvmResult,
+            native::TLV_EMV_VALUE_TRACK2 => ValueKind::Track2,
             _ => return None,
         })
     }
 
-    fn raw(self) -> sys::tlv_emv_value_kind_t {
+    fn raw(self) -> native::tlv_emv_value_kind_t {
         match self {
-            ValueKind::Bytes => sys::TLV_EMV_VALUE_BYTES,
-            ValueKind::Text => sys::TLV_EMV_VALUE_TEXT,
-            ValueKind::Template => sys::TLV_EMV_VALUE_TEMPLATE,
-            ValueKind::Number => sys::TLV_EMV_VALUE_NUMBER,
-            ValueKind::Flags => sys::TLV_EMV_VALUE_FLAGS,
-            ValueKind::Digits => sys::TLV_EMV_VALUE_DIGITS,
-            ValueKind::Date => sys::TLV_EMV_VALUE_DATE,
-            ValueKind::Time => sys::TLV_EMV_VALUE_TIME,
-            ValueKind::Account => sys::TLV_EMV_VALUE_ACCOUNT,
-            ValueKind::Cryptogram => sys::TLV_EMV_VALUE_CRYPTOGRAM,
-            ValueKind::Biometric => sys::TLV_EMV_VALUE_BIOMETRIC,
-            ValueKind::NumberList => sys::TLV_EMV_VALUE_NUMBER_LIST,
-            ValueKind::Afl => sys::TLV_EMV_VALUE_AFL,
-            ValueKind::CvmResult => sys::TLV_EMV_VALUE_CVM_RESULT,
-            ValueKind::Track2 => sys::TLV_EMV_VALUE_TRACK2,
+            ValueKind::Bytes => native::TLV_EMV_VALUE_BYTES,
+            ValueKind::Text => native::TLV_EMV_VALUE_TEXT,
+            ValueKind::Template => native::TLV_EMV_VALUE_TEMPLATE,
+            ValueKind::Number => native::TLV_EMV_VALUE_NUMBER,
+            ValueKind::Flags => native::TLV_EMV_VALUE_FLAGS,
+            ValueKind::Digits => native::TLV_EMV_VALUE_DIGITS,
+            ValueKind::Date => native::TLV_EMV_VALUE_DATE,
+            ValueKind::Time => native::TLV_EMV_VALUE_TIME,
+            ValueKind::Account => native::TLV_EMV_VALUE_ACCOUNT,
+            ValueKind::Cryptogram => native::TLV_EMV_VALUE_CRYPTOGRAM,
+            ValueKind::Biometric => native::TLV_EMV_VALUE_BIOMETRIC,
+            ValueKind::NumberList => native::TLV_EMV_VALUE_NUMBER_LIST,
+            ValueKind::Afl => native::TLV_EMV_VALUE_AFL,
+            ValueKind::CvmResult => native::TLV_EMV_VALUE_CVM_RESULT,
+            ValueKind::Track2 => native::TLV_EMV_VALUE_TRACK2,
         }
     }
 
@@ -177,7 +177,7 @@ impl ValueKind {
     /// `"Bit flags"` for [`ValueKind::Flags`].
     pub fn description(self) -> &'static str {
         // SAFETY: the function returns a static NUL-terminated ASCII string.
-        unsafe { CStr::from_ptr(sys::tlv_emv_value_kind_description(self.raw())) }
+        unsafe { CStr::from_ptr(native::tlv_emv_value_kind_description(self.raw())) }
             .to_str()
             .expect("description is ASCII")
     }
@@ -363,7 +363,7 @@ impl Value {
 /// ```
 #[derive(Clone, Copy)]
 pub struct Codec {
-    raw: &'static sys::tlv_codec_t,
+    raw: &'static native::tlv_codec_t,
     kind: ValueKind,
 }
 
@@ -406,7 +406,10 @@ impl Codec {
     ///
     /// `raw` must point to a valid codec descriptor with static lifetime whose
     /// representation is described by `kind`.
-    pub(crate) unsafe fn from_raw(raw: *const sys::tlv_codec_t, kind: ValueKind) -> Option<Codec> {
+    pub(crate) unsafe fn from_raw(
+        raw: *const native::tlv_codec_t,
+        kind: ValueKind,
+    ) -> Option<Codec> {
         Some(Codec {
             raw: raw.as_ref()?,
             kind,
@@ -418,8 +421,13 @@ impl Codec {
     pub fn amount() -> Codec {
         // SAFETY: only the address of an immutable static is taken; it lives
         // for the whole program and its representation is a `u64`.
-        unsafe { Codec::from_raw(ptr::addr_of!(sys::tlv_emv_codec_amount), ValueKind::Number) }
-            .expect("the address of a static is not null")
+        unsafe {
+            Codec::from_raw(
+                ptr::addr_of!(native::tlv_emv_codec_amount),
+                ValueKind::Number,
+            )
+        }
+        .expect("the address of a static is not null")
     }
 
     /// Returns the representation this codec converts to and from.
@@ -433,7 +441,7 @@ impl Codec {
         // the size passed as capacity, and it has the C type this codec kind
         // decodes into. The codec descriptor is immutable and static.
         CodecError::check(unsafe {
-            sys::tlv_codec_decode(
+            native::tlv_codec_decode(
                 self.raw,
                 data.as_ptr(),
                 data.len(),
@@ -468,7 +476,7 @@ impl Codec {
                 // SAFETY: `digits` is a valid writable buffer of its length;
                 // the digits codec writes a NUL-terminated string into it.
                 CodecError::check(unsafe {
-                    sys::tlv_codec_decode(
+                    native::tlv_codec_decode(
                         self.raw,
                         data.as_ptr(),
                         data.len(),
@@ -481,7 +489,7 @@ impl Codec {
                 Value::Digits(String::from_utf8(digits).map_err(|_| CodecError::InvalidValue)?)
             }
             ValueKind::Date => {
-                let mut date = sys::tlv_emv_date_t::default();
+                let mut date = native::tlv_emv_date_t::default();
                 self.decode_into(data, &mut date)?;
                 Value::Date(Date {
                     year: date.year,
@@ -490,7 +498,7 @@ impl Codec {
                 })
             }
             ValueKind::Time => {
-                let mut time = sys::tlv_emv_time_t::default();
+                let mut time = native::tlv_emv_time_t::default();
                 self.decode_into(data, &mut time)?;
                 Value::Time(Time {
                     hour: time.hour,
@@ -499,18 +507,18 @@ impl Codec {
                 })
             }
             ValueKind::Account => {
-                let mut account: sys::tlv_emv_account_type_t = 0;
+                let mut account: native::tlv_emv_account_type_t = 0;
                 self.decode_into(data, &mut account)?;
                 Value::Account(match account {
-                    sys::TLV_EMV_ACCOUNT_DEFAULT => AccountType::Default,
-                    sys::TLV_EMV_ACCOUNT_SAVINGS => AccountType::Savings,
-                    sys::TLV_EMV_ACCOUNT_CHEQUE_DEBIT => AccountType::ChequeDebit,
-                    sys::TLV_EMV_ACCOUNT_CREDIT => AccountType::Credit,
+                    native::TLV_EMV_ACCOUNT_DEFAULT => AccountType::Default,
+                    native::TLV_EMV_ACCOUNT_SAVINGS => AccountType::Savings,
+                    native::TLV_EMV_ACCOUNT_CHEQUE_DEBIT => AccountType::ChequeDebit,
+                    native::TLV_EMV_ACCOUNT_CREDIT => AccountType::Credit,
                     _ => return Err(CodecError::InvalidValue),
                 })
             }
             ValueKind::Cryptogram => {
-                let mut info = sys::tlv_emv_cryptogram_info_t::default();
+                let mut info = native::tlv_emv_cryptogram_info_t::default();
                 self.decode_into(data, &mut info)?;
                 Value::Cryptogram(CryptogramInfo {
                     kind: match info.type_ {
@@ -524,25 +532,25 @@ impl Codec {
                 })
             }
             ValueKind::Biometric => {
-                let mut biometric: sys::tlv_emv_biometric_type_t = 0;
+                let mut biometric: native::tlv_emv_biometric_type_t = 0;
                 self.decode_into(data, &mut biometric)?;
                 Value::Biometric(match biometric {
-                    sys::TLV_EMV_BIOMETRIC_FACIAL => BiometricType::Facial,
-                    sys::TLV_EMV_BIOMETRIC_VOICE => BiometricType::Voice,
-                    sys::TLV_EMV_BIOMETRIC_FINGER => BiometricType::Finger,
-                    sys::TLV_EMV_BIOMETRIC_IRIS => BiometricType::Iris,
-                    sys::TLV_EMV_BIOMETRIC_PALM => BiometricType::Palm,
+                    native::TLV_EMV_BIOMETRIC_FACIAL => BiometricType::Facial,
+                    native::TLV_EMV_BIOMETRIC_VOICE => BiometricType::Voice,
+                    native::TLV_EMV_BIOMETRIC_FINGER => BiometricType::Finger,
+                    native::TLV_EMV_BIOMETRIC_IRIS => BiometricType::Iris,
+                    native::TLV_EMV_BIOMETRIC_PALM => BiometricType::Palm,
                     _ => return Err(CodecError::InvalidValue),
                 })
             }
             ValueKind::NumberList => {
-                let mut list = sys::tlv_emv_number_list_t::default();
+                let mut list = native::tlv_emv_number_list_t::default();
                 self.decode_into(data, &mut list)?;
                 let count = list.count.min(list.values.len());
                 Value::NumberList(list.values[..count].to_vec())
             }
             ValueKind::Afl => {
-                let mut afl = MaybeUninit::<sys::tlv_emv_afl_t>::zeroed();
+                let mut afl = MaybeUninit::<native::tlv_emv_afl_t>::zeroed();
                 // SAFETY: zeroed is a valid `tlv_emv_afl_t`.
                 let afl = unsafe { &mut *afl.as_mut_ptr() };
                 self.decode_into(data, afl)?;
@@ -560,7 +568,7 @@ impl Codec {
                 )
             }
             ValueKind::CvmResult => {
-                let mut result = sys::tlv_emv_cvm_result_t::default();
+                let mut result = native::tlv_emv_cvm_result_t::default();
                 self.decode_into(data, &mut result)?;
                 Value::CvmResult(CvmResult {
                     method: result.method,
@@ -569,7 +577,7 @@ impl Codec {
                 })
             }
             ValueKind::Track2 => {
-                let mut track2 = MaybeUninit::<sys::tlv_emv_track2_t>::zeroed();
+                let mut track2 = MaybeUninit::<native::tlv_emv_track2_t>::zeroed();
                 // SAFETY: zeroed is a valid `tlv_emv_track2_t`.
                 let track2 = unsafe { &mut *track2.as_mut_ptr() };
                 self.decode_into(data, track2)?;
@@ -611,7 +619,7 @@ impl Codec {
         // buffer of `capacity` bytes; `written` is a writable `usize` that
         // aliases neither.
         CodecError::check(unsafe {
-            sys::tlv_codec_encode(self.raw, value, size, data, capacity, &mut written)
+            native::tlv_codec_encode(self.raw, value, size, data, capacity, &mut written)
         })?;
         Ok(written)
     }
@@ -626,7 +634,7 @@ impl Codec {
                 self.encode_raw(digits.as_ptr().cast(), digits.len(), data, capacity)
             }
             Value::Date(d) => self.encode_object(
-                &sys::tlv_emv_date_t {
+                &native::tlv_emv_date_t {
                     year: d.year,
                     month: d.month,
                     day: d.day,
@@ -635,7 +643,7 @@ impl Codec {
                 capacity,
             ),
             Value::Time(t) => self.encode_object(
-                &sys::tlv_emv_time_t {
+                &native::tlv_emv_time_t {
                     hour: t.hour,
                     minute: t.minute,
                     second: t.second,
@@ -644,16 +652,16 @@ impl Codec {
                 capacity,
             ),
             Value::Account(account) => {
-                let raw: sys::tlv_emv_account_type_t = match account {
-                    AccountType::Default => sys::TLV_EMV_ACCOUNT_DEFAULT,
-                    AccountType::Savings => sys::TLV_EMV_ACCOUNT_SAVINGS,
-                    AccountType::ChequeDebit => sys::TLV_EMV_ACCOUNT_CHEQUE_DEBIT,
-                    AccountType::Credit => sys::TLV_EMV_ACCOUNT_CREDIT,
+                let raw: native::tlv_emv_account_type_t = match account {
+                    AccountType::Default => native::TLV_EMV_ACCOUNT_DEFAULT,
+                    AccountType::Savings => native::TLV_EMV_ACCOUNT_SAVINGS,
+                    AccountType::ChequeDebit => native::TLV_EMV_ACCOUNT_CHEQUE_DEBIT,
+                    AccountType::Credit => native::TLV_EMV_ACCOUNT_CREDIT,
                 };
                 self.encode_object(&raw, data, capacity)
             }
             Value::Cryptogram(info) => self.encode_object(
-                &sys::tlv_emv_cryptogram_info_t {
+                &native::tlv_emv_cryptogram_info_t {
                     type_: match info.kind {
                         CryptogramType::Aac => 0,
                         CryptogramType::Tc => 1,
@@ -666,17 +674,17 @@ impl Codec {
                 capacity,
             ),
             Value::Biometric(biometric) => {
-                let raw: sys::tlv_emv_biometric_type_t = match biometric {
-                    BiometricType::Facial => sys::TLV_EMV_BIOMETRIC_FACIAL,
-                    BiometricType::Voice => sys::TLV_EMV_BIOMETRIC_VOICE,
-                    BiometricType::Finger => sys::TLV_EMV_BIOMETRIC_FINGER,
-                    BiometricType::Iris => sys::TLV_EMV_BIOMETRIC_IRIS,
-                    BiometricType::Palm => sys::TLV_EMV_BIOMETRIC_PALM,
+                let raw: native::tlv_emv_biometric_type_t = match biometric {
+                    BiometricType::Facial => native::TLV_EMV_BIOMETRIC_FACIAL,
+                    BiometricType::Voice => native::TLV_EMV_BIOMETRIC_VOICE,
+                    BiometricType::Finger => native::TLV_EMV_BIOMETRIC_FINGER,
+                    BiometricType::Iris => native::TLV_EMV_BIOMETRIC_IRIS,
+                    BiometricType::Palm => native::TLV_EMV_BIOMETRIC_PALM,
                 };
                 self.encode_object(&raw, data, capacity)
             }
             Value::NumberList(numbers) => {
-                let mut list = sys::tlv_emv_number_list_t::default();
+                let mut list = native::tlv_emv_number_list_t::default();
                 if numbers.len() > list.values.len() {
                     return Err(CodecError::InvalidValue);
                 }
@@ -685,15 +693,16 @@ impl Codec {
                 self.encode_object(&list, data, capacity)
             }
             Value::Afl(entries) => {
-                if entries.len() > sys::TLV_EMV_AFL_MAX_ENTRIES {
+                if entries.len() > native::TLV_EMV_AFL_MAX_ENTRIES {
                     return Err(CodecError::InvalidValue);
                 }
-                let mut afl = sys::tlv_emv_afl_t {
-                    entries: [sys::tlv_emv_afl_entry_t::default(); sys::TLV_EMV_AFL_MAX_ENTRIES],
+                let mut afl = native::tlv_emv_afl_t {
+                    entries: [native::tlv_emv_afl_entry_t::default();
+                        native::TLV_EMV_AFL_MAX_ENTRIES],
                     count: entries.len(),
                 };
                 for (dst, src) in afl.entries.iter_mut().zip(entries) {
-                    *dst = sys::tlv_emv_afl_entry_t {
+                    *dst = native::tlv_emv_afl_entry_t {
                         sfi: src.sfi,
                         first_record: src.first_record,
                         last_record: src.last_record,
@@ -703,7 +712,7 @@ impl Codec {
                 self.encode_object(&afl, data, capacity)
             }
             Value::CvmResult(result) => self.encode_object(
-                &sys::tlv_emv_cvm_result_t {
+                &native::tlv_emv_cvm_result_t {
                     method: result.method,
                     condition: result.condition,
                     result: result.result,
@@ -712,7 +721,7 @@ impl Codec {
                 capacity,
             ),
             Value::Track2(track2) => self.encode_object(
-                &sys::tlv_emv_track2_t {
+                &native::tlv_emv_track2_t {
                     pan: fill_cstr(&track2.pan)?,
                     expiration_year: track2.expiration_year,
                     expiration_month: track2.expiration_month,

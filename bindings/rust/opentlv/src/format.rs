@@ -4,7 +4,7 @@ use std::fmt;
 use std::ptr;
 use std::str::FromStr;
 
-use opentlv_sys as sys;
+use opentlv_native as native;
 
 use crate::error::Error;
 
@@ -49,43 +49,43 @@ impl Format {
 
     /// Returns the nesting predicate of the format, or `None` if the format
     /// has no constructed values (every value is opaque).
-    pub(crate) fn is_constructed_raw(self) -> Option<sys::tlv_is_constructed_fn> {
+    pub(crate) fn is_constructed_raw(self) -> Option<native::tlv_is_constructed_fn> {
         match self {
-            Format::Ber => Some(sys::tlv_ber_is_constructed),
-            Format::Cer => Some(sys::tlv_cer_is_constructed),
-            Format::Der => Some(sys::tlv_der_is_constructed),
+            Format::Ber => Some(native::tlv_ber_is_constructed),
+            Format::Cer => Some(native::tlv_cer_is_constructed),
+            Format::Der => Some(native::tlv_der_is_constructed),
             Format::Default | Format::Fixed1Byte => None,
         }
     }
 
-    pub(crate) fn reader_raw(self) -> *const sys::tlv_reader_format_t {
+    pub(crate) fn reader_raw(self) -> *const native::tlv_reader_format_t {
         // SAFETY: only the address of an immutable static is taken; the
         // static lives for the whole program and is never written. Newer
         // compilers treat this as safe, but the MSRV (1.70) needs `unsafe`.
         #[allow(unused_unsafe)]
         unsafe {
             match self {
-                Format::Default => ptr::addr_of!(sys::tlv_reader_format_default),
-                Format::Ber => ptr::addr_of!(sys::tlv_reader_format_ber),
-                Format::Cer => ptr::addr_of!(sys::tlv_reader_format_cer),
-                Format::Der => ptr::addr_of!(sys::tlv_reader_format_der),
-                Format::Fixed1Byte => ptr::addr_of!(sys::tlv_reader_format_fixed_1byte),
+                Format::Default => ptr::addr_of!(native::tlv_reader_format_default),
+                Format::Ber => ptr::addr_of!(native::tlv_reader_format_ber),
+                Format::Cer => ptr::addr_of!(native::tlv_reader_format_cer),
+                Format::Der => ptr::addr_of!(native::tlv_reader_format_der),
+                Format::Fixed1Byte => ptr::addr_of!(native::tlv_reader_format_fixed_1byte),
             }
         }
     }
 
-    pub(crate) fn writer_raw(self) -> *const sys::tlv_writer_format_t {
+    pub(crate) fn writer_raw(self) -> *const native::tlv_writer_format_t {
         // SAFETY: only the address of an immutable static is taken; the
         // static lives for the whole program and is never written. Newer
         // compilers treat this as safe, but the MSRV (1.70) needs `unsafe`.
         #[allow(unused_unsafe)]
         unsafe {
             match self {
-                Format::Default => ptr::addr_of!(sys::tlv_writer_format_default),
-                Format::Ber => ptr::addr_of!(sys::tlv_writer_format_ber),
-                Format::Cer => ptr::addr_of!(sys::tlv_writer_format_cer),
-                Format::Der => ptr::addr_of!(sys::tlv_writer_format_der),
-                Format::Fixed1Byte => ptr::addr_of!(sys::tlv_writer_format_fixed_1byte),
+                Format::Default => ptr::addr_of!(native::tlv_writer_format_default),
+                Format::Ber => ptr::addr_of!(native::tlv_writer_format_ber),
+                Format::Cer => ptr::addr_of!(native::tlv_writer_format_cer),
+                Format::Der => ptr::addr_of!(native::tlv_writer_format_der),
+                Format::Fixed1Byte => ptr::addr_of!(native::tlv_writer_format_fixed_1byte),
             }
         }
     }

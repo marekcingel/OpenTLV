@@ -4,7 +4,7 @@ use std::iter::FusedIterator;
 use std::marker::PhantomData;
 use std::mem::MaybeUninit;
 
-use opentlv_sys as sys;
+use opentlv_native as native;
 
 use crate::entry::Entry;
 use crate::error::{Error, Result};
@@ -28,7 +28,7 @@ use crate::format::Format;
 /// ```
 #[derive(Clone, Debug)]
 pub struct Reader<'a> {
-    raw: sys::tlv_reader_t,
+    raw: native::tlv_reader_t,
     failed: bool,
     _data: PhantomData<&'a [u8]>,
 }
@@ -42,11 +42,11 @@ impl<'a> Reader<'a> {
 
     /// Creates a reader for the given wire format.
     pub fn with_format(data: &'a [u8], format: Format) -> Reader<'a> {
-        let mut raw = MaybeUninit::<sys::tlv_reader_t>::uninit();
+        let mut raw = MaybeUninit::<native::tlv_reader_t>::uninit();
         // SAFETY: `raw` is writable; `data` is a valid slice (a non-null
         // pointer even when empty); `format.reader_raw()` points to a static format.
         let code = unsafe {
-            sys::tlv_reader_init(
+            native::tlv_reader_init(
                 raw.as_mut_ptr(),
                 data.as_ptr(),
                 data.len(),
@@ -55,7 +55,7 @@ impl<'a> Reader<'a> {
         };
         // Every argument is non-null and the built-in formats are complete, so
         // initialization cannot fail.
-        assert_eq!(code, sys::TLV_OK, "tlv_reader_init failed");
+        assert_eq!(code, native::TLV_OK, "tlv_reader_init failed");
         Reader {
             // SAFETY: `tlv_reader_init` succeeded and initialized every field.
             raw: unsafe { raw.assume_init() },
@@ -72,7 +72,7 @@ impl<'a> Reader<'a> {
     /// Returns `true` if all input has been consumed.
     pub fn is_at_end(&self) -> bool {
         // SAFETY: `self.raw` was initialized by `tlv_reader_init`.
-        unsafe { sys::tlv_reader_at_end(&self.raw) != 0 }
+        unsafe { native::tlv_reader_at_end(&self.raw) != 0 }
     }
 
     /// Reads the next entry, or returns `None` once the input is consumed or
@@ -89,9 +89,9 @@ impl<'a> Iterator for Reader<'a> {
         if self.failed || self.is_at_end() {
             return None;
         }
-        let mut view = MaybeUninit::<sys::tlv_view_t>::uninit();
+        let mut view = MaybeUninit::<native::tlv_view_t>::uninit();
         // SAFETY: `self.raw` is initialized and `view` is writable.
-        let code = unsafe { sys::tlv_reader_next(&mut self.raw, view.as_mut_ptr()) };
+        let code = unsafe { native::tlv_reader_next(&mut self.raw, view.as_mut_ptr()) };
         if let Err(error) = Error::check(code) {
             self.failed = true;
             return Some(Err(error));

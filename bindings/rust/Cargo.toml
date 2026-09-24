@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["opentlv-sys", "opentlv"]
+members = ["opentlv-native", "opentlv"]
 
 [workspace.package]
 version = "0.6.0"

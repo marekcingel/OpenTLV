@@ -4,7 +4,7 @@ use std::error;
 use std::ffi::CStr;
 use std::fmt;
 
-use opentlv_sys as sys;
+use opentlv_native as native;
 
 /// An OpenTLV error, mapped from a non-zero `tlv_result_t`.
 ///
@@ -57,23 +57,23 @@ impl Error {
     /// Maps a raw `tlv_result_t` to an error, or `None` for success (`TLV_OK`).
     pub fn from_code(code: i32) -> Option<Error> {
         Some(match code {
-            sys::TLV_OK => return None,
-            sys::TLV_ERR_BUFFER_TOO_SHORT => Error::BufferTooShort,
-            sys::TLV_ERR_INVALID_LENGTH => Error::InvalidLength,
-            sys::TLV_ERR_NULL_ARG => Error::NullArg,
-            sys::TLV_ERR_OUT_OF_MEMORY => Error::OutOfMemory,
-            sys::TLV_ERR_END_OF_BUFFER => Error::EndOfBuffer,
-            sys::TLV_ERR_INVALID_TAG => Error::InvalidTag,
-            sys::TLV_ERR_VISITOR => Error::Visitor,
-            sys::TLV_ERR_LIMIT => Error::Limit,
-            sys::TLV_ERR_SCHEMA => Error::Schema,
-            sys::TLV_ERR_INVALID_ARG => Error::InvalidArg,
-            sys::TLV_ERR_INVALID_TAG_SIZE => Error::InvalidTagSize,
-            sys::TLV_ERR_INVALID_BYTE_ORDER => Error::InvalidByteOrder,
-            sys::TLV_ERR_OVERFLOW => Error::Overflow,
-            sys::TLV_ERR_INVALID_VALUE => Error::InvalidValue,
-            sys::TLV_ERR_UNSUPPORTED_TYPE => Error::UnsupportedType,
-            sys::TLV_ERR_SCHEMA_MISSING => Error::SchemaMissing,
+            native::TLV_OK => return None,
+            native::TLV_ERR_BUFFER_TOO_SHORT => Error::BufferTooShort,
+            native::TLV_ERR_INVALID_LENGTH => Error::InvalidLength,
+            native::TLV_ERR_NULL_ARG => Error::NullArg,
+            native::TLV_ERR_OUT_OF_MEMORY => Error::OutOfMemory,
+            native::TLV_ERR_END_OF_BUFFER => Error::EndOfBuffer,
+            native::TLV_ERR_INVALID_TAG => Error::InvalidTag,
+            native::TLV_ERR_VISITOR => Error::Visitor,
+            native::TLV_ERR_LIMIT => Error::Limit,
+            native::TLV_ERR_SCHEMA => Error::Schema,
+            native::TLV_ERR_INVALID_ARG => Error::InvalidArg,
+            native::TLV_ERR_INVALID_TAG_SIZE => Error::InvalidTagSize,
+            native::TLV_ERR_INVALID_BYTE_ORDER => Error::InvalidByteOrder,
+            native::TLV_ERR_OVERFLOW => Error::Overflow,
+            native::TLV_ERR_INVALID_VALUE => Error::InvalidValue,
+            native::TLV_ERR_UNSUPPORTED_TYPE => Error::UnsupportedType,
+            native::TLV_ERR_SCHEMA_MISSING => Error::SchemaMissing,
             other => Error::Unknown(other),
         })
     }
@@ -81,28 +81,28 @@ impl Error {
     /// Returns the raw `tlv_result_t` code of this error.
     pub fn code(self) -> i32 {
         match self {
-            Error::BufferTooShort => sys::TLV_ERR_BUFFER_TOO_SHORT,
-            Error::InvalidLength => sys::TLV_ERR_INVALID_LENGTH,
-            Error::NullArg => sys::TLV_ERR_NULL_ARG,
-            Error::OutOfMemory => sys::TLV_ERR_OUT_OF_MEMORY,
-            Error::EndOfBuffer => sys::TLV_ERR_END_OF_BUFFER,
-            Error::InvalidTag => sys::TLV_ERR_INVALID_TAG,
-            Error::Visitor => sys::TLV_ERR_VISITOR,
-            Error::Limit => sys::TLV_ERR_LIMIT,
-            Error::Schema => sys::TLV_ERR_SCHEMA,
-            Error::InvalidArg => sys::TLV_ERR_INVALID_ARG,
-            Error::InvalidTagSize => sys::TLV_ERR_INVALID_TAG_SIZE,
-            Error::InvalidByteOrder => sys::TLV_ERR_INVALID_BYTE_ORDER,
-            Error::Overflow => sys::TLV_ERR_OVERFLOW,
-            Error::InvalidValue => sys::TLV_ERR_INVALID_VALUE,
-            Error::UnsupportedType => sys::TLV_ERR_UNSUPPORTED_TYPE,
-            Error::SchemaMissing => sys::TLV_ERR_SCHEMA_MISSING,
+            Error::BufferTooShort => native::TLV_ERR_BUFFER_TOO_SHORT,
+            Error::InvalidLength => native::TLV_ERR_INVALID_LENGTH,
+            Error::NullArg => native::TLV_ERR_NULL_ARG,
+            Error::OutOfMemory => native::TLV_ERR_OUT_OF_MEMORY,
+            Error::EndOfBuffer => native::TLV_ERR_END_OF_BUFFER,
+            Error::InvalidTag => native::TLV_ERR_INVALID_TAG,
+            Error::Visitor => native::TLV_ERR_VISITOR,
+            Error::Limit => native::TLV_ERR_LIMIT,
+            Error::Schema => native::TLV_ERR_SCHEMA,
+            Error::InvalidArg => native::TLV_ERR_INVALID_ARG,
+            Error::InvalidTagSize => native::TLV_ERR_INVALID_TAG_SIZE,
+            Error::InvalidByteOrder => native::TLV_ERR_INVALID_BYTE_ORDER,
+            Error::Overflow => native::TLV_ERR_OVERFLOW,
+            Error::InvalidValue => native::TLV_ERR_INVALID_VALUE,
+            Error::UnsupportedType => native::TLV_ERR_UNSUPPORTED_TYPE,
+            Error::SchemaMissing => native::TLV_ERR_SCHEMA_MISSING,
             Error::Unknown(code) => code,
         }
     }
 
     /// Converts a raw result code into `Ok(())` or the matching error.
-    pub(crate) fn check(code: sys::tlv_result_t) -> Result<()> {
+    pub(crate) fn check(code: native::tlv_result_t) -> Result<()> {
         match Error::from_code(code) {
             None => Ok(()),
             Some(error) => Err(error),
@@ -114,7 +114,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // SAFETY: `tlv_strerror` never returns NULL; it returns a static,
         // NUL-terminated string for every input.
-        let message = unsafe { CStr::from_ptr(sys::tlv_strerror(self.code())) };
+        let message = unsafe { CStr::from_ptr(native::tlv_strerror(self.code())) };
         f.write_str(&message.to_string_lossy())
     }
 }

@@ -199,7 +199,7 @@ own option, and no code or dependency added to builds that do not enable it.
 Language bindings are expected to follow the same rule: a binding should expose a
 component only when the matching C component is enabled, so a binding build can also be
 limited to what it needs. **This is not implemented yet for the Rust bindings.**
-`opentlv-sys` configures the C library with its default options, so all built-in
+`opentlv-native` configures the C library with its default options, so all built-in
 components are included, and the `opentlv` crate has no Cargo features for choosing
 components. Mapping the component options to Cargo features is a requirement for
 future work; see [Rust bindings](../development/rust.md#build). Ready-made CMake recipes are in

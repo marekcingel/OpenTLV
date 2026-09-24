@@ -122,6 +122,7 @@ nav:
       - Mutable documents: guides/document.md
       - Building only the components you need: guides/select-components.md
       - Using OpenTLV from Rust: guides/rust.md
+      - Using OpenTLV from Python: guides/python.md
   - Formats:
       - Overview: formats/README.md
       - Default TLV: formats/default/README.md
@@ -157,4 +158,5 @@ nav:
       - Fuzzing: development/fuzzing.md
       - WebAssembly build: development/webassembly.md
       - Rust bindings: development/rust.md
+      - Python bindings: development/python.md
       - Logo assets: assets/README.md

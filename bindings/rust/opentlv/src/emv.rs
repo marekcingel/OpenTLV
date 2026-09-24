@@ -7,7 +7,7 @@
 use std::ffi::CStr;
 use std::fmt;
 
-use opentlv_sys as sys;
+use opentlv_native as native;
 
 use crate::codec::{Codec, ValueKind};
 use crate::error::{Error, Result};
@@ -39,29 +39,29 @@ pub enum Context {
 }
 
 impl Context {
-    pub(crate) fn raw(self) -> sys::tlv_emv_context_t {
+    pub(crate) fn raw(self) -> native::tlv_emv_context_t {
         match self {
-            Context::Base => sys::TLV_EMV_CONTEXT_BASE,
-            Context::Bit => sys::TLV_EMV_CONTEXT_BIT,
-            Context::Bht => sys::TLV_EMV_CONTEXT_BHT,
-            Context::BhtFormat => sys::TLV_EMV_CONTEXT_BHT_FORMAT,
-            Context::BitGroup => sys::TLV_EMV_CONTEXT_BIT_GROUP,
-            Context::BiometricCounters => sys::TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS,
-            Context::BiometricAttempts => sys::TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS,
-            Context::BiometricVerification => sys::TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION,
+            Context::Base => native::TLV_EMV_CONTEXT_BASE,
+            Context::Bit => native::TLV_EMV_CONTEXT_BIT,
+            Context::Bht => native::TLV_EMV_CONTEXT_BHT,
+            Context::BhtFormat => native::TLV_EMV_CONTEXT_BHT_FORMAT,
+            Context::BitGroup => native::TLV_EMV_CONTEXT_BIT_GROUP,
+            Context::BiometricCounters => native::TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS,
+            Context::BiometricAttempts => native::TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS,
+            Context::BiometricVerification => native::TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION,
         }
     }
 
-    fn from_raw(raw: sys::tlv_emv_context_t) -> Option<Context> {
+    fn from_raw(raw: native::tlv_emv_context_t) -> Option<Context> {
         Some(match raw {
-            sys::TLV_EMV_CONTEXT_BASE => Context::Base,
-            sys::TLV_EMV_CONTEXT_BIT => Context::Bit,
-            sys::TLV_EMV_CONTEXT_BHT => Context::Bht,
-            sys::TLV_EMV_CONTEXT_BHT_FORMAT => Context::BhtFormat,
-            sys::TLV_EMV_CONTEXT_BIT_GROUP => Context::BitGroup,
-            sys::TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS => Context::BiometricCounters,
-            sys::TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS => Context::BiometricAttempts,
-            sys::TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION => Context::BiometricVerification,
+            native::TLV_EMV_CONTEXT_BASE => Context::Base,
+            native::TLV_EMV_CONTEXT_BIT => Context::Bit,
+            native::TLV_EMV_CONTEXT_BHT => Context::Bht,
+            native::TLV_EMV_CONTEXT_BHT_FORMAT => Context::BhtFormat,
+            native::TLV_EMV_CONTEXT_BIT_GROUP => Context::BitGroup,
+            native::TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS => Context::BiometricCounters,
+            native::TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS => Context::BiometricAttempts,
+            native::TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION => Context::BiometricVerification,
             _ => return None,
         })
     }
@@ -72,7 +72,7 @@ impl Context {
     pub fn child(self, tag: &Tag) -> Option<Context> {
         let tag = tag.raw();
         // SAFETY: `tag` is a valid tag for the call.
-        Context::from_raw(unsafe { sys::tlv_emv_child_context(self.raw(), &tag) })
+        Context::from_raw(unsafe { native::tlv_emv_child_context(self.raw(), &tag) })
     }
 }
 
@@ -81,7 +81,7 @@ impl Context {
 /// A cheap, `Copy` handle to an immutable static table entry.
 #[derive(Clone, Copy)]
 pub struct Definition {
-    raw: &'static sys::tlv_emv_definition_t,
+    raw: &'static native::tlv_emv_definition_t,
 }
 
 // SAFETY: the definition points into immutable static tables of the C library.
@@ -99,7 +99,7 @@ impl fmt::Debug for Definition {
 }
 
 impl Definition {
-    fn entry(&self) -> &'static sys::tlv_schema_entry_t {
+    fn entry(&self) -> &'static native::tlv_schema_entry_t {
         // SAFETY: every dictionary definition points to a schema entry in the
         // library's static tables.
         unsafe { &*self.raw.schema }
@@ -118,7 +118,7 @@ impl Definition {
     pub fn display_label(&self) -> Option<&'static str> {
         // SAFETY: `name` is a valid C string; a non-null result is a static
         // NUL-terminated string.
-        let label = unsafe { sys::tlv_emv_display_label(self.raw.name) };
+        let label = unsafe { native::tlv_emv_display_label(self.raw.name) };
         if label.is_null() {
             return None;
         }
@@ -161,7 +161,7 @@ impl Definition {
     /// [`Error::InvalidLength`] if the length is not permitted.
     pub fn validate_length(&self, length: usize) -> Result<()> {
         // SAFETY: `self.raw` is a valid definition.
-        Error::check(unsafe { sys::tlv_emv_validate_length(self.raw, length) })
+        Error::check(unsafe { native::tlv_emv_validate_length(self.raw, length) })
     }
 
     /// Returns the semantic codec of the value, or `None` for opaque bytes,
@@ -187,6 +187,6 @@ pub fn find(context: Context, tag: &Tag) -> Option<Definition> {
     let tag = tag.raw();
     // SAFETY: `tag` is valid for the call; a non-null result points into the
     // library's immutable static tables.
-    let raw = unsafe { sys::tlv_emv_find(context.raw(), &tag).as_ref()? };
+    let raw = unsafe { native::tlv_emv_find(context.raw(), &tag).as_ref()? };
     Some(Definition { raw })
 }

@@ -4,7 +4,7 @@ use std::fmt;
 use std::ptr;
 use std::slice;
 
-use opentlv_sys as sys;
+use opentlv_native as native;
 
 use crate::error::{Error, Result};
 
@@ -39,7 +39,7 @@ impl Tag {
     /// # Safety
     ///
     /// If `raw.data` is non-null, it must point to `raw.size` readable bytes.
-    pub(crate) unsafe fn from_raw(raw: &sys::tlv_tag_t) -> Result<Tag> {
+    pub(crate) unsafe fn from_raw(raw: &native::tlv_tag_t) -> Result<Tag> {
         if raw.size == 0 {
             return Ok(Tag::default());
         }
@@ -55,8 +55,8 @@ impl Tag {
     /// Returns a C tag that borrows this tag's bytes.
     ///
     /// The result must not outlive `self` or be used after `self` changes.
-    pub(crate) fn raw(&self) -> sys::tlv_tag_t {
-        sys::tlv_tag_t {
+    pub(crate) fn raw(&self) -> native::tlv_tag_t {
+        native::tlv_tag_t {
             data: if self.bytes.is_empty() {
                 ptr::null()
             } else {
@@ -177,8 +177,8 @@ mod tests {
             // SAFETY: both tags borrow live `Tag`s for the calls.
             let (c_order, c_equal) = unsafe {
                 (
-                    sys::tlv_tag_compare(l.raw(), r.raw()),
-                    sys::tlv_tag_equal(l.raw(), r.raw()),
+                    native::tlv_tag_compare(l.raw(), r.raw()),
+                    native::tlv_tag_equal(l.raw(), r.raw()),
                 )
             };
             assert_eq!(l.cmp(&r), c_order.cmp(&0), "{lhs:?} vs {rhs:?}");
@@ -216,7 +216,7 @@ mod tests {
 
     #[test]
     fn from_raw_rejects_null_data_with_a_size() {
-        let raw = sys::tlv_tag_t {
+        let raw = native::tlv_tag_t {
             data: ptr::null(),
             size: 2,
         };

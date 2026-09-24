@@ -6,9 +6,9 @@ version = 3
 name = "opentlv"
 version = "0.6.0"
 dependencies = [
- "opentlv-sys",
+ "opentlv-native",
 ]
 
 [[package]]
-name = "opentlv-sys"
+name = "opentlv-native"
 version = "0.6.0"
