@@ -55,6 +55,46 @@ identifiers such as `9F 1C` without enforcing ASN.1 tag-number minimality or
 universal-tag semantics. Definite values remain opaque during single-element
 reading; resolving an indefinite element inspects descendant framing.
 
+### Tag model: class, form and number
+
+`tlv_asn1_class_t` (`TLV_ASN1_UNIVERSAL`, `TLV_ASN1_APPLICATION`,
+`TLV_ASN1_CONTEXT_SPECIFIC`, `TLV_ASN1_PRIVATE`) and the ASN.1 identifier-octet
+model (class, primitive/constructed form, low- and high-tag-number number)
+are wire-format concepts, not specific to any encoding-rule profile; every
+BER-family format shares them. ASN.1 type semantics such as `INTEGER` or
+`SEQUENCE` stay outside this layer.
+
+```c
+const uint8_t input[] = {0xA0, 3, 0x02, 1, 42}; /* Context-specific, constructed, tag 0 */
+tlv_view_t view;
+size_t consumed;
+if (tlv_read(input, sizeof(input), &tlv_reader_format_ber, &view, &consumed) == TLV_OK) {
+    tlv_asn1_class_t cls = tlv_ber_tag_class(&view.tag);         /* TLV_ASN1_CONTEXT_SPECIFIC */
+    int constructed = tlv_ber_tag_is_constructed(&view.tag);     /* 1 */
+    uint64_t number;
+    tlv_ber_tag_number(&view.tag, &number);                      /* 0 */
+}
+```
+
+`tlv_ber_tag_class()` and `tlv_ber_tag_is_constructed()` read a successfully
+parsed or created, nonempty tag directly. `tlv_ber_tag_number(tag, &number)`
+re-validates the tag's wire encoding and extracts a `uint64_t`; numbers beyond
+`uint64_t` return `TLV_ERR_INVALID_TAG`, and an empty tag or one exceeding
+`TLV_ASN1_TAG_MAX_SIZE` returns `TLV_ERR_INVALID_TAG_SIZE`.
+`tlv_ber_tag_make(class, constructed, number, storage, &tag)` builds minimal
+wire bytes from these three parts into `storage`
+(`TLV_ASN1_TAG_MAX_SIZE` writable bytes, which the returned tag then borrows
+and must outlive), using low-tag-number form below 31 and high-tag-number form
+otherwise. These reuse `tlv_tag_t` rather than a separate ASN.1 tag type.
+
+Unlike the corresponding DER and CER tag accessors, none of these functions
+apply a canonical primitive/constructed rule tied to a universal type number
+(for example DER's `must be constructed` rule for `SEQUENCE`): BER accepts
+either form for every tag number. The only identifier `tlv_ber_tag_make()`
+rejects outright is the reserved EOC tag (universal class, tag number 0, in
+either form), matching `tlv_reader_format_ber` and `tlv_writer_format_ber`.
+See [DER](der.md) for the canonical restrictions.
+
 Definite lengths range from zero through `SIZE_MAX` (the complete element must
 also fit `size_t`). The writer uses short form below 128 and the shortest
 big-endian long form otherwise: 128 is `81 80`, 256 is `82 01 00`.

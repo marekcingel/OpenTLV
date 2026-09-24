@@ -42,6 +42,41 @@ TEST(Integration_Tlv_Ber, TagsAndLengthsRoundTrip) {
     }
 }
 
+TEST(Integration_Tlv_Ber, TagClassesNumbersAndFormsRoundTrip) {
+    for (auto cls :
+         {TLV_ASN1_UNIVERSAL, TLV_ASN1_APPLICATION, TLV_ASN1_CONTEXT_SPECIFIC, TLV_ASN1_PRIVATE}) {
+        for (uint64_t number : {UINT64_C(1), UINT64_C(16), UINT64_C(30), UINT64_C(31),
+                                UINT64_C(127), UINT64_C(128), UINT64_C(16384), UINT64_MAX}) {
+            for (int constructed : {0, 1}) {
+                SCOPED_TRACE(::testing::Message() << "class=" << cls << " number=" << number
+                                                  << " constructed=" << constructed);
+                tlv_tag_t tag{};
+                uint8_t   storage[TLV_ASN1_TAG_MAX_SIZE];
+                size_t    digits = 1;
+                if (number >= 31)
+                    for (uint64_t n = number; n; n >>= 7) ++digits;
+                const tlv_result_t expected =
+                    digits > TLV_ASN1_TAG_MAX_SIZE ? TLV_ERR_INVALID_TAG_SIZE : TLV_OK;
+                ASSERT_EQ(expected, tlv_ber_tag_make(cls, constructed, number, storage, &tag));
+                if (expected != TLV_OK) continue;
+                EXPECT_EQ(cls, tlv_ber_tag_class(&tag));
+                EXPECT_EQ(constructed, tlv_ber_tag_is_constructed(&tag));
+                uint64_t actual = 0;
+                ASSERT_EQ(TLV_OK, tlv_ber_tag_number(&tag, &actual));
+                EXPECT_EQ(number, actual);
+                uint8_t encoded[TLV_ASN1_TAG_MAX_SIZE + 1];
+                size_t  written = 0, consumed = 0;
+                ASSERT_EQ(TLV_OK, tlv_write(encoded, sizeof(encoded), &ber_writer, tag, nullptr, 0,
+                                            &written));
+                tlv_view_t view{};
+                ASSERT_EQ(TLV_OK, tlv_read(encoded, written, &ber, &view, &consumed));
+                EXPECT_EQ(written, consumed);
+                EXPECT_EQ(0, std::memcmp(tag.data, view.tag.data, tag.size));
+            }
+        }
+    }
+}
+
 TEST(Integration_Tlv_Ber, LengthWireBytesAndBounds) {
     struct LengthCase {
         size_t               value;

@@ -62,6 +62,72 @@ enum {
 };
 
 /**
+ * @brief Returns the ASN.1 class of a BER tag.
+ *
+ * @param tag A successfully parsed or created BER tag; must be non-`NULL`
+ *            and nonempty.
+ *
+ * @return The identifier-octet class.
+ */
+static inline tlv_asn1_class_t tlv_ber_tag_class(const tlv_tag_t* tag) {
+    return (tlv_asn1_class_t)(tag->data[0] >> TLV_ASN1_CLASS_SHIFT);
+}
+/**
+ * @brief Reports whether a BER tag has the constructed bit set.
+ *
+ * @param tag A successfully parsed or created BER tag; must be non-`NULL`
+ *            and nonempty.
+ *
+ * @return Nonzero if constructed, zero if primitive.
+ */
+static inline int tlv_ber_tag_is_constructed(const tlv_tag_t* tag) {
+    return (tag->data[0] & TLV_ASN1_CONSTRUCTED_BIT) != 0;
+}
+
+/**
+ * @brief Constructs a raw BER tag from its class, form and tag number.
+ *
+ * Unlike the corresponding DER and CER tag constructors, this does not
+ * enforce any canonical primitive/constructed rule tied to a universal type
+ * number; only the reserved EOC identifier (universal class, tag number 0,
+ * in either form) is rejected, matching #tlv_reader_format_ber and
+ * #tlv_writer_format_ber.
+ *
+ * @param[in]  tag_class   ASN.1 class.
+ * @param[in]  constructed Nonzero for constructed form, zero for primitive.
+ * @param[in]  number      Tag number.
+ * @param[out] storage     Destination for the tag bytes; #TLV_ASN1_TAG_MAX_SIZE
+ *                         writable bytes. Must outlive every use of the tag.
+ * @param[out] tag         Receives a tag that borrows `storage`.
+ *
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG if `storage` or `tag` is `NULL`.
+ * @return #TLV_ERR_INVALID_TAG if `tag_class` or `constructed` is out of
+ *         range, or the identifier is the reserved EOC tag.
+ * @return #TLV_ERR_INVALID_TAG_SIZE if the tag would exceed #TLV_ASN1_TAG_MAX_SIZE.
+ *
+ * @note The destination is unchanged on failure.
+ */
+TLV_API tlv_result_t tlv_ber_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
+                                      uint8_t* storage, tlv_tag_t* tag);
+/**
+ * @brief Extracts the numeric tag number from a BER tag.
+ *
+ * @param[in]  tag    A successfully parsed or created BER tag.
+ * @param[out] number Receives the tag number.
+ *
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG if a required pointer is `NULL`.
+ * @return #TLV_ERR_INVALID_TAG if the encoding is invalid or the number
+ *         exceeds `uint64_t`.
+ * @return #TLV_ERR_INVALID_TAG_SIZE for an empty tag or one exceeding
+ *         #TLV_ASN1_TAG_MAX_SIZE.
+ *
+ * @note `*number` is unchanged on failure.
+ */
+TLV_API tlv_result_t tlv_ber_tag_number(const tlv_tag_t* tag, uint64_t* number);
+
+/**
  * @brief Reader format for raw BER-TLV.
  *
  * Accepts tags up to #TLV_ASN1_TAG_MAX_SIZE bytes, including high-tag-number form, and
