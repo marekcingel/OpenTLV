@@ -3,16 +3,16 @@ requires = ["scikit-build-core>=0.10"]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "opentlv"
+name = "opentlv-native"
 version = "0.1.0"
-description = "Python bindings for OpenTLV, a portable C99 library for reading, writing and validating TLV data"
+description = "Native Python extension registering the raw OpenTLV C API"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { file = "../../LICENSE" }
+license = "MIT"
 
 [tool.scikit-build]
-cmake.source-dir = "../.."
-wheel.packages = ["src/opentlv"]
+cmake.source-dir = "../../.."
+wheel.packages = []
 wheel.py-api = "cp311"
 
 [tool.scikit-build.cmake.define]
@@ -23,6 +23,3 @@ OPENTLV_BUILD_TESTS = "OFF"
 OPENTLV_BUILD_EXAMPLES = "OFF"
 OPENTLV_BUILD_SHARED_LIBS = "OFF"
 OPENTLV_WARNINGS_AS_ERRORS = "OFF"
-
-[dependency-groups]
-test = ["pytest"]

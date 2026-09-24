@@ -2,7 +2,7 @@
 
 use std::slice;
 
-use opentlv_sys as sys;
+use opentlv_native as native;
 
 use crate::error::{Error, Result};
 use crate::tag::Tag;
@@ -40,13 +40,13 @@ impl<'a> Entry<'a> {
     ///
     /// If `raw.value.data` is non-null, it must point to `raw.value.length`
     /// readable bytes that stay valid and unmodified for `'a`.
-    pub(crate) unsafe fn from_raw(raw: &sys::tlv_view_t) -> Result<Entry<'a>> {
+    pub(crate) unsafe fn from_raw(raw: &native::tlv_view_t) -> Result<Entry<'a>> {
         // SAFETY: the caller guarantees the tag bytes are readable, as for the value.
         let tag = unsafe { Tag::from_raw(&raw.tag) }?;
 
         let mut length = 0usize;
         // SAFETY: `length` is a valid, writable `usize`.
-        Error::check(unsafe { sys::tlv_length_to_size(raw.value.length, &mut length) })?;
+        Error::check(unsafe { native::tlv_length_to_size(raw.value.length, &mut length) })?;
 
         let value: &'a [u8] = if length == 0 {
             &[]
@@ -65,8 +65,8 @@ impl<'a> Entry<'a> {
 mod tests {
     use super::*;
 
-    fn raw_view(tag: &[u8], data: *const u8, length: u64) -> sys::tlv_view_t {
-        let raw_tag = sys::tlv_tag_t {
+    fn raw_view(tag: &[u8], data: *const u8, length: u64) -> native::tlv_view_t {
+        let raw_tag = native::tlv_tag_t {
             data: if tag.is_empty() {
                 std::ptr::null()
             } else {
@@ -74,9 +74,9 @@ mod tests {
             },
             size: tag.len(),
         };
-        sys::tlv_view_t {
+        native::tlv_view_t {
             tag: raw_tag,
-            value: sys::tlv_value_t { data, length },
+            value: native::tlv_value_t { data, length },
         }
     }
 

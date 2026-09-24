@@ -4,15 +4,15 @@ The Rust bindings live in `bindings/rust/`, a Cargo workspace with two crates:
 
 | Crate | Purpose |
 | --- | --- |
-| `opentlv-sys` | Raw `extern "C"` declarations of the OpenTLV C API and the build script that links the C library |
-| `opentlv` | Safe Rust API built on `opentlv-sys` |
+| `opentlv-native` | Raw `extern "C"` declarations of the OpenTLV C API and the build script that links the C library |
+| `opentlv` | Safe Rust API built on `opentlv-native` |
 
 For setup, examples, error handling and ownership as a user, see
 [Using OpenTLV from Rust](../guides/rust.md). For the naming and shape this
 crate follows and adapts, see the [language bindings conceptual
 model](../concepts/bindings.md).
 
-All `unsafe` FFI interaction is isolated in `opentlv-sys`; `opentlv` contains no
+All `unsafe` FFI interaction is isolated in `opentlv-native`; `opentlv` contains no
 `extern` declarations. Only the part of the C API the safe crate needs is bound
 so far.
 
@@ -27,7 +27,7 @@ The `opentlv` crate exposes these safe types; none of them exposes a raw pointer
 | `Error` | `tlv_result_t` | One variant per `TLV_ERR_*` code, plus `Unknown(code)`; implements `std::error::Error` |
 | `Result<T>` | | Alias for `std::result::Result<T, Error>` |
 
-The C `tlv_tag_t` is a borrowed pointer and size (`opentlv_sys::tlv_tag_t`), so
+The C `tlv_tag_t` is a borrowed pointer and size (`opentlv_native::tlv_tag_t`), so
 its layout does not depend on how the library was built. `Tag` owns its bytes
 because the safe API cannot hand out a pointer whose lifetime C does not track;
 it converts to a borrowed C tag only for the duration of each call. A tag has no
@@ -154,6 +154,17 @@ C library is built with its default components, all built-in formats and profile
 crates define no Cargo features for selecting components. Choosing components from Cargo
 (the [include only what you need](../concepts/architecture.md#include-only-what-you-need)
 rule) is not implemented yet.
+
+## Versioning
+
+The Cargo workspace version (`version.workspace = true` in each crate's
+`Cargo.toml`) is independent of the OpenTLV C library's version and is not
+derived from the repository's Git tags; it follows its own release cadence,
+the same way the Python package's `pyproject.toml` version does (see
+[Python bindings](python.md#versioning)). `opentlv::version()` is a separate
+thing: it calls `tlv_version_string()` at run time and reports the version of
+the *linked C library*, not the crate's own version. The two can differ, for
+example crate `0.1.0` built against OpenTLV C library `0.6.0`.
 
 ## Continuous integration and quality checks
 

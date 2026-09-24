@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Rename the Rust `opentlv-sys` crate to `opentlv-native`, for
+  consistency with the Python `opentlv-native` package added in the same
+  release; downstream `Cargo.toml` path dependencies on `opentlv-sys` must
+  update to `opentlv-native`. (#274)
 - Split the C `basic_usage.c` "API tour" into one focused example per topic (`sequential_io.c`, `copies.c`, `schema_walk_and_scan.c`, `codecs_and_endian.c`, `custom_format.c`, and the BER/CER builtins under `builtins/asn1/`), each its own small self-checking program registered as a `ctest` entry, instead of one large file mixing unrelated topics. (#282)
 - Reorganize builtin-specific examples to mirror the library's layout: move `examples/tlv++/src/fixed_format.cpp` into `examples/tlv++/src/builtins/fixed/`, and merge the standalone `examples/emv` project into `examples/tlv/src/builtins/emv/tag_decoding.c`; their CMake targets and `ctest` entries are renamed to match. (#282)
 - Reorganize C and C++ tests to mirror the library's layout: within each of `tests/unit/`, `tests/integration/` and `tests/fuzz/`, move subsystem tests into `reader/`, `writer/`, `query/`, `schema/`, `codec/` and `document/`, and built-in tests into `builtins/asn1/`, `builtins/emv/`, `builtins/bluetooth/` and `builtins/fixed/`, with C and C++ tests of the same subsystem sharing a folder (told apart by name, e.g. `document_test.cpp` vs `test_document.cpp`); core-type and cross-cutting tests stay at each group's top level. Fuzz seed corpora move alongside their harness, under a sibling `corpus/`. See [architecture](docs/concepts/architecture.md#layout). (#281)
@@ -27,9 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add experimental Python binding infrastructure under `bindings/python`: an
-  `_opentlv` native extension built with the CPython Limited API against the
-  public OpenTLV C API, and a minimal `opentlv` package exposing the library
-  version; see [Python bindings](docs/development/python.md). (#274)
+  `opentlv-native` native extension built with the CPython Limited API
+  against the public OpenTLV C API, and a minimal `opentlv` package exposing
+  the library version; see [Python bindings](docs/development/python.md).
+  (#274)
 - Document the common conceptual model every language binding follows (Reader, Writer, Document, Entry, Tag, Schema, Codec, Diagnostics), the design principle that bindings adapt ergonomics rather than concepts, and the rule that the public OpenTLV C API is the binding boundary and a binding must not depend on another language's binding; see [Language bindings](docs/concepts/bindings.md). (#273)
 - Add a Rust tab, alongside C and C++, to the quick start example in [Getting started](docs/getting-started/README.md#quick-start); `scripts/check_doc_examples.py` now also verifies a documented example against a Rust binding source under `bindings/rust/*/examples/`. (#283)
 - Add a `README.md` to `examples/tlv/src/` and `examples/tlv++/src/` grouping their example files into "start here," use cases, API tour and builtins, so a newcomer has one entry point instead of a flat file listing. (#282)

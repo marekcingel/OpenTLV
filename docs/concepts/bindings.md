@@ -107,10 +107,12 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   general-purpose object-oriented binding. It is a small embedding built on
   the C API rather than a binding this contract's Reader/Writer/Entry shape
   applies to. See [WebAssembly build](../development/webassembly.md).
-- **Python**: experimental, in `bindings/python/`. Infrastructure only so
-  far: a native `_opentlv` extension written against the CPython C API
-  (using the CPython Limited API where compatible) calls the public C API
-  and exposes just the linked library's version. None of the concepts above
+- **Python**: experimental, in `bindings/python/`, split into
+  `opentlv-native` (a native extension written against the CPython C API,
+  using the CPython Limited API where compatible, that calls the public C
+  API) and `opentlv` (a pure-Python package on top of it) — the same split
+  as the Rust `opentlv-native`/`opentlv` crates. Infrastructure only so far:
+  only the linked library's version is exposed. None of the concepts above
   are bound yet; see [Python bindings](../development/python.md) and [using
   OpenTLV from Python](../guides/python.md).
 - **Go**: planned, not started yet. No `bindings/go/` directory exists; when

@@ -10,7 +10,7 @@ use std::fmt;
 use std::mem::MaybeUninit;
 use std::ptr;
 
-use opentlv_sys as sys;
+use opentlv_native as native;
 
 use crate::entry::Entry;
 use crate::error::Error;
@@ -81,8 +81,8 @@ impl From<ProfileError> for Error {
 }
 
 impl Limits {
-    fn der(&self) -> sys::tlv_der_limits_t {
-        sys::tlv_der_limits_t {
+    fn der(&self) -> native::tlv_der_limits_t {
+        native::tlv_der_limits_t {
             max_depth: self.max_depth,
             max_input_size: self.max_input_size,
             max_value_size: self.max_value_size,
@@ -90,8 +90,8 @@ impl Limits {
         }
     }
 
-    fn cer(&self) -> sys::tlv_cer_limits_t {
-        sys::tlv_cer_limits_t {
+    fn cer(&self) -> native::tlv_cer_limits_t {
+        native::tlv_cer_limits_t {
             max_depth: self.max_depth,
             max_input_size: self.max_input_size,
             max_value_size: self.max_value_size,
@@ -100,7 +100,7 @@ impl Limits {
     }
 }
 
-fn outcome(code: sys::tlv_result_t, offset: usize) -> Result<(), ProfileError> {
+fn outcome(code: native::tlv_result_t, offset: usize) -> Result<(), ProfileError> {
     match Error::from_code(code) {
         None => Ok(()),
         Some(error) => Err(ProfileError { error, offset }),
@@ -125,7 +125,7 @@ impl Profile {
         unsafe {
             match self {
                 Profile::Der => {
-                    let l = ptr::addr_of!(sys::tlv_der_default_limits).read();
+                    let l = ptr::addr_of!(native::tlv_der_default_limits).read();
                     Limits {
                         max_depth: l.max_depth,
                         max_input_size: l.max_input_size,
@@ -134,7 +134,7 @@ impl Profile {
                     }
                 }
                 Profile::Cer => {
-                    let l = ptr::addr_of!(sys::tlv_cer_default_limits).read();
+                    let l = ptr::addr_of!(native::tlv_cer_default_limits).read();
                     Limits {
                         max_depth: l.max_depth,
                         max_input_size: l.max_input_size,
@@ -178,17 +178,27 @@ impl Profile {
         let code = unsafe {
             match (self, strictness) {
                 (Profile::Der, Strictness::Canonical) => {
-                    sys::tlv_der_walk(ptr, len, &limits.der(), None, no_context, &mut offset)
+                    native::tlv_der_walk(ptr, len, &limits.der(), None, no_context, &mut offset)
                 }
-                (Profile::Der, Strictness::Strict) => {
-                    sys::tlv_der_walk_strict(ptr, len, &limits.der(), None, no_context, &mut offset)
-                }
+                (Profile::Der, Strictness::Strict) => native::tlv_der_walk_strict(
+                    ptr,
+                    len,
+                    &limits.der(),
+                    None,
+                    no_context,
+                    &mut offset,
+                ),
                 (Profile::Cer, Strictness::Canonical) => {
-                    sys::tlv_cer_walk(ptr, len, &limits.cer(), None, no_context, &mut offset)
+                    native::tlv_cer_walk(ptr, len, &limits.cer(), None, no_context, &mut offset)
                 }
-                (Profile::Cer, Strictness::Strict) => {
-                    sys::tlv_cer_walk_strict(ptr, len, &limits.cer(), None, no_context, &mut offset)
-                }
+                (Profile::Cer, Strictness::Strict) => native::tlv_cer_walk_strict(
+                    ptr,
+                    len,
+                    &limits.cer(),
+                    None,
+                    no_context,
+                    &mut offset,
+                ),
             }
         };
         outcome(code, offset)
@@ -209,7 +219,7 @@ impl Profile {
         limits: &Limits,
         strictness: Strictness,
     ) -> Result<(Entry<'a>, usize), ProfileError> {
-        let mut view = MaybeUninit::<sys::tlv_view_t>::uninit();
+        let mut view = MaybeUninit::<native::tlv_view_t>::uninit();
         let mut consumed = 0usize;
         let mut offset = 0usize;
         let (ptr, len) = (data.as_ptr(), data.len());
@@ -219,9 +229,9 @@ impl Profile {
         let code = unsafe {
             match (self, strictness) {
                 (Profile::Der, Strictness::Canonical) => {
-                    sys::tlv_der_read(ptr, len, &limits.der(), out, &mut consumed, &mut offset)
+                    native::tlv_der_read(ptr, len, &limits.der(), out, &mut consumed, &mut offset)
                 }
-                (Profile::Der, Strictness::Strict) => sys::tlv_der_read_strict(
+                (Profile::Der, Strictness::Strict) => native::tlv_der_read_strict(
                     ptr,
                     len,
                     &limits.der(),
@@ -230,9 +240,9 @@ impl Profile {
                     &mut offset,
                 ),
                 (Profile::Cer, Strictness::Canonical) => {
-                    sys::tlv_cer_read(ptr, len, &limits.cer(), out, &mut consumed, &mut offset)
+                    native::tlv_cer_read(ptr, len, &limits.cer(), out, &mut consumed, &mut offset)
                 }
-                (Profile::Cer, Strictness::Strict) => sys::tlv_cer_read_strict(
+                (Profile::Cer, Strictness::Strict) => native::tlv_cer_read_strict(
                     ptr,
                     len,
                     &limits.cer(),
@@ -268,7 +278,7 @@ impl Profile {
         // and `offset` are writable.
         let code = unsafe {
             match (self, strictness) {
-                (Profile::Der, Strictness::Canonical) => sys::tlv_der_write(
+                (Profile::Der, Strictness::Canonical) => native::tlv_der_write(
                     data,
                     capacity,
                     tag.raw(),
@@ -278,7 +288,7 @@ impl Profile {
                     &mut written,
                     &mut offset,
                 ),
-                (Profile::Der, Strictness::Strict) => sys::tlv_der_write_strict(
+                (Profile::Der, Strictness::Strict) => native::tlv_der_write_strict(
                     data,
                     capacity,
                     tag.raw(),
@@ -288,7 +298,7 @@ impl Profile {
                     &mut written,
                     &mut offset,
                 ),
-                (Profile::Cer, Strictness::Canonical) => sys::tlv_cer_write(
+                (Profile::Cer, Strictness::Canonical) => native::tlv_cer_write(
                     data,
                     capacity,
                     tag.raw(),
@@ -298,7 +308,7 @@ impl Profile {
                     &mut written,
                     &mut offset,
                 ),
-                (Profile::Cer, Strictness::Strict) => sys::tlv_cer_write_strict(
+                (Profile::Cer, Strictness::Strict) => native::tlv_cer_write_strict(
                     data,
                     capacity,
                     tag.raw(),

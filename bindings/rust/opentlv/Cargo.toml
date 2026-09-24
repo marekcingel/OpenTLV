@@ -8,4 +8,4 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-opentlv-sys = { path = "../opentlv-sys" }
+opentlv-native = { path = "../opentlv-native" }

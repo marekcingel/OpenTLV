@@ -8,7 +8,7 @@ use std::error;
 use std::fmt;
 use std::ptr;
 
-use opentlv_sys as sys;
+use opentlv_native as native;
 
 use crate::emv::Context;
 use crate::error::{Error, Result};
@@ -43,8 +43,8 @@ impl LengthRule {
         LengthRule::new(tag, length, length)
     }
 
-    fn raw(&self) -> sys::tlv_schema_entry_t {
-        sys::tlv_schema_entry_t {
+    fn raw(&self) -> native::tlv_schema_entry_t {
+        native::tlv_schema_entry_t {
             tag: self.tag.raw(),
             min_length: self.min_length,
             max_length: self.max_length,
@@ -57,7 +57,7 @@ impl LengthRule {
     ///
     /// `raw.tag` must reference readable bytes, as the entries of a live
     /// schema table do.
-    unsafe fn from_raw(raw: &sys::tlv_schema_entry_t) -> Result<LengthRule> {
+    unsafe fn from_raw(raw: &native::tlv_schema_entry_t) -> Result<LengthRule> {
         Ok(LengthRule {
             // SAFETY: the caller guarantees the tag bytes are readable.
             tag: unsafe { Tag::from_raw(&raw.tag) }?,
@@ -70,11 +70,11 @@ impl LengthRule {
 #[derive(Debug)]
 enum Table {
     Owned {
-        entries: Vec<sys::tlv_schema_entry_t>,
+        entries: Vec<native::tlv_schema_entry_t>,
         // Kept alive because `entries` borrows their bytes.
         _tags: Vec<Tag>,
     },
-    Static(&'static sys::tlv_schema_t),
+    Static(&'static native::tlv_schema_t),
 }
 
 /// A table of per-tag value-length rules.
@@ -127,16 +127,16 @@ impl LengthSchema {
     pub fn emv_for(context: Context) -> LengthSchema {
         // SAFETY: every `Context` is a valid C context, so the call returns a
         // pointer to an immutable static table.
-        let table = unsafe { sys::tlv_emv_schema_for(context.raw()).as_ref() }
+        let table = unsafe { native::tlv_emv_schema_for(context.raw()).as_ref() }
             .expect("every EMV context has a schema");
         LengthSchema {
             table: Table::Static(table),
         }
     }
 
-    fn with_raw<R>(&self, f: impl FnOnce(&sys::tlv_schema_t) -> R) -> R {
+    fn with_raw<R>(&self, f: impl FnOnce(&native::tlv_schema_t) -> R) -> R {
         match &self.table {
-            Table::Owned { entries, .. } => f(&sys::tlv_schema_t {
+            Table::Owned { entries, .. } => f(&native::tlv_schema_t {
                 entries: entries.as_ptr(),
                 count: entries.len(),
             }),
@@ -154,13 +154,13 @@ impl LengthSchema {
         self.len() == 0
     }
 
-    fn find_raw(&self, tag: &Tag) -> Option<sys::tlv_schema_entry_t> {
+    fn find_raw(&self, tag: &Tag) -> Option<native::tlv_schema_entry_t> {
         let tag = tag.raw();
         self.with_raw(|schema| {
             // SAFETY: `schema` and `tag` are valid for the call; the returned
             // pointer, if any, points into the table and is copied out
             // before the table can change.
-            unsafe { sys::tlv_schema_find(schema, &tag).as_ref().copied() }
+            unsafe { native::tlv_schema_find(schema, &tag).as_ref().copied() }
         })
     }
 
@@ -181,7 +181,7 @@ impl LengthSchema {
     pub fn validate_length(&self, tag: &Tag, length: usize) -> Result<()> {
         let entry = self.find_raw(tag).ok_or(Error::Schema)?;
         // SAFETY: `entry` is a valid, initialized entry.
-        Error::check(unsafe { sys::tlv_schema_validate_length(&entry, length) })
+        Error::check(unsafe { native::tlv_schema_validate_length(&entry, length) })
     }
 }
 
@@ -199,11 +199,11 @@ pub enum Kind {
 }
 
 impl Kind {
-    fn raw(self) -> sys::tlv_schema_kind_t {
+    fn raw(self) -> native::tlv_schema_kind_t {
         match self {
-            Kind::Any => sys::TLV_SCHEMA_ANY,
-            Kind::Primitive => sys::TLV_SCHEMA_PRIMITIVE,
-            Kind::Constructed => sys::TLV_SCHEMA_CONSTRUCTED,
+            Kind::Any => native::TLV_SCHEMA_ANY,
+            Kind::Primitive => native::TLV_SCHEMA_PRIMITIVE,
+            Kind::Constructed => native::TLV_SCHEMA_CONSTRUCTED,
         }
     }
 }
@@ -286,17 +286,17 @@ impl StructureRule {
 /// The C tables behind an owned [`StructureSchema`]. Boxed so that the
 /// addresses stored in parent tables stay valid when the schema is moved.
 struct Compiled {
-    rules: Vec<sys::tlv_structure_rule_t>,
+    rules: Vec<native::tlv_structure_rule_t>,
     // Kept alive because `rules` borrows their bytes.
     _tags: Vec<Tag>,
     // Kept alive because `rules` points to their C tables.
     _children: Vec<StructureSchema>,
-    raw: sys::tlv_structure_schema_t,
+    raw: native::tlv_structure_schema_t,
 }
 
 enum Backing {
     Owned(Box<Compiled>),
-    Static(&'static sys::tlv_structure_schema_t),
+    Static(&'static native::tlv_structure_schema_t),
 }
 
 /// A structural schema: per-tag length, kind, occurrence and membership rules
@@ -346,14 +346,14 @@ impl StructureSchema {
         for rule in rules {
             let child_ptr = match rule.children {
                 Some(child) => {
-                    let ptr = child.as_raw() as *const sys::tlv_structure_schema_t;
+                    let ptr = child.as_raw() as *const native::tlv_structure_schema_t;
                     children.push(child);
                     ptr
                 }
                 None => ptr::null(),
             };
-            raw_rules.push(sys::tlv_structure_rule_t {
-                entry: sys::tlv_schema_entry_t {
+            raw_rules.push(native::tlv_structure_rule_t {
+                entry: native::tlv_schema_entry_t {
                     tag: rule.tag.raw(),
                     min_length: rule.min_length,
                     max_length: rule.max_length,
@@ -369,7 +369,7 @@ impl StructureSchema {
             tags.push(rule.tag);
         }
         let mut compiled = Box::new(Compiled {
-            raw: sys::tlv_structure_schema_t {
+            raw: native::tlv_structure_schema_t {
                 rules: ptr::null(),
                 count: raw_rules.len(),
                 allow_unknown: allow_unknown as i32,
@@ -392,13 +392,13 @@ impl StructureSchema {
     pub fn emv() -> StructureSchema {
         // SAFETY: only the address of an immutable static is taken; it lives
         // for the whole program and is never written.
-        let raw = unsafe { &*ptr::addr_of!(sys::tlv_emv_structure_schema) };
+        let raw = unsafe { &*ptr::addr_of!(native::tlv_emv_structure_schema) };
         StructureSchema {
             backing: Backing::Static(raw),
         }
     }
 
-    fn as_raw(&self) -> &sys::tlv_structure_schema_t {
+    fn as_raw(&self) -> &native::tlv_structure_schema_t {
         match &self.backing {
             Backing::Owned(compiled) => &compiled.raw,
             Backing::Static(raw) => raw,
@@ -429,7 +429,7 @@ impl StructureSchema {
         // SAFETY: `data` is a valid slice; the format and schema tables are
         // valid for the call and immutable; `offset` is a writable `usize`.
         let code = unsafe {
-            sys::tlv_schema_validate(
+            native::tlv_schema_validate(
                 data.as_ptr(),
                 data.len(),
                 format.reader_raw(),
