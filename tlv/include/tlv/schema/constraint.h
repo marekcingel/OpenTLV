@@ -51,6 +51,15 @@ typedef struct tlv_value_constraint {
     const int64_t* allowed_values;
     /** Number of entries in `allowed_values`. */
     size_t allowed_values_count;
+    /**
+     * Optional, borrowed display name for each entry of `allowed_values` (an ASN.1 named
+     * number, for example `red(0)`), parallel to it and the same `allowed_values_count` long;
+     * used only for #TLV_VALUE_CONSTRAINT_ALLOWED_VALUES. `NULL` for the whole array when no
+     * value has a name, or a `NULL` entry for a value that itself has none. Purely descriptive:
+     * ignored by tlv_value_constraint_validate(); look a name up with
+     * tlv_value_constraint_name().
+     */
+    const char* const* allowed_value_names;
 } tlv_value_constraint_t;
 
 /**
@@ -73,6 +82,20 @@ typedef struct tlv_value_constraint {
  */
 TLV_API tlv_result_t tlv_value_constraint_validate(const tlv_value_constraint_t* constraint,
                                                    int64_t value);
+
+/**
+ * @brief Looks up an allowed value's display name, such as an ASN.1 named number.
+ *
+ * @param[in] constraint Constraint to look the name up in.
+ * @param[in] value      Value to find, matched by exact equality against `allowed_values`.
+ *
+ * @return The borrowed, NUL-terminated name of `value`'s entry in `allowed_values`.
+ * @return `NULL` if `constraint` is `NULL`; `kind` is not #TLV_VALUE_CONSTRAINT_ALLOWED_VALUES;
+ *         `allowed_values` or `allowed_value_names` is `NULL`; `value` is not among
+ *         `allowed_values`; or the matching entry's name is `NULL`.
+ */
+TLV_API const char* tlv_value_constraint_name(const tlv_value_constraint_t* constraint,
+                                              int64_t value);
 
 #ifdef __cplusplus
 }

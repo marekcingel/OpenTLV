@@ -1,6 +1,7 @@
 #include "tlv/builtins/asn1/der_schema.h"
 #include "der_profile_internal.h"
 #include "der_values_internal.h"
+#include "tlv/builtins/asn1/asn1_codec.h"
 #include "tlv/length.h"
 #include <string.h>
 
@@ -43,11 +44,13 @@ static int tags_equal(const owned_tag_t* a, const tlv_tag_t* b) {
     return tlv_tag_equal(owned_view(a), *b);
 }
 
-/* The fixed wire identifier a SEQUENCE/SET/SET-OF/UNIVERSAL type carries when
- * untagged. CHOICE and ANY have no single fixed identifier and are rejected. */
+/* The fixed wire identifier a SEQUENCE/SEQUENCE-OF/SET/SET-OF/UNIVERSAL type
+ * carries when untagged. CHOICE and ANY have no single fixed identifier and
+ * are rejected. */
 static tlv_result_t kind_identifier(const tlv_der_schema_type_t* type, owned_tag_t* tag) {
     switch (type->kind) {
-        case TLV_DER_SCHEMA_SEQUENCE: return owned_make(TLV_ASN1_UNIVERSAL, 1, 16, tag);
+        case TLV_DER_SCHEMA_SEQUENCE:
+        case TLV_DER_SCHEMA_SEQUENCE_OF: return owned_make(TLV_ASN1_UNIVERSAL, 1, 16, tag);
         case TLV_DER_SCHEMA_SET:
         case TLV_DER_SCHEMA_SET_OF: return owned_make(TLV_ASN1_UNIVERSAL, 1, 17, tag);
         case TLV_DER_SCHEMA_UNIVERSAL:
@@ -58,11 +61,13 @@ static tlv_result_t kind_identifier(const tlv_der_schema_type_t* type, owned_tag
 }
 
 /* Whether an untagged instance of type is constructed on the wire. Only
- * meaningful for SEQUENCE/SET/SET_OF/UNIVERSAL; CHOICE has no single answer
- * (resolved per alternative) and ANY is never implicitly tagged. */
+ * meaningful for SEQUENCE/SEQUENCE_OF/SET/SET_OF/UNIVERSAL; CHOICE has no
+ * single answer (resolved per alternative) and ANY is never implicitly
+ * tagged. */
 static int type_is_constructed(const tlv_der_schema_type_t* type) {
     switch (type->kind) {
         case TLV_DER_SCHEMA_SEQUENCE:
+        case TLV_DER_SCHEMA_SEQUENCE_OF:
         case TLV_DER_SCHEMA_SET:
         case TLV_DER_SCHEMA_SET_OF: return 1;
         case TLV_DER_SCHEMA_UNIVERSAL: return universal_is_constructed(type->universal_number);
@@ -109,6 +114,29 @@ static int is_default_equal(const uint8_t* data, size_t elem_base, size_t elem_u
            memcmp(data + elem_base, component->default_encoding, elem_used) == 0;
 }
 
+/* Checks a UNIVERSAL leaf's raw content against its own optional SIZE/
+ * value-range constraint, beyond tlv_der_validate_universal_value()'s
+ * canonical DER rules. INTEGER and ENUMERATED share an identical minimal
+ * two's complement wire representation (X.690 section 11.2), so
+ * tlv_asn1_codec_integer's decode logic applies to either; tlv_der_schema_check()
+ * (or, for a schema that skips it, the schema author) is responsible for only
+ * setting value_constraint on one of those two universal numbers. */
+static tlv_result_t validate_leaf_constraint(const tlv_der_schema_type_t* type, const uint8_t* data,
+                                             size_t length) {
+    const tlv_der_schema_leaf_constraint_t* constraint = type->constraint;
+    if (!constraint) return TLV_OK;
+    if (length < constraint->min_length || length > constraint->max_length) return TLV_ERR_SCHEMA;
+    if (constraint->value_constraint) {
+        int64_t value = 0;
+        if (tlv_codec_decode(&tlv_asn1_codec_integer, data, length, &value, sizeof(value)) !=
+            TLV_CODEC_OK)
+            return TLV_ERR_INVALID_VALUE;
+        if (tlv_value_constraint_validate(constraint->value_constraint, value) != TLV_OK)
+            return TLV_ERR_SCHEMA;
+    }
+    return TLV_OK;
+}
+
 /* ---- Schema self-check ---------------------------------------------- */
 
 static tlv_result_t check_component(const tlv_der_schema_component_t* component, int in_choice,
@@ -121,6 +149,14 @@ static tlv_result_t check_type(const tlv_der_schema_type_t* type, size_t depth) 
     if (depth > TLV_DER_SCHEMA_MAX_TYPE_DEPTH) return TLV_ERR_SCHEMA;
     switch (type->kind) {
         case TLV_DER_SCHEMA_UNIVERSAL:
+            if (type->constraint) {
+                if (type->constraint->min_length > type->constraint->max_length)
+                    return TLV_ERR_SCHEMA;
+                if (type->constraint->value_constraint && type->universal_number != 2 &&
+                    type->universal_number != 10)
+                    return TLV_ERR_SCHEMA;
+            }
+            return TLV_OK;
         case TLV_DER_SCHEMA_ANY: return TLV_OK;
         case TLV_DER_SCHEMA_SEQUENCE:
             if (type->component_count > TLV_DER_SCHEMA_MAX_COMPONENTS) return TLV_ERR_SCHEMA;
@@ -175,6 +211,7 @@ static tlv_result_t check_type(const tlv_der_schema_type_t* type, size_t depth) 
             }
             return TLV_OK;
         case TLV_DER_SCHEMA_SET_OF:
+        case TLV_DER_SCHEMA_SEQUENCE_OF:
             if (!type->element) return TLV_ERR_SCHEMA;
             if (type->min_elements > type->max_elements) return TLV_ERR_SCHEMA;
             if (type->element->presence != TLV_DER_REQUIRED) return TLV_ERR_SCHEMA;
@@ -224,7 +261,7 @@ typedef struct der_schema_frame {
     int has_prev;                    /* SET/SET_OF */
     tlv_tag_t prev_tag;              /* SET: previous element's tag */
     size_t prev_offset, prev_length; /* SET_OF: previous element's complete encoding */
-    size_t element_count;            /* SET_OF: elements matched so far */
+    size_t element_count;            /* SET_OF/SEQUENCE_OF: elements matched so far */
 } der_schema_frame_t;
 
 static tlv_result_t read_one(der_schema_ctx_t* ctx, size_t offset, size_t size, size_t depth,
@@ -318,6 +355,8 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_view_t vie
             rc = tlv_der_validate_universal_value(component->type->universal_number,
                                                   view.value.data, value_length);
             if (rc != TLV_OK) return fail(rc, value_offset, ctx->error_offset);
+            rc = validate_leaf_constraint(component->type, view.value.data, value_length);
+            if (rc != TLV_OK) return fail(rc, value_offset, ctx->error_offset);
             return TLV_OK;
         case TLV_DER_SCHEMA_ANY:
             return dispatch_any(ctx, value_offset, value_length,
@@ -325,6 +364,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_view_t vie
         case TLV_DER_SCHEMA_SEQUENCE:
         case TLV_DER_SCHEMA_SET:
         case TLV_DER_SCHEMA_SET_OF:
+        case TLV_DER_SCHEMA_SEQUENCE_OF:
             if (depth == ctx->limits->base.max_depth)
                 return fail(TLV_ERR_LIMIT, value_offset, ctx->error_offset);
             ++*level;
@@ -363,6 +403,21 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
         if (comp->presence == TLV_DER_REQUIRED)
             return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
         ++frame->next_component;
+    }
+    if (frame->type->extensible) {
+        /* Extension marker (X.680 "..."): every declared component is
+         * already matched or skipped, so anything left over is an unknown
+         * future addition -- accepted as one opaque, well-formed DER-TLV
+         * element (like an ANY component) without further interpretation. */
+        size_t value_length, value_offset;
+        rc = tlv_length_to_size(view.value.length, &value_length);
+        if (rc != TLV_OK) return fail(rc, elem_base, ctx->error_offset);
+        value_offset = elem_base + used - value_length;
+        rc = dispatch_any(ctx, value_offset, value_length, tlv_der_tag_is_constructed(&view.tag),
+                          *level + 1);
+        if (rc != TLV_OK) return rc;
+        frame->pos = elem_base + used;
+        return TLV_OK;
     }
     return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
 }
@@ -434,6 +489,28 @@ static tlv_result_t process_set_of(der_schema_ctx_t* ctx, der_schema_frame_t* st
                                   level);
 }
 
+/* SEQUENCE OF: like SET OF, but wire order is not checked -- ASN.1 does not
+ * require SEQUENCE OF elements to appear in any particular order. */
+static tlv_result_t process_sequence_of(der_schema_ctx_t* ctx, der_schema_frame_t* stack,
+                                        int* level) {
+    der_schema_frame_t* frame = &stack[*level];
+    tlv_view_t view;
+    size_t used, elem_base = frame->pos;
+    tlv_result_t rc;
+    const tlv_der_schema_component_t* resolved;
+
+    if (frame->element_count == frame->type->max_elements)
+        return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &view, &used);
+    if (rc != TLV_OK) return rc;
+    resolved = resolve_at(frame->type->element, &view.tag, 0);
+    if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
+    ++frame->element_count;
+    frame->pos = elem_base + used;
+    return handle_matched_element(ctx, view, used, elem_base, resolved, *level + 1, 0, stack,
+                                  level);
+}
+
 tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
                                  const tlv_der_schema_type_t* root,
                                  const tlv_der_schema_limits_t* limits, tlv_view_t* view,
@@ -490,7 +567,8 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
                     if (!(frame->seen & ((uint64_t)1 << i)) &&
                         frame->type->components[i].presence == TLV_DER_REQUIRED)
                         end_rc = fail(TLV_ERR_SCHEMA, frame->end, error_offset);
-            } else if (frame->type->kind == TLV_DER_SCHEMA_SET_OF) {
+            } else if (frame->type->kind == TLV_DER_SCHEMA_SET_OF ||
+                       frame->type->kind == TLV_DER_SCHEMA_SEQUENCE_OF) {
                 if (frame->element_count < frame->type->min_elements)
                     end_rc = fail(TLV_ERR_SCHEMA, frame->end, error_offset);
             }
@@ -502,6 +580,7 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
             case TLV_DER_SCHEMA_SEQUENCE: rc = process_sequence(&ctx, stack, &level); break;
             case TLV_DER_SCHEMA_SET: rc = process_set(&ctx, stack, &level); break;
             case TLV_DER_SCHEMA_SET_OF: rc = process_set_of(&ctx, stack, &level); break;
+            case TLV_DER_SCHEMA_SEQUENCE_OF: rc = process_sequence_of(&ctx, stack, &level); break;
             default: rc = fail(TLV_ERR_SCHEMA, frame->pos, error_offset); break;
         }
         if (rc != TLV_OK) return rc;
@@ -751,6 +830,42 @@ static tlv_result_t encode_set_of_content(der_schema_write_ctx_t* wctx,
     return TLV_OK;
 }
 
+/* SEQUENCE OF content: elements produced by repeated calls to type->element's
+ * callback (index 0, 1, ...) until one reports absence, then concatenated in
+ * that same production order -- unlike SET OF, X.690 does not require
+ * SEQUENCE OF elements to be reordered. Uses the same caller-supplied
+ * scratch array as encode_set_of_content, just without the sort step. */
+static tlv_result_t encode_sequence_of_content(der_schema_write_ctx_t* wctx,
+                                               const tlv_der_schema_type_t* type, size_t depth,
+                                               size_t* out_off, size_t* out_len) {
+    size_t count = 0, i, total = 0, base, pos;
+    for (;;) {
+        int element_absent = 0;
+        size_t off, len;
+        tlv_result_t rc =
+            encode_at(wctx, type->element, count, depth, 0, &element_absent, &off, &len);
+        if (rc != TLV_OK) return rc;
+        if (element_absent) break;
+        if (count >= wctx->scratch_capacity) return TLV_ERR_LIMIT;
+        wctx->scratch[count].offset = off;
+        wctx->scratch[count].length = len;
+        ++count;
+        if (count > type->max_elements) return TLV_ERR_SCHEMA;
+    }
+    if (count < type->min_elements) return TLV_ERR_SCHEMA;
+    for (i = 0; i < count; ++i) total += wctx->scratch[i].length;
+    base = arena_alloc(wctx, total);
+    if (base == (size_t)-1) return TLV_ERR_LIMIT;
+    pos = base;
+    for (i = 0; i < count; ++i) {
+        memcpy(wctx->arena + pos, wctx->arena + wctx->scratch[i].offset, wctx->scratch[i].length);
+        pos += wctx->scratch[i].length;
+    }
+    *out_off = base;
+    *out_len = total;
+    return TLV_OK;
+}
+
 /* Selects the first CHOICE alternative reporting presence and returns its
  * own already-wrapped bytes verbatim (an untagged CHOICE has no identifier
  * of its own; its wire representation is exactly the selected alternative's). */
@@ -787,7 +902,12 @@ static tlv_result_t produce_raw_content(der_schema_write_ctx_t* wctx,
                                         size_t index, size_t depth, size_t* out_off,
                                         size_t* out_len) {
     switch (type->kind) {
-        case TLV_DER_SCHEMA_UNIVERSAL:
+        case TLV_DER_SCHEMA_UNIVERSAL: {
+            tlv_result_t rc =
+                encode_leaf_content(wctx, callback_component, index, out_off, out_len);
+            if (rc != TLV_OK) return rc;
+            return validate_leaf_constraint(type, wctx->arena + *out_off, *out_len);
+        }
         case TLV_DER_SCHEMA_ANY:
             return encode_leaf_content(wctx, callback_component, index, out_off, out_len);
         case TLV_DER_SCHEMA_SEQUENCE:
@@ -800,6 +920,9 @@ static tlv_result_t produce_raw_content(der_schema_write_ctx_t* wctx,
         case TLV_DER_SCHEMA_SET_OF:
             if (depth == wctx->limits->base.max_depth) return TLV_ERR_LIMIT;
             return encode_set_of_content(wctx, type, depth + 1, out_off, out_len);
+        case TLV_DER_SCHEMA_SEQUENCE_OF:
+            if (depth == wctx->limits->base.max_depth) return TLV_ERR_LIMIT;
+            return encode_sequence_of_content(wctx, type, depth + 1, out_off, out_len);
         default: return TLV_ERR_SCHEMA;
     }
 }

@@ -268,16 +268,29 @@ TEST(Unit_Tlv_CerValues, CharacterStringRejectsInvalidCharsetPerSegment) {
               tlv_cer_read_strict(output, written, nullptr, &view, &consumed, &offset));
 }
 
-TEST(Unit_Tlv_CerValues, UnsupportedUniversalTypeRejectedInStrictModeOnly) {
-    /* TeletexString(20): recognized (segmentable form) but no implemented
-     * content rule, matching DER's convention for unimplemented types. */
-    const uint8_t data[] = {0x14, 1, 'x'};
-    tlv_view_t    view{};
-    size_t        consumed = 0, offset = 99;
-    EXPECT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &view, &consumed, nullptr));
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE,
-              tlv_cer_read_strict(data, sizeof(data), nullptr, &view, &consumed, &offset));
-    EXPECT_EQ(2u, offset); /* value start, matching DER's content-error offset convention */
+TEST(Unit_Tlv_CerValues, UnrecognizedNumberBeyond36SkipsValueValidation) {
+    /* Every primitive-capable universal number through 36 now has an
+     * implemented content rule (0 and 15 are reserved and rejected at tag
+     * validation, and 8/11/16/17/29 must be constructed), unlike DER's shared
+     * dispatch, CER only calls value validation at all for a UNIVERSAL number
+     * <=36 (see cer_profile.c's "recognized_universal" gate); a number beyond
+     * that, like 37 here (needing the high-tag-number form), is therefore
+     * always structurally accepted in strict mode, with no possible
+     * UNSUPPORTED_TYPE outcome the way DER has via tag 37 in
+     * der_values_test.cpp. */
+    tlv_tag_t tag{};
+    uint8_t   storage[TLV_ASN1_TAG_MAX_SIZE];
+    ASSERT_EQ(TLV_OK, tlv_ber_tag_make(TLV_ASN1_UNIVERSAL, 0, 37, storage, &tag));
+    uint8_t data[TLV_ASN1_TAG_MAX_SIZE + 2];
+    std::memcpy(data, tag.data, tag.size);
+    data[tag.size] = 1;
+    data[tag.size + 1] = 'x';
+    const size_t size = tag.size + 2;
+
+    tlv_view_t view{};
+    size_t     consumed = 0;
+    EXPECT_EQ(TLV_OK, tlv_cer_read(data, size, nullptr, &view, &consumed, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_cer_read_strict(data, size, nullptr, &view, &consumed, nullptr));
 }
 
 TEST(Unit_Tlv_CerValues, WriteStrictRejectsInvalidContentButNonStrictAccepts) {

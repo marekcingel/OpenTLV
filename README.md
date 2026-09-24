@@ -67,7 +67,7 @@ Built-in components are enabled by default and can be selected with
     - [x] **DER-TLV** - canonical identifier and length framing. [Scope](docs/profiles/der/README.md) [Tree and bytes](docs/formats/asn1/der.md#byte-example)
       - [x] Structural validation
       - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/profiles/der/README.md#strict-universal-value-validation)
-      - [x] Schema-aware SEQUENCE/SET/SET OF/CHOICE validation and encoding, including canonical SET/SET OF ordering, IMPLICIT/EXPLICIT tagging and DEFAULT omission (requires an explicit schema; the generic reader above does not infer SET/SET OF semantics on its own). [Scope](docs/profiles/der/README.md#schema-aware-validation-and-encoding)
+      - [x] Schema-aware SEQUENCE/SEQUENCE OF/SET/SET OF/CHOICE validation and encoding, including canonical SET/SET OF ordering, IMPLICIT/EXPLICIT tagging and DEFAULT omission (requires an explicit schema; the generic reader above does not infer SET/SET OF semantics on its own). [Scope](docs/profiles/der/README.md#schema-aware-validation-and-encoding)
     - [x] **CER-TLV** - indefinite-length constructed framing, canonical string segmentation. [Scope](docs/profiles/cer/README.md) [Tree and bytes](docs/formats/asn1/cer.md#byte-example-nested-indefinite-length-containers)
       - [x] Structural validation (framing, EOC placement, canonical segmentation)
       - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/profiles/cer/README.md#strict-universal-value-validation)

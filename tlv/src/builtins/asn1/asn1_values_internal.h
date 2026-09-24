@@ -31,6 +31,36 @@ tlv_result_t tlv_asn1_validate_universal_string(const uint8_t* value, size_t len
 tlv_result_t tlv_asn1_validate_bmp_string(const uint8_t* value, size_t length);
 tlv_result_t tlv_asn1_validate_utc_time(const uint8_t* value, size_t length);
 tlv_result_t tlv_asn1_validate_generalized_time(const uint8_t* value, size_t length);
+/* Generic TIME (14): the ISO-8601-based abstract time type X.680 §38 defines.
+ * Its concrete syntax varies far more than DATE/TIME-OF-DAY/DATE-TIME/
+ * DURATION below (week dates, ordinal dates, fractional seconds, UTC
+ * offsets, intervals), so this checks only its VisibleString character-set
+ * restriction (X.690 §11), not the fuller ISO 8601 canonical-form grammar. */
+tlv_result_t tlv_asn1_validate_time(const uint8_t* value, size_t length);
+/* DATE/TIME-OF-DAY/DATE-TIME (31/32/33): "useful" fixed-form time types
+ * X.680 §38 derives from TIME with SETTINGS pinning down one concrete
+ * syntax; canonical content is a plain digit string in ISO 8601 basic form
+ * with no separators ("YYYYMMDD"/"HHMMSS"/"YYYYMMDDHHMMSS"). Calendar
+ * validity is range-checked only, as with UTCTime/GeneralizedTime. */
+tlv_result_t tlv_asn1_validate_date(const uint8_t* value, size_t length);
+tlv_result_t tlv_asn1_validate_time_of_day(const uint8_t* value, size_t length);
+tlv_result_t tlv_asn1_validate_date_time(const uint8_t* value, size_t length);
+/* DURATION (34): content is the ISO 8601 duration string without its
+ * leading 'P' designator, e.g. "2Y10M15DT10H20M30S". Validates designator/
+ * digit structure and component order (Y, M, D, then optionally T followed
+ * by H, M, S); does not enforce ISO 8601's omission of zero-valued
+ * components, and accepts a fractional value only on the seconds component
+ * (not on M or H when they are the lowest-order component present), since
+ * neither canonical-minimality nuance is independently confirmed here. */
+tlv_result_t tlv_asn1_validate_duration(const uint8_t* value, size_t length);
+/* OID-IRI/RELATIVE-OID-IRI (35/36): valid UTF-8 content (X.690 §8.21/8.22),
+ * '/'-separated non-empty arcs with no leading, trailing or doubled '/';
+ * OID-IRI additionally requires the leading '/' marking an absolute path,
+ * RELATIVE-OID-IRI requires its absence. Checks arc-separator structure
+ * only, not each arc's characters against the fuller RFC 3987 IRI-label
+ * restrictions X.680's IRI value notation defines. */
+tlv_result_t tlv_asn1_validate_oid_iri(const uint8_t* value, size_t length);
+tlv_result_t tlv_asn1_validate_relative_oid_iri(const uint8_t* value, size_t length);
 
 /* Dispatches a UNIVERSAL tag number to the validator above for one complete
  * primitive element's content, shared by DER (tlv_der_validate_universal_value)

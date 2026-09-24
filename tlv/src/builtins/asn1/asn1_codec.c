@@ -131,6 +131,27 @@ static tlv_codec_result_t encode_bit_string(const void* context, const void* val
     return TLV_CODEC_OK;
 }
 
+/* Named bits: X.680's NamedBitList is purely descriptive, so testing a bit's
+ * state and looking up a name by position need no codec of their own. A
+ * canonical DER BIT STRING already guarantees any bit beyond its encoded
+ * length is (implicitly) clear, so no separate bounds-driven special case is
+ * needed beyond the byte-index bounds check itself. */
+int tlv_asn1_bit_string_test(const tlv_asn1_bit_string_t* bits, size_t position) {
+    size_t byte_index = position / 8;
+    uint8_t mask;
+    if (byte_index >= bits->length) return 0;
+    mask = (uint8_t)(0x80u >> (position % 8));
+    return (bits->data[byte_index] & mask) != 0;
+}
+
+const char* tlv_asn1_named_bit_find(const tlv_asn1_named_bit_t* names, size_t count,
+                                    size_t position) {
+    size_t i;
+    for (i = 0; i < count; ++i)
+        if (names[i].position == position) return names[i].name;
+    return NULL;
+}
+
 /* OCTET STRING: X.690 section 8.7/11.2, unconstrained borrowed content bytes. */
 
 static tlv_codec_result_t decode_octet_string(const void* context, const uint8_t* data, size_t size,
@@ -563,6 +584,228 @@ static tlv_codec_result_t encode_generalized_time(const void* context, const voi
     return TLV_CODEC_OK;
 }
 
+/* Generic TIME/DURATION: like the restricted character strings above, these
+ * store validated raw content bytes; TIME's own doc comment explains why its
+ * check is a VisibleString charset check rather than a fuller ISO 8601
+ * canonical-form grammar, and DURATION's explains its documented scope. */
+
+#define ASN1_STRING_CODEC(name, validator)                                                         \
+    static tlv_codec_result_t decode_##name(const void* context, const uint8_t* data, size_t size, \
+                                            void* value, size_t capacity) {                        \
+        (void)context;                                                                             \
+        return decode_string(validator, data, size, value, capacity);                              \
+    }                                                                                              \
+    static tlv_codec_result_t encode_##name(const void* context, const void* value, size_t size,   \
+                                            uint8_t* data, size_t capacity, size_t* written) {     \
+        (void)context;                                                                             \
+        return encode_string(validator, value, size, data, capacity, written);                     \
+    }
+
+ASN1_STRING_CODEC(time, tlv_asn1_validate_time)
+ASN1_STRING_CODEC(duration, tlv_asn1_validate_duration)
+
+#undef ASN1_STRING_CODEC
+
+/* DATE/TIME-OF-DAY/DATE-TIME: X.690, plain digit-string ISO 8601 basic forms
+ * with no separators. Reuses UTCTime/GeneralizedTime's digit-pair helpers. */
+
+static tlv_codec_result_t decode_date(const void* context, const uint8_t* data, size_t size,
+                                      void* value, size_t capacity) {
+    tlv_asn1_date_t result;
+    (void)context;
+    if (tlv_asn1_validate_date(data, size) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
+    result.year = (int32_t)(time_digit_pair(data) * 100 + time_digit_pair(data + 2));
+    result.month = time_digit_pair(data + 4);
+    result.day = time_digit_pair(data + 6);
+    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    memcpy(value, &result, sizeof(result));
+    return TLV_CODEC_OK;
+}
+
+static tlv_codec_result_t encode_date(const void* context, const void* value, size_t size,
+                                      uint8_t* data, size_t capacity, size_t* written) {
+    tlv_asn1_date_t input;
+    uint8_t buf[8];
+    (void)context;
+    if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;
+    memcpy(&input, value, sizeof(input));
+    if (input.year < 0 || input.year > 9999) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (input.month < 1 || input.month > 12 || input.day < 1 || input.day > 31)
+        return TLV_CODEC_ERR_INVALID_VALUE;
+    time_write_digit_pair(buf, (uint8_t)(input.year / 100));
+    time_write_digit_pair(buf + 2, (uint8_t)(input.year % 100));
+    time_write_digit_pair(buf + 4, input.month);
+    time_write_digit_pair(buf + 6, input.day);
+    if (data) {
+        if (capacity < sizeof(buf)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        memcpy(data, buf, sizeof(buf));
+    }
+    *written = sizeof(buf);
+    return TLV_CODEC_OK;
+}
+
+static tlv_codec_result_t decode_time_of_day(const void* context, const uint8_t* data, size_t size,
+                                             void* value, size_t capacity) {
+    tlv_asn1_time_of_day_t result;
+    (void)context;
+    if (tlv_asn1_validate_time_of_day(data, size) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
+    result.hour = time_digit_pair(data);
+    result.minute = time_digit_pair(data + 2);
+    result.second = time_digit_pair(data + 4);
+    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    memcpy(value, &result, sizeof(result));
+    return TLV_CODEC_OK;
+}
+
+static tlv_codec_result_t encode_time_of_day(const void* context, const void* value, size_t size,
+                                             uint8_t* data, size_t capacity, size_t* written) {
+    tlv_asn1_time_of_day_t input;
+    uint8_t buf[6];
+    (void)context;
+    if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;
+    memcpy(&input, value, sizeof(input));
+    if (input.hour > 23 || input.minute > 59 || input.second > 59)
+        return TLV_CODEC_ERR_INVALID_VALUE;
+    time_write_digit_pair(buf, input.hour);
+    time_write_digit_pair(buf + 2, input.minute);
+    time_write_digit_pair(buf + 4, input.second);
+    if (data) {
+        if (capacity < sizeof(buf)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        memcpy(data, buf, sizeof(buf));
+    }
+    *written = sizeof(buf);
+    return TLV_CODEC_OK;
+}
+
+static tlv_codec_result_t decode_date_time(const void* context, const uint8_t* data, size_t size,
+                                           void* value, size_t capacity) {
+    tlv_asn1_date_time_t result;
+    (void)context;
+    if (tlv_asn1_validate_date_time(data, size) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
+    result.year = (int32_t)(time_digit_pair(data) * 100 + time_digit_pair(data + 2));
+    result.month = time_digit_pair(data + 4);
+    result.day = time_digit_pair(data + 6);
+    result.hour = time_digit_pair(data + 8);
+    result.minute = time_digit_pair(data + 10);
+    result.second = time_digit_pair(data + 12);
+    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    memcpy(value, &result, sizeof(result));
+    return TLV_CODEC_OK;
+}
+
+static tlv_codec_result_t encode_date_time(const void* context, const void* value, size_t size,
+                                           uint8_t* data, size_t capacity, size_t* written) {
+    tlv_asn1_date_time_t input;
+    uint8_t buf[14];
+    (void)context;
+    if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;
+    memcpy(&input, value, sizeof(input));
+    if (input.year < 0 || input.year > 9999) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (!time_calendar_fields_valid(input.month, input.day, input.hour, input.minute, input.second))
+        return TLV_CODEC_ERR_INVALID_VALUE;
+    time_write_digit_pair(buf, (uint8_t)(input.year / 100));
+    time_write_digit_pair(buf + 2, (uint8_t)(input.year % 100));
+    time_write_digit_pair(buf + 4, input.month);
+    time_write_digit_pair(buf + 6, input.day);
+    time_write_digit_pair(buf + 8, input.hour);
+    time_write_digit_pair(buf + 10, input.minute);
+    time_write_digit_pair(buf + 12, input.second);
+    if (data) {
+        if (capacity < sizeof(buf)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        memcpy(data, buf, sizeof(buf));
+    }
+    *written = sizeof(buf);
+    return TLV_CODEC_OK;
+}
+
+/* OID-IRI/RELATIVE-OID-IRI: X.690 section 8.21/8.22, UTF8-encoded
+ * '/'-separated arc labels; OID-IRI's content begins with '/' (absolute),
+ * RELATIVE-OID-IRI's does not. Decode splits content into borrowed per-arc
+ * spans; encode joins them back with '/' separators, adding OID-IRI's
+ * leading '/'. */
+
+static tlv_codec_result_t decode_iri_like(int absolute, const uint8_t* data, size_t size,
+                                          void* value, size_t capacity) {
+    tlv_asn1_iri_t result;
+    size_t pos, arc_start;
+    tlv_result_t rc = absolute ? tlv_asn1_validate_oid_iri(data, size)
+                               : tlv_asn1_validate_relative_oid_iri(data, size);
+    if (rc != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
+    memset(&result, 0, sizeof(result));
+    pos = absolute ? 1 : 0; /* skip the leading '/' the validator already confirmed */
+    arc_start = pos;
+    while (pos <= size) {
+        if (pos == size || data[pos] == '/') {
+            if (result.count >= TLV_ASN1_IRI_MAX_ARCS) return TLV_CODEC_ERR_INVALID_VALUE;
+            result.arcs[result.count].data = data + arc_start;
+            result.arcs[result.count].length = pos - arc_start;
+            ++result.count;
+            arc_start = pos + 1;
+        }
+        ++pos;
+    }
+    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    memcpy(value, &result, sizeof(result));
+    return TLV_CODEC_OK;
+}
+
+static tlv_codec_result_t decode_oid_iri(const void* context, const uint8_t* data, size_t size,
+                                         void* value, size_t capacity) {
+    (void)context;
+    return decode_iri_like(1, data, size, value, capacity);
+}
+
+static tlv_codec_result_t decode_relative_oid_iri(const void* context, const uint8_t* data,
+                                                  size_t size, void* value, size_t capacity) {
+    (void)context;
+    return decode_iri_like(0, data, size, value, capacity);
+}
+
+static tlv_codec_result_t encode_iri_like(int absolute, const void* value, size_t size,
+                                          uint8_t* data, size_t capacity, size_t* written) {
+    tlv_asn1_iri_t input;
+    size_t i, total = 0;
+    if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;
+    memcpy(&input, value, sizeof(input));
+    if (input.count == 0 || input.count > TLV_ASN1_IRI_MAX_ARCS) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (absolute) total += 1;
+    for (i = 0; i < input.count; ++i) {
+        size_t j;
+        if (!input.arcs[i].length || !input.arcs[i].data) return TLV_CODEC_ERR_INVALID_VALUE;
+        if (tlv_asn1_validate_utf8(input.arcs[i].data, input.arcs[i].length) != TLV_OK)
+            return TLV_CODEC_ERR_INVALID_VALUE;
+        for (j = 0; j < input.arcs[i].length; ++j)
+            if (input.arcs[i].data[j] == '/') return TLV_CODEC_ERR_INVALID_VALUE;
+        total += input.arcs[i].length;
+        if (i + 1 < input.count) total += 1;
+    }
+    if (data) {
+        size_t offset = 0;
+        if (capacity < total) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+        if (absolute) data[offset++] = '/';
+        for (i = 0; i < input.count; ++i) {
+            memcpy(data + offset, input.arcs[i].data, input.arcs[i].length);
+            offset += input.arcs[i].length;
+            if (i + 1 < input.count) data[offset++] = '/';
+        }
+    }
+    *written = total;
+    return TLV_CODEC_OK;
+}
+
+static tlv_codec_result_t encode_oid_iri(const void* context, const void* value, size_t size,
+                                         uint8_t* data, size_t capacity, size_t* written) {
+    (void)context;
+    return encode_iri_like(1, value, size, data, capacity, written);
+}
+
+static tlv_codec_result_t encode_relative_oid_iri(const void* context, const void* value,
+                                                  size_t size, uint8_t* data, size_t capacity,
+                                                  size_t* written) {
+    (void)context;
+    return encode_iri_like(0, value, size, data, capacity, written);
+}
+
 const tlv_codec_t tlv_asn1_codec_boolean = {NULL, decode_boolean, encode_boolean};
 const tlv_codec_t tlv_asn1_codec_integer = {NULL, decode_integer, encode_integer};
 const tlv_codec_t tlv_asn1_codec_enumerated = {NULL, decode_integer, encode_integer};
@@ -585,3 +828,17 @@ const tlv_codec_t tlv_asn1_codec_universal_string = {NULL, decode_universal_stri
 const tlv_codec_t tlv_asn1_codec_utc_time = {NULL, decode_utc_time, encode_utc_time};
 const tlv_codec_t tlv_asn1_codec_generalized_time = {NULL, decode_generalized_time,
                                                      encode_generalized_time};
+const tlv_codec_t tlv_asn1_codec_object_descriptor = {NULL, decode_octet_string,
+                                                      encode_octet_string};
+const tlv_codec_t tlv_asn1_codec_teletex_string = {NULL, decode_octet_string, encode_octet_string};
+const tlv_codec_t tlv_asn1_codec_videotex_string = {NULL, decode_octet_string, encode_octet_string};
+const tlv_codec_t tlv_asn1_codec_graphic_string = {NULL, decode_octet_string, encode_octet_string};
+const tlv_codec_t tlv_asn1_codec_general_string = {NULL, decode_octet_string, encode_octet_string};
+const tlv_codec_t tlv_asn1_codec_time = {NULL, decode_time, encode_time};
+const tlv_codec_t tlv_asn1_codec_date = {NULL, decode_date, encode_date};
+const tlv_codec_t tlv_asn1_codec_time_of_day = {NULL, decode_time_of_day, encode_time_of_day};
+const tlv_codec_t tlv_asn1_codec_date_time = {NULL, decode_date_time, encode_date_time};
+const tlv_codec_t tlv_asn1_codec_duration = {NULL, decode_duration, encode_duration};
+const tlv_codec_t tlv_asn1_codec_oid_iri = {NULL, decode_oid_iri, encode_oid_iri};
+const tlv_codec_t tlv_asn1_codec_relative_oid_iri = {NULL, decode_relative_oid_iri,
+                                                     encode_relative_oid_iri};

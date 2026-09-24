@@ -15,9 +15,9 @@ tlv_cer_type_info_t tlv_cer_type_info(uint64_t number) {
         /* ObjectDescriptor(7), NumericString(18), PrintableString(19),
          * TeletexString(20), VideotexString(21), IA5String(22),
          * GraphicString(25), VisibleString(26), GeneralString(27): all
-         * 1-octet restricted character string types. 7/20/21/25/27 have no
-         * implemented content rule (recognized-but-unsupported, matching
-         * DER); validate_character_segment() below reports that. */
+         * 1-octet restricted character string types. 7/20/21/25/27 accept
+         * any byte sequence per-segment (matching DER's unconstrained
+         * content rule for them); see validate_character_segment() below. */
         case 7:
         case 18:
         case 19:
@@ -76,10 +76,14 @@ static tlv_result_t validate_character_segment(uint64_t number, unsigned width,
         case 19: return tlv_asn1_validate_printable_string(value, length);
         case 22: return tlv_asn1_validate_ia5_string(value, length);
         case 26: return tlv_asn1_validate_visible_string(value, length);
-        default:
-            return TLV_ERR_UNSUPPORTED_TYPE; /* ObjectDescriptor, TeletexString,
-                                              * VideotexString, GraphicString,
-                                              * GeneralString */
+        /* ObjectDescriptor, TeletexString, VideotexString, GraphicString,
+         * GeneralString: unconstrained, like OCTET STRING. */
+        case 7:
+        case 20:
+        case 21:
+        case 25:
+        case 27: return tlv_asn1_validate_octet_string(value, length);
+        default: return TLV_ERR_UNSUPPORTED_TYPE; /* unreachable: no other number reaches here */
     }
 }
 

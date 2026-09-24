@@ -4,6 +4,7 @@
 #include "tlv/error.h"
 #include "tlv/builtins/asn1/der_profile.h"
 #include "tlv/builtins/asn1/der.h"
+#include "tlv/schema/constraint.h"
 #include "tlv/view.h"
 #include "tlv/export.h"
 
@@ -16,13 +17,14 @@ extern "C" {
  * @ingroup schemas
  * @brief Schema-aware ASN.1 DER validation and encoding.
  *
- * A small, fixed subset of ASN.1 (SEQUENCE, SET, SET OF, CHOICE, UNIVERSAL
- * leaves, IMPLICIT/EXPLICIT tagging, REQUIRED/OPTIONAL/DEFAULT components,
- * and an unrestricted ANY escape hatch), layered on top of
- * tlv/builtins/asn1/der_profile.h to enforce canonical rules raw TLV structure alone
- * cannot express: SET vs SET OF ordering, underlying-type validation of
- * implicitly tagged content, explicit-tag wrapper structure, CHOICE
- * resolution and DEFAULT-value omission.
+ * A small, fixed subset of ASN.1 (SEQUENCE, SEQUENCE OF, SET, SET OF, CHOICE,
+ * UNIVERSAL leaves, IMPLICIT/EXPLICIT tagging, REQUIRED/OPTIONAL/DEFAULT
+ * components, a SEQUENCE extension marker, and an unrestricted ANY escape
+ * hatch), layered on top of tlv/builtins/asn1/der_profile.h to enforce
+ * canonical rules raw TLV structure alone cannot express: SET vs SET OF
+ * ordering, underlying-type validation of implicitly tagged content,
+ * explicit-tag wrapper structure, CHOICE resolution and DEFAULT-value
+ * omission.
  *
  * This is not an ASN.1 compiler or an unrestricted type system. Schemas are
  * borrowed, immutable, caller-authored static tables (as with
@@ -43,7 +45,7 @@ extern "C" {
  *
  * Leaf UNIVERSAL types are validated by content against the canonical DER
  * rules, as in tlv_der_read_strict(); SEQUENCE, SET and CHOICE list
- * components; SET OF repeats one element type.
+ * components; SET OF and SEQUENCE OF each repeat one element type.
  */
 typedef enum tlv_der_schema_kind {
     /** A UNIVERSAL leaf, validated by content. */
@@ -62,7 +64,12 @@ typedef enum tlv_der_schema_kind {
      * direct SEQUENCE component, because its wildcard tag would make
      * SET/CHOICE/SET-OF matching ambiguous.
      */
-    TLV_DER_SCHEMA_ANY
+    TLV_DER_SCHEMA_ANY,
+    /**
+     * SEQUENCE OF: repeats one element type, kept in encoding order (unlike
+     * SET OF, elements are not reordered or checked for canonical order).
+     */
+    TLV_DER_SCHEMA_SEQUENCE_OF
 } tlv_der_schema_kind_t;
 
 /**
@@ -106,7 +113,8 @@ typedef enum tlv_der_presence {
 typedef struct tlv_der_schema_type tlv_der_schema_type_t;
 
 /**
- * @brief One component of a SEQUENCE, SET or CHOICE, or the repeated element of a SET OF.
+ * @brief One component of a SEQUENCE, SET or CHOICE, or the repeated element
+ * of a SET OF or SEQUENCE OF.
  *
  * All pointers are borrowed and must outlive use. CHOICE alternatives must
  * have presence #TLV_DER_REQUIRED and no default (enforced by
@@ -134,14 +142,41 @@ typedef struct tlv_der_schema_component {
 } tlv_der_schema_component_t;
 
 /**
+ * @brief SIZE and value-range/allowed-values constraints on a
+ * #TLV_DER_SCHEMA_UNIVERSAL leaf, beyond the leaf's own canonical DER content
+ * rules.
+ *
+ * Mirrors the ASN.1 `SIZE` and value-range constraint notations (for example
+ * `OCTET STRING (SIZE(1..16))` or `INTEGER (0..255)`), checked in addition to
+ * -- not instead of -- tlv_der_validate_universal_value()'s own canonical
+ * rules. All pointers are borrowed and must outlive use.
+ */
+typedef struct tlv_der_schema_leaf_constraint {
+    /** Minimum raw content length in bytes, inclusive; 0 for no extra lower bound. */
+    size_t min_length;
+    /** Maximum raw content length in bytes, inclusive; `SIZE_MAX` for no extra upper bound. */
+    size_t max_length;
+    /**
+     * Value-range or allowed-values constraint checked against the leaf's
+     * decoded value, or `NULL` for none. Valid only when the leaf's
+     * `universal_number` is 2 (INTEGER) or 10 (ENUMERATED), the two universal
+     * types X.680 allows a value-range or named-number constraint on and
+     * that #tlv_asn1_codec_integer/#tlv_asn1_codec_enumerated decode to
+     * `int64_t`; tlv_der_schema_check() rejects any other combination.
+     */
+    const tlv_value_constraint_t* value_constraint;
+} tlv_der_schema_leaf_constraint_t;
+
+/**
  * @brief An ASN.1 type expression.
  *
  * `components` and `component_count` apply to SEQUENCE, SET and CHOICE (at
  * most #TLV_DER_SCHEMA_MAX_COMPONENTS direct components). `element` applies
- * to SET OF, with `min_elements` and `max_elements` (inclusive, `SIZE_MAX`
- * for unbounded) bounding its element count. `universal_number` applies to
- * #TLV_DER_SCHEMA_UNIVERSAL leaves. Fields unused by a given kind are
- * ignored. All pointers are borrowed and must outlive use.
+ * to SET OF and SEQUENCE OF, with `min_elements` and `max_elements`
+ * (inclusive, `SIZE_MAX` for unbounded) bounding its element count.
+ * `universal_number` and `constraint` apply to #TLV_DER_SCHEMA_UNIVERSAL
+ * leaves. `extensible` applies to SEQUENCE. Fields unused by a given kind
+ * are ignored. All pointers are borrowed and must outlive use.
  */
 struct tlv_der_schema_type {
     /** Kind of type expression. */
@@ -152,12 +187,28 @@ struct tlv_der_schema_type {
     const tlv_der_schema_component_t* components;
     /** Number of entries in `components`. */
     size_t component_count;
-    /** Repeated element of a SET OF. */
+    /** Repeated element of a SET OF or SEQUENCE OF. */
     const tlv_der_schema_component_t* element;
-    /** Minimum SET OF element count, inclusive. */
+    /** Minimum SET OF or SEQUENCE OF element count, inclusive. */
     size_t min_elements;
-    /** Maximum SET OF element count, inclusive; `SIZE_MAX` is unbounded. */
+    /**
+     * Maximum SET OF or SEQUENCE OF element count, inclusive; `SIZE_MAX` is
+     * unbounded.
+     */
     size_t max_elements;
+    /**
+     * Optional SIZE/value-range constraint on a #TLV_DER_SCHEMA_UNIVERSAL
+     * leaf; `NULL` for none.
+     */
+    const tlv_der_schema_leaf_constraint_t* constraint;
+    /**
+     * Whether a #TLV_DER_SCHEMA_SEQUENCE tolerates an ASN.1 extension marker
+     * (`...`): nonzero to accept and skip, as opaque well-formed DER-TLV
+     * elements, any content left over after every declared component has
+     * been matched or skipped, instead of rejecting it as a schema
+     * violation. Ignored for every other kind.
+     */
+    int extensible;
 };
 
 /**
@@ -185,7 +236,8 @@ typedef struct tlv_der_schema_limits {
     tlv_der_limits_t base;
     /**
      * Bounds the scratch record capacity tlv_der_schema_write() needs to
-     * sort one SET OF's elements by their complete encodings. Not used by
+     * sort one SET OF's elements by their complete encodings, or to compose
+     * one SEQUENCE OF's elements in encoding order. Not used by
      * tlv_der_schema_read(), which validates SET/SET OF order with a single
      * adjacent-pair scan and needs no scratch storage.
      */
@@ -201,8 +253,10 @@ extern TLV_API const tlv_der_schema_limits_t tlv_der_schema_default_limits;
  * Verifies distinct effective identifiers among a SET's or CHOICE's direct
  * components; that CHOICE alternatives are #TLV_DER_REQUIRED with no default;
  * that no CHOICE-typed component uses IMPLICIT tagging; that `component_count`
- * is within #TLV_DER_SCHEMA_MAX_COMPONENTS; and that type-graph depth is
- * within #TLV_DER_SCHEMA_MAX_TYPE_DEPTH.
+ * is within #TLV_DER_SCHEMA_MAX_COMPONENTS; that type-graph depth is within
+ * #TLV_DER_SCHEMA_MAX_TYPE_DEPTH; that a leaf's `constraint->min_length` is at
+ * most `max_length`; and that a leaf's `constraint->value_constraint` is only
+ * set when `universal_number` is 2 (INTEGER) or 10 (ENUMERATED).
  *
  * Intended to validate a hand-authored table once (for example in a unit
  * test). tlv_der_schema_read() and tlv_der_schema_write() already enforce the
@@ -222,8 +276,14 @@ TLV_API tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root, siz
  *
  * Reports the single complete element consumed, with the same zero-copy,
  * `error_offset` and limit conventions as tlv_der_read_strict(). Every
- * UNIVERSAL leaf is content-validated; SET and SET OF wire order is
- * checked; DEFAULT-equal components are rejected.
+ * UNIVERSAL leaf is content-validated, including its `constraint` when set
+ * (raw content length bounds, and a decoded INTEGER/ENUMERATED value-range or
+ * allowed-values check); SET and SET OF wire order is checked (SEQUENCE OF
+ * elements are not, since ASN.1 does not require it); DEFAULT-equal
+ * components are rejected. Content left over in an `extensible` SEQUENCE
+ * after every declared component is matched or skipped is accepted as one
+ * or more opaque, well-formed DER-TLV elements (validated the same way as an
+ * ANY component, but not otherwise interpreted) rather than rejected.
  *
  * @param[in]  data         Encoded input.
  * @param[in]  size         Input size in bytes.
@@ -247,19 +307,19 @@ TLV_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
 /**
  * @brief Callback supplying one component's raw inner content for tlv_der_schema_write().
  *
- * Supplies the content of one component, CHOICE alternative or SET OF
- * element: the bytes that belong inside its own effective tag and length,
- * before any IMPLICIT/EXPLICIT wrapping that tlv_der_schema_write() applies.
- * Content is requested only for a #TLV_DER_SCHEMA_UNIVERSAL or
- * #TLV_DER_SCHEMA_ANY component.
+ * Supplies the content of one component, CHOICE alternative or SET OF/
+ * SEQUENCE OF element: the bytes that belong inside its own effective tag
+ * and length, before any IMPLICIT/EXPLICIT wrapping that
+ * tlv_der_schema_write() applies. Content is requested only for a
+ * #TLV_DER_SCHEMA_UNIVERSAL or #TLV_DER_SCHEMA_ANY component.
  *
  * For every component, whatever its underlying kind, the callback is first
  * called with `NULL` data purely to learn presence through `*absent`. This
  * lets an OPTIONAL or DEFAULT component, a CHOICE alternative, or (reusing
- * the same signal to mean "no more elements") a SET OF's next element report
- * absence without producing bytes. `*absent` is 0 on entry; the callback
- * sets it nonzero and returns #TLV_OK to report absence, in which case
- * `data`, `capacity` and `written` are ignored.
+ * the same signal to mean "no more elements") a SET OF's or SEQUENCE OF's
+ * next element report absence without producing bytes. `*absent` is 0 on
+ * entry; the callback sets it nonzero and returns #TLV_OK to report absence,
+ * in which case `data`, `capacity` and `written` are ignored.
  *
  * Once presence is confirmed for a UNIVERSAL or ANY component, the callback
  * is called again with `NULL` data and zero capacity to size the content (as
@@ -272,9 +332,10 @@ TLV_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
  * @param[in]  context   Caller context passed to tlv_der_schema_write().
  * @param[in]  component Component whose content is requested.
  * @param[in]  index     0 for a SEQUENCE, SET or CHOICE component; 0, 1, 2, ...
- *                       for successive SET OF elements. Iteration stops at
- *                       the first index reporting absent, so real elements
- *                       must be reported present at every lower index.
+ *                       for successive SET OF or SEQUENCE OF elements.
+ *                       Iteration stops at the first index reporting absent,
+ *                       so real elements must be reported present at every
+ *                       lower index.
  * @param[out] data      Destination, or `NULL` for a presence or size query.
  * @param[in]  capacity  Destination capacity in bytes.
  * @param[out] written   Receives the content size.
@@ -283,9 +344,9 @@ TLV_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
  * @return #TLV_OK on success (including reporting absence), or an error
  *         code that propagates unchanged.
  *
- * @note A #TLV_DER_REQUIRED component, or an element below a SET OF's
- *       `min_elements`, reporting absent is a caller/schema mismatch
- *       (#TLV_ERR_SCHEMA).
+ * @note A #TLV_DER_REQUIRED component, or an element below a SET OF's or
+ *       SEQUENCE OF's `min_elements`, reporting absent is a caller/schema
+ *       mismatch (#TLV_ERR_SCHEMA).
  */
 typedef tlv_result_t (*tlv_der_schema_encode_fn)(const void* context,
                                                  const tlv_der_schema_component_t* component,
@@ -295,8 +356,8 @@ typedef tlv_result_t (*tlv_der_schema_encode_fn)(const void* context,
 /**
  * @brief An `{offset, length}` byte range within the `scratch_bytes` arena.
  *
- * tlv_der_schema_write() uses these records to compose and sort SET and
- * SET OF content.
+ * tlv_der_schema_write() uses these records to compose SET, SET OF and
+ * SEQUENCE OF content, sorting SET and SET OF elements but not SEQUENCE OF's.
  */
 typedef struct tlv_der_schema_record {
     /** Offset of the range within the scratch byte arena. */
@@ -308,17 +369,19 @@ typedef struct tlv_der_schema_record {
 /**
  * @brief Encodes a schema's canonical DER-TLV bytes.
  *
- * Invokes `encode` for each UNIVERSAL or ANY component's or SET OF element's
- * content, and for every component's presence. The engine chooses component
- * order (sorting SET components by effective tag, and SET OF elements by
- * complete encoding), applies IMPLICIT/EXPLICIT wrapping, and omits a
+ * Invokes `encode` for each UNIVERSAL or ANY component's or SET OF/SEQUENCE
+ * OF element's content, and for every component's presence. The engine
+ * chooses component order (sorting SET components by effective tag, and SET
+ * OF elements by complete encoding; SEQUENCE OF elements keep the order the
+ * callback produced them in), applies IMPLICIT/EXPLICIT wrapping, and omits a
  * DEFAULT component whose complete encoding equals its `default_encoding`.
  *
  * Unlike tlv_der_write(), this always composes the complete output in
  * `scratch_bytes` first, and only then copies it to `data`. That arena is
  * bump-allocated by the engine and is needed to compare and reorder SET OF
- * elements' complete encodings, and to compare DEFAULT components against
- * their `default_encoding` before omitting or keeping them. Its capacity
+ * elements' complete encodings, to compose SEQUENCE OF elements, and to
+ * compare DEFAULT components against their `default_encoding` before
+ * omitting or keeping them. Its capacity
  * must be large enough for the complete composed output, which can
  * temporarily exceed the final size by a factor proportional to nesting
  * depth, because each SEQUENCE, SET, CHOICE or EXPLICIT layer concatenates
@@ -327,9 +390,10 @@ typedef struct tlv_der_schema_record {
  *
  * `scratch_bytes` and `scratch_bytes_capacity` are required even for a
  * `NULL`-`data` size query, and are still fully used then. `scratch` and
- * `scratch_capacity` are the SET OF sort's own record storage
- * (#tlv_der_schema_limits_t::max_set_elements bounds how many are needed);
- * both may be `NULL`/0 only for a schema with no SET OF.
+ * `scratch_capacity` are the SET OF sort's and SEQUENCE OF composition's own
+ * record storage (#tlv_der_schema_limits_t::max_set_elements bounds how many
+ * are needed); both may be `NULL`/0 only for a schema with no SET OF or
+ * SEQUENCE OF.
  *
  * @param[out] data             Destination. `NULL` with zero `capacity` queries
  *                              the size that would be written.
@@ -340,8 +404,9 @@ typedef struct tlv_der_schema_record {
  * @param[in]  limits           Limits, or `NULL` for #tlv_der_schema_default_limits.
  * @param[out] scratch_bytes    Byte arena for composing output. Required.
  * @param[in]  scratch_bytes_capacity Capacity of `scratch_bytes` in bytes.
- * @param[out] scratch          SET OF sort records; `NULL` only for a schema
- *                              with no SET OF.
+ * @param[out] scratch          SET OF sort / SEQUENCE OF composition records;
+ *                              `NULL` only for a schema with no SET OF or
+ *                              SEQUENCE OF.
  * @param[in]  scratch_capacity Number of records in `scratch`.
  * @param[out] written          Receives the encoded (or required) size.
  * @param[out] error_offset     Optional. Offset of the failure, using the

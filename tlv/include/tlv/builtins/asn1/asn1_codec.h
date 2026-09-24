@@ -98,6 +98,48 @@ typedef struct tlv_asn1_bit_string {
  */
 extern TLV_API const tlv_codec_t tlv_asn1_codec_bit_string;
 
+/**
+ * @brief One named bit of a BIT STRING (X.680's `NamedBitList` notation, for example
+ * `digitalSignature(0)` in a `KeyUsage`).
+ *
+ * Purely descriptive: unrelated to #tlv_asn1_codec_bit_string's own decode/encode, which never
+ * interpret individual bit positions.
+ */
+typedef struct tlv_asn1_named_bit {
+    /** Bit position; 0 is the most significant bit of the first content octet (X.680 clause 22). */
+    size_t position;
+    /** Borrowed, NUL-terminated display name. */
+    const char* name;
+} tlv_asn1_named_bit_t;
+
+/**
+ * @brief Tests whether one bit of a decoded BIT STRING is set.
+ *
+ * A DER-encoded BIT STRING omits trailing zero bits (its canonical content rule), so per X.680's
+ * `NamedBitList` convention a `position` at or beyond the encoded bit count (`8 * bits->length`)
+ * is implicitly clear rather than an error.
+ *
+ * @param[in] bits     Decoded BIT STRING to test; must not be `NULL`.
+ * @param[in] position Bit position, 0 = the most significant bit of the first content octet.
+ *
+ * @return Nonzero if the bit is set.
+ * @return 0 if the bit is clear, or `position` is at or beyond the encoded content.
+ */
+TLV_API int tlv_asn1_bit_string_test(const tlv_asn1_bit_string_t* bits, size_t position);
+
+/**
+ * @brief Looks up a named bit's display name by position in a table.
+ *
+ * @param[in] names    Borrowed table of named bits; may be `NULL` only when `count` is 0.
+ * @param[in] count    Number of entries in `names`.
+ * @param[in] position Bit position to find.
+ *
+ * @return The borrowed, NUL-terminated name of the entry whose `position` matches.
+ * @return `NULL` if no entry matches.
+ */
+TLV_API const char* tlv_asn1_named_bit_find(const tlv_asn1_named_bit_t* names, size_t count,
+                                            size_t position);
+
 /** @brief Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes. */
 typedef struct tlv_asn1_octet_string {
     /** Borrowed content bytes. `NULL` only when `length` is 0. */
@@ -340,6 +382,187 @@ typedef struct tlv_asn1_generalized_time {
  * a non-`NULL` `fraction_digits` or vice versa.
  */
 extern TLV_API const tlv_codec_t tlv_asn1_codec_generalized_time;
+
+/**
+ * @brief ObjectDescriptor codec (X.690 section 11.2): #tlv_asn1_octet_string_t.
+ *
+ * ObjectDescriptor is `[UNIVERSAL 7] IMPLICIT GraphicString`; like OCTET
+ * STRING, every byte sequence is valid content, since X.690 places no
+ * canonical byte-level restriction on GraphicString's character set. Decode
+ * and encode behave exactly as #tlv_asn1_codec_octet_string.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_object_descriptor;
+
+/**
+ * @brief TeletexString codec (X.690 section 8.23 and 11.2): #tlv_asn1_octet_string_t.
+ *
+ * TeletexString (T61String)'s character set is a complex legacy (ISO
+ * 2022-based) encoding X.690 places no canonical byte-level restriction on;
+ * every byte sequence is valid content, as with OCTET STRING. Decode and
+ * encode behave exactly as #tlv_asn1_codec_octet_string.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_teletex_string;
+
+/**
+ * @brief VideotexString codec (X.690 section 8.23 and 11.2): #tlv_asn1_octet_string_t.
+ *
+ * Same treatment as #tlv_asn1_codec_teletex_string: a complex legacy
+ * character set X.690 does not canonically restrict at the byte level.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_videotex_string;
+
+/**
+ * @brief GraphicString codec (X.690 section 8.23 and 11.2): #tlv_asn1_octet_string_t.
+ *
+ * Same treatment as #tlv_asn1_codec_teletex_string.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_graphic_string;
+
+/**
+ * @brief GeneralString codec (X.690 section 8.23 and 11.2): #tlv_asn1_octet_string_t.
+ *
+ * Same treatment as #tlv_asn1_codec_teletex_string.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_general_string;
+
+/**
+ * @brief Generic TIME codec (X.690 section 11.7 and X.680 clause 38): #tlv_asn1_string_t.
+ *
+ * TIME's concrete ISO 8601-based syntax varies far more than
+ * DATE/TIME-OF-DAY/DATE-TIME/DURATION below (week dates, ordinal dates,
+ * fractional seconds, UTC offsets, intervals). Decode and encode only check
+ * VisibleString's character-set restriction, not the fuller ISO 8601
+ * canonical-form grammar.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_time;
+
+/** @brief Decoded DATE content (X.690 section 11.x): a calendar date. */
+typedef struct tlv_asn1_date {
+    /** Four-digit year, 0-9999. */
+    int32_t year;
+    /** Month, 1-12. */
+    uint8_t month;
+    /** Day of month, 1-31. */
+    uint8_t day;
+} tlv_asn1_date_t;
+
+/**
+ * @brief DATE codec (X.690 section 11.x): #tlv_asn1_date_t.
+ *
+ * Decode requires the canonical `YYYYMMDD` digit-only form (no `-`
+ * separators) and range-checks the calendar fields (for example day 1-31);
+ * a calendar-invalid date such as 30 February is not detected. Encode
+ * requires `year` in 0-9999 and every other field in its documented range,
+ * and always reproduces the canonical form.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_date;
+
+/** @brief Decoded TIME-OF-DAY content (X.690 section 11.x): a local time of day. */
+typedef struct tlv_asn1_time_of_day {
+    /** Hour, 0-23. */
+    uint8_t hour;
+    /** Minute, 0-59. */
+    uint8_t minute;
+    /** Second, 0-59. */
+    uint8_t second;
+} tlv_asn1_time_of_day_t;
+
+/**
+ * @brief TIME-OF-DAY codec (X.690 section 11.x): #tlv_asn1_time_of_day_t.
+ *
+ * Decode requires the canonical `HHMMSS` digit-only form (no `:` separators)
+ * and range-checks every field. Encode requires every field in its
+ * documented range and always reproduces the canonical form.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_time_of_day;
+
+/** @brief Decoded DATE-TIME content (X.690 section 11.x): a DATE immediately followed by a
+ *  TIME-OF-DAY. */
+typedef struct tlv_asn1_date_time {
+    /** Four-digit year, 0-9999. */
+    int32_t year;
+    /** Month, 1-12. */
+    uint8_t month;
+    /** Day of month, 1-31. */
+    uint8_t day;
+    /** Hour, 0-23. */
+    uint8_t hour;
+    /** Minute, 0-59. */
+    uint8_t minute;
+    /** Second, 0-59. */
+    uint8_t second;
+} tlv_asn1_date_time_t;
+
+/**
+ * @brief DATE-TIME codec (X.690 section 11.x): #tlv_asn1_date_time_t.
+ *
+ * Decode requires the canonical `YYYYMMDDHHMMSS` digit-only form (no `-`,
+ * `:` or `T` separators) and range-checks every calendar field. Encode
+ * requires `year` in 0-9999 and every other field in its documented range,
+ * and always reproduces the canonical form.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_date_time;
+
+/**
+ * @brief DURATION codec (X.690 section 11.x): #tlv_asn1_string_t.
+ *
+ * Content is the ISO 8601 duration string without its leading `P`
+ * designator, for example `2Y10M15DT10H20M30S`. Decode and encode validate
+ * designator/digit structure and component order (`Y`, `M`, `D`, then
+ * optionally `T` followed by `H`, `M`, `S`), but do not enforce ISO 8601's
+ * omission of zero-valued components, and accept a fractional value only on
+ * the seconds component.
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_duration;
+
+/**
+ * @brief Maximum number of arcs #tlv_asn1_iri_t can hold.
+ *
+ * Generous for every OID-IRI or RELATIVE-OID-IRI seen in practice; decode
+ * reports #TLV_CODEC_ERR_INVALID_VALUE if the content needs more.
+ */
+enum { TLV_ASN1_IRI_MAX_ARCS = 32 };
+
+/** @brief One borrowed arc label of a #tlv_asn1_iri_t. */
+typedef struct tlv_asn1_iri_arc {
+    /** Borrowed arc label bytes (valid UTF-8, never containing `/`). Never `NULL`. */
+    const uint8_t* data;
+    /** Length of `data` in bytes; always nonzero. */
+    size_t length;
+} tlv_asn1_iri_arc_t;
+
+/** @brief Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels. */
+typedef struct tlv_asn1_iri {
+    /** Arc labels in order; only the first `count` entries are populated. */
+    tlv_asn1_iri_arc_t arcs[TLV_ASN1_IRI_MAX_ARCS];
+    /** Number of populated entries in `arcs`. */
+    size_t count;
+} tlv_asn1_iri_t;
+
+/**
+ * @brief OID-IRI codec (X.690 section 8.21 and 11.3): #tlv_asn1_iri_t.
+ *
+ * Content is the UTF-8 encoding of `/`-separated arc labels, with a leading
+ * `/` marking the absolute path (not itself an arc). Decode splits content
+ * into borrowed per-arc spans; encode joins them back with `/` separators
+ * and the leading `/`, rejecting an empty arc, a non-UTF-8 arc, or an arc
+ * containing `/`. Checks arc-separator structure only, not each arc's
+ * characters against the fuller RFC 3987 IRI-label restrictions X.680's IRI
+ * value notation defines.
+ *
+ * @see tlv_asn1_codec_relative_oid_iri
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_oid_iri;
+
+/**
+ * @brief RELATIVE-OID-IRI codec (X.690 section 8.22 and 11.3): #tlv_asn1_iri_t.
+ *
+ * Same as #tlv_asn1_codec_oid_iri, except content has no leading `/` (it is
+ * a relative path) and encode does not add one.
+ *
+ * @see tlv_asn1_codec_oid_iri
+ */
+extern TLV_API const tlv_codec_t tlv_asn1_codec_relative_oid_iri;
 
 #ifdef __cplusplus
 }

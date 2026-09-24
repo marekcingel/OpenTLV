@@ -18,7 +18,8 @@
 
 TEST(Integration_Tlvpp, Asn1IntegerCodecComposesWithValueRangeConstraint) {
     // Version ::= INTEGER (0..255)
-    const tlv_value_constraint_t version_range = {TLV_VALUE_CONSTRAINT_RANGE, 0, 255, nullptr, 0};
+    const tlv_value_constraint_t version_range = {
+        TLV_VALUE_CONSTRAINT_RANGE, 0, 255, nullptr, 0, nullptr};
 
     const uint8_t in_range[] = {0x2A}; // 42
     int64_t       version = -1;
