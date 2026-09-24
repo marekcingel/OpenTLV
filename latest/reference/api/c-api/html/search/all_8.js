@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['key_0',['key',['../structtlv__diagnostic__context.html#a3da2d38144d0ddbde4e9ff07b29a23cd',1,'tlv_diagnostic_context']]],
-  ['kind_1',['kind',['../structtlv__der__schema__type.html#a5950a39c0b55d7f4e670a7d41004c7c3',1,'tlv_der_schema_type::kind'],['../structtlv__structure__rule.html#a166ebe1f14e8ea057c5da7faa8bcb6b6',1,'tlv_structure_rule::kind'],['../structtlv__schema__issue.html#a60703cc66aa114c4df0203a5aa8116d0',1,'tlv_schema_issue::kind'],['../structtlv__schema__diagnostic.html#a7131dd8623442e2ea4a4d11f4917fdd7',1,'tlv_schema_diagnostic::kind']]]
+  ['id_0',['id',['../structtlv__structure__group.html#a563555b0cece6c3002789f862fbc52f1',1,'tlv_structure_group']]],
+  ['is_5fconstructed_1',['is_constructed',['../structtlv__structure__codec.html#afb2642a956c482e5abde27a333bdbce7',1,'tlv_structure_codec::is_constructed'],['../structtlv__document__options.html#a32266f6299ef3e105009d004ae7f65fa',1,'tlv_document_options::is_constructed']]],
+  ['is_5fgroup_2',['is_group',['../structtlv__schema__diagnostic.html#a6ff07c00e2adb83bb0f47b10ea649975',1,'tlv_schema_diagnostic']]],
+  ['issues_3',['issues',['../structtlv__schema__report.html#a2c82b3b97b6128d5ad761c5f551914de',1,'tlv_schema_report']]]
 ];

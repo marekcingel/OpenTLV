@@ -1,5 +1,9 @@
 var searchData=
 [
-  ['key_0',['key',['../../../c-api/html/structtlv__diagnostic__context.html#a3da2d38144d0ddbde4e9ff07b29a23cd',1,'tlv_diagnostic_context']]],
-  ['kind_1',['kind',['../../../c-api/html/structtlv__der__schema__type.html#a5950a39c0b55d7f4e670a7d41004c7c3',1,'tlv_der_schema_type::kind'],['../../../c-api/html/structtlv__schema__diagnostic.html#a7131dd8623442e2ea4a4d11f4917fdd7',1,'tlv_schema_diagnostic::kind'],['../../../c-api/html/structtlv__schema__issue.html#a60703cc66aa114c4df0203a5aa8116d0',1,'tlv_schema_issue::kind'],['../../../c-api/html/structtlv__structure__rule.html#a166ebe1f14e8ea057c5da7faa8bcb6b6',1,'tlv_structure_rule::kind']]]
+  ['id_0',['id',['../../../c-api/html/structtlv__structure__group.html#a563555b0cece6c3002789f862fbc52f1',1,'tlv_structure_group']]],
+  ['insert_1',['insert',['../classtlv_1_1document.html#a9aca67e55cfbb482aae36522ddef8b3e',1,'tlv::document']]],
+  ['is_5fconstructed_2',['is_constructed',['../../../c-api/html/structtlv__document__options.html#a32266f6299ef3e105009d004ae7f65fa',1,'tlv_document_options::is_constructed'],['../../../c-api/html/structtlv__structure__codec.html#afb2642a956c482e5abde27a333bdbce7',1,'tlv_structure_codec::is_constructed'],['../structtlv_1_1document__format.html#a7c54320306f649ef5161deec48dd37c8',1,'tlv::document_format::is_constructed'],['../classtlv_1_1node.html#a40dbfcc7d7457acf9f8408f3a95ad9a0',1,'tlv::node::is_constructed()']]],
+  ['is_5fgroup_3',['is_group',['../../../c-api/html/structtlv__schema__diagnostic.html#a6ff07c00e2adb83bb0f47b10ea649975',1,'tlv_schema_diagnostic']]],
+  ['is_5ftlv_5fcodec_4',['is_tlv_codec',['../structtlv_1_1is__tlv__codec.html',1,'tlv']]],
+  ['issues_5',['issues',['../../../c-api/html/structtlv__schema__report.html#a2c82b3b97b6128d5ad761c5f551914de',1,'tlv_schema_report']]]
 ];

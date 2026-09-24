@@ -92,6 +92,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:aecfad3c2ed37d5c9e34b9949ef8a8f19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a69e74dc9e58ca0846a212d63f1d9fa0a" id="r_a69e74dc9e58ca0846a212d63f1d9fa0a"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a69e74dc9e58ca0846a212d63f1d9fa0a">field</a></td></tr>
 <tr class="separator:a69e74dc9e58ca0846a212d63f1d9fa0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ff07c00e2adb83bb0f47b10ea649975" id="r_a6ff07c00e2adb83bb0f47b10ea649975"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a6ff07c00e2adb83bb0f47b10ea649975">is_group</a></td></tr>
+<tr class="separator:a6ff07c00e2adb83bb0f47b10ea649975"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9facd01e78ce65749b965ed790fdf26b" id="r_a9facd01e78ce65749b965ed790fdf26b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a9facd01e78ce65749b965ed790fdf26b">has_occurs</a></td></tr>
 <tr class="separator:a9facd01e78ce65749b965ed790fdf26b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca5b00063c2dab680d2a0f0e45d66e38" id="r_aca5b00063c2dab680d2a0f0e45d66e38"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#aca5b00063c2dab680d2a0f0e45d66e38">min_occurs</a></td></tr>
@@ -117,7 +119,8 @@ Data Fields</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Structured detail for one violation found by <a class="el" href="group__schemas.html#ga0635e52eab4f1fe64276cd7dd429078d" title="Validates a TLV structure and reports every schema violation as a tlv_schema_diagnostic_t.">tlv_schema_validate_all_diag()</a>. </p>
-<p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> (code, severity and the offset of the affected element) with the schema-specific detail needed to explain the violation: which rule it breaks, the tag involved, the enclosing path, the schema field name if the rule has one, and the expected-versus-actual detail for whichever of <code>kind</code>'s cases applies. A field not applicable to <code>kind</code> is left unset, indicated by its paired <code>has_*</code> flag being zero. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates.</p>
+<p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> (code, severity and the offset of the affected element) with the schema-specific detail needed to explain the violation: which rule or <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> it breaks, the tag involved, the enclosing path, the schema field or group name if it has one, and the expected-versus-actual detail for whichever of <code>kind</code>'s cases applies. A field not applicable to <code>kind</code> is left unset, indicated by its paired <code>has_*</code> flag being zero. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates.</p>
+<p><a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a> and <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">TLV_SCHEMA_ISSUE_DUPLICATE</a> can be reported against a <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> instead of a single <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>, signaled by <code>is_group</code>: <code>tag</code> is then the group's first member rule's tag (missing) or the actual offending member's tag (duplicate), <code>field</code> is the group's <code>name</code>, and the occurrence fields are the group's own bounds and summed occurrences rather than one rule's.</p>
 <p><code>diagnostic.path</code> is left <code>NULL</code>; <code>path</code> below holds the same information as a plain value so that copying a <code>tlv_schema_diagnostic_t</code> out of a report array never leaves a dangling self-reference. A caller that wants <code>path</code> reachable through <code>diagnostic.path</code> sets it explicitly with <a class="el" href="group__diagnostics.html#ga572c3f8fa1a23f08b059a2e8614a6732" title="Sets the hierarchical path a diagnostic refers to.">tlv_diagnostic_set_path()</a> after the copy has a stable address.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga3b0f2029a9060eab1d2fddc71269bd3e" title="Resets a schema diagnostic to all-unset.">tlv_schema_diagnostic_init</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
@@ -192,7 +195,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Borrowed schema name for <code>tag</code> (the violated rule's <code>entry.name</code>), or <code>NULL</code> if the rule has none or no rule matched (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfdafc246b6e80fb54d8e829aec4992776a6">TLV_SCHEMA_ISSUE_UNEXPECTED</a>). </p>
+<p>Borrowed schema name for <code>tag</code> (the violated rule's <code>entry.name</code>, or the violated group's <code>name</code> when <code>is_group</code> is nonzero), or <code>NULL</code> if it has none or no rule matched (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfdafc246b6e80fb54d8e829aec4992776a6">TLV_SCHEMA_ISSUE_UNEXPECTED</a>). </p>
 
 </div>
 </div>
@@ -241,6 +244,21 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a id="a6ff07c00e2adb83bb0f47b10ea649975" name="a6ff07c00e2adb83bb0f47b10ea649975"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ff07c00e2adb83bb0f47b10ea649975">&#9670;&#160;</a></span>is_group</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_schema_diagnostic::is_group</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Nonzero if this <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a> or <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">TLV_SCHEMA_ISSUE_DUPLICATE</a> is reported against a <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> rather than a single <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>. </p>
+
+</div>
+</div>
 <a id="a7131dd8623442e2ea4a4d11f4917fdd7" name="a7131dd8623442e2ea4a4d11f4917fdd7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7131dd8623442e2ea4a4d11f4917fdd7">&#9670;&#160;</a></span>kind</h2>
 
@@ -282,7 +300,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Maximum permitted occurrences of <code>tag</code> in its parent. </p>
+<p>Maximum permitted occurrences of <code>tag</code> in its parent, or of the group's members combined when <code>is_group</code> is nonzero. </p>
 
 </div>
 </div>
@@ -312,7 +330,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Minimum permitted occurrences of <code>tag</code> in its parent. </p>
+<p>Minimum permitted occurrences of <code>tag</code> in its parent, or of the group's members combined when <code>is_group</code> is nonzero. </p>
 
 </div>
 </div>
@@ -327,7 +345,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Occurrences found so far at the point of the violation. </p>
+<p>Occurrences found so far at the point of the violation, of <code>tag</code> or, when <code>is_group</code> is nonzero, of the group's members combined. </p>
 
 </div>
 </div>

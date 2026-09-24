@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['pan_0',['pan',['../../../c-api/html/structtlv__emv__track2__t.html#a3005a481c764f1b3f489b20663f78381',1,'tlv_emv_track2_t']]],
-  ['path_1',['path',['../../../c-api/html/structtlv__diagnostic.html#a95612fb75bb2e70bef01a62ba8953075',1,'tlv_diagnostic::path'],['../../../c-api/html/structtlv__schema__diagnostic.html#aecfad3c2ed37d5c9e34b9949ef8a8f19',1,'tlv_schema_diagnostic::path'],['../../../c-api/html/structtlv__schema__issue.html#ab1b8dddcbf298c0e4668ffe34b1ec983',1,'tlv_schema_issue::path']]],
-  ['path_5flength_2',['path_length',['../../../c-api/html/structtlv__schema__issue.html#a0e8e9870c692f0411cfdf5b5e7b0fa48',1,'tlv_schema_issue']]],
-  ['pos_3',['pos',['../../../c-api/html/structtlv__reader.html#a0df462988d0cb475dba57307819a6eaa',1,'tlv_reader::pos'],['../../../c-api/html/structtlv__writer.html#aac4278e9b2b6431ca8be05a7222c321e',1,'tlv_writer::pos']]],
-  ['presence_4',['presence',['../../../c-api/html/structtlv__der__schema__component.html#ad206011fb0b0cee0ee798a4b91929e7d',1,'tlv_der_schema_component']]]
+  ['occurs_0',['occurs',['../../../c-api/html/structtlv__schema__diagnostic.html#ae57e6b4e4fa3d9d3f4946bd6beb8f030',1,'tlv_schema_diagnostic']]],
+  ['offline_5fauth_5frecord_5fcount_1',['offline_auth_record_count',['../../../c-api/html/structtlv__emv__afl__entry__t.html#a77a2a108261b65e6a1f463af8dc06505',1,'tlv_emv_afl_entry_t']]],
+  ['offset_2',['offset',['../../../c-api/html/structtlv__der__schema__record.html#a2cccc1b6168839b35b3c85b84e7a532b',1,'tlv_der_schema_record::offset'],['../../../c-api/html/structtlv__diagnostic.html#a969e40206405a7b642395115d14b1ae7',1,'tlv_diagnostic::offset'],['../../../c-api/html/structtlv__schema__issue.html#a9488e25d134c31327b6950361031202a',1,'tlv_schema_issue::offset']]],
+  ['operation_3',['operation',['../../../c-api/html/structtlv__reader__diagnostic.html#a16279bb35f837ad2b9905ffdebd5db58',1,'tlv_reader_diagnostic::operation'],['../../../c-api/html/structtlv__writer__diagnostic.html#ad38578a4ed1275942fda0c6a22736522',1,'tlv_writer_diagnostic::operation']]],
+  ['order_4',['order',['../../../c-api/html/structtlv__structure__schema.html#ab2d922f63cd11d4d355b0d92cec6e415',1,'tlv_structure_schema']]]
 ];

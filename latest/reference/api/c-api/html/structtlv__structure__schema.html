@@ -88,6 +88,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:a2c8416dde2a3e1b1a0b9536781d23807"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaee701c6ab8ff5e90a4f4c086f1e7471" id="r_aaee701c6ab8ff5e90a4f4c086f1e7471"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__schema.html#aaee701c6ab8ff5e90a4f4c086f1e7471">allow_unknown</a></td></tr>
 <tr class="separator:aaee701c6ab8ff5e90a4f4c086f1e7471"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adefe431a0f7eec2353ec43fe8c1f0d98" id="r_adefe431a0f7eec2353ec43fe8c1f0d98"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9">tlv_structure_group_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__schema.html#adefe431a0f7eec2353ec43fe8c1f0d98">groups</a></td></tr>
+<tr class="separator:adefe431a0f7eec2353ec43fe8c1f0d98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a335cc37dba94875befa24d5ba718b2b3" id="r_a335cc37dba94875befa24d5ba718b2b3"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__schema.html#a335cc37dba94875befa24d5ba718b2b3">group_count</a></td></tr>
+<tr class="separator:a335cc37dba94875befa24d5ba718b2b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2d922f63cd11d4d355b0d92cec6e415" id="r_ab2d922f63cd11d4d355b0d92cec6e415"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__schemas.html#ga7865cbd73117d7ca0f076c885541b829">tlv_schema_order_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__schema.html#ab2d922f63cd11d4d355b0d92cec6e415">order</a></td></tr>
+<tr class="separator:ab2d922f63cd11d4d355b0d92cec6e415"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Borrowed set of structural rules for one parent scope. </p>
@@ -121,6 +127,51 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Number of rules. </p>
+
+</div>
+</div>
+<a id="a335cc37dba94875befa24d5ba718b2b3" name="a335cc37dba94875befa24d5ba718b2b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a335cc37dba94875befa24d5ba718b2b3">&#9670;&#160;</a></span>group_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_structure_schema::group_count</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Number of entries in <code>groups</code>. </p>
+
+</div>
+</div>
+<a id="adefe431a0f7eec2353ec43fe8c1f0d98" name="adefe431a0f7eec2353ec43fe8c1f0d98"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adefe431a0f7eec2353ec43fe8c1f0d98">&#9670;&#160;</a></span>groups</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9">tlv_structure_group_t</a>* tlv_structure_schema::groups</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Borrowed table of alternative groups referenced by <code>rules[*].group</code>; may be <code>NULL</code> only when <code>group_count</code> is zero. </p>
+
+</div>
+</div>
+<a id="ab2d922f63cd11d4d355b0d92cec6e415" name="ab2d922f63cd11d4d355b0d92cec6e415"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2d922f63cd11d4d355b0d92cec6e415">&#9670;&#160;</a></span>order</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__schemas.html#ga7865cbd73117d7ca0f076c885541b829">tlv_schema_order_t</a> tlv_structure_schema::order</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Ordering required among this scope's matched elements. </p>
 
 </div>
 </div>

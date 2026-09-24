@@ -1026,6 +1026,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ordered-unordered-and-choice-like-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordered, unordered and CHOICE-like structures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reporting-every-violation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2558,6 +2569,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ordered-unordered-and-choice-like-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordered, unordered and CHOICE-like structures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reporting-every-violation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2606,10 +2628,14 @@
 
 <h1 id="optional-c-schemas">Optional C schemas<a class="headerlink" href="#optional-c-schemas" title="Permanent link">&para;</a></h1>
 <p>Include <code>tlv/schema/schema.h</code> to describe known tags using constant tables.
-This engine is format-agnostic and expresses occurrence, nesting and
-membership only; it has no ASN.1 semantics. For DER-specific canonical rules
-it cannot express (SET/SET OF ordering, CHOICE, implicit/explicit tagging,
-DEFAULT omission), see
+This engine is format-agnostic: it expresses occurrence, ordering, mutually
+exclusive alternatives, nesting and membership using generic primitives, with
+no ASN.1-specific semantics. <a href="#ordered-unordered-and-choice-like-structures">Ordered, unordered and CHOICE-like
+structures</a> below maps these
+primitives to the ASN.1 shapes they cover (SEQUENCE, SET, SET OF, CHOICE). For
+DER-specific canonical rules this engine still cannot express (implicit/explicit
+tagging, DEFAULT-value comparison against the encoded bytes, canonical SET/SET
+OF tag- or encoding-based sort order), see
 <a href="../../profiles/der/#schema-aware-validation-and-encoding">schema-aware DER validation and encoding</a>,
 a distinct schema type built for that purpose.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">/* A schema entry borrows its tag bytes, so they need static storage. */</span>
@@ -2752,12 +2778,103 @@ scope boundary rather than an element, which can coincide with the start of
 an unrelated sibling in the enclosing scope. Distinguish the two codes before
 using the offset to look up a tag. Framing and resource errors propagate.
 Success leaves the offset unchanged.</p>
-<p>No allocation or C recursion is used. Each scope is rescanned for each rule;
-complexity is <code>O(rules * rules + elements * rules)</code> per scope. Tables must remain immutable.
-Sibling ordering and cross-field/value semantics are application concerns.
-<code>tlv::validate</code> exposes these same rules through the C++ API. For a concrete
-structure schema built on this engine, see
+<p>No allocation or C recursion is used. Each scope is rescanned for each rule and
+each group; complexity is <code>O((rules + groups) * (rules + elements))</code> per scope.
+Tables must remain immutable. Sibling order is a schema concern only when a
+scope opts into it (see below); cross-field/value semantics stay an
+application concern. <code>tlv::validate</code> exposes these same rules through the C++
+API. For a concrete structure schema built on this engine, see
 <a href="../../profiles/emv/#structural-validation">EMV structural validation</a>.</p>
+<h2 id="ordered-unordered-and-choice-like-structures">Ordered, unordered and CHOICE-like structures<a class="headerlink" href="#ordered-unordered-and-choice-like-structures" title="Permanent link">&para;</a></h2>
+<p><code>tlv_structure_schema_t</code> has two more fields beyond <code>rules</code>, <code>count</code> and
+<code>allow_unknown</code>: <code>order</code> and <code>groups</code>/<code>group_count</code>. Together with
+<code>min_occurs</code>/<code>max_occurs</code>, they let a schema express the generic shapes ASN.1
+constructed types need, without any ASN.1-specific schema object:</p>
+<table>
+<thead>
+<tr>
+<th>Generic OpenTLV concept</th>
+<th>ASN.1 equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>order = TLV_SCHEMA_ORDER_ANY</code> (the default)</td>
+<td>SET</td>
+</tr>
+<tr>
+<td><code>order = TLV_SCHEMA_ORDER_SEQUENCE</code></td>
+<td>SEQUENCE</td>
+</tr>
+<tr>
+<td>A rule with <code>max_occurs = SIZE_MAX</code></td>
+<td>SET OF (with <code>order</code> left <code>ANY</code>) or SEQUENCE OF (with <code>order = TLV_SCHEMA_ORDER_SEQUENCE</code>)</td>
+</tr>
+<tr>
+<td><code>min_occurs = 1</code></td>
+<td>a required member</td>
+</tr>
+<tr>
+<td><code>min_occurs = 0</code></td>
+<td>an optional member, or a defaulted one (see below)</td>
+</tr>
+<tr>
+<td>A <code>tlv_structure_group_t</code> with <code>min_occurs = 1</code>, <code>max_occurs = 1</code>, and every member rule's own <code>min_occurs = 0</code></td>
+<td>CHOICE</td>
+</tr>
+</tbody>
+</table>
+<p><code>TLV_SCHEMA_ORDER_SEQUENCE</code> requires elements that match a rule to appear in
+the same relative order as their rules are listed in the table; repeated
+matches of one rule may still appear consecutively, and elements matching no
+rule are not constrained by it.</p>
+<p>A <code>tlv_structure_group_t</code> groups rules that share a nonzero
+<code>tlv_structure_rule_t::group</code>. Occurrence bounds then apply to the sum of
+matches across every member tag, instead of to each tag individually: a group
+with <code>min_occurs</code> 1 and <code>max_occurs</code> 1 requires exactly one occurrence of
+exactly one alternative. A member rule's own <code>min_occurs</code> must be 0, because
+requiredness is expressed by the group; its <code>max_occurs</code> still bounds how many
+times that one alternative may repeat.</p>
+<p>This is enough to express the ASN.1 example from
+<a href="https://github.com/marekcingel/OpenTLV/issues/308">issue #308</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n n-Type">Person</span><span class="w"> </span><span class="o">::=</span><span class="w"> </span><span class="kd">SEQUENCE</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nv">id</span><span class="w">      </span><span class="kt">INTEGER</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nv">name</span><span class="w">    </span><span class="kt">UTF8String</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nv">comment</span><span class="w"> </span><span class="kt">UTF8String</span><span class="w"> </span><span class="kd">OPTIONAL</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">}</span>
+</code></pre></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">C</label><label for="__tabbed_2_2">C++</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_structure_rule_t</span><span class="w"> </span><span class="n">person_rules</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="p">{{</span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"id"</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_PRIMITIVE</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">},</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="p">{{</span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"name"</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_PRIMITIVE</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">},</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="p">{{</span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"comment"</span><span class="p">},</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_PRIMITIVE</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">},</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">};</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_structure_schema_t</span><span class="w"> </span><span class="n">person_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="n">person_rules</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_ORDER_SEQUENCE</span><span class="p">};</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_structure_rule_t</span><span class="w"> </span><span class="n">person_rules</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="p">{{</span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"id"</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_PRIMITIVE</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">},</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="p">{{</span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"name"</span><span class="p">},</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_PRIMITIVE</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">},</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="p">{{</span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"comment"</span><span class="p">},</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_PRIMITIVE</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">},</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="p">};</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_structure_schema_t</span><span class="w"> </span><span class="n">person_schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="n">person_rules</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">nullptr</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_SCHEMA_ORDER_SEQUENCE</span><span class="p">};</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>The reader still provides the nested TLV elements; the schema layer only
+validates their relationship (order, required/optional, and, with a <code>group</code>,
+mutual exclusivity), the same way it already validates occurrence and
+membership. DEFAULT has no dedicated representation here: since this engine
+never decodes values, a defaulted member is written the same way as an
+optional one (<code>min_occurs = 0</code>), and comparing an encoded value against its
+default stays a format-specific concern, as it already is for DER (see
+<a href="../../profiles/der/#schema-aware-validation-and-encoding">schema-aware DER validation and encoding</a>).</p>
 <h2 id="reporting-every-violation">Reporting every violation<a class="headerlink" href="#reporting-every-violation" title="Permanent link">&para;</a></h2>
 <p><code>tlv_schema_validate</code> stops at the first violation. To validate a template's
 contents and get all problems at once, call <code>tlv_schema_validate_all</code> with the
@@ -2767,20 +2884,20 @@ say which tags are required (<code>min_occurs</code>), which may repeat (<code>m
 which children each constructed tag may hold (<code>children</code>), and whether unknown
 tags are accepted (<code>allow_unknown</code>, or an override for the whole call with
 <code>tlv_schema_unknown_policy_t</code>).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">tlv_schema_issue_t</span><span class="w">  </span><span class="n">issues</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">tlv_schema_report_t</span><span class="w"> </span><span class="n">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">issues</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate_all</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_ber</span><span class="p">,</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">                                          </span><span class="n">tlv_ber_is_constructed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">template_schema</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">                                          </span><span class="n">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">report</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_ERR_SCHEMA</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">count</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">capacity</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">path</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">tlv_schema_issue_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">path</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"%s at %s"</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_schema_issue_kind_string</span><span class="p">(</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">kind</span><span class="p">),</span><span class="w"> </span><span class="n">path</span><span class="p">);</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">has_offset</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">" (offset %zu)"</span><span class="p">,</span><span class="w"> </span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">offset</span><span class="p">);</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">tlv_schema_issue_t</span><span class="w">  </span><span class="n">issues</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">tlv_schema_report_t</span><span class="w"> </span><span class="n">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">issues</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate_all</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_ber</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">                                          </span><span class="n">tlv_ber_is_constructed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">template_schema</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">                                          </span><span class="n">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">report</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_ERR_SCHEMA</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">count</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">capacity</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">path</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">tlv_schema_issue_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">path</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"%s at %s"</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_schema_issue_kind_string</span><span class="p">(</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">kind</span><span class="p">),</span><span class="w"> </span><span class="n">path</span><span class="p">);</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">has_offset</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">" (offset %zu)"</span><span class="p">,</span><span class="w"> </span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="p">}</span>
 </code></pre></div>
 <p>Each <code>tlv_schema_issue_t</code> has a <code>kind</code> (<code>MISSING</code>, <code>DUPLICATE</code>, <code>UNEXPECTED</code>,
 <code>KIND</code> for a primitive/constructed mismatch, <code>LENGTH</code>), the <code>path</code> from the

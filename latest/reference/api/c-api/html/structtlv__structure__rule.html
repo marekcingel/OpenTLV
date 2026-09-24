@@ -92,6 +92,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:a166ebe1f14e8ea057c5da7faa8bcb6b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a617ed4c7f509616172efadcd2a666607" id="r_a617ed4c7f509616172efadcd2a666607"><td class="memItemLeft" align="right" valign="top">const struct <a class="el" href="structtlv__structure__schema.html">tlv_structure_schema</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__rule.html#a617ed4c7f509616172efadcd2a666607">children</a></td></tr>
 <tr class="separator:a617ed4c7f509616172efadcd2a666607"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc6a45fc33e6a703ecc96eae4d3b3f7e" id="r_afc6a45fc33e6a703ecc96eae4d3b3f7e"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__rule.html#afc6a45fc33e6a703ecc96eae4d3b3f7e">group</a></td></tr>
+<tr class="separator:afc6a45fc33e6a703ecc96eae4d3b3f7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Structural rule for one tag within a single parent. </p>
@@ -124,6 +126,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Tag and permitted value-length bounds for this rule. </p>
+
+</div>
+</div>
+<a id="afc6a45fc33e6a703ecc96eae4d3b3f7e" name="afc6a45fc33e6a703ecc96eae4d3b3f7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc6a45fc33e6a703ecc96eae4d3b3f7e">&#9670;&#160;</a></span>group</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t tlv_structure_rule::group</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Group this rule belongs to, or 0 if it stands alone (the default). A nonzero value must match the <code>id</code> of an entry in the enclosing <a class="el" href="structtlv__structure__schema.html#adefe431a0f7eec2353ec43fe8c1f0d98">tlv_structure_schema_t::groups</a>, and makes this rule one alternative of that <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a>, modeling an ASN.1-style CHOICE among the group's member tags. <code>min_occurs</code> must be 0 for a grouped rule; <code>max_occurs</code> still bounds how many times this specific alternative may repeat, independently of the group's own bounds. </p>
 
 </div>
 </div>
@@ -168,7 +185,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Minimum occurrences within the parent: 1 makes a field required; 0 makes it optional. </p>
+<p>Minimum occurrences within the parent: 1 makes a field required; 0 makes it optional or, together with a default value maintained outside this schema-only engine, defaulted. Must be 0 when <code>group</code> is nonzero. </p>
 
 </div>
 </div>
