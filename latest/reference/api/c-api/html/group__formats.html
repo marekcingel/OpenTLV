@@ -183,6 +183,18 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga7399f0dfd5ab844e7d0001e4427b602c" id="r_ga7399f0dfd5ab844e7d0001e4427b602c"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga7399f0dfd5ab844e7d0001e4427b602c">tlv_ber_tag_class</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
+<tr class="memdesc:ga7399f0dfd5ab844e7d0001e4427b602c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the ASN.1 class of a BER tag.  <br /></td></tr>
+<tr class="separator:ga7399f0dfd5ab844e7d0001e4427b602c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5423e23fcd7f4b37ed5ecc626a8ba923" id="r_ga5423e23fcd7f4b37ed5ecc626a8ba923"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5423e23fcd7f4b37ed5ecc626a8ba923">tlv_ber_tag_is_constructed</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
+<tr class="memdesc:ga5423e23fcd7f4b37ed5ecc626a8ba923"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether a BER tag has the constructed bit set.  <br /></td></tr>
+<tr class="separator:ga5423e23fcd7f4b37ed5ecc626a8ba923"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3ef80279ed25c266f0b921b4f4fb11c2" id="r_ga3ef80279ed25c266f0b921b4f4fb11c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga3ef80279ed25c266f0b921b4f4fb11c2">tlv_ber_tag_make</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tag_class, int constructed, uint64_t number, uint8_t *storage, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
+<tr class="memdesc:ga3ef80279ed25c266f0b921b4f4fb11c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a raw BER tag from its class, form and tag number.  <br /></td></tr>
+<tr class="separator:ga3ef80279ed25c266f0b921b4f4fb11c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac312d532d40c00a7b7e7d6788e43b3d7" id="r_gac312d532d40c00a7b7e7d6788e43b3d7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gac312d532d40c00a7b7e7d6788e43b3d7">tlv_ber_tag_number</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint64_t *number)</td></tr>
+<tr class="memdesc:gac312d532d40c00a7b7e7d6788e43b3d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extracts the numeric tag number from a BER tag.  <br /></td></tr>
+<tr class="separator:gac312d532d40c00a7b7e7d6788e43b3d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3d4f4c0bde7339904daaa4e38bae1336" id="r_ga3d4f4c0bde7339904daaa4e38bae1336"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga3d4f4c0bde7339904daaa4e38bae1336">tlv_ber_indefinite_encoded_size</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, size_t length, size_t *size)</td></tr>
 <tr class="memdesc:ga3d4f4c0bde7339904daaa4e38bae1336"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports the encoded size of an explicit indefinite element.  <br /></td></tr>
 <tr class="separator:ga3d4f4c0bde7339904daaa4e38bae1336"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -893,6 +905,188 @@ An error code for a null output, an invalid or non-constructed tag, or size over
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>out_capacity</code> is smaller than the required size; nothing is partially written.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On any failure <code>*written</code> is unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="ga7399f0dfd5ab844e7d0001e4427b602c" name="ga7399f0dfd5ab844e7d0001e4427b602c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7399f0dfd5ab844e7d0001e4427b602c">&#9670;&#160;</a></span>tlv_ber_tag_class()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tlv_ber_tag_class </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
+          <td class="paramname"><em>tag</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the ASN.1 class of a BER tag. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tag</td><td>A successfully parsed or created BER tag; must be non-<code>NULL</code> and nonempty.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The identifier-octet class. </dd></dl>
+
+</div>
+</div>
+<a id="ga5423e23fcd7f4b37ed5ecc626a8ba923" name="ga5423e23fcd7f4b37ed5ecc626a8ba923"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5423e23fcd7f4b37ed5ecc626a8ba923">&#9670;&#160;</a></span>tlv_ber_tag_is_constructed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int tlv_ber_tag_is_constructed </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
+          <td class="paramname"><em>tag</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reports whether a BER tag has the constructed bit set. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tag</td><td>A successfully parsed or created BER tag; must be non-<code>NULL</code> and nonempty.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Nonzero if constructed, zero if primitive. </dd></dl>
+
+</div>
+</div>
+<a id="ga3ef80279ed25c266f0b921b4f4fb11c2" name="ga3ef80279ed25c266f0b921b4f4fb11c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3ef80279ed25c266f0b921b4f4fb11c2">&#9670;&#160;</a></span>tlv_ber_tag_make()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_ber_tag_make </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a>&#160;</td>
+          <td class="paramname"><em>tag_class</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>constructed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>number</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>storage</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
+          <td class="paramname"><em>tag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Constructs a raw BER tag from its class, form and tag number. </p>
+<p>Unlike the corresponding DER and CER tag constructors, this does not enforce any canonical primitive/constructed rule tied to a universal type number; only the reserved EOC identifier (universal class, tag number 0, in either form) is rejected, matching <a class="el" href="group__formats.html#ga0fca6210debe5a4230394a95fc7ad156" title="Reader format for raw BER-TLV.">tlv_reader_format_ber</a> and <a class="el" href="group__formats.html#ga578b925016c88f98190f1636a173eeea" title="Writer format for raw BER-TLV.">tlv_writer_format_ber</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag_class</td><td>ASN.1 class. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">constructed</td><td>Nonzero for constructed form, zero for primitive. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">number</td><td>Tag number. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">storage</td><td>Destination for the tag bytes; <a class="el" href="group__formats.html#gga06fc87d81c62e9abb8790b6e5713c55badb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> writable bytes. Must outlive every use of the tag. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Receives a tag that borrows <code>storage</code>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>storage</code> or <code>tag</code> is <code>NULL</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> if <code>tag_class</code> or <code>constructed</code> is out of range, or the identifier is the reserved EOC tag. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if the tag would exceed <a class="el" href="group__formats.html#gga06fc87d81c62e9abb8790b6e5713c55badb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The destination is unchanged on failure. </dd></dl>
+
+</div>
+</div>
+<a id="gac312d532d40c00a7b7e7d6788e43b3d7" name="gac312d532d40c00a7b7e7d6788e43b3d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac312d532d40c00a7b7e7d6788e43b3d7">&#9670;&#160;</a></span>tlv_ber_tag_number()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_ber_tag_number </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t *&#160;</td>
+          <td class="paramname"><em>number</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Extracts the numeric tag number from a BER tag. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>A successfully parsed or created BER tag. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">number</td><td>Receives the tag number.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if a required pointer is <code>NULL</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> if the encoding is invalid or the number exceeds <code>uint64_t</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty tag or one exceeding <a class="el" href="group__formats.html#gga06fc87d81c62e9abb8790b6e5713c55badb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd><code>*number</code> is unchanged on failure. </dd></dl>
 
 </div>
 </div>
