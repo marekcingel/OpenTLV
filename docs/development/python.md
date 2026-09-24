@@ -17,10 +17,18 @@ extension). For setup and usage, see [Using OpenTLV from
 Python](../guides/python.md). For the naming and shape this binding follows
 and adapts, see the [language bindings conceptual model](../concepts/bindings.md).
 
-This is infrastructure only: `opentlv-native` exposes just the linked
-library's version so far, proving the build, link and packaging pipeline
-end to end. Reader, Writer, Tag and the other conceptual-model types are not
-bound yet.
+`opentlv-native` exposes the linked library's version, stateless
+element-parsing and -encoding calls (`read`, `write`, `encoded_size`)
+parameterized by wire format, `structure_validate` (a serialized rule tree
+in, a pass/fail with diagnostic detail out), `emv_decode_amount`/
+`emv_encode_amount` (the one concrete `tlv_codec_t` the public C API
+exports), and a `document_*`/`node_*` family wrapping `tlv_document_t`
+(as a `PyCapsule`) and `tlv_node_t` (as a plain integer; see
+[relationship to the C API](../guides/python.md#relationship-to-the-c-api)).
+`opentlv` builds `Reader`, `Writer`, `Document`/`Node`, `Entry`, `Tag`,
+`Format`, `LengthSchema`/`StructureSchema`, the `OpenTLVError` exception
+hierarchy and the narrow `codec` submodule on top of it; see [Using OpenTLV
+from Python](../guides/python.md).
 
 ## Build
 
@@ -29,7 +37,7 @@ Requirements: Python 3.11 or newer, CMake 3.26 or newer and a C99 compiler.
 ```sh
 pip install ./bindings/python/opentlv-native ./bindings/python/opentlv
 pip install pytest
-pytest bindings/python/tests
+pytest bindings/python/opentlv/tests
 ```
 
 [scikit-build-core](https://scikit-build-core.readthedocs.io/) drives the
@@ -65,5 +73,5 @@ The [Python Bindings
 workflow](https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/python.yml)
 runs on every push and pull request to `main`: it installs both packages with
 `pip install ./bindings/python/opentlv-native ./bindings/python/opentlv` and
-runs `pytest bindings/python/tests` on Linux, and additionally on Windows and
-macOS for release tags.
+runs `pytest bindings/python/opentlv/tests` on Linux, and additionally on
+Windows and macOS for release tags.

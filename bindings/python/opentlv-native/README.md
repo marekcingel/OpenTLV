@@ -3,7 +3,10 @@
 Native Python bindings to the [OpenTLV](https://github.com/marekcingel/OpenTLV)
 C API: a native extension, built directly against the CPython C API and the
 CPython Limited API, that registers the C functions as plain Python callables
-with no added safety checks or Pythonic ergonomics. Imported as
+with no added safety checks or Pythonic ergonomics (`read`, for example,
+parses one element with a given wire format and raises a plain
+`opentlv_native.Error` on failure, without the typed exceptions or Reader
+iteration the `opentlv` package builds on top of it). Imported as
 `opentlv_native` (the distribution name uses a hyphen, the import name an
 underscore, as is conventional for Python packages):
 
