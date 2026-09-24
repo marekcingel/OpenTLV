@@ -38,7 +38,7 @@ predicate, such as BER or DER; without a predicate only one-tag queries match.
 This is a deliberately small language. Wildcards, indexes, recursive search and
 predicates are not part of it.
 
-## C
+/// tab | C
 
 ```c
 #include "tlv/query/query.h"
@@ -84,7 +84,9 @@ if (tlv_query_matcher_visit(&matcher, &view->tag, depth)) {
 }
 ```
 
-## C++
+///
+
+/// tab | C++
 
 ```cpp
 #include "tlv++/query/query.hpp"
@@ -105,3 +107,28 @@ auto walked = query->walk(
 `tlv::query` holds the parsed query by value and never allocates.
 `tlv::query::walk()` wraps `tlv_query_walk()` with the visitor conventions of
 `tlv::walk_tree()`.
+
+///
+
+/// tab | Python
+
+`opentlv` does not bind the zero-copy walk directly; a query addresses
+elements of a [`Document`](document.md) instead, through `find_path()`:
+
+```python
+with opentlv.Document(data, opentlv.Format.BER) as document:
+    label = document.find_path("6F/A5/50")
+    if label is not None:
+        print(bytes(label.value))
+```
+
+A malformed query raises `opentlv.InvalidArgError`; no match is simply
+`None`, the same as `document.find()`. Runnable version, including both
+cases:
+[query.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/query.py)
+(`python examples/query.py`).
+
+///
+
+Rust does not bind path queries yet; see the [language bindings conceptual
+model](../concepts/bindings.md) for the binding coverage of each language.

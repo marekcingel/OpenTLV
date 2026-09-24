@@ -61,11 +61,13 @@ directly above a fenced block to embed a source file verbatim; run
 block differs from its source or the source no longer builds. Small illustrative
 fragments may stay inline.
 
-## C and C++ tabs
+## Language tabs
 
-OpenTLV has a C core and a header-only C++ wrapper. Where both expose the same
-operation, show the two side by side in content tabs instead of writing two
-pages or listing both languages one after another:
+OpenTLV has a C core, a header-only C++ wrapper, and a growing set of language
+bindings (see the [language bindings conceptual
+model](../concepts/bindings.md)). Where two or more expose the same operation,
+show them side by side in content tabs instead of writing separate pages or
+listing languages one after another:
 
 ````markdown
 /// tab | C
@@ -77,6 +79,11 @@ C code and any C-specific notes.
 
 C++ code and any C++-specific notes.
 ///
+
+/// tab | Python
+
+Python code and any Python-specific notes.
+///
 ````
 
 The `/// tab | Label` blocks (`pymdownx.blocks.tab`) keep their content
@@ -85,25 +92,31 @@ without suppressions; do not use the indented `=== "Label"` syntax.
 
 Conventions:
 
-- Label tabs exactly `C` and `C++`, with `C` first. Tabs with the same label are
+- Label tabs `C` and `C++` first, in that order, then one tab per binding that
+  has an equivalent, in the order `concepts/bindings.md`'s status table lists
+  them (Rust, then Python, as of this writing). Tabs with the same label are
   linked across the site, so a reader's choice follows them from page to page.
-  Use other labels (for example the name of a future language binding) only for
-  further languages, never for other kinds of choice.
-- Tab only what differs. Keep the explanation of behavior shared by both APIs
-  (formats, lengths, ownership, errors) as ordinary text outside the tabs, and
-  mention a language difference in that language's tab.
-- Use tabs only for equivalent functionality. If one language has no
-  counterpart, describe it in prose rather than leaving an empty tab.
+  Use other labels only for further languages, never for other kinds of choice.
+- Tab only what differs. Keep the explanation of behavior shared across
+  languages (formats, lengths, ownership, errors) as ordinary text outside the
+  tabs, and mention a language-specific difference in that language's tab.
+- Use tabs only for equivalent functionality. If a binding has no counterpart
+  for a group (for example Rust has no `Document` or path-query binding, and
+  the WebAssembly build is not a Reader/Writer-shaped binding at all — see
+  [WebAssembly](webassembly.md)), leave it out of that group's tabs rather
+  than adding an empty one; a shape difference that is still worth flagging
+  (a narrower codec, a differently-shaped error type) belongs in prose or a
+  cross-link to that binding's own guide, not a tab.
 - Every tab group must read correctly on GitHub, which renders the source
   without tabs: put a short sentence before the group and give each tab enough
   context (a file name or a note) to stand alone.
-- Important tabbed examples are compiled sources: put the
-  `<!-- example: examples/PATH -->` marker and the fenced block inside the tab,
-  and the check below keeps the copy identical. See
-  [Getting started](../getting-started/README.md#quick-start).
-
-The same mechanism extends to language bindings: add a tab per binding to the
-groups where it has an equivalent.
+- Important tabbed examples are compiled or CI-run sources: put the
+  `<!-- example: PATH -->` marker and the fenced block inside the tab, and the
+  check below keeps the copy identical. See
+  [Getting started](../getting-started/README.md#quick-start). Small
+  illustrative fragments (a guide walking through one call, not a complete
+  program) may instead stay inline per tab, with a "Runnable version" link to
+  the full example file, as `guides/python.md` and `guides/rust.md` do.
 
 ## Adding new topics
 

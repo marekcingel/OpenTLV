@@ -105,4 +105,16 @@ Existing tag-associated C++ codecs remain supported. Use
 vector. Raw readers/writers now include only `tlv++/types.hpp` and the C I/O
 contracts; they do not depend on codecs.
 
+## Other languages
+
+Python and Rust do not bind this generic callback model; each exposes its own,
+narrower codec surface instead of a `tlv_codec_t`/`tlv_structure_codec_t`
+equivalent. Python's `opentlv.codec` binds only the EMV amount codec (see
+[Using OpenTLV from Python: Codec](python.md#codec)); Rust's `Codec`/`Value`
+cover the full EMV dictionary but reimplement its decoding logic rather than
+wrapping the C callbacks (see [Rust bindings: Codecs and the EMV
+dictionary](../development/rust.md#codecs-and-the-emv-dictionary)). See the
+[language bindings conceptual model](../concepts/bindings.md) for why the two
+diverge from the C/C++ shape described above.
+
 See also the [C API reference: codecs](../reference/c-api.md#codecs).

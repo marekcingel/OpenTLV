@@ -30,6 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add C/C++/Python/Rust language tabs to the Quick Start, path query, and
+  schema validation guides, and a Python tab to the mutable document guide,
+  so each concept is explained once with equivalent examples per binding; run
+  Python examples in CI and check their documented copies with
+  `scripts/check_doc_examples.py`, the same guarantee C, C++ and Rust
+  examples already have. (#278)
 - Add `Reader`, `Writer`, `Document`/`Node`, `Entry`, `Tag`, `Format`,
   `LengthSchema`/`StructureSchema`, the `OpenTLVError` exception hierarchy
   and a narrow `codec` submodule (EMV format n12 amounts only) to the Python
