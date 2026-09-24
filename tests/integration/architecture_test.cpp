@@ -57,12 +57,12 @@ int constructed(const void*, const tlv_tag_t* tag) {
 const tlv_reader_format_t  format = {nullptr, tag_read, length_read, nullptr, nullptr};
 const tlv_writer_format_t  writer_format = {nullptr, tag_write, length_write, length_size, nullptr};
 const tlv_structure_rule_t child_rules[] = {
-    {{TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{TLV_TAG(2), 1, 1, 0, nullptr}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr}};
-const tlv_structure_schema_t children = {child_rules, 2, 0};
+    {{TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {{TLV_TAG(2), 1, 1, 0, nullptr}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
+const tlv_structure_schema_t children = {child_rules, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 const tlv_structure_rule_t   parent_rules[] = {
-    {{TLV_TAG(0x80), 0, 255, 0, nullptr}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &children}};
-const tlv_structure_schema_t schema = {parent_rules, 1, 0};
+    {{TLV_TAG(0x80), 0, 255, 0, nullptr}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &children, 0}};
+const tlv_structure_schema_t schema = {parent_rules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
 #if OPENTLV_FORMAT_BER
 TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies) {
@@ -80,9 +80,9 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies
     EXPECT_EQ((std::vector<size_t>{0, 0, 1, 2, 2, 4, 3, 6, 1, 11, 0, 15}), visits);
     tlv_structure_schema_t     recursive{};
     const tlv_structure_rule_t rules[] = {
-        {{TLV_TAG(0x30), 0, 100, 0, nullptr}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive},
-        {{TLV_TAG(4), 0, 1, 0, nullptr}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr}};
-    recursive = tlv_structure_schema_t{rules, 2, 0};
+        {{TLV_TAG(0x30), 0, 100, 0, nullptr}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0},
+        {{TLV_TAG(4), 0, 1, 0, nullptr}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
+    recursive = tlv_structure_schema_t{rules, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_OK, tlv_schema_validate(wire, sizeof(wire), &tlv_reader_format_ber,
                                           tlv_ber_is_constructed, &recursive, 3, 6, nullptr));
     size_t offset = 999;
@@ -110,13 +110,13 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies
     EXPECT_EQ(15u, written);
     EXPECT_EQ(0, std::memcmp(wire, copied, written));
     // An empty indefinite scope still enforces required children.
-    const uint8_t              empty[] = {0x30, 0x80, 0, 0};
-    const tlv_structure_rule_t required = {
-        {TLV_TAG(4), 0, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
-    const tlv_structure_schema_t child = {&required, 1, 0};
+    const uint8_t                empty[] = {0x30, 0x80, 0, 0};
+    const tlv_structure_rule_t   required = {{TLV_TAG(4), 0, 1, 0, nullptr}, 1,       1,
+                                             TLV_SCHEMA_PRIMITIVE,           nullptr, 0};
+    const tlv_structure_schema_t child = {&required, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     const tlv_structure_rule_t   parent = {
-        {TLV_TAG(0x30), 0, 100, 0, nullptr}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &child};
-    const tlv_structure_schema_t root = {&parent, 1, 0};
+        {TLV_TAG(0x30), 0, 100, 0, nullptr}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &child, 0};
+    const tlv_structure_schema_t root = {&parent, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
               tlv_schema_validate(empty, sizeof(empty), &tlv_reader_format_ber,
                                   tlv_ber_is_constructed, &root, 0, 1, &offset));
@@ -201,7 +201,7 @@ TEST(Integration_Tlv_Architecture, MaximumDepthAndEmptyChildSchemaUseTheSameBoun
     }
     tlv_structure_schema_t recursive{};
     tlv_structure_rule_t   rule = {
-        {TLV_TAG(0x80), 0, 255, 0, nullptr}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive};
+        {TLV_TAG(0x80), 0, 255, 0, nullptr}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0};
     recursive.rules = &rule;
     recursive.count = 1;
     EXPECT_EQ(TLV_OK,

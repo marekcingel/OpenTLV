@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix `tlv_structure_rule_t`/`tlv_structure_schema_t` initializers in the EMV
+  structural schema, examples and tests that Clang's
+  `-Wmissing-field-initializers` rejected under `-Werror` after those types
+  gained `group`/`order` fields. (#308)
 - Fix `cargo fmt --all --check` failures in the Rust `quick_start` and `write` examples. (#282)
 
 ### Changed

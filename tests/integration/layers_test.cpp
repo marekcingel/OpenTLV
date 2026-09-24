@@ -97,18 +97,18 @@ TEST(Integration_Tlvpp, LayeredTraversalAndSchema) {
                                  });
     ASSERT_TRUE(result);
     EXPECT_EQ(2u, visits);
-    const tlv_structure_rule_t rule = {
-        {TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
-    const tlv_structure_schema_t schema = {&rule, 1, 1};
+    const tlv_structure_rule_t   rule = {{TLV_TAG(1), 1, 1, 0, nullptr}, 1,       1,
+                                         TLV_SCHEMA_PRIMITIVE,           nullptr, 0};
+    const tlv_structure_schema_t schema = {&rule, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_TRUE(tlv::validate(bytes, tlv_reader_format_default, nullptr, schema, 0, 2));
 }
 
 TEST(Integration_Tlvpp, ValidateAllCountsViolationsAndReportsTagPaths) {
-    const uint8_t              data[] = {2, 0};
-    const tlv::bytes           bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
-    const tlv_structure_rule_t rule = {
-        {TLV_TAG(1), 1, 1, 0, "one"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
-    const tlv_structure_schema_t schema = {&rule, 1, 0};
+    const uint8_t                data[] = {2, 0};
+    const tlv::bytes             bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
+    const tlv_structure_rule_t   rule = {{TLV_TAG(1), 1, 1, 0, "one"}, 1,       1,
+                                         TLV_SCHEMA_PRIMITIVE,         nullptr, 0};
+    const tlv_structure_schema_t schema = {&rule, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     tlv_schema_issue_t           issues[4];
     auto                         count =
         tlv::validate_all(bytes, tlv_reader_format_default, nullptr, schema, 0, 2, issues, 4);
@@ -118,18 +118,19 @@ TEST(Integration_Tlvpp, ValidateAllCountsViolationsAndReportsTagPaths) {
     ASSERT_EQ(TLV_OK, tlv_schema_issue_path_string(&issues[0], path, sizeof(path), nullptr));
     EXPECT_STREQ("01", path);
 
-    auto conforming = tlv::validate_all(tlv::bytes(), tlv_reader_format_default, nullptr,
-                                        tlv_structure_schema_t{nullptr, 0, 0}, 0, 2, nullptr, 0);
+    auto conforming = tlv::validate_all(
+        tlv::bytes(), tlv_reader_format_default, nullptr,
+        tlv_structure_schema_t{nullptr, 0, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY}, 0, 2, nullptr, 0);
     ASSERT_TRUE(conforming);
     EXPECT_EQ(0u, *conforming);
 }
 
 TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
-    const uint8_t              data[] = {2, 0};
-    const tlv::bytes           bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
-    const tlv_structure_rule_t rule = {
-        {TLV_TAG(1), 1, 1, 0, "one"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr};
-    const tlv_structure_schema_t schema = {&rule, 1, 0};
+    const uint8_t                data[] = {2, 0};
+    const tlv::bytes             bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
+    const tlv_structure_rule_t   rule = {{TLV_TAG(1), 1, 1, 0, "one"}, 1,       1,
+                                         TLV_SCHEMA_PRIMITIVE,         nullptr, 0};
+    const tlv_structure_schema_t schema = {&rule, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     tlv_schema_diagnostic_t      diagnostics[4];
     auto count = tlv::validate_all_diag(bytes, tlv_reader_format_default, nullptr, schema, 0, 2,
                                         diagnostics, 4);
@@ -140,9 +141,9 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
     EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, diagnostics[1].kind);
     EXPECT_EQ(nullptr, diagnostics[1].field);
 
-    auto conforming =
-        tlv::validate_all_diag(tlv::bytes(), tlv_reader_format_default, nullptr,
-                               tlv_structure_schema_t{nullptr, 0, 0}, 0, 2, nullptr, 0);
+    auto conforming = tlv::validate_all_diag(
+        tlv::bytes(), tlv_reader_format_default, nullptr,
+        tlv_structure_schema_t{nullptr, 0, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY}, 0, 2, nullptr, 0);
     ASSERT_TRUE(conforming);
     EXPECT_EQ(0u, *conforming);
 }
@@ -150,8 +151,8 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
 TEST(Integration_Tlvpp, ValidateEnforcesSequenceOrder) {
     // Ordered structure (ASN.1 SEQUENCE): tag 1 must not follow tag 2.
     const tlv_structure_rule_t rules[] = {
-        {{TLV_TAG(1), 0, 0, 0, nullptr}, 0, 2, TLV_SCHEMA_ANY, nullptr},
-        {{TLV_TAG(2), 0, 0, 0, nullptr}, 0, 2, TLV_SCHEMA_ANY, nullptr},
+        {{TLV_TAG(1), 0, 0, 0, nullptr}, 0, 2, TLV_SCHEMA_ANY, nullptr, 0},
+        {{TLV_TAG(2), 0, 0, 0, nullptr}, 0, 2, TLV_SCHEMA_ANY, nullptr, 0},
     };
     const tlv_structure_schema_t schema{rules, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_SEQUENCE};
 
@@ -231,8 +232,8 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsGroupAndOrderViolations) {
     EXPECT_EQ(2u, diagnostics[0].occurs);
 
     const tlv_structure_rule_t order_rules[] = {
-        {{TLV_TAG(1), 0, 0, 0, "one"}, 0, 2, TLV_SCHEMA_ANY, nullptr},
-        {{TLV_TAG(2), 0, 0, 0, "two"}, 0, 2, TLV_SCHEMA_ANY, nullptr},
+        {{TLV_TAG(1), 0, 0, 0, "one"}, 0, 2, TLV_SCHEMA_ANY, nullptr, 0},
+        {{TLV_TAG(2), 0, 0, 0, "two"}, 0, 2, TLV_SCHEMA_ANY, nullptr, 0},
     };
     const tlv_structure_schema_t order_schema{order_rules, 2, 0,
                                               nullptr,     0, TLV_SCHEMA_ORDER_SEQUENCE};

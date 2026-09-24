@@ -11,32 +11,39 @@ using Wire = std::vector<uint8_t>;
 
 // Template 77: AIP (82) and Application Cryptogram-like tag 9F36 are required, nothing else.
 const tlv_structure_rule_t rules77[] = {
-    {{TLV_TAG(0x82), 2, 2, 0, "aip"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{TLV_TAG(0x9F, 0x36), 2, 2, 0, "application_cryptogram"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(0x82), 2, 2, 0, "aip"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {{TLV_TAG(0x9F, 0x36), 2, 2, 0, "application_cryptogram"},
+     1,
+     1,
+     TLV_SCHEMA_PRIMITIVE,
+     nullptr,
+     0},
 };
-const tlv_structure_schema_t schema77 = {rules77, 2, 0};
+const tlv_structure_schema_t schema77 = {rules77, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
 // Template 70: 5A required; 5F24 optional once; 77 optional once; 9F4A may repeat.
 const tlv_structure_rule_t rules70[] = {
-    {{TLV_TAG(0x5A), 1, 10, 0, "primary_account_number"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{TLV_TAG(0x5F, 0x24), 3, 3, 0, "expiration_date"}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(0x5A), 1, 10, 0, "primary_account_number"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {{TLV_TAG(0x5F, 0x24), 3, 3, 0, "expiration_date"}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
     {{TLV_TAG(0x77), 0, SIZE_MAX, 0, "response_message_template2"},
      0,
      1,
      TLV_SCHEMA_CONSTRUCTED,
-     &schema77},
-    {{TLV_TAG(0x9F, 0x4A), 0, SIZE_MAX, 0, nullptr}, 0, SIZE_MAX, TLV_SCHEMA_PRIMITIVE, nullptr},
+     &schema77,
+     0},
+    {{TLV_TAG(0x9F, 0x4A), 0, SIZE_MAX, 0, nullptr}, 0, SIZE_MAX, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
 };
-const tlv_structure_schema_t schema70 = {rules70, 4, 1};
+const tlv_structure_schema_t schema70 = {rules70, 4, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
 const tlv_structure_rule_t rootRules[] = {
     {{TLV_TAG(0x70), 0, SIZE_MAX, 0, "read_record_template"},
      1,
      1,
      TLV_SCHEMA_CONSTRUCTED,
-     &schema70},
+     &schema70,
+     0},
 };
-const tlv_structure_schema_t rootSchema = {rootRules, 1, 1};
+const tlv_structure_schema_t rootSchema = {rootRules, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
 struct Outcome {
     tlv_result_t                    rc;
@@ -197,10 +204,17 @@ TEST(Integration_Tlv_SchemaReport, ReportsPrimitiveConstructedMismatchAndDoesNot
          0,
          1,
          TLV_SCHEMA_CONSTRUCTED,
-         nullptr},
-        {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, "primitive_field"}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+         nullptr,
+         0},
+        {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, "primitive_field"},
+         0,
+         1,
+         TLV_SCHEMA_PRIMITIVE,
+         nullptr,
+         0},
     };
-    static const tlv_structure_schema_t kindSchema = {kindRules, 2, 0};
+    static const tlv_structure_schema_t kindSchema = {kindRules, 2, 0,
+                                                      nullptr,   0, TLV_SCHEMA_ORDER_ANY};
     const Wire                          wire = {0x5A, 0x01, 0x00, 0x6F, 0x00};
     Outcome                             out = run(wire, kindSchema);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
@@ -273,10 +287,11 @@ TEST(Integration_Tlv_SchemaReport, RejectsInvalidArgumentsAndRuleTables) {
               call(&rootSchema, static_cast<tlv_schema_unknown_policy_t>(7), &report));
 
     const tlv_structure_rule_t   duplicateRules[] = {rootRules[0], rootRules[0]};
-    const tlv_structure_schema_t duplicateSchema = {duplicateRules, 2, 1};
+    const tlv_structure_schema_t duplicateSchema = {duplicateRules, 2, 1,
+                                                    nullptr,        0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_ERR_INVALID_ARG, call(&duplicateSchema, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report));
     EXPECT_EQ(0u, report.count);
-    const tlv_structure_schema_t nullRules = {nullptr, 1, 1};
+    const tlv_structure_schema_t nullRules = {nullptr, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_ERR_INVALID_ARG, call(&nullRules, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report));
 }
 
@@ -284,8 +299,8 @@ TEST(Integration_Tlv_SchemaReport, LimitsSchemaNestingToThePathCapacity) {
     static tlv_structure_schema_t recursive;
     static tlv_structure_rule_t   recursiveRules[1];
     recursiveRules[0] = {
-        {TLV_TAG(0x6F), 0, SIZE_MAX, 0, nullptr}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive};
-    recursive = {recursiveRules, 1, 0};
+        {TLV_TAG(0x6F), 0, SIZE_MAX, 0, nullptr}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0};
+    recursive = {recursiveRules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
     Wire wire = {0x6F, 0x00};
     for (int i = 1; i < TLV_SCHEMA_PATH_MAX + 4; ++i) {
@@ -423,10 +438,17 @@ TEST(Integration_Tlv_SchemaReport, DiagReportsPrimitiveConstructedMismatchDetail
          0,
          1,
          TLV_SCHEMA_CONSTRUCTED,
-         nullptr},
-        {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, "primitive_field"}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+         nullptr,
+         0},
+        {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, "primitive_field"},
+         0,
+         1,
+         TLV_SCHEMA_PRIMITIVE,
+         nullptr,
+         0},
     };
-    static const tlv_structure_schema_t kindSchema = {kindRules, 2, 0};
+    static const tlv_structure_schema_t kindSchema = {kindRules, 2, 0,
+                                                      nullptr,   0, TLV_SCHEMA_ORDER_ANY};
     const Wire                          wire = {0x5A, 0x01, 0x00, 0x6F, 0x00};
     DiagOutcome                         out = runDiag(wire, kindSchema);
     ASSERT_EQ(2u, out.count);

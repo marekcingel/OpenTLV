@@ -57,9 +57,9 @@ int constructed(const void*, const tlv_tag_t* tag) {
 const tlv_reader_format_t  format = {nullptr, tag_read, length_read, nullptr, nullptr};
 const tlv_writer_format_t  writer_format = {nullptr, tag_write, length_write, length_size, nullptr};
 const tlv_structure_rule_t child_rules[] = {
-    {{TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{TLV_TAG(2), 1, 1, 0, nullptr}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr}};
-const tlv_structure_schema_t children = {child_rules, 2, 0};
+    {{TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {{TLV_TAG(2), 1, 1, 0, nullptr}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
+const tlv_structure_schema_t children = {child_rules, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 TEST(Unit_Tlv_Architecture, GenericValueBoundsAndTrailerValidation) {
     struct Bounds {
         size_t       header, value, trailer;
@@ -110,7 +110,7 @@ TEST(Unit_Tlv_Architecture, SchemaUnknownPolicyKindsAndInvalidTables) {
               tlv_schema_validate(wire, sizeof(wire), &format, constructed, &open, 0, 2, nullptr));
     tlv_structure_rule_t rule = child_rules[0];
     rule.kind = TLV_SCHEMA_CONSTRUCTED;
-    tlv_structure_schema_t bad = {&rule, 1, 1};
+    tlv_structure_schema_t bad = {&rule, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_schema_validate(wire, sizeof(wire), &format, constructed, &bad, 0, 2, nullptr));
     rule.kind = TLV_SCHEMA_PRIMITIVE;
@@ -130,7 +130,7 @@ TEST(Unit_Tlv_Architecture, SchemaGroupTableValidity) {
     // A rule referencing a group id absent from the schema's groups table is invalid.
     tlv_structure_rule_t grouped = child_rules[1];
     grouped.group = 1;
-    tlv_structure_schema_t dangling_group = {&grouped, 1, 1};
+    tlv_structure_schema_t dangling_group = {&grouped, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, constructed,
                                                   &dangling_group, 0, 2, nullptr));
 

@@ -172,13 +172,13 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* 
             rc = tlv_read(data + pos, frame->end - pos, format, &view, &used);
             if (rc != TLV_OK) return rc;
             if (same_tag(&rule->entry.tag, &view.tag) && ++count > rule->max_occurs) {
-                violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0};
+                violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0, NULL};
                 add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &view.tag, &pos, &detail);
             }
             pos += used;
         }
         if (count < rule->min_occurs) {
-            violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0};
+            violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0, NULL};
             add_issue(c, TLV_SCHEMA_ISSUE_MISSING, &rule->entry.tag,
                       c->depth ? &frame->offset : NULL, &detail);
         }
@@ -226,7 +226,8 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* 
             for (size_t i = 0; i < frame->schema->count; ++i)
                 if (same_tag(&frame->schema->rules[i].entry.tag, &view.tag)) {
                     if (have_last && i < last_index) {
-                        violation_detail_t detail = {&frame->schema->rules[i], 0, 0, 0, 0, 0, 0};
+                        violation_detail_t detail = {
+                            &frame->schema->rules[i], 0, 0, 0, 0, 0, 0, NULL};
                         add_issue(c, TLV_SCHEMA_ISSUE_ORDER, &view.tag, &pos, &detail);
                     } else {
                         last_index = i;
@@ -290,14 +291,14 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size,
             rc = tlv_length_to_size(view.value.length, &value_length);
             if (rc != TLV_OK) return rc;
             if (tlv_schema_validate_length(&rule->entry, value_length) != TLV_OK) {
-                violation_detail_t detail = {rule, 0, 0, 1, value_length, 0, 0};
+                violation_detail_t detail = {rule, 0, 0, 1, value_length, 0, 0, NULL};
                 add_issue(c, TLV_SCHEMA_ISSUE_LENGTH, &view.tag, &pos, &detail);
             }
             constructed = is_constructed && is_constructed(format->context, &view.tag);
             kind_ok = !((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
                         (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed));
             if (!kind_ok) {
-                violation_detail_t detail = {rule, 0, 0, 0, 0, 1, constructed};
+                violation_detail_t detail = {rule, 0, 0, 0, 0, 1, constructed, NULL};
                 add_issue(c, TLV_SCHEMA_ISSUE_KIND, &view.tag, &pos, &detail);
             }
             if (kind_ok && rule->children) {
