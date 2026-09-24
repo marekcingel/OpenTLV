@@ -75,6 +75,14 @@ supports it. On failure destination contents are unspecified and encode's
 independently from parser/writer `tlv_result_t` errors. The existing C++ codec
 trait and registry are separate APIs and are unchanged.
 
+## ASN.1 universal-type codecs
+
+`tlv/builtins/asn1/asn1_codec.h` provides `tlv_codec_t` descriptors for the
+ASN.1 primitive universal types (BOOLEAN, INTEGER, ENUMERATED, BIT STRING,
+OCTET STRING, NULL, OBJECT IDENTIFIER and RELATIVE-OID), independent of any
+BER-family format or profile. See
+[BER-TLV: universal-type value codecs](../formats/asn1/ber.md#universal-type-value-codecs).
+
 ## Complete object mappings
 
 Bindings belong to the codec layer. Include `tlv/codec/structure.h` for

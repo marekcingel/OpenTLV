@@ -40,7 +40,7 @@ if(OPENTLV_FORMAT_BLUETOOTH_LTV)
     target_sources(${PROJECT_NAME} PRIVATE src/builtins/bluetooth/bluetooth_ltv.c)
 endif()
 if(OPENTLV_FORMAT_BER)
-    target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/ber.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/ber.c src/builtins/asn1/asn1_codec.c)
 endif()
 if(OPENTLV_FORMAT_DER)
     target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/der.c)
@@ -53,12 +53,15 @@ if(OPENTLV_FORMAT_BER)
     # guard covers the shared private BER wire helpers used by both.
     target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/ber_internal.c)
 endif()
+if(OPENTLV_FORMAT_BER OR OPENTLV_FORMAT_DER OR OPENTLV_FORMAT_CER)
+    # Universal-value content validators, shared by the BER-layer codecs
+    # above and by the DER/CER strict-mode validators below.
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/asn1_values_internal.c)
+endif()
 if(OPENTLV_FORMAT_DER OR OPENTLV_FORMAT_CER)
-    # Shared canonical identifier/length helpers and universal-value content
-    # validators, usable by either sibling without requiring the other.
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/asn1/asn1_internal.c
-        src/builtins/asn1/asn1_values_internal.c)
+    # Shared canonical identifier/length helpers, usable by either sibling
+    # without requiring the other.
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/asn1_internal.c)
 endif()
 if(OPENTLV_FORMAT_DER)
     target_sources(${PROJECT_NAME} PRIVATE

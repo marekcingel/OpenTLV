@@ -29,6 +29,7 @@ set(SOURCES
     document/document_test.cpp
     codec/codec_test.cpp
     builtins/asn1/format_ber_test.cpp
+    builtins/asn1/asn1_codec_test.cpp
     builtins/asn1/der_test.cpp
     builtins/asn1/der_values_test.cpp
     builtins/asn1/der_schema_test.cpp
@@ -77,7 +78,8 @@ if(NOT (OPENTLV_FORMAT_BER AND OPENTLV_PROFILE_EMV))
                                  builtins/emv/dol_test.cpp builtins/emv/tag_c_test.c)
 endif()
 if(NOT (OPENTLV_FORMAT_BER))
-    list(REMOVE_ITEM SOURCES builtins/asn1/format_ber_test.cpp schema/schema_report_test.cpp)
+    list(REMOVE_ITEM SOURCES builtins/asn1/format_ber_test.cpp builtins/asn1/asn1_codec_test.cpp
+                                 schema/schema_report_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_FIXED_1BYTE))
     list(REMOVE_ITEM SOURCES builtins/fixed/format_fixed_1byte_test.cpp)

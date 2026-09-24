@@ -222,6 +222,46 @@ value payload to be present.
 
 These framing rules follow [ITU-T X.690 (02/2021), sections 8.1.3 and 8.1.5](https://www.itu.int/rec/T-REC-X.690-202102-I/en).
 
+### Universal-type value codecs
+
+`tlv/builtins/asn1/asn1_codec.h` (built with `OPENTLV_FORMAT_BER`) adds
+[`tlv_codec_t`](../../guides/codecs.md) descriptors that convert the raw
+value bytes of the ASN.1 primitive universal types to and from C
+representations, independent of any particular BER-family format or
+profile. The format layer above never reads ASN.1 type semantics into a
+tag; callers pick the matching codec themselves, typically from a schema or
+dictionary:
+
+```c
+#include "tlv/builtins/asn1/asn1_codec.h"
+
+/* view.value already read through tlv_reader_format_ber, DER or CER */
+int64_t number;
+size_t  length;
+if (tlv_length_to_size(view.value.length, &length) == TLV_OK &&
+    tlv_codec_decode(&tlv_asn1_codec_integer, view.value.data, length,
+                      &number, sizeof(number)) == TLV_CODEC_OK) {
+    /* number holds the decoded INTEGER */
+}
+```
+
+A codec is provided for each of BOOLEAN (`tlv_asn1_codec_boolean`, `bool`),
+INTEGER and ENUMERATED (`tlv_asn1_codec_integer`, `tlv_asn1_codec_enumerated`,
+`int64_t`), BIT STRING (`tlv_asn1_codec_bit_string`, `tlv_asn1_bit_string_t`),
+OCTET STRING (`tlv_asn1_codec_octet_string`, `tlv_asn1_octet_string_t`), NULL
+(`tlv_asn1_codec_null`, no representation) and OBJECT IDENTIFIER /
+RELATIVE-OID (`tlv_asn1_codec_oid`, `tlv_asn1_codec_relative_oid`, both
+`tlv_asn1_oid_t`, an arc array up to `TLV_ASN1_OID_MAX_ARCS`). BIT STRING and
+OCTET STRING decode into a representation that borrows the input value
+bytes; every other representation is self-contained.
+
+Every codec enforces the same canonical content rules ITU-T X.690 section 11
+defines for DER and CER, even when the raw value was read through the more
+permissive `tlv_reader_format_ber`: for example a BOOLEAN of `01`, or a
+non-minimal two's complement INTEGER, is rejected with
+`TLV_CODEC_ERR_INVALID_VALUE`. See `tlv/builtins/asn1/asn1_codec.h` for each
+codec's exact content and representation rules.
+
 Malformed tags and unterminated tags on write return `TLV_ERR_INVALID_TAG`,
 unless continuation requires bytes beyond `TLV_ASN1_TAG_MAX_SIZE`. Empty tags on write and
 tags longer than `TLV_ASN1_TAG_MAX_SIZE` return `TLV_ERR_INVALID_TAG_SIZE`. Missing tag continuation or length bytes return
