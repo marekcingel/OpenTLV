@@ -30,6 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `tlv_ber_tag_class()`, `tlv_ber_tag_is_constructed()`, `tlv_ber_tag_make()`
+  and `tlv_ber_tag_number()` to `tlv/builtins/asn1/ber.h`, exposing the ASN.1
+  tag model (class, primitive/constructed form, low- and high-tag-number
+  numbers) at the BER format layer, reusing `tlv_tag_t` and without any
+  canonical DER/CER restriction on universal type numbers; see
+  [BER-TLV](docs/formats/asn1/ber.md#tag-model-class-form-and-number). (#305)
 - Add C/C++/Python/Rust language tabs to the Quick Start, path query, and
   schema validation guides, and a Python tab to the mutable document guide,
   so each concept is explained once with equivalent examples per binding; run

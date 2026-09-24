@@ -93,6 +93,83 @@ TEST(Unit_Tlv_Ber, InvalidTagsAndWriterState) {
               ber.read_tag(nullptr, invalid_tag, sizeof(invalid_tag), &tag, &used));
 }
 
+TEST(Unit_Tlv_Ber, TagClassFormAndNumberFromWireBytes) {
+    struct Case {
+        std::vector<uint8_t> bytes;
+        tlv_asn1_class_t     cls;
+        int                  constructed;
+        uint64_t             number;
+    };
+    const Case cases[] = {
+        {{0x02}, TLV_ASN1_UNIVERSAL, 0, 2},          // Universal, primitive, tag 2
+        {{0x30}, TLV_ASN1_UNIVERSAL, 1, 16},         // Universal, constructed, tag 16
+        {{0xA0}, TLV_ASN1_CONTEXT_SPECIFIC, 1, 0},   // Context-specific, constructed, tag 0
+        {{0x5F, 0x20}, TLV_ASN1_APPLICATION, 0, 32}, // Application, high-tag-number identifier
+    };
+    for (const auto& c : cases) {
+        SCOPED_TRACE(::testing::Message() << "bytes[0]=" << static_cast<unsigned>(c.bytes[0]));
+        const tlv_tag_t tag = tlv_tag(c.bytes.data(), c.bytes.size());
+        EXPECT_EQ(c.cls, tlv_ber_tag_class(&tag));
+        EXPECT_EQ(c.constructed, tlv_ber_tag_is_constructed(&tag));
+        uint64_t number = 0;
+        ASSERT_EQ(TLV_OK, tlv_ber_tag_number(&tag, &number));
+        EXPECT_EQ(c.number, number);
+    }
+}
+
+TEST(Unit_Tlv_Ber, TagMakeRejectsOnlyReservedEocAmongUniversalNumbers) {
+    tlv_tag_t tag{};
+    uint8_t   storage[TLV_ASN1_TAG_MAX_SIZE];
+    // Universal tag 0 is reserved for EOC, in either form.
+    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_ber_tag_make(TLV_ASN1_UNIVERSAL, 0, 0, storage, &tag));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_ber_tag_make(TLV_ASN1_UNIVERSAL, 1, 0, storage, &tag));
+    // Unlike tlv_der_tag_make() and tlv_cer_tag_make(), no other universal number is
+    // restricted to a fixed primitive/constructed form.
+    for (uint64_t number : {UINT64_C(1), UINT64_C(8), UINT64_C(11), UINT64_C(15), UINT64_C(16),
+                            UINT64_C(17), UINT64_C(29), UINT64_C(36)}) {
+        for (int constructed : {0, 1}) {
+            ASSERT_EQ(TLV_OK,
+                      tlv_ber_tag_make(TLV_ASN1_UNIVERSAL, constructed, number, storage, &tag));
+            EXPECT_EQ(constructed, tlv_ber_tag_is_constructed(&tag));
+        }
+    }
+}
+
+TEST(Unit_Tlv_Ber, TagModelNullArgsAndInvalidClassOrForm) {
+    tlv_tag_t tag{};
+    uint8_t   storage[TLV_ASN1_TAG_MAX_SIZE];
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_tag_make(TLV_ASN1_PRIVATE, 0, 1, storage, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_tag_make(TLV_ASN1_PRIVATE, 0, 1, nullptr, &tag));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_ber_tag_number(nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_ber_tag_make(TLV_ASN1_PRIVATE, 2, 1, storage, &tag));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG,
+              tlv_ber_tag_make(static_cast<tlv_asn1_class_t>(4), 0, 1, storage, &tag));
+}
+
+TEST(Unit_Tlv_Ber, TagModelSizeErrorsPreserveOutputs) {
+    tlv_tag_t tag{};
+    uint64_t  number = 42;
+    uint8_t   storage[TLV_ASN1_TAG_MAX_SIZE];
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_ber_tag_number(&tag, &number));
+    EXPECT_EQ(42u, number);
+    // The longest tag the format accepts, with a high-tag-number that never ends.
+    const uint8_t unterminated[TLV_ASN1_TAG_MAX_SIZE] = {0x9F, 0x81, 0x81, 0x81,
+                                                         0x81, 0x81, 0x81, 0x81};
+    tag = tlv_tag(unterminated, sizeof(unterminated));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_ber_tag_number(&tag, &number));
+    EXPECT_EQ(42u, number);
+    // A well-formed tag one byte over the format limit is rejected by the format, not the type.
+    const uint8_t too_long[TLV_ASN1_TAG_MAX_SIZE + 1] = {0x9F, 0x81, 0x81, 0x81, 0x81,
+                                                         0x81, 0x81, 0x81, 0x01};
+    tag = tlv_tag(too_long, sizeof(too_long));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_ber_tag_number(&tag, &number));
+    const tlv_tag_t before = tag;
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
+              tlv_ber_tag_make(TLV_ASN1_PRIVATE, 0, UINT64_MAX, storage, &tag));
+    EXPECT_EQ(before.data, tag.data);
+    EXPECT_EQ(before.size, tag.size);
+}
+
 TEST(Unit_Tlv_Ber, TruncationPreservesReaderOutput) {
     std::vector<uint8_t> data = {0x5A, 0x81, 0x80};
     data.resize(131, 0xAB);
