@@ -30,10 +30,11 @@ idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
    C++       Rust        Go       Python    <language>
 ```
 
-C++ and Rust ship today; Python is now scaffolded (`bindings/python/`) but
-does not bind any of the concepts below yet. Go is illustrative here, not yet
-scaffolded, to show the contract extends past the current bindings. The
-trailing `...` stands for any further binding.
+C++ and Rust ship today; Python (`bindings/python/`) now binds Reader, Writer,
+Document, Entry and Tag — including Document, which neither Rust nor
+WebAssembly bind yet. Go is illustrative here, not yet scaffolded, to show
+the contract extends past the current bindings. The trailing `...` stands
+for any further binding.
 
 The public OpenTLV C API (see the [C API reference](../reference/c-api.md)) is
 the single language boundary every binding wraps. A binding calls into the C
@@ -51,16 +52,16 @@ to this in practice.
 
 ## Core concepts
 
-| Concept | Responsibility | C | C++ (`tlv++`) | Rust (`opentlv`, experimental) |
-| --- | --- | --- | --- | --- |
-| Reader | Read-only parsing and traversal | `tlv_reader_t`, `tlv_reader_next()` | `tlv::reader` | `Reader<'a>` |
-| Writer | Construction and serialization | `tlv_writer_t` | `tlv::writer` | `Writer<'a>` |
-| Document | Optional owning, mutable representation | `tlv_document_t` | `tlv::document` | not bound yet |
-| Entry | One TLV entry, or a view onto one | `tlv_view_t` | `tlv::entry` | `Entry<'a>` |
-| Tag | The TLV tag abstraction: raw identifying bytes | `tlv_tag_t` | `tlv::tag_t` (alias) | `Tag` |
-| Schema | Structural validation: tags, lengths, occurrence and nesting rules | `tlv_schema_t`, `tlv_structure_schema_t` | same C types, wrapped by `tlv::validate`/`tlv::validate_all` | `LengthSchema`, `StructureSchema` |
-| Codec | Typed encoding and decoding of a value | `tlv_codec_t`, `tlv_structure_codec_t` | `TlvCodec` concept, `tlv::decode_structure<T>`/`encode_structure` | `Codec` |
-| Diagnostics | Structured diagnostic information for a failure | `tlv_diagnostic_t` | `tlv::diagnostic` (alias) | `SchemaError`, `ProfileError`, `CodecError` (each carries the failing offset; no unified diagnostic type yet) |
+| Concept | Responsibility | C | C++ (`tlv++`) | Rust (`opentlv`, experimental) | Python (`opentlv`, experimental) |
+| --- | --- | --- | --- | --- | --- |
+| Reader | Read-only parsing and traversal | `tlv_reader_t`, `tlv_reader_next()` | `tlv::reader` | `Reader<'a>` | `Reader` |
+| Writer | Construction and serialization | `tlv_writer_t` | `tlv::writer` | `Writer<'a>` | `Writer` |
+| Document | Optional owning, mutable representation | `tlv_document_t` | `tlv::document` | not bound yet | `Document`, `Node` |
+| Entry | One TLV entry, or a view onto one | `tlv_view_t` | `tlv::entry` | `Entry<'a>` | `Entry` |
+| Tag | The TLV tag abstraction: raw identifying bytes | `tlv_tag_t` | `tlv::tag_t` (alias) | `Tag` | `Tag` |
+| Schema | Structural validation: tags, lengths, occurrence and nesting rules | `tlv_schema_t`, `tlv_structure_schema_t` | same C types, wrapped by `tlv::validate`/`tlv::validate_all` | `LengthSchema`, `StructureSchema` | `LengthSchema`, `StructureSchema` |
+| Codec | Typed encoding and decoding of a value | `tlv_codec_t`, `tlv_structure_codec_t` | `TlvCodec` concept, `tlv::decode_structure<T>`/`encode_structure` | `Codec` | `codec` submodule, narrow: only the public `tlv_emv_codec_amount` |
+| Diagnostics | Structured diagnostic information for a failure | `tlv_diagnostic_t` | `tlv::diagnostic` (alias) | `SchemaError`, `ProfileError`, `CodecError` (each carries the failing offset; no unified diagnostic type yet) | `OpenTLVError` subclasses carry the offset, expected/actual text and operation, when the C API reports them |
 
 A binding adopts a concept when it needs it, not all at once: the table above
 already shows gaps (Rust has no `Document` yet, and no single `Diagnostics`
@@ -79,9 +80,24 @@ it. For example:
   `next()` loop. `tlv++`'s `reader` uses that explicit loop today (or a
   visitor passed to `tlv::walk_tree`); a future C++ range-based `for` over a
   `reader` would be the same adaptation applied there.
-- A future Python binding could iterate the same reader concept with
-  `for entry in reader:`, and raise a native `Exception` from `Result`-style
-  errors instead of returning an error code.
+- Python's `Reader` iterates the same reader concept with
+  `for entry in reader:`, and raises a native `Exception` subclass instead of
+  returning an error code.
+- Rust's and `tlv++`'s `Writer` fill a caller-provided fixed-capacity buffer
+  and report an error when an entry does not fit, matching the C library's
+  allocation-free `tlv_writer_t`. Python's `Writer` owns a `bytearray` it
+  grows as needed instead, so `write` never fails for lack of space: Python
+  callers do not pre-size a buffer or retry a failed write the way C, C++ and
+  Rust callers do. The concept (construction and serialization into a
+  sequential output) is unchanged; only which language owns the
+  buffer-sizing problem moves.
+- `tlv_document_t` is explicitly freed with `tlv_document_free()` in C, and
+  by RAII (`tlv::document`'s destructor) in `tlv++`. Python's `Document`
+  frees the same underlying allocation either way: deterministically via
+  `close()` or a `with` block, the closest Python equivalent to RAII, or
+  otherwise whenever garbage collection reclaims it. Ownership (the document
+  owns every node, tag and value in it) is the same in every binding; only
+  how and when that ownership ends differs.
 - A future Go binding could return `(Entry, error)` pairs from a `Next()`
   method, or a range-over-func iterator (`for entry, err := range
   reader.All() { ... }`), matching Go's own error-handling convention instead
@@ -99,9 +115,13 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   `tlv_diagnostic_t` directly as `tlv::diagnostic`).
 - **Rust (`opentlv`)**: experimental, in `bindings/rust/`. Covers Reader,
   Writer, Entry, Tag, Schema and Codec; `Document` and the callback-based
-  visitors, structure codecs and DOL profile are not bound yet. See [Rust
-  bindings](../development/rust.md) and [using OpenTLV from
-  Rust](../guides/rust.md).
+  visitors, structure codecs and DOL profile are not bound yet. Its `Codec`
+  is the exception to this page's binding-boundary rule: beyond the one
+  concrete codec the C API exports publicly (`tlv_emv_codec_amount`), the
+  per-kind EMV decoding it implements only exists in a C function private to
+  `tlv/src/`, so `Codec` reimplements that logic in Rust instead of calling
+  into C for it. See [Rust bindings](../development/rust.md) and [using
+  OpenTLV from Rust](../guides/rust.md).
 - **WebAssembly**: in `bindings/wasm/`, a deliberately narrow `parse()`
   function that returns a JSON element tree for browser tooling, not a
   general-purpose object-oriented binding. It is a small embedding built on
@@ -111,10 +131,14 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   `opentlv-native` (a native extension written against the CPython C API,
   using the CPython Limited API where compatible, that calls the public C
   API) and `opentlv` (a pure-Python package on top of it) — the same split
-  as the Rust `opentlv-native`/`opentlv` crates. Infrastructure only so far:
-  only the linked library's version is exposed. None of the concepts above
-  are bound yet; see [Python bindings](../development/python.md) and [using
-  OpenTLV from Python](../guides/python.md).
+  as the Rust `opentlv-native`/`opentlv` crates. Covers Reader, Writer,
+  Document, Entry, Tag and Schema, across the default, BER, CER, DER and
+  fixed-1-byte wire formats, plus a deliberately narrow Codec (only the one
+  concrete codec, `tlv_emv_codec_amount`, that the public C API exports —
+  unlike Rust's `Codec`, the rest is not a thin C wrapper and reimplements
+  EMV decoding logic that only exists in a private C header). See [Python
+  bindings](../development/python.md) and [using OpenTLV from
+  Python](../guides/python.md).
 - **Go**: planned, not started yet. No `bindings/go/` directory exists; when
   work on it begins, it follows this contract like the Rust crate does.
 

@@ -51,4 +51,4 @@ jobs:
         run: pip install pytest
 
       - name: Test
-        run: pytest bindings/python/tests
+        run: pytest bindings/python/opentlv/tests

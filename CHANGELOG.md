@@ -30,6 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `Reader`, `Writer`, `Document`/`Node`, `Entry`, `Tag`, `Format`,
+  `LengthSchema`/`StructureSchema`, the `OpenTLVError` exception hierarchy
+  and a narrow `codec` submodule (EMV format n12 amounts only) to the Python
+  `opentlv` package, covering the default, BER, CER, DER and fixed-1-byte
+  wire formats, plus runnable examples under `bindings/python/opentlv/examples/`;
+  see [Using OpenTLV from Python](docs/guides/python.md#reading). (#275)
 - Add experimental Python binding infrastructure under `bindings/python`: an
   `opentlv-native` native extension built with the CPython Limited API
   against the public OpenTLV C API, and a minimal `opentlv` package exposing
