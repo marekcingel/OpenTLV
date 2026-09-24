@@ -16,7 +16,7 @@
         <link rel="prev" href="../webassembly/">
       
       
-        <link rel="next" href="../../assets/">
+        <link rel="next" href="../python/">
       
       
         
@@ -1143,6 +1143,34 @@
     
   
     Using OpenTLV from Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Python
   
 
     
@@ -2443,6 +2471,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#versioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#continuous-integration-and-quality-checks" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2468,6 +2507,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2612,6 +2679,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#versioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#continuous-integration-and-quality-checks" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2669,12 +2747,12 @@
 </thead>
 <tbody>
 <tr>
-<td><code>opentlv-sys</code></td>
+<td><code>opentlv-native</code></td>
 <td>Raw <code>extern "C"</code> declarations of the OpenTLV C API and the build script that links the C library</td>
 </tr>
 <tr>
 <td><code>opentlv</code></td>
-<td>Safe Rust API built on <code>opentlv-sys</code></td>
+<td>Safe Rust API built on <code>opentlv-native</code></td>
 </tr>
 </tbody>
 </table>
@@ -2682,7 +2760,7 @@
 <a href="../../guides/rust/">Using OpenTLV from Rust</a>. For the naming and shape this
 crate follows and adapts, see the <a href="../../concepts/bindings/">language bindings conceptual
 model</a>.</p>
-<p>All <code>unsafe</code> FFI interaction is isolated in <code>opentlv-sys</code>; <code>opentlv</code> contains no
+<p>All <code>unsafe</code> FFI interaction is isolated in <code>opentlv-native</code>; <code>opentlv</code> contains no
 <code>extern</code> declarations. Only the part of the C API the safe crate needs is bound
 so far.</p>
 <h2 id="core-types">Core types<a class="headerlink" href="#core-types" title="Permanent link">&para;</a></h2>
@@ -2718,7 +2796,7 @@ so far.</p>
 </tr>
 </tbody>
 </table>
-<p>The C <code>tlv_tag_t</code> is a borrowed pointer and size (<code>opentlv_sys::tlv_tag_t</code>), so
+<p>The C <code>tlv_tag_t</code> is a borrowed pointer and size (<code>opentlv_native::tlv_tag_t</code>), so
 its layout does not depend on how the library was built. <code>Tag</code> owns its bytes
 because the safe API cannot hand out a pointer whose lifetime C does not track;
 it converts to a borrowed C tag only for the duration of each call. A tag has no
@@ -2832,6 +2910,15 @@ C library is built with its default components, all built-in formats and profile
 crates define no Cargo features for selecting components. Choosing components from Cargo
 (the <a href="../../concepts/architecture/#include-only-what-you-need">include only what you need</a>
 rule) is not implemented yet.</p>
+<h2 id="versioning">Versioning<a class="headerlink" href="#versioning" title="Permanent link">&para;</a></h2>
+<p>The Cargo workspace version (<code>version.workspace = true</code> in each crate's
+<code>Cargo.toml</code>) is independent of the OpenTLV C library's version and is not
+derived from the repository's Git tags; it follows its own release cadence,
+the same way the Python package's <code>pyproject.toml</code> version does (see
+<a href="../python/#versioning">Python bindings</a>). <code>opentlv::version()</code> is a separate
+thing: it calls <code>tlv_version_string()</code> at run time and reports the version of
+the <em>linked C library</em>, not the crate's own version. The two can differ, for
+example crate <code>0.1.0</code> built against OpenTLV C library <code>0.6.0</code>.</p>
 <h2 id="continuous-integration-and-quality-checks">Continuous integration and quality checks<a class="headerlink" href="#continuous-integration-and-quality-checks" title="Permanent link">&para;</a></h2>
 <p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/rust.yml">Rust Bindings workflow</a>
 runs on every push and pull request to <code>main</code> and fails on any of:</p>
@@ -2914,13 +3001,13 @@ on macOS).</p>
         
         
           
-          <a href="../../assets/" class="md-footer__link md-footer__link--next" aria-label="Next: Logo assets">
+          <a href="../python/" class="md-footer__link md-footer__link--next" aria-label="Next: Python bindings">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Logo assets
+                Python bindings
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/profiles/cer/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/guides/python/">
       
       
-        <link rel="prev" href="../der/">
+        <link rel="prev" href="../rust/">
       
       
-        <link rel="next" href="../emv/">
+        <link rel="next" href="../../formats/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>CER - OpenTLV</title>
+        <title>Using OpenTLV from Python - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#asn1-cer-tlv" class="md-skip">
+        <a href="#using-opentlv-from-python" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              CER
+              Using OpenTLV from Python
             
           </span>
         </div>
@@ -301,11 +301,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../guides/memory/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../memory/" class="md-tabs__link">
           
   
   
@@ -341,13 +343,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../der/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../profiles/der/" class="md-tabs__link">
           
   
   
@@ -828,26 +828,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
@@ -865,7 +870,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -883,7 +888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/memory/" class="md-nav__link">
+      <a href="../memory/" class="md-nav__link">
         
   
   
@@ -911,7 +916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/diagnostics/" class="md-nav__link">
+      <a href="../diagnostics/" class="md-nav__link">
         
   
   
@@ -939,7 +944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/schemas/" class="md-nav__link">
+      <a href="../schemas/" class="md-nav__link">
         
   
   
@@ -967,7 +972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/codecs/" class="md-nav__link">
+      <a href="../codecs/" class="md-nav__link">
         
   
   
@@ -995,7 +1000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/copy/" class="md-nav__link">
+      <a href="../copy/" class="md-nav__link">
         
   
   
@@ -1023,7 +1028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/scanner/" class="md-nav__link">
+      <a href="../scanner/" class="md-nav__link">
         
   
   
@@ -1051,7 +1056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/queries/" class="md-nav__link">
+      <a href="../queries/" class="md-nav__link">
         
   
   
@@ -1079,7 +1084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/document/" class="md-nav__link">
+      <a href="../document/" class="md-nav__link">
         
   
   
@@ -1107,7 +1112,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/select-components/" class="md-nav__link">
+      <a href="../select-components/" class="md-nav__link">
         
   
   
@@ -1135,7 +1140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/rust/" class="md-nav__link">
+      <a href="../rust/" class="md-nav__link">
         
   
   
@@ -1160,10 +1165,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../guides/python/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Python
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1179,6 +1211,48 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-to-the-c-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to the C API
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1590,31 +1664,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
@@ -1632,7 +1701,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1650,7 +1719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../der/" class="md-nav__link">
+      <a href="../../profiles/der/" class="md-nav__link">
         
   
   
@@ -1675,37 +1744,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CER
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../profiles/cer/" class="md-nav__link">
         
   
   
@@ -1721,103 +1763,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#supported-scope" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supported scope
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#read-and-traverse" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Read and traverse
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#canonical-string-segmentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Canonical string segmentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#zero-copy-access-to-segments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Zero-copy access to segments
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#encode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Encode
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#strict-universal-value-validation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Strict universal value validation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#errors-offsets-and-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Errors, offsets and limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1830,7 +1775,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../emv/" class="md-nav__link">
+      <a href="../../profiles/emv/" class="md-nav__link">
         
   
   
@@ -2569,10 +2514,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#supported-scope" class="md-nav__link">
+  <a href="#setup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported scope
+        Setup
       
     </span>
   </a>
@@ -2580,65 +2525,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#read-and-traverse" class="md-nav__link">
+  <a href="#relationship-to-the-c-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Read and traverse
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#canonical-string-segmentation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Canonical string segmentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#zero-copy-access-to-segments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Zero-copy access to segments
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#encode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Encode
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#strict-universal-value-validation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Strict universal value validation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#errors-offsets-and-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Errors, offsets and limits
+        Relationship to the C API
       
     </span>
   </a>
@@ -2662,7 +2552,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/profiles/cer/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/guides/python.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2670,203 +2560,32 @@
   
 
 
-<h1 id="asn1-cer-tlv">ASN.1 CER-TLV<a class="headerlink" href="#asn1-cer-tlv" title="Permanent link">&para;</a></h1>
-<p>Include <code>tlv/builtins/asn1/cer_profile.h</code> for allocation-free CER-TLV processing. Tags use the existing
-<code>tlv_tag_t</code> wire-byte representation; values are borrowed <code>tlv_value_t</code> ranges.
-The caller owns input and output storage. CER is a sibling of the
-<a href="../der/">DER profile</a>: it reuses the shared BER wire helpers and, through
-private helpers, the universal-value content rules ITU-T X.690 §11 documents as common to
-both encodings, but neither profile depends on the other. Existing BER, DER and EMV
-behavior is unchanged.</p>
-<h2 id="supported-scope">Supported scope<a class="headerlink" href="#supported-scope" title="Permanent link">&para;</a></h2>
-<p>The implementation enforces ITU-T X.690's Canonical Encoding Rules: a constructed
-value's length is always indefinite (EOC-terminated); a primitive value's length is
-always definite and minimally encoded. BIT STRING, OCTET STRING and the restricted
-character string types (including UTF8String) may additionally be constructed, but
-only when their logical content exceeds 1,000 octets, in which case they must be
-split into canonical segments (see below); a primitive encoding of such a type with
-more than 1,000 content octets is rejected, and so is a constructed encoding whose
-total content is 1,000 octets or fewer.</p>
-<p>This is a <strong>TLV-layer and framing validator, not a complete ASN.1 CER validator</strong>.
-Structural validation (<code>tlv_cer_read</code>/<code>tlv_cer_walk</code>/<code>tlv_cer_write</code>) covers framing,
-EOC placement, and canonical segmentation — segment tags, forms and sizes — but not
-value semantics. Universal value semantics (BOOLEAN representation, INTEGER
-minimality, BIT STRING padding, string charsets, and so on) are checked only by the
-<code>_strict</code> functions described below. Schema constraints, implicit-tag semantics,
-DEFAULT omission and SET/SET OF ordering remain outside this scope regardless.</p>
-<h2 id="read-and-traverse">Read and traverse<a class="headerlink" href="#read-and-traverse" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/cer_profile.h"</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">input</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x30</span><span class="p">,</span><span class="w"> </span><span class="mh">0x80</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span><span class="w"> </span><span class="cm">/* SEQUENCE(indefinite){ INTEGER 42 } */</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">tlv_view_t</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_read</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">input</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">                              </span><span class="o">&amp;</span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+<h1 id="using-opentlv-from-python">Using OpenTLV from Python<a class="headerlink" href="#using-opentlv-from-python" title="Permanent link">&para;</a></h1>
+<p>The <code>opentlv</code> package is an experimental, infrastructure-only Python binding
+for OpenTLV: it currently exposes only the linked C library's version, as a
+proof that the native extension builds, links and packages correctly. For
+layout and build details, see <a href="../../development/python/">Python bindings</a>.</p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>Neither package is published to PyPI yet. Install both by path from a
+checkout of the repository, in one <code>pip install</code> call so the <code>opentlv</code>
+package's dependency on <code>opentlv-native</code> resolves to the local build:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>./bindings/python/opentlv-native<span class="w"> </span>./bindings/python/opentlv
 </code></pre></div>
-<p><code>tlv_cer_read</code> validates one element and all of its descendants — indefinite
-constructed framing, EOC placement, and canonical string segmentation — before
-returning its view and complete encoded size. Trailing input is ignored. Empty
-input returns <code>TLV_ERR_END_OF_BUFFER</code>. Keep the input alive while using returned
-views (see <a href="../../guides/memory/">memory ownership</a>).</p>
-<p><code>tlv_cer_walk(data, size, limits, visitor, context, &amp;error_offset)</code> processes all
-concatenated elements, including nested constructed values. A NULL visitor
-performs validation only. Empty input succeeds.</p>
-<p>Unlike <a href="../der/"><code>tlv_der_visitor_t</code></a>, which visits every element in
-preorder, <code>tlv_cer_visitor_t</code> is <strong>postorder for constructed elements</strong>: a
-primitive element (including each string segment) is visited immediately when
-read, but a constructed element's indefinite length is not known until its
-matching EOC is found, so it is visited only afterward, once its true span is
-known. This keeps traversal a single linear pass with no rescanning. Primitive
-leaves have no descendants, so for them this is the same point either way.</p>
-<p>All CER operations accept NULL limits for <code>tlv_cer_default_limits</code>, the same
-shape and defaults as <a href="../der/#traverse-and-limit-work"><code>tlv_der_limits_t</code></a>:
-<code>max_depth</code> (32), <code>max_input_size</code> (16 MiB), <code>max_value_size</code> (16 MiB), <code>max_elements</code>
-(100,000). <code>max_depth</code> must not exceed <code>TLV_CER_MAX_DEPTH</code> (64). String segments
-count toward <code>max_elements</code>. <code>max_value_size</code> bounds a constructed element's
-assembled indefinite content (all its segments/children together, excluding
-framing overhead), not per-segment header bytes. Traversal uses a fixed stack, no
-heap allocation and no C recursion.</p>
-<h2 id="canonical-string-segmentation">Canonical string segmentation<a class="headerlink" href="#canonical-string-segmentation" title="Permanent link">&para;</a></h2>
-<p>For OCTET STRING, a primitive segment containing 1,000 octets has this header:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>04 82 03 E8
+<p>This requires Python 3.11 or newer, CMake 3.26 or newer and a C99 compiler;
+see <a href="../../development/python/#build">Build</a>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">opentlv</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">print</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
 </code></pre></div>
-<p>The canonical length field is <code>82 03 E8</code>; <code>03 E8</code> alone (without the <code>82</code> long-form
-prefix) is not a valid encoding of length 1,000 — CER requires the same minimal
-definite-length encoding DER does.</p>
-<p>When logical content exceeds 1,000 octets, it is split into segments: every
-non-final segment is exactly 1,000 content octets; the final segment is 1 to 1,000
-octets and never empty. An exact multiple of 1,000 (e.g. 2,000 octets) splits
-cleanly into that many 1,000-octet segments with no trailing empty segment.
-Empty, nested (constructed), or mistagged segments are rejected structurally,
-even without strict content validation.</p>
-<p>BIT STRING segments carry the unused-bits accounting separately from OCTET STRING:
-each segment's first content octet is the unused-bits count (so a non-final
-segment has 999 bit octets plus that count octet, still 1,000 total). Every
-non-final segment's unused-bits octet must be <code>00</code>; only the final segment may
-have a nonzero unused-bits count (0-7), with the same trailing zero-padding rule
-DER already enforces for an unsegmented BIT STRING.</p>
-<p>Character-string segmentation charset checks apply per segment except for
-UTF8String, whose multi-byte characters may legally straddle a segment boundary;
-strict validation streams UTF8String content across segments with small, fixed
-state rather than concatenating them.</p>
-<h2 id="zero-copy-access-to-segments">Zero-copy access to segments<a class="headerlink" href="#zero-copy-access-to-segments" title="Permanent link">&para;</a></h2>
-<p>A constructed string's segments are just ordinary CER primitive elements one
-level below its own view — <code>view.value</code> for a constructed CER element already
-excludes the outer EOC, the same convention <code>tlv_read</code> uses for BER. Iterate
-them with the existing generic <code>tlv_walk</code>, no dedicated API needed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">tlv_view_t</span><span class="w"> </span><span class="n">view</span><span class="p">;</span><span class="w"> </span><span class="cm">/* a constructed OCTET STRING element from tlv_cer_read/_walk */</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">tlv_visit_result_t</span><span class="w"> </span><span class="nf">print_segment</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_view_t</span><span class="o">*</span><span class="w"> </span><span class="n">segment</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="cm">/* segment-&gt;value borrows the input; print it, hash it, etc. */</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">tlv_length_to_size</span><span class="p">(</span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length</span><span class="p">);</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">tlv_walk</span><span class="p">(</span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_cer</span><span class="p">,</span><span class="w"> </span><span class="n">print_segment</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-</code></pre></div>
-<p><code>view.value</code> here is a view of the <strong>encoded constructed contents</strong> (segment
-headers included) — distinct from the <strong>logical string data</strong> each segment's own
-<code>value</code> borrows. This library never concatenates segments into a contiguous
-logical value; assembling one from segment views, if needed, is the caller's
-responsibility with caller-owned storage.</p>
-<h2 id="encode">Encode<a class="headerlink" href="#encode" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">[</span><span class="n">TLV_ASN1_TAG_MAX_SIZE</span><span class="p">];</span><span class="w"> </span><span class="cm">/* the tag borrows these bytes */</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="p">;</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">children</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">};</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_tag_make</span><span class="p">(</span><span class="n">TLV_ASN1_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tag</span><span class="p">);</span><span class="w"> </span><span class="cm">/* SEQUENCE */</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_write</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">children</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">children</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">                       </span><span class="o">&amp;</span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_write</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">children</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">children</span><span class="p">),</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">                       </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="cm">/* Success: output contains 30 80 02 01 2A 00 00 (indefinite framing + EOC). */</span>
-</code></pre></div>
-<p><code>tlv_cer_write</code> accepts <strong>pre-encoded</strong> child bytes for a constructed tag (without
-the enclosing EOC, added automatically) and validates them recursively as
-canonical CER framing — including segmentation, when the tag is itself a
-segmentable UNIVERSAL type — before writing. For a primitive tag, <code>value</code> is raw
-content; content longer than 1,000 octets for a segmentable UNIVERSAL type is
-rejected even in the non-strict function, since that is a structural defect, not
-a content one.</p>
-<p><code>tlv_cer_write_segmented_string</code> instead accepts <strong>logical</strong> string content (not
-pre-encoded segments) and automatically emits a single primitive element or a
-canonical constructed/segmented one, whichever is canonical for that content's
-length:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">content</span><span class="p">[</span><span class="mi">2500</span><span class="p">];</span><span class="w"> </span><span class="cm">/* fill with logical OCTET STRING data */</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">2600</span><span class="p">];</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">[</span><span class="n">TLV_ASN1_TAG_MAX_SIZE</span><span class="p">];</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">octet_string</span><span class="p">;</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">tlv_cer_tag_make</span><span class="p">(</span><span class="n">TLV_ASN1_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">octet_string</span><span class="p">);</span><span class="w"> </span><span class="cm">/* primitive OCTET STRING */</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">tlv_cer_write_segmented_string</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="n">octet_string</span><span class="p">,</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">                              </span><span class="n">content</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">content</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="cm">/* Success: two 1000-octet segments plus a 500-octet final segment. */</span>
-</code></pre></div>
-<p>NULL output with zero capacity is a validating size query for both functions.
-Failures leave destination bytes and <code>written</code> unchanged. <code>tlv_cer_write_segmented_string</code>
-always validates content (there is no non-strict variant — its purpose is producing
-correct canonical output from logical content, unlike <code>tlv_cer_write</code>'s pre-encoded
-pass-through). Size arithmetic, including every segment header and the EOC, is
-overflow-checked before writing.</p>
-<h2 id="strict-universal-value-validation">Strict universal value validation<a class="headerlink" href="#strict-universal-value-validation" title="Permanent link">&para;</a></h2>
-<p><code>tlv_cer_read_strict</code>, <code>tlv_cer_walk_strict</code> and <code>tlv_cer_write_strict</code> are drop-in
-counterparts of <code>tlv_cer_read</code>, <code>tlv_cer_walk</code> and <code>tlv_cer_write</code>: identical
-signatures, offsets and resource limits, but every UNIVERSAL-class element they
-encounter additionally has its content validated against ASN.1 canonical rules —
-including, for a segmented constructed value, every segment, validated as it is
-encountered without ever concatenating them.</p>
-<table>
-<thead>
-<tr>
-<th>Group</th>
-<th>Supported types</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Simple</td>
-<td>BOOLEAN, INTEGER, BIT STRING, OCTET STRING, NULL, OBJECT IDENTIFIER, RELATIVE-OID, REAL, ENUMERATED</td>
-</tr>
-<tr>
-<td>String</td>
-<td>UTF8String, NumericString, PrintableString, IA5String, VisibleString, UniversalString, BMPString</td>
-</tr>
-<tr>
-<td>Date/time</td>
-<td>UTCTime, GeneralizedTime</td>
-</tr>
-</tbody>
-</table>
-<p>These are exactly the rules ITU-T X.690 §11 documents as common to both CER and
-DER, so results agree with <a href="../der/#strict-universal-value-validation">DER's strict validation</a>
-wherever both apply (DER never segments; CER's segment-aware checks are additional).
-UTCTime and GeneralizedTime are never eligible for segmentation (always primitive,
-definite length), like every other simple type above.</p>
-<p>Recognized but explicitly unsupported (return <code>TLV_ERR_UNSUPPORTED_TYPE</code> in strict
-mode rather than being silently accepted, <strong>including a constructed/segmented
-encoding</strong>): ObjectDescriptor, TeletexString, VideotexString, GraphicString,
-GeneralString, TIME, DATE, TIME-OF-DAY, DATE-TIME, DURATION, OID-IRI,
-RELATIVE-OID-IRI, and any UNIVERSAL primitive tag number beyond 36 — the same set
-DER documents, since the underlying content validators are shared.</p>
-<h2 id="errors-offsets-and-limits">Errors, offsets and limits<a class="headerlink" href="#errors-offsets-and-limits" title="Permanent link">&para;</a></h2>
-<p>Optional <code>error_offset</code> is changed only on failure, following the same
-conventions as DER: it identifies the absolute start of the failing tag, length,
-or value field, relative to the supplied input (or would-be encoded output for
-writes). A missing EOC is reported at the position where it was expected (the
-enclosing element's length field); a truncated or unexpected EOC is reported at
-its own position. A segment-level structural or content defect is reported at
-the start of the offending segment. Value-size limit failures point to the
-length field; depth/count limits point to the first disallowed element.
-Argument, configuration, total-size and destination-capacity errors use offset
-zero.</p>
-<p><code>tlv_reader_format_cer</code> and <code>tlv_writer_format_cer</code> also work with generic C and
-C++ readers and writers. These descriptors validate <strong>only the current tag and
-length</strong> — generic I/O does not inspect constructed contents, EOC placement, or
-canonical segmentation, and provides no field offsets. Use the CER-specific
-functions above when those guarantees are required.</p>
-<p>See also the <a href="../../reference/c-api/#profiles">C API reference: profiles</a>.</p>
+<h2 id="relationship-to-the-c-api">Relationship to the C API<a class="headerlink" href="#relationship-to-the-c-api" title="Permanent link">&para;</a></h2>
+<p><code>opentlv-native</code> (imported as <code>opentlv_native</code>) is a native extension written
+directly against the CPython C API (no pybind11, cffi or Cython) and the
+CPython Limited API, declaring and calling the public OpenTLV C API;
+<code>opentlv</code> wraps it and contains no C API calls of its own, the same split as
+the Rust <code>opentlv-native</code>/<code>opentlv</code> crates. Only <code>tlv_version_string()</code> is
+called so far. Future work adds the Reader, Writer, Tag and other types from
+the <a href="../../concepts/bindings/">language bindings conceptual model</a>, each
+calling into the C API the same way the Rust and C++ bindings already do.</p>
 
 
 
@@ -2904,7 +2623,7 @@ functions above when those guarantees are required.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../der/" class="md-footer__link md-footer__link--prev" aria-label="Previous: DER">
+          <a href="../rust/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using OpenTLV from Rust">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2914,20 +2633,20 @@ functions above when those guarantees are required.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                DER
+                Using OpenTLV from Rust
               </div>
             </div>
           </a>
         
         
           
-          <a href="../emv/" class="md-footer__link md-footer__link--next" aria-label="Next: EMV">
+          <a href="../../formats/" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                EMV
+                Overview
               </div>
             </div>
             <div class="md-footer__button md-icon">
