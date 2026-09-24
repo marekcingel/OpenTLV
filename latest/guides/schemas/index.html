@@ -1037,6 +1037,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#value-constraints-on-decoded-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value constraints on decoded values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reporting-every-violation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2580,6 +2591,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#value-constraints-on-decoded-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value constraints on decoded values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#reporting-every-violation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2875,6 +2897,87 @@ never decodes values, a defaulted member is written the same way as an
 optional one (<code>min_occurs = 0</code>), and comparing an encoded value against its
 default stays a format-specific concern, as it already is for DER (see
 <a href="../../profiles/der/#schema-aware-validation-and-encoding">schema-aware DER validation and encoding</a>).</p>
+<h2 id="value-constraints-on-decoded-values">Value constraints on decoded values<a class="headerlink" href="#value-constraints-on-decoded-values" title="Permanent link">&para;</a></h2>
+<p><code>tlv_structure_schema_t</code> never decodes values, so it cannot express an
+ASN.1-style constraint that depends on a value's <em>decoded</em> meaning, such as
+an INTEGER's numeric range or a fixed set of legal values. <code>tlv/schema/constraint.h</code>
+adds a small, generic <code>tlv_value_constraint_t</code> for exactly that: check it
+against the C value a codec's decode produces (see
+<a href="../codecs/">value codecs</a>), separately from the wire-level checks above.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/schema/constraint.h"</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/asn1_codec.h"</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="cm">/* Version ::= INTEGER (0..255) */</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_value_constraint_t</span><span class="w"> </span><span class="n">version_range</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="n">TLV_VALUE_CONSTRAINT_RANGE</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">};</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="kt">int64_t</span><span class="w"> </span><span class="n">version</span><span class="p">;</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="n">tlv_codec_decode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tlv_asn1_codec_integer</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">length</span><span class="p">,</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">                  </span><span class="o">&amp;</span><span class="n">version</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">version</span><span class="p">));</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_value_constraint_validate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">version_range</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">);</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="cm">/* TLV_OK, or TLV_ERR_SCHEMA if version is outside 0-255. */</span>
+</code></pre></div>
+<p>A fixed set of legal values (<code>TLV_VALUE_CONSTRAINT_ALLOWED_VALUES</code>) works the same way:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="cm">/* CurrencyCode ::= INTEGER (978 | 840 | 826) */</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">currency_codes</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">978</span><span class="p">,</span><span class="w"> </span><span class="mi">840</span><span class="p">,</span><span class="w"> </span><span class="mi">826</span><span class="p">};</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_value_constraint_t</span><span class="w"> </span><span class="n">currency_constraint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="n">TLV_VALUE_CONSTRAINT_ALLOWED_VALUES</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">currency_codes</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">};</span>
+</code></pre></div>
+<p>Together with the length and occurrence bounds <code>tlv_structure_schema_t</code>
+already has, this covers the ASN.1 constraints relevant to binary TLV
+validation without an ASN.1 constraint expression parser:</p>
+<table>
+<thead>
+<tr>
+<th>ASN.1 constraint</th>
+<th>Generic OpenTLV concept</th>
+<th>Represented by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SIZE(8)</code> (exact size)</td>
+<td>size</td>
+<td>Equal <code>min_length</code>/<code>max_length</code> on a #tlv_schema_entry_t</td>
+</tr>
+<tr>
+<td><code>SIZE(1..1024)</code> (size range)</td>
+<td>size-range</td>
+<td><code>min_length</code>/<code>max_length</code> on a #tlv_schema_entry_t</td>
+</tr>
+<tr>
+<td><code>INTEGER (0..255)</code> (value range)</td>
+<td>value-range</td>
+<td><code>tlv_value_constraint_t</code> with <code>kind = TLV_VALUE_CONSTRAINT_RANGE</code></td>
+</tr>
+<tr>
+<td>a fixed set of legal values</td>
+<td>allowed-values</td>
+<td><code>tlv_value_constraint_t</code> with <code>kind = TLV_VALUE_CONSTRAINT_ALLOWED_VALUES</code></td>
+</tr>
+<tr>
+<td>exact <code>SIZE</code> of a SET OF/SEQUENCE OF</td>
+<td>count</td>
+<td>Equal <code>min_occurs</code>/<code>max_occurs</code> on a #tlv_structure_rule_t or #tlv_structure_group_t</td>
+</tr>
+<tr>
+<td>minimum <code>SIZE</code></td>
+<td>min-count</td>
+<td><code>min_occurs</code></td>
+</tr>
+<tr>
+<td>maximum <code>SIZE</code></td>
+<td>max-count</td>
+<td><code>max_occurs</code></td>
+</tr>
+</tbody>
+</table>
+<p>For example, <code>OCTET STRING (SIZE(8))</code> needs nothing new:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag_id</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x04</span><span class="p">};</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_schema_entry_t</span><span class="w"> </span><span class="n">identifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="n">tag_id</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">tag_id</span><span class="p">)},</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"identifier"</span><span class="p">};</span>
+</code></pre></div>
 <h2 id="reporting-every-violation">Reporting every violation<a class="headerlink" href="#reporting-every-violation" title="Permanent link">&para;</a></h2>
 <p><code>tlv_schema_validate</code> stops at the first violation. To validate a template's
 contents and get all problems at once, call <code>tlv_schema_validate_all</code> with the
@@ -2884,20 +2987,20 @@ say which tags are required (<code>min_occurs</code>), which may repeat (<code>m
 which children each constructed tag may hold (<code>children</code>), and whether unknown
 tags are accepted (<code>allow_unknown</code>, or an override for the whole call with
 <code>tlv_schema_unknown_policy_t</code>).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">tlv_schema_issue_t</span><span class="w">  </span><span class="n">issues</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">tlv_schema_report_t</span><span class="w"> </span><span class="n">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">issues</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate_all</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_ber</span><span class="p">,</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">                                          </span><span class="n">tlv_ber_is_constructed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">template_schema</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">                                          </span><span class="n">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">report</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_ERR_SCHEMA</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">count</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">capacity</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">path</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">tlv_schema_issue_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">path</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"%s at %s"</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_schema_issue_kind_string</span><span class="p">(</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">kind</span><span class="p">),</span><span class="w"> </span><span class="n">path</span><span class="p">);</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">has_offset</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">" (offset %zu)"</span><span class="p">,</span><span class="w"> </span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">offset</span><span class="p">);</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">tlv_schema_issue_t</span><span class="w">  </span><span class="n">issues</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">tlv_schema_report_t</span><span class="w"> </span><span class="n">report</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">issues</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate_all</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_ber</span><span class="p">,</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">                                          </span><span class="n">tlv_ber_is_constructed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">template_schema</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">                                          </span><span class="n">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">report</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_ERR_SCHEMA</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">count</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">report</span><span class="p">.</span><span class="n">capacity</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">path</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">tlv_schema_issue_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">path</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"%s at %s"</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_schema_issue_kind_string</span><span class="p">(</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">kind</span><span class="p">),</span><span class="w"> </span><span class="n">path</span><span class="p">);</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">has_offset</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">" (offset %zu)"</span><span class="p">,</span><span class="w"> </span><span class="n">issues</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">offset</span><span class="p">);</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="p">}</span>
 </code></pre></div>
 <p>Each <code>tlv_schema_issue_t</code> has a <code>kind</code> (<code>MISSING</code>, <code>DUPLICATE</code>, <code>UNEXPECTED</code>,
 <code>KIND</code> for a primitive/constructed mismatch, <code>LENGTH</code>), the <code>path</code> from the

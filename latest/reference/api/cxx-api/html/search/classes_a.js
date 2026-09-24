@@ -47,9 +47,10 @@ var searchData=
   ['tlv_5fstructure_5frule_44',['tlv_structure_rule',['../../../c-api/html/structtlv__structure__rule.html',1,'']]],
   ['tlv_5fstructure_5fschema_45',['tlv_structure_schema',['../../../c-api/html/structtlv__structure__schema.html',1,'']]],
   ['tlv_5ftag_5ft_46',['tlv_tag_t',['../../../c-api/html/structtlv__tag__t.html',1,'']]],
-  ['tlv_5fvalue_5ft_47',['tlv_value_t',['../../../c-api/html/structtlv__value__t.html',1,'']]],
-  ['tlv_5fview_5ft_48',['tlv_view_t',['../../../c-api/html/structtlv__view__t.html',1,'']]],
-  ['tlv_5fwriter_49',['tlv_writer',['../../../c-api/html/structtlv__writer.html',1,'']]],
-  ['tlv_5fwriter_5fdiagnostic_50',['tlv_writer_diagnostic',['../../../c-api/html/structtlv__writer__diagnostic.html',1,'']]],
-  ['tlv_5fwriter_5fformat_51',['tlv_writer_format',['../../../c-api/html/structtlv__writer__format.html',1,'']]]
+  ['tlv_5fvalue_5fconstraint_47',['tlv_value_constraint',['../../../c-api/html/structtlv__value__constraint.html',1,'']]],
+  ['tlv_5fvalue_5ft_48',['tlv_value_t',['../../../c-api/html/structtlv__value__t.html',1,'']]],
+  ['tlv_5fview_5ft_49',['tlv_view_t',['../../../c-api/html/structtlv__view__t.html',1,'']]],
+  ['tlv_5fwriter_50',['tlv_writer',['../../../c-api/html/structtlv__writer.html',1,'']]],
+  ['tlv_5fwriter_5fdiagnostic_51',['tlv_writer_diagnostic',['../../../c-api/html/structtlv__writer__diagnostic.html',1,'']]],
+  ['tlv_5fwriter_5fformat_52',['tlv_writer_format',['../../../c-api/html/structtlv__writer__format.html',1,'']]]
 ];

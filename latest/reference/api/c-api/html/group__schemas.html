@@ -88,6 +88,9 @@ Files</h2></td></tr>
 <tr class="memitem:emv__schema_8h" id="r_emv__schema_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="emv__schema_8h.html">emv_schema.h</a></td></tr>
 <tr class="memdesc:emv__schema_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structural schema for common EMV Book 3 v4.4 top-level data objects. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:constraint_8h" id="r_constraint_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="constraint_8h.html">constraint.h</a></td></tr>
+<tr class="memdesc:constraint_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic value constraints checked against a decoded value. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:schema_8h" id="r_schema_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="schema_8h.html">schema.h</a></td></tr>
 <tr class="memdesc:schema_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length schemas and structural schemas for validating TLV data. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -105,6 +108,9 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__der__schema__record.html">tlv_der_schema_record</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An <code>{offset, length}</code> byte range within the <code>scratch_bytes</code> arena.  <a href="structtlv__der__schema__record.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__value__constraint.html">tlv_value_constraint</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fixed set of legal values.  <a href="structtlv__value__constraint.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length rule for one tag in a <a class="el" href="structtlv__schema__t.html" title="Borrowed table of per-tag length rules.">tlv_schema_t</a>.  <a href="structtlv__schema__entry__t.html#details">More...</a><br /></td></tr>
@@ -160,6 +166,12 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga9e468ac9bd4dee43f4b444f223455ef8" id="r_ga9e468ac9bd4dee43f4b444f223455ef8"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__der__schema__record.html">tlv_der_schema_record</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga9e468ac9bd4dee43f4b444f223455ef8">tlv_der_schema_record_t</a></td></tr>
 <tr class="memdesc:ga9e468ac9bd4dee43f4b444f223455ef8"><td class="mdescLeft">&#160;</td><td class="mdescRight">An <code>{offset, length}</code> byte range within the <code>scratch_bytes</code> arena.  <br /></td></tr>
 <tr class="separator:ga9e468ac9bd4dee43f4b444f223455ef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabd10ced0ae829c8d80d234b21a385fd8" id="r_gabd10ced0ae829c8d80d234b21a385fd8"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#ga9842d51d0f5706b1d13fea943bcb9def">tlv_value_constraint_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gabd10ced0ae829c8d80d234b21a385fd8">tlv_value_constraint_kind_t</a></td></tr>
+<tr class="memdesc:gabd10ced0ae829c8d80d234b21a385fd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kind of constraint a <a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746" title="Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fix...">tlv_value_constraint_t</a> applies to a decoded value.  <br /></td></tr>
+<tr class="separator:gabd10ced0ae829c8d80d234b21a385fd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5d4983376138fadfe511311122f86746" id="r_ga5d4983376138fadfe511311122f86746"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__value__constraint.html">tlv_value_constraint</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746">tlv_value_constraint_t</a></td></tr>
+<tr class="memdesc:ga5d4983376138fadfe511311122f86746"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fixed set of legal values.  <br /></td></tr>
+<tr class="separator:ga5d4983376138fadfe511311122f86746"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1006ba0162e6d89504bf1ca404771314" id="r_ga1006ba0162e6d89504bf1ca404771314"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#ga5c8a305dce94f119abad5b7137d21f51">tlv_schema_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga1006ba0162e6d89504bf1ca404771314">tlv_schema_kind_t</a></td></tr>
 <tr class="memdesc:ga1006ba0162e6d89504bf1ca404771314"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expected form of a value described by a <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>.  <br /></td></tr>
 <tr class="separator:ga1006ba0162e6d89504bf1ca404771314"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -228,6 +240,12 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gabed82baf7f470b522273a3e37c24c600"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum direct components of one SEQUENCE, SET or CHOICE.  <a href="group__schemas.html#gabed82baf7f470b522273a3e37c24c600">More...</a><br /></td></tr>
 <tr class="separator:gabed82baf7f470b522273a3e37c24c600"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9842d51d0f5706b1d13fea943bcb9def" id="r_ga9842d51d0f5706b1d13fea943bcb9def"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga9842d51d0f5706b1d13fea943bcb9def">tlv_value_constraint_kind</a> { <a class="el" href="group__schemas.html#gga9842d51d0f5706b1d13fea943bcb9defa2a194781974fbf310d7a74a3583198f2">TLV_VALUE_CONSTRAINT_NONE</a> = 0
+, <a class="el" href="group__schemas.html#gga9842d51d0f5706b1d13fea943bcb9defa965bc46ba6e417d0bd8628f7f6ee4f78">TLV_VALUE_CONSTRAINT_RANGE</a>
+, <a class="el" href="group__schemas.html#gga9842d51d0f5706b1d13fea943bcb9defa53ba2ca9e7139f41f525ddc7d6989cba">TLV_VALUE_CONSTRAINT_ALLOWED_VALUES</a>
+ }</td></tr>
+<tr class="memdesc:ga9842d51d0f5706b1d13fea943bcb9def"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kind of constraint a <a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746" title="Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fix...">tlv_value_constraint_t</a> applies to a decoded value.  <a href="group__schemas.html#ga9842d51d0f5706b1d13fea943bcb9def">More...</a><br /></td></tr>
+<tr class="separator:ga9842d51d0f5706b1d13fea943bcb9def"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5c8a305dce94f119abad5b7137d21f51" id="r_ga5c8a305dce94f119abad5b7137d21f51"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga5c8a305dce94f119abad5b7137d21f51">tlv_schema_kind</a> { <a class="el" href="group__schemas.html#gga5c8a305dce94f119abad5b7137d21f51a2e5e89f758aa8b01540f3be47293710d">TLV_SCHEMA_ANY</a> = 0
 , <a class="el" href="group__schemas.html#gga5c8a305dce94f119abad5b7137d21f51a9783161ba8613fd97ed438cab42799d0">TLV_SCHEMA_PRIMITIVE</a>
 , <a class="el" href="group__schemas.html#gga5c8a305dce94f119abad5b7137d21f51a3127834146a11209244a4045ffa26242">TLV_SCHEMA_CONSTRUCTED</a>
@@ -273,6 +291,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga6c1c758e294d5bc0374c39f544108145" id="r_ga6c1c758e294d5bc0374c39f544108145"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga6c1c758e294d5bc0374c39f544108145">tlv_der_schema_write</a> (uint8_t *data, size_t capacity, const <a class="el" href="group__schemas.html#ga2c52dc6a96a35dff2b1ccc15c4fd7e09">tlv_der_schema_type_t</a> *root, <a class="el" href="group__schemas.html#ga7c79aa1af738c0ac84d121b5f1316eeb">tlv_der_schema_encode_fn</a> encode, const void *context, const <a class="el" href="group__schemas.html#gac653d1783bcb690c579cb8b799041006">tlv_der_schema_limits_t</a> *limits, uint8_t *scratch_bytes, size_t scratch_bytes_capacity, <a class="el" href="group__schemas.html#ga9e468ac9bd4dee43f4b444f223455ef8">tlv_der_schema_record_t</a> *scratch, size_t scratch_capacity, size_t *written, size_t *error_offset)</td></tr>
 <tr class="memdesc:ga6c1c758e294d5bc0374c39f544108145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a schema's canonical DER-TLV bytes.  <br /></td></tr>
 <tr class="separator:ga6c1c758e294d5bc0374c39f544108145"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3efa30eefa428cbeb06260392003c61e" id="r_ga3efa30eefa428cbeb06260392003c61e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3efa30eefa428cbeb06260392003c61e">tlv_value_constraint_validate</a> (const <a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746">tlv_value_constraint_t</a> *constraint, int64_t value)</td></tr>
+<tr class="memdesc:ga3efa30eefa428cbeb06260392003c61e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a decoded scalar value against a constraint.  <br /></td></tr>
+<tr class="separator:ga3efa30eefa428cbeb06260392003c61e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab16e87ef133a0a302ada88c41d48a471" id="r_gab16e87ef133a0a302ada88c41d48a471"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gab16e87ef133a0a302ada88c41d48a471">tlv_schema_find</a> (const <a class="el" href="structtlv__schema__t.html">tlv_schema_t</a> *schema, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:gab16e87ef133a0a302ada88c41d48a471"><td class="mdescLeft">&#160;</td><td class="mdescRight">Looks up a tag's entry by linear search.  <br /></td></tr>
 <tr class="separator:gab16e87ef133a0a302ada88c41d48a471"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -650,6 +671,39 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="gabd10ced0ae829c8d80d234b21a385fd8" name="gabd10ced0ae829c8d80d234b21a385fd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabd10ced0ae829c8d80d234b21a385fd8">&#9670;&#160;</a></span>tlv_value_constraint_kind_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__schemas.html#ga9842d51d0f5706b1d13fea943bcb9def">tlv_value_constraint_kind</a> <a class="el" href="group__schemas.html#gabd10ced0ae829c8d80d234b21a385fd8">tlv_value_constraint_kind_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Kind of constraint a <a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746" title="Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fix...">tlv_value_constraint_t</a> applies to a decoded value. </p>
+
+</div>
+</div>
+<a id="ga5d4983376138fadfe511311122f86746" name="ga5d4983376138fadfe511311122f86746"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5d4983376138fadfe511311122f86746">&#9670;&#160;</a></span>tlv_value_constraint_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__value__constraint.html">tlv_value_constraint</a> <a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746">tlv_value_constraint_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fixed set of legal values. </p>
+<p>Checked against the C representation a <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785" title="Borrowed codec descriptor with an optional immutable context.">tlv_codec_t</a> decode produces (for example tlv_asn1_codec_integer's <code>int64_t</code>), not against raw TLV bytes; pair it with a codec's decode step. Byte-length and occurrence bounds are unrelated concerns already covered by <a class="el" href="structtlv__schema__entry__t.html" title="Length rule for one tag in a tlv_schema_t.">tlv_schema_entry_t</a>'s <code>min_length</code>/ <code>max_length</code> and <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>'s <code>min_occurs</code>/<code>max_occurs</code>. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="ga80155586fa275b28773c9b203f52caba" name="ga80155586fa275b28773c9b203f52caba"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga80155586fa275b28773c9b203f52caba">&#9670;&#160;</a></span>anonymous enum</h2>
@@ -887,6 +941,30 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="ggaac0ce480d18e12ccf642fc85a59f8419af072c0e4269aea574e493a08006b9448" name="ggaac0ce480d18e12ccf642fc85a59f8419af072c0e4269aea574e493a08006b9448"></a>TLV_SCHEMA_UNKNOWN_ALLOW&#160;</td><td class="fielddoc"><p>Tags without a rule are accepted in every scope. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggaac0ce480d18e12ccf642fc85a59f8419a6b926c816e076a0ffbbc502f1d015077" name="ggaac0ce480d18e12ccf642fc85a59f8419a6b926c816e076a0ffbbc502f1d015077"></a>TLV_SCHEMA_UNKNOWN_REJECT&#160;</td><td class="fielddoc"><p>Tags without a rule are reported in every scope. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga9842d51d0f5706b1d13fea943bcb9def" name="ga9842d51d0f5706b1d13fea943bcb9def"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9842d51d0f5706b1d13fea943bcb9def">&#9670;&#160;</a></span>tlv_value_constraint_kind</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__schemas.html#ga9842d51d0f5706b1d13fea943bcb9def">tlv_value_constraint_kind</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Kind of constraint a <a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746" title="Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fix...">tlv_value_constraint_t</a> applies to a decoded value. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga9842d51d0f5706b1d13fea943bcb9defa2a194781974fbf310d7a74a3583198f2" name="gga9842d51d0f5706b1d13fea943bcb9defa2a194781974fbf310d7a74a3583198f2"></a>TLV_VALUE_CONSTRAINT_NONE&#160;</td><td class="fielddoc"><p>No constraint; every value is permitted (the default). </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9842d51d0f5706b1d13fea943bcb9defa965bc46ba6e417d0bd8628f7f6ee4f78" name="gga9842d51d0f5706b1d13fea943bcb9defa965bc46ba6e417d0bd8628f7f6ee4f78"></a>TLV_VALUE_CONSTRAINT_RANGE&#160;</td><td class="fielddoc"><p>Value must be within [min_value, max_value], inclusive. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga9842d51d0f5706b1d13fea943bcb9defa53ba2ca9e7139f41f525ddc7d6989cba" name="gga9842d51d0f5706b1d13fea943bcb9defa53ba2ca9e7139f41f525ddc7d6989cba"></a>TLV_VALUE_CONSTRAINT_ALLOWED_VALUES&#160;</td><td class="fielddoc"><p>Value must equal one entry of allowed_values. </p>
 </td></tr>
 </table>
 
@@ -1620,6 +1698,49 @@ Any other error of <a class="el" href="group__traversal.html#ga8155c00623d790e33
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for an out-of-range length or reversed bounds. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>entry</code> is <code>NULL</code>. </dd></dl>
+
+</div>
+</div>
+<a id="ga3efa30eefa428cbeb06260392003c61e" name="ga3efa30eefa428cbeb06260392003c61e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3efa30eefa428cbeb06260392003c61e">&#9670;&#160;</a></span>tlv_value_constraint_validate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_value_constraint_validate </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746">tlv_value_constraint_t</a> *&#160;</td>
+          <td class="paramname"><em>constraint</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int64_t&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validates a decoded scalar value against a constraint. </p>
+<p>Checks only the value, independently of decoding; combine with <a class="el" href="group__codecs.html#ga7de8d4351e9f4b98cd480ec634eced7a" title="Decodes a raw value with a codec.">tlv_codec_decode()</a> (or an equivalent) to validate an ASN.1-style value range or allowed-value set on a raw TLV element's content.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">constraint</td><td>Constraint to check against. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Decoded value to check.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> if <code>constraint-&gt;kind</code> is <a class="el" href="group__schemas.html#gga9842d51d0f5706b1d13fea943bcb9defa2a194781974fbf310d7a74a3583198f2">TLV_VALUE_CONSTRAINT_NONE</a>, or <code>value</code> satisfies the constraint. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> if <code>value</code> violates the constraint, <code>kind</code> is unrecognized, <a class="el" href="group__schemas.html#gga9842d51d0f5706b1d13fea943bcb9defa965bc46ba6e417d0bd8628f7f6ee4f78">TLV_VALUE_CONSTRAINT_RANGE</a> has <code>min_value &gt; max_value</code>, or <a class="el" href="group__schemas.html#gga9842d51d0f5706b1d13fea943bcb9defa53ba2ca9e7139f41f525ddc7d6989cba">TLV_VALUE_CONSTRAINT_ALLOWED_VALUES</a> has a <code>NULL</code> <code>allowed_values</code> with a nonzero <code>allowed_values_count</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>constraint</code> is <code>NULL</code>. </dd></dl>
 
 </div>
 </div>

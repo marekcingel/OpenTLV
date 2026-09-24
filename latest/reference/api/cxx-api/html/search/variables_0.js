@@ -6,6 +6,8 @@ var searchData=
   ['allocate_3',['allocate',['../../../c-api/html/structtlv__allocator.html#a9c77692919a8a17c4b4e414d3d243649',1,'tlv_allocator']]],
   ['allocator_4',['allocator',['../../../c-api/html/structtlv__document__options.html#a0e2f53c9f3d13eb9f709bf4fe2eff380',1,'tlv_document_options']]],
   ['allow_5funknown_5',['allow_unknown',['../../../c-api/html/structtlv__structure__schema.html#aaee701c6ab8ff5e90a4f4c086f1e7471',1,'tlv_structure_schema']]],
-  ['arcs_6',['arcs',['../../../c-api/html/structtlv__asn1__oid.html#a9f2d307b3c41c619a7fd14a68cae3208',1,'tlv_asn1_oid']]],
-  ['available_7',['available',['../../../c-api/html/structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic::available'],['../../../c-api/html/structtlv__writer__diagnostic.html#a90e2b7f189630d152336f5b2af44e233',1,'tlv_writer_diagnostic::available']]]
+  ['allowed_5fvalues_6',['allowed_values',['../../../c-api/html/structtlv__value__constraint.html#af7b3a69161d7032211cbef9279c7f4c1',1,'tlv_value_constraint']]],
+  ['allowed_5fvalues_5fcount_7',['allowed_values_count',['../../../c-api/html/structtlv__value__constraint.html#a5cd5033bbaa25ccd604c128a9bf9009c',1,'tlv_value_constraint']]],
+  ['arcs_8',['arcs',['../../../c-api/html/structtlv__asn1__oid.html#a9f2d307b3c41c619a7fd14a68cae3208',1,'tlv_asn1_oid']]],
+  ['available_9',['available',['../../../c-api/html/structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic::available'],['../../../c-api/html/structtlv__writer__diagnostic.html#a90e2b7f189630d152336f5b2af44e233',1,'tlv_writer_diagnostic::available']]]
 ];
