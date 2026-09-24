@@ -52,3 +52,13 @@ jobs:
 
       - name: Test
         run: pytest bindings/python/opentlv/tests
+
+      - name: Run examples
+        shell: bash
+        run: |
+          set -e
+          for example in bindings/python/opentlv/examples/*.py; do
+            echo "::group::$example"
+            python "$example"
+            echo "::endgroup::"
+          done

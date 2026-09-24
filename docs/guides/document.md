@@ -126,7 +126,11 @@ that already uses the writer's spelling encodes back to identical bytes.
 A document is not synchronised: concurrent reads are fine, any modification
 needs exclusive access.
 
-## C++
+## Other languages
+
+The sections above describe the C API; other bindings expose the same model.
+
+/// tab | C++
 
 `tlv++/document/document.hpp` wraps the same API. `tlv::document` owns the tree and is
 move-only; `tlv::node` is a cheap non-owning handle.
@@ -153,6 +157,38 @@ auto encoded = document.encode();   // expected<std::vector<byte>, error>
 Handles stay valid when the document is moved. Children can be visited with
 `for (tlv::node child : tlv::node_range(parent.first_child()))`, and a path
 query works as `document.find(query)`.
+
+///
+
+/// tab | Python
+
+`opentlv.Document` wraps the same API as a context manager; `Node` is a cheap
+non-owning handle.
+
+```python
+with opentlv.Document(data, opentlv.Format.BER) as document:
+    fci = document.first                       # the 6F template
+    label = fci.find(opentlv.Tag(b"\x50"))      # a direct child of 6F
+    label.value = b"NEW"                        # replace a value
+    document.insert(opentlv.Tag(b"\x9f\x02"), b"\x00\x00\x00\x00\x01\x00")  # append
+    encoded = document.encode()
+```
+
+Navigate with `document.first`/`for node in document`, `node.first_child`/
+`for child in node`, `node.next`/`node.parent`, or search with
+`document.find(tag, parent=...)`, `node.find(tag)` or a
+[path query](queries.md), `document.find_path("6F/A5/50")`. Close the document
+deterministically with `close()` or a `with` block, since it is the only part
+of OpenTLV that allocates beyond a Python object's own memory. Runnable
+version, replacing a value and appending an element in an existing message:
+[document.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/document.py)
+(`python examples/document.py`). See [Using OpenTLV from
+Python](python.md#documents) for the full API, including error handling.
+
+///
+
+Rust does not bind `Document` yet; see the [language bindings conceptual
+model](../concepts/bindings.md) for the binding coverage of each language.
 
 ## Limits and scope
 

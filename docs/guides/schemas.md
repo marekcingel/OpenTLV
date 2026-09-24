@@ -76,6 +76,8 @@ maximum. Tags must be unique within the rule table. `allow_unknown` explicitly
 controls unlisted children. `kind` is ANY, PRIMITIVE or CONSTRUCTED. Child schemas
 require CONSTRUCTED and are checked even for an empty container.
 
+/// tab | C
+
 ```c
 #include "tlv/schema/schema.h"
 static const uint8_t tag_1[] = {1};
@@ -87,6 +89,77 @@ static const tlv_structure_rule_t rules[] = {
 static const tlv_structure_schema_t message = {rules, 2, 0};
 /* tlv_schema_validate(data, size, format, is_constructed, &message, 16, 1000, &offset); */
 ```
+
+Runnable version, validating a two-level nested schema and rejecting a
+document missing a required field:
+[validate.c](https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/validate.c).
+
+///
+
+/// tab | C++
+
+```cpp
+#include "tlv++/tlv.hpp"
+static const uint8_t tag_1[] = {1};
+static const uint8_t tag_2[] = {2};
+static const tlv_structure_rule_t rules[] = {
+    { { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter" }, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr },
+    { { { tag_2, sizeof(tag_2) }, 0, 255, 0, nullptr }, 0, SIZE_MAX, TLV_SCHEMA_ANY, nullptr }
+};
+static const tlv_structure_schema_t message = {rules, 2, 0};
+// tlv::validate(tlv::bytes(data, size), format, is_constructed, message, 16, 1000);
+```
+
+`tlv::validate` wraps `tlv_schema_validate` and returns an `expected<void, error>`
+instead of a result code and out-parameter offset. Runnable version:
+[validate.cpp](https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/validate.cpp).
+
+///
+
+/// tab | Python
+
+```python
+schema = opentlv.StructureSchema([
+    opentlv.StructureRule(opentlv.Tag(b"\x01"), min_length=1, max_length=8, min_occurs=1,
+                           max_occurs=1, kind=opentlv.Kind.PRIMITIVE),
+    opentlv.StructureRule(opentlv.Tag(b"\x02"), min_length=0, max_length=255),
+])
+schema.validate(data, format=opentlv.Format.BER)
+```
+
+`StructureSchema.validate()` runs the same C validator and raises
+`SchemaMissingError`, `SchemaError` or `InvalidLengthError` instead of
+returning a result code; see [Using OpenTLV from Python](python.md#validating).
+Runnable version, with a two-level nested schema:
+[validate.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/validate.py)
+(`python examples/validate.py`).
+
+///
+
+/// tab | Rust
+
+```rust
+let schema = StructureSchema::new(
+    [
+        StructureRule::new(Tag::from_bytes(&[0x01]))
+            .length(1, 8)
+            .required_once()
+            .kind(Kind::Primitive),
+        StructureRule::new(Tag::from_bytes(&[0x02])).length(0, 255),
+    ],
+    false,
+);
+schema.validate(&data, Format::Ber, &ValidationLimits::default())?;
+```
+
+`StructureSchema::validate` returns `Result<(), SchemaError>` instead of a
+result code and offset; see [Rust bindings: Schemas](../development/rust.md#schemas)
+for `LengthSchema`, builder methods and the EMV built-in schemas. Runnable
+version, with a two-level nested schema:
+[validate.rs](https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/validate.rs)
+(`cargo run --example validate`).
+
+///
 
 `tlv_schema_validate` checks complete framing and nesting, then lengths,
 occurrences and child membership. It never decodes values. Invalid rule tables,

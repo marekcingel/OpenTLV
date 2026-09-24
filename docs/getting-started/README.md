@@ -226,16 +226,75 @@ saved under its `examples/`. Exit code zero indicates a successful round trip.
 
 ///
 
+/// tab | Python
+
+Save the example as `quick_start.py` in a checkout with both Python packages
+installed. It is
+[bindings/python/opentlv/examples/quick_start.py](../../bindings/python/opentlv/examples/quick_start.py).
+The `opentlv` package is not published to PyPI yet; install it, and the
+`opentlv-native` extension it depends on, by path from a checkout of the
+repository. See [Using OpenTLV from Python](../guides/python.md) for the full
+setup.
+
+<!-- example: bindings/python/opentlv/examples/quick_start.py -->
+```python
+"""The simplest possible round trip: write one element with the fixed 1-byte
+format, then read it back. See parse.py and write.py for a nested BER
+document, and the C `quick_start.c`, C++ `quick_start.cpp` and Rust
+`quick_start.rs` examples for the same round trip in those languages.
+
+Run with `python examples/quick_start.py` from `bindings/python/opentlv`,
+after installing both packages (see ../../../README.md or
+docs/development/python.md).
+"""
+
+import opentlv
+
+
+def main() -> None:
+    tag = opentlv.Tag(b"\x01")
+    value = b"\xaa\xbb\xcc"
+
+    writer = opentlv.Writer(opentlv.Format.FIXED_1BYTE)
+    writer.write(tag, value)
+    encoded = writer.bytes()
+    print(f"wrote {len(encoded)} bytes: {encoded.hex(' ').upper()}")
+
+    reader = opentlv.Reader(encoded, opentlv.Format.FIXED_1BYTE)
+    (entry,) = list(reader)
+    assert entry.tag == tag
+    assert bytes(entry.value) == value
+    print(f"read tag {entry.tag} value {bytes(entry.value).hex(' ').upper()}")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+Then use:
+
+```sh
+pip install ./bindings/python/opentlv-native ./bindings/python/opentlv
+python bindings/python/opentlv/examples/quick_start.py
+```
+
+Exit code zero indicates a successful round trip.
+
+///
+
 Both C and C++ programs are built by the `example-tlv-quick-start` and
 `example-tlv++-quick-start` targets whenever `OPENTLV_BUILD_EXAMPLES` is `ON`
 (the default) and run in CI; the Rust program is built by `cargo build
---workspace --all-targets` in the Rust bindings CI workflow. The
+--workspace --all-targets` in the Rust bindings CI workflow, and the Python
+program is run directly in the Python bindings CI workflow. The
 [C examples](../../examples/tlv/src/), one topic per file (sequential I/O,
 explicit copies, schema validation, codecs, a custom format, and the BER and
 CER builtins), the [C++ example](../../examples/tlv++/src/basic_usage.cpp)
 with the default format, the [EMV example](../../examples/tlv/src/builtins/emv/tag_decoding.c),
-and the further [Rust examples](../guides/rust.md) (reading, writing, and the
-`parse`, `write` and `validate` use cases) are further runnable examples.
+the further [Rust examples](../guides/rust.md) (reading, writing, and the
+`parse`, `write` and `validate` use cases), and the further
+[Python examples](../guides/python.md) (reading, writing, validating, codecs
+and documents) are further runnable examples.
 
 ## Install and generate distribution archives
 

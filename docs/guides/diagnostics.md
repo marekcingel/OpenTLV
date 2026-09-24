@@ -221,3 +221,17 @@ The core `tlv_diagnostic_t` type is independent of any wire format, schema or
 protocol, so it carries no BER-, EMV- or CLI-specific fields; those layers
 attach their own detail through `contexts` instead. Rendering a diagnostic
 for humans is a separate concern and is not part of this type.
+
+## Other languages
+
+Python and Rust do not expose a shared `tlv_diagnostic_t`-shaped type; each
+reports failures in its own idiomatic error model instead. Python raises an
+`OpenTLVError` subclass per `TLV_ERR_*` code, with `offset`, `expected`,
+`actual`, `operation` and `tag` fields carrying the same detail a reader or
+writer diagnostic would (see [Using OpenTLV from Python: Error
+handling](python.md#error-handling)). Rust returns a `Result<T, Error>` with
+one `Error` variant per code, plus separate `SchemaError`, `ProfileError` and
+`CodecError` types for layers that add context, rather than a single chained
+diagnostic (see [Using OpenTLV from Rust: Error
+handling](rust.md#error-handling)). Neither binds hierarchical paths or
+context chaining yet.

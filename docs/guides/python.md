@@ -175,7 +175,8 @@ Navigate with `document.first`/`for node in document` (top-level nodes, in
 encoding order), `node.first_child`/`for child in node` (a constructed
 node's children), `node.next`/`node.parent`, or search with
 `document.find(tag, parent=...)`, `node.find(tag)` or
-`document.find_path("6F/A5/50")` (a `/`-separated path of hexadecimal tags).
+`document.find_path("6F/A5/50")`, a [path query](queries.md) (a `/`-separated
+path of hexadecimal tags).
 `document.insert(tag, value, parent=..., before=...)` inserts a new element;
 assigning `node.value` replaces one. For both, a value of a tag the
 document's reader format treats as constructed (BER, CER and DER, by their

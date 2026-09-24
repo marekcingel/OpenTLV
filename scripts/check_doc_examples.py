@@ -7,10 +7,11 @@ A Markdown code block preceded by a marker comment
 
 must contain exactly the contents of that file, and the file must be registered
 with its package's build: listed in a CMakeLists.txt under examples/ so CI
-compiles it, or, for a Rust binding example, placed directly under a
-bindings/rust/*/examples/ directory that Cargo auto-discovers and CI builds
-with `cargo build --all-targets`. Editing either side without the other fails
-the check, so documented code cannot drift from code that builds against the
+compiles it, placed directly under a bindings/rust/*/examples/ directory that
+Cargo auto-discovers and CI builds with `cargo build --all-targets`, or placed
+directly under bindings/python/opentlv/examples/, which CI runs against the
+installed package. Editing either side without the other fails the check, so
+documented code cannot drift from code that builds and runs against the
 current API.
 
 Usage: python scripts/check_doc_examples.py [--fix]
@@ -45,6 +46,8 @@ def is_built(source):
             for cmake in directory.glob("CMakeLists.txt")
         )
     if parts[:2] == ("bindings", "rust") and "examples" in parts[:-1] and source.suffix == ".rs":
+        return True
+    if parts[:4] == ("bindings", "python", "opentlv", "examples") and source.suffix == ".py":
         return True
     return False
 
