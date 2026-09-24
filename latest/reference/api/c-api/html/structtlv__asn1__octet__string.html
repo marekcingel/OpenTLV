@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv_emv_afl_t Struct Reference</title>
+<title>OpenTLV C API: tlv_asn1_octet_string Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -71,57 +71,57 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
-  <div class="headertitle"><div class="title">tlv_emv_afl_t Struct Reference<div class="ingroups"><a class="el" href="group__codecs.html">Codecs</a></div></div></div>
+  <div class="headertitle"><div class="title">tlv_asn1_octet_string Struct Reference<div class="ingroups"><a class="el" href="group__codecs.html">Codecs</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Decoded Application File Locator.  
- <a href="structtlv__emv__afl__t.html#details">More...</a></p>
+<p>Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes.  
+ <a href="structtlv__asn1__octet__string.html#details">More...</a></p>
 
-<p><code>#include &lt;emv_codec.h&gt;</code></p>
+<p><code>#include &lt;asn1_codec.h&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a55a690afb6938e114ca2eb1672528dbc" id="r_a55a690afb6938e114ca2eb1672528dbc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv__emv__afl__entry__t.html">tlv_emv_afl_entry_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__emv__afl__t.html#a55a690afb6938e114ca2eb1672528dbc">entries</a> [<a class="el" href="group__codecs.html#gga385c44f6fb256e5716a2302a5b940388ae6c14b14e63e8a84a683cbad42f6284c">TLV_EMV_AFL_MAX_ENTRIES</a>]</td></tr>
-<tr class="separator:a55a690afb6938e114ca2eb1672528dbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3f7286c1a1a4f43e8aa4cda5ca691aa2" id="r_a3f7286c1a1a4f43e8aa4cda5ca691aa2"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__emv__afl__t.html#a3f7286c1a1a4f43e8aa4cda5ca691aa2">count</a></td></tr>
-<tr class="separator:a3f7286c1a1a4f43e8aa4cda5ca691aa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2319dc6b9fa97317591937ace2036fe7" id="r_a2319dc6b9fa97317591937ace2036fe7"><td class="memItemLeft" align="right" valign="top">const uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__octet__string.html#a2319dc6b9fa97317591937ace2036fe7">data</a></td></tr>
+<tr class="separator:a2319dc6b9fa97317591937ace2036fe7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26f73bfcf7442d1c5964f324060cd025" id="r_a26f73bfcf7442d1c5964f324060cd025"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__octet__string.html#a26f73bfcf7442d1c5964f324060cd025">length</a></td></tr>
+<tr class="separator:a26f73bfcf7442d1c5964f324060cd025"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Decoded Application File Locator. </p>
+<div class="textblock"><p>Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a id="a3f7286c1a1a4f43e8aa4cda5ca691aa2" name="a3f7286c1a1a4f43e8aa4cda5ca691aa2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3f7286c1a1a4f43e8aa4cda5ca691aa2">&#9670;&#160;</a></span>count</h2>
+<a id="a2319dc6b9fa97317591937ace2036fe7" name="a2319dc6b9fa97317591937ace2036fe7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2319dc6b9fa97317591937ace2036fe7">&#9670;&#160;</a></span>data</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">size_t tlv_emv_afl_t::count</td>
+          <td class="memname">const uint8_t* tlv_asn1_octet_string::data</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Number of entries populated in <code>entries</code>. </p>
+<p>Borrowed content bytes. <code>NULL</code> only when <code>length</code> is 0. </p>
 
 </div>
 </div>
-<a id="a55a690afb6938e114ca2eb1672528dbc" name="a55a690afb6938e114ca2eb1672528dbc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a55a690afb6938e114ca2eb1672528dbc">&#9670;&#160;</a></span>entries</h2>
+<a id="a26f73bfcf7442d1c5964f324060cd025" name="a26f73bfcf7442d1c5964f324060cd025"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26f73bfcf7442d1c5964f324060cd025">&#9670;&#160;</a></span>length</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structtlv__emv__afl__entry__t.html">tlv_emv_afl_entry_t</a> tlv_emv_afl_t::entries[<a class="el" href="group__codecs.html#gga385c44f6fb256e5716a2302a5b940388ae6c14b14e63e8a84a683cbad42f6284c">TLV_EMV_AFL_MAX_ENTRIES</a>]</td>
+          <td class="memname">size_t tlv_asn1_octet_string::length</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Entries in wire order; only the first <code>count</code> are populated. </p>
+<p>Length of <code>data</code> in bytes. </p>
 
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>tlv/builtins/emv/<a class="el" href="emv__codec_8h.html">emv_codec.h</a></li>
+<li>tlv/builtins/asn1/<a class="el" href="asn1__codec_8h.html">asn1_codec.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

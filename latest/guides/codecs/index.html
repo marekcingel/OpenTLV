@@ -1032,6 +1032,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#asn1-universal-type-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ASN.1 universal-type codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#complete-object-mappings" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2514,6 +2525,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#asn1-universal-type-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ASN.1 universal-type codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#complete-object-mappings" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2622,6 +2644,12 @@ supports it. On failure destination contents are unspecified and encode's
 <p><code>tlv_codec_result_t</code> and <code>tlv_codec_strerror()</code> report conversion errors
 independently from parser/writer <code>tlv_result_t</code> errors. The existing C++ codec
 trait and registry are separate APIs and are unchanged.</p>
+<h2 id="asn1-universal-type-codecs">ASN.1 universal-type codecs<a class="headerlink" href="#asn1-universal-type-codecs" title="Permanent link">&para;</a></h2>
+<p><code>tlv/builtins/asn1/asn1_codec.h</code> provides <code>tlv_codec_t</code> descriptors for the
+ASN.1 primitive universal types (BOOLEAN, INTEGER, ENUMERATED, BIT STRING,
+OCTET STRING, NULL, OBJECT IDENTIFIER and RELATIVE-OID), independent of any
+BER-family format or profile. See
+<a href="../../formats/asn1/ber/#universal-type-value-codecs">BER-TLV: universal-type value codecs</a>.</p>
 <h2 id="complete-object-mappings">Complete object mappings<a class="headerlink" href="#complete-object-mappings" title="Permanent link">&para;</a></h2>
 <p>Bindings belong to the codec layer. Include <code>tlv/codec/structure.h</code> for
 <code>tlv_structure_codec_t</code>, which maps a complete TLV sequence to an application

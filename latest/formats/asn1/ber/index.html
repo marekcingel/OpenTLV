@@ -1521,6 +1521,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#universal-type-value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Universal-type value codecs
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2680,6 +2691,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#universal-type-value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Universal-type value codecs
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2971,6 +2993,40 @@ up to 127 length octets. Insufficient <code>out_capacity</code> returns
 outputs unchanged on failure, and neither allocates or requires the length's
 value payload to be present.</p>
 <p>These framing rules follow <a href="https://www.itu.int/rec/T-REC-X.690-202102-I/en">ITU-T X.690 (02/2021), sections 8.1.3 and 8.1.5</a>.</p>
+<h3 id="universal-type-value-codecs">Universal-type value codecs<a class="headerlink" href="#universal-type-value-codecs" title="Permanent link">&para;</a></h3>
+<p><code>tlv/builtins/asn1/asn1_codec.h</code> (built with <code>OPENTLV_FORMAT_BER</code>) adds
+<a href="../../../guides/codecs/"><code>tlv_codec_t</code></a> descriptors that convert the raw
+value bytes of the ASN.1 primitive universal types to and from C
+representations, independent of any particular BER-family format or
+profile. The format layer above never reads ASN.1 type semantics into a
+tag; callers pick the matching codec themselves, typically from a schema or
+dictionary:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/asn1_codec.h"</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="cm">/* view.value already read through tlv_reader_format_ber, DER or CER */</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kt">int64_t</span><span class="w"> </span><span class="n">number</span><span class="p">;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kt">size_t</span><span class="w">  </span><span class="n">length</span><span class="p">;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_length_to_size</span><span class="p">(</span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="n">tlv_codec_decode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tlv_asn1_codec_integer</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">,</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">                      </span><span class="o">&amp;</span><span class="n">number</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">number</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_CODEC_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="cm">/* number holds the decoded INTEGER */</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="p">}</span>
+</code></pre></div>
+<p>A codec is provided for each of BOOLEAN (<code>tlv_asn1_codec_boolean</code>, <code>bool</code>),
+INTEGER and ENUMERATED (<code>tlv_asn1_codec_integer</code>, <code>tlv_asn1_codec_enumerated</code>,
+<code>int64_t</code>), BIT STRING (<code>tlv_asn1_codec_bit_string</code>, <code>tlv_asn1_bit_string_t</code>),
+OCTET STRING (<code>tlv_asn1_codec_octet_string</code>, <code>tlv_asn1_octet_string_t</code>), NULL
+(<code>tlv_asn1_codec_null</code>, no representation) and OBJECT IDENTIFIER /
+RELATIVE-OID (<code>tlv_asn1_codec_oid</code>, <code>tlv_asn1_codec_relative_oid</code>, both
+<code>tlv_asn1_oid_t</code>, an arc array up to <code>TLV_ASN1_OID_MAX_ARCS</code>). BIT STRING and
+OCTET STRING decode into a representation that borrows the input value
+bytes; every other representation is self-contained.</p>
+<p>Every codec enforces the same canonical content rules ITU-T X.690 section 11
+defines for DER and CER, even when the raw value was read through the more
+permissive <code>tlv_reader_format_ber</code>: for example a BOOLEAN of <code>01</code>, or a
+non-minimal two's complement INTEGER, is rejected with
+<code>TLV_CODEC_ERR_INVALID_VALUE</code>. See <code>tlv/builtins/asn1/asn1_codec.h</code> for each
+codec's exact content and representation rules.</p>
 <p>Malformed tags and unterminated tags on write return <code>TLV_ERR_INVALID_TAG</code>,
 unless continuation requires bytes beyond <code>TLV_ASN1_TAG_MAX_SIZE</code>. Empty tags on write and
 tags longer than <code>TLV_ASN1_TAG_MAX_SIZE</code> return <code>TLV_ERR_INVALID_TAG_SIZE</code>. Missing tag continuation or length bytes return
@@ -2981,13 +3037,13 @@ and validation live in the format callbacks.</p>
 <h2 id="layout-and-typical-use">Layout and typical use<a class="headerlink" href="#layout-and-typical-use" title="Permanent link">&para;</a></h2>
 <p>An element is identifier octets, length octets, and contents. A constructed value's
 contents are more elements with the same layout, so the structure is recursive.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>+------------------+----------------------+-----------------------+---------+
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>| Identifier       | Length               | Contents              | EOC     |
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>| 1+ bytes (tag)   | 1+ bytes             | Length bytes          | 00 00   |
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>|                  |                      | (child elements if    | only if |
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>|                  |                      |  constructed)         | length  |
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>|                  |                      |                       | is 80   |
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>+------------------+----------------------+-----------------------+---------+
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>+------------------+----------------------+-----------------------+---------+
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>| Identifier       | Length               | Contents              | EOC     |
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>| 1+ bytes (tag)   | 1+ bytes             | Length bytes          | 00 00   |
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>|                  |                      | (child elements if    | only if |
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>|                  |                      |  constructed)         | length  |
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>|                  |                      |                       | is 80   |
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>+------------------+----------------------+-----------------------+---------+
 </code></pre></div>
 <table>
 <thead>
@@ -3026,35 +3082,35 @@ data objects, where BER is the framing and the meaning of each tag comes from a
 for the canonical restrictions of this layout.</p>
 <h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
 <h3 id="definite-constructed-value">Definite constructed value<a class="headerlink" href="#definite-constructed-value" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>E1 08 5A 02 12 34 5F 2A 01 56
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Element (10 bytes)
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>|-- Tag:    E1 (constructed)
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>|-- Length: 08 = 8 encoded child bytes
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>`-- Value
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    |-- Child (4 bytes)
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    |   |-- Tag:    5A (primitive)
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    |   |-- Length: 02
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    |   `-- Value:  12 34
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    `-- Child (4 bytes)
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>        |-- Tag:    5F 2A (primitive, multi-byte tag)
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>        |-- Length: 01
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>        `-- Value:  56
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>E1 08 5A 02 12 34 5F 2A 01 56
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Element (10 bytes)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>|-- Tag:    E1 (constructed)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>|-- Length: 08 = 8 encoded child bytes
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>`-- Value
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    |-- Child (4 bytes)
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    |   |-- Tag:    5A (primitive)
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    |   |-- Length: 02
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    |   `-- Value:  12 34
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    `-- Child (4 bytes)
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>        |-- Tag:    5F 2A (primitive, multi-byte tag)
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>        |-- Length: 01
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        `-- Value:  56
 </code></pre></div>
 <p>The parent's length includes each child's tag, length, and value. These are
 illustrative opaque payloads, not an EMV-valid record. Generic <code>tlv_read</code>
 returns the outer value without automatically visiting definite-length children.
 Use <code>tlv_walk_tree</code> with <code>tlv_ber_is_constructed</code> to traverse the hierarchy.</p>
 <h3 id="indefinite-constructed-value">Indefinite constructed value<a class="headerlink" href="#indefinite-constructed-value" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>E1 80 5A 02 12 34 00 00
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Element (8 bytes)
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>|-- Tag:    E1 (constructed)
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>|-- Length: 80 (indefinite)
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>|-- Value:  5A 02 12 34 (4 bytes)
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>|   `-- Child
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>|       |-- Tag:    5A
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>|       |-- Length: 02
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>|       `-- Value:  12 34
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>`-- Trailer: 00 00 (end-of-contents / EOC)
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>E1 80 5A 02 12 34 00 00
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Element (8 bytes)
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>|-- Tag:    E1 (constructed)
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>|-- Length: 80 (indefinite)
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>|-- Value:  5A 02 12 34 (4 bytes)
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>|   `-- Child
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>|       |-- Tag:    5A
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>|       |-- Length: 02
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>|       `-- Value:  12 34
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>`-- Trailer: 00 00 (end-of-contents / EOC)
 </code></pre></div>
 <p>The returned outer value excludes its EOC; the consumed byte count includes it.
 Primitive indefinite-length values are rejected. Ordinary BER writing emits

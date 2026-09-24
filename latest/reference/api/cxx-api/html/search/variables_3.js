@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['data_0',['data',['../../../c-api/html/structtlv__reader.html#af1b8dc22d88017047e6e67f3dfa6fef4',1,'tlv_reader::data'],['../../../c-api/html/structtlv__tag__t.html#a2e881623150c61177107e028ecd749a4',1,'tlv_tag_t::data'],['../../../c-api/html/structtlv__value__t.html#ac13fdbdff04aee2d78c55bc5752e26ac',1,'tlv_value_t::data']]],
+  ['data_0',['data',['../../../c-api/html/structtlv__asn1__bit__string.html#af84e42eee0e576cc6090864752a8d4fe',1,'tlv_asn1_bit_string::data'],['../../../c-api/html/structtlv__asn1__octet__string.html#a2319dc6b9fa97317591937ace2036fe7',1,'tlv_asn1_octet_string::data'],['../../../c-api/html/structtlv__reader.html#af1b8dc22d88017047e6e67f3dfa6fef4',1,'tlv_reader::data'],['../../../c-api/html/structtlv__tag__t.html#a2e881623150c61177107e028ecd749a4',1,'tlv_tag_t::data'],['../../../c-api/html/structtlv__value__t.html#ac13fdbdff04aee2d78c55bc5752e26ac',1,'tlv_value_t::data']]],
   ['day_1',['day',['../../../c-api/html/structtlv__emv__date__t.html#a416eccbd4d5275a1603ae7f0adcb18a1',1,'tlv_emv_date_t']]],
   ['declared_5flength_2',['declared_length',['../../../c-api/html/structtlv__reader__diagnostic.html#a81eee24f713410be871415e2cdf230ae',1,'tlv_reader_diagnostic']]],
   ['decode_3',['decode',['../../../c-api/html/structtlv__codec.html#a4c13053a47bc19b0d35c3397a3d53c12',1,'tlv_codec::decode'],['../../../c-api/html/structtlv__structure__codec.html#a9e34f511b51fde7b5383fee45526159a',1,'tlv_structure_codec::decode']]],

@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['walker_2eh_0',['walker.h',['../../../c-api/html/walker_8h.html',1,'']]],
-  ['walker_2ehpp_1',['walker.hpp',['../walker_8hpp.html',1,'']]],
-  ['writer_2eh_2',['writer.h',['../../../c-api/html/writer_8h.html',1,'']]],
-  ['writer_2ehpp_3',['writer.hpp',['../writer_8hpp.html',1,'']]]
+  ['value_2eh_0',['value.h',['../../../c-api/html/value_8h.html',1,'']]],
+  ['version_2eh_1',['version.h',['../../../c-api/html/version_8h.html',1,'']]],
+  ['view_2eh_2',['view.h',['../../../c-api/html/view_8h.html',1,'']]]
 ];
