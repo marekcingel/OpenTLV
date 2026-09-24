@@ -30,6 +30,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `tlv/builtins/asn1/asn1_codec.h`, `tlv_codec_t` codecs for the ASN.1
+  primitive universal types (BOOLEAN, INTEGER, ENUMERATED, BIT STRING, OCTET
+  STRING, NULL, OBJECT IDENTIFIER and RELATIVE-OID), converting raw values
+  read by any BER-family format to and from C representations; see
+  [BER-TLV](docs/formats/asn1/ber.md#universal-type-value-codecs). (#306)
 - Add `tlv_ber_tag_class()`, `tlv_ber_tag_is_constructed()`, `tlv_ber_tag_make()`
   and `tlv_ber_tag_number()` to `tlv/builtins/asn1/ber.h`, exposing the ASN.1
   tag model (class, primitive/constructed form, low- and high-tag-number
