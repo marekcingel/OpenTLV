@@ -122,20 +122,20 @@ class tlv::fixed_format&lt; TagWidth, LengthWidth, Order &gt;</div><p>A fixed-wi
 <td class="markdownTableBodyNone"><code>Order</code>   </td><td class="markdownTableBodyNone"><a class="elRef" href="../../c-api/html/group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875a72bce499f639e5249c8ee6be29f313d5">TLV_BYTE_ORDER_BIG_ENDIAN</a>, <a class="elRef" href="../../c-api/html/group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875aa09207eb116bd6d31b320a879d90cfe5">TLV_BYTE_ORDER_LITTLE_ENDIAN</a>   </td></tr>
 </table>
 <p>Any other value fails to compile with a <code>static_assert</code>.</p>
-<p>The descriptors returned by <a class="el" href="classtlv_1_1fixed__format.html#a6cd5e4d4c6b305c8c7baeb930096ae8a" title="Returns the reader descriptor for this format.">reader()</a> and <a class="el" href="classtlv_1_1fixed__format.html#a6f4605e7d164b93630b84af3a4d1f397" title="Returns the writer descriptor for this format.">writer()</a> have static storage duration and a <code>NULL</code> context, so they never need lifetime management. The format performs no allocation and reads values in place. Errors match the built-in fixed format (<code>tlv_reader_format_fixed_1byte</code>):</p><ul>
+<p>The descriptors returned by <a class="el" href="classtlv_1_1fixed__format.html#a6cd5e4d4c6b305c8c7baeb930096ae8a" title="Returns the reader descriptor for this format.">reader()</a> and <a class="el" href="classtlv_1_1fixed__format.html#a6f4605e7d164b93630b84af3a4d1f397" title="Returns the writer descriptor for this format.">writer()</a> have static storage duration and a <code>NULL</code> context, so they never need lifetime management. The format performs no allocation and reads values in place. Errors match the C <code>tlv_fixed_config_t</code>-based format for the same widths and byte order:</p><ul>
 <li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when the input holds fewer bytes than a field needs, or the output has less capacity than a field needs;</li>
 <li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> when a written tag is not <code>TagWidth</code> bytes;</li>
 <li><a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> when a value length exceeds the largest value <code>LengthWidth</code> bytes can hold, or a decoded length does not fit in <code>size_t</code>.</li>
 </ul>
-<p><code><a class="el" href="classtlv_1_1fixed__format.html" title="A fixed-width TLV format selected at compile time.">fixed_format</a>&lt;1, 1, TLV_BYTE_ORDER_BIG_ENDIAN&gt;</code> encodes like <code>tlv_reader_format_fixed_1byte</code> and <code>tlv_writer_format_fixed_1byte</code>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">TagWidth</td><td>Tag width in bytes. </td></tr>
     <tr><td class="paramname">LengthWidth</td><td>Length field width in bytes. </td></tr>
-    <tr><td class="paramname">Order</td><td>Byte order of the length field. </td></tr>
+    <tr><td class="paramname">Order</td><td>Byte order of the length field.</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/group__formats.html#ga30e2e92f0bc36289d797a174ef473d0e">tlv_fixed_config_t</a> for the same format chosen at runtime instead of compile time (<a class="elRef" href="../../c-api/html/fixed_8h.html">tlv/builtins/fixed/fixed.h</a>). </dd></dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a6cd5e4d4c6b305c8c7baeb930096ae8a" name="a6cd5e4d4c6b305c8c7baeb930096ae8a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6cd5e4d4c6b305c8c7baeb930096ae8a">&#9670;&#160;</a></span>reader()</h2>

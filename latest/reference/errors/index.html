@@ -1306,34 +1306,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/fixed/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fixed 1-byte TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
@@ -2618,7 +2590,7 @@ return; this page explains what each code means and what to check first.</p>
 <td><code>TLV_ERR_INVALID_LENGTH</code></td>
 <td>2</td>
 <td>A length is malformed, out of range, or does not fit <code>size_t</code>.</td>
-<td>The format's length limits (for example 255 for <a href="../../formats/fixed/">Fixed 1-byte TLV</a>, 65,535 for <a href="../../formats/default/">Default TLV</a>), the reserved BER length prefix <code>FF</code>, or a total that overflows <code>size_t</code>.</td>
+<td>The format's length limits (for example the length width for <a href="../../formats/fixed/configurable/">configurable fixed-width TLV</a>, 65,535 for <a href="../../formats/default/">Default TLV</a>), the reserved BER length prefix <code>FF</code>, or a total that overflows <code>size_t</code>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_NULL_ARG</code></td>
@@ -2678,7 +2650,7 @@ return; this page explains what each code means and what to check first.</p>
 <td><code>TLV_ERR_INVALID_BYTE_ORDER</code></td>
 <td>12</td>
 <td>A byte order is unknown or unsupported.</td>
-<td>The <code>TLV_BYTE_ORDER_*</code> value passed to the integer conversion functions in <code>tlv/endian.h</code> and <code>tlv/tag.h</code>.</td>
+<td>The <code>TLV_BYTE_ORDER_*</code> value passed to the integer conversion functions in <code>tlv/endian.h</code> and <code>tlv/tag.h</code>, or <code>tlv_fixed_config_t.order</code> in <a href="../../formats/fixed/configurable/">configurable fixed-width TLV</a>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_OVERFLOW</code></td>

@@ -1306,34 +1306,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../formats/fixed/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fixed 1-byte TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../formats/fixed/configurable/" class="md-nav__link">
         
   
@@ -2576,7 +2548,7 @@ native applications. Nothing you enter is uploaded.</p>
     <label>Format
       <select id="otlv-pg-format" disabled>
         <option value="default">Default TLV</option>
-        <option value="fixed-1byte">Fixed 1-byte TLV</option>
+        <option value="fixed">Fixed-width TLV</option>
         <option value="bluetooth-ltv">Bluetooth LTV</option>
         <option value="ber">BER-TLV</option>
         <option value="der">DER-TLV</option>
@@ -2586,6 +2558,20 @@ native applications. Nothing you enter is uploaded.</p>
       <select id="otlv-pg-profile" disabled>
         <option value="none">None</option>
         <option value="emv">EMV tag names (BER-TLV only)</option>
+      </select>
+    </label>
+  </div>
+  <div id="otlv-pg-fixed-options" class="otlv-pg-controls" hidden>
+    <label>Fixed tag size (bytes)
+      <input id="otlv-pg-fixed-tag-size" type="number" min="1" value="1" disabled>
+    </label>
+    <label>Fixed length size (bytes)
+      <input id="otlv-pg-fixed-length-size" type="number" min="1" max="8" value="1" disabled>
+    </label>
+    <label>Fixed length byte order
+      <select id="otlv-pg-fixed-order" disabled>
+        <option value="big">Big-endian</option>
+        <option value="little">Little-endian</option>
       </select>
     </label>
   </div>
@@ -2611,6 +2597,10 @@ in all of them.</p>
   innermost element that contains it.</li>
 <li><strong>JSON</strong>: the parse result as JSON, with a <strong>Copy JSON</strong> button.</li>
 </ul>
+<p>Choosing <strong>Fixed-width TLV</strong> reveals tag size, length size (1-8 bytes) and length
+byte order controls, matching the C <code>tlv_fixed_config_t</code>/C++ <code>tlv::fixed_format</code>
+<a href="../formats/fixed/configurable/">configurable fixed-width format</a>; they default
+to a one-byte tag, a one-byte length and big-endian.</p>
 <p>The inspector lists the selected element's tag, encoded tag and length bytes,
 length, offset, encoded size, nesting depth and path, and raw value, with
 buttons to copy the tag, the value or the whole encoded element. With the
@@ -2618,8 +2608,8 @@ buttons to copy the tag, the value or the whole encoded element. With the
 <a href="../profiles/emv/">EMV profile</a> and whether its length is permitted.</p>
 <p>In <a href="../formats/asn1/ber/">BER-TLV</a> and
 <a href="../formats/asn1/der/">DER-TLV</a> constructed elements nest their children; the
-<a href="../formats/default/">Default</a> and
-<a href="../formats/fixed/">Fixed 1-byte</a> and
+<a href="../formats/default/">Default</a>,
+<a href="../formats/fixed/configurable/">configurable fixed-width</a> and
 <a href="../formats/bluetooth/">Bluetooth LTV</a> formats have opaque values, so
 their elements are flat. Bluetooth LTV puts the length byte before the type, so
 in the hex view and the element details the length is shown before the tag. EMV data is BER-TLV.</p>

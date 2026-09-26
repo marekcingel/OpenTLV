@@ -1306,34 +1306,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/fixed/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fixed 1-byte TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
@@ -2794,6 +2766,16 @@ so far.</p>
 <td></td>
 <td>Alias for <code>std::result::Result&lt;T, Error&gt;</code></td>
 </tr>
+<tr>
+<td><code>FixedFormat</code></td>
+<td><code>tlv_fixed_config_t</code></td>
+<td>Runtime-configurable tag width, length width (1-8 bytes) and length byte order; owns a heap-allocated config so its address stays stable when the value is moved</td>
+</tr>
+<tr>
+<td><code>ByteOrder</code></td>
+<td><code>tlv_byte_order_t</code></td>
+<td><code>Big</code> or <code>Little</code>, the length field's byte order for <code>FixedFormat</code></td>
+</tr>
 </tbody>
 </table>
 <p>The C <code>tlv_tag_t</code> is a borrowed pointer and size (<code>opentlv_native::tlv_tag_t</code>), so
@@ -2813,10 +2795,14 @@ borrow checker keeps the input alive for as long as the reader or any entry.</p>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
 </code></pre></div>
 <p><code>Reader::new</code> uses the default format (one-byte tag, definite BER length);
-<code>Reader::with_format</code> takes a <code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>,
-<code>Fixed1Byte</code>). Malformed input yields an <code>Err(Error)</code> item, after which the
-iterator ends, since the C reader does not advance past bad data. Library users
-need no <code>unsafe</code>.</p>
+<code>Reader::with_format</code> takes a <code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>), and
+<code>Reader::with_fixed_format</code> takes a borrowed <code>&amp;FixedFormat</code> for a
+runtime-configurable tag width, length width and length byte order (wraps the C
+<code>tlv_fixed_config_t</code> and <code>tlv_fixed_reader_format_init()</code>/<code>tlv_fixed_writer_format_init()</code>;
+<code>FixedFormat::new(tag_size, length_size, order)</code> returns <code>Result&lt;FixedFormat&gt;</code>
+and must outlive every reader or writer built from it). Malformed input yields
+an <code>Err(Error)</code> item, after which the iterator ends, since the C reader does
+not advance past bad data. Library users need no <code>unsafe</code>.</p>
 <h2 id="writer">Writer<a class="headerlink" href="#writer" title="Permanent link">&para;</a></h2>
 <p><code>Writer&lt;'a&gt;</code> encodes entries into a caller-owned <code>&amp;'a mut [u8]</code>. It wraps the C
 <code>tlv_writer_t</code> and never allocates. Tags are <code>Tag</code>s and values are <code>&amp;[u8]</code>.</p>
@@ -2887,7 +2873,7 @@ is the amount codec; every other codec comes from the EMV dictionary:</p>
 contexts. Opaque bytes, text and templates have no codec; use the reader's
 borrowed value.</p>
 <h2 id="profiles-and-formats">Profiles and formats<a class="headerlink" href="#profiles-and-formats" title="Permanent link">&para;</a></h2>
-<p><code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>, <code>Fixed1Byte</code>) selects the wire
+<p><code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>) selects the wire
 encoding; it implements <code>FromStr</code> and <code>Display</code> for names such as <code>"der"</code>.
 <code>Profile</code> (<code>Der</code>, <code>Cer</code>) adds canonical-encoding checks and resource <code>Limits</code>
 on top of the format: <code>validate</code>, <code>read</code>, <code>encoded_size</code> and <code>write</code>, each with

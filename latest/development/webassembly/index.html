@@ -1306,34 +1306,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/fixed/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fixed 1-byte TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
@@ -2660,9 +2632,14 @@ native builds, and a compiled-out format is rejected as an invalid argument.</p>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">format</span><span class="o">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="w"> </span><span class="p">},</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">);</span>
 </code></pre></div>
-<p><code>parse</code> takes a <code>Uint8Array</code>, a <code>format</code> (<code>default</code>, <code>fixed-1byte</code>, <code>bluetooth-ltv</code>,
+<p><code>parse</code> takes a <code>Uint8Array</code>, a <code>format</code> (<code>default</code>, <code>fixed</code>, <code>bluetooth-ltv</code>,
 <code>ber</code> or <code>der</code>; default <code>default</code>) and optionally a <code>profile</code> (<code>none</code> or <code>emv</code>; default
 <code>none</code>) and returns:</p>
+<p>For <code>format: "fixed"</code>, <code>fixedTagSize</code> (default <code>1</code>), <code>fixedLengthSize</code> (1-8, default
+<code>1</code>) and <code>fixedByteOrder</code> (<code>"big"</code> or <code>"little"</code>, default <code>"big"</code>) configure the
+configurable fixed-width format's tag width, length width and length byte order
+(<code>tlv_fixed_config_t</code>); they are ignored for every other format. An invalid width
+is reported through <code>result.error</code>, like any other parse error.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="p">,</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>

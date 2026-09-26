@@ -1452,34 +1452,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/fixed/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fixed 1-byte TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
@@ -2725,8 +2697,8 @@ Turn off what you do not use.</p>
 <td><a href="../../formats/default/">Default TLV</a></td>
 </tr>
 <tr>
-<td><code>OPENTLV_FORMAT_FIXED_1BYTE</code></td>
-<td><a href="../../formats/fixed/">Fixed 1-byte TLV</a></td>
+<td><code>OPENTLV_FORMAT_FIXED</code></td>
+<td><a href="../../formats/fixed/configurable/">Configurable fixed-width TLV</a> (C API)</td>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
@@ -2759,22 +2731,22 @@ Turn off what you do not use.</p>
 </tbody>
 </table>
 <p>Turning an option OFF also turns OFF everything below it in the chain
-<code>ASN1 -&gt; BER -&gt; DER -&gt; EMV</code>, with CER a sibling of DER under BER. The
-<a href="../../formats/fixed/configurable/">configurable fixed-width format</a> is a C++ header and
-has no CMake option.</p>
+<code>ASN1 -&gt; BER -&gt; DER -&gt; EMV</code>, with CER a sibling of DER under BER. The C++ side
+of the <a href="../../formats/fixed/configurable/">configurable fixed-width format</a> is
+a header-only template and has no CMake option.</p>
 <h2 id="recipes">Recipes<a class="headerlink" href="#recipes" title="Permanent link">&para;</a></h2>
 <p>Each recipe starts from a clean build directory; replace <code>build</code> with your own. Every
 option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
 <h3 id="core-only">Core only<a class="headerlink" href="#core-only" title="Permanent link">&para;</a></h3>
 <p>Use this when you supply your own <a href="../../formats/custom/">format callbacks</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED_1BYTE<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_BLUETOOTH_LTV<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-and-ber">Core and BER<a class="headerlink" href="#core-and-ber" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED_1BYTE<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_BLUETOOTH_LTV<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>-DOPENTLV_FORMAT_DER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_PROFILE_EMV<span class="o">=</span>OFF
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
@@ -2782,13 +2754,13 @@ option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
 <h3 id="core-ber-der-and-emv">Core, BER, DER and EMV<a class="headerlink" href="#core-ber-der-and-emv" title="Permanent link">&para;</a></h3>
 <p>EMV needs DER and DER needs BER, so all three are on. CER is off.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED_1BYTE<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_BLUETOOTH_LTV<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-and-bluetooth-ltv-only">Core and Bluetooth LTV only<a class="headerlink" href="#core-and-bluetooth-ltv-only" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED_1BYTE<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>

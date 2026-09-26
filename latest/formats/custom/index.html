@@ -1311,34 +1311,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../fixed/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fixed 1-byte TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../fixed/configurable/" class="md-nav__link">
         
   
@@ -2640,7 +2612,10 @@
 <h2 id="scope-and-limits">Scope and limits<a class="headerlink" href="#scope-and-limits" title="Permanent link">&para;</a></h2>
 <p>The application supplies its descriptors, callbacks, and optional context.
 Callbacks define valid tags and lengths, obey buffer bounds, and support writer
-size queries. There is no built-in configurable fixed-width descriptor.
+size queries. For a fixed-width tag and length, use the built-in
+<a href="../fixed/configurable/">configurable fixed-width format</a> instead of custom
+callbacks; write custom callbacks for anything with a different shape, such as
+a variable-length or protocol-specific length field.
 See <a href="../../guides/memory/">shared memory ownership rules</a>.</p>
 <h2 id="c-usage">C usage<a class="headerlink" href="#c-usage" title="Permanent link">&para;</a></h2>
 <p>Use the complete custom-format implementation in the
@@ -2659,8 +2634,11 @@ little-endian length:</p>
 </code></pre></div>
 <p>See the custom-format implementation in the
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/custom_format.c">C example</a> and the
-<a href="../#generic-interface">callback contracts</a>. No built-in configurable
-fixed-width descriptor is implied by this example.</p>
+<a href="../#generic-interface">callback contracts</a>. This particular shape -
+a fixed-width tag and length - could also be built with the
+<a href="../fixed/configurable/">configurable fixed-width format</a>
+(<code>tag_size = 1, length_size = 2, order = TLV_BYTE_ORDER_LITTLE_ENDIAN</code>); the
+example keeps hand-written callbacks to demonstrate the generic mechanism.</p>
 
 
 

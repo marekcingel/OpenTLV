@@ -1311,34 +1311,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../fixed/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fixed 1-byte TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../fixed/configurable/" class="md-nav__link">
         
   
@@ -3202,7 +3174,7 @@ depends on how much of X.680 these rows cover.</p>
 <td>ISO/IEC 7816-4 (same clause)</td>
 <td>Single-byte tag, no constructed values. The length forms are to be confirmed.</td>
 <td>format adapter</td>
-<td>New adapter; it is not <a href="../fixed/">Fixed 1-byte TLV</a> unless the length forms match.</td>
+<td>New adapter; it is not the one-byte-tag, one-byte-length case of the <a href="../fixed/configurable/">configurable fixed-width format</a> unless the length forms match.</td>
 <td>Not verified: paid ISO document.</td>
 </tr>
 <tr>
@@ -3291,7 +3263,7 @@ a caller slices the region first.</p>
 <td>ISO/IEC 10589:2002; <a href="https://www.rfc-editor.org/rfc/rfc1195.html">RFC 1195</a>; <a href="https://www.rfc-editor.org/rfc/rfc5305.html">RFC 5305</a> (sub-TLVs); other extension RFCs per scope</td>
 <td>TLV region after the PDU header: type, length, value with the length covering the value; sub-TLVs nest inside selected TLVs.</td>
 <td>format adapter, nesting predicate (which TLVs hold sub-TLVs), dictionary</td>
-<td>Framing is near <a href="../fixed/">Fixed 1-byte TLV</a>; the work is which TLVs contain sub-TLVs. Many extension RFCs: choose a base scope. No routing or SPF.</td>
+<td>Framing is near the one-byte-tag, one-byte-length case of the <a href="../fixed/configurable/">configurable fixed-width format</a>; the work is which TLVs contain sub-TLVs. Many extension RFCs: choose a base scope. No routing or SPF.</td>
 <td>Partly: RFC 1195 (TLV length is the value length) and RFC 5305 (sub-TLVs) read; the field widths and ISO 10589 not verified.</td>
 </tr>
 <tr>

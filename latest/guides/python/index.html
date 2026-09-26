@@ -1446,34 +1446,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/fixed/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fixed 1-byte TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
@@ -2728,7 +2700,10 @@ over <code>entry.value</code> to descend.</p>
 buffer-protocol object; the reader borrows it rather than copying it, so it
 must stay valid and unchanged for as long as the reader or its entries are
 used. <code>Reader(data)</code> uses <code>opentlv.Format.DEFAULT</code>; pass <code>format=</code> for
-another wire format, for example <code>opentlv.Reader(data, opentlv.Format.BER)</code>.</p>
+another wire format, for example <code>opentlv.Reader(data, opentlv.Format.BER)</code>,
+or an <code>opentlv.FixedFormat(tag_size, length_size, byte_order="big")</code> for a
+runtime-configurable fixed-width tag and length (equivalent to the C
+<code>tlv_fixed_config_t</code>).</p>
 <p>Runnable version, parsing a nested BER document and handling truncated
 input:
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/parse.py">parse.py</a>

@@ -1306,34 +1306,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/fixed/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fixed 1-byte TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
@@ -2711,7 +2683,7 @@ below; <code>encode</code> accepts any member order and any whitespace.</p>
 <td><code>format</code></td>
 <td>string</td>
 <td>on output</td>
-<td>The wire format (<code>default</code>, <code>fixed-1byte</code>, <code>ber</code>, <code>der</code> or <code>bluetooth-ltv</code>). Optional on input; when present it must equal <code>--format</code>.</td>
+<td>The wire format (<code>default</code>, <code>fixed</code>, <code>ber</code>, <code>der</code> or <code>bluetooth-ltv</code>). Optional on input; when present it must equal <code>--format</code>.</td>
 </tr>
 <tr>
 <td><code>elements</code></td>
@@ -2771,7 +2743,7 @@ members is not valid input for <code>encode</code>, because it is incomplete.</p
 <li><strong>Primitive and constructed elements have different representations.</strong> For
   BER and DER the tag decides which is legal: a tag whose constructed bit is
   set must use <code>children</code>, any other tag must use <code>value</code>. Formats without
-  constructed elements (<code>default</code>, <code>fixed-1byte</code>, <code>bluetooth-ltv</code>) accept only
+  constructed elements (<code>default</code>, <code>fixed</code>, <code>bluetooth-ltv</code>) accept only
   <code>value</code>.</li>
 <li><strong>Order and duplicates are kept.</strong> <code>elements</code> and <code>children</code> are arrays, so
   repeated tags stay repeated and in the same order.</li>
@@ -2811,7 +2783,7 @@ the same limits, so the result is always accepted by that reader.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>default</code>, <code>fixed-1byte</code>, <code>bluetooth-ltv</code></td>
+<td><code>default</code>, <code>fixed</code>, <code>bluetooth-ltv</code></td>
 <td>yes</td>
 <td>rejected</td>
 <td>rejected</td>
@@ -2832,7 +2804,7 @@ the same limits, so the result is always accepted by that reader.</p>
 </table>
 <p>The writer of the selected format still applies its own rules, so an element
 can be valid in the document and rejected when encoding: an invalid tag, or a
-value too long for <code>fixed-1byte</code> or <code>bluetooth-ltv</code>.</p>
+value too long for <code>fixed</code> or <code>bluetooth-ltv</code>.</p>
 <h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
 <p>The CLI resource limits apply. <code>--max-input-size</code> bounds the JSON text read and
 the bytes produced, <code>--max-depth</code> bounds <code>children</code> nesting (top-level elements

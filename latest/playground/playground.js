@@ -32,8 +32,8 @@ const SAMPLES = [
     hex: "01 03 41 42 43 02 02 68 69",
   },
   {
-    name: "Fixed 1-byte TLV",
-    format: "fixed-1byte",
+    name: "Fixed-width TLV",
+    format: "fixed",
     profile: "none",
     hex: "01 03 AA BB CC 04 01 2A",
   },
@@ -135,6 +135,10 @@ async function start() {
   const sampleSelect = document.getElementById("otlv-pg-sample");
   const formatSelect = document.getElementById("otlv-pg-format");
   const profileSelect = document.getElementById("otlv-pg-profile");
+  const fixedOptions = document.getElementById("otlv-pg-fixed-options");
+  const fixedTagSize = document.getElementById("otlv-pg-fixed-tag-size");
+  const fixedLengthSize = document.getElementById("otlv-pg-fixed-length-size");
+  const fixedOrder = document.getElementById("otlv-pg-fixed-order");
   const input = document.getElementById("otlv-pg-input");
   const parseButton = document.getElementById("otlv-pg-parse");
   const errorBox = document.getElementById("otlv-pg-error");
@@ -364,7 +368,13 @@ async function start() {
       return;
     }
     const profile = profileSelect.value;
-    const result = opentlv.parse(bytes, { format: formatSelect.value, profile });
+    const options = { format: formatSelect.value, profile };
+    if (formatSelect.value === "fixed") {
+      options.fixedTagSize = Number(fixedTagSize.value) || 1;
+      options.fixedLengthSize = Number(fixedLengthSize.value) || 1;
+      options.fixedByteOrder = fixedOrder.value;
+    }
+    const result = opentlv.parse(bytes, options);
     if (result.error) {
       const { code, message, offset } = result.error;
       showError([`Parse error at offset ${offset}: ${message} (code ${code})`]);
@@ -384,12 +394,21 @@ async function start() {
   }
   formatSelect.addEventListener("change", syncProfile);
 
+  // Fixed-width TLV is the only format with runtime-configurable tag/length widths.
+  function syncFixedOptions() {
+    const fixedFormat = formatSelect.value === "fixed";
+    fixedOptions.hidden = !fixedFormat;
+    for (const control of [fixedTagSize, fixedLengthSize, fixedOrder]) control.disabled = !fixedFormat;
+  }
+  formatSelect.addEventListener("change", syncFixedOptions);
+
   sampleSelect.addEventListener("change", () => {
     const sample = SAMPLES[Number(sampleSelect.value)];
     if (!sample) return;
     input.value = sample.hex;
     formatSelect.value = sample.format;
     syncProfile();
+    syncFixedOptions();
     profileSelect.value = sample.profile;
     parse();
   });
@@ -402,6 +421,7 @@ async function start() {
   });
 
   syncProfile();
+  syncFixedOptions();
   for (const control of [sampleSelect, formatSelect, profileSelect, parseButton]) control.disabled = false;
 }
 
