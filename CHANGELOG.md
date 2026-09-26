@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Prepracovanie internej implementácie `otlv` CLI z voľných funkcií nad
+  zdieľanou štruktúrou `options` na hierarchiu tried príkazov (`command`,
+  `command_factory`) s virtuálnym dispatchom, rozdelenú po jednej triede na
+  súbor v `tools/cli/src/commands/` a `tools/cli/src/completion/`; bez zmeny
+  správania CLI. (#318)
 - **Breaking:** Rename the Rust `opentlv-sys` crate to `opentlv-native`, for
   consistency with the Python `opentlv-native` package added in the same
   release; downstream `Cargo.toml` path dependencies on `opentlv-sys` must
@@ -41,6 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a `completion` command to the `otlv` CLI, printing a bash, zsh, fish or
+  PowerShell completion script for its commands and options to stdout; see
+  [Shell completion](docs/cli/README.md#shell-completion). (#318)
 - Add `fixedTagSize`/`fixedLengthSize`/`fixedByteOrder` to the WebAssembly
   module's `opentlv_wasm_parse()`/`opentlv.parse()` and matching controls to
   the web playground, configuring `format: "fixed"` instead of a hardcoded

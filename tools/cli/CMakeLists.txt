@@ -1,30 +1,72 @@
 set(HEADERS
-    src/commands.hpp
+    src/command.hpp
+    src/command_factory.hpp
     src/console_color.hpp
     src/decode.hpp
     src/diagnostic_collect.hpp
     src/diagnostic_render.hpp
     src/diagnostics.hpp
-    src/encode.hpp
     src/input.hpp
     src/json_model.hpp
     src/options.hpp
     src/presentation.hpp
-    src/tag.hpp
+    src/commands/support.hpp
+    src/commands/emv_dictionary.hpp
+    src/commands/help_command.hpp
+    src/commands/version_command.hpp
+    src/commands/formats_command.hpp
+    src/commands/walk_command.hpp
+    src/commands/dump_command.hpp
+    src/commands/validate_command.hpp
+    src/commands/decode_command.hpp
+    src/commands/query_command.hpp
+    src/commands/encode_command.hpp
+    src/commands/tag_command.hpp
+    src/commands/tags_command.hpp
+    src/completion/support.hpp
+    src/completion/completion_option.hpp
+    src/completion/completion_command_spec.hpp
+    src/completion/completion_model.hpp
+    src/completion/shell_completer.hpp
+    src/completion/bash_completer.hpp
+    src/completion/zsh_completer.hpp
+    src/completion/fish_completer.hpp
+    src/completion/powershell_completer.hpp
+    src/completion/completion_command.hpp
 )
 
 set(SOURCES
-    src/commands.cpp
+    src/command_factory.cpp
     src/diagnostic_collect.cpp
     src/diagnostic_render.cpp
     src/decode.cpp
-    src/encode.cpp
     src/input.cpp
     src/json_model.cpp
     src/main.cpp
     src/options.cpp
     src/presentation.cpp
-    src/tag.cpp
+    src/commands/support.cpp
+    src/commands/emv_dictionary.cpp
+    src/commands/help_command.cpp
+    src/commands/version_command.cpp
+    src/commands/formats_command.cpp
+    src/commands/walk_command.cpp
+    src/commands/dump_command.cpp
+    src/commands/validate_command.cpp
+    src/commands/decode_command.cpp
+    src/commands/query_command.cpp
+    src/commands/encode_command.cpp
+    src/commands/tag_command.cpp
+    src/commands/tags_command.cpp
+    src/completion/support.cpp
+    src/completion/completion_option.cpp
+    src/completion/completion_command_spec.cpp
+    src/completion/completion_model.cpp
+    src/completion/bash_completer.cpp
+    src/completion/zsh_completer.cpp
+    src/completion/fish_completer.cpp
+    src/completion/powershell_completer.cpp
+    src/completion/completion_command.cpp
 )
 
 add_executable(otlv
