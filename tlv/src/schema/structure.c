@@ -26,7 +26,7 @@ static int group_index(const tlv_structure_schema_t* schema, uint32_t id) {
     return -1;
 }
 
-static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* format,
+static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                                 const tlv_structure_schema_t* current, size_t start, size_t end,
                                 size_t* error_offset) {
     if (!current->rules && current->count) return invalid(start, error_offset);
@@ -127,8 +127,7 @@ typedef struct scope {
     int checked;
 } scope_t;
 
-tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
-                                 const tlv_reader_format_t* format,
+tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size, const tlv_format_t* format,
                                  tlv_is_constructed_fn is_constructed,
                                  const tlv_structure_schema_t* schema, size_t max_depth,
                                  size_t max_elements, size_t* error_offset) {

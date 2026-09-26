@@ -10,8 +10,8 @@
 #include <vector>
 
 namespace {
-const auto& reader_format = tlv_reader_format_bluetooth_ltv;
-const auto& writer_format = tlv_writer_format_bluetooth_ltv;
+const auto& reader_format = tlv_format_bluetooth_ltv;
+const auto& writer_format = tlv_format_bluetooth_ltv;
 
 // Flags (01), Complete Local Name "Hi" (09), and an unknown type (FF) with two bytes.
 const uint8_t advertising[] = {0x02, 0x01, 0x06, 0x03, 0x09, 'H', 'i', 0x03, 0xFF, 0xDE, 0xAD};
@@ -173,25 +173,29 @@ TEST(Unit_Tlv_BluetoothLtv, GenericScannerWalkerAndTreeWalkWork) {
 }
 
 TEST(Unit_Tlv_BluetoothLtv, InitHelpersCreateWholeElementFormats) {
-    tlv_reader_format_t reader{};
-    tlv_writer_format_t writer{};
-    ASSERT_EQ(TLV_OK, tlv_reader_format_init_element(&reader, nullptr, reader_format.read_element));
+    tlv_format_t reader{};
+    tlv_format_t writer{};
+    ASSERT_EQ(TLV_OK,
+              tlv_format_init_element(&reader, nullptr, reader_format.read_element, nullptr));
     EXPECT_EQ(nullptr, reader.read_tag);
     EXPECT_EQ(nullptr, reader.read_length);
     EXPECT_EQ(nullptr, reader.read_value_bounds);
-    ASSERT_EQ(TLV_OK, tlv_writer_format_init_header(&writer, nullptr, writer_format.write_header));
+    EXPECT_EQ(nullptr, reader.write_tag);
+    ASSERT_EQ(TLV_OK,
+              tlv_format_init_element(&writer, nullptr, nullptr, writer_format.write_header));
     EXPECT_EQ(nullptr, writer.write_tag);
     EXPECT_EQ(nullptr, writer.write_length);
     EXPECT_EQ(nullptr, writer.length_size);
+    EXPECT_EQ(nullptr, writer.read_tag);
 
-    tlv_reader_format_t before = reader;
+    tlv_format_t before = reader;
     EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              tlv_reader_format_init_element(nullptr, nullptr, reader.read_element));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_reader_format_init_element(&reader, nullptr, nullptr));
+              tlv_format_init_element(nullptr, nullptr, reader.read_element, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_format_init_element(&reader, nullptr, nullptr, nullptr));
     EXPECT_EQ(0, std::memcmp(&before, &reader, sizeof(reader)));
     EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              tlv_writer_format_init_header(nullptr, nullptr, writer.write_header));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_writer_format_init_header(&writer, nullptr, nullptr));
+              tlv_format_init_element(nullptr, nullptr, nullptr, writer.write_header));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_format_init_element(&writer, nullptr, nullptr, nullptr));
 
     tlv_view_t view;
     size_t     consumed = 0;
@@ -201,8 +205,8 @@ TEST(Unit_Tlv_BluetoothLtv, InitHelpersCreateWholeElementFormats) {
 
 TEST(Unit_Tlv_BluetoothLtv, GenericLayerRejectsEmptyHeader) {
     // A format that reports an empty header must not make the reader loop forever.
-    tlv_reader_format_t reader{};
-    ASSERT_EQ(TLV_OK, tlv_reader_format_init_element(&reader, nullptr, empty_header));
+    tlv_format_t reader{};
+    ASSERT_EQ(TLV_OK, tlv_format_init_element(&reader, nullptr, empty_header, nullptr));
     tlv_view_t    view;
     size_t        consumed = 0;
     const uint8_t data[] = {1, 2, 3};

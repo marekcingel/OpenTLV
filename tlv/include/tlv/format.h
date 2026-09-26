@@ -12,12 +12,15 @@ extern "C" {
 /**
  * @file
  * @ingroup formats
- * @brief Reader and writer format descriptors that define a TLV wire encoding.
+ * @brief Format descriptor that defines a TLV wire encoding.
  *
- * A format is a pair of stateless callback tables (one for reading, one for
- * writing) plus an optional borrowed, immutable context. Concrete formats
- * live under `tlv/builtins/<protocol>/`; custom formats are built with
- * tlv_reader_format_init() and tlv_writer_format_init().
+ * A format is a stateless callback table plus an optional borrowed, immutable
+ * context. Its read and write callback groups are independently optional: a
+ * format that leaves a group unset simply cannot be used in that direction
+ * (see tlv_format_can_read() and tlv_format_can_write()), rather than needing
+ * a separate, incompatible type. Concrete formats live under
+ * `tlv/builtins/<protocol>/`; custom formats are built with tlv_format_init()
+ * and tlv_format_init_element().
  *
  * Callbacks must not allocate, retain buffers, or access memory beyond the
  * size or capacity they are given. All sizes are in bytes. A format defines
@@ -179,27 +182,35 @@ typedef tlv_result_t (*tlv_write_header_fn)(const void* context, uint8_t* data, 
                                             const tlv_tag_t* tag, size_t length, size_t* written);
 
 /**
- * @brief Stateless reading format with optional borrowed, immutable configuration.
+ * @brief Stateless format descriptor with optional borrowed, immutable configuration.
  *
- * The descriptor and context must outlive every reader and operation that
- * uses them. `read_tag` and `read_length` are required unless `read_element`
- * is set; `read_value_bounds` is optional and, when non-`NULL`, replaces
- * `read_length` in element parsing. A non-`NULL` `read_element` replaces all
- * three, so every generic operation (reader, scanner, walker, schemas) works
- * on formats with a different field order. Callbacks must not allocate, retain buffers, or access
- * memory beyond `size`. On success they initialize their outputs.
+ * The descriptor and context must outlive every reader, writer and operation
+ * that uses them. Read and write capability are independently optional:
+ * `read_tag` and `read_length` are required for reading unless `read_element`
+ * is set, and `write_tag`, `write_length` and `length_size` are required for
+ * writing unless `write_header` is set. A format that leaves an entire group
+ * unset (all `NULL`) simply cannot be used in that direction; see
+ * tlv_format_can_read() and tlv_format_can_write(). `read_value_bounds` is
+ * optional and, when non-`NULL`, replaces `read_length` in element parsing. A
+ * non-`NULL` `read_element` replaces `read_tag`, `read_length` and
+ * `read_value_bounds`, so every generic read operation (reader, scanner,
+ * walker, schemas) works on formats with a different field order. A
+ * non-`NULL` `write_header` replaces `write_tag`, `write_length` and
+ * `length_size` the same way for encoding. Callbacks must not allocate,
+ * retain buffers, or access memory beyond `size` or `capacity`. On success
+ * they initialize their outputs.
  *
  * Reading borrows input bytes; value decoding and tree visits are separate
  * concerns.
  *
- * @see tlv_reader_format_init
+ * @see tlv_format_init, tlv_format_init_element
  */
-typedef struct tlv_reader_format {
+typedef struct tlv_format {
     /** Borrowed, immutable configuration passed to every callback; may be `NULL`. */
     const void* context;
-    /** Tag decoder. Required. */
+    /** Tag decoder. Required for reading unless `read_element` is set. */
     tlv_read_tag_fn read_tag;
-    /** Length decoder. Required. */
+    /** Length decoder. Required for reading unless `read_element` is set. */
     tlv_read_length_fn read_length;
     /** Optional replacement for `read_length`; `NULL` when unused. */
     tlv_read_value_bounds_fn read_value_bounds;
@@ -208,131 +219,111 @@ typedef struct tlv_reader_format {
      * and `read_value_bounds`; `NULL` when unused.
      */
     tlv_read_element_fn read_element;
-} tlv_reader_format_t;
-
-/**
- * @brief Stateless writing format with optional borrowed, immutable configuration.
- *
- * The descriptor and context must outlive every writer and operation that
- * uses them. `write_tag`, `write_length` and `length_size` are all required
- * unless `write_header` is set, which replaces the three. Callbacks must not allocate,
- * retain buffers, or access memory beyond `capacity`. Successful write
- * callbacks initialize `written`. Value encoding is a separate concern.
- *
- * @see tlv_writer_format_init
- */
-typedef struct tlv_writer_format {
-    /** Borrowed, immutable configuration passed to every callback; may be `NULL`. */
-    const void* context;
-    /** Tag encoder and size query. Required. */
+    /** Tag encoder and size query. Required for writing unless `write_header` is set. */
     tlv_write_tag_fn write_tag;
-    /** Length-field encoder. Required. */
+    /** Length-field encoder. Required for writing unless `write_header` is set. */
     tlv_write_length_fn write_length;
-    /** Length validator and size query. Required. */
+    /** Length validator and size query. Required for writing unless `write_header` is set. */
     tlv_length_size_fn length_size;
     /**
      * Optional whole-header encoder that replaces `write_tag`, `write_length`
      * and `length_size`; `NULL` when unused.
      */
     tlv_write_header_fn write_header;
-} tlv_writer_format_t;
+} tlv_format_t;
 
 /**
- * @brief Initializes a reader format in caller-owned storage.
+ * @brief Initializes a format's classic tag/length read and write callbacks in caller-owned
+ * storage.
  *
  * Does not allocate. The supplied pointers are stored, not copied: the
- * descriptor and context follow the reading lifetime and callback contracts
- * documented for #tlv_reader_format_t. `read_value_bounds` is initialized to
- * `NULL`; callers can assign it after initialization.
- *
- * @param[out] format      Descriptor to initialize.
- * @param[in]  context     Borrowed context passed to callbacks; may be `NULL`.
- * @param[in]  read_tag    Tag decoder. Required.
- * @param[in]  read_length Length decoder. Required.
- *
- * @return #TLV_OK on success; every field is set.
- * @return #TLV_ERR_INVALID_ARG if `format` or either callback is `NULL`.
- *
- * @note On failure the descriptor is unchanged.
- */
-TLV_API tlv_result_t tlv_reader_format_init(tlv_reader_format_t* format, const void* context,
-                                            tlv_read_tag_fn read_tag,
-                                            tlv_read_length_fn read_length);
-
-/**
- * @brief Initializes a writer format in caller-owned storage.
- *
- * Does not allocate. Only the supplied pointers are stored; the descriptor
- * and context follow the writing lifetime and callback contracts documented
- * for #tlv_writer_format_t.
+ * descriptor and context follow the lifetime and callback contracts
+ * documented for #tlv_format_t. Read and write capability are independently
+ * optional: pass both `read_tag` and `read_length` for read capability, or
+ * both `NULL` to leave reading unsupported; pass `write_tag`, `write_length`
+ * and `length_size` for write capability, or all three `NULL` to leave
+ * writing unsupported. At least one of the two groups must be given.
+ * `read_value_bounds`, `read_element` and `write_header` are initialized to
+ * `NULL`; callers can assign them directly after initialization.
  *
  * @param[out] format       Descriptor to initialize.
  * @param[in]  context      Borrowed context passed to callbacks; may be `NULL`.
- * @param[in]  write_tag    Tag encoder. Required.
- * @param[in]  write_length Length encoder. Required.
- * @param[in]  length_size  Length size query. Required.
+ * @param[in]  read_tag     Tag decoder, or `NULL` to leave reading unsupported.
+ * @param[in]  read_length  Length decoder, or `NULL` to leave reading unsupported.
+ * @param[in]  write_tag    Tag encoder, or `NULL` to leave writing unsupported.
+ * @param[in]  write_length Length encoder, or `NULL` to leave writing unsupported.
+ * @param[in]  length_size  Length size query, or `NULL` to leave writing unsupported.
  *
  * @return #TLV_OK on success; every field is set.
- * @return #TLV_ERR_INVALID_ARG if `format` or any callback is `NULL`.
+ * @return #TLV_ERR_INVALID_ARG if `format` is `NULL`; if exactly one of
+ *         `read_tag`/`read_length` is `NULL`; if `write_tag`, `write_length`
+ *         and `length_size` are not all `NULL` or all non-`NULL`; or if both
+ *         the read and write groups are left unset.
  *
  * @note On failure the descriptor is unchanged.
  */
-TLV_API tlv_result_t tlv_writer_format_init(tlv_writer_format_t* format, const void* context,
-                                            tlv_write_tag_fn write_tag,
-                                            tlv_write_length_fn write_length,
-                                            tlv_length_size_fn length_size);
+TLV_API tlv_result_t tlv_format_init(tlv_format_t* format, const void* context,
+                                     tlv_read_tag_fn read_tag, tlv_read_length_fn read_length,
+                                     tlv_write_tag_fn write_tag, tlv_write_length_fn write_length,
+                                     tlv_length_size_fn length_size);
 
 /**
- * @brief Initializes a reader format that parses whole elements.
+ * @brief Initializes a format's whole-element read and write callbacks in caller-owned storage.
  *
  * For formats whose field order is not tag, length, value. Does not allocate;
- * the supplied pointers are stored, not copied. `read_tag`, `read_length` and
- * `read_value_bounds` are initialized to `NULL`.
- *
- * @param[out] format       Descriptor to initialize.
- * @param[in]  context      Borrowed context passed to the callback; may be `NULL`.
- * @param[in]  read_element Element parser. Required.
- *
- * @return #TLV_OK on success; every field is set.
- * @return #TLV_ERR_INVALID_ARG if `format` or `read_element` is `NULL`.
- *
- * @note On failure the descriptor is unchanged.
- */
-TLV_API tlv_result_t tlv_reader_format_init_element(tlv_reader_format_t* format,
-                                                    const void* context,
-                                                    tlv_read_element_fn read_element);
-
-/**
- * @brief Initializes a writer format that encodes whole element headers.
- *
- * For formats whose field order is not tag, length, value. Does not allocate;
- * the supplied pointers are stored, not copied. `write_tag`, `write_length`
+ * the supplied pointers are stored, not copied. `read_element` and
+ * `write_header` are independently optional, but not both `NULL`.
+ * `read_tag`, `read_length`, `read_value_bounds`, `write_tag`, `write_length`
  * and `length_size` are initialized to `NULL`.
  *
  * @param[out] format       Descriptor to initialize.
- * @param[in]  context      Borrowed context passed to the callback; may be `NULL`.
- * @param[in]  write_header Header encoder. Required.
+ * @param[in]  context      Borrowed context passed to the callbacks; may be `NULL`.
+ * @param[in]  read_element Element parser, or `NULL` to leave reading unsupported.
+ * @param[in]  write_header Header encoder, or `NULL` to leave writing unsupported.
  *
  * @return #TLV_OK on success; every field is set.
- * @return #TLV_ERR_INVALID_ARG if `format` or `write_header` is `NULL`.
+ * @return #TLV_ERR_INVALID_ARG if `format` is `NULL`, or if `read_element` and
+ *         `write_header` are both `NULL`.
  *
  * @note On failure the descriptor is unchanged.
  */
-TLV_API tlv_result_t tlv_writer_format_init_header(tlv_writer_format_t* format, const void* context,
-                                                   tlv_write_header_fn write_header);
+TLV_API tlv_result_t tlv_format_init_element(tlv_format_t* format, const void* context,
+                                             tlv_read_element_fn read_element,
+                                             tlv_write_header_fn write_header);
+
+/**
+ * @brief Reports whether a format can be used for reading.
+ *
+ * @param[in] format Format to query; may be `NULL`.
+ *
+ * @return Nonzero if `format` is not `NULL` and has either `read_element` set
+ *         or both `read_tag` and `read_length` set, zero otherwise.
+ */
+TLV_API int tlv_format_can_read(const tlv_format_t* format);
+
+/**
+ * @brief Reports whether a format can be used for writing.
+ *
+ * @param[in] format Format to query; may be `NULL`.
+ *
+ * @return Nonzero if `format` is not `NULL` and has either `write_header` set
+ *         or all of `write_tag`, `write_length` and `length_size` set, zero
+ *         otherwise.
+ */
+TLV_API int tlv_format_can_write(const tlv_format_t* format);
 
 /**
  * @brief Optional nesting predicate used by tree traversal and structure validation.
  *
- * Called only with successfully parsed tags, using the reader format's
- * context. No value decoding occurs. Passing `NULL` at a call site means all
- * values are opaque.
+ * Called only with successfully parsed tags, using the format's context. No
+ * value decoding occurs. Passing `NULL` at a call site means all values are
+ * opaque.
  *
- * @param[in] context The reader format's context.
+ * @param[in] context The format's context.
  * @param[in] tag     A successfully parsed tag.
  *
- * @return Nonzero if the tag's value is a sequence in the same reader
- *         format, zero otherwise.
+ * @return Nonzero if the tag's value is a sequence in the same format, zero
+ *         otherwise.
  */
 typedef int (*tlv_is_constructed_fn)(const void* context, const tlv_tag_t* tag);
 

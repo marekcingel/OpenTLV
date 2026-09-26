@@ -78,7 +78,7 @@ so a candidate's "components" show which layers stay separate.
 
 | Component | Existing implementation | Role |
 | --- | --- | --- |
-| Format adapter | `tlv_reader_format_t` and `tlv_writer_format_t` in `tlv/format.h`; the whole-element callbacks `read_element` and `write_header` handle any field order or packing | Splits bytes into tag, header, value and trailer, and writes a header. |
+| Format adapter | `tlv_format_t` in `tlv/format.h`; the whole-element callbacks `read_element` and `write_header` handle any field order or packing | Splits bytes into tag, header, value and trailer, and writes a header. |
 | Nesting predicate | `tlv_is_constructed_fn`, passed to the tree walker | Says which values contain children in the same format. |
 | Structure schema | `tlv_schema_t` and `tlv_structure_schema_t` in `tlv/schema/schema.h` | Length bounds, occurrence and membership rules. |
 | DER schema | `tlv_der_schema_type_t` in `tlv/builtins/asn1/der_schema.h` | ASN.1 type rules with canonical DER semantics; a fixed, small subset. |

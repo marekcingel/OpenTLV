@@ -27,14 +27,14 @@ tlv::bytes to_bytes(const std::string& s) {
 
 TEST(Integration_Tlvpp, WriterReaderRoundtrip) {
     std::array<tlv::byte, 64> buf{};
-    tlv::writer               w(buf.data(), buf.size(), tlv_writer_format_default);
+    tlv::writer               w(buf.data(), buf.size(), tlv_format_default);
 
     auto r1 = w.write(TLV_TAG(0x01), to_bytes("hi"));
     ASSERT_TRUE(r1.has_value());
     auto r2 = w.write(TLV_TAG(0x02), to_bytes("x"));
     ASSERT_TRUE(r2.has_value());
 
-    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_reader_format_default);
+    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
 
     auto e1 = reader.next();
     ASSERT_TRUE(e1.has_value());
@@ -74,13 +74,13 @@ static_assert(tlv::is_tlv_codec<greeting>::value, "greeting must satisfy TLV cod
 
 TEST(Integration_Tlvpp, CodecWriteViaWriter) {
     std::array<tlv::byte, 64> buf{};
-    tlv::writer               w(buf.data(), buf.size(), tlv_writer_format_default);
+    tlv::writer               w(buf.data(), buf.size(), tlv_format_default);
 
     greeting g{"ahoj"};
     auto     r = tlv::write_value(w, g);
     ASSERT_TRUE(r.has_value());
 
-    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_reader_format_default);
+    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
     auto        entry = reader.next();
     ASSERT_TRUE(entry.has_value());
     EXPECT_TRUE(entry->tag.size == greeting::tag.size &&
@@ -98,12 +98,12 @@ TEST(Integration_Tlvpp, RegistryDynamicDecode) {
     EXPECT_TRUE(registry.has_decoder(greeting::tag));
 
     std::array<tlv::byte, 64> buf{};
-    tlv::writer               w(buf.data(), buf.size(), tlv_writer_format_default);
+    tlv::writer               w(buf.data(), buf.size(), tlv_format_default);
     greeting                  g{"cau"};
     auto                      write_result = tlv::write_value(w, g);
     ASSERT_TRUE(write_result.has_value());
 
-    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_reader_format_default);
+    tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
     auto        entry = reader.next();
     ASSERT_TRUE(entry.has_value());
 

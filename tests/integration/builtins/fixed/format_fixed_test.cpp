@@ -7,8 +7,8 @@
 TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteTagOneByteLength) {
     /* [tag: 2 bytes][length: 1 byte][value: N bytes], from the issue's example use case. */
     const tlv_fixed_config_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_writer_format_t      writer_format{};
-    ASSERT_EQ(TLV_OK, tlv_fixed_writer_format_init(&writer_format, &config));
+    tlv_format_t             writer_format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
 
     const uint8_t expected[] = {0x12, 0x34, 0x03, 0xAA, 0xBB, 0xCC};
     uint8_t       data[sizeof(expected)] = {};
@@ -18,8 +18,8 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteTagOneByteLength) {
     EXPECT_EQ(sizeof(expected), tlv_writer_size(&writer));
     EXPECT_EQ(0, std::memcmp(expected, data, sizeof(data)));
 
-    tlv_reader_format_t reader_format{};
-    ASSERT_EQ(TLV_OK, tlv_fixed_reader_format_init(&reader_format, &config));
+    tlv_format_t reader_format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&reader_format, &config));
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, writer.pos, &reader_format));
     tlv_view_t entry{};
@@ -36,10 +36,10 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteLittleEndianLength) {
     /* Matches tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>, documented in
      * docs/formats/fixed/configurable.md: 12 34 03 00 AA BB CC. */
     const tlv_fixed_config_t config = {2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN};
-    tlv_writer_format_t      writer_format{};
-    tlv_reader_format_t      reader_format{};
-    ASSERT_EQ(TLV_OK, tlv_fixed_writer_format_init(&writer_format, &config));
-    ASSERT_EQ(TLV_OK, tlv_fixed_reader_format_init(&reader_format, &config));
+    tlv_format_t             writer_format{};
+    tlv_format_t             reader_format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&reader_format, &config));
 
     const uint8_t expected[] = {0x12, 0x34, 0x03, 0x00, 0xAA, 0xBB, 0xCC};
     uint8_t       data[sizeof(expected)] = {};
@@ -58,10 +58,10 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteLittleEndianLength) {
 
 TEST(Integration_Tlv_Fixed, EveryLengthByteRoundTripsOneByteTagOneByteLength) {
     const tlv_fixed_config_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_writer_format_t      writer_format{};
-    tlv_reader_format_t      reader_format{};
-    ASSERT_EQ(TLV_OK, tlv_fixed_writer_format_init(&writer_format, &config));
-    ASSERT_EQ(TLV_OK, tlv_fixed_reader_format_init(&reader_format, &config));
+    tlv_format_t             writer_format{};
+    tlv_format_t             reader_format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&reader_format, &config));
 
     uint8_t value[255];
     std::memset(value, 0xAB, sizeof(value));
@@ -91,8 +91,8 @@ TEST(Integration_Tlv_Fixed, EveryLengthByteRoundTripsOneByteTagOneByteLength) {
 
 TEST(Integration_Tlv_Fixed, RejectsLengthThatOverflowsConfiguredWidth) {
     const tlv_fixed_config_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_writer_format_t      writer_format{};
-    ASSERT_EQ(TLV_OK, tlv_fixed_writer_format_init(&writer_format, &config));
+    tlv_format_t             writer_format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
     uint8_t      data[260] = {};
     tlv_writer_t writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &writer_format));

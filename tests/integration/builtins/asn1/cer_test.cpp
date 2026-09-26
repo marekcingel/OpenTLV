@@ -260,7 +260,7 @@ TEST(Integration_Tlv_Cer, WriteSegmentedStringSingleAndMultiSegment) {
         /* Zero-copy segment iteration: view.value already excludes the outer EOC. */
         std::vector<Segment> segments;
         ASSERT_EQ(TLV_OK, tlv_walk(view.value.data, static_cast<size_t>(view.value.length),
-                                   &tlv_reader_format_cer, collect_segment, &segments));
+                                   &tlv_format_cer, collect_segment, &segments));
         ASSERT_EQ(2u, segments.size());
         EXPECT_EQ(0x04, segments[0].tag.data[0]);
         EXPECT_EQ(0x04, segments[1].tag.data[0]);

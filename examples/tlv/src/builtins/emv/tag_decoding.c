@@ -65,7 +65,7 @@ static int build_record(uint8_t* content, size_t capacity, size_t* content_size)
     uint8_t      scratch[16];
     size_t       size;
 
-    CHECK(tlv_writer_init(&writer, content, capacity, &tlv_writer_format_ber));
+    CHECK(tlv_writer_init(&writer, content, capacity, &tlv_format_ber));
 
     /* PAN (5A): BCD-packed digits; trailing 'F' padding is not needed here. */
     if (encode_child(tlv_emv_find(TLV_EMV_CONTEXT_BASE, &tlv_emv_tag_pan)->codec,
@@ -326,16 +326,15 @@ int main(void) {
 
     /* Wrap the children in a READ RECORD response template (70), then parse
      * that record exactly as it would arrive over the wire. */
-    CHECK(tlv_write(wire, sizeof(wire), &tlv_writer_format_ber, tlv_emv_tag_read_record_template,
-                    content, content_size, &wire_size));
+    CHECK(tlv_write(wire, sizeof(wire), &tlv_format_ber, tlv_emv_tag_read_record_template, content,
+                    content_size, &wire_size));
 
     puts("Parsing a simulated EMV READ RECORD response template (70):");
-    CHECK(tlv_read(wire, wire_size, &tlv_reader_format_ber, &outer, &consumed));
+    CHECK(tlv_read(wire, wire_size, &tlv_format_ber, &outer, &consumed));
     EXPECT(consumed == wire_size, "unexpected trailing bytes after the record template");
     CHECK(tlv_length_to_size(outer.value.length, &wire_content_size));
 
-    CHECK(tlv_walk(outer.value.data, wire_content_size, &tlv_reader_format_ber, decode_field,
-                   &record));
+    CHECK(tlv_walk(outer.value.data, wire_content_size, &tlv_format_ber, decode_field, &record));
 
     EXPECT(record.errors == 0, "no decode errors were expected");
     EXPECT(record.known_count == 7, "seven tags with a dictionary entry were expected");

@@ -77,7 +77,7 @@ public:
      * @warning Visitor side effects are not rolled back on error.
      */
     template <typename Visitor>
-    TLV_NODISCARD expected<void, error> walk(bytes data, const tlv_reader_format_t& format,
+    TLV_NODISCARD expected<void, error> walk(bytes data, const tlv_format_t& format,
                                              tlv_is_constructed_fn is_constructed, size_t max_depth,
                                              size_t max_elements, Visitor&& visitor,
                                              size_t* error_offset = nullptr) const {

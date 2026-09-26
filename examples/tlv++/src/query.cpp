@@ -21,7 +21,7 @@ int main() {
 
     bool found = false;
     auto result = query->walk(
-        tlv::bytes(document.data(), document.size()), tlv_reader_format_ber, tlv_ber_is_constructed,
+        tlv::bytes(document.data(), document.size()), tlv_format_ber, tlv_ber_is_constructed,
         TLV_WALK_MAX_DEPTH, 16, [&found](const tlv::entry& entry, size_t /*depth*/, size_t offset) {
             std::cout << "6F/A5/50 = " << std::hex << std::uppercase << std::setw(2)
                       << std::setfill('0') << static_cast<int>(entry.value[0]) << std::dec

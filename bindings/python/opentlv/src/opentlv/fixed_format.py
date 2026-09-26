@@ -7,8 +7,7 @@ class FixedFormat:
     """A runtime-configurable fixed-width TLV format: independent tag width,
     length width (1 to 8 bytes) and length byte order.
 
-    Equivalent to the C `tlv_fixed_config_t` and
-    `tlv_fixed_reader_format_init()`/`tlv_fixed_writer_format_init()`. A
+    Equivalent to the C `tlv_fixed_config_t` and `tlv_fixed_format_init()`. A
     one-byte tag and a one-byte big-endian length is `FixedFormat(1, 1)`.
 
     >>> format = FixedFormat(2, 1)

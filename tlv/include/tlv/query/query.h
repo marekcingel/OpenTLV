@@ -181,8 +181,7 @@ TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_
  *          must remain valid and unchanged during the call.
  * @see tlv_walk_tree
  */
-TLV_API tlv_result_t tlv_query_walk(const uint8_t* data, size_t size,
-                                    const tlv_reader_format_t* format,
+TLV_API tlv_result_t tlv_query_walk(const uint8_t* data, size_t size, const tlv_format_t* format,
                                     tlv_is_constructed_fn is_constructed, const tlv_query_t* query,
                                     size_t max_depth, size_t max_elements,
                                     tlv_tree_visitor_t visitor, void* context,

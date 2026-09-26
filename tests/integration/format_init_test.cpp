@@ -29,7 +29,7 @@ TEST(Integration_Tlv_FormatDefault, IndependentReferenceInputsAndOutputs) {
         tlv_view_t view{};
         size_t     consumed = 0;
         ASSERT_EQ(TLV_OK,
-                  tlv_read(wire.data(), wire.size(), &tlv_reader_format_default, &view, &consumed));
+                  tlv_read(wire.data(), wire.size(), &tlv_format_default, &view, &consumed));
         EXPECT_EQ(wire.size(), consumed);
         EXPECT_EQ(1, view.tag.size); // 9F is a single raw tag, not BER high-tag form.
         EXPECT_EQ(0x9F, view.tag.data[0]);
@@ -39,16 +39,16 @@ TEST(Integration_Tlv_FormatDefault, IndependentReferenceInputsAndOutputs) {
         std::vector<uint8_t> output(wire.size());
         std::vector<uint8_t> value(item.length, 0xAB);
         size_t               written = 0;
-        ASSERT_EQ(TLV_OK, tlv_write(output.data(), output.size(), &tlv_writer_format_default,
+        ASSERT_EQ(TLV_OK, tlv_write(output.data(), output.size(), &tlv_format_default,
                                     TLV_TAG(0x9F), value.data(), value.size(), &written));
         EXPECT_EQ(wire.size(), written);
         EXPECT_EQ(wire, output);
     }
     size_t size = 123;
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_format_default.length_size(nullptr, 65536, &size));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_format_default.length_size(nullptr, 65536, &size));
     const uint8_t too_large[] = {0x9F, 0x83, 1, 0, 0};
     tlv_view_t    view{};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_read(too_large, sizeof(too_large), &tlv_reader_format_default, &view, &size));
+              tlv_read(too_large, sizeof(too_large), &tlv_format_default, &view, &size));
 }
 #endif

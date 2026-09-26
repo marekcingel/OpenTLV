@@ -43,7 +43,7 @@ static const tlv_structure_schema_t top_schema = {top_rules, 1, 0,
                                                   nullptr,   0, TLV_SCHEMA_ORDER_ANY};
 
 int main() {
-    auto ok = tlv::validate(tlv::bytes(document.data(), document.size()), tlv_reader_format_ber,
+    auto ok = tlv::validate(tlv::bytes(document.data(), document.size()), tlv_format_ber,
                             tlv_ber_is_constructed, top_schema, TLV_WALK_MAX_DEPTH, 16);
     if (!ok) {
         std::cerr << "unexpected: " << ok.error().message << "\n";
@@ -51,9 +51,8 @@ int main() {
     }
     std::cout << "Document conforms to the schema\n";
 
-    auto rejected =
-        tlv::validate(tlv::bytes(incomplete.data(), incomplete.size()), tlv_reader_format_ber,
-                      tlv_ber_is_constructed, top_schema, TLV_WALK_MAX_DEPTH, 16);
+    auto rejected = tlv::validate(tlv::bytes(incomplete.data(), incomplete.size()), tlv_format_ber,
+                                  tlv_ber_is_constructed, top_schema, TLV_WALK_MAX_DEPTH, 16);
     if (rejected || rejected.error().code != TLV_ERR_SCHEMA_MISSING) {
         std::cerr << "expected a missing-field error\n";
         return 1;

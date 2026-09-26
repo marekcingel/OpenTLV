@@ -13,16 +13,16 @@ TEST(Unit_Tlv_Fixed, InitAcceptsValidConfigs) {
     for (const auto& config : configs) {
         SCOPED_TRACE(::testing::Message()
                      << "tag_size=" << config.tag_size << " length_size=" << config.length_size);
-        tlv_reader_format_t reader{};
-        ASSERT_EQ(TLV_OK, tlv_fixed_reader_format_init(&reader, &config));
+        tlv_format_t reader{};
+        ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&reader, &config));
         EXPECT_EQ(&config, reader.context);
         EXPECT_NE(nullptr, reader.read_tag);
         EXPECT_NE(nullptr, reader.read_length);
         EXPECT_EQ(nullptr, reader.read_value_bounds);
         EXPECT_EQ(nullptr, reader.read_element);
 
-        tlv_writer_format_t writer{};
-        ASSERT_EQ(TLV_OK, tlv_fixed_writer_format_init(&writer, &config));
+        tlv_format_t writer{};
+        ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer, &config));
         EXPECT_EQ(&config, writer.context);
         EXPECT_NE(nullptr, writer.write_tag);
         EXPECT_NE(nullptr, writer.write_length);
@@ -39,27 +39,27 @@ TEST(Unit_Tlv_Fixed, InitRejectsInvalidArgumentsWithoutModification) {
         {1, 9, TLV_BYTE_ORDER_BIG_ENDIAN},
     };
 
-    tlv_reader_format_t reader{};
-    unsigned char       reader_before[sizeof(reader)];
-    ASSERT_EQ(TLV_OK, tlv_fixed_reader_format_init(&reader, &valid));
+    tlv_format_t  reader{};
+    unsigned char reader_before[sizeof(reader)];
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&reader, &valid));
     std::memcpy(reader_before, &reader, sizeof(reader));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_reader_format_init(nullptr, &valid));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_reader_format_init(&reader, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(nullptr, &valid));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(&reader, nullptr));
     EXPECT_EQ(0, std::memcmp(reader_before, &reader, sizeof(reader)));
     for (const auto& config : invalid_configs) {
-        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_reader_format_init(&reader, &config));
+        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(&reader, &config));
         EXPECT_EQ(0, std::memcmp(reader_before, &reader, sizeof(reader)));
     }
 
-    tlv_writer_format_t writer{};
-    unsigned char       writer_before[sizeof(writer)];
-    ASSERT_EQ(TLV_OK, tlv_fixed_writer_format_init(&writer, &valid));
+    tlv_format_t  writer{};
+    unsigned char writer_before[sizeof(writer)];
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer, &valid));
     std::memcpy(writer_before, &writer, sizeof(writer));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_writer_format_init(nullptr, &valid));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_writer_format_init(&writer, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(nullptr, &valid));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(&writer, nullptr));
     EXPECT_EQ(0, std::memcmp(writer_before, &writer, sizeof(writer)));
     for (const auto& config : invalid_configs) {
-        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_writer_format_init(&writer, &config));
+        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(&writer, &config));
         EXPECT_EQ(0, std::memcmp(writer_before, &writer, sizeof(writer)));
     }
 }
@@ -67,18 +67,18 @@ TEST(Unit_Tlv_Fixed, InitRejectsInvalidArgumentsWithoutModification) {
 TEST(Unit_Tlv_Fixed, InitRejectsInvalidByteOrder) {
     const tlv_fixed_config_t unknown = {1, 2, TLV_BYTE_ORDER_UNKNOWN};
     const tlv_fixed_config_t bogus = {1, 2, static_cast<tlv_byte_order_t>(99)};
-    tlv_reader_format_t      reader{};
-    tlv_writer_format_t      writer{};
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_reader_format_init(&reader, &unknown));
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_reader_format_init(&reader, &bogus));
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_writer_format_init(&writer, &unknown));
-    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_writer_format_init(&writer, &bogus));
+    tlv_format_t             reader{};
+    tlv_format_t             writer{};
+    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&reader, &unknown));
+    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&reader, &bogus));
+    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&writer, &unknown));
+    EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&writer, &bogus));
 }
 
 TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
     const tlv_fixed_config_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_reader_format_t      format{};
-    ASSERT_EQ(TLV_OK, tlv_fixed_reader_format_init(&format, &config));
+    tlv_format_t             format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     const uint8_t data[] = {0x12, 0x34, 0x03, 0xAA, 0xBB, 0xCC};
     for (size_t size = 0; size < sizeof(data); ++size) {
         tlv_reader_t reader;
@@ -95,8 +95,8 @@ TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
 
 TEST(Unit_Tlv_Fixed, InvalidWritesPreserveBufferAndPosition) {
     const tlv_fixed_config_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_writer_format_t      format{};
-    ASSERT_EQ(TLV_OK, tlv_fixed_writer_format_init(&format, &config));
+    tlv_format_t             format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     uint8_t data[258];
     std::memset(data, 0xEE, sizeof(data));
     uint8_t      value[256] = {};

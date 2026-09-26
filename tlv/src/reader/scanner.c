@@ -1,14 +1,13 @@
 #include "tlv/reader/scanner.h"
 #include "tlv/reader/reader.h"
 #include "tlv/length.h"
-#include "../format_internal.h"
 
-tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start,
-                      const tlv_reader_format_t* format, const tlv_schema_t* schema,
-                      tlv_view_t* out_entry, size_t* out_offset, size_t* consumed) {
+tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start, const tlv_format_t* format,
+                      const tlv_schema_t* schema, tlv_view_t* out_entry, size_t* out_offset,
+                      size_t* consumed) {
     size_t offset;
-    if ((!data && size) || !tlv_reader_format_usable(format) || !out_entry || !out_offset ||
-        !consumed || (schema && !schema->entries && schema->count))
+    if ((!data && size) || !tlv_format_can_read(format) || !out_entry || !out_offset || !consumed ||
+        (schema && !schema->entries && schema->count))
         return TLV_ERR_NULL_ARG;
 
     for (offset = start; offset < size; ++offset) {

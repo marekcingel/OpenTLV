@@ -22,10 +22,10 @@ int main(void) {
     size_t          required, written, consumed;
     tlv_view_t      view;
 
-    CHECK(tlv_encoded_size(tag, sizeof(value), &tlv_writer_format_ber, &required));
-    CHECK(tlv_write(encoded, sizeof(encoded), &tlv_writer_format_ber, tag, value, sizeof(value),
-                    &written));
-    CHECK(tlv_read(encoded, written, &tlv_reader_format_ber, &view, &consumed));
+    CHECK(tlv_encoded_size(tag, sizeof(value), &tlv_format_ber, &required));
+    CHECK(
+        tlv_write(encoded, sizeof(encoded), &tlv_format_ber, tag, value, sizeof(value), &written));
+    CHECK(tlv_read(encoded, written, &tlv_format_ber, &view, &consumed));
 
     {
         size_t value_length;

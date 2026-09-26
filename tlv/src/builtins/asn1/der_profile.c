@@ -19,11 +19,11 @@ tlv_result_t tlv_der_read_entry(const uint8_t* data, size_t size, size_t base,
                                 const tlv_der_limits_t* limits, tlv_view_t* view, size_t* consumed,
                                 size_t* error_offset) {
     size_t tag_size, length_size, value_length;
-    tlv_result_t rc = tlv_reader_format_der.read_tag(tlv_reader_format_der.context, data, size,
-                                                     &view->tag, &tag_size);
+    tlv_result_t rc =
+        tlv_format_der.read_tag(tlv_format_der.context, data, size, &view->tag, &tag_size);
     if (rc != TLV_OK) return fail(rc, base, error_offset);
-    rc = tlv_reader_format_der.read_length(tlv_reader_format_der.context, data + tag_size,
-                                           size - tag_size, &value_length, &length_size);
+    rc = tlv_format_der.read_length(tlv_format_der.context, data + tag_size, size - tag_size,
+                                    &value_length, &length_size);
     if (rc != TLV_OK) return fail(rc, base + tag_size, error_offset);
     if (value_length > limits->max_value_size)
         return fail(TLV_ERR_LIMIT, base + tag_size, error_offset);
@@ -151,7 +151,7 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
     if (!limits) limits = &tlv_der_default_limits;
     if ((!data && capacity) || (!value && length) || !written)
         return fail(TLV_ERR_NULL_ARG, 0, error_offset);
-    rc = tlv_encoded_size(tag, length, &tlv_writer_format_der, &total);
+    rc = tlv_encoded_size(tag, length, &tlv_format_der, &total);
     if (rc != TLV_OK) return fail(rc, rc == TLV_ERR_INVALID_LENGTH ? tag.size : 0, error_offset);
     if (limits->max_depth > TLV_DER_MAX_DEPTH || total > limits->max_input_size ||
         !limits->max_elements)
@@ -173,7 +173,7 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
         *written = total;
         return TLV_OK;
     }
-    rc = tlv_write(data, capacity, &tlv_writer_format_der, tag, value, length, written);
+    rc = tlv_write(data, capacity, &tlv_format_der, tag, value, length, written);
     if (rc != TLV_OK) return fail(rc, 0, error_offset);
     return TLV_OK;
 }

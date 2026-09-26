@@ -127,7 +127,7 @@ additionally fills each recorded violation as a `tlv_schema_diagnostic_t`.
 tlv_schema_diagnostic_t        diagnostics[16];
 tlv_schema_diagnostic_report_t report = {diagnostics, 16, 0};
 
-tlv_result_t rc = tlv_schema_validate_all_diag(data, size, &tlv_reader_format_ber,
+tlv_result_t rc = tlv_schema_validate_all_diag(data, size, &tlv_format_ber,
                                                tlv_ber_is_constructed, &template_schema, 16, 1000,
                                                TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &offset);
 if (rc == TLV_ERR_SCHEMA) {

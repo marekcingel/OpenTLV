@@ -54,7 +54,7 @@ for entry in reader {
 `Reader::with_format` takes a `Format` (`Default`, `Ber`, `Cer`, `Der`), and
 `Reader::with_fixed_format` takes a borrowed `&FixedFormat` for a
 runtime-configurable tag width, length width and length byte order (wraps the C
-`tlv_fixed_config_t` and `tlv_fixed_reader_format_init()`/`tlv_fixed_writer_format_init()`;
+`tlv_fixed_config_t` and `tlv_fixed_format_init()`;
 `FixedFormat::new(tag_size, length_size, order)` returns `Result<FixedFormat>`
 and must outlive every reader or writer built from it). Malformed input yields
 an `Err(Error)` item, after which the iterator ends, since the C reader does

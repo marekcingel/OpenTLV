@@ -20,11 +20,11 @@ static tlv_result_t cer_read_length(const void* context, const uint8_t* data, si
 
 static tlv_result_t cer_write_length(const void* context, uint8_t* data, size_t capacity,
                                      size_t length, size_t* written) {
-    return tlv_ber_writer_wire.write_length(context, data, capacity, length, written);
+    return tlv_ber_wire.write_length(context, data, capacity, length, written);
 }
 
 static tlv_result_t cer_length_size(const void* context, size_t length, size_t* size) {
-    return tlv_ber_writer_wire.length_size(context, length, size);
+    return tlv_ber_wire.length_size(context, length, size);
 }
 
 int tlv_cer_is_constructed(const void* context, const tlv_tag_t* tag) {
@@ -64,15 +64,13 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
     return TLV_OK;
 }
 
-const tlv_reader_format_t tlv_reader_format_cer = {.context = NULL,
-                                                   .read_tag = cer_read_tag,
-                                                   .read_length = cer_read_length,
-                                                   .read_value_bounds = read_value_bounds};
-
-const tlv_writer_format_t tlv_writer_format_cer = {.context = NULL,
-                                                   .write_tag = cer_write_tag,
-                                                   .write_length = cer_write_length,
-                                                   .length_size = cer_length_size};
+const tlv_format_t tlv_format_cer = {.context = NULL,
+                                     .read_tag = cer_read_tag,
+                                     .read_length = cer_read_length,
+                                     .read_value_bounds = read_value_bounds,
+                                     .write_tag = cer_write_tag,
+                                     .write_length = cer_write_length,
+                                     .length_size = cer_length_size};
 
 tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
                               uint8_t* storage, tlv_tag_t* tag) {

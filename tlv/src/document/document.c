@@ -189,7 +189,7 @@ static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv
     if (tag.size) memcpy(node + 1, tag.data, tag.size);
     node->constructed =
         document->options.is_constructed &&
-        document->options.is_constructed(document->options.reader_format->context, &tag) != 0;
+        document->options.is_constructed(document->options.format->context, &tag) != 0;
     node_link(document, parent, NULL, node);
     ++document->count;
     if (node->constructed) {
@@ -215,7 +215,7 @@ static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv
 static tlv_result_t parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
                                size_t size, size_t depth, size_t base, size_t* error_offset) {
     tlv_reader_t reader;
-    tlv_result_t rc = tlv_reader_init(&reader, data, size, document->options.reader_format);
+    tlv_result_t rc = tlv_reader_init(&reader, data, size, document->options.format);
     if (rc != TLV_OK) return rc;
     while (!tlv_reader_at_end(&reader)) {
         tlv_view_t view;
@@ -236,20 +236,14 @@ static tlv_result_t parse_list(tlv_document_t* document, tlv_node_t* parent, con
 
 /* ---- Lifecycle ------------------------------------------------------------------------- */
 
-static int formats_usable(const tlv_reader_format_t* reader, const tlv_writer_format_t* writer) {
-    tlv_reader_t probe_reader;
-    tlv_writer_t probe_writer;
-    return tlv_reader_init(&probe_reader, NULL, 0, reader) == TLV_OK &&
-           tlv_writer_init(&probe_writer, NULL, 0, writer) == TLV_OK;
+static int format_usable(const tlv_format_t* format) {
+    return tlv_format_can_read(format) && tlv_format_can_write(format);
 }
 
-tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
-                                       const tlv_reader_format_t* reader_format,
-                                       const tlv_writer_format_t* writer_format,
+tlv_result_t tlv_document_options_init(tlv_document_options_t* options, const tlv_format_t* format,
                                        tlv_is_constructed_fn is_constructed) {
-    if (!options || !formats_usable(reader_format, writer_format)) return TLV_ERR_NULL_ARG;
-    options->reader_format = reader_format;
-    options->writer_format = writer_format;
+    if (!options || !format_usable(format)) return TLV_ERR_NULL_ARG;
+    options->format = format;
     options->is_constructed = is_constructed;
     options->max_depth = TLV_WALK_MAX_DEPTH;
     options->max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS;
@@ -262,8 +256,7 @@ tlv_result_t tlv_document_create(const tlv_document_options_t* options, tlv_docu
     tlv_document_t* created;
     if (!document) return TLV_ERR_NULL_ARG;
     *document = NULL;
-    if (!options || !formats_usable(options->reader_format, options->writer_format))
-        return TLV_ERR_NULL_ARG;
+    if (!options || !format_usable(options->format)) return TLV_ERR_NULL_ARG;
     if (options->max_depth > TLV_WALK_MAX_DEPTH) return TLV_ERR_LIMIT;
     if (options->allocator) {
         if (!options->allocator->allocate || !options->allocator->release) return TLV_ERR_NULL_ARG;
@@ -441,7 +434,7 @@ tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
     if (before && (before->document != document || before->parent != parent))
         return TLV_ERR_INVALID_ARG;
     /* Let the writer format reject a tag it could not write. */
-    rc = tlv_encoded_size(tag, 0, document->options.writer_format, &probe_size);
+    rc = tlv_encoded_size(tag, 0, document->options.format, &probe_size);
     if (rc != TLV_OK) return rc;
     memset(&holder, 0, sizeof holder);
     holder.document = document;
@@ -493,8 +486,7 @@ static tlv_result_t node_encoded_size_impl(const tlv_node_t* node, size_t* size)
     size_t value_size;
     tlv_result_t rc = node_value_size(node, &value_size);
     if (rc != TLV_OK) return rc;
-    return tlv_encoded_size(node_tag(node), value_size, node->document->options.writer_format,
-                            size);
+    return tlv_encoded_size(node_tag(node), value_size, node->document->options.format, size);
 }
 
 static tlv_result_t encode_node(const tlv_node_t* node, tlv_writer_t* writer);
@@ -525,7 +517,7 @@ static tlv_result_t encode_node(const tlv_node_t* node, tlv_writer_t* writer) {
     if (!value_size) return tlv_writer_write(writer, node_tag(node), NULL, 0);
     scratch = (uint8_t*)memory_allocate(document, value_size);
     if (!scratch) return TLV_ERR_OUT_OF_MEMORY;
-    rc = tlv_writer_init(&inner, scratch, value_size, document->options.writer_format);
+    rc = tlv_writer_init(&inner, scratch, value_size, document->options.format);
     if (rc == TLV_OK) rc = encode_list(node->first, &inner);
     if (rc == TLV_OK)
         rc = tlv_writer_write(writer, node_tag(node), scratch, tlv_writer_size(&inner));
@@ -533,7 +525,7 @@ static tlv_result_t encode_node(const tlv_node_t* node, tlv_writer_t* writer) {
     return rc;
 }
 
-static tlv_result_t encode_checked(const tlv_node_t* first, const tlv_writer_format_t* format,
+static tlv_result_t encode_checked(const tlv_node_t* first, const tlv_format_t* format,
                                    size_t total, uint8_t* data, size_t capacity, size_t* written) {
     tlv_writer_t writer;
     tlv_result_t rc;
@@ -564,7 +556,7 @@ tlv_result_t tlv_document_encode(const tlv_document_t* document, uint8_t* data, 
     if (!document || !written) return TLV_ERR_NULL_ARG;
     rc = list_encoded_size(document->first, &total);
     if (rc != TLV_OK) return rc;
-    return encode_checked(document->first, document->options.writer_format, total, data, capacity,
+    return encode_checked(document->first, document->options.format, total, data, capacity,
                           written);
 }
 
@@ -589,7 +581,7 @@ tlv_result_t tlv_node_encode(const tlv_node_t* node, uint8_t* data, size_t capac
         *written = total;
         return TLV_ERR_BUFFER_TOO_SHORT;
     }
-    rc = tlv_writer_init(&writer, data, capacity, node->document->options.writer_format);
+    rc = tlv_writer_init(&writer, data, capacity, node->document->options.format);
     if (rc == TLV_OK) rc = encode_node(node, &writer);
     if (rc == TLV_OK) *written = tlv_writer_size(&writer);
     return rc;

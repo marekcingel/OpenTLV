@@ -16,7 +16,7 @@ static const tlv_schema_t schema = {entries, sizeof(entries) / sizeof(entries[0]
 TEST(Integration_Tlv_Schema, ReaderParsesUnknownTagsAndLengthsOutsideSchema) {
     const uint8_t data[] = {7, 0, 1, 0};
     tlv_reader_t  reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::reader));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::format));
     tlv_view_t view;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
     EXPECT_EQ(nullptr, tlv_schema_find(&schema, &view.tag));

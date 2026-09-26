@@ -438,7 +438,7 @@ impl StructureSchema {
             native::tlv_schema_validate(
                 data.as_ptr(),
                 data.len(),
-                format.reader_raw(),
+                format.raw(),
                 format.is_constructed_raw(),
                 self.as_raw(),
                 limits.max_depth,

@@ -6,7 +6,20 @@
 #include "console_color.hpp"
 #include "tlv/config.h"
 #include "tlv++/reader/walker.hpp"
+#if OPENTLV_FORMAT_DEFAULT
+#include "tlv/builtins/fixed/default.h"
+#endif
+#if OPENTLV_FORMAT_FIXED
+#include "tlv/builtins/fixed/fixed.h"
+#endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
+#endif
+#if OPENTLV_FORMAT_BER
+#include "tlv/builtins/asn1/ber.h"
+#endif
 #if OPENTLV_FORMAT_DER
+#include "tlv/builtins/asn1/der.h"
 #include "tlv/builtins/asn1/der_profile.h"
 #endif
 
@@ -14,6 +27,38 @@ namespace cli {
 
 bool is_json(const options& o) {
     return !strcmp(o.output, "json");
+}
+
+const tlv_format_t* select_format(const options& o) {
+    const char* name = o.format;
+#if OPENTLV_FORMAT_DEFAULT
+    if (!strcmp(name, "default")) return &tlv_format_default;
+#endif
+#if OPENTLV_FORMAT_FIXED
+    // Configured by --fixed-tag-size/--fixed-length-size/--fixed-byte-order,
+    // one tag byte/one length byte/big-endian by default.
+    if (!strcmp(name, "fixed")) {
+        static tlv_fixed_config_t config;
+        static tlv_format_t       format;
+        config.tag_size = o.fixed_tag_size;
+        config.length_size = o.fixed_length_size;
+        config.order = !strcmp(o.fixed_byte_order, "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
+                                                             : TLV_BYTE_ORDER_BIG_ENDIAN;
+        if (tlv_fixed_format_init(&format, &config) != TLV_OK) return NULL;
+        return &format;
+    }
+#endif
+#if OPENTLV_FORMAT_BER
+    if (!strcmp(name, "ber")) return &tlv_format_ber;
+#endif
+#if OPENTLV_FORMAT_DER
+    if (!strcmp(name, "der")) return &tlv_format_der;
+#endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+    if (!strcmp(name, "bluetooth-ltv")) return &tlv_format_bluetooth_ltv;
+#endif
+    (void)name;
+    return NULL;
 }
 
 void print_hex(const uint8_t* data, std::size_t length) {

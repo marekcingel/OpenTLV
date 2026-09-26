@@ -23,10 +23,8 @@ extern "C" {
  * @{
  */
 
-/** @brief Reader format for the default encoding; a borrowed, immutable global. */
-extern TLV_API const tlv_reader_format_t tlv_reader_format_default;
-/** @brief Writer format for the default encoding; a borrowed, immutable global. */
-extern TLV_API const tlv_writer_format_t tlv_writer_format_default;
+/** @brief Format for the default encoding; a borrowed, immutable global. */
+extern TLV_API const tlv_format_t tlv_format_default;
 
 #ifdef __cplusplus
 }

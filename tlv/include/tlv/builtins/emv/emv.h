@@ -20,7 +20,7 @@ extern "C" {
  * dictionaries, or subsequent specification bulletins. Untagged data
  * elements are not tags.
  *
- * Use #tlv_reader_format_ber with generic I/O; this profile does not parse
+ * Use #tlv_format_ber with generic I/O; this profile does not parse
  * TLV. Every tag constant borrows constant static bytes and is always
  * available.
  */

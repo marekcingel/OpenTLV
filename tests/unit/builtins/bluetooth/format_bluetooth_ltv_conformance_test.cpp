@@ -10,8 +10,8 @@
 #include <vector>
 
 namespace {
-const auto& reader_format = tlv_reader_format_bluetooth_ltv;
-const auto& writer_format = tlv_writer_format_bluetooth_ltv;
+const auto& reader_format = tlv_format_bluetooth_ltv;
+const auto& writer_format = tlv_format_bluetooth_ltv;
 
 using Bytes = std::vector<uint8_t>;
 

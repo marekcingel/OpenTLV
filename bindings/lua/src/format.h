@@ -15,19 +15,20 @@
  * without having to reach back into the module table. */
 #define OPENTLV_LUA_DEFAULT_FORMAT_KEY "opentlv.default_format"
 
-/* A reader format bound to Lua: the reader_format callbacks used by every
- * generic C entry point (tlv_reader_next(), tlv_walk_tree(), ...), the
- * matching is_constructed predicate (NULL for flat formats), whether tree
- * traversal should dispatch to the stricter tlv_der_walk() instead of the
- * generic tlv_walk_tree(), and a name for diagnostics.
+/* A format bound to Lua: the callbacks used by every generic C entry point
+ * (tlv_reader_next(), tlv_walk_tree(), ...) -- read-only from Lua's
+ * perspective, since this binding never encodes -- the matching
+ * is_constructed predicate (NULL for flat formats), whether tree traversal
+ * should dispatch to the stricter tlv_der_walk() instead of the generic
+ * tlv_walk_tree(), and a name for diagnostics.
  *
- * For the built-in presets (default/ber/cer/der/bluetooth_ltv) reader_format
- * is a copy of the corresponding extern const global; for opentlv.formats.fixed()
- * it is initialized by tlv_fixed_reader_format_init() with `fixed_config`
- * (embedded in this same userdata, so its address stays valid for exactly as
- * long as the format object itself does) as its context. */
+ * For the built-in presets (default/ber/cer/der/bluetooth_ltv) format is a
+ * copy of the corresponding extern const global; for opentlv.formats.fixed()
+ * it is initialized by tlv_fixed_format_init() with `fixed_config` (embedded
+ * in this same userdata, so its address stays valid for exactly as long as
+ * the format object itself does) as its context. */
 typedef struct tlv_lua_format {
-    tlv_reader_format_t   reader_format;
+    tlv_format_t          format;
     tlv_fixed_config_t    fixed_config;
     tlv_is_constructed_fn is_constructed;
     int                   use_der_walker;

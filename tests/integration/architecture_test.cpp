@@ -54,8 +54,9 @@ tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity, size_
 int constructed(const void*, const tlv_tag_t* tag) {
     return (tag->data[0] & 0x80) != 0;
 }
-const tlv_reader_format_t  format = {nullptr, tag_read, length_read, nullptr, nullptr};
-const tlv_writer_format_t  writer_format = {nullptr, tag_write, length_write, length_size, nullptr};
+const tlv_format_t         format = {nullptr, tag_read, length_read, nullptr, nullptr};
+const tlv_format_t         full_format = {nullptr,   tag_read,     length_read, nullptr, nullptr,
+                                          tag_write, length_write, length_size, nullptr};
 const tlv_structure_rule_t child_rules[] = {
     {{TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
     {{TLV_TAG(2), 1, 1, 0, nullptr}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
@@ -75,37 +76,36 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies
         out.push_back(pos);
         return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &tlv_reader_format_ber,
-                                    tlv_ber_is_constructed, 3, 6, visitor, &visits, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &tlv_format_ber, tlv_ber_is_constructed, 3,
+                                    6, visitor, &visits, nullptr));
     EXPECT_EQ((std::vector<size_t>{0, 0, 1, 2, 2, 4, 3, 6, 1, 11, 0, 15}), visits);
     tlv_structure_schema_t     recursive{};
     const tlv_structure_rule_t rules[] = {
         {{TLV_TAG(0x30), 0, 100, 0, nullptr}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0},
         {{TLV_TAG(4), 0, 1, 0, nullptr}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
     recursive = tlv_structure_schema_t{rules, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
-    EXPECT_EQ(TLV_OK, tlv_schema_validate(wire, sizeof(wire), &tlv_reader_format_ber,
+    EXPECT_EQ(TLV_OK, tlv_schema_validate(wire, sizeof(wire), &tlv_format_ber,
                                           tlv_ber_is_constructed, &recursive, 3, 6, nullptr));
     size_t offset = 999;
     EXPECT_EQ(TLV_ERR_LIMIT,
-              tlv_walk_tree(wire, sizeof(wire), &tlv_reader_format_ber, tlv_ber_is_constructed, 2,
-                            6, nullptr, nullptr, &offset));
+              tlv_walk_tree(wire, sizeof(wire), &tlv_format_ber, tlv_ber_is_constructed, 2, 6,
+                            nullptr, nullptr, &offset));
     EXPECT_EQ(6u, offset);
     tlv_view_t view{};
     size_t     used = 0;
-    ASSERT_EQ(TLV_OK, tlv_scan(wire, sizeof(wire), 0, &tlv_reader_format_ber, nullptr, &view,
-                               &offset, &used));
+    ASSERT_EQ(TLV_OK,
+              tlv_scan(wire, sizeof(wire), 0, &tlv_format_ber, nullptr, &view, &offset, &used));
     EXPECT_EQ(0u, offset);
     EXPECT_EQ(15u, used);
     EXPECT_EQ(11u, view.value.length);
     uint8_t copied[sizeof(wire)];
     size_t  written = 0;
-    ASSERT_EQ(TLV_OK,
-              tlv_copy_view(&view, &tlv_writer_format_ber, copied, sizeof(copied), &written));
+    ASSERT_EQ(TLV_OK, tlv_copy_view(&view, &tlv_format_ber, copied, sizeof(copied), &written));
     EXPECT_EQ(13u, written);
     EXPECT_EQ(11, copied[1]);
     EXPECT_EQ(0, std::memcmp(wire + 2, copied + 2, 11));
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(copied, written, &tlv_reader_format_ber, tlv_ber_is_constructed,
-                                    3, 5, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_walk_tree(copied, written, &tlv_format_ber, tlv_ber_is_constructed, 3, 5,
+                                    nullptr, nullptr, nullptr));
     ASSERT_EQ(TLV_OK, tlv_copy_encoded(wire, used, copied, sizeof(copied), &written));
     EXPECT_EQ(15u, written);
     EXPECT_EQ(0, std::memcmp(wire, copied, written));
@@ -118,8 +118,8 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies
         {TLV_TAG(0x30), 0, 100, 0, nullptr}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &child, 0};
     const tlv_structure_schema_t root = {&parent, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
-              tlv_schema_validate(empty, sizeof(empty), &tlv_reader_format_ber,
-                                  tlv_ber_is_constructed, &root, 0, 1, &offset));
+              tlv_schema_validate(empty, sizeof(empty), &tlv_format_ber, tlv_ber_is_constructed,
+                                  &root, 0, 1, &offset));
     EXPECT_EQ(2u, offset);
 }
 #endif
@@ -144,7 +144,7 @@ TEST(Integration_Tlv_Architecture, GenericVisitorUsesFormatNestingAndAbsoluteOff
     EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(wire, sizeof(wire), &format, constructed, 1, 3, nullptr,
                                            nullptr, &offset));
     EXPECT_EQ(7u, offset);
-    tlv_reader_format_t opaque = format;
+    tlv_format_t opaque = format;
     EXPECT_EQ(TLV_OK,
               tlv_walk_tree(wire, sizeof(wire), &opaque, nullptr, 0, 2, nullptr, nullptr, nullptr));
 }
@@ -237,8 +237,8 @@ TEST(Integration_Tlv_Architecture, RecoveryAndSequentialTraversalRemainDistinct)
 struct object {
     uint8_t first, second;
 };
-tlv_codec_result_t object_decode(const void*, const tlv_reader_format_t* selected,
-                                 const uint8_t* data, size_t size, void* value, size_t capacity) {
+tlv_codec_result_t object_decode(const void*, const tlv_format_t* selected, const uint8_t* data,
+                                 size_t size, void* value, size_t capacity) {
     if (capacity < sizeof(object)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
     tlv_reader_t reader{};
     tlv_view_t   view{};
@@ -255,9 +255,8 @@ tlv_codec_result_t object_decode(const void*, const tlv_reader_format_t* selecte
     std::memcpy(value, &result, sizeof(result));
     return TLV_CODEC_OK;
 }
-tlv_codec_result_t object_encode(const void*, const tlv_writer_format_t* selected,
-                                 const void* value, size_t size, uint8_t* data, size_t capacity,
-                                 size_t* written) {
+tlv_codec_result_t object_encode(const void*, const tlv_format_t* selected, const void* value,
+                                 size_t size, uint8_t* data, size_t capacity, size_t* written) {
     if (size != sizeof(object)) return TLV_CODEC_ERR_INVALID_VALUE;
     if (!data) {
         *written = 6;
@@ -276,8 +275,8 @@ tlv_codec_result_t object_encode(const void*, const tlv_writer_format_t* selecte
 }
 
 TEST(Integration_Tlv_Architecture, WholeObjectCodecRoundtripAndValidationBeforeMapping) {
-    const tlv_structure_codec_t codec = {nullptr, &format, &writer_format, constructed,  &children,
-                                         0,       2,       object_decode,  object_encode};
+    const tlv_structure_codec_t codec = {nullptr, &full_format,  constructed,  &children, 0,
+                                         2,       object_decode, object_encode};
     object                      value = {42, 7}, result = {99, 99};
     uint8_t                     wire[6]{};
     size_t                      used = 0;

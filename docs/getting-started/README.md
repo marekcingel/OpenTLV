@@ -64,10 +64,8 @@ int main(void) {
     /* One tag byte and one length byte; config must outlive its readers and writers. */
     const tlv_fixed_config_t config = {
         .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_reader_format_t reader_format;
-    tlv_writer_format_t writer_format;
-    if (tlv_fixed_reader_format_init(&reader_format, &config) != TLV_OK) return 1;
-    if (tlv_fixed_writer_format_init(&writer_format, &config) != TLV_OK) return 1;
+    tlv_format_t format;
+    if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
 
     const tlv_tag_t tag = TLV_TAG(0x01);
     const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
@@ -75,10 +73,9 @@ int main(void) {
     size_t          written = 0, consumed = 0;
     tlv_view_t      view;
 
-    if (tlv_write(buffer, sizeof(buffer), &writer_format, tag, value, sizeof(value), &written) !=
-        TLV_OK)
+    if (tlv_write(buffer, sizeof(buffer), &format, tag, value, sizeof(value), &written) != TLV_OK)
         return 1;
-    if (tlv_read(buffer, written, &reader_format, &view, &consumed) != TLV_OK) return 1;
+    if (tlv_read(buffer, written, &format, &view, &consumed) != TLV_OK) return 1;
 
     /* view.value borrows buffer; keep it alive while using the view. */
     if (consumed != written || view.tag.size != 1 || view.tag.data[0] != 0x01) return 1;
@@ -134,12 +131,12 @@ int main() {
     const std::array<tlv::byte, 3> value = {
         static_cast<tlv::byte>(0xAA), static_cast<tlv::byte>(0xBB), static_cast<tlv::byte>(0xCC)};
     std::array<tlv::byte, 5> buffer{};
-    tlv::writer              writer(buffer.data(), buffer.size(), format::writer());
+    tlv::writer              writer(buffer.data(), buffer.size(), format::format());
 
     if (!writer.write(tag, tlv::bytes(value.data(), value.size()))) return 1;
 
     // entry.value borrows buffer; keep it alive while using the entry.
-    tlv::reader reader(tlv::bytes(buffer.data(), writer.size()), format::reader());
+    tlv::reader reader(tlv::bytes(buffer.data(), writer.size()), format::format());
     auto        entry = reader.next();
     if (!entry || !reader.at_end()) return 1;
 
@@ -382,8 +379,8 @@ cmake --build build-c --config Release --parallel
 
 The [component configuration](../concepts/architecture.md#build-configuration) lists the
 format and profile switches. Keep `OPENTLV_FORMAT_FIXED=ON` for the README
-example. Built-in descriptors are direction-specific: use a `tlv_reader_format_t`
-for reads and a `tlv_writer_format_t` for writes. See
+example. A single `tlv_format_t` descriptor serves both reads and writes, with
+read and write capability independently optional. See
 [format contracts](../formats/README.md#generic-interface) and [migration](../concepts/architecture.md#migration).
 
 ## Build and run tests

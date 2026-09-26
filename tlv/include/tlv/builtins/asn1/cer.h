@@ -92,7 +92,7 @@ TLV_API tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructe
 TLV_API tlv_result_t tlv_cer_tag_number(const tlv_tag_t* tag, uint64_t* number);
 
 /**
- * @brief Reader format for canonical ASN.1 CER identifiers and lengths of a single element.
+ * @brief Format for canonical ASN.1 CER identifiers and lengths of a single element.
  *
  * SEQUENCE/SEQUENCE OF, SET/SET OF, EXTERNAL, EMBEDDED PDV and CHARACTER
  * STRING must be constructed; universal tags 0 (EOC) and 15 are rejected;
@@ -110,15 +110,12 @@ TLV_API tlv_result_t tlv_cer_tag_number(const tlv_tag_t* tag, uint64_t* number);
  * identifier and length only, not nested framing, EOC placement, or
  * canonical segmentation across descendants.
  *
- * @warning Generic writing through #tlv_writer_format_cer is therefore not by
- *          itself a complete CER encoder for constructed or segmentable
- *          values. Use tlv/builtins/asn1/cer_profile.h for bounded recursive validation,
+ * @warning Generic writing through #tlv_format_cer is therefore not by itself
+ *          a complete CER encoder for constructed or segmentable values. Use
+ *          tlv/builtins/asn1/cer_profile.h for bounded recursive validation,
  *          canonical constructed/segmented encoding, and error offsets.
  */
-extern TLV_API const tlv_reader_format_t tlv_reader_format_cer;
-/** @brief Writer format for canonical ASN.1 CER identifiers and lengths of a single element.
- *  @copydetails tlv_reader_format_cer */
-extern TLV_API const tlv_writer_format_t tlv_writer_format_cer;
+extern TLV_API const tlv_format_t tlv_format_cer;
 
 /**
  * @brief Nesting predicate for tree traversal of CER data.

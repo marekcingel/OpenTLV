@@ -15,8 +15,8 @@ static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
 static tlv_result_t read_entry(const uint8_t* data, size_t size, size_t offset,
                                tlv_dol_entry_t* entry, size_t* used) {
     size_t tag_used;
-    tlv_result_t rc = tlv_reader_format_ber.read_tag(tlv_reader_format_ber.context, data + offset,
-                                                     size - offset, &entry->tag, &tag_used);
+    tlv_result_t rc = tlv_format_ber.read_tag(tlv_format_ber.context, data + offset, size - offset,
+                                              &entry->tag, &tag_used);
     if (rc != TLV_OK) return rc;
     if (offset + tag_used == size) return TLV_ERR_BUFFER_TOO_SHORT;
     entry->requested_length = data[offset + tag_used];

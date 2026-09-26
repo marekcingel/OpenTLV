@@ -19,10 +19,10 @@ void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base, const 
     tlv_diagnostic_path_push(&scope.path, view->tag);
 }
 
-bool diagnostic_scope_derive_reader_diagnostic(const diagnostic_scope&    scope,
-                                               const tlv_reader_format_t* format,
-                                               const uint8_t* data, size_t size,
-                                               size_t error_offset, tlv_result_t expected_code,
+bool diagnostic_scope_derive_reader_diagnostic(const diagnostic_scope& scope,
+                                               const tlv_format_t* format, const uint8_t* data,
+                                               size_t size, size_t error_offset,
+                                               tlv_result_t             expected_code,
                                                tlv_reader_diagnostic_t* out) {
     if (error_offset > size) return false;
     size_t depth = scope.path.length;

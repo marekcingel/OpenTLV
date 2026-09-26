@@ -49,7 +49,7 @@ extern "C" {
  * @note On failure both outputs remain unchanged.
  * @warning The caller must keep `data` alive while `out_entry->value` is used.
  */
-TLV_API tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
+TLV_API tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_format_t* format,
                               tlv_view_t* out_entry, size_t* consumed);
 
 /** @brief Which parsing step a #tlv_reader_diagnostic_t reports on. */
@@ -149,9 +149,9 @@ TLV_API void tlv_reader_diagnostic_init(tlv_reader_diagnostic_t* diagnostic);
  * @warning The caller must keep `data` alive while `out_entry->value` or
  *          `out_diagnostic->tag` is used.
  */
-TLV_API tlv_result_t tlv_read_diag(const uint8_t* data, size_t size,
-                                   const tlv_reader_format_t* format, tlv_view_t* out_entry,
-                                   size_t* consumed, tlv_reader_diagnostic_t* out_diagnostic);
+TLV_API tlv_result_t tlv_read_diag(const uint8_t* data, size_t size, const tlv_format_t* format,
+                                   tlv_view_t* out_entry, size_t* consumed,
+                                   tlv_reader_diagnostic_t* out_diagnostic);
 
 /**
  * @brief Sequential reader over a caller-owned buffer.
@@ -161,7 +161,7 @@ TLV_API tlv_result_t tlv_read_diag(const uint8_t* data, size_t size,
  */
 typedef struct tlv_reader {
     /** Borrowed reader format. */
-    const tlv_reader_format_t* format;
+    const tlv_format_t* format;
     /** Borrowed input buffer. */
     const uint8_t* data;
     /** Input size in bytes. */
@@ -188,7 +188,7 @@ typedef struct tlv_reader {
  *          of the reader.
  */
 TLV_API tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data, size_t size,
-                                     const tlv_reader_format_t* format);
+                                     const tlv_format_t* format);
 
 /**
  * @brief Reports whether the reader has consumed all input.

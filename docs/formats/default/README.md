@@ -7,8 +7,7 @@
 | Setting | Value |
 | --- | --- |
 | Format header | `tlv/builtins/fixed/default.h` |
-| Reader descriptor | `tlv_reader_format_default` |
-| Writer descriptor | `tlv_writer_format_default` |
+| Descriptor | `tlv_format_default` |
 | CMake option (default ON) | `OPENTLV_FORMAT_DEFAULT` |
 | Link target | `tlv` |
 
@@ -33,10 +32,10 @@ int main(void) {
     uint8_t output[8];
     size_t written = 0, consumed = 0;
     tlv_view_t view;
-    if (tlv_write(output, sizeof(output), &tlv_writer_format_default,
+    if (tlv_write(output, sizeof(output), &tlv_format_default,
                   tag, value, sizeof(value), &written) != TLV_OK)
         return 1;
-    if (tlv_read(output, written, &tlv_reader_format_default,
+    if (tlv_read(output, written, &tlv_format_default,
                  &view, &consumed) != TLV_OK)
         return 1;
     return consumed == written && view.tag.size == 1 &&
@@ -79,5 +78,5 @@ Element (5 bytes)
 
 For 128 value bytes, the header is `01 81 80`, followed by all 128 payload
 bytes. This format supports BER-style lengths, not multi-byte BER tags.
-Use `tlv_reader_format_default` / `tlv_writer_format_default`.
+Use `tlv_format_default`.
 [Format contract](../README.md#generic-interface)

@@ -60,7 +60,7 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
 
 /* Delegates to the standalone tlv_ber_length_encode(). length always fits
  * tlv_length_t (tlv_length_from_size() is lossless), so the only failure this
- * can add is a NULL size, already excluded by tlv_writer_format_t callers. */
+ * can add is a NULL size, already excluded by tlv_format_t callers. */
 static tlv_result_t length_size(const void* context, size_t length, size_t* size) {
     tlv_length_t value;
     tlv_result_t rc;
@@ -80,10 +80,9 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
     return tlv_ber_length_encode(value, data, capacity, written);
 }
 
-const tlv_reader_format_t tlv_ber_reader_wire = {
-    .context = NULL, .read_tag = read_tag, .read_length = read_length};
-
-const tlv_writer_format_t tlv_ber_writer_wire = {.context = NULL,
-                                                 .write_tag = write_tag,
-                                                 .write_length = write_length,
-                                                 .length_size = length_size};
+const tlv_format_t tlv_ber_wire = {.context = NULL,
+                                   .read_tag = read_tag,
+                                   .read_length = read_length,
+                                   .write_tag = write_tag,
+                                   .write_length = write_length,
+                                   .length_size = length_size};

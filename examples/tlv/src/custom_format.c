@@ -79,19 +79,16 @@ static tlv_result_t write_length_le16(const void* context, uint8_t* data, size_t
 }
 
 int main(void) {
-    tlv_reader_format_t format;
-    tlv_writer_format_t writer_format;
-    uint8_t             encoded[16];
-    const uint8_t       value[] = {0xAA};
-    tlv_view_t          view;
-    size_t              written, consumed;
+    tlv_format_t  format;
+    uint8_t       encoded[16];
+    const uint8_t value[] = {0xAA};
+    tlv_view_t    view;
+    size_t        written, consumed;
 
-    CHECK(tlv_reader_format_init(&format, NULL, read_tag_1byte, read_length_le16));
-    CHECK(tlv_writer_format_init(&writer_format, NULL, write_tag_1byte, write_length_le16,
-                                 length_size_le16));
+    CHECK(tlv_format_init(&format, NULL, read_tag_1byte, read_length_le16, write_tag_1byte,
+                          write_length_le16, length_size_le16));
     /* format and its optional immutable context must outlive their users. */
-    CHECK(tlv_write(encoded, sizeof(encoded), &writer_format, TLV_TAG(1), value, sizeof(value),
-                    &written));
+    CHECK(tlv_write(encoded, sizeof(encoded), &format, TLV_TAG(1), value, sizeof(value), &written));
     CHECK(tlv_read(encoded, written, &format, &view, &consumed));
     print_view(&view);
     return 0;

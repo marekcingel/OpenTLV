@@ -36,10 +36,9 @@ extern "C" {
 /**
  * @brief Configuration for the configurable fixed-width format.
  *
- * A borrowed, immutable value: the address passed to
- * tlv_fixed_reader_format_init() or tlv_fixed_writer_format_init() becomes
- * the initialized format's context, so the configuration must outlive every
- * reader or writer built from it.
+ * A borrowed, immutable value: the address passed to tlv_fixed_format_init()
+ * becomes the initialized format's context, so the configuration must outlive
+ * every reader or writer built from it.
  */
 typedef struct tlv_fixed_config {
     /** Tag width in bytes; must be at least 1. */
@@ -54,10 +53,11 @@ typedef struct tlv_fixed_config {
 } tlv_fixed_config_t;
 
 /**
- * @brief Initializes a reader format for the configurable fixed-width encoding.
+ * @brief Initializes a format for the configurable fixed-width encoding.
  *
  * Does not allocate. Stores `config`'s address as the format's context: `config`
- * must outlive every reader and operation that uses the initialized format.
+ * must outlive every reader, writer and operation that uses the initialized
+ * format. Both read and write capability are set.
  *
  * @param[out] format Descriptor to initialize.
  * @param[in]  config Format configuration, borrowed. Must not be `NULL`.
@@ -70,28 +70,7 @@ typedef struct tlv_fixed_config {
  *
  * @note On failure the descriptor is unchanged.
  */
-TLV_API tlv_result_t tlv_fixed_reader_format_init(tlv_reader_format_t* format,
-                                                  const tlv_fixed_config_t* config);
-
-/**
- * @brief Initializes a writer format for the configurable fixed-width encoding.
- *
- * Does not allocate. Stores `config`'s address as the format's context: `config`
- * must outlive every writer and operation that uses the initialized format.
- *
- * @param[out] format Descriptor to initialize.
- * @param[in]  config Format configuration, borrowed. Must not be `NULL`.
- *
- * @return #TLV_OK on success; every field is set.
- * @return #TLV_ERR_INVALID_ARG if `format` or `config` is `NULL`, `config->tag_size`
- *         is 0, or `config->length_size` is 0 or greater than 8.
- * @return #TLV_ERR_INVALID_BYTE_ORDER if `config->order` is neither
- *         #TLV_BYTE_ORDER_BIG_ENDIAN nor #TLV_BYTE_ORDER_LITTLE_ENDIAN.
- *
- * @note On failure the descriptor is unchanged.
- */
-TLV_API tlv_result_t tlv_fixed_writer_format_init(tlv_writer_format_t* format,
-                                                  const tlv_fixed_config_t* config);
+TLV_API tlv_result_t tlv_fixed_format_init(tlv_format_t* format, const tlv_fixed_config_t* config);
 
 #ifdef __cplusplus
 }

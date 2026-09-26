@@ -51,11 +51,11 @@ static tlv_result_t der_read_length(const void* context, const uint8_t* data, si
 
 static tlv_result_t der_write_length(const void* context, uint8_t* data, size_t capacity,
                                      size_t length, size_t* written) {
-    return tlv_ber_writer_wire.write_length(context, data, capacity, length, written);
+    return tlv_ber_wire.write_length(context, data, capacity, length, written);
 }
 
 static tlv_result_t der_length_size(const void* context, size_t length, size_t* size) {
-    return tlv_ber_writer_wire.length_size(context, length, size);
+    return tlv_ber_wire.length_size(context, length, size);
 }
 
 int tlv_der_is_constructed(const void* context, const tlv_tag_t* tag) {
@@ -63,13 +63,12 @@ int tlv_der_is_constructed(const void* context, const tlv_tag_t* tag) {
     return (tag->data[0] & TLV_ASN1_CONSTRUCTED_BIT) != 0;
 }
 
-const tlv_reader_format_t tlv_reader_format_der = {
-    .context = NULL, .read_tag = der_read_tag, .read_length = der_read_length};
-
-const tlv_writer_format_t tlv_writer_format_der = {.context = NULL,
-                                                   .write_tag = der_write_tag,
-                                                   .write_length = der_write_length,
-                                                   .length_size = der_length_size};
+const tlv_format_t tlv_format_der = {.context = NULL,
+                                     .read_tag = der_read_tag,
+                                     .read_length = der_read_length,
+                                     .write_tag = der_write_tag,
+                                     .write_length = der_write_length,
+                                     .length_size = der_length_size};
 
 tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
                               uint8_t* storage, tlv_tag_t* tag) {

@@ -27,7 +27,7 @@ tlv::bytes to_bytes(const std::string& s) {
 
 TEST(Unit_Tlvpp, WriterReportsBufferTooShort) {
     std::array<tlv::byte, 2> buf{};
-    tlv::writer              w(buf.data(), buf.size(), controlled::writer);
+    tlv::writer              w(buf.data(), buf.size(), controlled::format);
 
     auto r = w.write(TLV_TAG(0x01), to_bytes("abcd"));
     ASSERT_FALSE(r.has_value());
@@ -36,7 +36,7 @@ TEST(Unit_Tlvpp, WriterReportsBufferTooShort) {
 
 TEST(Unit_Tlvpp, ReaderReportsEndOfBuffer) {
     std::array<tlv::byte, 2> buf{{static_cast<tlv::byte>(0x01), static_cast<tlv::byte>(0x00)}};
-    tlv::reader              reader(tlv::bytes(buf.data(), buf.size()), controlled::reader);
+    tlv::reader              reader(tlv::bytes(buf.data(), buf.size()), controlled::format);
 
     auto e1 = reader.next();
     ASSERT_TRUE(e1.has_value());
@@ -50,7 +50,7 @@ TEST(Unit_Tlvpp, ReaderReportsEndOfBuffer) {
 
 TEST(Unit_Tlvpp, WriterWriteDiagReportsRequiredExceedingAvailableCapacity) {
     std::array<tlv::byte, 1> buf{};
-    tlv::writer              w(buf.data(), buf.size(), controlled::writer);
+    tlv::writer              w(buf.data(), buf.size(), controlled::format);
 
     tlv::writer_diagnostic diagnostic{};
     auto                   e = w.write(TLV_TAG(0x01), to_bytes("ab"), diagnostic);
@@ -66,7 +66,7 @@ TEST(Unit_Tlvpp, WriterWriteDiagReportsRequiredExceedingAvailableCapacity) {
 
 TEST(Unit_Tlvpp, ReaderNextDiagReportsValueExceedingAvailableBytes) {
     std::array<tlv::byte, 2> buf{{static_cast<tlv::byte>(0xAB), static_cast<tlv::byte>(6)}};
-    tlv::reader              reader(tlv::bytes(buf.data(), buf.size()), controlled::reader);
+    tlv::reader              reader(tlv::bytes(buf.data(), buf.size()), controlled::format);
 
     tlv::reader_diagnostic diagnostic{};
     auto                   e = reader.next(diagnostic);

@@ -12,8 +12,7 @@ only the format descriptor differs.
 | Setting | Value |
 | --- | --- |
 | Format header | `tlv/builtins/bluetooth/bluetooth_ltv.h` |
-| Reader descriptor | `tlv_reader_format_bluetooth_ltv` |
-| Writer descriptor | `tlv_writer_format_bluetooth_ltv` |
+| Descriptor | `tlv_format_bluetooth_ltv` |
 | CMake option (default ON) | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
 | `otlv` format name | `bluetooth-ltv` |
 | Link target | `tlv` |
@@ -71,7 +70,7 @@ is reported as a value of 2 bytes.
 
 ## Parsing
 
-Select the format by passing `tlv_reader_format_bluetooth_ltv` to
+Select the format by passing `tlv_format_bluetooth_ltv` to
 `tlv_reader_init`, then call `tlv_reader_next` until it stops returning
 `TLV_OK`. Each `tlv_view_t` gives the type in `view.tag` and the value in
 `view.value`.
@@ -91,7 +90,7 @@ int main(void) {
     tlv_result_t rc;
 
     if (tlv_reader_init(&reader, advertising, sizeof(advertising),
-                        &tlv_reader_format_bluetooth_ltv) != TLV_OK)
+                        &tlv_format_bluetooth_ltv) != TLV_OK)
         return 1;
 
     while ((rc = tlv_reader_next(&reader, &view)) == TLV_OK) {
@@ -129,7 +128,7 @@ offset=3 tag=09 length=2 value=4869
 
 ## Encoding
 
-Writing uses `tlv_writer_format_bluetooth_ltv` with the same `tlv_write` and
+Writing uses `tlv_format_bluetooth_ltv` with the same `tlv_write` and
 `tlv_writer_write` calls as any other format. The writer emits the length byte
 (`value length + 1`) followed by the type byte and the value.
 

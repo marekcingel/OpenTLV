@@ -59,18 +59,10 @@ static int config_is_valid(const tlv_fixed_config_t* config) {
     return config->tag_size >= 1 && config->length_size >= 1 && config->length_size <= 8;
 }
 
-tlv_result_t tlv_fixed_reader_format_init(tlv_reader_format_t* format,
-                                          const tlv_fixed_config_t* config) {
+tlv_result_t tlv_fixed_format_init(tlv_format_t* format, const tlv_fixed_config_t* config) {
     if (!format || !config || !config_is_valid(config)) return TLV_ERR_INVALID_ARG;
     if (config->order != TLV_BYTE_ORDER_BIG_ENDIAN && config->order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
         return TLV_ERR_INVALID_BYTE_ORDER;
-    return tlv_reader_format_init(format, config, read_tag, read_length);
-}
-
-tlv_result_t tlv_fixed_writer_format_init(tlv_writer_format_t* format,
-                                          const tlv_fixed_config_t* config) {
-    if (!format || !config || !config_is_valid(config)) return TLV_ERR_INVALID_ARG;
-    if (config->order != TLV_BYTE_ORDER_BIG_ENDIAN && config->order != TLV_BYTE_ORDER_LITTLE_ENDIAN)
-        return TLV_ERR_INVALID_BYTE_ORDER;
-    return tlv_writer_format_init(format, config, write_tag, write_length, length_size);
+    return tlv_format_init(format, config, read_tag, read_length, write_tag, write_length,
+                           length_size);
 }

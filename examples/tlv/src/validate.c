@@ -40,15 +40,15 @@ static const tlv_structure_schema_t top_schema = {top_rules, 1, 0, NULL, 0, TLV_
 
 int main(void) {
     tlv_result_t result =
-        tlv_schema_validate(document, sizeof(document), &tlv_reader_format_ber,
-                            tlv_ber_is_constructed, &top_schema, TLV_WALK_MAX_DEPTH, 16, NULL);
+        tlv_schema_validate(document, sizeof(document), &tlv_format_ber, tlv_ber_is_constructed,
+                            &top_schema, TLV_WALK_MAX_DEPTH, 16, NULL);
     if (result != TLV_OK) {
         fprintf(stderr, "unexpected: %s\n", tlv_strerror(result));
         return 1;
     }
     puts("Document conforms to the schema");
 
-    result = tlv_schema_validate(incomplete, sizeof(incomplete), &tlv_reader_format_ber,
+    result = tlv_schema_validate(incomplete, sizeof(incomplete), &tlv_format_ber,
                                  tlv_ber_is_constructed, &top_schema, TLV_WALK_MAX_DEPTH, 16, NULL);
     if (result != TLV_ERR_SCHEMA_MISSING) {
         fprintf(stderr, "expected a missing-field error, got %s\n", tlv_strerror(result));

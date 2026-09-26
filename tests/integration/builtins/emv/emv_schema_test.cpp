@@ -6,9 +6,8 @@
 
 namespace {
 tlv_result_t validate(const std::vector<uint8_t>& wire, size_t* offset = nullptr) {
-    return tlv_schema_validate(wire.data(), wire.size(), &tlv_reader_format_ber,
-                               tlv_ber_is_constructed, &tlv_emv_structure_schema,
-                               TLV_WALK_MAX_DEPTH, 1000, offset);
+    return tlv_schema_validate(wire.data(), wire.size(), &tlv_format_ber, tlv_ber_is_constructed,
+                               &tlv_emv_structure_schema, TLV_WALK_MAX_DEPTH, 1000, offset);
 }
 } // namespace
 
@@ -111,11 +110,10 @@ TEST(Integration_Tlv_EmvSchema, ReportsFciViolationsWithPathsInOnePass) {
     const std::vector<uint8_t> wire{0x6F, 0x08, 0x50, 0x01, 0x41, 0xA5, 0x03, 0x87, 0x01, 0x01};
     tlv_schema_issue_t         issues[4];
     tlv_schema_report_t        report = {issues, 4, 0};
-    EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_reader_format_ber,
-                                      tlv_ber_is_constructed, &tlv_emv_structure_schema,
-                                      TLV_WALK_MAX_DEPTH, 1000, TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
-                                      &report, nullptr));
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate_all(
+                                  wire.data(), wire.size(), &tlv_format_ber, tlv_ber_is_constructed,
+                                  &tlv_emv_structure_schema, TLV_WALK_MAX_DEPTH, 1000,
+                                  TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     ASSERT_EQ(2u, report.count);
     char text[32];
     for (size_t i = 0; i < report.count; ++i) {
@@ -136,7 +134,7 @@ TEST(Integration_Tlv_EmvSchema, ReportAgreesWithFailFastValidationOnConformingIn
                                     0x00, 0x00, 0x03, 0x10, 0x10};
     tlv_schema_report_t        report = {nullptr, 0, 99};
     EXPECT_EQ(TLV_OK, validate(wire));
-    EXPECT_EQ(TLV_OK, tlv_schema_validate_all(wire.data(), wire.size(), &tlv_reader_format_ber,
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_ber,
                                               tlv_ber_is_constructed, &tlv_emv_structure_schema,
                                               TLV_WALK_MAX_DEPTH, 1000,
                                               TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));

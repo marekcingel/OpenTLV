@@ -26,6 +26,12 @@ struct skipped_range {
 
 bool is_json(const options& o);
 
+// Maps --format (and, for "fixed", --fixed-tag-size/--fixed-length-size/
+// --fixed-byte-order) to a builtin format, or NULL for an unknown or
+// disabled name. Shared by every command that reads or writes TLV data,
+// since one format now serves both directions.
+const tlv_format_t* select_format(const options& o);
+
 // Prints `length` bytes as uppercase hex ("0A1B..."), restoring std::cout's
 // prior formatting state afterward so callers can freely mix this with
 // ordinary decimal output.
@@ -41,10 +47,10 @@ std::string hex_string(const uint8_t* data, std::size_t length);
 
 // What every walk of the input needs to know about the selected format.
 struct walk_env {
-    const options*             options;
-    const tlv_reader_format_t* format;
-    tlv_is_constructed_fn      predicate; // BER nesting predicate for the generic walker
-    bool                       is_der;
+    const options*        options;
+    const tlv_format_t*   format;
+    tlv_is_constructed_fn predicate; // BER nesting predicate for the generic walker
+    bool                  is_der;
 };
 
 // Walks `slice_size` bytes of `slice`, which starts at absolute offset `base`

@@ -10,15 +10,6 @@
 #include "tlv/config.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/scanner.h"
-#if OPENTLV_FORMAT_DEFAULT
-#include "tlv/builtins/fixed/default.h"
-#endif
-#if OPENTLV_FORMAT_FIXED
-#include "tlv/builtins/fixed/fixed.h"
-#endif
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
 #endif
@@ -30,42 +21,10 @@ using cli::fail;
 
 namespace {
 
-const tlv_reader_format_t* select_format(const cli::options& o) {
-    const char* name = o.format;
-#if OPENTLV_FORMAT_DEFAULT
-    if (!strcmp(name, "default")) return &tlv_reader_format_default;
-#endif
-#if OPENTLV_FORMAT_FIXED
-    // Configured by --fixed-tag-size/--fixed-length-size/--fixed-byte-order,
-    // one tag byte/one length byte/big-endian by default.
-    if (!strcmp(name, "fixed")) {
-        static tlv_fixed_config_t  config;
-        static tlv_reader_format_t format;
-        config.tag_size = o.fixed_tag_size;
-        config.length_size = o.fixed_length_size;
-        config.order = !strcmp(o.fixed_byte_order, "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
-                                                             : TLV_BYTE_ORDER_BIG_ENDIAN;
-        if (tlv_fixed_reader_format_init(&format, &config) != TLV_OK) return NULL;
-        return &format;
-    }
-#endif
-#if OPENTLV_FORMAT_BER
-    if (!strcmp(name, "ber")) return &tlv_reader_format_ber;
-#endif
-#if OPENTLV_FORMAT_DER
-    if (!strcmp(name, "der")) return &tlv_reader_format_der;
-#endif
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
-    if (!strcmp(name, "bluetooth-ltv")) return &tlv_reader_format_bluetooth_ltv;
-#endif
-    (void)name;
-    return NULL;
-}
-
 /* Reads the tag at the start of an element, including for formats that parse whole elements
  * (whose tag is only known once the element is well-formed). */
-bool read_tag_at(const tlv_reader_format_t* format, const uint8_t* data, size_t size,
-                 tlv_tag_t* tag, size_t* used) {
+bool read_tag_at(const tlv_format_t* format, const uint8_t* data, size_t size, tlv_tag_t* tag,
+                 size_t* used) {
     if (format->read_tag) return format->read_tag(format->context, data, size, tag, used) == TLV_OK;
     size_t value_size, trailer_size;
     return format->read_element(format->context, data, size, tag, used, &value_size,
@@ -283,21 +242,21 @@ tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
 }
 
 int walk_command::run() {
-    const tlv_reader_format_t* format = select_format(options_);
-    std::size_t                error_offset = 0;
-    tlv_result_t               result;
-    int                        is_ber = 0, is_der = 0, structured;
-    diagnostic_format          diag_format;
+    const tlv_format_t* format = select_format(options_);
+    std::size_t         error_offset = 0;
+    tlv_result_t        result;
+    int                 is_ber = 0, is_der = 0, structured;
+    diagnostic_format   diag_format;
     parse_diagnostic_format(options_.diagnostics, &diag_format);
     stage_ = "";
     has_schema_diag_ = false;
 
     if (!format) return fail(2, "unknown or disabled format; use otlv formats");
 #if OPENTLV_FORMAT_BER
-    is_ber = format == &tlv_reader_format_ber;
+    is_ber = format == &tlv_format_ber;
 #endif
 #if OPENTLV_FORMAT_DER
-    is_der = format == &tlv_reader_format_der;
+    is_der = format == &tlv_format_der;
 #endif
     structured = is_ber || is_der;
     if (options_.tree && !structured) return fail(2, "--tree supports only BER and DER");

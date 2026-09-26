@@ -159,8 +159,8 @@ static tlv_result_t check_table(const tlv_structure_schema_t* schema) {
 }
 
 /* Checks the rule table of a scope and its occurrence counts. */
-static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* format,
-                                collector_t* c, const frame_t* frame) {
+static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format, collector_t* c,
+                                const frame_t* frame) {
     tlv_result_t rc = check_table(frame->schema);
     if (rc != TLV_OK) return rc;
     for (size_t i = 0; i < frame->schema->count; ++i) {
@@ -241,8 +241,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_reader_format_t* 
     return TLV_OK;
 }
 
-static tlv_result_t validate_all(const uint8_t* data, size_t size,
-                                 const tlv_reader_format_t* format,
+static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_format_t* format,
                                  tlv_is_constructed_fn is_constructed,
                                  const tlv_structure_schema_t* schema, size_t max_depth,
                                  size_t max_elements, tlv_schema_unknown_policy_t unknown,
@@ -316,8 +315,7 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size,
     return c->violations ? TLV_ERR_SCHEMA : TLV_OK;
 }
 
-tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size,
-                                     const tlv_reader_format_t* format,
+tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size, const tlv_format_t* format,
                                      tlv_is_constructed_fn is_constructed,
                                      const tlv_structure_schema_t* schema, size_t max_depth,
                                      size_t max_elements, tlv_schema_unknown_policy_t unknown,
@@ -338,7 +336,7 @@ tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size,
 }
 
 tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
-                                          const tlv_reader_format_t* format,
+                                          const tlv_format_t* format,
                                           tlv_is_constructed_fn is_constructed,
                                           const tlv_structure_schema_t* schema, size_t max_depth,
                                           size_t max_elements, tlv_schema_unknown_policy_t unknown,

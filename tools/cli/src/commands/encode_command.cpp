@@ -5,6 +5,7 @@
 #include <iostream>
 #include <new>
 #include <string>
+#include "commands/support.hpp"
 #include "commands/validate_command.hpp"
 #include "diagnostics.hpp"
 #include "input.hpp"
@@ -12,18 +13,6 @@
 #include "tlv/config.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/writer/writer.h"
-#if OPENTLV_FORMAT_DEFAULT
-#include "tlv/builtins/fixed/default.h"
-#endif
-#if OPENTLV_FORMAT_FIXED
-#include "tlv/builtins/fixed/fixed.h"
-#endif
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#endif
-#if OPENTLV_FORMAT_BER
-#include "tlv/builtins/asn1/ber.h"
-#endif
 #if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
 #endif
@@ -35,38 +24,6 @@
 using cli::fail;
 
 namespace {
-
-const tlv_writer_format_t* select_writer(const cli::options& o) {
-    const char* name = o.format;
-#if OPENTLV_FORMAT_DEFAULT
-    if (!strcmp(name, "default")) return &tlv_writer_format_default;
-#endif
-#if OPENTLV_FORMAT_FIXED
-    // Configured by --fixed-tag-size/--fixed-length-size/--fixed-byte-order,
-    // one tag byte/one length byte/big-endian by default.
-    if (!strcmp(name, "fixed")) {
-        static tlv_fixed_config_t  config;
-        static tlv_writer_format_t format;
-        config.tag_size = o.fixed_tag_size;
-        config.length_size = o.fixed_length_size;
-        config.order = !strcmp(o.fixed_byte_order, "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
-                                                             : TLV_BYTE_ORDER_BIG_ENDIAN;
-        if (tlv_fixed_writer_format_init(&format, &config) != TLV_OK) return NULL;
-        return &format;
-    }
-#endif
-#if OPENTLV_FORMAT_BER
-    if (!strcmp(name, "ber")) return &tlv_writer_format_ber;
-#endif
-#if OPENTLV_FORMAT_DER
-    if (!strcmp(name, "der")) return &tlv_writer_format_der;
-#endif
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
-    if (!strcmp(name, "bluetooth-ltv")) return &tlv_writer_format_bluetooth_ltv;
-#endif
-    (void)name;
-    return NULL;
-}
 
 // Builds the element list from --tag/--value.
 int specs_from_options(const cli::options& o, std::vector<cli::element_spec>& specs) {
@@ -107,8 +64,7 @@ int write_failed(std::size_t index, tlv_result_t rc) {
 // derived from the bytes actually written.
 class json_encoder {
 public:
-    json_encoder(const tlv_writer_format_t* format, const char* name)
-        : format_(format), name_(name) {
+    json_encoder(const tlv_format_t* format, const char* name) : format_(format), name_(name) {
 #if OPENTLV_FORMAT_BER
         ber_ = !strcmp(name, "ber");
 #endif
@@ -196,11 +152,11 @@ private:
         return result == TLV_OK ? 0 : write_failed(index, result);
     }
 
-    const tlv_writer_format_t* format_;
-    const char*                name_;
-    bool                       ber_ = false;
-    bool                       der_ = false;
-    std::size_t                index_ = 0;
+    const tlv_format_t* format_;
+    const char*         name_;
+    bool                ber_ = false;
+    bool                der_ = false;
+    std::size_t         index_ = 0;
 };
 
 // Emits encoded bytes as hex text or raw bytes, to stdout or --output-file.
@@ -230,7 +186,7 @@ int emit(const cli::options& o, const std::vector<uint8_t>& out) {
 }
 
 // Encodes the JSON document named by --input.
-int encode_json(const cli::options& o, const tlv_writer_format_t* format) {
+int encode_json(const cli::options& o, const tlv_format_t* format) {
     std::string               text;
     cli::json_model::document document;
     std::vector<uint8_t>      out;
@@ -265,14 +221,16 @@ int encode_json(const cli::options& o, const tlv_writer_format_t* format) {
 namespace cli {
 
 int encode_command::run() {
-    const options&             o = options_;
-    const tlv_writer_format_t* format = select_writer(o);
-    std::vector<element_spec>  specs;
-    std::vector<uint8_t>       out;
-    std::size_t                total = 0, i;
-    int                        rc;
+    const options&            o = options_;
+    const tlv_format_t*       format = select_format(o);
+    std::vector<element_spec> specs;
+    std::vector<uint8_t>      out;
+    std::size_t               total = 0, i;
+    int                       rc;
 
     if (!format) return fail(2, "unknown or disabled format; use otlv formats");
+    if (!tlv_format_can_write(format))
+        return fail(2, (std::string("format ") + o.format + " does not support encoding").c_str());
     if (o.input) return encode_json(o, format);
     if ((rc = specs_from_options(o, specs))) return rc;
 

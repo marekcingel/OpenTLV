@@ -6,7 +6,7 @@ tlv_result_t tlv_asn1_read_identifier(const void* context, const uint8_t* data, 
     tlv_tag_t parsed;
     size_t count;
     unsigned number;
-    tlv_result_t rc = tlv_ber_reader_wire.read_tag(context, data, size, &parsed, &count);
+    tlv_result_t rc = tlv_ber_wire.read_tag(context, data, size, &parsed, &count);
     if (rc != TLV_OK) return rc;
     if (count == 2 && data[1] < TLV_ASN1_LOW_TAG_LIMIT) return TLV_ERR_INVALID_TAG;
     number = count == 1 ? (data[0] & TLV_ASN1_TAG_NUMBER_MASK) : (count == 2 ? data[1] : 127);
@@ -44,7 +44,7 @@ tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data, size_
 tlv_result_t tlv_asn1_read_minimal_length(const void* context, const uint8_t* data, size_t size,
                                           size_t* length, size_t* consumed) {
     size_t value, count;
-    tlv_result_t rc = tlv_ber_reader_wire.read_length(context, data, size, &value, &count);
+    tlv_result_t rc = tlv_ber_wire.read_length(context, data, size, &value, &count);
     if (rc != TLV_OK) return rc;
     if (count > 1 && (value < TLV_BER_LENGTH_LONG_FORM_BIT || data[1] == 0))
         return TLV_ERR_INVALID_LENGTH;

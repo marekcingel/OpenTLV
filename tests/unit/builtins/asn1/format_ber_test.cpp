@@ -8,8 +8,8 @@
 #include <vector>
 
 namespace {
-const auto& ber = tlv_reader_format_ber;
-const auto& ber_writer = tlv_writer_format_ber;
+const auto& ber = tlv_format_ber;
+const auto& ber_writer = tlv_format_ber;
 } // namespace
 
 TEST(Unit_Tlv_Ber, InvalidAndNonminimalLengths) {

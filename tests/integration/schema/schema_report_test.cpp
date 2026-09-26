@@ -57,7 +57,7 @@ Outcome run(const Wire& wire, const tlv_structure_schema_t& schema = rootSchema,
             size_t                      capacity = 16) {
     Outcome             out{TLV_OK, 99, 99, std::vector<tlv_schema_issue_t>(capacity)};
     tlv_schema_report_t report = {out.issues.data(), capacity, 99};
-    out.rc = tlv_schema_validate_all(wire.data(), wire.size(), &tlv_reader_format_ber,
+    out.rc = tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_ber,
                                      tlv_ber_is_constructed, &schema, TLV_WALK_MAX_DEPTH, 1000,
                                      unknown, &report, &out.errorOffset);
     out.count = report.count;
@@ -91,7 +91,7 @@ DiagOutcome runDiag(const Wire& wire, const tlv_structure_schema_t& schema = roo
                     size_t                      capacity = 16) {
     DiagOutcome out{TLV_OK, 99, 99, std::vector<tlv_schema_diagnostic_t>(capacity)};
     tlv_schema_diagnostic_report_t report = {out.diagnostics.data(), capacity, 99};
-    out.rc = tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_reader_format_ber,
+    out.rc = tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_format_ber,
                                           tlv_ber_is_constructed, &schema, TLV_WALK_MAX_DEPTH, 1000,
                                           unknown, &report, &out.errorOffset);
     out.count = report.count;
@@ -256,7 +256,7 @@ TEST(Integration_Tlv_SchemaReport, CountsAllViolationsWhenStorageIsSmaller) {
     tlv_schema_report_t report = {nullptr, 0, 99};
     const Wire          count_only = {0x70, 0x00};
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate_all(count_only.data(), count_only.size(), &tlv_reader_format_ber,
+              tlv_schema_validate_all(count_only.data(), count_only.size(), &tlv_format_ber,
                                       tlv_ber_is_constructed, &rootSchema, TLV_WALK_MAX_DEPTH, 1000,
                                       TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     EXPECT_EQ(1u, report.count);
@@ -277,7 +277,7 @@ TEST(Integration_Tlv_SchemaReport, RejectsInvalidArgumentsAndRuleTables) {
     tlv_schema_report_t report = {storage, 2, 0};
     auto call = [&](const tlv_structure_schema_t* schema, tlv_schema_unknown_policy_t unknown,
                     tlv_schema_report_t* r) {
-        return tlv_schema_validate_all(wire.data(), wire.size(), &tlv_reader_format_ber,
+        return tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_ber,
                                        tlv_ber_is_constructed, schema, TLV_WALK_MAX_DEPTH, 1000,
                                        unknown, r, nullptr);
     };
@@ -479,11 +479,11 @@ TEST(Integration_Tlv_SchemaReport, DiagRejectsInvalidArguments) {
     tlv_schema_diagnostic_t        storage[2];
     tlv_schema_diagnostic_report_t report = {storage, 2, 0};
     EXPECT_EQ(TLV_ERR_NULL_ARG,
-              tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_reader_format_ber,
+              tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_format_ber,
                                            tlv_ber_is_constructed, &rootSchema, TLV_WALK_MAX_DEPTH,
                                            1000, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG,
-              tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_reader_format_ber,
+              tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_format_ber,
                                            tlv_ber_is_constructed, nullptr, TLV_WALK_MAX_DEPTH,
                                            1000, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
 

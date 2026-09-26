@@ -90,8 +90,7 @@ static inline int tlv_ber_tag_is_constructed(const tlv_tag_t* tag) {
  * Unlike the corresponding DER and CER tag constructors, this does not
  * enforce any canonical primitive/constructed rule tied to a universal type
  * number; only the reserved EOC identifier (universal class, tag number 0,
- * in either form) is rejected, matching #tlv_reader_format_ber and
- * #tlv_writer_format_ber.
+ * in either form) is rejected, matching #tlv_format_ber.
  *
  * @param[in]  tag_class   ASN.1 class.
  * @param[in]  constructed Nonzero for constructed form, zero for primitive.
@@ -128,25 +127,16 @@ TLV_API tlv_result_t tlv_ber_tag_make(tlv_asn1_class_t tag_class, int constructe
 TLV_API tlv_result_t tlv_ber_tag_number(const tlv_tag_t* tag, uint64_t* number);
 
 /**
- * @brief Reader format for raw BER-TLV.
+ * @brief Format for raw BER-TLV.
  *
  * Accepts tags up to #TLV_ASN1_TAG_MAX_SIZE bytes, including high-tag-number form, and
  * definite lengths up to `SIZE_MAX`. Reads accept nonminimal definite lengths
  * and constructed indefinite lengths. Tag bytes are preserved (including
- * `9F 1C`); ASN.1 semantics are not validated.
- *
- * @see tlv_writer_format_ber
+ * `9F 1C`); ASN.1 semantics are not validated. Writes definite lengths using
+ * the shortest length encoding. Use tlv_ber_write_indefinite() for explicit
+ * indefinite framing.
  */
-extern TLV_API const tlv_reader_format_t tlv_reader_format_ber;
-/**
- * @brief Writer format for raw BER-TLV.
- *
- * Writes definite lengths using the shortest length encoding. Use
- * tlv_ber_write_indefinite() for explicit indefinite framing.
- *
- * @see tlv_reader_format_ber
- */
-extern TLV_API const tlv_writer_format_t tlv_writer_format_ber;
+extern TLV_API const tlv_format_t tlv_format_ber;
 
 /**
  * @brief Maximum simultaneous constructed scopes while resolving an indefinite element.
@@ -209,7 +199,7 @@ TLV_API tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity, tl
  * Follows the contract of tlv_ber_write_indefinite(), writing at the
  * writer's current position.
  *
- * @param[in,out] writer Writer initialized with #tlv_writer_format_ber.
+ * @param[in,out] writer Writer initialized with #tlv_format_ber.
  * @param[in]     tag    Constructed element tag.
  * @param[in]     value  Already encoded children, without the enclosing EOC.
  * @param[in]     length Size of `value` in bytes.
@@ -268,7 +258,7 @@ enum { TLV_BER_LENGTH_MAX_ENCODED_SIZE = 9 };
  * as is a padded value wider than #tlv_length_t or nonzero excess padding.
  *
  * This does not process the indefinite-length marker or constructed EOC
- * framing; see tlv_ber_write_indefinite() and #tlv_reader_format_ber.
+ * framing; see tlv_ber_write_indefinite() and #tlv_format_ber.
  *
  * @param[in]  data      Encoded field. May be `NULL` only when `data_size` is zero.
  * @param[in]  data_size Number of readable bytes in `data`.

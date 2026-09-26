@@ -37,7 +37,7 @@ public:
      * @param data   Encoded input; borrowed.
      * @param format Reader format; borrowed.
      */
-    reader(bytes data, const tlv_reader_format_t& format) {
+    reader(bytes data, const tlv_format_t& format) {
         tlv_result_t rc = tlv_reader_init(&impl_, reinterpret_cast<const uint8_t*>(data.data()),
                                           data.size(), &format);
         // Invalid buffers or missing format callbacks prevent reading.

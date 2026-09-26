@@ -23,8 +23,7 @@ int is_constructed(const void*, const tlv_tag_t* tag) {
 
 tlv_document_options_t options() {
     tlv_document_options_t result;
-    EXPECT_EQ(TLV_OK, tlv_document_options_init(&result, &controlled::reader, &controlled::writer,
-                                                is_constructed));
+    EXPECT_EQ(TLV_OK, tlv_document_options_init(&result, &controlled::format, is_constructed));
     return result;
 }
 
@@ -495,10 +494,20 @@ TEST(Unit_Tlv_Document, RejectsInvalidArguments) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_create(&opts, nullptr));
 
     tlv_document_options_t broken = opts;
-    broken.reader_format = nullptr;
+    broken.format = nullptr;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_create(&broken, &doc));
+    tlv_format_t write_only = controlled::format;
+    write_only.read_tag = nullptr;
+    write_only.read_length = nullptr;
     broken = opts;
-    broken.writer_format = nullptr;
+    broken.format = &write_only;
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_create(&broken, &doc));
+    tlv_format_t read_only = controlled::format;
+    read_only.write_tag = nullptr;
+    read_only.write_length = nullptr;
+    read_only.length_size = nullptr;
+    broken = opts;
+    broken.format = &read_only;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_create(&broken, &doc));
     broken = opts;
     broken.max_depth = TLV_WALK_MAX_DEPTH + 1;
@@ -508,12 +517,8 @@ TEST(Unit_Tlv_Document, RejectsInvalidArguments) {
     broken.allocator = &incomplete;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_create(&broken, &doc));
 
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_options_init(nullptr, &controlled::reader,
-                                                          &controlled::writer, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG,
-              tlv_document_options_init(&opts, nullptr, &controlled::writer, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG,
-              tlv_document_options_init(&opts, &controlled::reader, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_options_init(nullptr, &controlled::format, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_options_init(&opts, nullptr, nullptr));
 
     tlv_document_free(nullptr);
     EXPECT_EQ(0u, tlv_document_count(nullptr));
@@ -646,8 +651,7 @@ TEST(Unit_Tlv_Document, WorksWithTheBerFormatAndNormalisesLengths) {
     // SEQUENCE with a padded long-form length, holding an INTEGER and a nested SEQUENCE.
     const Bytes            wire = {0x30, 0x81, 0x07, 0x02, 0x01, 0x05, 0x30, 0x02, 0x04, 0x00};
     tlv_document_options_t opts;
-    ASSERT_EQ(TLV_OK, tlv_document_options_init(&opts, &tlv_reader_format_ber,
-                                                &tlv_writer_format_ber, tlv_ber_is_constructed));
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&opts, &tlv_format_ber, tlv_ber_is_constructed));
     Doc doc = parse(wire, opts);
     EXPECT_EQ(4u, tlv_document_count(doc.get()));
     // The writer spells the length minimally.

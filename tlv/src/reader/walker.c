@@ -1,21 +1,20 @@
 #include "tlv/reader/walker.h"
 #include "tlv/reader/reader.h"
 #include "tlv/length.h"
-#include "../format_internal.h"
 
 static tlv_result_t tree_error(tlv_result_t rc, size_t offset, size_t* out) {
     if (out) *out = offset;
     return rc;
 }
 
-tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
+tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t* format,
                            tlv_is_constructed_fn is_constructed, size_t max_depth,
                            size_t max_elements, tlv_tree_visitor_t visitor, void* context,
                            size_t* error_offset) {
     size_t ends[TLV_WALK_MAX_DEPTH + 1];
     size_t resumes[TLV_WALK_MAX_DEPTH + 1];
     size_t depth = 0, pos = 0, count = 0;
-    if ((!data && size) || !tlv_reader_format_usable(format))
+    if ((!data && size) || !tlv_format_can_read(format))
         return tree_error(TLV_ERR_NULL_ARG, 0, error_offset);
     if (max_depth > TLV_WALK_MAX_DEPTH) return tree_error(TLV_ERR_LIMIT, 0, error_offset);
     ends[0] = size;
@@ -52,7 +51,7 @@ tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_reader_fo
     return TLV_OK;
 }
 
-tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
+tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_format_t* format,
                       tlv_visitor_t visitor, void* context) {
     tlv_reader_t reader;
     tlv_result_t rc;

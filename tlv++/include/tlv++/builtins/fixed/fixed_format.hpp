@@ -32,10 +32,10 @@ namespace tlv {
  *
  * Any other value fails to compile with a `static_assert`.
  *
- * The descriptors returned by reader() and writer() have static storage
- * duration and a `NULL` context, so they never need lifetime management. The
- * format performs no allocation and reads values in place. Errors match the
- * C `tlv_fixed_config_t`-based format for the same widths and byte order:
+ * The descriptor returned by format() has static storage duration and a
+ * `NULL` context, so it never needs lifetime management. The format performs
+ * no allocation and reads values in place. Errors match the C
+ * `tlv_fixed_config_t`-based format for the same widths and byte order:
  * - #TLV_ERR_BUFFER_TOO_SHORT when the input holds fewer bytes than a field
  *   needs, or the output has less capacity than a field needs;
  * - #TLV_ERR_INVALID_TAG_SIZE when a written tag is not `TagWidth` bytes;
@@ -67,25 +67,14 @@ public:
         ~static_cast<std::uint64_t>(0) >> (64 - 8 * LengthWidth);
 
     /**
-     * @brief Returns the reader descriptor for this format.
+     * @brief Returns the descriptor for this format.
      *
      * @return A borrowed, immutable descriptor that lives for the whole program.
      */
-    static const tlv_reader_format_t& reader() {
-        static const tlv_reader_format_t format = {nullptr, read_tag, read_length, nullptr,
-                                                   nullptr};
-        return format;
-    }
-
-    /**
-     * @brief Returns the writer descriptor for this format.
-     *
-     * @return A borrowed, immutable descriptor that lives for the whole program.
-     */
-    static const tlv_writer_format_t& writer() {
-        static const tlv_writer_format_t format = {nullptr, write_tag, write_length, length_size,
-                                                   nullptr};
-        return format;
+    static const tlv_format_t& format() {
+        static const tlv_format_t fmt = {nullptr,   read_tag,     read_length, nullptr, nullptr,
+                                         write_tag, write_length, length_size, nullptr};
+        return fmt;
     }
 
 private:
