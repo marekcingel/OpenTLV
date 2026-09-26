@@ -2018,6 +2018,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#shell-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shell completion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#diagnostics-and-exit-codes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2861,6 +2872,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#shell-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shell completion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#diagnostics-and-exit-codes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2942,6 +2964,7 @@ and <code>tlv++</code> libraries themselves remain dependency-free.</p>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02050000000010"</span>
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>otlv<span class="w"> </span>tag<span class="w"> </span>9F02<span class="w"> </span>--profile<span class="w"> </span>emv
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>card.bin<span class="w"> </span>--value
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>otlv<span class="w"> </span>completion<span class="w"> </span>bash
 </code></pre></div>
 <p><code>dump</code>, <code>validate</code> and <code>decode</code> require an explicit <code>--format</code> and exactly one input
 source. <code>--input -</code> reads binary stdin, including on Windows. File input is
@@ -3436,6 +3459,22 @@ no descent. BER indefinite-length resolution also has the library's fixed
 64-scope bound. The input is buffered in CLI-owned memory; this does not change
 the allocation-free library core. Limits constrain accepted input and traversal;
 they are not a wall-clock timeout or incremental streaming interface.</p>
+<h2 id="shell-completion">Shell completion<a class="headerlink" href="#shell-completion" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>otlv<span class="w"> </span>completion<span class="w"> </span>bash<span class="w"> </span>&gt;<span class="w"> </span>~/.local/share/bash-completion/completions/otlv
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>otlv<span class="w"> </span>completion<span class="w"> </span>zsh<span class="w"> </span>&gt;<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">fpath</span><span class="p">[1]</span><span class="si">}</span><span class="s2">/_otlv"</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>otlv<span class="w"> </span>completion<span class="w"> </span>fish<span class="w"> </span>&gt;<span class="w"> </span>~/.config/fish/completions/otlv.fish
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>otlv<span class="w"> </span>completion<span class="w"> </span>powershell<span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="nv">$PROFILE</span>
+</code></pre></div>
+<p><code>completion</code> prints a completion script for <code>bash</code>, <code>zsh</code>, <code>fish</code> or
+<code>powershell</code> to stdout; install it as shown above (once per shell, or on
+every prompt for bash/zsh, per that shell's own completion conventions) and
+restart the shell. The script completes top-level commands, each command's
+own options, and known option values (<code>--format</code>, <code>--output</code>, <code>--emv-context</code>
+and so on) from the same tables <code>otlv</code> itself uses, so it reflects this
+build: only formats enabled at compile time, and EMV/<code>--format fixed</code> options
+only when those are compiled in. Free-form arguments (<code>--hex</code>, <code>query</code>'s
+path, <code>tag</code>'s hex) and file arguments (<code>--input</code>, <code>--output-file</code>) fall back
+to the shell's own file completion where applicable.</p>
 <h2 id="diagnostics-and-exit-codes">Diagnostics and exit codes<a class="headerlink" href="#diagnostics-and-exit-codes" title="Permanent link">&para;</a></h2>
 <p>Command output goes to stdout; diagnostics go to stderr. <code>--diagnostics NAME</code>
 selects how a failure is rendered: <code>human</code> (the default), <code>compact</code>, or
@@ -3446,16 +3485,16 @@ inside a constructed element, the hierarchical path of tags enclosing it
 (<code>dump</code>, <code>validate</code>, <code>decode</code> and <code>query</code> all track this, not just <code>dump</code>).
 Offsets do not promise the exact corrupted byte.</p>
 <p><code>human</code> prints one field per line:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F048402AABB"</span>
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>otlv:<span class="w"> </span>error:<span class="w"> </span>invalid<span class="w"> </span>length<span class="w"> </span>encoding
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
-<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>code:<span class="w"> </span>TLV_ERR_INVALID_LENGTH
-<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>offset:<span class="w"> </span>0x2<span class="w"> </span><span class="o">(</span><span class="m">2</span><span class="o">)</span>
-<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>path:<span class="w"> </span>6F
-<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>tag:<span class="w"> </span><span class="m">84</span>
-<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>field:<span class="w"> </span>df_name
-<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>expected<span class="w"> </span>length:<span class="w"> </span><span class="m">5</span>..16
-<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>actual<span class="w"> </span>length:<span class="w"> </span><span class="m">2</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--profile<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F048402AABB"</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>otlv:<span class="w"> </span>error:<span class="w"> </span>invalid<span class="w"> </span>length<span class="w"> </span>encoding
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>code:<span class="w"> </span>TLV_ERR_INVALID_LENGTH
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>offset:<span class="w"> </span>0x2<span class="w"> </span><span class="o">(</span><span class="m">2</span><span class="o">)</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>path:<span class="w"> </span>6F
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>tag:<span class="w"> </span><span class="m">84</span>
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>field:<span class="w"> </span>df_name
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>expected<span class="w"> </span>length:<span class="w"> </span><span class="m">5</span>..16
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>actual<span class="w"> </span>length:<span class="w"> </span><span class="m">2</span>
 </code></pre></div>
 <p><code>compact</code> prints the same detail on one line: this is the CLI's original
 wording (<code>otlv: schema TLV_ERR_INVALID_LENGTH at byte 2 tag=84: invalid
@@ -3469,15 +3508,15 @@ scripts that would otherwise have to reparse the human or compact text; a
 step failed (<code>tag</code>, <code>length</code>, <code>value</code> or <code>trailer</code>) and, for a value or
 trailer that does not fit, the declared length versus the bytes actually
 available:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>default<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"0402AA"</span>
-<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>otlv:<span class="w"> </span>error:<span class="w"> </span>buffer<span class="w"> </span>too<span class="w"> </span>short
-<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
-<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>code:<span class="w"> </span>TLV_ERR_BUFFER_TOO_SHORT
-<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>offset:<span class="w"> </span>0x2<span class="w"> </span><span class="o">(</span><span class="m">2</span><span class="o">)</span>
-<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>tag:<span class="w"> </span><span class="m">04</span>
-<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="k">while</span><span class="w"> </span>reading:<span class="w"> </span>value
-<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>declared<span class="w"> </span>length:<span class="w"> </span><span class="m">2</span>
-<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>available:<span class="w"> </span><span class="m">1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>default<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"0402AA"</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>otlv:<span class="w"> </span>error:<span class="w"> </span>buffer<span class="w"> </span>too<span class="w"> </span>short
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>code:<span class="w"> </span>TLV_ERR_BUFFER_TOO_SHORT
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>offset:<span class="w"> </span>0x2<span class="w"> </span><span class="o">(</span><span class="m">2</span><span class="o">)</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>tag:<span class="w"> </span><span class="m">04</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="k">while</span><span class="w"> </span>reading:<span class="w"> </span>value
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>declared<span class="w"> </span>length:<span class="w"> </span><span class="m">2</span>
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>available:<span class="w"> </span><span class="m">1</span>
 </code></pre></div>
 <p>This declared-length/available detail comes from re-reading the failing
 element on its own once the walk has located it, bounded to the value it
