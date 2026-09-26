@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix the Lua binding's rockspec failing to configure in CI because its CMake
-  invocation hinted `LUA_INCLUDE_DIR` but not the Lua library path, which
-  `FindLua` cannot locate on its own when Lua is installed to a non-standard
-  prefix; pass `-DLUA_LIBRARY=$(LUA_LIBDIR_FILE)` too. (#297, #298)
+- Fix the Lua binding's CMake build failing to configure in CI, where Lua is
+  installed to a non-standard prefix `FindLua` cannot locate a library in on
+  its own: on Linux and macOS, `bindings/lua/CMakeLists.txt` no longer
+  requires or links a Lua library at all (`lua_*`/`luaL_*` symbols resolve
+  against the interpreter process at `require()` time instead, which also
+  avoids linking a second, independent copy of the Lua runtime into the
+  module); Windows, which cannot do that, gets an explicit `LUA_LIBDIR_HINT`
+  passed through from the rockspec instead of the previous, silently-empty
+  `LUA_LIBDIR_FILE` reference. (#297, #298)
 - Fix `tlv_structure_rule_t`/`tlv_structure_schema_t` initializers in the EMV
   structural schema, examples and tests that Clang's
   `-Wmissing-field-initializers` rejected under `-Werror` after those types

@@ -11,12 +11,15 @@
 #       -DOPENTLV_BUILD_EXAMPLES=OFF
 #   cmake --build build-lua --target opentlv_lua
 
-# On Windows in particular, this must resolve to the same shared lua5x.dll
-# the Lua interpreter running the tests/examples uses, not a statically
-# linked Lua: two independently linked copies of the Lua runtime sharing one
-# lua_State corrupt memory on this module's calls back into Lua (see
-# README.md's Build section).
-find_package(Lua REQUIRED)
+# Only the headers are required on every platform; LUA_LIBRARIES is only
+# needed (and only linked) on Windows, so this deliberately does not pass
+# REQUIRED, and does not fail here if a Lua install (such as one built by
+# leafo/gh-actions-lua into a workspace-local prefix) exposes headers but no
+# library CMake's FindLua recognizes.
+find_package(Lua)
+if(NOT LUA_INCLUDE_DIR)
+    message(FATAL_ERROR "Lua headers not found; set LUA_INCLUDE_DIR.")
+endif()
 
 add_library(opentlv_lua MODULE
     src/module.c
@@ -33,8 +36,54 @@ add_library(opentlv_lua MODULE
     src/compat.h
 )
 target_include_directories(opentlv_lua PRIVATE ${LUA_INCLUDE_DIR})
-target_link_libraries(opentlv_lua PRIVATE tlv ${LUA_LIBRARIES})
+target_link_libraries(opentlv_lua PRIVATE tlv)
 opentlv_configure_compiler(opentlv_lua)
+
+if(WIN32)
+    # Windows DLLs must resolve every imported symbol at link time; there is
+    # no ELF/Mach-O-style "leave it undefined, resolve it against the
+    # process that loads this module" for PE. So on Windows this must link
+    # against the same shared lua5x.dll the embedding Lua interpreter uses:
+    # two independently linked copies of the Lua runtime sharing one
+    # lua_State corrupt memory on this module's calls back into Lua (see
+    # README.md's Build section).
+    #
+    # find_package(Lua)'s own search above only checks standard system
+    # locations, so it finds nothing for a Lua installed to a non-standard
+    # prefix (for example one leafo/gh-actions-lua built into a
+    # workspace-local directory in CI). LUA_LIBDIR_HINT — the rockspec
+    # passes it as LuaRocks' own LUA_LIBDIR — lets that case still resolve:
+    # find_library() still applies CMake's usual cross-platform naming
+    # rules, just restricted to that one directory.
+    if(NOT LUA_LIBRARIES AND LUA_LIBDIR_HINT)
+        find_library(LUA_LIBRARY
+            NAMES lua54 lua5.4 lua-5.4 lua53 lua5.3 lua-5.3 lua52 lua5.2 lua-5.2 lua51 lua5.1 lua-5.1 lua
+            PATHS "${LUA_LIBDIR_HINT}"
+            NO_DEFAULT_PATH)
+        if(LUA_LIBRARY)
+            set(LUA_LIBRARIES "${LUA_LIBRARY}")
+        endif()
+    endif()
+    if(NOT LUA_LIBRARIES)
+        message(FATAL_ERROR "Lua library not found; set LUA_LIBRARY, or LUA_LIBDIR_HINT to its directory.")
+    endif()
+    target_link_libraries(opentlv_lua PRIVATE ${LUA_LIBRARIES})
+elseif(APPLE)
+    # Deliberately not linked against LUA_LIBRARIES here either, for the
+    # same reason as the Linux case below; -undefined dynamic_lookup defers
+    # every lua_*/luaL_* symbol to load time instead of requiring them at
+    # link time, since Mach-O otherwise resolves imports as strictly as PE.
+    target_link_options(opentlv_lua PRIVATE -undefined dynamic_lookup)
+endif()
+# On Linux, GNU ld already permits a shared object to keep symbols
+# undefined at link time; they resolve when the module is require()'d,
+# against the same already-running Lua interpreter process. Deliberately
+# not linking LUA_LIBRARIES here is what makes that the only copy of the
+# Lua runtime in the process: linking it (as Windows must) would compile a
+# second, independent copy of lua_pcall(), luaV_execute() and friends
+# directly into this module, sharing the interpreter's lua_State with a
+# runtime that never allocated it — the same corruption the Windows comment
+# above describes, not something specific to how Windows loads DLLs.
 
 # require("opentlv_native") looks for a shared object literally named
 # opentlv_native, with no platform library prefix, and expects the
