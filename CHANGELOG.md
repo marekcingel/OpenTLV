@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an experimental Lua binding (`bindings/lua/`, `require("opentlv")`
+  after building with `-DOPENTLV_BUILD_LUA=ON` or `luarocks make`), split
+  into `opentlv-native` and `opentlv` like the Rust and Python bindings.
+  Covers Reader, Entry and Tag across the default, BER, CER, DER, Bluetooth
+  LTV and configurable fixed-width formats, plus preorder tree traversal
+  (`opentlv.walk_tree`). Targets Lua 5.1 through 5.4 and LuaJIT. See [Using
+  OpenTLV from Lua](docs/guides/lua.md). (#297, #298)
 - Add `tlv/compiler.h` (C language version and compiler capability detection)
   and `tlv/attributes.h` (`TLV_NODISCARD`, `TLV_MAYBE_UNUSED`,
   `TLV_DEPRECATED_MSG`, `TLV_FALLTHROUGH`), a small infrastructure layer that

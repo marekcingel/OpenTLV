@@ -123,6 +123,7 @@ nav:
       - Building only the components you need: guides/select-components.md
       - Using OpenTLV from Rust: guides/rust.md
       - Using OpenTLV from Python: guides/python.md
+      - Using OpenTLV from Lua: guides/lua.md
   - Formats:
       - Overview: formats/README.md
       - Default TLV: formats/default/README.md
@@ -158,4 +159,5 @@ nav:
       - WebAssembly build: development/webassembly.md
       - Rust bindings: development/rust.md
       - Python bindings: development/python.md
+      - Lua bindings: development/lua.md
       - Logo assets: assets/README.md
