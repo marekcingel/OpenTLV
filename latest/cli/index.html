@@ -2965,12 +2965,22 @@ and <code>tlv++</code> libraries themselves remain dependency-free.</p>
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>otlv<span class="w"> </span>tag<span class="w"> </span>9F02<span class="w"> </span>--profile<span class="w"> </span>emv
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>card.bin<span class="w"> </span>--value
 <a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>otlv<span class="w"> </span>completion<span class="w"> </span>bash
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>cat<span class="w"> </span>capture.bin<span class="w"> </span><span class="p">|</span><span class="w"> </span>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--output<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.elements'</span>
 </code></pre></div>
-<p><code>dump</code>, <code>validate</code> and <code>decode</code> require an explicit <code>--format</code> and exactly one input
-source. <code>--input -</code> reads binary stdin, including on Windows. File input is
-binary as well by default. Use <code>--input-encoding hex</code> for hex text files or
-hex text on stdin; <code>--input-encoding binary</code> explicitly selects binary input.
-Input encoding is never guessed. <code>--hex</code> accepts case-insensitive contiguous hex bytes or
+<p><code>dump</code>, <code>validate</code>, <code>decode</code> and <code>query</code> require an explicit <code>--format</code>; <code>--input</code>
+and <code>--hex</code> cannot both be given. <code>--input -</code> (or a bare <code>--input PATH</code>) reads
+binary stdin, including on Windows, and so does omitting both <code>--input</code> and
+<code>--hex</code> entirely, letting these commands sit in the middle of a shell
+pipeline (<code>cat capture.bin | otlv dump --format ber</code>) without an explicit <code>-</code>.
+<code>encode</code> reads its <code>--tag</code>/<code>--value</code> construction from the command line, but
+falls back to reading its JSON document from stdin the same way when neither
+<code>--tag</code> nor <code>--input</code> is given. Command output always goes to stdout and
+diagnostics to stderr (see
+<a href="#diagnostics-and-exit-codes">Diagnostics and exit codes</a>), so redirecting one
+never corrupts the other. File input is binary as well by default. Use
+<code>--input-encoding hex</code> for hex text files or hex text on stdin;
+<code>--input-encoding binary</code> explicitly selects binary input. Input encoding is
+never guessed. <code>--hex</code> accepts case-insensitive contiguous hex bytes or
 whitespace between complete byte pairs; prefixes such as <code>0x</code>, separators,
 and incomplete pairs are rejected. An empty hex string or empty file is valid.
 The same hex syntax applies to files and stdin, including CR/LF between pairs.
@@ -3115,7 +3125,9 @@ syntax as <code>--hex</code> (case-insensitive, complete byte pairs, optional wh
 between pairs). <code>--value</code> is limited by <code>--max-input-size</code>; a tag longer than
 8 bytes, the longest tag any built-in format accepts, is rejected.</p>
 <p><code>--input PATH</code> reads a JSON document instead (<code>-</code> for stdin, read as bytes on
-Windows too); it cannot be combined with <code>--tag</code> or <code>--value</code>. Every length is
+Windows too); it cannot be combined with <code>--tag</code> or <code>--value</code>. Omitting both
+<code>--tag</code> and <code>--input</code> reads the JSON document from stdin as well, the same as
+<code>--input -</code>. Every length is
 derived while encoding, children are written inside their parent, and BER
 elements marked <code>"length_mode":"indefinite"</code> get the <code>80</code> length and the
 end-of-contents octets. Before anything is printed the encoded bytes are read
