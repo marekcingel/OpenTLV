@@ -79,8 +79,7 @@ else()
 endif()
 
 check(2 "disabled format" validate --format unknown --hex " ")
-check(2 "exactly one" dump --format ber)
-check(2 "exactly one" dump --format ber --hex AA --input -)
+check(2 "cannot both be given" dump --format ber --hex AA --input -)
 check(2 "duplicate" dump --format ber --format ber --hex AA)
 check(2 "missing option value" dump --hex)
 check(2 "nonnegative" dump --format ber --hex AA --max-elements -1)
@@ -181,6 +180,15 @@ foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed" "BER|ber" "DER|der")
         RESULT_VARIABLE result OUTPUT_VARIABLE output ERROR_VARIABLE error)
     if(NOT result EQUAL 0 OR NOT error STREQUAL "" OR NOT output MATCHES "value=0A0D1AFF")
         message(FATAL_ERROR "Binary stdin failed: ${result} ${output} ${error}")
+    endif()
+    # Omitting both --input and --hex reads binary stdin by default, the same
+    # as --input -, so a pipeline (`cat file | otlv dump --format ...`) needs
+    # no explicit input source.
+    execute_process(COMMAND "${CLI}" dump --format "${name}"
+        INPUT_FILE "${CMAKE_CURRENT_BINARY_DIR}/cli-input.bin"
+        RESULT_VARIABLE result OUTPUT_VARIABLE output ERROR_VARIABLE error)
+    if(NOT result EQUAL 0 OR NOT error STREQUAL "" OR NOT output MATCHES "value=0A0D1AFF")
+        message(FATAL_ERROR "Default stdin input failed: ${result} ${output} ${error}")
     endif()
     if(name STREQUAL "default" OR name STREQUAL "fixed")
         check(2 "only BER and DER" dump --format "${name}" --hex " " --tree)
@@ -344,8 +352,7 @@ if(HAS_DER)
 endif()
 
 # encode (#168): option errors, writer diagnostics, and encode -> dump round trips.
-check(2 "encode requires --format and --tag" encode --format ber)
-check(2 "encode requires --format and --tag" encode --tag 5A)
+check(2 "encode requires --format" encode --tag 5A)
 check(2 "not valid for encode" encode --format ber --tag 5A --hex AA)
 check(2 "requires encode" dump --format ber --hex AA --tag 5A)
 check(2 "output encoding must be binary or hex" encode --format ber --tag 5A --output-encoding text)
@@ -525,7 +532,7 @@ check(2 "not valid for decode" decode --format ber --hex AA --pdol)
 check(2 "not valid for decode" decode --format ber --hex AA --force-color)
 check(2 "not valid for decode" decode --format ber --hex AA --tag 5A)
 check(2 "disabled format" decode --format unknown --hex " ")
-check(2 "exactly one" decode --format ber)
+check(2 "cannot both be given" decode --format ber --hex AA --input -)
 check(2 "--recover requires dump or decode" validate --format ber --hex AA --recover)
 check(2 "not valid for encode" encode --format ber --tag 5A --recover)
 check(2 "not valid for tag" tag 9F02 --profile emv --recover)
@@ -565,6 +572,26 @@ foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed" "BER|ber" "DER|der" "BLUET
     run_cli(0 "${doc_head},\"format\":\"${name}\",\"elements\":${elements}}\n" "" decode --format "${name}" --hex "${hex}")
     file(WRITE "${json_dir}/cli-doc.json" "${last_output}")
     run_cli(0 "${compact_hex}\n" "" encode --format "${name}" --input "${json_dir}/cli-doc.json")
+    # Omitting both --input and --hex reads from stdin by default: decode's
+    # binary TLV input and encode's JSON document alike.
+    set(decode_bin "${CMAKE_CURRENT_BINARY_DIR}/cli-decode-stdin.bin")
+    execute_process(COMMAND "${CLI}" encode --format "${name}" --input "${json_dir}/cli-doc.json"
+        --output-encoding binary OUTPUT_FILE "${decode_bin}" RESULT_VARIABLE result ERROR_VARIABLE error)
+    if(NOT result EQUAL 0 OR NOT error STREQUAL "")
+        message(FATAL_ERROR "encode for stdin decode test failed: ${result} ${error}")
+    endif()
+    execute_process(COMMAND "${CLI}" decode --format "${name}" INPUT_FILE "${decode_bin}"
+        RESULT_VARIABLE result OUTPUT_VARIABLE output ERROR_VARIABLE error)
+    if(NOT result EQUAL 0 OR NOT error STREQUAL "" OR
+       NOT output STREQUAL "${doc_head},\"format\":\"${name}\",\"elements\":${elements}}\n")
+        message(FATAL_ERROR "Default stdin decode failed: ${result} ${output} ${error}")
+    endif()
+    file(REMOVE "${decode_bin}")
+    execute_process(COMMAND "${CLI}" encode --format "${name}" INPUT_FILE "${json_dir}/cli-doc.json"
+        RESULT_VARIABLE result OUTPUT_VARIABLE output ERROR_VARIABLE error)
+    if(NOT result EQUAL 0 OR NOT error STREQUAL "" OR NOT output STREQUAL "${compact_hex}\n")
+        message(FATAL_ERROR "Default stdin encode failed: ${result} ${output} ${error}")
+    endif()
     # The "format" member is optional; when present it must match --format.
     file(WRITE "${bad_json}" "${doc_head},\"elements\":${elements}}")
     run_cli(0 "${compact_hex}\n" "" encode --format "${name}" --input "${bad_json}")
