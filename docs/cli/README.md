@@ -53,13 +53,23 @@ otlv validate --format ber --profile emv --emv-check dictionary --hex "9F0205000
 otlv tag 9F02 --profile emv
 otlv query 6F/A5/50 --format ber --input card.bin --value
 otlv completion bash
+cat capture.bin | otlv dump --format ber --output json | jq '.elements'
 ```
 
-`dump`, `validate` and `decode` require an explicit `--format` and exactly one input
-source. `--input -` reads binary stdin, including on Windows. File input is
-binary as well by default. Use `--input-encoding hex` for hex text files or
-hex text on stdin; `--input-encoding binary` explicitly selects binary input.
-Input encoding is never guessed. `--hex` accepts case-insensitive contiguous hex bytes or
+`dump`, `validate`, `decode` and `query` require an explicit `--format`; `--input`
+and `--hex` cannot both be given. `--input -` (or a bare `--input PATH`) reads
+binary stdin, including on Windows, and so does omitting both `--input` and
+`--hex` entirely, letting these commands sit in the middle of a shell
+pipeline (`cat capture.bin | otlv dump --format ber`) without an explicit `-`.
+`encode` reads its `--tag`/`--value` construction from the command line, but
+falls back to reading its JSON document from stdin the same way when neither
+`--tag` nor `--input` is given. Command output always goes to stdout and
+diagnostics to stderr (see
+[Diagnostics and exit codes](#diagnostics-and-exit-codes)), so redirecting one
+never corrupts the other. File input is binary as well by default. Use
+`--input-encoding hex` for hex text files or hex text on stdin;
+`--input-encoding binary` explicitly selects binary input. Input encoding is
+never guessed. `--hex` accepts case-insensitive contiguous hex bytes or
 whitespace between complete byte pairs; prefixes such as `0x`, separators,
 and incomplete pairs are rejected. An empty hex string or empty file is valid.
 The same hex syntax applies to files and stdin, including CR/LF between pairs.
@@ -248,7 +258,9 @@ between pairs). `--value` is limited by `--max-input-size`; a tag longer than
 8 bytes, the longest tag any built-in format accepts, is rejected.
 
 `--input PATH` reads a JSON document instead (`-` for stdin, read as bytes on
-Windows too); it cannot be combined with `--tag` or `--value`. Every length is
+Windows too); it cannot be combined with `--tag` or `--value`. Omitting both
+`--tag` and `--input` reads the JSON document from stdin as well, the same as
+`--input -`. Every length is
 derived while encoding, children are written inside their parent, and BER
 elements marked `"length_mode":"indefinite"` get the `80` length and the
 end-of-contents octets. Before anything is printed the encoded bytes are read

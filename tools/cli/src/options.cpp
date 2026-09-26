@@ -326,18 +326,21 @@ int options::parse(int argc, char** argv) {
         return 0;
     }
     if (encoding) {
-        if (!format || (!tag && !input))
-            return fail(2, "encode requires --format and --tag or --input");
+        if (!format) return fail(2, "encode requires --format");
         if (tag && input) return fail(2, "encode takes --tag/--value or --input, not both");
         if (value && !tag) return fail(2, "--value requires --tag");
+        // Neither --tag nor --input: read the JSON document from stdin.
+        if (!tag && !input) input = "-";
         if (max_depth > TLV_WALK_MAX_DEPTH) return fail(2, "maximum depth must be in 0..64");
         if ((seen & fixed_only) && strcmp(format, "fixed"))
             return fail(2, "--fixed-tag-size/--fixed-length-size/--fixed-byte-order require "
                            "--format fixed");
         return 0;
     }
-    if (!format || (!!input + !!hex) != 1)
-        return fail(2, "specify --format and exactly one of --input or --hex");
+    if (!format) return fail(2, "requires --format");
+    if (input && hex) return fail(2, "--input and --hex cannot both be given");
+    // Neither --input nor --hex: read the input from stdin.
+    if (!input && !hex) input = "-";
     if (max_depth > TLV_WALK_MAX_DEPTH) return fail(2, "maximum depth must be in 0..64");
     if ((seen & fixed_only) && strcmp(format, "fixed"))
         return fail(2, "--fixed-tag-size/--fixed-length-size/--fixed-byte-order require "
@@ -359,7 +362,7 @@ int options::parse(int argc, char** argv) {
         return fail(2, "--pdol requires --format ber and cannot use --tree, --pretty, or --decode");
     if ((seen & opt_force_color) && (seen & opt_no_color))
         return fail(2, "conflicting color options");
-    if ((seen & opt_input_encoding) && !input) return fail(2, "--input-encoding requires --input");
+    if ((seen & opt_input_encoding) && hex) return fail(2, "--input-encoding requires --input");
     if ((describe || color || decode || strcmp(output, "text")) && validating)
         return fail(2, "presentation options require dump or decode");
     if (recover && pdol) return fail(2, "--recover cannot be combined with --pdol");
@@ -386,13 +389,13 @@ int options::parse(int argc, char** argv) {
 
 void options::usage() {
     std::cout
-        << "Usage: otlv dump|validate|decode --format NAME (--input PATH|- | --hex BYTES) "
+        << "Usage: otlv dump|validate|decode --format NAME [--input PATH|- | --hex BYTES] "
            "[OPTIONS]\n"
            "       otlv encode --format NAME --tag HEX [--value HEX] "
            "[--output-encoding hex|binary]\n"
-           "       otlv encode --format NAME --input JSON_PATH|- "
+           "       otlv encode --format NAME [--input JSON_PATH|-] "
            "[--output-encoding hex|binary] [--output-file PATH]\n"
-           "       otlv query PATH --format NAME (--input PATH|- | --hex BYTES) [--value] "
+           "       otlv query PATH --format NAME [--input PATH|- | --hex BYTES] [--value] "
            "[--output text|json]\n"
            "       otlv tag HEX --profile emv [--output text|json]\n"
            "       otlv tags --profile emv [--search TEXT] [--output text|json]\n"
@@ -440,6 +443,10 @@ void options::usage() {
            "tag looks up one BER tag in the EMV dictionary; an unknown tag is a result "
            "(exit 0), not an error; tags lists the dictionary.\n"
            "completion prints a shell completion script to stdout for the given shell.\n"
+           "dump, validate, decode, query and encode (without --tag) read binary stdin when "
+           "neither --input nor --hex (--tag for encode) is given, the same as --input -, so "
+           "they compose in a shell pipeline; command output always goes to stdout and "
+           "diagnostics to stderr.\n"
            "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"
            "Validation accepts empty input and checks all concatenated elements.\n"
            "With --profile emv, validate also checks the EMV schema structure "

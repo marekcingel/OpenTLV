@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `-Wmissing-field-initializers` rejected under `-Werror` after those types
   gained `group`/`order` fields. (#308)
 - Fix `cargo fmt --all --check` failures in the Rust `quick_start` and `write` examples. (#282)
+- Fix the documentation workflow being rejected on pull requests because the `tlv++/include/**` path filter was invalid; the `+` characters are now escaped. (#110)
+- Fix the WebAssembly build failing to compile the Bluetooth LTV format selection because the format header was not included. (#222)
+- Fix a Clang `-Wmissing-field-initializers` error in the architecture and Bluetooth LTV tests. (#220)
+- Fix Rust formatting and clippy findings and a Rust reader test that expected the wrong error for a truncated length. (#159)
+- Fix the Rust bindings build failing on Windows because the CMake source path had a `\\?\` prefix that MSVC cannot open. (#158)
 
 ### Changed
 
@@ -32,6 +37,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unify GTest suite and test case naming for readability in test results: every suite now names its library (`Unit_Tlv_Endian`, `Unit_Tlvpp_Document`, ...), replacing a mix of suites with no library marker, a redundant `TLV` prefix, `TLV_CPP`, and `Tlvpp` styles; test case names are consistently PascalCase, dropping redundant `test_`/`_test` prefixes and suffixes. (#281)
 - Reorganize `tlv++` headers to mirror the C library's layout: move `tlv++/reader.hpp`/`tlv++/walker.hpp` into `reader/`, `tlv++/writer.hpp` into `writer/`, `tlv++/query.hpp` into `query/`, `tlv++/schema.hpp` into `schema/`, `tlv++/codec.hpp`/`tlv++/structure.hpp`/`tlv++/registry.hpp` into `codec/`, `tlv++/document.hpp` into `document/`, and `tlv++/ber.hpp`/`tlv++/fixed_format.hpp` into `builtins/asn1/`/`builtins/fixed/`; update `#include` paths accordingly. See [architecture](docs/concepts/architecture.md#layout). (#280)
 - Reorganize the C library's `formats/` and `profiles/` folders into per-protocol `builtins/` folders (`asn1`, `emv`, `bluetooth`, `fixed`), keeping generic subsystems (`reader/`, `writer/`, `query/`, `schema/`, `codec/`, `document/`) at the top level; update `#include` paths accordingly, including the renamed `tlv/builtins/asn1/der_profile.h`, `tlv/builtins/asn1/cer_profile.h` and `tlv/builtins/emv/emv_codec.h`. See [architecture](docs/concepts/architecture.md#layout). (#279)
+- Change a plain wire error's reported offset (in every `--diagnostics` format) to the specific field (tag, length or value) that failed rather than the enclosing element's start, for every format except DER, whose own walker offset is not always safe to re-derive this way. (#264)
+- Change `otlv`'s default failure output from a single line to the new `--diagnostics human` format; pass `--diagnostics compact` for the previous wording. (#264)
+- **Breaking:** Change `tlv_tag_t` to a borrowed pointer and size with no length limit, so tags of any length work without rebuilding OpenTLV; tags read from input now reference the input buffer, `tlv_tag_equal()` takes tags by value and returns `bool`, `tlv_der_tag_make()` and `tlv_cer_tag_make()` take caller-provided storage, `tlv_query_t` no longer exposes `steps` (use `tlv_query_step()`), and the Rust `Tag` is no longer `Copy`; see [Memory ownership](docs/guides/memory.md#tags). (#256)
+- Speed up CI with three levels: minimal checks on pull requests (plus the required CodeQL scan with a smaller query set and no examples), a lighter set after merge to `main` and the full validation on release and `-rc` tags; see the [development workflow](docs/development/workflow.md). (#231)
+- Move to a trunk-based workflow: `main` is the only long-lived branch, the `develop` branch is removed, and the `latest` documentation is published from `main`. (#228)
 
 ### Removed
 
@@ -46,6 +56,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Default `otlv dump`/`validate`/`decode`/`query` (and `encode` without `--tag`) to reading
+  stdin when neither `--input` nor `--hex` is given, the same as `--input -`, so these
+  commands compose directly in shell pipelines. (#319)
 - Add a `completion` command to the `otlv` CLI, printing a bash, zsh, fish or
   PowerShell completion script for its commands and options to stdout; see
   [Shell completion](docs/cli/README.md#shell-completion). (#318)
@@ -180,22 +193,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a safe Rust `Reader` to the `opentlv` crate that iterates TLV entries from a `&[u8]` with borrowed values and `Result` errors; see [Rust bindings](docs/development/rust.md). (#156)
 - Add safe Rust core types to the `opentlv` crate: `Tag`, `Entry`, `Error` (mapped from every `TLV_ERR_*` code), `Result` and `ByteOrder`; see [Rust bindings](docs/development/rust.md). (#155)
 - Add experimental Rust bindings under `bindings/rust`: an `opentlv-sys` FFI crate that builds and links the C library, and a safe `opentlv` crate exposing the library version; see [Rust bindings](docs/development/rust.md). (#154)
-
-### Changed
-
-- Change a plain wire error's reported offset (in every `--diagnostics` format) to the specific field (tag, length or value) that failed rather than the enclosing element's start, for every format except DER, whose own walker offset is not always safe to re-derive this way. (#264)
-- Change `otlv`'s default failure output from a single line to the new `--diagnostics human` format; pass `--diagnostics compact` for the previous wording. (#264)
-- **Breaking:** Change `tlv_tag_t` to a borrowed pointer and size with no length limit, so tags of any length work without rebuilding OpenTLV; tags read from input now reference the input buffer, `tlv_tag_equal()` takes tags by value and returns `bool`, `tlv_der_tag_make()` and `tlv_cer_tag_make()` take caller-provided storage, `tlv_query_t` no longer exposes `steps` (use `tlv_query_step()`), and the Rust `Tag` is no longer `Copy`; see [Memory ownership](docs/guides/memory.md#tags). (#256)
-- Speed up CI with three levels: minimal checks on pull requests (plus the required CodeQL scan with a smaller query set and no examples), a lighter set after merge to `main` and the full validation on release and `-rc` tags; see the [development workflow](docs/development/workflow.md). (#231)
-- Move to a trunk-based workflow: `main` is the only long-lived branch, the `develop` branch is removed, and the `latest` documentation is published from `main`. (#228)
-
-### Fixed
-
-- Fix the documentation workflow being rejected on pull requests because the `tlv++/include/**` path filter was invalid; the `+` characters are now escaped. (#110)
-- Fix the WebAssembly build failing to compile the Bluetooth LTV format selection because the format header was not included. (#222)
-- Fix a Clang `-Wmissing-field-initializers` error in the architecture and Bluetooth LTV tests. (#220)
-- Fix Rust formatting and clippy findings and a Rust reader test that expected the wrong error for a truncated length. (#159)
-- Fix the Rust bindings build failing on Windows because the CMake source path had a `\\?\` prefix that MSVC cannot open. (#158)
 
 ## [0.6.0] - 2026-09-20
 
