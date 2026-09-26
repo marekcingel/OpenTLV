@@ -1291,6 +1291,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Lua
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2464,6 +2492,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../development/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lua bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../assets/" class="md-nav__link">
         
   
@@ -2601,9 +2657,10 @@
 <h1 id="common-conceptual-model-for-language-bindings">Common conceptual model for language bindings<a class="headerlink" href="#common-conceptual-model-for-language-bindings" title="Permanent link">&para;</a></h1>
 <p>OpenTLV ships one C library (<code>tlv</code>) and is expected to grow bindings for
 several languages. A header-only C++ wrapper (<code>tlv++</code>) ships in this
-repository today, an experimental Rust crate (<code>opentlv</code>, in <code>bindings/rust/</code>)
-and an experimental Python package (<code>opentlv</code>, in <code>bindings/python/</code>) are
-under active development, and further bindings may follow. Without a shared
+repository today, an experimental Rust crate (<code>opentlv</code>, in <code>bindings/rust/</code>),
+an experimental Python package (<code>opentlv</code>, in <code>bindings/python/</code>) and an
+experimental Lua module (<code>opentlv</code>, in <code>bindings/lua/</code>) are under active
+development, and further bindings may follow. Without a shared
 contract, each binding could invent its own vocabulary for the same
 operation, for example <code>Reader</code> in C++, <code>parse()</code> in Python, <code>Parser</code> in Rust,
 and <code>Decoder</code> elsewhere, and a developer who already knows OpenTLV in one
@@ -2618,18 +2675,18 @@ ergonomics to the target language.</p>
 <h2 id="the-c-api-is-the-binding-boundary">The C API is the binding boundary<a class="headerlink" href="#the-c-api-is-the-binding-boundary" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                    OpenTLV C API
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                         |
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    +----------+---------+---------+----------+
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    |          |         |         |          |
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>   C++       Rust        Go      Python       ...
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    |          |         |         |          |
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>   C++       Rust        Go       Python    &lt;language&gt;
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    +----------+---------+---------+----------+----------+
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    |          |         |         |          |          |
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>   C++       Rust        Go      Python      Lua        ...
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    |          |         |         |          |          |
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>idiomatic  idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>   C++       Rust        Go       Python      Lua    &lt;language&gt;
 </code></pre></div>
 <p>C++ and Rust ship today; Python (<code>bindings/python/</code>) now binds Reader, Writer,
 Document, Entry and Tag — including Document, which neither Rust nor
-WebAssembly bind yet. Go is illustrative here, not yet scaffolded, to show
-the contract extends past the current bindings. The trailing <code>...</code> stands
-for any further binding.</p>
+WebAssembly bind yet. Lua (<code>bindings/lua/</code>) binds Reader, Entry and Tag. Go is
+illustrative here, not yet scaffolded, to show the contract extends past the
+current bindings. The trailing <code>...</code> stands for any further binding.</p>
 <p>The public OpenTLV C API (see the <a href="../../reference/c-api/">C API reference</a>) is
 the single language boundary every binding wraps. A binding calls into the C
 library directly for parsing, encoding, validation and codec work instead of
@@ -2653,6 +2710,7 @@ to this in practice.</p>
 <th>C++ (<code>tlv++</code>)</th>
 <th>Rust (<code>opentlv</code>, experimental)</th>
 <th>Python (<code>opentlv</code>, experimental)</th>
+<th>Lua (<code>opentlv</code>, experimental)</th>
 </tr>
 </thead>
 <tbody>
@@ -2663,6 +2721,7 @@ to this in practice.</p>
 <td><code>tlv::reader</code></td>
 <td><code>Reader&lt;'a&gt;</code></td>
 <td><code>Reader</code></td>
+<td><code>opentlv.reader()</code></td>
 </tr>
 <tr>
 <td>Writer</td>
@@ -2671,6 +2730,7 @@ to this in practice.</p>
 <td><code>tlv::writer</code></td>
 <td><code>Writer&lt;'a&gt;</code></td>
 <td><code>Writer</code></td>
+<td>not bound yet</td>
 </tr>
 <tr>
 <td>Document</td>
@@ -2679,6 +2739,7 @@ to this in practice.</p>
 <td><code>tlv::document</code></td>
 <td>not bound yet</td>
 <td><code>Document</code>, <code>Node</code></td>
+<td>not bound yet</td>
 </tr>
 <tr>
 <td>Entry</td>
@@ -2687,6 +2748,7 @@ to this in practice.</p>
 <td><code>tlv::entry</code></td>
 <td><code>Entry&lt;'a&gt;</code></td>
 <td><code>Entry</code></td>
+<td>a plain table (<code>tag</code>/<code>length</code>/<code>value</code>/<code>offset</code> fields)</td>
 </tr>
 <tr>
 <td>Tag</td>
@@ -2695,6 +2757,7 @@ to this in practice.</p>
 <td><code>tlv::tag_t</code> (alias)</td>
 <td><code>Tag</code></td>
 <td><code>Tag</code></td>
+<td>a raw Lua string (content equality already compares it)</td>
 </tr>
 <tr>
 <td>Schema</td>
@@ -2703,6 +2766,7 @@ to this in practice.</p>
 <td>same C types, wrapped by <code>tlv::validate</code>/<code>tlv::validate_all</code></td>
 <td><code>LengthSchema</code>, <code>StructureSchema</code></td>
 <td><code>LengthSchema</code>, <code>StructureSchema</code></td>
+<td>not bound yet</td>
 </tr>
 <tr>
 <td>Codec</td>
@@ -2711,6 +2775,7 @@ to this in practice.</p>
 <td><code>TlvCodec</code> concept, <code>tlv::decode_structure&lt;T&gt;</code>/<code>encode_structure</code></td>
 <td><code>Codec</code></td>
 <td><code>codec</code> submodule, narrow: only the public <code>tlv_emv_codec_amount</code></td>
+<td>not bound yet</td>
 </tr>
 <tr>
 <td>Diagnostics</td>
@@ -2719,6 +2784,7 @@ to this in practice.</p>
 <td><code>tlv::diagnostic</code> (alias)</td>
 <td><code>SchemaError</code>, <code>ProfileError</code>, <code>CodecError</code> (each carries the failing offset; no unified diagnostic type yet)</td>
 <td><code>OpenTLVError</code> subclasses carry the offset, expected/actual text and operation, when the C API reports them</td>
+<td>a plain table with <code>code</code>/<code>message</code> and, when reported, <code>offset</code>/<code>expected</code>/<code>actual</code>/<code>operation</code>/<code>tag</code></td>
 </tr>
 </tbody>
 </table>
@@ -2740,6 +2806,11 @@ it. For example:</p>
 <li>Python's <code>Reader</code> iterates the same reader concept with
   <code>for entry in reader:</code>, and raises a native <code>Exception</code> subclass instead of
   returning an error code.</li>
+<li>Lua's <code>Reader</code>, returned by <code>opentlv.reader()</code>, is directly usable as a
+  generic-for iterator (<code>for entry in reader do ... end</code>) via Lua's <code>__call</code>
+  metamethod, rather than a separate iterator protocol; it raises a plain
+  table via <code>error()</code> instead of an exception object, since Lua has no
+  exception hierarchy to subclass.</li>
 <li>Rust's and <code>tlv++</code>'s <code>Writer</code> fill a caller-provided fixed-capacity buffer
   and report an error when an entry does not fit, matching the C library's
   allocation-free <code>tlv_writer_t</code>. Python's <code>Writer</code> owns a <code>bytearray</code> it
@@ -2795,6 +2866,18 @@ it. For example:</p>
   EMV decoding logic that only exists in a private C header). See <a href="../../development/python/">Python
   bindings</a> and <a href="../../guides/python/">using OpenTLV from
   Python</a>.</li>
+<li><strong>Lua</strong>: experimental, in <code>bindings/lua/</code>, split into <code>opentlv-native</code> (a
+  native extension written directly against the Lua C API) and <code>opentlv</code>
+  (a one-line pure-Lua entry point on top of it, <code>lua/opentlv/init.lua</code>) —
+  the same split as the Rust and Python <code>opentlv-native</code>/<code>opentlv</code> packages,
+  though here the pure layer adds no ergonomics of its own, since Lua's C
+  API is already close to the concepts bound. Targets Lua 5.1 through 5.4
+  and LuaJIT. Covers Reader, Entry and Tag, across the default, BER, CER, DER,
+  Bluetooth LTV and configurable fixed-width formats, plus preorder tree
+  traversal (<code>opentlv.walk_tree()</code>, built on <code>tlv_walk_tree()</code>/
+  <code>tlv_der_walk()</code>) — the one traversal capability neither Rust nor Python
+  exposes directly yet. See <a href="../../development/lua/">Lua bindings</a> and
+  <a href="../../guides/lua/">using OpenTLV from Lua</a>.</li>
 <li><strong>Go</strong>: planned, not started yet. No <code>bindings/go/</code> directory exists; when
   work on it begins, it follows this contract like the Rust crate does.</li>
 </ul>

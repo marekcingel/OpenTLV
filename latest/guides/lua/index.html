@@ -10,29 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/guides/lua/">
       
       
+        <link rel="prev" href="../python/">
       
-        <link rel="next" href="getting-started/">
+      
+        <link rel="next" href="../../formats/">
       
       
         
       
       
-      <link rel="icon" href="assets/favicon.svg">
+      <link rel="icon" href="../../assets/favicon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>OpenTLV</title>
+        <title>Using OpenTLV from Lua - OpenTLV</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,9 +53,9 @@
       
     
     
-      <link rel="stylesheet" href="playground/playground.css">
+      <link rel="stylesheet" href="../../playground/playground.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#opentlv" class="md-skip">
+        <a href="#using-opentlv-from-lua" class="md-skip">
           Skip to content
         </a>
       
@@ -110,9 +112,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="OpenTLV" class="md-header__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+    <a href="../.." title="OpenTLV" class="md-header__button md-logo" aria-label="OpenTLV" data-md-component="logo">
       
-  <img src="assets/logo-mark.svg" alt="logo">
+  <img src="../../assets/logo-mark.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -129,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Using OpenTLV from Lua
             
           </span>
         </div>
@@ -240,11 +242,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -265,7 +265,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="getting-started/" class="md-tabs__link">
+        <a href="../../getting-started/" class="md-tabs__link">
           
   
   
@@ -285,7 +285,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="concepts/architecture/" class="md-tabs__link">
+        <a href="../../concepts/architecture/" class="md-tabs__link">
           
   
   
@@ -301,11 +301,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="guides/memory/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../memory/" class="md-tabs__link">
           
   
   
@@ -325,7 +327,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="formats/" class="md-tabs__link">
+        <a href="../../formats/" class="md-tabs__link">
           
   
   
@@ -345,7 +347,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="profiles/der/" class="md-tabs__link">
+        <a href="../../profiles/der/" class="md-tabs__link">
           
   
   
@@ -365,7 +367,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="cli/" class="md-tabs__link">
+        <a href="../../cli/" class="md-tabs__link">
           
   
   
@@ -385,7 +387,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="playground/" class="md-tabs__link">
+        <a href="../../playground/" class="md-tabs__link">
           
   
   
@@ -405,7 +407,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="reference/" class="md-tabs__link">
+        <a href="../../reference/" class="md-tabs__link">
           
   
   
@@ -425,7 +427,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="development/workflow/" class="md-tabs__link">
+        <a href="../../development/workflow/" class="md-tabs__link">
           
   
   
@@ -459,9 +461,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="OpenTLV" class="md-nav__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+    <a href="../.." title="OpenTLV" class="md-nav__button md-logo" aria-label="OpenTLV" data-md-component="logo">
       
-  <img src="assets/logo-mark.svg" alt="logo">
+  <img src="../../assets/logo-mark.svg" alt="logo">
 
     </a>
     OpenTLV
@@ -485,37 +487,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -531,59 +506,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#where-to-start" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Where to start
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sections" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sections
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#project" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Project
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -647,7 +569,7 @@
   
   
     <li class="md-nav__item">
-      <a href="getting-started/" class="md-nav__link">
+      <a href="../../getting-started/" class="md-nav__link">
         
   
   
@@ -734,7 +656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/architecture/" class="md-nav__link">
+      <a href="../../concepts/architecture/" class="md-nav__link">
         
   
   
@@ -762,7 +684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/core-types/" class="md-nav__link">
+      <a href="../../concepts/core-types/" class="md-nav__link">
         
   
   
@@ -790,7 +712,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/value/" class="md-nav__link">
+      <a href="../../concepts/value/" class="md-nav__link">
         
   
   
@@ -818,7 +740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/length/" class="md-nav__link">
+      <a href="../../concepts/length/" class="md-nav__link">
         
   
   
@@ -846,7 +768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/endian/" class="md-nav__link">
+      <a href="../../concepts/endian/" class="md-nav__link">
         
   
   
@@ -874,7 +796,7 @@
   
   
     <li class="md-nav__item">
-      <a href="concepts/bindings/" class="md-nav__link">
+      <a href="../../concepts/bindings/" class="md-nav__link">
         
   
   
@@ -906,26 +828,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
@@ -943,7 +870,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -961,7 +888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/memory/" class="md-nav__link">
+      <a href="../memory/" class="md-nav__link">
         
   
   
@@ -989,7 +916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/diagnostics/" class="md-nav__link">
+      <a href="../diagnostics/" class="md-nav__link">
         
   
   
@@ -1017,7 +944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/schemas/" class="md-nav__link">
+      <a href="../schemas/" class="md-nav__link">
         
   
   
@@ -1045,7 +972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/codecs/" class="md-nav__link">
+      <a href="../codecs/" class="md-nav__link">
         
   
   
@@ -1073,7 +1000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/copy/" class="md-nav__link">
+      <a href="../copy/" class="md-nav__link">
         
   
   
@@ -1101,7 +1028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/scanner/" class="md-nav__link">
+      <a href="../scanner/" class="md-nav__link">
         
   
   
@@ -1129,7 +1056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/queries/" class="md-nav__link">
+      <a href="../queries/" class="md-nav__link">
         
   
   
@@ -1157,7 +1084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/document/" class="md-nav__link">
+      <a href="../document/" class="md-nav__link">
         
   
   
@@ -1185,7 +1112,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/select-components/" class="md-nav__link">
+      <a href="../select-components/" class="md-nav__link">
         
   
   
@@ -1213,7 +1140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/rust/" class="md-nav__link">
+      <a href="../rust/" class="md-nav__link">
         
   
   
@@ -1241,7 +1168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/python/" class="md-nav__link">
+      <a href="../python/" class="md-nav__link">
         
   
   
@@ -1266,10 +1193,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="guides/lua/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Lua
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1285,6 +1239,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tree-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tree traversal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1356,7 +1374,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/" class="md-nav__link">
+      <a href="../../formats/" class="md-nav__link">
         
   
   
@@ -1384,7 +1402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/default/" class="md-nav__link">
+      <a href="../../formats/default/" class="md-nav__link">
         
   
   
@@ -1412,7 +1430,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/fixed/configurable/" class="md-nav__link">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
   
@@ -1440,7 +1458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/bluetooth/" class="md-nav__link">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
         
   
   
@@ -1468,7 +1486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/asn1/ber/" class="md-nav__link">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
   
@@ -1496,7 +1514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/asn1/der/" class="md-nav__link">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
         
   
   
@@ -1524,7 +1542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/asn1/cer/" class="md-nav__link">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
         
   
   
@@ -1552,7 +1570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/custom/" class="md-nav__link">
+      <a href="../../formats/custom/" class="md-nav__link">
         
   
   
@@ -1580,7 +1598,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/format-examples/" class="md-nav__link">
+      <a href="../../formats/format-examples/" class="md-nav__link">
         
   
   
@@ -1608,7 +1626,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/format-roadmap/" class="md-nav__link">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
         
   
   
@@ -1636,7 +1654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="formats/format-catalogue/" class="md-nav__link">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
         
   
   
@@ -1723,7 +1741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="profiles/der/" class="md-nav__link">
+      <a href="../../profiles/der/" class="md-nav__link">
         
   
   
@@ -1751,7 +1769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="profiles/cer/" class="md-nav__link">
+      <a href="../../profiles/cer/" class="md-nav__link">
         
   
   
@@ -1779,7 +1797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="profiles/emv/" class="md-nav__link">
+      <a href="../../profiles/emv/" class="md-nav__link">
         
   
   
@@ -1866,7 +1884,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/" class="md-nav__link">
+      <a href="../../cli/" class="md-nav__link">
         
   
   
@@ -1894,7 +1912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/json-schema/" class="md-nav__link">
+      <a href="../../cli/json-schema/" class="md-nav__link">
         
   
   
@@ -1981,7 +1999,7 @@
   
   
     <li class="md-nav__item">
-      <a href="playground/" class="md-nav__link">
+      <a href="../../playground/" class="md-nav__link">
         
   
   
@@ -2068,7 +2086,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/" class="md-nav__link">
+      <a href="../../reference/" class="md-nav__link">
         
   
   
@@ -2096,7 +2114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/c-api/" class="md-nav__link">
+      <a href="../../reference/c-api/" class="md-nav__link">
         
   
   
@@ -2124,7 +2142,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/cxx-api/" class="md-nav__link">
+      <a href="../../reference/cxx-api/" class="md-nav__link">
         
   
   
@@ -2152,7 +2170,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/compilers/" class="md-nav__link">
+      <a href="../../reference/compilers/" class="md-nav__link">
         
   
   
@@ -2180,7 +2198,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/errors/" class="md-nav__link">
+      <a href="../../reference/errors/" class="md-nav__link">
         
   
   
@@ -2267,7 +2285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="development/workflow/" class="md-nav__link">
+      <a href="../../development/workflow/" class="md-nav__link">
         
   
   
@@ -2295,7 +2313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="development/abi-compatibility/" class="md-nav__link">
+      <a href="../../development/abi-compatibility/" class="md-nav__link">
         
   
   
@@ -2323,7 +2341,7 @@
   
   
     <li class="md-nav__item">
-      <a href="development/documentation-layout/" class="md-nav__link">
+      <a href="../../development/documentation-layout/" class="md-nav__link">
         
   
   
@@ -2351,7 +2369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="development/fuzzing/" class="md-nav__link">
+      <a href="../../development/fuzzing/" class="md-nav__link">
         
   
   
@@ -2379,7 +2397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="development/webassembly/" class="md-nav__link">
+      <a href="../../development/webassembly/" class="md-nav__link">
         
   
   
@@ -2407,7 +2425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="development/rust/" class="md-nav__link">
+      <a href="../../development/rust/" class="md-nav__link">
         
   
   
@@ -2435,7 +2453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="development/python/" class="md-nav__link">
+      <a href="../../development/python/" class="md-nav__link">
         
   
   
@@ -2463,7 +2481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="development/lua/" class="md-nav__link">
+      <a href="../../development/lua/" class="md-nav__link">
         
   
   
@@ -2491,7 +2509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="assets/" class="md-nav__link">
+      <a href="../../assets/" class="md-nav__link">
         
   
   
@@ -2546,10 +2564,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#where-to-start" class="md-nav__link">
+  <a href="#setup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Where to start
+        Setup
       
     </span>
   </a>
@@ -2557,10 +2575,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sections" class="md-nav__link">
+  <a href="#reading" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Sections
+        Reading
       
     </span>
   </a>
@@ -2568,10 +2586,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#project" class="md-nav__link">
+  <a href="#tree-traversal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Project
+        Tree traversal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error handling
       
     </span>
   </a>
@@ -2595,7 +2624,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/guides/lua.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2603,77 +2632,91 @@
   
 
 
-<h1 id="opentlv">OpenTLV<a class="headerlink" href="#opentlv" title="Permanent link">&para;</a></h1>
-<p>OpenTLV is a portable C99 library with a C++ wrapper for reading, writing,
-traversing and validating TLV (Tag-Length-Value) data. It covers default and
-fixed one-byte formats, BER, DER and CER, application-defined formats, and an
-EMV Contact Book 3 profile.</p>
-<h2 id="where-to-start">Where to start<a class="headerlink" href="#where-to-start" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>I want to...</th>
-<th>Go to</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Build the library and link it into a project</td>
-<td><a href="getting-started/">Getting started</a></td>
-</tr>
-<tr>
-<td>Understand the layers and components</td>
-<td><a href="concepts/architecture/">Architecture</a></td>
-</tr>
-<tr>
-<td>Pick a TLV format</td>
-<td><a href="formats/#choose-a-format">Formats</a></td>
-</tr>
-<tr>
-<td>Understand who owns parsed data</td>
-<td><a href="guides/memory/">Memory ownership</a></td>
-</tr>
-<tr>
-<td>Validate or decode values</td>
-<td><a href="guides/schemas/">Schemas</a>, <a href="guides/codecs/">value codecs</a></td>
-</tr>
-<tr>
-<td>Work with DER, CER or EMV data</td>
-<td><a href="profiles/der/">DER</a>, <a href="profiles/cer/">CER</a>, <a href="profiles/emv/">EMV</a></td>
-</tr>
-<tr>
-<td>Look up an exact function, type or contract</td>
-<td><a href="reference/c-api/">C API</a>, <a href="reference/cxx-api/">C++ API</a></td>
-</tr>
-<tr>
-<td>Inspect TLV data from a terminal</td>
-<td><a href="cli/">The <code>otlv</code> CLI</a></td>
-</tr>
-<tr>
-<td>Contribute or run the fuzzers</td>
-<td><a href="development/fuzzing/">Fuzzing</a>, <a href="https://github.com/marekcingel/OpenTLV/blob/main/CONTRIBUTING.md">Contributing</a></td>
-</tr>
-</tbody>
-</table>
-<h2 id="sections">Sections<a class="headerlink" href="#sections" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Getting Started</strong> - builds, CMake integration and tests.</li>
-<li><strong>Concepts</strong> - architecture, core types, borrowed values, lengths and byte order.</li>
-<li><strong>Guides</strong> - memory ownership, schemas, value codecs, copy helpers and recovery scanning.</li>
-<li><strong>Formats</strong> - reading, writing and traversal for each TLV format, with byte examples.</li>
-<li><strong>Profiles</strong> - DER, CER and EMV semantics layered on the formats.</li>
-<li><strong>CLI</strong> - the <code>otlv</code> command-line tool.</li>
-<li><strong>Reference</strong> - the generated <a href="reference/c-api/">C API</a> and <a href="reference/cxx-api/">C++ API</a> references and supported compilers.</li>
-<li><strong>Development</strong> - fuzzing and <a href="development/documentation-layout/">where documentation belongs</a>.</li>
-</ul>
-<p>Exact API contracts live in the generated <a href="reference/c-api/">C API</a> and
-<a href="reference/cxx-api/">C++ API</a> references; the guides here explain how to use them.</p>
-<h2 id="project">Project<a class="headerlink" href="#project" title="Permanent link">&para;</a></h2>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/ROADMAP.md">Roadmap</a> ·
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/CHANGELOG.md">Changelog</a> ·
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/SECURITY.md">Security policy</a> ·
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/LICENSE">License</a> ·
-<a href="https://github.com/marekcingel/OpenTLV">Source on GitHub</a></p>
+<h1 id="using-opentlv-from-lua">Using OpenTLV from Lua<a class="headerlink" href="#using-opentlv-from-lua" title="Permanent link">&para;</a></h1>
+<p>The <code>opentlv</code> module is an experimental Lua binding for OpenTLV. It binds a
+Reader, tag/length/value <code>Entry</code> tables and preorder tree traversal; there is
+no Writer, Document or Schema binding yet (see <a href="../../development/lua/">Lua
+bindings</a>).</p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-lua<span class="w"> </span>-DOPENTLV_BUILD_LUA<span class="o">=</span>ON<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span>-DOPENTLV_BUILD_CXX<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_CLI<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_TESTS<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span>-DOPENTLV_BUILD_EXAMPLES<span class="o">=</span>OFF
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-lua<span class="w"> </span>--target<span class="w"> </span>opentlv_lua
+</code></pre></div>
+<p>This requires CMake 3.16 or newer, a C99 compiler, and Lua 5.1 through 5.4 or
+LuaJIT headers and library; see <a href="../../development/lua/#build">Build</a> for the
+<code>luarocks make</code> alternative and a Windows-specific linking note.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">opentlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">print</span><span class="p">(</span><span class="nv">opentlv</span><span class="p">.</span><span class="nf">version</span><span class="p">())</span>
+</code></pre></div>
+<p>Runnable version:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/quick_start.lua">quick_start.lua</a>
+(<code>lua examples/quick_start.lua</code> from <code>bindings/lua</code>).</p>
+<h2 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">&para;</a></h2>
+<p><code>opentlv.reader(data, format)</code> returns a Reader over <code>data</code>, a Lua string.
+Using the reader directly as a generic-for iterator calls it as its own
+iterator function each time, so <code>for entry in reader do ... end</code> reads
+sequentially with no explicit <code>next()</code>/<code>at_end()</code> loop:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">opentlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kd">local</span><span class="w"> </span><span class="nv">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x01</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0xAA</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBB</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kr">for</span><span class="w"> </span><span class="nv">entry</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="nf">reader</span><span class="p">(</span><span class="nv">data</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nv">entry</span><span class="p">.</span><span class="py">tag</span><span class="p">,</span><span class="w"> </span><span class="nv">entry</span><span class="p">.</span><span class="py">length</span><span class="p">,</span><span class="w"> </span><span class="nv">entry</span><span class="p">.</span><span class="py">value</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kr">end</span>
+</code></pre></div>
+<p>Each <code>entry</code> is a plain table with <code>tag</code>, <code>length</code>, <code>value</code> (all copied out
+of <code>data</code>, since Lua strings cannot borrow foreign memory the way a C, C++,
+Rust or Python view can) and <code>offset</code>, the absolute position of the entry's
+tag within <code>data</code>. <code>format</code> defaults to <code>opentlv.formats.default</code>; pass
+<code>opentlv.formats.ber</code>, <code>.cer</code>, <code>.der</code>, <code>.bluetooth_ltv</code>, or
+<code>opentlv.formats.fixed(tag_size, length_size, byte_order)</code> (<code>byte_order</code> is
+<code>"big"</code> or <code>"little"</code>, equivalent to the C <code>tlv_fixed_config_t</code>) for another
+wire format. Constructed entries are not expanded automatically; construct a
+new reader over <code>entry.value</code> to descend, as in the runnable example below.</p>
+<p>The explicit method form, <code>reader:next()</code> (<code>nil</code> at the end) and
+<code>reader:at_end()</code>, is equivalent and reads the same way; <code>reader:position()</code>
+and <code>reader:format()</code> report the reader's current byte offset and the
+format it was constructed with.</p>
+<p>Runnable version, parsing a nested BER document and handling truncated
+input:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/parse.lua">parse.lua</a>
+(<code>lua examples/parse.lua</code>).</p>
+<h2 id="tree-traversal">Tree traversal<a class="headerlink" href="#tree-traversal" title="Permanent link">&para;</a></h2>
+<p><code>opentlv.walk_tree(data, format, callback, opts)</code> visits every element of
+<code>data</code> in preorder, calling <code>callback(entry, depth)</code> for each; <code>entry</code> has an
+additional <code>constructed</code> boolean field. Returning <code>false</code> from <code>callback</code>
+stops the walk early:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">opentlv</span><span class="p">.</span><span class="nf">walk_tree</span><span class="p">(</span><span class="nv">data</span><span class="p">,</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">,</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">entry</span><span class="p">,</span><span class="w"> </span><span class="nv">depth</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nb">string.rep</span><span class="p">(</span><span class="s2">"  "</span><span class="p">,</span><span class="w"> </span><span class="nv">depth</span><span class="p">)</span><span class="w"> </span><span class="o">..</span><span class="w"> </span><span class="nv">entry</span><span class="p">.</span><span class="py">tag</span><span class="p">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kr">end</span><span class="p">)</span>
+</code></pre></div>
+<p><code>opts</code> is an optional table with integer <code>max_depth</code> (default 64, the
+library's <code>TLV_WALK_MAX_DEPTH</code>) and <code>max_elements</code> (default 65536); pass an
+explicit, tighter <code>max_elements</code> when walking untrusted input, since the C
+<code>tlv_walk_tree()</code> this wraps requires a real bound. <code>callback</code> may be omitted
+to validate structure and limits only. For <code>opentlv.formats.der</code>, traversal
+always uses the stricter <code>tlv_der_walk()</code> with the library's default DER
+limits instead, and <code>opts</code> is ignored.</p>
+<h2 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<p>Every reading or traversal failure raises a table (via Lua's <code>error()</code>) with
+a <code>code</code> (the raw <code>tlv_result_t</code> value, also available named under
+<code>opentlv.errors</code>, for example <code>opentlv.errors.BUFFER_TOO_SHORT</code>) and a
+<code>message</code> (the C <code>tlv_strerror()</code> text); <code>tostring()</code> on it formats both
+together. When the C API reports structured diagnostic detail for the
+failure, <code>offset</code>, <code>expected</code>, <code>actual</code>, <code>operation</code> and <code>tag</code> carry it;
+fields the failure does not report are absent, so check with <code>err.offset</code>
+rather than assuming every field is present.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">ok</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">pcall</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">_</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="nf">reader</span><span class="p">(</span><span class="nv">truncated</span><span class="p">,</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span><span class="w"> </span><span class="kr">end</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kr">end</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kr">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nv">ok</span><span class="w"> </span><span class="kr">then</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">"%s at offset %s (%s)"</span><span class="p">,</span><span class="w"> </span><span class="nb">tostring</span><span class="p">(</span><span class="nv">err</span><span class="p">),</span><span class="w"> </span><span class="nv">err</span><span class="p">.</span><span class="py">offset</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="p">.</span><span class="py">operation</span><span class="p">))</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="kr">end</span>
+</code></pre></div>
+<p>A callback error inside <code>opentlv.walk_tree</code> (a genuine Lua error your
+<code>callback</code> raises) propagates out of <code>opentlv.walk_tree</code> unchanged, so
+<code>pcall</code> catches whatever your callback raised, not a wrapped copy.</p>
 
 
 
@@ -2710,15 +2753,31 @@ EMV Contact Book 3 profile.</p>
       
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
+          
+          <a href="../python/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using OpenTLV from Python">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Using OpenTLV from Python
+              </div>
+            </div>
+          </a>
+        
         
           
-          <a href="getting-started/" class="md-footer__link md-footer__link--next" aria-label="Next: Getting started">
+          <a href="../../formats/" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Getting started
+                Overview
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -2768,12 +2827,12 @@ EMV Contact Book 3 profile.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.action.edit", "content.code.copy", "content.tabs.link"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.action.edit", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
-        <script src="playground/playground.js" type="module"></script>
+        <script src="../../playground/playground.js" type="module"></script>
       
     
   </body>
