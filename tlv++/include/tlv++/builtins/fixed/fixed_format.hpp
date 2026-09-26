@@ -35,19 +35,19 @@ namespace tlv {
  * The descriptors returned by reader() and writer() have static storage
  * duration and a `NULL` context, so they never need lifetime management. The
  * format performs no allocation and reads values in place. Errors match the
- * built-in fixed format (`tlv_reader_format_fixed_1byte`):
+ * C `tlv_fixed_config_t`-based format for the same widths and byte order:
  * - #TLV_ERR_BUFFER_TOO_SHORT when the input holds fewer bytes than a field
  *   needs, or the output has less capacity than a field needs;
  * - #TLV_ERR_INVALID_TAG_SIZE when a written tag is not `TagWidth` bytes;
  * - #TLV_ERR_INVALID_LENGTH when a value length exceeds the largest value
  *   `LengthWidth` bytes can hold, or a decoded length does not fit in `size_t`.
  *
- * `fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>` encodes like
- * `tlv_reader_format_fixed_1byte` and `tlv_writer_format_fixed_1byte`.
- *
  * @tparam TagWidth    Tag width in bytes.
  * @tparam LengthWidth Length field width in bytes.
  * @tparam Order       Byte order of the length field.
+ *
+ * @see tlv_fixed_config_t for the same format chosen at runtime instead of
+ *      compile time (tlv/builtins/fixed/fixed.h).
  */
 template <std::size_t TagWidth, std::size_t LengthWidth, tlv_byte_order_t Order>
 class fixed_format {

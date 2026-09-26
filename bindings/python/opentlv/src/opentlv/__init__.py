@@ -6,10 +6,10 @@ follows the OpenTLV conceptual model: see [Language
 bindings](https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/bindings.md).
 
 Currently bound: `Reader`, `Writer`, `Document`/`Node`, `Entry`, `Tag`,
-`Format`, `LengthSchema`/`StructureSchema` and the `OpenTLVError` exception
-hierarchy. The `codec` submodule binds the one concrete value codec the C API
-exports publicly (EMV amounts); the general Codec concept is otherwise not
-bound.
+`Format`, `FixedFormat`, `LengthSchema`/`StructureSchema` and the
+`OpenTLVError` exception hierarchy. The `codec` submodule binds the one
+concrete value codec the C API exports publicly (EMV amounts); the general
+Codec concept is otherwise not bound.
 """
 
 from opentlv_native import version_string
@@ -36,6 +36,7 @@ from opentlv.error import (
     ValueOverflowError,
     VisitorError,
 )
+from opentlv.fixed_format import FixedFormat
 from opentlv.format import Format
 from opentlv.reader import Reader
 from opentlv.schema import Kind, LengthRule, LengthSchema, StructureRule, StructureSchema
@@ -52,6 +53,7 @@ __all__ = [
     "Node",
     "codec",
     "EndOfBufferError",
+    "FixedFormat",
     "Format",
     "InvalidArgError",
     "InvalidByteOrderError",

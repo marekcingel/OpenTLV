@@ -37,7 +37,21 @@ for entry in Reader::with_format(&data, Format::Ber) {
 }
 ```
 
-`Reader::new` uses the default format (one-byte tag, definite BER length).
+`Reader::new` uses the default format (one-byte tag, definite BER length);
+`Reader::with_format` selects another built-in `Format` (`Ber`, `Cer`, `Der`),
+and `Reader::with_fixed_format` takes a `&FixedFormat` for a
+runtime-configurable tag width, length width and length byte order:
+
+```rust
+use opentlv::{ByteOrder, FixedFormat, Reader};
+
+let format = FixedFormat::new(2, 1, ByteOrder::Big)?;
+for entry in Reader::with_fixed_format(&data, &format) {
+    let entry = entry?;
+    println!("{:02X?}: {:02X?}", entry.tag().as_bytes(), entry.value());
+}
+```
+
 Runnable version with nesting and EMV tag names:
 [reader.rs](https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/reader.rs)
 (`cargo run --example reader`).
@@ -57,7 +71,8 @@ writer.write(&Tag::from_bytes(&[0x50]), b"VISA")?;
 let encoded: &[u8] = writer.written();
 ```
 
-Use `encoded_size` to size the buffer beforehand. Runnable version:
+Use `encoded_size` to size the buffer beforehand, or `encoded_size_fixed`/
+`Writer::with_fixed_format` for a `FixedFormat`. Runnable version:
 [writer.rs](https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/writer.rs)
 (`cargo run --example writer`).
 

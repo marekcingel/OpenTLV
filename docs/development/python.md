@@ -19,16 +19,18 @@ and adapts, see the [language bindings conceptual model](../concepts/bindings.md
 
 `opentlv-native` exposes the linked library's version, stateless
 element-parsing and -encoding calls (`read`, `write`, `encoded_size`)
-parameterized by wire format, `structure_validate` (a serialized rule tree
-in, a pass/fail with diagnostic detail out), `emv_decode_amount`/
+parameterized by wire format, their `*_fixed` counterparts
+(`read_fixed`, `write_fixed`, `encoded_size_fixed`) for the configurable
+fixed-width format (`tlv_fixed_config_t`), `structure_validate` (a serialized
+rule tree in, a pass/fail with diagnostic detail out), `emv_decode_amount`/
 `emv_encode_amount` (the one concrete `tlv_codec_t` the public C API
 exports), and a `document_*`/`node_*` family wrapping `tlv_document_t`
 (as a `PyCapsule`) and `tlv_node_t` (as a plain integer; see
 [relationship to the C API](../guides/python.md#relationship-to-the-c-api)).
 `opentlv` builds `Reader`, `Writer`, `Document`/`Node`, `Entry`, `Tag`,
-`Format`, `LengthSchema`/`StructureSchema`, the `OpenTLVError` exception
-hierarchy and the narrow `codec` submodule on top of it; see [Using OpenTLV
-from Python](../guides/python.md).
+`Format`, `FixedFormat`, `LengthSchema`/`StructureSchema`, the `OpenTLVError`
+exception hierarchy and the narrow `codec` submodule on top of it; see [Using
+OpenTLV from Python](../guides/python.md).
 
 ## Build
 

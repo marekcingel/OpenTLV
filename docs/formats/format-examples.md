@@ -7,7 +7,7 @@ explained lengths are decimal. Trees describe wire fields and logical nesting,
 not allocated C objects.
 
 - [Default TLV](default/README.md#byte-example)
-- [Fixed 1-byte TLV](fixed/README.md#byte-example)
+- [Configurable fixed-width TLV](fixed/configurable.md#wire-layout)
 - [BER-TLV](asn1/ber.md#byte-example)
 - [DER-TLV](asn1/der.md#byte-example)
 - [CER-TLV](asn1/cer.md#byte-example-nested-indefinite-length-containers)

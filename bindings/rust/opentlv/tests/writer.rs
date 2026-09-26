@@ -130,8 +130,8 @@ fn default_format_rejects_multi_byte_tags() {
 }
 
 #[test]
-fn round_trips_fixed_and_der_formats() {
-    for format in [Format::Fixed1Byte, Format::Der] {
+fn round_trips_default_and_der_formats() {
+    for format in [Format::Default, Format::Der] {
         let mut buf = [0u8; 32];
         let mut writer = Writer::with_format(&mut buf, format);
         writer.write(&tag(&[0x04]), &[1, 2, 3]).unwrap();

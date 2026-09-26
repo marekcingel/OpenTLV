@@ -5,7 +5,7 @@
  */
 #include <inttypes.h>
 #include <stdio.h>
-#include "tlv/builtins/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed.h"
 #include "tlv/codec/codec.h"
 #include "tlv/endian.h"
 #include "tlv/length.h"
@@ -52,6 +52,14 @@ static tlv_codec_result_t encode_u32(const void* context, const void* value, siz
 }
 
 int main(void) {
+    /* One tag byte and one length byte; config must outlive its readers and writers. */
+    const tlv_fixed_config_t config = {
+        .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
+    tlv_reader_format_t reader_format;
+    tlv_writer_format_t writer_format;
+    CHECK(tlv_fixed_reader_format_init(&reader_format, &config));
+    CHECK(tlv_fixed_writer_format_init(&writer_format, &config));
+
     const tlv_codec_t codec = {NULL, decode_u32, encode_u32};
     const uint32_t    number = UINT32_C(0x12345678);
     uint32_t          decoded;
@@ -62,9 +70,9 @@ int main(void) {
     CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), NULL, 0, &required));
     printf("Codec needs %zu bytes\n", required);
     CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), raw, sizeof(raw), &written));
-    CHECK(tlv_write(encoded, sizeof(encoded), &tlv_writer_format_fixed_1byte, TLV_TAG(3), raw,
-                    written, &encoded_size));
-    CHECK(tlv_read(encoded, encoded_size, &tlv_reader_format_fixed_1byte, &view, &consumed));
+    CHECK(tlv_write(encoded, sizeof(encoded), &writer_format, TLV_TAG(3), raw, written,
+                    &encoded_size));
+    CHECK(tlv_read(encoded, encoded_size, &reader_format, &view, &consumed));
     {
         size_t value_length;
         CHECK(tlv_length_to_size(view.value.length, &value_length));

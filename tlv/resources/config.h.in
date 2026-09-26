@@ -15,7 +15,7 @@
  */
 
 #cmakedefine01 OPENTLV_FORMAT_DEFAULT
-#cmakedefine01 OPENTLV_FORMAT_FIXED_1BYTE
+#cmakedefine01 OPENTLV_FORMAT_FIXED
 #cmakedefine01 OPENTLV_FORMAT_BLUETOOTH_LTV
 #cmakedefine01 OPENTLV_FORMAT_ASN1
 #cmakedefine01 OPENTLV_FORMAT_BER
@@ -32,7 +32,7 @@ extern "C" {
  * compiled into this build of the library, 0 otherwise. Useful when the
  * compiled configuration is not known at the consumer's compile time. */
 TLV_API int tlv_config_format_default(void);
-TLV_API int tlv_config_format_fixed_1byte(void);
+TLV_API int tlv_config_format_fixed(void);
 TLV_API int tlv_config_format_bluetooth_ltv(void);
 TLV_API int tlv_config_format_asn1(void);
 TLV_API int tlv_config_format_ber(void);

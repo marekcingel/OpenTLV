@@ -91,20 +91,13 @@ fn reads_ber_multi_byte_tags() {
 }
 
 #[test]
-fn reads_der_and_fixed_formats() {
+fn reads_der_format() {
     let der = [0x04, 0x02, 0xCA, 0xFE];
     let entry = Reader::with_format(&der, Format::Der)
         .next()
         .unwrap()
         .unwrap();
     assert_eq!(entry.value(), &[0xCA, 0xFE]);
-
-    let fixed = [0x05, 0x01, 0x99];
-    let entry = Reader::with_format(&fixed, Format::Fixed1Byte)
-        .next()
-        .unwrap()
-        .unwrap();
-    assert_eq!(entry.value(), &[0x99]);
 }
 
 #[test]

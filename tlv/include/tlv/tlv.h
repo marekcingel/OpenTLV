@@ -28,8 +28,8 @@
 #if OPENTLV_FORMAT_DEFAULT
 #include "tlv/builtins/fixed/default.h"
 #endif
-#if OPENTLV_FORMAT_FIXED_1BYTE
-#include "tlv/builtins/fixed/fixed_1byte.h"
+#if OPENTLV_FORMAT_FIXED
+#include "tlv/builtins/fixed/fixed.h"
 #endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"

@@ -1,5 +1,5 @@
+﻿#include "controlled_format.h"
 #include "tlv/builtins/fixed/default.h"
-#include "tlv/builtins/fixed/fixed_1byte.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
@@ -12,20 +12,18 @@ const tlv_tag_t tag = TLV_TAG(0xFF);
 }
 
 TEST(Integration_Tlv_Writer, SizesWireEncodingAndRoundTripsAtLengthBoundaries) {
-    for (const auto* format : {&tlv_writer_format_fixed_1byte, &tlv_writer_format_default}) {
-        const auto* reader_format = format == &tlv_writer_format_fixed_1byte
-                                        ? &tlv_reader_format_fixed_1byte
-                                        : &tlv_reader_format_default;
+    for (const auto* format : {&controlled::writer, &tlv_writer_format_default}) {
+        const auto* reader_format =
+            format == &controlled::writer ? &controlled::reader : &tlv_reader_format_default;
         for (size_t length : {0u, 1u, 127u, 128u, 255u, 256u, 65535u}) {
-            if (format == &tlv_writer_format_fixed_1byte && length > 255) continue;
+            if (format == &controlled::writer && length > 255) continue;
             SCOPED_TRACE(length);
             std::vector<uint8_t> value(length);
             for (size_t i = 0; i < length; ++i) value[i] = static_cast<uint8_t>(i);
             size_t required = 0;
             ASSERT_EQ(TLV_OK, tlv_encoded_size(tag, length, format, &required));
-            const size_t length_bytes = format == &tlv_writer_format_fixed_1byte || length < 128
-                                            ? 1
-                                            : (length <= 255 ? 2 : 3);
+            const size_t length_bytes =
+                format == &controlled::writer || length < 128 ? 1 : (length <= 255 ? 2 : 3);
             EXPECT_EQ(1 + length_bytes + length, required);
             std::vector<uint8_t> data(required + 1, 0xEE);
             size_t               written = 99;

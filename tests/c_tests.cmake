@@ -42,7 +42,7 @@ set(SOURCES
     builtins/emv/tag_c_test.c
     builtins/bluetooth/format_bluetooth_ltv_test.cpp
     builtins/bluetooth/format_bluetooth_ltv_conformance_test.cpp
-    builtins/fixed/format_fixed_1byte_test.cpp
+    builtins/fixed/format_fixed_test.cpp
     builtins/fixed/dhcp_option_tests.cpp
 )
 
@@ -55,12 +55,12 @@ endforeach()
 
 # Tests that name an optional component follow the same feature selection.
 if(test_group STREQUAL "integration")
-    if(NOT (OPENTLV_FORMAT_FIXED_1BYTE))
+    if(NOT (OPENTLV_FORMAT_FIXED))
         list(REMOVE_ITEM SOURCES codec/codec_test.cpp)
     endif()
 endif()
 if(test_group STREQUAL "integration")
-    if(NOT (OPENTLV_FORMAT_FIXED_1BYTE AND OPENTLV_FORMAT_BER))
+    if(NOT (OPENTLV_FORMAT_FIXED AND OPENTLV_FORMAT_BER))
         list(REMOVE_ITEM SOURCES copy_test.cpp)
     endif()
 endif()
@@ -82,25 +82,25 @@ if(NOT (OPENTLV_FORMAT_BER))
     list(REMOVE_ITEM SOURCES builtins/asn1/format_ber_test.cpp builtins/asn1/asn1_codec_test.cpp
                                  schema/schema_report_test.cpp)
 endif()
-if(NOT (OPENTLV_FORMAT_FIXED_1BYTE))
-    list(REMOVE_ITEM SOURCES builtins/fixed/format_fixed_1byte_test.cpp)
+if(NOT (OPENTLV_FORMAT_FIXED))
+    list(REMOVE_ITEM SOURCES builtins/fixed/format_fixed_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_BLUETOOTH_LTV))
     list(REMOVE_ITEM SOURCES builtins/bluetooth/format_bluetooth_ltv_test.cpp
                                  builtins/bluetooth/format_bluetooth_ltv_conformance_test.cpp)
 endif()
 if(test_group STREQUAL "integration")
-    if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED_1BYTE))
+    if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED))
         list(REMOVE_ITEM SOURCES reader/reader_test.cpp)
     endif()
 endif()
 if(test_group STREQUAL "integration")
-    if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED_1BYTE))
+    if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED))
         list(REMOVE_ITEM SOURCES reader/scanner_test.cpp)
     endif()
 endif()
 if(test_group STREQUAL "integration")
-    if(NOT (OPENTLV_FORMAT_FIXED_1BYTE))
+    if(NOT (OPENTLV_FORMAT_FIXED))
         list(REMOVE_ITEM SOURCES schema/schema_test.cpp)
     endif()
 endif()
@@ -108,12 +108,12 @@ if(NOT (OPENTLV_FORMAT_DEFAULT))
     list(REMOVE_ITEM SOURCES test_tlv.cpp)
 endif()
 if(test_group STREQUAL "integration")
-    if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED_1BYTE))
+    if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED))
         list(REMOVE_ITEM SOURCES reader/walker_test.cpp)
     endif()
 endif()
 if(test_group STREQUAL "integration")
-    if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED_1BYTE))
+    if(NOT (OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED))
         list(REMOVE_ITEM SOURCES writer/writer_test.cpp)
     endif()
 endif()
@@ -130,6 +130,7 @@ add_executable(${test_target}
 target_include_directories(${test_target}
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${OpenTLV_SOURCE_DIR}/tests
 )
 
 target_link_libraries(${test_target} PRIVATE

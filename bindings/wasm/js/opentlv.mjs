@@ -10,7 +10,7 @@
 import createOpenTLV from "./opentlv-core.js";
 
 /** Formats the module can parse (a build may compile out some of them). */
-export const FORMATS = Object.freeze(["default", "fixed-1byte", "bluetooth-ltv", "ber", "der"]);
+export const FORMATS = Object.freeze(["default", "fixed", "bluetooth-ltv", "ber", "der"]);
 
 /** Profiles that annotate elements with known tag names ("none" adds nothing). */
 export const PROFILES = Object.freeze(["none", "emv"]);
@@ -61,10 +61,15 @@ export async function loadOpenTLV(moduleOptions = {}) {
      * An element spans `headerSize + length` bytes starting at `offset`.
      *
      * @param {Uint8Array} bytes
-     * @param {{format?: string, profile?: string}} [options] `format` defaults to
-     *   "default"; `profile` ("none" or "emv") defaults to "none".
+     * @param {{format?: string, profile?: string, fixedTagSize?: number,
+     *   fixedLengthSize?: number, fixedByteOrder?: "big"|"little"}} [options] `format`
+     *   defaults to "default"; `profile` ("none" or "emv") defaults to "none".
+     *   `fixedTagSize`, `fixedLengthSize` (1-8) and `fixedByteOrder` configure
+     *   `format: "fixed"`'s tag width, length width and length byte order
+     *   (`tlv_fixed_config_t`); ignored for every other format.
      */
-    parse(bytes, { format = "default", profile = "none" } = {}) {
+    parse(bytes, { format = "default", profile = "none", fixedTagSize = 1, fixedLengthSize = 1,
+                  fixedByteOrder = "big" } = {}) {
       if (!(bytes instanceof Uint8Array)) throw new TypeError("bytes must be a Uint8Array");
       const formatSize = module.lengthBytesUTF8(format) + 1;
       const profileSize = module.lengthBytesUTF8(profile) + 1;
@@ -79,7 +84,8 @@ export async function loadOpenTLV(moduleOptions = {}) {
         module.HEAPU8.set(bytes, input);
         module.stringToUTF8(format, name, formatSize);
         module.stringToUTF8(profile, profileName, profileSize);
-        result = module._opentlv_wasm_parse(input, bytes.length, name, profileName);
+        result = module._opentlv_wasm_parse(input, bytes.length, name, profileName, fixedTagSize,
+                                            fixedLengthSize, fixedByteOrder === "big" ? 1 : 0);
         if (!result) throw new Error("OpenTLV: out of memory");
         const json = module.UTF8ToString(
           module._opentlv_wasm_result_json(result),

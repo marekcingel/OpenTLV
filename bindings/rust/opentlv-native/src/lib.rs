@@ -224,6 +224,18 @@ pub struct tlv_reader_t {
     pub pos: usize,
 }
 
+/// Configuration for the configurable fixed-width format (`tlv_fixed_config_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_fixed_config_t {
+    /// Tag width in bytes; must be at least 1.
+    pub tag_size: usize,
+    /// Length field width in bytes; must be between 1 and 8.
+    pub length_size: usize,
+    /// Byte order of the length field; `TLV_BYTE_ORDER_BIG_ENDIAN` or `TLV_BYTE_ORDER_LITTLE_ENDIAN`.
+    pub order: tlv_byte_order_t,
+}
+
 extern "C" {
     /// Default format: one-byte tag, definite BER length.
     pub static tlv_reader_format_default: tlv_reader_format_t;
@@ -233,8 +245,6 @@ extern "C" {
     pub static tlv_reader_format_cer: tlv_reader_format_t;
     /// DER format.
     pub static tlv_reader_format_der: tlv_reader_format_t;
-    /// Fixed one-byte tag and one-byte length format.
-    pub static tlv_reader_format_fixed_1byte: tlv_reader_format_t;
 
     /// Default writer format: one-byte tag, definite BER length.
     pub static tlv_writer_format_default: tlv_writer_format_t;
@@ -244,8 +254,6 @@ extern "C" {
     pub static tlv_writer_format_cer: tlv_writer_format_t;
     /// DER writer format.
     pub static tlv_writer_format_der: tlv_writer_format_t;
-    /// Fixed one-byte tag and one-byte length writer format.
-    pub static tlv_writer_format_fixed_1byte: tlv_writer_format_t;
 
     /// Computes the encoded size of an element without accessing value bytes.
     pub fn tlv_encoded_size(
@@ -282,6 +290,19 @@ extern "C" {
     pub fn tlv_reader_at_end(reader: *const tlv_reader_t) -> c_int;
     /// Reads the next element and advances the reader.
     pub fn tlv_reader_next(reader: *mut tlv_reader_t, out_entry: *mut tlv_view_t) -> tlv_result_t;
+
+    /// Initializes a reader format for the configurable fixed-width encoding;
+    /// stores `config`'s address as the format's context.
+    pub fn tlv_fixed_reader_format_init(
+        format: *mut tlv_reader_format_t,
+        config: *const tlv_fixed_config_t,
+    ) -> tlv_result_t;
+    /// Initializes a writer format for the configurable fixed-width encoding;
+    /// stores `config`'s address as the format's context.
+    pub fn tlv_fixed_writer_format_init(
+        format: *mut tlv_writer_format_t,
+        config: *const tlv_fixed_config_t,
+    ) -> tlv_result_t;
 
     /// Returns the library version as a NUL-terminated static string, for example `"0.6.0"`.
     pub fn tlv_version_string() -> *const c_char;

@@ -8,4 +8,3 @@ def test_values_match_what_the_native_module_expects():
     assert Format.BER == 1
     assert Format.CER == 2
     assert Format.DER == 3
-    assert Format.FIXED_1BYTE == 4

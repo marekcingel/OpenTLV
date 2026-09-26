@@ -1,5 +1,5 @@
+﻿#include "controlled_format.h"
 #include "tlv/builtins/fixed/default.h"
-#include "tlv/builtins/fixed/fixed_1byte.h"
 #include "tlv/reader/walker.h"
 #include <gtest/gtest.h>
 
@@ -22,8 +22,7 @@ tlv_visit_result_t collect(const tlv_view_t* view, void* context) {
 TEST(Integration_Tlv_Walker, VisitsSequentialElementsAndBorrowsValues) {
     const uint8_t data[] = {1, 2, 0xAB, 0xCD, 2, 0, 3, 1, 0xEF};
     Visits        visits;
-    ASSERT_EQ(TLV_OK,
-              tlv_walk(data, sizeof(data), &tlv_reader_format_fixed_1byte, collect, &visits));
+    ASSERT_EQ(TLV_OK, tlv_walk(data, sizeof(data), &controlled::reader, collect, &visits));
     ASSERT_EQ(3u, visits.count);
     for (size_t i = 0; i < visits.count; ++i) {
         EXPECT_EQ(1u, visits.views[i].tag.size);
@@ -44,7 +43,7 @@ TEST(Integration_Tlv_Walker, StopsOrFailsBeforeReadingMalformedTail) {
         visits.finish_after = 2;
         visits.result = result;
         EXPECT_EQ(result == TLV_VISIT_STOP ? TLV_OK : TLV_ERR_VISITOR,
-                  tlv_walk(data, sizeof(data), &tlv_reader_format_fixed_1byte, collect, &visits));
+                  tlv_walk(data, sizeof(data), &controlled::reader, collect, &visits));
         EXPECT_EQ(2u, visits.count);
     }
     EXPECT_STREQ("visitor error", tlv_strerror(TLV_ERR_VISITOR));
@@ -56,7 +55,7 @@ TEST(Integration_Tlv_Walker, PropagatesTruncatedInputAfterSuccessfulVisits) {
         SCOPED_TRACE(size);
         Visits visits;
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                  tlv_walk(data, size, &tlv_reader_format_fixed_1byte, collect, &visits));
+                  tlv_walk(data, size, &controlled::reader, collect, &visits));
         EXPECT_EQ(1u, visits.count);
     }
 }

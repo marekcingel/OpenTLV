@@ -91,7 +91,7 @@ so a candidate's "components" show which layers stay separate.
 ```text
 OpenTLV
 ├── Implemented (built in)
-│   ├── [x] Default TLV, Fixed 1-byte TLV, Bluetooth LTV, configurable fixed-width (C++)
+│   ├── [x] Default TLV, Bluetooth LTV, configurable fixed-width (C and C++)
 │   ├── [x] Application-defined callbacks
 │   ├── [x] ASN.1 framing: BER-TLV, DER-TLV (+ strict values, schemas), CER-TLV
 │   └── [x] Profile: EMV Contact Book 3 v4.4 (dictionary, schemas, codecs)

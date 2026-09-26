@@ -417,8 +417,7 @@ impl StructureSchema {
     ///
     /// Values are never decoded. Which tags are constructed is decided by
     /// `format`: BER, CER and DER nest by their constructed bit, while
-    /// [`Format::Default`] and [`Format::Fixed1Byte`] have no nesting, so every
-    /// value is opaque.
+    /// [`Format::Default`] has no nesting, so every value is opaque.
     ///
     /// # Errors
     ///

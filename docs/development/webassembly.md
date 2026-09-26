@@ -50,9 +50,15 @@ const result = opentlv.parse(
 );
 ```
 
-`parse` takes a `Uint8Array`, a `format` (`default`, `fixed-1byte`, `bluetooth-ltv`,
+`parse` takes a `Uint8Array`, a `format` (`default`, `fixed`, `bluetooth-ltv`,
 `ber` or `der`; default `default`) and optionally a `profile` (`none` or `emv`; default
 `none`) and returns:
+
+For `format: "fixed"`, `fixedTagSize` (default `1`), `fixedLengthSize` (1-8, default
+`1`) and `fixedByteOrder` (`"big"` or `"little"`, default `"big"`) configure the
+configurable fixed-width format's tag width, length width and length byte order
+(`tlv_fixed_config_t`); they are ignored for every other format. An invalid width
+is reported through `result.error`, like any other parse error.
 
 ```json
 {

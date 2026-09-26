@@ -195,15 +195,26 @@ static tlv_visit_result_t emit_element(const tlv_view_t* view, size_t depth, siz
     return w->out.failed ? TLV_VISIT_ERROR : TLV_VISIT_CONTINUE;
 }
 
-static const tlv_reader_format_t* select_format(const char* name, int* ber, int* der) {
+static const tlv_reader_format_t* select_format(const char* name, int* ber, int* der,
+                                                size_t fixed_tag_size, size_t fixed_length_size,
+                                                int fixed_big_endian) {
     *ber = 0;
     *der = 0;
     if (!name) return NULL;
 #if OPENTLV_FORMAT_DEFAULT
     if (!strcmp(name, "default")) return &tlv_reader_format_default;
 #endif
-#if OPENTLV_FORMAT_FIXED_1BYTE
-    if (!strcmp(name, "fixed-1byte")) return &tlv_reader_format_fixed_1byte;
+#if OPENTLV_FORMAT_FIXED
+    // Configured by the caller's fixed_tag_size/fixed_length_size/fixed_big_endian.
+    if (!strcmp(name, "fixed")) {
+        static tlv_fixed_config_t  config;
+        static tlv_reader_format_t format;
+        config.tag_size = fixed_tag_size;
+        config.length_size = fixed_length_size;
+        config.order = fixed_big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
+        if (tlv_fixed_reader_format_init(&format, &config) != TLV_OK) return NULL;
+        return &format;
+    }
 #endif
 #if OPENTLV_FORMAT_BLUETOOTH_LTV
     if (!strcmp(name, "bluetooth-ltv")) return &tlv_reader_format_bluetooth_ltv;
@@ -235,7 +246,8 @@ static void append_error(builder_t* b, tlv_result_t code, size_t offset) {
 }
 
 opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format,
-                                          const char* profile) {
+                                          const char* profile, size_t fixed_tag_size,
+                                          size_t fixed_length_size, int fixed_big_endian) {
     opentlv_wasm_result_t*     result = (opentlv_wasm_result_t*)calloc(1, sizeof *result);
     const tlv_reader_format_t* reader;
     writer_context_t*          w;
@@ -248,7 +260,7 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
         free(result);
         return NULL;
     }
-    reader = select_format(format, &ber, &der);
+    reader = select_format(format, &ber, &der, fixed_tag_size, fixed_length_size, fixed_big_endian);
     w->ber = ber;
     w->input = data;
 

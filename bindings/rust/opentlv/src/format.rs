@@ -22,19 +22,11 @@ pub enum Format {
     Cer,
     /// Distinguished Encoding Rules.
     Der,
-    /// One-byte tag and one-byte length.
-    Fixed1Byte,
 }
 
 impl Format {
     /// Every supported format.
-    pub const ALL: [Format; 5] = [
-        Format::Default,
-        Format::Ber,
-        Format::Cer,
-        Format::Der,
-        Format::Fixed1Byte,
-    ];
+    pub const ALL: [Format; 4] = [Format::Default, Format::Ber, Format::Cer, Format::Der];
 
     /// Returns the lowercase name of the format, accepted by [`FromStr`].
     pub fn name(self) -> &'static str {
@@ -43,7 +35,6 @@ impl Format {
             Format::Ber => "ber",
             Format::Cer => "cer",
             Format::Der => "der",
-            Format::Fixed1Byte => "fixed-1byte",
         }
     }
 
@@ -54,7 +45,7 @@ impl Format {
             Format::Ber => Some(native::tlv_ber_is_constructed),
             Format::Cer => Some(native::tlv_cer_is_constructed),
             Format::Der => Some(native::tlv_der_is_constructed),
-            Format::Default | Format::Fixed1Byte => None,
+            Format::Default => None,
         }
     }
 
@@ -69,7 +60,6 @@ impl Format {
                 Format::Ber => ptr::addr_of!(native::tlv_reader_format_ber),
                 Format::Cer => ptr::addr_of!(native::tlv_reader_format_cer),
                 Format::Der => ptr::addr_of!(native::tlv_reader_format_der),
-                Format::Fixed1Byte => ptr::addr_of!(native::tlv_reader_format_fixed_1byte),
             }
         }
     }
@@ -85,7 +75,6 @@ impl Format {
                 Format::Ber => ptr::addr_of!(native::tlv_writer_format_ber),
                 Format::Cer => ptr::addr_of!(native::tlv_writer_format_cer),
                 Format::Der => ptr::addr_of!(native::tlv_writer_format_der),
-                Format::Fixed1Byte => ptr::addr_of!(native::tlv_writer_format_fixed_1byte),
             }
         }
     }

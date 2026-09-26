@@ -10,7 +10,7 @@
 #include <tlv/builtins/asn1/der.h>
 #include <tlv/builtins/emv/emv_codec.h>
 #include <tlv/builtins/fixed/default.h>
-#include <tlv/builtins/fixed/fixed_1byte.h>
+#include <tlv/builtins/fixed/fixed.h>
 #include <tlv/codec/codec.h>
 #include <tlv/document/document.h>
 #include <tlv/error.h>
@@ -24,14 +24,13 @@
 static PyObject* opentlv_native_error = NULL;
 static PyObject* opentlv_native_codec_error = NULL;
 
-/* Mirrors opentlv.Format: 0 default, 1 ber, 2 cer, 3 der, 4 fixed-1-byte. */
+/* Mirrors opentlv.Format: 0 default, 1 ber, 2 cer, 3 der. */
 static const tlv_reader_format_t* reader_format_for(int format_id) {
     switch (format_id) {
         case 0: return &tlv_reader_format_default;
         case 1: return &tlv_reader_format_ber;
         case 2: return &tlv_reader_format_cer;
         case 3: return &tlv_reader_format_der;
-        case 4: return &tlv_reader_format_fixed_1byte;
         default: return NULL;
     }
 }
@@ -42,12 +41,11 @@ static const tlv_writer_format_t* writer_format_for(int format_id) {
         case 1: return &tlv_writer_format_ber;
         case 2: return &tlv_writer_format_cer;
         case 3: return &tlv_writer_format_der;
-        case 4: return &tlv_writer_format_fixed_1byte;
         default: return NULL;
     }
 }
 
-/* The default and fixed-1-byte formats have no nesting: every value is opaque. */
+/* The default format has no nesting: every value is opaque. */
 static tlv_is_constructed_fn is_constructed_for(int format_id) {
     switch (format_id) {
         case 1: return tlv_ber_is_constructed;
@@ -1063,6 +1061,193 @@ static PyObject* opentlv_native_encoded_size(PyObject* module, PyObject* args) {
     return PyLong_FromSize_t(size);
 }
 
+/* Builds and validates a tlv_fixed_config_t from Python-parsed arguments.
+ * Returns 1 on success; on failure a ValueError is set and *out is unusable. */
+static int fixed_config_from_args(Py_ssize_t tag_size, Py_ssize_t length_size, int big_endian,
+                                  tlv_fixed_config_t* out) {
+    if (tag_size < 1) {
+        PyErr_SetString(PyExc_ValueError, "tag_size must be at least 1");
+        return 0;
+    }
+    if (length_size < 1 || length_size > 8) {
+        PyErr_SetString(PyExc_ValueError, "length_size must be between 1 and 8");
+        return 0;
+    }
+    out->tag_size = (size_t)tag_size;
+    out->length_size = (size_t)length_size;
+    out->order = big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
+    return 1;
+}
+
+/* read_fixed(data, offset, tag_size, length_size, big_endian)
+ *     -> (tag: bytes, value_offset: int, value_length: int, consumed: int)
+ *
+ * Like read(), but for the configurable fixed-width format: tag_size and
+ * length_size are byte widths (length_size 1..8), and big_endian selects the
+ * length field's byte order. Raises opentlv_native.Error on failure. */
+static PyObject* opentlv_native_read_fixed(PyObject* module, PyObject* args) {
+    (void)module;
+    Py_buffer  buffer;
+    Py_ssize_t offset, tag_size, length_size;
+    int        big_endian;
+    if (!PyArg_ParseTuple(args, "y*nnnp", &buffer, &offset, &tag_size, &length_size, &big_endian)) {
+        return NULL;
+    }
+    tlv_fixed_config_t config;
+    if (!fixed_config_from_args(tag_size, length_size, big_endian, &config)) {
+        PyBuffer_Release(&buffer);
+        return NULL;
+    }
+    tlv_reader_format_t format;
+    tlv_result_t        init_code = tlv_fixed_reader_format_init(&format, &config);
+    if (init_code != TLV_OK) {
+        PyBuffer_Release(&buffer);
+        raise_code_only(init_code);
+        return NULL;
+    }
+    if (offset < 0 || offset > buffer.len) {
+        PyBuffer_Release(&buffer);
+        PyErr_SetString(PyExc_ValueError, "offset is out of range for data");
+        return NULL;
+    }
+
+    const uint8_t*          base = (const uint8_t*)buffer.buf;
+    size_t                  size = (size_t)(buffer.len - offset);
+    tlv_view_t              entry;
+    size_t                  consumed = 0;
+    tlv_reader_diagnostic_t diag;
+    tlv_reader_diagnostic_init(&diag);
+
+    tlv_result_t code = tlv_read_diag(base + offset, size, &format, &entry, &consumed, &diag);
+    if (code != TLV_OK) {
+        PyBuffer_Release(&buffer);
+        raise_reader_error(code, &diag);
+        return NULL;
+    }
+
+    size_t value_length = 0;
+    code = tlv_length_to_size(entry.value.length, &value_length);
+    if (code != TLV_OK) {
+        PyBuffer_Release(&buffer);
+        raise_code_only(code);
+        return NULL;
+    }
+    Py_ssize_t value_offset =
+        value_length == 0 ? 0 : (Py_ssize_t)((const uint8_t*)entry.value.data - base);
+
+    PyObject* tag_obj =
+        PyBytes_FromStringAndSize((const char*)entry.tag.data, (Py_ssize_t)entry.tag.size);
+    PyBuffer_Release(&buffer);
+    if (tag_obj == NULL) {
+        return NULL;
+    }
+    PyObject* consumed_obj = PyLong_FromSize_t(consumed);
+    if (consumed_obj == NULL) {
+        Py_DECREF(tag_obj);
+        return NULL;
+    }
+
+    return Py_BuildValue("(NnnN)", tag_obj, value_offset, (Py_ssize_t)value_length, consumed_obj);
+}
+
+/* write_fixed(buffer, offset, tag, value, tag_size, length_size, big_endian) -> written: int
+ *
+ * Like write(), but for the configurable fixed-width format. Raises
+ * opentlv_native.Error on failure, including insufficient capacity. */
+static PyObject* opentlv_native_write_fixed(PyObject* module, PyObject* args) {
+    (void)module;
+    Py_buffer  buffer, tag_buf, value_buf;
+    Py_ssize_t offset, tag_size, length_size;
+    int        big_endian;
+    if (!PyArg_ParseTuple(args, "w*ny*y*nnp", &buffer, &offset, &tag_buf, &value_buf, &tag_size,
+                          &length_size, &big_endian)) {
+        return NULL;
+    }
+    tlv_fixed_config_t config;
+    if (!fixed_config_from_args(tag_size, length_size, big_endian, &config)) {
+        PyBuffer_Release(&buffer);
+        PyBuffer_Release(&tag_buf);
+        PyBuffer_Release(&value_buf);
+        return NULL;
+    }
+    tlv_writer_format_t format;
+    tlv_result_t        init_code = tlv_fixed_writer_format_init(&format, &config);
+    if (init_code != TLV_OK) {
+        PyBuffer_Release(&buffer);
+        PyBuffer_Release(&tag_buf);
+        PyBuffer_Release(&value_buf);
+        raise_code_only(init_code);
+        return NULL;
+    }
+    if (offset < 0 || offset > buffer.len) {
+        PyBuffer_Release(&buffer);
+        PyBuffer_Release(&tag_buf);
+        PyBuffer_Release(&value_buf);
+        PyErr_SetString(PyExc_ValueError, "offset is out of range for buffer");
+        return NULL;
+    }
+
+    tlv_tag_t               tag = tlv_tag((const uint8_t*)tag_buf.buf, (size_t)tag_buf.len);
+    uint8_t*                dest = (uint8_t*)buffer.buf + offset;
+    size_t                  capacity = (size_t)(buffer.len - offset);
+    size_t                  written = 0;
+    tlv_writer_diagnostic_t diag;
+    tlv_writer_diagnostic_init(&diag);
+
+    tlv_result_t code = tlv_write_diag(dest, capacity, &format, tag, (const uint8_t*)value_buf.buf,
+                                       (size_t)value_buf.len, &written, &diag);
+    PyBuffer_Release(&tag_buf);
+    PyBuffer_Release(&value_buf);
+    PyBuffer_Release(&buffer);
+    if (code != TLV_OK) {
+        raise_writer_error(code, &diag);
+        return NULL;
+    }
+    return PyLong_FromSize_t(written);
+}
+
+/* encoded_size_fixed(tag, value_length, tag_size, length_size, big_endian) -> int
+ *
+ * Like encoded_size(), but for the configurable fixed-width format. Raises
+ * opentlv_native.Error on failure. */
+static PyObject* opentlv_native_encoded_size_fixed(PyObject* module, PyObject* args) {
+    (void)module;
+    Py_buffer  tag_buf;
+    Py_ssize_t value_length, tag_size, length_size;
+    int        big_endian;
+    if (!PyArg_ParseTuple(args, "y*nnnp", &tag_buf, &value_length, &tag_size, &length_size,
+                          &big_endian)) {
+        return NULL;
+    }
+    tlv_fixed_config_t config;
+    if (!fixed_config_from_args(tag_size, length_size, big_endian, &config)) {
+        PyBuffer_Release(&tag_buf);
+        return NULL;
+    }
+    tlv_writer_format_t format;
+    tlv_result_t        init_code = tlv_fixed_writer_format_init(&format, &config);
+    if (init_code != TLV_OK) {
+        PyBuffer_Release(&tag_buf);
+        raise_code_only(init_code);
+        return NULL;
+    }
+    if (value_length < 0) {
+        PyBuffer_Release(&tag_buf);
+        PyErr_SetString(PyExc_ValueError, "value_length must not be negative");
+        return NULL;
+    }
+
+    tlv_tag_t    tag = tlv_tag((const uint8_t*)tag_buf.buf, (size_t)tag_buf.len);
+    size_t       size = 0;
+    tlv_result_t code = tlv_encoded_size(tag, (size_t)value_length, &format, &size);
+    PyBuffer_Release(&tag_buf);
+    if (code != TLV_OK) {
+        raise_code_only(code);
+        return NULL;
+    }
+    return PyLong_FromSize_t(size);
+}
+
 static PyMethodDef opentlv_native_methods[] = {
     {"version_string", opentlv_native_version_string, METH_NOARGS,
      "Return the version of the linked OpenTLV C library, for example \"0.6.0\"."},
@@ -1074,6 +1259,13 @@ static PyMethodDef opentlv_native_methods[] = {
      "Encode one element at an offset in a writable buffer using a wire format."},
     {"encoded_size", opentlv_native_encoded_size, METH_VARARGS,
      "Compute the encoded size of an element without writing it."},
+    {"read_fixed", opentlv_native_read_fixed, METH_VARARGS,
+     "Parse one element at an offset in a buffer using the configurable fixed-width format."},
+    {"write_fixed", opentlv_native_write_fixed, METH_VARARGS,
+     "Encode one element at an offset in a writable buffer using the configurable "
+     "fixed-width format."},
+    {"encoded_size_fixed", opentlv_native_encoded_size_fixed, METH_VARARGS,
+     "Compute the encoded size of an element in the configurable fixed-width format."},
     {"structure_validate", opentlv_native_structure_validate, METH_VARARGS,
      "Validate a buffer against a serialized structural schema."},
     {"codec_strerror", opentlv_native_codec_strerror, METH_VARARGS,

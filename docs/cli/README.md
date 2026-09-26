@@ -36,7 +36,7 @@ otlv --help
 otlv --version
 otlv formats
 otlv dump --format ber --hex "E1 03 5A 01 12" --tree
-otlv dump --format fixed-1byte --input sample.bin
+otlv dump --format fixed --input sample.bin
 otlv dump --format bluetooth-ltv --hex "02 01 06 03 09 48 69"
 otlv validate --format der --input sample.der
 otlv validate --format ber --input -
@@ -66,9 +66,20 @@ The same hex syntax applies to files and stdin, including CR/LF between pairs.
 read without buffering the encoded text. It does not limit the number of
 whitespace characters read from a stream.
 
-`formats` lists only enabled formats: `default`, `fixed-1byte`, `ber`,
+`formats` lists only enabled formats: `default`, `fixed`, `ber`,
 `der`, and `bluetooth-ltv`. Existing library CMake component options control availability. Unknown
 or disabled formats fail before reading input. No format detection is performed.
+
+`--format fixed` defaults to one tag byte and one big-endian length byte, matching
+`tlv_fixed_config_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}`. `--fixed-tag-size N` (any positive
+byte count), `--fixed-length-size N` (1 to 8) and `--fixed-byte-order big|little` configure it;
+all three require `--format fixed` and are otherwise rejected as invalid usage. For example:
+
+```sh
+otlv dump --format fixed --fixed-tag-size 2 --fixed-length-size 1 --hex "0102 03 AABBCC"
+otlv encode --format fixed --fixed-tag-size 2 --fixed-length-size 2 --fixed-byte-order little \
+    --tag 0102 --value AABBCC
+```
 
 ### Output
 
@@ -263,7 +274,7 @@ document, unknown or disabled formats, and options `encode` does not take exit
 with code 2; `encode` takes `--format`, `--tag`, `--value`, `--input`,
 `--output-encoding`, `--output-file`, `--max-input-size`, `--max-depth` and
 `--max-elements`. An element the writer rejects (an invalid BER tag, or a value
-too long for `fixed-1byte`) reports `otlv: cannot encode element N: <reason>`
+too long for `fixed`) reports `otlv: cannot encode element N: <reason>`
 and exits with code 1; N counts elements from zero in document order. Exceeded
 limits and unreadable or unwritable files exit with code 3.
 
@@ -544,7 +555,7 @@ $ echo $?
 
 `validate` is silent on success. Both commands consume all concatenated
 elements; empty input succeeds and invalid trailing bytes fail. Default,
-fixed-1byte and bluetooth-ltv values are opaque. BER uses constructed-tag recognition; DER uses
+fixed and bluetooth-ltv values are opaque. BER uses constructed-tag recognition; DER uses
 the existing structural validator. This does not provide full ASN.1 value
 validation or canonical SET/SET OF ordering; EMV structural profile
 validation is available via `--profile emv`, above.

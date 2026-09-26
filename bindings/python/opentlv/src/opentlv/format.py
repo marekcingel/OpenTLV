@@ -23,6 +23,3 @@ class Format(enum.IntEnum):
 
     DER = 3
     """Distinguished Encoding Rules."""
-
-    FIXED_1BYTE = 4
-    """One-byte tag and one-byte length."""

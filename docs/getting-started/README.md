@@ -40,8 +40,8 @@ by adding its directory to `PATH` on Windows or `LD_LIBRARY_PATH`/rpath on Linux
 
 ## Quick start
 
-The program below writes `01 03 AA BB CC` with the fixed 1-byte format and
-reads the value back. Each version is a complete program that CI builds and
+The program below writes `01 03 AA BB CC` with the configurable fixed-width
+format and reads the value back. Each version is a complete program that CI builds and
 runs against the current API, and a check keeps its copy here identical to the
 source, so it stays valid as OpenTLV evolves. Choose your language in any tab
 group on this site and the choice is kept for the other tabbed examples.
@@ -56,22 +56,29 @@ the checkout at `external/OpenTLV` in your application.
 <!-- example: examples/tlv/src/quick_start.c -->
 ```c
 #include <string.h>
-#include "tlv/builtins/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
 int main(void) {
+    /* One tag byte and one length byte; config must outlive its readers and writers. */
+    const tlv_fixed_config_t config = {
+        .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
+    tlv_reader_format_t reader_format;
+    tlv_writer_format_t writer_format;
+    if (tlv_fixed_reader_format_init(&reader_format, &config) != TLV_OK) return 1;
+    if (tlv_fixed_writer_format_init(&writer_format, &config) != TLV_OK) return 1;
+
     const tlv_tag_t tag = TLV_TAG(0x01);
     const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
     uint8_t         buffer[5];
     size_t          written = 0, consumed = 0;
     tlv_view_t      view;
 
-    if (tlv_write(buffer, sizeof(buffer), &tlv_writer_format_fixed_1byte, tag, value, sizeof(value),
-                  &written) != TLV_OK)
+    if (tlv_write(buffer, sizeof(buffer), &writer_format, tag, value, sizeof(value), &written) !=
+        TLV_OK)
         return 1;
-    if (tlv_read(buffer, written, &tlv_reader_format_fixed_1byte, &view, &consumed) != TLV_OK)
-        return 1;
+    if (tlv_read(buffer, written, &reader_format, &view, &consumed) != TLV_OK) return 1;
 
     /* view.value borrows buffer; keep it alive while using the view. */
     if (consumed != written || view.tag.size != 1 || view.tag.data[0] != 0x01) return 1;
@@ -118,19 +125,21 @@ this target propagates the C library and include paths.
 #include <cstring>
 
 #include "tlv++/tlv.hpp"
-#include "tlv/builtins/fixed/fixed_1byte.h"
+#include "tlv++/builtins/fixed/fixed_format.hpp"
 
 int main() {
+    using format = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
+
     const tlv::tag_t               tag = TLV_TAG(0x01);
     const std::array<tlv::byte, 3> value = {
         static_cast<tlv::byte>(0xAA), static_cast<tlv::byte>(0xBB), static_cast<tlv::byte>(0xCC)};
     std::array<tlv::byte, 5> buffer{};
-    tlv::writer              writer(buffer.data(), buffer.size(), tlv_writer_format_fixed_1byte);
+    tlv::writer              writer(buffer.data(), buffer.size(), format::writer());
 
     if (!writer.write(tag, tlv::bytes(value.data(), value.size()))) return 1;
 
     // entry.value borrows buffer; keep it alive while using the entry.
-    tlv::reader reader(tlv::bytes(buffer.data(), writer.size()), tlv_reader_format_fixed_1byte);
+    tlv::reader reader(tlv::bytes(buffer.data(), writer.size()), format::reader());
     auto        entry = reader.next();
     if (!entry || !reader.at_end()) return 1;
 
@@ -176,21 +185,24 @@ for the full setup, including how to link a prebuilt library.
 
 <!-- example: bindings/rust/opentlv/examples/quick_start.rs -->
 ```rust
-//! The simplest possible round trip: write one element with the fixed
-//! 1-byte format, then read it back. See parse.rs and write.rs for a nested
-//! BER document, and the C `quick_start.c` and C++ `quick_start.cpp`
-//! examples for the same round trip in those languages.
+//! The simplest possible round trip: write one element with the
+//! configurable fixed-width format, then read it back. See parse.rs and
+//! write.rs for a nested BER document, and the C `quick_start.c` and C++
+//! `quick_start.cpp` examples for the same round trip in those languages.
 //!
 //! Run with `cargo run --example quick_start` from `bindings/rust`.
 
-use opentlv::{Format, Reader, Result, Tag, Writer};
+use opentlv::{ByteOrder, FixedFormat, Reader, Result, Tag, Writer};
 
 fn main() -> Result<()> {
+    // One tag byte and one length byte; format must outlive its readers and writers.
+    let format = FixedFormat::new(1, 1, ByteOrder::Big)?;
+
     let tag = Tag::from_bytes(&[0x01]);
     let value = [0xAA, 0xBB, 0xCC];
 
     let mut buf = [0u8; 5];
-    let mut writer = Writer::with_format(&mut buf, Format::Fixed1Byte);
+    let mut writer = Writer::with_fixed_format(&mut buf, &format);
     writer.write(&tag, &value)?;
     println!(
         "wrote {} bytes: {:02X?}",
@@ -198,7 +210,7 @@ fn main() -> Result<()> {
         writer.written()
     );
 
-    let mut reader = Reader::with_format(writer.written(), Format::Fixed1Byte);
+    let mut reader = Reader::with_fixed_format(writer.written(), &format);
     let entry = reader.next_entry().expect("one entry was written")?;
     assert_eq!(entry.tag(), &tag);
     assert_eq!(entry.value(), &value);
@@ -238,10 +250,11 @@ setup.
 
 <!-- example: bindings/python/opentlv/examples/quick_start.py -->
 ```python
-"""The simplest possible round trip: write one element with the fixed 1-byte
-format, then read it back. See parse.py and write.py for a nested BER
-document, and the C `quick_start.c`, C++ `quick_start.cpp` and Rust
-`quick_start.rs` examples for the same round trip in those languages.
+"""The simplest possible round trip: write one element with the
+configurable fixed-width format, then read it back. See parse.py and
+write.py for a nested BER document, and the C `quick_start.c`, C++
+`quick_start.cpp` and Rust `quick_start.rs` examples for the same round
+trip in those languages.
 
 Run with `python examples/quick_start.py` from `bindings/python/opentlv`,
 after installing both packages (see ../../../README.md or
@@ -252,15 +265,17 @@ import opentlv
 
 
 def main() -> None:
+    # One tag byte and one length byte.
+    format = opentlv.FixedFormat(1, 1)
     tag = opentlv.Tag(b"\x01")
     value = b"\xaa\xbb\xcc"
 
-    writer = opentlv.Writer(opentlv.Format.FIXED_1BYTE)
+    writer = opentlv.Writer(format)
     writer.write(tag, value)
     encoded = writer.bytes()
     print(f"wrote {len(encoded)} bytes: {encoded.hex(' ').upper()}")
 
-    reader = opentlv.Reader(encoded, opentlv.Format.FIXED_1BYTE)
+    reader = opentlv.Reader(encoded, format)
     (entry,) = list(reader)
     assert entry.tag == tag
     assert bytes(entry.value) == value
@@ -366,7 +381,7 @@ cmake --build build-c --config Release --parallel
 ```
 
 The [component configuration](../concepts/architecture.md#build-configuration) lists the
-format and profile switches. Keep `OPENTLV_FORMAT_FIXED_1BYTE=ON` for the README
+format and profile switches. Keep `OPENTLV_FORMAT_FIXED=ON` for the README
 example. Built-in descriptors are direction-specific: use a `tlv_reader_format_t`
 for reads and a `tlv_writer_format_t` for writes. See
 [format contracts](../formats/README.md#generic-interface) and [migration](../concepts/architecture.md#migration).

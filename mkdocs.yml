@@ -126,7 +126,6 @@ nav:
   - Formats:
       - Overview: formats/README.md
       - Default TLV: formats/default/README.md
-      - Fixed 1-byte TLV: formats/fixed/README.md
       - Configurable fixed-width TLV: formats/fixed/configurable.md
       - Bluetooth LTV: formats/bluetooth/README.md
       - BER-TLV: formats/asn1/ber.md

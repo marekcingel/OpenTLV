@@ -16,7 +16,10 @@
 
 The application supplies its descriptors, callbacks, and optional context.
 Callbacks define valid tags and lengths, obey buffer bounds, and support writer
-size queries. There is no built-in configurable fixed-width descriptor.
+size queries. For a fixed-width tag and length, use the built-in
+[configurable fixed-width format](../fixed/configurable.md) instead of custom
+callbacks; write custom callbacks for anything with a different shape, such as
+a variable-length or protocol-specific length field.
 See [shared memory ownership rules](../../guides/memory.md).
 
 ## C usage
@@ -42,5 +45,8 @@ Element (4 bytes)
 
 See the custom-format implementation in the
 [C example](../../../examples/tlv/src/custom_format.c) and the
-[callback contracts](../README.md#generic-interface). No built-in configurable
-fixed-width descriptor is implied by this example.
+[callback contracts](../README.md#generic-interface). This particular shape -
+a fixed-width tag and length - could also be built with the
+[configurable fixed-width format](../fixed/configurable.md)
+(`tag_size = 1, length_size = 2, order = TLV_BYTE_ORDER_LITTLE_ENDIAN`); the
+example keeps hand-written callbacks to demonstrate the generic mechanism.
