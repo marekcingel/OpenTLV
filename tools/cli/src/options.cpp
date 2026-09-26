@@ -44,8 +44,41 @@ enum : unsigned {
     // Options only encode takes.
     encode_only = opt_tag | opt_value | opt_output_encoding | opt_output_file,
     // --format fixed only.
-    fixed_only = opt_fixed_tag_size | opt_fixed_length_size | opt_fixed_byte_order
+    fixed_only = opt_fixed_tag_size | opt_fixed_length_size | opt_fixed_byte_order,
+    // Options that require --profile emv (directly, or, for opt_decode, via
+    // "--decode requires --profile emv"), disabled as a group when the EMV
+    // profile is not compiled in.
+    emv_only = opt_profile | opt_describe | opt_decode | opt_emv_context | opt_emv_check,
+    // Every option bit, used to build dump's and validate's masks below by
+    // exclusion, the same way their validity checks in parse() do.
+    all_options = opt_tree | opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
+        opt_max_elements | opt_pretty | opt_describe | opt_force_color | opt_no_color |
+        opt_profile | opt_input_encoding | opt_pdol | opt_decode | opt_output | opt_tag |
+        opt_value | opt_output_encoding | opt_search | opt_recover | opt_emv_context |
+        opt_emv_check | opt_output_file | opt_diagnostics | opt_fixed_tag_size |
+        opt_fixed_length_size | opt_fixed_byte_order,
+    // Options that are plain flags: every other option in the table below
+    // takes a following value, except --value under "query" (see
+    // flag_options_mask()'s doc comment in options.hpp).
+    flag_only = opt_tree | opt_pdol | opt_decode | opt_pretty | opt_describe | opt_force_color |
+        opt_no_color | opt_recover
 };
+
+// Options valid for each command, matched by options::parse() below and
+// reused by command_options_mask() for `otlv completion`.
+const unsigned lookup_options = opt_profile | opt_output;
+const unsigned listing_options = opt_profile | opt_output | opt_search;
+const unsigned query_options = opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
+                               opt_max_elements | opt_input_encoding | opt_output | opt_value |
+                               opt_diagnostics | fixed_only;
+const unsigned encode_options = opt_format | opt_input | opt_max_input | opt_max_depth |
+                                opt_max_elements | encode_only | fixed_only;
+const unsigned decode_options = opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
+                                opt_max_elements | opt_describe | opt_profile | opt_input_encoding |
+                                opt_decode | opt_recover | opt_emv_context | opt_diagnostics |
+                                fixed_only;
+const unsigned dump_options = all_options & ~(encode_only | opt_search | opt_emv_check);
+const unsigned validate_options = all_options & ~(encode_only | opt_search | opt_recover);
 
 int number(const char* text, std::size_t* out) {
     std::size_t n = 0;
@@ -88,41 +121,43 @@ int context_by_name(const char* text, int* out) {
 }
 #endif
 
+// Every "--name" option options::parse() recognizes, and the bit it sets.
+// Shared by option_bit() below and, via cli::option_table(), by `otlv
+// completion`'s per-command option lists.
+const cli::option_entry option_table_data[] = {
+    {"--tree", opt_tree},
+    {"--format", opt_format},
+    {"--input", opt_input},
+    {"--hex", opt_hex},
+    {"--max-input-size", opt_max_input},
+    {"--max-depth", opt_max_depth},
+    {"--max-elements", opt_max_elements},
+    {"--pretty", opt_pretty},
+    {"--describe", opt_describe},
+    {"--force-color", opt_force_color},
+    {"--no-color", opt_no_color},
+    {"--profile", opt_profile},
+    {"--input-encoding", opt_input_encoding},
+    {"--pdol", opt_pdol},
+    {"--decode", opt_decode},
+    {"--output", opt_output},
+    {"--tag", opt_tag},
+    {"--value", opt_value},
+    {"--output-encoding", opt_output_encoding},
+    {"--search", opt_search},
+    {"--recover", opt_recover},
+    {"--emv-context", opt_emv_context},
+    {"--emv-check", opt_emv_check},
+    {"--output-file", opt_output_file},
+    {"--diagnostics", opt_diagnostics},
+    {"--fixed-tag-size", opt_fixed_tag_size},
+    {"--fixed-length-size", opt_fixed_length_size},
+    {"--fixed-byte-order", opt_fixed_byte_order},
+};
+constexpr std::size_t option_table_count = sizeof(option_table_data) / sizeof(option_table_data[0]);
+
 unsigned option_bit(const char* arg) {
-    static const struct {
-        const char* name;
-        unsigned    bit;
-    } table[] = {
-        {"--tree", opt_tree},
-        {"--format", opt_format},
-        {"--input", opt_input},
-        {"--hex", opt_hex},
-        {"--max-input-size", opt_max_input},
-        {"--max-depth", opt_max_depth},
-        {"--max-elements", opt_max_elements},
-        {"--pretty", opt_pretty},
-        {"--describe", opt_describe},
-        {"--force-color", opt_force_color},
-        {"--no-color", opt_no_color},
-        {"--profile", opt_profile},
-        {"--input-encoding", opt_input_encoding},
-        {"--pdol", opt_pdol},
-        {"--decode", opt_decode},
-        {"--output", opt_output},
-        {"--tag", opt_tag},
-        {"--value", opt_value},
-        {"--output-encoding", opt_output_encoding},
-        {"--search", opt_search},
-        {"--recover", opt_recover},
-        {"--emv-context", opt_emv_context},
-        {"--emv-check", opt_emv_check},
-        {"--output-file", opt_output_file},
-        {"--diagnostics", opt_diagnostics},
-        {"--fixed-tag-size", opt_fixed_tag_size},
-        {"--fixed-length-size", opt_fixed_length_size},
-        {"--fixed-byte-order", opt_fixed_byte_order},
-    };
-    for (const auto& entry : table)
+    for (const cli::option_entry& entry : option_table_data)
         if (!strcmp(arg, entry.name)) return entry.bit;
     return 0;
 }
@@ -162,18 +197,11 @@ int options::parse(int argc, char** argv) {
         if (!bit) return fail(2, "unknown option; use --help");
         // Each command accepts only its own options. dump and validate share
         // the input, limit and presentation options; decode takes the subset
-        // that makes sense for a JSON export.
-        const unsigned decode_options =
-            opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth | opt_max_elements |
-            opt_describe | opt_profile | opt_input_encoding | opt_decode | opt_recover |
-            opt_emv_context | opt_diagnostics | fixed_only;
-        const unsigned encode_options = opt_format | opt_input | opt_max_input | opt_max_depth |
-                                        opt_max_elements | encode_only | fixed_only;
-        const unsigned query_options = opt_format | opt_input | opt_hex | opt_max_input |
-                                       opt_max_depth | opt_max_elements | opt_input_encoding |
-                                       opt_output | opt_value | opt_diagnostics | fixed_only;
-        if (lookup       ? !(bit & (opt_profile | opt_output))
-            : listing    ? !(bit & (opt_profile | opt_output | opt_search))
+        // that makes sense for a JSON export. The per-command masks are the
+        // file-scope constants above, shared with command_options_mask() for
+        // `otlv completion`.
+        if (lookup       ? !(bit & lookup_options)
+            : listing    ? !(bit & listing_options)
             : querying   ? !(bit & query_options)
             : encoding   ? !(bit & encode_options)
             : decoding   ? !(bit & decode_options)
@@ -368,6 +396,7 @@ void options::usage() {
            "[--output text|json]\n"
            "       otlv tag HEX --profile emv [--output text|json]\n"
            "       otlv tags --profile emv [--search TEXT] [--output text|json]\n"
+           "       otlv completion bash|zsh|fish|powershell\n"
            "       otlv formats | --help | --version\n"
            "Formats: default, fixed, ber, der, bluetooth-ltv (when enabled in this build)\n"
            "Options:\n"
@@ -410,6 +439,7 @@ void options::usage() {
            "--format ber or der. Exit code 5 means nothing matched.\n"
            "tag looks up one BER tag in the EMV dictionary; an unknown tag is a result "
            "(exit 0), not an error; tags lists the dictionary.\n"
+           "completion prints a shell completion script to stdout for the given shell.\n"
            "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"
            "Validation accepts empty input and checks all concatenated elements.\n"
            "With --profile emv, validate also checks the EMV schema structure "
@@ -418,5 +448,49 @@ void options::usage() {
            "Exit codes: 0 success, 1 invalid TLV (or element rejected by encode), 2 invalid "
            "usage/hex/JSON/format, 3 I/O/resource error, 4 damaged data skipped by --recover.\n";
 }
+
+const option_entry* option_table(std::size_t* count) {
+    *count = option_table_count;
+    return option_table_data;
+}
+
+unsigned command_options_mask(const char* command) {
+    unsigned mask = 0;
+    if (!strcmp(command, "tag"))
+        mask = lookup_options;
+    else if (!strcmp(command, "tags"))
+        mask = listing_options;
+    else if (!strcmp(command, "query"))
+        mask = query_options;
+    else if (!strcmp(command, "encode"))
+        mask = encode_options;
+    else if (!strcmp(command, "decode"))
+        mask = decode_options;
+    else if (!strcmp(command, "validate"))
+        mask = validate_options;
+    else if (!strcmp(command, "dump"))
+        mask = dump_options;
+#if !OPENTLV_PROFILE_EMV
+    mask &= ~emv_only;
+#endif
+#if !OPENTLV_FORMAT_FIXED
+    mask &= ~fixed_only;
+#endif
+    return mask;
+}
+
+unsigned flag_options_mask() {
+    return flag_only;
+}
+
+#if OPENTLV_PROFILE_EMV
+const char* const* emv_context_names(std::size_t* count) {
+    static const char* names[sizeof(context_names) / sizeof(context_names[0])];
+    for (std::size_t i = 0; i < sizeof(context_names) / sizeof(context_names[0]); ++i)
+        names[i] = context_names[i].name;
+    *count = sizeof(context_names) / sizeof(context_names[0]);
+    return names;
+}
+#endif
 
 } // namespace cli

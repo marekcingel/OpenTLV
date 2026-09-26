@@ -1,11 +1,11 @@
-#include "encode.hpp"
+#include "commands/encode_command.hpp"
 #include <cstring>
 #include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <new>
 #include <string>
-#include "commands.hpp"
+#include "commands/validate_command.hpp"
 #include "diagnostics.hpp"
 #include "input.hpp"
 #include "json_model.hpp"
@@ -69,9 +69,9 @@ const tlv_writer_format_t* select_writer(const cli::options& o) {
 }
 
 // Builds the element list from --tag/--value.
-int specs_from_options(const cli::options& o, std::vector<cli::commands::element_spec>& specs) {
-    cli::commands::element_spec spec;
-    int                         rc = cli::decode_hex(o.tag, TLV_ASN1_TAG_MAX_SIZE, spec.tag);
+int specs_from_options(const cli::options& o, std::vector<cli::element_spec>& specs) {
+    cli::element_spec spec;
+    int               rc = cli::decode_hex(o.tag, TLV_ASN1_TAG_MAX_SIZE, spec.tag);
     if (rc == 3) return fail(2, "tag is longer than the longest tag a supported format accepts");
     if (rc) return rc;
     if (spec.tag.empty()) return fail(2, "tag must not be empty");
@@ -247,25 +247,25 @@ int encode_json(const cli::options& o, const tlv_writer_format_t* format) {
     }
     if (out.size() > o.max_input) return fail(3, "encoded output exceeds --max-input-size");
 
-    // The output must be accepted by the reader and structural validator the
-    // "validate" command uses for this format, under the same limits.
+    // The output must be accepted by the reader and structural validator
+    // validate_command uses for this format, under the same limits.
     cli::options check;
     check.command = "validate";
     check.format = o.format;
     check.max_input = o.max_input;
     check.max_depth = o.max_depth;
     check.max_elements = o.max_elements;
-    if (cli::commands::execute(check, out.data(), out.size()) != 0)
-        return fail(1, "encoded output failed validation");
+    cli::validate_command validation(check, out);
+    if (validation.run() != 0) return fail(1, "encoded output failed validation");
     return emit(o, out);
 }
 
 } // namespace
 
 namespace cli {
-namespace commands {
 
-int encode(const options& o) {
+int encode_command::run() {
+    const options&             o = options_;
     const tlv_writer_format_t* format = select_writer(o);
     std::vector<element_spec>  specs;
     std::vector<uint8_t>       out;
@@ -302,5 +302,4 @@ int encode(const options& o) {
     return emit(o, out);
 }
 
-} // namespace commands
 } // namespace cli

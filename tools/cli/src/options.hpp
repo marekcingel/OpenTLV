@@ -1,6 +1,7 @@
 #ifndef OPENTLV_CLI_OPTIONS_HPP
 #define OPENTLV_CLI_OPTIONS_HPP
 #include <cstddef>
+#include "tlv/config.h"
 #include "tlv/query/query.h"
 
 namespace cli {
@@ -59,6 +60,34 @@ public:
     std::size_t fixed_length_size = 1;
     const char* fixed_byte_order = "big";
 };
+
+// One "--name" option recognized by options::parse(), and the bit it sets.
+// Exposed (with command_options_mask() and flag_options_mask() below) so
+// `otlv completion` can derive its per-command option lists from the same
+// tables parse() enforces, instead of a separately maintained copy.
+struct option_entry {
+    const char* name;
+    unsigned    bit;
+};
+const option_entry* option_table(std::size_t* count);
+
+// The bitmask of options valid for `command` (one of "dump", "validate",
+// "decode", "encode", "query", "tag" or "tags"; 0 for any other name),
+// narrowed to this build: EMV-only options are removed unless
+// OPENTLV_PROFILE_EMV, and --format fixed's options unless OPENTLV_FORMAT_FIXED.
+unsigned command_options_mask(const char* command);
+
+// The bitmask of options that never take a following value (booleans such as
+// --tree or --recover). Every other option in option_table() takes one,
+// except --value under the "query" command, where it means --value's other,
+// flag-only sense (print only the addressed elements' values).
+unsigned flag_options_mask();
+
+#if OPENTLV_PROFILE_EMV
+// The command-line names of the EMV dictionary contexts (tlv_emv_context_t)
+// --emv-context accepts, in the same order as options.cpp's own table.
+const char* const* emv_context_names(std::size_t* count);
+#endif
 
 } // namespace cli
 #endif

@@ -52,6 +52,7 @@ otlv dump --format ber --input damaged.bin --recover --tree
 otlv validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010"
 otlv tag 9F02 --profile emv
 otlv query 6F/A5/50 --format ber --input card.bin --value
+otlv completion bash
 ```
 
 `dump`, `validate` and `decode` require an explicit `--format` and exactly one input
@@ -573,6 +574,26 @@ no descent. BER indefinite-length resolution also has the library's fixed
 64-scope bound. The input is buffered in CLI-owned memory; this does not change
 the allocation-free library core. Limits constrain accepted input and traversal;
 they are not a wall-clock timeout or incremental streaming interface.
+
+## Shell completion
+
+```sh
+otlv completion bash > ~/.local/share/bash-completion/completions/otlv
+otlv completion zsh > "${fpath[1]}/_otlv"
+otlv completion fish > ~/.config/fish/completions/otlv.fish
+otlv completion powershell >> $PROFILE
+```
+
+`completion` prints a completion script for `bash`, `zsh`, `fish` or
+`powershell` to stdout; install it as shown above (once per shell, or on
+every prompt for bash/zsh, per that shell's own completion conventions) and
+restart the shell. The script completes top-level commands, each command's
+own options, and known option values (`--format`, `--output`, `--emv-context`
+and so on) from the same tables `otlv` itself uses, so it reflects this
+build: only formats enabled at compile time, and EMV/`--format fixed` options
+only when those are compiled in. Free-form arguments (`--hex`, `query`'s
+path, `tag`'s hex) and file arguments (`--input`, `--output-file`) fall back
+to the shell's own file completion where applicable.
 
 ## Diagnostics and exit codes
 
