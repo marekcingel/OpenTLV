@@ -1,0 +1,75 @@
+name: Lua Bindings
+
+# Builds and tests the experimental Lua bindings (bindings/lua): a native
+# extension module built directly against the Lua C API, exercised across
+# the versions it targets (5.1 through 5.4; LuaJIT implements the 5.1 API).
+# leafo/gh-actions-lua builds the interpreter and this module against the
+# same shared Lua library; linking against a different, separately linked
+# Lua would give the process two independent copies of the Lua runtime
+# sharing one lua_State, which crashes (see bindings/lua/README.md's Build
+# section).
+on:
+  push:
+    branches: [main]
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bindings/lua/**'
+      - 'tlv/**'
+      - 'cmake/**'
+      - '**/CMakeLists.txt'
+      - '.github/workflows/lua.yml'
+
+concurrency:
+  group: lua-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    permissions:
+      contents: read
+    name: build and test / ${{ matrix.os }} / lua ${{ matrix.lua_version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Windows and macOS run on release tags only.
+        os: ${{ fromJSON(startsWith(github.ref, 'refs/tags/') && '["ubuntu-24.04", "windows-latest", "macos-latest"]' || '["ubuntu-24.04"]') }}
+        lua_version: ['5.1', '5.3', '5.4']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: ${{ matrix.lua_version }}
+
+      - name: Set up LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+
+      - name: Install test dependencies
+        run: luarocks install busted
+
+      - name: Build and install the opentlv rock
+        working-directory: bindings/lua
+        run: luarocks make
+
+      - name: Test
+        working-directory: bindings/lua
+        run: busted tests
+
+      - name: Run examples
+        working-directory: bindings/lua
+        shell: bash
+        run: |
+          set -e
+          for example in examples/*.lua; do
+            echo "::group::$example"
+            lua "$example"
+            echo "::endgroup::"
+          done

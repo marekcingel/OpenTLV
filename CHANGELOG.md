@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the Lua binding's CMake build failing to configure in CI, where Lua is
+  installed to a non-standard prefix `FindLua` cannot locate a library in on
+  its own: on Linux and macOS, `bindings/lua/CMakeLists.txt` no longer
+  requires or links a Lua library at all (`lua_*`/`luaL_*` symbols resolve
+  against the interpreter process at `require()` time instead, which also
+  avoids linking a second, independent copy of the Lua runtime into the
+  module); Windows, which cannot do that, locates the library itself next to
+  the already-resolved `LUA_INCLUDE_DIR` instead of relying on a LuaRocks
+  rockspec variable (`LUA_LIBDIR`/`LUA_LIBDIR_FILE`) that turned out not to
+  be substitutable for this build type. (#297, #298)
 - Fix `tlv_structure_rule_t`/`tlv_structure_schema_t` initializers in the EMV
   structural schema, examples and tests that Clang's
   `-Wmissing-field-initializers` rejected under `-Werror` after those types
@@ -56,6 +66,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an experimental Lua binding (`bindings/lua/`, `require("opentlv")`
+  after building with `-DOPENTLV_BUILD_LUA=ON` or `luarocks make`), split
+  into `opentlv-native` and `opentlv` like the Rust and Python bindings.
+  Covers Reader, Entry and Tag across the default, BER, CER, DER, Bluetooth
+  LTV and configurable fixed-width formats, plus preorder tree traversal
+  (`opentlv.walk_tree`). Targets Lua 5.1 through 5.4 and LuaJIT. See [Using
+  OpenTLV from Lua](docs/guides/lua.md). (#297, #298)
 - Add `tlv/compiler.h` (C language version and compiler capability detection)
   and `tlv/attributes.h` (`TLV_NODISCARD`, `TLV_MAYBE_UNUSED`,
   `TLV_DEPRECATED_MSG`, `TLV_FALLTHROUGH`), a small infrastructure layer that
