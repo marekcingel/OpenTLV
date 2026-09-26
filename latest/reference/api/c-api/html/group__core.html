@@ -82,6 +82,12 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>
 Files</h2></td></tr>
+<tr class="memitem:attributes_8h" id="r_attributes_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="attributes_8h.html">attributes.h</a></td></tr>
+<tr class="memdesc:attributes_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Portable declaration attributes built on <a class="el" href="compiler_8h.html" title="Centralized C language version and compiler capability detection.">tlv/compiler.h</a>. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:compiler_8h" id="r_compiler_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="compiler_8h.html">compiler.h</a></td></tr>
+<tr class="memdesc:compiler_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Centralized C language version and compiler capability detection. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:endian_8h" id="r_endian_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="endian_8h.html">endian.h</a></td></tr>
 <tr class="memdesc:endian_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Byte-order helpers for reading and writing fixed-width unsigned integers. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -124,6 +130,51 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:ga839acc9f04ca3cb2d7f66459cbac9614" id="r_ga839acc9f04ca3cb2d7f66459cbac9614"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga839acc9f04ca3cb2d7f66459cbac9614">TLV_NODISCARD</a></td></tr>
+<tr class="memdesc:ga839acc9f04ca3cb2d7f66459cbac9614"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks a function whose return value must not be silently discarded.  <br /></td></tr>
+<tr class="separator:ga839acc9f04ca3cb2d7f66459cbac9614"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga24ddf4495d0912e4571c3f75543cb4f0" id="r_ga24ddf4495d0912e4571c3f75543cb4f0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga24ddf4495d0912e4571c3f75543cb4f0">TLV_MAYBE_UNUSED</a></td></tr>
+<tr class="memdesc:ga24ddf4495d0912e4571c3f75543cb4f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks a declaration that may be intentionally unused.  <br /></td></tr>
+<tr class="separator:ga24ddf4495d0912e4571c3f75543cb4f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7010227f05594a9ae6b788a24776e041" id="r_ga7010227f05594a9ae6b788a24776e041"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga7010227f05594a9ae6b788a24776e041">TLV_DEPRECATED_MSG</a>(message)</td></tr>
+<tr class="memdesc:ga7010227f05594a9ae6b788a24776e041"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks a declaration as deprecated, with a message naming the replacement.  <br /></td></tr>
+<tr class="separator:ga7010227f05594a9ae6b788a24776e041"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga31c3f7626cc801c7d05cd5d12ab0fe3b" id="r_ga31c3f7626cc801c7d05cd5d12ab0fe3b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga31c3f7626cc801c7d05cd5d12ab0fe3b">TLV_FALLTHROUGH</a></td></tr>
+<tr class="memdesc:ga31c3f7626cc801c7d05cd5d12ab0fe3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks an intentional fall-through between adjacent <code>switch</code> cases.  <br /></td></tr>
+<tr class="separator:ga31c3f7626cc801c7d05cd5d12ab0fe3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7bf287a663d60a69138bb22094a834a0" id="r_ga7bf287a663d60a69138bb22094a834a0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga7bf287a663d60a69138bb22094a834a0">TLV_C99</a>&#160;&#160;&#160;199901L</td></tr>
+<tr class="memdesc:ga7bf287a663d60a69138bb22094a834a0"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>__STDC_VERSION__</code> value identifying C99.  <br /></td></tr>
+<tr class="separator:ga7bf287a663d60a69138bb22094a834a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga984e8fde00c70ecd2efc8ea374549037" id="r_ga984e8fde00c70ecd2efc8ea374549037"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga984e8fde00c70ecd2efc8ea374549037">TLV_C11</a>&#160;&#160;&#160;201112L</td></tr>
+<tr class="memdesc:ga984e8fde00c70ecd2efc8ea374549037"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>__STDC_VERSION__</code> value identifying C11.  <br /></td></tr>
+<tr class="separator:ga984e8fde00c70ecd2efc8ea374549037"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga112c017b49d1db8d90cb4a6aa26df558" id="r_ga112c017b49d1db8d90cb4a6aa26df558"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga112c017b49d1db8d90cb4a6aa26df558">TLV_C17</a>&#160;&#160;&#160;201710L</td></tr>
+<tr class="memdesc:ga112c017b49d1db8d90cb4a6aa26df558"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>__STDC_VERSION__</code> value identifying C17.  <br /></td></tr>
+<tr class="separator:ga112c017b49d1db8d90cb4a6aa26df558"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabc2a4d084e10b48be0ae128b753b1fa5" id="r_gabc2a4d084e10b48be0ae128b753b1fa5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gabc2a4d084e10b48be0ae128b753b1fa5">TLV_C23</a>&#160;&#160;&#160;202311L</td></tr>
+<tr class="memdesc:gabc2a4d084e10b48be0ae128b753b1fa5"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>__STDC_VERSION__</code> value identifying C23.  <br /></td></tr>
+<tr class="separator:gabc2a4d084e10b48be0ae128b753b1fa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadd44d9e6099bf4eeb14f7161b7e3d99e" id="r_gadd44d9e6099bf4eeb14f7161b7e3d99e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e">TLV_C_VERSION</a>&#160;&#160;&#160;<a class="el" href="group__core.html#ga7bf287a663d60a69138bb22094a834a0">TLV_C99</a></td></tr>
+<tr class="memdesc:gadd44d9e6099bf4eeb14f7161b7e3d99e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The active C standard version, comparable against <a class="el" href="group__core.html#ga7bf287a663d60a69138bb22094a834a0" title="__STDC_VERSION__ value identifying C99.">TLV_C99</a>, <a class="el" href="group__core.html#ga984e8fde00c70ecd2efc8ea374549037" title="__STDC_VERSION__ value identifying C11.">TLV_C11</a>, <a class="el" href="group__core.html#ga112c017b49d1db8d90cb4a6aa26df558" title="__STDC_VERSION__ value identifying C17.">TLV_C17</a> and <a class="el" href="group__core.html#gabc2a4d084e10b48be0ae128b753b1fa5" title="__STDC_VERSION__ value identifying C23.">TLV_C23</a>.  <br /></td></tr>
+<tr class="separator:gadd44d9e6099bf4eeb14f7161b7e3d99e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga506928f24cb38148bf12ef04e3fefe9a" id="r_ga506928f24cb38148bf12ef04e3fefe9a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga506928f24cb38148bf12ef04e3fefe9a">TLV_HAS_C11</a>&#160;&#160;&#160;(<a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e">TLV_C_VERSION</a> &gt;= <a class="el" href="group__core.html#ga984e8fde00c70ecd2efc8ea374549037">TLV_C11</a>)</td></tr>
+<tr class="memdesc:ga506928f24cb38148bf12ef04e3fefe9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nonzero when <a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e" title="The active C standard version, comparable against TLV_C99, TLV_C11, TLV_C17 and TLV_C23.">TLV_C_VERSION</a> is C11 or newer.  <br /></td></tr>
+<tr class="separator:ga506928f24cb38148bf12ef04e3fefe9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae6d5eea25fcf0ad18b097f2d2e022cd7" id="r_gae6d5eea25fcf0ad18b097f2d2e022cd7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gae6d5eea25fcf0ad18b097f2d2e022cd7">TLV_HAS_C17</a>&#160;&#160;&#160;(<a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e">TLV_C_VERSION</a> &gt;= <a class="el" href="group__core.html#ga112c017b49d1db8d90cb4a6aa26df558">TLV_C17</a>)</td></tr>
+<tr class="memdesc:gae6d5eea25fcf0ad18b097f2d2e022cd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nonzero when <a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e" title="The active C standard version, comparable against TLV_C99, TLV_C11, TLV_C17 and TLV_C23.">TLV_C_VERSION</a> is C17 or newer.  <br /></td></tr>
+<tr class="separator:gae6d5eea25fcf0ad18b097f2d2e022cd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga118d60051b52b7e7753172a2dd901362" id="r_ga118d60051b52b7e7753172a2dd901362"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga118d60051b52b7e7753172a2dd901362">TLV_HAS_C23</a>&#160;&#160;&#160;(<a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e">TLV_C_VERSION</a> &gt;= <a class="el" href="group__core.html#gabc2a4d084e10b48be0ae128b753b1fa5">TLV_C23</a>)</td></tr>
+<tr class="memdesc:ga118d60051b52b7e7753172a2dd901362"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nonzero when <a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e" title="The active C standard version, comparable against TLV_C99, TLV_C11, TLV_C17 and TLV_C23.">TLV_C_VERSION</a> is C23 or newer.  <br /></td></tr>
+<tr class="separator:ga118d60051b52b7e7753172a2dd901362"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga77757c1147a92899229cfa0d1de2ab7c" id="r_ga77757c1147a92899229cfa0d1de2ab7c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga77757c1147a92899229cfa0d1de2ab7c">TLV_HAS_ATTRIBUTE</a>(x)&#160;&#160;&#160;0</td></tr>
+<tr class="memdesc:ga77757c1147a92899229cfa0d1de2ab7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nonzero when the active compiler recognizes attribute <code>x</code> via the <code>__has_attribute</code> compiler builtin.  <br /></td></tr>
+<tr class="separator:ga77757c1147a92899229cfa0d1de2ab7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1c90417d8c1143c7ecf7045c2fa5c641" id="r_ga1c90417d8c1143c7ecf7045c2fa5c641"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1c90417d8c1143c7ecf7045c2fa5c641">TLV_HAS_BUILTIN</a>(x)&#160;&#160;&#160;0</td></tr>
+<tr class="memdesc:ga1c90417d8c1143c7ecf7045c2fa5c641"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nonzero when the active compiler recognizes builtin <code>x</code> via the <code>__has_builtin</code> compiler builtin.  <br /></td></tr>
+<tr class="separator:ga1c90417d8c1143c7ecf7045c2fa5c641"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga33cc439607f760f817469238422da2d8" id="r_ga33cc439607f760f817469238422da2d8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga33cc439607f760f817469238422da2d8">TLV_HAS_DECLSPEC_ATTRIBUTE</a>(x)&#160;&#160;&#160;0</td></tr>
+<tr class="memdesc:ga33cc439607f760f817469238422da2d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nonzero when the active compiler recognizes <code>__declspec</code> attribute <code>x</code> via the <code>__has_declspec_attribute</code> compiler builtin.  <br /></td></tr>
+<tr class="separator:ga33cc439607f760f817469238422da2d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga04e8743e1faf9788e1425ef13b971e83" id="r_ga04e8743e1faf9788e1425ef13b971e83"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga04e8743e1faf9788e1425ef13b971e83">TLV_LENGTH_MAX</a>&#160;&#160;&#160;UINT64_MAX</td></tr>
 <tr class="memdesc:ga04e8743e1faf9788e1425ef13b971e83"><td class="mdescLeft">&#160;</td><td class="mdescRight">The largest value a <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a> can hold.  <br /></td></tr>
 <tr class="separator:ga04e8743e1faf9788e1425ef13b971e83"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -154,19 +205,19 @@ Macros</h2></td></tr>
 <tr class="separator:gad062a7eec07ec5320048c3ce7557a06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga78642a629438a71c59f9442c78fd2c87" id="r_ga78642a629438a71c59f9442c78fd2c87"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga78642a629438a71c59f9442c78fd2c87">OPENTLV_VERSION_PATCH</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:ga78642a629438a71c59f9442c78fd2c87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa451b8da102d59f7b9458bc8e2f0bf97" id="r_gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97">OPENTLV_VERSION_REVISION</a>&#160;&#160;&#160;105</td></tr>
+<tr class="memitem:gaa451b8da102d59f7b9458bc8e2f0bf97" id="r_gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97">OPENTLV_VERSION_REVISION</a>&#160;&#160;&#160;107</td></tr>
 <tr class="separator:gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga33d8e893fc2c2576f9fd8c31cee2256b" id="r_ga33d8e893fc2c2576f9fd8c31cee2256b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga33d8e893fc2c2576f9fd8c31cee2256b">OPENTLV_VERSION_PRERELEASE</a>&#160;&#160;&#160;&quot;&quot;</td></tr>
 <tr class="separator:ga33d8e893fc2c2576f9fd8c31cee2256b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga193562e270081cce2e0ec2cf3dc9becf" id="r_ga193562e270081cce2e0ec2cf3dc9becf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga193562e270081cce2e0ec2cf3dc9becf">OPENTLV_VERSION_STRING</a>&#160;&#160;&#160;&quot;0.6.0&quot;</td></tr>
 <tr class="separator:ga193562e270081cce2e0ec2cf3dc9becf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1d93d56a9fc48abd91435938fca018a1" id="r_ga1d93d56a9fc48abd91435938fca018a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1d93d56a9fc48abd91435938fca018a1">OPENTLV_GIT_COMMIT_HASH</a>&#160;&#160;&#160;&quot;e784613&quot;</td></tr>
+<tr class="memitem:ga1d93d56a9fc48abd91435938fca018a1" id="r_ga1d93d56a9fc48abd91435938fca018a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1d93d56a9fc48abd91435938fca018a1">OPENTLV_GIT_COMMIT_HASH</a>&#160;&#160;&#160;&quot;fd5afa4&quot;</td></tr>
 <tr class="separator:ga1d93d56a9fc48abd91435938fca018a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1a408e73a0b7c9dd1117ad1cb59fa238" id="r_ga1a408e73a0b7c9dd1117ad1cb59fa238"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1a408e73a0b7c9dd1117ad1cb59fa238">OPENTLV_GIT_BRANCH</a>&#160;&#160;&#160;&quot;main&quot;</td></tr>
 <tr class="separator:ga1a408e73a0b7c9dd1117ad1cb59fa238"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2eb763ab60d23634a1db498f2eadde3c" id="r_ga2eb763ab60d23634a1db498f2eadde3c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga2eb763ab60d23634a1db498f2eadde3c">OPENTLV_GIT_TAG</a>&#160;&#160;&#160;&quot;0.6.0&quot;</td></tr>
 <tr class="separator:ga2eb763ab60d23634a1db498f2eadde3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5efa726a1d139abae3b566638e2ac0fd" id="r_ga5efa726a1d139abae3b566638e2ac0fd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5efa726a1d139abae3b566638e2ac0fd">OPENTLV_GIT_REPO_VERSION</a>&#160;&#160;&#160;&quot;0.6.0-105-e784613&quot;</td></tr>
+<tr class="memitem:ga5efa726a1d139abae3b566638e2ac0fd" id="r_ga5efa726a1d139abae3b566638e2ac0fd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5efa726a1d139abae3b566638e2ac0fd">OPENTLV_GIT_REPO_VERSION</a>&#160;&#160;&#160;&quot;0.6.0-107-fd5afa4&quot;</td></tr>
 <tr class="separator:ga5efa726a1d139abae3b566638e2ac0fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -492,7 +543,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_GIT_COMMIT_HASH&#160;&#160;&#160;&quot;e784613&quot;</td>
+          <td class="memname">#define OPENTLV_GIT_COMMIT_HASH&#160;&#160;&#160;&quot;fd5afa4&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -506,7 +557,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_GIT_REPO_VERSION&#160;&#160;&#160;&quot;0.6.0-105-e784613&quot;</td>
+          <td class="memname">#define OPENTLV_GIT_REPO_VERSION&#160;&#160;&#160;&quot;0.6.0-107-fd5afa4&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -604,7 +655,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_VERSION_REVISION&#160;&#160;&#160;105</td>
+          <td class="memname">#define OPENTLV_VERSION_REVISION&#160;&#160;&#160;107</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -625,6 +676,237 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga984e8fde00c70ecd2efc8ea374549037" name="ga984e8fde00c70ecd2efc8ea374549037"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga984e8fde00c70ecd2efc8ea374549037">&#9670;&#160;</a></span>TLV_C11</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_C11&#160;&#160;&#160;201112L</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>__STDC_VERSION__</code> value identifying C11. </p>
+
+</div>
+</div>
+<a id="ga112c017b49d1db8d90cb4a6aa26df558" name="ga112c017b49d1db8d90cb4a6aa26df558"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga112c017b49d1db8d90cb4a6aa26df558">&#9670;&#160;</a></span>TLV_C17</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_C17&#160;&#160;&#160;201710L</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>__STDC_VERSION__</code> value identifying C17. </p>
+
+</div>
+</div>
+<a id="gabc2a4d084e10b48be0ae128b753b1fa5" name="gabc2a4d084e10b48be0ae128b753b1fa5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabc2a4d084e10b48be0ae128b753b1fa5">&#9670;&#160;</a></span>TLV_C23</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_C23&#160;&#160;&#160;202311L</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>__STDC_VERSION__</code> value identifying C23. </p>
+
+</div>
+</div>
+<a id="ga7bf287a663d60a69138bb22094a834a0" name="ga7bf287a663d60a69138bb22094a834a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7bf287a663d60a69138bb22094a834a0">&#9670;&#160;</a></span>TLV_C99</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_C99&#160;&#160;&#160;199901L</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><code>__STDC_VERSION__</code> value identifying C99. </p>
+
+</div>
+</div>
+<a id="gadd44d9e6099bf4eeb14f7161b7e3d99e" name="gadd44d9e6099bf4eeb14f7161b7e3d99e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadd44d9e6099bf4eeb14f7161b7e3d99e">&#9670;&#160;</a></span>TLV_C_VERSION</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_C_VERSION&#160;&#160;&#160;<a class="el" href="group__core.html#ga7bf287a663d60a69138bb22094a834a0">TLV_C99</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The active C standard version, comparable against <a class="el" href="group__core.html#ga7bf287a663d60a69138bb22094a834a0" title="__STDC_VERSION__ value identifying C99.">TLV_C99</a>, <a class="el" href="group__core.html#ga984e8fde00c70ecd2efc8ea374549037" title="__STDC_VERSION__ value identifying C11.">TLV_C11</a>, <a class="el" href="group__core.html#ga112c017b49d1db8d90cb4a6aa26df558" title="__STDC_VERSION__ value identifying C17.">TLV_C17</a> and <a class="el" href="group__core.html#gabc2a4d084e10b48be0ae128b753b1fa5" title="__STDC_VERSION__ value identifying C23.">TLV_C23</a>. </p>
+<p>Expands to <code>__STDC_VERSION__</code> when compiling as C. C++ has no equivalent macro, so a C++ translation unit sees <a class="el" href="group__core.html#ga7bf287a663d60a69138bb22094a834a0" title="__STDC_VERSION__ value identifying C99.">TLV_C99</a> here; C++-specific checks should test <code>__cplusplus</code> directly instead of this macro. </p>
+
+</div>
+</div>
+<a id="ga7010227f05594a9ae6b788a24776e041" name="ga7010227f05594a9ae6b788a24776e041"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7010227f05594a9ae6b788a24776e041">&#9670;&#160;</a></span>TLV_DEPRECATED_MSG</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_DEPRECATED_MSG</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">message</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Marks a declaration as deprecated, with a message naming the replacement. </p>
+<p>Named <code>TLV_DEPRECATED_MSG</code> rather than <code>TLV_DEPRECATED</code> because the latter is already defined, without a message, by CMake's <code>GenerateExportHeader</code> in the generated tlv/export.h that most public headers include.</p>
+<p><code>message</code> must be a string literal. Expands to the standard <code>[[deprecated(message)]]</code> attribute in C++14 or newer or in C23, to <code>__attribute__((deprecated(message)))</code> on compilers that recognize it (GCC, Clang), to <code>__declspec(deprecated(message))</code> on compilers that recognize that instead (MSVC, clang-cl), and to nothing otherwise, including the C99 baseline. </p>
+
+</div>
+</div>
+<a id="ga31c3f7626cc801c7d05cd5d12ab0fe3b" name="ga31c3f7626cc801c7d05cd5d12ab0fe3b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga31c3f7626cc801c7d05cd5d12ab0fe3b">&#9670;&#160;</a></span>TLV_FALLTHROUGH</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_FALLTHROUGH</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Marks an intentional fall-through between adjacent <code>switch</code> cases. </p>
+<p>Used as a standalone statement, <code>TLV_FALLTHROUGH;</code>, as the last statement of a <code>case</code> that intentionally falls into the next one. Expands to the standard <code>[[fallthrough]]</code> attribute in C++17 or newer or in C23, to <code>__attribute__((fallthrough))</code> on compilers that recognize it (GCC, Clang), and to nothing otherwise, including the C99 baseline, where the caller-supplied <code>;</code> alone forms a valid empty statement. </p>
+
+</div>
+</div>
+<a id="ga77757c1147a92899229cfa0d1de2ab7c" name="ga77757c1147a92899229cfa0d1de2ab7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga77757c1147a92899229cfa0d1de2ab7c">&#9670;&#160;</a></span>TLV_HAS_ATTRIBUTE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_HAS_ATTRIBUTE</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x</td><td>)</td>
+          <td>&#160;&#160;&#160;0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nonzero when the active compiler recognizes attribute <code>x</code> via the <code>__has_attribute</code> compiler builtin. </p>
+<p>Expands to <code>__has_attribute(x)</code> where supported (Clang and modern GCC) and to <code>0</code> otherwise, so it can be used unconditionally in an <code>#if</code> without first checking whether <code>__has_attribute</code> itself exists. </p>
+
+</div>
+</div>
+<a id="ga1c90417d8c1143c7ecf7045c2fa5c641" name="ga1c90417d8c1143c7ecf7045c2fa5c641"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1c90417d8c1143c7ecf7045c2fa5c641">&#9670;&#160;</a></span>TLV_HAS_BUILTIN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_HAS_BUILTIN</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x</td><td>)</td>
+          <td>&#160;&#160;&#160;0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nonzero when the active compiler recognizes builtin <code>x</code> via the <code>__has_builtin</code> compiler builtin. </p>
+<p>Expands to <code>__has_builtin(x)</code> where supported (Clang and modern GCC) and to <code>0</code> otherwise, so it can be used unconditionally in an <code>#if</code> without first checking whether <code>__has_builtin</code> itself exists. </p>
+
+</div>
+</div>
+<a id="ga506928f24cb38148bf12ef04e3fefe9a" name="ga506928f24cb38148bf12ef04e3fefe9a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga506928f24cb38148bf12ef04e3fefe9a">&#9670;&#160;</a></span>TLV_HAS_C11</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_HAS_C11&#160;&#160;&#160;(<a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e">TLV_C_VERSION</a> &gt;= <a class="el" href="group__core.html#ga984e8fde00c70ecd2efc8ea374549037">TLV_C11</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nonzero when <a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e" title="The active C standard version, comparable against TLV_C99, TLV_C11, TLV_C17 and TLV_C23.">TLV_C_VERSION</a> is C11 or newer. </p>
+
+</div>
+</div>
+<a id="gae6d5eea25fcf0ad18b097f2d2e022cd7" name="gae6d5eea25fcf0ad18b097f2d2e022cd7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae6d5eea25fcf0ad18b097f2d2e022cd7">&#9670;&#160;</a></span>TLV_HAS_C17</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_HAS_C17&#160;&#160;&#160;(<a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e">TLV_C_VERSION</a> &gt;= <a class="el" href="group__core.html#ga112c017b49d1db8d90cb4a6aa26df558">TLV_C17</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nonzero when <a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e" title="The active C standard version, comparable against TLV_C99, TLV_C11, TLV_C17 and TLV_C23.">TLV_C_VERSION</a> is C17 or newer. </p>
+
+</div>
+</div>
+<a id="ga118d60051b52b7e7753172a2dd901362" name="ga118d60051b52b7e7753172a2dd901362"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga118d60051b52b7e7753172a2dd901362">&#9670;&#160;</a></span>TLV_HAS_C23</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_HAS_C23&#160;&#160;&#160;(<a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e">TLV_C_VERSION</a> &gt;= <a class="el" href="group__core.html#gabc2a4d084e10b48be0ae128b753b1fa5">TLV_C23</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nonzero when <a class="el" href="group__core.html#gadd44d9e6099bf4eeb14f7161b7e3d99e" title="The active C standard version, comparable against TLV_C99, TLV_C11, TLV_C17 and TLV_C23.">TLV_C_VERSION</a> is C23 or newer. </p>
+
+</div>
+</div>
+<a id="ga33cc439607f760f817469238422da2d8" name="ga33cc439607f760f817469238422da2d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga33cc439607f760f817469238422da2d8">&#9670;&#160;</a></span>TLV_HAS_DECLSPEC_ATTRIBUTE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_HAS_DECLSPEC_ATTRIBUTE</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x</td><td>)</td>
+          <td>&#160;&#160;&#160;0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nonzero when the active compiler recognizes <code>__declspec</code> attribute <code>x</code> via the <code>__has_declspec_attribute</code> compiler builtin. </p>
+<p>Expands to <code>__has_declspec_attribute(x)</code> where supported (MSVC and clang-cl) and to <code>0</code> otherwise, so it can be used unconditionally in an <code>#if</code> without first checking whether <code>__has_declspec_attribute</code> itself exists. </p>
+
+</div>
+</div>
 <a id="ga04e8743e1faf9788e1425ef13b971e83" name="ga04e8743e1faf9788e1425ef13b971e83"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga04e8743e1faf9788e1425ef13b971e83">&#9670;&#160;</a></span>TLV_LENGTH_MAX</h2>
 
@@ -639,6 +921,40 @@ Functions</h2></td></tr>
 
 <p>The largest value a <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a> can hold. </p>
 <p>Always <code>UINT64_MAX</code>, independent of build configuration or the current build's <code>size_t</code> width. Distinct from <code>SIZE_MAX</code>, which bounds what <a class="el" href="group__core.html#ga2a4636b839fffa233c97ca36488f19d5" title="Narrows a tlv_length_t to the current build&#39;s native size.">tlv_length_to_size()</a> accepts in the current build. </p>
+
+</div>
+</div>
+<a id="ga24ddf4495d0912e4571c3f75543cb4f0" name="ga24ddf4495d0912e4571c3f75543cb4f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga24ddf4495d0912e4571c3f75543cb4f0">&#9670;&#160;</a></span>TLV_MAYBE_UNUSED</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_MAYBE_UNUSED</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Marks a declaration that may be intentionally unused. </p>
+<p>Expands to the standard <code>[[maybe_unused]]</code> attribute in C++17 or newer or in C23, to <code>__attribute__((unused))</code> on compilers that recognize it (GCC, Clang), and to nothing otherwise, including the C99 baseline. </p>
+
+</div>
+</div>
+<a id="ga839acc9f04ca3cb2d7f66459cbac9614" name="ga839acc9f04ca3cb2d7f66459cbac9614"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga839acc9f04ca3cb2d7f66459cbac9614">&#9670;&#160;</a></span>TLV_NODISCARD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TLV_NODISCARD</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Marks a function whose return value must not be silently discarded. </p>
+<p>Expands to the standard <code>[[nodiscard]]</code> attribute in C++17 or newer or in C23, to <code>__attribute__((warn_unused_result))</code> on compilers that recognize it (GCC, Clang), and to nothing otherwise, including the C99 baseline. The annotated declaration's signature, linkage and ABI are unchanged in every case. </p>
 
 </div>
 </div>
