@@ -27,21 +27,21 @@ dependencies = {
 -- `luarocks make` from this directory.
 build = {
    type = "command",
-   -- Only LUA_INCLUDE_DIR is passed directly: CMakeLists.txt only requires
-   -- (and only links) a Lua library on Windows, resolving lua_*/luaL_*
-   -- symbols at module-load time everywhere else instead (see its own
-   -- comments for why). LUA_LIBDIR_HINT carries LuaRocks' own LUA_LIBDIR
-   -- through for that Windows case; CMake's find_library() then applies
-   -- its usual cross-platform naming rules to it, since there is no
-   -- generically substitutable "exact Lua library file" variable for the
-   -- "command" build type the way LuaRocks' own "make"/"cmake" build types
-   -- get internally (LUA_LIBDIR_FILE/LUALIB) — using either of those names
-   -- straight in build_command/install_command is a silent no-op, warned
-   -- as "unmatched variable" and substituted as empty.
+   -- Only LUA_INCLUDE_DIR is passed: CMakeLists.txt only requires (and
+   -- only links) a Lua library on Windows, resolving lua_*/luaL_* symbols
+   -- at module-load time everywhere else instead (see its own comments for
+   -- why), and locates that Windows library itself from LUA_INCLUDE_DIR's
+   -- sibling "lib"/"bin" directory rather than needing a second variable
+   -- here. LuaRocks' "command" build type has no substitutable variable
+   -- for the Lua library's directory or exact file (LUA_LIBDIR,
+   -- LUA_LIBDIR_FILE and LUALIB, which its "make"/"cmake" build types get
+   -- internally, are not exposed to build_command/install_command; using
+   -- any of them here is a silent no-op, warned as "unmatched variable"
+   -- and substituted as empty), so this does not attempt to pass one.
    build_command = "cmake -S ../.. -B build -DCMAKE_BUILD_TYPE=Release -DOPENTLV_BUILD_LUA=ON " ..
       "-DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_TESTS=OFF " ..
       "-DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_LUA_TESTS=OFF " ..
-      "-DLUA_INCLUDE_DIR=$(LUA_INCDIR) -DLUA_LIBDIR_HINT=$(LUA_LIBDIR) && " ..
+      "-DLUA_INCLUDE_DIR=$(LUA_INCDIR) && " ..
       "cmake --build build --target opentlv_lua --config Release",
    -- Installs both halves of the native/pure split (see README.md):
    -- opentlv_native (the compiled module) and lua/opentlv/init.lua, the

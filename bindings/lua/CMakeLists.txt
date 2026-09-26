@@ -51,21 +51,27 @@ if(WIN32)
     # find_package(Lua)'s own search above only checks standard system
     # locations, so it finds nothing for a Lua installed to a non-standard
     # prefix (for example one leafo/gh-actions-lua built into a
-    # workspace-local directory in CI). LUA_LIBDIR_HINT — the rockspec
-    # passes it as LuaRocks' own LUA_LIBDIR — lets that case still resolve:
-    # find_library() still applies CMake's usual cross-platform naming
-    # rules, just restricted to that one directory.
-    if(NOT LUA_LIBRARIES AND LUA_LIBDIR_HINT)
+    # workspace-local directory in CI). Every such layout this binding has
+    # actually been built against — gh-actions-lua, the upstream Lua
+    # Makefile's own "install" target, vcpkg — puts "include" and "lib" (or
+    # "bin", for some Windows Lua distributions' import libraries) as
+    # siblings under one prefix, so the already-resolved LUA_INCLUDE_DIR
+    # (unlike LUA_LIBDIR/LUA_LIBDIR_FILE, LuaRocks' "command" build type
+    # does not expose any substitutable variable for the Lua library
+    # directly; see opentlv-scm-1.rockspec) locates it without needing a
+    # second, separately-resolved hint.
+    if(NOT LUA_LIBRARIES)
+        get_filename_component(_opentlv_lua_prefix "${LUA_INCLUDE_DIR}" DIRECTORY)
         find_library(LUA_LIBRARY
             NAMES lua54 lua5.4 lua-5.4 lua53 lua5.3 lua-5.3 lua52 lua5.2 lua-5.2 lua51 lua5.1 lua-5.1 lua
-            PATHS "${LUA_LIBDIR_HINT}"
+            PATHS "${_opentlv_lua_prefix}/lib" "${_opentlv_lua_prefix}/bin"
             NO_DEFAULT_PATH)
         if(LUA_LIBRARY)
             set(LUA_LIBRARIES "${LUA_LIBRARY}")
         endif()
     endif()
     if(NOT LUA_LIBRARIES)
-        message(FATAL_ERROR "Lua library not found; set LUA_LIBRARY, or LUA_LIBDIR_HINT to its directory.")
+        message(FATAL_ERROR "Lua library not found next to ${LUA_INCLUDE_DIR}; set LUA_LIBRARY explicitly.")
     endif()
     target_link_libraries(opentlv_lua PRIVATE ${LUA_LIBRARIES})
 elseif(APPLE)

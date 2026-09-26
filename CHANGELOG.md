@@ -15,9 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   requires or links a Lua library at all (`lua_*`/`luaL_*` symbols resolve
   against the interpreter process at `require()` time instead, which also
   avoids linking a second, independent copy of the Lua runtime into the
-  module); Windows, which cannot do that, gets an explicit `LUA_LIBDIR_HINT`
-  passed through from the rockspec instead of the previous, silently-empty
-  `LUA_LIBDIR_FILE` reference. (#297, #298)
+  module); Windows, which cannot do that, locates the library itself next to
+  the already-resolved `LUA_INCLUDE_DIR` instead of relying on a LuaRocks
+  rockspec variable (`LUA_LIBDIR`/`LUA_LIBDIR_FILE`) that turned out not to
+  be substitutable for this build type. (#297, #298)
 - Fix `tlv_structure_rule_t`/`tlv_structure_schema_t` initializers in the EMV
   structural schema, examples and tests that Clang's
   `-Wmissing-field-initializers` rejected under `-Werror` after those types
