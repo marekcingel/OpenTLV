@@ -7,6 +7,10 @@ set(HEADERS
 
 set(SOURCES
     architecture_test.cpp
+    compiler_test.cpp
+    compiler_c_test.c
+    attributes_test.cpp
+    attributes_c_test.c
     copy_test.cpp
     diagnostic_test.cpp
     endian_test.cpp

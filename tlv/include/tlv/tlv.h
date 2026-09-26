@@ -7,6 +7,8 @@
  * @ingroup core
  */
 
+#include "tlv/attributes.h"
+#include "tlv/compiler.h"
 #include "tlv/view.h"
 #include "tlv/length.h"
 #include "tlv/value.h"

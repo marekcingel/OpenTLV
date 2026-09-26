@@ -56,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `tlv/compiler.h` (C language version and compiler capability detection)
+  and `tlv/attributes.h` (`TLV_NODISCARD`, `TLV_MAYBE_UNUSED`,
+  `TLV_DEPRECATED_MSG`, `TLV_FALLTHROUGH`), a small infrastructure layer that
+  lets future public API annotations use newer C attributes where available
+  while degrading cleanly under the C99 baseline. (#320)
 - Default `otlv dump`/`validate`/`decode`/`query` (and `encode` without `--tag`) to reading
   stdin when neither `--input` nor `--hex` is given, the same as `--input -`, so these
   commands compose directly in shell pipelines. (#319)

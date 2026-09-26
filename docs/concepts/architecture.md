@@ -41,6 +41,7 @@ Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
 ```text
 tlv/
   view.h, value.h, length.h, error.h, endian.h, copy.h, format.h, tlv.h
+  compiler.h, attributes.h
   reader/    reader.h, walker.h, scanner.h
   query/     query.h
   document/  document.h
