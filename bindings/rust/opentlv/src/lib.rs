@@ -71,6 +71,7 @@
 mod codec;
 mod entry;
 mod error;
+mod fixed_format;
 mod format;
 mod profile;
 mod reader;
@@ -86,6 +87,7 @@ pub use codec::{
 };
 pub use entry::Entry;
 pub use error::{Error, Result};
+pub use fixed_format::{ByteOrder, FixedFormat};
 pub use format::Format;
 pub use profile::{Limits, Profile, ProfileError, Strictness};
 pub use reader::Reader;
@@ -93,7 +95,7 @@ pub use schema::{
     Kind, LengthRule, LengthSchema, SchemaError, StructureRule, StructureSchema, ValidationLimits,
 };
 pub use tag::Tag;
-pub use writer::{encoded_size, Writer};
+pub use writer::{encoded_size, encoded_size_fixed, Writer};
 
 use std::ffi::CStr;
 

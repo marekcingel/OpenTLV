@@ -30,10 +30,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **Breaking:** Remove the dedicated Fixed 1-byte TLV format: `tlv_reader_format_fixed_1byte`,
+  `tlv_writer_format_fixed_1byte`, `tlv/builtins/fixed/fixed_1byte.h`, the
+  `OPENTLV_FORMAT_FIXED_1BYTE` CMake option and `tlv_config_format_fixed_1byte()`,
+  the Rust `Format::Fixed1Byte` and Python `Format.FIXED_1BYTE` variants, and
+  the CLI/WASM `fixed-1byte` format name (now `fixed`); use the configurable
+  fixed-width format's `tlv_fixed_config_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}`
+  (or `tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>`) instead. (#317)
 - **Breaking:** Remove `TLV_TAG_CAPACITY`, `tlv_tag_from_bytes()`, `tlv_tag_equal_bytes()` and the numeric `tlv_tag_to_u*()`, `tlv_tag_from_u*()` and `tlv_tag_equal_u*()`; use `tlv_tag()` and `tlv_tag_equal()` instead, and the Rust `Tag` loses `ByteOrder`, `from_u64` and `to_u64`. (#256)
 
 ### Added
 
+- Add `fixedTagSize`/`fixedLengthSize`/`fixedByteOrder` to the WebAssembly
+  module's `opentlv_wasm_parse()`/`opentlv.parse()` and matching controls to
+  the web playground, configuring `format: "fixed"` instead of a hardcoded
+  one-byte tag and length; **breaking:** `opentlv_wasm_parse()` gains three
+  required parameters. (#317)
+- Add `FixedFormat` (Rust) and `FixedFormat` (Python) wrapping the C
+  `tlv_fixed_config_t`, so `Reader`/`Writer` in both languages support a
+  runtime-configurable fixed-width tag and length, not just the built-in
+  `Format` variants. (#317)
+- Add `--fixed-tag-size`, `--fixed-length-size` and `--fixed-byte-order` to
+  the `otlv` CLI, configuring `--format fixed`'s tag width, length width and
+  length byte order instead of a hardcoded one-byte tag and length. (#317)
+- Add `tlv_fixed_config_t` and `tlv_fixed_reader_format_init()`/
+  `tlv_fixed_writer_format_init()` to `tlv/builtins/fixed/fixed.h`, a
+  runtime-configurable fixed-width TLV format (independent tag width, length
+  width and length byte order) behind a new `OPENTLV_FORMAT_FIXED` CMake
+  option. See
+  [Configurable fixed-width TLV](docs/formats/fixed/configurable.md). (#317)
 - Add an `extensible` field to `tlv_der_schema_type_t` `SEQUENCE`s, modeling
   an ASN.1 extension marker (`...`): `tlv_der_schema_read()` accepts and
   skips, as opaque well-formed DER-TLV elements, any content left over once

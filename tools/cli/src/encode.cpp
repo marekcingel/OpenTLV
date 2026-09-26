@@ -15,8 +15,8 @@
 #if OPENTLV_FORMAT_DEFAULT
 #include "tlv/builtins/fixed/default.h"
 #endif
-#if OPENTLV_FORMAT_FIXED_1BYTE
-#include "tlv/builtins/fixed/fixed_1byte.h"
+#if OPENTLV_FORMAT_FIXED
+#include "tlv/builtins/fixed/fixed.h"
 #endif
 #if OPENTLV_FORMAT_BLUETOOTH_LTV
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
@@ -36,12 +36,24 @@ using cli::fail;
 
 namespace {
 
-const tlv_writer_format_t* select_writer(const char* name) {
+const tlv_writer_format_t* select_writer(const cli::options& o) {
+    const char* name = o.format;
 #if OPENTLV_FORMAT_DEFAULT
     if (!strcmp(name, "default")) return &tlv_writer_format_default;
 #endif
-#if OPENTLV_FORMAT_FIXED_1BYTE
-    if (!strcmp(name, "fixed-1byte")) return &tlv_writer_format_fixed_1byte;
+#if OPENTLV_FORMAT_FIXED
+    // Configured by --fixed-tag-size/--fixed-length-size/--fixed-byte-order,
+    // one tag byte/one length byte/big-endian by default.
+    if (!strcmp(name, "fixed")) {
+        static tlv_fixed_config_t  config;
+        static tlv_writer_format_t format;
+        config.tag_size = o.fixed_tag_size;
+        config.length_size = o.fixed_length_size;
+        config.order = !strcmp(o.fixed_byte_order, "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
+                                                             : TLV_BYTE_ORDER_BIG_ENDIAN;
+        if (tlv_fixed_writer_format_init(&format, &config) != TLV_OK) return NULL;
+        return &format;
+    }
 #endif
 #if OPENTLV_FORMAT_BER
     if (!strcmp(name, "ber")) return &tlv_writer_format_ber;
@@ -254,7 +266,7 @@ namespace cli {
 namespace commands {
 
 int encode(const options& o) {
-    const tlv_writer_format_t* format = select_writer(o.format);
+    const tlv_writer_format_t* format = select_writer(o);
     std::vector<element_spec>  specs;
     std::vector<uint8_t>       out;
     std::size_t                total = 0, i;

@@ -57,9 +57,8 @@ Built-in components are enabled by default and can be selected with
 - **Wire formats**
   - **Default and fixed-width**
     - [x] **Default TLV** - one-byte tags, definite BER-style lengths up to 65,535 bytes. [Details](docs/formats/README.md#generic-interface) [Tree and bytes](docs/formats/default/README.md#byte-example)
-    - [x] **Fixed 1-byte TLV** - one-byte tags and lengths, values up to 255 bytes. [Details](docs/formats/fixed/README.md) [Tree and bytes](docs/formats/fixed/README.md#byte-example)
     - [x] **Bluetooth LTV** - length-before-type framing used by Bluetooth advertising data, values up to 254 bytes. [Details](docs/formats/bluetooth/README.md) [Tree and bytes](docs/formats/bluetooth/README.md#byte-example)
-    - [x] **Configurable fixed-width TLV (C++)** - compile-time tag width, length width (1-8 bytes) and length byte order. [Details](docs/formats/fixed/configurable.md)
+    - [x] **Configurable fixed-width TLV** - independent tag width, length width (1-8 bytes) and length byte order, chosen at runtime (C) or compile time (C++). [Details](docs/formats/fixed/configurable.md) [Tree and bytes](docs/formats/fixed/configurable.md#wire-layout)
   - **ASN.1-related encodings**
     - [x] **BER-TLV** - multi-byte tags. [Scope](docs/formats/asn1/ber.md) [Tree and bytes](docs/formats/asn1/ber.md#byte-example)
       - [x] Definite-length reading and writing
@@ -134,22 +133,29 @@ This complete C example ([source](examples/tlv/src/quick_start.c), built and run
 <!-- example: examples/tlv/src/quick_start.c -->
 ```c
 #include <string.h>
-#include "tlv/builtins/fixed/fixed_1byte.h"
+#include "tlv/builtins/fixed/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
 int main(void) {
+    /* One tag byte and one length byte; config must outlive its readers and writers. */
+    const tlv_fixed_config_t config = {
+        .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
+    tlv_reader_format_t reader_format;
+    tlv_writer_format_t writer_format;
+    if (tlv_fixed_reader_format_init(&reader_format, &config) != TLV_OK) return 1;
+    if (tlv_fixed_writer_format_init(&writer_format, &config) != TLV_OK) return 1;
+
     const tlv_tag_t tag = TLV_TAG(0x01);
     const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
     uint8_t         buffer[5];
     size_t          written = 0, consumed = 0;
     tlv_view_t      view;
 
-    if (tlv_write(buffer, sizeof(buffer), &tlv_writer_format_fixed_1byte, tag, value, sizeof(value),
-                  &written) != TLV_OK)
+    if (tlv_write(buffer, sizeof(buffer), &writer_format, tag, value, sizeof(value), &written) !=
+        TLV_OK)
         return 1;
-    if (tlv_read(buffer, written, &tlv_reader_format_fixed_1byte, &view, &consumed) != TLV_OK)
-        return 1;
+    if (tlv_read(buffer, written, &reader_format, &view, &consumed) != TLV_OK) return 1;
 
     /* view.value borrows buffer; keep it alive while using the view. */
     if (consumed != written || view.tag.size != 1 || view.tag.data[0] != 0x01) return 1;

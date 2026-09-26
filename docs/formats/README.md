@@ -5,8 +5,7 @@ and `formats/asn1` implementation families. Each page includes a byte example.
 Profile semantics are documented separately.
 
 - [Default TLV](default/README.md)
-- [Fixed 1-byte TLV](fixed/README.md)
-- [Configurable fixed-width TLV (C++)](fixed/configurable.md)
+- [Configurable fixed-width TLV](fixed/configurable.md)
 - [Bluetooth LTV](bluetooth/README.md)
 - [BER-TLV](asn1/ber.md)
 - [DER-TLV](asn1/der.md)
@@ -18,8 +17,7 @@ Profile semantics are documented separately.
 
 | Need | Start with | Boundary |
 | --- | --- | --- |
-| Small internal records with fixed header sizes | [Fixed 1-byte TLV](fixed/README.md) | Values up to 255 bytes |
-| Fixed tag and length widths, or a length byte order, chosen at compile time (C++) | [Configurable fixed-width TLV](fixed/configurable.md) | Any tag width, length widths up to 8 bytes |
+| Small internal records with fixed header sizes, or fixed tag/length widths chosen at runtime (C) or compile time (C++) | [Configurable fixed-width TLV](fixed/configurable.md) | Any tag width, length widths up to 8 bytes |
 | One-byte tags with larger payloads | [Default TLV](default/README.md) | Values up to 65,535 bytes |
 | Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
@@ -36,9 +34,8 @@ built. Each format keeps its own page with the byte layout and a worked example.
 | Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree walker | Build option |
 | --- | --- | --- | --- | --- | --- | --- |
 | [Default TLV](default/README.md#layout-and-typical-use) | 1 byte | 1 byte below `80`, or `81 nn`, `82 nn nn` | 65,535 bytes | tag, length, value | none (opaque values) | `OPENTLV_FORMAT_DEFAULT` |
-| [Fixed 1-byte TLV](fixed/README.md#layout-and-typical-use) | 1 byte | 1 byte | 255 bytes | tag, length, value | none (opaque values) | `OPENTLV_FORMAT_FIXED_1BYTE` |
 | [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
-| [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) (C++) | 1 to 8 bytes | 1 to 8 bytes, big or little endian | set by the length width | tag, length, value | none (opaque values) | none (C++ header) |
+| [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | 1 to 8 bytes | 1 to 8 bytes, big or little endian | set by the length width | tag, length, value | none (opaque values) | `OPENTLV_FORMAT_FIXED` (C); none (C++ header) |
 | [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_ber_is_constructed` | `OPENTLV_FORMAT_BER` |
 | [DER-TLV](asn1/der.md#layout-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_der_is_constructed` | `OPENTLV_FORMAT_DER` |
 | [CER-TLV](asn1/cer.md#layout-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_cer_is_constructed` | `OPENTLV_FORMAT_CER` |
@@ -71,10 +68,15 @@ Include `tlv/reader/reader.h` and call `tlv_read` to parse one element from the
 beginning of a buffer:
 
 ```c
+/* One tag byte and one length byte; config must outlive its readers. */
+const tlv_fixed_config_t config = {
+    .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
+tlv_reader_format_t format;
+tlv_fixed_reader_format_init(&format, &config);
+
 tlv_view_t view;
 size_t consumed;
-tlv_result_t result = tlv_read(data, size, &tlv_reader_format_fixed_1byte,
-                               &view, &consumed);
+tlv_result_t result = tlv_read(data, size, &format, &view, &consumed);
 if (result == TLV_OK) {
     /* view.value borrows data; consumed also includes any framing trailer. */
 }
@@ -102,10 +104,9 @@ static tlv_visit_result_t count_entry(const tlv_view_t* view, void* context) {
     return TLV_VISIT_CONTINUE;
 }
 
-/* Inside a function: */
+/* Inside a function: format as constructed above. */
 size_t count = 0;
-tlv_result_t result = tlv_walk(data, size, &tlv_reader_format_fixed_1byte,
-                              count_entry, &count);
+tlv_result_t result = tlv_walk(data, size, &format, count_entry, &count);
 ```
 
 The visitor runs once per successfully parsed element, in buffer order.
@@ -128,14 +129,19 @@ Include `tlv/writer/writer.h`. Query the complete encoded size without providing
 bytes, then write into a caller-owned buffer:
 
 ```c
+/* One tag byte and one length byte; config must outlive its writers. */
+const tlv_fixed_config_t config = {
+    .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
+tlv_writer_format_t writer_format;
+tlv_fixed_writer_format_init(&writer_format, &config);
+
 const tlv_tag_t tag = TLV_TAG(0x01);
 const uint8_t value[] = {0xAA, 0xBB, 0xCC};
 uint8_t buffer[5];
 size_t required, written;
-tlv_result_t result = tlv_encoded_size(tag, sizeof(value),
-                                      &tlv_writer_format_fixed_1byte, &required);
+tlv_result_t result = tlv_encoded_size(tag, sizeof(value), &writer_format, &required);
 if (result == TLV_OK && required <= sizeof(buffer)) {
-    result = tlv_write(buffer, sizeof(buffer), &tlv_writer_format_fixed_1byte,
+    result = tlv_write(buffer, sizeof(buffer), &writer_format,
                        tag, value, sizeof(value), &written);
     /* On success: written == required; buffer contains 01 03 AA BB CC. */
 }
@@ -231,7 +237,7 @@ requires a descriptor and callbacks in application code, without parser edits.
 ## Nested traversal
 
 Concrete descriptors are declared in `tlv/builtins/fixed/default.h`,
-`tlv/builtins/fixed/fixed_1byte.h`, `tlv/builtins/asn1/ber.h`,
+`tlv/builtins/fixed/fixed.h`, `tlv/builtins/asn1/ber.h`,
 `tlv/builtins/asn1/der.h`, and `tlv/builtins/asn1/cer.h`. The generic `format.h`
 declares only the contract.
 

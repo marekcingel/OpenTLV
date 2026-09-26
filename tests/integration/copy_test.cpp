@@ -1,4 +1,4 @@
-#include "tlv/builtins/fixed/fixed_1byte.h"
+﻿#include "controlled_format.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/copy.h"
 #include "tlv/reader/reader.h"
@@ -10,8 +10,7 @@ TEST(Integration_Tlv_Copy, ValueOutlivesInputWhileReaderRemainsZeroCopy) {
     uint8_t    input[] = {1, 2, 0xAB, 0xCD};
     tlv_view_t view{};
     size_t     consumed = 0, written = 99;
-    ASSERT_EQ(TLV_OK,
-              tlv_read(input, sizeof(input), &tlv_reader_format_fixed_1byte, &view, &consumed));
+    ASSERT_EQ(TLV_OK, tlv_read(input, sizeof(input), &controlled::reader, &view, &consumed));
     EXPECT_EQ(input + 2, view.value.data);
     ASSERT_EQ(TLV_OK, tlv_copy_value(&view, nullptr, 0, &written));
     EXPECT_EQ(2u, written);

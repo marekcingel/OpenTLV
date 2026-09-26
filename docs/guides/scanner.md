@@ -5,13 +5,20 @@ calls the generic `tlv_read()` at successive offsets and returns the first
 complete candidate, without allocating or copying values.
 
 ```c
+#include "tlv/builtins/fixed/fixed.h"
 #include "tlv/reader/scanner.h"
+
+/* One tag byte and one length byte; config must outlive its readers. */
+const tlv_fixed_config_t config = {
+    .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
+tlv_reader_format_t format;
+tlv_fixed_reader_format_init(&format, &config);
 
 const uint8_t data[] = {0xFF, 0xFF, 0x42, 1, 0xAB};
 tlv_view_t view;
 size_t offset, consumed;
 tlv_result_t result = tlv_scan(data, sizeof(data), 0,
-    &tlv_reader_format_fixed_1byte, NULL, &view, &offset, &consumed);
+    &format, NULL, &view, &offset, &consumed);
 /* TLV_OK: offset == 2, consumed == 3, view.value.data == data + 4. */
 ```
 

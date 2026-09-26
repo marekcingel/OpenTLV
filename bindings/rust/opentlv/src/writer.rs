@@ -8,6 +8,7 @@ use opentlv_native as native;
 
 use crate::entry::Entry;
 use crate::error::{Error, Result};
+use crate::fixed_format::FixedFormat;
 use crate::format::Format;
 use crate::tag::Tag;
 
@@ -29,6 +30,22 @@ pub fn encoded_size(tag: &Tag, value_len: usize, format: Format) -> Result<usize
     let mut size = 0usize;
     // SAFETY: `format.writer_raw()` points to a static format and `size` is
     // a valid, writable `usize`.
+    let code =
+        unsafe { native::tlv_encoded_size(tag.raw(), value_len, format.writer_raw(), &mut size) };
+    Error::check(code)?;
+    Ok(size)
+}
+
+/// Returns the encoded size of an element with the given tag and value length
+/// in a [`FixedFormat`], without writing anything.
+///
+/// # Errors
+///
+/// Same as [`encoded_size`].
+pub fn encoded_size_fixed(tag: &Tag, value_len: usize, format: &FixedFormat) -> Result<usize> {
+    let mut size = 0usize;
+    // SAFETY: `format.writer_raw()` points at storage owned by `format`,
+    // borrowed for this call only, and `size` is a valid, writable `usize`.
     let code =
         unsafe { native::tlv_encoded_size(tag.raw(), value_len, format.writer_raw(), &mut size) };
     Error::check(code)?;
@@ -79,6 +96,28 @@ impl<'a> Writer<'a> {
         };
         // Every argument is non-null and the built-in formats are complete, so
         // initialization cannot fail.
+        assert_eq!(code, native::TLV_OK, "tlv_writer_init failed");
+        Writer {
+            // SAFETY: `tlv_writer_init` succeeded and initialized every field.
+            raw: unsafe { raw.assume_init() },
+            _buf: PhantomData,
+        }
+    }
+
+    /// Creates a writer for a [`FixedFormat`]; `format` must outlive the writer.
+    pub fn with_fixed_format(buf: &'a mut [u8], format: &'a FixedFormat) -> Writer<'a> {
+        let mut raw = MaybeUninit::<native::tlv_writer_t>::uninit();
+        // SAFETY: `raw` is writable; `buf` is a valid slice (a non-null
+        // pointer even when empty); `format.writer_raw()` points at storage
+        // owned by `format`, which the borrow checker keeps alive for `'a`.
+        let code = unsafe {
+            native::tlv_writer_init(
+                raw.as_mut_ptr(),
+                buf.as_mut_ptr(),
+                buf.len(),
+                format.writer_raw(),
+            )
+        };
         assert_eq!(code, native::TLV_OK, "tlv_writer_init failed");
         Writer {
             // SAFETY: `tlv_writer_init` succeeded and initialized every field.

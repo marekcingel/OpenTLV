@@ -8,10 +8,12 @@ import opentlv_native as _native
 
 from opentlv.entry import Entry
 from opentlv.error import BufferTooShortError, _from_native
+from opentlv.fixed_format import FixedFormat
 from opentlv.format import Format
 from opentlv.tag import Tag
 
 Value = Union[bytes, bytearray, memoryview]
+AnyFormat = Union[Format, FixedFormat]
 
 _INITIAL_CAPACITY = 64
 
@@ -33,13 +35,13 @@ class Writer:
 
     __slots__ = ("_buffer", "_pos", "_format")
 
-    def __init__(self, format: Format = Format.DEFAULT) -> None:
+    def __init__(self, format: AnyFormat = Format.DEFAULT) -> None:
         self._buffer = bytearray(_INITIAL_CAPACITY)
         self._pos = 0
         self._format = format
 
     @property
-    def format(self) -> Format:
+    def format(self) -> AnyFormat:
         """The wire format this writer encodes."""
         return self._format
 
@@ -48,18 +50,25 @@ class Writer:
         """The number of bytes written so far."""
         return self._pos
 
+    def _write_native(self, offset: int, tag_bytes: bytes, value: Value) -> int:
+        if isinstance(self._format, FixedFormat):
+            return _native.write_fixed(self._buffer, offset, tag_bytes, value,
+                                       self._format.tag_size, self._format.length_size,
+                                       self._format.big_endian)
+        return _native.write(self._buffer, offset, tag_bytes, value, self._format)
+
     def write(self, tag: Union[Tag, bytes], value: Value) -> None:
         """Appends one entry with `tag` and `value`."""
         tag_bytes = tag.data if isinstance(tag, Tag) else tag
         try:
-            written = _native.write(self._buffer, self._pos, tag_bytes, value, self._format)
+            written = self._write_native(self._pos, tag_bytes, value)
         except _native.Error as native_error:
             error = _from_native(native_error)
             if not (isinstance(error, BufferTooShortError) and error.required is not None):
                 raise error from None
             self._grow(self._pos + error.required)
             try:
-                written = _native.write(self._buffer, self._pos, tag_bytes, value, self._format)
+                written = self._write_native(self._pos, tag_bytes, value)
             except _native.Error as retry_error:
                 raise _from_native(retry_error) from None
         self._pos += written
@@ -85,7 +94,8 @@ class Writer:
         return f"Writer(format={self._format!r}, position={self._pos})"
 
 
-def encoded_size(tag: Union[Tag, bytes], value_length: int, format: Format = Format.DEFAULT) -> int:
+def encoded_size(tag: Union[Tag, bytes], value_length: int,
+                 format: AnyFormat = Format.DEFAULT) -> int:
     """Returns the encoded size of an element with `tag` and a value of
     `value_length` bytes in `format`, without writing anything.
 
@@ -94,6 +104,9 @@ def encoded_size(tag: Union[Tag, bytes], value_length: int, format: Format = For
     """
     tag_bytes = tag.data if isinstance(tag, Tag) else tag
     try:
+        if isinstance(format, FixedFormat):
+            return _native.encoded_size_fixed(tag_bytes, value_length, format.tag_size,
+                                              format.length_size, format.big_endian)
         return _native.encoded_size(tag_bytes, value_length, format)
     except _native.Error as native_error:
         raise _from_native(native_error) from None

@@ -54,6 +54,10 @@ public:
     const char* path = nullptr;
     tlv_query_t query = {};
     int         value_only = 0;
+    // --format fixed only: tag width, length width and length byte order.
+    std::size_t fixed_tag_size = 1;
+    std::size_t fixed_length_size = 1;
+    const char* fixed_byte_order = "big";
 };
 
 } // namespace cli

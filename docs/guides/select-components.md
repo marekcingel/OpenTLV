@@ -12,7 +12,7 @@ Turn off what you do not use.
 | Option | Component |
 | --- | --- |
 | `OPENTLV_FORMAT_DEFAULT` | [Default TLV](../formats/default/README.md) |
-| `OPENTLV_FORMAT_FIXED_1BYTE` | [Fixed 1-byte TLV](../formats/fixed/README.md) |
+| `OPENTLV_FORMAT_FIXED` | [Configurable fixed-width TLV](../formats/fixed/configurable.md) (C API) |
 | `OPENTLV_FORMAT_BLUETOOTH_LTV` | [Bluetooth LTV](../formats/bluetooth/README.md) |
 | `OPENTLV_FORMAT_ASN1` | The ASN.1 group; must be ON for BER, DER, CER and EMV |
 | `OPENTLV_FORMAT_BER` | [BER-TLV](../formats/asn1/ber.md); must be ON for DER, CER and EMV |
@@ -22,9 +22,9 @@ Turn off what you do not use.
 | `OPENTLV_DOCUMENT` | [Mutable document](document.md); allocates memory, so turn it OFF for allocation-free builds. Independent of every format |
 
 Turning an option OFF also turns OFF everything below it in the chain
-`ASN1 -> BER -> DER -> EMV`, with CER a sibling of DER under BER. The
-[configurable fixed-width format](../formats/fixed/configurable.md) is a C++ header and
-has no CMake option.
+`ASN1 -> BER -> DER -> EMV`, with CER a sibling of DER under BER. The C++ side
+of the [configurable fixed-width format](../formats/fixed/configurable.md) is
+a header-only template and has no CMake option.
 
 ## Recipes
 
@@ -37,7 +37,7 @@ Use this when you supply your own [format callbacks](../formats/custom/README.md
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED_1BYTE=OFF \
+  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED=OFF \
   -DOPENTLV_FORMAT_BLUETOOTH_LTV=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build --parallel --target tlv
 ```
@@ -46,7 +46,7 @@ cmake --build build --parallel --target tlv
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED_1BYTE=OFF \
+  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED=OFF \
   -DOPENTLV_FORMAT_BLUETOOTH_LTV=OFF \
   -DOPENTLV_FORMAT_DER=OFF -DOPENTLV_FORMAT_CER=OFF -DOPENTLV_PROFILE_EMV=OFF
 cmake --build build --parallel --target tlv
@@ -58,7 +58,7 @@ EMV needs DER and DER needs BER, so all three are on. CER is off.
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED_1BYTE=OFF \
+  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED=OFF \
   -DOPENTLV_FORMAT_BLUETOOTH_LTV=OFF -DOPENTLV_FORMAT_CER=OFF
 cmake --build build --parallel --target tlv
 ```
@@ -67,7 +67,7 @@ cmake --build build --parallel --target tlv
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED_1BYTE=OFF \
+  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED=OFF \
   -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build --parallel --target tlv
 ```

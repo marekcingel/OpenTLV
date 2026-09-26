@@ -38,8 +38,13 @@ enum : unsigned {
     opt_emv_check = 4194304,
     opt_output_file = 8388608,
     opt_diagnostics = 16777216,
+    opt_fixed_tag_size = 33554432,
+    opt_fixed_length_size = 67108864,
+    opt_fixed_byte_order = 134217728,
     // Options only encode takes.
-    encode_only = opt_tag | opt_value | opt_output_encoding | opt_output_file
+    encode_only = opt_tag | opt_value | opt_output_encoding | opt_output_file,
+    // --format fixed only.
+    fixed_only = opt_fixed_tag_size | opt_fixed_length_size | opt_fixed_byte_order
 };
 
 int number(const char* text, std::size_t* out) {
@@ -113,6 +118,9 @@ unsigned option_bit(const char* arg) {
         {"--emv-check", opt_emv_check},
         {"--output-file", opt_output_file},
         {"--diagnostics", opt_diagnostics},
+        {"--fixed-tag-size", opt_fixed_tag_size},
+        {"--fixed-length-size", opt_fixed_length_size},
+        {"--fixed-byte-order", opt_fixed_byte_order},
     };
     for (const auto& entry : table)
         if (!strcmp(arg, entry.name)) return entry.bit;
@@ -155,15 +163,15 @@ int options::parse(int argc, char** argv) {
         // Each command accepts only its own options. dump and validate share
         // the input, limit and presentation options; decode takes the subset
         // that makes sense for a JSON export.
-        const unsigned decode_options = opt_format | opt_input | opt_hex | opt_max_input |
-                                        opt_max_depth | opt_max_elements | opt_describe |
-                                        opt_profile | opt_input_encoding | opt_decode |
-                                        opt_recover | opt_emv_context | opt_diagnostics;
-        const unsigned encode_options =
-            opt_format | opt_input | opt_max_input | opt_max_depth | opt_max_elements | encode_only;
+        const unsigned decode_options =
+            opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth | opt_max_elements |
+            opt_describe | opt_profile | opt_input_encoding | opt_decode | opt_recover |
+            opt_emv_context | opt_diagnostics | fixed_only;
+        const unsigned encode_options = opt_format | opt_input | opt_max_input | opt_max_depth |
+                                        opt_max_elements | encode_only | fixed_only;
         const unsigned query_options = opt_format | opt_input | opt_hex | opt_max_input |
                                        opt_max_depth | opt_max_elements | opt_input_encoding |
-                                       opt_output | opt_value | opt_diagnostics;
+                                       opt_output | opt_value | opt_diagnostics | fixed_only;
         if (lookup       ? !(bit & (opt_profile | opt_output))
             : listing    ? !(bit & (opt_profile | opt_output | opt_search))
             : querying   ? !(bit & query_options)
@@ -264,6 +272,17 @@ int options::parse(int argc, char** argv) {
             if (strcmp(argv[i], "human") && strcmp(argv[i], "compact") && strcmp(argv[i], "json"))
                 return fail(2, "diagnostics must be human, compact or json");
             diagnostics = argv[i];
+        } else if (bit == opt_fixed_tag_size) {
+            if (!number(argv[i], &fixed_tag_size) || fixed_tag_size < 1)
+                return fail(2, "--fixed-tag-size must be a positive decimal integer");
+        } else if (bit == opt_fixed_length_size) {
+            if (!number(argv[i], &fixed_length_size) || fixed_length_size < 1 ||
+                fixed_length_size > 8)
+                return fail(2, "--fixed-length-size must be between 1 and 8");
+        } else if (bit == opt_fixed_byte_order) {
+            if (strcmp(argv[i], "big") && strcmp(argv[i], "little"))
+                return fail(2, "--fixed-byte-order must be big or little");
+            fixed_byte_order = argv[i];
         } else if (!number(argv[i], bit == opt_max_input   ? &max_input
                                     : bit == opt_max_depth ? &max_depth
                                                            : &max_elements))
@@ -284,11 +303,17 @@ int options::parse(int argc, char** argv) {
         if (tag && input) return fail(2, "encode takes --tag/--value or --input, not both");
         if (value && !tag) return fail(2, "--value requires --tag");
         if (max_depth > TLV_WALK_MAX_DEPTH) return fail(2, "maximum depth must be in 0..64");
+        if ((seen & fixed_only) && strcmp(format, "fixed"))
+            return fail(2, "--fixed-tag-size/--fixed-length-size/--fixed-byte-order require "
+                           "--format fixed");
         return 0;
     }
     if (!format || (!!input + !!hex) != 1)
         return fail(2, "specify --format and exactly one of --input or --hex");
     if (max_depth > TLV_WALK_MAX_DEPTH) return fail(2, "maximum depth must be in 0..64");
+    if ((seen & fixed_only) && strcmp(format, "fixed"))
+        return fail(2, "--fixed-tag-size/--fixed-length-size/--fixed-byte-order require "
+                       "--format fixed");
     if (querying) {
         const tlv_result_t rc = tlv_query_parse(path, &query, nullptr);
         if (rc == TLV_ERR_INVALID_ARG)
@@ -344,8 +369,12 @@ void options::usage() {
            "       otlv tag HEX --profile emv [--output text|json]\n"
            "       otlv tags --profile emv [--search TEXT] [--output text|json]\n"
            "       otlv formats | --help | --version\n"
-           "Formats: default, fixed-1byte, ber, der, bluetooth-ltv (when enabled in this build)\n"
+           "Formats: default, fixed, ber, der, bluetooth-ltv (when enabled in this build)\n"
            "Options:\n"
+           "  --fixed-tag-size N     --format fixed: tag width in bytes (default 1)\n"
+           "  --fixed-length-size N  --format fixed: length width in bytes, 1..8 (default 1)\n"
+           "  --fixed-byte-order NAME --format fixed: length byte order, big (default) or "
+           "little\n"
            "  --pdol                 Read raw DOL tag/one-byte-length pairs (BER)\n"
            "  --tree                 Print nested BER/DER elements (dump only)\n"
            "  --pretty               Print a graphical UTF-8 tree (implies --tree)\n"

@@ -36,7 +36,7 @@ option(OPENTLV_BUILD_DOCS "Enable the Doxygen C and C++ API reference targets" O
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
 option(OPENTLV_FORMAT_DEFAULT "Include the default wire format" ON)
-option(OPENTLV_FORMAT_FIXED_1BYTE "Include the fixed one-byte wire format" ON)
+option(OPENTLV_FORMAT_FIXED "Include the configurable fixed-width wire format" ON)
 option(OPENTLV_FORMAT_BLUETOOTH_LTV "Include the Bluetooth LTV (length, type, value) wire format" ON)
 option(OPENTLV_FORMAT_ASN1 "Include ASN.1-related wire formats (BER, DER)" ON)
 option(OPENTLV_FORMAT_BER "Include the BER wire format" ON)

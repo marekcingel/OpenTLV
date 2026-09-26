@@ -2,19 +2,21 @@
 #include <cstring>
 
 #include "tlv++/tlv.hpp"
-#include "tlv/builtins/fixed/fixed_1byte.h"
+#include "tlv++/builtins/fixed/fixed_format.hpp"
 
 int main() {
+    using format = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;
+
     const tlv::tag_t               tag = TLV_TAG(0x01);
     const std::array<tlv::byte, 3> value = {
         static_cast<tlv::byte>(0xAA), static_cast<tlv::byte>(0xBB), static_cast<tlv::byte>(0xCC)};
     std::array<tlv::byte, 5> buffer{};
-    tlv::writer              writer(buffer.data(), buffer.size(), tlv_writer_format_fixed_1byte);
+    tlv::writer              writer(buffer.data(), buffer.size(), format::writer());
 
     if (!writer.write(tag, tlv::bytes(value.data(), value.size()))) return 1;
 
     // entry.value borrows buffer; keep it alive while using the entry.
-    tlv::reader reader(tlv::bytes(buffer.data(), writer.size()), tlv_reader_format_fixed_1byte);
+    tlv::reader reader(tlv::bytes(buffer.data(), writer.size()), format::reader());
     auto        entry = reader.next();
     if (!entry || !reader.at_end()) return 1;
 

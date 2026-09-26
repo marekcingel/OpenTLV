@@ -48,7 +48,7 @@ tlv/
   schema/    schema.h
   codec/     codec.h, structure.h
   builtins/
-    fixed/     default.h, fixed_1byte.h
+    fixed/     default.h, fixed.h
     bluetooth/ bluetooth_ltv.h
     asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
     emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
@@ -213,7 +213,7 @@ to ON and can be disabled independently:
 | CMake option / generated config macro | Included component |
 | --- | --- |
 | `OPENTLV_FORMAT_DEFAULT` | One-byte tag with legacy definite BER-style length |
-| `OPENTLV_FORMAT_FIXED_1BYTE` | One-byte tag and length |
+| `OPENTLV_FORMAT_FIXED` | Configurable fixed-width tag and length (`tlv_fixed_config_t`) |
 | `OPENTLV_FORMAT_BLUETOOTH_LTV` | Bluetooth Length, Type, Value framing |
 | `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER, CER) |
 | `OPENTLV_FORMAT_BER` | Public BER format |
@@ -242,7 +242,7 @@ is built only when that component is enabled.
 
 ```sh
 cmake -S . -B build-minimal -DOPENTLV_FORMAT_DEFAULT=OFF \
-  -DOPENTLV_FORMAT_FIXED_1BYTE=OFF -DOPENTLV_FORMAT_ASN1=OFF
+  -DOPENTLV_FORMAT_FIXED=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build-minimal --parallel
 ```
 
@@ -255,7 +255,7 @@ guarantee or an exhaustive migration guide.
 
 Update flat includes to the folders above (`tlv/reader.h` becomes
 `tlv/reader/reader.h`, and so on). Concrete format declarations use
-`tlv/builtins/fixed/default.h`, `tlv/builtins/fixed/fixed_1byte.h`,
+`tlv/builtins/fixed/default.h`, `tlv/builtins/fixed/fixed.h`,
 `tlv/builtins/asn1/ber.h`, or `tlv/builtins/asn1/der.h`; the public
 aggregate includes enabled formats.
 

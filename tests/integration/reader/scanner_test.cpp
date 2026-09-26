@@ -1,5 +1,5 @@
+﻿#include "controlled_format.h"
 #include "tlv/builtins/fixed/default.h"
-#include "tlv/builtins/fixed/fixed_1byte.h"
 #include "tlv/reader/scanner.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
@@ -16,7 +16,7 @@ protected:
 
     tlv_result_t scan(const uint8_t* data, size_t size, size_t start = 0,
                       const tlv_schema_t*        filter = nullptr,
-                      const tlv_reader_format_t* format = &tlv_reader_format_fixed_1byte) {
+                      const tlv_reader_format_t* format = &controlled::reader) {
         return tlv_scan(data, size, start, format, filter, &view, &offset, &consumed);
     }
 
@@ -96,7 +96,7 @@ TEST_F(Integration_Tlv_Scanner, ContinuesAfterInvalidLengthAndTruncatedCandidate
 TEST_F(Integration_Tlv_Scanner, NormalReaderStillStopsAtInvalidBoundary) {
     const uint8_t data[] = {0xFF, 0xFF, 0x42, 1, 0xAA};
     tlv_reader_t  reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_fixed_1byte));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::reader));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &view));
     EXPECT_EQ(0u, reader.pos);
     unchanged();

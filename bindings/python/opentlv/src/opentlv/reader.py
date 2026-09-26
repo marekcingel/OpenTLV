@@ -8,10 +8,12 @@ import opentlv_native as _native
 
 from opentlv.entry import Entry
 from opentlv.error import _from_native
+from opentlv.fixed_format import FixedFormat
 from opentlv.format import Format
 from opentlv.tag import Tag
 
 Buffer = Union[bytes, bytearray, memoryview]
+AnyFormat = Union[Format, FixedFormat]
 
 
 class Reader:
@@ -33,14 +35,14 @@ class Reader:
 
     __slots__ = ("_data", "_format", "_pos", "_failed")
 
-    def __init__(self, data: Buffer, format: Format = Format.DEFAULT) -> None:
+    def __init__(self, data: Buffer, format: AnyFormat = Format.DEFAULT) -> None:
         self._data = data if isinstance(data, memoryview) else memoryview(data)
         self._format = format
         self._pos = 0
         self._failed = False
 
     @property
-    def format(self) -> Format:
+    def format(self) -> AnyFormat:
         """The wire format this reader parses."""
         return self._format
 
@@ -61,8 +63,13 @@ class Reader:
         if self._failed or self.at_end:
             raise StopIteration
         try:
-            tag_data, value_offset, value_length, consumed = _native.read(
-                self._data, self._pos, self._format)
+            if isinstance(self._format, FixedFormat):
+                tag_data, value_offset, value_length, consumed = _native.read_fixed(
+                    self._data, self._pos, self._format.tag_size, self._format.length_size,
+                    self._format.big_endian)
+            else:
+                tag_data, value_offset, value_length, consumed = _native.read(
+                    self._data, self._pos, self._format)
         except _native.Error as native_error:
             self._failed = True
             raise _from_native(native_error) from None

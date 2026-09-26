@@ -1,4 +1,4 @@
-#include "tlv/builtins/fixed/fixed_1byte.h"
+﻿#include "controlled_format.h"
 #include "tlv/schema/schema.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
@@ -16,7 +16,7 @@ static const tlv_schema_t schema = {entries, sizeof(entries) / sizeof(entries[0]
 TEST(Integration_Tlv_Schema, ReaderParsesUnknownTagsAndLengthsOutsideSchema) {
     const uint8_t data[] = {7, 0, 1, 0};
     tlv_reader_t  reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_fixed_1byte));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::reader));
     tlv_view_t view;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
     EXPECT_EQ(nullptr, tlv_schema_find(&schema, &view.tag));

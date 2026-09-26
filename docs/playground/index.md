@@ -16,7 +16,7 @@ native applications. Nothing you enter is uploaded.
     <label>Format
       <select id="otlv-pg-format" disabled>
         <option value="default">Default TLV</option>
-        <option value="fixed-1byte">Fixed 1-byte TLV</option>
+        <option value="fixed">Fixed-width TLV</option>
         <option value="bluetooth-ltv">Bluetooth LTV</option>
         <option value="ber">BER-TLV</option>
         <option value="der">DER-TLV</option>
@@ -26,6 +26,20 @@ native applications. Nothing you enter is uploaded.
       <select id="otlv-pg-profile" disabled>
         <option value="none">None</option>
         <option value="emv">EMV tag names (BER-TLV only)</option>
+      </select>
+    </label>
+  </div>
+  <div id="otlv-pg-fixed-options" class="otlv-pg-controls" hidden>
+    <label>Fixed tag size (bytes)
+      <input id="otlv-pg-fixed-tag-size" type="number" min="1" value="1" disabled>
+    </label>
+    <label>Fixed length size (bytes)
+      <input id="otlv-pg-fixed-length-size" type="number" min="1" max="8" value="1" disabled>
+    </label>
+    <label>Fixed length byte order
+      <select id="otlv-pg-fixed-order" disabled>
+        <option value="big">Big-endian</option>
+        <option value="little">Little-endian</option>
       </select>
     </label>
   </div>
@@ -52,6 +66,11 @@ in all of them.
   innermost element that contains it.
 - **JSON**: the parse result as JSON, with a **Copy JSON** button.
 
+Choosing **Fixed-width TLV** reveals tag size, length size (1-8 bytes) and length
+byte order controls, matching the C `tlv_fixed_config_t`/C++ `tlv::fixed_format`
+[configurable fixed-width format](../formats/fixed/configurable.md); they default
+to a one-byte tag, a one-byte length and big-endian.
+
 The inspector lists the selected element's tag, encoded tag and length bytes,
 length, offset, encoded size, nesting depth and path, and raw value, with
 buttons to copy the tag, the value or the whole encoded element. With the
@@ -60,8 +79,8 @@ buttons to copy the tag, the value or the whole encoded element. With the
 
 In [BER-TLV](../formats/asn1/ber.md) and
 [DER-TLV](../formats/asn1/der.md) constructed elements nest their children; the
-[Default](../formats/default/README.md) and
-[Fixed 1-byte](../formats/fixed/README.md) and
+[Default](../formats/default/README.md),
+[configurable fixed-width](../formats/fixed/configurable.md) and
 [Bluetooth LTV](../formats/bluetooth/README.md) formats have opaque values, so
 their elements are flat. Bluetooth LTV puts the length byte before the type, so
 in the hex view and the element details the length is shown before the tag. EMV data is BER-TLV.

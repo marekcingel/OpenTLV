@@ -46,14 +46,19 @@ extern "C" {
 typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 
 /*
- * Parses `size` bytes as `format` ("default", "fixed-1byte", "bluetooth-ltv", "ber" or "der").
+ * Parses `size` bytes as `format` ("default", "fixed", "bluetooth-ltv", "ber" or "der").
  * `profile` annotates elements with dictionary metadata: NULL, "" or "none"
  * for none, or "emv" (EMV Contact Book 3 tags) with the "ber" format.
- * Returns NULL only when memory runs out. An unknown format or profile, or
- * invalid input, is reported through the result, never by returning NULL.
+ * `fixed_tag_size`, `fixed_length_size` and `fixed_big_endian` (nonzero for
+ * big-endian) configure `format == "fixed"`'s tag width, length width (1-8
+ * bytes) and length byte order (tlv_fixed_config_t); ignored for every other
+ * format. Returns NULL only when memory runs out. An unknown format or
+ * profile, invalid fixed-format widths, or invalid input, is reported through
+ * the result, never by returning NULL.
  */
-OPENTLV_WASM_API opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size,
-                                                           const char* format, const char* profile);
+OPENTLV_WASM_API opentlv_wasm_result_t*
+opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format, const char* profile,
+                   size_t fixed_tag_size, size_t fixed_length_size, int fixed_big_endian);
 
 /* tlv_result_t of the parse; 0 (TLV_OK) on success. */
 OPENTLV_WASM_API int opentlv_wasm_result_code(const opentlv_wasm_result_t* result);

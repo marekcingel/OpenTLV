@@ -8,6 +8,7 @@ use opentlv_native as native;
 
 use crate::entry::Entry;
 use crate::error::{Error, Result};
+use crate::fixed_format::FixedFormat;
 use crate::format::Format;
 
 /// A sequential reader that parses TLV entries from a byte slice.
@@ -55,6 +56,29 @@ impl<'a> Reader<'a> {
         };
         // Every argument is non-null and the built-in formats are complete, so
         // initialization cannot fail.
+        assert_eq!(code, native::TLV_OK, "tlv_reader_init failed");
+        Reader {
+            // SAFETY: `tlv_reader_init` succeeded and initialized every field.
+            raw: unsafe { raw.assume_init() },
+            failed: false,
+            _data: PhantomData,
+        }
+    }
+
+    /// Creates a reader for a [`FixedFormat`]; `format` must outlive the reader.
+    pub fn with_fixed_format(data: &'a [u8], format: &'a FixedFormat) -> Reader<'a> {
+        let mut raw = MaybeUninit::<native::tlv_reader_t>::uninit();
+        // SAFETY: `raw` is writable; `data` is a valid slice (a non-null
+        // pointer even when empty); `format.reader_raw()` points at storage
+        // owned by `format`, which the borrow checker keeps alive for `'a`.
+        let code = unsafe {
+            native::tlv_reader_init(
+                raw.as_mut_ptr(),
+                data.as_ptr(),
+                data.len(),
+                format.reader_raw(),
+            )
+        };
         assert_eq!(code, native::TLV_OK, "tlv_reader_init failed");
         Reader {
             // SAFETY: `tlv_reader_init` succeeded and initialized every field.

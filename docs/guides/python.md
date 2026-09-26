@@ -48,7 +48,10 @@ for entry in opentlv.Reader(data):
 buffer-protocol object; the reader borrows it rather than copying it, so it
 must stay valid and unchanged for as long as the reader or its entries are
 used. `Reader(data)` uses `opentlv.Format.DEFAULT`; pass `format=` for
-another wire format, for example `opentlv.Reader(data, opentlv.Format.BER)`.
+another wire format, for example `opentlv.Reader(data, opentlv.Format.BER)`,
+or an `opentlv.FixedFormat(tag_size, length_size, byte_order="big")` for a
+runtime-configurable fixed-width tag and length (equivalent to the C
+`tlv_fixed_config_t`).
 
 Runnable version, parsing a nested BER document and handling truncated
 input:

@@ -3,8 +3,8 @@
 
 #include <gtest/gtest.h>
 
-#if OPENTLV_FORMAT_FIXED_1BYTE
-#include "tlv/builtins/fixed/fixed_1byte.h"
+#if OPENTLV_FORMAT_FIXED
+#include "tlv/builtins/fixed/fixed.h"
 #endif
 
 #include <array>
@@ -302,9 +302,12 @@ TEST(Unit_Tlvpp_FixedFormat, WorksWithTheCApi) {
     EXPECT_EQ(view.value.data, buf + 3);
 }
 
-#if OPENTLV_FORMAT_FIXED_1BYTE
-TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheBuiltinFormat) {
+#if OPENTLV_FORMAT_FIXED
+TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheCApi) {
     using format = tlv::fixed_format<1, 1, BE>;
+    const tlv_fixed_config_t c_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    tlv_writer_format_t      c_writer{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_writer_format_init(&c_writer, &c_config));
     for (std::size_t length : {std::size_t(0), std::size_t(1), std::size_t(255)}) {
         SCOPED_TRACE(length);
         std::vector<std::uint8_t> value(length, 0x5A);
@@ -313,8 +316,8 @@ TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheBuiltinFormat) {
         const tlv_tag_t           tag = TLV_TAG(0x7F);
         size_t                    expected_size = 0, actual_size = 0;
 
-        ASSERT_EQ(tlv_write(expected, sizeof(expected), &tlv_writer_format_fixed_1byte, tag,
-                            value.data(), value.size(), &expected_size),
+        ASSERT_EQ(tlv_write(expected, sizeof(expected), &c_writer, tag, value.data(), value.size(),
+                            &expected_size),
                   TLV_OK);
         ASSERT_EQ(tlv_write(actual, sizeof(actual), &format::writer(), tag, value.data(),
                             value.size(), &actual_size),
@@ -325,7 +328,7 @@ TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheBuiltinFormat) {
     }
     std::size_t size = 0;
     EXPECT_EQ(format::writer().length_size(nullptr, 256, &size),
-              tlv_writer_format_fixed_1byte.length_size(nullptr, 256, &size));
+              c_writer.length_size(c_writer.context, 256, &size));
 }
 #endif
 

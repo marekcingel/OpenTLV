@@ -23,7 +23,7 @@ below; `encode` accepts any member order and any whitespace.
 | --- | --- | --- | --- |
 | `schema` | string | yes | Always `"opentlv.tlv"`. |
 | `version` | integer | yes | Schema version. This page defines version `1`; any other value is rejected. |
-| `format` | string | on output | The wire format (`default`, `fixed-1byte`, `ber`, `der` or `bluetooth-ltv`). Optional on input; when present it must equal `--format`. |
+| `format` | string | on output | The wire format (`default`, `fixed`, `ber`, `der` or `bluetooth-ltv`). Optional on input; when present it must equal `--format`. |
 | `elements` | array | yes | The top-level elements in wire order. May be empty. |
 
 Recovered output (`decode --recover`) adds `complete` and `skipped`; see
@@ -51,7 +51,7 @@ Rules that follow from this:
 - **Primitive and constructed elements have different representations.** For
   BER and DER the tag decides which is legal: a tag whose constructed bit is
   set must use `children`, any other tag must use `value`. Formats without
-  constructed elements (`default`, `fixed-1byte`, `bluetooth-ltv`) accept only
+  constructed elements (`default`, `fixed`, `bluetooth-ltv`) accept only
   `value`.
 - **Order and duplicates are kept.** `elements` and `children` are arrays, so
   repeated tags stay repeated and in the same order.
@@ -86,13 +86,13 @@ the same limits, so the result is always accepted by that reader.
 
 | Format | `value` | `children` | `length_mode` |
 | --- | --- | --- | --- |
-| `default`, `fixed-1byte`, `bluetooth-ltv` | yes | rejected | rejected |
+| `default`, `fixed`, `bluetooth-ltv` | yes | rejected | rejected |
 | `ber` | primitive tags | constructed tags | `definite` or `indefinite` |
 | `der` | primitive tags | constructed tags | rejected (`indefinite`); `definite` accepted |
 
 The writer of the selected format still applies its own rules, so an element
 can be valid in the document and rejected when encoding: an invalid tag, or a
-value too long for `fixed-1byte` or `bluetooth-ltv`.
+value too long for `fixed` or `bluetooth-ltv`.
 
 ## Limits
 

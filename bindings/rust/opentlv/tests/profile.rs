@@ -20,7 +20,7 @@ fn formats_are_selected_by_name() {
 
 #[test]
 fn selected_format_drives_reader_and_writer() {
-    let format: Format = "fixed-1byte".parse().unwrap();
+    let format: Format = "ber".parse().unwrap();
     let mut buf = [0u8; 16];
     let mut writer = Writer::with_format(&mut buf, format);
     writer.write(&tag(&[0x05]), &[0xAA]).unwrap();
