@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix documentation example checks failing after the element refactoring by
+  synchronizing the README, getting-started and Fixed format code blocks with
+  their compiled example sources. (#340)
 - Fix Clang `-Wmissing-field-initializers` errors in the C++ runtime Fixed
   format example by explicitly initializing the element order and length scope. (#340)
 - Fix the Document test owner's move semantics so returning it does not free

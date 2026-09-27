@@ -138,14 +138,15 @@ int main(void) {
     const uint8_t value[] = {0xAA, 0xBB, 0xCC};
     uint8_t       encoded[16];
     size_t        written = 0, consumed = 0;
-    tlv_element_t    element;
+    tlv_element_t element;
 
     CHECK(tlv_write(encoded, sizeof(encoded), &format, (TLV_TAG(0x12, 0x34)), value, sizeof(value),
                     &written));
     /* Wire bytes: 12 34 03 AA BB CC. The tag is kept as is; the length is one byte. */
     CHECK(tlv_read(encoded, written, &format, &element, &consumed));
 
-    return consumed == written && element.tag.size == 2 && element.value.size == sizeof(value) ? 0 : 1;
+    return consumed == written && element.tag.size == 2 && element.value.size == sizeof(value) ? 0
+                                                                                               : 1;
 }
 ```
 
@@ -211,7 +212,8 @@ plain `const tlv_format_t&`:
 
 int main() {
     const tlv_fixed_format_t config = {/* tag_size */ 2, /* length_size */ 1,
-                                       TLV_BYTE_ORDER_BIG_ENDIAN};
+                                       TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     /* config must outlive every reader and writer built from format. */
     tlv_format_t format;
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
