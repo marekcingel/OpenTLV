@@ -35,8 +35,9 @@ void diagnostic_scope_init(diagnostic_scope& scope, size_t size);
 // `base` is the start of the whole input buffer, used to compute a
 // constructed value's absolute end from its borrowed pointer; `constructed`
 // is the same nesting predicate passed to the walk, or `nullptr`.
-void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base, const tlv_view_t* view,
-                            std::size_t depth, tlv_is_constructed_fn constructed);
+void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base,
+                            const tlv_element_t* element, std::size_t depth,
+                            tlv_is_constructed_fn constructed);
 
 // Re-derives a full tlv_reader_diagnostic_t for a wire-level failure a walk
 // already detected at `error_offset`, bounded to `scope`'s enclosing value

@@ -34,10 +34,11 @@ private:
         const char*              field_name = nullptr;
         tlv_diagnostic_context_t field_context = {};
     };
-    static tlv_visit_result_t check_dictionary_trampoline(const tlv_view_t* view, std::size_t depth,
-                                                          std::size_t offset, void* context);
-    tlv_visit_result_t        check_dictionary_element(const tlv_view_t* view, std::size_t depth,
-                                                       std::size_t offset);
+    static tlv_visit_result_t check_dictionary_trampoline(const tlv_element_t* element,
+                                                          std::size_t depth, std::size_t offset,
+                                                          void* context);
+    tlv_visit_result_t check_dictionary_element(const tlv_element_t* element, std::size_t depth,
+                                                std::size_t offset);
 
     dictionary_check check_;
 };

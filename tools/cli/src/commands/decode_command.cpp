@@ -8,23 +8,23 @@ namespace cli {
 // decode's visitor: builds the versioned document (docs/cli/json-schema.md).
 // A primitive carries its raw "value"; a constructed element carries its
 // "children" instead, plus an explicit "length_mode" for BER.
-tlv_visit_result_t decode_command::visit_element(const tlv_view_t* view, std::size_t depth,
+tlv_visit_result_t decode_command::visit_element(const tlv_element_t* element, std::size_t depth,
                                                  std::size_t offset) {
-    diagnostic_scope_visit(scope_, data(), view, depth, format_->is_constructed);
+    diagnostic_scope_visit(scope_, data(), element, depth, format_->is_constructed);
     offset += base_;
-    const bool indefinite = ber_ && data()[offset + view->tag.size] == 0x80;
-    cli_presentation_visit(&presentation_, view, depth, indefinite);
+    const bool indefinite = ber_ && data()[offset + element->tag.size] == 0x80;
+    cli_presentation_visit(&presentation_, element, depth, indefinite);
     nlohmann::ordered_json object;
-    object["tag"] = hex_string(view->tag.data, view->tag.size);
+    object["tag"] = hex_string(element->tag.data, element->tag.size);
     if (options_.profile) {
-        json_emv(object, presentation_, view, depth, options_.describe, false);
-        if (options_.decode) json_decode(object, presentation_, view, depth);
+        json_emv(object, presentation_, element, depth, options_.describe, false);
+        if (options_.decode) json_decode(object, presentation_, element, depth);
     }
-    if (format_->is_constructed && format_->is_constructed(format_->context, &view->tag)) {
+    if (format_->is_constructed && format_->is_constructed(format_->context, &element->tag)) {
         if (ber_) object["length_mode"] = indefinite ? "indefinite" : "definite";
         object["children"] = nlohmann::ordered_json::array();
     } else {
-        object["value"] = hex_string(view->value.data, (size_t)view->value.length);
+        object["value"] = hex_string(element->value.data, cli_element_value_size(element));
     }
     document_flush(depth);
     document_stack_.push_back(std::move(object));

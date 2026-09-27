@@ -171,7 +171,7 @@ These entries existed before the expanded catalogue and are not repeated in the
 
 Variants and open questions that these entries need before scoping:
 
-| Entry | Variants to decide | Check |
+| Element | Variants to decide | Check |
 | --- | --- | --- |
 | GlobalPlatform DGI | A DGI is coded on two bytes followed by a length indicator whose coding is defined in the GlobalPlatform scripting language specification (annex B), not in the Card Specification. That document and the later Card Specification editions must be read before scoping. | Verified: Card Specification v2.3 clause 11.1.12. The scripting specification was not read. |
 | EMV contactless | Kernel-specific: the contactless books define several kernels; each needs its own dictionary and edition. Book 3 data objects are already covered by the [EMV profile](../profiles/emv/README.md). | Not verified: EMV contactless books not read. |

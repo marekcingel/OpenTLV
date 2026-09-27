@@ -3,7 +3,7 @@
 #include <type_traits>
 #include "tlv++/types.hpp"
 #include "tlv/reader/walker.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 
 /**
  * @file walker.hpp
@@ -18,8 +18,8 @@ namespace tlv {
  * function wrapper or allocation is needed. Entries passed to the visitor
  * borrow `data`.
  *
- * @tparam Visitor Callable invoked as `visitor(entry, depth, absolute_offset)`
- *                 returning #tlv_visit_result_t. `entry` borrows `data`,
+ * @tparam Visitor Callable invoked as `visitor(element, depth, absolute_offset)`
+ *                 returning #tlv_visit_result_t. `element` borrows `data`,
  *                 `depth` is zero for top-level elements, and
  *                 `absolute_offset` is the element's tag offset in `data`.
  *
@@ -33,8 +33,7 @@ namespace tlv {
  * @param error_offset  Optional. On failure receives the failing element's
  *                      absolute offset; unchanged on success.
  *
- * @return Success, or the error of tlv_walk_tree(). A value whose length does
- *         not fit the native size makes the adapter return #TLV_VISIT_ERROR.
+ * @return Success, or the error of tlv_walk_tree().
  *
  * @warning Visitor side effects are not rolled back on error.
  */
@@ -45,14 +44,10 @@ TLV_NODISCARD expected<void, error> walk_tree(bytes data, const tlv_format_t& fo
     typedef typename std::remove_reference<Visitor>::type visitor_type;
     struct adapter {
         visitor_type*             visitor;
-        static tlv_visit_result_t call(const tlv_view_t* view, size_t depth, size_t offset,
+        static tlv_visit_result_t call(const tlv_element_t* element, size_t depth, size_t offset,
                                        void* context) {
             adapter* self = static_cast<adapter*>(context);
-            size_t   length;
-            if (tlv_length_to_size(view->value.length, &length) != TLV_OK) return TLV_VISIT_ERROR;
-            return (*self->visitor)(
-                entry{view->tag, bytes(reinterpret_cast<const byte*>(view->value.data), length)},
-                depth, offset);
+            return (*self->visitor)(*element, depth, offset);
         }
     };
     adapter      state{&visitor};

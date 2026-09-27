@@ -23,19 +23,19 @@ tlv_result_t write_tag(const void*, uint8_t* data, size_t size, const tlv_tag_t*
     std::memcpy(data, tag->data, 2);
     return TLV_OK;
 }
-tlv_result_t length_size(const void* ctx, size_t length, size_t* used) {
+tlv_result_t length_size(const void* ctx, tlv_size_t length, size_t* used) {
     if (length > 65535) return TLV_ERR_INVALID_LENGTH;
     *used = *static_cast<const size_t*>(ctx);
     return TLV_OK;
 }
-tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t size, size_t* length,
+tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t size, tlv_size_t* length,
                          size_t* used) {
     *used = *static_cast<const size_t*>(ctx);
     if (size < *used) return TLV_ERR_BUFFER_TOO_SHORT;
     *length = data[0] | (static_cast<size_t>(data[1]) << 8);
     return TLV_OK;
 }
-tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, size_t length,
+tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, tlv_size_t length,
                           size_t* used) {
     const auto rc = length_size(ctx, length, used);
     if (rc != TLV_OK) return rc;
@@ -55,11 +55,11 @@ TEST(Unit_Tlv_Format, TruncationPreservesReaderStateAndOutput) {
     for (size_t size = 1; size < sizeof(data); ++size) {
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, size, &fixed));
-        tlv_view_t entry = {TLV_TAG(0xEE), {nullptr, 42}};
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &entry));
+        tlv_element_t element = {TLV_TAG(0xEE), {}, {nullptr, 42}};
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &element));
         EXPECT_EQ(0u, reader.pos);
-        EXPECT_EQ(0xEE, entry.tag.data[0]);
-        EXPECT_EQ(42u, entry.value.length);
+        EXPECT_EQ(0xEE, element.tag.data[0]);
+        EXPECT_EQ(42u, element.value.size);
     }
 }
 
@@ -105,33 +105,33 @@ TEST(Unit_Tlv_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
     };
-    tlv_reader_t reader;
-    tlv_view_t   entry{};
+    tlv_reader_t  reader;
+    tlv_element_t element{};
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &format));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_reader_next(&reader, &entry));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_reader_next(&reader, &element));
     EXPECT_EQ(0u, reader.pos);
     format = fixed;
-    format.read_length = [](const void*, const uint8_t*, size_t, size_t* length, size_t* used) {
+    format.read_length = [](const void*, const uint8_t*, size_t, tlv_size_t* length, size_t* used) {
         *used = 2;
         *length = std::numeric_limits<size_t>::max();
         return TLV_OK;
     };
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &entry));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &element));
     EXPECT_EQ(0u, reader.pos);
-    format.read_length = [](const void*, const uint8_t*, size_t, size_t*, size_t* used) {
+    format.read_length = [](const void*, const uint8_t*, size_t, tlv_size_t*, size_t* used) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next(&reader, &entry));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next(&reader, &element));
     tlv_format_t output_format = fixed_writer;
-    output_format.write_length = [](const void*, uint8_t*, size_t, size_t, size_t*) {
+    output_format.write_length = [](const void*, uint8_t*, size_t, tlv_size_t, size_t*) {
         return TLV_ERR_INVALID_LENGTH;
     };
     tlv_writer_t writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &output_format));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_writer_write(&writer, (TLV_TAG(1, 2)), nullptr, 0));
     EXPECT_EQ(0u, writer.pos);
-    output_format.write_length = [](const void*, uint8_t*, size_t, size_t, size_t* used) {
+    output_format.write_length = [](const void*, uint8_t*, size_t, tlv_size_t, size_t* used) {
         *used = 3;
         return TLV_OK;
     };
@@ -165,19 +165,19 @@ tlv_result_t runtime_write_tag(const void* ctx, uint8_t* data, size_t size, cons
     std::memcpy(data, tag->data, tag->size);
     return TLV_OK;
 }
-tlv_result_t one_byte_length_size(const void*, size_t length, size_t* used) {
+tlv_result_t one_byte_length_size(const void*, tlv_size_t length, size_t* used) {
     if (length > 255) return TLV_ERR_INVALID_LENGTH;
     *used = 1;
     return TLV_OK;
 }
-tlv_result_t one_byte_read_length(const void*, const uint8_t* data, size_t size, size_t* length,
+tlv_result_t one_byte_read_length(const void*, const uint8_t* data, size_t size, tlv_size_t* length,
                                   size_t* used) {
     if (size < 1) return TLV_ERR_BUFFER_TOO_SHORT;
     *length = data[0];
     *used = 1;
     return TLV_OK;
 }
-tlv_result_t one_byte_write_length(const void* ctx, uint8_t* data, size_t size, size_t length,
+tlv_result_t one_byte_write_length(const void* ctx, uint8_t* data, size_t size, tlv_size_t length,
                                    size_t* used) {
     const auto rc = one_byte_length_size(ctx, length, used);
     if (rc != TLV_OK) return rc;
@@ -218,15 +218,15 @@ TEST(Unit_Tlv_Format, RuntimeDefinedTagWidthsRoundTripWithoutRebuilding) {
                                     sizeof(value), &written));
         EXPECT_EQ(wire.size(), written);
 
-        tlv_view_t view{};
-        size_t     consumed = 0;
-        ASSERT_EQ(TLV_OK, tlv_read(wire.data(), wire.size(), &reader_format, &view, &consumed));
+        tlv_element_t element{};
+        size_t        consumed = 0;
+        ASSERT_EQ(TLV_OK, tlv_read(wire.data(), wire.size(), &reader_format, &element, &consumed));
         EXPECT_EQ(wire.size(), consumed);
         // The tag is a window onto the input, not a copy.
-        EXPECT_EQ(wire.data(), view.tag.data);
-        EXPECT_EQ(tag_width, view.tag.size);
-        EXPECT_TRUE(tlv_tag_equal(view.tag, tlv_tag(tag_bytes.data(), tag_bytes.size())));
-        EXPECT_EQ(sizeof(value), static_cast<size_t>(view.value.length));
+        EXPECT_EQ(wire.data(), element.tag.data);
+        EXPECT_EQ(tag_width, element.tag.size);
+        EXPECT_TRUE(tlv_tag_equal(element.tag, tlv_tag(tag_bytes.data(), tag_bytes.size())));
+        EXPECT_EQ(sizeof(value), static_cast<size_t>(element.value.size));
 
         // The format, not the tag type, rejects a tag of another width.
         std::vector<uint8_t> other(tag_width + 1, 0x42);

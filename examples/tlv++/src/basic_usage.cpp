@@ -33,13 +33,18 @@ int main() {
 
     tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
     while (!reader.at_end()) {
-        auto entry = reader.next();
-        if (!entry) {
-            std::cerr << "read error: " << entry.error().message << "\n";
+        auto element = reader.next();
+        if (!element) {
+            std::cerr << "read error: " << element.error().message << "\n";
             return 1;
         }
-        std::string value(reinterpret_cast<const char*>(entry->value.data()), entry->value.size());
-        std::cout << "tag=0x" << std::hex << static_cast<int>(entry->tag.data[0]) << std::dec
+        auto value_bytes = tlv::as_bytes(element->value);
+        if (!value_bytes) {
+            std::cerr << "value error: " << value_bytes.error().message << "\n";
+            return 1;
+        }
+        std::string value(reinterpret_cast<const char*>(value_bytes->data()), value_bytes->size());
+        std::cout << "tag=0x" << std::hex << static_cast<int>(element->tag.data[0]) << std::dec
                   << " value=" << value << "\n";
     }
 

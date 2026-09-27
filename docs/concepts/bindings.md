@@ -32,8 +32,8 @@ idiomatic  idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
 ```
 
 C++ and Rust ship today; Python (`bindings/python/`) now binds Reader, Writer,
-Document, Entry and Tag — including Document, which neither Rust nor
-WebAssembly bind yet. Lua (`bindings/lua/`) binds Reader, Entry and Tag. Go is
+Document, Element and Tag — including Document, which neither Rust nor
+WebAssembly bind yet. Lua (`bindings/lua/`) binds Reader, Element and Tag. Go is
 illustrative here, not yet scaffolded, to show the contract extends past the
 current bindings. The trailing `...` stands for any further binding.
 
@@ -58,7 +58,7 @@ to this in practice.
 | Reader | Read-only parsing and traversal | `tlv_reader_t`, `tlv_reader_next()` | `tlv::reader` | `Reader<'a>` | `Reader` | `opentlv.reader()` |
 | Writer | Construction and serialization | `tlv_writer_t` | `tlv::writer` | `Writer<'a>` | `Writer` | not bound yet |
 | Document | Optional owning, mutable representation | `tlv_document_t` | `tlv::document` | not bound yet | `Document`, `Node` | not bound yet |
-| Entry | One TLV entry, or a view onto one | `tlv_view_t` | `tlv::entry` | `Entry<'a>` | `Entry` | a plain table (`tag`/`length`/`value`/`offset` fields) |
+| Element | One TLV element with borrowed wire fields | `tlv_element_t` | `tlv::element` | `Element<'a>` | `Element` | a plain table (`tag`/`raw_length`/`length`/`value`/`offset` fields) |
 | Tag | The TLV tag abstraction: raw identifying bytes | `tlv_tag_t` | `tlv::tag_t` (alias) | `Tag` | `Tag` | a raw Lua string (content equality already compares it) |
 | Schema | Structural validation: tags, lengths, occurrence and nesting rules | `tlv_schema_t`, `tlv_structure_schema_t` | same C types, wrapped by `tlv::validate`/`tlv::validate_all` | `LengthSchema`, `StructureSchema` | `LengthSchema`, `StructureSchema` | not bound yet |
 | Codec | Typed encoding and decoding of a value | `tlv_codec_t`, `tlv_structure_codec_t` | `TlvCodec` concept, `tlv::decode_structure<T>`/`encode_structure` | `Codec` | `codec` submodule, narrow: only the public `tlv_emv_codec_amount` | not bound yet |
@@ -76,21 +76,21 @@ Bindings must adapt syntax and behavior to the conventions of their target
 language; they must not introduce a different conceptual architecture to do
 it. For example:
 
-- Rust's `Reader` implements `Iterator<Item = Result<Entry>>`, so callers
-  write `for entry in reader { ... }` instead of an explicit `at_end()`/
+- Rust's `Reader` implements `Iterator<Item = Result<Element>>`, so callers
+  write `for element in reader { ... }` instead of an explicit `at_end()`/
   `next()` loop. `tlv++`'s `reader` uses that explicit loop today (or a
   visitor passed to `tlv::walk_tree`); a future C++ range-based `for` over a
   `reader` would be the same adaptation applied there.
 - Python's `Reader` iterates the same reader concept with
-  `for entry in reader:`, and raises a native `Exception` subclass instead of
+  `for element in reader:`, and raises a native `Exception` subclass instead of
   returning an error code.
 - Lua's `Reader`, returned by `opentlv.reader()`, is directly usable as a
-  generic-for iterator (`for entry in reader do ... end`) via Lua's `__call`
+  generic-for iterator (`for element in reader do ... end`) via Lua's `__call`
   metamethod, rather than a separate iterator protocol; it raises a plain
   table via `error()` instead of an exception object, since Lua has no
   exception hierarchy to subclass.
 - Rust's and `tlv++`'s `Writer` fill a caller-provided fixed-capacity buffer
-  and report an error when an entry does not fit, matching the C library's
+  and report an error when an element does not fit, matching the C library's
   allocation-free `tlv_writer_t`. Python's `Writer` owns a `bytearray` it
   grows as needed instead, so `write` never fails for lack of space: Python
   callers do not pre-size a buffer or retry a failed write the way C, C++ and
@@ -104,15 +104,15 @@ it. For example:
   otherwise whenever garbage collection reclaims it. Ownership (the document
   owns every node, tag and value in it) is the same in every binding; only
   how and when that ownership ends differs.
-- A future Go binding could return `(Entry, error)` pairs from a `Next()`
-  method, or a range-over-func iterator (`for entry, err := range
+- A future Go binding could return `(Element, error)` pairs from a `Next()`
+  method, or a range-over-func iterator (`for element, err := range
   reader.All() { ... }`), matching Go's own error-handling convention instead
   of Rust's `Result` or C's error codes.
 - A future JavaScript binding could expose a reader as a JS iterable and
   surface failures as native exceptions.
 
 The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
-`Entry` values) do not.
+`Element` values) do not.
 
 ## Status across current bindings
 
@@ -120,7 +120,7 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   concept above except a standalone `Diagnostics` type (it reuses the C
   `tlv_diagnostic_t` directly as `tlv::diagnostic`).
 - **Rust (`opentlv`)**: experimental, in `bindings/rust/`. Covers Reader,
-  Writer, Entry, Tag, Schema and Codec; `Document` and the callback-based
+  Writer, Element, Tag, Schema and Codec; `Document` and the callback-based
   visitors, structure codecs and DOL profile are not bound yet. Its `Codec`
   is the exception to this page's binding-boundary rule: beyond the one
   concrete codec the C API exports publicly (`tlv_emv_codec_amount`), the
@@ -131,14 +131,14 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
 - **WebAssembly**: in `bindings/wasm/`, a deliberately narrow `parse()`
   function that returns a JSON element tree for browser tooling, not a
   general-purpose object-oriented binding. It is a small embedding built on
-  the C API rather than a binding this contract's Reader/Writer/Entry shape
+  the C API rather than a binding this contract's Reader/Writer/Element shape
   applies to. See [WebAssembly build](../development/webassembly.md).
 - **Python**: experimental, in `bindings/python/`, split into
   `opentlv-native` (a native extension written against the CPython C API,
   using the CPython Limited API where compatible, that calls the public C
   API) and `opentlv` (a pure-Python package on top of it) — the same split
   as the Rust `opentlv-native`/`opentlv` crates. Covers Reader, Writer,
-  Document, Entry, Tag and Schema, across the default, BER, CER, DER and
+  Document, Element, Tag and Schema, across the default, BER, CER, DER and
   fixed-1-byte wire formats, plus a deliberately narrow Codec (only the one
   concrete codec, `tlv_emv_codec_amount`, that the public C API exports —
   unlike Rust's `Codec`, the rest is not a thin C wrapper and reimplements
@@ -151,7 +151,7 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   the same split as the Rust and Python `opentlv-native`/`opentlv` packages,
   though here the pure layer adds no ergonomics of its own, since Lua's C
   API is already close to the concepts bound. Targets Lua 5.1 through 5.4
-  and LuaJIT. Covers Reader, Entry and Tag, across the default, BER, CER, DER,
+  and LuaJIT. Covers Reader, Element and Tag, across the default, BER, CER, DER,
   Bluetooth LTV and configurable fixed-width formats, plus preorder tree
   traversal (`opentlv.walk_tree()`, built on `tlv_walk_tree()`/
   `tlv_der_walk()`) — the one traversal capability neither Rust nor Python

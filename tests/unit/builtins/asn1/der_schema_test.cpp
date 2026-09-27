@@ -21,11 +21,11 @@ tlv_der_schema_component_t Required(const tlv_der_schema_type_t& type) {
 tlv_result_t Read(const std::vector<uint8_t>& data, const tlv_der_schema_type_t& root,
                   size_t* consumed = nullptr, size_t* error_offset = nullptr,
                   const tlv_der_schema_limits_t* limits = nullptr) {
-    tlv_view_t   view{};
-    size_t       local_consumed = 0, local_offset = 0;
-    tlv_result_t rc = tlv_der_schema_read(data.data(), data.size(), &root, limits, &view,
-                                          consumed ? consumed : &local_consumed,
-                                          error_offset ? error_offset : &local_offset);
+    tlv_element_t element{};
+    size_t        local_consumed = 0, local_offset = 0;
+    tlv_result_t  rc = tlv_der_schema_read(data.data(), data.size(), &root, limits, &element,
+                                           consumed ? consumed : &local_consumed,
+                                           error_offset ? error_offset : &local_offset);
     return rc;
 }
 

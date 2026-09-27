@@ -1,5 +1,5 @@
 #include "tlv/writer/writer.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include <string.h>
 
 tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity,
@@ -277,16 +277,16 @@ tlv_result_t tlv_writer_write_diag(tlv_writer_t* writer, tlv_tag_t tag, const ui
     return rc;
 }
 
-tlv_result_t tlv_writer_copy_view(tlv_writer_t* writer, const tlv_view_t* view) {
+tlv_result_t tlv_writer_copy_element(tlv_writer_t* writer, const tlv_element_t* element) {
     size_t length = 0, written = 0;
     tlv_result_t rc;
     if (!writer) return TLV_ERR_NULL_ARG;
     if (writer->pos > writer->capacity) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (!view || (!view->value.data && view->value.length)) return TLV_ERR_NULL_ARG;
-    rc = tlv_length_to_size(view->value.length, &length);
+    if (!element || (!element->value.data && element->value.size)) return TLV_ERR_NULL_ARG;
+    rc = tlv_size_to_native(element->value.size, &length);
     if (rc != TLV_OK) return rc;
     rc = tlv_write(writer->buf ? writer->buf + writer->pos : NULL, writer->capacity - writer->pos,
-                   writer->format, view->tag, view->value.data, length, &written);
+                   writer->format, element->tag, element->value.data, length, &written);
     if (rc == TLV_OK) writer->pos += written;
     return rc;
 }

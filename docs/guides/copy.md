@@ -2,10 +2,10 @@
 
 Include `tlv/copy.h` to copy data into storage owned by the caller. These
 helpers never allocate memory. The normal reader still returns a zero-copy
-view: copying is a separate, explicit operation.
+element: copying is a separate, explicit operation.
 
-- `tlv_copy_value()` copies just a view's value bytes.
-- `tlv_copy_view()` serializes a complete element using a selected format.
+- `tlv_copy_value()` copies just a element's value bytes.
+- `tlv_copy_element()` serializes a complete element using a selected format.
 - `tlv_copy_encoded()` copies an exact byte range, including the original
   header. Pass the original input pointer and the consumed length from a
   successful read, or input plus the offset returned by a scan. This helper
@@ -32,28 +32,28 @@ tlv_fixed_format_init(&format, &config);
 uint8_t input[] = {1, 2, 0xAB, 0xCD};
 uint8_t storage[16];
 uint8_t tag_storage[8]; /* This format's tags are one byte long. */
-tlv_view_t view;
+tlv_element_t element;
 size_t consumed, required, written;
 tlv_result_t result = tlv_read(input, sizeof(input), &format,
-                               &view, &consumed);
+                               &element, &consumed);
 if (result == TLV_OK) {
-    result = tlv_copy_value(&view, NULL, 0, &required);
+    result = tlv_copy_value(&element, NULL, 0, &required);
     if (result == TLV_OK && required <= sizeof(storage)) {
-        result = tlv_copy_value(&view, storage, sizeof(storage), &written);
+        result = tlv_copy_value(&element, storage, sizeof(storage), &written);
         if (result == TLV_OK) {
             /* The tag and the value both borrow input. Copy the tag bytes as
-             * well, then point the view at the owned copies. */
-            memcpy(tag_storage, view.tag.data, view.tag.size);
-            view.tag = tlv_tag(tag_storage, view.tag.size);
-            view.value.data = storage;
-            view.value.length = written;
-            /* input may now be reused; storage and tag_storage must outlive view. */
+             * well, then point the element at the owned copies. */
+            memcpy(tag_storage, element.tag.data, element.tag.size);
+            element.tag = tlv_tag(tag_storage, element.tag.size);
+            element.value.data = storage;
+            element.value.size = written;
+            /* input may now be reused; storage and tag_storage must outlive element. */
         }
     }
 }
 ```
 
-A view does not retain the original encoded header. Serializing it can change
+A element does not retain the original encoded header. Serializing it can change
 the wire representation, for example by shortening a nonminimal BER length.
 Use `tlv_copy_encoded()` when byte-for-byte preservation matters.
 

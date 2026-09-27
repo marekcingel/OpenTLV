@@ -12,7 +12,8 @@
 
 int main() {
     const tlv_fixed_format_t config = {/* tag_size */ 2, /* length_size */ 1,
-                                       TLV_BYTE_ORDER_BIG_ENDIAN};
+                                       TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     /* config must outlive every reader and writer built from format. */
     tlv_format_t format;
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
@@ -29,12 +30,12 @@ int main() {
 
     // Wire bytes: 12 34 03 AA BB CC. The tag is kept as is; the length is one byte.
     tlv::reader reader(tlv::bytes(buf.data(), writer.size()), format);
-    auto        entry = reader.next();
-    if (!entry) {
-        std::cerr << "read error: " << entry.error().message << "\n";
+    auto        element = reader.next();
+    if (!element) {
+        std::cerr << "read error: " << element.error().message << "\n";
         return 1;
     }
-    std::cout << "wrote " << writer.size() << " bytes, read a " << entry->value.size()
+    std::cout << "wrote " << writer.size() << " bytes, read a " << element->value.size
               << "-byte value\n";
-    return entry->value.size() == value.size() ? 0 : 1;
+    return element->value.size == value.size() ? 0 : 1;
 }

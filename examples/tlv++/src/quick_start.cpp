@@ -15,14 +15,14 @@ int main() {
 
     if (!writer.write(tag, tlv::bytes(value.data(), value.size()))) return 1;
 
-    // entry.value borrows buffer; keep it alive while using the entry.
+    // element.value borrows buffer; keep it alive while using the element.
     tlv::reader reader(tlv::bytes(buffer.data(), writer.size()), format::format());
-    auto        entry = reader.next();
-    if (!entry || !reader.at_end()) return 1;
+    auto        element = reader.next();
+    if (!element || !reader.at_end()) return 1;
 
-    if (entry->tag.size != 1 || entry->tag.data[0] != 0x01) return 1;
-    if (entry->value.size() != value.size() ||
-        std::memcmp(entry->value.data(), value.data(), value.size()) != 0)
+    if (element->tag.size != 1 || element->tag.data[0] != 0x01) return 1;
+    if (element->value.size != value.size() ||
+        std::memcmp(element->value.data, value.data(), value.size()) != 0)
         return 1;
     return 0;
 }

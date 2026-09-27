@@ -33,15 +33,15 @@ static tlv_codec_result_t decode_bytes(const void* context,
 static const tlv_codec_t bytes_codec = {NULL, decode_bytes, NULL};
 ```
 
-After a successful `tlv_read()`, convert the view's `tlv_length_t` value length with
-`tlv_length_to_size()` (from `tlv/length.h`) before passing it to a codec, which takes a
+After a successful `tlv_read()`, convert the view's `tlv_size_t` value length with
+`tlv_size_to_native()` (from `tlv/size.h`) before passing it to a codec, which takes a
 native `size_t` size:
 
 ```c
 size_t length;
 byte_range_t bytes;
 tlv_codec_result_t result;
-if (tlv_length_to_size(view.value.length, &length) != TLV_OK) { /* value too large for this build */ }
+if (tlv_size_to_native(view.value.size, &length) != TLV_OK) { /* value too large for this build */ }
 result = tlv_codec_decode(&bytes_codec, view.value.data, length, &bytes, sizeof(bytes));
 ```
 

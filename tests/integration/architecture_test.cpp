@@ -32,19 +32,19 @@ tlv_result_t tag_write(const void*, uint8_t* data, size_t capacity, const tlv_ta
     data[0] = tag->data[0];
     return TLV_OK;
 }
-tlv_result_t length_read(const void*, const uint8_t* data, size_t size, size_t* length,
+tlv_result_t length_read(const void*, const uint8_t* data, size_t size, tlv_size_t* length,
                          size_t* used) {
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
     *length = data[0];
     *used = 1;
     return TLV_OK;
 }
-tlv_result_t length_size(const void*, size_t length, size_t* used) {
+tlv_result_t length_size(const void*, tlv_size_t length, size_t* used) {
     if (length > 255) return TLV_ERR_INVALID_LENGTH;
     *used = 1;
     return TLV_OK;
 }
-tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity, size_t length,
+tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity, tlv_size_t length,
                           size_t* used) {
     if (length_size(ctx, length, used) != TLV_OK) return TLV_ERR_INVALID_LENGTH;
     if (!capacity) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -74,7 +74,7 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies
     // Outer indefinite -> definite -> indefinite -> primitive; then siblings.
     const uint8_t wire[] = {0x30, 0x80, 0x30, 7, 0x30, 0x80, 4, 1, 42, 0, 0, 4, 0, 0, 0, 4, 0};
     std::vector<size_t> visits;
-    auto                visitor = [](const tlv_view_t*, size_t depth, size_t pos, void* context) {
+    auto visitor = [](const tlv_element_t*, size_t depth, size_t pos, void* context) {
         auto& out = *static_cast<std::vector<size_t>*>(context);
         out.push_back(depth);
         out.push_back(pos);
@@ -94,16 +94,17 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies
     EXPECT_EQ(TLV_ERR_LIMIT,
               tlv_walk_tree(wire, sizeof(wire), &tlv_format_ber, 2, 6, nullptr, nullptr, &offset));
     EXPECT_EQ(6u, offset);
-    tlv_view_t view{};
-    size_t     used = 0;
+    tlv_element_t element{};
+    size_t        used = 0;
     ASSERT_EQ(TLV_OK,
-              tlv_scan(wire, sizeof(wire), 0, &tlv_format_ber, nullptr, &view, &offset, &used));
+              tlv_scan(wire, sizeof(wire), 0, &tlv_format_ber, nullptr, &element, &offset, &used));
     EXPECT_EQ(0u, offset);
     EXPECT_EQ(15u, used);
-    EXPECT_EQ(11u, view.value.length);
+    EXPECT_EQ(11u, element.value.size);
     uint8_t copied[sizeof(wire)];
     size_t  written = 0;
-    ASSERT_EQ(TLV_OK, tlv_copy_view(&view, &tlv_format_ber, copied, sizeof(copied), &written));
+    ASSERT_EQ(TLV_OK,
+              tlv_copy_element(&element, &tlv_format_ber, copied, sizeof(copied), &written));
     EXPECT_EQ(13u, written);
     EXPECT_EQ(11, copied[1]);
     EXPECT_EQ(0, std::memcmp(wire + 2, copied + 2, 11));
@@ -130,7 +131,7 @@ TEST(Integration_Tlv_Architecture, GenericVisitorUsesFormatNestingAndAbsoluteOff
     const uint8_t       wire[] = {0x80, 5, 1, 1, 42, 0x81, 0, 2, 0};
     std::vector<size_t> visits;
     size_t              offset = 999;
-    auto                visitor = [](const tlv_view_t*, size_t depth, size_t pos, void* ctx) {
+    auto                visitor = [](const tlv_element_t*, size_t depth, size_t pos, void* ctx) {
         auto& out = *static_cast<std::vector<size_t>*>(ctx);
         out.push_back(depth);
         out.push_back(pos);
@@ -156,10 +157,10 @@ TEST(Integration_Tlv_Architecture, TreeRejectsTruncatedChildrenAndSupportsEarlyS
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_walk_tree(wire, sizeof(wire), &constructed_format, 2,
                                                       10, nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
-    auto stop = [](const tlv_view_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
+    auto stop = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
     EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &constructed_format, 2, 10, stop, nullptr,
                                     nullptr));
-    auto fail = [](const tlv_view_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
+    auto fail = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
     EXPECT_EQ(TLV_ERR_VISITOR, tlv_walk_tree(wire, sizeof(wire), &constructed_format, 2, 10, fail,
                                              nullptr, nullptr));
     EXPECT_EQ(TLV_OK,
@@ -224,13 +225,14 @@ TEST(Integration_Tlv_Architecture, RecoveryAndSequentialTraversalRemainDistinct)
     const uint8_t      noisy[] = {0x33, 0xff, 1, 1, 42};
     tlv_schema_entry_t entry = child_rules[0].entry;
     tlv_schema_t       recovery = {&entry, 1};
-    tlv_view_t         view{};
+    tlv_element_t      element{};
     size_t             offset = 0, used = 0;
-    EXPECT_EQ(TLV_OK, tlv_scan(noisy, sizeof(noisy), 0, &format, &recovery, &view, &offset, &used));
+    EXPECT_EQ(TLV_OK,
+              tlv_scan(noisy, sizeof(noisy), 0, &format, &recovery, &element, &offset, &used));
     EXPECT_EQ(2u, offset);
     EXPECT_EQ(3u, used);
-    EXPECT_EQ(42, view.value.data[0]);
-    auto visit = [](const tlv_view_t*, void*) { return TLV_VISIT_CONTINUE; };
+    EXPECT_EQ(42, element.value.data[0]);
+    auto visit = [](const tlv_element_t*, void*) { return TLV_VISIT_CONTINUE; };
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_walk(noisy, sizeof(noisy), &format, visit, nullptr));
     EXPECT_EQ(TLV_OK, tlv_walk(noisy + offset, used, &format, visit, nullptr));
 }
@@ -241,17 +243,17 @@ struct object {
 tlv_codec_result_t object_decode(const void*, const tlv_format_t* selected, const uint8_t* data,
                                  size_t size, void* value, size_t capacity) {
     if (capacity < sizeof(object)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-    tlv_reader_t reader{};
-    tlv_view_t   view{};
-    object       result{};
+    tlv_reader_t  reader{};
+    tlv_element_t element{};
+    object        result{};
     if (tlv_reader_init(&reader, data, size, selected) != TLV_OK)
         return TLV_CODEC_ERR_INVALID_VALUE;
     while (!tlv_reader_at_end(&reader)) {
-        if (tlv_reader_next(&reader, &view) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
-        if (view.tag.data[0] == 1)
-            result.first = view.value.data[0];
+        if (tlv_reader_next(&reader, &element) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
+        if (element.tag.data[0] == 1)
+            result.first = element.value.data[0];
         else
-            result.second = view.value.data[0];
+            result.second = element.value.data[0];
     }
     std::memcpy(value, &result, sizeof(result));
     return TLV_CODEC_OK;

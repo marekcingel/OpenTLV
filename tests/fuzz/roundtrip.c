@@ -24,14 +24,15 @@ static void check_roundtrip(size_t format, tlv_tag_t tag, const uint8_t* value, 
     FUZZ_CHECK(tlv_write(encoded, total, fuzz_formats[format].format, tag, value, length,
                          &written) == TLV_OK);
     FUZZ_CHECK(written == total);
-    tlv_view_t view = fuzz_sentinel(value);
-    FUZZ_CHECK(tlv_read(encoded, written, fuzz_formats[format].format, &view, &consumed) == TLV_OK);
+    tlv_element_t element = fuzz_sentinel(value);
+    FUZZ_CHECK(tlv_read(encoded, written, fuzz_formats[format].format, &element, &consumed) ==
+               TLV_OK);
     FUZZ_CHECK(consumed == written);
-    fuzz_view_bounds(&view, encoded, written);
-    FUZZ_CHECK(view.tag.size == tag.size);
-    FUZZ_CHECK(memcmp(view.tag.data, tag.data, tag.size) == 0);
-    FUZZ_CHECK(view.value.length == length);
-    if (length) FUZZ_CHECK(memcmp(view.value.data, value, length) == 0);
+    fuzz_element_bounds(&element, encoded, written);
+    FUZZ_CHECK(element.tag.size == tag.size);
+    FUZZ_CHECK(memcmp(element.tag.data, tag.data, tag.size) == 0);
+    FUZZ_CHECK(element.value.size == length);
+    if (length) FUZZ_CHECK(memcmp(element.value.data, value, length) == 0);
     free(encoded);
 }
 

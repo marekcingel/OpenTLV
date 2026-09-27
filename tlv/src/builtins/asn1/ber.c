@@ -15,14 +15,14 @@ static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacit
     return tlv_ber_wire.write_tag(context, data, capacity, tag, used);
 }
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
-                                size_t* length, size_t* used) {
+                                tlv_size_t* length, size_t* used) {
     return tlv_ber_wire.read_length(context, data, size, length, used);
 }
-static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity, size_t length,
-                                 size_t* used) {
+static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity,
+                                 tlv_size_t length, size_t* used) {
     return tlv_ber_wire.write_length(context, data, capacity, length, used);
 }
-static tlv_result_t length_size(const void* context, size_t length, size_t* size) {
+static tlv_result_t length_size(const void* context, tlv_size_t length, size_t* size) {
     return tlv_ber_wire.length_size(context, length, size);
 }
 int tlv_ber_is_constructed(const void* context, const tlv_tag_t* tag) {
@@ -89,7 +89,8 @@ tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefin
     ends[0] = size;
     terminated[0] = indefinite;
     for (;;) {
-        size_t limit = ends[depth - 1], tag_size, len_size, length;
+        size_t limit = ends[depth - 1], tag_size, len_size;
+        tlv_size_t length;
         tlv_tag_t tag;
         tlv_result_t rc;
         int child_indefinite, constructed;
@@ -132,33 +133,34 @@ tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefin
         }
         if (constructed) {
             if (depth == TLV_BER_MAX_DEPTH) return TLV_ERR_LIMIT;
-            ends[depth] = pos + length;
+            ends[depth] = pos + (size_t)length;
             terminated[depth++] = child_indefinite;
         } else
-            pos += length;
+            pos += (size_t)length;
     }
 }
 
 static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
                                       const uint8_t* data, size_t size, size_t* len_size,
-                                      size_t* value_size, size_t* trailer_size) {
-    size_t length, used;
+                                      tlv_size_t* value_size, size_t* trailer_size) {
+    tlv_size_t length;
+    size_t used, native_length;
     tlv_result_t rc;
+    *len_size = tlv_ber_length_field_size(data, size);
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
     if (data[0] != TLV_BER_LENGTH_LONG_FORM_BIT) {
         rc = read_length(context, data, size, &length, &used);
         if (rc != TLV_OK) return rc;
-        if (length > size - used) return TLV_ERR_BUFFER_TOO_SHORT;
         *len_size = used;
         *value_size = length;
         *trailer_size = 0;
         return TLV_OK;
     }
     if (!tlv_ber_is_constructed(context, tag)) return TLV_ERR_INVALID_LENGTH;
-    rc = tlv_ber_scan_contents(data + 1, size - 1, 1, &length, &used);
+    rc = tlv_ber_scan_contents(data + 1, size - 1, 1, &native_length, &used);
     if (rc != TLV_OK) return rc;
     *len_size = TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE;
-    *value_size = length;
+    *value_size = native_length;
     *trailer_size = TLV_BER_EOC_SIZE;
     return TLV_OK;
 }
@@ -227,7 +229,7 @@ const tlv_format_t tlv_format_ber = {.context = NULL,
                                      .length_size = length_size,
                                      .is_constructed = tlv_ber_is_constructed};
 
-tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_length_t* value,
+tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_size_t* value,
                                    size_t* consumed) {
     size_t count, offset, width;
     uint64_t decoded;
@@ -243,7 +245,7 @@ tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_le
         return TLV_ERR_INVALID_LENGTH;
     count = data[0] & TLV_BER_LENGTH_COUNT_MASK;
     if (data_size - 1 < count) return TLV_ERR_BUFFER_TOO_SHORT;
-    /* BER permits padding beyond tlv_length_t's 64-bit width. Validate the
+    /* BER permits padding beyond tlv_size_t's 64-bit width. Validate the
      * complete payload before stripping only excess zero octets. */
     offset = 1;
     width = count;
@@ -258,10 +260,10 @@ tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_le
     return TLV_OK;
 }
 
-tlv_result_t tlv_ber_length_encode(tlv_length_t value, uint8_t* out, size_t out_capacity,
+tlv_result_t tlv_ber_length_encode(tlv_size_t value, uint8_t* out, size_t out_capacity,
                                    size_t* written) {
     size_t count = 1;
-    tlv_length_t remaining = value;
+    tlv_size_t remaining = value;
     if ((!out && out_capacity) || !written) return TLV_ERR_NULL_ARG;
     if (value >= TLV_BER_LENGTH_LONG_FORM_BIT) {
         do {

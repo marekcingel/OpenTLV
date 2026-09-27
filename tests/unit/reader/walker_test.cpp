@@ -4,16 +4,16 @@
 
 namespace {
 struct Visits {
-    tlv_view_t         views[4]{};
+    tlv_element_t      elements[4]{};
     size_t             count = 0;
     size_t             finish_after = 4;
     tlv_visit_result_t result = TLV_VISIT_CONTINUE;
 };
 
-tlv_visit_result_t collect(const tlv_view_t* view, void* context) {
+tlv_visit_result_t collect(const tlv_element_t* element, void* context) {
     auto& visits = *static_cast<Visits*>(context);
     if (visits.count >= 4) return TLV_VISIT_ERROR;
-    visits.views[visits.count++] = *view;
+    visits.elements[visits.count++] = *element;
     return visits.count == visits.finish_after ? visits.result : TLV_VISIT_CONTINUE;
 }
 } // namespace
@@ -29,9 +29,8 @@ TEST(Unit_Tlv_Walker, PropagatesCustomReaderErrorsIncludingEndOfBuffer) {
                     return *static_cast<const tlv_result_t*>(ctx);
                 };
             } else {
-                format.read_length = [](const void* ctx, const uint8_t*, size_t, size_t*, size_t*) {
-                    return *static_cast<const tlv_result_t*>(ctx);
-                };
+                format.read_length = [](const void* ctx, const uint8_t*, size_t, tlv_size_t*,
+                                        size_t*) { return *static_cast<const tlv_result_t*>(ctx); };
             }
             Visits visits;
             EXPECT_EQ(error, tlv_walk(data, sizeof(data), &format, collect, &visits));
@@ -48,9 +47,9 @@ TEST(Unit_Tlv_Walker, EmptyInputSucceedsAndNullContextIsAllowed) {
     EXPECT_EQ(0u, visits.count);
     EXPECT_EQ(TLV_OK, tlv_walk(
                           data, sizeof(data), &controlled::format,
-                          [](const tlv_view_t* view, void* ctx) {
+                          [](const tlv_element_t* element, void* ctx) {
                               EXPECT_EQ(nullptr, ctx);
-                              EXPECT_EQ(1u, view->tag.data[0]);
+                              EXPECT_EQ(1u, element->tag.data[0]);
                               return TLV_VISIT_CONTINUE;
                           },
                           nullptr));

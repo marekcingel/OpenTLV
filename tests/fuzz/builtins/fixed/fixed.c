@@ -54,14 +54,14 @@ static void check_fixed_roundtrip(const tlv_format_t* format, const tlv_fixed_fo
     written = SIZE_MAX;
     FUZZ_CHECK(tlv_write(encoded, total, format, tag, value, value_size, &written) == TLV_OK);
     FUZZ_CHECK(written == total);
-    tlv_view_t view = fuzz_sentinel(value);
-    FUZZ_CHECK(tlv_read(encoded, written, format, &view, &consumed) == TLV_OK);
+    tlv_element_t element = fuzz_sentinel(value);
+    FUZZ_CHECK(tlv_read(encoded, written, format, &element, &consumed) == TLV_OK);
     FUZZ_CHECK(consumed == written);
-    fuzz_view_bounds(&view, encoded, written);
-    FUZZ_CHECK(view.tag.size == tag.size);
-    FUZZ_CHECK(memcmp(view.tag.data, tag.data, tag.size) == 0);
-    FUZZ_CHECK(view.value.length == value_size);
-    if (value_size) FUZZ_CHECK(memcmp(view.value.data, value, value_size) == 0);
+    fuzz_element_bounds(&element, encoded, written);
+    FUZZ_CHECK(element.tag.size == tag.size);
+    FUZZ_CHECK(memcmp(element.tag.data, tag.data, tag.size) == 0);
+    FUZZ_CHECK(element.value.size == value_size);
+    if (value_size) FUZZ_CHECK(memcmp(element.value.data, value, value_size) == 0);
     free(encoded);
 }
 
@@ -75,16 +75,16 @@ static void check_fixed_malformed_read(const tlv_format_t* format, const uint8_t
                                        size_t size) {
     size_t pos = 0;
     do {
-        tlv_view_t   view = fuzz_sentinel(data), before = view;
-        size_t       consumed = SIZE_MAX;
-        tlv_result_t rc = tlv_read(data + pos, size - pos, format, &view, &consumed);
+        tlv_element_t element = fuzz_sentinel(data), before = element;
+        size_t        consumed = SIZE_MAX;
+        tlv_result_t  rc = tlv_read(data + pos, size - pos, format, &element, &consumed);
         if (rc != TLV_OK) {
-            fuzz_unchanged(&view, &before);
+            fuzz_unchanged(&element, &before);
             FUZZ_CHECK(consumed == SIZE_MAX);
             break;
         }
         FUZZ_CHECK(consumed > 0 && consumed <= size - pos);
-        fuzz_view_bounds(&view, data + pos, consumed);
+        fuzz_element_bounds(&element, data + pos, consumed);
         pos += consumed;
     } while (pos <= size);
 }

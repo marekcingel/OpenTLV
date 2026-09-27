@@ -1,6 +1,6 @@
 import pytest
 
-from opentlv import Entry, FixedFormat, InvalidLengthError, Reader, Tag, Writer, encoded_size
+from opentlv import Element, FixedFormat, InvalidLengthError, Reader, Tag, Writer, encoded_size
 
 
 def test_rejects_invalid_configurations():
@@ -28,8 +28,8 @@ def test_two_byte_tag_one_byte_length_round_trips():
     encoded = writer.bytes()
     assert encoded == b"\x01\x02\x03\xaa\xbb\xcc"
 
-    (entry,) = list(Reader(encoded, format))
-    assert entry == Entry(Tag(b"\x01\x02"), memoryview(b"\xaa\xbb\xcc"))
+    (element,) = list(Reader(encoded, format))
+    assert element == Element(Tag(b"\x01\x02"), memoryview(b"\xaa\xbb\xcc"))
 
 
 def test_little_endian_length_field():

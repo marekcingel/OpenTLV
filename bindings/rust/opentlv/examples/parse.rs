@@ -15,24 +15,24 @@ const DOCUMENT: [u8; 12] = [
 ];
 
 fn print_elements(data: &[u8], depth: usize, count: &mut usize) -> Result<()> {
-    // Entries borrow `data`; nesting is descended by re-reading a child
-    // entry's value with a new `Reader`.
-    for entry in Reader::with_format(data, Format::Ber) {
-        let entry = entry?;
-        let tag = entry.tag();
+    // Elements borrow `data`; nesting is descended by re-reading a child
+    // element's value with a new `Reader`.
+    for element in Reader::with_format(data, Format::Ber) {
+        let element = element?;
+        let tag = element.tag();
         println!(
             "{:indent$}tag={:02X?} length={} value={:02X?}",
             "",
             tag.as_bytes(),
-            entry.value().len(),
-            entry.value(),
+            element.value().len(),
+            element.value(),
             indent = depth * 2
         );
         *count += 1;
 
-        // Bit 6 of the first tag byte marks a constructed (nested) entry.
+        // Bit 6 of the first tag byte marks a constructed (nested) element.
         if tag.as_bytes()[0] & 0x20 != 0 {
-            print_elements(entry.value(), depth + 1, count)?;
+            print_elements(element.value(), depth + 1, count)?;
         }
     }
     Ok(())

@@ -2,7 +2,7 @@
 #define OPENTLV_TLVPP_TYPES_HPP
 #include <string>
 #include "tlv++/compat.hpp"
-#include "tlv/view.h"
+#include "tlv/element.h"
 /**
  * @file types.hpp
  * @brief Core C++ types shared by the tlv++ wrappers.
@@ -45,18 +45,24 @@ using tag_t = tlv_tag_t;
 using bytes = span<const byte>;
 
 /**
- * @brief A decoded TLV item on the C++ side.
- *
- * The tag and the value point into the original buffer (zero-copy) and are not owned.
- *
- * @warning The caller must keep the original buffer alive while the entry is used.
+ * @brief Alias for the canonical C element, with borrowed tag, length and value fields.
+ * @warning Keep the source buffer alive while the element is used.
  */
-struct entry {
-    /** Item tag; borrows the original buffer. */
-    tag_t tag;
-    /** Item value; borrows the original buffer. */
-    bytes value;
-};
+using element = tlv_element_t;
+
+/**
+ * @brief Converts a logical TLV value to a native byte span without copying.
+ *
+ * @param value Borrowed value; its storage must outlive the returned span.
+ * @return A byte span, or #TLV_ERR_NULL_ARG for a null pointer with nonzero size,
+ *         or #TLV_ERR_INVALID_LENGTH if the size exceeds `SIZE_MAX`.
+ * @note Checks the representation and native size, not the actual storage extent.
+ */
+TLV_NODISCARD inline expected<bytes, error> as_bytes(tlv_value_t value) {
+    const tlv_result_t rc = tlv_value_validate(&value);
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    return bytes(reinterpret_cast<const byte*>(value.data), static_cast<size_t>(value.size));
+}
 
 } // namespace tlv
 #endif

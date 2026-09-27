@@ -17,14 +17,14 @@ struct decode_result {
     std::string   text; // decoded, human-readable value (ok) or diagnostic (error)
 };
 
-// Looks `view`'s tag up in the EMV dictionary under `context` (a
+// Looks `element`'s tag up in the EMV dictionary under `context` (a
 // tlv_emv_context_t, passed as int so this header does not require the EMV
 // profile to be compiled in) and, if it carries a codec, decodes its value
-// through tlv_codec_decode and formats the result for display. `view`'s raw
+// through tlv_codec_decode and formats the result for display. `element`'s raw
 // value is never modified; callers present it independently. Builds on the
 // codec layer only - no decoding logic is implemented here beyond formatting
 // the codec's own output.
-decode_result decode_emv_value(int context, const tlv_view_t* view);
+decode_result decode_emv_value(int context, const tlv_element_t* element);
 
 } // namespace cli
 #endif

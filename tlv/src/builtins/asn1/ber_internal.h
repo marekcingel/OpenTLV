@@ -25,6 +25,10 @@ enum {
  * eventually followed by a two-octet 00 00 end-of-contents marker. */
 enum { TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE = 1, TLV_BER_EOC_SIZE = 2 };
 
+/* Available bytes of the original BER length field, including malformed or
+ * truncated fields. Does not decode a quantity or read beyond size. */
+size_t tlv_ber_length_field_size(const uint8_t* data, size_t size);
+
 /* Walk only framing, skipping primitive contents in one step, starting just
  * after a tag whose length field begins at data[0]. indefinite selects
  * whether the outer scope itself is EOC-terminated (the caller already

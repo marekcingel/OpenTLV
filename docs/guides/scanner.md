@@ -15,16 +15,16 @@ tlv_format_t format;
 tlv_fixed_format_init(&format, &config);
 
 const uint8_t data[] = {0xFF, 0xFF, 0x42, 1, 0xAB};
-tlv_view_t view;
+tlv_element_t element;
 size_t offset, consumed;
 tlv_result_t result = tlv_scan(data, sizeof(data), 0,
-    &format, NULL, &view, &offset, &consumed);
-/* TLV_OK: offset == 2, consumed == 3, view.value.data == data + 4. */
+    &format, NULL, &element, &offset, &consumed);
+/* TLV_OK: offset == 2, consumed == 3, element.value.data == data + 4. */
 ```
 
 `offset` is relative to the original buffer, even with a nonzero starting
 position. To continue after a match, pass `offset + consumed` as the next start.
-The view borrows the input; keep the buffer alive while using it.
+The element borrows the input; keep the buffer alive while using it.
 
 Pass an optional `const tlv_schema_t*` instead of `NULL` to require both a known
 tag and a value length within its inclusive bounds. An empty schema rejects

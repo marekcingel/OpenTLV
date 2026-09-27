@@ -46,9 +46,9 @@ TEST(Unit_Tlv_Cer, TagClassAndConstructedAccessors) {
 }
 
 TEST(Unit_Tlv_Cer, EmptyArgumentsAndVisitorControl) {
-    tlv_view_t view{};
-    size_t     used = 99, offset = 99;
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_cer_read(nullptr, 0, nullptr, &view, &used, &offset));
+    tlv_element_t element{};
+    size_t        used = 99, offset = 99;
+    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_cer_read(nullptr, 0, nullptr, &element, &used, &offset));
     EXPECT_EQ(0u, offset);
     EXPECT_EQ(99u, used);
     EXPECT_EQ(TLV_OK, tlv_cer_walk(nullptr, 0, nullptr, nullptr, nullptr, nullptr));
@@ -57,8 +57,8 @@ TEST(Unit_Tlv_Cer, EmptyArgumentsAndVisitorControl) {
     EXPECT_EQ(TLV_ERR_NULL_ARG,
               tlv_cer_write(nullptr, 1, (TLV_TAG(4)), nullptr, 0, nullptr, &used, nullptr));
     const uint8_t data[] = {4, 0, 0xFF};
-    auto          stop = [](const tlv_view_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
-    auto          error = [](const tlv_view_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
+    auto          stop = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
+    auto error = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
     EXPECT_EQ(TLV_OK, tlv_cer_walk(data, sizeof(data), nullptr, stop, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_VISITOR, tlv_cer_walk(data, sizeof(data), nullptr, error, nullptr, &offset));
     EXPECT_EQ(0u, offset);
@@ -81,17 +81,17 @@ TEST(Unit_Tlv_Cer, TagSizeErrorsPreserveOutputs) {
 TEST(Unit_Tlv_Cer, PrimitiveIndefiniteAndConstructedDefiniteAreRejected) {
     /* Primitive tag with the indefinite marker. */
     const uint8_t primitive_indefinite[] = {0x04, 0x80};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 42, offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_cer_read(primitive_indefinite, sizeof(primitive_indefinite), nullptr, &view,
+              tlv_cer_read(primitive_indefinite, sizeof(primitive_indefinite), nullptr, &element,
                            &consumed, &offset));
     EXPECT_EQ(1u, offset);
 
     /* Constructed tag with a definite length. */
     const uint8_t constructed_definite[] = {0x30, 3, 0x02, 1, 5};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_cer_read(constructed_definite, sizeof(constructed_definite), nullptr, &view,
+              tlv_cer_read(constructed_definite, sizeof(constructed_definite), nullptr, &element,
                            &consumed, &offset));
     EXPECT_EQ(1u, offset);
 }
@@ -101,18 +101,18 @@ TEST(Unit_Tlv_Cer, NonSegmentableUniversalTypeRejectsConstructedForm) {
      * constructed set: CER never permits a constructed encoding of it,
      * even though the raw identifier octet alone would parse. */
     const uint8_t data[] = {0x22, 0x80, 0x02, 1, 5, 0, 0}; /* 0x22 = constructed INTEGER */
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed, offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_cer_read(data, sizeof(data), nullptr, &view, &consumed, &offset));
+              tlv_cer_read(data, sizeof(data), nullptr, &element, &consumed, &offset));
     EXPECT_EQ(1u, offset);
 }
 
 namespace {
-tlv_visit_result_t collect_tags(const tlv_view_t* view, size_t depth, size_t offset,
+tlv_visit_result_t collect_tags(const tlv_element_t* element, size_t depth, size_t offset,
                                 void* context) {
     auto* visits = static_cast<std::vector<std::pair<size_t, uint8_t>>*>(context);
-    visits->push_back({depth, view->tag.data[0]});
+    visits->push_back({depth, element->tag.data[0]});
     (void)offset;
     return TLV_VISIT_CONTINUE;
 }

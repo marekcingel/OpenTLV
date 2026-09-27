@@ -6,7 +6,7 @@ use std::slice;
 
 use opentlv_native as native;
 
-use crate::entry::Entry;
+use crate::element::Element;
 use crate::error::{Error, Result};
 use crate::fixed_format::FixedFormat;
 use crate::format::Format;
@@ -53,7 +53,7 @@ pub fn encoded_size_fixed(tag: &Tag, value_len: usize, format: &FixedFormat<'_>)
 /// A sequential writer that encodes TLV entries into a byte slice.
 ///
 /// The writer never allocates: it fills the caller's buffer and reports
-/// [`Error::BufferTooShort`] when an entry does not fit. A failed write leaves
+/// [`Error::BufferTooShort`] when an element does not fit. A failed write leaves
 /// the position unchanged. Values are supplied as `&[u8]`.
 ///
 /// ```
@@ -114,11 +114,11 @@ impl<'a> Writer<'a> {
         }
     }
 
-    /// Appends one entry with the given tag and value.
+    /// Appends one element with the given tag and value.
     ///
     /// # Errors
     ///
-    /// [`Error::BufferTooShort`] if the entry does not fit in the remaining
+    /// [`Error::BufferTooShort`] if the element does not fit in the remaining
     /// space, or any error of the format (for example an invalid tag). On error
     /// the position is unchanged, though bytes past it may have been modified.
     pub fn write(&mut self, tag: &Tag, value: &[u8]) -> Result<()> {
@@ -130,13 +130,13 @@ impl<'a> Writer<'a> {
         Error::check(code)
     }
 
-    /// Appends a decoded [`Entry`], for example one produced by a `Reader`.
+    /// Appends a decoded [`Element`], for example one produced by a `Reader`.
     ///
     /// # Errors
     ///
     /// Same as [`Writer::write`].
-    pub fn write_entry(&mut self, entry: &Entry<'_>) -> Result<()> {
-        self.write(entry.tag(), entry.value())
+    pub fn write_element(&mut self, element: &Element<'_>) -> Result<()> {
+        self.write(element.tag(), element.value())
     }
 
     /// Returns the number of bytes written so far.

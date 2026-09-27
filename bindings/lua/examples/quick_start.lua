@@ -1,7 +1,7 @@
 --[[
 The simplest possible read: one element encoded with the configurable
 fixed-width format (one tag byte, one length byte), decoded with a Reader.
-This binding covers Reader, Entry and Tag only (see issue #298); there is no
+This binding covers Reader, Element and Tag only (see issue #298); there is no
 Lua Writer yet, so unlike the C, C++, Rust and Python quick_start examples,
 the encoded bytes below are written out by hand instead of with a Writer.
 See parse.lua for a nested BER document and error handling.
@@ -26,11 +26,11 @@ print(string.format("reading %d bytes: %s", #encoded, hex(encoded)))
 
 local format = opentlv.formats.fixed(1, 1, "big")
 local reader = opentlv.reader(encoded, format)
-local entry = reader:next()
-assert(entry ~= nil)
+local element = reader:next()
+assert(element ~= nil)
 assert(reader:next() == nil)
 
-assert(entry.tag == string.char(0x01))
-assert(entry.value == string.char(0xAA, 0xBB, 0xCC))
-print(string.format("read tag %s value %s", hex(entry.tag), hex(entry.value)))
+assert(element.tag == string.char(0x01))
+assert(element.value == string.char(0xAA, 0xBB, 0xCC))
+print(string.format("read tag %s value %s", hex(element.tag), hex(element.value)))
 print("opentlv version: " .. opentlv.version())

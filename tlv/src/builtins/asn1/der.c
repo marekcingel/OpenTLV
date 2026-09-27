@@ -45,16 +45,16 @@ static tlv_result_t der_write_tag(const void* context, uint8_t* data, size_t cap
 }
 
 static tlv_result_t der_read_length(const void* context, const uint8_t* data, size_t size,
-                                    size_t* length, size_t* consumed) {
+                                    tlv_size_t* length, size_t* consumed) {
     return tlv_asn1_read_minimal_length(context, data, size, length, consumed);
 }
 
 static tlv_result_t der_write_length(const void* context, uint8_t* data, size_t capacity,
-                                     size_t length, size_t* written) {
+                                     tlv_size_t length, size_t* written) {
     return tlv_ber_wire.write_length(context, data, capacity, length, written);
 }
 
-static tlv_result_t der_length_size(const void* context, size_t length, size_t* size) {
+static tlv_result_t der_length_size(const void* context, tlv_size_t length, size_t* size) {
     return tlv_ber_wire.length_size(context, length, size);
 }
 

@@ -8,7 +8,7 @@
 #include "tlv/formats/fixed.h"
 #include "tlv/codec/codec.h"
 #include "tlv/endian.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
@@ -63,18 +63,18 @@ int main(void) {
     uint32_t          decoded;
     uint8_t           raw[sizeof(uint32_t)], encoded[16];
     size_t            required, written, encoded_size, consumed;
-    tlv_view_t        view;
+    tlv_element_t     element;
 
     CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), NULL, 0, &required));
     printf("Codec needs %zu bytes\n", required);
     CHECK_CODEC(tlv_codec_encode(&codec, &number, sizeof(number), raw, sizeof(raw), &written));
     CHECK(tlv_write(encoded, sizeof(encoded), &format, TLV_TAG(3), raw, written, &encoded_size));
-    CHECK(tlv_read(encoded, encoded_size, &format, &view, &consumed));
+    CHECK(tlv_read(encoded, encoded_size, &format, &element, &consumed));
     {
         size_t value_length;
-        CHECK(tlv_length_to_size(view.value.length, &value_length));
+        CHECK(tlv_size_to_native(element.value.size, &value_length));
         CHECK_CODEC(
-            tlv_codec_decode(&codec, view.value.data, value_length, &decoded, sizeof(decoded)));
+            tlv_codec_decode(&codec, element.value.data, value_length, &decoded, sizeof(decoded)));
     }
     printf("Decoded uint32 BE: 0x%08" PRIX32 "\n", decoded);
 

@@ -2,7 +2,7 @@
 #define OPENTLV_TLVPP_READER_HPP
 
 #include "tlv/reader/reader.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv++/types.hpp"
 
 namespace tlv {
@@ -23,7 +23,7 @@ using reader_diagnostic = tlv_reader_diagnostic_t;
  * therefore may allocate.
  *
  * @warning The caller must keep the buffer, format, and format context
- *          alive for the lifetime of the reader and of any entry it returns.
+ *          alive for the lifetime of the reader and of any element it returns.
  * @see @docs{guides/memory,format context ownership and lifetime}
  */
 class reader {
@@ -58,33 +58,26 @@ public:
     /**
      * @brief Reads the next element and advances the reader.
      *
-     * The returned entry's value borrows the original buffer.
+     * The returned element's value borrows the original buffer.
      *
-     * @return The next entry, or an error: #TLV_ERR_NULL_ARG if the reader
+     * @return The next element, or an error: #TLV_ERR_NULL_ARG if the reader
      *         failed to initialize, #TLV_ERR_END_OF_BUFFER when no further
-     *         element exists, or any error of tlv_reader_next() or
-     *         tlv_length_to_size().
+     *         element exists, or any error of tlv_reader_next().
      *
      * @note On error the reader position is unchanged.
      */
-    TLV_NODISCARD expected<entry, error> next() {
+    TLV_NODISCARD expected<element, error> next() {
         if (!init_ok_) {
             return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
         }
 
-        tlv_view_t   raw{};
-        tlv_result_t rc = tlv_reader_next(&impl_, &raw);
+        tlv_element_t raw{};
+        tlv_result_t  rc = tlv_reader_next(&impl_, &raw);
         if (rc != TLV_OK) {
             return unexpected<error>(error::from_c(rc));
         }
 
-        size_t length;
-        rc = tlv_length_to_size(raw.value.length, &length);
-        if (rc != TLV_OK) {
-            return unexpected<error>(error::from_c(rc));
-        }
-
-        return entry{raw.tag, bytes(reinterpret_cast<const byte*>(raw.value.data), length)};
+        return raw;
     }
 
     /**
@@ -97,24 +90,18 @@ public:
      *
      * @return Same as next().
      */
-    TLV_NODISCARD expected<entry, error> next(reader_diagnostic& out_diagnostic) {
+    TLV_NODISCARD expected<element, error> next(reader_diagnostic& out_diagnostic) {
         if (!init_ok_) {
             return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
         }
 
-        tlv_view_t   raw{};
-        tlv_result_t rc = tlv_reader_next_diag(&impl_, &raw, &out_diagnostic);
+        tlv_element_t raw{};
+        tlv_result_t  rc = tlv_reader_next_diag(&impl_, &raw, &out_diagnostic);
         if (rc != TLV_OK) {
             return unexpected<error>(error::from_c(rc));
         }
 
-        size_t length;
-        rc = tlv_length_to_size(raw.value.length, &length);
-        if (rc != TLV_OK) {
-            return unexpected<error>(error::from_c(rc));
-        }
-
-        return entry{raw.tag, bytes(reinterpret_cast<const byte*>(raw.value.data), length)};
+        return raw;
     }
 
 private:

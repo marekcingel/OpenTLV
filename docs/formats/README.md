@@ -77,15 +77,15 @@ const tlv_fixed_format_t config = {
 tlv_format_t format;
 tlv_fixed_format_init(&format, &config);
 
-tlv_view_t view;
+tlv_element_t element;
 size_t consumed;
-tlv_result_t result = tlv_read(data, size, &format, &view, &consumed);
+tlv_result_t result = tlv_read(data, size, &format, &element, &consumed);
 if (result == TLV_OK) {
-    /* view.value borrows data; consumed also includes any framing trailer. */
+    /* element.value borrows data; consumed also includes any framing trailer. */
 }
 ```
 
-Trailing bytes are ignored. The input must remain alive while using the view.
+Trailing bytes are ignored. The input must remain alive while using the element.
 The reader allocates no memory, copies no value bytes, and does not decode
 value semantics or validate a schema. Formats may inspect nested framing to
 resolve an element boundary. Empty input (including NULL with size zero)
@@ -100,16 +100,16 @@ Custom format callback errors propagate unchanged. The stateful
 Include `tlv/reader/walker.h` to visit concatenated elements with the generic reader:
 
 ```c
-static tlv_visit_result_t count_entry(const tlv_view_t* view, void* context) {
+static tlv_visit_result_t count_element(const tlv_element_t* element, void* context) {
     size_t* count = (size_t*)context;
-    (void)view;
+    (void)element;
     ++*count;
     return TLV_VISIT_CONTINUE;
 }
 
 /* Inside a function: format as constructed above. */
 size_t count = 0;
-tlv_result_t result = tlv_walk(data, size, &format, count_entry, &count);
+tlv_result_t result = tlv_walk(data, size, &format, count_element, &count);
 ```
 
 The visitor runs once per successfully parsed element, in buffer order.
@@ -121,7 +121,7 @@ prevent parsing any further elements; earlier callback effects remain.
 Empty input, including NULL with size zero, succeeds without calling the visitor.
 The visitor and a format with both read callbacks are required even for empty
 input; invalid arguments return `TLV_ERR_NULL_ARG`. The optional context may be
-NULL. The view pointer lasts only for the callback; a copied view still borrows
+NULL. The element pointer lasts only for the callback; a copied element still borrows
 the input value. Keep the input and format valid and unchanged during traversal.
 The walker allocates no memory and never interprets or recurses into values,
 even when they contain nested TLVs.
@@ -219,7 +219,7 @@ When non-NULL, `read_value_bounds(context, tag, data, size, &length_size,
 Its bounded input begins immediately after the parsed tag. It reports three
 consecutive ranges: the length field, the borrowed value, and trailing framing.
 The core checks each size against the remaining input before publishing outputs.
-The value view excludes the trailer, while `consumed` includes it. Format-specific
+The value element excludes the trailer, while `consumed` includes it. Format-specific
 resolution, including BER EOC matching, stays in this callback.
 
 This appended field changes the descriptor ABI: rebuild the library and
@@ -227,7 +227,7 @@ all consumers together. `tlv_format_init` keeps its signature and clears
 the optional callback; assign it afterwards when needed. Custom aggregate
 initializers should explicitly append `NULL` (C) or `nullptr` (C++) to avoid
 missing-field warnings. Descriptors assigned field by field must initialize the
-new field too. `tlv_view_t` is unchanged.
+new field too. `tlv_element_t` is unchanged.
 
 On failure, reader position and output remain unchanged. Writer position also
 remains unchanged, but an encoding callback failure may leave modified bytes
@@ -260,7 +260,7 @@ tag. NULL means opaque values. The BER, DER and CER descriptors set it to
 `tlv_ber_is_constructed`, `tlv_der_is_constructed` and `tlv_cer_is_constructed`
 respectively, inspecting their constructed bit; the default and Fixed formats
 leave it NULL.
-Custom protocols can supply a different rule. Traversal follows the value view
+Custom protocols can supply a different rule. Traversal follows the value element
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.
 
 Use `tlv_walk_tree(data, size, format, max_depth, max_elements, visitor, context,

@@ -26,12 +26,13 @@ int main(void) {
     const uint8_t value[] = {0xAA, 0xBB, 0xCC};
     uint8_t       encoded[16];
     size_t        written = 0, consumed = 0;
-    tlv_view_t    view;
+    tlv_element_t element;
 
     CHECK(tlv_write(encoded, sizeof(encoded), &format, (TLV_TAG(0x12, 0x34)), value, sizeof(value),
                     &written));
     /* Wire bytes: 12 34 03 AA BB CC. The tag is kept as is; the length is one byte. */
-    CHECK(tlv_read(encoded, written, &format, &view, &consumed));
+    CHECK(tlv_read(encoded, written, &format, &element, &consumed));
 
-    return consumed == written && view.tag.size == 2 && view.value.length == sizeof(value) ? 0 : 1;
+    return consumed == written && element.tag.size == 2 && element.value.size == sizeof(value) ? 0
+                                                                                               : 1;
 }

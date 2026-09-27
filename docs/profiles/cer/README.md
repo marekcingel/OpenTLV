@@ -33,15 +33,15 @@ DEFAULT omission and SET/SET OF ordering remain outside this scope regardless.
 #include "tlv/builtins/asn1/cer_profile.h"
 
 const uint8_t input[] = {0x30, 0x80, 0x02, 1, 42, 0, 0}; /* SEQUENCE(indefinite){ INTEGER 42 } */
-tlv_view_t view;
+tlv_element_t element;
 size_t consumed, error_offset;
 tlv_result_t rc = tlv_cer_read(input, sizeof(input), NULL,
-                              &view, &consumed, &error_offset);
+                              &element, &consumed, &error_offset);
 ```
 
 `tlv_cer_read` validates one element and all of its descendants — indefinite
 constructed framing, EOC placement, and canonical string segmentation — before
-returning its view and complete encoded size. Trailing input is ignored. Empty
+returning its element and complete encoded size. Trailing input is ignored. Empty
 input returns `TLV_ERR_END_OF_BUFFER`. Keep the input alive while using returned
 views (see [memory ownership](../../guides/memory.md)).
 
@@ -100,22 +100,22 @@ state rather than concatenating them.
 ## Zero-copy access to segments
 
 A constructed string's segments are just ordinary CER primitive elements one
-level below its own view — `view.value` for a constructed CER element already
+level below its own element — `element.value` for a constructed CER element already
 excludes the outer EOC, the same convention `tlv_read` uses for BER. Iterate
 them with the existing generic `tlv_walk`, no dedicated API needed:
 
 ```c
-tlv_view_t view; /* a constructed OCTET STRING element from tlv_cer_read/_walk */
-tlv_visit_result_t print_segment(const tlv_view_t* segment, void* context) {
+tlv_element_t element; /* a constructed OCTET STRING element from tlv_cer_read/_walk */
+tlv_visit_result_t print_segment(const tlv_element_t* segment, void* context) {
     /* segment->value borrows the input; print it, hash it, etc. */
     return TLV_VISIT_CONTINUE;
 }
 size_t length;
-tlv_length_to_size(view.value.length, &length);
-tlv_walk(view.value.data, length, &tlv_format_cer, print_segment, NULL);
+tlv_size_to_native(element.value.size, &length);
+tlv_walk(element.value.data, length, &tlv_format_cer, print_segment, NULL);
 ```
 
-`view.value` here is a view of the **encoded constructed contents** (segment
+`element.value` here is a element of the **encoded constructed contents** (segment
 headers included) — distinct from the **logical string data** each segment's own
 `value` borrows. This library never concatenates segments into a contiguous
 logical value; assembling one from segment views, if needed, is the caller's

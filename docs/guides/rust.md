@@ -24,16 +24,16 @@ optionally `OPENTLV_LINK_KIND`); see
 
 ## Reading
 
-`Reader` iterates over `Result<Entry>`. Each `Entry` has a `Tag` and a value
-that is a `&[u8]` slice of your input. Constructed entries are not expanded
-automatically; create a new `Reader` over `entry.value()` to descend.
+`Reader` iterates over `Result<Element>`. Each `Element` has a `Tag` and a value
+that is a `&[u8]` slice of your input. Constructed elements are not expanded
+automatically; create a new `Reader` over `element.value()` to descend.
 
 ```rust
 use opentlv::{Format, Reader};
 
-for entry in Reader::with_format(&data, Format::Ber) {
-    let entry = entry?;
-    println!("{:02X?}: {:02X?}", entry.tag().as_bytes(), entry.value());
+for element in Reader::with_format(&data, Format::Ber) {
+    let element = element?;
+    println!("{:02X?}: {:02X?}", element.tag().as_bytes(), element.value());
 }
 ```
 
@@ -47,9 +47,9 @@ use opentlv::{ByteOrder, FixedFormat, FixedFormatConfig, Reader};
 
 let config = FixedFormatConfig::new(2, 1, ByteOrder::Big);
 let format = FixedFormat::new(&config)?;
-for entry in Reader::with_fixed_format(&data, &format) {
-    let entry = entry?;
-    println!("{:02X?}: {:02X?}", entry.tag().as_bytes(), entry.value());
+for element in Reader::with_fixed_format(&data, &format) {
+    let element = element?;
+    println!("{:02X?}: {:02X?}", element.tag().as_bytes(), element.value());
 }
 ```
 
@@ -90,7 +90,7 @@ Every fallible call returns `opentlv::Result<T>`, an alias for
   value.
 - `Reader` yields an `Err` item on malformed input and then ends; it does not
   skip ahead.
-- `Writer::write` returns `Error::BufferTooShort` when the entry does not fit
+- `Writer::write` returns `Error::BufferTooShort` when the element does not fit
   and leaves the position unchanged, so you can retry with a bigger buffer.
 - Layers with more context use their own types: `SchemaError` and
   `ProfileError` carry the C `Error` plus the failing offset, and `CodecError`
@@ -101,22 +101,22 @@ Every fallible call returns `opentlv::Result<T>`, an alias for
 | Type | Owns | Borrows |
 | --- | --- | --- |
 | `Tag` | its bytes (`Copy`) | nothing |
-| `Entry<'a>` | its `Tag` | value `&'a [u8]` from the input |
+| `Element<'a>` | its `Tag` | value `&'a [u8]` from the input |
 | `Reader<'a>` | its cursor | the input `&'a [u8]` |
 | `Writer<'a>` | its position | the output `&'a mut [u8]` |
 | `LengthSchema`, `StructureSchema` | their rule tables | nothing |
 | `FixedFormatConfig` | its fields (`Copy`) | nothing |
 | `FixedFormat<'a>` | nothing | `&'a FixedFormatConfig` |
 
-- Entry values are zero-copy. `Reader<'a>` yields `Entry<'a>` tied to the
-  input, not to the reader, so entries stay valid after the reader is dropped
+- Element values are zero-copy. `Reader<'a>` yields `Element<'a>` tied to the
+  input, not to the reader, so elements stay valid after the reader is dropped
   but not after the input is freed or mutated; the borrow checker enforces it.
   Copy with `to_vec()` when you need the bytes longer.
 - While a `Writer` exists it holds the only `&mut` to its buffer. `written()`
   borrows the writer; `finish()` consumes it and returns the buffer with its
   full lifetime.
 - `Tag` owns its bytes, while the C `tlv_tag_t` only borrows them. Reading an
-  entry copies its tag out of the input, so a `Tag` stays valid after the input
+  element copies its tag out of the input, so a `Tag` stays valid after the input
   is gone; the value stays zero-copy.
 - Schemas own their C tables, and the tags those tables borrow, and free them
   on `Drop`.

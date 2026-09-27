@@ -1,17 +1,17 @@
 # C core types
 
-Include `<tlv/view.h>` for `tlv_view_t`, `<tlv/value.h>` for `tlv_value_t`, and
-`<tlv/length.h>` for `tlv_length_t`, or `<tlv/tlv.h>` to pull in all of them
+Include `<tlv/element.h>` for `tlv_element_t`, `<tlv/value.h>` for `tlv_value_t`, and
+`<tlv/size.h>` for `tlv_size_t`, or `<tlv/tlv.h>` to pull in all of them
 along with the rest of the public API. The common `tlv_result_t` error codes
 come from `<tlv/error.h>`. Tags and their configuration are declared in
 `<tlv/tag.h>`, which can also be included directly.
 
-- `tlv_length_t` is a fixed 64-bit unsigned logical TLV value length, with
+- `tlv_size_t` is a fixed 64-bit unsigned logical TLV value length, with
   the same numeric range on every platform regardless of the current build's
   `size_t` width. See [logical TLV value lengths](length.md) for its checked
   conversions and the x86/x64 divergence in what fits `size_t`.
-- `tlv_value_t` is a read-only, non-owning value (`data`, `length` as
-  `tlv_length_t`). A null `data` pointer is valid only when `length` is zero.
+- `tlv_value_t` is a read-only, non-owning value (`data`, `size` as
+  `tlv_size_t`). A null `data` pointer is valid only when `size` is zero.
   See [borrowed TLV values](value.md) for checked construction and
   validation.
 - There is no separate native byte-range struct. Native byte ranges in the
@@ -21,14 +21,33 @@ come from `<tlv/error.h>`. Tags and their configuration are declared in
   a `size_t size`. It represents arbitrary raw tag bytes in wire order and
   nothing else. It owns no memory, allocates none, has no storage capacity or
   maximum length, and carries no format-specific metadata.
-- `tlv_view_t` (in `<tlv/view.h>`) holds a borrowed `tlv_tag_t` and a
-  borrowed `tlv_value_t` value. The caller must keep the storage of both alive
-  while using the view; for a reader-produced view that is the input buffer.
-  Copying the view copies only the tag's and value's pointers and lengths, not
-  any bytes. `tlv_view_t`/`tlv_value_t` are plain structs containing pointers;
-  unlike `tlv_length_t`'s numeric range, their in-memory layout is **not**
-  guaranteed to match across architectures, and must never be treated as a
-  portable wire encoding.
+- `tlv_length_t` (in `<tlv/length.h>`) borrows the original encoded length
+  field through `const uint8_t* data` and native `size_t size`. It preserves
+  nonminimal encodings and termination markers without numeric interpretation.
+- `tlv_element_t` (in `<tlv/element.h>`) has exactly three fields: `tag`,
+  `length`, and `value`. All bytes are borrowed. `value.size` is the resolved
+  logical value byte count (`tlv_size_t`), excluding header and trailer framing.
+  The format defines how the raw length maps to this count: Bluetooth's length
+  also counts the tag, while BER indefinite length has no numeric wire count.
+  Copying an element copies descriptors only. The source must remain alive
+  and unchanged while any copy is used.
+
+```c
+typedef uint64_t tlv_size_t;
+typedef struct { const uint8_t* data; size_t size; } tlv_tag_t;
+typedef struct { const uint8_t* data; size_t size; } tlv_length_t;
+typedef struct { const uint8_t* data; tlv_size_t size; } tlv_value_t;
+typedef struct {
+    tlv_tag_t tag;
+    tlv_length_t length;
+    tlv_value_t value;
+} tlv_element_t;
+```
+
+The logical quantities and raw bytes are independent of host endianness.
+Pointer-containing structures have native layouts and must never be used as
+portable wire encodings. `tlv_copy_element()` regenerates the length for the
+destination format; `tlv_copy_encoded()` preserves an original encoded range.
 
 All types support zero initialization and require no dynamic allocation.
 
@@ -76,7 +95,7 @@ of `tlv_tag_t` no longer depends on a compile-time setting, so the library and
 its consumers, including other languages' bindings, never have to be rebuilt to
 agree on it, and tests for different tag lengths run in a single build.
 
-The reader returns `tlv_view_t` with the tag and value borrowed from the input
+The reader returns `tlv_element_t` with the tag and value borrowed from the input
 buffer. The writer accepts `tlv_tag_t` by value and only reads it during the
 call, and the C++ layer uses the same type for tags. A codec registry, or any
 container that has to keep a tag, must copy the bytes.
@@ -100,7 +119,7 @@ host's byte order: `01 FF` orders before `02 00`, and `01 00 00` orders before
 Validate input at the API boundary; the comparison itself does no checking.
 
 ```c
-if (tlv_tag_equal(view.tag, TLV_TAG(0x9F, 0x02))) {
+if (tlv_tag_equal(element.tag, TLV_TAG(0x9F, 0x02))) {
     /* The same bytes, wherever they are stored. */
 }
 ```
@@ -142,3 +161,15 @@ is never produced because a tag is "too long for `tlv_tag_t`".
 `TLV_ERR_INVALID_TAG` identifies malformed tag encoding.
 
 See also the [C API reference: core types](../reference/c-api.md#core-types-and-utilities).
+
+### C++ element access
+
+`tlv::element` aliases `tlv_element_t`, including the raw length field and
+64-bit `value.size`. Access bytes through `element.value.data`. When a C++
+codec or range operation needs `tlv::bytes`, use the checked conversion:
+
+```cpp
+auto value = tlv::as_bytes(element.value);
+if (!value) return; // Null data with nonzero size, or size above SIZE_MAX.
+// *value is a borrowed tlv::bytes span; keep the source storage alive.
+```

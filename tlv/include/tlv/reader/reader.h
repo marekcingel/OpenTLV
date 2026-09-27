@@ -23,18 +23,17 @@ extern "C" {
 /**
  * @brief Parses one element from the beginning of a buffer.
  *
- * Trailing bytes after the element are ignored. On success `out_entry`
- * borrows the input value (zero-copy) and `consumed` receives the complete
- * encoded size (tag + length + value + optional trailer). The value excludes
- * enclosing framing such as BER EOC. No allocation, value copying, or schema
- * validation occurs.
+ * Trailing bytes after the element are ignored. On success `out_element`
+ * borrows the input tag, raw length field and value (zero-copy) and `consumed` receives the
+ * complete encoded size (tag + length + value + optional trailer). The value excludes enclosing
+ * framing such as BER EOC. No allocation, value copying, or schema validation occurs.
  *
  * @param[in]  data      Encoded input. May be `NULL` only when `size` is zero,
  *                       which returns #TLV_ERR_END_OF_BUFFER.
  * @param[in]  size      Input size in bytes.
  * @param[in]  format    Reader format; its `read_tag` and `read_length`
  *                       callbacks are required.
- * @param[out] out_entry Receives the parsed element. Required.
+ * @param[out] out_element Receives the parsed element. Required.
  * @param[out] consumed  Receives the encoded size of the element. Required.
  *
  * @return #TLV_OK on success.
@@ -47,10 +46,10 @@ extern "C" {
  * @return Any callback error, propagated unchanged.
  *
  * @note On failure both outputs remain unchanged.
- * @warning The caller must keep `data` alive while `out_entry->value` is used.
+ * @warning The caller must keep `data` alive and unchanged while any part of `out_element` is used.
  */
 TLV_API tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_format_t* format,
-                              tlv_view_t* out_entry, size_t* consumed);
+                              tlv_element_t* out_element, size_t* consumed);
 
 /** @brief Which parsing step a #tlv_reader_diagnostic_t reports on. */
 typedef enum tlv_reader_operation {
@@ -106,7 +105,15 @@ typedef struct tlv_reader_diagnostic {
      * Length declared for the field named by `operation` (the value, or the
      * missing trailer); valid only if `has_declared_length` is nonzero.
      */
-    size_t declared_length;
+    tlv_size_t declared_length;
+    /** Nonzero if raw length-field bytes are available, even for a failed decode. */
+    int has_raw_length;
+    /**
+     * Borrowed original length bytes (or the available prefix when truncated).
+     * Valid only when `has_raw_length` is nonzero. The source buffer must
+     * remain valid and unchanged while this diagnostic is used.
+     */
+    tlv_length_t raw_length;
     /** Nonzero if `available` is set. */
     int has_available;
     /** Bytes actually available at the failing offset; valid only if `has_available` is nonzero. */
@@ -138,19 +145,19 @@ TLV_API void tlv_reader_diagnostic_init(tlv_reader_diagnostic_t* diagnostic);
  * @param[in]  size           Input size in bytes.
  * @param[in]  format         Reader format; its `read_tag` and `read_length`
  *                            callbacks are required.
- * @param[out] out_entry      Receives the parsed element. Required.
+ * @param[out] out_element      Receives the parsed element. Required.
  * @param[out] consumed       Receives the encoded size of the element. Required.
  * @param[out] out_diagnostic Receives detail on failure; may be `NULL`.
  *
  * @return Same as tlv_read().
  *
- * @note On failure both `out_entry` and `consumed` remain unchanged.
+ * @note On failure both `out_element` and `consumed` remain unchanged.
  * @note On success `*out_diagnostic` is left unchanged.
- * @warning The caller must keep `data` alive while `out_entry->value` or
+ * @warning The caller must keep `data` alive while `out_element->value` or
  *          `out_diagnostic->tag` is used.
  */
 TLV_API tlv_result_t tlv_read_diag(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                   tlv_view_t* out_entry, size_t* consumed,
+                                   tlv_element_t* out_element, size_t* consumed,
                                    tlv_reader_diagnostic_t* out_diagnostic);
 
 /**
@@ -204,21 +211,20 @@ TLV_API int tlv_reader_at_end(const tlv_reader_t* reader);
 /**
  * @brief Reads the next TLV element and advances the reader.
  *
- * On success `*out_entry` is set and the position advances. The tag is copied
- * into the view; the value points directly into the original buffer
- * (zero-copy).
+ * On success `*out_element` is set and the position advances. The tag, raw length
+ * and value borrow the original buffer; no bytes are copied.
  *
  * @param[in,out] reader    Reader to advance.
- * @param[out]    out_entry Receives the next element.
+ * @param[out]    out_element Receives the next element.
  *
  * @return #TLV_OK on success.
  * @return Any error of tlv_read() otherwise.
  *
- * @note On error both the reader position and `*out_entry` remain unchanged.
+ * @note On error both the reader position and `*out_element` remain unchanged.
  * @warning The caller must keep the original buffer alive while the returned
- *          view is used.
+ *          element is used.
  */
-TLV_API tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_view_t* out_entry);
+TLV_API tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_element_t* out_element);
 
 /**
  * @brief Reads the next TLV element and advances the reader, with diagnostic detail on failure.
@@ -229,15 +235,15 @@ TLV_API tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_view_t* out_entry
  * buffer, not relative to the element that was being read.
  *
  * @param[in,out] reader         Reader to advance.
- * @param[out]    out_entry      Receives the next element.
+ * @param[out]    out_element      Receives the next element.
  * @param[out]    out_diagnostic Receives detail on failure; may be `NULL`.
  *
  * @return Same as tlv_reader_next().
  *
- * @note On error the reader position and `*out_entry` remain unchanged.
+ * @note On error the reader position and `*out_element` remain unchanged.
  * @note On success `*out_diagnostic` is left unchanged.
  */
-TLV_API tlv_result_t tlv_reader_next_diag(tlv_reader_t* reader, tlv_view_t* out_entry,
+TLV_API tlv_result_t tlv_reader_next_diag(tlv_reader_t* reader, tlv_element_t* out_element,
                                           tlv_reader_diagnostic_t* out_diagnostic);
 
 #ifdef __cplusplus

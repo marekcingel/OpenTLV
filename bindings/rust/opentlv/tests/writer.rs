@@ -38,7 +38,7 @@ fn buffer_too_short_leaves_position_unchanged() {
         Err(Error::BufferTooShort)
     );
     assert_eq!(writer.position(), 3);
-    // A smaller entry that does not fit either still reports the same error.
+    // A smaller element that does not fit either still reports the same error.
     assert_eq!(writer.write(&tag(&[0x03]), &[]), Err(Error::BufferTooShort));
     assert_eq!(writer.position(), 3);
 }
@@ -91,9 +91,9 @@ fn round_trip(format: Format, entries: &[(&[u8], &[u8])]) {
         .collect::<Result<_, _>>()
         .unwrap();
     assert_eq!(decoded.len(), entries.len(), "{format:?}");
-    for (entry, (t, v)) in decoded.iter().zip(entries) {
-        assert_eq!(entry.tag().as_bytes(), *t, "{format:?}");
-        assert_eq!(entry.value(), *v, "{format:?}");
+    for (element, (t, v)) in decoded.iter().zip(entries) {
+        assert_eq!(element.tag().as_bytes(), *t, "{format:?}");
+        assert_eq!(element.value(), *v, "{format:?}");
     }
 }
 
@@ -136,22 +136,22 @@ fn round_trips_default_and_der_formats() {
         let mut writer = Writer::with_format(&mut buf, format);
         writer.write(&tag(&[0x04]), &[1, 2, 3]).unwrap();
         let encoded = writer.finish();
-        let entry = Reader::with_format(encoded, format)
+        let element = Reader::with_format(encoded, format)
             .next()
             .unwrap()
             .unwrap();
-        assert_eq!(entry.tag().as_bytes(), &[0x04]);
-        assert_eq!(entry.value(), &[1, 2, 3]);
+        assert_eq!(element.tag().as_bytes(), &[0x04]);
+        assert_eq!(element.value(), &[1, 2, 3]);
     }
 }
 
 #[test]
-fn write_entry_copies_entries_read_from_another_buffer() {
+fn write_element_copies_entries_read_from_another_buffer() {
     let source = [0x01, 0x02, 0xAA, 0xBB, 0x02, 0x00];
     let mut buf = [0u8; 6];
     let mut writer = Writer::new(&mut buf);
-    for entry in Reader::new(&source) {
-        writer.write_entry(&entry.unwrap()).unwrap();
+    for element in Reader::new(&source) {
+        writer.write_element(&element.unwrap()).unwrap();
     }
     assert_eq!(writer.written(), &source);
 }

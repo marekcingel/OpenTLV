@@ -15,7 +15,7 @@
 
 Multi-byte tags of up to `TLV_ASN1_TAG_MAX_SIZE` (8) bytes; definite lengths and constructed indefinite input. Ordinary writes use definite lengths.
 
-See [shared memory ownership rules](../../guides/memory.md) before retaining a parsed view.
+See [shared memory ownership rules](../../guides/memory.md) before retaining a parsed element.
 
 ## Minimal C usage
 
@@ -31,16 +31,16 @@ int main(void) {
     const uint8_t value[] = {0x2A};
     uint8_t output[8];
     size_t written = 0, consumed = 0;
-    tlv_view_t view;
+    tlv_element_t element;
     if (tlv_write(output, sizeof(output), &tlv_format_ber,
                   tag, value, sizeof(value), &written) != TLV_OK)
         return 1;
     if (tlv_read(output, written, &tlv_format_ber,
-                 &view, &consumed) != TLV_OK)
+                 &element, &consumed) != TLV_OK)
         return 1;
-    return consumed == written && view.tag.size == 1 &&
-           view.tag.data[0] == 0x04 && view.value.length == 1 &&
-           view.value.data[0] == 0x2A ? 0 : 1;
+    return consumed == written && element.tag.size == 1 &&
+           element.tag.data[0] == 0x04 && element.value.size == 1 &&
+           element.value.data[0] == 0x2A ? 0 : 1;
 }
 ```
 
@@ -64,13 +64,13 @@ BER-family format shares them. ASN.1 type semantics such as `INTEGER` or
 
 ```c
 const uint8_t input[] = {0xA0, 3, 0x02, 1, 42}; /* Context-specific, constructed, tag 0 */
-tlv_view_t view;
+tlv_element_t element;
 size_t consumed;
-if (tlv_read(input, sizeof(input), &tlv_format_ber, &view, &consumed) == TLV_OK) {
-    tlv_asn1_class_t cls = tlv_ber_tag_class(&view.tag);         /* TLV_ASN1_CONTEXT_SPECIFIC */
-    int constructed = tlv_ber_tag_is_constructed(&view.tag);     /* 1 */
+if (tlv_read(input, sizeof(input), &tlv_format_ber, &element, &consumed) == TLV_OK) {
+    tlv_asn1_class_t cls = tlv_ber_tag_class(&element.tag);         /* TLV_ASN1_CONTEXT_SPECIFIC */
+    int constructed = tlv_ber_tag_is_constructed(&element.tag);     /* 1 */
     uint64_t number;
-    tlv_ber_tag_number(&view.tag, &number);                      /* 0 */
+    tlv_ber_tag_number(&element.tag, &number);                      /* 0 */
 }
 ```
 
@@ -156,7 +156,7 @@ through the same BER descriptor. Include `tlv++/builtins/asn1/ber.hpp` for
 The C core does not allocate; C++ error construction retains its existing
 `std::string` behavior.
 
-`tlv_copy_view` with the BER writer re-encodes the outer header as definite;
+`tlv_copy_element` with the BER writer re-encodes the outer header as definite;
 child bytes remain unchanged. Use `tlv_copy_encoded` with the full consumed
 range to preserve the original indefinite representation. Flat walkers,
 recovery scanning, structural schemas and structure codecs use the resolved
@@ -168,13 +168,13 @@ surrounding tree. DER still rejects indefinite lengths.
 `tlv_ber_length_decode(data, data_size, &value, &consumed)` and
 `tlv_ber_length_encode(value, out, out_capacity, &written)` inspect or produce
 one BER definite-length field on its own, independent of any tag or value
-payload and of the format callbacks above. They use `tlv_length_t` (from
-`tlv/length.h`) for the decoded value, so it has the same 64-bit range on
+payload and of the format callbacks above. They use `tlv_size_t` (from
+`tlv/size.h`) for the decoded value, so it has the same 64-bit range on
 every build regardless of the current build's `size_t` width:
 
 ```c
 #include "tlv/builtins/asn1/ber.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 
 uint8_t out[TLV_BER_LENGTH_MAX_ENCODED_SIZE];
 size_t written;
@@ -182,7 +182,7 @@ if (tlv_ber_length_encode(300, out, sizeof(out), &written) == TLV_OK) {
     /* out[0..written) is 82 01 2C. */
 }
 
-tlv_length_t value;
+tlv_size_t value;
 size_t consumed;
 if (tlv_ber_length_decode(out, written, &value, &consumed) == TLV_OK) {
     size_t available; /* bytes actually held by the value buffer at hand */
@@ -190,18 +190,18 @@ if (tlv_ber_length_decode(out, written, &value, &consumed) == TLV_OK) {
     /* Convert the portable decoded length before using it as a native size,
      * then separately check it against the buffer that is actually available;
      * a successful conversion does not by itself prove that much data exists. */
-    if (tlv_length_to_size(value, &needed) == TLV_OK && needed <= available) {
+    if (tlv_size_to_native(value, &needed) == TLV_OK && needed <= available) {
         /* needed bytes of value payload may now be read from the buffer. */
     }
 }
 ```
 
 `tlv_ber_length_decode` accepts short form and long form, including nonminimal
-(zero-padded) long-form encodings whose numeric value still fits `tlv_length_t`
+(zero-padded) long-form encodings whose numeric value still fits `tlv_size_t`
 -- the same nonminimal acceptance as `tlv_format_ber`, just against the
 full 64-bit range instead of the current build's `size_t`. The indefinite
 marker (`80` alone) and the reserved `FF` prefix are rejected with
-`TLV_ERR_INVALID_LENGTH`, as is a padded value wider than `tlv_length_t` or
+`TLV_ERR_INVALID_LENGTH`, as is a padded value wider than `tlv_size_t` or
 nonzero excess padding. A field that declares more length octets than
 `data_size` provides returns `TLV_ERR_BUFFER_TOO_SHORT`. It does not process
 the indefinite-length marker's associated content or constructed EOC framing;
@@ -210,7 +210,7 @@ use `tlv_format_ber` or `tlv_ber_write_indefinite` for that.
 `tlv_ber_length_encode` always produces the shortest definite form and
 supports a size query: pass `out == NULL` with `out_capacity == 0` to receive
 the required size in `*written` without writing. `TLV_BER_LENGTH_MAX_ENCODED_SIZE`
-(9) is enough to hold the encoding of any `tlv_length_t` value, including
+(9) is enough to hold the encoding of any `tlv_size_t` value, including
 `UINT64_MAX` (`88 FF FF FF FF FF FF FF FF`); it is smaller than the largest
 field `tlv_ber_length_decode` can still accept, since nonminimal input may use
 up to 127 length octets. Insufficient `out_capacity` returns
@@ -233,11 +233,11 @@ dictionary:
 ```c
 #include "tlv/builtins/asn1/asn1_codec.h"
 
-/* view.value already read through tlv_format_ber, DER or CER */
+/* element.value already read through tlv_format_ber, DER or CER */
 int64_t number;
 size_t  length;
-if (tlv_length_to_size(view.value.length, &length) == TLV_OK &&
-    tlv_codec_decode(&tlv_asn1_codec_integer, view.value.data, length,
+if (tlv_size_to_native(element.value.size, &length) == TLV_OK &&
+    tlv_codec_decode(&tlv_asn1_codec_integer, element.value.data, length,
                       &number, sizeof(number)) == TLV_CODEC_OK) {
     /* number holds the decoded INTEGER */
 }

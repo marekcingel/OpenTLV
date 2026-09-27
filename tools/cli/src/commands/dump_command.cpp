@@ -5,23 +5,23 @@
 
 namespace cli {
 
-tlv_visit_result_t dump_command::visit_element(const tlv_view_t* view, std::size_t depth,
+tlv_visit_result_t dump_command::visit_element(const tlv_element_t* element, std::size_t depth,
                                                std::size_t offset) {
-    diagnostic_scope_visit(scope_, data(), view, depth, format_->is_constructed);
+    diagnostic_scope_visit(scope_, data(), element, depth, format_->is_constructed);
     offset += base_;
-    const int indefinite = ber_ && data()[offset + view->tag.size] == 0x80;
-    cli_presentation_visit(&presentation_, view, depth, indefinite);
+    const int indefinite = ber_ && data()[offset + element->tag.size] == 0x80;
+    cli_presentation_visit(&presentation_, element, depth, indefinite);
     if (!options_.tree && depth) return TLV_VISIT_CONTINUE;
     if (is_json(options_)) {
         nlohmann::json object;
         object["offset"] = offset;
-        object["tag"] = hex_string(view->tag.data, view->tag.size);
-        object["length"] = (uint64_t)view->value.length;
+        object["tag"] = hex_string(element->tag.data, element->tag.size);
+        object["length"] = (uint64_t)element->value.size;
         if (indefinite) object["indefinite"] = true;
-        object["value"] = hex_string(view->value.data, (size_t)view->value.length);
+        object["value"] = hex_string(element->value.data, cli_element_value_size(element));
         if (options_.profile) {
-            json_emv(object, presentation_, view, depth, options_.describe);
-            if (options_.decode) json_decode(object, presentation_, view, depth);
+            json_emv(object, presentation_, element, depth, options_.describe);
+            if (options_.decode) json_decode(object, presentation_, element, depth);
         }
         // Attach any elements deeper than this one to their parent first,
         // since their subtrees are now known to be finished.
@@ -34,15 +34,15 @@ tlv_visit_result_t dump_command::visit_element(const tlv_view_t* view, std::size
     else
         for (size_t i = 0; i < depth; ++i) std::cout << "  ";
     std::cout << "offset=" << offset << " tag=";
-    print_tag(view->tag, presentation_.color != 0);
-    std::cout << " length=" << view->value.length;
+    print_tag(element->tag, presentation_.color != 0);
+    std::cout << " length=" << element->value.size;
     if (indefinite) std::cout << " encoding=indefinite";
     std::cout << " value=";
-    print_hex(view->value.data, (size_t)view->value.length);
+    print_hex(element->value.data, cli_element_value_size(element));
     if (options_.profile) {
-        cli_presentation_emv(&presentation_, view, depth, options_.describe);
+        cli_presentation_emv(&presentation_, element, depth, options_.describe);
         if (options_.decode) {
-            const decode_result result = decode_emv_value(presentation_.contexts[depth], view);
+            const decode_result result = decode_emv_value(presentation_.contexts[depth], element);
             if (result.status == decode_status::ok)
                 std::cout << " decoded=\"" << result.text << '"';
             else if (result.status == decode_status::error)

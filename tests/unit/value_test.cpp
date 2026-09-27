@@ -9,7 +9,7 @@ TEST(Unit_Tlv_Value, InitBorrowsDataAndLength) {
     tlv_value_t value{};
     ASSERT_EQ(TLV_OK, tlv_value_init(storage + 1, 2, &value));
     EXPECT_EQ(storage + 1, value.data);
-    EXPECT_EQ(2u, value.length);
+    EXPECT_EQ(2u, value.size);
     storage[1] = 0xAB;
     EXPECT_EQ(0xAB, value.data[0]);
 }
@@ -18,14 +18,14 @@ TEST(Unit_Tlv_Value, InitAcceptsZeroLengthWithNullData) {
     tlv_value_t value{};
     ASSERT_EQ(TLV_OK, tlv_value_init(nullptr, 0, &value));
     EXPECT_EQ(nullptr, value.data);
-    EXPECT_EQ(0u, value.length);
+    EXPECT_EQ(0u, value.size);
 }
 
 TEST(Unit_Tlv_Value, InitRejectsNullDataWithNonzeroLengthAndLeavesOutputUnchanged) {
     tlv_value_t value{reinterpret_cast<const uint8_t*>(0x1), 7};
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_value_init(nullptr, 1, &value));
     EXPECT_EQ(reinterpret_cast<const uint8_t*>(0x1), value.data);
-    EXPECT_EQ(7u, value.length);
+    EXPECT_EQ(7u, value.size);
 }
 
 TEST(Unit_Tlv_Value, InitRejectsNullOutput) {
@@ -40,7 +40,7 @@ TEST(Unit_Tlv_Value, InitChecksNullPointersBeforeNativeRange) {
         tlv_value_t value{reinterpret_cast<const uint8_t*>(0x1), 7};
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_value_init(nullptr, UINT64_MAX, &value));
         EXPECT_EQ(reinterpret_cast<const uint8_t*>(0x1), value.data);
-        EXPECT_EQ(7u, value.length);
+        EXPECT_EQ(7u, value.size);
     }
 }
 
@@ -50,17 +50,17 @@ TEST(Unit_Tlv_Value, InitRejectsLengthBeyondNativeSizeAndLeavesOutputUnchanged) 
         tlv_value_t value{reinterpret_cast<const uint8_t*>(0x1), 7};
         EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_value_init(&byte, UINT64_MAX, &value));
         EXPECT_EQ(reinterpret_cast<const uint8_t*>(0x1), value.data);
-        EXPECT_EQ(7u, value.length);
+        EXPECT_EQ(7u, value.size);
     }
 }
 
 TEST(Unit_Tlv_Value, InitAcceptsNativeMaximumLength) {
-    uint8_t            byte = 0;
-    tlv_value_t        value{};
-    const tlv_length_t native_maximum = std::numeric_limits<size_t>::max();
+    uint8_t          byte = 0;
+    tlv_value_t      value{};
+    const tlv_size_t native_maximum = std::numeric_limits<size_t>::max();
     ASSERT_EQ(TLV_OK, tlv_value_init(&byte, native_maximum, &value));
     EXPECT_EQ(&byte, value.data);
-    EXPECT_EQ(native_maximum, value.length);
+    EXPECT_EQ(native_maximum, value.size);
 }
 
 TEST(Unit_Tlv_Value, ValidateAcceptsBorrowedRangeAndEmptyValue) {
@@ -140,7 +140,7 @@ TEST(Unit_Tlv_Value, SliceBorrowsASubRange) {
     tlv_value_t       part{reinterpret_cast<const uint8_t*>(0x1), 99};
     ASSERT_EQ(TLV_OK, tlv_value_slice(value, 1, 3, &part));
     EXPECT_EQ(bytes + 1, part.data);
-    EXPECT_EQ(3u, part.length);
+    EXPECT_EQ(3u, part.size);
     EXPECT_TRUE(tlv_value_equal(part, tlv_value_t{bytes + 1, 3}));
 }
 
@@ -150,10 +150,10 @@ TEST(Unit_Tlv_Value, SliceAcceptsTheFullRangeAndAnEmptyTrailingRange) {
     tlv_value_t       part{};
     ASSERT_EQ(TLV_OK, tlv_value_slice(value, 0, 2, &part));
     EXPECT_EQ(bytes, part.data);
-    EXPECT_EQ(2u, part.length);
+    EXPECT_EQ(2u, part.size);
     ASSERT_EQ(TLV_OK, tlv_value_slice(value, 2, 0, &part));
     EXPECT_EQ(nullptr, part.data);
-    EXPECT_EQ(0u, part.length);
+    EXPECT_EQ(0u, part.size);
 }
 
 TEST(Unit_Tlv_Value, SliceRejectsNullOutput) {
@@ -168,7 +168,7 @@ TEST(Unit_Tlv_Value, SliceRejectsARangeExceedingTheValue) {
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_value_slice(value, 1, 2, &part));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_value_slice(value, 3, 0, &part));
     EXPECT_EQ(reinterpret_cast<const uint8_t*>(0x1), part.data);
-    EXPECT_EQ(99u, part.length);
+    EXPECT_EQ(99u, part.size);
 }
 
 TEST(Unit_Tlv_Value, SliceDetectsOffsetPlusLengthOverflow) {

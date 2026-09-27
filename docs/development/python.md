@@ -27,7 +27,7 @@ rule tree in, a pass/fail with diagnostic detail out), `emv_decode_amount`/
 exports), and a `document_*`/`node_*` family wrapping `tlv_document_t`
 (as a `PyCapsule`) and `tlv_node_t` (as a plain integer; see
 [relationship to the C API](../guides/python.md#relationship-to-the-c-api)).
-`opentlv` builds `Reader`, `Writer`, `Document`/`Node`, `Entry`, `Tag`,
+`opentlv` builds `Reader`, `Writer`, `Document`/`Node`, `Element`, `Tag`,
 `Format`, `FixedFormat`, `LengthSchema`/`StructureSchema`, the `OpenTLVError`
 exception hierarchy and the narrow `codec` submodule on top of it; see [Using
 OpenTLV from Python](../guides/python.md).

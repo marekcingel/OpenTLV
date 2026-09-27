@@ -1,6 +1,6 @@
 #include "tlv/copy.h"
 #include "tlv/writer/writer.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include <string.h>
 
 tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encoded_length, uint8_t* data,
@@ -17,22 +17,24 @@ tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encoded_length
     return TLV_OK;
 }
 
-tlv_result_t tlv_copy_value(const tlv_view_t* view, uint8_t* data, size_t capacity,
+tlv_result_t tlv_copy_value(const tlv_element_t* element, uint8_t* data, size_t capacity,
                             size_t* written) {
-    if (!view) return TLV_ERR_NULL_ARG;
-    return tlv_value_copy(view->value, data, capacity, written);
+    if (!element) return TLV_ERR_NULL_ARG;
+    return tlv_value_copy(element->value, data, capacity, written);
 }
 
-tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_format_t* format, uint8_t* data,
-                           size_t capacity, size_t* written) {
+tlv_result_t tlv_copy_element(const tlv_element_t* element, const tlv_format_t* format,
+                              uint8_t* data, size_t capacity, size_t* written) {
     size_t length, local_written;
     tlv_result_t rc;
-    if (!view || !written || (!data && capacity) || (!view->value.data && view->value.length))
+    if (!element || !written || (!data && capacity) ||
+        (!element->value.data && element->value.size))
         return TLV_ERR_NULL_ARG;
-    rc = tlv_length_to_size(view->value.length, &length);
+    rc = tlv_size_to_native(element->value.size, &length);
     if (rc != TLV_OK) return rc;
-    if (!data) return tlv_encoded_size(view->tag, length, format, written);
-    rc = tlv_write(data, capacity, format, view->tag, view->value.data, length, &local_written);
+    if (!data) return tlv_encoded_size(element->tag, length, format, written);
+    rc = tlv_write(data, capacity, format, element->tag, element->value.data, length,
+                   &local_written);
     if (rc == TLV_OK) *written = local_written;
     return rc;
 }

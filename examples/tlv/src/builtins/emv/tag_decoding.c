@@ -10,7 +10,7 @@
  * kind in one place; it is not a literal capture of any single response.
  */
 #include "tlv/builtins/asn1/ber.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/walker.h"
@@ -175,19 +175,19 @@ typedef struct {
     tlv_emv_account_type_t    account;
 } record_t;
 
-static tlv_visit_result_t decode_field(const tlv_view_t* view, void* context) {
+static tlv_visit_result_t decode_field(const tlv_element_t* element, void* context) {
     record_t*                   record = (record_t*)context;
     const tlv_emv_definition_t* def;
     size_t                      length;
 
-    print_tag(&view->tag);
-    if (tlv_length_to_size(view->value.length, &length) != TLV_OK) {
+    print_tag(&element->tag);
+    if (tlv_size_to_native(element->value.size, &length) != TLV_OK) {
         printf(" -> value length is not representable here\n");
         ++record->errors;
         return TLV_VISIT_CONTINUE;
     }
 
-    def = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &view->tag);
+    def = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &element->tag);
     if (!def) {
         printf(" -> unknown tag, not in the Book 3 dictionary; skipping\n");
         ++record->unknown_count;
@@ -203,7 +203,7 @@ static tlv_visit_result_t decode_field(const tlv_view_t* view, void* context) {
 
     switch (def->value_kind) {
         case TLV_EMV_VALUE_DIGITS: {
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, view->value.data, length,
+            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                      record->pan, sizeof(record->pan));
             if (rc != TLV_CODEC_OK) {
                 printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
@@ -215,7 +215,7 @@ static tlv_visit_result_t decode_field(const tlv_view_t* view, void* context) {
             break;
         }
         case TLV_EMV_VALUE_DATE: {
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, view->value.data, length,
+            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                      &record->expiry, sizeof(record->expiry));
             if (rc != TLV_CODEC_OK) {
                 printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
@@ -229,7 +229,7 @@ static tlv_visit_result_t decode_field(const tlv_view_t* view, void* context) {
             break;
         }
         case TLV_EMV_VALUE_FLAGS: {
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, view->value.data, length,
+            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                      &record->aip, sizeof(record->aip));
             if (rc != TLV_CODEC_OK) {
                 printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
@@ -243,7 +243,7 @@ static tlv_visit_result_t decode_field(const tlv_view_t* view, void* context) {
             break;
         }
         case TLV_EMV_VALUE_NUMBER: {
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, view->value.data, length,
+            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                      &record->amount, sizeof(record->amount));
             if (rc != TLV_CODEC_OK) {
                 printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
@@ -257,7 +257,7 @@ static tlv_visit_result_t decode_field(const tlv_view_t* view, void* context) {
         case TLV_EMV_VALUE_CRYPTOGRAM: {
             static const char* const names[] = {"AAC", "TC", "ARQC", "RFU"};
             tlv_codec_result_t       rc =
-                tlv_codec_decode(def->codec, view->value.data, length, &record->cryptogram,
+                tlv_codec_decode(def->codec, element->value.data, length, &record->cryptogram,
                                  sizeof(record->cryptogram));
             if (rc != TLV_CODEC_OK) {
                 printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
@@ -269,7 +269,7 @@ static tlv_visit_result_t decode_field(const tlv_view_t* view, void* context) {
             break;
         }
         case TLV_EMV_VALUE_ACCOUNT: {
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, view->value.data, length,
+            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                      &record->account, sizeof(record->account));
             if (rc != TLV_CODEC_OK) {
                 printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
@@ -285,7 +285,7 @@ static tlv_visit_result_t decode_field(const tlv_view_t* view, void* context) {
         }
         case TLV_EMV_VALUE_AFL: {
             size_t             i;
-            tlv_codec_result_t rc = tlv_codec_decode(def->codec, view->value.data, length,
+            tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                      &record->afl, sizeof(record->afl));
             if (rc != TLV_CODEC_OK) {
                 printf(" -> decode error: %s\n", tlv_codec_strerror(rc));
@@ -316,10 +316,10 @@ static tlv_visit_result_t decode_field(const tlv_view_t* view, void* context) {
 }
 
 int main(void) {
-    uint8_t    content[256], wire[300];
-    size_t     content_size, wire_size, consumed, wire_content_size;
-    tlv_view_t outer;
-    record_t   record;
+    uint8_t       content[256], wire[300];
+    size_t        content_size, wire_size, consumed, wire_content_size;
+    tlv_element_t outer;
+    record_t      record;
     memset(&record, 0, sizeof(record));
 
     if (build_record(content, sizeof(content), &content_size)) return 1;
@@ -332,7 +332,7 @@ int main(void) {
     puts("Parsing a simulated EMV READ RECORD response template (70):");
     CHECK(tlv_read(wire, wire_size, &tlv_format_ber, &outer, &consumed));
     EXPECT(consumed == wire_size, "unexpected trailing bytes after the record template");
-    CHECK(tlv_length_to_size(outer.value.length, &wire_content_size));
+    CHECK(tlv_size_to_native(outer.value.size, &wire_content_size));
 
     CHECK(tlv_walk(outer.value.data, wire_content_size, &tlv_format_ber, decode_field, &record));
 

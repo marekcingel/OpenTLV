@@ -39,45 +39,31 @@ static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacit
     return TLV_OK;
 }
 
-/* Delegates to the standalone tlv_ber_length_decode() (tlv/builtins/asn1/ber.h)
- * for the actual field parsing, narrowing its portable tlv_length_t result to
- * this build's size_t. consumed is only published once that narrowing also
- * succeeds, so a value that decodes but does not fit size_t leaves *length
- * and *consumed unchanged, like any other failure. */
+size_t tlv_ber_length_field_size(const uint8_t* data, size_t size) {
+    size_t count;
+    if (!size) return 0;
+    count = data[0] <= TLV_BER_LENGTH_LONG_FORM_BIT || data[0] == TLV_BER_LENGTH_RESERVED_OCTET
+                ? 1
+                : 1 + (size_t)(data[0] & TLV_BER_LENGTH_COUNT_MASK);
+    return count < size ? count : size;
+}
+
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
-                                size_t* length, size_t* consumed) {
-    tlv_length_t value;
-    size_t local_consumed;
-    tlv_result_t rc;
+                                tlv_size_t* length, size_t* consumed) {
     (void)context;
-    rc = tlv_ber_length_decode(data, size, &value, &local_consumed);
-    if (rc != TLV_OK) return rc;
-    rc = tlv_length_to_size(value, length);
-    if (rc != TLV_OK) return TLV_ERR_INVALID_LENGTH;
-    *consumed = local_consumed;
-    return TLV_OK;
+    *consumed = tlv_ber_length_field_size(data, size);
+    return tlv_ber_length_decode(data, size, length, consumed);
 }
 
-/* Delegates to the standalone tlv_ber_length_encode(). length always fits
- * tlv_length_t (tlv_length_from_size() is lossless), so the only failure this
- * can add is a NULL size, already excluded by tlv_format_t callers. */
-static tlv_result_t length_size(const void* context, size_t length, size_t* size) {
-    tlv_length_t value;
-    tlv_result_t rc;
+static tlv_result_t length_size(const void* context, tlv_size_t length, size_t* size) {
     (void)context;
-    rc = tlv_length_from_size(length, &value);
-    if (rc != TLV_OK) return rc;
-    return tlv_ber_length_encode(value, NULL, 0, size);
+    return tlv_ber_length_encode(length, NULL, 0, size);
 }
 
-static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity, size_t length,
-                                 size_t* written) {
-    tlv_length_t value;
-    tlv_result_t rc;
+static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity,
+                                 tlv_size_t length, size_t* written) {
     (void)context;
-    rc = tlv_length_from_size(length, &value);
-    if (rc != TLV_OK) return rc;
-    return tlv_ber_length_encode(value, data, capacity, written);
+    return tlv_ber_length_encode(length, data, capacity, written);
 }
 
 const tlv_format_t tlv_ber_wire = {.context = NULL,

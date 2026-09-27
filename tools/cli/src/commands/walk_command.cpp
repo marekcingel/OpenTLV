@@ -26,12 +26,14 @@ namespace {
 bool read_tag_at(const tlv_format_t* format, const uint8_t* data, size_t size, tlv_tag_t* tag,
                  size_t* used) {
     if (format->read_tag) return format->read_tag(format->context, data, size, tag, used) == TLV_OK;
-    size_t value_size, trailer_size;
-    return format->read_element(format->context, data, size, tag, used, &value_size,
+    tlv_size_t   value_size;
+    size_t       trailer_size;
+    tlv_length_t raw_length{};
+    return format->read_element(format->context, data, size, tag, &raw_length, used, &value_size,
                                 &trailer_size) == TLV_OK;
 }
 
-tlv_visit_result_t count_element(const tlv_view_t*, size_t, size_t, void* context) {
+tlv_visit_result_t count_element(const tlv_element_t*, size_t, size_t, void* context) {
     ++*static_cast<size_t*>(context);
     return TLV_VISIT_CONTINUE;
 }
@@ -68,18 +70,18 @@ walk_command::walk_command(const options& o, std::vector<uint8_t> data)
       matcher_(), matches_(0), result_(TLV_OK), error_offset_(0), stage_(""), schema_diag_(),
       has_schema_diag_(false), data_(std::move(data)) {}
 
-tlv_visit_result_t walk_command::visit_trampoline(const tlv_view_t* view, std::size_t depth,
+tlv_visit_result_t walk_command::visit_trampoline(const tlv_element_t* element, std::size_t depth,
                                                   std::size_t offset, void* context) {
-    return static_cast<walk_command*>(context)->visit_element(view, depth, offset);
+    return static_cast<walk_command*>(context)->visit_element(element, depth, offset);
 }
 
-tlv_visit_result_t walk_command::visit_element(const tlv_view_t* view, std::size_t depth,
+tlv_visit_result_t walk_command::visit_element(const tlv_element_t* element, std::size_t depth,
                                                std::size_t) {
     // validate has no display visitor of its own; this one exists solely to
     // keep the diagnostic scope current, so a failure the walk doesn't itself
     // annotate (a value that overruns its own container, not the whole
     // buffer) can still be reported with the path and boundary enclosing it.
-    diagnostic_scope_visit(scope_, data(), view, depth, format_->is_constructed);
+    diagnostic_scope_visit(scope_, data(), element, depth, format_->is_constructed);
     return TLV_VISIT_CONTINUE;
 }
 
@@ -144,37 +146,37 @@ std::string walk_command::render_failure_diagnostic(diagnostic_format  diag_form
 tlv_result_t walk_command::walk_pdol(std::size_t* error_offset) {
     size_t pos = 0, count = 0;
     while (pos < size()) {
-        tlv_view_t   entry;
-        size_t       used, start = pos;
-        unsigned     requested;
-        tlv_result_t rc;
+        tlv_element_t element;
+        size_t        used, start = pos;
+        unsigned      requested;
+        tlv_result_t  rc;
         *error_offset = pos;
         if (count == options_.max_elements) return TLV_ERR_LIMIT;
-        rc = format_->read_tag(format_->context, data() + pos, size() - pos, &entry.tag, &used);
+        rc = format_->read_tag(format_->context, data() + pos, size() - pos, &element.tag, &used);
         if (rc != TLV_OK) return rc;
-        if (entry.tag.size > 2) return TLV_ERR_INVALID_TAG_SIZE;
+        if (element.tag.size > 2) return TLV_ERR_INVALID_TAG_SIZE;
         pos += used;
         *error_offset = pos;
         if (pos == size()) return TLV_ERR_BUFFER_TOO_SHORT;
         requested = data()[pos++];
         ++count;
         if (!prints_pdol_annotations()) continue;
-        // Annotation uses only the tag, never a requested length as a value view.
-        entry.value.data = NULL;
-        entry.value.length = 0;
+        // Annotation uses only the tag, never a requested length as a value element.
+        element.value.data = NULL;
+        element.value.size = 0;
         if (is_json(options_)) {
             nlohmann::json object;
             object["offset"] = start;
-            object["tag"] = hex_string(entry.tag.data, entry.tag.size);
+            object["tag"] = hex_string(element.tag.data, element.tag.size);
             object["requested_length"] = requested;
-            if (options_.profile) json_emv(object, presentation_, &entry, 0, options_.describe);
+            if (options_.profile) json_emv(object, presentation_, &element, 0, options_.describe);
             json_root_.push_back(std::move(object));
             continue;
         }
         std::cout << "offset=" << start << " tag=";
-        print_tag(entry.tag, presentation_.color != 0);
+        print_tag(element.tag, presentation_.color != 0);
         std::cout << " requested-length=" << requested;
-        if (options_.profile) cli_presentation_emv(&presentation_, &entry, 0, options_.describe);
+        if (options_.profile) cli_presentation_emv(&presentation_, &element, 0, options_.describe);
         std::cout << "\n";
         if (!std::cout) return TLV_ERR_VISITOR;
     }
@@ -200,9 +202,9 @@ tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
         skipping = false;
     };
     while (pos < size()) {
-        tlv_view_t   entry;
-        size_t       consumed = 0, fault = pos, count = 0;
-        tlv_result_t rc = tlv_read(data() + pos, size() - pos, format_, &entry, &consumed);
+        tlv_element_t element;
+        size_t        consumed = 0, fault = pos, count = 0;
+        tlv_result_t  rc = tlv_read(data() + pos, size() - pos, format_, &element, &consumed);
         if (rc == TLV_OK)
             rc =
                 walk_slice(env, data() + pos, consumed, pos, budget, count_element, &count, &fault);
@@ -229,8 +231,8 @@ tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
             current.error = rc;
             current.error_offset = fault;
         }
-        tlv_view_t next;
-        size_t     next_offset, next_size;
+        tlv_element_t next;
+        size_t        next_offset, next_size;
         if (tlv_scan(data(), size(), pos + 1, format_, NULL, &next, &next_offset, &next_size) !=
             TLV_OK)
             break;

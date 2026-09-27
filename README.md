@@ -123,7 +123,7 @@ components, variants, limitations, and what was checked against the primary text
 in [issues](https://github.com/marekcingel/OpenTLV/issues).
 
 See [format trees and byte examples](docs/formats/format-examples.md) for a field-by-field
-view of every implemented format, including nested BER/DER and the EMV profile.
+element of every implemented format, including nested BER/DER and the EMV profile.
 
 ## Quick start
 
@@ -148,15 +148,16 @@ int main(void) {
     const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
     uint8_t         buffer[5];
     size_t          written = 0, consumed = 0;
-    tlv_view_t      view;
+    tlv_element_t   element;
 
     if (tlv_write(buffer, sizeof(buffer), &format, tag, value, sizeof(value), &written) != TLV_OK)
         return 1;
-    if (tlv_read(buffer, written, &format, &view, &consumed) != TLV_OK) return 1;
+    if (tlv_read(buffer, written, &format, &element, &consumed) != TLV_OK) return 1;
 
-    /* view.value borrows buffer; keep it alive while using the view. */
-    if (consumed != written || view.tag.size != 1 || view.tag.data[0] != 0x01) return 1;
-    if (view.value.length != sizeof(value) || memcmp(view.value.data, value, sizeof(value)) != 0)
+    /* element.value borrows buffer; keep it alive while using the element. */
+    if (consumed != written || element.tag.size != 1 || element.tag.data[0] != 0x01) return 1;
+    if (element.value.size != sizeof(value) ||
+        memcmp(element.value.data, value, sizeof(value)) != 0)
         return 1;
     return 0;
 }

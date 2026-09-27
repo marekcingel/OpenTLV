@@ -40,9 +40,10 @@ struct Visit {
     tlv_visit_result_t  result;
 };
 
-tlv_visit_result_t collect(const tlv_view_t* view, size_t depth, size_t offset, void* context) {
+tlv_visit_result_t collect(const tlv_element_t* element, size_t depth, size_t offset,
+                           void* context) {
     Visit* visit = static_cast<Visit*>(context);
-    visit->matches->push_back({offset, depth, static_cast<size_t>(view->value.length)});
+    visit->matches->push_back({offset, depth, static_cast<size_t>(element->value.size)});
     return visit->result;
 }
 

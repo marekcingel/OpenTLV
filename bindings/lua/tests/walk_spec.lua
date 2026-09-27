@@ -8,9 +8,9 @@ describe("opentlv.walk_tree", function()
     it("visits every element in preorder with depth, offset and constructed", function()
         local seen = {}
         local visited, stopped = opentlv.walk_tree(BER_DATA, opentlv.formats.ber,
-            function(entry, depth)
-                seen[#seen + 1] = {tag = entry.tag, depth = depth, offset = entry.offset,
-                                   constructed = entry.constructed}
+            function(element, depth)
+                seen[#seen + 1] = {tag = element.tag, depth = depth, offset = element.offset,
+                                   constructed = element.constructed}
             end)
         assert(visited == 4)
         assert(stopped == false)
@@ -28,7 +28,7 @@ describe("opentlv.walk_tree", function()
 
     it("stops early when the callback returns false", function()
         local visited, stopped = opentlv.walk_tree(BER_DATA, opentlv.formats.ber,
-            function(entry, depth)
+            function(element, depth)
                 return false
             end)
         assert(visited == 1)

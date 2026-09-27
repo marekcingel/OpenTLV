@@ -1,7 +1,7 @@
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv/builtins/asn1/cer_profile.h"
 #include "tlv/writer/writer.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "cer_values_internal.h"
 #include <string.h>
 
@@ -64,8 +64,8 @@ static tlv_cer_segment_state_t* parent_segments(cer_level_t* levels, size_t dept
  */
 static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size_t initial_depth,
                              size_t initial_count, const tlv_cer_limits_t* limits,
-                             tlv_cer_visitor_t visitor, void* context, int one, tlv_view_t* first,
-                             size_t* first_size, int strict,
+                             tlv_cer_visitor_t visitor, void* context, int one,
+                             tlv_element_t* first, size_t* first_size, int strict,
                              tlv_cer_segment_state_t* outer_segments, size_t* error_offset) {
     cer_level_t levels[TLV_CER_MAX_DEPTH];
     size_t depth = 0, pos = 0, count = initial_count;
@@ -93,7 +93,7 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
 
         if (data[pos] == 0) {
             cer_level_t* lvl;
-            tlv_view_t cview;
+            tlv_element_t constructed_element;
             size_t value_len;
             if (size - pos < 2) return fail(TLV_ERR_BUFFER_TOO_SHORT, base + pos, error_offset);
             if (data[pos + 1] != 0) return fail(TLV_ERR_INVALID_LENGTH, base + pos, error_offset);
@@ -109,24 +109,26 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                 if (rc != TLV_OK) return fail(rc, seg_err, error_offset);
             }
             {
-                tlv_length_t vlen;
-                rc = tlv_length_from_size(value_len, &vlen);
+                tlv_size_t vlen;
+                rc = tlv_size_from_native(value_len, &vlen);
                 if (rc != TLV_OK) return fail(rc, base + lvl->length_offset, error_offset);
-                cview.value.length = vlen;
+                constructed_element.value.size = vlen;
             }
-            cview.tag = lvl->tag;
-            cview.value.data = data + lvl->content_start;
+            constructed_element.tag = lvl->tag;
+            constructed_element.length.data = data + lvl->length_offset;
+            constructed_element.length.size = 1;
+            constructed_element.value.data = data + lvl->content_start;
             pos += 2;
             --depth;
             if (visitor) {
-                tlv_visit_result_t v =
-                    visitor(&cview, initial_depth + depth, base + lvl->tag_offset, context);
+                tlv_visit_result_t v = visitor(&constructed_element, initial_depth + depth,
+                                               base + lvl->tag_offset, context);
                 if (v == TLV_VISIT_STOP) return TLV_OK;
                 if (v != TLV_VISIT_CONTINUE)
                     return fail(TLV_ERR_VISITOR, base + lvl->tag_offset, error_offset);
             }
             if (one && depth == 0) {
-                *first = cview;
+                *first = constructed_element;
                 *first_size = pos;
                 return TLV_OK;
             }
@@ -186,14 +188,16 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
             return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, error_offset);
         {
             size_t value_length, length_size;
+            tlv_size_t logical_size;
             const uint8_t* value_ptr;
-            tlv_view_t view;
-            rc = tlv_format_cer.read_length(NULL, data + pos, size - pos, &value_length,
+            tlv_element_t element;
+            rc = tlv_format_cer.read_length(NULL, data + pos, size - pos, &logical_size,
                                             &length_size);
             if (rc != TLV_OK) return fail(rc, base + length_offset, error_offset);
             pos += length_size;
-            if (value_length > size - pos)
+            if (logical_size > size - pos)
                 return fail(TLV_ERR_BUFFER_TOO_SHORT, base + pos, error_offset);
+            value_length = (size_t)logical_size;
             value_ptr = data + pos;
             ++count;
 
@@ -217,23 +221,25 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                 }
             }
 
-            view.tag = tag;
+            element.tag = tag;
             {
-                tlv_length_t vlen;
-                rc = tlv_length_from_size(value_length, &vlen);
+                tlv_size_t vlen;
+                rc = tlv_size_from_native(value_length, &vlen);
                 if (rc != TLV_OK) return fail(rc, base + length_offset, error_offset);
-                view.value.length = vlen;
+                element.value.size = vlen;
             }
-            view.value.data = value_ptr;
+            element.length.data = data + length_offset;
+            element.length.size = length_size;
+            element.value.data = value_ptr;
             pos += value_length;
             if (one && depth == 0) {
-                *first = view;
+                *first = element;
                 *first_size = pos;
                 return TLV_OK;
             }
             if (visitor) {
                 tlv_visit_result_t v =
-                    visitor(&view, initial_depth + depth, base + elem_start, context);
+                    visitor(&element, initial_depth + depth, base + elem_start, context);
                 if (v == TLV_VISIT_STOP) return TLV_OK;
                 if (v != TLV_VISIT_CONTINUE)
                     return fail(TLV_ERR_VISITOR, base + elem_start, error_offset);
@@ -264,33 +270,33 @@ tlv_result_t tlv_cer_walk_strict(const uint8_t* data, size_t size, const tlv_cer
 }
 
 static tlv_result_t read_impl(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                              tlv_view_t* view, size_t* consumed, int strict,
+                              tlv_element_t* element, size_t* consumed, int strict,
                               size_t* error_offset) {
-    tlv_view_t result;
+    tlv_element_t result;
     size_t used;
     tlv_result_t rc;
     if (!limits) limits = &tlv_cer_default_limits;
-    if ((!data && size) || !view || !consumed) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
+    if ((!data && size) || !element || !consumed) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
     if (limits->max_depth > TLV_CER_MAX_DEPTH || size > limits->max_input_size)
         return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (!size) return fail(TLV_ERR_END_OF_BUFFER, 0, error_offset);
     rc = traverse(data, size, 0, 0, 0, limits, NULL, NULL, 1, &result, &used, strict, NULL,
                   error_offset);
     if (rc == TLV_OK) {
-        *view = result;
+        *element = result;
         *consumed = used;
     }
     return rc;
 }
 
 tlv_result_t tlv_cer_read(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                          tlv_view_t* view, size_t* consumed, size_t* error_offset) {
-    return read_impl(data, size, limits, view, consumed, 0, error_offset);
+                          tlv_element_t* element, size_t* consumed, size_t* error_offset) {
+    return read_impl(data, size, limits, element, consumed, 0, error_offset);
 }
 
 tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                                 tlv_view_t* view, size_t* consumed, size_t* error_offset) {
-    return read_impl(data, size, limits, view, consumed, 1, error_offset);
+                                 tlv_element_t* element, size_t* consumed, size_t* error_offset) {
+    return read_impl(data, size, limits, element, consumed, 1, error_offset);
 }
 
 /* Validates and, in strict mode, checks universal content of one primitive

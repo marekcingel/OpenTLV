@@ -100,17 +100,13 @@ tlv_result_t walk_slice(const walk_env& env, const uint8_t* slice, std::size_t s
     } else
 #endif
     {
-        // The C++ walker owns the callback adapter and exposes borrowed entries.
+        // The C++ walker owns the callback adapter and exposes borrowed elements.
         const auto walked = tlv::walk_tree(
             tlv::bytes(reinterpret_cast<const tlv::byte*>(slice), slice_size), *env.format,
             o.max_depth, max_elements,
-            [visitor, context](const tlv::entry& entry, size_t depth, size_t offset) {
+            [visitor, context](const tlv::element& element, size_t depth, size_t offset) {
                 if (!visitor) return TLV_VISIT_CONTINUE;
-                // Presentation shares this view adapter with the unwrapped DER API.
-                const tlv_view_t raw = {entry.tag,
-                                        {reinterpret_cast<const uint8_t*>(entry.value.data()),
-                                         static_cast<tlv_length_t>(entry.value.size())}};
-                return visitor(&raw, depth, offset, context);
+                return visitor(&element, depth, offset, context);
             },
             &relative);
         result = walked ? TLV_OK : walked.error().code;

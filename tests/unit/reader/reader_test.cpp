@@ -5,17 +5,17 @@
 #include <limits>
 
 TEST(Unit_Tlv_Reader, ReadsOnlyFirstElementAndBorrowsValue) {
-    uint8_t    data[] = {1, 2, 0xAB, 0xCD, 2, 0xFF};
-    tlv_view_t view{};
-    size_t     consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &controlled::format, &view, &consumed));
-    EXPECT_EQ(1u, view.tag.size);
-    EXPECT_EQ(1u, view.tag.data[0]);
-    EXPECT_EQ(data + 2, view.value.data);
-    EXPECT_EQ(2u, view.value.length);
+    uint8_t       data[] = {1, 2, 0xAB, 0xCD, 2, 0xFF};
+    tlv_element_t element{};
+    size_t        consumed = 0;
+    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &controlled::format, &element, &consumed));
+    EXPECT_EQ(1u, element.tag.size);
+    EXPECT_EQ(1u, element.tag.data[0]);
+    EXPECT_EQ(data + 2, element.value.data);
+    EXPECT_EQ(2u, element.value.size);
     EXPECT_EQ(4u, consumed);
     data[2] = 0xEF;
-    EXPECT_EQ(0xEF, view.value.data[0]);
+    EXPECT_EQ(0xEF, element.value.data[0]);
 }
 
 namespace {
@@ -41,7 +41,7 @@ tlv_format_t make_format(const Config* config) {
         *used = c.tag_bytes;
         return TLV_OK;
     };
-    format.read_length = [](const void* ctx, const uint8_t*, size_t size, size_t* length,
+    format.read_length = [](const void* ctx, const uint8_t*, size_t size, tlv_size_t* length,
                             size_t* used) {
         const auto& c = *static_cast<const Config*>(ctx);
         if (c.length_error != TLV_OK) return c.length_error;
@@ -55,14 +55,14 @@ tlv_format_t make_format(const Config* config) {
 
 void expect_failure(const uint8_t* data, size_t size, const tlv_format_t* format,
                     tlv_result_t error) {
-    tlv_view_t view = {TLV_TAG(0xEE), {data, 42}};
-    size_t     consumed = 99;
-    EXPECT_EQ(error, tlv_read(data, size, format, &view, &consumed));
+    tlv_element_t element = {TLV_TAG(0xEE), {}, {data, 42}};
+    size_t        consumed = 99;
+    EXPECT_EQ(error, tlv_read(data, size, format, &element, &consumed));
     EXPECT_EQ(99u, consumed);
-    EXPECT_EQ(1u, view.tag.size);
-    EXPECT_EQ(0xEE, view.tag.data[0]);
-    EXPECT_EQ(data, view.value.data);
-    EXPECT_EQ(42u, view.value.length);
+    EXPECT_EQ(1u, element.tag.size);
+    EXPECT_EQ(0xEE, element.tag.data[0]);
+    EXPECT_EQ(data, element.value.data);
+    EXPECT_EQ(42u, element.value.size);
 }
 } // namespace
 
@@ -75,29 +75,29 @@ TEST(Unit_Tlv_Reader, CustomFormatAndEveryTruncatedPrefix) {
         expect_failure(data, size, &format,
                        size ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER);
     }
-    tlv_view_t view{};
-    size_t     consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &format, &view, &consumed));
-    EXPECT_EQ(data, view.tag.data);
-    EXPECT_EQ(data + 4, view.value.data);
-    EXPECT_EQ(2u, view.value.length);
+    tlv_element_t element{};
+    size_t        consumed = 0;
+    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &format, &element, &consumed));
+    EXPECT_EQ(data, element.tag.data);
+    EXPECT_EQ(data + 4, element.value.data);
+    EXPECT_EQ(2u, element.value.size);
     EXPECT_EQ(6u, consumed);
     config.length_bytes = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &format, &view, &consumed));
-    EXPECT_EQ(data + 2, view.value.data);
+    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &format, &element, &consumed));
+    EXPECT_EQ(data + 2, element.value.data);
     EXPECT_EQ(4u, consumed);
 }
 
 TEST(Unit_Tlv_Reader, RejectsInvalidArguments) {
     const uint8_t data[] = {1, 0};
     auto          format = controlled::format;
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 0;
     expect_failure(nullptr, 0, &format, TLV_ERR_END_OF_BUFFER);
     expect_failure(nullptr, 1, &format, TLV_ERR_NULL_ARG);
     expect_failure(data, sizeof(data), nullptr, TLV_ERR_NULL_ARG);
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read(data, sizeof(data), &format, nullptr, &consumed));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read(data, sizeof(data), &format, &view, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read(data, sizeof(data), &format, &element, nullptr));
     format.read_tag = nullptr;
     expect_failure(data, sizeof(data), &format, TLV_ERR_NULL_ARG);
     format = controlled::format;
@@ -117,10 +117,10 @@ TEST(Unit_Tlv_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     // Whether an empty tag is acceptable is up to the format, not the reader.
     config.tag_size = 0;
     {
-        tlv_view_t view{};
-        size_t     consumed = 0;
-        ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &format, &view, &consumed));
-        EXPECT_EQ(0u, view.tag.size);
+        tlv_element_t element{};
+        size_t        consumed = 0;
+        ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &format, &element, &consumed));
+        EXPECT_EQ(0u, element.tag.size);
     }
     // A tag that claims bytes but has no pointer is malformed.
     config = Config{};
@@ -129,7 +129,7 @@ TEST(Unit_Tlv_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     config = Config{};
     config.value_bytes = std::numeric_limits<size_t>::max();
     expect_failure(data, sizeof(data), &format, TLV_ERR_BUFFER_TOO_SHORT);
-    format.read_length = [](const void*, const uint8_t*, size_t, size_t*, size_t* used) {
+    format.read_length = [](const void*, const uint8_t*, size_t, tlv_size_t*, size_t* used) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
     };
@@ -144,14 +144,14 @@ TEST(Unit_Tlv_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
 
 TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagLeavesDiagnosticUnchangedOnSuccess) {
     const uint8_t           data[] = {0xAB, 2, 0xCD, 0xEF};
-    tlv_view_t              view{};
+    tlv_element_t           element{};
     size_t                  consumed = 0;
     tlv_reader_diagnostic_t diagnostic;
     std::memset(&diagnostic, 0xAA, sizeof(diagnostic));
     unsigned char before[sizeof(diagnostic)];
     std::memcpy(before, &diagnostic, sizeof(before));
 
-    ASSERT_EQ(TLV_OK, tlv_read_diag(data, sizeof(data), &controlled::format, &view, &consumed,
+    ASSERT_EQ(TLV_OK, tlv_read_diag(data, sizeof(data), &controlled::format, &element, &consumed,
                                     &diagnostic));
 
     EXPECT_EQ(0, std::memcmp(before, &diagnostic, sizeof(before)));
@@ -159,23 +159,23 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagLeavesDiagnosticUnchangedOnSuccess) {
 
 TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagAcceptsANullOutParameter) {
     const uint8_t data[] = {0xAB, 2, 0xCD};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 0;
 
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_read_diag(data, sizeof(data), &controlled::format, &view, &consumed, nullptr));
+              tlv_read_diag(data, sizeof(data), &controlled::format, &element, &consumed, nullptr));
 }
 
 TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsValueExceedingAvailableBytes) {
     // Tag 0xAB declares a 6-byte value but only 4 bytes remain, matching the
     // motivating example: code, offset, tag, declared_length and available.
     const uint8_t           data[] = {0xAB, 6, 0, 0, 0, 0};
-    tlv_view_t              view{};
+    tlv_element_t           element{};
     size_t                  consumed = 0;
     tlv_reader_diagnostic_t diagnostic;
 
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_read_diag(data, sizeof(data), &controlled::format,
-                                                      &view, &consumed, &diagnostic));
+                                                      &element, &consumed, &diagnostic));
 
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_DIAGNOSTIC_SEVERITY_ERROR, diagnostic.diagnostic.severity);
@@ -200,12 +200,12 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsValueExceedingAvailableBytes) {
 }
 
 TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsATruncatedTag) {
-    tlv_view_t              view{};
+    tlv_element_t           element{};
     size_t                  consumed = 0;
     tlv_reader_diagnostic_t diagnostic;
 
     ASSERT_EQ(TLV_ERR_END_OF_BUFFER,
-              tlv_read_diag(nullptr, 0, &controlled::format, &view, &consumed, &diagnostic));
+              tlv_read_diag(nullptr, 0, &controlled::format, &element, &consumed, &diagnostic));
 
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_READER_OP_TAG, diagnostic.operation);
@@ -216,12 +216,12 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsATruncatedTag) {
 
 TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsATruncatedLengthWithTheDecodedTag) {
     const uint8_t           data[] = {0xAB};
-    tlv_view_t              view{};
+    tlv_element_t           element{};
     size_t                  consumed = 0;
     tlv_reader_diagnostic_t diagnostic;
 
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_read_diag(data, sizeof(data), &controlled::format,
-                                                      &view, &consumed, &diagnostic));
+                                                      &element, &consumed, &diagnostic));
 
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_READER_OP_LENGTH, diagnostic.operation);
@@ -238,12 +238,12 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReaderNextDiagReportsOffsetsAbsoluteWithinTheBuf
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::format));
 
-    tlv_view_t view{};
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     EXPECT_EQ(3u, reader.pos);
 
     tlv_reader_diagnostic_t diagnostic;
-    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next_diag(&reader, &view, &diagnostic));
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next_diag(&reader, &element, &diagnostic));
 
     ASSERT_NE(0, diagnostic.diagnostic.has_offset);
     EXPECT_EQ(5u, diagnostic.diagnostic.offset);
@@ -263,12 +263,12 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReaderNextDiagReportsEndOfBufferAtTheCurrentPosi
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::format));
 
-    tlv_view_t view{};
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 
     tlv_reader_diagnostic_t diagnostic;
-    ASSERT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next_diag(&reader, &view, &diagnostic));
+    ASSERT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next_diag(&reader, &element, &diagnostic));
     ASSERT_NE(0, diagnostic.has_tag_offset);
     EXPECT_EQ(sizeof(data), diagnostic.tag_offset);
 }

@@ -9,28 +9,29 @@ local DEFAULT_DATA = string.char(0x01, 0x02, 0xAA, 0xBB, 0x02, 0x00)
 local BER_DATA = string.char(0x6F, 0x0A, 0x84, 0x03, 0x41, 0x42, 0x43, 0xA5, 0x03, 0x50, 0x01, 0x01)
 
 describe("opentlv.reader", function()
-    it("iterates default-format entries with generic for", function()
-        local entries = {}
-        for entry in opentlv.reader(DEFAULT_DATA) do
-            entries[#entries + 1] = entry
+    it("iterates default-format elements with generic for", function()
+        local elements = {}
+        for element in opentlv.reader(DEFAULT_DATA) do
+            elements[#elements + 1] = element
         end
-        assert(#entries == 2)
-        assert(entries[1].tag == string.char(0x01))
-        assert(entries[1].length == 2)
-        assert(entries[1].value == string.char(0xAA, 0xBB))
-        assert(entries[1].offset == 0)
-        assert(entries[2].tag == string.char(0x02))
-        assert(entries[2].length == 0)
-        assert(entries[2].value == "")
-        assert(entries[2].offset == 4)
+        assert(#elements == 2)
+        assert(elements[1].tag == string.char(0x01))
+        assert(elements[1].length == 2)
+        assert(elements[1].raw_length == string.char(2))
+        assert(elements[1].value == string.char(0xAA, 0xBB))
+        assert(elements[1].offset == 0)
+        assert(elements[2].tag == string.char(0x02))
+        assert(elements[2].length == 0)
+        assert(elements[2].value == "")
+        assert(elements[2].offset == 4)
     end)
 
     it("defaults to opentlv.formats.default when format is omitted", function()
         local a, b = 0, 0
-        for entry in opentlv.reader(DEFAULT_DATA) do
+        for element in opentlv.reader(DEFAULT_DATA) do
             a = a + 1
         end
-        for entry in opentlv.reader(DEFAULT_DATA, opentlv.formats.default) do
+        for element in opentlv.reader(DEFAULT_DATA, opentlv.formats.default) do
             b = b + 1
         end
         assert(a == b)
@@ -57,10 +58,10 @@ describe("opentlv.reader", function()
     it("reads a nested BER document, descending via a new reader per level", function()
         local function count_elements(data)
             local n = 0
-            for entry in opentlv.reader(data, opentlv.formats.ber) do
+            for element in opentlv.reader(data, opentlv.formats.ber) do
                 n = n + 1
-                if math.floor(string.byte(entry.tag, 1) / 0x20) % 2 == 1 then
-                    n = n + count_elements(entry.value)
+                if math.floor(string.byte(element.tag, 1) / 0x20) % 2 == 1 then
+                    n = n + count_elements(element.value)
                 end
             end
             return n
@@ -78,9 +79,9 @@ describe("opentlv.reader", function()
         local format = opentlv.formats.fixed(2, 1, "big")
         local data = string.char(0x10, 0x20, 0x02, 0xAA, 0xBB)
         local reader = opentlv.reader(data, format)
-        local entry = reader:next()
-        assert(entry.tag == string.char(0x10, 0x20))
-        assert(entry.value == string.char(0xAA, 0xBB))
+        local element = reader:next()
+        assert(element.tag == string.char(0x10, 0x20))
+        assert(element.value == string.char(0xAA, 0xBB))
         assert(reader:next() == nil)
     end)
 

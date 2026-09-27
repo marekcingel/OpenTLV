@@ -1,5 +1,7 @@
 #include "presentation.hpp"
 #include "tlv/config.h"
+#include "tlv/size.h"
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
@@ -66,15 +68,24 @@ void cli_presentation_restore(cli_presentation_t* p) {
 #endif
 }
 
-void cli_presentation_visit(cli_presentation_t* p, const tlv_view_t* view, size_t depth,
+size_t cli_element_value_size(const tlv_element_t* element) {
+    size_t             value_size = 0;
+    const tlv_result_t rc = tlv_size_to_native(element->value.size, &value_size);
+    assert(rc == TLV_OK && "reader-produced value must fit size_t");
+    if (rc != TLV_OK) abort();
+    return value_size;
+}
+
+void cli_presentation_visit(cli_presentation_t* p, const tlv_element_t* element, size_t depth,
                             int indefinite) {
-    size_t end = (size_t)(view->value.data - p->data) + (size_t)view->value.length;
+    size_t end =
+        static_cast<size_t>(element->value.data - p->data) + cli_element_value_size(element);
     p->more[depth] = end + (indefinite ? 2u : 0u) < p->ends[depth];
     if (depth < TLV_WALK_MAX_DEPTH) {
         p->ends[depth + 1] = end;
 #if OPENTLV_PROFILE_EMV
         p->contexts[depth + 1] =
-            tlv_emv_child_context((tlv_emv_context_t)p->contexts[depth], &view->tag);
+            tlv_emv_child_context((tlv_emv_context_t)p->contexts[depth], &element->tag);
 #endif
     }
 }
@@ -100,12 +111,12 @@ std::string cli_emv_display_name(const char* name) {
 }
 #endif
 
-cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_view_t* view,
+cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_element_t* element,
                                        size_t depth, int describe) {
     cli_emv_info info;
 #if OPENTLV_PROFILE_EMV
     const tlv_emv_definition_t* definition =
-        tlv_emv_find((tlv_emv_context_t)p->contexts[depth], &view->tag);
+        tlv_emv_find((tlv_emv_context_t)p->contexts[depth], &element->tag);
     if (!definition) return info;
     info.known = true;
     info.name = cli_emv_display_name(definition->name);
@@ -123,16 +134,16 @@ cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_vi
     }
 #else
     (void)p;
-    (void)view;
+    (void)element;
     (void)depth;
     (void)describe;
 #endif
     return info;
 }
 
-void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, size_t depth,
+void cli_presentation_emv(const cli_presentation_t* p, const tlv_element_t* element, size_t depth,
                           int describe) {
-    const cli_emv_info info = cli_presentation_emv_info(p, view, depth, describe);
+    const cli_emv_info info = cli_presentation_emv_info(p, element, depth, describe);
     std::cout << " name=\"" << (info.known ? info.name : "Unknown EMV tag in this context") << '"';
     if (info.has_description) std::cout << " description=\"" << info.description << '"';
 }

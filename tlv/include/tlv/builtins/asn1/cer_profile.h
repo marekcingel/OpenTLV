@@ -64,13 +64,13 @@ extern TLV_API const tlv_cer_limits_t tlv_cer_default_limits;
 /**
  * @brief Callback for zero-copy CER traversal.
  *
- * `view` is temporary and its value borrows the input, excluding the
+ * `element` is temporary and its value borrows the input, excluding the
  * element's own EOC for a constructed element (consistent with the
  * framing-exclusion convention of tlv_read()). A constructed string's
  * segments are ordinary primitive children one level deeper; to access them
  * zero-copy, iterate the constructed string element's own borrowed value
- * (`view->value`), for example with
- * `tlv_walk(view->value.data, size, &tlv_format_cer, ...)`. See
+ * (`element->value`), for example with
+ * `tlv_walk(element->value.data, size, &tlv_format_cer, ...)`. See
  * docs/profiles/cer/README.md.
  *
  * Unlike #tlv_der_visitor_t's preorder guarantee, CER traversal is postorder
@@ -81,7 +81,7 @@ extern TLV_API const tlv_cer_limits_t tlv_cer_default_limits;
  * required by indefinite framing, keeps traversal a single linear pass with
  * no rescanning.
  *
- * @param view    Current element; temporary.
+ * @param element    Current element; temporary.
  * @param depth   Number of constructed ancestors; top-level elements have depth 0.
  * @param offset  Absolute input offset of the element's tag.
  * @param context Caller context passed to tlv_cer_walk().
@@ -90,8 +90,8 @@ extern TLV_API const tlv_cer_limits_t tlv_cer_default_limits;
  *
  * @warning Callback side effects are not rolled back on errors.
  */
-typedef tlv_visit_result_t (*tlv_cer_visitor_t)(const tlv_view_t* view, size_t depth, size_t offset,
-                                                void* context);
+typedef tlv_visit_result_t (*tlv_cer_visitor_t)(const tlv_element_t* element, size_t depth,
+                                                size_t offset, void* context);
 
 /**
  * @brief Validates one complete CER element, including all descendants.
@@ -104,7 +104,7 @@ typedef tlv_visit_result_t (*tlv_cer_visitor_t)(const tlv_view_t* view, size_t d
  * @param[in]  data         Encoded input.
  * @param[in]  size         Input size in bytes.
  * @param[in]  limits       Limits, or `NULL` for #tlv_cer_default_limits.
- * @param[out] view         Receives the element; its value borrows `data`.
+ * @param[out] element         Receives the element; its value borrows `data`.
  * @param[out] consumed     Receives the encoded size of the element.
  * @param[out] error_offset Optional. On failure receives the start of the
  *                          failing tag, length, value or (missing, truncated
@@ -118,10 +118,10 @@ typedef tlv_visit_result_t (*tlv_cer_visitor_t)(const tlv_view_t* view, size_t d
  * @return Another error code for malformed or noncanonical input.
  *
  * @note Outputs other than `error_offset` remain unchanged on failure.
- * @warning The caller must keep `data` alive while `view` is used.
+ * @warning The caller must keep `data` alive while `element` is used.
  */
 TLV_API tlv_result_t tlv_cer_read(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                                  tlv_view_t* view, size_t* consumed, size_t* error_offset);
+                                  tlv_element_t* element, size_t* consumed, size_t* error_offset);
 
 /**
  * @brief Validates all concatenated CER elements recursively.
@@ -202,7 +202,7 @@ TLV_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  * @see docs/profiles/cer/README.md for the supported-type table.
  */
 TLV_API tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size,
-                                         const tlv_cer_limits_t* limits, tlv_view_t* view,
+                                         const tlv_cer_limits_t* limits, tlv_element_t* element,
                                          size_t* consumed, size_t* error_offset);
 /**
  * @brief Strict counterpart of tlv_cer_walk().

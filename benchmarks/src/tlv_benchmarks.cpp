@@ -32,18 +32,18 @@ void parse_entries(benchmark::State& state) {
     const std::size_t          value_size = static_cast<std::size_t>(state.range(0));
     const std::vector<uint8_t> encoded = encode_stream(value_size, 1);
     if (encoded.empty()) {
-        state.SkipWithError("failed to prepare encoded TLV entry");
+        state.SkipWithError("failed to prepare encoded TLV element");
         return;
     }
 
     for (auto _ : state) {
-        tlv_reader_t reader;
-        tlv_view_t   entry;
+        tlv_reader_t  reader;
+        tlv_element_t element;
         benchmark::DoNotOptimize(
             tlv_reader_init(&reader, encoded.data(), encoded.size(), &tlv_format_default));
-        benchmark::DoNotOptimize(tlv_reader_next(&reader, &entry));
-        benchmark::DoNotOptimize(entry.value.data);
-        benchmark::DoNotOptimize(entry.value.length);
+        benchmark::DoNotOptimize(tlv_reader_next(&reader, &element));
+        benchmark::DoNotOptimize(element.value.data);
+        benchmark::DoNotOptimize(element.value.size);
     }
     state.SetBytesProcessed(state.iterations() * static_cast<int64_t>(encoded.size()));
 }
@@ -73,13 +73,13 @@ void parse_stream(benchmark::State& state) {
     }
 
     for (auto _ : state) {
-        tlv_reader_t reader;
-        tlv_view_t   entry;
+        tlv_reader_t  reader;
+        tlv_element_t element;
         benchmark::DoNotOptimize(
             tlv_reader_init(&reader, encoded.data(), encoded.size(), &tlv_format_default));
         while (!tlv_reader_at_end(&reader)) {
-            benchmark::DoNotOptimize(tlv_reader_next(&reader, &entry));
-            benchmark::DoNotOptimize(entry.value.data);
+            benchmark::DoNotOptimize(tlv_reader_next(&reader, &element));
+            benchmark::DoNotOptimize(element.value.data);
         }
     }
     state.SetItemsProcessed(state.iterations() * static_cast<int64_t>(entry_count));

@@ -37,6 +37,12 @@ tlv_document_options_t options() {
 // Owns a document for the duration of a test.
 struct Doc {
     tlv_document_t* handle = nullptr;
+    Doc() = default;
+    Doc(const Doc&) = delete;
+    Doc& operator=(const Doc&) = delete;
+    Doc(Doc&& other) noexcept : handle(other.handle) {
+        other.handle = nullptr;
+    }
     ~Doc() {
         tlv_document_free(handle);
     }

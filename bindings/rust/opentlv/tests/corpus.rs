@@ -45,17 +45,17 @@ fn reader_handles_every_read_seed_in_every_format() {
             let mut failed = false;
             let base = data.as_ptr() as usize;
 
-            while let Some(item) = reader.next_entry() {
+            while let Some(item) = reader.next_element() {
                 assert!(!failed, "{name} {format}: item after an error");
                 match item {
-                    Ok(entry) => {
-                        let start = entry.value().as_ptr() as usize;
+                    Ok(element) => {
+                        let start = element.value().as_ptr() as usize;
                         // An empty value may be a dangling slice, so only non-empty ones
                         // are located inside the input.
                         assert!(
-                            entry.value().is_empty()
+                            element.value().is_empty()
                                 || (start >= base
-                                    && start - base + entry.value().len() <= data.len()),
+                                    && start - base + element.value().len() <= data.len()),
                             "{name} {format}: value outside the input"
                         );
                         assert!(reader.position() > previous, "{name} {format}: no progress");
@@ -98,13 +98,13 @@ fn profiles_are_consistent_on_every_der_seed() {
                 );
             }
             if canonical.is_ok() && !data.is_empty() {
-                let (entry, consumed) = profile
+                let (element, consumed) = profile
                     .read(&data, &limits, Strictness::Canonical)
                     .unwrap_or_else(|e| {
                         panic!("{name} {profile:?}: validated but unreadable: {e}")
                     });
                 assert!(consumed > 0 && consumed <= data.len());
-                assert!(entry.value().len() <= consumed);
+                assert!(element.value().len() <= consumed);
             }
         }
     }
@@ -154,9 +154,9 @@ fn check_roundtrip(name: &str, format: Format, tag: &Tag, value: &[u8]) {
     let encoded = writer.finish();
 
     let mut reader = Reader::with_format(encoded, format);
-    let entry = reader.next_entry().unwrap().unwrap();
-    assert_eq!(entry.tag(), tag, "{name} {format}");
-    assert_eq!(entry.value(), value, "{name} {format}");
+    let element = reader.next_element().unwrap().unwrap();
+    assert_eq!(element.tag(), tag, "{name} {format}");
+    assert_eq!(element.value(), value, "{name} {format}");
     assert!(reader.is_at_end(), "{name} {format}: trailing bytes");
 }
 

@@ -24,10 +24,10 @@ def main() -> None:
     print(f"wrote {len(encoded)} bytes: {encoded.hex(' ').upper()}")
 
     reader = opentlv.Reader(encoded, format)
-    (entry,) = list(reader)
-    assert entry.tag == tag
-    assert bytes(entry.value) == value
-    print(f"read tag {entry.tag} value {bytes(entry.value).hex(' ').upper()}")
+    (element,) = list(reader)
+    assert element.tag == tag
+    assert bytes(element.value) == value
+    print(f"read tag {element.tag} value {bytes(element.value).hex(' ').upper()}")
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ the public OpenTLV C API as Python callables, into an idiomatic API that
 follows the OpenTLV conceptual model: see [Language
 bindings](https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/bindings.md).
 
-Currently bound: `Reader`, `Writer`, `Document`/`Node`, `Entry`, `Tag`,
+Currently bound: `Reader`, `Writer`, `Document`/`Node`, `Element`, `Tag`,
 `Format`, `FixedFormat`, `LengthSchema`/`StructureSchema` and the
 `OpenTLVError` exception hierarchy. The `codec` submodule binds the one
 concrete value codec the C API exports publicly (EMV amounts); the general
@@ -16,7 +16,7 @@ from opentlv_native import version_string
 
 from opentlv import codec
 from opentlv.document import Document, Node
-from opentlv.entry import Entry
+from opentlv.element import Element
 from opentlv.error import (
     BufferTooShortError,
     EndOfBufferError,
@@ -49,7 +49,7 @@ __all__ = [
     "__version__",
     "BufferTooShortError",
     "Document",
-    "Entry",
+    "Element",
     "Node",
     "codec",
     "EndOfBufferError",

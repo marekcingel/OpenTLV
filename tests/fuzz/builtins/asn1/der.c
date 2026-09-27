@@ -3,19 +3,19 @@
 
 static void check_der(const uint8_t* data, size_t size, const tlv_der_limits_t* limits) {
     const tlv_der_limits_t* actual = limits ? limits : &tlv_der_default_limits;
-    tlv_view_t              view = fuzz_sentinel(data), before = view;
+    tlv_element_t           element = fuzz_sentinel(data), before = element;
     size_t                  consumed = SIZE_MAX, error = SIZE_MAX;
-    tlv_result_t            rc = tlv_der_read(data, size, limits, &view, &consumed, &error);
+    tlv_result_t            rc = tlv_der_read(data, size, limits, &element, &consumed, &error);
     if (rc == TLV_OK) {
         FUZZ_CHECK(consumed > 0 && consumed <= size);
-        fuzz_view_bounds(&view, data, consumed);
+        fuzz_element_bounds(&element, data, consumed);
         FUZZ_CHECK(size <= actual->max_input_size);
-        FUZZ_CHECK(view.value.length <= actual->max_value_size);
+        FUZZ_CHECK(element.value.size <= actual->max_value_size);
         FUZZ_CHECK(error == SIZE_MAX);
         /* A successful single-element validation must also walk its prefix. */
         FUZZ_CHECK(tlv_der_walk(data, consumed, limits, NULL, NULL, NULL) == TLV_OK);
     } else {
-        fuzz_unchanged(&view, &before);
+        fuzz_unchanged(&element, &before);
         FUZZ_CHECK(consumed == SIZE_MAX && error <= size);
     }
     for (unsigned mode = 0; mode < 3; ++mode) {

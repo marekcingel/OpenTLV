@@ -4,21 +4,21 @@
  */
 #include <stdio.h>
 #include "tlv/builtins/asn1/ber.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/query/query.h"
 
 /* Same bytes as parse.c's document. */
 static const uint8_t document[] = {0x6F, 0x0A, 0x84, 0x03, 0x41, 0x42,
                                    0x43, 0xA5, 0x03, 0x50, 0x01, 0x01};
 
-static tlv_visit_result_t print_match(const tlv_view_t* view, size_t depth, size_t offset,
+static tlv_visit_result_t print_match(const tlv_element_t* element, size_t depth, size_t offset,
                                       void* context) {
     int*   found = (int*)context;
     size_t length;
     (void)depth;
-    if (tlv_length_to_size(view->value.length, &length) != TLV_OK) return TLV_VISIT_ERROR;
-    printf("6F/A5/50 = %02X (offset %zu)\n", view->value.data[0], offset);
-    *found = length == 1 && view->value.data[0] == 0x01;
+    if (tlv_size_to_native(element->value.size, &length) != TLV_OK) return TLV_VISIT_ERROR;
+    printf("6F/A5/50 = %02X (offset %zu)\n", element->value.data[0], offset);
+    *found = length == 1 && element->value.data[0] == 0x01;
     return TLV_VISIT_CONTINUE;
 }
 

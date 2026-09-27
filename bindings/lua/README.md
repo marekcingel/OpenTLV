@@ -2,7 +2,7 @@
 
 Lua bindings to the [OpenTLV](https://github.com/marekcingel/OpenTLV) C API:
 two pieces, `opentlv-native` (`src/`, built directly against the Lua C API,
-binding `Reader`, `Entry`, `Tag` and preorder tree traversal) and `opentlv`
+binding `Reader`, `Element`, `Tag` and preorder tree traversal) and `opentlv`
 (`lua/opentlv/init.lua`, a one-line pure-Lua entry point on top of it) — the
 same native/pure split as the Python `opentlv-native`/`opentlv` and Rust
 `opentlv-native`/`opentlv` packages. Targets Lua 5.1 through 5.4 and LuaJIT.
@@ -13,8 +13,8 @@ and [using OpenTLV from Lua](https://marekcingel.github.io/OpenTLV/guides/lua/).
 local opentlv = require("opentlv")
 
 local data = string.char(0x01, 0x02, 0xAA, 0xBB)
-for entry in opentlv.reader(data) do
-    print(entry.tag, entry.length, entry.value)
+for element in opentlv.reader(data) do
+    print(element.tag, element.length, element.value)
 end
 ```
 

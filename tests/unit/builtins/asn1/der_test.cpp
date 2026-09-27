@@ -28,9 +28,9 @@ TEST(Unit_Tlv_Der, UniversalPrimitiveConstructedRules) {
 }
 
 TEST(Unit_Tlv_Der, EmptyArgumentsAndVisitorControl) {
-    tlv_view_t view{};
-    size_t     used = 99, offset = 99;
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_der_read(nullptr, 0, nullptr, &view, &used, &offset));
+    tlv_element_t element{};
+    size_t        used = 99, offset = 99;
+    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_der_read(nullptr, 0, nullptr, &element, &used, &offset));
     EXPECT_EQ(0u, offset);
     EXPECT_EQ(99u, used);
     EXPECT_EQ(TLV_OK, tlv_der_walk(nullptr, 0, nullptr, nullptr, nullptr, nullptr));
@@ -38,14 +38,14 @@ TEST(Unit_Tlv_Der, EmptyArgumentsAndVisitorControl) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_read(nullptr, 0, nullptr, nullptr, &used, nullptr));
     uint8_t storage[TLV_ASN1_TAG_MAX_SIZE];
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_tag_make(TLV_ASN1_PRIVATE, 0, 1, storage, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_tag_make(TLV_ASN1_PRIVATE, 0, 1, nullptr, &view.tag));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_tag_make(TLV_ASN1_PRIVATE, 0, 1, nullptr, &element.tag));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_tag_number(nullptr, nullptr));
-    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_der_tag_make(TLV_ASN1_PRIVATE, 2, 1, storage, &view.tag));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_der_tag_make(TLV_ASN1_PRIVATE, 2, 1, storage, &element.tag));
     EXPECT_EQ(TLV_ERR_NULL_ARG,
               tlv_der_write(nullptr, 1, (TLV_TAG(4)), nullptr, 0, nullptr, &used, nullptr));
     const uint8_t data[] = {4, 0, 0xFF};
-    auto          stop = [](const tlv_view_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
-    auto          error = [](const tlv_view_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
+    auto          stop = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
+    auto error = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
     EXPECT_EQ(TLV_OK, tlv_der_walk(data, sizeof(data), nullptr, stop, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_VISITOR, tlv_der_walk(data, sizeof(data), nullptr, error, nullptr, &offset));
     EXPECT_EQ(0u, offset);

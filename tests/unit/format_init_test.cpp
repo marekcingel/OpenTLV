@@ -9,23 +9,23 @@ namespace {
 tlv_result_t read_tag(const void*, const uint8_t*, size_t, tlv_tag_t*, size_t*) {
     return TLV_OK;
 }
-tlv_result_t read_length(const void*, const uint8_t*, size_t, size_t*, size_t*) {
+tlv_result_t read_length(const void*, const uint8_t*, size_t, tlv_size_t*, size_t*) {
     return TLV_OK;
 }
 tlv_result_t write_tag(const void*, uint8_t*, size_t, const tlv_tag_t*, size_t*) {
     return TLV_OK;
 }
-tlv_result_t write_length(const void*, uint8_t*, size_t, size_t, size_t*) {
+tlv_result_t write_length(const void*, uint8_t*, size_t, tlv_size_t, size_t*) {
     return TLV_OK;
 }
-tlv_result_t length_size(const void*, size_t, size_t*) {
+tlv_result_t length_size(const void*, tlv_size_t, size_t*) {
     return TLV_OK;
 }
-tlv_result_t read_element(const void*, const uint8_t*, size_t, tlv_tag_t*, size_t*, size_t*,
-                          size_t*) {
+tlv_result_t read_element(const void*, const uint8_t*, size_t, tlv_tag_t*, tlv_length_t*, size_t*,
+                          tlv_size_t*, size_t*) {
     return TLV_OK;
 }
-tlv_result_t write_header(const void*, uint8_t*, size_t, const tlv_tag_t*, size_t, size_t*) {
+tlv_result_t write_header(const void*, uint8_t*, size_t, const tlv_tag_t*, tlv_size_t, size_t*) {
     return TLV_OK;
 }
 } // namespace

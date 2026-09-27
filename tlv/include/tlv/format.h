@@ -2,7 +2,7 @@
 #define OPENTLV_FORMAT_H
 
 #include "tlv/error.h"
-#include "tlv/view.h"
+#include "tlv/element.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -23,7 +23,14 @@ extern "C" {
  * and tlv_format_init_element().
  *
  * Callbacks must not allocate, retain buffers, or access memory beyond the
- * size or capacity they are given. All sizes are in bytes. A format defines
+ * size or capacity they are given. All sizes are in bytes. Logical value
+ * lengths use #tlv_size_t, independent of native pointer width; buffer
+ * capacities, offsets and encoded field extents use `size_t`. Length
+ * callbacks normalize wire-specific counts to value bytes without native
+ * narrowing. The reader checks these quantities against available memory
+ * before publishing a #tlv_element_t. Its raw length field is retained
+ * in `element.length`, separately from the decoded `element.value.size`.
+ * A format defines
  * its own tag encoding and valid tag lengths, and rejects tags it does not
  * support, for example with #TLV_ERR_INVALID_TAG_SIZE; #tlv_tag_t itself has no
  * length limit. A reader callback returns a tag that borrows the input bytes it
@@ -56,19 +63,27 @@ typedef tlv_result_t (*tlv_read_tag_fn)(const void* context, const uint8_t* data
  * @param[in]  context  Format context, borrowed; may be `NULL`.
  * @param[in]  data     Bytes starting at the length field (after the tag).
  * @param[in]  size     Number of readable bytes in `data`.
- * @param[out] length   Receives the decoded value length.
+ * @param[out] length   Receives the decoded logical value byte count, excluding
+ *                      framing, even when it exceeds the native address space.
  * @param[out] consumed Receives the number of bytes the length field occupies.
+ *                      On failure may report its available raw byte extent for
+ *                      diagnostics (at most `size`), including a truncated
+ *                      prefix. The reader initializes it to zero; leaving it
+ *                      zero means no raw field is known. `length` is used only
+ *                      on success.
  *
  * @return #TLV_OK on success, or an error code that propagates unchanged.
  */
 typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* data, size_t size,
-                                           size_t* length, size_t* consumed);
+                                           tlv_size_t* length, size_t* consumed);
 
 /**
  * @brief Optional callback that replaces read_length during element reading.
  *
  * Reports the length-field size, the borrowed value size, and the trailing
- * framing size separately. All three ranges must fit `size`, in that order.
+ * framing size separately. The length field must fit `size`; the reader
+ * validates the resolved value and trailer against the remaining input.
+ * Definite sizes must be reported without requiring the payload to fit.
  * The callback may inspect nested framing to resolve a terminated value. It
  * follows the same allocation and buffer-lifetime rules as
  * #tlv_read_length_fn.
@@ -77,8 +92,10 @@ typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* d
  * @param[in]  tag          The already parsed tag.
  * @param[in]  data         Bytes starting after the tag.
  * @param[in]  size         Number of readable bytes in `data`.
- * @param[out] length_size  Receives the size of the length field.
- * @param[out] value_size   Receives the size of the value.
+ * @param[out] length_size  Receives the size of the length field. On failure may
+ *                          report its available raw extent, as for the
+ *                          `consumed` output of #tlv_read_length_fn.
+ * @param[out] value_size   Receives the resolved logical value byte count.
  * @param[out] trailer_size Receives the size of trailing framing, such as a
  *                          BER end-of-contents marker.
  *
@@ -86,7 +103,7 @@ typedef tlv_result_t (*tlv_read_length_fn)(const void* context, const uint8_t* d
  */
 typedef tlv_result_t (*tlv_read_value_bounds_fn)(const void* context, const tlv_tag_t* tag,
                                                  const uint8_t* data, size_t size,
-                                                 size_t* length_size, size_t* value_size,
+                                                 size_t* length_size, tlv_size_t* value_size,
                                                  size_t* trailer_size);
 
 /**
@@ -97,22 +114,30 @@ typedef tlv_result_t (*tlv_read_value_bounds_fn)(const void* context, const tlv_
  * Bluetooth LTV, where the length precedes the type). The callback sees the
  * first byte of the element and reports the tag, the size of everything that
  * precedes the value (the header), the borrowed value size, and the trailing
- * framing size. The three ranges must fit `size`, in that order. It follows
+ * framing size. The header must fit `size`; the reader validates value and
+ * trailer extents afterwards. Decoding a definite header must not require
+ * the declared value bytes to be present. It follows
  * the same allocation and buffer-lifetime rules as #tlv_read_tag_fn.
  *
  * @param[in]  context      Format context, borrowed; may be `NULL`.
  * @param[in]  data         Bytes starting at the element.
  * @param[in]  size         Number of readable bytes in `data`.
  * @param[out] tag          Receives the decoded tag.
+ * @param[out] raw_length   Receives the original length field, borrowing bytes
+ *                          within the header; `{ NULL, 0 }` when absent.
+ *                          On failure may report the available length bytes,
+ *                          even if no numeric value could be decoded. The
+ *                          reader initializes this descriptor to zero.
  * @param[out] header_size  Receives the number of bytes before the value.
- * @param[out] value_size   Receives the size of the value.
+ * @param[out] value_size   Receives the decoded logical value byte count.
  * @param[out] trailer_size Receives the size of trailing framing; zero when
  *                          the format has none.
  *
  * @return #TLV_OK on success, or an error code that propagates unchanged.
  */
 typedef tlv_result_t (*tlv_read_element_fn)(const void* context, const uint8_t* data, size_t size,
-                                            tlv_tag_t* tag, size_t* header_size, size_t* value_size,
+                                            tlv_tag_t* tag, tlv_length_t* raw_length,
+                                            size_t* header_size, tlv_size_t* value_size,
                                             size_t* trailer_size);
 
 /**
@@ -145,7 +170,7 @@ typedef tlv_result_t (*tlv_write_tag_fn)(const void* context, uint8_t* data, siz
  * @return #TLV_OK on success, or an error code that propagates unchanged.
  */
 typedef tlv_result_t (*tlv_write_length_fn)(const void* context, uint8_t* data, size_t capacity,
-                                            size_t length, size_t* written);
+                                            tlv_size_t length, size_t* written);
 
 /**
  * @brief Callback that validates a length and reports its exact encoded size.
@@ -158,7 +183,7 @@ typedef tlv_result_t (*tlv_write_length_fn)(const void* context, uint8_t* data, 
  *
  * @return #TLV_OK on success, or an error code that propagates unchanged.
  */
-typedef tlv_result_t (*tlv_length_size_fn)(const void* context, size_t length, size_t* size);
+typedef tlv_result_t (*tlv_length_size_fn)(const void* context, tlv_size_t length, size_t* size);
 
 /**
  * @brief Optional callback that encodes a whole element header at once.
@@ -179,7 +204,8 @@ typedef tlv_result_t (*tlv_length_size_fn)(const void* context, size_t length, s
  * @return #TLV_OK on success, or an error code that propagates unchanged.
  */
 typedef tlv_result_t (*tlv_write_header_fn)(const void* context, uint8_t* data, size_t capacity,
-                                            const tlv_tag_t* tag, size_t length, size_t* written);
+                                            const tlv_tag_t* tag, tlv_size_t length,
+                                            size_t* written);
 
 /**
  * @brief Optional nesting predicate used by tree traversal and structure validation.

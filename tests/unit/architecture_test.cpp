@@ -32,19 +32,19 @@ tlv_result_t tag_write(const void*, uint8_t* data, size_t capacity, const tlv_ta
     data[0] = tag->data[0];
     return TLV_OK;
 }
-tlv_result_t length_read(const void*, const uint8_t* data, size_t size, size_t* length,
+tlv_result_t length_read(const void*, const uint8_t* data, size_t size, tlv_size_t* length,
                          size_t* used) {
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
     *length = data[0];
     *used = 1;
     return TLV_OK;
 }
-tlv_result_t length_size(const void*, size_t length, size_t* used) {
+tlv_result_t length_size(const void*, tlv_size_t length, size_t* used) {
     if (length > 255) return TLV_ERR_INVALID_LENGTH;
     *used = 1;
     return TLV_OK;
 }
-tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity, size_t length,
+tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity, tlv_size_t length,
                           size_t* used) {
     if (length_size(ctx, length, used) != TLV_OK) return TLV_ERR_INVALID_LENGTH;
     if (!capacity) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -76,7 +76,7 @@ TEST(Unit_Tlv_Architecture, GenericValueBoundsAndTrailerValidation) {
     tlv_format_t framed = format;
     framed.context = &bounds;
     framed.read_value_bounds = [](const void* ctx, const tlv_tag_t*, const uint8_t*, size_t,
-                                  size_t* header, size_t* value, size_t* trailer) {
+                                  size_t* header, tlv_size_t* value, size_t* trailer) {
         const auto& b = *static_cast<const Bounds*>(ctx);
         *header = b.header;
         *value = b.value;
@@ -84,12 +84,12 @@ TEST(Unit_Tlv_Architecture, GenericValueBoundsAndTrailerValidation) {
         return b.rc;
     };
     const uint8_t wire[] = {1, 0xFF, 42, 0xAB, 0xCD};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        used = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(wire, sizeof(wire), &framed, &view, &used));
+    ASSERT_EQ(TLV_OK, tlv_read(wire, sizeof(wire), &framed, &element, &used));
     EXPECT_EQ(5u, used);
-    EXPECT_EQ(wire + 2, view.value.data);
-    EXPECT_EQ(1u, view.value.length);
+    EXPECT_EQ(wire + 2, element.value.data);
+    EXPECT_EQ(1u, element.value.size);
     const Bounds failures[] = {{SIZE_MAX, 1, 2, TLV_OK},
                                {1, SIZE_MAX, 2, TLV_OK},
                                {1, 1, SIZE_MAX, TLV_OK},
@@ -97,13 +97,13 @@ TEST(Unit_Tlv_Architecture, GenericValueBoundsAndTrailerValidation) {
                                {1, 1, 2, TLV_ERR_LIMIT}};
     for (const auto& failure : failures) {
         bounds = failure;
-        view = tlv_view_t{TLV_TAG(0xEE), {nullptr, 42}};
+        element = tlv_element_t{TLV_TAG(0xEE), {}, {nullptr, 42}};
         used = 999;
-        EXPECT_NE(TLV_OK, tlv_read(wire, sizeof(wire), &framed, &view, &used));
+        EXPECT_NE(TLV_OK, tlv_read(wire, sizeof(wire), &framed, &element, &used));
         EXPECT_EQ(999u, used);
-        EXPECT_EQ(0xEE, view.tag.data[0]);
-        EXPECT_EQ(nullptr, view.value.data);
-        EXPECT_EQ(42u, view.value.length);
+        EXPECT_EQ(0xEE, element.tag.data[0]);
+        EXPECT_EQ(nullptr, element.value.data);
+        EXPECT_EQ(42u, element.value.size);
     }
     ASSERT_EQ(TLV_OK,
               tlv_format_init(&framed, nullptr, tag_read, length_read, nullptr, nullptr, nullptr));
@@ -169,17 +169,17 @@ struct object {
 tlv_codec_result_t object_decode(const void*, const tlv_format_t* selected, const uint8_t* data,
                                  size_t size, void* value, size_t capacity) {
     if (capacity < sizeof(object)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-    tlv_reader_t reader{};
-    tlv_view_t   view{};
-    object       result{};
+    tlv_reader_t  reader{};
+    tlv_element_t element{};
+    object        result{};
     if (tlv_reader_init(&reader, data, size, selected) != TLV_OK)
         return TLV_CODEC_ERR_INVALID_VALUE;
     while (!tlv_reader_at_end(&reader)) {
-        if (tlv_reader_next(&reader, &view) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
-        if (view.tag.data[0] == 1)
-            result.first = view.value.data[0];
+        if (tlv_reader_next(&reader, &element) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
+        if (element.tag.data[0] == 1)
+            result.first = element.value.data[0];
         else
-            result.second = view.value.data[0];
+            result.second = element.value.data[0];
     }
     std::memcpy(value, &result, sizeof(result));
     return TLV_CODEC_OK;

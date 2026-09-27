@@ -5,7 +5,7 @@
 #include "tlv/builtins/asn1/der_profile.h"
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/schema/constraint.h"
-#include "tlv/view.h"
+#include "tlv/element.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -289,7 +289,7 @@ TLV_API tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root, siz
  * @param[in]  size         Input size in bytes.
  * @param[in]  root         Root schema type.
  * @param[in]  limits       Limits, or `NULL` for #tlv_der_schema_default_limits.
- * @param[out] view         Receives the element; its value borrows `data`.
+ * @param[out] element         Receives the element; its value borrows `data`.
  * @param[out] consumed     Receives the encoded size of the element.
  * @param[out] error_offset Optional. Offset of the failure, as for tlv_der_read_strict().
  *
@@ -297,12 +297,13 @@ TLV_API tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root, siz
  * @return #TLV_ERR_SCHEMA and related codes for schema violations.
  * @return Any error of tlv_der_read_strict().
  *
- * @warning The caller must keep `data` alive while `view` is used.
+ * @warning The caller must keep `data` alive while `element` is used.
  */
 TLV_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
                                          const tlv_der_schema_type_t* root,
-                                         const tlv_der_schema_limits_t* limits, tlv_view_t* view,
-                                         size_t* consumed, size_t* error_offset);
+                                         const tlv_der_schema_limits_t* limits,
+                                         tlv_element_t* element, size_t* consumed,
+                                         size_t* error_offset);
 
 /**
  * @brief Callback supplying one component's raw inner content for tlv_der_schema_write().

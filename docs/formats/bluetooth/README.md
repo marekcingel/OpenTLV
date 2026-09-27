@@ -37,9 +37,9 @@ Value**, whatever the wire order. For Bluetooth LTV:
 
 | Logical field | Where it comes from |
 | --- | --- |
-| Tag | The one-byte type, exposed as a tag of size 1 (`view.tag.data[0]`) |
+| Tag | The one-byte type, exposed as a tag of size 1 (`element.tag.data[0]`) |
 | Length | The number of value bytes, which is the wire length byte minus 1 |
-| Value | The bytes after the type, borrowed from the input (`view.value`) |
+| Value | The bytes after the type, borrowed from the input (`element.value`) |
 
 The wire order is a property of the format descriptor, not of the data model.
 Nothing in OpenTLV requires a format to put the tag first, and Bluetooth LTV is
@@ -78,12 +78,12 @@ is reported as a value of 2 bytes.
 
 Select the format by passing `tlv_format_bluetooth_ltv` to
 `tlv_reader_init`, then call `tlv_reader_next` until it stops returning
-`TLV_OK`. Each `tlv_view_t` gives the type in `view.tag` and the value in
-`view.value`.
+`TLV_OK`. Each `tlv_element_t` gives the type in `element.tag` and the value in
+`element.value`.
 
 ```c
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/reader/reader.h"
 
 #include <stdio.h>
@@ -92,19 +92,19 @@ int main(void) {
     /* Flags (01) = 06, then Complete Local Name (09) = "Hi". */
     const uint8_t advertising[] = {0x02, 0x01, 0x06, 0x03, 0x09, 'H', 'i'};
     tlv_reader_t reader;
-    tlv_view_t view;
+    tlv_element_t element;
     tlv_result_t rc;
 
     if (tlv_reader_init(&reader, advertising, sizeof(advertising),
                         &tlv_format_bluetooth_ltv) != TLV_OK)
         return 1;
 
-    while ((rc = tlv_reader_next(&reader, &view)) == TLV_OK) {
+    while ((rc = tlv_reader_next(&reader, &element)) == TLV_OK) {
         size_t length;
-        if (tlv_length_to_size(view.value.length, &length) != TLV_OK) return 1;
-        printf("type 0x%02X, %u value byte(s)\n", (unsigned)view.tag.data[0],
+        if (tlv_size_to_native(element.value.size, &length) != TLV_OK) return 1;
+        printf("type 0x%02X, %u value byte(s)\n", (unsigned)element.tag.data[0],
                (unsigned)length);
-        /* view.value.data[0 .. length) holds the value. */
+        /* element.value.data[0 .. length) holds the value. */
     }
     /* rc is not TLV_OK here; at_end distinguishes a clean finish from an error. */
     return tlv_reader_at_end(&reader) ? 0 : 1;

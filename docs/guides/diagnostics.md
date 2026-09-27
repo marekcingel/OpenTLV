@@ -53,11 +53,11 @@ functions remain usable without paying for diagnostics.
 ```c
 #include "tlv/reader/reader.h"
 
-tlv_view_t entry;
+tlv_element_t element;
 size_t     consumed;
 tlv_reader_diagnostic_t diagnostic;
 
-tlv_result_t rc = tlv_read_diag(data, size, &format, &entry, &consumed, &diagnostic);
+tlv_result_t rc = tlv_read_diag(data, size, &format, &element, &consumed, &diagnostic);
 if (rc != TLV_OK) {
     /* diagnostic.diagnostic.code   == rc
      * diagnostic.diagnostic.offset == the offset of the field that failed
@@ -180,10 +180,10 @@ constructed elements, for example with `tlv_walk_tree()`:
 tlv_diagnostic_path_t path;
 tlv_diagnostic_path_init(&path);
 
-tlv_visit_result_t on_element(const tlv_view_t* view, size_t depth, size_t offset, void* context) {
+tlv_visit_result_t on_element(const tlv_element_t* element, size_t depth, size_t offset, void* context) {
     while (path.length > depth) tlv_diagnostic_path_pop(&path);
-    if (format.is_constructed(format.context, &view->tag)) tlv_diagnostic_path_push(&path, view->tag);
-    /* ... validate view, using `path` as the location of the current element's parent ... */
+    if (format.is_constructed(format.context, &element->tag)) tlv_diagnostic_path_push(&path, element->tag);
+    /* ... validate element, using `path` as the location of the current element's parent ... */
     return TLV_VISIT_CONTINUE;
 }
 
@@ -234,3 +234,11 @@ one `Error` variant per code, plus separate `SchemaError`, `ProfileError` and
 diagnostic (see [Using OpenTLV from Rust: Error
 handling](rust.md#error-handling)). Neither binds hierarchical paths or
 context chaining yet.
+
+Reader diagnostics preserve `declared_length` as a 64-bit `tlv_size_t`, even
+when the value does not fit the supplied buffer or native address space.
+When `has_raw_length` is set, `raw_length` borrows the original length-field
+bytes (the available prefix if truncated). This also works for malformed,
+nonminimal and logically overflowing length encodings. Keep the input alive
+and unchanged while using this diagnostic. CLI diagnostics expose these bytes
+as `raw_length` in hexadecimal.

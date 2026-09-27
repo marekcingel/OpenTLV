@@ -252,30 +252,30 @@ TLV_API tlv_result_t tlv_writer_write_diag(tlv_writer_t* writer, tlv_tag_t tag,
                                            tlv_writer_diagnostic_t* out_diagnostic);
 
 /**
- * @brief Appends a view at the writer's current position.
+ * @brief Appends a element at the writer's current position.
  *
  * Serializes with `writer->format`, following the same argument, overlap and
- * callback-error contracts as tlv_copy_view().
+ * callback-error contracts as tlv_copy_element().
  *
- * Unlike tlv_copy_view(), a `NULL` writer buffer with zero remaining capacity
+ * Unlike tlv_copy_element(), a `NULL` writer buffer with zero remaining capacity
  * is treated as a real destination rather than a size query. Every element
  * has a nonzero encoded size (tag and length), even with an empty value, so
  * the call then returns #TLV_ERR_BUFFER_TOO_SHORT.
  *
  * @param[in,out] writer Writer to append to.
- * @param[in]     view   View to serialize.
+ * @param[in]     element   Element to serialize.
  *
  * @return #TLV_OK on success; the position advances by the encoded size.
  * @return #TLV_ERR_NULL_ARG if `writer` is `NULL`.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if `pos > capacity` or capacity is insufficient.
- * @return Any error of tlv_copy_view(), propagated unchanged.
+ * @return Any error of tlv_copy_element(), propagated unchanged.
  *
  * @note On any failure, including insufficient capacity, the position is
  *       unchanged and the required size is not exposed; use
  *       tlv_encoded_size() for that.
- * @see tlv_copy_view
+ * @see tlv_copy_element
  */
-TLV_API tlv_result_t tlv_writer_copy_view(tlv_writer_t* writer, const tlv_view_t* view);
+TLV_API tlv_result_t tlv_writer_copy_element(tlv_writer_t* writer, const tlv_element_t* element);
 
 /**
  * @brief Appends an exact encoded byte range at the writer's current position.
@@ -284,7 +284,7 @@ TLV_API tlv_result_t tlv_writer_copy_view(tlv_writer_t* writer, const tlv_view_t
  * original wire bytes as tlv_copy_encoded() does. Overlapping byte ranges are
  * supported.
  *
- * As with tlv_writer_copy_view(), a `NULL` writer buffer with zero remaining
+ * As with tlv_writer_copy_element(), a `NULL` writer buffer with zero remaining
  * capacity is a real destination, not a size query: copying a nonzero-length
  * range returns #TLV_ERR_BUFFER_TOO_SHORT, while copying an empty range may
  * succeed without advancing the position.
