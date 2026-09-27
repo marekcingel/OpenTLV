@@ -3,7 +3,7 @@
 
 #include "tlv/endian.h"
 #include "tlv/format.h"
-#include "tlv/tag.h"
+#include "tlv/formats/fixed.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -17,6 +17,12 @@ namespace tlv {
 
 /**
  * @brief A fixed-width TLV format selected at compile time.
+ *
+ * A thin, `static_assert`-checked wrapper around the C
+ * `tlv_fixed_format_t`/tlv_fixed_format_init(): every read and write goes
+ * through that same C implementation, so behavior is identical to the
+ * runtime-configured C format for the same widths and byte order, not merely
+ * equivalent to it.
  *
  * Every element is `TagWidth` raw tag bytes, then a length field of
  * `LengthWidth` bytes in byte order `Order`, then that many value bytes. The
@@ -32,10 +38,12 @@ namespace tlv {
  *
  * Any other value fails to compile with a `static_assert`.
  *
- * The descriptor returned by format() has static storage duration and a
- * `NULL` context, so it never needs lifetime management. The format performs
- * no allocation and reads values in place. Errors match the C
- * `tlv_fixed_format_t`-based format for the same widths and byte order:
+ * The descriptor returned by format() has static storage duration, so it
+ * never needs lifetime management; its context is a static
+ * `tlv_fixed_format_t` built from `TagWidth`, `LengthWidth` and `Order` with
+ * the same static storage duration. The format performs no allocation and
+ * reads values in place. Errors match the C `tlv_fixed_format_t`-based format
+ * for the same widths and byte order:
  * - #TLV_ERR_BUFFER_TOO_SHORT when the input holds fewer bytes than a field
  *   needs, or the output has less capacity than a field needs;
  * - #TLV_ERR_INVALID_TAG_SIZE when a written tag is not `TagWidth` bytes;
@@ -46,6 +54,8 @@ namespace tlv {
  * @tparam LengthWidth Length field width in bytes.
  * @tparam Order       Byte order of the length field.
  *
+ * @note Needs the library built with `OPENTLV_FORMAT_FIXED` (the default),
+ *       since format() delegates to tlv_fixed_format_init().
  * @see tlv_fixed_format_t for the same format chosen at runtime instead of
  *      compile time (tlv/formats/fixed.h), usable from C++ via
  *      `tlv::writer`/`tlv::reader`'s `const tlv_format_t&` constructor
@@ -75,56 +85,16 @@ public:
      * @return A borrowed, immutable descriptor that lives for the whole program.
      */
     static const tlv_format_t& format() {
-        static const tlv_format_t fmt = {nullptr,   read_tag,     read_length, nullptr, nullptr,
-                                         write_tag, write_length, length_size, nullptr};
+        static const tlv_fixed_format_t config = {TagWidth, LengthWidth, Order};
+        static const tlv_format_t       fmt = init(config);
         return fmt;
     }
 
 private:
-    static tlv_result_t read_tag(const void*, const std::uint8_t* data, std::size_t size,
-                                 tlv_tag_t* tag, std::size_t* consumed) {
-        if (size < TagWidth) return TLV_ERR_BUFFER_TOO_SHORT;
-        *tag = tlv_tag(data, TagWidth);
-        *consumed = TagWidth;
-        return TLV_OK;
-    }
-
-    static tlv_result_t read_length(const void*, const std::uint8_t* data, std::size_t size,
-                                    std::size_t* length, std::size_t* consumed) {
-        if (size < LengthWidth) return TLV_ERR_BUFFER_TOO_SHORT;
-        std::uint64_t value = 0;
-        tlv_result_t  rc = tlv_read_uint(data, LengthWidth, Order, &value);
-        if (rc != TLV_OK) return rc;
-        if (value > static_cast<std::uint64_t>(SIZE_MAX)) return TLV_ERR_INVALID_LENGTH;
-        *length = static_cast<std::size_t>(value);
-        *consumed = LengthWidth;
-        return TLV_OK;
-    }
-
-    static tlv_result_t write_tag(const void*, std::uint8_t* data, std::size_t capacity,
-                                  const tlv_tag_t* tag, std::size_t* written) {
-        if (tag->size != TagWidth) return TLV_ERR_INVALID_TAG_SIZE;
-        if (!tag->data) return TLV_ERR_NULL_ARG;
-        *written = TagWidth;
-        if (!data) return TLV_OK;
-        if (capacity < TagWidth) return TLV_ERR_BUFFER_TOO_SHORT;
-        for (std::size_t i = 0; i < TagWidth; ++i) data[i] = tag->data[i];
-        return TLV_OK;
-    }
-
-    static tlv_result_t length_size(const void*, std::size_t length, std::size_t* size) {
-        if (static_cast<std::uint64_t>(length) > max_length) return TLV_ERR_INVALID_LENGTH;
-        *size = LengthWidth;
-        return TLV_OK;
-    }
-
-    static tlv_result_t write_length(const void* context, std::uint8_t* data, std::size_t capacity,
-                                     std::size_t length, std::size_t* written) {
-        tlv_result_t rc = length_size(context, length, written);
-        if (rc != TLV_OK) return rc;
-        if (!data) return TLV_OK;
-        if (capacity < LengthWidth) return TLV_ERR_BUFFER_TOO_SHORT;
-        return tlv_write_uint(data, LengthWidth, Order, static_cast<std::uint64_t>(length));
+    static tlv_format_t init(const tlv_fixed_format_t& config) {
+        tlv_format_t result{};
+        tlv_fixed_format_init(&result, &config);
+        return result;
     }
 };
 

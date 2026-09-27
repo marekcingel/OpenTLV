@@ -3,9 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#if OPENTLV_FORMAT_FIXED
 #include "tlv/formats/fixed.h"
-#endif
 
 #include <array>
 #include <cstdint>
@@ -110,33 +108,57 @@ TEST(Unit_Tlvpp_FixedFormat, LengthByteOrderDoesNotChangeTheTag) {
     EXPECT_EQ(static_cast<std::uint8_t>(le[3]), 0x01);
 }
 
-TEST(Unit_Tlvpp_FixedFormat, DescriptorsHaveStaticStorageAndNoContext) {
+TEST(Unit_Tlvpp_FixedFormat, DescriptorHasStaticStorageAndAMatchingContext) {
     using format = tlv::fixed_format<1, 2, BE>;
     EXPECT_EQ(&format::format(), &format::format());
-    EXPECT_EQ(format::format().context, nullptr);
+    ASSERT_NE(format::format().context, nullptr);
+    const auto* config = static_cast<const tlv_fixed_format_t*>(format::format().context);
+    EXPECT_EQ(config->tag_size, 1u);
+    EXPECT_EQ(config->length_size, 2u);
+    EXPECT_EQ(config->order, BE);
     EXPECT_EQ(format::format().read_element, nullptr);
     EXPECT_EQ(format::format().write_header, nullptr);
     EXPECT_NE(static_cast<const void*>(&format::format()),
               static_cast<const void*>(&tlv::fixed_format<1, 2, LE>::format()));
 }
 
+// Proves the C++ template reuses the C implementation's callbacks directly
+// (identical function pointers), rather than an independent C++
+// implementation that merely produces equivalent wire bytes.
+TEST(Unit_Tlvpp_FixedFormat, DelegatesToTheSameCImplementationAsARuntimeConfig) {
+    using format = tlv::fixed_format<2, 3, LE>;
+    const tlv_fixed_format_t c_config = {2, 3, LE};
+    tlv_format_t             c_format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&c_format, &c_config));
+
+    const tlv_format_t& cpp_format = format::format();
+    EXPECT_EQ(cpp_format.read_tag, c_format.read_tag);
+    EXPECT_EQ(cpp_format.read_length, c_format.read_length);
+    EXPECT_EQ(cpp_format.write_tag, c_format.write_tag);
+    EXPECT_EQ(cpp_format.write_length, c_format.write_length);
+    EXPECT_EQ(cpp_format.length_size, c_format.length_size);
+    EXPECT_EQ(cpp_format.read_value_bounds, c_format.read_value_bounds);
+    EXPECT_EQ(cpp_format.read_element, c_format.read_element);
+    EXPECT_EQ(cpp_format.write_header, c_format.write_header);
+}
+
 TEST(Unit_Tlvpp_FixedFormat, LengthRangeBoundaries) {
     std::size_t size = 0;
 
     const tlv_format_t& w1 = tlv::fixed_format<1, 1, BE>::format();
-    EXPECT_EQ(w1.length_size(nullptr, 0, &size), TLV_OK);
+    EXPECT_EQ(w1.length_size(w1.context, 0, &size), TLV_OK);
     EXPECT_EQ(size, 1u);
-    EXPECT_EQ(w1.length_size(nullptr, 255, &size), TLV_OK);
-    EXPECT_EQ(w1.length_size(nullptr, 256, &size), TLV_ERR_INVALID_LENGTH);
+    EXPECT_EQ(w1.length_size(w1.context, 255, &size), TLV_OK);
+    EXPECT_EQ(w1.length_size(w1.context, 256, &size), TLV_ERR_INVALID_LENGTH);
 
     const tlv_format_t& w2 = tlv::fixed_format<1, 2, LE>::format();
-    EXPECT_EQ(w2.length_size(nullptr, 65535, &size), TLV_OK);
+    EXPECT_EQ(w2.length_size(w2.context, 65535, &size), TLV_OK);
     EXPECT_EQ(size, 2u);
-    EXPECT_EQ(w2.length_size(nullptr, 65536, &size), TLV_ERR_INVALID_LENGTH);
+    EXPECT_EQ(w2.length_size(w2.context, 65536, &size), TLV_ERR_INVALID_LENGTH);
 
     const tlv_format_t& w3 = tlv::fixed_format<1, 3, BE>::format();
-    EXPECT_EQ(w3.length_size(nullptr, 0xFFFFFF, &size), TLV_OK);
-    EXPECT_EQ(w3.length_size(nullptr, 0x1000000, &size), TLV_ERR_INVALID_LENGTH);
+    EXPECT_EQ(w3.length_size(w3.context, 0xFFFFFF, &size), TLV_OK);
+    EXPECT_EQ(w3.length_size(w3.context, 0x1000000, &size), TLV_ERR_INVALID_LENGTH);
 
     using width1 = tlv::fixed_format<1, 1, BE>;
     using width4 = tlv::fixed_format<1, 4, BE>;
@@ -147,8 +169,8 @@ TEST(Unit_Tlvpp_FixedFormat, LengthRangeBoundaries) {
 
 #if SIZE_MAX > 0xFFFFFFFFu
     const tlv_format_t& w4 = tlv::fixed_format<1, 4, BE>::format();
-    EXPECT_EQ(w4.length_size(nullptr, 0xFFFFFFFFu, &size), TLV_OK);
-    EXPECT_EQ(w4.length_size(nullptr, static_cast<std::size_t>(0xFFFFFFFFu) + 1, &size),
+    EXPECT_EQ(w4.length_size(w4.context, 0xFFFFFFFFu, &size), TLV_OK);
+    EXPECT_EQ(w4.length_size(w4.context, static_cast<std::size_t>(0xFFFFFFFFu) + 1, &size),
               TLV_ERR_INVALID_LENGTH);
 #endif
 }
@@ -202,17 +224,18 @@ TEST(Unit_Tlvpp_FixedFormat, TruncatedInputIsRejected) {
 
 TEST(Unit_Tlvpp_FixedFormat, ReaderCallbacksReportShortFields) {
     using format = tlv::fixed_format<2, 3, LE>;
+    const void*        context = format::format().context;
     const std::uint8_t data[3] = {1, 2, 3};
     tlv_tag_t          tag;
     std::size_t        length = 0, consumed = 0;
 
-    EXPECT_EQ(format::format().read_tag(nullptr, data, 1, &tag, &consumed),
+    EXPECT_EQ(format::format().read_tag(context, data, 1, &tag, &consumed),
               TLV_ERR_BUFFER_TOO_SHORT);
-    EXPECT_EQ(format::format().read_tag(nullptr, data, 2, &tag, &consumed), TLV_OK);
+    EXPECT_EQ(format::format().read_tag(context, data, 2, &tag, &consumed), TLV_OK);
     EXPECT_EQ(consumed, 2u);
-    EXPECT_EQ(format::format().read_length(nullptr, data, 2, &length, &consumed),
+    EXPECT_EQ(format::format().read_length(context, data, 2, &length, &consumed),
               TLV_ERR_BUFFER_TOO_SHORT);
-    EXPECT_EQ(format::format().read_length(nullptr, data, 3, &length, &consumed), TLV_OK);
+    EXPECT_EQ(format::format().read_length(context, data, 3, &length, &consumed), TLV_OK);
     EXPECT_EQ(consumed, 3u);
     EXPECT_EQ(length, 0x030201u);
 }
@@ -233,19 +256,20 @@ TEST(Unit_Tlvpp_FixedFormat, InsufficientOutputCapacityIsReported) {
 
 TEST(Unit_Tlvpp_FixedFormat, WriterCallbacksReportShortCapacity) {
     using format = tlv::fixed_format<2, 2, BE>;
+    const void*     context = format::format().context;
     std::uint8_t    buf[4] = {};
     std::size_t     written = 0;
     const owned_tag tag_owner = make_tag(2);
     tlv::tag_t      tag = tag_owner;
 
-    EXPECT_EQ(format::format().write_tag(nullptr, buf, 1, &tag, &written),
+    EXPECT_EQ(format::format().write_tag(context, buf, 1, &tag, &written),
               TLV_ERR_BUFFER_TOO_SHORT);
-    EXPECT_EQ(format::format().write_length(nullptr, buf, 1, 3, &written),
+    EXPECT_EQ(format::format().write_length(context, buf, 1, 3, &written),
               TLV_ERR_BUFFER_TOO_SHORT);
     // A size query with no destination succeeds and reports the width.
-    EXPECT_EQ(format::format().write_tag(nullptr, nullptr, 0, &tag, &written), TLV_OK);
+    EXPECT_EQ(format::format().write_tag(context, nullptr, 0, &tag, &written), TLV_OK);
     EXPECT_EQ(written, 2u);
-    EXPECT_EQ(format::format().write_length(nullptr, nullptr, 0, 3, &written), TLV_OK);
+    EXPECT_EQ(format::format().write_length(context, nullptr, 0, 3, &written), TLV_OK);
     EXPECT_EQ(written, 2u);
 }
 
@@ -300,7 +324,6 @@ TEST(Unit_Tlvpp_FixedFormat, WorksWithTheCApi) {
     EXPECT_EQ(view.value.data, buf + 3);
 }
 
-#if OPENTLV_FORMAT_FIXED
 TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheCApi) {
     using format = tlv::fixed_format<1, 1, BE>;
     const tlv_fixed_format_t c_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
@@ -325,7 +348,7 @@ TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheCApi) {
                   std::vector<std::uint8_t>(expected, expected + expected_size));
     }
     std::size_t size = 0;
-    EXPECT_EQ(format::format().length_size(nullptr, 256, &size),
+    EXPECT_EQ(format::format().length_size(format::format().context, 256, &size),
               c_writer.length_size(c_writer.context, 256, &size));
 }
 
@@ -350,14 +373,14 @@ TEST(Unit_Tlvpp_FixedFormat, ReaderAndWriterAcceptARuntimeCDescriptor) {
     EXPECT_EQ(entry->value.size(), value.size());
     EXPECT_TRUE(reader.at_end());
 }
-#endif
 
 #if SIZE_MAX < UINT64_MAX
 TEST(Unit_Tlvpp_FixedFormat, LengthWiderThanSizeTIsRejected) {
     using format = tlv::fixed_format<1, 8, BE>;
     const std::uint8_t data[8] = {0x01, 0, 0, 0, 0, 0, 0, 0};
     std::size_t        length = 0, consumed = 0;
-    EXPECT_EQ(format::format().read_length(nullptr, data, sizeof(data), &length, &consumed),
+    EXPECT_EQ(format::format().read_length(format::format().context, data, sizeof(data), &length,
+                                           &consumed),
               TLV_ERR_INVALID_LENGTH);
 }
 #endif

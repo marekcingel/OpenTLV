@@ -12,7 +12,7 @@ Turn off what you do not use.
 | Option | Component |
 | --- | --- |
 | `OPENTLV_FORMAT_DEFAULT` | [Default TLV](../formats/default/README.md) |
-| `OPENTLV_FORMAT_FIXED` | [Configurable fixed-width TLV](../formats/fixed/configurable.md) (C API) |
+| `OPENTLV_FORMAT_FIXED` | [Configurable fixed-width TLV](../formats/fixed/configurable.md) (C and C++ API) |
 | `OPENTLV_FORMAT_BLUETOOTH_LTV` | [Bluetooth LTV](../formats/bluetooth/README.md) |
 | `OPENTLV_FORMAT_ASN1` | The ASN.1 group; must be ON for BER, DER, CER and EMV |
 | `OPENTLV_FORMAT_BER` | [BER-TLV](../formats/asn1/ber.md); must be ON for DER, CER and EMV |
@@ -22,9 +22,10 @@ Turn off what you do not use.
 | `OPENTLV_DOCUMENT` | [Mutable document](document.md); allocates memory, so turn it OFF for allocation-free builds. Independent of every format |
 
 Turning an option OFF also turns OFF everything below it in the chain
-`ASN1 -> BER -> DER -> EMV`, with CER a sibling of DER under BER. The C++ side
-of the [configurable fixed-width format](../formats/fixed/configurable.md) is
-a header-only template and has no CMake option.
+`ASN1 -> BER -> DER -> EMV`, with CER a sibling of DER under BER. The C++
+[configurable fixed-width format](../formats/fixed/configurable.md) template
+delegates to the C implementation, so it follows `OPENTLV_FORMAT_FIXED` too,
+unlike the rest of the header-only C++ wrapper.
 
 ## Recipes
 

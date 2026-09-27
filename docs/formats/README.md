@@ -36,7 +36,7 @@ built. Each format keeps its own page with the byte layout and a worked example.
 | --- | --- | --- | --- | --- | --- | --- |
 | [Default TLV](default/README.md#layout-and-typical-use) | 1 byte | 1 byte below `80`, or `81 nn`, `82 nn nn` | 65,535 bytes | tag, length, value | none (opaque values) | `OPENTLV_FORMAT_DEFAULT` |
 | [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
-| [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | 1 to 8 bytes | 1 to 8 bytes, big or little endian | set by the length width | tag, length, value | none (opaque values) | `OPENTLV_FORMAT_FIXED` (C); none (C++ header) |
+| [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | 1 to 8 bytes | 1 to 8 bytes, big or little endian | set by the length width | tag, length, value | none (opaque values) | `OPENTLV_FORMAT_FIXED` (C and C++) |
 | [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_ber_is_constructed` | `OPENTLV_FORMAT_BER` |
 | [DER-TLV](asn1/der.md#layout-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_der_is_constructed` | `OPENTLV_FORMAT_DER` |
 | [CER-TLV](asn1/cer.md#layout-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_cer_is_constructed` | `OPENTLV_FORMAT_CER` |

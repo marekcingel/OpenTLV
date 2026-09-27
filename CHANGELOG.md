@@ -50,6 +50,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** `tlv::fixed_format<>` (`tlv++`) no longer reimplements the
+  fixed-width wire format; `format()` now delegates every read and write to
+  `tlv_fixed_format_init()`, so it needs the library built with
+  `OPENTLV_FORMAT_FIXED` (the default, previously not required) and its
+  descriptor's `context` is no longer `NULL`. `static_assert`-checked
+  compile-time validation is unchanged. No compatibility shim; rebuild all
+  consumers. (#329)
 - **Breaking:** Replace the Rust `opentlv::FixedFormat`'s internal
   `Box<tlv_fixed_format_t>` with an explicit borrow: `FixedFormat` is now
   `FixedFormat<'a>`, built with `FixedFormat::new(&'a FixedFormatConfig)` from a
