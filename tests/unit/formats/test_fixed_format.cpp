@@ -127,7 +127,7 @@ TEST(Unit_Tlvpp_FixedFormat, DescriptorHasStaticStorageAndAMatchingContext) {
 // implementation that merely produces equivalent wire bytes.
 TEST(Unit_Tlvpp_FixedFormat, DelegatesToTheSameCImplementationAsARuntimeConfig) {
     using format = tlv::fixed_format<2, 3, LE>;
-    const tlv_fixed_format_t c_config = {2, 3, LE};
+    const tlv_fixed_format_t c_config = {2, 3, LE, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             c_format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&c_format, &c_config));
 
@@ -326,7 +326,8 @@ TEST(Unit_Tlvpp_FixedFormat, WorksWithTheCApi) {
 
 TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheCApi) {
     using format = tlv::fixed_format<1, 1, BE>;
-    const tlv_fixed_format_t c_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t c_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                         TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             c_writer{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&c_writer, &c_config));
     for (std::size_t length : {std::size_t(0), std::size_t(1), std::size_t(255)}) {
@@ -357,7 +358,8 @@ TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheCApi) {
 // accept a plain `const tlv_format_t&`. See
 // docs/guides/memory.md#format-context-ownership-and-lifetime.
 TEST(Unit_Tlvpp_FixedFormat, ReaderAndWriterAcceptARuntimeCDescriptor) {
-    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
 

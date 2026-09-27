@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Clang `-Wmissing-field-initializers` errors in the Fixed format tests
+  and the fuzz harness, whose `tlv_fixed_format_t` literals used positional
+  initializers for only some of the struct's fields after it gained
+  `element_order` and `length_scope`. (#331)
 - Fix a Clang `-Wunused-const-variable` error in the integration architecture
   test, whose `full_format` fixture became dead code once its only user
   switched to a copy with `is_constructed` set. (#332)

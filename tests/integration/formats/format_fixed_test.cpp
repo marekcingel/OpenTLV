@@ -7,7 +7,8 @@
 
 TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteTagOneByteLength) {
     /* [tag: 2 bytes][length: 1 byte][value: N bytes], from the issue's example use case. */
-    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             writer_format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
 
@@ -36,7 +37,8 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteTagOneByteLength) {
 TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteLittleEndianLength) {
     /* Matches tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>, documented in
      * docs/formats/fixed/configurable.md: 12 34 03 00 AA BB CC. */
-    const tlv_fixed_format_t config = {2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN};
+    const tlv_fixed_format_t config = {2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             writer_format{};
     tlv_format_t             reader_format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
@@ -58,7 +60,8 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteLittleEndianLength) {
 }
 
 TEST(Integration_Tlv_Fixed, EveryLengthByteRoundTripsOneByteTagOneByteLength) {
-    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             writer_format{};
     tlv_format_t             reader_format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
@@ -96,7 +99,8 @@ TEST(Integration_Tlv_Fixed, EveryLengthByteRoundTripsOneByteTagOneByteLength) {
 // context are safe for concurrent use. See
 // docs/guides/memory.md#format-context-ownership-and-lifetime.
 TEST(Integration_Tlv_Fixed, OneFormatSharedByReaderAndWriterConcurrentlyLive) {
-    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
 
@@ -125,7 +129,8 @@ TEST(Integration_Tlv_Fixed, OneFormatSharedByReaderAndWriterConcurrentlyLive) {
 }
 
 TEST(Integration_Tlv_Fixed, RejectsLengthThatOverflowsConfiguredWidth) {
-    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             writer_format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer_format, &config));
     uint8_t      data[260] = {};

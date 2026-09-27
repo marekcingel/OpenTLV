@@ -34,7 +34,8 @@ static inline int fuzz_constructed(const void* context, const tlv_tag_t* tag) {
 static tlv_format_t fuzz_default_format;
 #endif
 #if OPENTLV_FORMAT_FIXED
-static const tlv_fixed_format_t fuzz_fixed_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+static const tlv_fixed_format_t fuzz_fixed_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN,
+                                                     TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
 static tlv_format_t             fuzz_fixed_format;
 #endif
 #if OPENTLV_FORMAT_BLUETOOTH_LTV
