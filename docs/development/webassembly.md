@@ -57,7 +57,7 @@ const result = opentlv.parse(
 For `format: "fixed"`, `fixedTagSize` (default `1`), `fixedLengthSize` (1-8, default
 `1`) and `fixedByteOrder` (`"big"` or `"little"`, default `"big"`) configure the
 configurable fixed-width format's tag width, length width and length byte order
-(`tlv_fixed_config_t`); they are ignored for every other format. An invalid width
+(`tlv_fixed_format_t`); they are ignored for every other format. An invalid width
 is reported through `result.error`, like any other parse error.
 
 ```json

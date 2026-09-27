@@ -18,13 +18,13 @@ On failure it remains unchanged. Insufficient capacity returns
 `TLV_ERR_BUFFER_TOO_SHORT` and leaves destination bytes unchanged.
 
 ```c
-#include "tlv/builtins/fixed/fixed.h"
+#include "tlv/formats/fixed.h"
 #include "tlv/copy.h"
 #include "tlv/reader/reader.h"
 #include <string.h>
 
 /* One tag byte and one length byte; config must outlive its readers. */
-const tlv_fixed_config_t config = {
+const tlv_fixed_format_t config = {
     .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
 tlv_format_t format;
 tlv_fixed_format_init(&format, &config);

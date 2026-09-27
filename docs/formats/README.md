@@ -1,8 +1,9 @@
 # C library formats
 
-The directory layout follows the C library's `formats/default`, `formats/fixed`,
-and `formats/asn1` implementation families. Each page includes a byte example.
-Profile semantics are documented separately.
+Each page includes a byte example. Profile semantics are documented separately.
+Concrete C implementations live under `tlv/builtins/<protocol>/` (grouped by
+protocol) or, for protocol-agnostic mechanisms like the configurable fixed-width
+format, `tlv/formats/`; see [architecture](../concepts/architecture.md#layout).
 
 - [Default TLV](default/README.md)
 - [Configurable fixed-width TLV](fixed/configurable.md)
@@ -68,7 +69,7 @@ beginning of a buffer:
 
 ```c
 /* One tag byte and one length byte; config must outlive its readers. */
-const tlv_fixed_config_t config = {
+const tlv_fixed_format_t config = {
     .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
 tlv_format_t format;
 tlv_fixed_format_init(&format, &config);
@@ -129,7 +130,7 @@ bytes, then write into a caller-owned buffer:
 
 ```c
 /* One tag byte and one length byte; config must outlive its writers. */
-const tlv_fixed_config_t config = {
+const tlv_fixed_format_t config = {
     .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
 tlv_format_t format;
 tlv_fixed_format_init(&format, &config);
@@ -243,7 +244,7 @@ requires a descriptor and callbacks in application code, without parser edits.
 ## Nested traversal
 
 Concrete descriptors are declared in `tlv/builtins/fixed/default.h`,
-`tlv/builtins/fixed/fixed.h`, `tlv/builtins/asn1/ber.h`,
+`tlv/formats/fixed.h`, `tlv/builtins/asn1/ber.h`,
 `tlv/builtins/asn1/der.h`, and `tlv/builtins/asn1/cer.h`. The generic `format.h`
 declares only the contract.
 

@@ -10,7 +10,7 @@
 #include "tlv/builtins/fixed/default.h"
 #endif
 #if OPENTLV_FORMAT_FIXED
-#include "tlv/builtins/fixed/fixed.h"
+#include "tlv/formats/fixed.h"
 #endif
 #if OPENTLV_FORMAT_BLUETOOTH_LTV
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
@@ -38,7 +38,7 @@ const tlv_format_t* select_format(const options& o) {
     // Configured by --fixed-tag-size/--fixed-length-size/--fixed-byte-order,
     // one tag byte/one length byte/big-endian by default.
     if (!strcmp(name, "fixed")) {
-        static tlv_fixed_config_t config;
+        static tlv_fixed_format_t config;
         static tlv_format_t       format;
         config.tag_size = o.fixed_tag_size;
         config.length_size = o.fixed_length_size;

@@ -18,7 +18,7 @@
  *   every type uses; there is no separate "borrowed vs. owned" userdata
  *   flavor to choose between.
  * - Embedding over pointers: a userdata that needs caller-owned config
- *   storage for the C API it wraps (for example a tlv_fixed_config_t for
+ *   storage for the C API it wraps (for example a tlv_fixed_format_t for
  *   tlv_fixed_format_init()) embeds that storage directly inside
  *   itself rather than allocating it separately, since a Lua userdata
  *   block's address never changes for its lifetime. This avoids a second

@@ -207,7 +207,7 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
 #if OPENTLV_FORMAT_FIXED
     // Configured by the caller's fixed_tag_size/fixed_length_size/fixed_big_endian.
     if (!strcmp(name, "fixed")) {
-        static tlv_fixed_config_t config;
+        static tlv_fixed_format_t config;
         static tlv_format_t       format;
         config.tag_size = fixed_tag_size;
         config.length_size = fixed_length_size;

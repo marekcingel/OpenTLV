@@ -56,13 +56,13 @@ the checkout at `external/OpenTLV` in your application.
 <!-- example: examples/tlv/src/quick_start.c -->
 ```c
 #include <string.h>
-#include "tlv/builtins/fixed/fixed.h"
+#include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
 int main(void) {
     /* One tag byte and one length byte; config must outlive its readers and writers. */
-    const tlv_fixed_config_t config = {
+    const tlv_fixed_format_t config = {
         .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
     tlv_format_t format;
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
@@ -122,7 +122,7 @@ this target propagates the C library and include paths.
 #include <cstring>
 
 #include "tlv++/tlv.hpp"
-#include "tlv++/builtins/fixed/fixed_format.hpp"
+#include "tlv++/formats/fixed_format.hpp"
 
 int main() {
     using format = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;

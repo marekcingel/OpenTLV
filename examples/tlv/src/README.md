@@ -30,6 +30,13 @@ walking, codecs and endian conversion, and a fully custom format.
   the standalone endian helpers.
 - [`custom_format.c`](custom_format.c) -- defining your own reader/writer format.
 
+## Formats
+
+Generic, protocol-agnostic format mechanisms.
+
+- [`formats/fixed_format.c`](formats/fixed_format.c) -- a runtime-configurable
+  fixed-width format, `tlv_fixed_format_t`.
+
 ## Builtins
 
 Examples specific to one wire format or profile.
@@ -38,7 +45,5 @@ Examples specific to one wire format or profile.
   long-form lengths.
 - [`builtins/asn1/cer.c`](builtins/asn1/cer.c) -- CER: indefinite-length framing
   and segmented strings.
-- [`builtins/fixed/fixed_format.c`](builtins/fixed/fixed_format.c) -- a
-  runtime-configurable fixed-width format, `tlv_fixed_config_t`.
 - [`builtins/emv/tag_decoding.c`](builtins/emv/tag_decoding.c) -- decoding a full
   EMV record with the built-in dictionary.

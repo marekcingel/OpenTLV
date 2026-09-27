@@ -1,10 +1,10 @@
-#include "tlv++/builtins/fixed/fixed_format.hpp"
+#include "tlv++/formats/fixed_format.hpp"
 #include "tlv++/tlv.hpp"
 
 #include <gtest/gtest.h>
 
 #if OPENTLV_FORMAT_FIXED
-#include "tlv/builtins/fixed/fixed.h"
+#include "tlv/formats/fixed.h"
 #endif
 
 #include <array>
@@ -303,7 +303,7 @@ TEST(Unit_Tlvpp_FixedFormat, WorksWithTheCApi) {
 #if OPENTLV_FORMAT_FIXED
 TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheCApi) {
     using format = tlv::fixed_format<1, 1, BE>;
-    const tlv_fixed_config_t c_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t c_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
     tlv_format_t             c_writer{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&c_writer, &c_config));
     for (std::size_t length : {std::size_t(0), std::size_t(1), std::size_t(255)}) {

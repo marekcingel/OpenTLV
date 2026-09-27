@@ -3,7 +3,7 @@
 
 #include "compat.h"
 
-#include <tlv/builtins/fixed/fixed.h>
+#include <tlv/formats/fixed.h>
 #include <tlv/format.h>
 
 /* Metatable name for opentlv.formats.default/ber/cer/der/bluetooth_ltv and
@@ -29,7 +29,7 @@
  * the format object itself does) as its context. */
 typedef struct tlv_lua_format {
     tlv_format_t          format;
-    tlv_fixed_config_t    fixed_config;
+    tlv_fixed_format_t    fixed_config;
     tlv_is_constructed_fn is_constructed;
     int                   use_der_walker;
     const char*           name;

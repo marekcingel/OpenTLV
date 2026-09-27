@@ -41,6 +41,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Move the configurable fixed-width format out of the
+  protocol-specific `builtins/` hierarchy into a new generic `formats/` layer,
+  since it is a protocol-agnostic wire-format mechanism rather than a
+  built-in protocol: `tlv/builtins/fixed/fixed.h` becomes `tlv/formats/fixed.h`
+  and `tlv++/builtins/fixed/fixed_format.hpp` becomes
+  `tlv++/formats/fixed_format.hpp`. Rename `tlv_fixed_config_t` to
+  `tlv_fixed_format_t`, now the single state type for both reading and
+  writing. `tlv/builtins/fixed/default.h` (the unrelated one-byte "default"
+  format) is unaffected. No compatibility shim; rebuild all consumers. (#327)
 - **Breaking:** Unify `tlv_reader_format_t`/`tlv_writer_format_t` into one
   `tlv_format_t`, with read and write capability independently optional;
   replace `tlv_reader_format_init`/`tlv_writer_format_init`/

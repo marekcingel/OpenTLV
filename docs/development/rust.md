@@ -26,7 +26,7 @@ The `opentlv` crate exposes these safe types; none of them exposes a raw pointer
 | `Entry<'a>` | `tlv_view_t` | A `Tag` (copied out of the input) plus a value borrowed as `&'a [u8]` |
 | `Error` | `tlv_result_t` | One variant per `TLV_ERR_*` code, plus `Unknown(code)`; implements `std::error::Error` |
 | `Result<T>` | | Alias for `std::result::Result<T, Error>` |
-| `FixedFormat` | `tlv_fixed_config_t` | Runtime-configurable tag width, length width (1-8 bytes) and length byte order; owns a heap-allocated config so its address stays stable when the value is moved |
+| `FixedFormat` | `tlv_fixed_format_t` | Runtime-configurable tag width, length width (1-8 bytes) and length byte order; owns a heap-allocated config so its address stays stable when the value is moved |
 | `ByteOrder` | `tlv_byte_order_t` | `Big` or `Little`, the length field's byte order for `FixedFormat` |
 
 The C `tlv_tag_t` is a borrowed pointer and size (`opentlv_native::tlv_tag_t`), so
@@ -54,7 +54,7 @@ for entry in reader {
 `Reader::with_format` takes a `Format` (`Default`, `Ber`, `Cer`, `Der`), and
 `Reader::with_fixed_format` takes a borrowed `&FixedFormat` for a
 runtime-configurable tag width, length width and length byte order (wraps the C
-`tlv_fixed_config_t` and `tlv_fixed_format_init()`;
+`tlv_fixed_format_t` and `tlv_fixed_format_init()`;
 `FixedFormat::new(tag_size, length_size, order)` returns `Result<FixedFormat>`
 and must outlive every reader or writer built from it). Malformed input yields
 an `Err(Error)` item, after which the iterator ends, since the C reader does

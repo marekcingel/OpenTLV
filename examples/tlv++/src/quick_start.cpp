@@ -2,7 +2,7 @@
 #include <cstring>
 
 #include "tlv++/tlv.hpp"
-#include "tlv++/builtins/fixed/fixed_format.hpp"
+#include "tlv++/formats/fixed_format.hpp"
 
 int main() {
     using format = tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>;

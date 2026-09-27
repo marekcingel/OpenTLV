@@ -51,16 +51,16 @@ if(OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED AND OPENTLV_FORMAT_BER)
     endif()
 endif()
 
-# Builtin-specific example: a runtime-configurable fixed-width format.
+# Generic-format example: a runtime-configurable fixed-width format.
 # Kept independent of the flags above; it only needs OPENTLV_FORMAT_FIXED.
 if(OPENTLV_FORMAT_FIXED)
-    add_executable(example-tlv-builtins-fixed-format src/builtins/fixed/fixed_format.c)
-    target_link_libraries(example-tlv-builtins-fixed-format PRIVATE tlv)
-    opentlv_configure_compiler(example-tlv-builtins-fixed-format)
-    opentlv_copy_shared_runtime(example-tlv-builtins-fixed-format)
-    add_test(NAME Integration_example_tlv_builtins_fixed_format
-        COMMAND $<TARGET_FILE:example-tlv-builtins-fixed-format>)
-    set_tests_properties(Integration_example_tlv_builtins_fixed_format PROPERTIES LABELS "integration;examples")
+    add_executable(example-tlv-formats-fixed-format src/formats/fixed_format.c)
+    target_link_libraries(example-tlv-formats-fixed-format PRIVATE tlv)
+    opentlv_configure_compiler(example-tlv-formats-fixed-format)
+    opentlv_copy_shared_runtime(example-tlv-formats-fixed-format)
+    add_test(NAME Integration_example_tlv_formats_fixed_format
+        COMMAND $<TARGET_FILE:example-tlv-formats-fixed-format>)
+    set_tests_properties(Integration_example_tlv_formats_fixed_format PROPERTIES LABELS "integration;examples")
 endif()
 
 # Builtin-specific example: walks an EMV template with the EMV dictionary.
