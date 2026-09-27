@@ -33,16 +33,23 @@ flags. Contract checks remain active with `NDEBUG`; UBSan errors are fatal.
 | `fuzz_der` | `tlv_der_read` and `tlv_der_walk`, canonical DER-TLV framing, all four profile limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal. |
 | `fuzz_der_schema` | `tlv_der_schema_read` against a fixed representative schema (IMPLICIT/EXPLICIT tagging, a DEFAULT component, SET, SET OF, SEQUENCE OF and CHOICE), all five schema limits, unchanged read outputs and bounded error offsets on failure. |
 | `fuzz_roundtrip` | Generated tags and values, sizing, insufficient-capacity output preservation, successful write/read tag and value equality. |
+| `fuzz_fixed` | The configurable Fixed format (`tlv_fixed_format_init()`) with tag width, length width and byte order all derived from the fuzz input: exact framing-overhead round trips and insufficient-capacity output preservation for the derived configuration, plus sequential malformed-input `tlv_read` against the same raw bytes. |
 | `fuzz_codec` | `tlv_codec_decode`/`tlv_codec_encode` for every EMV dictionary tag's codec (NUMBER, FLAGS, DIGITS, DATE, TIME, ACCOUNT, CRYPTOGRAM, BIOMETRIC, NUMBER_LIST), one-byte-short capacities, decode/encode/decode round-trip equality, and undersized-output rejection. |
 | `fuzz_dol` | `tlv_dol_read` and `tlv_dol_write` (both a size query and a full write against a deterministic `resolve` callback exercising presence, padding and truncation), both DOL limits, and that `tlv_dol_write`'s output length depends only on the input DOL. |
 
 The reader, walker, and round-trip targets run each input against every enabled
 built-in format: default, fixed-width (one tag byte, one length byte), Bluetooth LTV, BER, and DER. Component switches still
-apply; `fuzz_der` and `fuzz_der_schema` are omitted when `OPENTLV_FORMAT_DER=OFF`,
+apply; `fuzz_fixed` is omitted when `OPENTLV_FORMAT_FIXED=OFF`, `fuzz_der` and
+`fuzz_der_schema` are omitted when `OPENTLV_FORMAT_DER=OFF`,
 and `fuzz_codec` and `fuzz_dol` are omitted when `OPENTLV_PROFILE_EMV=OFF`. At
 least one built-in format must be enabled. For the raw-byte formats, the
 walker harness uses tag bit `0x20` as a test-only container convention. BER
-and DER use their public nesting predicates. `fuzz_der` covers the existing
+and DER use their public nesting predicates. `fuzz_fixed` covers the
+configurable dimensions (tag width, length width, byte order) that the
+reader/walker/round-trip targets' one fixed 1/1/big-endian configuration
+cannot reach; deriving a valid `tlv_fixed_format_t` from the input itself,
+rather than hard-coding a handful of configurations, lets libFuzzer explore
+the full valid range. `fuzz_der` covers the existing
 DER-TLV contract, not ASN.1 value semantics or SET/SET OF ordering;
 `fuzz_der_schema` covers the schema-aware layer that does (SET/SET OF
 ordering, tagging, CHOICE, DEFAULT omission) against one fixed schema.
@@ -62,7 +69,8 @@ Each harness's checked-in seed corpus lives next to it, under a `corpus/`
 folder in the same subsystem or built-in directory of `tests/fuzz/`, which
 mirrors `tlv/src`'s own layout: `tests/fuzz/reader/corpus/read` and
 `tests/fuzz/reader/corpus/walk_tree` for the generic reader/walker targets,
-`tests/fuzz/corpus/roundtrip` for the cross-cutting round-trip target, and
+`tests/fuzz/corpus/roundtrip` for the cross-cutting round-trip target,
+`tests/fuzz/builtins/fixed/corpus/fixed`,
 `tests/fuzz/builtins/asn1/corpus/{der,der_schema}` /
 `tests/fuzz/builtins/emv/corpus/{codec,dol}` for the built-in-specific ones.
 Checked-in seed files use the `.bin` extension to identify binary test inputs.
@@ -90,6 +98,18 @@ produces an empty candidate tag/value. Every input is also tested as a value
 with the valid primitive tag `04`, ensuring successful writes are exercised.
 Long-value seeds cover 127/128 and 255/256 length transitions, including the
 Bluetooth LTV 254/255-byte value limit.
+
+`builtins/fixed/corpus/fixed` uses its own layout: the first three bytes
+select the `tlv_fixed_format_t` under test (tag width, length width, and
+byte order, each masked into its valid range), and the rest is a payload
+tried both as a tag/value pair to round-trip through that configuration and
+as raw bytes fed directly to a malformed-input read. Seed names describe the
+configuration or boundary covered: the issue's representative tag/length/order
+combinations (`tag1-length1-be`, `tag2-length2-be`, `tag2-length2-le`,
+`tag4-length4-be`, `tag3-length8-le`), a zero-length value, the maximum
+length a 1-byte length field can represent, a multi-byte raw tag, a truncated
+tag, a truncated length field, a declared length that overruns the remaining
+input, and a value too large for its configured length width.
 
 `builtins/emv/corpus/codec` also contains raw bytes with no selector prefix:
 every input is tried as the raw value of every EMV dictionary tag's codec, so
@@ -124,12 +144,13 @@ declare -A corpus_dir=(
   [read]=tests/fuzz/reader/corpus/read
   [walk_tree]=tests/fuzz/reader/corpus/walk_tree
   [roundtrip]=tests/fuzz/corpus/roundtrip
+  [fixed]=tests/fuzz/builtins/fixed/corpus/fixed
   [der]=tests/fuzz/builtins/asn1/corpus/der
   [der_schema]=tests/fuzz/builtins/asn1/corpus/der_schema
   [codec]=tests/fuzz/builtins/emv/corpus/codec
   [dol]=tests/fuzz/builtins/emv/corpus/dol
 )
-for target in read walk_tree der der_schema roundtrip codec dol; do
+for target in read walk_tree fixed der der_schema roundtrip codec dol; do
   executable="build/fuzz/tests/fuzz/fuzz_$target"
   [ -x "$executable" ] || continue
   mkdir -p "build/fuzz/corpus/$target" "build/fuzz/findings/$target"
@@ -169,8 +190,8 @@ saved input as a file instead of a corpus directory:
 build/fuzz/tests/fuzz/fuzz_read path/to/read/crash-<hash>
 ```
 
-Use the corresponding target for `walk_tree`, `der`, `der_schema`, `roundtrip`,
-`codec`, or `dol`. Findings
+Use the corresponding target for `walk_tree`, `fixed`, `der`, `der_schema`,
+`roundtrip`, `codec`, or `dol`. Findings
 may also use names such as `timeout-<hash>` or `oom-<hash>`; retain the original
 timeout/RSS settings when reproducing those. Keep the sanitizer environment
 variables from the local-run example and ensure `llvm-symbolizer-18` is on
