@@ -28,6 +28,12 @@ extern "C" {
  *
  * This format has no constructed types: nesting is left to the caller.
  *
+ * This is the configurable Fixed format (tlv/formats/fixed.h) preset to
+ * `{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
+ * TLV_LENGTH_SCOPE_TAG_AND_VALUE}`: every read and write goes through that
+ * same generic implementation, so this global exists only to name and expose
+ * the preset, not a separate parser or writer.
+ *
  * @note Writing any tag size other than one returns #TLV_ERR_INVALID_TAG_SIZE,
  *       and a value longer than 254 bytes returns #TLV_ERR_INVALID_LENGTH.
  */

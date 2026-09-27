@@ -12,8 +12,8 @@ Turn off what you do not use.
 | Option | Component |
 | --- | --- |
 | `OPENTLV_FORMAT_DEFAULT` | [Default TLV](../formats/default/README.md) |
-| `OPENTLV_FORMAT_FIXED` | [Configurable fixed-width TLV](../formats/fixed/configurable.md) (C and C++ API) |
-| `OPENTLV_FORMAT_BLUETOOTH_LTV` | [Bluetooth LTV](../formats/bluetooth/README.md) |
+| `OPENTLV_FORMAT_FIXED` | [Configurable fixed-width TLV](../formats/fixed/configurable.md) (C and C++ API); must be ON for Bluetooth LTV |
+| `OPENTLV_FORMAT_BLUETOOTH_LTV` | [Bluetooth LTV](../formats/bluetooth/README.md), a preset of the configurable Fixed format |
 | `OPENTLV_FORMAT_ASN1` | The ASN.1 group; must be ON for BER, DER, CER and EMV |
 | `OPENTLV_FORMAT_BER` | [BER-TLV](../formats/asn1/ber.md); must be ON for DER, CER and EMV |
 | `OPENTLV_FORMAT_DER` | [DER-TLV](../formats/asn1/der.md); must be ON for EMV |
@@ -22,10 +22,11 @@ Turn off what you do not use.
 | `OPENTLV_DOCUMENT` | [Mutable document](document.md); allocates memory, so turn it OFF for allocation-free builds. Independent of every format |
 
 Turning an option OFF also turns OFF everything below it in the chain
-`ASN1 -> BER -> DER -> EMV`, with CER a sibling of DER under BER. The C++
-[configurable fixed-width format](../formats/fixed/configurable.md) template
-delegates to the C implementation, so it follows `OPENTLV_FORMAT_FIXED` too,
-unlike the rest of the header-only C++ wrapper.
+`ASN1 -> BER -> DER -> EMV`, with CER a sibling of DER under BER, and in the
+chain `FIXED -> BLUETOOTH_LTV` (Bluetooth LTV is a preset of the Fixed
+format). The C++ [configurable fixed-width format](../formats/fixed/configurable.md)
+template delegates to the C implementation, so it follows `OPENTLV_FORMAT_FIXED`
+too, unlike the rest of the header-only C++ wrapper.
 
 ## Recipes
 
@@ -66,10 +67,11 @@ cmake --build build --parallel --target tlv
 
 ### Core and Bluetooth LTV only
 
+Bluetooth LTV is a preset of the Fixed format, so `OPENTLV_FORMAT_FIXED` stays ON.
+
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED=OFF \
-  -DOPENTLV_FORMAT_ASN1=OFF
+  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build --parallel --target tlv
 ```
 

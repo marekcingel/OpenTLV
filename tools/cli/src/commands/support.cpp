@@ -42,8 +42,10 @@ const tlv_format_t* select_format(const options& o) {
         static tlv_format_t       format;
         config.tag_size = o.fixed_tag_size;
         config.length_size = o.fixed_length_size;
-        config.order = !strcmp(o.fixed_byte_order, "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
-                                                             : TLV_BYTE_ORDER_BIG_ENDIAN;
+        config.length_order = !strcmp(o.fixed_byte_order, "little") ? TLV_BYTE_ORDER_LITTLE_ENDIAN
+                                                                    : TLV_BYTE_ORDER_BIG_ENDIAN;
+        config.element_order = TLV_ELEMENT_ORDER_TLV;
+        config.length_scope = TLV_LENGTH_SCOPE_VALUE;
         if (tlv_fixed_format_init(&format, &config) != TLV_OK) return NULL;
         return &format;
     }

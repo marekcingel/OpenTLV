@@ -115,7 +115,7 @@ TEST(Unit_Tlvpp_FixedFormat, DescriptorHasStaticStorageAndAMatchingContext) {
     const auto* config = static_cast<const tlv_fixed_format_t*>(format::format().context);
     EXPECT_EQ(config->tag_size, 1u);
     EXPECT_EQ(config->length_size, 2u);
-    EXPECT_EQ(config->order, BE);
+    EXPECT_EQ(config->length_order, BE);
     EXPECT_EQ(format::format().read_element, nullptr);
     EXPECT_EQ(format::format().write_header, nullptr);
     EXPECT_NE(static_cast<const void*>(&format::format()),

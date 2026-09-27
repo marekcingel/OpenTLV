@@ -140,7 +140,7 @@ This complete C example ([source](examples/tlv/src/quick_start.c), built and run
 int main(void) {
     /* One tag byte and one length byte; config must outlive its readers and writers. */
     const tlv_fixed_format_t config = {
-        .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
+        .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
     tlv_format_t format;
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
 

@@ -6,17 +6,22 @@
  * keeping the selector space small. */
 #define FUZZ_FIXED_MAX_TAG_SIZE 16
 
-/* First three input bytes select a tlv_fixed_format_t configuration, masked
+/* First four input bytes select a tlv_fixed_format_t configuration, masked
  * into tlv_fixed_format_init()'s valid ranges so every derived configuration
  * is accepted; the remaining bytes are the payload. This lets libFuzzer
- * discover any tag width, length width and byte order combination instead of
- * only a hard-coded few, while still reusing one harness. */
+ * discover any tag width, length width, byte order, field order and length
+ * scope combination instead of only a hard-coded few, while still reusing one
+ * harness. */
 static tlv_fixed_format_t fuzz_fixed_config(const uint8_t* data, size_t size) {
     tlv_fixed_format_t config;
     config.tag_size = 1 + (size_t)((size > 0 ? data[0] : 0) % FUZZ_FIXED_MAX_TAG_SIZE);
     config.length_size = 1 + (size_t)((size > 1 ? data[1] : 0) % 8);
-    config.order =
+    config.length_order =
         ((size > 2 ? data[2] : 0) & 1) ? TLV_BYTE_ORDER_LITTLE_ENDIAN : TLV_BYTE_ORDER_BIG_ENDIAN;
+    config.element_order =
+        ((size > 3 ? data[3] : 0) & 1) ? TLV_ELEMENT_ORDER_LTV : TLV_ELEMENT_ORDER_TLV;
+    config.length_scope =
+        ((size > 3 ? data[3] : 0) & 2) ? TLV_LENGTH_SCOPE_TAG_AND_VALUE : TLV_LENGTH_SCOPE_VALUE;
     return config;
 }
 
@@ -85,7 +90,7 @@ static void check_fixed_malformed_read(const tlv_format_t* format, const uint8_t
 }
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-    size_t             prefix = size < 3 ? size : 3;
+    size_t             prefix = size < 4 ? size : 4;
     tlv_fixed_format_t config = fuzz_fixed_config(data, size);
     tlv_format_t       format;
     FUZZ_CHECK(tlv_fixed_format_init(&format, &config) == TLV_OK);

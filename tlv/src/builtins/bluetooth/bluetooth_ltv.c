@@ -1,39 +1,19 @@
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/format.h"
-#include <stdint.h>
+#include "tlv/formats/fixed.h"
+#include "../../formats/fixed_internal.h"
 
-/* The length byte counts the type byte and the value: a structure is length + 1 bytes. */
-#define LTV_MAX_VALUE ((size_t)UINT8_MAX - 1)
+/* Bluetooth LTV is the configurable Fixed format with the length field
+ * before the tag, counting the tag as well as the value: length = tag_size(1)
+ * + value_size, so a structure occupies length + 1 bytes and carries at most
+ * 254 value bytes. */
+static const tlv_fixed_format_t bluetooth_ltv_config = {
+    /* tag_size */ 1,
+    /* length_size */ 1,
+    /* length_order */ TLV_BYTE_ORDER_BIG_ENDIAN,
+    /* element_order */ TLV_ELEMENT_ORDER_LTV,
+    /* length_scope */ TLV_LENGTH_SCOPE_TAG_AND_VALUE,
+};
 
-static tlv_result_t read_element(const void* context, const uint8_t* data, size_t size,
-                                 tlv_tag_t* tag, size_t* header_size, size_t* value_size,
-                                 size_t* trailer_size) {
-    size_t length;
-    (void)context;
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    length = data[0];
-    if (!length) return TLV_ERR_INVALID_LENGTH;
-    if (length > size - 1) return TLV_ERR_BUFFER_TOO_SHORT;
-    *tag = tlv_tag(data + 1, 1);
-    *header_size = 2;
-    *value_size = length - 1;
-    *trailer_size = 0;
-    return TLV_OK;
-}
-
-static tlv_result_t write_header(const void* context, uint8_t* data, size_t capacity,
-                                 const tlv_tag_t* tag, size_t length, size_t* written) {
-    (void)context;
-    if (tag->size != 1) return TLV_ERR_INVALID_TAG_SIZE;
-    if (!tag->data) return TLV_ERR_NULL_ARG;
-    if (length > LTV_MAX_VALUE) return TLV_ERR_INVALID_LENGTH;
-    *written = 2;
-    if (!data) return TLV_OK;
-    if (capacity < 2) return TLV_ERR_BUFFER_TOO_SHORT;
-    data[0] = (uint8_t)(length + 1);
-    data[1] = tag->data[0];
-    return TLV_OK;
-}
-
-const tlv_format_t tlv_format_bluetooth_ltv = {
-    .context = NULL, .read_element = read_element, .write_header = write_header};
+const tlv_format_t tlv_format_bluetooth_ltv = {.context = &bluetooth_ltv_config,
+                                               .read_element = tlv_fixed_read_element_ltv,
+                                               .write_header = tlv_fixed_write_header_ltv};

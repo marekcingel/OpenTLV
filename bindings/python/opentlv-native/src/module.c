@@ -1049,7 +1049,9 @@ static int fixed_config_from_args(Py_ssize_t tag_size, Py_ssize_t length_size, i
     }
     out->tag_size = (size_t)tag_size;
     out->length_size = (size_t)length_size;
-    out->order = big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
+    out->length_order = big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
+    out->element_order = TLV_ELEMENT_ORDER_TLV;
+    out->length_scope = TLV_LENGTH_SCOPE_VALUE;
     return 1;
 }
 

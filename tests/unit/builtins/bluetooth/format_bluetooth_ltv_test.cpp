@@ -175,14 +175,17 @@ TEST(Unit_Tlv_BluetoothLtv, GenericScannerWalkerAndTreeWalkWork) {
 TEST(Unit_Tlv_BluetoothLtv, InitHelpersCreateWholeElementFormats) {
     tlv_format_t reader{};
     tlv_format_t writer{};
-    ASSERT_EQ(TLV_OK,
-              tlv_format_init_element(&reader, nullptr, reader_format.read_element, nullptr));
+    // Unlike a hardcoded implementation, tlv_format_bluetooth_ltv's callbacks
+    // are the shared, config-driven Fixed format callbacks: they need this
+    // same context (the Bluetooth LTV preset), not an arbitrary or null one.
+    ASSERT_EQ(TLV_OK, tlv_format_init_element(&reader, reader_format.context,
+                                              reader_format.read_element, nullptr));
     EXPECT_EQ(nullptr, reader.read_tag);
     EXPECT_EQ(nullptr, reader.read_length);
     EXPECT_EQ(nullptr, reader.read_value_bounds);
     EXPECT_EQ(nullptr, reader.write_tag);
-    ASSERT_EQ(TLV_OK,
-              tlv_format_init_element(&writer, nullptr, nullptr, writer_format.write_header));
+    ASSERT_EQ(TLV_OK, tlv_format_init_element(&writer, writer_format.context, nullptr,
+                                              writer_format.write_header));
     EXPECT_EQ(nullptr, writer.write_tag);
     EXPECT_EQ(nullptr, writer.write_length);
     EXPECT_EQ(nullptr, writer.length_size);

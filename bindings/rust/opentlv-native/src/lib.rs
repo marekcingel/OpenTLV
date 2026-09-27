@@ -59,6 +59,20 @@ pub const TLV_BYTE_ORDER_BIG_ENDIAN: tlv_byte_order_t = 1;
 /// Least significant byte first (`TLV_BYTE_ORDER_LITTLE_ENDIAN`).
 pub const TLV_BYTE_ORDER_LITTLE_ENDIAN: tlv_byte_order_t = 2;
 
+/// Element order of a configurable fixed-width format (`tlv_element_order_t`).
+pub type tlv_element_order_t = c_int;
+/// Tag, then length, then value; the conventional wire layout (`TLV_ELEMENT_ORDER_TLV`).
+pub const TLV_ELEMENT_ORDER_TLV: tlv_element_order_t = 0;
+/// Length, then tag, then value; for example Bluetooth LTV (`TLV_ELEMENT_ORDER_LTV`).
+pub const TLV_ELEMENT_ORDER_LTV: tlv_element_order_t = 1;
+
+/// What a configurable fixed-width format's length field counts (`tlv_length_scope_t`).
+pub type tlv_length_scope_t = c_int;
+/// The length field counts only the value (`TLV_LENGTH_SCOPE_VALUE`).
+pub const TLV_LENGTH_SCOPE_VALUE: tlv_length_scope_t = 0;
+/// The length field counts the tag and the value (`TLV_LENGTH_SCOPE_TAG_AND_VALUE`).
+pub const TLV_LENGTH_SCOPE_TAG_AND_VALUE: tlv_length_scope_t = 1;
+
 /// A borrowed raw TLV tag (`tlv_tag_t`): a pointer to bytes and their count.
 ///
 /// The type does not own the bytes and has no length limit. The layout does
@@ -232,7 +246,11 @@ pub struct tlv_fixed_format_t {
     /// Length field width in bytes; must be between 1 and 8.
     pub length_size: usize,
     /// Byte order of the length field; `TLV_BYTE_ORDER_BIG_ENDIAN` or `TLV_BYTE_ORDER_LITTLE_ENDIAN`.
-    pub order: tlv_byte_order_t,
+    pub length_order: tlv_byte_order_t,
+    /// Where the length field falls relative to the tag.
+    pub element_order: tlv_element_order_t,
+    /// What the length field counts.
+    pub length_scope: tlv_length_scope_t,
 }
 
 extern "C" {

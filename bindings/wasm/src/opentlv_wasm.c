@@ -213,8 +213,10 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
     if (!strcmp(name, "fixed")) {
         fixed_config->tag_size = fixed_tag_size;
         fixed_config->length_size = fixed_length_size;
-        fixed_config->order =
+        fixed_config->length_order =
             fixed_big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
+        fixed_config->element_order = TLV_ELEMENT_ORDER_TLV;
+        fixed_config->length_scope = TLV_LENGTH_SCOPE_VALUE;
         if (tlv_fixed_format_init(fixed_format, fixed_config) != TLV_OK) return NULL;
         return fixed_format;
     }

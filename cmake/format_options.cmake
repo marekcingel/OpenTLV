@@ -18,8 +18,11 @@
 # OPENTLV_PROFILE_EMV cascades only from OPENTLV_FORMAT_DER, so it is
 # unaffected by OPENTLV_FORMAT_CER either way.
 #
-# OPENTLV_FORMAT_DEFAULT, OPENTLV_FORMAT_FIXED and
-# OPENTLV_FORMAT_BLUETOOTH_LTV are otherwise unrelated leaves.
+# OPENTLV_FORMAT_FIXED
+#   `- OPENTLV_FORMAT_BLUETOOTH_LTV (a preset of the Fixed format; see
+#      tlv/builtins/bluetooth/bluetooth_ltv.h)
+#
+# OPENTLV_FORMAT_DEFAULT is an otherwise unrelated leaf.
 set(_OPENTLV_FORMAT_OPTIONS_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 if(NOT OPENTLV_FORMAT_ASN1)
@@ -38,6 +41,11 @@ if(NOT OPENTLV_FORMAT_DER)
     set(OPENTLV_PROFILE_EMV OFF CACHE BOOL
         "Include the EMV dictionary, schemas and codecs" FORCE)
     message(STATUS "OPENTLV_FORMAT_DER is OFF: forcing OPENTLV_PROFILE_EMV OFF")
+endif()
+if(NOT OPENTLV_FORMAT_FIXED)
+    set(OPENTLV_FORMAT_BLUETOOTH_LTV OFF CACHE BOOL
+        "Include the Bluetooth LTV (length, type, value) wire format" FORCE)
+    message(STATUS "OPENTLV_FORMAT_FIXED is OFF: forcing OPENTLV_FORMAT_BLUETOOTH_LTV OFF")
 endif()
 
 function(opentlv_generate_config_files)
