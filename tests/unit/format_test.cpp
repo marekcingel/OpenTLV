@@ -44,7 +44,8 @@ tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, size_t le
     data[1] = static_cast<uint8_t>(length >> 8);
     return TLV_OK;
 }
-const tlv_format_t fixed = {&width, read_tag, read_length, nullptr, nullptr};
+const tlv_format_t fixed = {&width,  read_tag, read_length, nullptr, nullptr,
+                            nullptr, nullptr,  nullptr,     nullptr};
 const tlv_format_t fixed_writer = {&width,    nullptr,      nullptr,     nullptr, nullptr,
                                    write_tag, write_length, length_size, nullptr};
 } // namespace
@@ -193,7 +194,8 @@ TEST(Unit_Tlv_Format, RuntimeDefinedTagWidthsRoundTripWithoutRebuilding) {
         SCOPED_TRACE(tag_width);
         const RuntimeTagFormat context = {tag_width};
         const tlv_format_t     reader_format = {&context, runtime_read_tag, one_byte_read_length,
-                                                nullptr, nullptr};
+                                                nullptr,  nullptr,          nullptr,
+                                                nullptr,  nullptr,          nullptr};
         const tlv_format_t     writer_format = {&context,
                                                 nullptr,
                                                 nullptr,

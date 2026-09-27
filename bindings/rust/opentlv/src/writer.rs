@@ -30,8 +30,7 @@ pub fn encoded_size(tag: &Tag, value_len: usize, format: Format) -> Result<usize
     let mut size = 0usize;
     // SAFETY: `format.raw()` points to a static format and `size` is
     // a valid, writable `usize`.
-    let code =
-        unsafe { native::tlv_encoded_size(tag.raw(), value_len, format.raw(), &mut size) };
+    let code = unsafe { native::tlv_encoded_size(tag.raw(), value_len, format.raw(), &mut size) };
     Error::check(code)?;
     Ok(size)
 }
@@ -46,8 +45,7 @@ pub fn encoded_size_fixed(tag: &Tag, value_len: usize, format: &FixedFormat) -> 
     let mut size = 0usize;
     // SAFETY: `format.raw()` points at storage owned by `format`,
     // borrowed for this call only, and `size` is a valid, writable `usize`.
-    let code =
-        unsafe { native::tlv_encoded_size(tag.raw(), value_len, format.raw(), &mut size) };
+    let code = unsafe { native::tlv_encoded_size(tag.raw(), value_len, format.raw(), &mut size) };
     Error::check(code)?;
     Ok(size)
 }
@@ -87,12 +85,7 @@ impl<'a> Writer<'a> {
         // pointer even when empty); `format.raw()` points to a static
         // format.
         let code = unsafe {
-            native::tlv_writer_init(
-                raw.as_mut_ptr(),
-                buf.as_mut_ptr(),
-                buf.len(),
-                format.raw(),
-            )
+            native::tlv_writer_init(raw.as_mut_ptr(), buf.as_mut_ptr(), buf.len(), format.raw())
         };
         // Every argument is non-null and the built-in formats are complete, so
         // initialization cannot fail.
@@ -111,12 +104,7 @@ impl<'a> Writer<'a> {
         // pointer even when empty); `format.raw()` points at storage
         // owned by `format`, which the borrow checker keeps alive for `'a`.
         let code = unsafe {
-            native::tlv_writer_init(
-                raw.as_mut_ptr(),
-                buf.as_mut_ptr(),
-                buf.len(),
-                format.raw(),
-            )
+            native::tlv_writer_init(raw.as_mut_ptr(), buf.as_mut_ptr(), buf.len(), format.raw())
         };
         assert_eq!(code, native::TLV_OK, "tlv_writer_init failed");
         Writer {

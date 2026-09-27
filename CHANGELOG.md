@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix a Clang `-Wmissing-field-initializers` error in the architecture and
+  format tests, whose custom `tlv_format_t` literals used positional
+  initializers for only some of the struct's fields. (#326)
+- Fix `cargo fmt --all --check` failures in the Rust `opentlv` reader and
+  writer modules after `Format`/`FixedFormat`'s `reader_raw()`/`writer_raw()`
+  collapsed into one `raw()`. (#326)
 - Fix a Windows/MSVC build failure (`warning C4005` treated as an error) when
   a translation unit includes both `tlv/attributes.h` and `tlv++/compat.hpp`,
   which independently defined `TLV_NODISCARD`. (#326)

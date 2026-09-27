@@ -47,12 +47,7 @@ impl<'a> Reader<'a> {
         // SAFETY: `raw` is writable; `data` is a valid slice (a non-null
         // pointer even when empty); `format.raw()` points to a static format.
         let code = unsafe {
-            native::tlv_reader_init(
-                raw.as_mut_ptr(),
-                data.as_ptr(),
-                data.len(),
-                format.raw(),
-            )
+            native::tlv_reader_init(raw.as_mut_ptr(), data.as_ptr(), data.len(), format.raw())
         };
         // Every argument is non-null and the built-in formats are complete, so
         // initialization cannot fail.
@@ -72,12 +67,7 @@ impl<'a> Reader<'a> {
         // pointer even when empty); `format.raw()` points at storage
         // owned by `format`, which the borrow checker keeps alive for `'a`.
         let code = unsafe {
-            native::tlv_reader_init(
-                raw.as_mut_ptr(),
-                data.as_ptr(),
-                data.len(),
-                format.raw(),
-            )
+            native::tlv_reader_init(raw.as_mut_ptr(), data.as_ptr(), data.len(), format.raw())
         };
         assert_eq!(code, native::TLV_OK, "tlv_reader_init failed");
         Reader {
