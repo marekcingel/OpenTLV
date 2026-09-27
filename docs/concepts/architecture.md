@@ -353,4 +353,15 @@ under `builtins/fixed/`. `tlv_fixed_config_t` is renamed to `tlv_fixed_format_t`
 without any other change to its fields or to `tlv_fixed_format_init()`'s
 behavior. No compatibility shim; rebuild all consumers. (#327)
 
+`tlv::fixed_format<>` (`tlv++`) no longer reimplements the wire-format
+callbacks; `format()` now builds and returns a descriptor from
+`tlv_fixed_format_init()`, so the C and C++ APIs share one implementation.
+Two consequences follow: the descriptor's `context` is no longer `NULL` (it
+is a static `tlv_fixed_format_t` built from `TagWidth`, `LengthWidth` and
+`Order`), and using `tlv::fixed_format<>` now needs the library built with
+`OPENTLV_FORMAT_FIXED` (the default), where it previously needed no CMake
+option at all. `static_assert`-checked compile-time validation of `TagWidth`,
+`LengthWidth` and `Order` is unchanged. No compatibility shim; rebuild all
+consumers.
+
 See also the generated [C API reference](../reference/c-api.md) and [C++ API reference](../reference/cxx-api.md).

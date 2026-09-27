@@ -34,15 +34,15 @@ opentlv_configure_compiler(example-tlv++-quick-start)
 opentlv_copy_shared_runtime(example-tlv++-quick-start)
 
 # Generic-format example: defines a fixed-width format at compile time.
-add_executable(example-tlv++-formats-fixed-format src/formats/fixed_format.cpp)
-target_link_libraries(example-tlv++-formats-fixed-format PRIVATE tlv++)
-opentlv_configure_compiler(example-tlv++-formats-fixed-format)
-opentlv_copy_shared_runtime(example-tlv++-formats-fixed-format)
-
-# Same format, but tlv_fixed_format_t chosen at runtime through the raw C API
-# (needs the C library built with the fixed format, unlike the compile-time
-# template above).
+# tlv::fixed_format<> delegates to tlv_fixed_format_init(), so it needs the C
+# library built with the fixed format, same as the runtime example below.
 if(OPENTLV_FORMAT_FIXED)
+    add_executable(example-tlv++-formats-fixed-format src/formats/fixed_format.cpp)
+    target_link_libraries(example-tlv++-formats-fixed-format PRIVATE tlv++)
+    opentlv_configure_compiler(example-tlv++-formats-fixed-format)
+    opentlv_copy_shared_runtime(example-tlv++-formats-fixed-format)
+
+    # Same format, but tlv_fixed_format_t chosen at runtime through the raw C API.
     add_executable(example-tlv++-formats-fixed-format-runtime src/formats/fixed_format_runtime.cpp)
     target_link_libraries(example-tlv++-formats-fixed-format-runtime PRIVATE tlv++)
     opentlv_configure_compiler(example-tlv++-formats-fixed-format-runtime)

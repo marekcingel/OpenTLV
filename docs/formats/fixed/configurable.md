@@ -9,25 +9,29 @@ TLV_BYTE_ORDER_BIG_ENDIAN` (or `fixed_format<1, 1,
 TLV_BYTE_ORDER_BIG_ENDIAN>`); define your own file-scope constant for a
 configuration your application reuses.
 
-Two equivalent APIs share this wire layout:
+Two APIs share this wire layout, and the C++ one is a thin compile-time
+wrapper that delegates every read and write to the C one:
 
 - **C**, `tlv_fixed_format_t`: chosen at runtime, checked when the format is initialized.
-- **C++**, `tlv::fixed_format<TagWidth, LengthWidth, Order>`: chosen at compile time, checked with `static_assert`.
+- **C++**, `tlv::fixed_format<TagWidth, LengthWidth, Order>`: chosen at compile time, checked with
+  `static_assert`, and built from `tlv_fixed_format_init()` internally.
 
 ## API and build
 
 | Setting | C | C++ |
 | --- | --- | --- |
-| Header | `tlv/formats/fixed.h` | `tlv++/formats/fixed_format.hpp` (also usable without the rest of `tlv++`) |
+| Header | `tlv/formats/fixed.h` | `tlv++/formats/fixed_format.hpp` |
 | Configuration | `tlv_fixed_format_t{tag_size, length_size, order}` | `tlv::fixed_format<TagWidth, LengthWidth, Order>` |
 | Descriptor | `tlv_fixed_format_init(&format, &config)` | `fixed_format<...>::format()` returns `const tlv_format_t&` |
-| CMake option (default ON) | `OPENTLV_FORMAT_FIXED` | none (C++ header) |
+| CMake option (default ON) | `OPENTLV_FORMAT_FIXED` | `OPENTLV_FORMAT_FIXED` |
 | Link target | `tlv` | `tlv++` |
 
-The C++ descriptors have static storage and a `NULL` context, so they never
-need lifetime management. The C descriptors store the address of `config` as
-their context: `config` must outlive every reader or writer built from it.
-See [format context ownership and
+Both descriptors have static storage duration, so neither needs lifetime
+management from the caller: the C++ descriptor's context is a static
+`tlv_fixed_format_t` built from `TagWidth`, `LengthWidth` and `Order`, and the
+C descriptor's context is the caller-owned `config` passed to
+`tlv_fixed_format_init()`, which must outlive every reader or writer built
+from it. See [format context ownership and
 lifetime](../../guides/memory.md#format-context-ownership-and-lifetime) for
 the general contract this follows, including copying, sharing and moving.
 Both work with the reader, writer, walker, schemas and the C API. Neither
