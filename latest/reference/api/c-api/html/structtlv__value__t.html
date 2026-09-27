@@ -84,13 +84,13 @@ $(function() {
 Data Fields</h2></td></tr>
 <tr class="memitem:ac13fdbdff04aee2d78c55bc5752e26ac" id="r_ac13fdbdff04aee2d78c55bc5752e26ac"><td class="memItemLeft" align="right" valign="top">const uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__value__t.html#ac13fdbdff04aee2d78c55bc5752e26ac">data</a></td></tr>
 <tr class="separator:ac13fdbdff04aee2d78c55bc5752e26ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4687106f190c23063c384094120edef4" id="r_a4687106f190c23063c384094120edef4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__value__t.html#a4687106f190c23063c384094120edef4">length</a></td></tr>
-<tr class="separator:a4687106f190c23063c384094120edef4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace4541744fdc3175544cdc93420a9f74" id="r_ace4541744fdc3175544cdc93420a9f74"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__value__t.html#ace4541744fdc3175544cdc93420a9f74">size</a></td></tr>
+<tr class="separator:ace4541744fdc3175544cdc93420a9f74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Non-owning, read-only view of a TLV value. </p>
 <p>The caller owns the storage and must keep it alive for as long as the value is used; no allocation, copying, or ownership transfer occurs.</p>
-<dl class="section warning"><dt>Warning</dt><dd><code>length</code> may exceed what the current build's <code>size_t</code> can address. Validate it with <a class="el" href="group__core.html#ga5379ba9130ae0652419c1c9d50f45d6b" title="Checks whether a length fits the current build&#39;s size_t range.">tlv_length_validate_native()</a> or convert it with <a class="el" href="group__core.html#ga2a4636b839fffa233c97ca36488f19d5" title="Narrows a tlv_length_t to the current build&#39;s native size.">tlv_length_to_size()</a> before pointer arithmetic, memory access, or narrowing. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd><code>size</code> may exceed what the current build's <code>size_t</code> can address. Validate it with <a class="el" href="group__core.html#ga6e586863f6eec10030393d424c714e96" title="Checks whether a logical size fits the current build&#39;s size_t range.">tlv_size_validate_native()</a> or convert it with <a class="el" href="group__core.html#ga55c2fe8a17e4b3907c994b4ef9c62796" title="Narrows a tlv_size_t to the current build&#39;s native size.">tlv_size_to_native()</a> before pointer arithmetic, memory access, or narrowing. </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="ac13fdbdff04aee2d78c55bc5752e26ac" name="ac13fdbdff04aee2d78c55bc5752e26ac"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac13fdbdff04aee2d78c55bc5752e26ac">&#9670;&#160;</a></span>data</h2>
@@ -103,22 +103,22 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Borrowed value bytes. May be <code>NULL</code> only when <code>length</code> is zero. </p>
+<p>Borrowed value bytes. May be <code>NULL</code> only when <code>size</code> is zero. </p>
 
 </div>
 </div>
-<a id="a4687106f190c23063c384094120edef4" name="a4687106f190c23063c384094120edef4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4687106f190c23063c384094120edef4">&#9670;&#160;</a></span>length</h2>
+<a id="ace4541744fdc3175544cdc93420a9f74" name="ace4541744fdc3175544cdc93420a9f74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace4541744fdc3175544cdc93420a9f74">&#9670;&#160;</a></span>size</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> tlv_value_t::length</td>
+          <td class="memname"><a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> tlv_value_t::size</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Value length in bytes; may exceed the native <code>size_t</code> range. </p>
+<p>Logical value length in bytes, decoded by the format from the raw <a class="el" href="structtlv__length__t.html" title="Original encoded length bytes, without numeric interpretation.">tlv_length_t</a> field; may exceed the native <code>size_t</code> range. </p>
 
 </div>
 </div>

@@ -274,7 +274,7 @@ template&lt;typename Visitor &gt; </div>
 <p>Wraps <a class="elRef" href="../../c-api/html/group__traversal.html#ga7c30635fc426a34a345eb1b0f2385888">tlv_query_walk()</a>: elements are visited in document order and the rules for limits, offsets and errors are the same. Nothing is allocated and the entries passed to the visitor borrow <code>data</code>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code>visitor(entry, depth, absolute_offset)</code> returning <a class="elRef" href="../../c-api/html/group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>, as for <a class="el" href="namespacetlv.html#a9898b9c7e93c4a5883362bfdfdac5152" title="Traverses nested elements in preorder, calling a visitor for each.">walk_tree()</a>.</td></tr>
+    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code>visitor(element, depth, absolute_offset)</code> returning <a class="elRef" href="../../c-api/html/group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>, as for <a class="el" href="namespacetlv.html#a9898b9c7e93c4a5883362bfdfdac5152" title="Traverses nested elements in preorder, calling a visitor for each.">walk_tree()</a>.</td></tr>
   </table>
   </dd>
 </dl>

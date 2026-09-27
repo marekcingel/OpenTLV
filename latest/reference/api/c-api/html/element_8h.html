@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/view.h File Reference</title>
+<title>OpenTLV C API: tlv/element.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -75,24 +75,24 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a>  </div>
-  <div class="headertitle"><div class="title">view.h File Reference<div class="ingroups"><a class="el" href="group__core.html">Core types and utilities</a></div></div></div>
+  <div class="headertitle"><div class="title">element.h File Reference<div class="ingroups"><a class="el" href="group__core.html">Core types and utilities</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Decoded TLV element view: a borrowed tag plus a borrowed value.  
+<p>Canonical, format-independent borrowed TLV element.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="tag_8h.html">tlv/tag.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="tag_8h.html">tlv/tag.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="length_8h.html">tlv/length.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="value_8h.html">tlv/value.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__view__t.html">tlv_view_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A decoded TLV element: a borrowed tag and a borrowed value.  <a href="structtlv__view__t.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__element__t.html">tlv_element_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw tag and length fields plus the resolved borrowed value.  <a href="structtlv__element__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Decoded TLV element view: a borrowed tag plus a borrowed value. </p>
+<div class="textblock"><p>Canonical, format-independent borrowed TLV element. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

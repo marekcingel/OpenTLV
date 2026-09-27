@@ -2666,15 +2666,15 @@
 <tbody>
 <tr>
 <td><code>tlv_value_t</code></td>
-<td>Borrows its bytes; does not allocate or free them. Its <code>tlv_length_t</code> length may exceed the current build's <code>size_t</code>; convert with <code>tlv_length_to_size()</code> before native-size use.</td>
+<td>Borrows its bytes; does not allocate or free them. Its <code>tlv_size_t</code> length may exceed the current build's <code>size_t</code>; convert with <code>tlv_size_to_native()</code> before native-size use.</td>
 </tr>
 <tr>
 <td><code>tlv_tag_t</code></td>
 <td>Borrows its bytes (a pointer and a size); does not allocate, own or copy them, and has no length limit. Copying a tag copies only the pointer and the size.</td>
 </tr>
 <tr>
-<td><code>tlv_view_t</code></td>
-<td>Holds a borrowed <code>tlv_tag_t</code> and a borrowed <code>tlv_value_t</code>. Copying a view copies neither the tag bytes nor the payload.</td>
+<td><code>tlv_element_t</code></td>
+<td>Holds a borrowed <code>tlv_tag_t</code> and a borrowed <code>tlv_value_t</code>. Copying an element copies neither the tag bytes nor the payload.</td>
 </tr>
 <tr>
 <td>Reader</td>
@@ -2702,7 +2702,7 @@
 <p>Keep the input buffer alive and unchanged while using any view into it, including
 nested child views. Reusing a receive buffer invalidates the previous values.
 A successful read copies neither the tag nor the value and does not allocate a
-tree: <code>view.tag</code> and <code>view.value</code> both point into the input. Do not return a
+tree: <code>element.tag</code> and <code>element.value</code> both point into the input. Do not return a
 borrowed view into a local array that goes out of scope.</p>
 <h2 id="tags">Tags<a class="headerlink" href="#tags" title="Permanent link">&para;</a></h2>
 <p>A <code>tlv_tag_t</code> is a pointer and a size. The bytes it refers to must stay valid,
@@ -2729,12 +2729,12 @@ that lifetime.</p>
 <p>To keep a tag after its input is gone, copy its bytes into your own storage and
 build a new tag over the copy.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">kept</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">memcpy</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="p">);</span><span class="w">   </span><span class="cm">/* the format bounded the size */</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">stable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_tag</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="p">);</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">memcpy</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="p">);</span><span class="w">   </span><span class="cm">/* the format bounded the size */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">stable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_tag</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="p">);</span>
 </code></pre></div>
 <p>To retain data independently, use the <a href="../copy/">copy helpers</a> with caller-owned
 storage. <code>tlv_copy_value</code> copies payload bytes; <code>tlv_copy_encoded</code> preserves a full
-encoded range; <code>tlv_copy_view</code> re-encodes with a selected writer format.
+encoded range; <code>tlv_copy_element</code> re-encodes with a selected writer format.
 For indefinite BER, preserve the consumed range when the original EOC and outer
 encoding must be retained.</p>
 <h2 id="writing">Writing<a class="headerlink" href="#writing" title="Permanent link">&para;</a></h2>

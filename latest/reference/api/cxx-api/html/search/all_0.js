@@ -17,8 +17,9 @@ var searchData=
   ['any_5fcast_14',['any_cast',['../classtlv_1_1any.html#a0aa4d319ff98d186f07bf6e1679a8372',1,'tlv::any::any_cast'],['../namespacetlv.html#a9d612bad7c17a6fa1fe6929b882d91ba',1,'tlv::any_cast()']]],
   ['api_20reference_15',['OpenTLV C++ API reference',['../index.html',1,'']]],
   ['arcs_16',['arcs',['../../../c-api/html/structtlv__asn1__iri.html#a1c8938f0b348e3cc8a70299cddb73272',1,'tlv_asn1_iri::arcs'],['../../../c-api/html/structtlv__asn1__oid.html#a9f2d307b3c41c619a7fd14a68cae3208',1,'tlv_asn1_oid::arcs']]],
-  ['asn1_5fcodec_2eh_17',['asn1_codec.h',['../../../c-api/html/asn1__codec_8h.html',1,'']]],
-  ['at_5fend_18',['at_end',['../classtlv_1_1reader.html#a3e4090f5af6710f43cbf9fca4941fb63',1,'tlv::reader']]],
-  ['attributes_2eh_19',['attributes.h',['../../../c-api/html/attributes_8h.html',1,'']]],
-  ['available_20',['available',['../../../c-api/html/structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic::available'],['../../../c-api/html/structtlv__writer__diagnostic.html#a90e2b7f189630d152336f5b2af44e233',1,'tlv_writer_diagnostic::available']]]
+  ['as_5fbytes_17',['as_bytes',['../namespacetlv.html#a4c254e24e77d49afc2e4866e4370cd82',1,'tlv']]],
+  ['asn1_5fcodec_2eh_18',['asn1_codec.h',['../../../c-api/html/asn1__codec_8h.html',1,'']]],
+  ['at_5fend_19',['at_end',['../classtlv_1_1reader.html#a3e4090f5af6710f43cbf9fca4941fb63',1,'tlv::reader']]],
+  ['attributes_2eh_20',['attributes.h',['../../../c-api/html/attributes_8h.html',1,'']]],
+  ['available_21',['available',['../../../c-api/html/structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic::available'],['../../../c-api/html/structtlv__writer__diagnostic.html#a90e2b7f189630d152336f5b2af44e233',1,'tlv_writer_diagnostic::available']]]
 ];

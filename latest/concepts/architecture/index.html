@@ -2794,7 +2794,7 @@ backend; selecting DER does not require the public BER component.</p>
 <h2 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
 <p>Public headers under <code>tlv/include/tlv/</code> and sources under <code>tlv/src/</code> use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tlv/
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  view.h, value.h, length.h, error.h, endian.h, copy.h, format.h, tlv.h
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  element.h, value.h, length.h, size.h, error.h, endian.h, copy.h, format.h, tlv.h
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  compiler.h, attributes.h
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  reader/    reader.h, walker.h, scanner.h
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  query/     query.h
@@ -2811,7 +2811,7 @@ backend; selecting DER does not require the public BER component.</p>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
 </code></pre></div>
 <p>The tree shows the public layout; corresponding implementation files use <code>.c</code>.
-Small fundamental types (<code>tag.h</code>, <code>length.h</code>, <code>value.h</code>, <code>view.h</code>, and the
+Small fundamental types (<code>tag.h</code>, <code>length.h</code>, <code>size.h</code>, <code>value.h</code>, <code>element.h</code>, and the
 generic <code>format.h</code> descriptor contracts) sit directly under <code>tlv/</code>, alongside
 the generic subsystem folders. <code>formats/fixed.h</code> holds the one format
 mechanism that names no protocol; every protocol-specific format or profile

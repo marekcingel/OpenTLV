@@ -2683,8 +2683,8 @@ ergonomics to the target language.</p>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>   C++       Rust        Go       Python      Lua    &lt;language&gt;
 </code></pre></div>
 <p>C++ and Rust ship today; Python (<code>bindings/python/</code>) now binds Reader, Writer,
-Document, Entry and Tag — including Document, which neither Rust nor
-WebAssembly bind yet. Lua (<code>bindings/lua/</code>) binds Reader, Entry and Tag. Go is
+Document, Element and Tag — including Document, which neither Rust nor
+WebAssembly bind yet. Lua (<code>bindings/lua/</code>) binds Reader, Element and Tag. Go is
 illustrative here, not yet scaffolded, to show the contract extends past the
 current bindings. The trailing <code>...</code> stands for any further binding.</p>
 <p>The public OpenTLV C API (see the <a href="../../reference/c-api/">C API reference</a>) is
@@ -2742,13 +2742,13 @@ to this in practice.</p>
 <td>not bound yet</td>
 </tr>
 <tr>
-<td>Entry</td>
-<td>One TLV entry, or a view onto one</td>
-<td><code>tlv_view_t</code></td>
-<td><code>tlv::entry</code></td>
-<td><code>Entry&lt;'a&gt;</code></td>
-<td><code>Entry</code></td>
-<td>a plain table (<code>tag</code>/<code>length</code>/<code>value</code>/<code>offset</code> fields)</td>
+<td>Element</td>
+<td>One TLV element with borrowed wire fields</td>
+<td><code>tlv_element_t</code></td>
+<td><code>tlv::element</code></td>
+<td><code>Element&lt;'a&gt;</code></td>
+<td><code>Element</code></td>
+<td>a plain table (<code>tag</code>/<code>raw_length</code>/<code>length</code>/<code>value</code>/<code>offset</code> fields)</td>
 </tr>
 <tr>
 <td>Tag</td>
@@ -2798,21 +2798,21 @@ it, not a deadline for exposing all eight.</p>
 language; they must not introduce a different conceptual architecture to do
 it. For example:</p>
 <ul>
-<li>Rust's <code>Reader</code> implements <code>Iterator&lt;Item = Result&lt;Entry&gt;&gt;</code>, so callers
-  write <code>for entry in reader { ... }</code> instead of an explicit <code>at_end()</code>/
+<li>Rust's <code>Reader</code> implements <code>Iterator&lt;Item = Result&lt;Element&gt;&gt;</code>, so callers
+  write <code>for element in reader { ... }</code> instead of an explicit <code>at_end()</code>/
   <code>next()</code> loop. <code>tlv++</code>'s <code>reader</code> uses that explicit loop today (or a
   visitor passed to <code>tlv::walk_tree</code>); a future C++ range-based <code>for</code> over a
   <code>reader</code> would be the same adaptation applied there.</li>
 <li>Python's <code>Reader</code> iterates the same reader concept with
-  <code>for entry in reader:</code>, and raises a native <code>Exception</code> subclass instead of
+  <code>for element in reader:</code>, and raises a native <code>Exception</code> subclass instead of
   returning an error code.</li>
 <li>Lua's <code>Reader</code>, returned by <code>opentlv.reader()</code>, is directly usable as a
-  generic-for iterator (<code>for entry in reader do ... end</code>) via Lua's <code>__call</code>
+  generic-for iterator (<code>for element in reader do ... end</code>) via Lua's <code>__call</code>
   metamethod, rather than a separate iterator protocol; it raises a plain
   table via <code>error()</code> instead of an exception object, since Lua has no
   exception hierarchy to subclass.</li>
 <li>Rust's and <code>tlv++</code>'s <code>Writer</code> fill a caller-provided fixed-capacity buffer
-  and report an error when an entry does not fit, matching the C library's
+  and report an error when an element does not fit, matching the C library's
   allocation-free <code>tlv_writer_t</code>. Python's <code>Writer</code> owns a <code>bytearray</code> it
   grows as needed instead, so <code>write</code> never fails for lack of space: Python
   callers do not pre-size a buffer or retry a failed write the way C, C++ and
@@ -2826,22 +2826,22 @@ it. For example:</p>
   otherwise whenever garbage collection reclaims it. Ownership (the document
   owns every node, tag and value in it) is the same in every binding; only
   how and when that ownership ends differs.</li>
-<li>A future Go binding could return <code>(Entry, error)</code> pairs from a <code>Next()</code>
-  method, or a range-over-func iterator (<code>for entry, err := range
+<li>A future Go binding could return <code>(Element, error)</code> pairs from a <code>Next()</code>
+  method, or a range-over-func iterator (<code>for element, err := range
   reader.All() { ... }</code>), matching Go's own error-handling convention instead
   of Rust's <code>Result</code> or C's error codes.</li>
 <li>A future JavaScript binding could expose a reader as a JS iterable and
   surface failures as native exceptions.</li>
 </ul>
 <p>The syntax changes; the concepts (a read-only, one-pass <code>Reader</code> yielding
-<code>Entry</code> values) do not.</p>
+<code>Element</code> values) do not.</p>
 <h2 id="status-across-current-bindings">Status across current bindings<a class="headerlink" href="#status-across-current-bindings" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>C++ (<code>tlv++</code>)</strong>: ships in this repository, header-only, and covers every
   concept above except a standalone <code>Diagnostics</code> type (it reuses the C
   <code>tlv_diagnostic_t</code> directly as <code>tlv::diagnostic</code>).</li>
 <li><strong>Rust (<code>opentlv</code>)</strong>: experimental, in <code>bindings/rust/</code>. Covers Reader,
-  Writer, Entry, Tag, Schema and Codec; <code>Document</code> and the callback-based
+  Writer, Element, Tag, Schema and Codec; <code>Document</code> and the callback-based
   visitors, structure codecs and DOL profile are not bound yet. Its <code>Codec</code>
   is the exception to this page's binding-boundary rule: beyond the one
   concrete codec the C API exports publicly (<code>tlv_emv_codec_amount</code>), the
@@ -2852,14 +2852,14 @@ it. For example:</p>
 <li><strong>WebAssembly</strong>: in <code>bindings/wasm/</code>, a deliberately narrow <code>parse()</code>
   function that returns a JSON element tree for browser tooling, not a
   general-purpose object-oriented binding. It is a small embedding built on
-  the C API rather than a binding this contract's Reader/Writer/Entry shape
+  the C API rather than a binding this contract's Reader/Writer/Element shape
   applies to. See <a href="../../development/webassembly/">WebAssembly build</a>.</li>
 <li><strong>Python</strong>: experimental, in <code>bindings/python/</code>, split into
   <code>opentlv-native</code> (a native extension written against the CPython C API,
   using the CPython Limited API where compatible, that calls the public C
   API) and <code>opentlv</code> (a pure-Python package on top of it) — the same split
   as the Rust <code>opentlv-native</code>/<code>opentlv</code> crates. Covers Reader, Writer,
-  Document, Entry, Tag and Schema, across the default, BER, CER, DER and
+  Document, Element, Tag and Schema, across the default, BER, CER, DER and
   fixed-1-byte wire formats, plus a deliberately narrow Codec (only the one
   concrete codec, <code>tlv_emv_codec_amount</code>, that the public C API exports —
   unlike Rust's <code>Codec</code>, the rest is not a thin C wrapper and reimplements
@@ -2872,7 +2872,7 @@ it. For example:</p>
   the same split as the Rust and Python <code>opentlv-native</code>/<code>opentlv</code> packages,
   though here the pure layer adds no ergonomics of its own, since Lua's C
   API is already close to the concepts bound. Targets Lua 5.1 through 5.4
-  and LuaJIT. Covers Reader, Entry and Tag, across the default, BER, CER, DER,
+  and LuaJIT. Covers Reader, Element and Tag, across the default, BER, CER, DER,
   Bluetooth LTV and configurable fixed-width formats, plus preorder tree
   traversal (<code>opentlv.walk_tree()</code>, built on <code>tlv_walk_tree()</code>/
   <code>tlv_der_walk()</code>) — the one traversal capability neither Rust nor Python

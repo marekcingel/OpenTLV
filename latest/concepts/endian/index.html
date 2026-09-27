@@ -2613,8 +2613,8 @@ of TLV framing and profiles; the caller chooses the byte order explicitly.</p>
 </table>
 <p>Reads return <code>uint16_t</code>, <code>uint32_t</code>, or <code>uint64_t</code>; writes return <code>void</code>. Supply a non-null
 pointer to at least 2, 4, or 8 readable/writable bytes respectively. When reading
-a <code>tlv_view_t</code>, check <code>view.value.length</code> before passing <code>view.value.data</code>; convert
-it with <code>tlv_length_to_size()</code> (see <a href="../length/">logical TLV value lengths</a>) first if
+a <code>tlv_element_t</code>, check <code>element.value.size</code> before passing <code>element.value.data</code>; convert
+it with <code>tlv_size_to_native()</code> (see <a href="../length/">logical TLV value lengths</a>) first if
 you need a native <code>size_t</code> bound.
 These helpers do not validate pointers or lengths and require no alignment.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/endian.h"</span>

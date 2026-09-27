@@ -87,7 +87,7 @@ $(function() {
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="format_8h.html">tlv/format.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="writer_8h.html">tlv/writer/writer.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="length_8h.html">tlv/length.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="size_8h.html">tlv/size.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -122,7 +122,7 @@ Enumerations</h2></td></tr>
 <tr class="separator:gabc6126af1d45847bc59afa0aa3216b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadc29c2ff13d900c2f185ee95427fb06c" id="r_gadc29c2ff13d900c2f185ee95427fb06c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#ggadc29c2ff13d900c2f185ee95427fb06ca64906a3a7749fb32293ae5bdf23ecc8b">TLV_BER_LENGTH_MAX_ENCODED_SIZE</a> = 9
  }</td></tr>
-<tr class="memdesc:gadc29c2ff13d900c2f185ee95427fb06c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a>.  <a href="group__formats.html#gadc29c2ff13d900c2f185ee95427fb06c">More...</a><br /></td></tr>
+<tr class="memdesc:gadc29c2ff13d900c2f185ee95427fb06c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>.  <a href="group__formats.html#gadc29c2ff13d900c2f185ee95427fb06c">More...</a><br /></td></tr>
 <tr class="separator:gadc29c2ff13d900c2f185ee95427fb06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -151,12 +151,12 @@ Functions</h2></td></tr>
 <tr class="memitem:gaa67e5ba1c927631b33700385111cb977" id="r_gaa67e5ba1c927631b33700385111cb977"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa67e5ba1c927631b33700385111cb977">tlv_ber_is_constructed</a> (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:gaa67e5ba1c927631b33700385111cb977"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nesting predicate for tree traversal of BER data.  <br /></td></tr>
 <tr class="separator:gaa67e5ba1c927631b33700385111cb977"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga369e7b2035aae9e03193d02e7143b920" id="r_ga369e7b2035aae9e03193d02e7143b920"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga369e7b2035aae9e03193d02e7143b920">tlv_ber_length_decode</a> (const uint8_t *data, size_t data_size, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> *value, size_t *consumed)</td></tr>
-<tr class="memdesc:ga369e7b2035aae9e03193d02e7143b920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes one BER definite-length field starting at <code>data[0]</code>.  <br /></td></tr>
-<tr class="separator:ga369e7b2035aae9e03193d02e7143b920"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5b265e7a7afb031f7e9a8e7b24da7c79" id="r_ga5b265e7a7afb031f7e9a8e7b24da7c79"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5b265e7a7afb031f7e9a8e7b24da7c79">tlv_ber_length_encode</a> (<a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> value, uint8_t *out, size_t out_capacity, size_t *written)</td></tr>
-<tr class="memdesc:ga5b265e7a7afb031f7e9a8e7b24da7c79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a length using the shortest BER definite form.  <br /></td></tr>
-<tr class="separator:ga5b265e7a7afb031f7e9a8e7b24da7c79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7b04af2ed12fb865560d737bbfa28e03" id="r_ga7b04af2ed12fb865560d737bbfa28e03"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga7b04af2ed12fb865560d737bbfa28e03">tlv_ber_length_decode</a> (const uint8_t *data, size_t data_size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *value, size_t *consumed)</td></tr>
+<tr class="memdesc:ga7b04af2ed12fb865560d737bbfa28e03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes one BER definite-length field starting at <code>data[0]</code>.  <br /></td></tr>
+<tr class="separator:ga7b04af2ed12fb865560d737bbfa28e03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5fd2986da5b62c19b7ef9188ef8a3af1" id="r_ga5fd2986da5b62c19b7ef9188ef8a3af1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5fd2986da5b62c19b7ef9188ef8a3af1">tlv_ber_length_encode</a> (<a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> value, uint8_t *out, size_t out_capacity, size_t *written)</td></tr>
+<tr class="memdesc:ga5fd2986da5b62c19b7ef9188ef8a3af1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a length using the shortest BER definite form.  <br /></td></tr>
+<tr class="separator:ga5fd2986da5b62c19b7ef9188ef8a3af1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>

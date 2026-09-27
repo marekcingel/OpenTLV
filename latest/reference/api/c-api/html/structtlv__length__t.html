@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C++ API: tlv::entry Struct Reference</title>
+<title>OpenTLV C API: tlv_length_t Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">OpenTLV C++ API<span id="projectnumber">&#160;0.6.0</span>
+   <div id="projectname">OpenTLV C API<span id="projectnumber">&#160;0.6.0</span>
    </div>
   </td>
  </tr>
@@ -67,68 +67,63 @@ $(function() {
 </div>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="namespacetlv.html">tlv</a></li><li class="navelem"><a class="el" href="structtlv_1_1entry.html">entry</a></li>  </ul>
-</div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="structtlv_1_1entry-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">tlv::entry Struct Reference</div></div>
+<a href="#pub-attribs">Data Fields</a>  </div>
+  <div class="headertitle"><div class="title">tlv_length_t Struct Reference<div class="ingroups"><a class="el" href="group__core.html">Core types and utilities</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>A decoded TLV item on the C++ side.  
- <a href="structtlv_1_1entry.html#details">More...</a></p>
+<p>Original encoded length bytes, without numeric interpretation.  
+ <a href="structtlv__length__t.html#details">More...</a></p>
 
-<p><code>#include &lt;types.hpp&gt;</code></p>
+<p><code>#include &lt;length.h&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:ae41fc7ed25a6f595f8997694c432001f" id="r_ae41fc7ed25a6f595f8997694c432001f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1entry.html#ae41fc7ed25a6f595f8997694c432001f">tag</a></td></tr>
-<tr class="separator:ae41fc7ed25a6f595f8997694c432001f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afcd6adc49e17502efd86487e3ce051e2" id="r_afcd6adc49e17502efd86487e3ce051e2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1entry.html#afcd6adc49e17502efd86487e3ce051e2">value</a></td></tr>
-<tr class="separator:afcd6adc49e17502efd86487e3ce051e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+Data Fields</h2></td></tr>
+<tr class="memitem:a51befa0b01f456e4acc8b46fc04aaf6d" id="r_a51befa0b01f456e4acc8b46fc04aaf6d"><td class="memItemLeft" align="right" valign="top">const uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__length__t.html#a51befa0b01f456e4acc8b46fc04aaf6d">data</a></td></tr>
+<tr class="separator:a51befa0b01f456e4acc8b46fc04aaf6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff4a63f3f37ebb945d407b406351fd19" id="r_aff4a63f3f37ebb945d407b406351fd19"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__length__t.html#aff4a63f3f37ebb945d407b406351fd19">size</a></td></tr>
+<tr class="separator:aff4a63f3f37ebb945d407b406351fd19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A decoded TLV item on the C++ side. </p>
-<p>The tag and the value point into the original buffer (zero-copy) and are not owned.</p>
-<dl class="section warning"><dt>Warning</dt><dd>The caller must keep the original buffer alive while the entry is used. </dd></dl>
-</div><h2 class="groupheader">Member Data Documentation</h2>
-<a id="ae41fc7ed25a6f595f8997694c432001f" name="ae41fc7ed25a6f595f8997694c432001f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae41fc7ed25a6f595f8997694c432001f">&#9670;&#160;</a></span>tag</h2>
+<div class="textblock"><p>Original encoded length bytes, without numeric interpretation. </p>
+<p>Borrows <code>size</code> bytes in wire order. The source must remain valid and unchanged while this descriptor or any copy is used. No allocation or byte copying occurs. <code>size</code> is a native memory extent, not a decoded quantity. The selected format interprets these bytes; a marker for a terminated value is preserved as-is. <code>{ NULL, 0 }</code> denotes an absent length field.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>, <a class="el" href="structtlv__element__t.html" title="Raw tag and length fields plus the resolved borrowed value.">tlv_element_t</a> </dd></dl>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="a51befa0b01f456e4acc8b46fc04aaf6d" name="a51befa0b01f456e4acc8b46fc04aaf6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51befa0b01f456e4acc8b46fc04aaf6d">&#9670;&#160;</a></span>data</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tlv::entry::tag</td>
+          <td class="memname">const uint8_t* tlv_length_t::data</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Item tag; borrows the original buffer. </p>
+<p>Borrowed wire bytes; may be <code>NULL</code> only when <code>size</code> is zero. </p>
 
 </div>
 </div>
-<a id="afcd6adc49e17502efd86487e3ce051e2" name="afcd6adc49e17502efd86487e3ce051e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afcd6adc49e17502efd86487e3ce051e2">&#9670;&#160;</a></span>value</h2>
+<a id="aff4a63f3f37ebb945d407b406351fd19" name="aff4a63f3f37ebb945d407b406351fd19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff4a63f3f37ebb945d407b406351fd19">&#9670;&#160;</a></span>size</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> tlv::entry::value</td>
+          <td class="memname">size_t tlv_length_t::size</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Item value; borrows the original buffer. </p>
+<p>Native byte count of the encoded length field. </p>
 
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>tlv++/<a class="el" href="types_8hpp.html">types.hpp</a></li>
+<li>tlv/<a class="el" href="length_8h.html">length.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

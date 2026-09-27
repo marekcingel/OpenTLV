@@ -96,9 +96,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1document__format.html">document_format</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format descriptor of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>, as for <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>.  <a href="structtlv_1_1document__format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1entry.html">entry</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A decoded TLV item on the C++ side.  <a href="structtlv_1_1entry.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html">error</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Idiomatic C++ error that wraps a C result code and its description.  <a href="structtlv_1_1error.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -168,6 +165,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a2abe7003a70af047ef9acae17f31f75d" id="r_a2abe7003a70af047ef9acae17f31f75d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> = <a class="el" href="classtlv_1_1span.html">span</a>&lt; const <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;</td></tr>
 <tr class="memdesc:a2abe7003a70af047ef9acae17f31f75d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Non-owning, read-only view of bytes.  <br /></td></tr>
 <tr class="separator:a2abe7003a70af047ef9acae17f31f75d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36fb32b6d2478c7a9f386389e959ebcc" id="r_a36fb32b6d2478c7a9f386389e959ebcc"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> = <a class="elRef" href="../../c-api/html/structtlv__element__t.html">tlv_element_t</a></td></tr>
+<tr class="memdesc:a36fb32b6d2478c7a9f386389e959ebcc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for the canonical C element, with borrowed tag, length and value fields.  <br /></td></tr>
+<tr class="separator:a36fb32b6d2478c7a9f386389e959ebcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1df134eb9e2b476155eb324618396e4d" id="r_a1df134eb9e2b476155eb324618396e4d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> = <a class="elRef" href="../../c-api/html/group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a></td></tr>
 <tr class="memdesc:a1df134eb9e2b476155eb324618396e4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the writer-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:a1df134eb9e2b476155eb324618396e4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -202,7 +202,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:a0d0a36fc765ca92cdc9ce5fc59fb1bd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a diagnostic with a code and severity, and no location, expectation or context.  <br /></td></tr>
 <tr class="separator:a0d0a36fc765ca92cdc9ce5fc59fb1bd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ce58d107ecb735b70e8754f43860b35" id="r_a5ce58d107ecb735b70e8754f43860b35"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a5ce58d107ecb735b70e8754f43860b35">add_context</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;target, <a class="el" href="namespacetlv.html#ad25d4ec98046df7826d97ce6a7ff5e2d">diagnostic_context</a> &amp;context, const char *layer, const char *key, const char *value)</td></tr>
-<tr class="memdesc:a5ce58d107ecb735b70e8754f43860b35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attaches one context entry to a diagnostic.  <br /></td></tr>
+<tr class="memdesc:a5ce58d107ecb735b70e8754f43860b35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attaches one context element to a diagnostic.  <br /></td></tr>
 <tr class="separator:a5ce58d107ecb735b70e8754f43860b35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a743e6cef95a14fa9bee005771e2a3183" id="r_a743e6cef95a14fa9bee005771e2a3183"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">diagnostic_path</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a743e6cef95a14fa9bee005771e2a3183">make_diagnostic_path</a> ()</td></tr>
 <tr class="memdesc:a743e6cef95a14fa9bee005771e2a3183"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds an empty hierarchical path.  <br /></td></tr>
@@ -229,6 +229,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a94c9e2071659e67b2eb136583e40569c" id="r_a94c9e2071659e67b2eb136583e40569c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a94c9e2071659e67b2eb136583e40569c">validate_all_diag</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> *diagnostics, size_t capacity, <a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown=<a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a>, size_t *error_offset=nullptr)</td></tr>
 <tr class="memdesc:a94c9e2071659e67b2eb136583e40569c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a structure and reports every schema violation as a <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c" title="C++ alias for the schema-specific diagnostic type, tlv_schema_diagnostic_t.">schema_diagnostic</a>.  <br /></td></tr>
 <tr class="separator:a94c9e2071659e67b2eb136583e40569c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c254e24e77d49afc2e4866e4370cd82" id="r_a4c254e24e77d49afc2e4866e4370cd82"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a4c254e24e77d49afc2e4866e4370cd82">as_bytes</a> (<a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a> value)</td></tr>
+<tr class="memdesc:a4c254e24e77d49afc2e4866e4370cd82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a logical TLV value to a native byte span without copying.  <br /></td></tr>
+<tr class="separator:a4c254e24e77d49afc2e4866e4370cd82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Public C++ wrappers, value types, codec traits and helpers for OpenTLV. </p>
@@ -296,6 +299,23 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>C++ alias for the C diagnostic path type, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga72515e07c0b698c80077f8f144d4e33e">tlv_diagnostic_path_t</a>. </p>
+
+</div>
+</div>
+<a id="a36fb32b6d2478c7a9f386389e959ebcc" name="a36fb32b6d2478c7a9f386389e959ebcc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36fb32b6d2478c7a9f386389e959ebcc">&#9670;&#160;</a></span>element</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">tlv::element</a> = typedef <a class="elRef" href="../../c-api/html/structtlv__element__t.html">tlv_element_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Alias for the canonical C element, with borrowed tag, length and value fields. </p>
+<dl class="section warning"><dt>Warning</dt><dd>Keep the source buffer alive while the element is used. </dd></dl>
 
 </div>
 </div>
@@ -439,12 +459,12 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Attaches one context entry to a diagnostic. </p>
+<p>Attaches one context element to a diagnostic. </p>
 <p>Wraps <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga5bb5f0bb7eb066ffc093e012714c8a33">tlv_diagnostic_add_context()</a>; the same borrowing and lifetime rules apply.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">target</td><td>Diagnostic to update. </td></tr>
-    <tr><td class="paramname">context</td><td>Caller-owned storage for the new entry; every field is overwritten. </td></tr>
+    <tr><td class="paramname">context</td><td>Caller-owned storage for the new element; every field is overwritten. </td></tr>
     <tr><td class="paramname">layer</td><td>Borrowed name of the layer adding context, for example <code>"ber"</code>. </td></tr>
     <tr><td class="paramname">key</td><td>Borrowed name of the attribute, for example <code>"declared_length"</code>. </td></tr>
     <tr><td class="paramname">value</td><td>Borrowed formatted value of the attribute. </td></tr>
@@ -492,6 +512,42 @@ template&lt;typename T &gt; </div>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a4c254e24e77d49afc2e4866e4370cd82" name="a4c254e24e77d49afc2e4866e4370cd82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c254e24e77d49afc2e4866e4370cd82">&#9670;&#160;</a></span>as_bytes()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::as_bytes </td>
+          <td>(</td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts a logical TLV value to a native byte span without copying. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>Borrowed value; its storage must outlive the returned span. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A byte span, or <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a null pointer with nonzero size, or <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if the size exceeds <code>SIZE_MAX</code>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Checks the representation and native size, not the actual storage extent. </dd></dl>
 
 </div>
 </div>
@@ -1196,7 +1252,7 @@ template&lt;typename Visitor &gt; </div>
 <p>Wraps <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>. The visitor is borrowed for this call; no function wrapper or allocation is needed. Entries passed to the visitor borrow <code>data</code>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code>visitor(entry, depth, absolute_offset)</code> returning <a class="elRef" href="../../c-api/html/group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>. <code>entry</code> borrows <code>data</code>, <code>depth</code> is zero for top-level elements, and <code>absolute_offset</code> is the element's tag offset in <code>data</code>.</td></tr>
+    <tr><td class="paramname">Visitor</td><td>Callable invoked as <code>visitor(element, depth, absolute_offset)</code> returning <a class="elRef" href="../../c-api/html/group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>. <code>element</code> borrows <code>data</code>, <code>depth</code> is zero for top-level elements, and <code>absolute_offset</code> is the element's tag offset in <code>data</code>.</td></tr>
   </table>
   </dd>
 </dl>
@@ -1211,7 +1267,7 @@ template&lt;typename Visitor &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Success, or the error of <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>. A value whose length does not fit the native size makes the adapter return <a class="elRef" href="../../c-api/html/group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Success, or the error of <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Visitor side effects are not rolled back on error. </dd></dl>
 
 </div>

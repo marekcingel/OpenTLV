@@ -2663,11 +2663,11 @@ flags. Contract checks remain active with <code>NDEBUG</code>; UBSan errors are 
 <tbody>
 <tr>
 <td><code>fuzz_read</code></td>
-<td>Sequential <code>tlv_read</code> calls, positive bounded consumption, borrowed value ranges, unchanged view and consumed count on failure.</td>
+<td>Sequential <code>tlv_read</code> calls, positive bounded consumption, borrowed value ranges, unchanged element and consumed count on failure.</td>
 </tr>
 <tr>
 <td><code>fuzz_walk_tree</code></td>
-<td>Nested <code>tlv_walk_tree</code> traversal, depth and element limits (including zero), view ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal.</td>
+<td>Nested <code>tlv_walk_tree</code> traversal, depth and element limits (including zero), element ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal.</td>
 </tr>
 <tr>
 <td><code>fuzz_der</code></td>

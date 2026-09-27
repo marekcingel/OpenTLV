@@ -138,9 +138,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga8b244c905180bf86787dd2edae668ca1" id="r_ga8b244c905180bf86787dd2edae668ca1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga8b244c905180bf86787dd2edae668ca1">tlv_writer_write_diag</a> (<a class="el" href="group__writer.html#gab60fe025fad90cee69e0d2d92eb5d259">tlv_writer_t</a> *writer, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, const uint8_t *value, size_t length, <a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a> *out_diagnostic)</td></tr>
 <tr class="memdesc:ga8b244c905180bf86787dd2edae668ca1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes one TLV element at the writer's current position, with diagnostic detail on failure.  <br /></td></tr>
 <tr class="separator:ga8b244c905180bf86787dd2edae668ca1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3f77c44c09900417a89f0426b6bf8329" id="r_ga3f77c44c09900417a89f0426b6bf8329"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga3f77c44c09900417a89f0426b6bf8329">tlv_writer_copy_view</a> (<a class="el" href="group__writer.html#gab60fe025fad90cee69e0d2d92eb5d259">tlv_writer_t</a> *writer, const <a class="el" href="structtlv__view__t.html">tlv_view_t</a> *view)</td></tr>
-<tr class="memdesc:ga3f77c44c09900417a89f0426b6bf8329"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a view at the writer's current position.  <br /></td></tr>
-<tr class="separator:ga3f77c44c09900417a89f0426b6bf8329"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaed5d38e5f67535394318fcfed6bacf17" id="r_gaed5d38e5f67535394318fcfed6bacf17"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gaed5d38e5f67535394318fcfed6bacf17">tlv_writer_copy_element</a> (<a class="el" href="group__writer.html#gab60fe025fad90cee69e0d2d92eb5d259">tlv_writer_t</a> *writer, const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element)</td></tr>
+<tr class="memdesc:gaed5d38e5f67535394318fcfed6bacf17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a element at the writer's current position.  <br /></td></tr>
+<tr class="separator:gaed5d38e5f67535394318fcfed6bacf17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga540c090c0e876316a438581dadf05363" id="r_ga540c090c0e876316a438581dadf05363"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga540c090c0e876316a438581dadf05363">tlv_writer_copy_encoded</a> (<a class="el" href="group__writer.html#gab60fe025fad90cee69e0d2d92eb5d259">tlv_writer_t</a> *writer, const uint8_t *encoded_data, size_t encoded_length)</td></tr>
 <tr class="memdesc:ga540c090c0e876316a438581dadf05363"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends an exact encoded byte range at the writer's current position.  <br /></td></tr>
 <tr class="separator:ga540c090c0e876316a438581dadf05363"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -457,6 +457,54 @@ Any callback error, propagated unchanged.</dd></dl>
 
 </div>
 </div>
+<a id="gaed5d38e5f67535394318fcfed6bacf17" name="gaed5d38e5f67535394318fcfed6bacf17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaed5d38e5f67535394318fcfed6bacf17">&#9670;&#160;</a></span>tlv_writer_copy_element()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_writer_copy_element </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__writer.html#gab60fe025fad90cee69e0d2d92eb5d259">tlv_writer_t</a> *&#160;</td>
+          <td class="paramname"><em>writer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *&#160;</td>
+          <td class="paramname"><em>element</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Appends a element at the writer's current position. </p>
+<p>Serializes with <code>writer-&gt;format</code>, following the same argument, overlap and callback-error contracts as <a class="el" href="group__copy.html#ga819da9ffb95896b67f9487eb66bd9bbd" title="Serializes an element&#39;s tag, length and value using a writer format.">tlv_copy_element()</a>.</p>
+<p>Unlike <a class="el" href="group__copy.html#ga819da9ffb95896b67f9487eb66bd9bbd" title="Serializes an element&#39;s tag, length and value using a writer format.">tlv_copy_element()</a>, a <code>NULL</code> writer buffer with zero remaining capacity is treated as a real destination rather than a size query. Every element has a nonzero encoded size (tag and length), even with an empty value, so the call then returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">writer</td><td>Writer to append to. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">element</td><td>Element to serialize.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success; the position advances by the encoded size. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>writer</code> is <code>NULL</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>pos &gt; capacity</code> or capacity is insufficient. </dd>
+<dd>
+Any error of <a class="el" href="group__copy.html#ga819da9ffb95896b67f9487eb66bd9bbd" title="Serializes an element&#39;s tag, length and value using a writer format.">tlv_copy_element()</a>, propagated unchanged.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>On any failure, including insufficient capacity, the position is unchanged and the required size is not exposed; use <a class="el" href="group__writer.html#ga8bea505ba8d2e9e9f23f54d91ba154f8" title="Computes the encoded size of an element without accessing value bytes.">tlv_encoded_size()</a> for that. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__copy.html#ga819da9ffb95896b67f9487eb66bd9bbd" title="Serializes an element&#39;s tag, length and value using a writer format.">tlv_copy_element</a> </dd></dl>
+
+</div>
+</div>
 <a id="ga540c090c0e876316a438581dadf05363" name="ga540c090c0e876316a438581dadf05363"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga540c090c0e876316a438581dadf05363">&#9670;&#160;</a></span>tlv_writer_copy_encoded()</h2>
 
@@ -491,7 +539,7 @@ Any callback error, propagated unchanged.</dd></dl>
 
 <p>Appends an exact encoded byte range at the writer's current position. </p>
 <p>Copies without framing validation or format conversion, preserving the original wire bytes as <a class="el" href="group__copy.html#ga06d2f6add67c483b2c66da85faf0b942" title="Copies an exact encoded byte range, preserving the original wire bytes.">tlv_copy_encoded()</a> does. Overlapping byte ranges are supported.</p>
-<p>As with <a class="el" href="group__writer.html#ga3f77c44c09900417a89f0426b6bf8329" title="Appends a view at the writer&#39;s current position.">tlv_writer_copy_view()</a>, a <code>NULL</code> writer buffer with zero remaining capacity is a real destination, not a size query: copying a nonzero-length range returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>, while copying an empty range may succeed without advancing the position.</p>
+<p>As with <a class="el" href="group__writer.html#gaed5d38e5f67535394318fcfed6bacf17" title="Appends a element at the writer&#39;s current position.">tlv_writer_copy_element()</a>, a <code>NULL</code> writer buffer with zero remaining capacity is a real destination, not a size query: copying a nonzero-length range returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>, while copying an empty range may succeed without advancing the position.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">writer</td><td>Writer to append to. </td></tr>
@@ -507,54 +555,6 @@ Any callback error, propagated unchanged.</dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>pos &gt; capacity</code> or capacity is insufficient.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On failure the position is unchanged. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__copy.html#ga06d2f6add67c483b2c66da85faf0b942" title="Copies an exact encoded byte range, preserving the original wire bytes.">tlv_copy_encoded</a> </dd></dl>
-
-</div>
-</div>
-<a id="ga3f77c44c09900417a89f0426b6bf8329" name="ga3f77c44c09900417a89f0426b6bf8329"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga3f77c44c09900417a89f0426b6bf8329">&#9670;&#160;</a></span>tlv_writer_copy_view()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_writer_copy_view </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="group__writer.html#gab60fe025fad90cee69e0d2d92eb5d259">tlv_writer_t</a> *&#160;</td>
-          <td class="paramname"><em>writer</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structtlv__view__t.html">tlv_view_t</a> *&#160;</td>
-          <td class="paramname"><em>view</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Appends a view at the writer's current position. </p>
-<p>Serializes with <code>writer-&gt;format</code>, following the same argument, overlap and callback-error contracts as <a class="el" href="group__copy.html#ga174c6f5ab0d87d0f15229bc0d2b52d9e" title="Serializes a view&#39;s tag, length and value using a writer format.">tlv_copy_view()</a>.</p>
-<p>Unlike <a class="el" href="group__copy.html#ga174c6f5ab0d87d0f15229bc0d2b52d9e" title="Serializes a view&#39;s tag, length and value using a writer format.">tlv_copy_view()</a>, a <code>NULL</code> writer buffer with zero remaining capacity is treated as a real destination rather than a size query. Every element has a nonzero encoded size (tag and length), even with an empty value, so the call then returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a>.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">writer</td><td>Writer to append to. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">view</td><td>View to serialize.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success; the position advances by the encoded size. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>writer</code> is <code>NULL</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>pos &gt; capacity</code> or capacity is insufficient. </dd>
-<dd>
-Any error of <a class="el" href="group__copy.html#ga174c6f5ab0d87d0f15229bc0d2b52d9e" title="Serializes a view&#39;s tag, length and value using a writer format.">tlv_copy_view()</a>, propagated unchanged.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On any failure, including insufficient capacity, the position is unchanged and the required size is not exposed; use <a class="el" href="group__writer.html#ga8bea505ba8d2e9e9f23f54d91ba154f8" title="Computes the encoded size of an element without accessing value bytes.">tlv_encoded_size()</a> for that. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__copy.html#ga174c6f5ab0d87d0f15229bc0d2b52d9e" title="Serializes a view&#39;s tag, length and value using a writer format.">tlv_copy_view</a> </dd></dl>
 
 </div>
 </div>

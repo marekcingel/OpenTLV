@@ -788,10 +788,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#relationship-to-tlv_view_t" class="md-nav__link">
+  <a href="#relationship-to-tlv_element_t" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Relationship to tlv_view_t
+        Relationship to tlv_element_t
       
     </span>
   </a>
@@ -2553,10 +2553,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#relationship-to-tlv_view_t" class="md-nav__link">
+  <a href="#relationship-to-tlv_element_t" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Relationship to tlv_view_t
+        Relationship to tlv_element_t
       
     </span>
   </a>
@@ -2591,19 +2591,19 @@
 <h1 id="borrowed-tlv-values">Borrowed TLV values<a class="headerlink" href="#borrowed-tlv-values" title="Permanent link">&para;</a></h1>
 <p>Include <code>tlv/value.h</code> (also available through <code>tlv/tlv.h</code>) for <code>tlv_value_t</code>,
 a read-only, non-owning TLV value, and its checked construction and
-validation. See <a href="../length/">logical TLV value lengths</a> for the <code>tlv_length_t</code>
+validation. See <a href="../length/">logical TLV value lengths</a> for the <code>tlv_size_t</code>
 type it uses, and <a href="../core-types/">core types</a> for how it fits into
-<code>tlv_view_t</code>.</p>
+<code>tlv_element_t</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">tlv_length_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">tlv_size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">}</span><span class="w"> </span><span class="n">tlv_value_t</span><span class="p">;</span>
 </code></pre></div>
 <p>The caller owns the storage <code>data</code> points into and must keep it alive; no
 allocation, copying, or ownership transfer occurs. <code>data</code> may be NULL only
-when <code>length</code> is zero. <code>length</code> may exceed what the current build's <code>size_t</code>
-can address; validate with <code>tlv_length_validate_native()</code> or convert with
-<code>tlv_length_to_size()</code> before pointer arithmetic, memory access, or narrowing.</p>
+when <code>size</code> is zero. <code>size</code> may exceed what the current build's <code>size_t</code>
+can address; validate with <code>tlv_size_validate_native()</code> or convert with
+<code>tlv_size_to_native()</code> before pointer arithmetic, memory access, or narrowing.</p>
 <table>
 <thead>
 <tr>
@@ -2630,7 +2630,7 @@ can address; validate with <code>tlv_length_validate_native()</code> or convert 
 </tr>
 <tr>
 <td><code>tlv_value_is_empty(value)</code></td>
-<td>Whether <code>value.length</code> is zero.</td>
+<td>Whether <code>value.size</code> is zero.</td>
 </tr>
 <tr>
 <td><code>tlv_value_slice(value, offset, length, &amp;out)</code></td>
@@ -2647,7 +2647,7 @@ can address; validate with <code>tlv_length_validate_native()</code> or convert 
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">storage</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0x34</span><span class="p">,</span><span class="w"> </span><span class="mh">0x56</span><span class="p">};</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">tlv_value_t</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_value_init</span><span class="p">(</span><span class="n">storage</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="cm">/* value.data == storage + 1, value.length == 2 */</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="cm">/* value.data == storage + 1, value.size == 2 */</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
 </code></pre></div>
 <p><code>tlv_value_init()</code> requires <code>value</code> and, unless <code>length</code> is zero, <code>data</code>;
@@ -2657,8 +2657,8 @@ returns <code>TLV_ERR_INVALID_LENGTH</code>. <code>*value</code> is unchanged on
 Actual allocation bounds for <code>data</code> remain the caller's responsibility; no
 memory is accessed.</p>
 <p><code>tlv_value_validate()</code> checks the same representation and pointer
-requirements on an existing <code>tlv_value_t</code>: <code>data</code> non-NULL unless <code>length</code> is
-zero, and <code>length</code> representable by the current build's <code>size_t</code>. It does not
+requirements on an existing <code>tlv_value_t</code>: <code>data</code> non-NULL unless <code>size</code> is
+zero, and <code>size</code> representable by the current build's <code>size_t</code>. It does not
 access memory and does not prove sufficient allocation bounds -- a <code>value</code>
 describing a range longer than its actual backing storage still validates.
 A NULL <code>value</code> returns <code>TLV_ERR_NULL_ARG</code>.</p>
@@ -2668,36 +2668,36 @@ their bytes, not by pointer identity, exactly like <code>tlv_tag_equal()</code> 
 <code>tlv_tag_compare()</code> do for tags: <code>tlv_value_equal(a, b)</code> is true exactly when
 <code>tlv_value_compare(a, b) == 0</code>. Both require valid values (<code>tlv_value_validate()</code>
 returns <code>TLV_OK</code>); an invalid value is a contract violation, not a comparable
-one. <code>tlv_value_is_empty(value)</code> is a plain <code>value.length == 0</code> check and
+one. <code>tlv_value_is_empty(value)</code> is a plain <code>value.size == 0</code> check and
 imposes no such precondition.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">tlv_value_t</span><span class="w"> </span><span class="n">part</span><span class="p">;</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_value_slice</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">part</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="cm">/* part borrows value.data + 1, part.length == 3 */</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="cm">/* part borrows value.data + 1, part.size == 3 */</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
 </code></pre></div>
 <p><code>tlv_value_slice(value, offset, length, &amp;out)</code> builds a borrowed sub-view
-without copying; <code>offset + length</code> must not exceed <code>value.length</code>, checked
-with overflow-safe <code>tlv_length_t</code> arithmetic (<code>TLV_ERR_OVERFLOW</code> if the sum
+without copying; <code>offset + length</code> must not exceed <code>value.size</code>, checked
+with overflow-safe <code>tlv_size_t</code> arithmetic (<code>TLV_ERR_OVERFLOW</code> if the sum
 itself overflows, <code>TLV_ERR_INVALID_LENGTH</code> if it fits but exceeds
-<code>value.length</code>). <code>tlv_value_copy(value, data, capacity, &amp;written)</code> instead
+<code>value.size</code>). <code>tlv_value_copy(value, data, capacity, &amp;written)</code> instead
 copies the bytes into caller-owned storage, with the same
 query-size-with-<code>NULL</code>, <code>TLV_ERR_BUFFER_TOO_SHORT</code> and overlap-safe
 conventions as <code>tlv_copy_encoded()</code>; <code>tlv_copy_value()</code> is defined in terms of
 it.</p>
-<h2 id="relationship-to-tlv_view_t">Relationship to <code>tlv_view_t</code><a class="headerlink" href="#relationship-to-tlv_view_t" title="Permanent link">&para;</a></h2>
-<p><code>tlv_view_t.value</code> is a <code>tlv_value_t</code>:</p>
+<h2 id="relationship-to-tlv_element_t">Relationship to <code>tlv_element_t</code><a class="headerlink" href="#relationship-to-tlv_element_t" title="Permanent link">&para;</a></h2>
+<p><code>tlv_element_t.value</code> is a <code>tlv_value_t</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="p">;</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">tlv_value_t</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">}</span><span class="w"> </span><span class="n">tlv_view_t</span><span class="p">;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">}</span><span class="w"> </span><span class="n">tlv_element_t</span><span class="p">;</span>
 </code></pre></div>
-<p><code>view.tag</code> is a borrowed <code>tlv_tag_t</code>: like the value, it points into the input
+<p><code>element.tag</code> is a borrowed <code>tlv_tag_t</code>: like the value, it points into the input
 the view was read from and must not outlive it.</p>
-<p>Readers construct <code>view.value</code> directly (its fields, not through
+<p>Readers construct <code>element.value</code> directly (its fields, not through
 <code>tlv_value_init()</code>) after validating a decoded length against the input
 buffer, so an internal reader-produced view is always representation-valid.
 <code>tlv_value_init()</code>/<code>tlv_value_validate()</code> exist for consumers building or
-checking a <code>tlv_view_t</code> by hand, for example in tests or custom format
+checking a <code>tlv_element_t</code> by hand, for example in tests or custom format
 integrations. There is no separate native byte-range struct in the public
 API: a native <code>const uint8_t*</code>/<code>size_t</code> pair is passed directly where one is
 needed, for example in <code>tlv_copy_encoded()</code>.</p>

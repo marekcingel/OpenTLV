@@ -121,27 +121,27 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga42a852e645b64b1d92281ba236613b67" id="r_ga42a852e645b64b1d92281ba236613b67"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga42a852e645b64b1d92281ba236613b67">tlv_read_tag_fn</a>) (const void *context, const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t *consumed)</td></tr>
 <tr class="memdesc:ga42a852e645b64b1d92281ba236613b67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback that decodes a tag from the start of a buffer.  <br /></td></tr>
 <tr class="separator:ga42a852e645b64b1d92281ba236613b67"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga28b862bc888dc1227d98bf02c7aede33" id="r_ga28b862bc888dc1227d98bf02c7aede33"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga28b862bc888dc1227d98bf02c7aede33">tlv_read_length_fn</a>) (const void *context, const uint8_t *data, size_t size, size_t *length, size_t *consumed)</td></tr>
-<tr class="memdesc:ga28b862bc888dc1227d98bf02c7aede33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback that decodes a length field from the start of a buffer.  <br /></td></tr>
-<tr class="separator:ga28b862bc888dc1227d98bf02c7aede33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga15290eae4856feaaafa58d0104831d50" id="r_ga15290eae4856feaaafa58d0104831d50"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga15290eae4856feaaafa58d0104831d50">tlv_read_value_bounds_fn</a>) (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, const uint8_t *data, size_t size, size_t *length_size, size_t *value_size, size_t *trailer_size)</td></tr>
-<tr class="memdesc:ga15290eae4856feaaafa58d0104831d50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional callback that replaces read_length during element reading.  <br /></td></tr>
-<tr class="separator:ga15290eae4856feaaafa58d0104831d50"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5480b6d2f9c22b05049a93806ff1cc74" id="r_ga5480b6d2f9c22b05049a93806ff1cc74"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">tlv_read_element_fn</a>) (const void *context, const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t *header_size, size_t *value_size, size_t *trailer_size)</td></tr>
-<tr class="memdesc:ga5480b6d2f9c22b05049a93806ff1cc74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional callback that parses a whole element header at once.  <br /></td></tr>
-<tr class="separator:ga5480b6d2f9c22b05049a93806ff1cc74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga151efc7ab7b3f1bf9451019e132a9757" id="r_ga151efc7ab7b3f1bf9451019e132a9757"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga151efc7ab7b3f1bf9451019e132a9757">tlv_read_length_fn</a>) (const void *context, const uint8_t *data, size_t size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *length, size_t *consumed)</td></tr>
+<tr class="memdesc:ga151efc7ab7b3f1bf9451019e132a9757"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback that decodes a length field from the start of a buffer.  <br /></td></tr>
+<tr class="separator:ga151efc7ab7b3f1bf9451019e132a9757"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf518b3ac530e85ff3a1083464817a03a" id="r_gaf518b3ac530e85ff3a1083464817a03a"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaf518b3ac530e85ff3a1083464817a03a">tlv_read_value_bounds_fn</a>) (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, const uint8_t *data, size_t size, size_t *length_size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *value_size, size_t *trailer_size)</td></tr>
+<tr class="memdesc:gaf518b3ac530e85ff3a1083464817a03a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional callback that replaces read_length during element reading.  <br /></td></tr>
+<tr class="separator:gaf518b3ac530e85ff3a1083464817a03a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabecb804c16079c2adbe99354ed2f0b61" id="r_gabecb804c16079c2adbe99354ed2f0b61"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gabecb804c16079c2adbe99354ed2f0b61">tlv_read_element_fn</a>) (const void *context, const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, <a class="el" href="structtlv__length__t.html">tlv_length_t</a> *raw_length, size_t *header_size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *value_size, size_t *trailer_size)</td></tr>
+<tr class="memdesc:gabecb804c16079c2adbe99354ed2f0b61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional callback that parses a whole element header at once.  <br /></td></tr>
+<tr class="separator:gabecb804c16079c2adbe99354ed2f0b61"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga82d80d491a7c0793ae09d3c507905f2d" id="r_ga82d80d491a7c0793ae09d3c507905f2d"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga82d80d491a7c0793ae09d3c507905f2d">tlv_write_tag_fn</a>) (const void *context, uint8_t *data, size_t capacity, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t *written)</td></tr>
 <tr class="memdesc:ga82d80d491a7c0793ae09d3c507905f2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback that encodes a tag.  <br /></td></tr>
 <tr class="separator:ga82d80d491a7c0793ae09d3c507905f2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga06dce9179e60b9556b5160affebd516f" id="r_ga06dce9179e60b9556b5160affebd516f"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga06dce9179e60b9556b5160affebd516f">tlv_write_length_fn</a>) (const void *context, uint8_t *data, size_t capacity, size_t length, size_t *written)</td></tr>
-<tr class="memdesc:ga06dce9179e60b9556b5160affebd516f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback that encodes a length field.  <br /></td></tr>
-<tr class="separator:ga06dce9179e60b9556b5160affebd516f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga33d7ea8aebb7decc4ee7e4bd690b599c" id="r_ga33d7ea8aebb7decc4ee7e4bd690b599c"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga33d7ea8aebb7decc4ee7e4bd690b599c">tlv_length_size_fn</a>) (const void *context, size_t length, size_t *size)</td></tr>
-<tr class="memdesc:ga33d7ea8aebb7decc4ee7e4bd690b599c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback that validates a length and reports its exact encoded size.  <br /></td></tr>
-<tr class="separator:ga33d7ea8aebb7decc4ee7e4bd690b599c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaf08710d1eadecf515c96fee3d9462e5b" id="r_gaf08710d1eadecf515c96fee3d9462e5b"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">tlv_write_header_fn</a>) (const void *context, uint8_t *data, size_t capacity, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t length, size_t *written)</td></tr>
-<tr class="memdesc:gaf08710d1eadecf515c96fee3d9462e5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional callback that encodes a whole element header at once.  <br /></td></tr>
-<tr class="separator:gaf08710d1eadecf515c96fee3d9462e5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga919c4b22dca908366cff40a213467413" id="r_ga919c4b22dca908366cff40a213467413"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga919c4b22dca908366cff40a213467413">tlv_write_length_fn</a>) (const void *context, uint8_t *data, size_t capacity, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> length, size_t *written)</td></tr>
+<tr class="memdesc:ga919c4b22dca908366cff40a213467413"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback that encodes a length field.  <br /></td></tr>
+<tr class="separator:ga919c4b22dca908366cff40a213467413"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafb0e778697c836e5ec53720272247f2c" id="r_gafb0e778697c836e5ec53720272247f2c"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gafb0e778697c836e5ec53720272247f2c">tlv_length_size_fn</a>) (const void *context, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> length, size_t *size)</td></tr>
+<tr class="memdesc:gafb0e778697c836e5ec53720272247f2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback that validates a length and reports its exact encoded size.  <br /></td></tr>
+<tr class="separator:gafb0e778697c836e5ec53720272247f2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga958c57a05b1b3cf9a5e171ab1f949195" id="r_ga958c57a05b1b3cf9a5e171ab1f949195"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga958c57a05b1b3cf9a5e171ab1f949195">tlv_write_header_fn</a>) (const void *context, uint8_t *data, size_t capacity, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> length, size_t *written)</td></tr>
+<tr class="memdesc:ga958c57a05b1b3cf9a5e171ab1f949195"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional callback that encodes a whole element header at once.  <br /></td></tr>
+<tr class="separator:ga958c57a05b1b3cf9a5e171ab1f949195"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga247f9b16879a9cfde9243ab671c48e0c" id="r_ga247f9b16879a9cfde9243ab671c48e0c"><td class="memItemLeft" align="right" valign="top">typedef int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>) (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:ga247f9b16879a9cfde9243ab671c48e0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional nesting predicate used by tree traversal and structure validation.  <br /></td></tr>
 <tr class="separator:ga247f9b16879a9cfde9243ab671c48e0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,7 +184,7 @@ Enumerations</h2></td></tr>
 <tr class="separator:gabc6126af1d45847bc59afa0aa3216b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadc29c2ff13d900c2f185ee95427fb06c" id="r_gadc29c2ff13d900c2f185ee95427fb06c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#ggadc29c2ff13d900c2f185ee95427fb06ca64906a3a7749fb32293ae5bdf23ecc8b">TLV_BER_LENGTH_MAX_ENCODED_SIZE</a> = 9
  }</td></tr>
-<tr class="memdesc:gadc29c2ff13d900c2f185ee95427fb06c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a>.  <a href="group__formats.html#gadc29c2ff13d900c2f185ee95427fb06c">More...</a><br /></td></tr>
+<tr class="memdesc:gadc29c2ff13d900c2f185ee95427fb06c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>.  <a href="group__formats.html#gadc29c2ff13d900c2f185ee95427fb06c">More...</a><br /></td></tr>
 <tr class="separator:gadc29c2ff13d900c2f185ee95427fb06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga147f000cda6c501c60b0580eaed62653" id="r_ga147f000cda6c501c60b0580eaed62653"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga147f000cda6c501c60b0580eaed62653">tlv_element_order</a> { <a class="el" href="group__formats.html#gga147f000cda6c501c60b0580eaed62653a1a034c64b69be34f862197043d103360">TLV_ELEMENT_ORDER_TLV</a> = 0
 , <a class="el" href="group__formats.html#gga147f000cda6c501c60b0580eaed62653a4d6f13804271ce37f938ca08c7a64eb4">TLV_ELEMENT_ORDER_LTV</a>
@@ -223,12 +223,12 @@ Functions</h2></td></tr>
 <tr class="memitem:gaa67e5ba1c927631b33700385111cb977" id="r_gaa67e5ba1c927631b33700385111cb977"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa67e5ba1c927631b33700385111cb977">tlv_ber_is_constructed</a> (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:gaa67e5ba1c927631b33700385111cb977"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nesting predicate for tree traversal of BER data.  <br /></td></tr>
 <tr class="separator:gaa67e5ba1c927631b33700385111cb977"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga369e7b2035aae9e03193d02e7143b920" id="r_ga369e7b2035aae9e03193d02e7143b920"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga369e7b2035aae9e03193d02e7143b920">tlv_ber_length_decode</a> (const uint8_t *data, size_t data_size, <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> *value, size_t *consumed)</td></tr>
-<tr class="memdesc:ga369e7b2035aae9e03193d02e7143b920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes one BER definite-length field starting at <code>data[0]</code>.  <br /></td></tr>
-<tr class="separator:ga369e7b2035aae9e03193d02e7143b920"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5b265e7a7afb031f7e9a8e7b24da7c79" id="r_ga5b265e7a7afb031f7e9a8e7b24da7c79"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5b265e7a7afb031f7e9a8e7b24da7c79">tlv_ber_length_encode</a> (<a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> value, uint8_t *out, size_t out_capacity, size_t *written)</td></tr>
-<tr class="memdesc:ga5b265e7a7afb031f7e9a8e7b24da7c79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a length using the shortest BER definite form.  <br /></td></tr>
-<tr class="separator:ga5b265e7a7afb031f7e9a8e7b24da7c79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7b04af2ed12fb865560d737bbfa28e03" id="r_ga7b04af2ed12fb865560d737bbfa28e03"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga7b04af2ed12fb865560d737bbfa28e03">tlv_ber_length_decode</a> (const uint8_t *data, size_t data_size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *value, size_t *consumed)</td></tr>
+<tr class="memdesc:ga7b04af2ed12fb865560d737bbfa28e03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes one BER definite-length field starting at <code>data[0]</code>.  <br /></td></tr>
+<tr class="separator:ga7b04af2ed12fb865560d737bbfa28e03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5fd2986da5b62c19b7ef9188ef8a3af1" id="r_ga5fd2986da5b62c19b7ef9188ef8a3af1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5fd2986da5b62c19b7ef9188ef8a3af1">tlv_ber_length_encode</a> (<a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> value, uint8_t *out, size_t out_capacity, size_t *written)</td></tr>
+<tr class="memdesc:ga5fd2986da5b62c19b7ef9188ef8a3af1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a length using the shortest BER definite form.  <br /></td></tr>
+<tr class="separator:ga5fd2986da5b62c19b7ef9188ef8a3af1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf57a8b6555c5807c20759382635b4f77" id="r_gaf57a8b6555c5807c20759382635b4f77"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaf57a8b6555c5807c20759382635b4f77">tlv_cer_tag_class</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:gaf57a8b6555c5807c20759382635b4f77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the ASN.1 class of a CER tag.  <br /></td></tr>
 <tr class="separator:gaf57a8b6555c5807c20759382635b4f77"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -259,10 +259,10 @@ Functions</h2></td></tr>
 <tr class="memitem:ga74fdfba5b0e8998b4400ae4a140d26c2" id="r_ga74fdfba5b0e8998b4400ae4a140d26c2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga74fdfba5b0e8998b4400ae4a140d26c2">tlv_der_is_constructed</a> (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:ga74fdfba5b0e8998b4400ae4a140d26c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nesting predicate for tree traversal of DER data.  <br /></td></tr>
 <tr class="separator:ga74fdfba5b0e8998b4400ae4a140d26c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaaa2e368f163c26d09325d1dcf84c89fd" id="r_gaaa2e368f163c26d09325d1dcf84c89fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaaa2e368f163c26d09325d1dcf84c89fd">tlv_format_init</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const void *context, <a class="el" href="group__formats.html#ga42a852e645b64b1d92281ba236613b67">tlv_read_tag_fn</a> read_tag, <a class="el" href="group__formats.html#ga28b862bc888dc1227d98bf02c7aede33">tlv_read_length_fn</a> read_length, <a class="el" href="group__formats.html#ga82d80d491a7c0793ae09d3c507905f2d">tlv_write_tag_fn</a> write_tag, <a class="el" href="group__formats.html#ga06dce9179e60b9556b5160affebd516f">tlv_write_length_fn</a> write_length, <a class="el" href="group__formats.html#ga33d7ea8aebb7decc4ee7e4bd690b599c">tlv_length_size_fn</a> length_size)</td></tr>
+<tr class="memitem:gaaa2e368f163c26d09325d1dcf84c89fd" id="r_gaaa2e368f163c26d09325d1dcf84c89fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaaa2e368f163c26d09325d1dcf84c89fd">tlv_format_init</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const void *context, <a class="el" href="group__formats.html#ga42a852e645b64b1d92281ba236613b67">tlv_read_tag_fn</a> read_tag, <a class="el" href="group__formats.html#ga151efc7ab7b3f1bf9451019e132a9757">tlv_read_length_fn</a> read_length, <a class="el" href="group__formats.html#ga82d80d491a7c0793ae09d3c507905f2d">tlv_write_tag_fn</a> write_tag, <a class="el" href="group__formats.html#ga919c4b22dca908366cff40a213467413">tlv_write_length_fn</a> write_length, <a class="el" href="group__formats.html#gafb0e778697c836e5ec53720272247f2c">tlv_length_size_fn</a> length_size)</td></tr>
 <tr class="memdesc:gaaa2e368f163c26d09325d1dcf84c89fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a format's classic tag/length read and write callbacks in caller-owned storage.  <br /></td></tr>
 <tr class="separator:gaaa2e368f163c26d09325d1dcf84c89fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga6412401827f9cb8dc5aa03258212ba25" id="r_ga6412401827f9cb8dc5aa03258212ba25"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga6412401827f9cb8dc5aa03258212ba25">tlv_format_init_element</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const void *context, <a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">tlv_read_element_fn</a> read_element, <a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">tlv_write_header_fn</a> write_header)</td></tr>
+<tr class="memitem:ga6412401827f9cb8dc5aa03258212ba25" id="r_ga6412401827f9cb8dc5aa03258212ba25"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga6412401827f9cb8dc5aa03258212ba25">tlv_format_init_element</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const void *context, <a class="el" href="group__formats.html#gabecb804c16079c2adbe99354ed2f0b61">tlv_read_element_fn</a> read_element, <a class="el" href="group__formats.html#ga958c57a05b1b3cf9a5e171ab1f949195">tlv_write_header_fn</a> write_header)</td></tr>
 <tr class="memdesc:ga6412401827f9cb8dc5aa03258212ba25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a format's whole-element read and write callbacks in caller-owned storage.  <br /></td></tr>
 <tr class="separator:ga6412401827f9cb8dc5aa03258212ba25"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga19078c252af7958a24d18489187e76d0" id="r_ga19078c252af7958a24d18489187e76d0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0">tlv_format_can_read</a> (const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format)</td></tr>
@@ -407,20 +407,20 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ga33d7ea8aebb7decc4ee7e4bd690b599c" name="ga33d7ea8aebb7decc4ee7e4bd690b599c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga33d7ea8aebb7decc4ee7e4bd690b599c">&#9670;&#160;</a></span>tlv_length_size_fn</h2>
+<a id="gafb0e778697c836e5ec53720272247f2c" name="gafb0e778697c836e5ec53720272247f2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafb0e778697c836e5ec53720272247f2c">&#9670;&#160;</a></span>tlv_length_size_fn</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_length_size_fn) (const void *context, size_t length, size_t *size)</td>
+          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_length_size_fn) (const void *context, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> length, size_t *size)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Callback that validates a length and reports its exact encoded size. </p>
-<p>The reported size is exactly what <a class="el" href="group__formats.html#ga06dce9179e60b9556b5160affebd516f" title="Callback that encodes a length field.">tlv_write_length_fn</a> writes for the same length.</p>
+<p>The reported size is exactly what <a class="el" href="group__formats.html#ga919c4b22dca908366cff40a213467413" title="Callback that encodes a length field.">tlv_write_length_fn</a> writes for the same length.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Format context, borrowed; may be <code>NULL</code>. </td></tr>
@@ -433,28 +433,29 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ga5480b6d2f9c22b05049a93806ff1cc74" name="ga5480b6d2f9c22b05049a93806ff1cc74"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga5480b6d2f9c22b05049a93806ff1cc74">&#9670;&#160;</a></span>tlv_read_element_fn</h2>
+<a id="gabecb804c16079c2adbe99354ed2f0b61" name="gabecb804c16079c2adbe99354ed2f0b61"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabecb804c16079c2adbe99354ed2f0b61">&#9670;&#160;</a></span>tlv_read_element_fn</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_read_element_fn) (const void *context, const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t *header_size, size_t *value_size, size_t *trailer_size)</td>
+          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_read_element_fn) (const void *context, const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, <a class="el" href="structtlv__length__t.html">tlv_length_t</a> *raw_length, size_t *header_size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *value_size, size_t *trailer_size)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Optional callback that parses a whole element header at once. </p>
-<p>Replaces <code>read_tag</code>, <code>read_length</code> and <code>read_value_bounds</code> for formats whose fields are not laid out as tag, then length, then value (for example Bluetooth LTV, where the length precedes the type). The callback sees the first byte of the element and reports the tag, the size of everything that precedes the value (the header), the borrowed value size, and the trailing framing size. The three ranges must fit <code>size</code>, in that order. It follows the same allocation and buffer-lifetime rules as <a class="el" href="group__formats.html#ga42a852e645b64b1d92281ba236613b67" title="Callback that decodes a tag from the start of a buffer.">tlv_read_tag_fn</a>.</p>
+<p>Replaces <code>read_tag</code>, <code>read_length</code> and <code>read_value_bounds</code> for formats whose fields are not laid out as tag, then length, then value (for example Bluetooth LTV, where the length precedes the type). The callback sees the first byte of the element and reports the tag, the size of everything that precedes the value (the header), the borrowed value size, and the trailing framing size. The header must fit <code>size</code>; the reader validates value and trailer extents afterwards. Decoding a definite header must not require the declared value bytes to be present. It follows the same allocation and buffer-lifetime rules as <a class="el" href="group__formats.html#ga42a852e645b64b1d92281ba236613b67" title="Callback that decodes a tag from the start of a buffer.">tlv_read_tag_fn</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Format context, borrowed; may be <code>NULL</code>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Bytes starting at the element. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Number of readable bytes in <code>data</code>. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Receives the decoded tag. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">raw_length</td><td>Receives the original length field, borrowing bytes within the header; <code>{ NULL, 0 }</code> when absent. On failure may report the available length bytes, even if no numeric value could be decoded. The reader initializes this descriptor to zero. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">header_size</td><td>Receives the number of bytes before the value. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value_size</td><td>Receives the size of the value. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value_size</td><td>Receives the decoded logical value byte count. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">trailer_size</td><td>Receives the size of trailing framing; zero when the format has none.</td></tr>
   </table>
   </dd>
@@ -463,14 +464,14 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ga28b862bc888dc1227d98bf02c7aede33" name="ga28b862bc888dc1227d98bf02c7aede33"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga28b862bc888dc1227d98bf02c7aede33">&#9670;&#160;</a></span>tlv_read_length_fn</h2>
+<a id="ga151efc7ab7b3f1bf9451019e132a9757" name="ga151efc7ab7b3f1bf9451019e132a9757"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga151efc7ab7b3f1bf9451019e132a9757">&#9670;&#160;</a></span>tlv_read_length_fn</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_read_length_fn) (const void *context, const uint8_t *data, size_t size, size_t *length, size_t *consumed)</td>
+          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_read_length_fn) (const void *context, const uint8_t *data, size_t size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *length, size_t *consumed)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -481,8 +482,8 @@ Variables</h2></td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Format context, borrowed; may be <code>NULL</code>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Bytes starting at the length field (after the tag). </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Number of readable bytes in <code>data</code>. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">length</td><td>Receives the decoded value length. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">consumed</td><td>Receives the number of bytes the length field occupies.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">length</td><td>Receives the decoded logical value byte count, excluding framing, even when it exceeds the native address space. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">consumed</td><td>Receives the number of bytes the length field occupies. On failure may report its available raw byte extent for diagnostics (at most <code>size</code>), including a truncated prefix. The reader initializes it to zero; leaving it zero means no raw field is known. <code>length</code> is used only on success.</td></tr>
   </table>
   </dd>
 </dl>
@@ -517,28 +518,28 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ga15290eae4856feaaafa58d0104831d50" name="ga15290eae4856feaaafa58d0104831d50"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga15290eae4856feaaafa58d0104831d50">&#9670;&#160;</a></span>tlv_read_value_bounds_fn</h2>
+<a id="gaf518b3ac530e85ff3a1083464817a03a" name="gaf518b3ac530e85ff3a1083464817a03a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf518b3ac530e85ff3a1083464817a03a">&#9670;&#160;</a></span>tlv_read_value_bounds_fn</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_read_value_bounds_fn) (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, const uint8_t *data, size_t size, size_t *length_size, size_t *value_size, size_t *trailer_size)</td>
+          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_read_value_bounds_fn) (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, const uint8_t *data, size_t size, size_t *length_size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *value_size, size_t *trailer_size)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Optional callback that replaces read_length during element reading. </p>
-<p>Reports the length-field size, the borrowed value size, and the trailing framing size separately. All three ranges must fit <code>size</code>, in that order. The callback may inspect nested framing to resolve a terminated value. It follows the same allocation and buffer-lifetime rules as <a class="el" href="group__formats.html#ga28b862bc888dc1227d98bf02c7aede33" title="Callback that decodes a length field from the start of a buffer.">tlv_read_length_fn</a>.</p>
+<p>Reports the length-field size, the borrowed value size, and the trailing framing size separately. The length field must fit <code>size</code>; the reader validates the resolved value and trailer against the remaining input. Definite sizes must be reported without requiring the payload to fit. The callback may inspect nested framing to resolve a terminated value. It follows the same allocation and buffer-lifetime rules as <a class="el" href="group__formats.html#ga151efc7ab7b3f1bf9451019e132a9757" title="Callback that decodes a length field from the start of a buffer.">tlv_read_length_fn</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Format context, borrowed; may be <code>NULL</code>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>The already parsed tag. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Bytes starting after the tag. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Number of readable bytes in <code>data</code>. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">length_size</td><td>Receives the size of the length field. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value_size</td><td>Receives the size of the value. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">length_size</td><td>Receives the size of the length field. On failure may report its available raw extent, as for the <code>consumed</code> output of <a class="el" href="group__formats.html#ga151efc7ab7b3f1bf9451019e132a9757" title="Callback that decodes a length field from the start of a buffer.">tlv_read_length_fn</a>. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value_size</td><td>Receives the resolved logical value byte count. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">trailer_size</td><td>Receives the size of trailing framing, such as a BER end-of-contents marker.</td></tr>
   </table>
   </dd>
@@ -547,14 +548,14 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="gaf08710d1eadecf515c96fee3d9462e5b" name="gaf08710d1eadecf515c96fee3d9462e5b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaf08710d1eadecf515c96fee3d9462e5b">&#9670;&#160;</a></span>tlv_write_header_fn</h2>
+<a id="ga958c57a05b1b3cf9a5e171ab1f949195" name="ga958c57a05b1b3cf9a5e171ab1f949195"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga958c57a05b1b3cf9a5e171ab1f949195">&#9670;&#160;</a></span>tlv_write_header_fn</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_write_header_fn) (const void *context, uint8_t *data, size_t capacity, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t length, size_t *written)</td>
+          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_write_header_fn) (const void *context, uint8_t *data, size_t capacity, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> length, size_t *written)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -576,14 +577,14 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ga06dce9179e60b9556b5160affebd516f" name="ga06dce9179e60b9556b5160affebd516f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga06dce9179e60b9556b5160affebd516f">&#9670;&#160;</a></span>tlv_write_length_fn</h2>
+<a id="ga919c4b22dca908366cff40a213467413" name="ga919c4b22dca908366cff40a213467413"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga919c4b22dca908366cff40a213467413">&#9670;&#160;</a></span>tlv_write_length_fn</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_write_length_fn) (const void *context, uint8_t *data, size_t capacity, size_t length, size_t *written)</td>
+          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_write_length_fn) (const void *context, uint8_t *data, size_t capacity, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> length, size_t *written)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -693,9 +694,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a>. </p>
-<p>One prefix octet plus up to 8 big-endian value octets for <code>UINT64_MAX</code>. Use this constant to size a destination buffer for <a class="el" href="group__formats.html#ga5b265e7a7afb031f7e9a8e7b24da7c79" title="Encodes a length using the shortest BER definite form.">tlv_ber_length_encode()</a>.</p>
-<dl class="section note"><dt>Note</dt><dd>It is smaller than the largest field <a class="el" href="group__formats.html#ga369e7b2035aae9e03193d02e7143b920" title="Decodes one BER definite-length field starting at data[0].">tlv_ber_length_decode()</a> can still accept, since BER permits nonminimal (zero-padded) definite encodings with up to 127 length octets (X.690 section 8.1.3.4); decoding such padding needs no buffer this large, only reading one. </dd></dl>
+<p>Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>. </p>
+<p>One prefix octet plus up to 8 big-endian value octets for <code>UINT64_MAX</code>. Use this constant to size a destination buffer for <a class="el" href="group__formats.html#ga5fd2986da5b62c19b7ef9188ef8a3af1" title="Encodes a length using the shortest BER definite form.">tlv_ber_length_encode()</a>.</p>
+<dl class="section note"><dt>Note</dt><dd>It is smaller than the largest field <a class="el" href="group__formats.html#ga7b04af2ed12fb865560d737bbfa28e03" title="Decodes one BER definite-length field starting at data[0].">tlv_ber_length_decode()</a> can still accept, since BER permits nonminimal (zero-padded) definite encodings with up to 127 length octets (X.690 section 8.1.3.4); decoding such padding needs no buffer this large, only reading one. </dd></dl>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggadc29c2ff13d900c2f185ee95427fb06ca64906a3a7749fb32293ae5bdf23ecc8b" name="ggadc29c2ff13d900c2f185ee95427fb06ca64906a3a7749fb32293ae5bdf23ecc8b"></a>TLV_BER_LENGTH_MAX_ENCODED_SIZE&#160;</td><td class="fielddoc"></td></tr>
 </table>
@@ -863,8 +864,8 @@ An error code for a null output, an invalid or non-constructed tag, or size over
 
 </div>
 </div>
-<a id="ga369e7b2035aae9e03193d02e7143b920" name="ga369e7b2035aae9e03193d02e7143b920"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga369e7b2035aae9e03193d02e7143b920">&#9670;&#160;</a></span>tlv_ber_length_decode()</h2>
+<a id="ga7b04af2ed12fb865560d737bbfa28e03" name="ga7b04af2ed12fb865560d737bbfa28e03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7b04af2ed12fb865560d737bbfa28e03">&#9670;&#160;</a></span>tlv_ber_length_decode()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -884,7 +885,7 @@ An error code for a null output, an invalid or non-constructed tag, or size over
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *&#160;</td>
           <td class="paramname"><em>value</em>, </td>
         </tr>
         <tr>
@@ -902,7 +903,7 @@ An error code for a null output, an invalid or non-constructed tag, or size over
 </div><div class="memdoc">
 
 <p>Decodes one BER definite-length field starting at <code>data[0]</code>. </p>
-<p>Accepts the short form directly, or the long form as a length-of-length octet followed by that many big-endian value octets. Nonminimal (zero-padded) long-form encodings are accepted when the numeric value still fits <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a>; excess leading octets must be zero. The indefinite marker (0x80 alone) and the reserved 0xFF prefix are rejected, as is a padded value wider than <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a> or nonzero excess padding.</p>
+<p>Accepts the short form directly, or the long form as a length-of-length octet followed by that many big-endian value octets. Nonminimal (zero-padded) long-form encodings are accepted when the numeric value still fits <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>; excess leading octets must be zero. The indefinite marker (0x80 alone) and the reserved 0xFF prefix are rejected, as is a padded value wider than <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a> or nonzero excess padding.</p>
 <p>This does not process the indefinite-length marker or constructed EOC framing; see <a class="el" href="group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d" title="Writes an explicit indefinite-length constructed element.">tlv_ber_write_indefinite()</a> and <a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97" title="Format for raw BER-TLV.">tlv_format_ber</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -917,15 +918,15 @@ An error code for a null output, an invalid or non-constructed tag, or size over
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if a required pointer is <code>NULL</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for the indefinite marker, the reserved 0xFF prefix, a value wider than <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a>, or nonzero excess padding. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for the indefinite marker, the reserved 0xFF prefix, a value wider than <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>, or nonzero excess padding. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if the field claims more length octets than <code>data_size</code> provides.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On any failure <code>*value</code> and <code>*consumed</code> are unchanged. </dd></dl>
 
 </div>
 </div>
-<a id="ga5b265e7a7afb031f7e9a8e7b24da7c79" name="ga5b265e7a7afb031f7e9a8e7b24da7c79"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga5b265e7a7afb031f7e9a8e7b24da7c79">&#9670;&#160;</a></span>tlv_ber_length_encode()</h2>
+<a id="ga5fd2986da5b62c19b7ef9188ef8a3af1" name="ga5fd2986da5b62c19b7ef9188ef8a3af1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5fd2986da5b62c19b7ef9188ef8a3af1">&#9670;&#160;</a></span>tlv_ber_length_encode()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -933,7 +934,7 @@ An error code for a null output, an invalid or non-constructed tag, or size over
         <tr>
           <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_ber_length_encode </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee">tlv_length_t</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a>&#160;</td>
           <td class="paramname"><em>value</em>, </td>
         </tr>
         <tr>
@@ -1859,7 +1860,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__formats.html#ga28b862bc888dc1227d98bf02c7aede33">tlv_read_length_fn</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#ga151efc7ab7b3f1bf9451019e132a9757">tlv_read_length_fn</a>&#160;</td>
           <td class="paramname"><em>read_length</em>, </td>
         </tr>
         <tr>
@@ -1871,13 +1872,13 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__formats.html#ga06dce9179e60b9556b5160affebd516f">tlv_write_length_fn</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#ga919c4b22dca908366cff40a213467413">tlv_write_length_fn</a>&#160;</td>
           <td class="paramname"><em>write_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__formats.html#ga33d7ea8aebb7decc4ee7e4bd690b599c">tlv_length_size_fn</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gafb0e778697c836e5ec53720272247f2c">tlv_length_size_fn</a>&#160;</td>
           <td class="paramname"><em>length_size</em>&#160;</td>
         </tr>
         <tr>
@@ -1930,13 +1931,13 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">tlv_read_element_fn</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gabecb804c16079c2adbe99354ed2f0b61">tlv_read_element_fn</a>&#160;</td>
           <td class="paramname"><em>read_element</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">tlv_write_header_fn</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#ga958c57a05b1b3cf9a5e171ab1f949195">tlv_write_header_fn</a>&#160;</td>
           <td class="paramname"><em>write_header</em>&#160;</td>
         </tr>
         <tr>

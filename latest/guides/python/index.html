@@ -2722,7 +2722,7 @@
 
 <h1 id="using-opentlv-from-python">Using OpenTLV from Python<a class="headerlink" href="#using-opentlv-from-python" title="Permanent link">&para;</a></h1>
 <p>The <code>opentlv</code> package is an experimental Python binding for OpenTLV. It binds
-<code>Reader</code>, <code>Writer</code>, <code>Document</code>/<code>Node</code>, <code>Entry</code>, <code>Tag</code>, <code>Format</code>,
+<code>Reader</code>, <code>Writer</code>, <code>Document</code>/<code>Node</code>, <code>Element</code>, <code>Tag</code>, <code>Format</code>,
 <code>LengthSchema</code>/<code>StructureSchema</code> and the <code>OpenTLVError</code> exception hierarchy,
 plus a narrow <code>codec</code> submodule (see <a href="#codec">Codec</a>). For layout and build
 details, see <a href="../../development/python/">Python bindings</a>.</p>
@@ -2742,19 +2742,19 @@ see <a href="../../development/python/#build">Build</a>.</p>
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/quick_start.py">quick_start.py</a>
 (<code>python examples/quick_start.py</code> from <code>bindings/python/opentlv</code>).</p>
 <h2 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">&para;</a></h2>
-<p><code>Reader</code> is a Python iterator over <code>Entry</code> values. Each <code>Entry</code> has a <code>Tag</code>
+<p><code>Reader</code> is a Python iterator over <code>Element</code> values. Each <code>Element</code> has a <code>Tag</code>
 and a <code>value</code> that is a zero-copy <code>memoryview</code> slice of your input.
-Constructed entries are not expanded automatically; create a new <code>Reader</code>
-over <code>entry.value</code> to descend.</p>
+Constructed elements are not expanded automatically; create a new <code>Reader</code>
+over <code>element.value</code> to descend.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">opentlv</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0xAA</span><span class="p">,</span> <span class="mh">0xBB</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">])</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
 </code></pre></div>
 <p><code>data</code> may be <code>bytes</code>, <code>bytearray</code>, <code>memoryview</code>, or any other
 buffer-protocol object; the reader borrows it rather than copying it, so it
-must stay valid and unchanged for as long as the reader or its entries are
+must stay valid and unchanged for as long as the reader or its elements are
 used. <code>Reader(data)</code> uses <code>opentlv.Format.DEFAULT</code>; pass <code>format=</code> for
 another wire format, for example <code>opentlv.Reader(data, opentlv.Format.BER)</code>,
 or an <code>opentlv.FixedFormat(tag_size, length_size, byte_order="big")</code> for a
@@ -2775,7 +2775,7 @@ example an unsupported tag size).</p>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">data</span> <span class="o">=</span> <span class="n">writer</span><span class="o">.</span><span class="n">bytes</span><span class="p">()</span>
 </code></pre></div>
 <p><code>write</code> accepts a <code>Tag</code> or raw <code>bytes</code> for the tag, and any buffer-protocol
-object for the value; <code>write_entry</code> appends a decoded <code>Entry</code>, for example
+object for the value; <code>write_element</code> appends a decoded <code>Element</code>, for example
 one produced by a <code>Reader</code>, so reading and re-writing round-trips. Like
 <code>Reader</code>, <code>Writer(format=...)</code> selects the wire format.
 <code>opentlv.encoded_size(tag, value_length, format=...)</code> computes an element's
@@ -2839,7 +2839,7 @@ into C for it, unlike every other type this package binds. A <code>CodecError</c
 (not an <code>OpenTLVError</code> subclass — <code>tlv_codec_result_t</code> is a separate error
 domain from <code>tlv_result_t</code>) carries the raw <code>tlv_codec_result_t</code> code as
 <code>.code</code>.</p>
-<p>Runnable version, decoding and encoding an EMV "Amount, Authorised" entry:
+<p>Runnable version, decoding and encoding an EMV "Amount, Authorised" element:
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/codec.py">codec.py</a>
 (<code>python examples/codec.py</code>).</p>
 <h2 id="documents">Documents<a class="headerlink" href="#documents" title="Permanent link">&para;</a></h2>
@@ -2898,7 +2898,7 @@ Fields the failure does not report are <code>None</code>.</p>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">except</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">BufferTooShortError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2"> at offset </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">offset</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">operation</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
 </code></pre></div>
-<p><code>Reader</code> yields entries until the first error, then raises <code>StopIteration</code> on
+<p><code>Reader</code> yields elements until the first error, then raises <code>StopIteration</code> on
 every further call instead of retrying: the underlying C reader does not
 advance past malformed input.</p>
 <h2 id="relationship-to-the-c-api">Relationship to the C API<a class="headerlink" href="#relationship-to-the-c-api" title="Permanent link">&para;</a></h2>

@@ -801,6 +801,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Tag errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c-element-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++ element access
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2627,6 +2644,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Tag errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c-element-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++ element access
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2655,18 +2689,18 @@
 
 
 <h1 id="c-core-types">C core types<a class="headerlink" href="#c-core-types" title="Permanent link">&para;</a></h1>
-<p>Include <code>&lt;tlv/view.h&gt;</code> for <code>tlv_view_t</code>, <code>&lt;tlv/value.h&gt;</code> for <code>tlv_value_t</code>, and
-<code>&lt;tlv/length.h&gt;</code> for <code>tlv_length_t</code>, or <code>&lt;tlv/tlv.h&gt;</code> to pull in all of them
+<p>Include <code>&lt;tlv/element.h&gt;</code> for <code>tlv_element_t</code>, <code>&lt;tlv/value.h&gt;</code> for <code>tlv_value_t</code>, and
+<code>&lt;tlv/size.h&gt;</code> for <code>tlv_size_t</code>, or <code>&lt;tlv/tlv.h&gt;</code> to pull in all of them
 along with the rest of the public API. The common <code>tlv_result_t</code> error codes
 come from <code>&lt;tlv/error.h&gt;</code>. Tags and their configuration are declared in
 <code>&lt;tlv/tag.h&gt;</code>, which can also be included directly.</p>
 <ul>
-<li><code>tlv_length_t</code> is a fixed 64-bit unsigned logical TLV value length, with
+<li><code>tlv_size_t</code> is a fixed 64-bit unsigned logical TLV value length, with
   the same numeric range on every platform regardless of the current build's
   <code>size_t</code> width. See <a href="../length/">logical TLV value lengths</a> for its checked
   conversions and the x86/x64 divergence in what fits <code>size_t</code>.</li>
-<li><code>tlv_value_t</code> is a read-only, non-owning value (<code>data</code>, <code>length</code> as
-  <code>tlv_length_t</code>). A null <code>data</code> pointer is valid only when <code>length</code> is zero.
+<li><code>tlv_value_t</code> is a read-only, non-owning value (<code>data</code>, <code>size</code> as
+  <code>tlv_size_t</code>). A null <code>data</code> pointer is valid only when <code>size</code> is zero.
   See <a href="../value/">borrowed TLV values</a> for checked construction and
   validation.</li>
 <li>There is no separate native byte-range struct. Native byte ranges in the
@@ -2676,15 +2710,31 @@ come from <code>&lt;tlv/error.h&gt;</code>. Tags and their configuration are dec
   a <code>size_t size</code>. It represents arbitrary raw tag bytes in wire order and
   nothing else. It owns no memory, allocates none, has no storage capacity or
   maximum length, and carries no format-specific metadata.</li>
-<li><code>tlv_view_t</code> (in <code>&lt;tlv/view.h&gt;</code>) holds a borrowed <code>tlv_tag_t</code> and a
-  borrowed <code>tlv_value_t</code> value. The caller must keep the storage of both alive
-  while using the view; for a reader-produced view that is the input buffer.
-  Copying the view copies only the tag's and value's pointers and lengths, not
-  any bytes. <code>tlv_view_t</code>/<code>tlv_value_t</code> are plain structs containing pointers;
-  unlike <code>tlv_length_t</code>'s numeric range, their in-memory layout is <strong>not</strong>
-  guaranteed to match across architectures, and must never be treated as a
-  portable wire encoding.</li>
+<li><code>tlv_length_t</code> (in <code>&lt;tlv/length.h&gt;</code>) borrows the original encoded length
+  field through <code>const uint8_t* data</code> and native <code>size_t size</code>. It preserves
+  nonminimal encodings and termination markers without numeric interpretation.</li>
+<li><code>tlv_element_t</code> (in <code>&lt;tlv/element.h&gt;</code>) has exactly three fields: <code>tag</code>,
+  <code>length</code>, and <code>value</code>. All bytes are borrowed. <code>value.size</code> is the resolved
+  logical value byte count (<code>tlv_size_t</code>), excluding header and trailer framing.
+  The format defines how the raw length maps to this count: Bluetooth's length
+  also counts the tag, while BER indefinite length has no numeric wire count.
+  Copying an element copies descriptors only. The source must remain alive
+  and unchanged while any copy is used.</li>
 </ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">typedef</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">tlv_size_t</span><span class="p">;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="p">;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">tlv_length_t</span><span class="p">;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"> </span><span class="n">tlv_size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">tlv_value_t</span><span class="p">;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="p">;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">tlv_length_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">tlv_value_t</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span><span class="w"> </span><span class="n">tlv_element_t</span><span class="p">;</span>
+</code></pre></div>
+<p>The logical quantities and raw bytes are independent of host endianness.
+Pointer-containing structures have native layouts and must never be used as
+portable wire encodings. <code>tlv_copy_element()</code> regenerates the length for the
+destination format; <code>tlv_copy_encoded()</code> preserves an original encoded range.</p>
 <p>All types support zero initialization and require no dynamic allocation.</p>
 <h2 id="tags-are-borrowed">Tags are borrowed<a class="headerlink" href="#tags-are-borrowed" title="Permanent link">&para;</a></h2>
 <p><code>tlv_tag_t</code> refers to bytes that somebody else owns, exactly as <code>tlv_value_t</code>
@@ -2699,9 +2749,9 @@ does for values:</p>
 <li>Reader-produced tags normally reference the input buffer that was parsed, so
   reading stays zero-copy. A tag stays valid only as long as that buffer does.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bytes</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">};</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_tag</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">bytes</span><span class="p">));</span><span class="w">   </span><span class="cm">/* borrows `bytes` */</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">same</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">);</span><span class="w">            </span><span class="cm">/* literal bytes, no allocation */</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bytes</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">};</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_tag</span><span class="p">(</span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">bytes</span><span class="p">));</span><span class="w">   </span><span class="cm">/* borrows `bytes` */</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">same</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">);</span><span class="w">            </span><span class="cm">/* literal bytes, no allocation */</span>
 </code></pre></div>
 <p><code>tlv_tag(data, size)</code> builds a tag from runtime data and checks nothing.
 <code>TLV_TAG(0x9F, 0x02)</code> builds a tag from constant bytes without allocating. In
@@ -2739,7 +2789,7 @@ passed to a format; only a format rejects lengths it does not support.</p>
 of <code>tlv_tag_t</code> no longer depends on a compile-time setting, so the library and
 its consumers, including other languages' bindings, never have to be rebuilt to
 agree on it, and tests for different tag lengths run in a single build.</p>
-<p>The reader returns <code>tlv_view_t</code> with the tag and value borrowed from the input
+<p>The reader returns <code>tlv_element_t</code> with the tag and value borrowed from the input
 buffer. The writer accepts <code>tlv_tag_t</code> by value and only reads it during the
 call, and the C++ layer uses the same type for tags. A codec registry, or any
 container that has to keep a tag, must copy the bytes.
@@ -2757,9 +2807,9 @@ The bytes are never read as an integer, so the result does not depend on the
 host's byte order: <code>01 FF</code> orders before <code>02 00</code>, and <code>01 00 00</code> orders before
 <code>02</code>. <code>tlv_tag_equal(a, b)</code> is true exactly when <code>tlv_tag_compare(a, b) == 0</code>.
 Validate input at the API boundary; the comparison itself does no checking.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_tag_equal</span><span class="p">(</span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="cm">/* The same bytes, wherever they are stored. */</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_tag_equal</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="cm">/* The same bytes, wherever they are stored. */</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">}</span>
 </code></pre></div>
 <p>A tag is identity, not a number: <code>tlv_tag_t</code> has no integer conversion and no
 byte order. To compare against a known tag, compare its wire bytes with
@@ -2789,6 +2839,14 @@ storage must outlive the tag. They allocate no memory.</p>
 is never produced because a tag is "too long for <code>tlv_tag_t</code>".
 <code>TLV_ERR_INVALID_TAG</code> identifies malformed tag encoding.</p>
 <p>See also the <a href="../../reference/c-api/#core-types-and-utilities">C API reference: core types</a>.</p>
+<h3 id="c-element-access">C++ element access<a class="headerlink" href="#c-element-access" title="Permanent link">&para;</a></h3>
+<p><code>tlv::element</code> aliases <code>tlv_element_t</code>, including the raw length field and
+64-bit <code>value.size</code>. Access bytes through <code>element.value.data</code>. When a C++
+codec or range operation needs <code>tlv::bytes</code>, use the checked conversion:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">as_bytes</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">);</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">// Null data with nonzero size, or size above SIZE_MAX.</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1">// *value is a borrowed tlv::bytes span; keep the source storage alive.</span>
+</code></pre></div>
 
 
 

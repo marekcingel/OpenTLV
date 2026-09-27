@@ -2705,7 +2705,7 @@ it cannot change a message that already exists. When an application has to
 read a TLV message, change a field, add or drop an element and send it on, use
 the optional <strong>document</strong> API. It copies the data into an owned tree that can be
 modified, and encodes it again.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Low level, zero-copy:   bytes -&gt; reader -&gt; view -&gt; traversal / schema / codec
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Low level, zero-copy:   bytes -&gt; reader -&gt; element -&gt; traversal / schema / codec
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>High level, mutable:    bytes -&gt; document -&gt; inspect / modify -&gt; encode
 </code></pre></div>
 <p>The document is a separate layer on top of the public reader, writer and

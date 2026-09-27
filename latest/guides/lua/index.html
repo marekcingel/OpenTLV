@@ -2634,7 +2634,7 @@
 
 <h1 id="using-opentlv-from-lua">Using OpenTLV from Lua<a class="headerlink" href="#using-opentlv-from-lua" title="Permanent link">&para;</a></h1>
 <p>The <code>opentlv</code> module is an experimental Lua binding for OpenTLV. It binds a
-Reader, tag/length/value <code>Entry</code> tables and preorder tree traversal; there is
+Reader, tag/length/value <code>Element</code> tables and preorder tree traversal; there is
 no Writer, Document or Schema binding yet (see <a href="../../development/lua/">Lua
 bindings</a>).</p>
 <h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
@@ -2656,24 +2656,24 @@ LuaJIT headers and library; see <a href="../../development/lua/#build">Build</a>
 <h2 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">&para;</a></h2>
 <p><code>opentlv.reader(data, format)</code> returns a Reader over <code>data</code>, a Lua string.
 Using the reader directly as a generic-for iterator calls it as its own
-iterator function each time, so <code>for entry in reader do ... end</code> reads
+iterator function each time, so <code>for element in reader do ... end</code> reads
 sequentially with no explicit <code>next()</code>/<code>at_end()</code> loop:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">opentlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kd">local</span><span class="w"> </span><span class="nv">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x01</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0xAA</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBB</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kr">for</span><span class="w"> </span><span class="nv">entry</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="nf">reader</span><span class="p">(</span><span class="nv">data</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nv">entry</span><span class="p">.</span><span class="py">tag</span><span class="p">,</span><span class="w"> </span><span class="nv">entry</span><span class="p">.</span><span class="py">length</span><span class="p">,</span><span class="w"> </span><span class="nv">entry</span><span class="p">.</span><span class="py">value</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kr">for</span><span class="w"> </span><span class="nv">element</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="nf">reader</span><span class="p">(</span><span class="nv">data</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nv">element</span><span class="p">.</span><span class="py">tag</span><span class="p">,</span><span class="w"> </span><span class="nv">element</span><span class="p">.</span><span class="py">length</span><span class="p">,</span><span class="w"> </span><span class="nv">element</span><span class="p">.</span><span class="py">value</span><span class="p">)</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kr">end</span>
 </code></pre></div>
-<p>Each <code>entry</code> is a plain table with <code>tag</code>, <code>length</code>, <code>value</code> (all copied out
+<p>Each <code>element</code> is a plain table with <code>tag</code>, <code>raw_length</code>, <code>value</code> (all copied out
 of <code>data</code>, since Lua strings cannot borrow foreign memory the way a C, C++,
-Rust or Python view can) and <code>offset</code>, the absolute position of the entry's
+Rust or Python view can) plus numeric <code>length</code> (the value size) and <code>offset</code>, the absolute position of the element's
 tag within <code>data</code>. <code>format</code> defaults to <code>opentlv.formats.default</code>; pass
 <code>opentlv.formats.ber</code>, <code>.cer</code>, <code>.der</code>, <code>.bluetooth_ltv</code>, or
 <code>opentlv.formats.fixed(tag_size, length_size, byte_order)</code> (<code>byte_order</code> is
 <code>"big"</code> or <code>"little"</code>, equivalent to the C <code>tlv_fixed_format_t</code>) for another
-wire format. Constructed entries are not expanded automatically; construct a
-new reader over <code>entry.value</code> to descend, as in the runnable example below.</p>
+wire format. Constructed elements are not expanded automatically; construct a
+new reader over <code>element.value</code> to descend, as in the runnable example below.</p>
 <p>The explicit method form, <code>reader:next()</code> (<code>nil</code> at the end) and
 <code>reader:at_end()</code>, is equivalent and reads the same way; <code>reader:position()</code>
 and <code>reader:format()</code> report the reader's current byte offset and the
@@ -2684,11 +2684,11 @@ input:
 (<code>lua examples/parse.lua</code>).</p>
 <h2 id="tree-traversal">Tree traversal<a class="headerlink" href="#tree-traversal" title="Permanent link">&para;</a></h2>
 <p><code>opentlv.walk_tree(data, format, callback, opts)</code> visits every element of
-<code>data</code> in preorder, calling <code>callback(entry, depth)</code> for each; <code>entry</code> has an
+<code>data</code> in preorder, calling <code>callback(element, depth)</code> for each; <code>element</code> has an
 additional <code>constructed</code> boolean field. Returning <code>false</code> from <code>callback</code>
 stops the walk early:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">opentlv</span><span class="p">.</span><span class="nf">walk_tree</span><span class="p">(</span><span class="nv">data</span><span class="p">,</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">,</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">entry</span><span class="p">,</span><span class="w"> </span><span class="nv">depth</span><span class="p">)</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nb">string.rep</span><span class="p">(</span><span class="s2">"  "</span><span class="p">,</span><span class="w"> </span><span class="nv">depth</span><span class="p">)</span><span class="w"> </span><span class="o">..</span><span class="w"> </span><span class="nv">entry</span><span class="p">.</span><span class="py">tag</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">opentlv</span><span class="p">.</span><span class="nf">walk_tree</span><span class="p">(</span><span class="nv">data</span><span class="p">,</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">,</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">element</span><span class="p">,</span><span class="w"> </span><span class="nv">depth</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nb">string.rep</span><span class="p">(</span><span class="s2">"  "</span><span class="p">,</span><span class="w"> </span><span class="nv">depth</span><span class="p">)</span><span class="w"> </span><span class="o">..</span><span class="w"> </span><span class="nv">element</span><span class="p">.</span><span class="py">tag</span><span class="p">)</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kr">end</span><span class="p">)</span>
 </code></pre></div>
 <p><code>opts</code> is an optional table with integer <code>max_depth</code> (default 64, the
