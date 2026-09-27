@@ -25,7 +25,9 @@ int is_constructed(const void*, const tlv_tag_t* tag) {
 }
 
 tlv::document_format format() {
-    return tlv::document_format(controlled::format, is_constructed);
+    tlv_format_t constructed_format = controlled::format;
+    constructed_format.is_constructed = is_constructed;
+    return tlv::document_format(constructed_format);
 }
 
 // 6F { 84 (AA BB), A5 { 50 (41 42) } }, 50 (FF)

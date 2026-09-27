@@ -38,17 +38,6 @@ impl Format {
         }
     }
 
-    /// Returns the nesting predicate of the format, or `None` if the format
-    /// has no constructed values (every value is opaque).
-    pub(crate) fn is_constructed_raw(self) -> Option<native::tlv_is_constructed_fn> {
-        match self {
-            Format::Ber => Some(native::tlv_ber_is_constructed),
-            Format::Cer => Some(native::tlv_cer_is_constructed),
-            Format::Der => Some(native::tlv_der_is_constructed),
-            Format::Default => None,
-        }
-    }
-
     pub(crate) fn raw(self) -> *const native::tlv_format_t {
         // SAFETY: only the address of an immutable static is taken; the
         // static lives for the whole program and is never written. Newer

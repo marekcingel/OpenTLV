@@ -68,7 +68,8 @@ const tlv_format_t tlv_format_der = {.context = NULL,
                                      .read_length = der_read_length,
                                      .write_tag = der_write_tag,
                                      .write_length = der_write_length,
-                                     .length_size = der_length_size};
+                                     .length_size = der_length_size,
+                                     .is_constructed = tlv_der_is_constructed};
 
 tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
                               uint8_t* storage, tlv_tag_t* tag) {

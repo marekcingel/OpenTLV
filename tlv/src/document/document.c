@@ -188,8 +188,8 @@ static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv
     node->tag_size = tag.size;
     if (tag.size) memcpy(node + 1, tag.data, tag.size);
     node->constructed =
-        document->options.is_constructed &&
-        document->options.is_constructed(document->options.format->context, &tag) != 0;
+        document->options.format->is_constructed &&
+        document->options.format->is_constructed(document->options.format->context, &tag) != 0;
     node_link(document, parent, NULL, node);
     ++document->count;
     if (node->constructed) {
@@ -240,11 +240,10 @@ static int format_usable(const tlv_format_t* format) {
     return tlv_format_can_read(format) && tlv_format_can_write(format);
 }
 
-tlv_result_t tlv_document_options_init(tlv_document_options_t* options, const tlv_format_t* format,
-                                       tlv_is_constructed_fn is_constructed) {
+tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
+                                       const tlv_format_t* format) {
     if (!options || !format_usable(format)) return TLV_ERR_NULL_ARG;
     options->format = format;
-    options->is_constructed = is_constructed;
     options->max_depth = TLV_WALK_MAX_DEPTH;
     options->max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS;
     options->allocator = NULL;

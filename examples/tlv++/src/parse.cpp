@@ -20,8 +20,8 @@ static const std::array<tlv::byte, 12> document = {
 int main() {
     size_t count = 0;
     auto   result = tlv::walk_tree(
-        tlv::bytes(document.data(), document.size()), tlv_format_ber, tlv_ber_is_constructed,
-        TLV_WALK_MAX_DEPTH, 16, [&count](const tlv::entry& entry, size_t depth, size_t /*offset*/) {
+        tlv::bytes(document.data(), document.size()), tlv_format_ber, TLV_WALK_MAX_DEPTH, 16,
+        [&count](const tlv::entry& entry, size_t depth, size_t /*offset*/) {
             std::cout << std::string(depth * 2, ' ') << "tag=" << std::hex << std::uppercase
                       << static_cast<int>(entry.tag.data[0]) << " length=" << std::dec
                       << entry.value.size() << " value=" << std::hex << std::uppercase;

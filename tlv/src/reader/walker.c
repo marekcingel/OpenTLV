@@ -8,9 +8,8 @@ static tlv_result_t tree_error(tlv_result_t rc, size_t offset, size_t* out) {
 }
 
 tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t* format,
-                           tlv_is_constructed_fn is_constructed, size_t max_depth,
-                           size_t max_elements, tlv_tree_visitor_t visitor, void* context,
-                           size_t* error_offset) {
+                           size_t max_depth, size_t max_elements, tlv_tree_visitor_t visitor,
+                           void* context, size_t* error_offset) {
     size_t ends[TLV_WALK_MAX_DEPTH + 1];
     size_t resumes[TLV_WALK_MAX_DEPTH + 1];
     size_t depth = 0, pos = 0, count = 0;
@@ -37,7 +36,8 @@ tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t*
             if (result == TLV_VISIT_STOP) return TLV_OK;
             if (result != TLV_VISIT_CONTINUE) return tree_error(TLV_ERR_VISITOR, pos, error_offset);
         }
-        if (is_constructed && is_constructed(format->context, &view.tag) && view.value.length) {
+        if (format->is_constructed && format->is_constructed(format->context, &view.tag) &&
+            view.value.length) {
             size_t value_length;
             rc = tlv_length_to_size(view.value.length, &value_length);
             if (rc != TLV_OK) return tree_error(rc, pos, error_offset);

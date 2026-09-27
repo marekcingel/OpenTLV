@@ -223,12 +223,12 @@ typedef struct tlv_structure_schema {
  * total occurrences of its member tags to be within the group's own
  * `min_occurs`/`max_occurs`, on top of each member's own per-rule bounds.
  *
- * `is_constructed` receives `format->context`; `NULL` treats values as opaque.
+ * `format->is_constructed` receives `format->context`; `NULL` treats values as
+ * opaque.
  *
  * @param[in]  data          Encoded input.
  * @param[in]  size          Input size in bytes.
  * @param[in]  format        Reader format.
- * @param[in]  is_constructed Nesting predicate, or `NULL`.
  * @param[in]  schema        Structural schema to validate against.
  * @param[in]  max_depth     Maximum nesting depth, as for tlv_walk_tree().
  * @param[in]  max_elements  Maximum total elements, as for tlv_walk_tree().
@@ -250,7 +250,6 @@ typedef struct tlv_structure_schema {
  */
 TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                                          const tlv_format_t* format,
-                                         tlv_is_constructed_fn is_constructed,
                                          const tlv_structure_schema_t* schema, size_t max_depth,
                                          size_t max_elements, size_t* error_offset);
 
@@ -356,7 +355,6 @@ typedef struct tlv_schema_report {
  * @param[in]     data          Encoded input.
  * @param[in]     size          Input size in bytes.
  * @param[in]     format        Reader format.
- * @param[in]     is_constructed Nesting predicate, or `NULL` to treat values as opaque.
  * @param[in]     schema        Structural schema to validate against.
  * @param[in]     max_depth     Maximum nesting depth, as for tlv_walk_tree().
  * @param[in]     max_elements  Maximum total elements, as for tlv_walk_tree().
@@ -379,7 +377,6 @@ typedef struct tlv_schema_report {
  */
 TLV_API tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size,
                                              const tlv_format_t* format,
-                                             tlv_is_constructed_fn is_constructed,
                                              const tlv_structure_schema_t* schema, size_t max_depth,
                                              size_t max_elements,
                                              tlv_schema_unknown_policy_t unknown,
@@ -523,7 +520,6 @@ typedef struct tlv_schema_diagnostic_report {
  * @param[in]     data          Encoded input.
  * @param[in]     size          Input size in bytes.
  * @param[in]     format        Reader format.
- * @param[in]     is_constructed Nesting predicate, or `NULL` to treat values as opaque.
  * @param[in]     schema        Structural schema to validate against.
  * @param[in]     max_depth     Maximum nesting depth, as for tlv_walk_tree().
  * @param[in]     max_elements  Maximum total elements, as for tlv_walk_tree().
@@ -537,11 +533,13 @@ typedef struct tlv_schema_diagnostic_report {
  *
  * @see tlv_schema_validate_all
  */
-TLV_API tlv_result_t tlv_schema_validate_all_diag(
-    const uint8_t* data, size_t size, const tlv_format_t* format,
-    tlv_is_constructed_fn is_constructed, const tlv_structure_schema_t* schema, size_t max_depth,
-    size_t max_elements, tlv_schema_unknown_policy_t unknown,
-    tlv_schema_diagnostic_report_t* report, size_t* error_offset);
+TLV_API tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
+                                                  const tlv_format_t* format,
+                                                  const tlv_structure_schema_t* schema,
+                                                  size_t max_depth, size_t max_elements,
+                                                  tlv_schema_unknown_policy_t unknown,
+                                                  tlv_schema_diagnostic_report_t* report,
+                                                  size_t* error_offset);
 
 #ifdef __cplusplus
 }

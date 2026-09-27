@@ -89,15 +89,11 @@ typedef struct tlv_document_options {
     /**
      * Format used to parse input and values and to encode the document.
      * Required; must be able to both read and write, see tlv_format_can_read()
-     * and tlv_format_can_write().
+     * and tlv_format_can_write(). `format->is_constructed` tells which tags
+     * hold nested elements, or `NULL` to keep every value opaque; its answer
+     * is taken when a node is created and stays with the node.
      */
     const tlv_format_t* format;
-    /**
-     * Predicate receiving `format->context` that tells which tags hold nested
-     * elements, or `NULL` to keep every value opaque. Its answer is taken when a node is
-     * created and stays with the node.
-     */
-    tlv_is_constructed_fn is_constructed;
     /**
      * Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`; top-level elements have depth zero and an
      * element that would lie deeper is rejected with #TLV_ERR_LIMIT.
@@ -122,17 +118,15 @@ typedef struct tlv_node tlv_node_t;
  * Sets `max_depth` to #TLV_WALK_MAX_DEPTH, `max_elements` to
  * #TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS and the allocator to `NULL`.
  *
- * @param[out] options        Options to initialize.
- * @param[in]  format         Format; borrowed.
- * @param[in]  is_constructed Nesting predicate, or `NULL` for opaque values.
+ * @param[out] options Options to initialize.
+ * @param[in]  format  Format; borrowed.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `options` is `NULL`, or `format` cannot both
  *         read and write.
  */
 TLV_API tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
-                                               const tlv_format_t* format,
-                                               tlv_is_constructed_fn is_constructed);
+                                               const tlv_format_t* format);
 
 /**
  * @brief Creates an empty document.

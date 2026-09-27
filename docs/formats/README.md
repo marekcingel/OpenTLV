@@ -251,16 +251,16 @@ Concrete descriptors are declared in `tlv/builtins/fixed/default.h`,
 `tlv/builtins/asn1/der.h`, and `tlv/builtins/asn1/cer.h`. The generic `format.h`
 declares only the contract.
 
-The separate optional `tlv_is_constructed_fn` traversal argument identifies
-values containing child TLVs in the same format. It receives the format's
-context and a parsed tag. NULL means opaque values. Pass
-`tlv_ber_is_constructed`, `tlv_der_is_constructed` or `tlv_cer_is_constructed`
-to inspect the respective constructed bit; pass NULL for opaque default and
-fixed-format values.
+The optional `tlv_format_t::is_constructed` field identifies values containing
+child TLVs in the same format. It receives the format's context and a parsed
+tag. NULL means opaque values. The BER, DER and CER descriptors set it to
+`tlv_ber_is_constructed`, `tlv_der_is_constructed` and `tlv_cer_is_constructed`
+respectively, inspecting their constructed bit; the default and Fixed formats
+leave it NULL.
 Custom protocols can supply a different rule. Traversal follows the value view
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.
 
-Use `tlv_walk_tree(data, size, format, is_constructed, max_depth, max_elements, visitor, context,
+Use `tlv_walk_tree(data, size, format, max_depth, max_elements, visitor, context,
 error_offset)` for bounded preorder traversal or NULL visitor for validation.
 Depth is zero at the top level and cannot exceed `TLV_WALK_MAX_DEPTH` (64).
 Limits are inclusive; zero is a real limit. Offsets identify failing elements.

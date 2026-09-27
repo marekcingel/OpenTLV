@@ -91,7 +91,7 @@ static const tlv_structure_rule_t rules[] = {
     { { { tag_2, sizeof(tag_2) }, 0, 255, 0, NULL }, 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL }
 };
 static const tlv_structure_schema_t message = {rules, 2, 0};
-/* tlv_schema_validate(data, size, format, is_constructed, &message, 16, 1000, &offset); */
+/* tlv_schema_validate(data, size, format, &message, 16, 1000, &offset); */
 ```
 
 Runnable version, validating a two-level nested schema and rejecting a
@@ -111,7 +111,7 @@ static const tlv_structure_rule_t rules[] = {
     { { { tag_2, sizeof(tag_2) }, 0, 255, 0, nullptr }, 0, SIZE_MAX, TLV_SCHEMA_ANY, nullptr }
 };
 static const tlv_structure_schema_t message = {rules, 2, 0};
-// tlv::validate(tlv::bytes(data, size), format, is_constructed, message, 16, 1000);
+// tlv::validate(tlv::bytes(data, size), format, message, 16, 1000);
 ```
 
 `tlv::validate` wraps `tlv_schema_validate` and returns an `expected<void, error>`
@@ -353,8 +353,7 @@ tags are accepted (`allow_unknown`, or an override for the whole call with
 ```c
 tlv_schema_issue_t  issues[16];
 tlv_schema_report_t report = {issues, 16, 0};
-tlv_result_t rc = tlv_schema_validate_all(data, size, &tlv_format_ber,
-                                          tlv_ber_is_constructed, &template_schema, 16, 1000,
+tlv_result_t rc = tlv_schema_validate_all(data, size, &tlv_format_ber, &template_schema, 16, 1000,
                                           TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &offset);
 if (rc == TLV_ERR_SCHEMA) {
     for (size_t i = 0; i < report.count && i < report.capacity; ++i) {

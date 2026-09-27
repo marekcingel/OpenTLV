@@ -17,10 +17,10 @@
 
 /* A format bound to Lua: the callbacks used by every generic C entry point
  * (tlv_reader_next(), tlv_walk_tree(), ...) -- read-only from Lua's
- * perspective, since this binding never encodes -- the matching
- * is_constructed predicate (NULL for flat formats), whether tree traversal
- * should dispatch to the stricter tlv_der_walk() instead of the generic
- * tlv_walk_tree(), and a name for diagnostics.
+ * perspective, since this binding never encodes -- format.is_constructed is
+ * the nesting predicate (NULL for flat formats), and use_der_walker/name say
+ * whether tree traversal should dispatch to the stricter tlv_der_walk()
+ * instead of the generic tlv_walk_tree(), and give a name for diagnostics.
  *
  * For the built-in presets (default/ber/cer/der/bluetooth_ltv) format is a
  * copy of the corresponding extern const global; for opentlv.formats.fixed()
@@ -28,11 +28,10 @@
  * in this same userdata, so its address stays valid for exactly as long as
  * the format object itself does) as its context. */
 typedef struct tlv_lua_format {
-    tlv_format_t          format;
-    tlv_fixed_format_t    fixed_config;
-    tlv_is_constructed_fn is_constructed;
-    int                   use_der_walker;
-    const char*           name;
+    tlv_format_t       format;
+    tlv_fixed_format_t fixed_config;
+    int                use_der_walker;
+    const char*        name;
 } tlv_lua_format_t;
 
 /* Registers the "opentlv.Format" metatable, builds module_table["formats"]

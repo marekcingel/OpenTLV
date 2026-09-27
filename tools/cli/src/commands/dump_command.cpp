@@ -7,7 +7,7 @@ namespace cli {
 
 tlv_visit_result_t dump_command::visit_element(const tlv_view_t* view, std::size_t depth,
                                                std::size_t offset) {
-    diagnostic_scope_visit(scope_, data(), view, depth, predicate_);
+    diagnostic_scope_visit(scope_, data(), view, depth, format_->is_constructed);
     offset += base_;
     const int indefinite = ber_ && data()[offset + view->tag.size] == 0x80;
     cli_presentation_visit(&presentation_, view, depth, indefinite);

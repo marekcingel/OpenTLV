@@ -24,9 +24,8 @@ namespace tlv {
  *                 `absolute_offset` is the element's tag offset in `data`.
  *
  * @param data          Encoded input; borrowed.
- * @param format        Reader format.
- * @param is_constructed Nesting predicate receiving `format.context`, or
- *                      `nullptr` to treat every value as opaque.
+ * @param format        Reader format. A `nullptr` `format.is_constructed`
+ *                      treats every value as opaque.
  * @param max_depth     Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`.
  * @param max_elements  Bound on all visited elements.
  * @param visitor       Visitor callable; returning #TLV_VISIT_STOP succeeds
@@ -41,7 +40,6 @@ namespace tlv {
  */
 template <typename Visitor>
 TLV_NODISCARD expected<void, error> walk_tree(bytes data, const tlv_format_t& format,
-                                              tlv_is_constructed_fn is_constructed,
                                               size_t max_depth, size_t max_elements,
                                               Visitor&& visitor, size_t* error_offset = nullptr) {
     typedef typename std::remove_reference<Visitor>::type visitor_type;
@@ -58,9 +56,9 @@ TLV_NODISCARD expected<void, error> walk_tree(bytes data, const tlv_format_t& fo
         }
     };
     adapter      state{&visitor};
-    tlv_result_t rc = tlv_walk_tree(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
-                                    &format, is_constructed, max_depth, max_elements,
-                                    &adapter::call, &state, error_offset);
+    tlv_result_t rc =
+        tlv_walk_tree(reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format,
+                      max_depth, max_elements, &adapter::call, &state, error_offset);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return {};
 }

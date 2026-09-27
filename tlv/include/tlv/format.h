@@ -182,6 +182,21 @@ typedef tlv_result_t (*tlv_write_header_fn)(const void* context, uint8_t* data, 
                                             const tlv_tag_t* tag, size_t length, size_t* written);
 
 /**
+ * @brief Optional nesting predicate used by tree traversal and structure validation.
+ *
+ * Called only with successfully parsed tags, using the format's context. No
+ * value decoding occurs. A `NULL` #tlv_format_t::is_constructed means all
+ * values are opaque.
+ *
+ * @param[in] context The format's context.
+ * @param[in] tag     A successfully parsed tag.
+ *
+ * @return Nonzero if the tag's value is a sequence in the same format, zero
+ *         otherwise.
+ */
+typedef int (*tlv_is_constructed_fn)(const void* context, const tlv_tag_t* tag);
+
+/**
  * @brief Stateless format descriptor with optional borrowed, immutable configuration.
  *
  * The descriptor and context must outlive every reader, writer and operation
@@ -240,6 +255,12 @@ typedef struct tlv_format {
      * and `length_size`; `NULL` when unused.
      */
     tlv_write_header_fn write_header;
+    /**
+     * Optional nesting predicate that reports whether a parsed tag's value is
+     * a sequence in this same format; `NULL` means every value is opaque to
+     * generic tree traversal and structure validation.
+     */
+    tlv_is_constructed_fn is_constructed;
 } tlv_format_t;
 
 /**
@@ -253,8 +274,9 @@ typedef struct tlv_format {
  * both `NULL` to leave reading unsupported; pass `write_tag`, `write_length`
  * and `length_size` for write capability, or all three `NULL` to leave
  * writing unsupported. At least one of the two groups must be given.
- * `read_value_bounds`, `read_element` and `write_header` are initialized to
- * `NULL`; callers can assign them directly after initialization.
+ * `read_value_bounds`, `read_element`, `write_header` and `is_constructed`
+ * are initialized to `NULL`; callers can assign them directly after
+ * initialization.
  *
  * @param[out] format       Descriptor to initialize.
  * @param[in]  context      Borrowed context passed to callbacks; may be `NULL`.
@@ -283,8 +305,8 @@ TLV_API tlv_result_t tlv_format_init(tlv_format_t* format, const void* context,
  * For formats whose field order is not tag, length, value. Does not allocate;
  * the supplied pointers are stored, not copied. `read_element` and
  * `write_header` are independently optional, but not both `NULL`.
- * `read_tag`, `read_length`, `read_value_bounds`, `write_tag`, `write_length`
- * and `length_size` are initialized to `NULL`.
+ * `read_tag`, `read_length`, `read_value_bounds`, `write_tag`, `write_length`,
+ * `length_size` and `is_constructed` are initialized to `NULL`.
  *
  * @param[out] format       Descriptor to initialize.
  * @param[in]  context      Borrowed context passed to the callbacks; may be `NULL`.
@@ -321,21 +343,6 @@ TLV_API int tlv_format_can_read(const tlv_format_t* format);
  *         otherwise.
  */
 TLV_API int tlv_format_can_write(const tlv_format_t* format);
-
-/**
- * @brief Optional nesting predicate used by tree traversal and structure validation.
- *
- * Called only with successfully parsed tags, using the format's context. No
- * value decoding occurs. Passing `NULL` at a call site means all values are
- * opaque.
- *
- * @param[in] context The format's context.
- * @param[in] tag     A successfully parsed tag.
- *
- * @return Nonzero if the tag's value is a sequence in the same format, zero
- *         otherwise.
- */
-typedef int (*tlv_is_constructed_fn)(const void* context, const tlv_tag_t* tag);
 
 #ifdef __cplusplus
 }

@@ -31,7 +31,7 @@ int query_command::prepare() {
 // --output json collects the elements into one document printed at the end.
 tlv_visit_result_t query_command::visit_element(const tlv_view_t* view, std::size_t depth,
                                                 std::size_t offset) {
-    diagnostic_scope_visit(scope_, data(), view, depth, predicate_);
+    diagnostic_scope_visit(scope_, data(), view, depth, format_->is_constructed);
     if (!tlv_query_matcher_visit(&matcher_, &view->tag, depth)) return TLV_VISIT_CONTINUE;
     ++matches_;
     if (is_json(options_)) {

@@ -56,11 +56,13 @@ Outcome walk(const char* text, const std::vector<uint8_t>& input = data,
              tlv_is_constructed_fn predicate = is_constructed,
              size_t max_depth = TLV_WALK_MAX_DEPTH, size_t max_elements = 1000,
              tlv_visit_result_t result = TLV_VISIT_CONTINUE) {
-    Outcome     run;
-    tlv_query_t query = parse(text);
-    Visit       visit = {&run.matches, result};
-    run.rc = tlv_query_walk(input.data(), input.size(), &controlled::format, predicate, &query,
-                            max_depth, max_elements, collect, &visit, &run.error_offset);
+    Outcome      run;
+    tlv_query_t  query = parse(text);
+    Visit        visit = {&run.matches, result};
+    tlv_format_t format = controlled::format;
+    format.is_constructed = predicate;
+    run.rc = tlv_query_walk(input.data(), input.size(), &format, &query, max_depth, max_elements,
+                            collect, &visit, &run.error_offset);
     return run;
 }
 } // namespace
@@ -229,16 +231,15 @@ TEST(Unit_Tlv_Query, WalkValidatesArguments) {
     Outcome           run;
     Visit             visit = {&run.matches, TLV_VISIT_CONTINUE};
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_query_walk(data.data(), data.size(), &controlled::format,
-                                               nullptr, &query, 1, 10, nullptr, &visit, nullptr));
+                                               &query, 1, 10, nullptr, &visit, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_query_walk(data.data(), data.size(), &controlled::format,
-                                               nullptr, nullptr, 1, 10, collect, &visit, nullptr));
+                                               nullptr, 1, 10, collect, &visit, nullptr));
     tlv_query_t empty = {};
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              tlv_query_walk(data.data(), data.size(), &controlled::format, nullptr, &empty, 1, 10,
-                             collect, &visit, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_query_walk(data.data(), data.size(), nullptr, nullptr, &query,
-                                               1, 10, collect, &visit, nullptr));
-    EXPECT_EQ(TLV_OK, tlv_query_walk(nullptr, 0, &controlled::format, nullptr, &query, 1, 10,
-                                     collect, &visit, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_walk(data.data(), data.size(), &controlled::format,
+                                                  &empty, 1, 10, collect, &visit, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_query_walk(data.data(), data.size(), nullptr, &query, 1, 10,
+                                               collect, &visit, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_query_walk(nullptr, 0, &controlled::format, &query, 1, 10, collect,
+                                     &visit, nullptr));
     EXPECT_TRUE(run.matches.empty());
 }

@@ -49,14 +49,10 @@ typedef struct tlv_structure_codec {
      * Borrowed format. Must be able to read for decode and for validating
      * encoded bytes, and able to write for encode; see tlv_format_can_read()
      * and tlv_format_can_write(). A decode-only codec uses a format whose
-     * write callbacks are unset.
+     * write callbacks are unset. `format->is_constructed` is the nesting
+     * predicate; `NULL` makes every value opaque.
      */
     const tlv_format_t* format;
-    /**
-     * Optional nesting predicate; receives `format->context`. `NULL` makes
-     * every value opaque.
-     */
-    tlv_is_constructed_fn is_constructed;
     /** Optional borrowed schema; `NULL` validates framing and nesting only. */
     const tlv_structure_schema_t* schema;
     /**

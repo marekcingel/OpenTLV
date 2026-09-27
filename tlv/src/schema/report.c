@@ -242,13 +242,12 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
 }
 
 static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                 tlv_is_constructed_fn is_constructed,
                                  const tlv_structure_schema_t* schema, size_t max_depth,
                                  size_t max_elements, tlv_schema_unknown_policy_t unknown,
                                  collector_t* c, size_t* error_offset) {
     frame_t stack[TLV_SCHEMA_PATH_MAX];
-    tlv_result_t rc = tlv_walk_tree(data, size, format, is_constructed, max_depth, max_elements,
-                                    NULL, NULL, error_offset);
+    tlv_result_t rc =
+        tlv_walk_tree(data, size, format, max_depth, max_elements, NULL, NULL, error_offset);
     if (rc != TLV_OK) return rc;
     memset(stack, 0, sizeof(stack));
     stack[0].schema = schema;
@@ -293,7 +292,8 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
                 violation_detail_t detail = {rule, 0, 0, 1, value_length, 0, 0, NULL};
                 add_issue(c, TLV_SCHEMA_ISSUE_LENGTH, &view.tag, &pos, &detail);
             }
-            constructed = is_constructed && is_constructed(format->context, &view.tag);
+            constructed =
+                format->is_constructed && format->is_constructed(format->context, &view.tag);
             kind_ok = !((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
                         (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed));
             if (!kind_ok) {
@@ -316,7 +316,6 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
 }
 
 tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                     tlv_is_constructed_fn is_constructed,
                                      const tlv_structure_schema_t* schema, size_t max_depth,
                                      size_t max_elements, tlv_schema_unknown_policy_t unknown,
                                      tlv_schema_report_t* report, size_t* error_offset) {
@@ -329,15 +328,14 @@ tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size, const tlv
         return TLV_ERR_INVALID_ARG;
     memset(&c, 0, sizeof(c));
     c.report = report;
-    rc = validate_all(data, size, format, is_constructed, schema, max_depth, max_elements, unknown,
-                      &c, error_offset);
+    rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, &c,
+                      error_offset);
     if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) report->count = 0;
     return rc;
 }
 
 tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
                                           const tlv_format_t* format,
-                                          tlv_is_constructed_fn is_constructed,
                                           const tlv_structure_schema_t* schema, size_t max_depth,
                                           size_t max_elements, tlv_schema_unknown_policy_t unknown,
                                           tlv_schema_diagnostic_report_t* report,
@@ -351,8 +349,8 @@ tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
         return TLV_ERR_INVALID_ARG;
     memset(&c, 0, sizeof(c));
     c.diag_report = report;
-    rc = validate_all(data, size, format, is_constructed, schema, max_depth, max_elements, unknown,
-                      &c, error_offset);
+    rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, &c,
+                      error_offset);
     if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) report->count = 0;
     return rc;
 }

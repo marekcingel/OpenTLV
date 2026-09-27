@@ -20,18 +20,18 @@ it can be left out of a build with `-DOPENTLV_DOCUMENT=OFF`; see
 
 ## Formats
 
-A document works with every format that can both read and write. You give it
-a format and an optional `is_constructed` predicate that says which tags hold
-nested elements. Values of those tags are parsed into child nodes; every other
-value stays an opaque byte string. Without a predicate the document is a flat
-list.
+A document works with every format that can both read and write. Its
+`format->is_constructed` predicate says which tags hold nested elements.
+Values of those tags are parsed into child nodes; every other value stays an
+opaque byte string. Without a predicate (BER's own descriptor already sets
+one) the document is a flat list.
 
 ```c
 #include "tlv/document/document.h"
 #include "tlv/builtins/asn1/ber.h"
 
 tlv_document_options_t options;
-tlv_document_options_init(&options, &tlv_format_ber, tlv_ber_is_constructed);
+tlv_document_options_init(&options, &tlv_format_ber);
 
 tlv_document_t* document;
 size_t error_offset;
@@ -137,7 +137,7 @@ move-only; `tlv::node` is a cheap non-owning handle.
 ```cpp
 #include <tlv++/document/document.hpp>
 
-tlv::document_format format(tlv_format_ber, tlv_ber_is_constructed);
+tlv::document_format format(tlv_format_ber);
 
 auto parsed = tlv::document::parse(buffer, format);
 if (!parsed) { /* parsed.error().code */ }

@@ -31,8 +31,8 @@ static tlv_visit_result_t print_element(const tlv_view_t* view, size_t depth, si
 
 int main(void) {
     size_t count = 0;
-    if (tlv_walk_tree(document, sizeof(document), &tlv_format_ber, tlv_ber_is_constructed,
-                      TLV_WALK_MAX_DEPTH, 16, print_element, &count, NULL) != TLV_OK)
+    if (tlv_walk_tree(document, sizeof(document), &tlv_format_ber, TLV_WALK_MAX_DEPTH, 16,
+                      print_element, &count, NULL) != TLV_OK)
         return 1;
     /* 6F, its two children (84, A5) and A5's child (50). */
     return count == 4 ? 0 : 1;

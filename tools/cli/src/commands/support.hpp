@@ -47,10 +47,9 @@ std::string hex_string(const uint8_t* data, std::size_t length);
 
 // What every walk of the input needs to know about the selected format.
 struct walk_env {
-    const options*        options;
-    const tlv_format_t*   format;
-    tlv_is_constructed_fn predicate; // BER nesting predicate for the generic walker
-    bool                  is_der;
+    const options*      options;
+    const tlv_format_t* format;
+    bool                is_der;
 };
 
 // Walks `slice_size` bytes of `slice`, which starts at absolute offset `base`

@@ -98,7 +98,8 @@ extern TLV_API const tlv_format_t tlv_format_der;
 /**
  * @brief Nesting predicate for tree traversal of DER data.
  *
- * Matches #tlv_is_constructed_fn.
+ * Matches #tlv_is_constructed_fn. This is #tlv_format_der's own
+ * `is_constructed`.
  *
  * @param context Unused; may be `NULL`.
  * @param tag     A successfully parsed DER tag.

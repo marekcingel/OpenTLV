@@ -21,9 +21,16 @@ int is_constructed(const void*, const tlv_tag_t* tag) {
     return tag->size == 1 && (tag->data[0] == 0x6F || tag->data[0] == 0xA5 || tag->data[0] == 0xA6);
 }
 
+tlv_format_t constructed_format() {
+    tlv_format_t result = controlled::format;
+    result.is_constructed = is_constructed;
+    return result;
+}
+const tlv_format_t controlled_constructed_format = constructed_format();
+
 tlv_document_options_t options() {
     tlv_document_options_t result;
-    EXPECT_EQ(TLV_OK, tlv_document_options_init(&result, &controlled::format, is_constructed));
+    EXPECT_EQ(TLV_OK, tlv_document_options_init(&result, &controlled_constructed_format));
     return result;
 }
 
@@ -162,7 +169,9 @@ TEST(Unit_Tlv_Document, DoesNotReferToTheInputBuffer) {
 
 TEST(Unit_Tlv_Document, OpaqueValuesWhenNoPredicate) {
     tlv_document_options_t opts = options();
-    opts.is_constructed = nullptr;
+    tlv_format_t           opaque_format = controlled_constructed_format;
+    opaque_format.is_constructed = nullptr;
+    opts.format = &opaque_format;
     Doc doc = parse(sample, opts);
     EXPECT_EQ(2u, tlv_document_count(doc.get()));
     tlv_node_t* outer = tlv_document_first(doc.get());
@@ -517,8 +526,8 @@ TEST(Unit_Tlv_Document, RejectsInvalidArguments) {
     broken.allocator = &incomplete;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_create(&broken, &doc));
 
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_options_init(nullptr, &controlled::format, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_options_init(&opts, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_options_init(nullptr, &controlled::format));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_options_init(&opts, nullptr));
 
     tlv_document_free(nullptr);
     EXPECT_EQ(0u, tlv_document_count(nullptr));
@@ -651,7 +660,7 @@ TEST(Unit_Tlv_Document, WorksWithTheBerFormatAndNormalisesLengths) {
     // SEQUENCE with a padded long-form length, holding an INTEGER and a nested SEQUENCE.
     const Bytes            wire = {0x30, 0x81, 0x07, 0x02, 0x01, 0x05, 0x30, 0x02, 0x04, 0x00};
     tlv_document_options_t opts;
-    ASSERT_EQ(TLV_OK, tlv_document_options_init(&opts, &tlv_format_ber, tlv_ber_is_constructed));
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&opts, &tlv_format_ber));
     Doc doc = parse(wire, opts);
     EXPECT_EQ(4u, tlv_document_count(doc.get()));
     // The writer spells the length minimally.

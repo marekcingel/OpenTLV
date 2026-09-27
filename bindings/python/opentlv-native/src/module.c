@@ -35,16 +35,6 @@ static const tlv_format_t* format_for(int format_id) {
     }
 }
 
-/* The default format has no nesting: every value is opaque. */
-static tlv_is_constructed_fn is_constructed_for(int format_id) {
-    switch (format_id) {
-        case 1: return tlv_ber_is_constructed;
-        case 2: return tlv_cer_is_constructed;
-        case 3: return tlv_der_is_constructed;
-        default: return NULL;
-    }
-}
-
 static PyObject* opentlv_native_version_string(PyObject* module, PyObject* Py_UNUSED(args)) {
     (void)module;
     return PyUnicode_FromString(tlv_version_string());
@@ -391,9 +381,9 @@ static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* a
     }
 
     size_t       error_offset = 0;
-    tlv_result_t code = tlv_schema_validate((const uint8_t*)buffer.buf, (size_t)buffer.len, format,
-                                            is_constructed_for(format_id), schema,
-                                            (size_t)max_depth, (size_t)max_elements, &error_offset);
+    tlv_result_t code =
+        tlv_schema_validate((const uint8_t*)buffer.buf, (size_t)buffer.len, format, schema,
+                            (size_t)max_depth, (size_t)max_elements, &error_offset);
     free_structure_schema(schema);
     PyBuffer_Release(&buffer);
     if (code != TLV_OK) {
@@ -525,7 +515,7 @@ static int build_document_options(int format_id, Py_ssize_t max_depth, Py_ssize_
         PyErr_SetString(PyExc_ValueError, "max_depth and max_elements must not be negative");
         return 0;
     }
-    tlv_result_t code = tlv_document_options_init(out, format, is_constructed_for(format_id));
+    tlv_result_t code = tlv_document_options_init(out, format);
     if (code != TLV_OK) {
         raise_code_only(code);
         return 0;

@@ -10,7 +10,7 @@ namespace cli {
 // "children" instead, plus an explicit "length_mode" for BER.
 tlv_visit_result_t decode_command::visit_element(const tlv_view_t* view, std::size_t depth,
                                                  std::size_t offset) {
-    diagnostic_scope_visit(scope_, data(), view, depth, predicate_);
+    diagnostic_scope_visit(scope_, data(), view, depth, format_->is_constructed);
     offset += base_;
     const bool indefinite = ber_ && data()[offset + view->tag.size] == 0x80;
     cli_presentation_visit(&presentation_, view, depth, indefinite);
@@ -20,7 +20,7 @@ tlv_visit_result_t decode_command::visit_element(const tlv_view_t* view, std::si
         json_emv(object, presentation_, view, depth, options_.describe, false);
         if (options_.decode) json_decode(object, presentation_, view, depth);
     }
-    if (constructed_ && constructed_(NULL, &view->tag)) {
+    if (format_->is_constructed && format_->is_constructed(format_->context, &view->tag)) {
         if (ber_) object["length_mode"] = indefinite ? "indefinite" : "definite";
         object["children"] = nlohmann::ordered_json::array();
     } else {

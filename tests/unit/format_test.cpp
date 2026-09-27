@@ -45,9 +45,9 @@ tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, size_t le
     return TLV_OK;
 }
 const tlv_format_t fixed = {&width,  read_tag, read_length, nullptr, nullptr,
-                            nullptr, nullptr,  nullptr,     nullptr};
+                            nullptr, nullptr,  nullptr,     nullptr, nullptr};
 const tlv_format_t fixed_writer = {&width,    nullptr,      nullptr,     nullptr, nullptr,
-                                   write_tag, write_length, length_size, nullptr};
+                                   write_tag, write_length, length_size, nullptr, nullptr};
 } // namespace
 
 TEST(Unit_Tlv_Format, TruncationPreservesReaderStateAndOutput) {
@@ -195,7 +195,8 @@ TEST(Unit_Tlv_Format, RuntimeDefinedTagWidthsRoundTripWithoutRebuilding) {
         const RuntimeTagFormat context = {tag_width};
         const tlv_format_t     reader_format = {&context, runtime_read_tag, one_byte_read_length,
                                                 nullptr,  nullptr,          nullptr,
-                                                nullptr,  nullptr,          nullptr};
+                                                nullptr,  nullptr,          nullptr,
+                                                nullptr};
         const tlv_format_t     writer_format = {&context,
                                                 nullptr,
                                                 nullptr,
@@ -204,6 +205,7 @@ TEST(Unit_Tlv_Format, RuntimeDefinedTagWidthsRoundTripWithoutRebuilding) {
                                                 runtime_write_tag,
                                                 one_byte_write_length,
                                                 one_byte_length_size,
+                                                nullptr,
                                                 nullptr};
         std::vector<uint8_t>   tag_bytes(tag_width);
         for (size_t i = 0; i < tag_width; ++i) tag_bytes[i] = static_cast<uint8_t>(0x10 + i);
