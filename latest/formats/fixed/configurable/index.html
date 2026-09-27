@@ -2706,10 +2706,12 @@ and a one-byte length is <code>tag_size = 1, length_size = 1, order =
 TLV_BYTE_ORDER_BIG_ENDIAN</code> (or <code>fixed_format&lt;1, 1,
 TLV_BYTE_ORDER_BIG_ENDIAN&gt;</code>); define your own file-scope constant for a
 configuration your application reuses.</p>
-<p>Two equivalent APIs share this wire layout:</p>
+<p>Two APIs share this wire layout, and the C++ one is a thin compile-time
+wrapper that delegates every read and write to the C one:</p>
 <ul>
 <li><strong>C</strong>, <code>tlv_fixed_format_t</code>: chosen at runtime, checked when the format is initialized.</li>
-<li><strong>C++</strong>, <code>tlv::fixed_format&lt;TagWidth, LengthWidth, Order&gt;</code>: chosen at compile time, checked with <code>static_assert</code>.</li>
+<li><strong>C++</strong>, <code>tlv::fixed_format&lt;TagWidth, LengthWidth, Order&gt;</code>: chosen at compile time, checked with
+  <code>static_assert</code>, and built from <code>tlv_fixed_format_init()</code> internally.</li>
 </ul>
 <h2 id="api-and-build">API and build<a class="headerlink" href="#api-and-build" title="Permanent link">&para;</a></h2>
 <table>
@@ -2724,7 +2726,7 @@ configuration your application reuses.</p>
 <tr>
 <td>Header</td>
 <td><code>tlv/formats/fixed.h</code></td>
-<td><code>tlv++/formats/fixed_format.hpp</code> (also usable without the rest of <code>tlv++</code>)</td>
+<td><code>tlv++/formats/fixed_format.hpp</code></td>
 </tr>
 <tr>
 <td>Configuration</td>
@@ -2739,7 +2741,7 @@ configuration your application reuses.</p>
 <tr>
 <td>CMake option (default ON)</td>
 <td><code>OPENTLV_FORMAT_FIXED</code></td>
-<td>none (C++ header)</td>
+<td><code>OPENTLV_FORMAT_FIXED</code></td>
 </tr>
 <tr>
 <td>Link target</td>
@@ -2748,10 +2750,12 @@ configuration your application reuses.</p>
 </tr>
 </tbody>
 </table>
-<p>The C++ descriptors have static storage and a <code>NULL</code> context, so they never
-need lifetime management. The C descriptors store the address of <code>config</code> as
-their context: <code>config</code> must outlive every reader or writer built from it.
-See <a href="../../../guides/memory/#format-context-ownership-and-lifetime">format context ownership and
+<p>Both descriptors have static storage duration, so neither needs lifetime
+management from the caller: the C++ descriptor's context is a static
+<code>tlv_fixed_format_t</code> built from <code>TagWidth</code>, <code>LengthWidth</code> and <code>Order</code>, and the
+C descriptor's context is the caller-owned <code>config</code> passed to
+<code>tlv_fixed_format_init()</code>, which must outlive every reader or writer built
+from it. See <a href="../../../guides/memory/#format-context-ownership-and-lifetime">format context ownership and
 lifetime</a> for
 the general contract this follows, including copying, sharing and moving.
 Both work with the reader, writer, walker, schemas and the C API. Neither

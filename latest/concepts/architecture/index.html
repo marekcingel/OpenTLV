@@ -3098,6 +3098,16 @@ concrete format regardless of protocol, so <code>tlv/builtins/fixed/default.h</c
 under <code>builtins/fixed/</code>. <code>tlv_fixed_config_t</code> is renamed to <code>tlv_fixed_format_t</code>
 without any other change to its fields or to <code>tlv_fixed_format_init()</code>'s
 behavior. No compatibility shim; rebuild all consumers. (#327)</p>
+<p><code>tlv::fixed_format&lt;&gt;</code> (<code>tlv++</code>) no longer reimplements the wire-format
+callbacks; <code>format()</code> now builds and returns a descriptor from
+<code>tlv_fixed_format_init()</code>, so the C and C++ APIs share one implementation.
+Two consequences follow: the descriptor's <code>context</code> is no longer <code>NULL</code> (it
+is a static <code>tlv_fixed_format_t</code> built from <code>TagWidth</code>, <code>LengthWidth</code> and
+<code>Order</code>), and using <code>tlv::fixed_format&lt;&gt;</code> now needs the library built with
+<code>OPENTLV_FORMAT_FIXED</code> (the default), where it previously needed no CMake
+option at all. <code>static_assert</code>-checked compile-time validation of <code>TagWidth</code>,
+<code>LengthWidth</code> and <code>Order</code> is unchanged. No compatibility shim; rebuild all
+consumers.</p>
 <p>See also the generated <a href="../../reference/c-api/">C API reference</a> and <a href="../../reference/cxx-api/">C++ API reference</a>.</p>
 
 
