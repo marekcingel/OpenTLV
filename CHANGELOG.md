@@ -125,6 +125,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a `fuzz_fixed` target that derives the configurable Fixed format's tag
+  width, length width and byte order from the fuzz input itself, exercising
+  round-trip and malformed-input parsing across arbitrary valid
+  configurations instead of only the historical 1-byte-tag/1-byte-length
+  shape. (#330)
 - Add an experimental Lua binding (`bindings/lua/`, `require("opentlv")`
   after building with `-DOPENTLV_BUILD_LUA=ON` or `luarocks make`), split
   into `opentlv-native` and `opentlv` like the Rust and Python bindings.
