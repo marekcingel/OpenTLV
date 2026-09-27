@@ -75,6 +75,17 @@ assert.equal(result.elements[1].length, 2);
 assert.equal(result.elements[1].headerSize, 2);
 assert.equal(result.elements[1].value, "4869");
 
+// Configurable fixed-width format: a two-byte tag, then a one-byte big-endian length.
+result = opentlv.parse(hexToBytes("12 34 03 AA BB CC"), {
+  format: "fixed", fixedTagSize: 2, fixedLengthSize: 1, fixedByteOrder: "big",
+});
+assert.equal(result.error, undefined);
+assert.equal(result.elements.length, 1);
+assert.equal(result.elements[0].tag, "1234");
+assert.equal(result.elements[0].length, 3);
+assert.equal(result.elements[0].headerSize, 3);
+assert.equal(result.elements[0].value, "AABBCC");
+
 // Unknown formats and bad arguments.
 assert.ok(opentlv.parse(sample, { format: "nope" }).error);
 assert.deepEqual(opentlv.parse(new Uint8Array(0)).elements, []);

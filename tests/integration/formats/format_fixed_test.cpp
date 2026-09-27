@@ -89,6 +89,40 @@ TEST(Integration_Tlv_Fixed, EveryLengthByteRoundTripsOneByteTagOneByteLength) {
     }
 }
 
+// One tlv_format_t (not two independently initialized ones, unlike the tests
+// above) borrowed by a reader and a writer that stay simultaneously live and
+// interleave their operations, proving the shared, immutable descriptor and
+// context are safe for concurrent use. See
+// docs/guides/memory.md#format-context-ownership-and-lifetime.
+TEST(Integration_Tlv_Fixed, OneFormatSharedByReaderAndWriterConcurrentlyLive) {
+    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    tlv_format_t             format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
+
+    uint8_t      data[64] = {};
+    tlv_writer_t writer;
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &format));
+    tlv_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, 0, &format));
+
+    const uint8_t first_value[] = {0xAA, 0xBB};
+    ASSERT_EQ(TLV_OK,
+              tlv_writer_write(&writer, (TLV_TAG(0x01, 0x02)), first_value, sizeof(first_value)));
+    reader.size = writer.pos; /* The reader observes what the writer has produced so far. */
+    tlv_view_t entry{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
+    EXPECT_EQ(2u, entry.value.length);
+    EXPECT_TRUE(tlv_reader_at_end(&reader));
+
+    const uint8_t second_value[] = {0xCC};
+    ASSERT_EQ(TLV_OK,
+              tlv_writer_write(&writer, (TLV_TAG(0x03, 0x04)), second_value, sizeof(second_value)));
+    reader.size = writer.pos;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
+    EXPECT_EQ(1u, entry.value.length);
+    EXPECT_TRUE(tlv_reader_at_end(&reader));
+}
+
 TEST(Integration_Tlv_Fixed, RejectsLengthThatOverflowsConfiguredWidth) {
     const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
     tlv_format_t             writer_format{};

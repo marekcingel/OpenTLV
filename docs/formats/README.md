@@ -169,8 +169,11 @@ Include `tlv/format.h` for the allocation-free descriptor:
 
 Pass the descriptor to `tlv_reader_init` or `tlv_writer_init` as the last
 argument after the buffer and its size. The descriptor and its optional
-immutable `context` are borrowed and must remain valid and unchanged throughout
-use. Read and write capability are independently optional: `read_tag` and
+immutable `context` are borrowed and must remain valid and unchanged
+throughout use; see [format context ownership and
+lifetime](../guides/memory.md#format-context-ownership-and-lifetime) for the
+full contract, including copying, sharing and moving. Read and write
+capability are independently optional: `read_tag` and
 `read_length` are required for reading unless `read_element` is set, and
 `write_tag`, `write_length` and `length_size` are required for writing unless
 `write_header` is set. A format that leaves an entire group unset (all `NULL`)

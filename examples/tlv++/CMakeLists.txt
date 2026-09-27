@@ -39,6 +39,19 @@ target_link_libraries(example-tlv++-formats-fixed-format PRIVATE tlv++)
 opentlv_configure_compiler(example-tlv++-formats-fixed-format)
 opentlv_copy_shared_runtime(example-tlv++-formats-fixed-format)
 
+# Same format, but tlv_fixed_format_t chosen at runtime through the raw C API
+# (needs the C library built with the fixed format, unlike the compile-time
+# template above).
+if(OPENTLV_FORMAT_FIXED)
+    add_executable(example-tlv++-formats-fixed-format-runtime src/formats/fixed_format_runtime.cpp)
+    target_link_libraries(example-tlv++-formats-fixed-format-runtime PRIVATE tlv++)
+    opentlv_configure_compiler(example-tlv++-formats-fixed-format-runtime)
+    opentlv_copy_shared_runtime(example-tlv++-formats-fixed-format-runtime)
+    add_test(NAME Integration_example_tlv++_formats_fixed_format_runtime
+        COMMAND $<TARGET_FILE:example-tlv++-formats-fixed-format-runtime>)
+    set_tests_properties(Integration_example_tlv++_formats_fixed_format_runtime PROPERTIES LABELS "integration;examples")
+endif()
+
 # Use-case examples shared across languages: the same document is parsed,
 # written, queried and validated in examples/tlv, examples/tlv++ and
 # bindings/rust/opentlv/examples.

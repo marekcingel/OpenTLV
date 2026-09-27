@@ -5,11 +5,13 @@
 //!
 //! Run with `cargo run --example quick_start` from `bindings/rust`.
 
-use opentlv::{ByteOrder, FixedFormat, Reader, Result, Tag, Writer};
+use opentlv::{ByteOrder, FixedFormat, FixedFormatConfig, Reader, Result, Tag, Writer};
 
 fn main() -> Result<()> {
-    // One tag byte and one length byte; format must outlive its readers and writers.
-    let format = FixedFormat::new(1, 1, ByteOrder::Big)?;
+    // One tag byte and one length byte; config must outlive format, and format
+    // must outlive its readers and writers.
+    let config = FixedFormatConfig::new(1, 1, ByteOrder::Big);
+    let format = FixedFormat::new(&config)?;
 
     let tag = Tag::from_bytes(&[0x01]);
     let value = [0xAA, 0xBB, 0xCC];

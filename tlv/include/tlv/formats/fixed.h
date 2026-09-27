@@ -38,7 +38,11 @@ extern "C" {
  *
  * A borrowed, immutable value: the address passed to tlv_fixed_format_init()
  * becomes the initialized format's context, so this state must outlive
- * every reader or writer built from it.
+ * every reader or writer built from it. It is otherwise an ordinary
+ * movable/copyable value; relocating it after tlv_fixed_format_init() changes
+ * its address, so re-run tlv_fixed_format_init() against the new address if a
+ * format built from the old one is still needed.
+ * @see docs/guides/memory.md#format-context-ownership-and-lifetime
  */
 typedef struct tlv_fixed_format {
     /** Tag width in bytes; must be at least 1. */

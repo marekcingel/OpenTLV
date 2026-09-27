@@ -43,9 +43,10 @@ and `Reader::with_fixed_format` takes a `&FixedFormat` for a
 runtime-configurable tag width, length width and length byte order:
 
 ```rust
-use opentlv::{ByteOrder, FixedFormat, Reader};
+use opentlv::{ByteOrder, FixedFormat, FixedFormatConfig, Reader};
 
-let format = FixedFormat::new(2, 1, ByteOrder::Big)?;
+let config = FixedFormatConfig::new(2, 1, ByteOrder::Big);
+let format = FixedFormat::new(&config)?;
 for entry in Reader::with_fixed_format(&data, &format) {
     let entry = entry?;
     println!("{:02X?}: {:02X?}", entry.tag().as_bytes(), entry.value());
@@ -104,6 +105,8 @@ Every fallible call returns `opentlv::Result<T>`, an alias for
 | `Reader<'a>` | its cursor | the input `&'a [u8]` |
 | `Writer<'a>` | its position | the output `&'a mut [u8]` |
 | `LengthSchema`, `StructureSchema` | their rule tables | nothing |
+| `FixedFormatConfig` | its fields (`Copy`) | nothing |
+| `FixedFormat<'a>` | nothing | `&'a FixedFormatConfig` |
 
 - Entry values are zero-copy. `Reader<'a>` yields `Entry<'a>` tied to the
   input, not to the reader, so entries stay valid after the reader is dropped

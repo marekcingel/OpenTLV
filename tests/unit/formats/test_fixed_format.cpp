@@ -328,6 +328,28 @@ TEST(Unit_Tlvpp_FixedFormat, OneByteConfigurationMatchesTheCApi) {
     EXPECT_EQ(format::format().length_size(nullptr, 256, &size),
               c_writer.length_size(c_writer.context, 256, &size));
 }
+
+// Unlike the compile-time tlv::fixed_format<>, a runtime-configurable
+// tlv_fixed_format_t needs no tlv++ wrapper: tlv::writer/tlv::reader already
+// accept a plain `const tlv_format_t&`. See
+// docs/guides/memory.md#format-context-ownership-and-lifetime.
+TEST(Unit_Tlvpp_FixedFormat, ReaderAndWriterAcceptARuntimeCDescriptor) {
+    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    tlv_format_t             format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
+
+    std::array<tlv::byte, 16>      buf{};
+    tlv::writer                    writer(buf.data(), buf.size(), format);
+    const std::array<tlv::byte, 3> value = {tlv::byte(0xAA), tlv::byte(0xBB), tlv::byte(0xCC)};
+    ASSERT_TRUE(writer.write(TLV_TAG(0x12, 0x34), tlv::bytes(value.data(), value.size())));
+
+    tlv::reader reader(tlv::bytes(buf.data(), writer.size()), format);
+    auto        entry = reader.next();
+    ASSERT_TRUE(entry.has_value());
+    EXPECT_EQ(entry->tag.size, 2u);
+    EXPECT_EQ(entry->value.size(), value.size());
+    EXPECT_TRUE(reader.at_end());
+}
 #endif
 
 #if SIZE_MAX < UINT64_MAX

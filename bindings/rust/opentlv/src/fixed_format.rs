@@ -24,17 +24,59 @@ impl From<ByteOrder> for native::tlv_byte_order_t {
     }
 }
 
-/// A runtime-configurable fixed-width TLV format: independent tag width,
-/// length width (1 to 8 bytes) and length byte order.
+/// A runtime-configurable fixed-width TLV format's state: independent tag
+/// width, length width (1 to 8 bytes) and length byte order.
 ///
-/// Equivalent to the C `tlv_fixed_format_t` and `tlv_fixed_format_init()`. A
-/// one-byte tag and a one-byte big-endian length is
-/// `FixedFormat::new(1, 1, ByteOrder::Big)`.
+/// Equivalent to the C `tlv_fixed_format_t`. A caller-owned, `Copy` value: the
+/// caller holds it (on the stack, in a struct, wherever suits it) for as long
+/// as any [`FixedFormat`] borrows it, mirroring the C API's
+/// `tlv_fixed_format_t`/`tlv_fixed_format_init()` split directly instead of
+/// hiding the address-stability requirement behind a heap allocation. See
+/// [format context ownership and
+/// lifetime](https://github.com/marekcingel/OpenTLV/blob/main/docs/guides/memory.md#format-context-ownership-and-lifetime).
+#[derive(Clone, Copy, Debug)]
+pub struct FixedFormatConfig {
+    inner: native::tlv_fixed_format_t,
+}
+
+impl FixedFormatConfig {
+    /// Creates a fixed-width format configuration. A one-byte tag and a
+    /// one-byte big-endian length is `FixedFormatConfig::new(1, 1,
+    /// ByteOrder::Big)`.
+    ///
+    /// Validity of `tag_size`/`length_size` is checked when a [`FixedFormat`]
+    /// is built from this configuration, not here.
+    pub fn new(tag_size: usize, length_size: usize, order: ByteOrder) -> FixedFormatConfig {
+        FixedFormatConfig {
+            inner: native::tlv_fixed_format_t {
+                tag_size,
+                length_size,
+                order: order.into(),
+            },
+        }
+    }
+
+    /// Tag width in bytes.
+    pub fn tag_size(&self) -> usize {
+        self.inner.tag_size
+    }
+
+    /// Length field width in bytes.
+    pub fn length_size(&self) -> usize {
+        self.inner.length_size
+    }
+}
+
+/// A runtime-configurable fixed-width TLV format, borrowed from a
+/// [`FixedFormatConfig`] the caller owns.
+///
+/// Equivalent to the C `tlv_fixed_format_t` and `tlv_fixed_format_init()`.
 ///
 /// ```
-/// use opentlv::{ByteOrder, FixedFormat, Reader, Tag, Writer};
+/// use opentlv::{ByteOrder, FixedFormat, FixedFormatConfig, Reader, Tag, Writer};
 ///
-/// let format = FixedFormat::new(2, 1, ByteOrder::Big).unwrap();
+/// let config = FixedFormatConfig::new(2, 1, ByteOrder::Big);
+/// let format = FixedFormat::new(&config).unwrap();
 /// let mut buf = [0u8; 16];
 /// let mut writer = Writer::with_fixed_format(&mut buf, &format);
 /// writer.write(&Tag::from_bytes(&[0x01, 0x02]), &[0xAA, 0xBB, 0xCC]).unwrap();
@@ -44,31 +86,25 @@ impl From<ByteOrder> for native::tlv_byte_order_t {
 /// assert_eq!(entry.value(), &[0xAA, 0xBB, 0xCC]);
 /// ```
 #[derive(Debug)]
-pub struct FixedFormat {
-    // Heap-allocated so its address stays stable even when `FixedFormat`
-    // itself is moved; `format` below borrows it as its context.
-    config: Box<native::tlv_fixed_format_t>,
+pub struct FixedFormat<'a> {
+    config: &'a FixedFormatConfig,
     format: native::tlv_format_t,
 }
 
-impl FixedFormat {
-    /// Creates a configurable fixed-width format.
+impl<'a> FixedFormat<'a> {
+    /// Creates a configurable fixed-width format borrowing `config`; `config`
+    /// must outlive this `FixedFormat`.
     ///
     /// # Errors
     ///
-    /// [`Error::InvalidArg`] if `tag_size` is 0 or `length_size` is 0 or
-    /// greater than 8; [`Error::InvalidByteOrder`] cannot occur since `order`
-    /// is always a valid [`ByteOrder`].
-    pub fn new(tag_size: usize, length_size: usize, order: ByteOrder) -> Result<FixedFormat> {
-        let config = Box::new(native::tlv_fixed_format_t {
-            tag_size,
-            length_size,
-            order: order.into(),
-        });
+    /// [`Error::InvalidArg`] if `config`'s `tag_size` is 0 or `length_size` is
+    /// 0 or greater than 8; [`Error::InvalidByteOrder`] cannot occur since
+    /// `config` is always built with a valid [`ByteOrder`].
+    pub fn new(config: &'a FixedFormatConfig) -> Result<FixedFormat<'a>> {
         let mut format = MaybeUninit::<native::tlv_format_t>::uninit();
-        // SAFETY: `config`'s address is stable (heap-allocated, independent of
-        // this `FixedFormat` value's own address); `format` is writable.
-        let code = unsafe { native::tlv_fixed_format_init(format.as_mut_ptr(), &*config) };
+        // SAFETY: `config`'s address is stable for `'a` (the borrow checker
+        // enforces it); `format` is writable.
+        let code = unsafe { native::tlv_fixed_format_init(format.as_mut_ptr(), &config.inner) };
         Error::check(code)?;
         Ok(FixedFormat {
             config,
@@ -80,12 +116,12 @@ impl FixedFormat {
 
     /// Tag width in bytes.
     pub fn tag_size(&self) -> usize {
-        self.config.tag_size
+        self.config.tag_size()
     }
 
     /// Length field width in bytes.
     pub fn length_size(&self) -> usize {
-        self.config.length_size
+        self.config.length_size()
     }
 
     pub(crate) fn raw(&self) -> *const native::tlv_format_t {
@@ -100,23 +136,52 @@ mod tests {
     #[test]
     fn rejects_invalid_configurations() {
         assert_eq!(
-            FixedFormat::new(0, 1, ByteOrder::Big).unwrap_err(),
+            FixedFormat::new(&FixedFormatConfig::new(0, 1, ByteOrder::Big)).unwrap_err(),
             Error::InvalidArg
         );
         assert_eq!(
-            FixedFormat::new(1, 0, ByteOrder::Big).unwrap_err(),
+            FixedFormat::new(&FixedFormatConfig::new(1, 0, ByteOrder::Big)).unwrap_err(),
             Error::InvalidArg
         );
         assert_eq!(
-            FixedFormat::new(1, 9, ByteOrder::Big).unwrap_err(),
+            FixedFormat::new(&FixedFormatConfig::new(1, 9, ByteOrder::Big)).unwrap_err(),
             Error::InvalidArg
         );
     }
 
     #[test]
     fn one_byte_configuration_matches_the_wire_bytes() {
-        let format = FixedFormat::new(1, 1, ByteOrder::Big).unwrap();
+        let config = FixedFormatConfig::new(1, 1, ByteOrder::Big);
+        let format = FixedFormat::new(&config).unwrap();
         assert_eq!(format.tag_size(), 1);
         assert_eq!(format.length_size(), 1);
+    }
+
+    #[test]
+    fn one_config_shared_by_reader_and_writer() {
+        let config = FixedFormatConfig::new(2, 1, ByteOrder::Big);
+        let format = FixedFormat::new(&config).unwrap();
+
+        let mut buf = [0u8; 16];
+        let mut writer = crate::Writer::with_fixed_format(&mut buf, &format);
+        writer
+            .write(&crate::Tag::from_bytes(&[0x01, 0x02]), &[0xAA, 0xBB])
+            .unwrap();
+        let written = writer.finish();
+
+        let entry = crate::Reader::with_fixed_format(written, &format)
+            .next()
+            .unwrap()
+            .unwrap();
+        assert_eq!(entry.value(), &[0xAA, 0xBB]);
+    }
+
+    #[test]
+    fn two_formats_share_one_config() {
+        let config = FixedFormatConfig::new(1, 1, ByteOrder::Big);
+        let a = FixedFormat::new(&config).unwrap();
+        let b = FixedFormat::new(&config).unwrap();
+        assert_eq!(a.tag_size(), b.tag_size());
+        assert_eq!(a.length_size(), b.length_size());
     }
 }

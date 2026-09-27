@@ -47,7 +47,10 @@ namespace tlv {
  * @tparam Order       Byte order of the length field.
  *
  * @see tlv_fixed_format_t for the same format chosen at runtime instead of
- *      compile time (tlv/formats/fixed.h).
+ *      compile time (tlv/formats/fixed.h), usable from C++ via
+ *      `tlv::writer`/`tlv::reader`'s `const tlv_format_t&` constructor
+ *      parameter directly, with no wrapper of its own needed.
+ * @see docs/guides/memory.md#format-context-ownership-and-lifetime
  */
 template <std::size_t TagWidth, std::size_t LengthWidth, tlv_byte_order_t Order>
 class fixed_format {

@@ -66,10 +66,54 @@ must not overlap the destination element. Capacity is checked before writing;
 custom callback failures can still leave partially modified bytes. Do not assume
 that every error rolls back destination memory. See [I/O contracts](../formats/README.md).
 
+## Format context ownership and lifetime
+
+`tlv_format_t::context` is a borrowed, non-owning `const void*`: whoever
+constructs the state it points to (for example a `tlv_fixed_format_t`) owns
+it, and must keep it valid and unchanged for as long as any `tlv_format_t` —
+and any reader, writer, document or structure codec built from it — is in
+use. Passing `NULL` is always valid; not every format needs runtime state.
+
+`tlv_format_t` itself is a plain, trivially copyable value: copying it
+shallow-copies the callback pointers and the `context` pointer, but does not
+copy or extend the lifetime of whatever `context` points to. State types such
+as `tlv_fixed_format_t` are themselves ordinary movable/copyable values with
+no special member functions of their own — but relocating one (a move, a
+copy, a `realloc`, a growing `Vec`/`std::vector`) changes its address, which
+invalidates any `tlv_format_t` that already stored the *old* address as its
+context. Re-run the format's `_init` function (or the language binding's
+equivalent) against the new address if you need a `tlv_format_t` for it.
+
+**Avoid self-referential containers.** Do not define a struct that holds both
+a format's state and a `tlv_format_t` pointing at that state as a sibling
+member of the same struct: copying or moving such a struct relocates the
+state but leaves the embedded `tlv_format_t::context` pointing at the old,
+now-stale address. If you need a movable or copyable wrapper type around a
+format, keep its state behind a stable, heap-owned pointer instead, the way
+`tlv::document`'s private implementation struct does (heap-allocated via
+`std::unique_ptr`), precisely so the C document's internal pointers survive a
+move of the `tlv::document` value.
+
+OpenTLV itself never mutates a format descriptor or its context after
+initialization, so multiple readers, writers and documents may safely share
+one immutable format concurrently, including across threads. This does not
+by itself make a *custom* format thread-safe: the callbacks and context of a
+custom format are supplied by its author, and whether they tolerate
+concurrent calls is the author's responsibility, not a guarantee OpenTLV
+makes on their behalf. The built-in formats (including the configurable
+Fixed format) always are, since their context, when present, is read-only
+scalar state.
+
+This model scales unchanged to arbitrarily large runtime-defined format
+state: the caller picks whatever storage duration suits it (stack, static,
+heap, arena), and OpenTLV never requires an inline buffer or a forced heap
+allocation just to keep a context pointer stable.
+
 ## Custom descriptors and C++
 
-Descriptors and their optional context are borrowed, not owned. Avoid returning a
-reader or writer referring to a descriptor or context local to a completed function.
+Descriptors and their optional context are borrowed, not owned (see
+[above](#format-context-ownership-and-lifetime)). Avoid returning a reader or
+writer referring to a descriptor or context local to a completed function.
 The C core does not allocate dynamically. C++ convenience types, error strings,
 and dynamic containers may allocate; choose the C API for a strict no-heap path.
 

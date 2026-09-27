@@ -197,7 +197,8 @@ static tlv_visit_result_t emit_element(const tlv_view_t* view, size_t depth, siz
 
 static const tlv_format_t* select_format(const char* name, int* ber, int* der,
                                          size_t fixed_tag_size, size_t fixed_length_size,
-                                         int fixed_big_endian) {
+                                         int fixed_big_endian, tlv_fixed_format_t* fixed_config,
+                                         tlv_format_t* fixed_format) {
     *ber = 0;
     *der = 0;
     if (!name) return NULL;
@@ -206,14 +207,16 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
 #endif
 #if OPENTLV_FORMAT_FIXED
     // Configured by the caller's fixed_tag_size/fixed_length_size/fixed_big_endian.
+    // fixed_config/fixed_format are storage owned by the caller (opentlv_wasm_parse),
+    // which outlives this call, since a `static` here would make the module
+    // non-reentrant (see docs/guides/memory.md#format-context-ownership-and-lifetime).
     if (!strcmp(name, "fixed")) {
-        static tlv_fixed_format_t config;
-        static tlv_format_t       format;
-        config.tag_size = fixed_tag_size;
-        config.length_size = fixed_length_size;
-        config.order = fixed_big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
-        if (tlv_fixed_format_init(&format, &config) != TLV_OK) return NULL;
-        return &format;
+        fixed_config->tag_size = fixed_tag_size;
+        fixed_config->length_size = fixed_length_size;
+        fixed_config->order =
+            fixed_big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
+        if (tlv_fixed_format_init(fixed_format, fixed_config) != TLV_OK) return NULL;
+        return fixed_format;
     }
 #endif
 #if OPENTLV_FORMAT_BLUETOOTH_LTV
@@ -253,6 +256,9 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
     writer_context_t*      w;
     int                    ber, der;
     size_t                 error_offset = 0;
+    /* Storage for select_format()'s "fixed" case; must outlive its use below. */
+    tlv_fixed_format_t fixed_config;
+    tlv_format_t       fixed_format;
 
     if (!result) return NULL;
     w = (writer_context_t*)calloc(1, sizeof *w);
@@ -260,7 +266,8 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
         free(result);
         return NULL;
     }
-    reader = select_format(format, &ber, &der, fixed_tag_size, fixed_length_size, fixed_big_endian);
+    reader = select_format(format, &ber, &der, fixed_tag_size, fixed_length_size, fixed_big_endian,
+                           &fixed_config, &fixed_format);
     w->ber = ber;
     w->input = data;
 

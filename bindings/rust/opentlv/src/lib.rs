@@ -87,7 +87,7 @@ pub use codec::{
 };
 pub use entry::Entry;
 pub use error::{Error, Result};
-pub use fixed_format::{ByteOrder, FixedFormat};
+pub use fixed_format::{ByteOrder, FixedFormat, FixedFormatConfig};
 pub use format::Format;
 pub use profile::{Limits, Profile, ProfileError, Strictness};
 pub use reader::Reader;

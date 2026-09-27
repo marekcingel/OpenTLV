@@ -185,7 +185,13 @@ typedef tlv_result_t (*tlv_write_header_fn)(const void* context, uint8_t* data, 
  * @brief Stateless format descriptor with optional borrowed, immutable configuration.
  *
  * The descriptor and context must outlive every reader, writer and operation
- * that uses them. Read and write capability are independently optional:
+ * that uses them. The descriptor itself is a plain, trivially copyable value;
+ * copying it shallow-copies `context` without copying or extending the
+ * lifetime of whatever it points to.
+ * @see docs/guides/memory.md#format-context-ownership-and-lifetime for the
+ * full ownership, copying and sharing contract.
+ *
+ * Read and write capability are independently optional:
  * `read_tag` and `read_length` are required for reading unless `read_element`
  * is set, and `write_tag`, `write_length` and `length_size` are required for
  * writing unless `write_header` is set. A format that leaves an entire group
@@ -206,7 +212,11 @@ typedef tlv_result_t (*tlv_write_header_fn)(const void* context, uint8_t* data, 
  * @see tlv_format_init, tlv_format_init_element
  */
 typedef struct tlv_format {
-    /** Borrowed, immutable configuration passed to every callback; may be `NULL`. */
+    /**
+     * Borrowed, immutable configuration passed to every callback; may be
+     * `NULL`. The caller owns it and must keep it valid and unchanged for as
+     * long as this descriptor (or anything built from it) is used.
+     */
     const void* context;
     /** Tag decoder. Required for reading unless `read_element` is set. */
     tlv_read_tag_fn read_tag;

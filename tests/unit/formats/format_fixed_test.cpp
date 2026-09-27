@@ -93,6 +93,40 @@ TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
     }
 }
 
+// tlv_format_t is a plain, trivially copyable value: copying it shallow-copies
+// the context pointer without copying or extending the lifetime of what it
+// points to. See docs/guides/memory.md#format-context-ownership-and-lifetime.
+TEST(Unit_Tlv_Fixed, CopyingTheDescriptorSharesTheSameBorrowedContext) {
+    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    tlv_format_t             original{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&original, &config));
+
+    const tlv_format_t copy = original;
+    EXPECT_EQ(&config, copy.context);
+    EXPECT_EQ(original.context, copy.context);
+
+    const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
+    const tlv_tag_t tag = TLV_TAG(0x12, 0x34);
+    uint8_t         from_original[16] = {};
+    uint8_t         from_copy[16] = {};
+    size_t          written_original = 0, written_copy = 0;
+    ASSERT_EQ(TLV_OK, tlv_write(from_original, sizeof(from_original), &original, tag, value,
+                                sizeof(value), &written_original));
+    ASSERT_EQ(TLV_OK, tlv_write(from_copy, sizeof(from_copy), &copy, tag, value, sizeof(value),
+                                &written_copy));
+    EXPECT_EQ(written_original, written_copy);
+    EXPECT_EQ(0, std::memcmp(from_original, from_copy, written_original));
+
+    tlv_view_t view_from_original{};
+    tlv_view_t view_from_copy{};
+    size_t     consumed_original = 0, consumed_copy = 0;
+    ASSERT_EQ(TLV_OK, tlv_read(from_original, written_original, &original, &view_from_original,
+                               &consumed_original));
+    ASSERT_EQ(TLV_OK, tlv_read(from_copy, written_copy, &copy, &view_from_copy, &consumed_copy));
+    EXPECT_EQ(consumed_original, consumed_copy);
+    EXPECT_EQ(view_from_original.value.length, view_from_copy.value.length);
+}
+
 TEST(Unit_Tlv_Fixed, InvalidWritesPreserveBufferAndPosition) {
     const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
     tlv_format_t             format{};

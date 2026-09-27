@@ -24,6 +24,7 @@ using reader_diagnostic = tlv_reader_diagnostic_t;
  *
  * @warning The caller must keep the buffer, format, and format context
  *          alive for the lifetime of the reader and of any entry it returns.
+ * @see docs/guides/memory.md#format-context-ownership-and-lifetime
  */
 class reader {
 public:

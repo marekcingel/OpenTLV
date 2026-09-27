@@ -19,7 +19,7 @@ size queries. For a fixed-width tag and length, use the built-in
 [configurable fixed-width format](../fixed/configurable.md) instead of custom
 callbacks; write custom callbacks for anything with a different shape, such as
 a variable-length or protocol-specific length field.
-See [shared memory ownership rules](../../guides/memory.md).
+See [format context ownership and lifetime](../../guides/memory.md#format-context-ownership-and-lifetime).
 
 ## C usage
 

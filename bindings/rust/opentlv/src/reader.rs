@@ -61,7 +61,7 @@ impl<'a> Reader<'a> {
     }
 
     /// Creates a reader for a [`FixedFormat`]; `format` must outlive the reader.
-    pub fn with_fixed_format(data: &'a [u8], format: &'a FixedFormat) -> Reader<'a> {
+    pub fn with_fixed_format<'f>(data: &'a [u8], format: &'a FixedFormat<'f>) -> Reader<'a> {
         let mut raw = MaybeUninit::<native::tlv_reader_t>::uninit();
         // SAFETY: `raw` is writable; `data` is a valid slice (a non-null
         // pointer even when empty); `format.raw()` points at storage

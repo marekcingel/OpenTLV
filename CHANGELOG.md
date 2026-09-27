@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the WebAssembly build's `fixed` format selection using module-instance-lifetime
+  (`static`) storage instead of per-call storage, which was not reentrant if the
+  module were ever invoked recursively or shared across Web Workers; it now
+  builds `tlv_fixed_format_t`/`tlv_format_t` on the stack for each parse call,
+  like every other format. (#328)
 - Fix a Clang `-Wmissing-field-initializers` error in the architecture and
   format tests, whose custom `tlv_format_t` literals used positional
   initializers for only some of the struct's fields. (#326)
@@ -41,6 +46,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Replace the Rust `opentlv::FixedFormat`'s internal
+  `Box<tlv_fixed_format_t>` with an explicit borrow: `FixedFormat` is now
+  `FixedFormat<'a>`, built with `FixedFormat::new(&'a FixedFormatConfig)` from a
+  new, plain, `Copy` `FixedFormatConfig` value the caller owns, directly
+  mirroring the C `tlv_fixed_format_t`/`tlv_fixed_format_init` split instead of
+  hiding it behind a heap allocation. `Reader::with_fixed_format`,
+  `Writer::with_fixed_format` and `encoded_size_fixed` take `&FixedFormat<'_>`
+  accordingly. No compatibility shim; update call sites. (#328)
 - **Breaking:** Move the configurable fixed-width format out of the
   protocol-specific `builtins/` hierarchy into a new generic `formats/` layer,
   since it is a protocol-agnostic wire-format mechanism rather than a
