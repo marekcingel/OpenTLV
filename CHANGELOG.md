@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Clang `-Wmissing-field-initializers` errors in the Fixed format tests
+  and the fuzz harness, whose `tlv_fixed_format_t` literals used positional
+  initializers for only some of the struct's fields after it gained
+  `element_order` and `length_scope`. (#331)
 - Fix a Clang `-Wunused-const-variable` error in the integration architecture
   test, whose `full_format` fixture became dead code once its only user
   switched to a copy with `is_constructed` set. (#332)
@@ -53,6 +57,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Generalize the configurable Fixed format
+  (`tlv_fixed_format_t`) with an `element_order` (tag-then-length or
+  length-then-tag) and a `length_scope` (value only, or tag and value); its
+  `order` field is renamed to `length_order` to disambiguate it from
+  `element_order`. Bluetooth LTV is now this format preset
+  (length-then-tag, length counts both) instead of its own reader/writer;
+  `OPENTLV_FORMAT_BLUETOOTH_LTV` now requires `OPENTLV_FORMAT_FIXED`, and
+  `tlv_format_bluetooth_ltv`'s `context` is no longer `NULL`, though its
+  accepted and rejected inputs are unchanged. No compatibility shim; rebuild
+  all consumers that name `tlv_fixed_format_t`'s fields directly. (#331)
 - **Breaking:** Move constructed-element detection into `tlv_format_t` as an
   optional `is_constructed` field, instead of a separate predicate argument:
   `tlv_walk_tree()`, `tlv_schema_validate()`, `tlv_schema_validate_all()`,

@@ -13,9 +13,15 @@ only the format descriptor differs.
 | --- | --- |
 | Format header | `tlv/builtins/bluetooth/bluetooth_ltv.h` |
 | Descriptor | `tlv_format_bluetooth_ltv` |
-| CMake option (default ON) | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
+| CMake option (default ON, requires `OPENTLV_FORMAT_FIXED`) | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
 | `otlv` format name | `bluetooth-ltv` |
 | Link target | `tlv` |
+
+Bluetooth LTV is a preset of the [configurable Fixed format](../fixed/configurable.md):
+`{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
+TLV_LENGTH_SCOPE_TAG_AND_VALUE}`. `tlv_format_bluetooth_ltv` exists so callers
+do not have to spell that configuration out themselves; there is no
+Bluetooth-specific parser or writer underneath it.
 
 ## Wire layout and logical model
 
@@ -184,10 +190,16 @@ Element (4 bytes)
 
 Other formats decode a tag, then a length, through the `read_tag` and
 `read_length` callbacks. That split cannot describe a format whose length
-precedes its type, so Bluetooth LTV uses the optional whole-element callbacks
-`read_element` (reader) and `write_header` (writer) described in the
-[generic interface](../README.md#generic-interface). They report the tag, the
-size of everything before the value, and the value size in one step, so the
-reader, scanner, walker, schemas, copy helpers and the CLI work on it with no
-format-specific code. Bluetooth-specific wire rules stay in
-`tlv/src/builtins/bluetooth/`.
+precedes its type, so the [configurable Fixed format](../fixed/configurable.md)
+falls back to the optional whole-element callbacks `read_element` (reader) and
+`write_header` (writer), described in the
+[generic interface](../README.md#generic-interface), whenever it is configured
+with `TLV_ELEMENT_ORDER_LTV`. They report the tag, the size of everything before
+the value, and the value size in one step, so the reader, scanner, walker,
+schemas, copy helpers and the CLI work on it with no format-specific code.
+
+`tlv_format_bluetooth_ltv` (`tlv/src/builtins/bluetooth/bluetooth_ltv.c`) is
+just that Fixed configuration and those same shared callbacks; it carries no
+parsing or encoding logic of its own. Bluetooth-specific naming and framing
+constraints (the fixed one-byte tag, the 254-byte value ceiling) come entirely
+from the configuration's field widths, not from extra Bluetooth-specific code.

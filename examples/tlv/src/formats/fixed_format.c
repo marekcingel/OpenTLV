@@ -18,7 +18,7 @@
 
 int main(void) {
     const tlv_fixed_format_t config = {
-        .tag_size = 2, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
+        .tag_size = 2, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
     /* config must outlive every reader and writer built from it. */
     tlv_format_t format;
     CHECK(tlv_fixed_format_init(&format, &config));

@@ -51,7 +51,9 @@ impl FixedFormatConfig {
             inner: native::tlv_fixed_format_t {
                 tag_size,
                 length_size,
-                order: order.into(),
+                length_order: order.into(),
+                element_order: native::TLV_ELEMENT_ORDER_TLV,
+                length_scope: native::TLV_LENGTH_SCOPE_VALUE,
             },
         }
     }

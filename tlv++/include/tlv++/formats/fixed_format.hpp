@@ -85,7 +85,8 @@ public:
      * @return A borrowed, immutable descriptor that lives for the whole program.
      */
     static const tlv_format_t& format() {
-        static const tlv_fixed_format_t config = {TagWidth, LengthWidth, Order};
+        static const tlv_fixed_format_t config = {TagWidth, LengthWidth, Order,
+                                                  TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
         static const tlv_format_t       fmt = init(config);
         return fmt;
     }

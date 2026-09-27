@@ -1,14 +1,20 @@
+#include "tlv/config.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
+#endif
 #include <gtest/gtest.h>
 #include <cstring>
 
 TEST(Unit_Tlv_Fixed, InitAcceptsValidConfigs) {
     const tlv_fixed_format_t configs[] = {
-        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN},    {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN},
-        {1, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN}, {2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN},
-        {255, 8, TLV_BYTE_ORDER_BIG_ENDIAN},
+        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        {1, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        {2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        {255, 8, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
     };
     for (const auto& config : configs) {
         SCOPED_TRACE(::testing::Message()
@@ -31,12 +37,79 @@ TEST(Unit_Tlv_Fixed, InitAcceptsValidConfigs) {
     }
 }
 
-TEST(Unit_Tlv_Fixed, InitRejectsInvalidArgumentsWithoutModification) {
-    const tlv_fixed_format_t valid = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+TEST(Unit_Tlv_Fixed, InitUsesElementCallbacksForLtvFieldOrder) {
+    const tlv_fixed_format_t configs[] = {
+        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_VALUE},
+        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_TAG_AND_VALUE},
+        {2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_TAG_AND_VALUE},
+    };
+    for (const auto& config : configs) {
+        tlv_format_t format{};
+        ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
+        EXPECT_EQ(&config, format.context);
+        EXPECT_EQ(nullptr, format.read_tag);
+        EXPECT_EQ(nullptr, format.read_length);
+        EXPECT_EQ(nullptr, format.read_value_bounds);
+        EXPECT_NE(nullptr, format.read_element);
+        EXPECT_EQ(nullptr, format.write_tag);
+        EXPECT_EQ(nullptr, format.write_length);
+        EXPECT_EQ(nullptr, format.length_size);
+        EXPECT_NE(nullptr, format.write_header);
+    }
+}
+
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+// A TLV_ELEMENT_ORDER_LTV/TLV_LENGTH_SCOPE_TAG_AND_VALUE configuration matching
+// tag_size/length_size/length_order must behave exactly like
+// tlv_format_bluetooth_ltv, since that global is this same configuration.
+TEST(Unit_Tlv_Fixed, LtvTagAndValuePresetMatchesBluetoothLtv) {
+    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
+                                       TLV_LENGTH_SCOPE_TAG_AND_VALUE};
+    tlv_format_t             format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
+
+    const uint8_t advertising[] = {0x02, 0x01, 0x06, 0x03, 0x09, 'H', 'i'};
+    tlv_reader_t  from_config, from_global;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&from_config, advertising, sizeof(advertising), &format));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&from_global, advertising, sizeof(advertising),
+                                      &tlv_format_bluetooth_ltv));
+    for (int i = 0; i < 2; ++i) {
+        tlv_view_t a{}, b{};
+        ASSERT_EQ(TLV_OK, tlv_reader_next(&from_config, &a));
+        ASSERT_EQ(TLV_OK, tlv_reader_next(&from_global, &b));
+        EXPECT_EQ(a.tag.size, b.tag.size);
+        EXPECT_EQ(0, std::memcmp(a.tag.data, b.tag.data, a.tag.size));
+        EXPECT_EQ(a.value.length, b.value.length);
+        EXPECT_EQ(0, std::memcmp(a.value.data, b.value.data, a.value.length));
+    }
+    EXPECT_TRUE(tlv_reader_at_end(&from_config));
+    EXPECT_TRUE(tlv_reader_at_end(&from_global));
+}
+#endif
+
+TEST(Unit_Tlv_Fixed, InitRejectsInvalidFieldOrderAndLengthScope) {
+    const tlv_fixed_format_t valid = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                      TLV_LENGTH_SCOPE_VALUE};
     const tlv_fixed_format_t invalid_configs[] = {
-        {0, 1, TLV_BYTE_ORDER_BIG_ENDIAN},
-        {1, 0, TLV_BYTE_ORDER_BIG_ENDIAN},
-        {1, 9, TLV_BYTE_ORDER_BIG_ENDIAN},
+        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, static_cast<tlv_element_order_t>(2),
+         TLV_LENGTH_SCOPE_VALUE},
+        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+         static_cast<tlv_length_scope_t>(2)},
+    };
+    tlv_format_t format{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &valid));
+    for (const auto& config : invalid_configs) {
+        EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_fixed_format_init(&format, &config));
+    }
+}
+
+TEST(Unit_Tlv_Fixed, InitRejectsInvalidArgumentsWithoutModification) {
+    const tlv_fixed_format_t valid = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                      TLV_LENGTH_SCOPE_VALUE};
+    const tlv_fixed_format_t invalid_configs[] = {
+        {0, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        {1, 0, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        {1, 9, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
     };
 
     tlv_format_t  reader{};
@@ -65,8 +138,10 @@ TEST(Unit_Tlv_Fixed, InitRejectsInvalidArgumentsWithoutModification) {
 }
 
 TEST(Unit_Tlv_Fixed, InitRejectsInvalidByteOrder) {
-    const tlv_fixed_format_t unknown = {1, 2, TLV_BYTE_ORDER_UNKNOWN};
-    const tlv_fixed_format_t bogus = {1, 2, static_cast<tlv_byte_order_t>(99)};
+    const tlv_fixed_format_t unknown = {1, 2, TLV_BYTE_ORDER_UNKNOWN, TLV_ELEMENT_ORDER_TLV,
+                                        TLV_LENGTH_SCOPE_VALUE};
+    const tlv_fixed_format_t bogus = {1, 2, static_cast<tlv_byte_order_t>(99),
+                                      TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             reader{};
     tlv_format_t             writer{};
     EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&reader, &unknown));
@@ -76,7 +151,8 @@ TEST(Unit_Tlv_Fixed, InitRejectsInvalidByteOrder) {
 }
 
 TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
-    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     const uint8_t data[] = {0x12, 0x34, 0x03, 0xAA, 0xBB, 0xCC};
@@ -97,7 +173,8 @@ TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
 // the context pointer without copying or extending the lifetime of what it
 // points to. See docs/guides/memory.md#format-context-ownership-and-lifetime.
 TEST(Unit_Tlv_Fixed, CopyingTheDescriptorSharesTheSameBorrowedContext) {
-    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             original{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&original, &config));
 
@@ -128,7 +205,8 @@ TEST(Unit_Tlv_Fixed, CopyingTheDescriptorSharesTheSameBorrowedContext) {
 }
 
 TEST(Unit_Tlv_Fixed, InvalidWritesPreserveBufferAndPosition) {
-    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
     tlv_format_t             format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     uint8_t data[258];
