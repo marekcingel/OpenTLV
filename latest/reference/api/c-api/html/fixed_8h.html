@@ -76,12 +76,13 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">fixed.h File Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>A configurable fixed-width TLV format: independent tag and length widths.  
+<p>A configurable fixed-width TLV format: independent tag and length widths, field order and length semantics.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="endian_8h.html">tlv/endian.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="format_8h.html">tlv/format.h</a>&quot;</code><br />
@@ -96,9 +97,28 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:gacb62bf57a0727d474bc74851619b6272" id="r_gacb62bf57a0727d474bc74851619b6272"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__formats.html#ga147f000cda6c501c60b0580eaed62653">tlv_element_order</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gacb62bf57a0727d474bc74851619b6272">tlv_element_order_t</a></td></tr>
+<tr class="memdesc:gacb62bf57a0727d474bc74851619b6272"><td class="mdescLeft">&#160;</td><td class="mdescRight">Element order of a configurable fixed-width format.  <br /></td></tr>
+<tr class="separator:gacb62bf57a0727d474bc74851619b6272"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga13d583efddacc347efb0899f55d23953" id="r_ga13d583efddacc347efb0899f55d23953"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__formats.html#ga938da6e0c2615f4b959ed62fb5c2fe88">tlv_length_scope</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga13d583efddacc347efb0899f55d23953">tlv_length_scope_t</a></td></tr>
+<tr class="memdesc:ga13d583efddacc347efb0899f55d23953"><td class="mdescLeft">&#160;</td><td class="mdescRight">What a configurable fixed-width format's length field counts.  <br /></td></tr>
+<tr class="separator:ga13d583efddacc347efb0899f55d23953"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5cfd21b210cb1ce86db518e86fc7a5ba" id="r_ga5cfd21b210cb1ce86db518e86fc7a5ba"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__fixed__format.html">tlv_fixed_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5cfd21b210cb1ce86db518e86fc7a5ba">tlv_fixed_format_t</a></td></tr>
 <tr class="memdesc:ga5cfd21b210cb1ce86db518e86fc7a5ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">State describing a configurable fixed-width format.  <br /></td></tr>
 <tr class="separator:ga5cfd21b210cb1ce86db518e86fc7a5ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:ga147f000cda6c501c60b0580eaed62653" id="r_ga147f000cda6c501c60b0580eaed62653"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga147f000cda6c501c60b0580eaed62653">tlv_element_order</a> { <a class="el" href="group__formats.html#gga147f000cda6c501c60b0580eaed62653a1a034c64b69be34f862197043d103360">TLV_ELEMENT_ORDER_TLV</a> = 0
+, <a class="el" href="group__formats.html#gga147f000cda6c501c60b0580eaed62653a4d6f13804271ce37f938ca08c7a64eb4">TLV_ELEMENT_ORDER_LTV</a>
+ }</td></tr>
+<tr class="memdesc:ga147f000cda6c501c60b0580eaed62653"><td class="mdescLeft">&#160;</td><td class="mdescRight">Element order of a configurable fixed-width format.  <a href="group__formats.html#ga147f000cda6c501c60b0580eaed62653">More...</a><br /></td></tr>
+<tr class="separator:ga147f000cda6c501c60b0580eaed62653"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga938da6e0c2615f4b959ed62fb5c2fe88" id="r_ga938da6e0c2615f4b959ed62fb5c2fe88"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga938da6e0c2615f4b959ed62fb5c2fe88">tlv_length_scope</a> { <a class="el" href="group__formats.html#gga938da6e0c2615f4b959ed62fb5c2fe88a1be8ad64cc22cabaedb114508d942feb">TLV_LENGTH_SCOPE_VALUE</a> = 0
+, <a class="el" href="group__formats.html#gga938da6e0c2615f4b959ed62fb5c2fe88ab743288c6d19453bd6207f581eacf65a">TLV_LENGTH_SCOPE_TAG_AND_VALUE</a>
+ }</td></tr>
+<tr class="memdesc:ga938da6e0c2615f4b959ed62fb5c2fe88"><td class="mdescLeft">&#160;</td><td class="mdescRight">What a configurable fixed-width format's length field counts.  <a href="group__formats.html#ga938da6e0c2615f4b959ed62fb5c2fe88">More...</a><br /></td></tr>
+<tr class="separator:ga938da6e0c2615f4b959ed62fb5c2fe88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -107,9 +127,11 @@ Functions</h2></td></tr>
 <tr class="separator:ga42dd642a7d68261d64df08528ad6cf7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A configurable fixed-width TLV format: independent tag and length widths. </p>
-<p>Every element is <code>tag_size</code> raw tag bytes, then a <code>length_size</code>-byte length field in <code>order</code>, then that many value bytes. The length counts only the value; it excludes the header. Tag bytes are copied unchanged in wire order, so <code>order</code> applies to the length field only.</p>
-<p>A one-byte tag and a one-byte length, the narrowest useful configuration, is <code>tlv_fixed_format_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}</code>; an application that only ever needs that shape can define it once as a file-scope constant instead of building the format on every use.</p>
+<div class="textblock"><p>A configurable fixed-width TLV format: independent tag and length widths, field order and length semantics. </p>
+<p>Every element is <code>tag_size</code> raw tag bytes and a <code>length_size</code>-byte length field in <code>length_order</code>, in the order <code>element_order</code> selects, then the value bytes. Tag bytes are copied unchanged in wire order, so <code>length_order</code> applies to the length field only.</p>
+<p><code>length_scope</code> selects what the length field counts: <a class="el" href="group__formats.html#gga938da6e0c2615f4b959ed62fb5c2fe88a1be8ad64cc22cabaedb114508d942feb">TLV_LENGTH_SCOPE_VALUE</a> (the conventional case) counts only the value, so <code>encoded_length = value_size</code>; <a class="el" href="group__formats.html#gga938da6e0c2615f4b959ed62fb5c2fe88ab743288c6d19453bd6207f581eacf65a">TLV_LENGTH_SCOPE_TAG_AND_VALUE</a> counts the tag as well, so <code>encoded_length = tag_size + value_size</code>. Reading performs the inverse conversion and rejects an encoded length smaller than the non-value portion it must cover with <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>.</p>
+<p>A one-byte tag and a one-byte length, the narrowest useful configuration, is <code>tlv_fixed_format_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}</code>: the trailing <code>element_order</code> and <code>length_scope</code> default to <a class="el" href="group__formats.html#gga147f000cda6c501c60b0580eaed62653a1a034c64b69be34f862197043d103360">TLV_ELEMENT_ORDER_TLV</a> and <a class="el" href="group__formats.html#gga938da6e0c2615f4b959ed62fb5c2fe88a1be8ad64cc22cabaedb114508d942feb">TLV_LENGTH_SCOPE_VALUE</a> respectively, since both are zero-valued enumerators. An application that only ever needs one shape can define it once as a file-scope constant instead of building the format on every use.</p>
+<p>Bluetooth LTV (<a class="el" href="bluetooth__ltv_8h.html" title="Bluetooth LTV: one length byte, one type byte, then the value.">tlv/builtins/bluetooth/bluetooth_ltv.h</a>) is this format configured as <code>{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_TAG_AND_VALUE}</code>.</p>
 <dl class="section note"><dt>Note</dt><dd>Writing a tag whose size differs from the configured <code>tag_size</code> returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a>. </dd></dl>
 </div></div><!-- contents -->
 <!-- start footer part -->

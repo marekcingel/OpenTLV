@@ -2810,7 +2810,7 @@ only the format descriptor differs.</p>
 <td><code>tlv_format_bluetooth_ltv</code></td>
 </tr>
 <tr>
-<td>CMake option (default ON)</td>
+<td>CMake option (default ON, requires <code>OPENTLV_FORMAT_FIXED</code>)</td>
 <td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
 </tr>
 <tr>
@@ -2823,6 +2823,11 @@ only the format descriptor differs.</p>
 </tr>
 </tbody>
 </table>
+<p>Bluetooth LTV is a preset of the <a href="../fixed/configurable/">configurable Fixed format</a>:
+<code>{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
+TLV_LENGTH_SCOPE_TAG_AND_VALUE}</code>. <code>tlv_format_bluetooth_ltv</code> exists so callers
+do not have to spell that configuration out themselves; there is no
+Bluetooth-specific parser or writer underneath it.</p>
 <h2 id="wire-layout-and-logical-model">Wire layout and logical model<a class="headerlink" href="#wire-layout-and-logical-model" title="Permanent link">&para;</a></h2>
 <p>On the wire the length comes first:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[Length][Type][Value]
@@ -3066,13 +3071,18 @@ never returned partially.</p>
 <h2 id="how-it-fits-the-format-architecture">How it fits the format architecture<a class="headerlink" href="#how-it-fits-the-format-architecture" title="Permanent link">&para;</a></h2>
 <p>Other formats decode a tag, then a length, through the <code>read_tag</code> and
 <code>read_length</code> callbacks. That split cannot describe a format whose length
-precedes its type, so Bluetooth LTV uses the optional whole-element callbacks
-<code>read_element</code> (reader) and <code>write_header</code> (writer) described in the
-<a href="../#generic-interface">generic interface</a>. They report the tag, the
-size of everything before the value, and the value size in one step, so the
-reader, scanner, walker, schemas, copy helpers and the CLI work on it with no
-format-specific code. Bluetooth-specific wire rules stay in
-<code>tlv/src/builtins/bluetooth/</code>.</p>
+precedes its type, so the <a href="../fixed/configurable/">configurable Fixed format</a>
+falls back to the optional whole-element callbacks <code>read_element</code> (reader) and
+<code>write_header</code> (writer), described in the
+<a href="../#generic-interface">generic interface</a>, whenever it is configured
+with <code>TLV_ELEMENT_ORDER_LTV</code>. They report the tag, the size of everything before
+the value, and the value size in one step, so the reader, scanner, walker,
+schemas, copy helpers and the CLI work on it with no format-specific code.</p>
+<p><code>tlv_format_bluetooth_ltv</code> (<code>tlv/src/builtins/bluetooth/bluetooth_ltv.c</code>) is
+just that Fixed configuration and those same shared callbacks; it carries no
+parsing or encoding logic of its own. Bluetooth-specific naming and framing
+constraints (the fixed one-byte tag, the 254-byte value ceiling) come entirely
+from the configuration's field widths, not from extra Bluetooth-specific code.</p>
 
 
 

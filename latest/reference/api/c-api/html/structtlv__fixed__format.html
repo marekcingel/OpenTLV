@@ -86,13 +86,62 @@ Data Fields</h2></td></tr>
 <tr class="separator:a013ae76820636687c23eea541746bde4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc1ab3693cac0e2193ffd4c08145c5b5" id="r_afc1ab3693cac0e2193ffd4c08145c5b5"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__format.html#afc1ab3693cac0e2193ffd4c08145c5b5">length_size</a></td></tr>
 <tr class="separator:afc1ab3693cac0e2193ffd4c08145c5b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad79d282e519b36be8a28b8c44fe1e492" id="r_ad79d282e519b36be8a28b8c44fe1e492"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__format.html#ad79d282e519b36be8a28b8c44fe1e492">order</a></td></tr>
-<tr class="separator:ad79d282e519b36be8a28b8c44fe1e492"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d430ea38f5b6a3410331e04b1050ca3" id="r_a9d430ea38f5b6a3410331e04b1050ca3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__format.html#a9d430ea38f5b6a3410331e04b1050ca3">length_order</a></td></tr>
+<tr class="separator:a9d430ea38f5b6a3410331e04b1050ca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a274edabbedcc98047f4fb887f24b148a" id="r_a274edabbedcc98047f4fb887f24b148a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#gacb62bf57a0727d474bc74851619b6272">tlv_element_order_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__format.html#a274edabbedcc98047f4fb887f24b148a">element_order</a></td></tr>
+<tr class="separator:a274edabbedcc98047f4fb887f24b148a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac08da7eb5f1af7b11b86a5ff8a154a75" id="r_ac08da7eb5f1af7b11b86a5ff8a154a75"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga13d583efddacc347efb0899f55d23953">tlv_length_scope_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__format.html#ac08da7eb5f1af7b11b86a5ff8a154a75">length_scope</a></td></tr>
+<tr class="separator:ac08da7eb5f1af7b11b86a5ff8a154a75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>State describing a configurable fixed-width format. </p>
 <p>A borrowed, immutable value: the address passed to <a class="el" href="group__formats.html#ga42dd642a7d68261d64df08528ad6cf7e" title="Initializes a format for the configurable fixed-width encoding.">tlv_fixed_format_init()</a> becomes the initialized format's context, so this state must outlive every reader or writer built from it. It is otherwise an ordinary movable/copyable value; relocating it after <a class="el" href="group__formats.html#ga42dd642a7d68261d64df08528ad6cf7e" title="Initializes a format for the configurable fixed-width encoding.">tlv_fixed_format_init()</a> changes its address, so re-run <a class="el" href="group__formats.html#ga42dd642a7d68261d64df08528ad6cf7e" title="Initializes a format for the configurable fixed-width encoding.">tlv_fixed_format_init()</a> against the new address if a format built from the old one is still needed. </p><dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a id="a274edabbedcc98047f4fb887f24b148a" name="a274edabbedcc98047f4fb887f24b148a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a274edabbedcc98047f4fb887f24b148a">&#9670;&#160;</a></span>element_order</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__formats.html#gacb62bf57a0727d474bc74851619b6272">tlv_element_order_t</a> tlv_fixed_format::element_order</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Where the length field falls relative to the tag. </p>
+
+</div>
+</div>
+<a id="a9d430ea38f5b6a3410331e04b1050ca3" name="a9d430ea38f5b6a3410331e04b1050ca3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d430ea38f5b6a3410331e04b1050ca3">&#9670;&#160;</a></span>length_order</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> tlv_fixed_format::length_order</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Byte order of the length field; <a class="el" href="group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875a72bce499f639e5249c8ee6be29f313d5">TLV_BYTE_ORDER_BIG_ENDIAN</a> or <a class="el" href="group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875aa09207eb116bd6d31b320a879d90cfe5">TLV_BYTE_ORDER_LITTLE_ENDIAN</a>. </p>
+
+</div>
+</div>
+<a id="ac08da7eb5f1af7b11b86a5ff8a154a75" name="ac08da7eb5f1af7b11b86a5ff8a154a75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac08da7eb5f1af7b11b86a5ff8a154a75">&#9670;&#160;</a></span>length_scope</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__formats.html#ga13d583efddacc347efb0899f55d23953">tlv_length_scope_t</a> tlv_fixed_format::length_scope</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>What the length field counts. </p>
+
+</div>
+</div>
 <a id="afc1ab3693cac0e2193ffd4c08145c5b5" name="afc1ab3693cac0e2193ffd4c08145c5b5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afc1ab3693cac0e2193ffd4c08145c5b5">&#9670;&#160;</a></span>length_size</h2>
 
@@ -105,21 +154,6 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Length field width in bytes; must be between 1 and 8. </p>
-
-</div>
-</div>
-<a id="ad79d282e519b36be8a28b8c44fe1e492" name="ad79d282e519b36be8a28b8c44fe1e492"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad79d282e519b36be8a28b8c44fe1e492">&#9670;&#160;</a></span>order</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> tlv_fixed_format::order</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Byte order of the length field; <a class="el" href="group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875a72bce499f639e5249c8ee6be29f313d5">TLV_BYTE_ORDER_BIG_ENDIAN</a> or <a class="el" href="group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875aa09207eb116bd6d31b320a879d90cfe5">TLV_BYTE_ORDER_LITTLE_ENDIAN</a>. </p>
 
 </div>
 </div>

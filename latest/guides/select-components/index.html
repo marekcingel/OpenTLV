@@ -2754,11 +2754,11 @@ Turn off what you do not use.</p>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_FIXED</code></td>
-<td><a href="../../formats/fixed/configurable/">Configurable fixed-width TLV</a> (C and C++ API)</td>
+<td><a href="../../formats/fixed/configurable/">Configurable fixed-width TLV</a> (C and C++ API); must be ON for Bluetooth LTV</td>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
-<td><a href="../../formats/bluetooth/">Bluetooth LTV</a></td>
+<td><a href="../../formats/bluetooth/">Bluetooth LTV</a>, a preset of the configurable Fixed format</td>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_ASN1</code></td>
@@ -2787,10 +2787,11 @@ Turn off what you do not use.</p>
 </tbody>
 </table>
 <p>Turning an option OFF also turns OFF everything below it in the chain
-<code>ASN1 -&gt; BER -&gt; DER -&gt; EMV</code>, with CER a sibling of DER under BER. The C++
-<a href="../../formats/fixed/configurable/">configurable fixed-width format</a> template
-delegates to the C implementation, so it follows <code>OPENTLV_FORMAT_FIXED</code> too,
-unlike the rest of the header-only C++ wrapper.</p>
+<code>ASN1 -&gt; BER -&gt; DER -&gt; EMV</code>, with CER a sibling of DER under BER, and in the
+chain <code>FIXED -&gt; BLUETOOTH_LTV</code> (Bluetooth LTV is a preset of the Fixed
+format). The C++ <a href="../../formats/fixed/configurable/">configurable fixed-width format</a>
+template delegates to the C implementation, so it follows <code>OPENTLV_FORMAT_FIXED</code>
+too, unlike the rest of the header-only C++ wrapper.</p>
 <h2 id="recipes">Recipes<a class="headerlink" href="#recipes" title="Permanent link">&para;</a></h2>
 <p>Each recipe starts from a clean build directory; replace <code>build</code> with your own. Every
 option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
@@ -2816,10 +2817,10 @@ option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-and-bluetooth-ltv-only">Core and Bluetooth LTV only<a class="headerlink" href="#core-and-bluetooth-ltv-only" title="Permanent link">&para;</a></h3>
+<p>Bluetooth LTV is a preset of the Fixed format, so <code>OPENTLV_FORMAT_FIXED</code> stays ON.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="everything">Everything<a class="headerlink" href="#everything" title="Permanent link">&para;</a></h3>
 <p>The default. No options are needed.</p>

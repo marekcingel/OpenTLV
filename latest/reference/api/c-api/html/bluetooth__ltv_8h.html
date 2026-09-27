@@ -96,6 +96,7 @@ Variables</h2></td></tr>
 <p>Unknown types are structurally valid and are skipped by length alone.</p>
 <p>A length byte of zero is rejected with <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>: it has no type byte, and in Bluetooth data it is the start of the non-significant zero padding rather than an element.</p>
 <p>This format has no constructed types: nesting is left to the caller.</p>
+<p>This is the configurable Fixed format (<a class="el" href="fixed_8h.html" title="A configurable fixed-width TLV format: independent tag and length widths, field order and length sema...">tlv/formats/fixed.h</a>) preset to <code>{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_TAG_AND_VALUE}</code>: every read and write goes through that same generic implementation, so this global exists only to name and expose the preset, not a separate parser or writer.</p>
 <dl class="section note"><dt>Note</dt><dd>Writing any tag size other than one returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a>, and a value longer than 254 bytes returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>. </dd></dl>
 </div></div><!-- contents -->
 <!-- start footer part -->
