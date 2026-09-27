@@ -70,12 +70,12 @@ TEST(Unit_Tlv_Emv, ScopeAndInvalidLookup) {
     // Contact Book 3 defines one/two-byte tags. Kernel 2's three-byte tag
     // is still readable through generic BER but absent from every EMV table.
     const uint8_t wire[] = {0xDF, 0x81, 0x29, 0};
-    tlv_view_t    view;
+    tlv_element_t element;
     size_t        consumed;
-    ASSERT_EQ(TLV_OK, tlv_read(wire, sizeof(wire), &tlv_format_ber, &view, &consumed));
-    EXPECT_EQ(3u, view.tag.size);
+    ASSERT_EQ(TLV_OK, tlv_read(wire, sizeof(wire), &tlv_format_ber, &element, &consumed));
+    EXPECT_EQ(3u, element.tag.size);
     for (int c = 0; c < TLV_EMV_CONTEXT_COUNT; ++c)
-        EXPECT_EQ(nullptr, find(view.tag, static_cast<tlv_emv_context_t>(c)));
+        EXPECT_EQ(nullptr, find(element.tag, static_cast<tlv_emv_context_t>(c)));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_emv_validate_length(nullptr, 1));
 }
 

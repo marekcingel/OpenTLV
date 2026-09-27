@@ -1,4 +1,4 @@
-//! Reads a BER-TLV buffer with `Reader`, descends into a constructed entry and
+//! Reads a BER-TLV buffer with `Reader`, descends into a constructed element and
 //! decodes values with the EMV dictionary.
 //!
 //! Run with `cargo run --example reader` from `bindings/rust`.
@@ -12,23 +12,23 @@ const FCI: [u8; 17] = [
     b'A',
 ];
 
-fn print_entries(data: &[u8], depth: usize) -> Result<()> {
-    // Entries borrow `data`; the reader itself can be dropped early.
-    for entry in Reader::with_format(data, Format::Ber) {
-        let entry = entry?;
-        let tag = entry.tag();
+fn print_elements(data: &[u8], depth: usize) -> Result<()> {
+    // Elements borrow `data`; the reader itself can be dropped early.
+    for element in Reader::with_format(data, Format::Ber) {
+        let element = element?;
+        let tag = element.tag();
         let name = emv::find(Context::Base, tag).map_or("unknown", |definition| definition.name());
         println!(
             "{:indent$}{:02X?} {name}: {:02X?}",
             "",
             tag.as_bytes(),
-            entry.value(),
+            element.value(),
             indent = depth * 2
         );
 
-        // Bit 6 of the first tag byte marks a constructed (template) entry.
+        // Bit 6 of the first tag byte marks a constructed (template) element.
         if tag.as_bytes()[0] & 0x20 != 0 {
-            print_entries(entry.value(), depth + 1)?;
+            print_elements(element.value(), depth + 1)?;
         }
     }
     Ok(())
@@ -36,12 +36,12 @@ fn print_entries(data: &[u8], depth: usize) -> Result<()> {
 
 fn main() -> Result<()> {
     println!("OpenTLV {}", opentlv::version());
-    print_entries(&FCI, 0)?;
+    print_elements(&FCI, 0)?;
 
     // Malformed input surfaces as an `Err` item; the iterator then ends.
     let truncated = &FCI[..FCI.len() - 2];
-    for entry in Reader::with_format(truncated, Format::Ber) {
-        if let Err(error) = entry {
+    for element in Reader::with_format(truncated, Format::Ber) {
+        if let Err(error) = element {
             println!("truncated input: {error} ({error:?})");
         }
     }

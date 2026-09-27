@@ -24,7 +24,8 @@
  * that was read before the error. Only BER and DER elements can be
  * constructed. Tags and values are uppercase hexadecimal. An element occupies
  * "headerSize" + "length" encoded bytes starting at "offset"; "tag" holds the
- * encoded tag bytes. "profile", "symbol", "name" and "lengthValid" appear only
+ * encoded tag bytes. "rawLength" holds the original length bytes in uppercase
+ * hexadecimal. "profile", "symbol", "name" and "lengthValid" appear only
  * when a profile was requested (and "symbol", "name" only for tags it knows).
  */
 

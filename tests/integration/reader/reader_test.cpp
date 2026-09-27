@@ -5,25 +5,25 @@
 
 TEST(Integration_Tlv_Reader, EmptyValueAndBerLength) {
     const uint8_t data[] = {0x42, 0x82, 0, 0};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_format_default, &view, &consumed));
-    EXPECT_EQ(data + sizeof(data), view.value.data);
-    EXPECT_EQ(0u, view.value.length);
+    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_format_default, &element, &consumed));
+    EXPECT_EQ(data + sizeof(data), element.value.data);
+    EXPECT_EQ(0u, element.value.size);
     EXPECT_EQ(sizeof(data), consumed);
 }
 
 namespace {
 void expect_failure(const uint8_t* data, size_t size, const tlv_format_t* format,
                     tlv_result_t error) {
-    tlv_view_t view = {TLV_TAG(0xEE), {data, 42}};
-    size_t     consumed = 99;
-    EXPECT_EQ(error, tlv_read(data, size, format, &view, &consumed));
+    tlv_element_t element = {TLV_TAG(0xEE), {}, {data, 42}};
+    size_t        consumed = 99;
+    EXPECT_EQ(error, tlv_read(data, size, format, &element, &consumed));
     EXPECT_EQ(99u, consumed);
-    EXPECT_EQ(1u, view.tag.size);
-    EXPECT_EQ(0xEE, view.tag.data[0]);
-    EXPECT_EQ(data, view.value.data);
-    EXPECT_EQ(42u, view.value.length);
+    EXPECT_EQ(1u, element.tag.size);
+    EXPECT_EQ(0xEE, element.tag.data[0]);
+    EXPECT_EQ(data, element.value.data);
+    EXPECT_EQ(42u, element.value.size);
 }
 } // namespace
 

@@ -4,7 +4,7 @@
 #include "tlv/error.h"
 #include "tlv/format.h"
 #include "tlv/writer/writer.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -228,15 +228,15 @@ TLV_API int tlv_ber_is_constructed(const void* context, const tlv_tag_t* tag);
 /*
  * The definite-length field codec below (X.690 section 8.1.3) is standalone,
  * independent of the format callbacks above and of any value payload. It uses
- * #tlv_length_t so the decoded value has the same 64-bit range on every
+ * #tlv_size_t so the decoded value has the same 64-bit range on every
  * build, regardless of the current build's `size_t` width; convert with
- * tlv_length_to_size() before using it as a native buffer length. Byte order
+ * tlv_size_to_native() before using it as a native buffer length. Byte order
  * is fixed by the BER definite-length encoding itself; there is no runtime
  * order parameter.
  */
 
 /**
- * @brief Bytes needed for the shortest definite encoding of any #tlv_length_t.
+ * @brief Bytes needed for the shortest definite encoding of any #tlv_size_t.
  *
  * One prefix octet plus up to 8 big-endian value octets for `UINT64_MAX`.
  * Use this constant to size a destination buffer for tlv_ber_length_encode().
@@ -254,9 +254,9 @@ enum { TLV_BER_LENGTH_MAX_ENCODED_SIZE = 9 };
  * Accepts the short form directly, or the long form as a length-of-length
  * octet followed by that many big-endian value octets. Nonminimal
  * (zero-padded) long-form encodings are accepted when the numeric value
- * still fits #tlv_length_t; excess leading octets must be zero. The
+ * still fits #tlv_size_t; excess leading octets must be zero. The
  * indefinite marker (0x80 alone) and the reserved 0xFF prefix are rejected,
- * as is a padded value wider than #tlv_length_t or nonzero excess padding.
+ * as is a padded value wider than #tlv_size_t or nonzero excess padding.
  *
  * This does not process the indefinite-length marker or constructed EOC
  * framing; see tlv_ber_write_indefinite() and #tlv_format_ber.
@@ -269,14 +269,14 @@ enum { TLV_BER_LENGTH_MAX_ENCODED_SIZE = 9 };
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if a required pointer is `NULL`.
  * @return #TLV_ERR_INVALID_LENGTH for the indefinite marker, the reserved
- *         0xFF prefix, a value wider than #tlv_length_t, or nonzero excess padding.
+ *         0xFF prefix, a value wider than #tlv_size_t, or nonzero excess padding.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if the field claims more length octets
  *         than `data_size` provides.
  *
  * @note On any failure `*value` and `*consumed` are unchanged.
  */
-TLV_API tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size,
-                                           tlv_length_t* value, size_t* consumed);
+TLV_API tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_size_t* value,
+                                           size_t* consumed);
 
 /**
  * @brief Encodes a length using the shortest BER definite form.
@@ -299,7 +299,7 @@ TLV_API tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size
  *
  * @note On any failure `*written` is unchanged.
  */
-TLV_API tlv_result_t tlv_ber_length_encode(tlv_length_t value, uint8_t* out, size_t out_capacity,
+TLV_API tlv_result_t tlv_ber_length_encode(tlv_size_t value, uint8_t* out, size_t out_capacity,
                                            size_t* written);
 
 #ifdef __cplusplus

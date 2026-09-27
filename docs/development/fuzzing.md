@@ -28,8 +28,8 @@ flags. Contract checks remain active with `NDEBUG`; UBSan errors are fatal.
 
 | Target | Checks |
 | --- | --- |
-| `fuzz_read` | Sequential `tlv_read` calls, positive bounded consumption, borrowed value ranges, unchanged view and consumed count on failure. |
-| `fuzz_walk_tree` | Nested `tlv_walk_tree` traversal, depth and element limits (including zero), view ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal. |
+| `fuzz_read` | Sequential `tlv_read` calls, positive bounded consumption, borrowed value ranges, unchanged element and consumed count on failure. |
+| `fuzz_walk_tree` | Nested `tlv_walk_tree` traversal, depth and element limits (including zero), element ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal. |
 | `fuzz_der` | `tlv_der_read` and `tlv_der_walk`, canonical DER-TLV framing, all four profile limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal. |
 | `fuzz_der_schema` | `tlv_der_schema_read` against a fixed representative schema (IMPLICIT/EXPLICIT tagging, a DEFAULT component, SET, SET OF, SEQUENCE OF and CHOICE), all five schema limits, unchanged read outputs and bounded error offsets on failure. |
 | `fuzz_roundtrip` | Generated tags and values, sizing, insufficient-capacity output preservation, successful write/read tag and value equality. |

@@ -32,13 +32,13 @@ typedef enum tlv_visit_result {
 /**
  * @brief Callback invoked by tlv_walk() for each sequential element.
  *
- * @param view    Current element. The pointer is valid only during the
+ * @param element    Current element. The pointer is valid only during the
  *                callback; its value borrows the input data.
  * @param context Caller context passed to tlv_walk().
  *
  * @return A #tlv_visit_result_t. Any unknown value is treated as an error.
  */
-typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_view_t* view, void* context);
+typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_element_t* element, void* context);
 
 /**
  * @brief Visits each sequential element using the generic reader.
@@ -72,7 +72,7 @@ enum { TLV_WALK_MAX_DEPTH = 64 };
 /**
  * @brief Callback invoked by tlv_walk_tree() for each element in preorder.
  *
- * @param view    Current element; its value borrows the input data and the
+ * @param element    Current element; its value borrows the input data and the
  *                pointer is valid only during the callback.
  * @param depth   Nesting depth; top-level elements have depth zero.
  * @param offset  Absolute offset of the element's tag within the input.
@@ -80,7 +80,7 @@ enum { TLV_WALK_MAX_DEPTH = 64 };
  *
  * @return A #tlv_visit_result_t controlling traversal.
  */
-typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view, size_t depth,
+typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_element_t* element, size_t depth,
                                                  size_t offset, void* context);
 
 /**

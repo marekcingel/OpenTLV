@@ -1,6 +1,6 @@
 #include "common.h"
 
-#include <tlv/length.h>
+#include <tlv/size.h>
 
 void opentlv_lua_new_type(lua_State* L, const char* name, const opentlv_lua_method_t* methods,
                           lua_CFunction gc, lua_CFunction tostring, lua_CFunction call) {
@@ -29,19 +29,22 @@ void opentlv_lua_new_type(lua_State* L, const char* name, const opentlv_lua_meth
     lua_pop(L, 1);
 }
 
-int opentlv_lua_push_entry(lua_State* L, const tlv_view_t* view, size_t offset) {
+int opentlv_lua_push_element(lua_State* L, const tlv_element_t* element, size_t offset) {
     size_t       value_length;
-    tlv_result_t code = tlv_length_to_size(view->value.length, &value_length);
+    tlv_result_t code = tlv_size_to_native(element->value.size, &value_length);
     if (code != TLV_OK) {
         return (int)code;
     }
 
     lua_newtable(L);
-    lua_pushlstring(L, (const char*)view->tag.data, view->tag.size);
+    lua_pushlstring(L, (const char*)element->tag.data, element->tag.size);
     lua_setfield(L, -2, "tag");
+    lua_pushlstring(L, element->length.size ? (const char*)element->length.data : "",
+                    element->length.size);
+    lua_setfield(L, -2, "raw_length");
     lua_pushinteger(L, (lua_Integer)value_length);
     lua_setfield(L, -2, "length");
-    lua_pushlstring(L, value_length > 0 ? (const char*)view->value.data : "", value_length);
+    lua_pushlstring(L, value_length > 0 ? (const char*)element->value.data : "", value_length);
     lua_setfield(L, -2, "value");
     lua_pushinteger(L, (lua_Integer)offset);
     lua_setfield(L, -2, "offset");

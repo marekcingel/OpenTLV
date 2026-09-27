@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix Clang `-Wmissing-field-initializers` errors in the C++ runtime Fixed
+  format example by explicitly initializing the element order and length scope. (#340)
+- Fix the Document test owner's move semantics so returning it does not free
+  the document prematurely on builds without copy elision, including x86 Debug. (#340)
 - Fix Clang `-Wmissing-field-initializers` errors in the Fixed format tests
   and the fuzz harness, whose `tlv_fixed_format_t` literals used positional
   initializers for only some of the struct's fields after it gained
@@ -57,6 +61,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Use the canonical C `tlv_element_t` directly as C++ `tlv::element`. Add
+  `tlv::as_bytes()` for checked conversion of `tlv_value_t` to a borrowed
+  native byte span. (#340)
+- **Breaking:** Replace `tlv_view_t` with the canonical borrowed `tlv_element_t`
+  containing raw `tag`, raw `length`, and `value`. `tlv_size_t` is the fixed
+  64-bit logical size; `tlv_length_t` now holds the original length bytes and
+  their native byte count, and `tlv_value_t.length` becomes `size`. Numeric
+  conversion helpers move to `tlv/size.h` as `tlv_size_from_native()`,
+  `tlv_size_to_native()`, `tlv_size_validate_native()` and `tlv_size_add()`.
+  Format callbacks use logical sizes and whole-element callbacks also return
+  the raw length field. Rename element copy APIs to `tlv_copy_element()` and
+  `tlv_writer_copy_element()`, C++ `entry` to `element`, and Rust/Python `Entry` to
+  `Element`, including `write_element()` in the bindings. Reader diagnostics
+  retain raw length bytes and 64-bit declared sizes on failure. No compatibility
+  aliases are provided; rebuild consumers. (#340)
 - **Breaking:** Generalize the configurable Fixed format
   (`tlv_fixed_format_t`) with an `element_order` (tag-then-length or
   length-then-tag) and a `length_scope` (value only, or tag and value); its

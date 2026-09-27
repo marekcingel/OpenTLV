@@ -10,21 +10,21 @@ const tlv_schema_t       schema = {rules, 1};
 
 class Integration_Tlv_Scanner : public ::testing::Test {
 protected:
-    tlv_view_t view = {TLV_TAG(0xAA), {nullptr, 99}};
-    size_t     offset = 88;
-    size_t     consumed = 77;
+    tlv_element_t element = {TLV_TAG(0xAA), {}, {nullptr, 99}};
+    size_t        offset = 88;
+    size_t        consumed = 77;
 
     tlv_result_t scan(const uint8_t* data, size_t size, size_t start = 0,
                       const tlv_schema_t* filter = nullptr,
                       const tlv_format_t* format = &controlled::format) {
-        return tlv_scan(data, size, start, format, filter, &view, &offset, &consumed);
+        return tlv_scan(data, size, start, format, filter, &element, &offset, &consumed);
     }
 
     void unchanged() {
-        EXPECT_EQ(0xAA, view.tag.data[0]);
-        EXPECT_EQ(1, view.tag.size);
-        EXPECT_EQ(nullptr, view.value.data);
-        EXPECT_EQ(99u, view.value.length);
+        EXPECT_EQ(0xAA, element.tag.data[0]);
+        EXPECT_EQ(1, element.tag.size);
+        EXPECT_EQ(nullptr, element.value.data);
+        EXPECT_EQ(99u, element.value.size);
         EXPECT_EQ(88u, offset);
         EXPECT_EQ(77u, consumed);
     }
@@ -36,9 +36,9 @@ TEST_F(Integration_Tlv_Scanner, SkipsInvalidLeadingBytesWithoutSchema) {
     ASSERT_EQ(TLV_OK, scan(data, sizeof(data)));
     EXPECT_EQ(2u, offset);
     EXPECT_EQ(3u, consumed);
-    EXPECT_EQ(0x42, view.tag.data[0]);
-    EXPECT_EQ(data + 4, view.value.data);
-    EXPECT_EQ(1u, view.value.length);
+    EXPECT_EQ(0x42, element.tag.data[0]);
+    EXPECT_EQ(data + 4, element.value.data);
+    EXPECT_EQ(1u, element.value.size);
 }
 
 TEST_F(Integration_Tlv_Scanner, ReturnsFirstCandidateAndResumesAtAbsoluteOffset) {
@@ -48,7 +48,7 @@ TEST_F(Integration_Tlv_Scanner, ReturnsFirstCandidateAndResumesAtAbsoluteOffset)
     ASSERT_EQ(TLV_OK, scan(data, sizeof(data), offset + consumed));
     EXPECT_EQ(3u, offset);
     EXPECT_EQ(2u, consumed);
-    EXPECT_EQ(0u, view.value.length);
+    EXPECT_EQ(0u, element.value.size);
 }
 
 TEST_F(Integration_Tlv_Scanner, SchemaRejectsUnknownTagsAndInvalidLengths) {
@@ -57,7 +57,7 @@ TEST_F(Integration_Tlv_Scanner, SchemaRejectsUnknownTagsAndInvalidLengths) {
     EXPECT_EQ(0u, offset);
     ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema));
     EXPECT_EQ(9u, offset);
-    EXPECT_EQ(2u, view.value.length);
+    EXPECT_EQ(2u, element.value.size);
     EXPECT_EQ(4u, consumed);
 }
 
@@ -97,7 +97,7 @@ TEST_F(Integration_Tlv_Scanner, NormalReaderStillStopsAtInvalidBoundary) {
     const uint8_t data[] = {0xFF, 0xFF, 0x42, 1, 0xAA};
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::format));
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &view));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &element));
     EXPECT_EQ(0u, reader.pos);
     unchanged();
     ASSERT_EQ(TLV_OK, scan(data, sizeof(data)));

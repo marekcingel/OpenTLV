@@ -15,7 +15,7 @@
 
 Canonical tag/length framing with definite lengths only. Generic I/O does not validate nested contents or full ASN.1 value semantics.
 
-See [shared memory ownership rules](../../guides/memory.md) before retaining a parsed view.
+See [shared memory ownership rules](../../guides/memory.md) before retaining a parsed element.
 
 ## Minimal C usage
 
@@ -31,16 +31,16 @@ int main(void) {
     const uint8_t value[] = {0x2A};
     uint8_t output[8];
     size_t written = 0, consumed = 0;
-    tlv_view_t view;
+    tlv_element_t element;
     if (tlv_write(output, sizeof(output), &tlv_format_der,
                   tag, value, sizeof(value), &written) != TLV_OK)
         return 1;
     if (tlv_read(output, written, &tlv_format_der,
-                 &view, &consumed) != TLV_OK)
+                 &element, &consumed) != TLV_OK)
         return 1;
-    return consumed == written && view.tag.size == 1 &&
-           view.tag.data[0] == 0x04 && view.value.length == 1 &&
-           view.value.data[0] == 0x2A ? 0 : 1;
+    return consumed == written && element.tag.size == 1 &&
+           element.tag.data[0] == 0x04 && element.value.size == 1 &&
+           element.value.data[0] == 0x2A ? 0 : 1;
 }
 ```
 

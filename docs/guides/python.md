@@ -1,7 +1,7 @@
 # Using OpenTLV from Python
 
 The `opentlv` package is an experimental Python binding for OpenTLV. It binds
-`Reader`, `Writer`, `Document`/`Node`, `Entry`, `Tag`, `Format`,
+`Reader`, `Writer`, `Document`/`Node`, `Element`, `Tag`, `Format`,
 `LengthSchema`/`StructureSchema` and the `OpenTLVError` exception hierarchy,
 plus a narrow `codec` submodule (see [Codec](#codec)). For layout and build
 details, see [Python bindings](../development/python.md).
@@ -31,22 +31,22 @@ Runnable round-trip version:
 
 ## Reading
 
-`Reader` is a Python iterator over `Entry` values. Each `Entry` has a `Tag`
+`Reader` is a Python iterator over `Element` values. Each `Element` has a `Tag`
 and a `value` that is a zero-copy `memoryview` slice of your input.
-Constructed entries are not expanded automatically; create a new `Reader`
-over `entry.value` to descend.
+Constructed elements are not expanded automatically; create a new `Reader`
+over `element.value` to descend.
 
 ```python
 import opentlv
 
 data = bytes([0x01, 0x02, 0xAA, 0xBB, 0x02, 0x00])
-for entry in opentlv.Reader(data):
-    print(entry.tag, bytes(entry.value))
+for element in opentlv.Reader(data):
+    print(element.tag, bytes(element.value))
 ```
 
 `data` may be `bytes`, `bytearray`, `memoryview`, or any other
 buffer-protocol object; the reader borrows it rather than copying it, so it
-must stay valid and unchanged for as long as the reader or its entries are
+must stay valid and unchanged for as long as the reader or its elements are
 used. `Reader(data)` uses `opentlv.Format.DEFAULT`; pass `format=` for
 another wire format, for example `opentlv.Reader(data, opentlv.Format.BER)`,
 or an `opentlv.FixedFormat(tag_size, length_size, byte_order="big")` for a
@@ -73,7 +73,7 @@ data = writer.bytes()
 ```
 
 `write` accepts a `Tag` or raw `bytes` for the tag, and any buffer-protocol
-object for the value; `write_entry` appends a decoded `Entry`, for example
+object for the value; `write_element` appends a decoded `Element`, for example
 one produced by a `Reader`, so reading and re-writing round-trips. Like
 `Reader`, `Writer(format=...)` selects the wire format.
 `opentlv.encoded_size(tag, value_length, format=...)` computes an element's
@@ -153,7 +153,7 @@ into C for it, unlike every other type this package binds. A `CodecError`
 domain from `tlv_result_t`) carries the raw `tlv_codec_result_t` code as
 `.code`.
 
-Runnable version, decoding and encoding an EMV "Amount, Authorised" entry:
+Runnable version, decoding and encoding an EMV "Amount, Authorised" element:
 [codec.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/codec.py)
 (`python examples/codec.py`).
 
@@ -224,7 +224,7 @@ except opentlv.BufferTooShortError as error:
     print(f"{error} at offset {error.offset} ({error.operation})")
 ```
 
-`Reader` yields entries until the first error, then raises `StopIteration` on
+`Reader` yields elements until the first error, then raises `StopIteration` on
 every further call instead of retrying: the underlying C reader does not
 advance past malformed input.
 

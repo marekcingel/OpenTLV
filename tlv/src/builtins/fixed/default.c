@@ -33,9 +33,12 @@ static tlv_result_t write_tag(const void* ctx, uint8_t* data, size_t capacity, c
     return TLV_OK;
 }
 
-static tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t size, size_t* length,
-                                size_t* used) {
+static tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t size,
+                                tlv_size_t* length, size_t* used) {
     (void)ctx;
+    *used = size ? 1 : 0;
+    if (size && data[0] == TLV_DEFAULT_LENGTH_FORM_1BYTE) *used = size < 2 ? size : 2;
+    if (size && data[0] == TLV_DEFAULT_LENGTH_FORM_2BYTE) *used = size < 3 ? size : 3;
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
     if (data[0] < TLV_DEFAULT_LENGTH_LONG_FORM_BIT) {
         *length = data[0];
@@ -53,14 +56,14 @@ static tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t siz
     return TLV_OK;
 }
 
-static tlv_result_t length_size(const void* ctx, size_t length, size_t* size) {
+static tlv_result_t length_size(const void* ctx, tlv_size_t length, size_t* size) {
     (void)ctx;
     if (length > UINT16_MAX) return TLV_ERR_INVALID_LENGTH;
     *size = length < TLV_DEFAULT_LENGTH_LONG_FORM_BIT ? 1 : (length <= UINT8_MAX ? 2 : 3);
     return TLV_OK;
 }
 
-static tlv_result_t write_length(const void* ctx, uint8_t* data, size_t capacity, size_t length,
+static tlv_result_t write_length(const void* ctx, uint8_t* data, size_t capacity, tlv_size_t length,
                                  size_t* used) {
     tlv_result_t rc = length_size(ctx, length, used);
     if (rc != TLV_OK) return rc;

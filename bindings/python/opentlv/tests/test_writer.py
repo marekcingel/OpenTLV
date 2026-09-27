@@ -1,6 +1,6 @@
 import pytest
 
-from opentlv import Entry, Format, InvalidTagSizeError, Reader, Tag, Writer, encoded_size
+from opentlv import Element, Format, InvalidTagSizeError, Reader, Tag, Writer, encoded_size
 
 
 def test_write_produces_the_same_bytes_as_the_default_format_example():
@@ -33,10 +33,10 @@ def test_grows_past_the_initial_capacity_without_error():
     assert writer.bytes() == bytes([0x01, 0x82, 0x01, 0xF4]) + value
 
 
-def test_write_entry_round_trips_a_reader_entry():
-    (entry,) = list(Reader(bytes([0x01, 0x02, 0xAA, 0xBB])))
+def test_write_element_round_trips_a_reader_entry():
+    (element,) = list(Reader(bytes([0x01, 0x02, 0xAA, 0xBB])))
     writer = Writer()
-    writer.write_entry(entry)
+    writer.write_element(element)
     assert writer.bytes() == bytes([0x01, 0x02, 0xAA, 0xBB])
 
 
@@ -50,8 +50,8 @@ def test_writes_other_formats():
     writer = Writer(Format.BER)
     writer.write(Tag(b"\x9f\x02"), b"\xaa")
     reader = Reader(writer.bytes(), Format.BER)
-    (entry,) = list(reader)
-    assert entry == Entry(Tag(b"\x9f\x02"), memoryview(b"\xaa"))
+    (element,) = list(reader)
+    assert element == Element(Tag(b"\x9f\x02"), memoryview(b"\xaa"))
 
 
 def test_repr_shows_format_and_position():

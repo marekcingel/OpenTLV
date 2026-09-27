@@ -22,19 +22,19 @@ tlv_result_t write_tag(const void*, uint8_t* data, size_t size, const tlv_tag_t*
     std::memcpy(data, tag->data, 2);
     return TLV_OK;
 }
-tlv_result_t length_size(const void* ctx, size_t length, size_t* used) {
+tlv_result_t length_size(const void* ctx, tlv_size_t length, size_t* used) {
     if (length > 65535) return TLV_ERR_INVALID_LENGTH;
     *used = *static_cast<const size_t*>(ctx);
     return TLV_OK;
 }
-tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t size, size_t* length,
+tlv_result_t read_length(const void* ctx, const uint8_t* data, size_t size, tlv_size_t* length,
                          size_t* used) {
     *used = *static_cast<const size_t*>(ctx);
     if (size < *used) return TLV_ERR_BUFFER_TOO_SHORT;
     *length = data[0] | (static_cast<size_t>(data[1]) << 8);
     return TLV_OK;
 }
-tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, size_t length,
+tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, tlv_size_t length,
                           size_t* used) {
     const auto rc = length_size(ctx, length, used);
     if (rc != TLV_OK) return rc;
@@ -71,16 +71,16 @@ TEST(Integration_Tlv_Format, CustomFormatRoundTripAndWireBytes) {
     EXPECT_EQ(0, std::memcmp(direct, data, sizeof(direct)));
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &fixed));
-    tlv_view_t entry{};
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    EXPECT_EQ(2, entry.tag.size);
-    EXPECT_EQ(0x9F, entry.tag.data[0]);
-    EXPECT_EQ(0x02, entry.tag.data[1]);
-    EXPECT_EQ(data + 4, entry.value.data);
-    EXPECT_EQ(sizeof(value), entry.value.length);
-    EXPECT_EQ(0, std::memcmp(value, entry.value.data, sizeof(value)));
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    EXPECT_EQ(0xBB, entry.tag.data[1]);
-    EXPECT_EQ(0u, entry.value.length);
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(2, element.tag.size);
+    EXPECT_EQ(0x9F, element.tag.data[0]);
+    EXPECT_EQ(0x02, element.tag.data[1]);
+    EXPECT_EQ(data + 4, element.value.data);
+    EXPECT_EQ(sizeof(value), element.value.size);
+    EXPECT_EQ(0, std::memcmp(value, element.value.data, sizeof(value)));
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(0xBB, element.tag.data[1]);
+    EXPECT_EQ(0u, element.value.size);
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 }

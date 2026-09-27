@@ -33,7 +33,7 @@ protected:
     // Called for each element the walk visits, in preorder. The base
     // implementation only keeps the diagnostic scope current (used as-is by
     // "validate", which has no display of its own).
-    virtual tlv_visit_result_t visit_element(const tlv_view_t* view, std::size_t depth,
+    virtual tlv_visit_result_t visit_element(const tlv_element_t* element, std::size_t depth,
                                              std::size_t offset);
 
     // Called once, before the walk starts. The base implementation does
@@ -121,7 +121,7 @@ protected:
     bool                    has_schema_diag_;
 
 private:
-    static tlv_visit_result_t visit_trampoline(const tlv_view_t* view, std::size_t depth,
+    static tlv_visit_result_t visit_trampoline(const tlv_element_t* element, std::size_t depth,
                                                std::size_t offset, void* context);
     // --pdol: raw DOL tag/one-byte-length pairs (BER only), not full TLV.
     tlv_result_t walk_pdol(std::size_t* error_offset);

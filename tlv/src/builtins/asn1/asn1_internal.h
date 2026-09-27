@@ -31,5 +31,5 @@ tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data, size_
  * Indefinite (0x80) and the reserved 0xFF prefix are already rejected by the
  * underlying reader. */
 tlv_result_t tlv_asn1_read_minimal_length(const void* context, const uint8_t* data, size_t size,
-                                          size_t* length, size_t* consumed);
+                                          tlv_size_t* length, size_t* consumed);
 #endif

@@ -36,13 +36,13 @@ TEST(Integration_Tlv_Writer, SizesWireEncodingAndRoundTripsAtLengthBoundaries) {
                 EXPECT_EQ(length >> 8, data[2]);
                 EXPECT_EQ(length & 255, data[3]);
             }
-            tlv_view_t view{};
-            size_t     consumed = 0;
-            ASSERT_EQ(TLV_OK, tlv_read(data.data(), written, format, &view, &consumed));
+            tlv_element_t element{};
+            size_t        consumed = 0;
+            ASSERT_EQ(TLV_OK, tlv_read(data.data(), written, format, &element, &consumed));
             EXPECT_EQ(written, consumed);
-            EXPECT_EQ(tag.data[0], view.tag.data[0]);
-            EXPECT_EQ(length, view.value.length);
-            if (length) EXPECT_EQ(0, std::memcmp(value.data(), view.value.data, length));
+            EXPECT_EQ(tag.data[0], element.tag.data[0]);
+            EXPECT_EQ(length, element.value.size);
+            if (length) EXPECT_EQ(0, std::memcmp(value.data(), element.value.data, length));
         }
     }
 }

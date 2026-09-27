@@ -8,8 +8,8 @@
 
 use std::os::raw::{c_char, c_int, c_void};
 
-/// Logical TLV value length (`tlv_length_t`), always 64 bits wide.
-pub type tlv_length_t = u64;
+/// Logical TLV value length (`tlv_size_t`), always 64 bits wide.
+pub type tlv_size_t = u64;
 
 /// Result code returned by fallible OpenTLV functions (`tlv_result_t`).
 /// Zero is success.
@@ -86,23 +86,35 @@ pub struct tlv_tag_t {
     pub size: usize,
 }
 
-/// A non-owning view of a TLV value (`tlv_value_t`).
+/// A non-owning element of a TLV value (`tlv_value_t`).
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_value_t {
-    /// Borrowed value bytes; may be null only when `length` is zero.
+    /// Borrowed value bytes; may be null only when size is zero.
     pub data: *const u8,
-    /// Value length in bytes.
-    pub length: tlv_length_t,
+    /// Decoded logical value byte count.
+    pub size: tlv_size_t,
 }
 
-/// A decoded TLV element: a borrowed tag and a borrowed value (`tlv_view_t`).
+/// Borrowed original length-field bytes (`tlv_length_t`).
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
-pub struct tlv_view_t {
-    /// Element tag.
+pub struct tlv_length_t {
+    /// Original bytes in wire order.
+    pub data: *const u8,
+    /// Native encoded field byte count.
+    pub size: usize,
+}
+
+/// Canonical borrowed TLV element (`tlv_element_t`).
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_element_t {
+    /// Raw tag identity.
     pub tag: tlv_tag_t,
-    /// Element value.
+    /// Raw length field.
+    pub length: tlv_length_t,
+    /// Value bytes and decoded size.
     pub value: tlv_value_t,
 }
 
@@ -120,7 +132,7 @@ pub type tlv_read_length_fn = unsafe extern "C" fn(
     context: *const c_void,
     data: *const u8,
     size: usize,
-    length: *mut usize,
+    length: *mut tlv_size_t,
     consumed: *mut usize,
 ) -> tlv_result_t;
 
@@ -131,7 +143,7 @@ pub type tlv_read_value_bounds_fn = unsafe extern "C" fn(
     data: *const u8,
     size: usize,
     length_size: *mut usize,
-    value_size: *mut usize,
+    value_size: *mut tlv_size_t,
     trailer_size: *mut usize,
 ) -> tlv_result_t;
 
@@ -141,8 +153,9 @@ pub type tlv_read_element_fn = unsafe extern "C" fn(
     data: *const u8,
     size: usize,
     tag: *mut tlv_tag_t,
+    raw_length: *mut tlv_length_t,
     header_size: *mut usize,
-    value_size: *mut usize,
+    value_size: *mut tlv_size_t,
     trailer_size: *mut usize,
 ) -> tlv_result_t;
 
@@ -160,13 +173,16 @@ pub type tlv_write_length_fn = unsafe extern "C" fn(
     context: *const c_void,
     data: *mut u8,
     capacity: usize,
-    length: usize,
+    length: tlv_size_t,
     written: *mut usize,
 ) -> tlv_result_t;
 
 /// Length size callback (`tlv_length_size_fn`).
-pub type tlv_length_size_fn =
-    unsafe extern "C" fn(context: *const c_void, length: usize, size: *mut usize) -> tlv_result_t;
+pub type tlv_length_size_fn = unsafe extern "C" fn(
+    context: *const c_void,
+    length: tlv_size_t,
+    size: *mut usize,
+) -> tlv_result_t;
 
 /// Whole-header encoder callback (`tlv_write_header_fn`).
 pub type tlv_write_header_fn = unsafe extern "C" fn(
@@ -174,7 +190,7 @@ pub type tlv_write_header_fn = unsafe extern "C" fn(
     data: *mut u8,
     capacity: usize,
     tag: *const tlv_tag_t,
-    length: usize,
+    length: tlv_size_t,
     written: *mut usize,
 ) -> tlv_result_t;
 
@@ -297,7 +313,10 @@ extern "C" {
     /// Returns 1 if the reader has consumed all input, otherwise 0.
     pub fn tlv_reader_at_end(reader: *const tlv_reader_t) -> c_int;
     /// Reads the next element and advances the reader.
-    pub fn tlv_reader_next(reader: *mut tlv_reader_t, out_entry: *mut tlv_view_t) -> tlv_result_t;
+    pub fn tlv_reader_next(
+        reader: *mut tlv_reader_t,
+        out_element: *mut tlv_element_t,
+    ) -> tlv_result_t;
 
     /// Initializes a format for the configurable fixed-width encoding, with
     /// both read and write capability; stores `config`'s address as the
@@ -318,7 +337,7 @@ extern "C" {
     /// Returns a NUL-terminated static description of a result code.
     pub fn tlv_strerror(result: tlv_result_t) -> *const c_char;
     /// Narrows a length to the native `size_t`.
-    pub fn tlv_length_to_size(length: tlv_length_t, size: *mut usize) -> tlv_result_t;
+    pub fn tlv_size_to_native(length: tlv_size_t, size: *mut usize) -> tlv_result_t;
     /// Tests whether two tags have the same size and bytes.
     pub fn tlv_tag_equal(lhs: tlv_tag_t, rhs: tlv_tag_t) -> bool;
     /// Orders two tags lexicographically by their bytes.
@@ -699,7 +718,7 @@ pub struct tlv_cer_limits_t {
 
 /// Preorder DER traversal callback (`tlv_der_visitor_t`); the safe crate passes `None`.
 pub type tlv_der_visitor_t = unsafe extern "C" fn(
-    view: *const tlv_view_t,
+    element: *const tlv_element_t,
     depth: usize,
     offset: usize,
     context: *mut c_void,
@@ -792,7 +811,7 @@ extern "C" {
         data: *const u8,
         size: usize,
         limits: *const tlv_der_limits_t,
-        view: *mut tlv_view_t,
+        element: *mut tlv_element_t,
         consumed: *mut usize,
         error_offset: *mut usize,
     ) -> tlv_result_t;
@@ -801,7 +820,7 @@ extern "C" {
         data: *const u8,
         size: usize,
         limits: *const tlv_der_limits_t,
-        view: *mut tlv_view_t,
+        element: *mut tlv_element_t,
         consumed: *mut usize,
         error_offset: *mut usize,
     ) -> tlv_result_t;
@@ -853,7 +872,7 @@ extern "C" {
         data: *const u8,
         size: usize,
         limits: *const tlv_cer_limits_t,
-        view: *mut tlv_view_t,
+        element: *mut tlv_element_t,
         consumed: *mut usize,
         error_offset: *mut usize,
     ) -> tlv_result_t;
@@ -862,7 +881,7 @@ extern "C" {
         data: *const u8,
         size: usize,
         limits: *const tlv_cer_limits_t,
-        view: *mut tlv_view_t,
+        element: *mut tlv_element_t,
         consumed: *mut usize,
         error_offset: *mut usize,
     ) -> tlv_result_t;

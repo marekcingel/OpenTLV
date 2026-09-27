@@ -15,14 +15,17 @@ class OpenTLVError(Exception):
     API reports for a failed operation, when available, and are `None`
     otherwise. `offset`, `expected`, `actual`, `operation` and `tag` apply to
     both reading and writing failures; `length`, `required` and `available`
-    apply only to a `Writer` failure (`required` is the exact encoded size
-    needed, useful for growing a buffer precisely after a capacity error).
+    describe buffer bounds (`length` and `required` are writer-only).
+    `raw_length` and `declared_length` preserve reader length diagnostics
+    without narrowing the decoded value. For writer failures, `required` is
+    the exact encoded size needed to grow the output buffer.
     """
 
     def __init__(self, code: int, offset: Optional[int] = None, expected: Optional[str] = None,
                  actual: Optional[str] = None, operation: Optional[str] = None,
                  tag: Optional[bytes] = None, length: Optional[int] = None,
-                 required: Optional[int] = None, available: Optional[int] = None) -> None:
+                 required: Optional[int] = None, available: Optional[int] = None,
+                 raw_length: Optional[bytes] = None, declared_length: Optional[int] = None) -> None:
         super().__init__(_native.strerror(code))
         self.code = code
         self.offset = offset
@@ -33,6 +36,8 @@ class OpenTLVError(Exception):
         self.length = length
         self.required = required
         self.available = available
+        self.raw_length = raw_length
+        self.declared_length = declared_length
 
 
 class BufferTooShortError(OpenTLVError):
@@ -133,4 +138,5 @@ def _from_native(error: "_native.Error") -> OpenTLVError:
     return error_type(code, offset=fields.get("offset"), expected=fields.get("expected"),
                        actual=fields.get("actual"), operation=fields.get("operation"),
                        tag=fields.get("tag"), length=fields.get("length"),
-                       required=fields.get("required"), available=fields.get("available"))
+                       required=fields.get("required"), available=fields.get("available"),
+                       raw_length=fields.get("raw_length"), declared_length=fields.get("declared_length"))

@@ -21,8 +21,8 @@ One topic per file: sequential I/O, explicit copies, schema validation while
 walking, codecs and endian conversion, and a fully custom format.
 
 - [`sequential_io.c`](sequential_io.c) -- a sequential writer and reader,
-  `tlv_writer_copy_view`/`tlv_writer_copy_encoded`.
-- [`copies.c`](copies.c) -- the explicit `tlv_copy_value`/`tlv_copy_encoded`/`tlv_copy_view`
+  `tlv_writer_copy_element`/`tlv_writer_copy_encoded`.
+- [`copies.c`](copies.c) -- the explicit `tlv_copy_value`/`tlv_copy_encoded`/`tlv_copy_element`
   helpers.
 - [`schema_walk_and_scan.c`](schema_walk_and_scan.c) -- schema validation inside a
   `tlv_walk()` callback, and recovering candidates with `tlv_scan()`.

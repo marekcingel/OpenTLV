@@ -175,7 +175,7 @@ fn enumerations_reject_undefined_values() {
 #[test]
 fn afl_round_trips_and_validates_entries() {
     let afl = codec(Context::Base, &[0x94]);
-    let entries = vec![
+    let elements = vec![
         AflEntry {
             sfi: 1,
             first_record: 1,
@@ -192,7 +192,7 @@ fn afl_round_trips_and_validates_entries() {
     round_trip(
         afl,
         &[0x08, 0x01, 0x03, 0x01, 0x10, 0x01, 0x01, 0x00],
-        Value::Afl(entries),
+        Value::Afl(elements),
     );
     // SFI 0 is reserved.
     assert_eq!(
@@ -297,11 +297,11 @@ fn reader_and_dictionary_decode_a_gpo_response() {
     assert_eq!(template.tag().as_bytes(), &[0x77]);
 
     let mut decoded = Vec::new();
-    for entry in Reader::with_format(template.value(), Format::Ber) {
-        let entry = entry.unwrap();
-        let definition = emv::find(Context::Base, entry.tag()).unwrap();
-        definition.validate_length(entry.value().len()).unwrap();
-        let value = definition.codec().unwrap().decode(entry.value()).unwrap();
+    for element in Reader::with_format(template.value(), Format::Ber) {
+        let element = element.unwrap();
+        let definition = emv::find(Context::Base, element.tag()).unwrap();
+        definition.validate_length(element.value().len()).unwrap();
+        let value = definition.codec().unwrap().decode(element.value()).unwrap();
         decoded.push((definition.name(), value));
     }
     assert_eq!(decoded[0], ("aip", Value::Flags(0x2000)));

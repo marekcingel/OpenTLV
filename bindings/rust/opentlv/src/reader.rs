@@ -6,14 +6,14 @@ use std::mem::MaybeUninit;
 
 use opentlv_native as native;
 
-use crate::entry::Entry;
+use crate::element::Element;
 use crate::error::{Error, Result};
 use crate::fixed_format::FixedFormat;
 use crate::format::Format;
 
-/// A sequential reader that parses TLV entries from a byte slice.
+/// A sequential reader that parses TLV elements from a byte slice.
 ///
-/// `Reader` is an [`Iterator`] over `Result<Entry<'a>>`. Entries borrow the
+/// `Reader` is an [`Iterator`] over `Result<Element<'a>>`. Elements borrow the
 /// input, so the input must outlive them; the compiler enforces this. After
 /// the first error the iterator yields nothing more, because the C reader does
 /// not advance past malformed input.
@@ -21,9 +21,9 @@ use crate::format::Format;
 /// ```
 /// let data = [0x01, 0x02, 0xAA, 0xBB, 0x02, 0x00];
 /// let mut found = Vec::new();
-/// for entry in opentlv::Reader::new(&data) {
-///     let entry = entry.unwrap();
-///     found.push((entry.tag().as_bytes()[0], entry.value().len()));
+/// for element in opentlv::Reader::new(&data) {
+///     let element = element.unwrap();
+///     found.push((element.tag().as_bytes()[0], element.value().len()));
 /// }
 /// assert_eq!(found, [(0x01, 2), (0x02, 0)]);
 /// ```
@@ -89,34 +89,34 @@ impl<'a> Reader<'a> {
         unsafe { native::tlv_reader_at_end(&self.raw) != 0 }
     }
 
-    /// Reads the next entry, or returns `None` once the input is consumed or
+    /// Reads the next element, or returns `None` once the input is consumed or
     /// after an error.
-    pub fn next_entry(&mut self) -> Option<Result<Entry<'a>>> {
+    pub fn next_element(&mut self) -> Option<Result<Element<'a>>> {
         self.next()
     }
 }
 
 impl<'a> Iterator for Reader<'a> {
-    type Item = Result<Entry<'a>>;
+    type Item = Result<Element<'a>>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.failed || self.is_at_end() {
             return None;
         }
-        let mut view = MaybeUninit::<native::tlv_view_t>::uninit();
-        // SAFETY: `self.raw` is initialized and `view` is writable.
-        let code = unsafe { native::tlv_reader_next(&mut self.raw, view.as_mut_ptr()) };
+        let mut element = MaybeUninit::<native::tlv_element_t>::uninit();
+        // SAFETY: `self.raw` is initialized and `element` is writable.
+        let code = unsafe { native::tlv_reader_next(&mut self.raw, element.as_mut_ptr()) };
         if let Err(error) = Error::check(code) {
             self.failed = true;
             return Some(Err(error));
         }
-        // SAFETY: on success the C reader initialized `view`, and its value
+        // SAFETY: on success the C reader initialized `element`, and its value
         // points into the `'a` input this reader borrows.
-        let entry = unsafe { Entry::from_raw(&view.assume_init()) };
-        if entry.is_err() {
+        let element = unsafe { Element::from_raw(&element.assume_init()) };
+        if element.is_err() {
             self.failed = true;
         }
-        Some(entry)
+        Some(element)
     }
 }
 

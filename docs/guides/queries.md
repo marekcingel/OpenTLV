@@ -44,13 +44,13 @@ predicates are not part of it.
 #include "tlv/query/query.h"
 #include "tlv/builtins/asn1/ber.h"
 
-static tlv_visit_result_t print_match(const tlv_view_t* view, size_t depth,
+static tlv_visit_result_t print_match(const tlv_element_t* element, size_t depth,
                                       size_t offset, void* context) {
-    /* view->value borrows the input and is valid only during this call. */
+    /* element->value borrows the input and is valid only during this call. */
     (void)depth;
     (void)context;
     printf("match at offset %zu, %llu bytes\n", offset,
-           (unsigned long long)view->value.length);
+           (unsigned long long)element->value.size);
     return TLV_VISIT_CONTINUE;
 }
 
@@ -65,7 +65,7 @@ rc = tlv_query_walk(data, size, &tlv_format_ber, &query, TLV_WALK_MAX_DEPTH, 100
 ```
 
 `tlv_query_walk()` builds on `tlv_walk_tree()`: it neither allocates nor
-converts the data into another structure, and the view given to the visitor
+converts the data into another structure, and the element given to the visitor
 borrows the input. No match is not an error; the visitor is just never called.
 The whole input is traversed unless the visitor returns `TLV_VISIT_STOP`, so
 malformed data after the last match is reported, and `max_depth` and
@@ -78,7 +78,7 @@ element to a matcher instead:
 tlv_query_matcher_t matcher;
 tlv_query_matcher_init(&matcher, &query);
 /* In a preorder visitor, with the element's tag and depth: */
-if (tlv_query_matcher_visit(&matcher, &view->tag, depth)) {
+if (tlv_query_matcher_visit(&matcher, &element->tag, depth)) {
     /* the element is addressed by the query */
 }
 ```
@@ -97,7 +97,7 @@ if (!query) return;  // query.error().code; text_offset is the offending charact
 auto walked = query->walk(
     tlv::bytes(data, size), tlv_format_ber,
     TLV_WALK_MAX_DEPTH, 100000,
-    [](const tlv::entry& item, size_t depth, size_t offset) {
+    [](const tlv::element& item, size_t depth, size_t offset) {
         // item.value borrows the input
         return TLV_VISIT_CONTINUE;
     });

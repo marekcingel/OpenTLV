@@ -29,15 +29,15 @@ TEST(Integration_Tlv_Ber, TagsAndLengthsRoundTrip) {
             EXPECT_EQ(0, std::memcmp(bytes.data(), data.data(), bytes.size()));
             tlv_reader_t reader;
             ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data.data(), data.size(), &ber));
-            tlv_view_t view{};
-            ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-            EXPECT_EQ(bytes.size(), view.tag.size);
-            EXPECT_EQ(0, std::memcmp(bytes.data(), view.tag.data, bytes.size()));
-            EXPECT_EQ(length, view.value.length);
-            if (length) EXPECT_EQ(0, std::memcmp(value.data(), view.value.data, length));
-            ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-            EXPECT_EQ(0x5A, view.tag.data[0]);
-            EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &view));
+            tlv_element_t element{};
+            ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+            EXPECT_EQ(bytes.size(), element.tag.size);
+            EXPECT_EQ(0, std::memcmp(bytes.data(), element.tag.data, bytes.size()));
+            EXPECT_EQ(length, element.value.size);
+            if (length) EXPECT_EQ(0, std::memcmp(value.data(), element.value.data, length));
+            ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+            EXPECT_EQ(0x5A, element.tag.data[0]);
+            EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
         }
     }
 }
@@ -68,10 +68,10 @@ TEST(Integration_Tlv_Ber, TagClassesNumbersAndFormsRoundTrip) {
                 size_t  written = 0, consumed = 0;
                 ASSERT_EQ(TLV_OK, tlv_write(encoded, sizeof(encoded), &ber_writer, tag, nullptr, 0,
                                             &written));
-                tlv_view_t view{};
-                ASSERT_EQ(TLV_OK, tlv_read(encoded, written, &ber, &view, &consumed));
+                tlv_element_t element{};
+                ASSERT_EQ(TLV_OK, tlv_read(encoded, written, &ber, &element, &consumed));
                 EXPECT_EQ(written, consumed);
-                EXPECT_EQ(0, std::memcmp(tag.data, view.tag.data, tag.size));
+                EXPECT_EQ(0, std::memcmp(tag.data, element.tag.data, tag.size));
             }
         }
     }
@@ -93,7 +93,8 @@ TEST(Integration_Tlv_Ber, LengthWireBytesAndBounds) {
                                 {65536, {0x83, 1, 0, 0}},
                                 {SIZE_MAX, max_length_bytes}};
     for (const auto& item : cases) {
-        size_t used = 0, length = 0;
+        size_t     used = 0;
+        tlv_size_t length = 0;
         ASSERT_EQ(TLV_OK, ber_writer.length_size(nullptr, item.value, &used));
         EXPECT_EQ(item.bytes.size(), used);
         std::vector<uint8_t> data(used, 0xEE);
@@ -135,28 +136,30 @@ TEST(Integration_Tlv_Ber, IndefiniteReferenceEncodingsAndRoundTrip) {
         EXPECT_EQ(required, written);
         // A following sibling is outside the outer EOC.
         output.insert(output.end(), {0x04, 0});
-        tlv_view_t view{};
-        ASSERT_EQ(TLV_OK, tlv_read(output.data(), output.size(), &ber, &view, &used));
+        tlv_element_t element{};
+        ASSERT_EQ(TLV_OK, tlv_read(output.data(), output.size(), &ber, &element, &used));
         EXPECT_EQ(required, used);
-        EXPECT_EQ(value.size(), view.value.length);
-        EXPECT_EQ(output.data() + 2, view.value.data);
-        if (!value.empty()) EXPECT_EQ(0, std::memcmp(value.data(), view.value.data, value.size()));
+        EXPECT_EQ(value.size(), element.value.size);
+        EXPECT_EQ(output.data() + 2, element.value.data);
+        if (!value.empty())
+            EXPECT_EQ(0, std::memcmp(value.data(), element.value.data, value.size()));
         tlv_reader_t reader{};
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, output.data(), output.size(), &ber));
-        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
         EXPECT_EQ(required, reader.pos);
-        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-        EXPECT_EQ(4, view.tag.data[0]);
+        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+        EXPECT_EQ(4, element.tag.data[0]);
         EXPECT_TRUE(tlv_reader_at_end(&reader));
         // Every proper prefix of a valid outer element is truncated.
         for (size_t size = 1; size < required; ++size) {
-            view = tlv_view_t{TLV_TAG(0xEE), {nullptr, 42}};
+            element = tlv_element_t{TLV_TAG(0xEE), {}, {nullptr, 42}};
             used = 999;
-            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_read(output.data(), size, &ber, &view, &used));
+            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                      tlv_read(output.data(), size, &ber, &element, &used));
             EXPECT_EQ(999u, used);
-            EXPECT_EQ(0xEE, view.tag.data[0]);
-            EXPECT_EQ(nullptr, view.value.data);
-            EXPECT_EQ(42u, view.value.length);
+            EXPECT_EQ(0xEE, element.tag.data[0]);
+            EXPECT_EQ(nullptr, element.value.data);
+            EXPECT_EQ(42u, element.value.size);
         }
     }
 }
@@ -187,12 +190,12 @@ TEST(Integration_Tlv_Ber, IndefiniteMalformedInputIsAtomic) {
     for (const auto& item : cases) {
         tlv_reader_t reader{};
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, item.wire.data(), item.wire.size(), &ber));
-        tlv_view_t view = {TLV_TAG(0xEE), {nullptr, 42}};
-        EXPECT_EQ(item.result, tlv_reader_next(&reader, &view));
+        tlv_element_t element = {TLV_TAG(0xEE), {}, {nullptr, 42}};
+        EXPECT_EQ(item.result, tlv_reader_next(&reader, &element));
         EXPECT_EQ(0u, reader.pos);
-        EXPECT_EQ(0xEE, view.tag.data[0]);
-        EXPECT_EQ(nullptr, view.value.data);
-        EXPECT_EQ(42u, view.value.length);
+        EXPECT_EQ(0xEE, element.tag.data[0]);
+        EXPECT_EQ(nullptr, element.value.data);
+        EXPECT_EQ(42u, element.value.size);
     }
 }
 
@@ -202,19 +205,19 @@ TEST(Integration_Tlv_Ber, IndefiniteNestingLimitIncludesDefiniteScopes) {
         for (size_t depth = 0; depth < TLV_BER_MAX_DEPTH; ++depth)
             wire.insert(wire.end(), {0x30, 0x80});
         wire.resize(wire.size() + 2 * TLV_BER_MAX_DEPTH, 0);
-        tlv_view_t view{};
-        size_t     used = 999;
-        ASSERT_EQ(TLV_OK, tlv_read(wire.data(), wire.size(), &ber, &view, &used));
+        tlv_element_t element{};
+        size_t        used = 999;
+        ASSERT_EQ(TLV_OK, tlv_read(wire.data(), wire.size(), &ber, &element, &used));
         EXPECT_EQ(wire.size(), used);
         std::vector<uint8_t> out(wire.size());
         ASSERT_EQ(TLV_OK, tlv_ber_write_indefinite(out.data(), out.size(), TLV_TAG(0x30),
-                                                   view.value.data, view.value.length, &used));
+                                                   element.value.data, element.value.size, &used));
         EXPECT_EQ(wire, out);
         const size_t midpoint = 2 * TLV_BER_MAX_DEPTH;
         wire.insert(wire.begin() + midpoint,
                     {0x30, static_cast<uint8_t>(definite_child ? 0 : 0x80)});
         if (!definite_child) wire.insert(wire.begin() + midpoint + 2, {0, 0});
-        EXPECT_EQ(TLV_ERR_LIMIT, tlv_read(wire.data(), wire.size(), &ber, &view, &used));
+        EXPECT_EQ(TLV_ERR_LIMIT, tlv_read(wire.data(), wire.size(), &ber, &element, &used));
         out.assign(wire.size(), 0xEE);
         EXPECT_EQ(TLV_ERR_LIMIT, tlv_ber_write_indefinite(out.data(), out.size(), TLV_TAG(0x30),
                                                           wire.data() + 2, wire.size() - 4, &used));

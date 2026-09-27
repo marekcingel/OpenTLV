@@ -21,7 +21,7 @@ static tlv_lua_reader_t* check_reader(lua_State* L, int arg) {
     return (tlv_lua_reader_t*)luaL_checkudata(L, arg, OPENTLV_LUA_READER_MT);
 }
 
-/* Reads the next element, or returns no entry at the end of input; shared by
+/* Reads the next element, or returns no element at the end of input; shared by
  * the explicit reader:next() method and the reader(state, control) __call
  * form generic-for uses (see reader_call() below). */
 static int reader_next_impl(lua_State* L, tlv_lua_reader_t* self) {
@@ -31,16 +31,16 @@ static int reader_next_impl(lua_State* L, tlv_lua_reader_t* self) {
     }
 
     size_t                  offset = self->reader.pos;
-    tlv_view_t              entry;
+    tlv_element_t           element;
     tlv_reader_diagnostic_t diag;
     tlv_reader_diagnostic_init(&diag);
 
-    tlv_result_t code = tlv_reader_next_diag(&self->reader, &entry, &diag);
+    tlv_result_t code = tlv_reader_next_diag(&self->reader, &element, &diag);
     if (code != TLV_OK) {
         return opentlv_lua_raise_reader_error(L, code, &diag);
     }
 
-    int narrow_code = opentlv_lua_push_entry(L, &entry, offset);
+    int narrow_code = opentlv_lua_push_element(L, &element, offset);
     if (narrow_code != TLV_OK) {
         return opentlv_lua_raise(L, (tlv_result_t)narrow_code, 1, offset);
     }
@@ -52,7 +52,7 @@ static int reader_method_next(lua_State* L) {
 }
 
 /* Lets a Reader be used directly as a generic-for iterator:
- * `for entry in reader do ... end`. Lua's generic for calls the sole
+ * `for element in reader do ... end`. Lua's generic for calls the sole
  * explist value as `f(state, control)` on every iteration; since `reader`
  * is a userdata rather than a function, that call goes through __call,
  * which always receives the object itself as its first argument. The

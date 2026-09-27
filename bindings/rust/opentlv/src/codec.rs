@@ -451,7 +451,7 @@ impl Codec {
         })
     }
 
-    /// Decodes a raw value, for example the value of an [`Entry`](crate::Entry).
+    /// Decodes a raw value, for example the value of an [`Element`](crate::Element).
     ///
     /// # Errors
     ///

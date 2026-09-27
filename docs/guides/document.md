@@ -8,7 +8,7 @@ the optional **document** API. It copies the data into an owned tree that can be
 modified, and encodes it again.
 
 ```text
-Low level, zero-copy:   bytes -> reader -> view -> traversal / schema / codec
+Low level, zero-copy:   bytes -> reader -> element -> traversal / schema / codec
 High level, mutable:    bytes -> document -> inspect / modify -> encode
 ```
 

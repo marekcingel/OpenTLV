@@ -36,12 +36,12 @@ inline diagnostic make_diagnostic(tlv_result_t code, tlv_diagnostic_severity_t s
 }
 
 /**
- * @brief Attaches one context entry to a diagnostic.
+ * @brief Attaches one context element to a diagnostic.
  *
  * Wraps tlv_diagnostic_add_context(); the same borrowing and lifetime rules apply.
  *
  * @param target  Diagnostic to update.
- * @param context Caller-owned storage for the new entry; every field is overwritten.
+ * @param context Caller-owned storage for the new element; every field is overwritten.
  * @param layer   Borrowed name of the layer adding context, for example `"ber"`.
  * @param key     Borrowed name of the attribute, for example `"declared_length"`.
  * @param value   Borrowed formatted value of the attribute.

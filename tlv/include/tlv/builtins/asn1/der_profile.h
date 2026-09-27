@@ -50,7 +50,7 @@ extern TLV_API const tlv_der_limits_t tlv_der_default_limits;
 /**
  * @brief Callback for zero-copy preorder DER traversal.
  *
- * @param view    Current element; temporary, its value borrows the input.
+ * @param element    Current element; temporary, its value borrows the input.
  * @param depth   Number of constructed ancestors; top-level elements have depth 0.
  * @param offset  Absolute input offset of the element's tag.
  * @param context Caller context passed to tlv_der_walk().
@@ -60,8 +60,8 @@ extern TLV_API const tlv_der_limits_t tlv_der_default_limits;
  *
  * @warning Callback side effects are not rolled back on errors.
  */
-typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_view_t* view, size_t depth, size_t offset,
-                                                void* context);
+typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_element_t* element, size_t depth,
+                                                size_t offset, void* context);
 
 /**
  * @brief Validates one complete DER element, including all descendants.
@@ -72,7 +72,7 @@ typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_view_t* view, size_t d
  * @param[in]  data         Encoded input.
  * @param[in]  size         Input size in bytes.
  * @param[in]  limits       Limits, or `NULL` for #tlv_der_default_limits.
- * @param[out] view         Receives the element; its value borrows `data`.
+ * @param[out] element         Receives the element; its value borrows `data`.
  * @param[out] consumed     Receives the encoded size of the element.
  * @param[out] error_offset Optional. On failure receives the start of the
  *                          failing tag, length, or value field, relative to
@@ -85,10 +85,10 @@ typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_view_t* view, size_t d
  * @return Another error code for malformed or noncanonical input.
  *
  * @note Outputs other than `error_offset` remain unchanged on failure.
- * @warning The caller must keep `data` alive while `view` is used.
+ * @warning The caller must keep `data` alive while `element` is used.
  */
 TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
-                                  tlv_view_t* view, size_t* consumed, size_t* error_offset);
+                                  tlv_element_t* element, size_t* consumed, size_t* error_offset);
 
 /**
  * @brief Validates all concatenated DER elements recursively.
@@ -159,7 +159,7 @@ TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  * @see docs/profiles/der/README.md for the supported-type table.
  */
 TLV_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
-                                         const tlv_der_limits_t* limits, tlv_view_t* view,
+                                         const tlv_der_limits_t* limits, tlv_element_t* element,
                                          size_t* consumed, size_t* error_offset);
 /**
  * @brief Strict counterpart of tlv_der_walk().

@@ -15,10 +15,10 @@ set(SOURCES
     diagnostic_test.cpp
     endian_test.cpp
     endian_c_test.c
-    length_test.cpp
+    size_test.cpp
     value_test.cpp
     tag_test.cpp
-    view_test.cpp
+    element_test.cpp
     versiontest.cpp
     format_init_test.cpp
     format_test.cpp

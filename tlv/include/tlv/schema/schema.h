@@ -2,7 +2,7 @@
 #define OPENTLV_SCHEMA_H
 
 #include "tlv/error.h"
-#include "tlv/view.h"
+#include "tlv/element.h"
 #include "tlv/format.h"
 #include "tlv/diagnostic.h"
 #include "tlv/export.h"

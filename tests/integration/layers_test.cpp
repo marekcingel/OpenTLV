@@ -45,12 +45,12 @@ TEST(Integration_Tlvpp, BerIndefiniteRoundTripAndTraversal) {
     tlv::reader reader(tlv::bytes(buffer, *written), tlv_format_ber);
     auto        item = reader.next();
     ASSERT_TRUE(item);
-    EXPECT_EQ(buffer + 2, item->value.data());
-    EXPECT_EQ(4u, item->value.size());
+    EXPECT_EQ(reinterpret_cast<const uint8_t*>(buffer) + 2, item->value.data);
+    EXPECT_EQ(4u, item->value.size);
     EXPECT_TRUE(reader.at_end());
     size_t visits = 0;
     EXPECT_TRUE(tlv::walk_tree(tlv::bytes(buffer, *written), tlv_format_ber, 1, 2,
-                               [&visits](const tlv::entry&, size_t depth, size_t offset) {
+                               [&visits](const tlv::element&, size_t depth, size_t offset) {
                                    EXPECT_EQ(visits, depth);
                                    EXPECT_EQ(visits * 2, offset);
                                    ++visits;
@@ -77,11 +77,11 @@ TEST(Integration_Tlvpp, BerPathQuery) {
     EXPECT_EQ(3u, path->c_query().count);
     size_t visits = 0;
     EXPECT_TRUE(path->walk(input, tlv_format_ber, 8, 100,
-                           [&](const tlv::entry& item, size_t depth, size_t at) {
+                           [&](const tlv::element& item, size_t depth, size_t at) {
                                EXPECT_EQ(2u, depth);
                                EXPECT_EQ(8u, at);
-                               EXPECT_EQ(2u, item.value.size());
-                               EXPECT_EQ(0x41, static_cast<int>(item.value[0]));
+                               EXPECT_EQ(2u, item.value.size);
+                               EXPECT_EQ(0x41, static_cast<int>(item.value.data[0]));
                                ++visits;
                                return TLV_VISIT_CONTINUE;
                            }));
@@ -89,14 +89,15 @@ TEST(Integration_Tlvpp, BerPathQuery) {
 
     auto missing = tlv::query::parse("6F/A5/51");
     ASSERT_TRUE(missing);
-    EXPECT_TRUE(missing->walk(input, tlv_format_ber, 8, 100, [](const tlv::entry&, size_t, size_t) {
-        ADD_FAILURE();
-        return TLV_VISIT_CONTINUE;
-    }));
+    EXPECT_TRUE(
+        missing->walk(input, tlv_format_ber, 8, 100, [](const tlv::element&, size_t, size_t) {
+            ADD_FAILURE();
+            return TLV_VISIT_CONTINUE;
+        }));
     size_t failed_at = 0;
     auto   limited = path->walk(
         input, tlv_format_ber, 1, 100,
-        [](const tlv::entry&, size_t, size_t) { return TLV_VISIT_CONTINUE; }, &failed_at);
+        [](const tlv::element&, size_t, size_t) { return TLV_VISIT_CONTINUE; }, &failed_at);
     ASSERT_FALSE(limited);
     EXPECT_EQ(TLV_ERR_LIMIT, limited.error().code);
 }
@@ -107,7 +108,7 @@ TEST(Integration_Tlvpp, LayeredTraversalAndSchema) {
     tlv::bytes    bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
     size_t        visits = 0;
     auto result = tlv::walk_tree(bytes, tlv_format_default, 0, 2,
-                                 [&visits](const tlv::entry& item, size_t depth, size_t offset) {
+                                 [&visits](const tlv::element& item, size_t depth, size_t offset) {
                                      EXPECT_EQ(0u, depth);
                                      EXPECT_EQ(visits ? 3u : 0u, offset);
                                      EXPECT_EQ(visits ? 2 : 1, item.tag.data[0]);
@@ -269,11 +270,11 @@ struct pair_value {
 tlv_codec_result_t decode_pair(const void*, const tlv_format_t* format, const uint8_t* data,
                                size_t size, void* out, size_t capacity) {
     if (capacity < sizeof(pair_value)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-    tlv_view_t a{}, b{};
-    size_t     used = 0, second_used = 0;
+    tlv_element_t a{}, b{};
+    size_t        used = 0, second_used = 0;
     if (tlv_read(data, size, format, &a, &used) != TLV_OK ||
         tlv_read(data + used, size - used, format, &b, &second_used) != TLV_OK ||
-        a.value.length != 1 || b.value.length != 1 || a.tag.data[0] != 1 || b.tag.data[0] != 2 ||
+        a.value.size != 1 || b.value.size != 1 || a.tag.data[0] != 1 || b.tag.data[0] != 2 ||
         used + second_used != size)
         return TLV_CODEC_ERR_INVALID_VALUE;
     *static_cast<pair_value*>(out) = pair_value{a.value.data[0], b.value.data[0]};

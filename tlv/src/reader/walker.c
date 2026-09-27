@@ -1,6 +1,6 @@
 #include "tlv/reader/walker.h"
 #include "tlv/reader/reader.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 
 static tlv_result_t tree_error(tlv_result_t rc, size_t offset, size_t* out) {
     if (out) *out = offset;
@@ -18,7 +18,7 @@ tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t*
     if (max_depth > TLV_WALK_MAX_DEPTH) return tree_error(TLV_ERR_LIMIT, 0, error_offset);
     ends[0] = size;
     while (pos < ends[depth] || depth) {
-        tlv_view_t view;
+        tlv_element_t element;
         size_t used, end;
         tlv_result_t rc;
         if (pos == ends[depth]) {
@@ -27,21 +27,21 @@ tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t*
             continue;
         }
         if (count == max_elements) return tree_error(TLV_ERR_LIMIT, pos, error_offset);
-        rc = tlv_read(data + pos, ends[depth] - pos, format, &view, &used);
+        rc = tlv_read(data + pos, ends[depth] - pos, format, &element, &used);
         if (rc != TLV_OK) return tree_error(rc, pos, error_offset);
         ++count;
         end = pos + used;
         if (visitor) {
-            tlv_visit_result_t result = visitor(&view, depth, pos, context);
+            tlv_visit_result_t result = visitor(&element, depth, pos, context);
             if (result == TLV_VISIT_STOP) return TLV_OK;
             if (result != TLV_VISIT_CONTINUE) return tree_error(TLV_ERR_VISITOR, pos, error_offset);
         }
-        if (format->is_constructed && format->is_constructed(format->context, &view.tag) &&
-            view.value.length) {
+        if (format->is_constructed && format->is_constructed(format->context, &element.tag) &&
+            element.value.size) {
             size_t value_length;
-            rc = tlv_length_to_size(view.value.length, &value_length);
+            rc = tlv_size_to_native(element.value.size, &value_length);
             if (rc != TLV_OK) return tree_error(rc, pos, error_offset);
-            pos = (size_t)(view.value.data - data);
+            pos = (size_t)(element.value.data - data);
             if (depth == max_depth) return tree_error(TLV_ERR_LIMIT, pos, error_offset);
             ends[++depth] = pos + value_length;
             resumes[depth] = end;
@@ -59,10 +59,10 @@ tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_format_t* form
     rc = tlv_reader_init(&reader, data, size, format);
     if (rc != TLV_OK) return rc;
     while (!tlv_reader_at_end(&reader)) {
-        tlv_view_t view;
-        rc = tlv_reader_next(&reader, &view);
+        tlv_element_t element;
+        rc = tlv_reader_next(&reader, &element);
         if (rc != TLV_OK) return rc;
-        switch (visitor(&view, context)) {
+        switch (visitor(&element, context)) {
             case TLV_VISIT_CONTINUE: break;
             case TLV_VISIT_STOP: return TLV_OK;
             default: return TLV_ERR_VISITOR;

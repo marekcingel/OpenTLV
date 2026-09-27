@@ -23,6 +23,7 @@ result = opentlv.parse(sample, { format: "ber" });
 assert.equal(result.error, undefined);
 const [fci] = result.elements;
 assert.equal(fci.tag, "6F");
+assert.equal(fci.rawLength, "0A");
 assert.equal(fci.constructed, true);
 assert.deepEqual(
   fci.children.map((child) => [child.tag, child.offset, child.depth]),
@@ -72,6 +73,7 @@ assert.equal(result.error, undefined);
 assert.equal(result.elements.length, 2);
 assert.equal(result.elements[1].tag, "09");
 assert.equal(result.elements[1].length, 2);
+assert.equal(result.elements[1].rawLength, "03");
 assert.equal(result.elements[1].headerSize, 2);
 assert.equal(result.elements[1].value, "4869");
 

@@ -26,15 +26,15 @@ TEST(Integration_Tlv_FormatDefault, IndependentReferenceInputsAndOutputs) {
         SCOPED_TRACE(item.length);
         auto wire = item.header;
         wire.resize(wire.size() + item.length, 0xAB);
-        tlv_view_t view{};
-        size_t     consumed = 0;
+        tlv_element_t element{};
+        size_t        consumed = 0;
         ASSERT_EQ(TLV_OK,
-                  tlv_read(wire.data(), wire.size(), &tlv_format_default, &view, &consumed));
+                  tlv_read(wire.data(), wire.size(), &tlv_format_default, &element, &consumed));
         EXPECT_EQ(wire.size(), consumed);
-        EXPECT_EQ(1, view.tag.size); // 9F is a single raw tag, not BER high-tag form.
-        EXPECT_EQ(0x9F, view.tag.data[0]);
-        EXPECT_EQ(item.length, view.value.length);
-        EXPECT_EQ(wire.data() + item.header.size(), view.value.data);
+        EXPECT_EQ(1, element.tag.size); // 9F is a single raw tag, not BER high-tag form.
+        EXPECT_EQ(0x9F, element.tag.data[0]);
+        EXPECT_EQ(item.length, element.value.size);
+        EXPECT_EQ(wire.data() + item.header.size(), element.value.data);
 
         std::vector<uint8_t> output(wire.size());
         std::vector<uint8_t> value(item.length, 0xAB);
@@ -47,8 +47,8 @@ TEST(Integration_Tlv_FormatDefault, IndependentReferenceInputsAndOutputs) {
     size_t size = 123;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_format_default.length_size(nullptr, 65536, &size));
     const uint8_t too_large[] = {0x9F, 0x83, 1, 0, 0};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_read(too_large, sizeof(too_large), &tlv_format_default, &view, &size));
+              tlv_read(too_large, sizeof(too_large), &tlv_format_default, &element, &size));
 }
 #endif

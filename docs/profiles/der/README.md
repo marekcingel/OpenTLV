@@ -38,22 +38,22 @@ does not convert arbitrary BER or repair noncanonical input.
 #include "tlv/builtins/asn1/der_profile.h"
 
 const uint8_t input[] = {0x30, 3, 0x02, 1, 42};
-tlv_view_t view;
+tlv_element_t element;
 size_t consumed, error_offset;
 tlv_result_t rc = tlv_der_read(input, sizeof(input), NULL,
-                              &view, &consumed, &error_offset);
+                              &element, &consumed, &error_offset);
 if (rc == TLV_OK) {
-    tlv_asn1_class_t cls = tlv_der_tag_class(&view.tag); /* UNIVERSAL */
-    int constructed = tlv_der_tag_is_constructed(&view.tag); /* 1 */
+    tlv_asn1_class_t cls = tlv_der_tag_class(&element.tag); /* UNIVERSAL */
+    int constructed = tlv_der_tag_is_constructed(&element.tag); /* 1 */
     uint64_t number;
-    rc = tlv_der_tag_number(&view.tag, &number); /* 16 */
+    rc = tlv_der_tag_number(&element.tag, &number); /* 16 */
     (void)cls;
     (void)constructed;
 }
 ```
 
 `tlv_der_read` validates one element and all of its descendants before returning
-its view and complete encoded size. Trailing input is ignored. Empty input
+its element and complete encoded size. Trailing input is ignored. Empty input
 returns `TLV_ERR_END_OF_BUFFER`. View and consumed outputs are required and
 remain unchanged on failure. Keep the input alive while using returned views.
 
@@ -74,7 +74,7 @@ capacity return `TLV_ERR_INVALID_TAG_SIZE`; invalid encodings return
 `tlv_der_walk(data, size, limits, visitor, context, &error_offset)` processes all
 concatenated elements in preorder, including nested constructed values. A NULL
 visitor performs validation only. Empty input succeeds. Each callback receives
-a temporary view, its depth (top-level is zero), and its absolute tag offset.
+a temporary element, its depth (top-level is zero), and its absolute tag offset.
 Return `TLV_VISIT_CONTINUE`, `TLV_VISIT_STOP` (successful early termination), or
 `TLV_VISIT_ERROR` (returns `TLV_ERR_VISITOR`). Other callback results also return
 `TLV_ERR_VISITOR`. Stopping does not validate the remaining input. Callback
@@ -242,10 +242,10 @@ const tlv_der_schema_component_t set_components[] = {
 };
 const tlv_der_schema_type_t set_type = {TLV_DER_SCHEMA_SET, 0, set_components, 2};
 
-tlv_view_t view;
+tlv_element_t element;
 size_t consumed, error_offset;
 tlv_result_t rc = tlv_der_schema_read(data, size, &set_type, NULL,
-                                      &view, &consumed, &error_offset);
+                                      &element, &consumed, &error_offset);
 ```
 
 `tlv_der_schema_read` rejects a SET whose components are not encoded in

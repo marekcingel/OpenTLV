@@ -29,28 +29,28 @@ int query_command::prepare() {
 // query's visitor: prints each element the path addresses. Text output is
 // the dump line without nesting, --value prints only the value bytes, and
 // --output json collects the elements into one document printed at the end.
-tlv_visit_result_t query_command::visit_element(const tlv_view_t* view, std::size_t depth,
+tlv_visit_result_t query_command::visit_element(const tlv_element_t* element, std::size_t depth,
                                                 std::size_t offset) {
-    diagnostic_scope_visit(scope_, data(), view, depth, format_->is_constructed);
-    if (!tlv_query_matcher_visit(&matcher_, &view->tag, depth)) return TLV_VISIT_CONTINUE;
+    diagnostic_scope_visit(scope_, data(), element, depth, format_->is_constructed);
+    if (!tlv_query_matcher_visit(&matcher_, &element->tag, depth)) return TLV_VISIT_CONTINUE;
     ++matches_;
     if (is_json(options_)) {
         nlohmann::json object;
         object["path"] = query_path(options_.query);
         object["offset"] = offset;
-        object["tag"] = hex_string(view->tag.data, view->tag.size);
-        object["length"] = (uint64_t)view->value.length;
-        object["value"] = hex_string(view->value.data, (size_t)view->value.length);
+        object["tag"] = hex_string(element->tag.data, element->tag.size);
+        object["length"] = (uint64_t)element->value.size;
+        object["value"] = hex_string(element->value.data, (size_t)element->value.size);
         json_root_.push_back(std::move(object));
         return TLV_VISIT_CONTINUE;
     }
     if (options_.value_only) {
-        print_hex(view->value.data, (size_t)view->value.length);
+        print_hex(element->value.data, (size_t)element->value.size);
     } else {
         std::cout << "offset=" << offset << " tag=";
-        print_hex(view->tag.data, view->tag.size);
-        std::cout << " length=" << view->value.length << " value=";
-        print_hex(view->value.data, (size_t)view->value.length);
+        print_hex(element->tag.data, element->tag.size);
+        std::cout << " length=" << element->value.size << " value=";
+        print_hex(element->value.data, (size_t)element->value.size);
     }
     std::cout << "\n";
     return std::cout ? TLV_VISIT_CONTINUE : TLV_VISIT_ERROR;

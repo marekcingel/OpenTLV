@@ -15,7 +15,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/diagnostic.c
     src/tag.c
     src/endian.c
-    src/length.c
+    src/size.c
     src/value.c
     src/reader/reader.c
     src/reader/scanner.c

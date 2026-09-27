@@ -1,32 +1,32 @@
 #include "tlv/reader/scanner.h"
 #include "tlv/reader/reader.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 
 tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start, const tlv_format_t* format,
-                      const tlv_schema_t* schema, tlv_view_t* out_entry, size_t* out_offset,
+                      const tlv_schema_t* schema, tlv_element_t* out_element, size_t* out_offset,
                       size_t* consumed) {
     size_t offset;
-    if ((!data && size) || !tlv_format_can_read(format) || !out_entry || !out_offset || !consumed ||
-        (schema && !schema->entries && schema->count))
+    if ((!data && size) || !tlv_format_can_read(format) || !out_element || !out_offset ||
+        !consumed || (schema && !schema->entries && schema->count))
         return TLV_ERR_NULL_ARG;
 
     for (offset = start; offset < size; ++offset) {
-        tlv_view_t entry;
+        tlv_element_t element;
         size_t encoded_size;
-        if (tlv_read(data + offset, size - offset, format, &entry, &encoded_size) != TLV_OK)
+        if (tlv_read(data + offset, size - offset, format, &element, &encoded_size) != TLV_OK)
             continue;
         if (schema) {
-            const tlv_schema_entry_t* rule = tlv_schema_find(schema, &entry.tag);
-            /* entry.value.length always comes from tlv_read(), which derives it
+            const tlv_schema_entry_t* rule = tlv_schema_find(schema, &element.tag);
+            /* element.value.size always comes from tlv_read(), which derives it
              * from this same build's size_t, so this conversion cannot actually
              * fail here; it is kept to honor the length.h module boundary and
-             * to stay correct if entry is ever sourced differently. */
+             * to stay correct if element is ever sourced differently. */
             size_t value_length;
-            if (!rule || tlv_length_to_size(entry.value.length, &value_length) != TLV_OK ||
+            if (!rule || tlv_size_to_native(element.value.size, &value_length) != TLV_OK ||
                 tlv_schema_validate_length(rule, value_length) != TLV_OK)
                 continue;
         }
-        *out_entry = entry;
+        *out_element = element;
         *out_offset = offset;
         *consumed = encoded_size;
         return TLV_OK;

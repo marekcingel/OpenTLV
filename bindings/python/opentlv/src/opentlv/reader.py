@@ -6,7 +6,7 @@ from typing import Iterator, Union
 
 import opentlv_native as _native
 
-from opentlv.entry import Entry
+from opentlv.element import Element
 from opentlv.error import _from_native
 from opentlv.fixed_format import FixedFormat
 from opentlv.format import Format
@@ -17,19 +17,19 @@ AnyFormat = Union[Format, FixedFormat]
 
 
 class Reader:
-    """A sequential, one-pass reader that parses TLV entries from a buffer.
+    """A sequential, one-pass reader that parses TLV elements from a buffer.
 
-    `Reader` is a Python iterator over `Entry` values. `data` may be
+    `Reader` is a Python iterator over `Element` values. `data` may be
     `bytes`, `bytearray`, `memoryview`, or any other buffer-protocol object;
-    the reader does not copy it, and the entries it yields borrow it, so it
-    must stay valid and unchanged for as long as the reader or its entries
+    the reader does not copy it, and the elements it yields borrow it, so it
+    must stay valid and unchanged for as long as the reader or its elements
     are used.
 
     After the first error, iteration ends instead of retrying: the
     underlying C reader does not advance past malformed input.
 
     >>> data = bytes([0x01, 0x02, 0xAA, 0xBB, 0x02, 0x00])
-    >>> [(entry.tag.data, bytes(entry.value)) for entry in Reader(data)]
+    >>> [(element.tag.data, bytes(element.value)) for element in Reader(data)]
     [(b'\\x01', b'\\xaa\\xbb'), (b'\\x02', b'')]
     """
 
@@ -56,23 +56,23 @@ class Reader:
         """`True` once all input has been consumed."""
         return self._pos >= len(self._data)
 
-    def __iter__(self) -> Iterator[Entry]:
+    def __iter__(self) -> Iterator[Element]:
         return self
 
-    def __next__(self) -> Entry:
+    def __next__(self) -> Element:
         if self._failed or self.at_end:
             raise StopIteration
         try:
             if isinstance(self._format, FixedFormat):
-                tag_data, value_offset, value_length, consumed = _native.read_fixed(
+                tag_data, length_offset, length_size, value_offset, value_length, consumed = _native.read_fixed(
                     self._data, self._pos, self._format.tag_size, self._format.length_size,
                     self._format.big_endian)
             else:
-                tag_data, value_offset, value_length, consumed = _native.read(
+                tag_data, length_offset, length_size, value_offset, value_length, consumed = _native.read(
                     self._data, self._pos, self._format)
         except _native.Error as native_error:
             self._failed = True
             raise _from_native(native_error) from None
         self._pos += consumed
         value = self._data[value_offset:value_offset + value_length]
-        return Entry(Tag(tag_data), value)
+        return Element(Tag(tag_data), value, self._data[length_offset:length_offset + length_size])

@@ -12,12 +12,12 @@ TEST(Integration_Tlv, ReaderParsesSingleShortFormEntry) {
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
-    tlv_view_t entry;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(1, entry.tag.size);
-    ASSERT_EQ(0x01, entry.tag.data[0]);
-    ASSERT_EQ(3, entry.value.length);
-    ASSERT_EQ(0, std::memcmp("abc", entry.value.data, 3));
+    tlv_element_t element;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(1, element.tag.size);
+    ASSERT_EQ(0x01, element.tag.data[0]);
+    ASSERT_EQ(3, element.value.size);
+    ASSERT_EQ(0, std::memcmp("abc", element.value.data, 3));
     ASSERT_TRUE(tlv_reader_at_end(&reader));
 }
 
@@ -26,14 +26,14 @@ TEST(Integration_Tlv, ReaderParsesMultipleEntries) {
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
-    tlv_view_t e1, e2;
+    tlv_element_t e1, e2;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e1));
     ASSERT_EQ(0x01, e1.tag.data[0]);
-    ASSERT_EQ(2, e1.value.length);
+    ASSERT_EQ(2, e1.value.size);
 
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e2));
     ASSERT_EQ(0x02, e2.tag.data[0]);
-    ASSERT_EQ(1, e2.value.length);
+    ASSERT_EQ(1, e2.value.size);
     ASSERT_EQ('x', e2.value.data[0]);
 
     ASSERT_TRUE(tlv_reader_at_end(&reader));
@@ -50,12 +50,12 @@ TEST(Integration_Tlv, ReaderParsesBerLongForm1ByteLength) {
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
-    tlv_view_t entry;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(0x05, entry.tag.data[0]);
-    ASSERT_EQ(200, entry.value.length);
-    ASSERT_EQ('A', entry.value.data[0]);
-    ASSERT_EQ('A', entry.value.data[199]);
+    tlv_element_t element;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(0x05, element.tag.data[0]);
+    ASSERT_EQ(200, element.value.size);
+    ASSERT_EQ('A', element.value.data[0]);
+    ASSERT_EQ('A', element.value.data[199]);
 }
 
 TEST(Integration_Tlv, ReaderParsesBerLongForm2ByteLength) {
@@ -71,10 +71,10 @@ TEST(Integration_Tlv, ReaderParsesBerLongForm2ByteLength) {
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
-    tlv_view_t entry;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(0x07, entry.tag.data[0]);
-    ASSERT_EQ(300, entry.value.length);
+    tlv_element_t element;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(0x07, element.tag.data[0]);
+    ASSERT_EQ(300, element.value.size);
 }
 
 /* ---------- Writer tests ---------- */
@@ -119,7 +119,7 @@ TEST(Integration_Tlv, WriterReaderRoundtrip) {
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, buf, tlv_writer_size(&writer), &tlv_format_default));
 
-    tlv_view_t e1, e2;
+    tlv_element_t e1, e2;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e1));
     ASSERT_EQ(0x01, e1.tag.data[0]);
     ASSERT_EQ(0, std::memcmp("hi", e1.value.data, 2));

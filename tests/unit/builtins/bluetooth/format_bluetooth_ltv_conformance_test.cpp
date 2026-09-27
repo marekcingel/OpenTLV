@@ -44,14 +44,14 @@ std::vector<Element> read_all(const Bytes& data, tlv_result_t* final_result = nu
     EXPECT_EQ(TLV_OK, tlv_reader_init(&reader, exact.data(), exact.size(), &reader_format));
     tlv_result_t rc = TLV_OK;
     while (!tlv_reader_at_end(&reader)) {
-        tlv_view_t view;
-        rc = tlv_reader_next(&reader, &view);
+        tlv_element_t element;
+        rc = tlv_reader_next(&reader, &element);
         if (rc != TLV_OK) break;
-        EXPECT_EQ(1, view.tag.size);
-        EXPECT_GE(view.value.data, exact.data() + 2);
-        EXPECT_LE(view.value.data + view.value.length, exact.data() + exact.size());
-        elements.push_back(
-            {view.tag.data[0], Bytes(view.value.data, view.value.data + view.value.length)});
+        EXPECT_EQ(1, element.tag.size);
+        EXPECT_GE(element.value.data, exact.data() + 2);
+        EXPECT_LE(element.value.data + element.value.size, exact.data() + exact.size());
+        elements.push_back({element.tag.data[0],
+                            Bytes(element.value.data, element.value.data + element.value.size)});
     }
     if (final_result) *final_result = rc;
     return elements;
@@ -81,7 +81,7 @@ struct VisitLog {
     std::vector<size_t> offsets;
 };
 
-tlv_visit_result_t log_visit(const tlv_view_t*, size_t depth, size_t offset, void* context) {
+tlv_visit_result_t log_visit(const tlv_element_t*, size_t depth, size_t offset, void* context) {
     auto* log = static_cast<VisitLog*>(context);
     EXPECT_EQ(0u, depth);
     log->offsets.push_back(offset);
@@ -132,29 +132,29 @@ TEST(Unit_Tlv_BluetoothLtvConformance, ReEncodingVectorsIsByteIdentical) {
         EXPECT_EQ(*vector, encode_all(read_all(*vector)));
 }
 
-TEST(Unit_Tlv_BluetoothLtvConformance, CopyViewReproducesEachElement) {
+TEST(Unit_Tlv_BluetoothLtvConformance, CopyElementReproducesEachElement) {
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, ibeacon.data(), ibeacon.size(), &reader_format));
     Bytes        out(ibeacon.size());
     tlv_writer_t writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, out.data(), out.size(), &writer_format));
-    tlv_view_t view;
-    while (tlv_reader_next(&reader, &view) == TLV_OK)
-        ASSERT_EQ(TLV_OK, tlv_writer_copy_view(&writer, &view));
+    tlv_element_t element;
+    while (tlv_reader_next(&reader, &element) == TLV_OK)
+        ASSERT_EQ(TLV_OK, tlv_writer_copy_element(&writer, &element));
     EXPECT_EQ(ibeacon.size(), tlv_writer_size(&writer));
     EXPECT_EQ(ibeacon, out);
 }
 
 TEST(Unit_Tlv_BluetoothLtvConformance, EveryTypeByteIsStructurallyValid) {
     for (unsigned type = 0; type < 256; ++type) {
-        const Bytes data = {0x03, static_cast<uint8_t>(type), 0xAA, 0xBB};
-        tlv_view_t  view;
-        size_t      consumed = 0;
-        ASSERT_EQ(TLV_OK, tlv_read(data.data(), data.size(), &reader_format, &view, &consumed))
+        const Bytes   data = {0x03, static_cast<uint8_t>(type), 0xAA, 0xBB};
+        tlv_element_t element;
+        size_t        consumed = 0;
+        ASSERT_EQ(TLV_OK, tlv_read(data.data(), data.size(), &reader_format, &element, &consumed))
             << type;
         EXPECT_EQ(4u, consumed);
-        EXPECT_EQ(type, view.tag.data[0]);
-        EXPECT_EQ(2u, view.value.length);
+        EXPECT_EQ(type, element.tag.data[0]);
+        EXPECT_EQ(2u, element.value.size);
     }
 }
 
@@ -164,9 +164,9 @@ TEST(Unit_Tlv_BluetoothLtvConformance, LengthByteAgainstEveryBufferSize) {
         for (size_t size = 0; size <= 258; ++size) {
             Bytes data(size, 0xA5);
             if (size) data[0] = static_cast<uint8_t>(length);
-            tlv_view_t view;
-            size_t     consumed = 7;
-            const auto rc = tlv_read(data.data(), data.size(), &reader_format, &view, &consumed);
+            tlv_element_t element;
+            size_t        consumed = 7;
+            const auto rc = tlv_read(data.data(), data.size(), &reader_format, &element, &consumed);
             if (!size) {
                 EXPECT_EQ(TLV_ERR_END_OF_BUFFER, rc);
             } else if (!length) {
@@ -176,8 +176,8 @@ TEST(Unit_Tlv_BluetoothLtvConformance, LengthByteAgainstEveryBufferSize) {
             } else {
                 ASSERT_EQ(TLV_OK, rc) << length << "/" << size;
                 EXPECT_EQ(length + 1u, consumed);
-                EXPECT_EQ(length - 1u, view.value.length);
-                EXPECT_LE(view.value.data + view.value.length, data.data() + size);
+                EXPECT_EQ(length - 1u, element.value.size);
+                EXPECT_LE(element.value.data + element.value.size, data.data() + size);
                 continue;
             }
             EXPECT_EQ(7u, consumed);
@@ -281,13 +281,13 @@ TEST(Unit_Tlv_BluetoothLtvConformance, ZeroLengthEndsParsingLikePadding) {
     EXPECT_EQ(1u, elements.size());
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, rc);
 
-    tlv_reader_t reader;
-    tlv_view_t   view;
+    tlv_reader_t  reader;
+    tlv_element_t element;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data.data(), data.size(), &reader_format));
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next(&reader, &view));
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next(&reader, &element));
     // A failed read does not advance the reader, so the error is stable.
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next(&reader, &view));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next(&reader, &element));
     EXPECT_FALSE(tlv_reader_at_end(&reader));
 }
 

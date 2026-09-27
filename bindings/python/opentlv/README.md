@@ -5,7 +5,7 @@ portable C99 library for reading, writing and validating TLV data.
 
 This package wraps `opentlv_native`, a native extension that calls the public
 OpenTLV C API directly, into an idiomatic API. `Reader`, `Writer`,
-`Document`/`Node`, `Entry`, `Tag`, `Format`, `LengthSchema`/`StructureSchema`,
+`Document`/`Node`, `Element`, `Tag`, `Format`, `LengthSchema`/`StructureSchema`,
 the `OpenTLVError` exception hierarchy and a narrow `codec` submodule (EMV
 amounts only) are bound so far:
 
@@ -13,8 +13,8 @@ amounts only) are bound so far:
 import opentlv
 
 data = bytes([0x01, 0x02, 0xAA, 0xBB, 0x02, 0x00])
-for entry in opentlv.Reader(data):
-    print(entry.tag, bytes(entry.value))
+for element in opentlv.Reader(data):
+    print(element.tag, bytes(element.value))
 
 writer = opentlv.Writer()
 writer.write(opentlv.Tag(b"\x50"), b"VISA")

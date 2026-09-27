@@ -2,7 +2,7 @@
 #define OPENTLV_TLVPP_QUERY_HPP
 #include <type_traits>
 #include "tlv++/types.hpp"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/query/query.h"
 
 /**
@@ -57,7 +57,7 @@ public:
      * rules for limits, offsets and errors are the same. Nothing is allocated
      * and the entries passed to the visitor borrow `data`.
      *
-     * @tparam Visitor Callable invoked as `visitor(entry, depth, absolute_offset)`
+     * @tparam Visitor Callable invoked as `visitor(element, depth, absolute_offset)`
      *                 returning #tlv_visit_result_t, as for walk_tree().
      *
      * @param data          Encoded input; borrowed.
@@ -82,16 +82,10 @@ public:
         typedef typename std::remove_reference<Visitor>::type visitor_type;
         struct adapter {
             visitor_type*             visitor;
-            static tlv_visit_result_t call(const tlv_view_t* view, size_t depth, size_t offset,
-                                           void* context) {
+            static tlv_visit_result_t call(const tlv_element_t* element, size_t depth,
+                                           size_t offset, void* context) {
                 adapter* self = static_cast<adapter*>(context);
-                size_t   length;
-                if (tlv_length_to_size(view->value.length, &length) != TLV_OK)
-                    return TLV_VISIT_ERROR;
-                return (*self->visitor)(
-                    entry{view->tag,
-                          bytes(reinterpret_cast<const byte*>(view->value.data), length)},
-                    depth, offset);
+                return (*self->visitor)(*element, depth, offset);
             }
         };
         adapter      state{&visitor};

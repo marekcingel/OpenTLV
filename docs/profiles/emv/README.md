@@ -48,16 +48,16 @@ optional codec, and length step. Unknown tags and invalid contexts return NULL.
 #include "tlv/reader/reader.h"
 
 /* Inside a function; wire contains an Amount, Authorised (Numeric) TLV. */
-tlv_view_t view;
+tlv_element_t element;
 size_t consumed;
-if (tlv_read(wire, wire_size, &tlv_format_ber, &view, &consumed) == TLV_OK) {
+if (tlv_read(wire, wire_size, &tlv_format_ber, &element, &consumed) == TLV_OK) {
     const tlv_emv_definition_t* def =
-        tlv_emv_find(TLV_EMV_CONTEXT_BASE, &view.tag);
-    if (def && tlv_emv_validate_length(def, view.value.length) == TLV_OK &&
+        tlv_emv_find(TLV_EMV_CONTEXT_BASE, &element.tag);
+    if (def && tlv_emv_validate_length(def, element.value.size) == TLV_OK &&
         def->value_kind == TLV_EMV_VALUE_NUMBER && def->codec) {
         uint64_t amount;
         tlv_codec_result_t result = tlv_codec_decode(
-            def->codec, view.value.data, view.value.length,
+            def->codec, element.value.data, element.value.size,
             &amount, sizeof(amount));
         /* Check result before using amount. */
     }
@@ -122,7 +122,7 @@ The PAN codec rejects empty/all-padding values and more than 19 digits.
 
 BCD numbers enforce the declared digit count, including zero high nibbles for
 odd-width fields such as currency codes and exponents. Variable-length numbers
-are encoded in the shortest permitted width; use the original view when exact
+are encoded in the shortest permitted width; use the original element when exact
 wire preservation matters. Currency amounts are unscaled minor units.
 `tlv_emv_codec_amount` is a convenient standalone n12/six-byte amount codec.
 `TLV_EMV_AIP_*` masks can be used with the decoded AIP flags; `TLV_EMV_TVR_*`,

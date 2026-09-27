@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv/builtins/asn1/cer_profile.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/reader/walker.h"
 
 #define CHECK(call)                                                                                \
@@ -19,12 +19,12 @@
         }                                                                                          \
     } while (0)
 
-static tlv_visit_result_t print_segment(const tlv_view_t* view, void* context) {
+static tlv_visit_result_t print_segment(const tlv_element_t* element, void* context) {
     size_t length;
     (void)context;
-    CHECK(tlv_length_to_size(view->value.length, &length));
+    CHECK(tlv_size_to_native(element->value.size, &length));
     printf("  segment: tag 0x%02X, %zu content octets, address %p (borrowed, not copied)\n",
-           view->tag.data[0], length, (const void*)view->value.data);
+           element->tag.data[0], length, (const void*)element->value.data);
     return TLV_VISIT_CONTINUE;
 }
 
@@ -33,13 +33,13 @@ int main(void) {
     const uint8_t integer_child[] = {0x02, 1, 5};
     uint8_t       nested[16];
     size_t        required, written, consumed;
-    tlv_view_t    view;
+    tlv_element_t element;
 
     CHECK(tlv_cer_write(NULL, 0, TLV_TAG(0x30), integer_child, sizeof(integer_child), NULL,
                         &required, NULL));
     CHECK(tlv_cer_write(nested, sizeof(nested), TLV_TAG(0x30), integer_child, sizeof(integer_child),
                         NULL, &written, NULL));
-    CHECK(tlv_cer_read(nested, written, NULL, &view, &consumed, NULL));
+    CHECK(tlv_cer_read(nested, written, NULL, &element, &consumed, NULL));
     printf("Encoded %zu bytes (tag + 0x80 + child + EOC), consumed %zu\n", written, consumed);
 
     {
@@ -49,14 +49,14 @@ int main(void) {
         puts("Segmented OCTET STRING, segments accessed without copying");
         CHECK(tlv_cer_write_segmented_string(segmented, sizeof(segmented), TLV_TAG(0x04), content,
                                              sizeof(content), NULL, &seg_written, NULL));
-        CHECK(tlv_cer_read_strict(segmented, seg_written, NULL, &view, &consumed, NULL));
-        printf("Constructed: %d, encoded %zu bytes\n", tlv_cer_tag_is_constructed(&view.tag),
+        CHECK(tlv_cer_read_strict(segmented, seg_written, NULL, &element, &consumed, NULL));
+        printf("Constructed: %d, encoded %zu bytes\n", tlv_cer_tag_is_constructed(&element.tag),
                consumed);
-        /* view.value is the encoded constructed contents (segment headers
+        /* element.value is the encoded constructed contents (segment headers
          * included) -- distinct from the logical string data each segment's
          * own borrowed value exposes below. */
-        CHECK(tlv_length_to_size(view.value.length, &value_size));
-        CHECK(tlv_walk(view.value.data, value_size, &tlv_format_cer, print_segment, NULL));
+        CHECK(tlv_size_to_native(element.value.size, &value_size));
+        CHECK(tlv_walk(element.value.data, value_size, &tlv_format_cer, print_segment, NULL));
     }
     return 0;
 }

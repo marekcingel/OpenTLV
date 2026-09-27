@@ -1,5 +1,5 @@
 #include "tlv/document/document.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <stdlib.h>
@@ -218,16 +218,16 @@ static tlv_result_t parse_list(tlv_document_t* document, tlv_node_t* parent, con
     tlv_result_t rc = tlv_reader_init(&reader, data, size, document->options.format);
     if (rc != TLV_OK) return rc;
     while (!tlv_reader_at_end(&reader)) {
-        tlv_view_t view;
+        tlv_element_t element;
         size_t start = reader.pos, length = 0;
-        rc = tlv_reader_next(&reader, &view);
-        if (rc == TLV_OK) rc = tlv_length_to_size(view.value.length, &length);
+        rc = tlv_reader_next(&reader, &element);
+        if (rc == TLV_OK) rc = tlv_size_to_native(element.value.size, &length);
         if (rc != TLV_OK) {
             set_offset(error_offset, base + start);
             return rc;
         }
-        rc = build_node(document, parent, view.tag, view.value.data, length, depth,
-                        length ? base + (size_t)(view.value.data - data) : 0, base + start,
+        rc = build_node(document, parent, element.tag, element.value.data, length, depth,
+                        length ? base + (size_t)(element.value.data - data) : 0, base + start,
                         error_offset, NULL);
         if (rc != TLV_OK) return rc;
     }

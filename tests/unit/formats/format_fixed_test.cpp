@@ -74,13 +74,13 @@ TEST(Unit_Tlv_Fixed, LtvTagAndValuePresetMatchesBluetoothLtv) {
     ASSERT_EQ(TLV_OK, tlv_reader_init(&from_global, advertising, sizeof(advertising),
                                       &tlv_format_bluetooth_ltv));
     for (int i = 0; i < 2; ++i) {
-        tlv_view_t a{}, b{};
+        tlv_element_t a{}, b{};
         ASSERT_EQ(TLV_OK, tlv_reader_next(&from_config, &a));
         ASSERT_EQ(TLV_OK, tlv_reader_next(&from_global, &b));
         EXPECT_EQ(a.tag.size, b.tag.size);
         EXPECT_EQ(0, std::memcmp(a.tag.data, b.tag.data, a.tag.size));
-        EXPECT_EQ(a.value.length, b.value.length);
-        EXPECT_EQ(0, std::memcmp(a.value.data, b.value.data, a.value.length));
+        EXPECT_EQ(a.value.size, b.value.size);
+        EXPECT_EQ(0, std::memcmp(a.value.data, b.value.data, a.value.size));
     }
     EXPECT_TRUE(tlv_reader_at_end(&from_config));
     EXPECT_TRUE(tlv_reader_at_end(&from_global));
@@ -159,13 +159,13 @@ TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
     for (size_t size = 0; size < sizeof(data); ++size) {
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, size, &format));
-        tlv_view_t entry = {TLV_TAG(0xEE), {nullptr, 42}};
+        tlv_element_t element = {TLV_TAG(0xEE), {}, {nullptr, 42}};
         EXPECT_EQ(size ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER,
-                  tlv_reader_next(&reader, &entry));
+                  tlv_reader_next(&reader, &element));
         EXPECT_EQ(0u, reader.pos);
-        EXPECT_EQ(0xEE, entry.tag.data[0]);
-        EXPECT_EQ(nullptr, entry.value.data);
-        EXPECT_EQ(42u, entry.value.length);
+        EXPECT_EQ(0xEE, element.tag.data[0]);
+        EXPECT_EQ(nullptr, element.value.data);
+        EXPECT_EQ(42u, element.value.size);
     }
 }
 
@@ -194,14 +194,14 @@ TEST(Unit_Tlv_Fixed, CopyingTheDescriptorSharesTheSameBorrowedContext) {
     EXPECT_EQ(written_original, written_copy);
     EXPECT_EQ(0, std::memcmp(from_original, from_copy, written_original));
 
-    tlv_view_t view_from_original{};
-    tlv_view_t view_from_copy{};
-    size_t     consumed_original = 0, consumed_copy = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(from_original, written_original, &original, &view_from_original,
+    tlv_element_t element_from_original{};
+    tlv_element_t element_from_copy{};
+    size_t        consumed_original = 0, consumed_copy = 0;
+    ASSERT_EQ(TLV_OK, tlv_read(from_original, written_original, &original, &element_from_original,
                                &consumed_original));
-    ASSERT_EQ(TLV_OK, tlv_read(from_copy, written_copy, &copy, &view_from_copy, &consumed_copy));
+    ASSERT_EQ(TLV_OK, tlv_read(from_copy, written_copy, &copy, &element_from_copy, &consumed_copy));
     EXPECT_EQ(consumed_original, consumed_copy);
-    EXPECT_EQ(view_from_original.value.length, view_from_copy.value.length);
+    EXPECT_EQ(element_from_original.value.size, element_from_copy.value.size);
 }
 
 TEST(Unit_Tlv_Fixed, InvalidWritesPreserveBufferAndPosition) {

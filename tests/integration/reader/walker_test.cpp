@@ -5,16 +5,16 @@
 
 namespace {
 struct Visits {
-    tlv_view_t         views[4]{};
+    tlv_element_t      elements[4]{};
     size_t             count = 0;
     size_t             finish_after = 4;
     tlv_visit_result_t result = TLV_VISIT_CONTINUE;
 };
 
-tlv_visit_result_t collect(const tlv_view_t* view, void* context) {
+tlv_visit_result_t collect(const tlv_element_t* element, void* context) {
     auto& visits = *static_cast<Visits*>(context);
     if (visits.count >= 4) return TLV_VISIT_ERROR;
-    visits.views[visits.count++] = *view;
+    visits.elements[visits.count++] = *element;
     return visits.count == visits.finish_after ? visits.result : TLV_VISIT_CONTINUE;
 }
 } // namespace
@@ -25,15 +25,15 @@ TEST(Integration_Tlv_Walker, VisitsSequentialElementsAndBorrowsValues) {
     ASSERT_EQ(TLV_OK, tlv_walk(data, sizeof(data), &controlled::format, collect, &visits));
     ASSERT_EQ(3u, visits.count);
     for (size_t i = 0; i < visits.count; ++i) {
-        EXPECT_EQ(1u, visits.views[i].tag.size);
-        EXPECT_EQ(i + 1, visits.views[i].tag.data[0]);
+        EXPECT_EQ(1u, visits.elements[i].tag.size);
+        EXPECT_EQ(i + 1, visits.elements[i].tag.data[0]);
     }
-    EXPECT_EQ(data + 2, visits.views[0].value.data);
-    EXPECT_EQ(2u, visits.views[0].value.length);
-    EXPECT_EQ(data + 6, visits.views[1].value.data);
-    EXPECT_EQ(0u, visits.views[1].value.length);
-    EXPECT_EQ(data + 8, visits.views[2].value.data);
-    EXPECT_EQ(1u, visits.views[2].value.length);
+    EXPECT_EQ(data + 2, visits.elements[0].value.data);
+    EXPECT_EQ(2u, visits.elements[0].value.size);
+    EXPECT_EQ(data + 6, visits.elements[1].value.data);
+    EXPECT_EQ(0u, visits.elements[1].value.size);
+    EXPECT_EQ(data + 8, visits.elements[2].value.data);
+    EXPECT_EQ(1u, visits.elements[2].value.size);
 }
 
 TEST(Integration_Tlv_Walker, StopsOrFailsBeforeReadingMalformedTail) {
@@ -66,9 +66,9 @@ TEST(Integration_Tlv_Walker, UsesSelectedFormatWithoutRecursingIntoValues) {
     Visits        visits;
     ASSERT_EQ(TLV_OK, tlv_walk(data, sizeof(data), &tlv_format_default, collect, &visits));
     ASSERT_EQ(2u, visits.count);
-    EXPECT_EQ(1u, visits.views[0].tag.data[0]);
-    EXPECT_EQ(data + 3, visits.views[0].value.data);
-    EXPECT_EQ(2u, visits.views[0].value.length);
-    EXPECT_EQ(2u, visits.views[1].tag.data[0]);
-    EXPECT_EQ(1u, visits.views[1].value.length);
+    EXPECT_EQ(1u, visits.elements[0].tag.data[0]);
+    EXPECT_EQ(data + 3, visits.elements[0].value.data);
+    EXPECT_EQ(2u, visits.elements[0].value.size);
+    EXPECT_EQ(2u, visits.elements[1].tag.data[0]);
+    EXPECT_EQ(1u, visits.elements[1].value.size);
 }

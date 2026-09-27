@@ -21,12 +21,13 @@ int main() {
     size_t count = 0;
     auto   result = tlv::walk_tree(
         tlv::bytes(document.data(), document.size()), tlv_format_ber, TLV_WALK_MAX_DEPTH, 16,
-        [&count](const tlv::entry& entry, size_t depth, size_t /*offset*/) {
+        [&count](const tlv::element& element, size_t depth, size_t /*offset*/) {
             std::cout << std::string(depth * 2, ' ') << "tag=" << std::hex << std::uppercase
-                      << static_cast<int>(entry.tag.data[0]) << " length=" << std::dec
-                      << entry.value.size() << " value=" << std::hex << std::uppercase;
-            for (size_t i = 0; i < entry.value.size(); ++i)
-                std::cout << std::setw(2) << std::setfill('0') << static_cast<int>(entry.value[i]);
+                      << static_cast<int>(element.tag.data[0]) << " length=" << std::dec
+                      << element.value.size << " value=" << std::hex << std::uppercase;
+            for (size_t i = 0; i < element.value.size; ++i)
+                std::cout << std::setw(2) << std::setfill('0')
+                          << static_cast<int>(element.value.data[i]);
             std::cout << std::dec << "\n";
             ++count;
             return TLV_VISIT_CONTINUE;

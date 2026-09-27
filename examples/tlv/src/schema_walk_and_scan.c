@@ -5,21 +5,21 @@
  */
 #include <stdio.h>
 #include "tlv/formats/fixed.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/reader/scanner.h"
 #include "tlv/reader/walker.h"
 #include "tlv/schema/schema.h"
 
-static void print_view(const tlv_view_t* view) {
+static void print_element(const tlv_element_t* element) {
     size_t i, length;
     printf("tag=");
-    for (i = 0; i < view->tag.size; ++i) printf("%02X", (unsigned)view->tag.data[i]);
-    if (tlv_length_to_size(view->value.length, &length) != TLV_OK) {
+    for (i = 0; i < element->tag.size; ++i) printf("%02X", (unsigned)element->tag.data[i]);
+    if (tlv_size_to_native(element->value.size, &length) != TLV_OK) {
         printf(" length=<unrepresentable>\n");
         return;
     }
     printf(" length=%zu value=", length);
-    for (i = 0; i < length; ++i) printf("%02X ", (unsigned)view->value.data[i]);
+    for (i = 0; i < length; ++i) printf("%02X ", (unsigned)element->value.data[i]);
     putchar('\n');
 }
 
@@ -38,14 +38,14 @@ typedef struct {
     size_t stop_after;
 } visit_context_t;
 
-static tlv_visit_result_t visit(const tlv_view_t* view, void* context) {
+static tlv_visit_result_t visit(const tlv_element_t* element, void* context) {
     visit_context_t*          state = (visit_context_t*)context;
-    const tlv_schema_entry_t* entry = tlv_schema_find(&schema, &view->tag);
+    const tlv_schema_entry_t* entry = tlv_schema_find(&schema, &element->tag);
     size_t                    length;
-    if (!entry || tlv_length_to_size(view->value.length, &length) != TLV_OK ||
+    if (!entry || tlv_size_to_native(element->value.size, &length) != TLV_OK ||
         tlv_schema_validate_length(entry, length) != TLV_OK)
         return TLV_VISIT_ERROR;
-    print_view(view); /* The view pointer is valid only during this callback. */
+    print_element(element); /* The element pointer is valid only during this callback. */
     ++state->count;
     return state->stop_after && state->count >= state->stop_after ? TLV_VISIT_STOP
                                                                   : TLV_VISIT_CONTINUE;
@@ -61,7 +61,7 @@ int main(void) {
     const uint8_t   input[] = {1, 2, 0xAB, 0xCD, 2, 0};
     const uint8_t   noisy[] = {0xFF, 0xFF, 1, 2, 0xAB, 0xCD};
     const uint8_t   invalid[] = {1, 0}; /* Valid framing, invalid schema length. */
-    tlv_view_t      view;
+    tlv_element_t   element;
     size_t          offset, consumed;
     tlv_result_t    result;
     visit_context_t state = {0, 0};
@@ -80,13 +80,13 @@ int main(void) {
     printf("Schema rejection by visitor: %s\n", tlv_strerror(result));
 
     puts("Recovery scan with a schema filter");
-    if (tlv_scan(noisy, sizeof(noisy), 0, &format, &schema, &view, &offset, &consumed) != TLV_OK)
+    if (tlv_scan(noisy, sizeof(noisy), 0, &format, &schema, &element, &offset, &consumed) != TLV_OK)
         return 1;
     printf("Candidate at offset %zu, encoded size %zu\n", offset, consumed);
-    print_view(&view);
+    print_element(&element);
 
     /* A candidate is not proof of an original boundary. Continue after it. */
-    result = tlv_scan(noisy, sizeof(noisy), offset + consumed, &format, &schema, &view, &offset,
+    result = tlv_scan(noisy, sizeof(noisy), offset + consumed, &format, &schema, &element, &offset,
                       &consumed);
     if (result != TLV_ERR_END_OF_BUFFER) return 1;
     printf("No further candidate: %s\n", tlv_strerror(result));

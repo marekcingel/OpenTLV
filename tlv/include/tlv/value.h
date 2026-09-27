@@ -2,7 +2,7 @@
 #define OPENTLV_VALUE_H
 
 #include "tlv/error.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/export.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -27,16 +27,19 @@ extern "C" {
  * The caller owns the storage and must keep it alive for as long as the
  * value is used; no allocation, copying, or ownership transfer occurs.
  *
- * @warning `length` may exceed what the current build's `size_t` can
- *          address. Validate it with tlv_length_validate_native() or convert
- *          it with tlv_length_to_size() before pointer arithmetic, memory
+ * @warning `size` may exceed what the current build's `size_t` can
+ *          address. Validate it with tlv_size_validate_native() or convert
+ *          it with tlv_size_to_native() before pointer arithmetic, memory
  *          access, or narrowing.
  */
 typedef struct {
-    /** Borrowed value bytes. May be `NULL` only when `length` is zero. */
+    /** Borrowed value bytes. May be `NULL` only when `size` is zero. */
     const uint8_t* data;
-    /** Value length in bytes; may exceed the native `size_t` range. */
-    tlv_length_t length;
+    /**
+     * Logical value length in bytes, decoded by the format from the raw
+     * #tlv_length_t field; may exceed the native `size_t` range.
+     */
+    tlv_size_t size;
 } tlv_value_t;
 
 /**
@@ -59,7 +62,7 @@ typedef struct {
  * @note `*value` is unchanged on every failure. Allocation bounds of `data`
  *       remain the caller's responsibility.
  */
-TLV_API tlv_result_t tlv_value_init(const uint8_t* data, tlv_length_t length, tlv_value_t* value);
+TLV_API tlv_result_t tlv_value_init(const uint8_t* data, tlv_size_t length, tlv_value_t* value);
 
 /**
  * @brief Validates a value view's representation and pointer requirements.
@@ -116,7 +119,7 @@ TLV_API int tlv_value_compare(tlv_value_t lhs, tlv_value_t rhs);
  *
  * @param[in] value Value to test.
  *
- * @return `true` if `value.length` is zero.
+ * @return `true` if `value.size` is zero.
  */
 TLV_API bool tlv_value_is_empty(tlv_value_t value);
 
@@ -134,12 +137,12 @@ TLV_API bool tlv_value_is_empty(tlv_value_t value);
  * @return #TLV_ERR_NULL_ARG if `out` is `NULL`.
  * @return #TLV_ERR_INVALID_LENGTH if `value` is not representable by the
  *         current build's `size_t`, or if `offset + length` exceeds
- *         `value.length`.
- * @return #TLV_ERR_OVERFLOW if `offset + length` overflows #tlv_length_t.
+ *         `value.size`.
+ * @return #TLV_ERR_OVERFLOW if `offset + length` overflows #tlv_size_t.
  *
  * @note `*out` is unchanged on every failure.
  */
-TLV_API tlv_result_t tlv_value_slice(tlv_value_t value, tlv_length_t offset, tlv_length_t length,
+TLV_API tlv_result_t tlv_value_slice(tlv_value_t value, tlv_size_t offset, tlv_size_t length,
                                      tlv_value_t* out);
 
 /**
@@ -159,8 +162,8 @@ TLV_API tlv_result_t tlv_value_slice(tlv_value_t value, tlv_length_t offset, tlv
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `written` is `NULL`, if `data` is `NULL` with
  *         a nonzero `capacity`, or if `value.data` is `NULL` with a nonzero
- *         `value.length`.
- * @return #TLV_ERR_INVALID_LENGTH if `value.length` exceeds the native size range.
+ *         `value.size`.
+ * @return #TLV_ERR_INVALID_LENGTH if `value.size` exceeds the native size range.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient; `*written`
  *         is unchanged.
  */

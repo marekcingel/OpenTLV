@@ -18,18 +18,18 @@ struct Segment {
     size_t         length;
 };
 
-tlv_visit_result_t collect_segment(const tlv_view_t* view, void* context) {
+tlv_visit_result_t collect_segment(const tlv_element_t* element, void* context) {
     static_cast<std::vector<Segment>*>(context)->push_back(
-        {view->tag, view->value.data, static_cast<size_t>(view->value.length)});
+        {element->tag, element->value.data, static_cast<size_t>(element->value.size)});
     return TLV_VISIT_CONTINUE;
 }
 
 /* Zero-copy segment iteration over a constructed element's already-borrowed
  * content, per docs/profiles/cer/README.md's documented tlv_walk pattern. */
-std::vector<Segment> segments_of(const tlv_view_t& view) {
+std::vector<Segment> segments_of(const tlv_element_t& element) {
     std::vector<Segment> result;
-    if (view.value.length)
-        EXPECT_EQ(TLV_OK, tlv_walk(view.value.data, static_cast<size_t>(view.value.length),
+    if (element.value.size)
+        EXPECT_EQ(TLV_OK, tlv_walk(element.value.data, static_cast<size_t>(element.value.size),
                                    &tlv_format_cer, collect_segment, &result));
     return result;
 }
@@ -59,19 +59,19 @@ TEST(Unit_Tlv_CerValues, OctetStringSegmentThresholds) {
         for (size_t i = 0; i < length; ++i) content[i] = static_cast<uint8_t>(i);
         const auto data = write_segmented(0x04, content);
 
-        tlv_view_t view{};
-        size_t     consumed = 0;
-        ASSERT_EQ(TLV_OK, tlv_cer_read_strict(data.data(), data.size(), nullptr, &view, &consumed,
-                                              nullptr));
+        tlv_element_t element{};
+        size_t        consumed = 0;
+        ASSERT_EQ(TLV_OK, tlv_cer_read_strict(data.data(), data.size(), nullptr, &element,
+                                              &consumed, nullptr));
         EXPECT_EQ(data.size(), consumed);
-        EXPECT_EQ(length > 1000, static_cast<bool>(tlv_cer_tag_is_constructed(&view.tag)));
+        EXPECT_EQ(length > 1000, static_cast<bool>(tlv_cer_tag_is_constructed(&element.tag)));
 
         if (length <= 1000) {
-            EXPECT_EQ(length, view.value.length);
-            EXPECT_EQ(0, std::memcmp(view.value.data, content.data(), length));
+            EXPECT_EQ(length, element.value.size);
+            EXPECT_EQ(0, std::memcmp(element.value.data, content.data(), length));
             continue;
         }
-        const auto segments = segments_of(view);
+        const auto segments = segments_of(element);
         size_t     reassembled = 0;
         for (size_t i = 0; i < segments.size(); ++i) {
             const bool final_segment = i + 1 == segments.size();
@@ -82,7 +82,7 @@ TEST(Unit_Tlv_CerValues, OctetStringSegmentThresholds) {
             else
                 EXPECT_LE(segments[i].length, 1000u);
             EXPECT_GE(segments[i].length, 1u);
-            /* Zero-copy: the segment view genuinely borrows the encoded
+            /* Zero-copy: the segment element genuinely borrows the encoded
              * buffer rather than a concatenated/copied one. */
             EXPECT_GE(segments[i].data, data.data());
             EXPECT_LE(segments[i].data + segments[i].length, data.data() + data.size());
@@ -185,13 +185,13 @@ TEST(Unit_Tlv_CerValues, BitStringSegmentation) {
     content.back() = 0xF8; /* top 3 bits set, low 3 (unused) bits zero: canonical padding */
     const auto data = write_segmented(0x03, content);
 
-    tlv_view_t view{};
-    size_t     consumed = 0;
+    tlv_element_t element{};
+    size_t        consumed = 0;
     ASSERT_EQ(TLV_OK,
-              tlv_cer_read_strict(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
+              tlv_cer_read_strict(data.data(), data.size(), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(data.size(), consumed);
-    ASSERT_TRUE(tlv_cer_tag_is_constructed(&view.tag));
-    const auto segments = segments_of(view);
+    ASSERT_TRUE(tlv_cer_tag_is_constructed(&element.tag));
+    const auto segments = segments_of(element);
     ASSERT_EQ(3u, segments.size());
     EXPECT_EQ(1000u, segments[0].length);
     EXPECT_EQ(0, segments[0].data[0]); /* non-final: synthesized unused-bits octet is 0 */
@@ -219,12 +219,12 @@ TEST(Unit_Tlv_CerValues, Utf8StringCharacterSplitAcrossSegmentBoundary) {
     std::vector<uint8_t> bytes(content.begin(), content.end());
     const auto           data = write_segmented(0x0C, bytes);
 
-    tlv_view_t view{};
-    size_t     consumed = 0;
+    tlv_element_t element{};
+    size_t        consumed = 0;
     ASSERT_EQ(TLV_OK,
-              tlv_cer_read_strict(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
+              tlv_cer_read_strict(data.data(), data.size(), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(data.size(), consumed);
-    const auto segments = segments_of(view);
+    const auto segments = segments_of(element);
     ASSERT_EQ(2u, segments.size());
     EXPECT_EQ(1000u, segments[0].length);
     EXPECT_EQ(0xC3, segments[0].data[999]);
@@ -237,7 +237,7 @@ TEST(Unit_Tlv_CerValues, Utf8StringCharacterSplitAcrossSegmentBoundary) {
     truncated[truncated.size() - 3] = 0x41; /* replace the continuation byte with 'A' */
     size_t offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_cer_read_strict(truncated.data(), truncated.size(),
-                                                         nullptr, &view, &consumed, &offset));
+                                                         nullptr, &element, &consumed, &offset));
 }
 
 TEST(Unit_Tlv_CerValues, CharacterStringRejectsInvalidCharsetPerSegment) {
@@ -261,11 +261,11 @@ TEST(Unit_Tlv_CerValues, CharacterStringRejectsInvalidCharsetPerSegment) {
     size_t  written = 0;
     ASSERT_EQ(TLV_OK, tlv_cer_write(output, sizeof(output), (TLV_TAG(0x32)), children.data(),
                                     children.size(), nullptr, &written, nullptr));
-    tlv_view_t view{};
-    size_t     consumed = 0, offset = 99;
-    ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &view, &consumed, nullptr));
+    tlv_element_t element{};
+    size_t        consumed = 0, offset = 99;
+    ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
-              tlv_cer_read_strict(output, written, nullptr, &view, &consumed, &offset));
+              tlv_cer_read_strict(output, written, nullptr, &element, &consumed, &offset));
 }
 
 TEST(Unit_Tlv_CerValues, UnrecognizedNumberBeyond36SkipsValueValidation) {
@@ -287,10 +287,10 @@ TEST(Unit_Tlv_CerValues, UnrecognizedNumberBeyond36SkipsValueValidation) {
     data[tag.size + 1] = 'x';
     const size_t size = tag.size + 2;
 
-    tlv_view_t view{};
-    size_t     consumed = 0;
-    EXPECT_EQ(TLV_OK, tlv_cer_read(data, size, nullptr, &view, &consumed, nullptr));
-    EXPECT_EQ(TLV_OK, tlv_cer_read_strict(data, size, nullptr, &view, &consumed, nullptr));
+    tlv_element_t element{};
+    size_t        consumed = 0;
+    EXPECT_EQ(TLV_OK, tlv_cer_read(data, size, nullptr, &element, &consumed, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_cer_read_strict(data, size, nullptr, &element, &consumed, nullptr));
 }
 
 TEST(Unit_Tlv_CerValues, WriteStrictRejectsInvalidContentButNonStrictAccepts) {

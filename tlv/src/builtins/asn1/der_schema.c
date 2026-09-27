@@ -2,7 +2,7 @@
 #include "der_profile_internal.h"
 #include "der_values_internal.h"
 #include "tlv/builtins/asn1/asn1_codec.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include <string.h>
 
 const tlv_der_schema_limits_t tlv_der_schema_default_limits = {
@@ -244,7 +244,7 @@ tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root, size_t* err
 
 /* Shared traversal state: data is the original input's base pointer, so
  * every offset threaded through the engine is absolute against it, and
- * element_count is the single running total tlv_der_read_entry-style reads
+ * element_count is the single running total tlv_der_read_element-style reads
  * are charged against, matching tlv_der_walk's convention. */
 typedef struct der_schema_ctx {
     const uint8_t* data;
@@ -265,20 +265,20 @@ typedef struct der_schema_frame {
 } der_schema_frame_t;
 
 static tlv_result_t read_one(der_schema_ctx_t* ctx, size_t offset, size_t size, size_t depth,
-                             tlv_view_t* view, size_t* used) {
+                             tlv_element_t* element, size_t* used) {
     tlv_result_t rc;
     if (depth > ctx->limits->base.max_depth || ctx->element_count == ctx->limits->base.max_elements)
         return fail(TLV_ERR_LIMIT, offset, ctx->error_offset);
-    rc = tlv_der_read_entry(ctx->data + offset, size, offset, &ctx->limits->base, view, used,
-                            ctx->error_offset);
+    rc = tlv_der_read_element(ctx->data + offset, size, offset, &ctx->limits->base, element, used,
+                              ctx->error_offset);
     if (rc != TLV_OK) return rc;
     ++ctx->element_count;
     return TLV_OK;
 }
 
-static tlv_visit_result_t der_schema_count_visitor(const tlv_view_t* view, size_t depth,
+static tlv_visit_result_t der_schema_count_visitor(const tlv_element_t* element, size_t depth,
                                                    size_t offset, void* context) {
-    (void)view;
+    (void)element;
     (void)depth;
     (void)offset;
     ++(*(size_t*)context);
@@ -310,19 +310,19 @@ static tlv_result_t dispatch_any(der_schema_ctx_t* ctx, size_t value_offset, siz
     return TLV_OK;
 }
 
-static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_view_t view, size_t used,
-                                           size_t elem_base,
+static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t element,
+                                           size_t used, size_t elem_base,
                                            const tlv_der_schema_component_t* component,
                                            size_t depth, size_t schema_depth,
                                            der_schema_frame_t* stack, int* level) {
     size_t value_length, value_offset;
     tlv_result_t rc;
-    rc = tlv_length_to_size(view.value.length, &value_length);
+    rc = tlv_size_to_native(element.value.size, &value_length);
     if (rc != TLV_OK) return fail(rc, elem_base, ctx->error_offset);
     value_offset = elem_base + used - value_length;
 
     if (component->tagging == TLV_DER_TAG_EXPLICIT) {
-        tlv_view_t inner = {0};
+        tlv_element_t inner = {0};
         size_t inner_used = 0;
         if (schema_depth > TLV_DER_SCHEMA_MAX_TYPE_DEPTH)
             return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
@@ -353,14 +353,14 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_view_t vie
     switch (component->type->kind) {
         case TLV_DER_SCHEMA_UNIVERSAL:
             rc = tlv_der_validate_universal_value(component->type->universal_number,
-                                                  view.value.data, value_length);
+                                                  element.value.data, value_length);
             if (rc != TLV_OK) return fail(rc, value_offset, ctx->error_offset);
-            rc = validate_leaf_constraint(component->type, view.value.data, value_length);
+            rc = validate_leaf_constraint(component->type, element.value.data, value_length);
             if (rc != TLV_OK) return fail(rc, value_offset, ctx->error_offset);
             return TLV_OK;
         case TLV_DER_SCHEMA_ANY:
             return dispatch_any(ctx, value_offset, value_length,
-                                tlv_der_tag_is_constructed(&view.tag), depth);
+                                tlv_der_tag_is_constructed(&element.tag), depth);
         case TLV_DER_SCHEMA_SEQUENCE:
         case TLV_DER_SCHEMA_SET:
         case TLV_DER_SCHEMA_SET_OF:
@@ -383,21 +383,21 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_view_t vie
 
 static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* stack, int* level) {
     der_schema_frame_t* frame = &stack[*level];
-    tlv_view_t view;
+    tlv_element_t element;
     size_t used, elem_base = frame->pos;
     tlv_result_t rc;
 
-    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &view, &used);
+    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &element, &used);
     if (rc != TLV_OK) return rc;
     while (frame->next_component < frame->type->component_count) {
         const tlv_der_schema_component_t* comp = &frame->type->components[frame->next_component];
-        const tlv_der_schema_component_t* resolved = resolve_at(comp, &view.tag, 0);
+        const tlv_der_schema_component_t* resolved = resolve_at(comp, &element.tag, 0);
         if (resolved) {
             if (is_default_equal(ctx->data, elem_base, used, comp))
                 return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->error_offset);
             ++frame->next_component;
             frame->pos = elem_base + used;
-            return handle_matched_element(ctx, view, used, elem_base, resolved, *level + 1, 0,
+            return handle_matched_element(ctx, element, used, elem_base, resolved, *level + 1, 0,
                                           stack, level);
         }
         if (comp->presence == TLV_DER_REQUIRED)
@@ -410,10 +410,10 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
          * future addition -- accepted as one opaque, well-formed DER-TLV
          * element (like an ANY component) without further interpretation. */
         size_t value_length, value_offset;
-        rc = tlv_length_to_size(view.value.length, &value_length);
+        rc = tlv_size_to_native(element.value.size, &value_length);
         if (rc != TLV_OK) return fail(rc, elem_base, ctx->error_offset);
         value_offset = elem_base + used - value_length;
-        rc = dispatch_any(ctx, value_offset, value_length, tlv_der_tag_is_constructed(&view.tag),
+        rc = dispatch_any(ctx, value_offset, value_length, tlv_der_tag_is_constructed(&element.tag),
                           *level + 1);
         if (rc != TLV_OK) return rc;
         frame->pos = elem_base + used;
@@ -424,15 +424,16 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
 
 static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack, int* level) {
     der_schema_frame_t* frame = &stack[*level];
-    tlv_view_t view;
+    tlv_element_t element;
     size_t used, elem_base = frame->pos, i, matched_index = 0;
     tlv_result_t rc;
     const tlv_der_schema_component_t* resolved = NULL;
 
-    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &view, &used);
+    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &element, &used);
     if (rc != TLV_OK) return rc;
     for (i = 0; i < frame->type->component_count; ++i) {
-        const tlv_der_schema_component_t* r = resolve_at(&frame->type->components[i], &view.tag, 0);
+        const tlv_der_schema_component_t* r =
+            resolve_at(&frame->type->components[i], &element.tag, 0);
         if (r) {
             resolved = r;
             matched_index = i;
@@ -444,35 +445,35 @@ static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack
         return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
     if (frame->has_prev) {
         tlv_asn1_class_t pc = tlv_der_tag_class(&frame->prev_tag),
-                         cc = tlv_der_tag_class(&view.tag);
+                         cc = tlv_der_tag_class(&element.tag);
         uint64_t pn = 0, cn = 0;
         int known = tlv_der_tag_number(&frame->prev_tag, &pn) == TLV_OK &&
-                    tlv_der_tag_number(&view.tag, &cn) == TLV_OK;
+                    tlv_der_tag_number(&element.tag, &cn) == TLV_OK;
         int ordered = known && (pc < cc || (pc == cc && pn < cn));
         if (!ordered) return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->error_offset);
     }
     if (is_default_equal(ctx->data, elem_base, used, &frame->type->components[matched_index]))
         return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->error_offset);
     frame->seen |= (uint64_t)1 << matched_index;
-    frame->prev_tag = view.tag;
+    frame->prev_tag = element.tag;
     frame->has_prev = 1;
     frame->pos = elem_base + used;
-    return handle_matched_element(ctx, view, used, elem_base, resolved, *level + 1, 0, stack,
+    return handle_matched_element(ctx, element, used, elem_base, resolved, *level + 1, 0, stack,
                                   level);
 }
 
 static tlv_result_t process_set_of(der_schema_ctx_t* ctx, der_schema_frame_t* stack, int* level) {
     der_schema_frame_t* frame = &stack[*level];
-    tlv_view_t view;
+    tlv_element_t element;
     size_t used, elem_base = frame->pos;
     tlv_result_t rc;
     const tlv_der_schema_component_t* resolved;
 
     if (frame->element_count == frame->type->max_elements)
         return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
-    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &view, &used);
+    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &element, &used);
     if (rc != TLV_OK) return rc;
-    resolved = resolve_at(frame->type->element, &view.tag, 0);
+    resolved = resolve_at(frame->type->element, &element.tag, 0);
     if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
     if (frame->has_prev) {
         size_t common = frame->prev_length < used ? frame->prev_length : used;
@@ -485,7 +486,7 @@ static tlv_result_t process_set_of(der_schema_ctx_t* ctx, der_schema_frame_t* st
     frame->has_prev = 1;
     ++frame->element_count;
     frame->pos = elem_base + used;
-    return handle_matched_element(ctx, view, used, elem_base, resolved, *level + 1, 0, stack,
+    return handle_matched_element(ctx, element, used, elem_base, resolved, *level + 1, 0, stack,
                                   level);
 }
 
@@ -494,38 +495,38 @@ static tlv_result_t process_set_of(der_schema_ctx_t* ctx, der_schema_frame_t* st
 static tlv_result_t process_sequence_of(der_schema_ctx_t* ctx, der_schema_frame_t* stack,
                                         int* level) {
     der_schema_frame_t* frame = &stack[*level];
-    tlv_view_t view;
+    tlv_element_t element;
     size_t used, elem_base = frame->pos;
     tlv_result_t rc;
     const tlv_der_schema_component_t* resolved;
 
     if (frame->element_count == frame->type->max_elements)
         return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
-    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &view, &used);
+    rc = read_one(ctx, frame->pos, frame->end - frame->pos, *level + 1, &element, &used);
     if (rc != TLV_OK) return rc;
-    resolved = resolve_at(frame->type->element, &view.tag, 0);
+    resolved = resolve_at(frame->type->element, &element.tag, 0);
     if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
     ++frame->element_count;
     frame->pos = elem_base + used;
-    return handle_matched_element(ctx, view, used, elem_base, resolved, *level + 1, 0, stack,
+    return handle_matched_element(ctx, element, used, elem_base, resolved, *level + 1, 0, stack,
                                   level);
 }
 
 tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
                                  const tlv_der_schema_type_t* root,
-                                 const tlv_der_schema_limits_t* limits, tlv_view_t* view,
+                                 const tlv_der_schema_limits_t* limits, tlv_element_t* element,
                                  size_t* consumed, size_t* error_offset) {
     der_schema_ctx_t ctx;
     der_schema_frame_t stack[TLV_DER_MAX_DEPTH + 1];
     int level = -1;
-    tlv_view_t root_view;
+    tlv_element_t root_element;
     size_t root_used;
     tlv_result_t rc;
     tlv_der_schema_component_t synthetic;
     const tlv_der_schema_component_t* resolved;
 
     if (!limits) limits = &tlv_der_schema_default_limits;
-    if ((!data && size) || !root || !view || !consumed)
+    if ((!data && size) || !root || !element || !consumed)
         return fail(TLV_ERR_NULL_ARG, 0, error_offset);
     if (limits->base.max_depth > TLV_DER_MAX_DEPTH || size > limits->base.max_input_size)
         return fail(TLV_ERR_LIMIT, 0, error_offset);
@@ -536,7 +537,7 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
     ctx.element_count = 0;
     ctx.error_offset = error_offset;
 
-    rc = read_one(&ctx, 0, size, 0, &root_view, &root_used);
+    rc = read_one(&ctx, 0, size, 0, &root_element, &root_used);
     if (rc != TLV_OK) return rc;
 
     synthetic.type = root;
@@ -546,10 +547,10 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
     synthetic.presence = TLV_DER_REQUIRED;
     synthetic.default_encoding = NULL;
     synthetic.default_encoding_length = 0;
-    resolved = resolve_at(&synthetic, &root_view.tag, 0);
+    resolved = resolve_at(&synthetic, &root_element.tag, 0);
     if (!resolved) return fail(TLV_ERR_INVALID_TAG, 0, error_offset);
 
-    rc = handle_matched_element(&ctx, root_view, root_used, 0, resolved, 0, 0, stack, &level);
+    rc = handle_matched_element(&ctx, root_element, root_used, 0, resolved, 0, 0, stack, &level);
     if (rc != TLV_OK) return rc;
 
     while (level >= 0) {
@@ -586,7 +587,7 @@ tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
         if (rc != TLV_OK) return rc;
     }
 
-    *view = root_view;
+    *element = root_element;
     *consumed = root_used;
     return TLV_OK;
 }

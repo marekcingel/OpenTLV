@@ -82,23 +82,24 @@ std::string validate_command::render_failure_diagnostic(diagnostic_format  diag_
 }
 
 #if OPENTLV_PROFILE_EMV
-tlv_visit_result_t validate_command::check_dictionary_trampoline(const tlv_view_t* view,
-                                                                 std::size_t       depth,
-                                                                 std::size_t       offset,
-                                                                 void*             context) {
-    return static_cast<validate_command*>(context)->check_dictionary_element(view, depth, offset);
+tlv_visit_result_t validate_command::check_dictionary_trampoline(const tlv_element_t* element,
+                                                                 std::size_t          depth,
+                                                                 std::size_t          offset,
+                                                                 void*                context) {
+    return static_cast<validate_command*>(context)->check_dictionary_element(element, depth,
+                                                                             offset);
 }
 
-tlv_visit_result_t validate_command::check_dictionary_element(const tlv_view_t* view,
-                                                              std::size_t       depth,
-                                                              std::size_t       offset) {
-    diagnostic_scope_visit(check_.scope, check_.data, view, depth, check_.predicate);
-    cli_presentation_visit(&check_.presentation, view, depth, 0);
+tlv_visit_result_t validate_command::check_dictionary_element(const tlv_element_t* element,
+                                                              std::size_t          depth,
+                                                              std::size_t          offset) {
+    diagnostic_scope_visit(check_.scope, check_.data, element, depth, check_.predicate);
+    cli_presentation_visit(&check_.presentation, element, depth, 0);
     const tlv_emv_definition_t* definition =
-        tlv_emv_find((tlv_emv_context_t)check_.presentation.contexts[depth], &view->tag);
+        tlv_emv_find((tlv_emv_context_t)check_.presentation.contexts[depth], &element->tag);
     // A tag without a dictionary entry in its context is preserved unchecked.
     if (!definition) return TLV_VISIT_CONTINUE;
-    const size_t       value_length = (size_t)view->value.length;
+    const size_t       value_length = (size_t)element->value.size;
     const tlv_result_t rc = tlv_emv_validate_length(definition, value_length);
     if (rc == TLV_OK) return TLV_VISIT_CONTINUE;
     check_.result = rc;
@@ -112,12 +113,12 @@ tlv_visit_result_t validate_command::check_dictionary_element(const tlv_view_t* 
     return TLV_VISIT_STOP;
 }
 #else
-tlv_visit_result_t validate_command::check_dictionary_trampoline(const tlv_view_t*, std::size_t,
+tlv_visit_result_t validate_command::check_dictionary_trampoline(const tlv_element_t*, std::size_t,
                                                                  std::size_t, void*) {
     return TLV_VISIT_CONTINUE;
 }
 
-tlv_visit_result_t validate_command::check_dictionary_element(const tlv_view_t*, std::size_t,
+tlv_visit_result_t validate_command::check_dictionary_element(const tlv_element_t*, std::size_t,
                                                               std::size_t) {
     return TLV_VISIT_CONTINUE;
 }

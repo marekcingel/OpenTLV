@@ -88,11 +88,11 @@ typedef struct query_walk {
     void* context;
 } query_walk_t;
 
-static tlv_visit_result_t on_element(const tlv_view_t* view, size_t depth, size_t offset,
+static tlv_visit_result_t on_element(const tlv_element_t* element, size_t depth, size_t offset,
                                      void* context) {
     query_walk_t* walk = (query_walk_t*)context;
-    if (!tlv_query_matcher_visit(&walk->matcher, &view->tag, depth)) return TLV_VISIT_CONTINUE;
-    return walk->visitor(view, depth, offset, walk->context);
+    if (!tlv_query_matcher_visit(&walk->matcher, &element->tag, depth)) return TLV_VISIT_CONTINUE;
+    return walk->visitor(element, depth, offset, walk->context);
 }
 
 tlv_result_t tlv_query_walk(const uint8_t* data, size_t size, const tlv_format_t* format,

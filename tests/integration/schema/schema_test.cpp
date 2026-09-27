@@ -17,11 +17,11 @@ TEST(Integration_Tlv_Schema, ReaderParsesUnknownTagsAndLengthsOutsideSchema) {
     const uint8_t data[] = {7, 0, 1, 0};
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::format));
-    tlv_view_t view;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-    EXPECT_EQ(nullptr, tlv_schema_find(&schema, &view.tag));
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-    const auto* entry = tlv_schema_find(&schema, &view.tag);
+    tlv_element_t element;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(nullptr, tlv_schema_find(&schema, &element.tag));
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    const auto* entry = tlv_schema_find(&schema, &element.tag);
     ASSERT_NE(nullptr, entry);
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(entry, view.value.length));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(entry, element.value.size));
 }

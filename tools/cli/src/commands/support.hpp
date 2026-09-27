@@ -64,9 +64,9 @@ tlv_result_t walk_slice(const walk_env& env, const uint8_t* slice, std::size_t s
 // unknown in its context is labelled only when `label_unknown`; the decode
 // document leaves it unnamed.
 template <class Json>
-void json_emv(Json& object, const cli_presentation_t& presentation, const tlv_view_t* view,
+void json_emv(Json& object, const cli_presentation_t& presentation, const tlv_element_t* element,
               std::size_t depth, int describe, bool label_unknown = true) {
-    const cli_emv_info info = cli_presentation_emv_info(&presentation, view, depth, describe);
+    const cli_emv_info info = cli_presentation_emv_info(&presentation, element, depth, describe);
     if (info.known)
         object["name"] = info.name;
     else if (label_unknown)
@@ -77,9 +77,9 @@ void json_emv(Json& object, const cli_presentation_t& presentation, const tlv_vi
 // Adds the "decoded" or "decode_error" field to a JSON element object, or
 // neither for a tag/value kind with no codec.
 template <class Json>
-void json_decode(Json& object, const cli_presentation_t& presentation, const tlv_view_t* view,
+void json_decode(Json& object, const cli_presentation_t& presentation, const tlv_element_t* element,
                  std::size_t depth) {
-    const decode_result result = decode_emv_value(presentation.contexts[depth], view);
+    const decode_result result = decode_emv_value(presentation.contexts[depth], element);
     if (result.status == decode_status::ok)
         object["decoded"] = result.text;
     else if (result.status == decode_status::error)

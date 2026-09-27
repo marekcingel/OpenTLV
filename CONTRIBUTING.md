@@ -73,7 +73,7 @@ state each of the following explicitly:
   destination left unspecified, or a callback that may have modified it;
 - reader and writer state changes, such as the position advancing only on
   success;
-- native-size limitations, such as a 64-bit `tlv_length_t` narrowed to
+- native-size limitations, such as a 64-bit `tlv_size_t` narrowed to
   `size_t`;
 - format- or profile-specific restrictions.
 

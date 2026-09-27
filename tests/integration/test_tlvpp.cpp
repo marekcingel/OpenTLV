@@ -39,12 +39,12 @@ TEST(Integration_Tlvpp, WriterReaderRoundtrip) {
     auto e1 = reader.next();
     ASSERT_TRUE(e1.has_value());
     EXPECT_TRUE(e1->tag.size == 1 && e1->tag.data[0] == 0x01);
-    EXPECT_TRUE(e1->value.size() == 2);
+    EXPECT_TRUE(e1->value.size == 2);
 
     auto e2 = reader.next();
     ASSERT_TRUE(e2.has_value());
     EXPECT_TRUE(e2->tag.size == 1 && e2->tag.data[0] == 0x02);
-    EXPECT_TRUE(e2->value.size() == 1);
+    EXPECT_TRUE(e2->value.size == 1);
 
     EXPECT_TRUE(reader.at_end());
 }
@@ -81,12 +81,14 @@ TEST(Integration_Tlvpp, CodecWriteViaWriter) {
     ASSERT_TRUE(r.has_value());
 
     tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
-    auto        entry = reader.next();
-    ASSERT_TRUE(entry.has_value());
-    EXPECT_TRUE(entry->tag.size == greeting::tag.size &&
-                entry->tag.data[0] == greeting::tag.data[0]);
+    auto        element = reader.next();
+    ASSERT_TRUE(element.has_value());
+    EXPECT_TRUE(element->tag.size == greeting::tag.size &&
+                element->tag.data[0] == greeting::tag.data[0]);
 
-    auto decoded = greeting::decode(entry->value);
+    auto value = tlv::as_bytes(element->value);
+    ASSERT_TRUE(value.has_value());
+    auto decoded = greeting::decode(*value);
     ASSERT_TRUE(decoded.has_value());
     EXPECT_TRUE(decoded->text == "ahoj");
 }
@@ -104,10 +106,12 @@ TEST(Integration_Tlvpp, RegistryDynamicDecode) {
     ASSERT_TRUE(write_result.has_value());
 
     tlv::reader reader(tlv::bytes(buf.data(), w.size()), tlv_format_default);
-    auto        entry = reader.next();
-    ASSERT_TRUE(entry.has_value());
+    auto        element = reader.next();
+    ASSERT_TRUE(element.has_value());
 
-    auto decoded = registry.decode(entry->tag, entry->value);
+    auto value = tlv::as_bytes(element->value);
+    ASSERT_TRUE(value.has_value());
+    auto decoded = registry.decode(element->tag, *value);
     ASSERT_TRUE(decoded.has_value());
     EXPECT_TRUE(tlv::any_cast<greeting>(*decoded).text == "cau");
 }

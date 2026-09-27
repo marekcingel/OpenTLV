@@ -13,7 +13,7 @@ public:
 
 protected:
     int                prepare() override;
-    tlv_visit_result_t visit_element(const tlv_view_t* view, std::size_t depth,
+    tlv_visit_result_t visit_element(const tlv_element_t* element, std::size_t depth,
                                      std::size_t offset) override;
     void               render_output() override;
     int                after_success() override;

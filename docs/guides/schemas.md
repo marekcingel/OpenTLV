@@ -28,12 +28,12 @@ static const tlv_schema_t schema = {
     entries, sizeof(entries) / sizeof(entries[0])
 };
 
-/* After successfully parsing a tlv_view_t named view: */
-const tlv_schema_entry_t* rule = tlv_schema_find(&schema, &view.tag);
+/* After successfully parsing a tlv_element_t named element: */
+const tlv_schema_entry_t* rule = tlv_schema_find(&schema, &element.tag);
 if (rule == NULL) {
     /* Unknown tag: the application decides whether to accept or reject it. */
 } else {
-    tlv_result_t result = tlv_schema_validate_length(rule, view.value.length);
+    tlv_result_t result = tlv_schema_validate_length(rule, element.value.size);
     /* TLV_OK or TLV_ERR_INVALID_LENGTH. */
     (void)result;
 }
@@ -281,7 +281,7 @@ static const tlv_value_constraint_t version_range = {
 };
 
 int64_t version;
-tlv_codec_decode(&tlv_asn1_codec_integer, view.value.data, view.value.length,
+tlv_codec_decode(&tlv_asn1_codec_integer, element.value.data, element.value.size,
                   &version, sizeof(version));
 tlv_result_t rc = tlv_value_constraint_validate(&version_range, version);
 /* TLV_OK, or TLV_ERR_SCHEMA if version is outside 0-255. */

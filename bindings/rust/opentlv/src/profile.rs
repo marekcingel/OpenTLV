@@ -12,7 +12,7 @@ use std::ptr;
 
 use opentlv_native as native;
 
-use crate::entry::Entry;
+use crate::element::Element;
 use crate::error::Error;
 use crate::format::Format;
 use crate::tag::Tag;
@@ -207,7 +207,7 @@ impl Profile {
     /// Validates the first complete element of `data` and returns it with the
     /// number of bytes it occupies. Trailing bytes are ignored.
     ///
-    /// The returned entry's value borrows `data`.
+    /// The returned element's value borrows `data`.
     ///
     /// # Errors
     ///
@@ -218,12 +218,12 @@ impl Profile {
         data: &'a [u8],
         limits: &Limits,
         strictness: Strictness,
-    ) -> Result<(Entry<'a>, usize), ProfileError> {
-        let mut view = MaybeUninit::<native::tlv_view_t>::uninit();
+    ) -> Result<(Element<'a>, usize), ProfileError> {
+        let mut element = MaybeUninit::<native::tlv_element_t>::uninit();
         let mut consumed = 0usize;
         let mut offset = 0usize;
         let (ptr, len) = (data.as_ptr(), data.len());
-        let out = view.as_mut_ptr();
+        let out = element.as_mut_ptr();
         // SAFETY: `data` is a valid slice, the limits are valid for the call,
         // and `out`, `consumed` and `offset` are writable.
         let code = unsafe {
@@ -253,11 +253,11 @@ impl Profile {
             }
         };
         outcome(code, offset)?;
-        // SAFETY: the read succeeded, so `view` is initialized and its value
+        // SAFETY: the read succeeded, so `element` is initialized and its value
         // borrows `data`, which lives for `'a`.
-        let entry = unsafe { Entry::from_raw(&view.assume_init()) }
+        let element = unsafe { Element::from_raw(&element.assume_init()) }
             .map_err(|error| ProfileError { error, offset: 0 })?;
-        Ok((entry, consumed))
+        Ok((element, consumed))
     }
 
     fn write_raw(

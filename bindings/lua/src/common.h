@@ -3,7 +3,7 @@
 
 #include "compat.h"
 
-#include <tlv/view.h>
+#include <tlv/element.h>
 
 /*
  * Shared infrastructure for every OpenTLV Lua userdata type (Reader today;
@@ -57,7 +57,7 @@ void opentlv_lua_new_type(lua_State* L, const char* name, const opentlv_lua_meth
 /*
  * Pushes {tag = <string>, length = <integer>, value = <string>, offset =
  * <integer>} for one decoded element: the one generic conversion from a
- * borrowed C tlv_view_t to a Lua value every reading or traversal
+ * borrowed C tlv_element_t to a Lua value every reading or traversal
  * operation needs, shared so Reader (reader.c) and tree traversal (walk.c)
  * produce identically shaped entries. `offset` is the absolute position of
  * the element's tag within the buffer the tag/value were read from.
@@ -71,6 +71,6 @@ void opentlv_lua_new_type(lua_State* L, const char* name, const opentlv_lua_meth
  * failure's tlv_result_t instead of TLV_OK, and the caller decides how to
  * report it.
  */
-int opentlv_lua_push_entry(lua_State* L, const tlv_view_t* view, size_t offset);
+int opentlv_lua_push_element(lua_State* L, const tlv_element_t* element, size_t offset);
 
 #endif /* OPENTLV_LUA_COMMON_H */

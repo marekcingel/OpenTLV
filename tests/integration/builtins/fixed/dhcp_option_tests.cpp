@@ -10,11 +10,11 @@ TEST(Integration_Tlv, DhcpOption1) {
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
-    tlv_view_t entry;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(1, entry.tag.size);
-    ASSERT_EQ(0x01, entry.tag.data[0]);
-    ASSERT_EQ(4, entry.value.length);
+    tlv_element_t element;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(1, element.tag.size);
+    ASSERT_EQ(0x01, element.tag.data[0]);
+    ASSERT_EQ(4, element.value.size);
 }
 
 TEST(Integration_Tlv, DhcpOption3) {
@@ -23,11 +23,11 @@ TEST(Integration_Tlv, DhcpOption3) {
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
-    tlv_view_t entry;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(1, entry.tag.size);
-    ASSERT_EQ(0x03, entry.tag.data[0]);
-    ASSERT_EQ(4, entry.value.length);
+    tlv_element_t element;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(1, element.tag.size);
+    ASSERT_EQ(0x03, element.tag.data[0]);
+    ASSERT_EQ(4, element.value.size);
 }
 
 TEST(Integration_Tlv, DhcpOption6) {
@@ -36,11 +36,11 @@ TEST(Integration_Tlv, DhcpOption6) {
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
-    tlv_view_t entry;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(1, entry.tag.size);
-    ASSERT_EQ(0x06, entry.tag.data[0]);
-    ASSERT_EQ(8, entry.value.length);
+    tlv_element_t element;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(1, element.tag.size);
+    ASSERT_EQ(0x06, element.tag.data[0]);
+    ASSERT_EQ(8, element.value.size);
 }
 
 TEST(Integration_Tlv, DhcpOption12) {
@@ -49,9 +49,9 @@ TEST(Integration_Tlv, DhcpOption12) {
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
-    tlv_view_t entry;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(1, entry.tag.size);
-    ASSERT_EQ(0x0C, entry.tag.data[0]);
-    ASSERT_EQ(9, entry.value.length);
+    tlv_element_t element;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(1, element.tag.size);
+    ASSERT_EQ(0x0C, element.tag.data[0]);
+    ASSERT_EQ(9, element.value.size);
 }

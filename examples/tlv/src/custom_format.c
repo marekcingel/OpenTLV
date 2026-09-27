@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "tlv/endian.h"
 #include "tlv/format.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
@@ -20,16 +20,16 @@
         }                                                                                          \
     } while (0)
 
-static void print_view(const tlv_view_t* view) {
+static void print_element(const tlv_element_t* element) {
     size_t i, length;
     printf("tag=");
-    for (i = 0; i < view->tag.size; ++i) printf("%02X", (unsigned)view->tag.data[i]);
-    if (tlv_length_to_size(view->value.length, &length) != TLV_OK) {
+    for (i = 0; i < element->tag.size; ++i) printf("%02X", (unsigned)element->tag.data[i]);
+    if (tlv_size_to_native(element->value.size, &length) != TLV_OK) {
         printf(" length=<unrepresentable>\n");
         return;
     }
     printf(" length=%zu value=", length);
-    for (i = 0; i < length; ++i) printf("%02X ", (unsigned)view->value.data[i]);
+    for (i = 0; i < length; ++i) printf("%02X ", (unsigned)element->value.data[i]);
     putchar('\n');
 }
 
@@ -54,21 +54,21 @@ static tlv_result_t write_tag_1byte(const void* context, uint8_t* data, size_t c
 }
 
 static tlv_result_t read_length_le16(const void* context, const uint8_t* data, size_t size,
-                                     size_t* length, size_t* consumed) {
+                                     tlv_size_t* length, size_t* consumed) {
     (void)context;
     if (size < sizeof(uint16_t)) return TLV_ERR_BUFFER_TOO_SHORT;
     *length = tlv_read_u16_le(data);
     *consumed = sizeof(uint16_t);
     return TLV_OK;
 }
-static tlv_result_t length_size_le16(const void* context, size_t length, size_t* size) {
+static tlv_result_t length_size_le16(const void* context, tlv_size_t length, size_t* size) {
     (void)context;
     if (length > UINT16_MAX) return TLV_ERR_INVALID_LENGTH;
     *size = sizeof(uint16_t);
     return TLV_OK;
 }
 static tlv_result_t write_length_le16(const void* context, uint8_t* data, size_t capacity,
-                                      size_t length, size_t* written) {
+                                      tlv_size_t length, size_t* written) {
     size_t       required;
     tlv_result_t result = length_size_le16(context, length, &required);
     if (result != TLV_OK) return result;
@@ -82,14 +82,14 @@ int main(void) {
     tlv_format_t  format;
     uint8_t       encoded[16];
     const uint8_t value[] = {0xAA};
-    tlv_view_t    view;
+    tlv_element_t element;
     size_t        written, consumed;
 
     CHECK(tlv_format_init(&format, NULL, read_tag_1byte, read_length_le16, write_tag_1byte,
                           write_length_le16, length_size_le16));
     /* format and its optional immutable context must outlive their users. */
     CHECK(tlv_write(encoded, sizeof(encoded), &format, TLV_TAG(1), value, sizeof(value), &written));
-    CHECK(tlv_read(encoded, written, &format, &view, &consumed));
-    print_view(&view);
+    CHECK(tlv_read(encoded, written, &format, &element, &consumed));
+    print_element(&element);
     return 0;
 }

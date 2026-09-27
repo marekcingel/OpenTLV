@@ -39,8 +39,9 @@ static uint64_t length_field_max(const tlv_fixed_format_t* config) {
 }
 
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
-                                size_t* length, size_t* consumed) {
+                                tlv_size_t* length, size_t* consumed) {
     const tlv_fixed_format_t* config = (const tlv_fixed_format_t*)context;
+    *consumed = size < config->length_size ? size : config->length_size;
     if (size < config->length_size) return TLV_ERR_BUFFER_TOO_SHORT;
     uint64_t value = 0;
     tlv_result_t rc = tlv_read_uint(data, config->length_size, config->length_order, &value);
@@ -48,13 +49,12 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
     uint64_t offset = length_scope_offset(config);
     if (value < offset) return TLV_ERR_INVALID_LENGTH;
     value -= offset;
-    if (value > (uint64_t)SIZE_MAX) return TLV_ERR_INVALID_LENGTH;
-    *length = (size_t)value;
+    *length = value;
     *consumed = config->length_size;
     return TLV_OK;
 }
 
-static tlv_result_t length_size(const void* context, size_t length, size_t* size) {
+static tlv_result_t length_size(const void* context, tlv_size_t length, size_t* size) {
     const tlv_fixed_format_t* config = (const tlv_fixed_format_t*)context;
     uint64_t max_length = length_field_max(config);
     uint64_t offset = length_scope_offset(config);
@@ -64,8 +64,8 @@ static tlv_result_t length_size(const void* context, size_t length, size_t* size
     return TLV_OK;
 }
 
-static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity, size_t length,
-                                 size_t* written) {
+static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity,
+                                 tlv_size_t length, size_t* written) {
     tlv_result_t rc = length_size(context, length, written);
     if (rc != TLV_OK) return rc;
     if (!data) return TLV_OK;
@@ -84,7 +84,8 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
  * reimplementing it. */
 
 tlv_result_t tlv_fixed_read_element_ltv(const void* context, const uint8_t* data, size_t size,
-                                        tlv_tag_t* tag, size_t* header_size, size_t* value_size,
+                                        tlv_tag_t* tag, tlv_length_t* length_field,
+                                        size_t* header_size, tlv_size_t* value_size,
                                         size_t* trailer_size) {
     const tlv_fixed_format_t* config = (const tlv_fixed_format_t*)context;
     uint64_t raw_length = 0;
@@ -97,25 +98,27 @@ tlv_result_t tlv_fixed_read_element_ltv(const void* context, const uint8_t* data
      * count is TLV_ERR_INVALID_LENGTH even when the buffer has no room left
      * for the tag, matching what a hand-written Bluetooth LTV parser (whose
      * length field is always 1 byte) checks. */
+    length_field->data = size ? data : NULL;
+    length_field->size = size < config->length_size ? size : config->length_size;
     if (size < config->length_size) return TLV_ERR_BUFFER_TOO_SHORT;
     rc = tlv_read_uint(data, config->length_size, config->length_order, &raw_length);
     if (rc != TLV_OK) return rc;
     if (raw_length < offset) return TLV_ERR_INVALID_LENGTH;
     raw_length -= offset;
     available = size - config->length_size;
-    if (raw_length > (uint64_t)available) return TLV_ERR_BUFFER_TOO_SHORT;
-    if ((uint64_t)config->tag_size > (uint64_t)available - raw_length)
-        return TLV_ERR_BUFFER_TOO_SHORT;
+    if (config->tag_size > available) return TLV_ERR_BUFFER_TOO_SHORT;
 
     *tag = tlv_tag(data + config->length_size, config->tag_size);
+    length_field->data = data;
+    length_field->size = config->length_size;
     *header_size = config->length_size + config->tag_size;
-    *value_size = (size_t)raw_length;
+    *value_size = raw_length;
     *trailer_size = 0;
     return TLV_OK;
 }
 
 tlv_result_t tlv_fixed_write_header_ltv(const void* context, uint8_t* data, size_t capacity,
-                                        const tlv_tag_t* tag, size_t length, size_t* written) {
+                                        const tlv_tag_t* tag, tlv_size_t length, size_t* written) {
     const tlv_fixed_format_t* config = (const tlv_fixed_format_t*)context;
     size_t header = config->length_size + config->tag_size;
     uint64_t max_length = length_field_max(config);

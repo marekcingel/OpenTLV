@@ -71,15 +71,15 @@ int main(void) {
     const uint8_t   value[] = {0xAA, 0xBB, 0xCC};
     uint8_t         buffer[5];
     size_t          written = 0, consumed = 0;
-    tlv_view_t      view;
+    tlv_element_t      element;
 
     if (tlv_write(buffer, sizeof(buffer), &format, tag, value, sizeof(value), &written) != TLV_OK)
         return 1;
-    if (tlv_read(buffer, written, &format, &view, &consumed) != TLV_OK) return 1;
+    if (tlv_read(buffer, written, &format, &element, &consumed) != TLV_OK) return 1;
 
-    /* view.value borrows buffer; keep it alive while using the view. */
-    if (consumed != written || view.tag.size != 1 || view.tag.data[0] != 0x01) return 1;
-    if (view.value.length != sizeof(value) || memcmp(view.value.data, value, sizeof(value)) != 0)
+    /* element.value borrows buffer; keep it alive while using the element. */
+    if (consumed != written || element.tag.size != 1 || element.tag.data[0] != 0x01) return 1;
+    if (element.value.size != sizeof(value) || memcmp(element.value.data, value, sizeof(value)) != 0)
         return 1;
     return 0;
 }
@@ -135,14 +135,14 @@ int main() {
 
     if (!writer.write(tag, tlv::bytes(value.data(), value.size()))) return 1;
 
-    // entry.value borrows buffer; keep it alive while using the entry.
+    // element.value borrows buffer; keep it alive while using the element.
     tlv::reader reader(tlv::bytes(buffer.data(), writer.size()), format::format());
-    auto        entry = reader.next();
-    if (!entry || !reader.at_end()) return 1;
+    auto        element = reader.next();
+    if (!element || !reader.at_end()) return 1;
 
-    if (entry->tag.size != 1 || entry->tag.data[0] != 0x01) return 1;
-    if (entry->value.size() != value.size() ||
-        std::memcmp(entry->value.data(), value.data(), value.size()) != 0)
+    if (element->tag.size != 1 || element->tag.data[0] != 0x01) return 1;
+    if (element->value.size != value.size() ||
+        std::memcmp(element->value.data, value.data(), value.size()) != 0)
         return 1;
     return 0;
 }
@@ -210,14 +210,14 @@ fn main() -> Result<()> {
     );
 
     let mut reader = Reader::with_fixed_format(writer.written(), &format);
-    let entry = reader.next_entry().expect("one entry was written")?;
-    assert_eq!(entry.tag(), &tag);
-    assert_eq!(entry.value(), &value);
+    let element = reader.next_element().expect("one element was written")?;
+    assert_eq!(element.tag(), &tag);
+    assert_eq!(element.value(), &value);
     assert!(reader.is_at_end());
     println!(
         "read tag {:02X?} value {:02X?}",
-        entry.tag().as_bytes(),
-        entry.value()
+        element.tag().as_bytes(),
+        element.value()
     );
     Ok(())
 }
@@ -275,10 +275,10 @@ def main() -> None:
     print(f"wrote {len(encoded)} bytes: {encoded.hex(' ').upper()}")
 
     reader = opentlv.Reader(encoded, format)
-    (entry,) = list(reader)
-    assert entry.tag == tag
-    assert bytes(entry.value) == value
-    print(f"read tag {entry.tag} value {bytes(entry.value).hex(' ').upper()}")
+    (element,) = list(reader)
+    assert element.tag == tag
+    assert bytes(element.value) == value
+    print(f"read tag {element.tag} value {bytes(element.value).hex(' ').upper()}")
 
 
 if __name__ == "__main__":

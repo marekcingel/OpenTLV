@@ -26,11 +26,12 @@ std::vector<uint8_t> wrap(uint8_t tag_byte, const std::vector<uint8_t>& content)
  * functions (existing DER-TLV behavior is unaffected by this story). */
 void check(uint8_t tag_byte, const std::vector<uint8_t>& content, tlv_result_t expect) {
     const std::vector<uint8_t> data = wrap(tag_byte, content);
-    tlv_view_t                 view{};
+    tlv_element_t              element{};
     size_t                     consumed = 0, offset = 99;
-    EXPECT_EQ(TLV_OK, tlv_der_read(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
+    EXPECT_EQ(TLV_OK,
+              tlv_der_read(data.data(), data.size(), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(expect,
-              tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed, &offset));
+              tlv_der_read_strict(data.data(), data.size(), nullptr, &element, &consumed, &offset));
     if (expect != TLV_OK) EXPECT_EQ(data.size() - content.size(), offset);
 }
 
@@ -53,11 +54,12 @@ std::vector<uint8_t> wrap_number(uint64_t number, const std::vector<uint8_t>& co
 
 void check_number(uint64_t number, const std::vector<uint8_t>& content, tlv_result_t expect) {
     const std::vector<uint8_t> data = wrap_number(number, content);
-    tlv_view_t                 view{};
+    tlv_element_t              element{};
     size_t                     consumed = 0, offset = 99;
-    EXPECT_EQ(TLV_OK, tlv_der_read(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
+    EXPECT_EQ(TLV_OK,
+              tlv_der_read(data.data(), data.size(), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(expect,
-              tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed, &offset));
+              tlv_der_read_strict(data.data(), data.size(), nullptr, &element, &consumed, &offset));
     if (expect != TLV_OK) EXPECT_EQ(data.size() - content.size(), offset);
 }
 
@@ -262,36 +264,36 @@ TEST(Unit_Tlv_DerValues, UnsupportedTypesAreExplicitInStrictMode) {
     std::vector<uint8_t> data(required);
     ASSERT_EQ(TLV_OK,
               tlv_der_write(data.data(), data.size(), tag, nullptr, 0, nullptr, &written, nullptr));
-    tlv_view_t view{};
-    size_t     consumed = 0;
+    tlv_element_t element{};
+    size_t        consumed = 0;
     EXPECT_EQ(TLV_ERR_UNSUPPORTED_TYPE,
-              tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
+              tlv_der_read_strict(data.data(), data.size(), nullptr, &element, &consumed, nullptr));
 }
 
 TEST(Unit_Tlv_DerValues, NonUniversalClassesAreUnaffected) {
     for (uint8_t tag_byte :
          {0x81 /* context-specific, primitive */, 0xC1 /* private, primitive */}) {
         const std::vector<uint8_t> data = wrap(tag_byte, {0x02});
-        tlv_view_t                 view{};
+        tlv_element_t              element{};
         size_t                     consumed = 0;
-        EXPECT_EQ(TLV_OK, tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed,
-                                              nullptr));
+        EXPECT_EQ(TLV_OK, tlv_der_read_strict(data.data(), data.size(), nullptr, &element,
+                                              &consumed, nullptr));
     }
     /* Constructed, non-UNIVERSAL: content must still be a valid nested DER-TLV
      * element, but its bytes are never passed to universal value validation. */
     const std::vector<uint8_t> data = wrap(0xA1 /* context-specific, constructed */, {0x05, 0x00});
-    tlv_view_t                 view{};
+    tlv_element_t              element{};
     size_t                     consumed = 0;
     EXPECT_EQ(TLV_OK,
-              tlv_der_read_strict(data.data(), data.size(), nullptr, &view, &consumed, nullptr));
+              tlv_der_read_strict(data.data(), data.size(), nullptr, &element, &consumed, nullptr));
 }
 
 TEST(Unit_Tlv_DerValues, NestedValueReportsOffsetOfOffendingElement) {
     const uint8_t data[] = {0x30, 6, 0x02, 1, 0, 0x01, 1, 1};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 0, offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
-              tlv_der_read_strict(data, sizeof(data), nullptr, &view, &consumed, &offset));
+              tlv_der_read_strict(data, sizeof(data), nullptr, &element, &consumed, &offset));
     EXPECT_EQ(7u, offset);
 }
 

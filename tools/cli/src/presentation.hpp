@@ -34,11 +34,11 @@ typedef struct cli_presentation {
 void cli_presentation_init(cli_presentation_t* p, const uint8_t* data, size_t size, int color,
                            int pretty);
 void cli_presentation_restore(cli_presentation_t* p);
-void cli_presentation_visit(cli_presentation_t* p, const tlv_view_t* view, size_t depth,
+void cli_presentation_visit(cli_presentation_t* p, const tlv_element_t* element, size_t depth,
                             int indefinite);
 void cli_presentation_prefix(const cli_presentation_t* p, size_t depth);
-void cli_presentation_emv(const cli_presentation_t* p, const tlv_view_t* view, size_t depth,
+void cli_presentation_emv(const cli_presentation_t* p, const tlv_element_t* element, size_t depth,
                           int describe);
-cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_view_t* view,
+cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_element_t* element,
                                        size_t depth, int describe);
 #endif

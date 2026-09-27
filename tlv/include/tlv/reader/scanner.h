@@ -37,7 +37,7 @@ extern "C" {
  * @param[in]  format     Reader format; `read_tag` and `read_length` are required.
  * @param[in]  schema     Optional schema restricting candidates; may be `NULL`.
  *                        `schema->entries` may be `NULL` only for a zero count.
- * @param[out] out_entry  Receives the matched element; borrows the input value.
+ * @param[out] out_element  Receives the matched element; borrows the input value.
  * @param[out] out_offset Receives the match offset, absolute relative to `data`.
  * @param[out] consumed   Receives the encoded size of the match.
  *
@@ -54,7 +54,7 @@ extern "C" {
  */
 TLV_API tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start,
                               const tlv_format_t* format, const tlv_schema_t* schema,
-                              tlv_view_t* out_entry, size_t* out_offset, size_t* consumed);
+                              tlv_element_t* out_element, size_t* out_offset, size_t* consumed);
 
 #ifdef __cplusplus
 }

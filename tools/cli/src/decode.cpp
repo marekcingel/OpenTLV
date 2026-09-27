@@ -4,7 +4,7 @@
 #include <cinttypes>
 #include <cstdio>
 #include <limits>
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include "tlv/builtins/emv/emv.h"
 #endif
 
@@ -159,64 +159,65 @@ decode_result decode_digits(const tlv_codec_t* codec, const uint8_t* data, size_
 } // namespace
 #endif
 
-decode_result decode_emv_value(int context, const tlv_view_t* view) {
+decode_result decode_emv_value(int context, const tlv_element_t* element) {
     decode_result result;
 #if OPENTLV_PROFILE_EMV
-    const tlv_emv_definition_t* definition = tlv_emv_find((tlv_emv_context_t)context, &view->tag);
-    size_t                      length;
+    const tlv_emv_definition_t* definition =
+        tlv_emv_find((tlv_emv_context_t)context, &element->tag);
+    size_t length;
     if (!definition || !definition->codec) return result;
-    if (tlv_length_to_size(view->value.length, &length) != TLV_OK) {
+    if (tlv_size_to_native(element->value.size, &length) != TLV_OK) {
         result.status = decode_status::error;
         result.text = "value length is not representable here";
         return result;
     }
     switch (definition->value_kind) {
         case TLV_EMV_VALUE_NUMBER:
-            return decode_fixed<uint64_t>(definition->codec, view->value.data, length,
+            return decode_fixed<uint64_t>(definition->codec, element->value.data, length,
                                           format_number);
         case TLV_EMV_VALUE_FLAGS:
-            return decode_fixed<uint64_t>(definition->codec, view->value.data, length,
+            return decode_fixed<uint64_t>(definition->codec, element->value.data, length,
                                           format_flags);
         case TLV_EMV_VALUE_DIGITS:
-            return decode_digits(definition->codec, view->value.data, length);
+            return decode_digits(definition->codec, element->value.data, length);
         case TLV_EMV_VALUE_DATE:
-            return decode_fixed<tlv_emv_date_t>(definition->codec, view->value.data, length,
+            return decode_fixed<tlv_emv_date_t>(definition->codec, element->value.data, length,
                                                 format_date);
         case TLV_EMV_VALUE_TIME:
-            return decode_fixed<tlv_emv_time_t>(definition->codec, view->value.data, length,
+            return decode_fixed<tlv_emv_time_t>(definition->codec, element->value.data, length,
                                                 format_time);
         case TLV_EMV_VALUE_ACCOUNT:
             return decode_fixed<tlv_emv_account_type_t>(
-                definition->codec, view->value.data, length,
+                definition->codec, element->value.data, length,
                 [](const tlv_emv_account_type_t& account) -> std::string {
                     return account_name(account);
                 });
         case TLV_EMV_VALUE_CRYPTOGRAM:
-            return decode_fixed<tlv_emv_cryptogram_info_t>(definition->codec, view->value.data,
+            return decode_fixed<tlv_emv_cryptogram_info_t>(definition->codec, element->value.data,
                                                            length, format_cryptogram);
         case TLV_EMV_VALUE_BIOMETRIC:
             return decode_fixed<tlv_emv_biometric_type_t>(
-                definition->codec, view->value.data, length,
+                definition->codec, element->value.data, length,
                 [](const tlv_emv_biometric_type_t& biometric) -> std::string {
                     return biometric_name(biometric);
                 });
         case TLV_EMV_VALUE_NUMBER_LIST:
-            return decode_fixed<tlv_emv_number_list_t>(definition->codec, view->value.data, length,
-                                                       format_number_list);
+            return decode_fixed<tlv_emv_number_list_t>(definition->codec, element->value.data,
+                                                       length, format_number_list);
         case TLV_EMV_VALUE_AFL:
-            return decode_fixed<tlv_emv_afl_t>(definition->codec, view->value.data, length,
+            return decode_fixed<tlv_emv_afl_t>(definition->codec, element->value.data, length,
                                                format_afl);
         case TLV_EMV_VALUE_CVM_RESULT:
-            return decode_fixed<tlv_emv_cvm_result_t>(definition->codec, view->value.data, length,
-                                                      format_cvm_result);
+            return decode_fixed<tlv_emv_cvm_result_t>(definition->codec, element->value.data,
+                                                      length, format_cvm_result);
         case TLV_EMV_VALUE_TRACK2:
-            return decode_fixed<tlv_emv_track2_t>(definition->codec, view->value.data, length,
+            return decode_fixed<tlv_emv_track2_t>(definition->codec, element->value.data, length,
                                                   format_track2);
         default: return result; // BYTES, TEXT, TEMPLATE: no codec, already returned above
     }
 #else
     (void)context;
-    (void)view;
+    (void)element;
     return result;
 #endif
 }

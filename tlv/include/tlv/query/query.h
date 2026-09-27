@@ -161,7 +161,7 @@ TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_
  * @param[in]  query         Parsed query.
  * @param[in]  max_depth     Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`.
  * @param[in]  max_elements  Bound on all traversed elements, matching or not.
- * @param[in]  visitor       Callback per addressed element. Required. Its view
+ * @param[in]  visitor       Callback per addressed element. Required. Its element
  *                           borrows `data` and is valid only during the call.
  * @param[in]  context       Passed to the visitor unchanged; may be `NULL`.
  * @param[out] error_offset  Optional. On failure receives the failing element's

@@ -1,7 +1,7 @@
 # Using OpenTLV from Lua
 
 The `opentlv` module is an experimental Lua binding for OpenTLV. It binds a
-Reader, tag/length/value `Entry` tables and preorder tree traversal; there is
+Reader, tag/length/value `Element` tables and preorder tree traversal; there is
 no Writer, Document or Schema binding yet (see [Lua
 bindings](../development/lua.md)).
 
@@ -32,27 +32,27 @@ Runnable version:
 
 `opentlv.reader(data, format)` returns a Reader over `data`, a Lua string.
 Using the reader directly as a generic-for iterator calls it as its own
-iterator function each time, so `for entry in reader do ... end` reads
+iterator function each time, so `for element in reader do ... end` reads
 sequentially with no explicit `next()`/`at_end()` loop:
 
 ```lua
 local opentlv = require("opentlv")
 
 local data = string.char(0x01, 0x02, 0xAA, 0xBB, 0x02, 0x00)
-for entry in opentlv.reader(data) do
-    print(entry.tag, entry.length, entry.value)
+for element in opentlv.reader(data) do
+    print(element.tag, element.length, element.value)
 end
 ```
 
-Each `entry` is a plain table with `tag`, `length`, `value` (all copied out
+Each `element` is a plain table with `tag`, `raw_length`, `value` (all copied out
 of `data`, since Lua strings cannot borrow foreign memory the way a C, C++,
-Rust or Python view can) and `offset`, the absolute position of the entry's
+Rust or Python view can) plus numeric `length` (the value size) and `offset`, the absolute position of the element's
 tag within `data`. `format` defaults to `opentlv.formats.default`; pass
 `opentlv.formats.ber`, `.cer`, `.der`, `.bluetooth_ltv`, or
 `opentlv.formats.fixed(tag_size, length_size, byte_order)` (`byte_order` is
 `"big"` or `"little"`, equivalent to the C `tlv_fixed_format_t`) for another
-wire format. Constructed entries are not expanded automatically; construct a
-new reader over `entry.value` to descend, as in the runnable example below.
+wire format. Constructed elements are not expanded automatically; construct a
+new reader over `element.value` to descend, as in the runnable example below.
 
 The explicit method form, `reader:next()` (`nil` at the end) and
 `reader:at_end()`, is equivalent and reads the same way; `reader:position()`
@@ -67,13 +67,13 @@ input:
 ## Tree traversal
 
 `opentlv.walk_tree(data, format, callback, opts)` visits every element of
-`data` in preorder, calling `callback(entry, depth)` for each; `entry` has an
+`data` in preorder, calling `callback(element, depth)` for each; `element` has an
 additional `constructed` boolean field. Returning `false` from `callback`
 stops the walk early:
 
 ```lua
-opentlv.walk_tree(data, opentlv.formats.ber, function(entry, depth)
-    print(string.rep("  ", depth) .. entry.tag)
+opentlv.walk_tree(data, opentlv.formats.ber, function(element, depth)
+    print(string.rep("  ", depth) .. element.tag)
 end)
 ```
 

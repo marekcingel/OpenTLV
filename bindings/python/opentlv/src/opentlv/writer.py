@@ -6,7 +6,7 @@ from typing import Union
 
 import opentlv_native as _native
 
-from opentlv.entry import Entry
+from opentlv.element import Element
 from opentlv.error import BufferTooShortError, _from_native
 from opentlv.fixed_format import FixedFormat
 from opentlv.format import Format
@@ -58,7 +58,7 @@ class Writer:
         return _native.write(self._buffer, offset, tag_bytes, value, self._format)
 
     def write(self, tag: Union[Tag, bytes], value: Value) -> None:
-        """Appends one entry with `tag` and `value`."""
+        """Appends one element with `tag` and `value`."""
         tag_bytes = tag.data if isinstance(tag, Tag) else tag
         try:
             written = self._write_native(self._pos, tag_bytes, value)
@@ -73,9 +73,9 @@ class Writer:
                 raise _from_native(retry_error) from None
         self._pos += written
 
-    def write_entry(self, entry: Entry) -> None:
-        """Appends a decoded `Entry`, for example one produced by a `Reader`."""
-        self.write(entry.tag, entry.value)
+    def write_element(self, element: Element) -> None:
+        """Appends a decoded `Element`, for example one produced by a `Reader`."""
+        self.write(element.tag, element.value)
 
     def _grow(self, min_capacity: int) -> None:
         capacity = len(self._buffer)

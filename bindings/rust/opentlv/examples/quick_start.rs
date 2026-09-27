@@ -26,14 +26,14 @@ fn main() -> Result<()> {
     );
 
     let mut reader = Reader::with_fixed_format(writer.written(), &format);
-    let entry = reader.next_entry().expect("one entry was written")?;
-    assert_eq!(entry.tag(), &tag);
-    assert_eq!(entry.value(), &value);
+    let element = reader.next_element().expect("one element was written")?;
+    assert_eq!(element.tag(), &tag);
+    assert_eq!(element.value(), &value);
     assert!(reader.is_at_end());
     println!(
         "read tag {:02X?} value {:02X?}",
-        entry.tag().as_bytes(),
-        entry.value()
+        element.tag().as_bytes(),
+        element.value()
     );
     Ok(())
 }

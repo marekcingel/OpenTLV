@@ -1,5 +1,5 @@
 # Experimental Lua binding: the OpenTLV C core plus a native extension
-# module (src/) exposing Reader, Entry, Tag and tree traversal to Lua 5.1
+# module (src/) exposing Reader, Element, Tag and tree traversal to Lua 5.1
 # through 5.4 and LuaJIT, and a one-line pure-Lua entry point (lua/) that
 # `require("opentlv")` resolves to — the same native/pure split as the
 # Python opentlv-native/opentlv and Rust opentlv-native/opentlv packages.

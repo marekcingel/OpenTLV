@@ -16,13 +16,13 @@ const auto& writer_format = tlv_format_bluetooth_ltv;
 // Flags (01), Complete Local Name "Hi" (09), and an unknown type (FF) with two bytes.
 const uint8_t advertising[] = {0x02, 0x01, 0x06, 0x03, 0x09, 'H', 'i', 0x03, 0xFF, 0xDE, 0xAD};
 
-tlv_visit_result_t count_element(const tlv_view_t*, void* context) {
+tlv_visit_result_t count_element(const tlv_element_t*, void* context) {
     ++*static_cast<size_t*>(context);
     return TLV_VISIT_CONTINUE;
 }
 
-tlv_result_t empty_header(const void*, const uint8_t*, size_t, tlv_tag_t* tag, size_t* header,
-                          size_t* value, size_t* trailer) {
+tlv_result_t empty_header(const void*, const uint8_t*, size_t, tlv_tag_t* tag, tlv_length_t*,
+                          size_t* header, tlv_size_t* value, size_t* trailer) {
     *tag = TLV_TAG(1);
     *header = 0;
     *value = 0;
@@ -32,15 +32,16 @@ tlv_result_t empty_header(const void*, const uint8_t*, size_t, tlv_tag_t* tag, s
 } // namespace
 
 TEST(Unit_Tlv_BluetoothLtv, ReadsLengthBeforeType) {
-    tlv_view_t view;
-    size_t     consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(advertising, sizeof(advertising), &reader_format, &view, &consumed));
+    tlv_element_t element;
+    size_t        consumed = 0;
+    ASSERT_EQ(TLV_OK,
+              tlv_read(advertising, sizeof(advertising), &reader_format, &element, &consumed));
     EXPECT_EQ(3u, consumed);
-    EXPECT_EQ(1, view.tag.size);
-    EXPECT_EQ(0x01, view.tag.data[0]);
-    ASSERT_EQ(1u, view.value.length);
-    EXPECT_EQ(0x06, view.value.data[0]);
-    EXPECT_EQ(advertising + 2, view.value.data);
+    EXPECT_EQ(1, element.tag.size);
+    EXPECT_EQ(0x01, element.tag.data[0]);
+    ASSERT_EQ(1u, element.value.size);
+    EXPECT_EQ(0x06, element.value.data[0]);
+    EXPECT_EQ(advertising + 2, element.value.data);
 }
 
 TEST(Unit_Tlv_BluetoothLtv, ReadsConsecutiveElementsAndSkipsUnknownTypes) {
@@ -49,44 +50,45 @@ TEST(Unit_Tlv_BluetoothLtv, ReadsConsecutiveElementsAndSkipsUnknownTypes) {
     const uint8_t expected_types[] = {0x01, 0x09, 0xFF};
     const size_t  expected_lengths[] = {1, 2, 2};
     for (size_t i = 0; i < 3; ++i) {
-        tlv_view_t view;
-        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-        EXPECT_EQ(expected_types[i], view.tag.data[0]);
-        EXPECT_EQ(expected_lengths[i], view.value.length);
+        tlv_element_t element;
+        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+        EXPECT_EQ(expected_types[i], element.tag.data[0]);
+        EXPECT_EQ(expected_lengths[i], element.value.size);
     }
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 }
 
 TEST(Unit_Tlv_BluetoothLtv, AcceptsEmptyAndMaximumValues) {
     const uint8_t type_only[] = {0x01, 0x2A};
-    tlv_view_t    view;
+    tlv_element_t element;
     size_t        consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(type_only, sizeof(type_only), &reader_format, &view, &consumed));
+    ASSERT_EQ(TLV_OK, tlv_read(type_only, sizeof(type_only), &reader_format, &element, &consumed));
     EXPECT_EQ(2u, consumed);
-    EXPECT_EQ(0x2A, view.tag.data[0]);
-    EXPECT_EQ(0u, view.value.length);
+    EXPECT_EQ(0x2A, element.tag.data[0]);
+    EXPECT_EQ(0u, element.value.size);
 
     std::vector<uint8_t> maximum(256, 0x55);
     maximum[0] = 0xFF;
     maximum[1] = 0x09;
-    ASSERT_EQ(TLV_OK, tlv_read(maximum.data(), maximum.size(), &reader_format, &view, &consumed));
+    ASSERT_EQ(TLV_OK,
+              tlv_read(maximum.data(), maximum.size(), &reader_format, &element, &consumed));
     EXPECT_EQ(256u, consumed);
-    EXPECT_EQ(254u, view.value.length);
+    EXPECT_EQ(254u, element.value.size);
 }
 
 TEST(Unit_Tlv_BluetoothLtv, RejectsZeroLengthAndTruncation) {
-    tlv_view_t    view = {TLV_TAG(0xEE), {nullptr, 42}};
+    tlv_element_t element = {TLV_TAG(0xEE), {}, {nullptr, 42}};
     size_t        consumed = 42;
     const uint8_t zero[] = {0x00, 0x00};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_read(zero, sizeof(zero), &reader_format, &view, &consumed));
+              tlv_read(zero, sizeof(zero), &reader_format, &element, &consumed));
     EXPECT_EQ(42u, consumed);
-    EXPECT_EQ(nullptr, view.value.data);
+    EXPECT_EQ(nullptr, element.value.data);
     const uint8_t truncated[] = {0x03, 0x09, 'H', 'i'};
     for (size_t size = 1; size < sizeof(truncated); ++size)
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                  tlv_read(truncated, size, &reader_format, &view, &consumed));
-    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_read(zero, 0, &reader_format, &view, &consumed));
+                  tlv_read(truncated, size, &reader_format, &element, &consumed));
+    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_read(zero, 0, &reader_format, &element, &consumed));
 }
 
 TEST(Unit_Tlv_BluetoothLtv, WritesLengthBeforeType) {
@@ -137,24 +139,24 @@ TEST(Unit_Tlv_BluetoothLtv, WriterRoundTripsThroughReader) {
     ASSERT_EQ(sizeof(expected), tlv_writer_size(&writer));
     EXPECT_EQ(0, std::memcmp(expected, buffer, sizeof(expected)));
 
-    tlv_view_t view;
-    size_t     consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(buffer + 3, 6, &reader_format, &view, &consumed));
-    EXPECT_EQ(0x09, view.tag.data[0]);
+    tlv_element_t element;
+    size_t        consumed = 0;
+    ASSERT_EQ(TLV_OK, tlv_read(buffer + 3, 6, &reader_format, &element, &consumed));
+    EXPECT_EQ(0x09, element.tag.data[0]);
     uint8_t copy[8];
     size_t  copied = 0;
-    ASSERT_EQ(TLV_OK, tlv_copy_view(&view, &writer_format, copy, sizeof(copy), &copied));
+    ASSERT_EQ(TLV_OK, tlv_copy_element(&element, &writer_format, copy, sizeof(copy), &copied));
     EXPECT_EQ(consumed, copied);
     EXPECT_EQ(0, std::memcmp(buffer + 3, copy, copied));
 }
 
 TEST(Unit_Tlv_BluetoothLtv, GenericScannerWalkerAndTreeWalkWork) {
-    tlv_view_t               view;
+    tlv_element_t            element;
     size_t                   offset = 0, consumed = 0;
     const tlv_schema_entry_t entries[] = {{TLV_TAG(0x09), 0, 8, 0, nullptr}};
     const tlv_schema_t       schema = {entries, 1};
-    ASSERT_EQ(TLV_OK, tlv_scan(advertising, sizeof(advertising), 0, &reader_format, &schema, &view,
-                               &offset, &consumed));
+    ASSERT_EQ(TLV_OK, tlv_scan(advertising, sizeof(advertising), 0, &reader_format, &schema,
+                               &element, &offset, &consumed));
     EXPECT_EQ(3u, offset);
     EXPECT_EQ(4u, consumed);
 
@@ -200,9 +202,9 @@ TEST(Unit_Tlv_BluetoothLtv, InitHelpersCreateWholeElementFormats) {
               tlv_format_init_element(nullptr, nullptr, nullptr, writer.write_header));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_format_init_element(&writer, nullptr, nullptr, nullptr));
 
-    tlv_view_t view;
-    size_t     consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_read(advertising, sizeof(advertising), &reader, &view, &consumed));
+    tlv_element_t element;
+    size_t        consumed = 0;
+    ASSERT_EQ(TLV_OK, tlv_read(advertising, sizeof(advertising), &reader, &element, &consumed));
     EXPECT_EQ(3u, consumed);
 }
 
@@ -210,8 +212,8 @@ TEST(Unit_Tlv_BluetoothLtv, GenericLayerRejectsEmptyHeader) {
     // A format that reports an empty header must not make the reader loop forever.
     tlv_format_t reader{};
     ASSERT_EQ(TLV_OK, tlv_format_init_element(&reader, nullptr, empty_header, nullptr));
-    tlv_view_t    view;
+    tlv_element_t element;
     size_t        consumed = 0;
     const uint8_t data[] = {1, 2, 3};
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_read(data, sizeof(data), &reader, &view, &consumed));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_read(data, sizeof(data), &reader, &element, &consumed));
 }

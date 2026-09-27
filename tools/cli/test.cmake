@@ -145,13 +145,7 @@ foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed" "BER|ber" "DER|der")
     # specific field that overran (the value, here) rather than the
     # element's start, and (for BER's tag/length grammar) puts the trailing
     # case's truncated length field one byte later than a bare element start.
-    if(name STREQUAL "der")
-        set(truncated_offset 2)
-    elseif(name STREQUAL "ber")
-        set(truncated_offset 1)
-    else()
-        set(truncated_offset 2)
-    endif()
+    set(truncated_offset 2)
     set(trailing_offset 4)
     check(1 "TLV_ERR_.*byte ${truncated_offset}" validate --format "${name}" --hex "0402AA" --diagnostics compact)
     check(1 "TLV_ERR_.*byte ${trailing_offset}" dump --format "${name}" --hex "0401AA04" --diagnostics compact)
@@ -258,7 +252,7 @@ if(HAS_BER)
     check(2 "cannot be combined" query 6F --format ber --hex "${query_hex}" --value --output json)
     check(2 "requires --format ber or der" query 6F/A5 --format default --hex "0100")
     check(2 "duplicate" query 6F --format ber --hex "${query_hex}" --value --value)
-    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 1 tag=6F" query 6F --format ber --hex "6F05" --diagnostics compact)
+    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 2 tag=6F while reading value; raw_length=05; declared_length=5; available=0" query 6F --format ber --hex "6F05" --diagnostics compact)
     # query's own visitor tracks the enclosing path too, not just dump's.
     check(1 "path: 6F > A5" query 6F/A5/50 --format ber --hex "6F09A507500141AABB1000")
     check(3 "TLV_ERR_LIMIT" query 6F/A5/50 --format ber --hex "${query_hex}" --max-depth 1)
@@ -341,9 +335,9 @@ if(HAS_DEFAULT)
     # "default" (unlike BER/DER) surfaces a full reader diagnostic for a
     # value that overruns its input, including the declared-length-versus-
     # available detail the issue asked for.
-    check(1 "^otlv: error: buffer too short\n\ncode: TLV_ERR_BUFFER_TOO_SHORT\noffset: 0x2 \\(2\\)\ntag: 04\nwhile reading: value\ndeclared length: 2\navailable: 1\n$"
+    check(1 "^otlv: error: buffer too short\n\ncode: TLV_ERR_BUFFER_TOO_SHORT\noffset: 0x2 \\(2\\)\ntag: 04\nwhile reading: value\nraw length: 02\ndeclared length: 2\navailable: 1\n$"
         validate --format default --hex "0402AA")
-    check(1 "^{\"available\":1,\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"declared_length\":2,\"message\":\"buffer too short\",\"offset\":2,\"operation\":\"value\",\"severity\":\"error\",\"tag\":\"04\"}\n$"
+    check(1 "^{\"available\":1,\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"declared_length\":2,\"message\":\"buffer too short\",\"offset\":2,\"operation\":\"value\",\"raw_length\":\"02\",\"severity\":\"error\",\"tag\":\"04\"}\n$"
         validate --format default --hex "0402AA" --diagnostics json)
 endif()
 if(HAS_DER)
@@ -416,7 +410,7 @@ if(HAS_BLUETOOTH_LTV)
     check(0 "^{\"elements\":\\[{\"length\":2,\"offset\":0,\"tag\":\"09\",\"value\":\"4142\"}\\]}\n$" dump --format bluetooth-ltv --hex "03 09 41 42" --output json)
     check(0 "^$" validate --format bluetooth-ltv --hex "02 01 06 01 FF")
     check(1 "TLV_ERR_INVALID_LENGTH at byte 3" validate --format bluetooth-ltv --hex "02 01 06 00" --diagnostics compact)
-    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 3" validate --format bluetooth-ltv --hex "02 01 06 05 09 41" --diagnostics compact)
+    check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 5 tag=09 while reading value; raw_length=05; declared_length=4; available=1" validate --format bluetooth-ltv --hex "02 01 06 05 09 41" --diagnostics compact)
     round_trip(bluetooth-ltv 09 414243)
     check(0 "^03094142\n$" encode --format bluetooth-ltv --tag 09 --value 4142)
     check(1 "cannot encode element 0: " encode --format bluetooth-ltv --tag 0102 --value AA)

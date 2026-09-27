@@ -42,9 +42,11 @@ tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data, size_
 }
 
 tlv_result_t tlv_asn1_read_minimal_length(const void* context, const uint8_t* data, size_t size,
-                                          size_t* length, size_t* consumed) {
-    size_t value, count;
+                                          tlv_size_t* length, size_t* consumed) {
+    tlv_size_t value;
+    size_t count = 0;
     tlv_result_t rc = tlv_ber_wire.read_length(context, data, size, &value, &count);
+    *consumed = count;
     if (rc != TLV_OK) return rc;
     if (count > 1 && (value < TLV_BER_LENGTH_LONG_FORM_BIT || data[1] == 0))
         return TLV_ERR_INVALID_LENGTH;

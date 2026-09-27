@@ -1,7 +1,7 @@
 //! Safe Rust bindings for OpenTLV.
 //!
 //! All `unsafe` FFI interaction lives in `opentlv-native`; this crate builds the
-//! safe API on top of it. It provides the core types [`Tag`], [`Entry`],
+//! safe API on top of it. It provides the core types [`Tag`], [`Element`],
 //! [`Error`] and [`Result`], the [`Reader`] that parses TLV buffers, the
 //! [`Writer`] that encodes them, and reports the library version. Higher-level
 //! layers wrap the C library's implementation instead of reimplementing it:
@@ -30,10 +30,10 @@
 //! let mut writer = Writer::with_format(&mut buf, Format::Ber);
 //! writer.write(&Tag::from_bytes(&[0x50]), b"VISA")?;
 //!
-//! for entry in Reader::with_format(writer.written(), Format::Ber) {
-//!     let entry = entry?;
-//!     assert_eq!(entry.tag().as_bytes(), [0x50]);
-//!     assert_eq!(entry.value(), b"VISA");
+//! for element in Reader::with_format(writer.written(), Format::Ber) {
+//!     let element = element?;
+//!     assert_eq!(element.tag().as_bytes(), [0x50]);
+//!     assert_eq!(element.value(), b"VISA");
 //! }
 //! # Ok(())
 //! # }
@@ -54,8 +54,8 @@
 //! # Ownership and lifetimes
 //!
 //! [`Tag`] is an owned value of any length. [`Reader<'a>`](Reader) borrows its input
-//! and yields [`Entry<'a>`](Entry) values that are zero-copy slices of it, so
-//! entries outlive the reader but not the input. [`Writer<'a>`](Writer)
+//! and yields [`Element<'a>`](Element) values that are zero-copy slices of it, so
+//! elements outlive the reader but not the input. [`Writer<'a>`](Writer)
 //! exclusively borrows a caller-owned output buffer and never allocates.
 //! Schemas own their C tables and free them on drop.
 //!
@@ -69,7 +69,7 @@
 #![warn(missing_docs)]
 
 mod codec;
-mod entry;
+mod element;
 mod error;
 mod fixed_format;
 mod format;
@@ -85,7 +85,7 @@ pub use codec::{
     AccountType, AflEntry, BiometricType, Codec, CodecError, CodecResult, CryptogramInfo,
     CryptogramType, CvmResult, Date, Time, Track2, Value, ValueKind,
 };
-pub use entry::Entry;
+pub use element::Element;
 pub use error::{Error, Result};
 pub use fixed_format::{ByteOrder, FixedFormat, FixedFormatConfig};
 pub use format::Format;

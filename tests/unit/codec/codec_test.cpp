@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "tlv/codec/codec.h"
 #include "tlv/endian.h"
-#include "tlv/view.h"
+#include "tlv/element.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 

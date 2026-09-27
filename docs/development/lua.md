@@ -8,7 +8,7 @@ one-line pure-Lua entry point that `require("opentlv")` resolves to and that
 returns `opentlv-native` unchanged. Unlike Python's and Rust's pure layers,
 `opentlv` adds no ergonomics of its own beyond the name callers request:
 Lua's C API is close enough to the concepts this binding exposes (Reader,
-Entry, Tag) that there is nothing a Lua-side wrapper would usefully add
+Element, Tag) that there is nothing a Lua-side wrapper would usefully add
 today, so the split exists for naming/packaging consistency across bindings
 rather than for a richer pure-Lua layer. `bindings/lua/src/common.h`
 documents the ownership, registration and error-handling conventions every
@@ -22,7 +22,7 @@ model](../concepts/bindings.md).
 
 It targets Lua 5.1 through 5.4 and LuaJIT (which implements the Lua 5.1 C
 API), using only the portable subset of the Lua C API common to all of them;
-see `bindings/lua/src/compat.h`. It covers Reader, Entry and Tag, and
+see `bindings/lua/src/compat.h`. It covers Reader, Element and Tag, and
 preorder tree traversal (`opentlv.walk_tree`, built on `tlv_walk_tree()`/
 `tlv_der_walk()`); Writer, Document and Schema are not bound yet.
 

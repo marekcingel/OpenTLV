@@ -14,16 +14,16 @@ static tlv_result_t cer_write_tag(const void* context, uint8_t* data, size_t cap
 }
 
 static tlv_result_t cer_read_length(const void* context, const uint8_t* data, size_t size,
-                                    size_t* length, size_t* consumed) {
+                                    tlv_size_t* length, size_t* consumed) {
     return tlv_asn1_read_minimal_length(context, data, size, length, consumed);
 }
 
 static tlv_result_t cer_write_length(const void* context, uint8_t* data, size_t capacity,
-                                     size_t length, size_t* written) {
+                                     tlv_size_t length, size_t* written) {
     return tlv_ber_wire.write_length(context, data, capacity, length, written);
 }
 
-static tlv_result_t cer_length_size(const void* context, size_t length, size_t* size) {
+static tlv_result_t cer_length_size(const void* context, tlv_size_t length, size_t* size) {
     return tlv_ber_wire.length_size(context, length, size);
 }
 
@@ -40,24 +40,25 @@ int tlv_cer_is_constructed(const void* context, const tlv_tag_t* tag) {
  * only, not nested segmentation -- see tlv/builtins/asn1/cer_profile.h for that. */
 static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
                                       const uint8_t* data, size_t size, size_t* length_size,
-                                      size_t* value_size, size_t* trailer_size) {
-    size_t length, used;
+                                      tlv_size_t* value_size, size_t* trailer_size) {
+    tlv_size_t length;
+    size_t used, native_length;
     tlv_result_t rc;
     int constructed = tlv_cer_is_constructed(context, tag);
+    *length_size = tlv_ber_length_field_size(data, size);
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
     if (data[0] == TLV_BER_LENGTH_LONG_FORM_BIT) {
         if (!constructed) return TLV_ERR_INVALID_LENGTH;
-        rc = tlv_ber_scan_contents(data + 1, size - 1, 1, &length, &used);
+        rc = tlv_ber_scan_contents(data + 1, size - 1, 1, &native_length, &used);
         if (rc != TLV_OK) return rc;
         *length_size = TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE;
-        *value_size = length;
+        *value_size = native_length;
         *trailer_size = TLV_BER_EOC_SIZE;
         return TLV_OK;
     }
     if (constructed) return TLV_ERR_INVALID_LENGTH;
     rc = cer_read_length(context, data, size, &length, &used);
     if (rc != TLV_OK) return rc;
-    if (length > size - used) return TLV_ERR_BUFFER_TOO_SHORT;
     *length_size = used;
     *value_size = length;
     *trailer_size = 0;

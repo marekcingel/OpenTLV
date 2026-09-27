@@ -5,21 +5,21 @@ use opentlv::{Error, Format, Reader, Tag};
 #[test]
 fn parses_multiple_entries() {
     let data = [0x01, 0x03, b'a', b'b', b'c', 0x02, 0x00, 0x03, 0x01, 0xFF];
-    let entries: Vec<_> = Reader::new(&data).collect::<Result<_, _>>().unwrap();
+    let elements: Vec<_> = Reader::new(&data).collect::<Result<_, _>>().unwrap();
 
-    assert_eq!(entries.len(), 3);
-    assert_eq!(entries[0].tag(), &Tag::from_bytes(&[0x01]));
-    assert_eq!(entries[0].value(), b"abc");
-    assert_eq!(entries[1].tag().as_bytes(), &[0x02]);
-    assert!(entries[1].value().is_empty());
-    assert_eq!(entries[2].value(), &[0xFF]);
+    assert_eq!(elements.len(), 3);
+    assert_eq!(elements[0].tag(), &Tag::from_bytes(&[0x01]));
+    assert_eq!(elements[0].value(), b"abc");
+    assert_eq!(elements[1].tag().as_bytes(), &[0x02]);
+    assert!(elements[1].value().is_empty());
+    assert_eq!(elements[2].value(), &[0xFF]);
 }
 
 #[test]
 fn values_are_zero_copy_slices_of_the_input() {
     let data = vec![0x07, 0x02, 0x10, 0x20];
-    let entry = Reader::new(&data).next().unwrap().unwrap();
-    assert_eq!(entry.value().as_ptr(), data[2..].as_ptr());
+    let element = Reader::new(&data).next().unwrap().unwrap();
+    assert_eq!(element.value().as_ptr(), data[2..].as_ptr());
 }
 
 #[test]
@@ -34,11 +34,11 @@ fn tracks_position() {
     let data = [0x01, 0x01, 0xAA, 0x02, 0x00];
     let mut reader = Reader::new(&data);
     assert_eq!(reader.position(), 0);
-    reader.next_entry().unwrap().unwrap();
+    reader.next_element().unwrap().unwrap();
     assert_eq!(reader.position(), 3);
-    reader.next_entry().unwrap().unwrap();
+    reader.next_element().unwrap().unwrap();
     assert!(reader.is_at_end());
-    assert!(reader.next_entry().is_none());
+    assert!(reader.next_element().is_none());
 }
 
 #[test]
@@ -69,8 +69,8 @@ fn collecting_into_result_surfaces_malformed_input() {
 fn error_propagates_with_question_mark() {
     fn count(data: &[u8]) -> opentlv::Result<usize> {
         let mut n = 0;
-        for entry in Reader::new(data) {
-            entry?;
+        for element in Reader::new(data) {
+            element?;
             n += 1;
         }
         Ok(n)
@@ -82,30 +82,42 @@ fn error_propagates_with_question_mark() {
 #[test]
 fn reads_ber_multi_byte_tags() {
     let data = [0x9F, 0x02, 0x02, 0x12, 0x34];
-    let entry = Reader::with_format(&data, Format::Ber)
+    let element = Reader::with_format(&data, Format::Ber)
         .next()
         .unwrap()
         .unwrap();
-    assert_eq!(entry.tag().as_bytes(), &[0x9F, 0x02]);
-    assert_eq!(entry.value(), &[0x12, 0x34]);
+    assert_eq!(element.tag().as_bytes(), &[0x9F, 0x02]);
+    assert_eq!(element.value(), &[0x12, 0x34]);
 }
 
 #[test]
 fn reads_der_format() {
     let der = [0x04, 0x02, 0xCA, 0xFE];
-    let entry = Reader::with_format(&der, Format::Der)
+    let element = Reader::with_format(&der, Format::Der)
         .next()
         .unwrap()
         .unwrap();
-    assert_eq!(entry.value(), &[0xCA, 0xFE]);
+    assert_eq!(element.value(), &[0xCA, 0xFE]);
 }
 
 #[test]
 fn entries_outlive_the_reader() {
     let data = [0x01, 0x02, 0xAA, 0xBB];
-    let entry = {
+    let element = {
         let mut reader = Reader::new(&data);
         reader.next().unwrap().unwrap()
     };
-    assert_eq!(entry.value(), &[0xAA, 0xBB]);
+    assert_eq!(element.value(), &[0xAA, 0xBB]);
+}
+
+#[test]
+fn element_borrows_original_length_bytes() {
+    let data = [0x9F, 0x20, 0x82, 0, 1, 0xAA];
+    let element = Reader::with_format(&data, Format::Ber)
+        .next()
+        .unwrap()
+        .unwrap();
+    assert_eq!(element.length(), &data[2..5]);
+    assert_eq!(element.length().as_ptr(), data[2..].as_ptr());
+    assert_eq!(element.value(), &data[5..]);
 }

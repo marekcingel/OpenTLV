@@ -50,7 +50,7 @@ Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
 
 ```text
 tlv/
-  view.h, value.h, length.h, error.h, endian.h, copy.h, format.h, tlv.h
+  element.h, value.h, length.h, size.h, error.h, endian.h, copy.h, format.h, tlv.h
   compiler.h, attributes.h
   reader/    reader.h, walker.h, scanner.h
   query/     query.h
@@ -68,7 +68,7 @@ tlv/
 ```
 
 The tree shows the public layout; corresponding implementation files use `.c`.
-Small fundamental types (`tag.h`, `length.h`, `value.h`, `view.h`, and the
+Small fundamental types (`tag.h`, `length.h`, `size.h`, `value.h`, `element.h`, and the
 generic `format.h` descriptor contracts) sit directly under `tlv/`, alongside
 the generic subsystem folders. `formats/fixed.h` holds the one format
 mechanism that names no protocol; every protocol-specific format or profile

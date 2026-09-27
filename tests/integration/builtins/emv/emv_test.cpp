@@ -74,13 +74,13 @@ TEST(Integration_Tlv_Emv, AllDefinitionsUseGenericBerAndSchemas) {
             EXPECT_EQ(0, std::memcmp(wire.data(), entry.tag.data, entry.tag.size));
             tlv_reader_t reader;
             ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire.data(), writer.pos, &tlv_format_ber));
-            tlv_view_t view;
-            ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+            tlv_element_t element;
+            ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
             EXPECT_TRUE(tlv_reader_at_end(&reader));
-            EXPECT_EQ(&entry, tlv_schema_find(schema, &view.tag));
-            EXPECT_EQ(length, view.value.length);
-            EXPECT_EQ(wire.data() + writer.pos - length, view.value.data);
-            if (length) EXPECT_EQ(0, std::memcmp(value.data(), view.value.data, length));
+            EXPECT_EQ(&entry, tlv_schema_find(schema, &element.tag));
+            EXPECT_EQ(length, element.value.size);
+            EXPECT_EQ(wire.data() + writer.pos - length, element.value.data);
+            if (length) EXPECT_EQ(0, std::memcmp(value.data(), element.value.data, length));
         }
     }
 }
@@ -178,20 +178,20 @@ TEST(Integration_Tlv_Emv, FramingSchemaAndValueValidationAreIndependent) {
     const uint8_t wire[] = {0x9F, 0x02, 6, 0, 0, 0, 0, 0, 0xFA, 0x9F, 0x02, 0, 0xDF, 0x01, 0};
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire, sizeof(wire), &tlv_format_ber));
-    tlv_view_t view;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-    ASSERT_EQ(TLV_OK, tlv_schema_validate_length(tlv_schema_find(&tlv_emv_schema, &view.tag),
-                                                 view.value.length));
+    tlv_element_t element;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(TLV_OK, tlv_schema_validate_length(tlv_schema_find(&tlv_emv_schema, &element.tag),
+                                                 element.value.size));
     uint64_t amount;
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_codec_decode(&tlv_emv_codec_amount, view.value.data, view.value.length, &amount,
-                               sizeof(amount)));
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-    EXPECT_EQ(
-        TLV_ERR_INVALID_LENGTH,
-        tlv_schema_validate_length(tlv_schema_find(&tlv_emv_schema, &view.tag), view.value.length));
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-    EXPECT_EQ(nullptr, tlv_schema_find(&tlv_emv_schema, &view.tag));
+              tlv_codec_decode(&tlv_emv_codec_amount, element.value.data, element.value.size,
+                               &amount, sizeof(amount)));
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_schema_validate_length(tlv_schema_find(&tlv_emv_schema, &element.tag),
+                                         element.value.size));
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(nullptr, tlv_schema_find(&tlv_emv_schema, &element.tag));
 }
 
 TEST(Integration_Tlv_Emv, AmountCodecKnownVectorsAndLimits) {

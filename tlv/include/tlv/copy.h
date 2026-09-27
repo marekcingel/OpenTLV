@@ -2,7 +2,7 @@
 #define OPENTLV_COPY_H
 
 #include "tlv/error.h"
-#include "tlv/view.h"
+#include "tlv/element.h"
 #include "tlv/format.h"
 #include "tlv/export.h"
 
@@ -28,7 +28,7 @@ extern "C" {
  * - `NULL` `data` with nonzero capacity, or `NULL` source bytes with nonzero
  *   length, returns #TLV_ERR_NULL_ARG. Empty byte ranges may have `NULL`
  *   source bytes.
- * - A view whose `value.length` does not fit the current build's `size_t`
+ * - An element whose `value.size` does not fit the current build's `size_t`
  *   returns #TLV_ERR_INVALID_LENGTH before any copying.
  */
 
@@ -37,11 +37,11 @@ extern "C" {
  */
 
 /**
- * @brief Copies only a view's value, without interpreting or validating the tag.
+ * @brief Copies only a element's value, without interpreting or validating the tag.
  *
  * Overlapping source and destination byte ranges are supported.
  *
- * @param[in]  view     View whose value is copied.
+ * @param[in]  element     Element whose value is copied.
  * @param[out] data     Destination buffer. `NULL` with zero `capacity` queries
  *                      the required size.
  * @param[in]  capacity Destination capacity in bytes.
@@ -54,7 +54,7 @@ extern "C" {
  *
  * @see tlv_copy_encoded
  */
-TLV_API tlv_result_t tlv_copy_value(const tlv_view_t* view, uint8_t* data, size_t capacity,
+TLV_API tlv_result_t tlv_copy_value(const tlv_element_t* element, uint8_t* data, size_t capacity,
                                     size_t* written);
 
 /**
@@ -81,16 +81,16 @@ TLV_API tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encode
                                       uint8_t* data, size_t capacity, size_t* written);
 
 /**
- * @brief Serializes a view's tag, length and value using a writer format.
+ * @brief Serializes an element's tag, length and value using a writer format.
  *
- * Encodes as tlv_write() does. A view does not retain the original header,
- * so the result may differ from the bytes the view was read from; use
+ * Encodes as tlv_write() does, regenerating the length from `value.size`,
+ * so the result may differ from the bytes the element was read from; use
  * tlv_copy_encoded() to preserve them exactly.
  *
  * Requires the format's `write_tag`, `write_length` and `length_size`
- * callbacks. The view's value bytes must not overlap the destination element.
+ * callbacks. The element's value bytes must not overlap the destination element.
  *
- * @param[in]  view     View to serialize.
+ * @param[in]  element     Element to serialize.
  * @param[in]  format   Writer format used to encode the element.
  * @param[out] data     Destination buffer. `NULL` with zero `capacity` queries
  *                      the required size.
@@ -106,8 +106,8 @@ TLV_API tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encode
  *          write `data`.
  * @see tlv_write, tlv_copy_encoded
  */
-TLV_API tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_format_t* format,
-                                   uint8_t* data, size_t capacity, size_t* written);
+TLV_API tlv_result_t tlv_copy_element(const tlv_element_t* element, const tlv_format_t* format,
+                                      uint8_t* data, size_t capacity, size_t* written);
 
 #ifdef __cplusplus
 }

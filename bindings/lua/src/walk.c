@@ -30,20 +30,20 @@ typedef struct {
     int          stopped;
 } walk_ctx_t;
 
-static tlv_visit_result_t walk_trampoline(const tlv_view_t* view, size_t depth, size_t offset,
+static tlv_visit_result_t walk_trampoline(const tlv_element_t* element, size_t depth, size_t offset,
                                           void* context) {
     walk_ctx_t* ctx = (walk_ctx_t*)context;
     lua_State*  L = ctx->L;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, ctx->callback_ref);
-    int narrow_code = opentlv_lua_push_entry(L, view, offset);
+    int narrow_code = opentlv_lua_push_element(L, element, offset);
     if (narrow_code != TLV_OK) {
         lua_pop(L, 1); /* the callback pushed above */
         ctx->push_failed_code = (tlv_result_t)narrow_code;
         return TLV_VISIT_ERROR;
     }
     int constructed =
-        ctx->is_constructed != NULL && ctx->is_constructed(ctx->format_context, &view->tag) != 0;
+        ctx->is_constructed != NULL && ctx->is_constructed(ctx->format_context, &element->tag) != 0;
     lua_pushboolean(L, constructed);
     lua_setfield(L, -2, "constructed");
     lua_pushinteger(L, (lua_Integer)depth);
@@ -65,7 +65,7 @@ static tlv_visit_result_t walk_trampoline(const tlv_view_t* view, size_t depth, 
 /* opentlv.walk_tree(data, format, callback, opts) -> visited, stopped
  *
  * Visits every element of `data` in preorder, calling
- * `callback(entry, depth)` for each; `entry` additionally has a
+ * `callback(element, depth)` for each; `element` additionally has a
  * `constructed` boolean field alongside tag/length/value/offset. Returning
  * `false` from `callback` stops the walk early (`stopped` is then true).
  * `callback` may be omitted (nil) to validate structure and limits only,

@@ -1,5 +1,5 @@
 #include "diagnostic_collect.hpp"
-#include "tlv/length.h"
+#include "tlv/size.h"
 
 namespace cli {
 
@@ -8,15 +8,16 @@ void diagnostic_scope_init(diagnostic_scope& scope, size_t size) {
     scope.end[0] = size;
 }
 
-void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base, const tlv_view_t* view,
-                            size_t depth, tlv_is_constructed_fn constructed) {
+void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base,
+                            const tlv_element_t* element, size_t depth,
+                            tlv_is_constructed_fn constructed) {
     while (scope.path.length > depth) tlv_diagnostic_path_pop(&scope.path);
-    if (!constructed || !constructed(NULL, &view->tag)) return;
+    if (!constructed || !constructed(NULL, &element->tag)) return;
     size_t value_length;
-    if (view->value.data && depth + 1 <= TLV_WALK_MAX_DEPTH &&
-        tlv_length_to_size(view->value.length, &value_length) == TLV_OK)
-        scope.end[depth + 1] = (size_t)(view->value.data - base) + value_length;
-    tlv_diagnostic_path_push(&scope.path, view->tag);
+    if (element->value.data && depth + 1 <= TLV_WALK_MAX_DEPTH &&
+        tlv_size_to_native(element->value.size, &value_length) == TLV_OK)
+        scope.end[depth + 1] = (size_t)(element->value.data - base) + value_length;
+    tlv_diagnostic_path_push(&scope.path, element->tag);
 }
 
 bool diagnostic_scope_derive_reader_diagnostic(const diagnostic_scope& scope,
@@ -30,12 +31,12 @@ bool diagnostic_scope_derive_reader_diagnostic(const diagnostic_scope& scope,
     if (enclosing_end > size) enclosing_end = size;
     if (enclosing_end < error_offset) enclosing_end = error_offset;
 
-    tlv_view_t              entry;
+    tlv_element_t           element;
     size_t                  consumed;
     tlv_reader_diagnostic_t diag;
     tlv_reader_diagnostic_init(&diag);
     tlv_result_t rc = tlv_read_diag(data + error_offset, enclosing_end - error_offset, format,
-                                    &entry, &consumed, &diag);
+                                    &element, &consumed, &diag);
     if (rc != expected_code) return false;
 
     diag.diagnostic.offset += error_offset;

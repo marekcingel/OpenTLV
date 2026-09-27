@@ -4,9 +4,9 @@
 
 | Object or operation | Ownership and lifetime |
 | --- | --- |
-| `tlv_value_t` | Borrows its bytes; does not allocate or free them. Its `tlv_length_t` length may exceed the current build's `size_t`; convert with `tlv_length_to_size()` before native-size use. |
+| `tlv_value_t` | Borrows its bytes; does not allocate or free them. Its `tlv_size_t` length may exceed the current build's `size_t`; convert with `tlv_size_to_native()` before native-size use. |
 | `tlv_tag_t` | Borrows its bytes (a pointer and a size); does not allocate, own or copy them, and has no length limit. Copying a tag copies only the pointer and the size. |
-| `tlv_view_t` | Holds a borrowed `tlv_tag_t` and a borrowed `tlv_value_t`. Copying a view copies neither the tag bytes nor the payload. |
+| `tlv_element_t` | Holds a borrowed `tlv_tag_t` and a borrowed `tlv_value_t`. Copying an element copies neither the tag bytes nor the payload. |
 | Reader | Borrows the input, format descriptor, and descriptor context. Keep them valid and unchanged during use. |
 | Writer | Borrows output storage, its format descriptor, and context. The caller provides capacity. |
 | Visitor | Receives a temporary view; a copied view still borrows the input. |
@@ -18,7 +18,7 @@
 Keep the input buffer alive and unchanged while using any view into it, including
 nested child views. Reusing a receive buffer invalidates the previous values.
 A successful read copies neither the tag nor the value and does not allocate a
-tree: `view.tag` and `view.value` both point into the input. Do not return a
+tree: `element.tag` and `element.value` both point into the input. Do not return a
 borrowed view into a local array that goes out of scope.
 
 ## Tags
@@ -49,13 +49,13 @@ build a new tag over the copy.
 
 ```c
 uint8_t kept[8];
-memcpy(kept, view.tag.data, view.tag.size);   /* the format bounded the size */
-tlv_tag_t stable = tlv_tag(kept, view.tag.size);
+memcpy(kept, element.tag.data, element.tag.size);   /* the format bounded the size */
+tlv_tag_t stable = tlv_tag(kept, element.tag.size);
 ```
 
 To retain data independently, use the [copy helpers](copy.md) with caller-owned
 storage. `tlv_copy_value` copies payload bytes; `tlv_copy_encoded` preserves a full
-encoded range; `tlv_copy_view` re-encodes with a selected writer format.
+encoded range; `tlv_copy_element` re-encodes with a selected writer format.
 For indefinite BER, preserve the consumed range when the original EOC and outer
 encoding must be retained.
 

@@ -23,7 +23,7 @@ The `opentlv` crate exposes these safe types; none of them exposes a raw pointer
 | Type | Wraps | Notes |
 | --- | --- | --- |
 | `Tag` | `tlv_tag_t` | Owned bytes of any length, `Clone` but not `Copy`; built with `from_bytes`, read with `as_bytes` |
-| `Entry<'a>` | `tlv_view_t` | A `Tag` (copied out of the input) plus a value borrowed as `&'a [u8]` |
+| `Element<'a>` | `tlv_element_t` | A `Tag` (copied out of the input) plus a value borrowed as `&'a [u8]` |
 | `Error` | `tlv_result_t` | One variant per `TLV_ERR_*` code, plus `Unknown(code)`; implements `std::error::Error` |
 | `Result<T>` | | Alias for `std::result::Result<T, Error>` |
 | `FixedFormatConfig` | `tlv_fixed_format_t` | Runtime-configurable tag width, length width (1-8 bytes) and length byte order; a plain `Copy` value the caller owns |
@@ -38,16 +38,16 @@ length limit; a format may reject some lengths.
 
 ## Reader
 
-`Reader<'a>` parses a `&'a [u8]` and iterates over `Result<Entry<'a>>`. It wraps
-the C `tlv_reader_t`; entry values are zero-copy slices of the input, and the
-borrow checker keeps the input alive for as long as the reader or any entry.
+`Reader<'a>` parses a `&'a [u8]` and iterates over `Result<Element<'a>>`. It wraps
+the C `tlv_reader_t`; element values are zero-copy slices of the input, and the
+borrow checker keeps the input alive for as long as the reader or any element.
 
 ```rust
 let reader = opentlv::Reader::new(&data);
 
-for entry in reader {
-    let entry = entry?;
-    println!("{:?}: {:?}", entry.tag(), entry.value());
+for element in reader {
+    let element = element?;
+    println!("{:?}: {:?}", element.tag(), element.value());
 }
 ```
 
@@ -65,7 +65,7 @@ Library users need no `unsafe`.
 
 ## Writer
 
-`Writer<'a>` encodes entries into a caller-owned `&'a mut [u8]`. It wraps the C
+`Writer<'a>` encodes elements into a caller-owned `&'a mut [u8]`. It wraps the C
 `tlv_writer_t` and never allocates. Tags are `Tag`s and values are `&[u8]`.
 
 ```rust
@@ -75,11 +75,11 @@ writer.write(&opentlv::Tag::from_bytes(&[0x01]), b"abc")?;
 let encoded: &[u8] = writer.written();
 ```
 
-`Writer::with_format` takes the same `Format` as the reader. `write_entry`
-appends an `Entry` (for example one produced by a `Reader`), `position`,
+`Writer::with_format` takes the same `Format` as the reader. `write_element`
+appends an `Element` (for example one produced by a `Reader`), `position`,
 `remaining` and `capacity` report buffer usage, and `finish` returns the written
-bytes with the buffer's lifetime. `encoded_size` computes the size of an entry
-without writing it. Failures use the common `Error`; an entry that does not fit
+bytes with the buffer's lifetime. `encoded_size` computes the size of an element
+without writing it. Failures use the common `Error`; an element that does not fit
 gives `Error::BufferTooShort` and leaves the position unchanged. Library users
 need no `unsafe`.
 

@@ -21,12 +21,12 @@ fn main() -> Result<()> {
     println!("encoded {} bytes: {encoded:02X?}", encoded.len());
 
     // Read the template back.
-    for entry in Reader::with_format(encoded, Format::Ber) {
-        let entry = entry?;
+    for element in Reader::with_format(encoded, Format::Ber) {
+        let element = element?;
         println!(
             "{:02X?} -> {} value bytes",
-            entry.tag().as_bytes(),
-            entry.value().len()
+            element.tag().as_bytes(),
+            element.value().len()
         );
     }
 

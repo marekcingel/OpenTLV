@@ -16,21 +16,21 @@ tlv_result_t read_pair_tag(const void* context, const uint8_t* data, size_t size
 
 class Unit_Tlv_Scanner : public ::testing::Test {
 protected:
-    tlv_view_t view = {TLV_TAG(0xAA), {nullptr, 99}};
-    size_t     offset = 88;
-    size_t     consumed = 77;
+    tlv_element_t element = {TLV_TAG(0xAA), {}, {nullptr, 99}};
+    size_t        offset = 88;
+    size_t        consumed = 77;
 
     tlv_result_t scan(const uint8_t* data, size_t size, size_t start = 0,
                       const tlv_schema_t* filter = nullptr,
                       const tlv_format_t* format = &controlled::format) {
-        return tlv_scan(data, size, start, format, filter, &view, &offset, &consumed);
+        return tlv_scan(data, size, start, format, filter, &element, &offset, &consumed);
     }
 
     void unchanged() {
-        EXPECT_EQ(0xAA, view.tag.data[0]);
-        EXPECT_EQ(1, view.tag.size);
-        EXPECT_EQ(nullptr, view.value.data);
-        EXPECT_EQ(99u, view.value.length);
+        EXPECT_EQ(0xAA, element.tag.data[0]);
+        EXPECT_EQ(1, element.tag.size);
+        EXPECT_EQ(nullptr, element.value.data);
+        EXPECT_EQ(99u, element.value.size);
         EXPECT_EQ(88u, offset);
         EXPECT_EQ(77u, consumed);
     }
@@ -60,10 +60,10 @@ TEST_F(Unit_Tlv_Scanner, ValidatesArgumentsWithoutChangingOutputs) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(data, sizeof(data), 0, &invalid));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_scan(data, sizeof(data), 0, &controlled::format, nullptr,
                                          nullptr, &offset, &consumed));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_scan(data, sizeof(data), 0, &controlled::format, nullptr, &view,
-                                         nullptr, &consumed));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_scan(data, sizeof(data), 0, &controlled::format, nullptr, &view,
-                                         &offset, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_scan(data, sizeof(data), 0, &controlled::format, nullptr,
+                                         &element, nullptr, &consumed));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_scan(data, sizeof(data), 0, &controlled::format, nullptr,
+                                         &element, &offset, nullptr));
     unchanged();
 }
 
@@ -78,8 +78,8 @@ TEST_F(Unit_Tlv_Scanner, UsesCustomTagCallbackAndContext) {
     ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 1, &filter, &format));
     EXPECT_EQ(2u, offset);
     EXPECT_EQ(4u, consumed);
-    EXPECT_EQ(2, view.tag.size);
-    EXPECT_EQ(0x9F, view.tag.data[0]);
-    EXPECT_EQ(0x1C, view.tag.data[1]);
-    EXPECT_EQ(data + 5, view.value.data);
+    EXPECT_EQ(2, element.tag.size);
+    EXPECT_EQ(0x9F, element.tag.data[0]);
+    EXPECT_EQ(0x1C, element.tag.data[1]);
+    EXPECT_EQ(data + 5, element.value.data);
 }

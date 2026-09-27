@@ -125,10 +125,11 @@ static void close_elements(writer_context_t* w, size_t depth) {
 #if OPENTLV_PROFILE_EMV
 /* Appends the EMV dictionary entry of the element, if it has one, and derives
  * the dictionary context its children are read in. */
-static void emit_emv(writer_context_t* w, const tlv_view_t* view, size_t depth, size_t length) {
+static void emit_emv(writer_context_t* w, const tlv_element_t* element, size_t depth,
+                     size_t length) {
     tlv_emv_context_t           context = w->emv_context[depth];
-    tlv_emv_context_t           child = tlv_emv_child_context(context, &view->tag);
-    const tlv_emv_definition_t* definition = tlv_emv_find(context, &view->tag);
+    tlv_emv_context_t           child = tlv_emv_child_context(context, &element->tag);
+    const tlv_emv_definition_t* definition = tlv_emv_find(context, &element->tag);
 
     w->emv_context[depth + 1] = child == TLV_EMV_CONTEXT_COUNT ? context : child;
     if (!definition) return;
@@ -150,18 +151,18 @@ static void emit_emv(writer_context_t* w, const tlv_view_t* view, size_t depth, 
 }
 #endif
 
-static tlv_visit_result_t emit_element(const tlv_view_t* view, size_t depth, size_t offset,
+static tlv_visit_result_t emit_element(const tlv_element_t* element, size_t depth, size_t offset,
                                        void* context) {
     writer_context_t* w = (writer_context_t*)context;
     int               constructed = 0;
     size_t            length, header_size;
 
-    if (tlv_length_to_size(view->value.length, &length) != TLV_OK) return TLV_VISIT_ERROR;
+    if (tlv_size_to_native(element->value.size, &length) != TLV_OK) return TLV_VISIT_ERROR;
     if (depth > TLV_WALK_MAX_DEPTH) return TLV_VISIT_ERROR;
     /* The value directly follows the encoded tag and length. */
-    header_size = (size_t)(view->value.data - w->input) - offset;
+    header_size = (size_t)(element->value.data - w->input) - offset;
 #if OPENTLV_FORMAT_BER
-    if (w->ber) constructed = tlv_ber_is_constructed(NULL, &view->tag) != 0;
+    if (w->ber) constructed = tlv_ber_is_constructed(NULL, &element->tag) != 0;
 #endif
     close_elements(w, depth);
     if (w->count[depth]++) builder_text(&w->out, ",");
@@ -172,14 +173,16 @@ static tlv_visit_result_t emit_element(const tlv_view_t* view, size_t depth, siz
     builder_text(&w->out, ",\"depth\":");
     builder_number(&w->out, depth);
     builder_text(&w->out, ",\"tag\":\"");
-    builder_hex(&w->out, view->tag.data, view->tag.size);
+    builder_hex(&w->out, element->tag.data, element->tag.size);
+    builder_text(&w->out, "\",\"rawLength\":\"");
+    builder_hex(&w->out, element->length.data, element->length.size);
     builder_text(&w->out, "\",\"length\":");
     builder_number(&w->out, length);
     builder_text(&w->out, ",\"headerSize\":");
     builder_number(&w->out, header_size);
     builder_text(&w->out, constructed ? ",\"constructed\":true" : ",\"constructed\":false");
 #if OPENTLV_PROFILE_EMV
-    if (w->emv) emit_emv(w, view, depth, length);
+    if (w->emv) emit_emv(w, element, depth, length);
 #endif
     if (constructed && length) {
         /* The walker descends into it next; children close it later. */
@@ -187,7 +190,7 @@ static tlv_visit_result_t emit_element(const tlv_view_t* view, size_t depth, siz
         w->has_children[w->open] = 1;
     } else {
         builder_text(&w->out, ",\"value\":\"");
-        builder_hex(&w->out, view->value.data, length);
+        builder_hex(&w->out, element->value.data, length);
         builder_text(&w->out, "\"");
         w->has_children[w->open] = 0;
     }

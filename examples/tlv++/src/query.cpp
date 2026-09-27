@@ -22,11 +22,11 @@ int main() {
     bool found = false;
     auto result = query->walk(
         tlv::bytes(document.data(), document.size()), tlv_format_ber, TLV_WALK_MAX_DEPTH, 16,
-        [&found](const tlv::entry& entry, size_t /*depth*/, size_t offset) {
+        [&found](const tlv::element& element, size_t /*depth*/, size_t offset) {
             std::cout << "6F/A5/50 = " << std::hex << std::uppercase << std::setw(2)
-                      << std::setfill('0') << static_cast<int>(entry.value[0]) << std::dec
+                      << std::setfill('0') << static_cast<int>(element.value.data[0]) << std::dec
                       << " (offset " << offset << ")\n";
-            found = entry.value.size() == 1 && entry.value[0] == tlv::byte(0x01);
+            found = element.value.size == 1 && element.value.data[0] == 0x01;
             return TLV_VISIT_CONTINUE;
         });
     if (!result) {

@@ -83,9 +83,9 @@ impl FixedFormatConfig {
 /// let mut writer = Writer::with_fixed_format(&mut buf, &format);
 /// writer.write(&Tag::from_bytes(&[0x01, 0x02]), &[0xAA, 0xBB, 0xCC]).unwrap();
 ///
-/// let entry = Reader::with_fixed_format(writer.written(), &format)
+/// let element = Reader::with_fixed_format(writer.written(), &format)
 ///     .next().unwrap().unwrap();
-/// assert_eq!(entry.value(), &[0xAA, 0xBB, 0xCC]);
+/// assert_eq!(element.value(), &[0xAA, 0xBB, 0xCC]);
 /// ```
 #[derive(Debug)]
 pub struct FixedFormat<'a> {
@@ -171,11 +171,11 @@ mod tests {
             .unwrap();
         let written = writer.finish();
 
-        let entry = crate::Reader::with_fixed_format(written, &format)
+        let element = crate::Reader::with_fixed_format(written, &format)
             .next()
             .unwrap()
             .unwrap();
-        assert_eq!(entry.value(), &[0xAA, 0xBB]);
+        assert_eq!(element.value(), &[0xAA, 0xBB]);
     }
 
     #[test]

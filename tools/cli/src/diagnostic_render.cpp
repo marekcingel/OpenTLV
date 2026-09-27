@@ -189,6 +189,8 @@ std::string reader_human(const tlv::reader_diagnostic& d) {
     if (d.diagnostic.path) out << "\npath: " << path_string(*d.diagnostic.path);
     if (d.has_tag) out << "\ntag: " << hex_tag(d.tag);
     out << "\nwhile reading: " << operation_name(d.operation);
+    if (d.has_raw_length)
+        out << "\nraw length: " << hex_tag(tlv_tag(d.raw_length.data, d.raw_length.size));
     if (d.has_declared_length) out << "\ndeclared length: " << d.declared_length;
     if (d.has_available) out << "\navailable: " << d.available;
     append_trailer_human(out, d.diagnostic);
@@ -201,6 +203,8 @@ std::string reader_compact(const tlv::reader_diagnostic& d) {
         << (d.diagnostic.has_offset ? d.diagnostic.offset : 0);
     if (d.has_tag) out << " tag=" << hex_tag(d.tag);
     out << " while reading " << operation_name(d.operation);
+    if (d.has_raw_length)
+        out << "; raw_length=" << hex_tag(tlv_tag(d.raw_length.data, d.raw_length.size));
     if (d.has_declared_length) out << "; declared_length=" << d.declared_length;
     if (d.has_available) out << "; available=" << d.available;
     out << ": " << tlv_strerror(d.diagnostic.code) << trailer_compact(d.diagnostic);
@@ -213,6 +217,8 @@ std::string reader_json(const tlv::reader_diagnostic& d) {
     if (d.diagnostic.path) object["path"] = path_string(*d.diagnostic.path);
     if (d.has_tag) object["tag"] = hex_tag(d.tag);
     object["operation"] = operation_name(d.operation);
+    if (d.has_raw_length)
+        object["raw_length"] = hex_tag(tlv_tag(d.raw_length.data, d.raw_length.size));
     if (d.has_declared_length) object["declared_length"] = d.declared_length;
     if (d.has_available) object["available"] = d.available;
     append_trailer_json(object, d.diagnostic);

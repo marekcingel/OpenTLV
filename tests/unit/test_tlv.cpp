@@ -12,8 +12,8 @@ TEST(Unit_Tlv, ReaderDetectsBufferTooShortForValue) {
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
-    tlv_view_t entry;
-    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &entry));
+    tlv_element_t element;
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &element));
 }
 
 TEST(Unit_Tlv, ReaderDetectsEndOfBuffer) {
@@ -21,11 +21,11 @@ TEST(Unit_Tlv, ReaderDetectsEndOfBuffer) {
     tlv_reader_t  reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
-    tlv_view_t entry;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    ASSERT_EQ(0, entry.value.length);
+    tlv_element_t element;
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(0, element.value.size);
     ASSERT_TRUE(tlv_reader_at_end(&reader));
-    ASSERT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &entry));
+    ASSERT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
 }
 
 TEST(Unit_Tlv, ReaderRejectsNullArgs) {
@@ -38,16 +38,16 @@ TEST(Unit_Tlv, ReaderBorrowsTagAndValue) {
     uint8_t      data[] = {0x01, 0x01, 0xAB};
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
-    tlv_view_t view{};
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
-    EXPECT_EQ(1, view.tag.size);
-    EXPECT_EQ(data, view.tag.data);
-    EXPECT_EQ(data + 2, view.value.data);
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(1, element.tag.size);
+    EXPECT_EQ(data, element.tag.data);
+    EXPECT_EQ(data + 2, element.value.data);
     // Nothing is copied: changing the input shows through the tag and the value.
     data[0] = 0x02;
     data[2] = 0xCD;
-    EXPECT_EQ(0x02, view.tag.data[0]);
-    EXPECT_EQ(0xCD, view.value.data[0]);
+    EXPECT_EQ(0x02, element.tag.data[0]);
+    EXPECT_EQ(0xCD, element.value.data[0]);
 }
 
 TEST(Unit_Tlv, WriterRejectsUnsupportedTagSizesWithoutWriting) {

@@ -19,6 +19,28 @@ static_assert(std::is_same<tlv::expected<int, int>, std::expected<int, int>>::va
               "C++23 must use std::expected");
 #endif
 
+static_assert(std::is_same<tlv::element, tlv_element_t>::value,
+              "C++ must use the canonical C element");
+
+TEST(Unit_Tlvpp, AsBytesValidatesAndBorrowsValue) {
+    const uint8_t data[] = {0xAA, 0xBB};
+    auto          result = tlv::as_bytes(tlv_value_t{data, sizeof(data)});
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(reinterpret_cast<const tlv::byte*>(data), result->data());
+    EXPECT_EQ(sizeof(data), result->size());
+    auto empty = tlv::as_bytes(tlv_value_t{nullptr, 0});
+    ASSERT_TRUE(empty.has_value());
+    EXPECT_TRUE(empty->empty());
+    auto invalid = tlv::as_bytes(tlv_value_t{nullptr, 1});
+    ASSERT_FALSE(invalid.has_value());
+    EXPECT_EQ(TLV_ERR_NULL_ARG, invalid.error().code);
+#if SIZE_MAX < UINT64_MAX
+    auto oversized = tlv::as_bytes(tlv_value_t{data, static_cast<tlv_size_t>(SIZE_MAX) + 1});
+    ASSERT_FALSE(oversized.has_value());
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, oversized.error().code);
+#endif
+}
+
 namespace {
 
 tlv::bytes to_bytes(const std::string& s) {
@@ -40,7 +62,10 @@ TEST(Unit_Tlvpp, ReaderReportsEndOfBuffer) {
 
     auto e1 = reader.next();
     ASSERT_TRUE(e1.has_value());
-    EXPECT_TRUE(e1->value.empty());
+    EXPECT_TRUE(e1->value.size == 0);
+    EXPECT_EQ(reinterpret_cast<const uint8_t*>(buf.data()) + 1, e1->length.data);
+    EXPECT_EQ(1u, e1->length.size);
+    EXPECT_EQ(0u, e1->length.data[0]);
 
     EXPECT_TRUE(reader.at_end());
     auto e2 = reader.next();

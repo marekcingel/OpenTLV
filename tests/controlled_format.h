@@ -12,7 +12,7 @@ inline tlv_result_t read_tag(const void*, const uint8_t* data, size_t size, tlv_
     *used = 1;
     return TLV_OK;
 }
-inline tlv_result_t read_length(const void*, const uint8_t* data, size_t size, size_t* length,
+inline tlv_result_t read_length(const void*, const uint8_t* data, size_t size, tlv_size_t* length,
                                 size_t* used) {
     if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
     *length = data[0];
@@ -27,12 +27,12 @@ inline tlv_result_t write_tag(const void*, uint8_t* data, size_t size, const tlv
     *used = 1;
     return TLV_OK;
 }
-inline tlv_result_t length_size(const void*, size_t length, size_t* used) {
+inline tlv_result_t length_size(const void*, tlv_size_t length, size_t* used) {
     if (length > 255) return TLV_ERR_INVALID_LENGTH;
     *used = 1;
     return TLV_OK;
 }
-inline tlv_result_t write_length(const void* context, uint8_t* data, size_t size, size_t length,
+inline tlv_result_t write_length(const void* context, uint8_t* data, size_t size, tlv_size_t length,
                                  size_t* used) {
     const auto result = length_size(context, length, used);
     if (result != TLV_OK) return result;

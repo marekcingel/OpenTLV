@@ -24,13 +24,13 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteTagOneByteLength) {
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&reader_format, &config));
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, writer.pos, &reader_format));
-    tlv_view_t entry{};
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    EXPECT_EQ(2, entry.tag.size);
-    EXPECT_EQ(0x12, entry.tag.data[0]);
-    EXPECT_EQ(0x34, entry.tag.data[1]);
-    EXPECT_EQ(3u, entry.value.length);
-    EXPECT_EQ(0, std::memcmp(expected + 3, entry.value.data, 3));
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(2, element.tag.size);
+    EXPECT_EQ(0x12, element.tag.data[0]);
+    EXPECT_EQ(0x34, element.tag.data[1]);
+    EXPECT_EQ(3u, element.value.size);
+    EXPECT_EQ(0, std::memcmp(expected + 3, element.value.data, 3));
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 }
 
@@ -53,10 +53,10 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteLittleEndianLength) {
 
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, writer.pos, &reader_format));
-    tlv_view_t entry{};
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    EXPECT_EQ(3u, entry.value.length);
-    EXPECT_EQ(0, std::memcmp(expected + 4, entry.value.data, 3));
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(3u, element.value.size);
+    EXPECT_EQ(0, std::memcmp(expected + 4, element.value.data, 3));
 }
 
 TEST(Integration_Tlv_Fixed, EveryLengthByteRoundTripsOneByteTagOneByteLength) {
@@ -83,12 +83,12 @@ TEST(Integration_Tlv_Fixed, EveryLengthByteRoundTripsOneByteTagOneByteLength) {
 
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, writer.pos, &reader_format));
-        tlv_view_t entry{};
-        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-        EXPECT_EQ(1, entry.tag.size);
-        EXPECT_EQ(byte, entry.tag.data[0]);
-        EXPECT_EQ(byte, entry.value.length);
-        EXPECT_EQ(0, std::memcmp(value, entry.value.data, byte));
+        tlv_element_t element{};
+        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+        EXPECT_EQ(1, element.tag.size);
+        EXPECT_EQ(byte, element.tag.data[0]);
+        EXPECT_EQ(byte, element.value.size);
+        EXPECT_EQ(0, std::memcmp(value, element.value.data, byte));
         EXPECT_TRUE(tlv_reader_at_end(&reader));
     }
 }
@@ -114,17 +114,17 @@ TEST(Integration_Tlv_Fixed, OneFormatSharedByReaderAndWriterConcurrentlyLive) {
     ASSERT_EQ(TLV_OK,
               tlv_writer_write(&writer, (TLV_TAG(0x01, 0x02)), first_value, sizeof(first_value)));
     reader.size = writer.pos; /* The reader observes what the writer has produced so far. */
-    tlv_view_t entry{};
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    EXPECT_EQ(2u, entry.value.length);
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(2u, element.value.size);
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 
     const uint8_t second_value[] = {0xCC};
     ASSERT_EQ(TLV_OK,
               tlv_writer_write(&writer, (TLV_TAG(0x03, 0x04)), second_value, sizeof(second_value)));
     reader.size = writer.pos;
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    EXPECT_EQ(1u, entry.value.length);
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(1u, element.value.size);
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 }
 
@@ -158,17 +158,17 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesLtvFieldOrderTagAndValueScope) {
 
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, writer.pos, &format));
-    tlv_view_t entry{};
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    EXPECT_EQ(1, entry.tag.size);
-    EXPECT_EQ(0x09, entry.tag.data[0]);
-    EXPECT_EQ(2u, entry.value.length);
-    EXPECT_EQ(0, std::memcmp(expected + 2, entry.value.data, 2));
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(1, element.tag.size);
+    EXPECT_EQ(0x09, element.tag.data[0]);
+    EXPECT_EQ(2u, element.value.size);
+    EXPECT_EQ(0, std::memcmp(expected + 2, element.value.data, 2));
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 
     // A length byte of zero has no room for the tag it must also count.
     const uint8_t zero_length[] = {0x00};
-    tlv_view_t    rejected{};
+    tlv_element_t rejected{};
     size_t        consumed = 0;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_read(zero_length, sizeof(zero_length), &format, &rejected, &consumed));
@@ -191,15 +191,15 @@ TEST(Integration_Tlv_Fixed, ExampleWireBytesTlvFieldOrderTagAndValueScope) {
 
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, writer.pos, &format));
-    tlv_view_t entry{};
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-    EXPECT_EQ(2u, entry.value.length);
-    EXPECT_EQ(0, std::memcmp(expected + 2, entry.value.data, 2));
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(2u, element.value.size);
+    EXPECT_EQ(0, std::memcmp(expected + 2, element.value.data, 2));
     EXPECT_TRUE(tlv_reader_at_end(&reader));
 
     // The length field cannot encode less than the tag it must also count.
     const uint8_t too_short_length[] = {0x09, 0x00};
-    tlv_view_t    rejected{};
+    tlv_element_t rejected{};
     size_t        consumed = 0;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_read(too_short_length, sizeof(too_short_length), &format, &rejected, &consumed));
@@ -237,21 +237,21 @@ TEST(Integration_Tlv_Fixed, EveryFieldOrderAndLengthScopeCombinationRoundTrips) 
                 // size 0 is TLV_ERR_END_OF_BUFFER, not TLV_ERR_BUFFER_TOO_SHORT; only
                 // partial input is a truncation.
                 for (size_t size = 1; size < total; ++size) {
-                    tlv_view_t truncated{};
-                    size_t     consumed = 0;
+                    tlv_element_t truncated{};
+                    size_t        consumed = 0;
                     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                               tlv_read(data, size, &format, &truncated, &consumed));
                 }
 
                 tlv_reader_t reader;
                 ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, total, &format));
-                tlv_view_t entry{};
-                ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
-                EXPECT_EQ(1, entry.tag.size);
-                EXPECT_EQ(0x7F, entry.tag.data[0]);
-                EXPECT_EQ(value_size, entry.value.length);
+                tlv_element_t element{};
+                ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+                EXPECT_EQ(1, element.tag.size);
+                EXPECT_EQ(0x7F, element.tag.data[0]);
+                EXPECT_EQ(value_size, element.value.size);
                 if (value_size)
-                    EXPECT_EQ(0, std::memcmp(value.data(), entry.value.data, value_size));
+                    EXPECT_EQ(0, std::memcmp(value.data(), element.value.data, value_size));
                 EXPECT_TRUE(tlv_reader_at_end(&reader));
             }
 

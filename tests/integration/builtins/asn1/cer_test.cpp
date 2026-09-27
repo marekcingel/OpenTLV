@@ -16,16 +16,17 @@ struct Visit {
     size_t  depth;
     uint8_t tag;
 };
-tlv_visit_result_t collect(const tlv_view_t* view, size_t depth, size_t offset, void* context) {
-    static_cast<std::vector<Visit>*>(context)->push_back({offset, depth, view->tag.data[0]});
+tlv_visit_result_t collect(const tlv_element_t* element, size_t depth, size_t offset,
+                           void* context) {
+    static_cast<std::vector<Visit>*>(context)->push_back({offset, depth, element->tag.data[0]});
     return TLV_VISIT_CONTINUE;
 }
 struct Segment {
     tlv_tag_t   tag;
     tlv_value_t value;
 };
-tlv_visit_result_t collect_segment(const tlv_view_t* view, void* context) {
-    static_cast<std::vector<Segment>*>(context)->push_back({view->tag, view->value});
+tlv_visit_result_t collect_segment(const tlv_element_t* element, void* context) {
+    static_cast<std::vector<Segment>*>(context)->push_back({element->tag, element->value});
     return TLV_VISIT_CONTINUE;
 }
 } // namespace
@@ -49,33 +50,33 @@ TEST(Integration_Tlv_Cer, NestedIndefiniteContainersPostorderVisitOrder) {
     }
     EXPECT_EQ(99u, offset);
 
-    tlv_view_t view{};
-    size_t     consumed;
-    ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &view, &consumed, nullptr));
+    tlv_element_t element{};
+    size_t        consumed;
+    ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(sizeof(data), consumed);
-    EXPECT_EQ(11u, view.value.length);
-    EXPECT_EQ(data + 2, view.value.data);
+    EXPECT_EQ(11u, element.value.size);
+    EXPECT_EQ(data + 2, element.value.data);
 }
 
 TEST(Integration_Tlv_Cer, PrimitiveContentContainingEocAndIndefiniteMarkerDoesNotAffectNesting) {
     for (uint8_t filler : {static_cast<uint8_t>(0x00), static_cast<uint8_t>(0x80)}) {
         const uint8_t data[] = {0x30, 0x80, 0x04, 2, filler, filler, 0, 0};
-        tlv_view_t    view{};
+        tlv_element_t element{};
         size_t        consumed = 0;
         SCOPED_TRACE(static_cast<int>(filler));
-        ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &view, &consumed, nullptr));
+        ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
         EXPECT_EQ(sizeof(data), consumed);
-        EXPECT_EQ(4u, view.value.length);
+        EXPECT_EQ(4u, element.value.size);
     }
 }
 
 TEST(Integration_Tlv_Cer, EmptyIndefiniteContainer) {
     const uint8_t data[] = {0x30, 0x80, 0, 0};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &view, &consumed, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(sizeof(data), consumed);
-    EXPECT_EQ(0u, view.value.length);
+    EXPECT_EQ(0u, element.value.size);
 }
 
 TEST(Integration_Tlv_Cer, MissingTruncatedAndUnexpectedEoc) {
@@ -101,9 +102,9 @@ TEST(Integration_Tlv_Cer, MissingTruncatedAndUnexpectedEoc) {
 
 TEST(Integration_Tlv_Cer, SingleElementReadLeavesFollowingElementUnconsumed) {
     const uint8_t data[] = {0x30, 0x80, 0, 0, 0x02, 1, 5};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 0, offset = 99;
-    ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &view, &consumed, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(4u, consumed);
     std::vector<Visit> visits;
     ASSERT_EQ(TLV_OK, tlv_cer_walk(data, sizeof(data), nullptr, collect, &visits, &offset));
@@ -141,12 +142,12 @@ TEST(Integration_Tlv_Cer, ConstructedFormRejectedStructurallyEvenWithoutStrict) 
 TEST(Integration_Tlv_Cer, StrictReadRejectsNoncanonicalContentButNonStrictAccepts) {
     /* SEQUENCE(indefinite) { OCTET STRING "x", BOOLEAN 0x01 (noncanonical) } */
     const uint8_t data[] = {0x30, 0x80, 0x04, 1, 'x', 0x01, 1, 0x01, 0, 0};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 0, offset = 99;
-    ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &view, &consumed, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(sizeof(data), consumed);
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
-              tlv_cer_read_strict(data, sizeof(data), nullptr, &view, &consumed, &offset));
+              tlv_cer_read_strict(data, sizeof(data), nullptr, &element, &consumed, &offset));
     EXPECT_EQ(7u, offset);
 }
 
@@ -155,10 +156,10 @@ TEST(Integration_Tlv_Cer, AcceptsUnconstrainedLegacyStringPrimitiveAndConstructe
      * like OCTET STRING), so both its primitive and constructed (segmented)
      * form are accepted in strict mode. */
     const uint8_t primitive[] = {0x14, 1, 'x'};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 0;
-    EXPECT_EQ(TLV_OK, tlv_cer_read_strict(primitive, sizeof(primitive), nullptr, &view, &consumed,
-                                          nullptr));
+    EXPECT_EQ(TLV_OK, tlv_cer_read_strict(primitive, sizeof(primitive), nullptr, &element,
+                                          &consumed, nullptr));
 
     std::vector<uint8_t> constructed = {0x34, 0x80};
     std::vector<uint8_t> seg1(1004, 'z'); /* tag + 3-byte length + 1000 content octets */
@@ -172,7 +173,7 @@ TEST(Integration_Tlv_Cer, AcceptsUnconstrainedLegacyStringPrimitiveAndConstructe
     constructed.push_back('y');
     constructed.push_back(0);
     constructed.push_back(0);
-    EXPECT_EQ(TLV_OK, tlv_cer_read_strict(constructed.data(), constructed.size(), nullptr, &view,
+    EXPECT_EQ(TLV_OK, tlv_cer_read_strict(constructed.data(), constructed.size(), nullptr, &element,
                                           &consumed, nullptr));
 }
 
@@ -192,9 +193,9 @@ TEST(Integration_Tlv_Cer, WriteConstructedProducesCanonicalIndefiniteFraming) {
     EXPECT_EQ(0, output[written - 2]);
     EXPECT_EQ(0, output[written - 1]);
 
-    tlv_view_t view{};
-    size_t     consumed = 0;
-    ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &view, &consumed, nullptr));
+    tlv_element_t element{};
+    size_t        consumed = 0;
+    ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(written, consumed);
 }
 
@@ -233,12 +234,12 @@ TEST(Integration_Tlv_Cer, WriteSegmentedStringSingleAndMultiSegment) {
         EXPECT_EQ(required, written);
         EXPECT_EQ(0x04, output[0]);
         EXPECT_EQ(0x82, output[1]); /* long-form length: 1000 needs two octets */
-        tlv_view_t view{};
-        size_t     consumed;
-        ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &view, &consumed, nullptr));
+        tlv_element_t element{};
+        size_t        consumed;
+        ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &element, &consumed, nullptr));
         EXPECT_EQ(written, consumed);
-        EXPECT_FALSE(tlv_cer_tag_is_constructed(&view.tag));
-        EXPECT_EQ(1000u, view.value.length);
+        EXPECT_FALSE(tlv_cer_tag_is_constructed(&element.tag));
+        EXPECT_EQ(1000u, element.value.size);
     }
     /* Content over the threshold: constructed, segmented, zero-copy segments. */
     {
@@ -252,23 +253,24 @@ TEST(Integration_Tlv_Cer, WriteSegmentedStringSingleAndMultiSegment) {
                                                          content.data(), content.size(), nullptr,
                                                          &written, nullptr));
         EXPECT_EQ(required, written);
-        tlv_view_t view{};
-        size_t     consumed;
-        ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &view, &consumed, nullptr));
+        tlv_element_t element{};
+        size_t        consumed;
+        ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &element, &consumed, nullptr));
         EXPECT_EQ(written, consumed);
-        EXPECT_TRUE(tlv_cer_tag_is_constructed(&view.tag));
-        /* Zero-copy segment iteration: view.value already excludes the outer EOC. */
+        EXPECT_TRUE(tlv_cer_tag_is_constructed(&element.tag));
+        /* Zero-copy segment iteration: element.value already excludes the outer EOC. */
         std::vector<Segment> segments;
-        ASSERT_EQ(TLV_OK, tlv_walk(view.value.data, static_cast<size_t>(view.value.length),
+        ASSERT_EQ(TLV_OK, tlv_walk(element.value.data, static_cast<size_t>(element.value.size),
                                    &tlv_format_cer, collect_segment, &segments));
         ASSERT_EQ(2u, segments.size());
         EXPECT_EQ(0x04, segments[0].tag.data[0]);
         EXPECT_EQ(0x04, segments[1].tag.data[0]);
-        EXPECT_EQ(1000u, segments[0].value.length);
-        EXPECT_EQ(1u, segments[1].value.length);
+        EXPECT_EQ(1000u, segments[0].value.size);
+        EXPECT_EQ(1u, segments[1].value.size);
         EXPECT_EQ(0, std::memcmp(segments[0].value.data, content.data(), 1000));
         EXPECT_EQ(content[1000], segments[1].value.data[0]);
         /* Strict validation confirms the canonical 1000/1-octet split. */
-        ASSERT_EQ(TLV_OK, tlv_cer_read_strict(output, written, nullptr, &view, &consumed, nullptr));
+        ASSERT_EQ(TLV_OK,
+                  tlv_cer_read_strict(output, written, nullptr, &element, &consumed, nullptr));
     }
 }

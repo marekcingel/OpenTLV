@@ -9,8 +9,8 @@
 
 #include "tlv/attributes.h"
 #include "tlv/compiler.h"
-#include "tlv/view.h"
-#include "tlv/length.h"
+#include "tlv/element.h"
+#include "tlv/size.h"
 #include "tlv/value.h"
 #include "tlv/codec/codec.h"
 #include "tlv/codec/structure.h"

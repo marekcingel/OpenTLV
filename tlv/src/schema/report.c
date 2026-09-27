@@ -1,7 +1,7 @@
 #include "tlv/schema/schema.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/walker.h"
-#include "tlv/length.h"
+#include "tlv/size.h"
 #include <string.h>
 
 static int same_tag(const tlv_tag_t* a, const tlv_tag_t* b) {
@@ -167,13 +167,13 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
         const tlv_structure_rule_t* rule = &frame->schema->rules[i];
         size_t count = 0, pos = frame->start;
         while (pos < frame->end) {
-            tlv_view_t view;
+            tlv_element_t element;
             size_t used;
-            rc = tlv_read(data + pos, frame->end - pos, format, &view, &used);
+            rc = tlv_read(data + pos, frame->end - pos, format, &element, &used);
             if (rc != TLV_OK) return rc;
-            if (same_tag(&rule->entry.tag, &view.tag) && ++count > rule->max_occurs) {
+            if (same_tag(&rule->entry.tag, &element.tag) && ++count > rule->max_occurs) {
                 violation_detail_t detail = {rule, 1, count, 0, 0, 0, 0, NULL};
-                add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &view.tag, &pos, &detail);
+                add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, &pos, &detail);
             }
             pos += used;
         }
@@ -193,16 +193,16 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                 break;
             }
         while (pos < frame->end) {
-            tlv_view_t view;
+            tlv_element_t element;
             size_t used;
-            rc = tlv_read(data + pos, frame->end - pos, format, &view, &used);
+            rc = tlv_read(data + pos, frame->end - pos, format, &element, &used);
             if (rc != TLV_OK) return rc;
             for (size_t i = 0; i < frame->schema->count; ++i)
                 if (frame->schema->rules[i].group == group->id &&
-                    same_tag(&frame->schema->rules[i].entry.tag, &view.tag)) {
+                    same_tag(&frame->schema->rules[i].entry.tag, &element.tag)) {
                     if (++count > group->max_occurs) {
                         violation_detail_t detail = {NULL, 1, count, 0, 0, 0, 0, group};
-                        add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &view.tag, &pos, &detail);
+                        add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, &pos, &detail);
                     }
                     break;
                 }
@@ -219,16 +219,16 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
         size_t last_index = 0;
         int have_last = 0;
         while (pos < frame->end) {
-            tlv_view_t view;
+            tlv_element_t element;
             size_t used;
-            rc = tlv_read(data + pos, frame->end - pos, format, &view, &used);
+            rc = tlv_read(data + pos, frame->end - pos, format, &element, &used);
             if (rc != TLV_OK) return rc;
             for (size_t i = 0; i < frame->schema->count; ++i)
-                if (same_tag(&frame->schema->rules[i].entry.tag, &view.tag)) {
+                if (same_tag(&frame->schema->rules[i].entry.tag, &element.tag)) {
                     if (have_last && i < last_index) {
                         violation_detail_t detail = {
                             &frame->schema->rules[i], 0, 0, 0, 0, 0, 0, NULL};
-                        add_issue(c, TLV_SCHEMA_ISSUE_ORDER, &view.tag, &pos, &detail);
+                        add_issue(c, TLV_SCHEMA_ISSUE_ORDER, &element.tag, &pos, &detail);
                     } else {
                         last_index = i;
                     }
@@ -268,47 +268,47 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
             continue;
         }
         {
-            tlv_view_t view;
+            tlv_element_t element;
             size_t used, pos = frame->pos, value_length;
             const tlv_structure_rule_t* rule = NULL;
             int constructed, kind_ok;
-            rc = tlv_read(data + pos, frame->end - pos, format, &view, &used);
+            rc = tlv_read(data + pos, frame->end - pos, format, &element, &used);
             if (rc != TLV_OK) return rc;
             frame->pos += used;
             for (size_t i = 0; i < current->count; ++i)
-                if (same_tag(&current->rules[i].entry.tag, &view.tag)) {
+                if (same_tag(&current->rules[i].entry.tag, &element.tag)) {
                     rule = &current->rules[i];
                     break;
                 }
             if (!rule) {
                 if (unknown == TLV_SCHEMA_UNKNOWN_REJECT ||
                     (unknown == TLV_SCHEMA_UNKNOWN_BY_SCHEMA && !current->allow_unknown))
-                    add_issue(c, TLV_SCHEMA_ISSUE_UNEXPECTED, &view.tag, &pos, NULL);
+                    add_issue(c, TLV_SCHEMA_ISSUE_UNEXPECTED, &element.tag, &pos, NULL);
                 continue;
             }
-            rc = tlv_length_to_size(view.value.length, &value_length);
+            rc = tlv_size_to_native(element.value.size, &value_length);
             if (rc != TLV_OK) return rc;
             if (tlv_schema_validate_length(&rule->entry, value_length) != TLV_OK) {
                 violation_detail_t detail = {rule, 0, 0, 1, value_length, 0, 0, NULL};
-                add_issue(c, TLV_SCHEMA_ISSUE_LENGTH, &view.tag, &pos, &detail);
+                add_issue(c, TLV_SCHEMA_ISSUE_LENGTH, &element.tag, &pos, &detail);
             }
             constructed =
-                format->is_constructed && format->is_constructed(format->context, &view.tag);
+                format->is_constructed && format->is_constructed(format->context, &element.tag);
             kind_ok = !((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
                         (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed));
             if (!kind_ok) {
                 violation_detail_t detail = {rule, 0, 0, 0, 0, 1, constructed, NULL};
-                add_issue(c, TLV_SCHEMA_ISSUE_KIND, &view.tag, &pos, &detail);
+                add_issue(c, TLV_SCHEMA_ISSUE_KIND, &element.tag, &pos, &detail);
             }
             if (kind_ok && rule->children) {
-                size_t start = (size_t)(view.value.data - data);
+                size_t start = (size_t)(element.value.data - data);
                 if (c->depth + 1 >= TLV_SCHEMA_PATH_MAX) {
                     if (error_offset) *error_offset = pos;
                     return TLV_ERR_LIMIT;
                 }
                 ++c->depth;
-                stack[c->depth] =
-                    (frame_t){rule->children, start, start + value_length, start, view.tag, pos, 0};
+                stack[c->depth] = (frame_t){
+                    rule->children, start, start + value_length, start, element.tag, pos, 0};
             }
         }
     }

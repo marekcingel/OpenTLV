@@ -1,7 +1,7 @@
 //! Integration tests for profile and format selection.
 
 use opentlv::{
-    Entry, Error, Format, Limits, Profile, ProfileError, Reader, Strictness, Tag, Writer,
+    Element, Error, Format, Limits, Profile, ProfileError, Reader, Strictness, Tag, Writer,
 };
 
 fn tag(bytes: &[u8]) -> Tag {
@@ -26,11 +26,11 @@ fn selected_format_drives_reader_and_writer() {
     writer.write(&tag(&[0x05]), &[0xAA]).unwrap();
     let encoded = writer.finish();
     assert_eq!(encoded, &[0x05, 0x01, 0xAA]);
-    let entry = Reader::with_format(encoded, format)
+    let element = Reader::with_format(encoded, format)
         .next()
         .unwrap()
         .unwrap();
-    assert_eq!(entry.value(), &[0xAA]);
+    assert_eq!(element.value(), &[0xAA]);
 }
 
 #[test]
@@ -136,11 +136,11 @@ fn cer_requires_indefinite_constructed_lengths() {
 fn read_returns_the_first_element_and_its_size() {
     let limits = Profile::Der.default_limits();
     let data = [0x04, 0x02, 0xAB, 0xCD, 0xFF];
-    let (entry, consumed): (Entry<'_>, usize) = Profile::Der
+    let (element, consumed): (Element<'_>, usize) = Profile::Der
         .read(&data, &limits, Strictness::Strict)
         .unwrap();
-    assert_eq!(entry.tag().as_bytes(), &[0x04]);
-    assert_eq!(entry.value(), &[0xAB, 0xCD]);
+    assert_eq!(element.tag().as_bytes(), &[0x04]);
+    assert_eq!(element.value(), &[0xAB, 0xCD]);
     assert_eq!(consumed, 4);
 
     assert_eq!(
@@ -170,10 +170,10 @@ fn write_produces_canonical_bytes() {
     assert_eq!(&out[..3], &[0x04, 0x81, 0xC8]);
 
     // What was written reads back through the same profile.
-    let (entry, consumed) = Profile::Der
+    let (element, consumed) = Profile::Der
         .read(&out, &limits, Strictness::Strict)
         .unwrap();
-    assert_eq!((entry.value(), consumed), (&value[..], size));
+    assert_eq!((element.value(), consumed), (&value[..], size));
 
     let mut short = [0u8; 4];
     assert_eq!(

@@ -36,11 +36,11 @@ TEST(Integration_Tlv_Der, TagClassesNumbersAndForms) {
                 size_t  written = 0, consumed = 0;
                 ASSERT_EQ(TLV_OK, tlv_der_write(encoded, sizeof(encoded), tag, nullptr, 0, nullptr,
                                                 &written, nullptr));
-                tlv_view_t view{};
+                tlv_element_t element{};
                 ASSERT_EQ(TLV_OK,
-                          tlv_der_read(encoded, written, nullptr, &view, &consumed, nullptr));
+                          tlv_der_read(encoded, written, nullptr, &element, &consumed, nullptr));
                 EXPECT_EQ(written, consumed);
-                EXPECT_EQ(0, std::memcmp(tag.data, view.tag.data, tag.size));
+                EXPECT_EQ(0, std::memcmp(tag.data, element.tag.data, tag.size));
             }
         }
     }
@@ -65,17 +65,19 @@ TEST(Integration_Tlv_Der, CanonicalLengthBytesAndRoundTrip) {
             EXPECT_EQ(0x80 | octets, data[1]);
             EXPECT_NE(0, data[2]);
         }
-        tlv_view_t view{};
-        ASSERT_EQ(TLV_OK, tlv_der_read(data.data(), data.size(), nullptr, &view, &used, nullptr));
+        tlv_element_t element{};
+        ASSERT_EQ(TLV_OK,
+                  tlv_der_read(data.data(), data.size(), nullptr, &element, &used, nullptr));
         EXPECT_EQ(required, used);
-        EXPECT_EQ(length, view.value.length);
-        ASSERT_EQ(TLV_OK, tlv_der_write(again.data(), again.size(), view.tag, view.value.data,
-                                        view.value.length, nullptr, &written, nullptr));
+        EXPECT_EQ(length, element.value.size);
+        ASSERT_EQ(TLV_OK, tlv_der_write(again.data(), again.size(), element.tag, element.value.data,
+                                        element.value.size, nullptr, &written, nullptr));
         EXPECT_EQ(data, again);
     }
     const auto& format = tlv_format_der;
-    uint8_t     bytes[sizeof(size_t) + 1];
-    size_t      written, actual, used;
+    uint8_t     bytes[sizeof(tlv_size_t) + 1];
+    size_t      written, used;
+    tlv_size_t  actual;
     ASSERT_EQ(TLV_OK,
               tlv_format_der.write_length(nullptr, bytes, sizeof(bytes), SIZE_MAX, &written));
     ASSERT_EQ(TLV_OK, format.read_length(nullptr, bytes, written, &actual, &used));
@@ -107,21 +109,21 @@ TEST(Integration_Tlv_Der, InvalidFieldsHaveOffsetsAndPreserveOutputs) {
     cases.push_back({{0x9F, 0x1E, 0}, TLV_ERR_INVALID_TAG, 0});
     cases.push_back({{0x9F, 0x80, 0x1F, 0}, TLV_ERR_INVALID_TAG, 0});
     cases.push_back({{0x9F}, TLV_ERR_BUFFER_TOO_SHORT, 0});
-    std::vector<uint8_t> overflow(sizeof(size_t) + 3, 0);
+    std::vector<uint8_t> overflow(sizeof(tlv_size_t) + 3, 0);
     overflow[0] = 4;
-    overflow[1] = static_cast<uint8_t>(0x80 | (sizeof(size_t) + 1));
+    overflow[1] = static_cast<uint8_t>(0x80 | (sizeof(tlv_size_t) + 1));
     overflow[2] = 1;
     cases.push_back({overflow, TLV_ERR_INVALID_LENGTH, 1});
     for (const auto& item : cases) {
         SCOPED_TRACE(::testing::PrintToString(item.bytes));
-        tlv_view_t view{TLV_TAG(0x55), {nullptr, 42}};
-        size_t     consumed = 42, offset = 99;
-        EXPECT_EQ(item.error, tlv_der_read(item.bytes.data(), item.bytes.size(), nullptr, &view,
+        tlv_element_t element{TLV_TAG(0x55), {}, {nullptr, 42}};
+        size_t        consumed = 42, offset = 99;
+        EXPECT_EQ(item.error, tlv_der_read(item.bytes.data(), item.bytes.size(), nullptr, &element,
                                            &consumed, &offset));
         EXPECT_EQ(item.offset, offset);
         EXPECT_EQ(42u, consumed);
-        EXPECT_EQ(0x55, view.tag.data[0]);
-        EXPECT_EQ(42u, view.value.length);
+        EXPECT_EQ(0x55, element.tag.data[0]);
+        EXPECT_EQ(42u, element.value.size);
     }
 }
 
@@ -131,8 +133,9 @@ struct Visit {
     size_t  depth;
     uint8_t tag;
 };
-tlv_visit_result_t collect(const tlv_view_t* view, size_t depth, size_t offset, void* context) {
-    static_cast<std::vector<Visit>*>(context)->push_back({offset, depth, view->tag.data[0]});
+tlv_visit_result_t collect(const tlv_element_t* element, size_t depth, size_t offset,
+                           void* context) {
+    static_cast<std::vector<Visit>*>(context)->push_back({offset, depth, element->tag.data[0]});
     return TLV_VISIT_CONTINUE;
 }
 } // namespace
@@ -150,14 +153,14 @@ TEST(Integration_Tlv_Der, NestedTraversalAndEncoding) {
         EXPECT_EQ(data[offsets[i]], visits[i].tag);
     }
     EXPECT_EQ(99u, offset);
-    tlv_view_t view{};
-    size_t     consumed, written;
-    ASSERT_EQ(TLV_OK, tlv_der_read(data, sizeof(data), nullptr, &view, &consumed, nullptr));
+    tlv_element_t element{};
+    size_t        consumed, written;
+    ASSERT_EQ(TLV_OK, tlv_der_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(11u, consumed);
-    EXPECT_EQ(data + 2, view.value.data);
+    EXPECT_EQ(data + 2, element.value.data);
     uint8_t output[11];
-    ASSERT_EQ(TLV_OK, tlv_der_write(output, sizeof(output), view.tag, view.value.data,
-                                    view.value.length, nullptr, &written, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_der_write(output, sizeof(output), element.tag, element.value.data,
+                                    element.value.size, nullptr, &written, nullptr));
     EXPECT_EQ(11u, written);
     EXPECT_EQ(0, std::memcmp(data, output, written));
 }
@@ -234,33 +237,34 @@ TEST(Integration_Tlv_Der, BerCompatibilityAndGenericFormat) {
     std::vector<std::vector<uint8_t>> cases = {{4, 0x81, 0}, {4, 0x82, 0, 0}, {0x24, 0}};
     cases.push_back({0x9F, 0x1C, 0});
     for (const auto& data : cases) {
-        tlv_view_t view{};
-        size_t     used;
+        tlv_element_t element{};
+        size_t        used;
 #if OPENTLV_FORMAT_BER
-        ASSERT_EQ(TLV_OK, tlv_read(data.data(), data.size(), &tlv_format_ber, &view, &used));
+        ASSERT_EQ(TLV_OK, tlv_read(data.data(), data.size(), &tlv_format_ber, &element, &used));
 #endif
-        EXPECT_NE(TLV_OK, tlv_read(data.data(), data.size(), &tlv_format_der, &view, &used));
+        EXPECT_NE(TLV_OK, tlv_read(data.data(), data.size(), &tlv_format_der, &element, &used));
     }
     // Generic I/O intentionally only validates the outer header.
     const uint8_t data[] = {0x30, 2, 0, 0};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        used;
-    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_format_der, &view, &used));
+    ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &tlv_format_der, &element, &used));
     EXPECT_EQ(TLV_ERR_INVALID_TAG,
-              tlv_der_read(data, sizeof(data), nullptr, &view, &used, nullptr));
+              tlv_der_read(data, sizeof(data), nullptr, &element, &used, nullptr));
 }
 
 TEST(Integration_Tlv_Der, StrictReadWriteRoundTripsCanonicalStructure) {
     /* SEQUENCE { BOOLEAN TRUE, INTEGER 300, UTF8String "ok", NULL } */
     const uint8_t data[] = {0x30, 13,   0x01, 1,   0xFF, 0x02, 2, 0x01,
                             0x2C, 0x0C, 2,    'o', 'k',  0x05, 0};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 0, written = 0;
-    ASSERT_EQ(TLV_OK, tlv_der_read_strict(data, sizeof(data), nullptr, &view, &consumed, nullptr));
+    ASSERT_EQ(TLV_OK,
+              tlv_der_read_strict(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(sizeof(data), consumed);
     uint8_t output[sizeof(data)];
-    ASSERT_EQ(TLV_OK, tlv_der_write_strict(output, sizeof(output), view.tag, view.value.data,
-                                           view.value.length, nullptr, &written, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_der_write_strict(output, sizeof(output), element.tag, element.value.data,
+                                           element.value.size, nullptr, &written, nullptr));
     EXPECT_EQ(sizeof(data), written);
     EXPECT_EQ(0, std::memcmp(data, output, written));
 }
@@ -268,11 +272,11 @@ TEST(Integration_Tlv_Der, StrictReadWriteRoundTripsCanonicalStructure) {
 TEST(Integration_Tlv_Der, StrictReadRejectsNestedNoncanonicalContentButNonStrictAccepts) {
     /* SEQUENCE { OCTET STRING "x", BOOLEAN 0x01 (noncanonical) } */
     const uint8_t data[] = {0x30, 6, 0x04, 1, 'x', 0x01, 1, 0x01};
-    tlv_view_t    view{};
+    tlv_element_t element{};
     size_t        consumed = 0, offset = 99;
-    ASSERT_EQ(TLV_OK, tlv_der_read(data, sizeof(data), nullptr, &view, &consumed, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_der_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
-              tlv_der_read_strict(data, sizeof(data), nullptr, &view, &consumed, &offset));
+              tlv_der_read_strict(data, sizeof(data), nullptr, &element, &consumed, &offset));
     EXPECT_EQ(7u, offset);
     uint8_t output[sizeof(data)];
     size_t  written = 42;
@@ -287,14 +291,14 @@ TEST(Integration_Tlv_Der, StrictReadRejectsNestedNoncanonicalContentButNonStrict
 TEST(Integration_Tlv_Der, TagSizeLimitAndNumericOverflow) {
     std::vector<uint8_t> data(TLV_ASN1_TAG_MAX_SIZE + 1, 0x81);
     data[0] = 0x9F;
-    tlv_view_t view{};
-    size_t     used;
+    tlv_element_t element{};
+    size_t        used;
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
-              tlv_der_read(data.data(), data.size(), nullptr, &view, &used, nullptr));
+              tlv_der_read(data.data(), data.size(), nullptr, &element, &used, nullptr));
     data[TLV_ASN1_TAG_MAX_SIZE - 1] = 0x7F;
     data[TLV_ASN1_TAG_MAX_SIZE] = 0;
-    ASSERT_EQ(TLV_OK, tlv_der_read(data.data(), data.size(), nullptr, &view, &used, nullptr));
-    EXPECT_EQ(static_cast<size_t>(TLV_ASN1_TAG_MAX_SIZE), view.tag.size);
+    ASSERT_EQ(TLV_OK, tlv_der_read(data.data(), data.size(), nullptr, &element, &used, nullptr));
+    EXPECT_EQ(static_cast<size_t>(TLV_ASN1_TAG_MAX_SIZE), element.tag.size);
     uint64_t number = 42;
-    EXPECT_EQ(TLV_OK, tlv_der_tag_number(&view.tag, &number));
+    EXPECT_EQ(TLV_OK, tlv_der_tag_number(&element.tag, &number));
 }
