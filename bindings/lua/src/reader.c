@@ -12,7 +12,7 @@ typedef struct tlv_lua_reader {
     /* Registry references keeping the source string and the format object
      * alive for as long as this reader is: `reader.data` borrows the
      * string's bytes, and `reader.format` (for opentlv.formats.fixed())
-     * borrows the format object's embedded tlv_fixed_config_t. */
+     * borrows the format object's embedded tlv_fixed_format_t. */
     int data_ref;
     int format_ref;
 } tlv_lua_reader_t;

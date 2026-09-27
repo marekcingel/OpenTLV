@@ -33,11 +33,11 @@ target_link_libraries(example-tlv++-quick-start PRIVATE tlv++)
 opentlv_configure_compiler(example-tlv++-quick-start)
 opentlv_copy_shared_runtime(example-tlv++-quick-start)
 
-# Builtin-specific example: defines a fixed-width format at compile time.
-add_executable(example-tlv++-builtins-fixed-format src/builtins/fixed/fixed_format.cpp)
-target_link_libraries(example-tlv++-builtins-fixed-format PRIVATE tlv++)
-opentlv_configure_compiler(example-tlv++-builtins-fixed-format)
-opentlv_copy_shared_runtime(example-tlv++-builtins-fixed-format)
+# Generic-format example: defines a fixed-width format at compile time.
+add_executable(example-tlv++-formats-fixed-format src/formats/fixed_format.cpp)
+target_link_libraries(example-tlv++-formats-fixed-format PRIVATE tlv++)
+opentlv_configure_compiler(example-tlv++-formats-fixed-format)
+opentlv_copy_shared_runtime(example-tlv++-formats-fixed-format)
 
 # Use-case examples shared across languages: the same document is parsed,
 # written, queried and validated in examples/tlv, examples/tlv++ and

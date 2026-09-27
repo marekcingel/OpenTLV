@@ -20,9 +20,9 @@ operation can be compared across languages.
 - [`basic_usage.cpp`](basic_usage.cpp) -- a sequential `tlv::writer`/`tlv::reader`
   round trip over the default format.
 
-## Builtins
+## Formats
 
-Examples specific to one wire format.
+Generic, protocol-agnostic format mechanisms.
 
-- [`builtins/fixed/fixed_format.cpp`](builtins/fixed/fixed_format.cpp) --
+- [`formats/fixed_format.cpp`](formats/fixed_format.cpp) --
   `tlv::fixed_format<>`, a compile-time configurable fixed-width format.

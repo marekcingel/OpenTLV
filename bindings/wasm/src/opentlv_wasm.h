@@ -51,7 +51,7 @@ typedef struct opentlv_wasm_result opentlv_wasm_result_t;
  * for none, or "emv" (EMV Contact Book 3 tags) with the "ber" format.
  * `fixed_tag_size`, `fixed_length_size` and `fixed_big_endian` (nonzero for
  * big-endian) configure `format == "fixed"`'s tag width, length width (1-8
- * bytes) and length byte order (tlv_fixed_config_t); ignored for every other
+ * bytes) and length byte order (tlv_fixed_format_t); ignored for every other
  * format. Returns NULL only when memory runs out. An unknown format or
  * profile, invalid fixed-format widths, or invalid input, is reported through
  * the result, never by returning NULL.

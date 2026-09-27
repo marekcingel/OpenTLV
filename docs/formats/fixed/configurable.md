@@ -11,15 +11,15 @@ configuration your application reuses.
 
 Two equivalent APIs share this wire layout:
 
-- **C**, `tlv_fixed_config_t`: chosen at runtime, checked when the format is initialized.
+- **C**, `tlv_fixed_format_t`: chosen at runtime, checked when the format is initialized.
 - **C++**, `tlv::fixed_format<TagWidth, LengthWidth, Order>`: chosen at compile time, checked with `static_assert`.
 
 ## API and build
 
 | Setting | C | C++ |
 | --- | --- | --- |
-| Header | `tlv/builtins/fixed/fixed.h` | `tlv++/builtins/fixed/fixed_format.hpp` (also usable without the rest of `tlv++`) |
-| Configuration | `tlv_fixed_config_t{tag_size, length_size, order}` | `tlv::fixed_format<TagWidth, LengthWidth, Order>` |
+| Header | `tlv/formats/fixed.h` | `tlv++/formats/fixed_format.hpp` (also usable without the rest of `tlv++`) |
+| Configuration | `tlv_fixed_format_t{tag_size, length_size, order}` | `tlv::fixed_format<TagWidth, LengthWidth, Order>` |
 | Descriptor | `tlv_fixed_format_init(&format, &config)` | `fixed_format<...>::format()` returns `const tlv_format_t&` |
 | CMake option (default ON) | `OPENTLV_FORMAT_FIXED` | none (C++ header) |
 | Link target | `tlv` | `tlv++` |
@@ -39,7 +39,7 @@ performs allocation.
 | Length byte order | `order` | `Order` | `TLV_BYTE_ORDER_BIG_ENDIAN`, `TLV_BYTE_ORDER_LITTLE_ENDIAN` |
 
 An out-of-range C++ template argument fails to compile with a `static_assert`
-message; an invalid C `tlv_fixed_config_t` is rejected at init time (see
+message; an invalid C `tlv_fixed_format_t` is rejected at init time (see
 [Errors](#errors)).
 
 ## Wire layout
@@ -75,14 +75,14 @@ Element (7 bytes)
 
 ## Example (C)
 
-<!-- example: examples/tlv/src/builtins/fixed/fixed_format.c -->
+<!-- example: examples/tlv/src/formats/fixed_format.c -->
 ```c
 /*
  * Defines a fixed-width TLV format at runtime: two tag bytes and a one-byte
- * length, then writes and reads one element. See tlv/builtins/fixed/fixed.h.
+ * length, then writes and reads one element. See tlv/formats/fixed.h.
  */
 #include <stdio.h>
-#include "tlv/builtins/fixed/fixed.h"
+#include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
@@ -96,7 +96,7 @@ Element (7 bytes)
     } while (0)
 
 int main(void) {
-    const tlv_fixed_config_t config = {
+    const tlv_fixed_format_t config = {
         .tag_size = 2, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
     /* config must outlive every reader and writer built from it. */
     tlv_format_t format;
@@ -118,7 +118,7 @@ int main(void) {
 
 ## Example (C++)
 
-<!-- example: examples/tlv++/src/builtins/fixed/fixed_format.cpp -->
+<!-- example: examples/tlv++/src/formats/fixed_format.cpp -->
 ```cpp
 // Defines a fixed-width TLV format at compile time: two tag bytes and a
 // two-byte little-endian length, then writes and reads one element.
@@ -126,7 +126,7 @@ int main(void) {
 #include <cstddef>
 #include <iostream>
 
-#include "tlv++/builtins/fixed/fixed_format.hpp"
+#include "tlv++/formats/fixed_format.hpp"
 #include "tlv++/tlv.hpp"
 
 using format = tlv::fixed_format<2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN>;

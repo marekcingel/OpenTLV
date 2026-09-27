@@ -50,7 +50,7 @@ Rust or Python view can) and `offset`, the absolute position of the entry's
 tag within `data`. `format` defaults to `opentlv.formats.default`; pass
 `opentlv.formats.ber`, `.cer`, `.der`, `.bluetooth_ltv`, or
 `opentlv.formats.fixed(tag_size, length_size, byte_order)` (`byte_order` is
-`"big"` or `"little"`, equivalent to the C `tlv_fixed_config_t`) for another
+`"big"` or `"little"`, equivalent to the C `tlv_fixed_format_t`) for another
 wire format. Constructed entries are not expanded automatically; construct a
 new reader over `entry.value` to descend, as in the runnable example below.
 

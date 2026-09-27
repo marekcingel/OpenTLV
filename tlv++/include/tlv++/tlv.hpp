@@ -11,7 +11,7 @@
 #include "tlv/tlv.h"
 #include "tlv++/codec/codec.hpp"
 #include "tlv++/diagnostic.hpp"
-#include "tlv++/builtins/fixed/fixed_format.hpp"
+#include "tlv++/formats/fixed_format.hpp"
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/writer/writer.hpp"
 #include "tlv++/codec/registry.hpp"

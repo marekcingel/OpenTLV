@@ -27,7 +27,7 @@ impl From<ByteOrder> for native::tlv_byte_order_t {
 /// A runtime-configurable fixed-width TLV format: independent tag width,
 /// length width (1 to 8 bytes) and length byte order.
 ///
-/// Equivalent to the C `tlv_fixed_config_t` and `tlv_fixed_format_init()`. A
+/// Equivalent to the C `tlv_fixed_format_t` and `tlv_fixed_format_init()`. A
 /// one-byte tag and a one-byte big-endian length is
 /// `FixedFormat::new(1, 1, ByteOrder::Big)`.
 ///
@@ -47,7 +47,7 @@ impl From<ByteOrder> for native::tlv_byte_order_t {
 pub struct FixedFormat {
     // Heap-allocated so its address stays stable even when `FixedFormat`
     // itself is moved; `format` below borrows it as its context.
-    config: Box<native::tlv_fixed_config_t>,
+    config: Box<native::tlv_fixed_format_t>,
     format: native::tlv_format_t,
 }
 
@@ -60,7 +60,7 @@ impl FixedFormat {
     /// greater than 8; [`Error::InvalidByteOrder`] cannot occur since `order`
     /// is always a valid [`ByteOrder`].
     pub fn new(tag_size: usize, length_size: usize, order: ByteOrder) -> Result<FixedFormat> {
-        let config = Box::new(native::tlv_fixed_config_t {
+        let config = Box::new(native::tlv_fixed_format_t {
             tag_size,
             length_size,
             order: order.into(),

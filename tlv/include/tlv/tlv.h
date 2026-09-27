@@ -31,7 +31,7 @@
 #include "tlv/builtins/fixed/default.h"
 #endif
 #if OPENTLV_FORMAT_FIXED
-#include "tlv/builtins/fixed/fixed.h"
+#include "tlv/formats/fixed.h"
 #endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"

@@ -1,4 +1,4 @@
-# Layered OpenTLV architecture (#65, #279, #280, #281)
+# Layered OpenTLV architecture (#65, #279, #280, #281, #327)
 
 OpenTLV provides one C library (`tlv`) and a header-only C++ interface (`tlv++`)
 that links to it. Core is a logical responsibility, not a directory. Optional
@@ -20,12 +20,22 @@ format implementations never need to be named by the reader/writer. A codec
 does not have to use a schema. Existing C++ tag-associated codecs remain valid.
 Bindings are part of the codec area, not another architectural layer.
 
-Formats and profiles are roles, not folders: every concrete format or profile
-implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV, the fixed formats)
-lives under `builtins/<protocol>/`, grouped by protocol rather than by role,
-so all of a protocol's format, schema, codec and profile files sit together.
-Generic subsystems (`reader/`, `writer/`, `query/`, `schema/`, `codec/`,
-`document/`) never depend on `builtins/`.
+Formats and profiles are roles, not folders: every protocol-specific format or
+profile implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV, the one-byte
+default format) lives under `builtins/<protocol>/`, grouped by protocol rather
+than by role, so all of a protocol's format, schema, codec and profile files
+sit together. Generic subsystems (`reader/`, `writer/`, `query/`, `schema/`,
+`codec/`, `document/`) never depend on `builtins/`.
+
+A format mechanism that names no protocol -- it is parameterized entirely by
+caller-supplied widths and byte order, with no knowledge of any concrete
+wire standard -- lives under the separate top-level `formats/` instead. The
+configurable fixed-width format is the only member so far; other protocol-
+agnostic mechanisms (not per-protocol formats) would join it there. This is
+narrower than the pre-#279 `tlv/formats/` (see Migration): that one held
+every concrete format regardless of whether it was protocol-specific, and was
+retired in favor of `builtins/<protocol>/` for exactly the protocol-specific
+ones. `formats/` returns only for mechanisms that stay protocol-agnostic.
 
 `reader/scanner` is a recovery utility above the raw reader and schema lookup.
 Its location groups reading-related tools, without classifying every file in
@@ -48,8 +58,10 @@ tlv/
   writer/    writer.h
   schema/    schema.h
   codec/     codec.h, structure.h
+  formats/
+    fixed.h
   builtins/
-    fixed/     default.h, fixed.h
+    fixed/     default.h
     bluetooth/ bluetooth_ltv.h
     asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
     emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
@@ -58,9 +70,10 @@ tlv/
 The tree shows the public layout; corresponding implementation files use `.c`.
 Small fundamental types (`tag.h`, `length.h`, `value.h`, `view.h`, and the
 generic `format.h` descriptor contracts) sit directly under `tlv/`, alongside
-the generic subsystem folders. Every concrete format or profile OpenTLV ships
-lives under `builtins/<protocol>/`, so all of a protocol's functionality is
-in one place instead of scattered across role-based folders: EMV's schema,
+the generic subsystem folders. `formats/fixed.h` holds the one format
+mechanism that names no protocol; every protocol-specific format or profile
+OpenTLV ships lives under `builtins/<protocol>/`, so all of a protocol's
+functionality is in one place instead of scattered across role-based folders: EMV's schema,
 codec, DOL and umbrella profile header are all under `builtins/emv/`, and
 ASN.1's wire formats and bounded DER/CER profile operations are all under
 `builtins/asn1/`. Wire-level `der.h`/`cer.h` and the bounded profile headers
@@ -87,8 +100,9 @@ tlv++/
   writer/    writer.hpp
   schema/    schema.hpp
   codec/     codec.hpp, structure.hpp, registry.hpp
+  formats/
+    fixed_format.hpp
   builtins/
-    fixed/ fixed_format.hpp
     asn1/  ber.hpp
 ```
 
@@ -215,7 +229,7 @@ to ON and can be disabled independently:
 | CMake option / generated config macro | Included component |
 | --- | --- |
 | `OPENTLV_FORMAT_DEFAULT` | One-byte tag with legacy definite BER-style length |
-| `OPENTLV_FORMAT_FIXED` | Configurable fixed-width tag and length (`tlv_fixed_config_t`) |
+| `OPENTLV_FORMAT_FIXED` | Configurable fixed-width tag and length (`tlv_fixed_format_t`) |
 | `OPENTLV_FORMAT_BLUETOOTH_LTV` | Bluetooth Length, Type, Value framing |
 | `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER, CER) |
 | `OPENTLV_FORMAT_BER` | Public BER format |
@@ -257,7 +271,7 @@ guarantee or an exhaustive migration guide.
 
 Update flat includes to the folders above (`tlv/reader.h` becomes
 `tlv/reader/reader.h`, and so on). Concrete format declarations use
-`tlv/builtins/fixed/default.h`, `tlv/builtins/fixed/fixed.h`,
+`tlv/builtins/fixed/default.h`, `tlv/formats/fixed.h`,
 `tlv/builtins/asn1/ber.h`, or `tlv/builtins/asn1/der.h`; the public
 aggregate includes enabled formats.
 
@@ -326,5 +340,17 @@ each replace their separate `reader_format`/`writer_format` pointers with one
 parameter. `tlv::document_format` and `tlv::fixed_format<>` (`tlv++`) collapse
 the same way, with `fixed_format<>::reader()`/`::writer()` replaced by
 `::format()`. Rebuild all consumers. (#326)
+
+Move the configurable fixed-width format out of `builtins/` into the new
+top-level `formats/`, since it names no protocol: `tlv/builtins/fixed/fixed.h`
+becomes `tlv/formats/fixed.h`, and `tlv++/builtins/fixed/fixed_format.hpp`
+becomes `tlv++/formats/fixed_format.hpp`. This is a narrower, second
+reintroduction of a `formats/` folder than the one #279 removed (see above):
+it holds only mechanisms that are themselves protocol-agnostic, not every
+concrete format regardless of protocol, so `tlv/builtins/fixed/default.h`
+(the unrelated one-byte default format, which does name a protocol shape) stays
+under `builtins/fixed/`. `tlv_fixed_config_t` is renamed to `tlv_fixed_format_t`
+without any other change to its fields or to `tlv_fixed_format_init()`'s
+behavior. No compatibility shim; rebuild all consumers. (#327)
 
 See also the generated [C API reference](../reference/c-api.md) and [C++ API reference](../reference/cxx-api.md).

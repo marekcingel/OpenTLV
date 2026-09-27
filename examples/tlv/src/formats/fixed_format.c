@@ -1,9 +1,9 @@
 /*
  * Defines a fixed-width TLV format at runtime: two tag bytes and a one-byte
- * length, then writes and reads one element. See tlv/builtins/fixed/fixed.h.
+ * length, then writes and reads one element. See tlv/formats/fixed.h.
  */
 #include <stdio.h>
-#include "tlv/builtins/fixed/fixed.h"
+#include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
@@ -17,7 +17,7 @@
     } while (0)
 
 int main(void) {
-    const tlv_fixed_config_t config = {
+    const tlv_fixed_format_t config = {
         .tag_size = 2, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
     /* config must outlive every reader and writer built from it. */
     tlv_format_t format;

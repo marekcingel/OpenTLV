@@ -46,7 +46,7 @@ set(SOURCES
     builtins/emv/tag_c_test.c
     builtins/bluetooth/format_bluetooth_ltv_test.cpp
     builtins/bluetooth/format_bluetooth_ltv_conformance_test.cpp
-    builtins/fixed/format_fixed_test.cpp
+    formats/format_fixed_test.cpp
     builtins/fixed/dhcp_option_tests.cpp
 )
 
@@ -87,7 +87,7 @@ if(NOT (OPENTLV_FORMAT_BER))
                                  schema/schema_report_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_FIXED))
-    list(REMOVE_ITEM SOURCES builtins/fixed/format_fixed_test.cpp)
+    list(REMOVE_ITEM SOURCES formats/format_fixed_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_BLUETOOTH_LTV))
     list(REMOVE_ITEM SOURCES builtins/bluetooth/format_bluetooth_ltv_test.cpp

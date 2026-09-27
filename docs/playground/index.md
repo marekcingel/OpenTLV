@@ -67,7 +67,7 @@ in all of them.
 - **JSON**: the parse result as JSON, with a **Copy JSON** button.
 
 Choosing **Fixed-width TLV** reveals tag size, length size (1-8 bytes) and length
-byte order controls, matching the C `tlv_fixed_config_t`/C++ `tlv::fixed_format`
+byte order controls, matching the C `tlv_fixed_format_t`/C++ `tlv::fixed_format`
 [configurable fixed-width format](../formats/fixed/configurable.md); they default
 to a one-byte tag, a one-byte length and big-endian.
 

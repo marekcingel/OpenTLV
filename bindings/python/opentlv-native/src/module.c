@@ -10,7 +10,7 @@
 #include <tlv/builtins/asn1/der.h>
 #include <tlv/builtins/emv/emv_codec.h>
 #include <tlv/builtins/fixed/default.h>
-#include <tlv/builtins/fixed/fixed.h>
+#include <tlv/formats/fixed.h>
 #include <tlv/codec/codec.h>
 #include <tlv/document/document.h>
 #include <tlv/error.h>
@@ -1045,10 +1045,10 @@ static PyObject* opentlv_native_encoded_size(PyObject* module, PyObject* args) {
     return PyLong_FromSize_t(size);
 }
 
-/* Builds and validates a tlv_fixed_config_t from Python-parsed arguments.
+/* Builds and validates a tlv_fixed_format_t from Python-parsed arguments.
  * Returns 1 on success; on failure a ValueError is set and *out is unusable. */
 static int fixed_config_from_args(Py_ssize_t tag_size, Py_ssize_t length_size, int big_endian,
-                                  tlv_fixed_config_t* out) {
+                                  tlv_fixed_format_t* out) {
     if (tag_size < 1) {
         PyErr_SetString(PyExc_ValueError, "tag_size must be at least 1");
         return 0;
@@ -1077,7 +1077,7 @@ static PyObject* opentlv_native_read_fixed(PyObject* module, PyObject* args) {
     if (!PyArg_ParseTuple(args, "y*nnnp", &buffer, &offset, &tag_size, &length_size, &big_endian)) {
         return NULL;
     }
-    tlv_fixed_config_t config;
+    tlv_fixed_format_t config;
     if (!fixed_config_from_args(tag_size, length_size, big_endian, &config)) {
         PyBuffer_Release(&buffer);
         return NULL;
@@ -1147,7 +1147,7 @@ static PyObject* opentlv_native_write_fixed(PyObject* module, PyObject* args) {
                           &length_size, &big_endian)) {
         return NULL;
     }
-    tlv_fixed_config_t config;
+    tlv_fixed_format_t config;
     if (!fixed_config_from_args(tag_size, length_size, big_endian, &config)) {
         PyBuffer_Release(&buffer);
         PyBuffer_Release(&tag_buf);
@@ -1203,7 +1203,7 @@ static PyObject* opentlv_native_encoded_size_fixed(PyObject* module, PyObject* a
                           &big_endian)) {
         return NULL;
     }
-    tlv_fixed_config_t config;
+    tlv_fixed_format_t config;
     if (!fixed_config_from_args(tag_size, length_size, big_endian, &config)) {
         PyBuffer_Release(&tag_buf);
         return NULL;

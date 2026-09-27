@@ -1,5 +1,5 @@
-#ifndef OPENTLV_TLVPP_BUILTINS_FIXED_FIXED_FORMAT_HPP
-#define OPENTLV_TLVPP_BUILTINS_FIXED_FIXED_FORMAT_HPP
+#ifndef OPENTLV_TLVPP_FORMATS_FIXED_FORMAT_HPP
+#define OPENTLV_TLVPP_FORMATS_FIXED_FORMAT_HPP
 
 #include "tlv/endian.h"
 #include "tlv/format.h"
@@ -35,7 +35,7 @@ namespace tlv {
  * The descriptor returned by format() has static storage duration and a
  * `NULL` context, so it never needs lifetime management. The format performs
  * no allocation and reads values in place. Errors match the C
- * `tlv_fixed_config_t`-based format for the same widths and byte order:
+ * `tlv_fixed_format_t`-based format for the same widths and byte order:
  * - #TLV_ERR_BUFFER_TOO_SHORT when the input holds fewer bytes than a field
  *   needs, or the output has less capacity than a field needs;
  * - #TLV_ERR_INVALID_TAG_SIZE when a written tag is not `TagWidth` bytes;
@@ -46,8 +46,8 @@ namespace tlv {
  * @tparam LengthWidth Length field width in bytes.
  * @tparam Order       Byte order of the length field.
  *
- * @see tlv_fixed_config_t for the same format chosen at runtime instead of
- *      compile time (tlv/builtins/fixed/fixed.h).
+ * @see tlv_fixed_format_t for the same format chosen at runtime instead of
+ *      compile time (tlv/formats/fixed.h).
  */
 template <std::size_t TagWidth, std::size_t LengthWidth, tlv_byte_order_t Order>
 class fixed_format {
@@ -134,4 +134,4 @@ constexpr std::uint64_t fixed_format<TagWidth, LengthWidth, Order>::max_length;
 
 } // namespace tlv
 
-#endif // OPENTLV_TLVPP_BUILTINS_FIXED_FIXED_FORMAT_HPP
+#endif // OPENTLV_TLVPP_FORMATS_FIXED_FORMAT_HPP

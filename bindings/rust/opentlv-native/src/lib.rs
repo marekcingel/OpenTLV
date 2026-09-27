@@ -219,10 +219,10 @@ pub struct tlv_reader_t {
     pub pos: usize,
 }
 
-/// Configuration for the configurable fixed-width format (`tlv_fixed_config_t`).
+/// State describing a configurable fixed-width format (`tlv_fixed_format_t`).
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
-pub struct tlv_fixed_config_t {
+pub struct tlv_fixed_format_t {
     /// Tag width in bytes; must be at least 1.
     pub tag_size: usize,
     /// Length field width in bytes; must be between 1 and 8.
@@ -282,7 +282,7 @@ extern "C" {
     /// format's context.
     pub fn tlv_fixed_format_init(
         format: *mut tlv_format_t,
-        config: *const tlv_fixed_config_t,
+        config: *const tlv_fixed_format_t,
     ) -> tlv_result_t;
 
     /// Returns the library version as a NUL-terminated static string, for example `"0.6.0"`.

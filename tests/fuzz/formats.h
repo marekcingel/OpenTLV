@@ -6,7 +6,7 @@
 #include "tlv/builtins/fixed/default.h"
 #endif
 #if OPENTLV_FORMAT_FIXED
-#include "tlv/builtins/fixed/fixed.h"
+#include "tlv/formats/fixed.h"
 #endif
 #if OPENTLV_FORMAT_BLUETOOTH_LTV
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
@@ -27,9 +27,9 @@ static inline int fuzz_constructed(const void* context, const tlv_tag_t* tag) {
 
 #if OPENTLV_FORMAT_FIXED
 /* One tag byte and one length byte: populated by LLVMFuzzerInitialize()
- * below, since tlv_fixed_config_t-based formats need a runtime init call
+ * below, since tlv_fixed_format_t-based formats need a runtime init call
  * and cannot be compile-time constants like the other entries here. */
-static const tlv_fixed_config_t fuzz_fixed_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+static const tlv_fixed_format_t fuzz_fixed_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
 static tlv_format_t             fuzz_fixed_format;
 #endif
 

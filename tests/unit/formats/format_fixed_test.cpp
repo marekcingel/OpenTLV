@@ -1,11 +1,11 @@
-#include "tlv/builtins/fixed/fixed.h"
+#include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 
 TEST(Unit_Tlv_Fixed, InitAcceptsValidConfigs) {
-    const tlv_fixed_config_t configs[] = {
+    const tlv_fixed_format_t configs[] = {
         {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN},    {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN},
         {1, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN}, {2, 2, TLV_BYTE_ORDER_LITTLE_ENDIAN},
         {255, 8, TLV_BYTE_ORDER_BIG_ENDIAN},
@@ -32,8 +32,8 @@ TEST(Unit_Tlv_Fixed, InitAcceptsValidConfigs) {
 }
 
 TEST(Unit_Tlv_Fixed, InitRejectsInvalidArgumentsWithoutModification) {
-    const tlv_fixed_config_t valid = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
-    const tlv_fixed_config_t invalid_configs[] = {
+    const tlv_fixed_format_t valid = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t invalid_configs[] = {
         {0, 1, TLV_BYTE_ORDER_BIG_ENDIAN},
         {1, 0, TLV_BYTE_ORDER_BIG_ENDIAN},
         {1, 9, TLV_BYTE_ORDER_BIG_ENDIAN},
@@ -65,8 +65,8 @@ TEST(Unit_Tlv_Fixed, InitRejectsInvalidArgumentsWithoutModification) {
 }
 
 TEST(Unit_Tlv_Fixed, InitRejectsInvalidByteOrder) {
-    const tlv_fixed_config_t unknown = {1, 2, TLV_BYTE_ORDER_UNKNOWN};
-    const tlv_fixed_config_t bogus = {1, 2, static_cast<tlv_byte_order_t>(99)};
+    const tlv_fixed_format_t unknown = {1, 2, TLV_BYTE_ORDER_UNKNOWN};
+    const tlv_fixed_format_t bogus = {1, 2, static_cast<tlv_byte_order_t>(99)};
     tlv_format_t             reader{};
     tlv_format_t             writer{};
     EXPECT_EQ(TLV_ERR_INVALID_BYTE_ORDER, tlv_fixed_format_init(&reader, &unknown));
@@ -76,7 +76,7 @@ TEST(Unit_Tlv_Fixed, InitRejectsInvalidByteOrder) {
 }
 
 TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
-    const tlv_fixed_config_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
     tlv_format_t             format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     const uint8_t data[] = {0x12, 0x34, 0x03, 0xAA, 0xBB, 0xCC};
@@ -94,7 +94,7 @@ TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
 }
 
 TEST(Unit_Tlv_Fixed, InvalidWritesPreserveBufferAndPosition) {
-    const tlv_fixed_config_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
+    const tlv_fixed_format_t config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
     tlv_format_t             format{};
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     uint8_t data[258];

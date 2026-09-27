@@ -6,7 +6,7 @@
  */
 #include <string.h>
 #include <stdio.h>
-#include "tlv/builtins/fixed/fixed.h"
+#include "tlv/formats/fixed.h"
 #include "tlv/copy.h"
 #include "tlv/length.h"
 #include "tlv/reader/reader.h"
@@ -36,7 +36,7 @@ static void print_view(const tlv_view_t* view) {
 
 int main(void) {
     /* One tag byte and one length byte; config must outlive its readers and writers. */
-    const tlv_fixed_config_t config = {
+    const tlv_fixed_format_t config = {
         .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
     tlv_format_t format;
     CHECK(tlv_fixed_format_init(&format, &config));
