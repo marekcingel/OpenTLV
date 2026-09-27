@@ -172,7 +172,9 @@ TLV_API tlv_result_t tlv_write_diag(uint8_t* data, size_t capacity, const tlv_fo
  * @brief Sequential writer over a caller-owned buffer.
  *
  * Initialize with tlv_writer_init(). The writer never allocates; it borrows
- * its format and buffer, which must outlive it.
+ * its format and buffer, which must outlive it, transitively including the
+ * format's own context.
+ * @see @docs{guides/memory,format context ownership and lifetime}
  */
 typedef struct tlv_writer {
     /** Borrowed writer format. */

@@ -41,7 +41,7 @@ pub fn encoded_size(tag: &Tag, value_len: usize, format: Format) -> Result<usize
 /// # Errors
 ///
 /// Same as [`encoded_size`].
-pub fn encoded_size_fixed(tag: &Tag, value_len: usize, format: &FixedFormat) -> Result<usize> {
+pub fn encoded_size_fixed(tag: &Tag, value_len: usize, format: &FixedFormat<'_>) -> Result<usize> {
     let mut size = 0usize;
     // SAFETY: `format.raw()` points at storage owned by `format`,
     // borrowed for this call only, and `size` is a valid, writable `usize`.
@@ -98,7 +98,7 @@ impl<'a> Writer<'a> {
     }
 
     /// Creates a writer for a [`FixedFormat`]; `format` must outlive the writer.
-    pub fn with_fixed_format(buf: &'a mut [u8], format: &'a FixedFormat) -> Writer<'a> {
+    pub fn with_fixed_format<'f>(buf: &'a mut [u8], format: &'a FixedFormat<'f>) -> Writer<'a> {
         let mut raw = MaybeUninit::<native::tlv_writer_t>::uninit();
         // SAFETY: `raw` is writable; `buf` is a valid slice (a non-null
         // pointer even when empty); `format.raw()` points at storage

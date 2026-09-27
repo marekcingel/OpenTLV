@@ -25,8 +25,12 @@ extern "C" {
  * sequence, including nested elements, to a single application object. No tag
  * is prescribed for the complete object.
  *
- * Format, schema and context are all borrowed and must outlive every use of
- * the descriptor. The `decode` and `encode` callbacks follow the alignment,
+ * The descriptor's own `context` (passed to `decode`/`encode`), its `format`
+ * and its `schema` are all borrowed and must outlive every use of the
+ * descriptor; `format`'s own context is a separate, unrelated value with the
+ * same "borrowed, must outlive" rule, see
+ * @docs{guides/memory,format context ownership and lifetime}. The `decode`
+ * and `encode` callbacks follow the alignment,
  * ownership, capacity, overlap and error contracts of #tlv_codec_t. They must
  * be stable across sizing and writing and must consume or produce the
  * complete sequence.
