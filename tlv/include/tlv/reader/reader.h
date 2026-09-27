@@ -211,9 +211,8 @@ TLV_API int tlv_reader_at_end(const tlv_reader_t* reader);
 /**
  * @brief Reads the next TLV element and advances the reader.
  *
- * On success `*out_element` is set and the position advances. The tag is copied
- * into the view; the value points directly into the original buffer
- * (zero-copy).
+ * On success `*out_element` is set and the position advances. The tag, raw length
+ * and value borrow the original buffer; no bytes are copied.
  *
  * @param[in,out] reader    Reader to advance.
  * @param[out]    out_element Receives the next element.
@@ -223,7 +222,7 @@ TLV_API int tlv_reader_at_end(const tlv_reader_t* reader);
  *
  * @note On error both the reader position and `*out_element` remain unchanged.
  * @warning The caller must keep the original buffer alive while the returned
- *          view is used.
+ *          element is used.
  */
 TLV_API tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_element_t* out_element);
 

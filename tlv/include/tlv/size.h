@@ -13,7 +13,7 @@ extern "C" {
 /**
  * @file
  * @ingroup core
- * @brief Build-independent 64-bit TLV length type and checked conversions to `size_t`.
+ * @brief Build-independent 64-bit TLV size type and checked conversions to `size_t`.
  */
 
 /** @addtogroup core
@@ -21,12 +21,12 @@ extern "C" {
  */
 
 /**
- * @brief Logical TLV value length.
+ * @brief Logical TLV value size.
  *
  * Always a 64-bit unsigned range, independent of build configuration, the
  * current build's `size_t` width, or wire format.
  *
- * @warning A value may not be usable as an in-memory buffer length in the
+ * @warning A value may not be usable as an in-memory buffer size in the
  *          current build. Convert with tlv_size_to_native() or check with
  *          tlv_size_validate_native() before native-size use.
  */
@@ -49,37 +49,37 @@ typedef uint64_t tlv_size_t;
  * cannot fail for its numeric domain.
  *
  * @param[in]  size   Native size to convert.
- * @param[out] length Receives the length. Required.
+ * @param[out] logical_size Receives the logical size. Required.
  *
  * @return #TLV_OK on success.
- * @return #TLV_ERR_NULL_ARG if `length` is `NULL`; nothing is written.
+ * @return #TLV_ERR_NULL_ARG if `logical_size` is `NULL`; nothing is written.
  */
-TLV_API tlv_result_t tlv_size_from_native(size_t size, tlv_size_t* length);
+TLV_API tlv_result_t tlv_size_from_native(size_t size, tlv_size_t* logical_size);
 
 /**
  * @brief Narrows a #tlv_size_t to the current build's native size.
  *
- * @param[in]  length Length to convert.
+ * @param[in]  logical_size Logical size to convert.
  * @param[out] size   Receives the native size. Required; checked before the
  *                    range comparison.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `size` is `NULL`.
- * @return #TLV_ERR_INVALID_LENGTH if `length` exceeds `SIZE_MAX`; `*size` is
+ * @return #TLV_ERR_INVALID_LENGTH if `logical_size` exceeds `SIZE_MAX`; `*size` is
  *         left unchanged.
  *
  * @note Success does not prove that a buffer of that size exists, is
  *       accessible, or has sufficient capacity; actual bounds remain the
  *       caller's responsibility.
  */
-TLV_API tlv_result_t tlv_size_to_native(tlv_size_t length, size_t* size);
+TLV_API tlv_result_t tlv_size_to_native(tlv_size_t logical_size, size_t* size);
 
 /**
- * @brief Checks whether a length fits the current build's `size_t` range.
+ * @brief Checks whether a logical size fits the current build's `size_t` range.
  *
- * Neither converts the length nor accesses any memory.
+ * Neither converts the logical size nor accesses any memory.
  *
- * @param length Length to check.
+ * @param logical_size Logical size to check.
  *
  * @return #TLV_OK if it fits.
  * @return #TLV_ERR_INVALID_LENGTH otherwise.
@@ -87,14 +87,14 @@ TLV_API tlv_result_t tlv_size_to_native(tlv_size_t length, size_t* size);
  * @note Success does not prove that a buffer exists, is accessible, or has
  *       sufficient capacity.
  */
-TLV_API tlv_result_t tlv_size_validate_native(tlv_size_t length);
+TLV_API tlv_result_t tlv_size_validate_native(tlv_size_t logical_size);
 
 /**
- * @brief Adds two lengths, detecting overflow.
+ * @brief Adds two logical sizes, detecting overflow.
  *
  * Neither operand is range-checked against `size_t`; this only guards the
- * #tlv_size_t addition itself, for example when composing a header length
- * and a value length before a native-size conversion.
+ * #tlv_size_t addition itself, for example when composing a header size
+ * and a value size before a native-size conversion.
  *
  * @param[in]  a   First addend.
  * @param[in]  b   Second addend.

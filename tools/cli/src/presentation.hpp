@@ -31,6 +31,10 @@ typedef struct cli_presentation {
     int            restore_mode, restore_codepage;
 } cli_presentation_t;
 
+// Requires a successful reader-produced element. Checks native representability;
+// an invariant violation terminates rather than allowing truncated memory access.
+size_t cli_element_value_size(const tlv_element_t* element);
+
 void cli_presentation_init(cli_presentation_t* p, const uint8_t* data, size_t size, int color,
                            int pretty);
 void cli_presentation_restore(cli_presentation_t* p);

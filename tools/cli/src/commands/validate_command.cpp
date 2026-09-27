@@ -99,7 +99,7 @@ tlv_visit_result_t validate_command::check_dictionary_element(const tlv_element_
         tlv_emv_find((tlv_emv_context_t)check_.presentation.contexts[depth], &element->tag);
     // A tag without a dictionary entry in its context is preserved unchecked.
     if (!definition) return TLV_VISIT_CONTINUE;
-    const size_t       value_length = (size_t)element->value.size;
+    const size_t       value_length = cli_element_value_size(element);
     const tlv_result_t rc = tlv_emv_validate_length(definition, value_length);
     if (rc == TLV_OK) return TLV_VISIT_CONTINUE;
     check_.result = rc;

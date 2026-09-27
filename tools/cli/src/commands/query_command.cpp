@@ -40,17 +40,17 @@ tlv_visit_result_t query_command::visit_element(const tlv_element_t* element, st
         object["offset"] = offset;
         object["tag"] = hex_string(element->tag.data, element->tag.size);
         object["length"] = (uint64_t)element->value.size;
-        object["value"] = hex_string(element->value.data, (size_t)element->value.size);
+        object["value"] = hex_string(element->value.data, cli_element_value_size(element));
         json_root_.push_back(std::move(object));
         return TLV_VISIT_CONTINUE;
     }
     if (options_.value_only) {
-        print_hex(element->value.data, (size_t)element->value.size);
+        print_hex(element->value.data, cli_element_value_size(element));
     } else {
         std::cout << "offset=" << offset << " tag=";
         print_hex(element->tag.data, element->tag.size);
         std::cout << " length=" << element->value.size << " value=";
-        print_hex(element->value.data, (size_t)element->value.size);
+        print_hex(element->value.data, cli_element_value_size(element));
     }
     std::cout << "\n";
     return std::cout ? TLV_VISIT_CONTINUE : TLV_VISIT_ERROR;

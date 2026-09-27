@@ -24,7 +24,7 @@ tlv_visit_result_t decode_command::visit_element(const tlv_element_t* element, s
         if (ber_) object["length_mode"] = indefinite ? "indefinite" : "definite";
         object["children"] = nlohmann::ordered_json::array();
     } else {
-        object["value"] = hex_string(element->value.data, (size_t)element->value.size);
+        object["value"] = hex_string(element->value.data, cli_element_value_size(element));
     }
     document_flush(depth);
     document_stack_.push_back(std::move(object));

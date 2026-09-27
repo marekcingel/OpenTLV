@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Check logical value sizes before converting them to native sizes in CLI
+  presentation and commands, making the reader-produced element invariant
+  explicit instead of relying on direct casts. (#342)
 - Fix documentation example checks failing after the element refactoring by
   synchronizing the README, getting-started and Fixed format code blocks with
   their compiled example sources. (#340)
