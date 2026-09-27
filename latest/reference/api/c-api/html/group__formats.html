@@ -101,7 +101,7 @@ Files</h2></td></tr>
 <tr class="memdesc:fixed_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">A configurable fixed-width TLV format: independent tag and length widths. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:format_8h" id="r_format_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="format_8h.html">format.h</a></td></tr>
-<tr class="memdesc:format_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reader and writer format descriptors that define a TLV wire encoding. <br /></td></tr>
+<tr class="memdesc:format_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format descriptor that defines a TLV wire encoding. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -109,11 +109,8 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__config.html">tlv_fixed_config</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configuration for the configurable fixed-width format.  <a href="structtlv__fixed__config.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__format.html">tlv_reader_format</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stateless reading format with optional borrowed, immutable configuration.  <a href="structtlv__reader__format.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__writer__format.html">tlv_writer_format</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stateless writing format with optional borrowed, immutable configuration.  <a href="structtlv__writer__format.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__format.html">tlv_format</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stateless format descriptor with optional borrowed, immutable configuration.  <a href="structtlv__format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -148,12 +145,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gaf08710d1eadecf515c96fee3d9462e5b" id="r_gaf08710d1eadecf515c96fee3d9462e5b"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">tlv_write_header_fn</a>) (const void *context, uint8_t *data, size_t capacity, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t length, size_t *written)</td></tr>
 <tr class="memdesc:gaf08710d1eadecf515c96fee3d9462e5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional callback that encodes a whole element header at once.  <br /></td></tr>
 <tr class="separator:gaf08710d1eadecf515c96fee3d9462e5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga8ff1e34ec88031302cf0aa27fa6829d6" id="r_ga8ff1e34ec88031302cf0aa27fa6829d6"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__reader__format.html">tlv_reader_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a></td></tr>
-<tr class="memdesc:ga8ff1e34ec88031302cf0aa27fa6829d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stateless reading format with optional borrowed, immutable configuration.  <br /></td></tr>
-<tr class="separator:ga8ff1e34ec88031302cf0aa27fa6829d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gace240265c322fab0010f29d2db45aeb4" id="r_gace240265c322fab0010f29d2db45aeb4"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__writer__format.html">tlv_writer_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a></td></tr>
-<tr class="memdesc:gace240265c322fab0010f29d2db45aeb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stateless writing format with optional borrowed, immutable configuration.  <br /></td></tr>
-<tr class="separator:gace240265c322fab0010f29d2db45aeb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac461da7e8d46362fa8e09694efb0b062" id="r_gac461da7e8d46362fa8e09694efb0b062"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__format.html">tlv_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a></td></tr>
+<tr class="memdesc:gac461da7e8d46362fa8e09694efb0b062"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stateless format descriptor with optional borrowed, immutable configuration.  <br /></td></tr>
+<tr class="separator:gac461da7e8d46362fa8e09694efb0b062"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga247f9b16879a9cfde9243ab671c48e0c" id="r_ga247f9b16879a9cfde9243ab671c48e0c"><td class="memItemLeft" align="right" valign="top">typedef int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>) (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:ga247f9b16879a9cfde9243ab671c48e0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional nesting predicate used by tree traversal and structure validation.  <br /></td></tr>
 <tr class="separator:ga247f9b16879a9cfde9243ab671c48e0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -249,57 +243,39 @@ Functions</h2></td></tr>
 <tr class="memitem:ga74fdfba5b0e8998b4400ae4a140d26c2" id="r_ga74fdfba5b0e8998b4400ae4a140d26c2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga74fdfba5b0e8998b4400ae4a140d26c2">tlv_der_is_constructed</a> (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:ga74fdfba5b0e8998b4400ae4a140d26c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nesting predicate for tree traversal of DER data.  <br /></td></tr>
 <tr class="separator:ga74fdfba5b0e8998b4400ae4a140d26c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga37cffde17227768be9f1f0c25ebde4e3" id="r_ga37cffde17227768be9f1f0c25ebde4e3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga37cffde17227768be9f1f0c25ebde4e3">tlv_fixed_reader_format_init</a> (<a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format, const <a class="el" href="group__formats.html#ga30e2e92f0bc36289d797a174ef473d0e">tlv_fixed_config_t</a> *config)</td></tr>
-<tr class="memdesc:ga37cffde17227768be9f1f0c25ebde4e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a reader format for the configurable fixed-width encoding.  <br /></td></tr>
-<tr class="separator:ga37cffde17227768be9f1f0c25ebde4e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga54257cfe2df604363a284748b9d81e2a" id="r_ga54257cfe2df604363a284748b9d81e2a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga54257cfe2df604363a284748b9d81e2a">tlv_fixed_writer_format_init</a> (<a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> *format, const <a class="el" href="group__formats.html#ga30e2e92f0bc36289d797a174ef473d0e">tlv_fixed_config_t</a> *config)</td></tr>
-<tr class="memdesc:ga54257cfe2df604363a284748b9d81e2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a writer format for the configurable fixed-width encoding.  <br /></td></tr>
-<tr class="separator:ga54257cfe2df604363a284748b9d81e2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gac1eaa4bac80b5831d2a84fc0b3977fb7" id="r_gac1eaa4bac80b5831d2a84fc0b3977fb7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gac1eaa4bac80b5831d2a84fc0b3977fb7">tlv_reader_format_init</a> (<a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format, const void *context, <a class="el" href="group__formats.html#ga42a852e645b64b1d92281ba236613b67">tlv_read_tag_fn</a> read_tag, <a class="el" href="group__formats.html#ga28b862bc888dc1227d98bf02c7aede33">tlv_read_length_fn</a> read_length)</td></tr>
-<tr class="memdesc:gac1eaa4bac80b5831d2a84fc0b3977fb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a reader format in caller-owned storage.  <br /></td></tr>
-<tr class="separator:gac1eaa4bac80b5831d2a84fc0b3977fb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga349e7133b934011befb1319e5eef9d86" id="r_ga349e7133b934011befb1319e5eef9d86"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga349e7133b934011befb1319e5eef9d86">tlv_writer_format_init</a> (<a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> *format, const void *context, <a class="el" href="group__formats.html#ga82d80d491a7c0793ae09d3c507905f2d">tlv_write_tag_fn</a> write_tag, <a class="el" href="group__formats.html#ga06dce9179e60b9556b5160affebd516f">tlv_write_length_fn</a> write_length, <a class="el" href="group__formats.html#ga33d7ea8aebb7decc4ee7e4bd690b599c">tlv_length_size_fn</a> length_size)</td></tr>
-<tr class="memdesc:ga349e7133b934011befb1319e5eef9d86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a writer format in caller-owned storage.  <br /></td></tr>
-<tr class="separator:ga349e7133b934011befb1319e5eef9d86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga2ced6b5807f6bd52465f021cbdc7293c" id="r_ga2ced6b5807f6bd52465f021cbdc7293c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga2ced6b5807f6bd52465f021cbdc7293c">tlv_reader_format_init_element</a> (<a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format, const void *context, <a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">tlv_read_element_fn</a> read_element)</td></tr>
-<tr class="memdesc:ga2ced6b5807f6bd52465f021cbdc7293c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a reader format that parses whole elements.  <br /></td></tr>
-<tr class="separator:ga2ced6b5807f6bd52465f021cbdc7293c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga46aa31b5ef5b16b5f61de941236147e1" id="r_ga46aa31b5ef5b16b5f61de941236147e1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga46aa31b5ef5b16b5f61de941236147e1">tlv_writer_format_init_header</a> (<a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> *format, const void *context, <a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">tlv_write_header_fn</a> write_header)</td></tr>
-<tr class="memdesc:ga46aa31b5ef5b16b5f61de941236147e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a writer format that encodes whole element headers.  <br /></td></tr>
-<tr class="separator:ga46aa31b5ef5b16b5f61de941236147e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4d7ff48b9bd3d470a0c957abbbc01737" id="r_ga4d7ff48b9bd3d470a0c957abbbc01737"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga4d7ff48b9bd3d470a0c957abbbc01737">tlv_fixed_format_init</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="group__formats.html#ga30e2e92f0bc36289d797a174ef473d0e">tlv_fixed_config_t</a> *config)</td></tr>
+<tr class="memdesc:ga4d7ff48b9bd3d470a0c957abbbc01737"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a format for the configurable fixed-width encoding.  <br /></td></tr>
+<tr class="separator:ga4d7ff48b9bd3d470a0c957abbbc01737"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaaa2e368f163c26d09325d1dcf84c89fd" id="r_gaaa2e368f163c26d09325d1dcf84c89fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaaa2e368f163c26d09325d1dcf84c89fd">tlv_format_init</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const void *context, <a class="el" href="group__formats.html#ga42a852e645b64b1d92281ba236613b67">tlv_read_tag_fn</a> read_tag, <a class="el" href="group__formats.html#ga28b862bc888dc1227d98bf02c7aede33">tlv_read_length_fn</a> read_length, <a class="el" href="group__formats.html#ga82d80d491a7c0793ae09d3c507905f2d">tlv_write_tag_fn</a> write_tag, <a class="el" href="group__formats.html#ga06dce9179e60b9556b5160affebd516f">tlv_write_length_fn</a> write_length, <a class="el" href="group__formats.html#ga33d7ea8aebb7decc4ee7e4bd690b599c">tlv_length_size_fn</a> length_size)</td></tr>
+<tr class="memdesc:gaaa2e368f163c26d09325d1dcf84c89fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a format's classic tag/length read and write callbacks in caller-owned storage.  <br /></td></tr>
+<tr class="separator:gaaa2e368f163c26d09325d1dcf84c89fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6412401827f9cb8dc5aa03258212ba25" id="r_ga6412401827f9cb8dc5aa03258212ba25"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga6412401827f9cb8dc5aa03258212ba25">tlv_format_init_element</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const void *context, <a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">tlv_read_element_fn</a> read_element, <a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">tlv_write_header_fn</a> write_header)</td></tr>
+<tr class="memdesc:ga6412401827f9cb8dc5aa03258212ba25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a format's whole-element read and write callbacks in caller-owned storage.  <br /></td></tr>
+<tr class="separator:ga6412401827f9cb8dc5aa03258212ba25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga19078c252af7958a24d18489187e76d0" id="r_ga19078c252af7958a24d18489187e76d0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0">tlv_format_can_read</a> (const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format)</td></tr>
+<tr class="memdesc:ga19078c252af7958a24d18489187e76d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether a format can be used for reading.  <br /></td></tr>
+<tr class="separator:ga19078c252af7958a24d18489187e76d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3eac58e190e9af77bfbd71b649f29952" id="r_ga3eac58e190e9af77bfbd71b649f29952"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952">tlv_format_can_write</a> (const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format)</td></tr>
+<tr class="memdesc:ga3eac58e190e9af77bfbd71b649f29952"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether a format can be used for writing.  <br /></td></tr>
+<tr class="separator:ga3eac58e190e9af77bfbd71b649f29952"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:ga0fca6210debe5a4230394a95fc7ad156" id="r_ga0fca6210debe5a4230394a95fc7ad156"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga0fca6210debe5a4230394a95fc7ad156">tlv_reader_format_ber</a></td></tr>
-<tr class="memdesc:ga0fca6210debe5a4230394a95fc7ad156"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reader format for raw BER-TLV.  <br /></td></tr>
-<tr class="separator:ga0fca6210debe5a4230394a95fc7ad156"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga578b925016c88f98190f1636a173eeea" id="r_ga578b925016c88f98190f1636a173eeea"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga578b925016c88f98190f1636a173eeea">tlv_writer_format_ber</a></td></tr>
-<tr class="memdesc:ga578b925016c88f98190f1636a173eeea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writer format for raw BER-TLV.  <br /></td></tr>
-<tr class="separator:ga578b925016c88f98190f1636a173eeea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa7288816a33df8ba2bd152cab354f6d0" id="r_gaa7288816a33df8ba2bd152cab354f6d0"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa7288816a33df8ba2bd152cab354f6d0">tlv_reader_format_cer</a></td></tr>
-<tr class="memdesc:gaa7288816a33df8ba2bd152cab354f6d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reader format for canonical ASN.1 CER identifiers and lengths of a single element.  <br /></td></tr>
-<tr class="separator:gaa7288816a33df8ba2bd152cab354f6d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga0731859b4df581ea9bed0303b23e8e86" id="r_ga0731859b4df581ea9bed0303b23e8e86"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga0731859b4df581ea9bed0303b23e8e86">tlv_writer_format_cer</a></td></tr>
-<tr class="memdesc:ga0731859b4df581ea9bed0303b23e8e86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writer format for canonical ASN.1 CER identifiers and lengths of a single element.  <br /></td></tr>
-<tr class="separator:ga0731859b4df581ea9bed0303b23e8e86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gae21e6c8a35be4e8ae168df9600b9fc06" id="r_gae21e6c8a35be4e8ae168df9600b9fc06"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gae21e6c8a35be4e8ae168df9600b9fc06">tlv_reader_format_der</a></td></tr>
-<tr class="memdesc:gae21e6c8a35be4e8ae168df9600b9fc06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reader format for canonical ASN.1 DER identifiers and definite lengths.  <br /></td></tr>
-<tr class="separator:gae21e6c8a35be4e8ae168df9600b9fc06"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gae97f51796e98e5d1ccd4dba3c0657844" id="r_gae97f51796e98e5d1ccd4dba3c0657844"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gae97f51796e98e5d1ccd4dba3c0657844">tlv_writer_format_der</a></td></tr>
-<tr class="memdesc:gae97f51796e98e5d1ccd4dba3c0657844"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writer format for canonical ASN.1 DER identifiers and definite lengths.  <br /></td></tr>
-<tr class="separator:gae97f51796e98e5d1ccd4dba3c0657844"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaef5c2c9cf896b280a7c855ad9ae4fb4d" id="r_gaef5c2c9cf896b280a7c855ad9ae4fb4d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaef5c2c9cf896b280a7c855ad9ae4fb4d">tlv_reader_format_bluetooth_ltv</a></td></tr>
-<tr class="memdesc:gaef5c2c9cf896b280a7c855ad9ae4fb4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reader format for Bluetooth LTV; a borrowed, immutable global.  <br /></td></tr>
-<tr class="separator:gaef5c2c9cf896b280a7c855ad9ae4fb4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab0f18fb88e65689d5f3308aacb75e4e2" id="r_gab0f18fb88e65689d5f3308aacb75e4e2"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gab0f18fb88e65689d5f3308aacb75e4e2">tlv_writer_format_bluetooth_ltv</a></td></tr>
-<tr class="memdesc:gab0f18fb88e65689d5f3308aacb75e4e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writer format for Bluetooth LTV; a borrowed, immutable global.  <br /></td></tr>
-<tr class="separator:gab0f18fb88e65689d5f3308aacb75e4e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaeb7feaf23edad09ffc9eb97ff54bb4f4" id="r_gaeb7feaf23edad09ffc9eb97ff54bb4f4"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaeb7feaf23edad09ffc9eb97ff54bb4f4">tlv_reader_format_default</a></td></tr>
-<tr class="memdesc:gaeb7feaf23edad09ffc9eb97ff54bb4f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reader format for the default encoding; a borrowed, immutable global.  <br /></td></tr>
-<tr class="separator:gaeb7feaf23edad09ffc9eb97ff54bb4f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga775947c53487ca9dbb37d2bbee733d56" id="r_ga775947c53487ca9dbb37d2bbee733d56"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga775947c53487ca9dbb37d2bbee733d56">tlv_writer_format_default</a></td></tr>
-<tr class="memdesc:ga775947c53487ca9dbb37d2bbee733d56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writer format for the default encoding; a borrowed, immutable global.  <br /></td></tr>
-<tr class="separator:ga775947c53487ca9dbb37d2bbee733d56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga85c85b88a553a079a3e9cd16ccd34e97" id="r_ga85c85b88a553a079a3e9cd16ccd34e97"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97">tlv_format_ber</a></td></tr>
+<tr class="memdesc:ga85c85b88a553a079a3e9cd16ccd34e97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format for raw BER-TLV.  <br /></td></tr>
+<tr class="separator:ga85c85b88a553a079a3e9cd16ccd34e97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga64ffa8520ff684baf13e601bc6989439" id="r_ga64ffa8520ff684baf13e601bc6989439"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga64ffa8520ff684baf13e601bc6989439">tlv_format_cer</a></td></tr>
+<tr class="memdesc:ga64ffa8520ff684baf13e601bc6989439"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format for canonical ASN.1 CER identifiers and lengths of a single element.  <br /></td></tr>
+<tr class="separator:ga64ffa8520ff684baf13e601bc6989439"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab8c60bdca71db777eaffd2608df6950a" id="r_gab8c60bdca71db777eaffd2608df6950a"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gab8c60bdca71db777eaffd2608df6950a">tlv_format_der</a></td></tr>
+<tr class="memdesc:gab8c60bdca71db777eaffd2608df6950a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format for canonical ASN.1 DER identifiers and definite lengths.  <br /></td></tr>
+<tr class="separator:gab8c60bdca71db777eaffd2608df6950a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadaf4166953f85b62fb10c72081a5dd0b" id="r_gadaf4166953f85b62fb10c72081a5dd0b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gadaf4166953f85b62fb10c72081a5dd0b">tlv_format_bluetooth_ltv</a></td></tr>
+<tr class="memdesc:gadaf4166953f85b62fb10c72081a5dd0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format for Bluetooth LTV; a borrowed, immutable global.  <br /></td></tr>
+<tr class="separator:gadaf4166953f85b62fb10c72081a5dd0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3db9ea597a17b6d2bc6007ace1731ca3" id="r_ga3db9ea597a17b6d2bc6007ace1731ca3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga3db9ea597a17b6d2bc6007ace1731ca3">tlv_format_default</a></td></tr>
+<tr class="memdesc:ga3db9ea597a17b6d2bc6007ace1731ca3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format for the default encoding; a borrowed, immutable global.  <br /></td></tr>
+<tr class="separator:ga3db9ea597a17b6d2bc6007ace1731ca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Format callbacks and default, fixed, BER, DER and CER wire formats. Guides: <a href="https://marekcingel.github.io/OpenTLV/formats/">formats</a>. </p>
@@ -334,7 +310,26 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Configuration for the configurable fixed-width format. </p>
-<p>A borrowed, immutable value: the address passed to <a class="el" href="group__formats.html#ga37cffde17227768be9f1f0c25ebde4e3" title="Initializes a reader format for the configurable fixed-width encoding.">tlv_fixed_reader_format_init()</a> or <a class="el" href="group__formats.html#ga54257cfe2df604363a284748b9d81e2a" title="Initializes a writer format for the configurable fixed-width encoding.">tlv_fixed_writer_format_init()</a> becomes the initialized format's context, so the configuration must outlive every reader or writer built from it. </p>
+<p>A borrowed, immutable value: the address passed to <a class="el" href="group__formats.html#ga4d7ff48b9bd3d470a0c957abbbc01737" title="Initializes a format for the configurable fixed-width encoding.">tlv_fixed_format_init()</a> becomes the initialized format's context, so the configuration must outlive every reader or writer built from it. </p>
+
+</div>
+</div>
+<a id="gac461da7e8d46362fa8e09694efb0b062" name="gac461da7e8d46362fa8e09694efb0b062"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac461da7e8d46362fa8e09694efb0b062">&#9670;&#160;</a></span>tlv_format_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__format.html">tlv_format</a> <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stateless format descriptor with optional borrowed, immutable configuration. </p>
+<p>The descriptor and context must outlive every reader, writer and operation that uses them. Read and write capability are independently optional: <code>read_tag</code> and <code>read_length</code> are required for reading unless <code>read_element</code> is set, and <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> are required for writing unless <code>write_header</code> is set. A format that leaves an entire group unset (all <code>NULL</code>) simply cannot be used in that direction; see <a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0" title="Reports whether a format can be used for reading.">tlv_format_can_read()</a> and <a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952" title="Reports whether a format can be used for writing.">tlv_format_can_write()</a>. <code>read_value_bounds</code> is optional and, when non-<code>NULL</code>, replaces <code>read_length</code> in element parsing. A non-<code>NULL</code> <code>read_element</code> replaces <code>read_tag</code>, <code>read_length</code> and <code>read_value_bounds</code>, so every generic read operation (reader, scanner, walker, schemas) works on formats with a different field order. A non-<code>NULL</code> <code>write_header</code> replaces <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> the same way for encoding. Callbacks must not allocate, retain buffers, or access memory beyond <code>size</code> or <code>capacity</code>. On success they initialize their outputs.</p>
+<p>Reading borrows input bytes; value decoding and tree visits are separate concerns.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__formats.html#gaaa2e368f163c26d09325d1dcf84c89fd" title="Initializes a format&#39;s classic tag/length read and write callbacks in caller-owned storage.">tlv_format_init</a>, <a class="el" href="group__formats.html#ga6412401827f9cb8dc5aa03258212ba25" title="Initializes a format&#39;s whole-element read and write callbacks in caller-owned storage.">tlv_format_init_element</a> </dd></dl>
 
 </div>
 </div>
@@ -351,15 +346,15 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Optional nesting predicate used by tree traversal and structure validation. </p>
-<p>Called only with successfully parsed tags, using the reader format's context. No value decoding occurs. Passing <code>NULL</code> at a call site means all values are opaque.</p>
+<p>Called only with successfully parsed tags, using the format's context. No value decoding occurs. Passing <code>NULL</code> at a call site means all values are opaque.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>The reader format's context. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>The format's context. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>A successfully parsed tag.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Nonzero if the tag's value is a sequence in the same reader format, zero otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Nonzero if the tag's value is a sequence in the same format, zero otherwise. </dd></dl>
 
 </div>
 </div>
@@ -503,25 +498,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ga8ff1e34ec88031302cf0aa27fa6829d6" name="ga8ff1e34ec88031302cf0aa27fa6829d6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga8ff1e34ec88031302cf0aa27fa6829d6">&#9670;&#160;</a></span>tlv_reader_format_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="structtlv__reader__format.html">tlv_reader_format</a> <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Stateless reading format with optional borrowed, immutable configuration. </p>
-<p>The descriptor and context must outlive every reader and operation that uses them. <code>read_tag</code> and <code>read_length</code> are required unless <code>read_element</code> is set; <code>read_value_bounds</code> is optional and, when non-<code>NULL</code>, replaces <code>read_length</code> in element parsing. A non-<code>NULL</code> <code>read_element</code> replaces all three, so every generic operation (reader, scanner, walker, schemas) works on formats with a different field order. Callbacks must not allocate, retain buffers, or access memory beyond <code>size</code>. On success they initialize their outputs.</p>
-<p>Reading borrows input bytes; value decoding and tree visits are separate concerns.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__formats.html#gac1eaa4bac80b5831d2a84fc0b3977fb7" title="Initializes a reader format in caller-owned storage.">tlv_reader_format_init</a> </dd></dl>
-
-</div>
-</div>
 <a id="gaf08710d1eadecf515c96fee3d9462e5b" name="gaf08710d1eadecf515c96fee3d9462e5b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaf08710d1eadecf515c96fee3d9462e5b">&#9670;&#160;</a></span>tlv_write_header_fn</h2>
 
@@ -603,24 +579,6 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success, or an error code that propagates unchanged. </dd></dl>
-
-</div>
-</div>
-<a id="gace240265c322fab0010f29d2db45aeb4" name="gace240265c322fab0010f29d2db45aeb4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gace240265c322fab0010f29d2db45aeb4">&#9670;&#160;</a></span>tlv_writer_format_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef struct <a class="el" href="structtlv__writer__format.html">tlv_writer_format</a> <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Stateless writing format with optional borrowed, immutable configuration. </p>
-<p>The descriptor and context must outlive every writer and operation that uses them. <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> are all required unless <code>write_header</code> is set, which replaces the three. Callbacks must not allocate, retain buffers, or access memory beyond <code>capacity</code>. Successful write callbacks initialize <code>written</code>. Value encoding is a separate concern.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__formats.html#ga349e7133b934011befb1319e5eef9d86" title="Initializes a writer format in caller-owned storage.">tlv_writer_format_init</a> </dd></dl>
 
 </div>
 </div>
@@ -852,7 +810,7 @@ An error code for a null output, an invalid or non-constructed tag, or size over
 
 <p>Decodes one BER definite-length field starting at <code>data[0]</code>. </p>
 <p>Accepts the short form directly, or the long form as a length-of-length octet followed by that many big-endian value octets. Nonminimal (zero-padded) long-form encodings are accepted when the numeric value still fits <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a>; excess leading octets must be zero. The indefinite marker (0x80 alone) and the reserved 0xFF prefix are rejected, as is a padded value wider than <a class="el" href="group__core.html#ga718439fac4bc0901b7e7f52c88fcc1ee" title="Logical TLV value length.">tlv_length_t</a> or nonzero excess padding.</p>
-<p>This does not process the indefinite-length marker or constructed EOC framing; see <a class="el" href="group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d" title="Writes an explicit indefinite-length constructed element.">tlv_ber_write_indefinite()</a> and <a class="el" href="group__formats.html#ga0fca6210debe5a4230394a95fc7ad156" title="Reader format for raw BER-TLV.">tlv_reader_format_ber</a>.</p>
+<p>This does not process the indefinite-length marker or constructed EOC framing; see <a class="el" href="group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d" title="Writes an explicit indefinite-length constructed element.">tlv_ber_write_indefinite()</a> and <a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97" title="Format for raw BER-TLV.">tlv_format_ber</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Encoded field. May be <code>NULL</code> only when <code>data_size</code> is zero. </td></tr>
@@ -1046,7 +1004,7 @@ An error code for a null output, an invalid or non-constructed tag, or size over
 </div><div class="memdoc">
 
 <p>Constructs a raw BER tag from its class, form and tag number. </p>
-<p>Unlike the corresponding DER and CER tag constructors, this does not enforce any canonical primitive/constructed rule tied to a universal type number; only the reserved EOC identifier (universal class, tag number 0, in either form) is rejected, matching <a class="el" href="group__formats.html#ga0fca6210debe5a4230394a95fc7ad156" title="Reader format for raw BER-TLV.">tlv_reader_format_ber</a> and <a class="el" href="group__formats.html#ga578b925016c88f98190f1636a173eeea" title="Writer format for raw BER-TLV.">tlv_writer_format_ber</a>.</p>
+<p>Unlike the corresponding DER and CER tag constructors, this does not enforce any canonical primitive/constructed rule tied to a universal type number; only the reserved EOC identifier (universal class, tag number 0, in either form) is rejected, matching <a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97" title="Format for raw BER-TLV.">tlv_format_ber</a>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">tag_class</td><td>ASN.1 class. </td></tr>
@@ -1226,7 +1184,7 @@ An error code for invalid arguments, a non-constructed or invalid tag, malformed
 <p>Follows the contract of <a class="el" href="group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d" title="Writes an explicit indefinite-length constructed element.">tlv_ber_write_indefinite()</a>, writing at the writer's current position.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">writer</td><td>Writer initialized with <a class="el" href="group__formats.html#ga578b925016c88f98190f1636a173eeea" title="Writer format for raw BER-TLV.">tlv_writer_format_ber</a>. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">writer</td><td>Writer initialized with <a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97" title="Format for raw BER-TLV.">tlv_format_ber</a>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Constructed element tag. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Already encoded children, without the enclosing EOC. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">length</td><td>Size of <code>value</code> in bytes.</td></tr>
@@ -1683,16 +1641,16 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 
 </div>
 </div>
-<a id="ga37cffde17227768be9f1f0c25ebde4e3" name="ga37cffde17227768be9f1f0c25ebde4e3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga37cffde17227768be9f1f0c25ebde4e3">&#9670;&#160;</a></span>tlv_fixed_reader_format_init()</h2>
+<a id="ga4d7ff48b9bd3d470a0c957abbbc01737" name="ga4d7ff48b9bd3d470a0c957abbbc01737"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4d7ff48b9bd3d470a0c957abbbc01737">&#9670;&#160;</a></span>tlv_fixed_format_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_fixed_reader_format_init </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_fixed_format_init </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
           <td class="paramname"><em>format</em>, </td>
         </tr>
         <tr>
@@ -1709,8 +1667,8 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
       </table>
 </div><div class="memdoc">
 
-<p>Initializes a reader format for the configurable fixed-width encoding. </p>
-<p>Does not allocate. Stores <code>config</code>'s address as the format's context: <code>config</code> must outlive every reader and operation that uses the initialized format.</p>
+<p>Initializes a format for the configurable fixed-width encoding. </p>
+<p>Does not allocate. Stores <code>config</code>'s address as the format's context: <code>config</code> must outlive every reader, writer and operation that uses the initialized format. Both read and write capability are set.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">format</td><td>Descriptor to initialize. </td></tr>
@@ -1727,60 +1685,70 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 
 </div>
 </div>
-<a id="ga54257cfe2df604363a284748b9d81e2a" name="ga54257cfe2df604363a284748b9d81e2a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga54257cfe2df604363a284748b9d81e2a">&#9670;&#160;</a></span>tlv_fixed_writer_format_init()</h2>
+<a id="ga19078c252af7958a24d18489187e76d0" name="ga19078c252af7958a24d18489187e76d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga19078c252af7958a24d18489187e76d0">&#9670;&#160;</a></span>tlv_format_can_read()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_fixed_writer_format_init </td>
+          <td class="memname">int tlv_format_can_read </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> *&#160;</td>
-          <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="group__formats.html#ga30e2e92f0bc36289d797a174ef473d0e">tlv_fixed_config_t</a> *&#160;</td>
-          <td class="paramname"><em>config</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Initializes a writer format for the configurable fixed-width encoding. </p>
-<p>Does not allocate. Stores <code>config</code>'s address as the format's context: <code>config</code> must outlive every writer and operation that uses the initialized format.</p>
+<p>Reports whether a format can be used for reading. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">format</td><td>Descriptor to initialize. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>Format configuration, borrowed. Must not be <code>NULL</code>.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Format to query; may be <code>NULL</code>.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success; every field is set. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>format</code> or <code>config</code> is <code>NULL</code>, <code>config-&gt;tag_size</code> is 0, or <code>config-&gt;length_size</code> is 0 or greater than 8. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> if <code>config-&gt;order</code> is neither <a class="el" href="group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875a72bce499f639e5249c8ee6be29f313d5">TLV_BYTE_ORDER_BIG_ENDIAN</a> nor <a class="el" href="group__core.html#gga37f63335a549ed6d3c6c2d3ccc1d0875aa09207eb116bd6d31b320a879d90cfe5">TLV_BYTE_ORDER_LITTLE_ENDIAN</a>.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On failure the descriptor is unchanged. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Nonzero if <code>format</code> is not <code>NULL</code> and has either <code>read_element</code> set or both <code>read_tag</code> and <code>read_length</code> set, zero otherwise. </dd></dl>
 
 </div>
 </div>
-<a id="gac1eaa4bac80b5831d2a84fc0b3977fb7" name="gac1eaa4bac80b5831d2a84fc0b3977fb7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gac1eaa4bac80b5831d2a84fc0b3977fb7">&#9670;&#160;</a></span>tlv_reader_format_init()</h2>
+<a id="ga3eac58e190e9af77bfbd71b649f29952" name="ga3eac58e190e9af77bfbd71b649f29952"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3eac58e190e9af77bfbd71b649f29952">&#9670;&#160;</a></span>tlv_format_can_write()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_reader_format_init </td>
+          <td class="memname">int tlv_format_can_write </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reports whether a format can be used for writing. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Format to query; may be <code>NULL</code>.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Nonzero if <code>format</code> is not <code>NULL</code> and has either <code>write_header</code> set or all of <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> set, zero otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="gaaa2e368f163c26d09325d1dcf84c89fd" name="gaaa2e368f163c26d09325d1dcf84c89fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaaa2e368f163c26d09325d1dcf84c89fd">&#9670;&#160;</a></span>tlv_format_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_format_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
           <td class="paramname"><em>format</em>, </td>
         </tr>
         <tr>
@@ -1799,100 +1767,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="group__formats.html#ga28b862bc888dc1227d98bf02c7aede33">tlv_read_length_fn</a>&#160;</td>
-          <td class="paramname"><em>read_length</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Initializes a reader format in caller-owned storage. </p>
-<p>Does not allocate. The supplied pointers are stored, not copied: the descriptor and context follow the reading lifetime and callback contracts documented for <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6" title="Stateless reading format with optional borrowed, immutable configuration.">tlv_reader_format_t</a>. <code>read_value_bounds</code> is initialized to <code>NULL</code>; callers can assign it after initialization.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">format</td><td>Descriptor to initialize. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed context passed to callbacks; may be <code>NULL</code>. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">read_tag</td><td>Tag decoder. Required. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">read_length</td><td>Length decoder. Required.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success; every field is set. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>format</code> or either callback is <code>NULL</code>.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On failure the descriptor is unchanged. </dd></dl>
-
-</div>
-</div>
-<a id="ga2ced6b5807f6bd52465f021cbdc7293c" name="ga2ced6b5807f6bd52465f021cbdc7293c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga2ced6b5807f6bd52465f021cbdc7293c">&#9670;&#160;</a></span>tlv_reader_format_init_element()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_reader_format_init_element </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *&#160;</td>
-          <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const void *&#160;</td>
-          <td class="paramname"><em>context</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">tlv_read_element_fn</a>&#160;</td>
-          <td class="paramname"><em>read_element</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Initializes a reader format that parses whole elements. </p>
-<p>For formats whose field order is not tag, length, value. Does not allocate; the supplied pointers are stored, not copied. <code>read_tag</code>, <code>read_length</code> and <code>read_value_bounds</code> are initialized to <code>NULL</code>.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">format</td><td>Descriptor to initialize. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed context passed to the callback; may be <code>NULL</code>. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">read_element</td><td>Element parser. Required.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success; every field is set. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>format</code> or <code>read_element</code> is <code>NULL</code>.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>On failure the descriptor is unchanged. </dd></dl>
-
-</div>
-</div>
-<a id="ga349e7133b934011befb1319e5eef9d86" name="ga349e7133b934011befb1319e5eef9d86"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga349e7133b934011befb1319e5eef9d86">&#9670;&#160;</a></span>tlv_writer_format_init()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_writer_format_init </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> *&#160;</td>
-          <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const void *&#160;</td>
-          <td class="paramname"><em>context</em>, </td>
+          <td class="paramname"><em>read_length</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1920,35 +1795,37 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
       </table>
 </div><div class="memdoc">
 
-<p>Initializes a writer format in caller-owned storage. </p>
-<p>Does not allocate. Only the supplied pointers are stored; the descriptor and context follow the writing lifetime and callback contracts documented for <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4" title="Stateless writing format with optional borrowed, immutable configuration.">tlv_writer_format_t</a>.</p>
+<p>Initializes a format's classic tag/length read and write callbacks in caller-owned storage. </p>
+<p>Does not allocate. The supplied pointers are stored, not copied: the descriptor and context follow the lifetime and callback contracts documented for <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062" title="Stateless format descriptor with optional borrowed, immutable configuration.">tlv_format_t</a>. Read and write capability are independently optional: pass both <code>read_tag</code> and <code>read_length</code> for read capability, or both <code>NULL</code> to leave reading unsupported; pass <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> for write capability, or all three <code>NULL</code> to leave writing unsupported. At least one of the two groups must be given. <code>read_value_bounds</code>, <code>read_element</code> and <code>write_header</code> are initialized to <code>NULL</code>; callers can assign them directly after initialization.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">format</td><td>Descriptor to initialize. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed context passed to callbacks; may be <code>NULL</code>. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">write_tag</td><td>Tag encoder. Required. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">write_length</td><td>Length encoder. Required. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">length_size</td><td>Length size query. Required.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">read_tag</td><td>Tag decoder, or <code>NULL</code> to leave reading unsupported. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">read_length</td><td>Length decoder, or <code>NULL</code> to leave reading unsupported. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">write_tag</td><td>Tag encoder, or <code>NULL</code> to leave writing unsupported. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">write_length</td><td>Length encoder, or <code>NULL</code> to leave writing unsupported. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">length_size</td><td>Length size query, or <code>NULL</code> to leave writing unsupported.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success; every field is set. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>format</code> or any callback is <code>NULL</code>.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>format</code> is <code>NULL</code>; if exactly one of <code>read_tag</code>/<code>read_length</code> is <code>NULL</code>; if <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> are not all <code>NULL</code> or all non-<code>NULL</code>; or if both the read and write groups are left unset.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On failure the descriptor is unchanged. </dd></dl>
 
 </div>
 </div>
-<a id="ga46aa31b5ef5b16b5f61de941236147e1" name="ga46aa31b5ef5b16b5f61de941236147e1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga46aa31b5ef5b16b5f61de941236147e1">&#9670;&#160;</a></span>tlv_writer_format_init_header()</h2>
+<a id="ga6412401827f9cb8dc5aa03258212ba25" name="ga6412401827f9cb8dc5aa03258212ba25"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6412401827f9cb8dc5aa03258212ba25">&#9670;&#160;</a></span>tlv_format_init_element()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_writer_format_init_header </td>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_format_init_element </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
           <td class="paramname"><em>format</em>, </td>
         </tr>
         <tr>
@@ -1956,6 +1833,12 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
           <td></td>
           <td class="paramtype">const void *&#160;</td>
           <td class="paramname"><em>context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__formats.html#ga5480b6d2f9c22b05049a93806ff1cc74">tlv_read_element_fn</a>&#160;</td>
+          <td class="paramname"><em>read_element</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1971,26 +1854,27 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
       </table>
 </div><div class="memdoc">
 
-<p>Initializes a writer format that encodes whole element headers. </p>
-<p>For formats whose field order is not tag, length, value. Does not allocate; the supplied pointers are stored, not copied. <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> are initialized to <code>NULL</code>.</p>
+<p>Initializes a format's whole-element read and write callbacks in caller-owned storage. </p>
+<p>For formats whose field order is not tag, length, value. Does not allocate; the supplied pointers are stored, not copied. <code>read_element</code> and <code>write_header</code> are independently optional, but not both <code>NULL</code>. <code>read_tag</code>, <code>read_length</code>, <code>read_value_bounds</code>, <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> are initialized to <code>NULL</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">format</td><td>Descriptor to initialize. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed context passed to the callback; may be <code>NULL</code>. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">write_header</td><td>Header encoder. Required.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed context passed to the callbacks; may be <code>NULL</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">read_element</td><td>Element parser, or <code>NULL</code> to leave reading unsupported. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">write_header</td><td>Header encoder, or <code>NULL</code> to leave writing unsupported.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success; every field is set. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>format</code> or <code>write_header</code> is <code>NULL</code>.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>format</code> is <code>NULL</code>, or if <code>read_element</code> and <code>write_header</code> are both <code>NULL</code>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On failure the descriptor is unchanged. </dd></dl>
 
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="ga0fca6210debe5a4230394a95fc7ad156" name="ga0fca6210debe5a4230394a95fc7ad156"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga0fca6210debe5a4230394a95fc7ad156">&#9670;&#160;</a></span>tlv_reader_format_ber</h2>
+<a id="ga85c85b88a553a079a3e9cd16ccd34e97" name="ga85c85b88a553a079a3e9cd16ccd34e97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga85c85b88a553a079a3e9cd16ccd34e97">&#9670;&#160;</a></span>tlv_format_ber</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1999,7 +1883,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> tlv_reader_format_ber</td>
+          <td class="memname">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> tlv_format_ber</td>
         </tr>
       </table>
   </td>
@@ -2009,14 +1893,13 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </table>
 </div><div class="memdoc">
 
-<p>Reader format for raw BER-TLV. </p>
-<p>Accepts tags up to <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> bytes, including high-tag-number form, and definite lengths up to <code>SIZE_MAX</code>. Reads accept nonminimal definite lengths and constructed indefinite lengths. Tag bytes are preserved (including <code>9F 1C</code>); ASN.1 semantics are not validated.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__formats.html#ga578b925016c88f98190f1636a173eeea" title="Writer format for raw BER-TLV.">tlv_writer_format_ber</a> </dd></dl>
+<p>Format for raw BER-TLV. </p>
+<p>Accepts tags up to <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> bytes, including high-tag-number form, and definite lengths up to <code>SIZE_MAX</code>. Reads accept nonminimal definite lengths and constructed indefinite lengths. Tag bytes are preserved (including <code>9F 1C</code>); ASN.1 semantics are not validated. Writes definite lengths using the shortest length encoding. Use <a class="el" href="group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d" title="Writes an explicit indefinite-length constructed element.">tlv_ber_write_indefinite()</a> for explicit indefinite framing. </p>
 
 </div>
 </div>
-<a id="gaef5c2c9cf896b280a7c855ad9ae4fb4d" name="gaef5c2c9cf896b280a7c855ad9ae4fb4d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaef5c2c9cf896b280a7c855ad9ae4fb4d">&#9670;&#160;</a></span>tlv_reader_format_bluetooth_ltv</h2>
+<a id="gadaf4166953f85b62fb10c72081a5dd0b" name="gadaf4166953f85b62fb10c72081a5dd0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadaf4166953f85b62fb10c72081a5dd0b">&#9670;&#160;</a></span>tlv_format_bluetooth_ltv</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2025,7 +1908,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> tlv_reader_format_bluetooth_ltv</td>
+          <td class="memname">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> tlv_format_bluetooth_ltv</td>
         </tr>
       </table>
   </td>
@@ -2035,12 +1918,12 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </table>
 </div><div class="memdoc">
 
-<p>Reader format for Bluetooth LTV; a borrowed, immutable global. </p>
+<p>Format for Bluetooth LTV; a borrowed, immutable global. </p>
 
 </div>
 </div>
-<a id="gaa7288816a33df8ba2bd152cab354f6d0" name="gaa7288816a33df8ba2bd152cab354f6d0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaa7288816a33df8ba2bd152cab354f6d0">&#9670;&#160;</a></span>tlv_reader_format_cer</h2>
+<a id="ga64ffa8520ff684baf13e601bc6989439" name="ga64ffa8520ff684baf13e601bc6989439"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga64ffa8520ff684baf13e601bc6989439">&#9670;&#160;</a></span>tlv_format_cer</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2049,7 +1932,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> tlv_reader_format_cer</td>
+          <td class="memname">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> tlv_format_cer</td>
         </tr>
       </table>
   </td>
@@ -2059,15 +1942,15 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </table>
 </div><div class="memdoc">
 
-<p>Reader format for canonical ASN.1 CER identifiers and lengths of a single element. </p>
+<p>Format for canonical ASN.1 CER identifiers and lengths of a single element. </p>
 <p>SEQUENCE/SEQUENCE OF, SET/SET OF, EXTERNAL, EMBEDDED PDV and CHARACTER STRING must be constructed; universal tags 0 (EOC) and 15 are rejected; high-tag-number form must be minimal. Unlike DER, this descriptor does not require every other UNIVERSAL primitive tag number to stay primitive: CER permits either form for the segmentable string types (BIT STRING, OCTET STRING and the restricted character string types), chosen by content length rather than fixed by the tag alone, so that decision is left to <a class="el" href="cer__profile_8h.html" title="Bounded recursive CER validation, traversal and canonical writing.">tlv/builtins/asn1/cer_profile.h</a>. A constructed value's length must be indefinite (0x80); a primitive value's length must be definite and minimally encoded (short form below 128, long form only at or above 128, no leading zero padding octet).</p>
 <p>This is a TLV-layer descriptor: it validates the current element's identifier and length only, not nested framing, EOC placement, or canonical segmentation across descendants.</p>
-<dl class="section warning"><dt>Warning</dt><dd>Generic writing through <a class="el" href="group__formats.html#ga0731859b4df581ea9bed0303b23e8e86" title="Writer format for canonical ASN.1 CER identifiers and lengths of a single element.">tlv_writer_format_cer</a> is therefore not by itself a complete CER encoder for constructed or segmentable values. Use <a class="el" href="cer__profile_8h.html" title="Bounded recursive CER validation, traversal and canonical writing.">tlv/builtins/asn1/cer_profile.h</a> for bounded recursive validation, canonical constructed/segmented encoding, and error offsets. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Generic writing through <a class="el" href="group__formats.html#ga64ffa8520ff684baf13e601bc6989439" title="Format for canonical ASN.1 CER identifiers and lengths of a single element.">tlv_format_cer</a> is therefore not by itself a complete CER encoder for constructed or segmentable values. Use <a class="el" href="cer__profile_8h.html" title="Bounded recursive CER validation, traversal and canonical writing.">tlv/builtins/asn1/cer_profile.h</a> for bounded recursive validation, canonical constructed/segmented encoding, and error offsets. </dd></dl>
 
 </div>
 </div>
-<a id="gaeb7feaf23edad09ffc9eb97ff54bb4f4" name="gaeb7feaf23edad09ffc9eb97ff54bb4f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaeb7feaf23edad09ffc9eb97ff54bb4f4">&#9670;&#160;</a></span>tlv_reader_format_default</h2>
+<a id="ga3db9ea597a17b6d2bc6007ace1731ca3" name="ga3db9ea597a17b6d2bc6007ace1731ca3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3db9ea597a17b6d2bc6007ace1731ca3">&#9670;&#160;</a></span>tlv_format_default</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2076,7 +1959,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> tlv_reader_format_default</td>
+          <td class="memname">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> tlv_format_default</td>
         </tr>
       </table>
   </td>
@@ -2086,12 +1969,12 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </table>
 </div><div class="memdoc">
 
-<p>Reader format for the default encoding; a borrowed, immutable global. </p>
+<p>Format for the default encoding; a borrowed, immutable global. </p>
 
 </div>
 </div>
-<a id="gae21e6c8a35be4e8ae168df9600b9fc06" name="gae21e6c8a35be4e8ae168df9600b9fc06"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gae21e6c8a35be4e8ae168df9600b9fc06">&#9670;&#160;</a></span>tlv_reader_format_der</h2>
+<a id="gab8c60bdca71db777eaffd2608df6950a" name="gab8c60bdca71db777eaffd2608df6950a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab8c60bdca71db777eaffd2608df6950a">&#9670;&#160;</a></span>tlv_format_der</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2100,7 +1983,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> tlv_reader_format_der</td>
+          <td class="memname">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> tlv_format_der</td>
         </tr>
       </table>
   </td>
@@ -2110,134 +1993,8 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </table>
 </div><div class="memdoc">
 
-<p>Reader format for canonical ASN.1 DER identifiers and definite lengths. </p>
+<p>Format for canonical ASN.1 DER identifiers and definite lengths. </p>
 <p>Validates universal primitive/constructed bits, but does not inspect values or nested headers. Use <a class="el" href="der__profile_8h.html" title="Bounded recursive DER validation, traversal and canonical writing.">tlv/builtins/asn1/der_profile.h</a> for bounded recursive validation and error offsets. </p>
-
-</div>
-</div>
-<a id="ga578b925016c88f98190f1636a173eeea" name="ga578b925016c88f98190f1636a173eeea"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga578b925016c88f98190f1636a173eeea">&#9670;&#160;</a></span>tlv_writer_format_ber</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> tlv_writer_format_ber</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Writer format for raw BER-TLV. </p>
-<p>Writes definite lengths using the shortest length encoding. Use <a class="el" href="group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d" title="Writes an explicit indefinite-length constructed element.">tlv_ber_write_indefinite()</a> for explicit indefinite framing.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__formats.html#ga0fca6210debe5a4230394a95fc7ad156" title="Reader format for raw BER-TLV.">tlv_reader_format_ber</a> </dd></dl>
-
-</div>
-</div>
-<a id="gab0f18fb88e65689d5f3308aacb75e4e2" name="gab0f18fb88e65689d5f3308aacb75e4e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gab0f18fb88e65689d5f3308aacb75e4e2">&#9670;&#160;</a></span>tlv_writer_format_bluetooth_ltv</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> tlv_writer_format_bluetooth_ltv</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Writer format for Bluetooth LTV; a borrowed, immutable global. </p>
-
-</div>
-</div>
-<a id="ga0731859b4df581ea9bed0303b23e8e86" name="ga0731859b4df581ea9bed0303b23e8e86"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga0731859b4df581ea9bed0303b23e8e86">&#9670;&#160;</a></span>tlv_writer_format_cer</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> tlv_writer_format_cer</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Writer format for canonical ASN.1 CER identifiers and lengths of a single element. </p>
-<p>SEQUENCE/SEQUENCE OF, SET/SET OF, EXTERNAL, EMBEDDED PDV and CHARACTER STRING must be constructed; universal tags 0 (EOC) and 15 are rejected; high-tag-number form must be minimal. Unlike DER, this descriptor does not require every other UNIVERSAL primitive tag number to stay primitive: CER permits either form for the segmentable string types (BIT STRING, OCTET STRING and the restricted character string types), chosen by content length rather than fixed by the tag alone, so that decision is left to <a class="el" href="cer__profile_8h.html" title="Bounded recursive CER validation, traversal and canonical writing.">tlv/builtins/asn1/cer_profile.h</a>. A constructed value's length must be indefinite (0x80); a primitive value's length must be definite and minimally encoded (short form below 128, long form only at or above 128, no leading zero padding octet).</p>
-<p>This is a TLV-layer descriptor: it validates the current element's identifier and length only, not nested framing, EOC placement, or canonical segmentation across descendants.</p>
-<dl class="section warning"><dt>Warning</dt><dd>Generic writing through <a class="el" href="group__formats.html#ga0731859b4df581ea9bed0303b23e8e86" title="Writer format for canonical ASN.1 CER identifiers and lengths of a single element.">tlv_writer_format_cer</a> is therefore not by itself a complete CER encoder for constructed or segmentable values. Use <a class="el" href="cer__profile_8h.html" title="Bounded recursive CER validation, traversal and canonical writing.">tlv/builtins/asn1/cer_profile.h</a> for bounded recursive validation, canonical constructed/segmented encoding, and error offsets.   </dd></dl>
-
-</div>
-</div>
-<a id="ga775947c53487ca9dbb37d2bbee733d56" name="ga775947c53487ca9dbb37d2bbee733d56"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga775947c53487ca9dbb37d2bbee733d56">&#9670;&#160;</a></span>tlv_writer_format_default</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> tlv_writer_format_default</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Writer format for the default encoding; a borrowed, immutable global. </p>
-
-</div>
-</div>
-<a id="gae97f51796e98e5d1ccd4dba3c0657844" name="gae97f51796e98e5d1ccd4dba3c0657844"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gae97f51796e98e5d1ccd4dba3c0657844">&#9670;&#160;</a></span>tlv_writer_format_der</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> tlv_writer_format_der</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Writer format for canonical ASN.1 DER identifiers and definite lengths. </p>
-<p>Validates universal primitive/constructed bits, but does not inspect values or nested headers. Use <a class="el" href="der__profile_8h.html" title="Bounded recursive DER validation, traversal and canonical writing.">tlv/builtins/asn1/der_profile.h</a> for bounded recursive validation and error offsets.   </p>
 
 </div>
 </div>

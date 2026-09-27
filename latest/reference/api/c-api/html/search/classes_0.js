@@ -39,11 +39,11 @@ var searchData=
   ['tlv_5femv_5ftime_5ft_36',['tlv_emv_time_t',['../structtlv__emv__time__t.html',1,'']]],
   ['tlv_5femv_5ftrack2_5ft_37',['tlv_emv_track2_t',['../structtlv__emv__track2__t.html',1,'']]],
   ['tlv_5ffixed_5fconfig_38',['tlv_fixed_config',['../structtlv__fixed__config.html',1,'']]],
-  ['tlv_5fquery_39',['tlv_query',['../structtlv__query.html',1,'']]],
-  ['tlv_5fquery_5fmatcher_40',['tlv_query_matcher',['../structtlv__query__matcher.html',1,'']]],
-  ['tlv_5freader_41',['tlv_reader',['../structtlv__reader.html',1,'']]],
-  ['tlv_5freader_5fdiagnostic_42',['tlv_reader_diagnostic',['../structtlv__reader__diagnostic.html',1,'']]],
-  ['tlv_5freader_5fformat_43',['tlv_reader_format',['../structtlv__reader__format.html',1,'']]],
+  ['tlv_5fformat_39',['tlv_format',['../structtlv__format.html',1,'']]],
+  ['tlv_5fquery_40',['tlv_query',['../structtlv__query.html',1,'']]],
+  ['tlv_5fquery_5fmatcher_41',['tlv_query_matcher',['../structtlv__query__matcher.html',1,'']]],
+  ['tlv_5freader_42',['tlv_reader',['../structtlv__reader.html',1,'']]],
+  ['tlv_5freader_5fdiagnostic_43',['tlv_reader_diagnostic',['../structtlv__reader__diagnostic.html',1,'']]],
   ['tlv_5fschema_5fdiagnostic_44',['tlv_schema_diagnostic',['../structtlv__schema__diagnostic.html',1,'']]],
   ['tlv_5fschema_5fdiagnostic_5freport_45',['tlv_schema_diagnostic_report',['../structtlv__schema__diagnostic__report.html',1,'']]],
   ['tlv_5fschema_5fentry_5ft_46',['tlv_schema_entry_t',['../structtlv__schema__entry__t.html',1,'']]],
@@ -59,6 +59,5 @@ var searchData=
   ['tlv_5fvalue_5ft_56',['tlv_value_t',['../structtlv__value__t.html',1,'']]],
   ['tlv_5fview_5ft_57',['tlv_view_t',['../structtlv__view__t.html',1,'']]],
   ['tlv_5fwriter_58',['tlv_writer',['../structtlv__writer.html',1,'']]],
-  ['tlv_5fwriter_5fdiagnostic_59',['tlv_writer_diagnostic',['../structtlv__writer__diagnostic.html',1,'']]],
-  ['tlv_5fwriter_5fformat_60',['tlv_writer_format',['../structtlv__writer__format.html',1,'']]]
+  ['tlv_5fwriter_5fdiagnostic_59',['tlv_writer_diagnostic',['../structtlv__writer__diagnostic.html',1,'']]]
 ];

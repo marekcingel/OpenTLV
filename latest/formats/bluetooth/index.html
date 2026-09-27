@@ -2806,12 +2806,8 @@ only the format descriptor differs.</p>
 <td><code>tlv/builtins/bluetooth/bluetooth_ltv.h</code></td>
 </tr>
 <tr>
-<td>Reader descriptor</td>
-<td><code>tlv_reader_format_bluetooth_ltv</code></td>
-</tr>
-<tr>
-<td>Writer descriptor</td>
-<td><code>tlv_writer_format_bluetooth_ltv</code></td>
+<td>Descriptor</td>
+<td><code>tlv_format_bluetooth_ltv</code></td>
 </tr>
 <tr>
 <td>CMake option (default ON)</td>
@@ -2945,7 +2941,7 @@ is reported as a value of 2 bytes.</p>
 </tbody>
 </table>
 <h2 id="parsing">Parsing<a class="headerlink" href="#parsing" title="Permanent link">&para;</a></h2>
-<p>Select the format by passing <code>tlv_reader_format_bluetooth_ltv</code> to
+<p>Select the format by passing <code>tlv_format_bluetooth_ltv</code> to
 <code>tlv_reader_init</code>, then call <code>tlv_reader_next</code> until it stops returning
 <code>TLV_OK</code>. Each <code>tlv_view_t</code> gives the type in <code>view.tag</code> and the value in
 <code>view.value</code>.</p>
@@ -2963,7 +2959,7 @@ is reported as a value of 2 bytes.</p>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="p">;</span>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_reader_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="n">advertising</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">advertising</span><span class="p">),</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">                        </span><span class="o">&amp;</span><span class="n">tlv_reader_format_bluetooth_ltv</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">                        </span><span class="o">&amp;</span><span class="n">tlv_format_bluetooth_ltv</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_reader_next</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">view</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -2992,7 +2988,7 @@ CLI:</p>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>offset=3 tag=09 length=2 value=4869
 </code></pre></div>
 <h2 id="encoding">Encoding<a class="headerlink" href="#encoding" title="Permanent link">&para;</a></h2>
-<p>Writing uses <code>tlv_writer_format_bluetooth_ltv</code> with the same <code>tlv_write</code> and
+<p>Writing uses <code>tlv_format_bluetooth_ltv</code> with the same <code>tlv_write</code> and
 <code>tlv_writer_write</code> calls as any other format. The writer emits the length byte
 (<code>value length + 1</code>) followed by the type byte and the value.</p>
 <table>

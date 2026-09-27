@@ -2900,10 +2900,11 @@ An empty container still has to satisfy required-child rules. Limits bound
 tree depth and the total number of elements. Validation rescans each scope for
 each rule rather than allocating occurrence counters.</p>
 <p><code>tlv_codec_t</code> converts an individual raw value. <code>tlv_structure_codec_t</code> maps a
-complete sequence into a caller-owned object, using explicit <code>reader_format</code> and <code>writer_format</code> pointers, an optional
+complete sequence into a caller-owned object, using an explicit <code>format</code> pointer, an optional
 <code>is_constructed</code> predicate, and an optional structure schema. Decode requires
-only the reader format. Encode needs the writer format and the matching reader
-format for validation of produced bytes. It validates input before calling the object decoder
+<code>format</code> to be able to read. Encode needs it to also be able to write, since
+producing bytes and then validating them both go through the same descriptor.
+It validates input before calling the object decoder
 and validates encoded bytes before reporting success. It does not infer member
 offsets or allocate application objects. Application callbacks map fields and
 can invoke value codecs. Both APIs document object representation and ownership
@@ -3053,6 +3054,26 @@ It receives the reader format context. BER and DER provide
 both format pointers and the separate nesting predicate, and decode/encode
 callbacks receive their corresponding format type. Rebuild all consumers
 because the descriptor and affected API layouts have changed. (#68)</p>
+<p>Reunify the reader and writer format descriptors that #68 split apart:
+<code>tlv_reader_format_t</code>/<code>tlv_writer_format_t</code> are replaced by one <code>tlv_format_t</code>
+whose read and write callback groups are each independently optional. A
+format that only fills in the read group cannot be used to write, and vice
+versa; a format missing the capability an operation needs now fails at
+<code>tlv_reader_init</code>/<code>tlv_writer_init</code>/<code>tlv_structure_decode</code>-or-<code>_encode</code>/
+<code>tlv_document_create</code> time instead of being rejected by the compiler. Replace
+<code>tlv_reader_format_&lt;name&gt;</code>/<code>tlv_writer_format_&lt;name&gt;</code> constants with the
+single <code>tlv_format_&lt;name&gt;</code> per format. Replace
+<code>tlv_reader_format_init</code>/<code>tlv_writer_format_init</code>/<code>tlv_reader_format_init_element</code>/
+<code>tlv_writer_format_init_header</code> with <code>tlv_format_init</code>/<code>tlv_format_init_element</code>,
+and the private <code>tlv_reader_format_usable</code>/<code>tlv_writer_format_usable</code> checks
+with the now-public <code>tlv_format_can_read</code>/<code>tlv_format_can_write</code>.
+<code>tlv_fixed_reader_format_init</code>/<code>tlv_fixed_writer_format_init</code> become one
+<code>tlv_fixed_format_init</code>. <code>tlv_structure_codec_t</code> and <code>tlv_document_options_t</code>
+each replace their separate <code>reader_format</code>/<code>writer_format</code> pointers with one
+<code>format</code> field, and <code>tlv_document_options_init</code> drops its <code>writer_format</code>
+parameter. <code>tlv::document_format</code> and <code>tlv::fixed_format&lt;&gt;</code> (<code>tlv++</code>) collapse
+the same way, with <code>fixed_format&lt;&gt;::reader()</code>/<code>::writer()</code> replaced by
+<code>::format()</code>. Rebuild all consumers. (#326)</p>
 <p>See also the generated <a href="../../reference/c-api/">C API reference</a> and <a href="../../reference/cxx-api/">C++ API reference</a>.</p>
 
 

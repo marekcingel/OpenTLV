@@ -88,7 +88,7 @@ Files</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__diagnostic.html">tlv_reader_diagnostic</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured detail for a failed <a class="el" href="group__reader.html#ga928a8bb49ea003c9dfa4fdcfcb98ab0c" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__reader.html#ga91c8fedabb172582e19deb52c50d4c50" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a> call.  <a href="structtlv__reader__diagnostic.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured detail for a failed <a class="el" href="group__reader.html#ga66aa99f9e2a39cd6dc1663439fd1d06f" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__reader.html#ga91c8fedabb172582e19deb52c50d4c50" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a> call.  <a href="structtlv__reader__diagnostic.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader.html">tlv_reader</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sequential reader over a caller-owned buffer.  <a href="structtlv__reader.html#details">More...</a><br /></td></tr>
@@ -100,7 +100,7 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:gabf8b5b14db678fec0ef62a89e62ed22f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which parsing step a <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85" title="Structured detail for a failed tlv_read() or tlv_reader_next() call.">tlv_reader_diagnostic_t</a> reports on.  <br /></td></tr>
 <tr class="separator:gabf8b5b14db678fec0ef62a89e62ed22f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga24371a524a13cd9d1cd22b3db640de85" id="r_ga24371a524a13cd9d1cd22b3db640de85"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__reader__diagnostic.html">tlv_reader_diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a></td></tr>
-<tr class="memdesc:ga24371a524a13cd9d1cd22b3db640de85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured detail for a failed <a class="el" href="group__reader.html#ga928a8bb49ea003c9dfa4fdcfcb98ab0c" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__reader.html#ga91c8fedabb172582e19deb52c50d4c50" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a> call.  <br /></td></tr>
+<tr class="memdesc:ga24371a524a13cd9d1cd22b3db640de85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured detail for a failed <a class="el" href="group__reader.html#ga66aa99f9e2a39cd6dc1663439fd1d06f" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__reader.html#ga91c8fedabb172582e19deb52c50d4c50" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a> call.  <br /></td></tr>
 <tr class="separator:ga24371a524a13cd9d1cd22b3db640de85"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabf4c5d3902d19aaea312759ab513f034" id="r_gabf4c5d3902d19aaea312759ab513f034"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__reader.html">tlv_reader</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a></td></tr>
 <tr class="memdesc:gabf4c5d3902d19aaea312759ab513f034"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sequential reader over a caller-owned buffer.  <br /></td></tr>
@@ -118,18 +118,18 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga928a8bb49ea003c9dfa4fdcfcb98ab0c" id="r_ga928a8bb49ea003c9dfa4fdcfcb98ab0c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga928a8bb49ea003c9dfa4fdcfcb98ab0c">tlv_read</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format, <a class="el" href="structtlv__view__t.html">tlv_view_t</a> *out_entry, size_t *consumed)</td></tr>
-<tr class="memdesc:ga928a8bb49ea003c9dfa4fdcfcb98ab0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses one element from the beginning of a buffer.  <br /></td></tr>
-<tr class="separator:ga928a8bb49ea003c9dfa4fdcfcb98ab0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga66aa99f9e2a39cd6dc1663439fd1d06f" id="r_ga66aa99f9e2a39cd6dc1663439fd1d06f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga66aa99f9e2a39cd6dc1663439fd1d06f">tlv_read</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="structtlv__view__t.html">tlv_view_t</a> *out_entry, size_t *consumed)</td></tr>
+<tr class="memdesc:ga66aa99f9e2a39cd6dc1663439fd1d06f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses one element from the beginning of a buffer.  <br /></td></tr>
+<tr class="separator:ga66aa99f9e2a39cd6dc1663439fd1d06f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac84de34d64c807e7cedc9b80442e95df" id="r_gac84de34d64c807e7cedc9b80442e95df"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#gac84de34d64c807e7cedc9b80442e95df">tlv_reader_diagnostic_init</a> (<a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:gac84de34d64c807e7cedc9b80442e95df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets a reader diagnostic to all-unset.  <br /></td></tr>
 <tr class="separator:gac84de34d64c807e7cedc9b80442e95df"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3ba43f4374c3e1c8594a7f20660a1e9e" id="r_ga3ba43f4374c3e1c8594a7f20660a1e9e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga3ba43f4374c3e1c8594a7f20660a1e9e">tlv_read_diag</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format, <a class="el" href="structtlv__view__t.html">tlv_view_t</a> *out_entry, size_t *consumed, <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *out_diagnostic)</td></tr>
-<tr class="memdesc:ga3ba43f4374c3e1c8594a7f20660a1e9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses one element from the beginning of a buffer, with diagnostic detail on failure.  <br /></td></tr>
-<tr class="separator:ga3ba43f4374c3e1c8594a7f20660a1e9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga80ac48c8339e27d2fa57ee70a879f313" id="r_ga80ac48c8339e27d2fa57ee70a879f313"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga80ac48c8339e27d2fa57ee70a879f313">tlv_reader_init</a> (<a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader, const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *format)</td></tr>
-<tr class="memdesc:ga80ac48c8339e27d2fa57ee70a879f313"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a sequential reader.  <br /></td></tr>
-<tr class="separator:ga80ac48c8339e27d2fa57ee70a879f313"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga89bd464ae74c5b0b4eea2f0014fa380f" id="r_ga89bd464ae74c5b0b4eea2f0014fa380f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga89bd464ae74c5b0b4eea2f0014fa380f">tlv_read_diag</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="structtlv__view__t.html">tlv_view_t</a> *out_entry, size_t *consumed, <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *out_diagnostic)</td></tr>
+<tr class="memdesc:ga89bd464ae74c5b0b4eea2f0014fa380f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses one element from the beginning of a buffer, with diagnostic detail on failure.  <br /></td></tr>
+<tr class="separator:ga89bd464ae74c5b0b4eea2f0014fa380f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga74c459c5842057ffc29a3e00278846e9" id="r_ga74c459c5842057ffc29a3e00278846e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9">tlv_reader_init</a> (<a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader, const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format)</td></tr>
+<tr class="memdesc:ga74c459c5842057ffc29a3e00278846e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a sequential reader.  <br /></td></tr>
+<tr class="separator:ga74c459c5842057ffc29a3e00278846e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab5cb4a6d23f0adb8adbe00cce73bd148" id="r_gab5cb4a6d23f0adb8adbe00cce73bd148"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#gab5cb4a6d23f0adb8adbe00cce73bd148">tlv_reader_at_end</a> (const <a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader)</td></tr>
 <tr class="memdesc:gab5cb4a6d23f0adb8adbe00cce73bd148"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether the reader has consumed all input.  <br /></td></tr>
 <tr class="separator:gab5cb4a6d23f0adb8adbe00cce73bd148"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -155,7 +155,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Structured detail for a failed <a class="el" href="group__reader.html#ga928a8bb49ea003c9dfa4fdcfcb98ab0c" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__reader.html#ga91c8fedabb172582e19deb52c50d4c50" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a> call. </p>
+<p>Structured detail for a failed <a class="el" href="group__reader.html#ga66aa99f9e2a39cd6dc1663439fd1d06f" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__reader.html#ga91c8fedabb172582e19deb52c50d4c50" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a> call. </p>
 <p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> with the reader-specific state needed to locate a parsing failure precisely: which step failed, the tag being processed if one was already decoded, the offsets of the fields involved, and the sizes that made the operation fail. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates; <code>tag</code>, like any <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of raw bytes in wire order.">tlv_tag_t</a> a reader produces, borrows the input buffer that was parsed.</p>
 <p>A field not applicable to the failure that produced the diagnostic is left unset, indicated by its paired <code>has_*</code> flag being zero.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__reader.html#gac84de34d64c807e7cedc9b80442e95df" title="Resets a reader diagnostic to all-unset.">tlv_reader_diagnostic_init</a> </dd></dl>
@@ -191,7 +191,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Sequential reader over a caller-owned buffer. </p>
-<p>Initialize with <a class="el" href="group__reader.html#ga80ac48c8339e27d2fa57ee70a879f313" title="Initializes a sequential reader.">tlv_reader_init()</a>. The reader borrows its buffer and format; neither is copied, and both must outlive the reader. </p>
+<p>Initialize with <a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9" title="Initializes a sequential reader.">tlv_reader_init()</a>. The reader borrows its buffer and format; neither is copied, and both must outlive the reader. </p>
 
 </div>
 </div>
@@ -223,8 +223,8 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ga928a8bb49ea003c9dfa4fdcfcb98ab0c" name="ga928a8bb49ea003c9dfa4fdcfcb98ab0c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga928a8bb49ea003c9dfa4fdcfcb98ab0c">&#9670;&#160;</a></span>tlv_read()</h2>
+<a id="ga66aa99f9e2a39cd6dc1663439fd1d06f" name="ga66aa99f9e2a39cd6dc1663439fd1d06f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga66aa99f9e2a39cd6dc1663439fd1d06f">&#9670;&#160;</a></span>tlv_read()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -244,7 +244,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
           <td class="paramname"><em>format</em>, </td>
         </tr>
         <tr>
@@ -299,8 +299,8 @@ Any callback error, propagated unchanged.</dd></dl>
 
 </div>
 </div>
-<a id="ga3ba43f4374c3e1c8594a7f20660a1e9e" name="ga3ba43f4374c3e1c8594a7f20660a1e9e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga3ba43f4374c3e1c8594a7f20660a1e9e">&#9670;&#160;</a></span>tlv_read_diag()</h2>
+<a id="ga89bd464ae74c5b0b4eea2f0014fa380f" name="ga89bd464ae74c5b0b4eea2f0014fa380f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga89bd464ae74c5b0b4eea2f0014fa380f">&#9670;&#160;</a></span>tlv_read_diag()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -320,7 +320,7 @@ Any callback error, propagated unchanged.</dd></dl>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
           <td class="paramname"><em>format</em>, </td>
         </tr>
         <tr>
@@ -350,7 +350,7 @@ Any callback error, propagated unchanged.</dd></dl>
 </div><div class="memdoc">
 
 <p>Parses one element from the beginning of a buffer, with diagnostic detail on failure. </p>
-<p>Behaves exactly like <a class="el" href="group__reader.html#ga928a8bb49ea003c9dfa4fdcfcb98ab0c" title="Parses one element from the beginning of a buffer.">tlv_read()</a>; additionally, when <code>out_diagnostic</code> is not <code>NULL</code> and parsing fails, it is filled with detail about the failure.</p>
+<p>Behaves exactly like <a class="el" href="group__reader.html#ga66aa99f9e2a39cd6dc1663439fd1d06f" title="Parses one element from the beginning of a buffer.">tlv_read()</a>; additionally, when <code>out_diagnostic</code> is not <code>NULL</code> and parsing fails, it is filled with detail about the failure.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Encoded input. May be <code>NULL</code> only when <code>size</code> is zero. </td></tr>
@@ -362,7 +362,7 @@ Any callback error, propagated unchanged.</dd></dl>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Same as <a class="el" href="group__reader.html#ga928a8bb49ea003c9dfa4fdcfcb98ab0c" title="Parses one element from the beginning of a buffer.">tlv_read()</a>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Same as <a class="el" href="group__reader.html#ga66aa99f9e2a39cd6dc1663439fd1d06f" title="Parses one element from the beginning of a buffer.">tlv_read()</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On failure both <code>out_entry</code> and <code>consumed</code> remain unchanged. </dd>
 <dd>
 On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
@@ -423,8 +423,8 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
 
 </div>
 </div>
-<a id="ga80ac48c8339e27d2fa57ee70a879f313" name="ga80ac48c8339e27d2fa57ee70a879f313"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga80ac48c8339e27d2fa57ee70a879f313">&#9670;&#160;</a></span>tlv_reader_init()</h2>
+<a id="ga74c459c5842057ffc29a3e00278846e9" name="ga74c459c5842057ffc29a3e00278846e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga74c459c5842057ffc29a3e00278846e9">&#9670;&#160;</a></span>tlv_reader_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -450,7 +450,7 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
           <td class="paramname"><em>format</em>&#160;</td>
         </tr>
         <tr>
@@ -516,7 +516,7 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
-Any error of <a class="el" href="group__reader.html#ga928a8bb49ea003c9dfa4fdcfcb98ab0c" title="Parses one element from the beginning of a buffer.">tlv_read()</a> otherwise.</dd></dl>
+Any error of <a class="el" href="group__reader.html#ga66aa99f9e2a39cd6dc1663439fd1d06f" title="Parses one element from the beginning of a buffer.">tlv_read()</a> otherwise.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On error both the reader position and <code>*out_entry</code> remain unchanged. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>The caller must keep the original buffer alive while the returned view is used. </dd></dl>
 

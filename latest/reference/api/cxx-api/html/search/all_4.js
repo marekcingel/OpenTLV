@@ -6,7 +6,7 @@ var searchData=
   ['emv_5fcodec_2eh_3',['emv_codec.h',['../../../c-api/html/emv__codec_8h.html',1,'']]],
   ['emv_5fschema_2eh_4',['emv_schema.h',['../../../c-api/html/emv__schema_8h.html',1,'']]],
   ['enclosing_5fend_5',['enclosing_end',['../../../c-api/html/structtlv__reader__diagnostic.html#a6cf95a0947823bf620f9c9e23af56204',1,'tlv_reader_diagnostic']]],
-  ['encode_6',['encode',['../classtlv_1_1document.html#aec2ac27f2f69570b4a7a1a24197a75ed',1,'tlv::document::encode()'],['../classtlv_1_1node.html#a4e59c48957fafc2136170fb624ebbaec',1,'tlv::node::encode()'],['../../../c-api/html/structtlv__structure__codec.html#a785388ba1b841b5b8ceb2c61deccf19b',1,'tlv_structure_codec::encode'],['../../../c-api/html/structtlv__codec.html#aee40d5f01a1b83dced9d3d4964114ed2',1,'tlv_codec::encode']]],
+  ['encode_6',['encode',['../classtlv_1_1document.html#aec2ac27f2f69570b4a7a1a24197a75ed',1,'tlv::document::encode()'],['../classtlv_1_1node.html#a4e59c48957fafc2136170fb624ebbaec',1,'tlv::node::encode()'],['../../../c-api/html/structtlv__structure__codec.html#ae81b6b1326b91dfef534b501ce1d2412',1,'tlv_structure_codec::encode'],['../../../c-api/html/structtlv__codec.html#aee40d5f01a1b83dced9d3d4964114ed2',1,'tlv_codec::encode']]],
   ['encode_5fstructure_7',['encode_structure',['../namespacetlv.html#a381b1a75e995915bea55b0b5a49916ad',1,'tlv']]],
   ['encoded_5fsize_8',['encoded_size',['../classtlv_1_1node.html#a775913fcd4ac5198f25e28975da33b33',1,'tlv::node::encoded_size()'],['../classtlv_1_1document.html#a540a6d7fbf6c56c899370626c6f2da69',1,'tlv::document::encoded_size()']]],
   ['end_9',['end',['../classtlv_1_1node__range.html#af81c16246a21e4da33962b99e933fe44',1,'tlv::node_range']]],

@@ -82,10 +82,8 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:ad8879b746293de2ea3632e542a94a5fe" id="r_ad8879b746293de2ea3632e542a94a5fe"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__document__options.html#ad8879b746293de2ea3632e542a94a5fe">reader_format</a></td></tr>
-<tr class="separator:ad8879b746293de2ea3632e542a94a5fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac98b09388ab0f4421b7c23abda114a22" id="r_ac98b09388ab0f4421b7c23abda114a22"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__document__options.html#ac98b09388ab0f4421b7c23abda114a22">writer_format</a></td></tr>
-<tr class="separator:ac98b09388ab0f4421b7c23abda114a22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab85c9fe0dbcfd29ac47cea669ee1ccbb" id="r_ab85c9fe0dbcfd29ac47cea669ee1ccbb"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__document__options.html#ab85c9fe0dbcfd29ac47cea669ee1ccbb">format</a></td></tr>
+<tr class="separator:ab85c9fe0dbcfd29ac47cea669ee1ccbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a32266f6299ef3e105009d004ae7f65fa" id="r_a32266f6299ef3e105009d004ae7f65fa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__document__options.html#a32266f6299ef3e105009d004ae7f65fa">is_constructed</a></td></tr>
 <tr class="separator:a32266f6299ef3e105009d004ae7f65fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68816023625019c2478ea50d78bc1d78" id="r_a68816023625019c2478ea50d78bc1d78"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__document__options.html#a68816023625019c2478ea50d78bc1d78">max_depth</a></td></tr>
@@ -97,7 +95,7 @@ Data Fields</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Format descriptor and limits of a document. </p>
-<p>Initialize with <a class="el" href="group__document.html#gadb3b3cd7d2d847b5d4bcef1e23b5d252" title="Fills options with the given formats and the default limits.">tlv_document_options_init()</a>. The document copies this structure, but the formats, the format contexts and the allocator context are borrowed and must outlive the document. </p>
+<p>Initialize with <a class="el" href="group__document.html#ga76b4eedab231949e62378a111abdbd7a" title="Fills options with the given format and the default limits.">tlv_document_options_init()</a>. The document copies this structure, but the format, the format's context and the allocator context are borrowed and must outlive the document. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a0e2f53c9f3d13eb9f709bf4fe2eff380" name="a0e2f53c9f3d13eb9f709bf4fe2eff380"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0e2f53c9f3d13eb9f709bf4fe2eff380">&#9670;&#160;</a></span>allocator</h2>
@@ -114,6 +112,21 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a id="ab85c9fe0dbcfd29ac47cea669ee1ccbb" name="ab85c9fe0dbcfd29ac47cea669ee1ccbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab85c9fe0dbcfd29ac47cea669ee1ccbb">&#9670;&#160;</a></span>format</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a>* tlv_document_options::format</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Format used to parse input and values and to encode the document. Required; must be able to both read and write, see <a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0" title="Reports whether a format can be used for reading.">tlv_format_can_read()</a> and <a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952" title="Reports whether a format can be used for writing.">tlv_format_can_write()</a>. </p>
+
+</div>
+</div>
 <a id="a32266f6299ef3e105009d004ae7f65fa" name="a32266f6299ef3e105009d004ae7f65fa"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a32266f6299ef3e105009d004ae7f65fa">&#9670;&#160;</a></span>is_constructed</h2>
 
@@ -125,7 +138,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Predicate receiving <code>reader_format-&gt;context</code> that tells which tags hold nested elements, or <code>NULL</code> to keep every value opaque. Its answer is taken when a node is created and stays with the node. </p>
+<p>Predicate receiving <code>format-&gt;context</code> that tells which tags hold nested elements, or <code>NULL</code> to keep every value opaque. Its answer is taken when a node is created and stays with the node. </p>
 
 </div>
 </div>
@@ -156,36 +169,6 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Maximum number of elements in the document, including nested ones. </p>
-
-</div>
-</div>
-<a id="ad8879b746293de2ea3632e542a94a5fe" name="ad8879b746293de2ea3632e542a94a5fe"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8879b746293de2ea3632e542a94a5fe">&#9670;&#160;</a></span>reader_format</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#ga8ff1e34ec88031302cf0aa27fa6829d6">tlv_reader_format_t</a>* tlv_document_options::reader_format</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Reader format used to parse input and values. Required. </p>
-
-</div>
-</div>
-<a id="ac98b09388ab0f4421b7c23abda114a22" name="ac98b09388ab0f4421b7c23abda114a22"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac98b09388ab0f4421b7c23abda114a22">&#9670;&#160;</a></span>writer_format</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__formats.html#gace240265c322fab0010f29d2db45aeb4">tlv_writer_format_t</a>* tlv_document_options::writer_format</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Writer format used to encode the document. Required. </p>
 
 </div>
 </div>

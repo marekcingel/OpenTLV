@@ -2895,16 +2895,15 @@ built. Each format keeps its own page with the byte layout and a worked example.
 <p>All formats follow the <a href="../guides/memory/">shared memory ownership rules</a>.</p>
 <p>For canonical ASN.1 framing, nested validation, limits and error offsets, see
 <a href="../profiles/der/">ASN.1 DER-TLV</a> and its sibling <a href="../profiles/cer/">ASN.1 CER-TLV</a>.
-<code>tlv_reader_format_der</code>/<code>tlv_writer_format_der</code> and <code>tlv_reader_format_cer</code>/<code>tlv_writer_format_cer</code>
-also support the generic I/O below.</p>
+<code>tlv_format_der</code> and <code>tlv_format_cer</code> also support the generic I/O below.</p>
 <h2 id="reading-one-element">Reading one element<a class="headerlink" href="#reading-one-element" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/reader/reader.h</code> and call <code>tlv_read</code> to parse one element from the
 beginning of a buffer:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">/* One tag byte and one length byte; config must outlive its readers. */</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_config_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="p">.</span><span class="n">tag_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">};</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">tlv_reader_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">tlv_fixed_reader_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">tlv_view_t</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">;</span>
@@ -2953,16 +2952,16 @@ bytes, then write into a caller-owned buffer:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cm">/* One tag byte and one length byte; config must outlive its writers. */</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_config_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">.</span><span class="n">tag_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">};</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">tlv_writer_format_t</span><span class="w"> </span><span class="n">writer_format</span><span class="p">;</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">tlv_fixed_writer_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">writer_format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x01</span><span class="p">);</span>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xAA</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBB</span><span class="p">,</span><span class="w"> </span><span class="mh">0xCC</span><span class="p">};</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
 <a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">;</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_encoded_size</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">writer_format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">required</span><span class="p">);</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_encoded_size</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">required</span><span class="p">);</span>
 <a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">writer_format</span><span class="p">,</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span>
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">                       </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">);</span>
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="cm">/* On success: written == required; buffer contains 01 03 AA BB CC. */</span>
 <a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">}</span>
@@ -2979,30 +2978,39 @@ The source value must not overlap the destination element. Callback errors
 propagate and may leave partially encoded bytes. <code>tlv_writer_write</code> uses the
 same encoder and advances its position only on success.</p>
 <h2 id="generic-interface">Generic interface<a class="headerlink" href="#generic-interface" title="Permanent link">&para;</a></h2>
-<p>Include <code>tlv/format.h</code> for the allocation-free, type-distinct descriptors:</p>
+<p>Include <code>tlv/format.h</code> for the allocation-free descriptor:</p>
 <ul>
-<li><code>tlv_reader_format_t</code>: <code>context</code>, <code>read_tag</code>, <code>read_length</code>, optional <code>read_value_bounds</code>, optional <code>read_element</code>.</li>
-<li><code>tlv_writer_format_t</code>: <code>context</code>, <code>write_tag</code>, <code>write_length</code>, <code>length_size</code>, optional <code>write_header</code>.</li>
+<li><code>tlv_format_t</code>: <code>context</code>, then the read callbacks <code>read_tag</code>, <code>read_length</code>,
+  optional <code>read_value_bounds</code>, optional <code>read_element</code>, then the write
+  callbacks <code>write_tag</code>, <code>write_length</code>, <code>length_size</code>, optional <code>write_header</code>.</li>
 </ul>
-<p>Pass the matching descriptor to <code>tlv_reader_init</code> or <code>tlv_writer_init</code> as the
-last argument after the buffer and its size. The descriptor and its optional
-immutable <code>context</code> are borrowed and must remain valid and unchanged throughout use.
-<code>read_tag</code> and <code>read_length</code> are required unless <code>read_element</code> is set, and <code>write_tag</code>,
-<code>write_length</code> and <code>length_size</code> are required unless <code>write_header</code> is set; a custom
-reader needs no write callbacks, and a custom writer needs no read callbacks.</p>
-<p><code>tlv_reader_format_init(format, context, read_tag, read_length)</code> and
-<code>tlv_writer_format_init(format, context, write_tag, write_length, length_size)</code>
-initialize caller-owned descriptors at runtime; <code>tlv_reader_format_init_element</code> and
-<code>tlv_writer_format_init_header</code> do the same for the whole-element callbacks below. They return <code>TLV_OK</code> on success
-or <code>TLV_ERR_INVALID_ARG</code> for a NULL destination or required callback, leaving
-the destination unchanged on failure. A NULL context is valid. Static C
-initialization can use designated fields. The named callback typedefs are
-<code>tlv_read_tag_fn</code>, <code>tlv_read_length_fn</code>, <code>tlv_read_value_bounds_fn</code>, <code>tlv_write_tag_fn</code>,
-<code>tlv_write_length_fn</code>, <code>tlv_length_size_fn</code>, <code>tlv_read_element_fn</code>, and <code>tlv_write_header_fn</code>.</p>
-<p>The two descriptor pointer types are incompatible. C++ rejects a direction
-mismatch; C builds with <code>-std=c11 -Wall -Wextra -Werror</code> reject it as well.
-Without warnings-as-errors, a C compiler may diagnose the mismatch and continue.
-No combined format descriptor or compatibility alias is provided.</p>
+<p>Pass the descriptor to <code>tlv_reader_init</code> or <code>tlv_writer_init</code> as the last
+argument after the buffer and its size. The descriptor and its optional
+immutable <code>context</code> are borrowed and must remain valid and unchanged throughout
+use. Read and write capability are independently optional: <code>read_tag</code> and
+<code>read_length</code> are required for reading unless <code>read_element</code> is set, and
+<code>write_tag</code>, <code>write_length</code> and <code>length_size</code> are required for writing unless
+<code>write_header</code> is set. A format that leaves an entire group unset (all <code>NULL</code>)
+simply cannot be used in that direction — <code>tlv_reader_init</code>/<code>tlv_writer_init</code>
+report <code>TLV_ERR_NULL_ARG</code> for a format lacking the capability they need, the
+same code used for a <code>NULL</code> pointer — so a read-only format needs no write
+callbacks, and a write-only format needs no read callbacks.
+<code>tlv_format_can_read(format)</code>/<code>tlv_format_can_write(format)</code> report a format's
+capability without attempting an operation.</p>
+<p><code>tlv_format_init(format, context, read_tag, read_length, write_tag, write_length,
+length_size)</code> initializes a caller-owned descriptor at runtime: pass both
+<code>read_tag</code> and <code>read_length</code> for read capability (or both <code>NULL</code> to leave
+reading unsupported), and all three write callbacks for write capability (or
+all <code>NULL</code> to leave writing unsupported); at least one group must be given.
+<code>tlv_format_init_element(format, context, read_element, write_header)</code> does the
+same for the whole-element callbacks below, with <code>read_element</code> and
+<code>write_header</code> independently optional but not both <code>NULL</code>. Both return
+<code>TLV_OK</code> on success or <code>TLV_ERR_INVALID_ARG</code> for a NULL destination, a partial
+group, or neither group given, leaving the destination unchanged on failure. A
+NULL context is valid. Static C initialization can use designated fields. The
+named callback typedefs are <code>tlv_read_tag_fn</code>, <code>tlv_read_length_fn</code>,
+<code>tlv_read_value_bounds_fn</code>, <code>tlv_write_tag_fn</code>, <code>tlv_write_length_fn</code>,
+<code>tlv_length_size_fn</code>, <code>tlv_read_element_fn</code>, and <code>tlv_write_header_fn</code>.</p>
 <p>Callbacks receive the context and a bounded byte range; return a <code>tlv_result_t</code>
 and report consumed or written bytes through their output pointer.</p>
 <p><code>write_tag(context, NULL, 0, tag, &amp;size)</code> is a mandatory validation and sizing
@@ -3020,22 +3028,21 @@ consecutive ranges: the length field, the borrowed value, and trailing framing.
 The core checks each size against the remaining input before publishing outputs.
 The value view excludes the trailer, while <code>consumed</code> includes it. Format-specific
 resolution, including BER EOC matching, stays in this callback.</p>
-<p>This appended field changes the reader descriptor ABI: rebuild the library and
-all consumers together. <code>tlv_reader_format_init</code> keeps its signature and clears
+<p>This appended field changes the descriptor ABI: rebuild the library and
+all consumers together. <code>tlv_format_init</code> keeps its signature and clears
 the optional callback; assign it afterwards when needed. Custom aggregate
 initializers should explicitly append <code>NULL</code> (C) or <code>nullptr</code> (C++) to avoid
 missing-field warnings. Descriptors assigned field by field must initialize the
-new field too. The writer descriptor and <code>tlv_view_t</code> are unchanged.</p>
+new field too. <code>tlv_view_t</code> is unchanged.</p>
 <p>On failure, reader position and output remain unchanged. Writer position also
 remains unchanged, but an encoding callback failure may leave modified bytes
 beyond that position. Callbacks must obey their buffer bounds; the core checks
 reported sizes but cannot undo an out-of-bounds write by a custom callback.
 Source values passed to the writer must not overlap the destination item.</p>
 <p><code>tlv_reader_init</code> and <code>tlv_writer_init</code> require an explicit format argument.
-The C++ reader constructor requires <code>const tlv_reader_format_t&amp;</code>; the writer
-constructor requires <code>const tlv_writer_format_t&amp;</code> as its last argument. There are no implicit-format overloads.
-<code>tlv_reader_format_default</code> and <code>tlv_writer_format_default</code> are public const
-descriptors for one raw tag byte and a
+The C++ reader and writer constructors both require <code>const tlv_format_t&amp;</code> as
+their last argument. There are no implicit-format overloads.
+<code>tlv_format_default</code> is a public const descriptor for one raw tag byte and a
 definite BER-style length of up to 65535; it does not implement full BER-TLV tags.
 Reader and writer structs store a borrowed format pointer; rebuild consumers.</p>
 <p>For a complete custom format, see <code>tests/integration/format_test.cpp</code>: it defines
@@ -3048,8 +3055,8 @@ requires a descriptor and callbacks in application code, without parser edits.</
 <code>tlv/builtins/asn1/der.h</code>, and <code>tlv/builtins/asn1/cer.h</code>. The generic <code>format.h</code>
 declares only the contract.</p>
 <p>The separate optional <code>tlv_is_constructed_fn</code> traversal argument identifies
-values containing child TLVs in the same format. It receives the reader
-format context and a parsed tag. NULL means opaque values. Pass
+values containing child TLVs in the same format. It receives the format's
+context and a parsed tag. NULL means opaque values. Pass
 <code>tlv_ber_is_constructed</code>, <code>tlv_der_is_constructed</code> or <code>tlv_cer_is_constructed</code>
 to inspect the respective constructed bit; pass NULL for opaque default and
 fixed-format values.

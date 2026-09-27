@@ -2755,8 +2755,7 @@ also available as a <a href="https://www.scribd.com/document/648236969/EMV-v4-4-
 Tag constants, schema entries, length steps, and codec bindings are maintained
 together in <a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/include/tlv/builtins/emv/emv_tags.def">emv_tags.def</a>.</p>
 <h2 id="framing-and-lookup">Framing and lookup<a class="headerlink" href="#framing-and-lookup" title="Permanent link">&para;</a></h2>
-<p>Use <code>&amp;tlv_reader_format_ber</code> with the reader, walker, or scanner, and
-<code>&amp;tlv_writer_format_ber</code> with the writer.
+<p>Use <code>&amp;tlv_format_ber</code> with the reader, walker, scanner, or writer.
 There is no separate EMV parser and the reader never interprets values.
 The existing <code>tlv_emv_tag_*</code> objects use the universal <code>tlv_tag_t</code>.
 Each has a numeric integer constant expression with the <code>_u64</code> suffix,
@@ -2785,7 +2784,7 @@ optional codec, and length step. Unknown tags and invalid contexts return NULL.<
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="cm">/* Inside a function; wire contains an Amount, Authorised (Numeric) TLV. */</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">tlv_view_t</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">;</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="n">wire_size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="n">wire_size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_emv_definition_t</span><span class="o">*</span><span class="w"> </span><span class="n">def</span><span class="w"> </span><span class="o">=</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">        </span><span class="n">tlv_emv_find</span><span class="p">(</span><span class="n">TLV_EMV_CONTEXT_BASE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">);</span>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">def</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tlv_emv_validate_length</span><span class="p">(</span><span class="n">def</span><span class="p">,</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span>
@@ -2800,7 +2799,7 @@ optional codec, and length step. Unknown tags and invalid contexts return NULL.<
 </code></pre></div>
 <p>For writing, explicitly encode the C value with <code>tlv_codec_encode()</code> into
 caller-owned storage, then pass those bytes and the tag to <code>tlv_write()</code> or
-<code>tlv_writer_write()</code> with <code>&amp;tlv_reader_format_ber</code>. Every semantic codec supports
+<code>tlv_writer_write()</code> with <code>&amp;tlv_format_ber</code>. Every semantic codec supports
 the generic encoding size query (<code>data == NULL</code>, <code>capacity == 0</code>).</p>
 <h2 id="contexts">Contexts<a class="headerlink" href="#contexts" title="Permanent link">&para;</a></h2>
 <p>A tag's meaning can depend on its enclosing template. For example, <code>81</code> means
@@ -2997,7 +2996,7 @@ and issuer for a generic schema and are accepted unchecked at the root.</p>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="cm">/* Inside a function; wire/size hold one or more concatenated EMV elements. */</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="kt">size_t</span><span class="w">       </span><span class="n">offset</span><span class="p">;</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_ber</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">                                      </span><span class="n">tlv_ber_is_constructed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_emv_structure_schema</span><span class="p">,</span>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">                                      </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="cm">/* TLV_OK, or an element-anchored TLV_ERR_SCHEMA/TLV_ERR_INVALID_LENGTH, or</span>
@@ -3081,7 +3080,7 @@ it does not introduce a separate wire-format descriptor.</p>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>`-- Value:  00 00 00 00 12 34
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    `-- Explicit EMV numeric decoding: 1234 minor units
 </code></pre></div>
-<p>Read the framing with <code>tlv_reader_format_ber</code>, then explicitly decode the value
+<p>Read the framing with <code>tlv_format_ber</code>, then explicitly decode the value
 with <code>tlv_emv_codec_amount</code> into caller-owned storage. Currency and decimal scale
 come from application context; the codec does not assign them. This one data
 object does not represent a complete or validated transaction.</p>

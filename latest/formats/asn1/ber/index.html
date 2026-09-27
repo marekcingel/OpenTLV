@@ -2826,12 +2826,8 @@
 <td><code>tlv/builtins/asn1/ber.h</code></td>
 </tr>
 <tr>
-<td>Reader descriptor</td>
-<td><code>tlv_reader_format_ber</code></td>
-</tr>
-<tr>
-<td>Writer descriptor</td>
-<td><code>tlv_writer_format_ber</code></td>
+<td>Descriptor</td>
+<td><code>tlv_format_ber</code></td>
 </tr>
 <tr>
 <td>CMake option (default ON)</td>
@@ -2858,10 +2854,10 @@
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">tlv_view_t</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_write</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_writer_format_ber</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_write</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">                  </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_ber</span><span class="p">,</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">                 </span><span class="o">&amp;</span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&amp;&amp;</span>
@@ -2869,8 +2865,7 @@
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">           </span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x2A</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="p">}</span>
 </code></pre></div>
-<p>Use <code>tlv_reader_format_ber</code> with the reader and <code>tlv_writer_format_ber</code> with
-the writer for raw BER-TLV tags
+<p>Use <code>tlv_format_ber</code> with the reader and the writer for raw BER-TLV tags
 such as <code>5A</code>, <code>5F 2A</code>, <code>9F 1C</code>, and <code>9F 81 01</code>. Tags retain their wire bytes,
 including class and constructed bits. High-tag-number form ends at the first
 subsequent byte with bit 7 clear; its first subsequent byte must have a nonzero
@@ -2888,7 +2883,7 @@ BER-family format shares them. ASN.1 type semantics such as <code>INTEGER</code>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">input</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xA0</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">};</span><span class="w"> </span><span class="cm">/* Context-specific, constructed, tag 0 */</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">tlv_view_t</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">input</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">input</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">tlv_asn1_class_t</span><span class="w"> </span><span class="n">cls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_ber_tag_class</span><span class="p">(</span><span class="o">&amp;</span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">);</span><span class="w">         </span><span class="cm">/* TLV_ASN1_CONTEXT_SPECIFIC */</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">constructed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_ber_tag_is_constructed</span><span class="p">(</span><span class="o">&amp;</span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">);</span><span class="w">     </span><span class="cm">/* 1 */</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">number</span><span class="p">;</span>
@@ -2910,7 +2905,7 @@ apply a canonical primitive/constructed rule tied to a universal type number
 (for example DER's <code>must be constructed</code> rule for <code>SEQUENCE</code>): BER accepts
 either form for every tag number. The only identifier <code>tlv_ber_tag_make()</code>
 rejects outright is the reserved EOC tag (universal class, tag number 0, in
-either form), matching <code>tlv_reader_format_ber</code> and <code>tlv_writer_format_ber</code>.
+either form), matching <code>tlv_format_ber</code>.
 See <a href="../der/">DER</a> for the canonical restrictions.</p>
 <p>Definite lengths range from zero through <code>SIZE_MAX</code> (the complete element must
 also fit <code>size_t</code>). The writer uses short form below 128 and the shortest
@@ -2958,7 +2953,7 @@ destination must not overlap. Capacity failures leave bytes and outputs unchange
 An empty sequence accepts <code>NULL, 0</code> children. NULL destination with zero capacity
 reports insufficient capacity; use the separate size query for sizing.
 <code>tlv_ber_writer_write_indefinite</code> appends to a stateful writer initialized with
-<code>&amp;tlv_writer_format_ber</code> and advances its position only on success.</p>
+<code>&amp;tlv_format_ber</code> and advances its position only on success.</p>
 <p>The C++ <code>tlv::reader</code>, traversal, and schema wrappers support indefinite input
 through the same BER descriptor. Include <code>tlv++/builtins/asn1/ber.hpp</code> for
 <code>tlv::ber_write_indefinite(buffer, capacity, tag, children)</code>, returning
@@ -3002,14 +2997,14 @@ every build regardless of the current build's <code>size_t</code> width:</p>
 </code></pre></div>
 <p><code>tlv_ber_length_decode</code> accepts short form and long form, including nonminimal
 (zero-padded) long-form encodings whose numeric value still fits <code>tlv_length_t</code>
--- the same nonminimal acceptance as <code>tlv_reader_format_ber</code>, just against the
+-- the same nonminimal acceptance as <code>tlv_format_ber</code>, just against the
 full 64-bit range instead of the current build's <code>size_t</code>. The indefinite
 marker (<code>80</code> alone) and the reserved <code>FF</code> prefix are rejected with
 <code>TLV_ERR_INVALID_LENGTH</code>, as is a padded value wider than <code>tlv_length_t</code> or
 nonzero excess padding. A field that declares more length octets than
 <code>data_size</code> provides returns <code>TLV_ERR_BUFFER_TOO_SHORT</code>. It does not process
 the indefinite-length marker's associated content or constructed EOC framing;
-use <code>tlv_reader_format_ber</code> or <code>tlv_ber_write_indefinite</code> for that.</p>
+use <code>tlv_format_ber</code> or <code>tlv_ber_write_indefinite</code> for that.</p>
 <p><code>tlv_ber_length_encode</code> always produces the shortest definite form and
 supports a size query: pass <code>out == NULL</code> with <code>out_capacity == 0</code> to receive
 the required size in <code>*written</code> without writing. <code>TLV_BER_LENGTH_MAX_ENCODED_SIZE</code>
@@ -3031,7 +3026,7 @@ tag; callers pick the matching codec themselves, typically from a schema or
 dictionary:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/asn1_codec.h"</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="cm">/* view.value already read through tlv_reader_format_ber, DER or CER */</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="cm">/* view.value already read through tlv_format_ber, DER or CER */</span>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kt">int64_t</span><span class="w"> </span><span class="n">number</span><span class="p">;</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kt">size_t</span><span class="w">  </span><span class="n">length</span><span class="p">;</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_length_to_size</span><span class="p">(</span><span class="n">view</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span>
@@ -3089,7 +3084,7 @@ representations borrow nothing (self-contained); generic TIME, DURATION and
 OID-IRI/RELATIVE-OID-IRI's arc labels borrow the input value bytes.</p>
 <p>Every codec enforces the same canonical content rules ITU-T X.690 section 11
 defines for DER and CER, even when the raw value was read through the more
-permissive <code>tlv_reader_format_ber</code>: for example a BOOLEAN of <code>01</code>, a
+permissive <code>tlv_format_ber</code>: for example a BOOLEAN of <code>01</code>, a
 non-minimal two's complement INTEGER, or a UTCTime missing its trailing <code>Z</code>,
 is rejected with <code>TLV_CODEC_ERR_INVALID_VALUE</code>. See
 <code>tlv/builtins/asn1/asn1_codec.h</code> for each codec's exact content and
@@ -3182,7 +3177,7 @@ Use <code>tlv_walk_tree</code> with <code>tlv_ber_is_constructed</code> to trave
 <p>The returned outer value excludes its EOC; the consumed byte count includes it.
 Primitive indefinite-length values are rejected. Ordinary BER writing emits
 definite lengths; use <code>tlv_ber_write_indefinite</code> for explicit indefinite output.
-Use <code>tlv_reader_format_ber</code> / <code>tlv_writer_format_ber</code>.
+Use <code>tlv_format_ber</code>.
 <a href="./">BER rules and limits</a></p>
 
 

@@ -75,7 +75,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Structured detail for a failed <a class="el" href="group__writer.html#ga720c1e8a56a41c1053a2691efee6874a" title="Encodes one element directly into caller-owned memory.">tlv_write()</a> or <a class="el" href="group__writer.html#ga48781a827e6327c0ae5557286cf25b5c" title="Writes one TLV element at the writer&#39;s current position.">tlv_writer_write()</a> call.  
+<p>Structured detail for a failed <a class="el" href="group__writer.html#gacf33218620291433b9ddccbc58798241" title="Encodes one element directly into caller-owned memory.">tlv_write()</a> or <a class="el" href="group__writer.html#ga48781a827e6327c0ae5557286cf25b5c" title="Writes one TLV element at the writer&#39;s current position.">tlv_writer_write()</a> call.  
  <a href="structtlv__writer__diagnostic.html#details">More...</a></p>
 
 <p><code>#include &lt;writer.h&gt;</code></p>
@@ -104,7 +104,7 @@ Data Fields</h2></td></tr>
 <tr class="separator:a90e2b7f189630d152336f5b2af44e233"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Structured detail for a failed <a class="el" href="group__writer.html#ga720c1e8a56a41c1053a2691efee6874a" title="Encodes one element directly into caller-owned memory.">tlv_write()</a> or <a class="el" href="group__writer.html#ga48781a827e6327c0ae5557286cf25b5c" title="Writes one TLV element at the writer&#39;s current position.">tlv_writer_write()</a> call. </p>
+<div class="textblock"><p>Structured detail for a failed <a class="el" href="group__writer.html#gacf33218620291433b9ddccbc58798241" title="Encodes one element directly into caller-owned memory.">tlv_write()</a> or <a class="el" href="group__writer.html#ga48781a827e6327c0ae5557286cf25b5c" title="Writes one TLV element at the writer&#39;s current position.">tlv_writer_write()</a> call. </p>
 <p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> with the writer-specific state needed to explain an encoding failure: which step failed, the tag being encoded if one was already validated, the value length that was requested, the total encoded size that was required, and the destination capacity that was available. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates; <code>tag</code> borrows the tag passed to the failing call.</p>
 <p>A field not applicable to the failure that produced the diagnostic is left unset, indicated by its paired <code>has_*</code> flag being zero.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__writer.html#ga7625f2cd0222a52934fa1a9c1a7cdcc5" title="Resets a writer diagnostic to all-unset.">tlv_writer_diagnostic_init</a> </dd></dl>
@@ -240,7 +240,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Total encoded size required (tag + length + value), matching what <a class="el" href="group__writer.html#ga3cf101fda19527505e41c3351b769109" title="Computes the encoded size of an element without accessing value bytes.">tlv_encoded_size()</a> reports for the same tag, length and format; valid only if <code>has_required</code> is nonzero. </p>
+<p>Total encoded size required (tag + length + value), matching what <a class="el" href="group__writer.html#ga8bea505ba8d2e9e9f23f54d91ba154f8" title="Computes the encoded size of an element without accessing value bytes.">tlv_encoded_size()</a> reports for the same tag, length and format; valid only if <code>has_required</code> is nonzero. </p>
 
 </div>
 </div>

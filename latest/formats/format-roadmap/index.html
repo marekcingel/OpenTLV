@@ -2878,7 +2878,7 @@ so a candidate's "components" show which layers stay separate.</p>
 <tbody>
 <tr>
 <td>Format adapter</td>
-<td><code>tlv_reader_format_t</code> and <code>tlv_writer_format_t</code> in <code>tlv/format.h</code>; the whole-element callbacks <code>read_element</code> and <code>write_header</code> handle any field order or packing</td>
+<td><code>tlv_format_t</code> in <code>tlv/format.h</code>; the whole-element callbacks <code>read_element</code> and <code>write_header</code> handle any field order or packing</td>
 <td>Splits bytes into tag, header, value and trailer, and writes a header.</td>
 </tr>
 <tr>

@@ -2854,7 +2854,7 @@ borrow checker keeps the input alive for as long as the reader or any entry.</p>
 <code>Reader::with_format</code> takes a <code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>), and
 <code>Reader::with_fixed_format</code> takes a borrowed <code>&amp;FixedFormat</code> for a
 runtime-configurable tag width, length width and length byte order (wraps the C
-<code>tlv_fixed_config_t</code> and <code>tlv_fixed_reader_format_init()</code>/<code>tlv_fixed_writer_format_init()</code>;
+<code>tlv_fixed_config_t</code> and <code>tlv_fixed_format_init()</code>;
 <code>FixedFormat::new(tag_size, length_size, order)</code> returns <code>Result&lt;FixedFormat&gt;</code>
 and must outlive every reader or writer built from it). Malformed input yields
 an <code>Err(Error)</code> item, after which the iterator ends, since the C reader does

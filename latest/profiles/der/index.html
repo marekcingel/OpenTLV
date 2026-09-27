@@ -3008,8 +3008,7 @@ Value-size limits point to the length field; depth/count limits point to the
 first disallowed element. Argument, configuration, total-size and destination
 capacity errors use offset zero. Nested offsets remain absolute. Truncated
 children cannot consume bytes beyond their parent's declared value boundary.</p>
-<p><code>tlv_reader_format_der</code> and <code>tlv_writer_format_der</code> also work with generic C and
-C++ readers and writers, respectively. These descriptors
+<p><code>tlv_format_der</code> also works with generic C and C++ readers and writers. It
 validates <strong>only the current tag and length</strong>. Generic I/O does not inspect
 constructed contents, apply DER resource limits, or provide field offsets.
 Use the DER-specific functions above when those guarantees are required.</p>

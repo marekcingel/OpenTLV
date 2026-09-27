@@ -2670,12 +2670,8 @@
 <td><code>tlv/builtins/asn1/der.h</code></td>
 </tr>
 <tr>
-<td>Reader descriptor</td>
-<td><code>tlv_reader_format_der</code></td>
-</tr>
-<tr>
-<td>Writer descriptor</td>
-<td><code>tlv_writer_format_der</code></td>
+<td>Descriptor</td>
+<td><code>tlv_format_der</code></td>
 </tr>
 <tr>
 <td>CMake option (default ON)</td>
@@ -2702,10 +2698,10 @@
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">tlv_view_t</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_write</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_writer_format_der</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_write</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_der</span><span class="p">,</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">                  </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_reader_format_der</span><span class="p">,</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_der</span><span class="p">,</span>
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">                 </span><span class="o">&amp;</span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&amp;&amp;</span>
@@ -2745,7 +2741,7 @@ functions and <a href="../../../profiles/der/">schemas</a>.</p>
 </code></pre></div>
 <p>The annotations explain ASN.1 meanings; raw I/O does not decode those values.
 Use <code>tlv_der_read</code> for bounded validation of the element and its descendants.
-The generic <code>tlv_reader_format_der</code> / <code>tlv_writer_format_der</code> descriptors validate
+The generic <code>tlv_format_der</code> descriptor validates
 only the current tag and length. Indefinite lengths are rejected. Full ASN.1
 value canonicalization and SET ordering remain outside the supported scope.
 <a href="../../../profiles/der/">DER profile</a></p>
