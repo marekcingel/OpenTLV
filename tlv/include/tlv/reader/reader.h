@@ -159,7 +159,7 @@ TLV_API tlv_result_t tlv_read_diag(const uint8_t* data, size_t size, const tlv_f
  * Initialize with tlv_reader_init(). The reader borrows its buffer and
  * format; neither is copied, and both must outlive the reader, transitively
  * including the format's own context.
- * @see docs/guides/memory.md#format-context-ownership-and-lifetime
+ * @see @docs{guides/memory,format context ownership and lifetime}
  */
 typedef struct tlv_reader {
     /** Borrowed reader format. */

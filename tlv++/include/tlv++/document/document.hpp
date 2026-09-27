@@ -244,7 +244,7 @@ private:
 
 /**
  * @brief Format descriptor of a #tlv::document, as for tlv_walk_tree().
- * @see docs/guides/memory.md#format-context-ownership-and-lifetime
+ * @see @docs{guides/memory,format context ownership and lifetime}
  */
 struct document_format {
     /** Format used for parsing and encoding; its contents are copied, its context is borrowed. */
@@ -280,7 +280,7 @@ struct document_format {
  * is empty and unusable except for destruction and assignment.
  *
  * @warning The format callbacks' contexts are borrowed and must outlive the document.
- * @see docs/guides/memory.md#format-context-ownership-and-lifetime
+ * @see @docs{guides/memory,format context ownership and lifetime}
  */
 class document {
 public:

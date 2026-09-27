@@ -23,7 +23,7 @@ using writer_diagnostic = tlv_writer_diagnostic_t;
  *
  * @warning The caller must keep the buffer, format, and format context
  *          alive for the lifetime of the writer.
- * @see docs/guides/memory.md#format-context-ownership-and-lifetime
+ * @see @docs{guides/memory,format context ownership and lifetime}
  */
 class writer {
 public:

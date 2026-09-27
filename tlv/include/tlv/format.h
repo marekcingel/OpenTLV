@@ -188,7 +188,7 @@ typedef tlv_result_t (*tlv_write_header_fn)(const void* context, uint8_t* data, 
  * that uses them. The descriptor itself is a plain, trivially copyable value;
  * copying it shallow-copies `context` without copying or extending the
  * lifetime of whatever it points to.
- * @see docs/guides/memory.md#format-context-ownership-and-lifetime for the
+ * @see @docs{guides/memory,format context ownership and lifetime} for the
  * full ownership, copying and sharing contract.
  *
  * Read and write capability are independently optional:

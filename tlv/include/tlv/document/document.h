@@ -83,7 +83,7 @@ typedef struct tlv_allocator {
  * Initialize with tlv_document_options_init(). The document copies this
  * structure, but the format, the format's context and the allocator context are
  * borrowed and must outlive the document.
- * @see docs/guides/memory.md#format-context-ownership-and-lifetime
+ * @see @docs{guides/memory,format context ownership and lifetime}
  */
 typedef struct tlv_document_options {
     /**

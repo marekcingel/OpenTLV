@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the Doxygen build failing with an unresolved link to `format`, caused by
+  `@see` comments that spelled out `docs/guides/memory.md#format-context-ownership-and-lifetime`
+  as literal text; use the project's `@docs{}` alias instead, which does not
+  contain a `#` for the autolinker to misinterpret. (#328)
 - Fix the WebAssembly build's `fixed` format selection using module-instance-lifetime
   (`static`) storage instead of per-call storage, which was not reentrant if the
   module were ever invoked recursively or shared across Web Workers; it now
