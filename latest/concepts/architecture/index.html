@@ -2887,7 +2887,7 @@ zero-copy and allocation-free whether or not it is built. See
 <ul>
 <li><code>tlv_reader_next</code> iterates adjacent elements without interpreting their values.</li>
 <li><code>tlv_walk</code> visits adjacent elements and fails at invalid framing.</li>
-<li><code>tlv_walk_tree</code> performs bounded preorder traversal using a separate
+<li><code>tlv_walk_tree</code> performs bounded preorder traversal using the format's own
   <code>is_constructed</code> predicate. It exposes depth and absolute element offsets. A NULL
   visitor validates framing only. It uses a bounded stack, without allocation
   or C recursion. C++ offers <code>tlv::walk_tree</code> with a callable visitor.</li>
@@ -2913,8 +2913,8 @@ An empty container still has to satisfy required-child rules. Limits bound
 tree depth and the total number of elements. Validation rescans each scope for
 each rule rather than allocating occurrence counters.</p>
 <p><code>tlv_codec_t</code> converts an individual raw value. <code>tlv_structure_codec_t</code> maps a
-complete sequence into a caller-owned object, using an explicit <code>format</code> pointer, an optional
-<code>is_constructed</code> predicate, and an optional structure schema. Decode requires
+complete sequence into a caller-owned object, using an explicit <code>format</code> pointer (whose own
+<code>is_constructed</code> predicate governs nesting) and an optional structure schema. Decode requires
 <code>format</code> to be able to read. Encode needs it to also be able to write, since
 producing bytes and then validating them both go through the same descriptor.
 It validates input before calling the object decoder
@@ -3108,6 +3108,19 @@ is a static <code>tlv_fixed_format_t</code> built from <code>TagWidth</code>, <c
 option at all. <code>static_assert</code>-checked compile-time validation of <code>TagWidth</code>,
 <code>LengthWidth</code> and <code>Order</code> is unchanged. No compatibility shim; rebuild all
 consumers.</p>
+<p>Move constructed-element detection into <code>tlv_format_t</code> as an optional
+<code>is_constructed</code> field, instead of passing a separate <code>tlv_is_constructed_fn</code>
+predicate alongside a format: <code>tlv_walk_tree</code>, <code>tlv_schema_validate</code>,
+<code>tlv_schema_validate_all</code>, <code>tlv_schema_validate_all_diag</code>, <code>tlv_query_walk</code>,
+<code>tlv::walk_tree</code>, <code>tlv::query::walk</code>, <code>tlv::validate</code>, <code>tlv::validate_all</code> and
+<code>tlv::validate_all_diag</code> each drop that parameter and read
+<code>format-&gt;is_constructed</code> instead. <code>tlv_document_options_t</code>/
+<code>tlv::document_format</code> and <code>tlv_structure_codec_t</code> likewise drop their own
+separate <code>is_constructed</code> field, and <code>tlv_document_options_init()</code> drops its
+<code>is_constructed</code> parameter. The BER, DER and CER format descriptors
+(<code>tlv_format_ber</code>, <code>tlv_format_der</code>, <code>tlv_format_cer</code>) now set
+<code>is_constructed</code> themselves; the default and Fixed formats still leave it
+<code>NULL</code>. No compatibility shim; rebuild all consumers.</p>
 <p>See also the generated <a href="../../reference/c-api/">C API reference</a> and <a href="../../reference/cxx-api/">C++ API reference</a>.</p>
 
 

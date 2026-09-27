@@ -3161,7 +3161,8 @@ for the canonical restrictions of this layout.</p>
 <p>The parent's length includes each child's tag, length, and value. These are
 illustrative opaque payloads, not an EMV-valid record. Generic <code>tlv_read</code>
 returns the outer value without automatically visiting definite-length children.
-Use <code>tlv_walk_tree</code> with <code>tlv_ber_is_constructed</code> to traverse the hierarchy.</p>
+Use <code>tlv_walk_tree</code> with <code>tlv_format_ber</code>, whose <code>is_constructed</code> is
+<code>tlv_ber_is_constructed</code>, to traverse the hierarchy.</p>
 <h3 id="indefinite-constructed-value">Indefinite constructed value<a class="headerlink" href="#indefinite-constructed-value" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>E1 80 5A 02 12 34 00 00
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Element (8 bytes)

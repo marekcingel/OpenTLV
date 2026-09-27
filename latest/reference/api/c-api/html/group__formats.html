@@ -142,12 +142,12 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gaf08710d1eadecf515c96fee3d9462e5b" id="r_gaf08710d1eadecf515c96fee3d9462e5b"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">tlv_write_header_fn</a>) (const void *context, uint8_t *data, size_t capacity, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t length, size_t *written)</td></tr>
 <tr class="memdesc:gaf08710d1eadecf515c96fee3d9462e5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional callback that encodes a whole element header at once.  <br /></td></tr>
 <tr class="separator:gaf08710d1eadecf515c96fee3d9462e5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gac461da7e8d46362fa8e09694efb0b062" id="r_gac461da7e8d46362fa8e09694efb0b062"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__format.html">tlv_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a></td></tr>
-<tr class="memdesc:gac461da7e8d46362fa8e09694efb0b062"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stateless format descriptor with optional borrowed, immutable configuration.  <br /></td></tr>
-<tr class="separator:gac461da7e8d46362fa8e09694efb0b062"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga247f9b16879a9cfde9243ab671c48e0c" id="r_ga247f9b16879a9cfde9243ab671c48e0c"><td class="memItemLeft" align="right" valign="top">typedef int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>) (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:ga247f9b16879a9cfde9243ab671c48e0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional nesting predicate used by tree traversal and structure validation.  <br /></td></tr>
 <tr class="separator:ga247f9b16879a9cfde9243ab671c48e0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac461da7e8d46362fa8e09694efb0b062" id="r_gac461da7e8d46362fa8e09694efb0b062"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__format.html">tlv_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a></td></tr>
+<tr class="memdesc:gac461da7e8d46362fa8e09694efb0b062"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stateless format descriptor with optional borrowed, immutable configuration.  <br /></td></tr>
+<tr class="separator:gac461da7e8d46362fa8e09694efb0b062"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5cfd21b210cb1ce86db518e86fc7a5ba" id="r_ga5cfd21b210cb1ce86db518e86fc7a5ba"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__fixed__format.html">tlv_fixed_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5cfd21b210cb1ce86db518e86fc7a5ba">tlv_fixed_format_t</a></td></tr>
 <tr class="memdesc:ga5cfd21b210cb1ce86db518e86fc7a5ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">State describing a configurable fixed-width format.  <br /></td></tr>
 <tr class="separator:ga5cfd21b210cb1ce86db518e86fc7a5ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -347,7 +347,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Optional nesting predicate used by tree traversal and structure validation. </p>
-<p>Called only with successfully parsed tags, using the format's context. No value decoding occurs. Passing <code>NULL</code> at a call site means all values are opaque.</p>
+<p>Called only with successfully parsed tags, using the format's context. No value decoding occurs. A <code>NULL</code> <a class="el" href="structtlv__format.html#a0127a948aff3dd7310d17e0037592584">tlv_format_t::is_constructed</a> means all values are opaque.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>The format's context. </td></tr>
@@ -759,7 +759,7 @@ An error code for a null output, an invalid or non-constructed tag, or size over
 </div><div class="memdoc">
 
 <p>Nesting predicate for tree traversal of BER data. </p>
-<p>Matches <a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c" title="Optional nesting predicate used by tree traversal and structure validation.">tlv_is_constructed_fn</a>.</p>
+<p>Matches <a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c" title="Optional nesting predicate used by tree traversal and structure validation.">tlv_is_constructed_fn</a>. This is <a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97" title="Format for raw BER-TLV.">tlv_format_ber</a>'s own <code>is_constructed</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">context</td><td>Unused; may be <code>NULL</code>. </td></tr>
@@ -1226,7 +1226,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </div><div class="memdoc">
 
 <p>Nesting predicate for tree traversal of CER data. </p>
-<p>Matches <a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c" title="Optional nesting predicate used by tree traversal and structure validation.">tlv_is_constructed_fn</a>.</p>
+<p>Matches <a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c" title="Optional nesting predicate used by tree traversal and structure validation.">tlv_is_constructed_fn</a>. This is <a class="el" href="group__formats.html#ga64ffa8520ff684baf13e601bc6989439" title="Format for canonical ASN.1 CER identifiers and lengths of a single element.">tlv_format_cer</a>'s own <code>is_constructed</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">context</td><td>Unused; may be <code>NULL</code>. </td></tr>
@@ -1448,7 +1448,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </div><div class="memdoc">
 
 <p>Nesting predicate for tree traversal of DER data. </p>
-<p>Matches <a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c" title="Optional nesting predicate used by tree traversal and structure validation.">tlv_is_constructed_fn</a>.</p>
+<p>Matches <a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c" title="Optional nesting predicate used by tree traversal and structure validation.">tlv_is_constructed_fn</a>. This is <a class="el" href="group__formats.html#gab8c60bdca71db777eaffd2608df6950a" title="Format for canonical ASN.1 DER identifiers and definite lengths.">tlv_format_der</a>'s own <code>is_constructed</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">context</td><td>Unused; may be <code>NULL</code>. </td></tr>
@@ -1797,7 +1797,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </div><div class="memdoc">
 
 <p>Initializes a format's classic tag/length read and write callbacks in caller-owned storage. </p>
-<p>Does not allocate. The supplied pointers are stored, not copied: the descriptor and context follow the lifetime and callback contracts documented for <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062" title="Stateless format descriptor with optional borrowed, immutable configuration.">tlv_format_t</a>. Read and write capability are independently optional: pass both <code>read_tag</code> and <code>read_length</code> for read capability, or both <code>NULL</code> to leave reading unsupported; pass <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> for write capability, or all three <code>NULL</code> to leave writing unsupported. At least one of the two groups must be given. <code>read_value_bounds</code>, <code>read_element</code> and <code>write_header</code> are initialized to <code>NULL</code>; callers can assign them directly after initialization.</p>
+<p>Does not allocate. The supplied pointers are stored, not copied: the descriptor and context follow the lifetime and callback contracts documented for <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062" title="Stateless format descriptor with optional borrowed, immutable configuration.">tlv_format_t</a>. Read and write capability are independently optional: pass both <code>read_tag</code> and <code>read_length</code> for read capability, or both <code>NULL</code> to leave reading unsupported; pass <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> for write capability, or all three <code>NULL</code> to leave writing unsupported. At least one of the two groups must be given. <code>read_value_bounds</code>, <code>read_element</code>, <code>write_header</code> and <code>is_constructed</code> are initialized to <code>NULL</code>; callers can assign them directly after initialization.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">format</td><td>Descriptor to initialize. </td></tr>
@@ -1856,7 +1856,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </div><div class="memdoc">
 
 <p>Initializes a format's whole-element read and write callbacks in caller-owned storage. </p>
-<p>For formats whose field order is not tag, length, value. Does not allocate; the supplied pointers are stored, not copied. <code>read_element</code> and <code>write_header</code> are independently optional, but not both <code>NULL</code>. <code>read_tag</code>, <code>read_length</code>, <code>read_value_bounds</code>, <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> are initialized to <code>NULL</code>.</p>
+<p>For formats whose field order is not tag, length, value. Does not allocate; the supplied pointers are stored, not copied. <code>read_element</code> and <code>write_header</code> are independently optional, but not both <code>NULL</code>. <code>read_tag</code>, <code>read_length</code>, <code>read_value_bounds</code>, <code>write_tag</code>, <code>write_length</code>, <code>length_size</code> and <code>is_constructed</code> are initialized to <code>NULL</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">format</td><td>Descriptor to initialize. </td></tr>

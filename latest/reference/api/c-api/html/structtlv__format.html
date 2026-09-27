@@ -100,6 +100,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:a7206bc861949daf12cf547fa3aba466a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56530515ec170ca860e07823414afbda" id="r_a56530515ec170ca860e07823414afbda"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#gaf08710d1eadecf515c96fee3d9462e5b">tlv_write_header_fn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__format.html#a56530515ec170ca860e07823414afbda">write_header</a></td></tr>
 <tr class="separator:a56530515ec170ca860e07823414afbda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0127a948aff3dd7310d17e0037592584" id="r_a0127a948aff3dd7310d17e0037592584"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__format.html#a0127a948aff3dd7310d17e0037592584">is_constructed</a></td></tr>
+<tr class="separator:a0127a948aff3dd7310d17e0037592584"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Stateless format descriptor with optional borrowed, immutable configuration. </p>
@@ -120,6 +122,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Borrowed, immutable configuration passed to every callback; may be <code>NULL</code>. The caller owns it and must keep it valid and unchanged for as long as this descriptor (or anything built from it) is used. </p>
+
+</div>
+</div>
+<a id="a0127a948aff3dd7310d17e0037592584" name="a0127a948aff3dd7310d17e0037592584"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0127a948aff3dd7310d17e0037592584">&#9670;&#160;</a></span>is_constructed</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> tlv_format::is_constructed</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional nesting predicate that reports whether a parsed tag's value is a sequence in this same format; <code>NULL</code> means every value is opaque to generic tree traversal and structure validation. </p>
 
 </div>
 </div>

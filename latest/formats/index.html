@@ -3058,15 +3058,15 @@ requires a descriptor and callbacks in application code, without parser edits.</
 <code>tlv/formats/fixed.h</code>, <code>tlv/builtins/asn1/ber.h</code>,
 <code>tlv/builtins/asn1/der.h</code>, and <code>tlv/builtins/asn1/cer.h</code>. The generic <code>format.h</code>
 declares only the contract.</p>
-<p>The separate optional <code>tlv_is_constructed_fn</code> traversal argument identifies
-values containing child TLVs in the same format. It receives the format's
-context and a parsed tag. NULL means opaque values. Pass
-<code>tlv_ber_is_constructed</code>, <code>tlv_der_is_constructed</code> or <code>tlv_cer_is_constructed</code>
-to inspect the respective constructed bit; pass NULL for opaque default and
-fixed-format values.
+<p>The optional <code>tlv_format_t::is_constructed</code> field identifies values containing
+child TLVs in the same format. It receives the format's context and a parsed
+tag. NULL means opaque values. The BER, DER and CER descriptors set it to
+<code>tlv_ber_is_constructed</code>, <code>tlv_der_is_constructed</code> and <code>tlv_cer_is_constructed</code>
+respectively, inspecting their constructed bit; the default and Fixed formats
+leave it NULL.
 Custom protocols can supply a different rule. Traversal follows the value view
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.</p>
-<p>Use <code>tlv_walk_tree(data, size, format, is_constructed, max_depth, max_elements, visitor, context,
+<p>Use <code>tlv_walk_tree(data, size, format, max_depth, max_elements, visitor, context,
 error_offset)</code> for bounded preorder traversal or NULL visitor for validation.
 Depth is zero at the top level and cannot exceed <code>TLV_WALK_MAX_DEPTH</code> (64).
 Limits are inclusive; zero is a real limit. Offsets identify failing elements.

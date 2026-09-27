@@ -2883,7 +2883,7 @@ so a candidate's "components" show which layers stay separate.</p>
 </tr>
 <tr>
 <td>Nesting predicate</td>
-<td><code>tlv_is_constructed_fn</code>, passed to the tree walker</td>
+<td><code>tlv_format_t::is_constructed</code> (<code>tlv_is_constructed_fn</code>)</td>
 <td>Says which values contain children in the same format.</td>
 </tr>
 <tr>
@@ -3122,7 +3122,7 @@ number of raw bytes the format accepts. <strong>No candidate has been prototyped
 <tr>
 <td>Grouped or nested elements decided by the type</td>
 <td>PFCP, GTPv2, Diameter, IS-IS sub-TLVs, DHCPv4 option 82</td>
-<td><code>tlv_is_constructed_fn</code> receives the format context and the tag, so a table in the context can decide; the flags and value are not visible to it.</td>
+<td><code>tlv_format_t::is_constructed</code> receives the format context and the tag, so a table in the context can decide; the flags and value are not visible to it.</td>
 </tr>
 <tr>
 <td>Different formats at successive nesting levels</td>

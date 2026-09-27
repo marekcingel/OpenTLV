@@ -22,6 +22,6 @@ var searchData=
   ['document_19',['document',['../classtlv_1_1document.html',1,'tlv::document'],['../classtlv_1_1document.html#a21d3dd045aa4ead04d484d876746bd05',1,'tlv::document::document(const document &amp;)=delete'],['../classtlv_1_1document.html#ac79c129c070b990636ba2cb2f683b1f1',1,'tlv::document::document(document &amp;&amp;other) noexcept'],['../../../c-api/html/group__document.html',1,'Mutable document']]],
   ['document_2eh_20',['document.h',['../../../c-api/html/document_8h.html',1,'']]],
   ['document_2ehpp_21',['document.hpp',['../document_8hpp.html',1,'']]],
-  ['document_5fformat_22',['document_format',['../structtlv_1_1document__format.html#ac248e3ab8264926be81aebc40106026b',1,'tlv::document_format::document_format()'],['../structtlv_1_1document__format.html',1,'tlv::document_format']]],
+  ['document_5fformat_22',['document_format',['../structtlv_1_1document__format.html#a01ed9cb1d258204835fd519aa52a4f7d',1,'tlv::document_format::document_format()'],['../structtlv_1_1document__format.html',1,'tlv::document_format']]],
   ['dol_2eh_23',['dol.h',['../../../c-api/html/dol_8h.html',1,'']]]
 ];

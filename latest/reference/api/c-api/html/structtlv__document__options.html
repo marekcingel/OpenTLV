@@ -84,8 +84,6 @@ $(function() {
 Data Fields</h2></td></tr>
 <tr class="memitem:ab85c9fe0dbcfd29ac47cea669ee1ccbb" id="r_ab85c9fe0dbcfd29ac47cea669ee1ccbb"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__document__options.html#ab85c9fe0dbcfd29ac47cea669ee1ccbb">format</a></td></tr>
 <tr class="separator:ab85c9fe0dbcfd29ac47cea669ee1ccbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a32266f6299ef3e105009d004ae7f65fa" id="r_a32266f6299ef3e105009d004ae7f65fa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__document__options.html#a32266f6299ef3e105009d004ae7f65fa">is_constructed</a></td></tr>
-<tr class="separator:a32266f6299ef3e105009d004ae7f65fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68816023625019c2478ea50d78bc1d78" id="r_a68816023625019c2478ea50d78bc1d78"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__document__options.html#a68816023625019c2478ea50d78bc1d78">max_depth</a></td></tr>
 <tr class="separator:a68816023625019c2478ea50d78bc1d78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a05e0fd155d2abd8f3345ae1a5355bbce" id="r_a05e0fd155d2abd8f3345ae1a5355bbce"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__document__options.html#a05e0fd155d2abd8f3345ae1a5355bbce">max_elements</a></td></tr>
@@ -95,7 +93,7 @@ Data Fields</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Format descriptor and limits of a document. </p>
-<p>Initialize with <a class="el" href="group__document.html#ga76b4eedab231949e62378a111abdbd7a" title="Fills options with the given format and the default limits.">tlv_document_options_init()</a>. The document copies this structure, but the format, the format's context and the allocator context are borrowed and must outlive the document. </p><dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
+<p>Initialize with <a class="el" href="group__document.html#ga791216f14e3bce57eea8ba84830c9096" title="Fills options with the given format and the default limits.">tlv_document_options_init()</a>. The document copies this structure, but the format, the format's context and the allocator context are borrowed and must outlive the document. </p><dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a0e2f53c9f3d13eb9f709bf4fe2eff380" name="a0e2f53c9f3d13eb9f709bf4fe2eff380"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0e2f53c9f3d13eb9f709bf4fe2eff380">&#9670;&#160;</a></span>allocator</h2>
@@ -123,22 +121,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Format used to parse input and values and to encode the document. Required; must be able to both read and write, see <a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0" title="Reports whether a format can be used for reading.">tlv_format_can_read()</a> and <a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952" title="Reports whether a format can be used for writing.">tlv_format_can_write()</a>. </p>
-
-</div>
-</div>
-<a id="a32266f6299ef3e105009d004ae7f65fa" name="a32266f6299ef3e105009d004ae7f65fa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a32266f6299ef3e105009d004ae7f65fa">&#9670;&#160;</a></span>is_constructed</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> tlv_document_options::is_constructed</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Predicate receiving <code>format-&gt;context</code> that tells which tags hold nested elements, or <code>NULL</code> to keep every value opaque. Its answer is taken when a node is created and stays with the node. </p>
+<p>Format used to parse input and values and to encode the document. Required; must be able to both read and write, see <a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0" title="Reports whether a format can be used for reading.">tlv_format_can_read()</a> and <a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952" title="Reports whether a format can be used for writing.">tlv_format_can_write()</a>. <code>format-&gt;is_constructed</code> tells which tags hold nested elements, or <code>NULL</code> to keep every value opaque; its answer is taken when a node is created and stays with the node. </p>
 
 </div>
 </div>

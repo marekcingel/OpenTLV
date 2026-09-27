@@ -94,7 +94,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An owned, mutable TLV document.  <a href="classtlv_1_1document.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1document__format.html">document_format</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format descriptor of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>, as for <a class="elRef" href="../../c-api/html/group__traversal.html#gae8314a5f8388d8fcb255241344feee2d">tlv_walk_tree()</a>.  <a href="structtlv_1_1document__format.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format descriptor of a <a class="el" href="classtlv_1_1document.html" title="An owned, mutable TLV document.">tlv::document</a>, as for <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>.  <a href="structtlv_1_1document__format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1entry.html">entry</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A decoded TLV item on the C++ side.  <a href="structtlv_1_1entry.html#details">More...</a><br /></td></tr>
@@ -216,19 +216,19 @@ Functions</h2></td></tr>
 <tr class="memitem:a1ebd1f785dffded6a41e5887546d0447" id="r_a1ebd1f785dffded6a41e5887546d0447"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a1ebd1f785dffded6a41e5887546d0447">set_path</a> (<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> &amp;target, const <a class="el" href="namespacetlv.html#a362165fd39d879542d984a7aa5c5f1af">diagnostic_path</a> &amp;path)</td></tr>
 <tr class="memdesc:a1ebd1f785dffded6a41e5887546d0447"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the hierarchical path a diagnostic refers to.  <br /></td></tr>
 <tr class="separator:a1ebd1f785dffded6a41e5887546d0447"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65509ede318f8911115c14f0f56ce3db" id="r_a65509ede318f8911115c14f0f56ce3db"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
-<tr class="memitem:a65509ede318f8911115c14f0f56ce3db"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a65509ede318f8911115c14f0f56ce3db">walk_tree</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, size_t max_depth, size_t max_elements, Visitor &amp;&amp;visitor, size_t *error_offset=nullptr)</td></tr>
-<tr class="memdesc:a65509ede318f8911115c14f0f56ce3db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Traverses nested elements in preorder, calling a visitor for each.  <br /></td></tr>
-<tr class="separator:a65509ede318f8911115c14f0f56ce3db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3b74a743e920dbdc68049078b4b2430" id="r_ad3b74a743e920dbdc68049078b4b2430"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ad3b74a743e920dbdc68049078b4b2430">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, size_t *error_offset=nullptr)</td></tr>
-<tr class="memdesc:ad3b74a743e920dbdc68049078b4b2430"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates framing, nesting, lengths and occurrence counts against a schema.  <br /></td></tr>
-<tr class="separator:ad3b74a743e920dbdc68049078b4b2430"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6cd86bcc9831f84425351962c2a9d52" id="r_ac6cd86bcc9831f84425351962c2a9d52"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac6cd86bcc9831f84425351962c2a9d52">validate_all</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, <a class="elRef" href="../../c-api/html/group__schemas.html#ga220ba990eff95fed9600d98e8bdda35b">tlv_schema_issue_t</a> *issues, size_t capacity, <a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown=<a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a>, size_t *error_offset=nullptr)</td></tr>
-<tr class="memdesc:ac6cd86bcc9831f84425351962c2a9d52"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a structure and reports every schema violation.  <br /></td></tr>
-<tr class="separator:ac6cd86bcc9831f84425351962c2a9d52"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8ff814dbf27d75ac9734df06290bb3f6" id="r_a8ff814dbf27d75ac9734df06290bb3f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a8ff814dbf27d75ac9734df06290bb3f6">validate_all_diag</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> is_constructed, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> *diagnostics, size_t capacity, <a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown=<a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a>, size_t *error_offset=nullptr)</td></tr>
-<tr class="memdesc:a8ff814dbf27d75ac9734df06290bb3f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a structure and reports every schema violation as a <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c" title="C++ alias for the schema-specific diagnostic type, tlv_schema_diagnostic_t.">schema_diagnostic</a>.  <br /></td></tr>
-<tr class="separator:a8ff814dbf27d75ac9734df06290bb3f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9898b9c7e93c4a5883362bfdfdac5152" id="r_a9898b9c7e93c4a5883362bfdfdac5152"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
+<tr class="memitem:a9898b9c7e93c4a5883362bfdfdac5152"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a9898b9c7e93c4a5883362bfdfdac5152">walk_tree</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, size_t max_depth, size_t max_elements, Visitor &amp;&amp;visitor, size_t *error_offset=nullptr)</td></tr>
+<tr class="memdesc:a9898b9c7e93c4a5883362bfdfdac5152"><td class="mdescLeft">&#160;</td><td class="mdescRight">Traverses nested elements in preorder, calling a visitor for each.  <br /></td></tr>
+<tr class="separator:a9898b9c7e93c4a5883362bfdfdac5152"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae89639a23a48bb20db474516224d7d3e" id="r_ae89639a23a48bb20db474516224d7d3e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae89639a23a48bb20db474516224d7d3e">validate</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, size_t *error_offset=nullptr)</td></tr>
+<tr class="memdesc:ae89639a23a48bb20db474516224d7d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates framing, nesting, lengths and occurrence counts against a schema.  <br /></td></tr>
+<tr class="separator:ae89639a23a48bb20db474516224d7d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab839eba901a799c48972e21703932800" id="r_ab839eba901a799c48972e21703932800"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab839eba901a799c48972e21703932800">validate_all</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, <a class="elRef" href="../../c-api/html/group__schemas.html#ga220ba990eff95fed9600d98e8bdda35b">tlv_schema_issue_t</a> *issues, size_t capacity, <a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown=<a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a>, size_t *error_offset=nullptr)</td></tr>
+<tr class="memdesc:ab839eba901a799c48972e21703932800"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a structure and reports every schema violation.  <br /></td></tr>
+<tr class="separator:ab839eba901a799c48972e21703932800"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94c9e2071659e67b2eb136583e40569c" id="r_a94c9e2071659e67b2eb136583e40569c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a94c9e2071659e67b2eb136583e40569c">validate_all_diag</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="elRef" href="../../c-api/html/group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> &amp;schema, size_t max_depth, size_t max_elements, <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> *diagnostics, size_t capacity, <a class="elRef" href="../../c-api/html/group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a> unknown=<a class="elRef" href="../../c-api/html/group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a>, size_t *error_offset=nullptr)</td></tr>
+<tr class="memdesc:a94c9e2071659e67b2eb136583e40569c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a structure and reports every schema violation as a <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c" title="C++ alias for the schema-specific diagnostic type, tlv_schema_diagnostic_t.">schema_diagnostic</a>.  <br /></td></tr>
+<tr class="separator:a94c9e2071659e67b2eb136583e40569c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Public C++ wrappers, value types, codec traits and helpers for OpenTLV. </p>
@@ -871,8 +871,8 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="ad3b74a743e920dbdc68049078b4b2430" name="ad3b74a743e920dbdc68049078b4b2430"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad3b74a743e920dbdc68049078b4b2430">&#9670;&#160;</a></span>validate()</h2>
+<a id="ae89639a23a48bb20db474516224d7d3e" name="ae89639a23a48bb20db474516224d7d3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae89639a23a48bb20db474516224d7d3e">&#9670;&#160;</a></span>validate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -891,12 +891,6 @@ template&lt;typename T &gt; </div>
           <td></td>
           <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
           <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td>
-          <td class="paramname"><em>is_constructed</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -936,25 +930,24 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Validates framing, nesting, lengths and occurrence counts against a schema. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__schemas.html#ga3c82eab0268c52ef555ff07a996b549f">tlv_schema_validate()</a>; the conventions for limits and offsets are the same. Values are never decoded and no allocation occurs.</p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416">tlv_schema_validate()</a>; the conventions for limits and offsets are the same. Values are never decoded and no allocation occurs.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
-    <tr><td class="paramname">format</td><td>Reader format. </td></tr>
-    <tr><td class="paramname">is_constructed</td><td>Nesting predicate, or <code>nullptr</code> to treat values as opaque. </td></tr>
+    <tr><td class="paramname">format</td><td>Reader format. A <code>nullptr</code> <code>format.is_constructed</code> treats values as opaque. </td></tr>
     <tr><td class="paramname">schema</td><td>Structural schema; borrowed. </td></tr>
     <tr><td class="paramname">max_depth</td><td>Maximum nesting depth. </td></tr>
     <tr><td class="paramname">max_elements</td><td>Maximum total elements. </td></tr>
-    <tr><td class="paramname">error_offset</td><td>Optional. On failure receives the offset of the failure; see <a class="elRef" href="../../c-api/html/group__schemas.html#ga3c82eab0268c52ef555ff07a996b549f">tlv_schema_validate()</a>.</td></tr>
+    <tr><td class="paramname">error_offset</td><td>Optional. On failure receives the offset of the failure; see <a class="elRef" href="../../c-api/html/group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416">tlv_schema_validate()</a>.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Success if the data conforms; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#ga3c82eab0268c52ef555ff07a996b549f">tlv_schema_validate()</a>, including <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> and <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e93735f4f45c97989c940ff2fb68792">TLV_ERR_SCHEMA_MISSING</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Success if the data conforms; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416">tlv_schema_validate()</a>, including <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> and <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e93735f4f45c97989c940ff2fb68792">TLV_ERR_SCHEMA_MISSING</a>. </dd></dl>
 
 </div>
 </div>
-<a id="ac6cd86bcc9831f84425351962c2a9d52" name="ac6cd86bcc9831f84425351962c2a9d52"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac6cd86bcc9831f84425351962c2a9d52">&#9670;&#160;</a></span>validate_all()</h2>
+<a id="ab839eba901a799c48972e21703932800" name="ab839eba901a799c48972e21703932800"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab839eba901a799c48972e21703932800">&#9670;&#160;</a></span>validate_all()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -973,12 +966,6 @@ template&lt;typename T &gt; </div>
           <td></td>
           <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
           <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td>
-          <td class="paramname"><em>is_constructed</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1036,29 +1023,28 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Validates a structure and reports every schema violation. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__schemas.html#ga00ba43a639fe6a2fa25b150d16b7310a">tlv_schema_validate_all()</a>; the rules, the path and offset of each violation and the storage conventions are the same. No allocation occurs.</p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__schemas.html#gaf036296a6902f04c21bdd21db25efd94">tlv_schema_validate_all()</a>; the rules, the path and offset of each violation and the storage conventions are the same. No allocation occurs.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
-    <tr><td class="paramname">format</td><td>Reader format. </td></tr>
-    <tr><td class="paramname">is_constructed</td><td>Nesting predicate, or <code>nullptr</code> to treat values as opaque. </td></tr>
+    <tr><td class="paramname">format</td><td>Reader format. A <code>nullptr</code> <code>format.is_constructed</code> treats values as opaque. </td></tr>
     <tr><td class="paramname">schema</td><td>Structural schema; borrowed. </td></tr>
     <tr><td class="paramname">max_depth</td><td>Maximum nesting depth. </td></tr>
     <tr><td class="paramname">max_elements</td><td>Maximum total elements. </td></tr>
     <tr><td class="paramname">issues</td><td>Destination for the first <code>capacity</code> violations; may be <code>nullptr</code> only if <code>capacity</code> is zero. </td></tr>
     <tr><td class="paramname">capacity</td><td>Number of entries <code>issues</code> can hold. </td></tr>
     <tr><td class="paramname">unknown</td><td>Policy for tags without a rule. </td></tr>
-    <tr><td class="paramname">error_offset</td><td>Optional. On a wire-level failure receives the offset of the failure; see <a class="elRef" href="../../c-api/html/group__schemas.html#ga00ba43a639fe6a2fa25b150d16b7310a">tlv_schema_validate_all()</a>.</td></tr>
+    <tr><td class="paramname">error_offset</td><td>Optional. On a wire-level failure receives the offset of the failure; see <a class="elRef" href="../../c-api/html/group__schemas.html#gaf036296a6902f04c21bdd21db25efd94">tlv_schema_validate_all()</a>.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The total number of violations, which is zero if the data conforms and can exceed <code>capacity</code>; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#ga00ba43a639fe6a2fa25b150d16b7310a">tlv_schema_validate_all()</a> for invalid arguments or unparseable input.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The total number of violations, which is zero if the data conforms and can exceed <code>capacity</code>; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#gaf036296a6902f04c21bdd21db25efd94">tlv_schema_validate_all()</a> for invalid arguments or unparseable input.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/group__schemas.html#ga9dbac48a6edf2a70ca47ad501deee221">tlv_schema_issue_path_string</a> </dd></dl>
 
 </div>
 </div>
-<a id="a8ff814dbf27d75ac9734df06290bb3f6" name="a8ff814dbf27d75ac9734df06290bb3f6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8ff814dbf27d75ac9734df06290bb3f6">&#9670;&#160;</a></span>validate_all_diag()</h2>
+<a id="a94c9e2071659e67b2eb136583e40569c" name="a94c9e2071659e67b2eb136583e40569c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94c9e2071659e67b2eb136583e40569c">&#9670;&#160;</a></span>validate_all_diag()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1077,12 +1063,6 @@ template&lt;typename T &gt; </div>
           <td></td>
           <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
           <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td>
-          <td class="paramname"><em>is_constructed</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1140,29 +1120,28 @@ template&lt;typename T &gt; </div>
 </div><div class="memdoc">
 
 <p>Validates a structure and reports every schema violation as a <a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c" title="C++ alias for the schema-specific diagnostic type, tlv_schema_diagnostic_t.">schema_diagnostic</a>. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__schemas.html#gadea270417b12ea276149a185a10d4ce0">tlv_schema_validate_all_diag()</a>; the rules, order and storage conventions are the same as <a class="el" href="namespacetlv.html#ac6cd86bcc9831f84425351962c2a9d52" title="Validates a structure and reports every schema violation.">validate_all()</a>, and each diagnostic additionally carries the schema field name (if the rule has one) and the expected-versus-actual detail for its kind.</p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__schemas.html#ga1cdee0d758d2b8cc4043806b60542f6c">tlv_schema_validate_all_diag()</a>; the rules, order and storage conventions are the same as <a class="el" href="namespacetlv.html#ab839eba901a799c48972e21703932800" title="Validates a structure and reports every schema violation.">validate_all()</a>, and each diagnostic additionally carries the schema field name (if the rule has one) and the expected-versus-actual detail for its kind.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
-    <tr><td class="paramname">format</td><td>Reader format. </td></tr>
-    <tr><td class="paramname">is_constructed</td><td>Nesting predicate, or <code>nullptr</code> to treat values as opaque. </td></tr>
+    <tr><td class="paramname">format</td><td>Reader format. A <code>nullptr</code> <code>format.is_constructed</code> treats values as opaque. </td></tr>
     <tr><td class="paramname">schema</td><td>Structural schema; borrowed. </td></tr>
     <tr><td class="paramname">max_depth</td><td>Maximum nesting depth. </td></tr>
     <tr><td class="paramname">max_elements</td><td>Maximum total elements. </td></tr>
     <tr><td class="paramname">diagnostics</td><td>Destination for the first <code>capacity</code> violations; may be <code>nullptr</code> only if <code>capacity</code> is zero. </td></tr>
     <tr><td class="paramname">capacity</td><td>Number of entries <code>diagnostics</code> can hold. </td></tr>
     <tr><td class="paramname">unknown</td><td>Policy for tags without a rule. </td></tr>
-    <tr><td class="paramname">error_offset</td><td>Optional. On a wire-level failure receives the offset of the failure; see <a class="elRef" href="../../c-api/html/group__schemas.html#gadea270417b12ea276149a185a10d4ce0">tlv_schema_validate_all_diag()</a>.</td></tr>
+    <tr><td class="paramname">error_offset</td><td>Optional. On a wire-level failure receives the offset of the failure; see <a class="elRef" href="../../c-api/html/group__schemas.html#ga1cdee0d758d2b8cc4043806b60542f6c">tlv_schema_validate_all_diag()</a>.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The total number of violations, which is zero if the data conforms and can exceed <code>capacity</code>; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#gadea270417b12ea276149a185a10d4ce0">tlv_schema_validate_all_diag()</a> for invalid arguments or unparseable input.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The total number of violations, which is zero if the data conforms and can exceed <code>capacity</code>; otherwise the error of <a class="elRef" href="../../c-api/html/group__schemas.html#ga1cdee0d758d2b8cc4043806b60542f6c">tlv_schema_validate_all_diag()</a> for invalid arguments or unparseable input.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> </dd></dl>
 
 </div>
 </div>
-<a id="a65509ede318f8911115c14f0f56ce3db" name="a65509ede318f8911115c14f0f56ce3db"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a65509ede318f8911115c14f0f56ce3db">&#9670;&#160;</a></span>walk_tree()</h2>
+<a id="a9898b9c7e93c4a5883362bfdfdac5152" name="a9898b9c7e93c4a5883362bfdfdac5152"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9898b9c7e93c4a5883362bfdfdac5152">&#9670;&#160;</a></span>walk_tree()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1180,12 +1159,6 @@ template&lt;typename Visitor &gt; </div>
           <td></td>
           <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
           <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td>
-          <td class="paramname"><em>is_constructed</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1220,7 +1193,7 @@ template&lt;typename Visitor &gt; </div>
 </div><div class="memdoc">
 
 <p>Traverses nested elements in preorder, calling a visitor for each. </p>
-<p>Wraps <a class="elRef" href="../../c-api/html/group__traversal.html#gae8314a5f8388d8fcb255241344feee2d">tlv_walk_tree()</a>. The visitor is borrowed for this call; no function wrapper or allocation is needed. Entries passed to the visitor borrow <code>data</code>.</p>
+<p>Wraps <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>. The visitor is borrowed for this call; no function wrapper or allocation is needed. Entries passed to the visitor borrow <code>data</code>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">Visitor</td><td>Callable invoked as <code>visitor(entry, depth, absolute_offset)</code> returning <a class="elRef" href="../../c-api/html/group__traversal.html#ga5685cbc116854f9874253489cb769622">tlv_visit_result_t</a>. <code>entry</code> borrows <code>data</code>, <code>depth</code> is zero for top-level elements, and <code>absolute_offset</code> is the element's tag offset in <code>data</code>.</td></tr>
@@ -1230,8 +1203,7 @@ template&lt;typename Visitor &gt; </div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">data</td><td>Encoded input; borrowed. </td></tr>
-    <tr><td class="paramname">format</td><td>Reader format. </td></tr>
-    <tr><td class="paramname">is_constructed</td><td>Nesting predicate receiving <code>format.context</code>, or <code>nullptr</code> to treat every value as opaque. </td></tr>
+    <tr><td class="paramname">format</td><td>Reader format. A <code>nullptr</code> <code>format.is_constructed</code> treats every value as opaque. </td></tr>
     <tr><td class="paramname">max_depth</td><td>Maximum nesting depth, <code>0..TLV_WALK_MAX_DEPTH</code>. </td></tr>
     <tr><td class="paramname">max_elements</td><td>Bound on all visited elements. </td></tr>
     <tr><td class="paramname">visitor</td><td>Visitor callable; returning <a class="elRef" href="../../c-api/html/group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a> succeeds immediately, <a class="elRef" href="../../c-api/html/group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a> fails. </td></tr>
@@ -1239,7 +1211,7 @@ template&lt;typename Visitor &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Success, or the error of <a class="elRef" href="../../c-api/html/group__traversal.html#gae8314a5f8388d8fcb255241344feee2d">tlv_walk_tree()</a>. A value whose length does not fit the native size makes the adapter return <a class="elRef" href="../../c-api/html/group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Success, or the error of <a class="elRef" href="../../c-api/html/group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9">tlv_walk_tree()</a>. A value whose length does not fit the native size makes the adapter return <a class="elRef" href="../../c-api/html/group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b">TLV_VISIT_ERROR</a>.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Visitor side effects are not rolled back on error. </dd></dl>
 
 </div>

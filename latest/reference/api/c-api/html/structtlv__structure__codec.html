@@ -86,8 +86,6 @@ Data Fields</h2></td></tr>
 <tr class="separator:a3cb6d8087e54e8e2ea57f6c052a3ff9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6adee8c22b7018c246bd947d01d63d4" id="r_af6adee8c22b7018c246bd947d01d63d4"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__codec.html#af6adee8c22b7018c246bd947d01d63d4">format</a></td></tr>
 <tr class="separator:af6adee8c22b7018c246bd947d01d63d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb2642a956c482e5abde27a333bdbce7" id="r_afb2642a956c482e5abde27a333bdbce7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__codec.html#afb2642a956c482e5abde27a333bdbce7">is_constructed</a></td></tr>
-<tr class="separator:afb2642a956c482e5abde27a333bdbce7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1b73f09c5429c78705c38dd1262fa70" id="r_ad1b73f09c5429c78705c38dd1262fa70"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__codec.html#ad1b73f09c5429c78705c38dd1262fa70">schema</a></td></tr>
 <tr class="separator:ad1b73f09c5429c78705c38dd1262fa70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac621520fd17fa7c20c3b328aed2ee420" id="r_ac621520fd17fa7c20c3b328aed2ee420"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__codec.html#ac621520fd17fa7c20c3b328aed2ee420">max_depth</a></td></tr>
@@ -162,22 +160,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Borrowed format. Must be able to read for decode and for validating encoded bytes, and able to write for encode; see <a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0" title="Reports whether a format can be used for reading.">tlv_format_can_read()</a> and <a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952" title="Reports whether a format can be used for writing.">tlv_format_can_write()</a>. A decode-only codec uses a format whose write callbacks are unset. </p>
-
-</div>
-</div>
-<a id="afb2642a956c482e5abde27a333bdbce7" name="afb2642a956c482e5abde27a333bdbce7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afb2642a956c482e5abde27a333bdbce7">&#9670;&#160;</a></span>is_constructed</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__formats.html#ga247f9b16879a9cfde9243ab671c48e0c">tlv_is_constructed_fn</a> tlv_structure_codec::is_constructed</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Optional nesting predicate; receives <code>format-&gt;context</code>. <code>NULL</code> makes every value opaque. </p>
+<p>Borrowed format. Must be able to read for decode and for validating encoded bytes, and able to write for encode; see <a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0" title="Reports whether a format can be used for reading.">tlv_format_can_read()</a> and <a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952" title="Reports whether a format can be used for writing.">tlv_format_can_write()</a>. A decode-only codec uses a format whose write callbacks are unset. <code>format-&gt;is_constructed</code> is the nesting predicate; <code>NULL</code> makes every value opaque. </p>
 
 </div>
 </div>
@@ -192,7 +175,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Maximum nesting depth, following <a class="el" href="group__traversal.html#gae8314a5f8388d8fcb255241344feee2d" title="Traverses nested elements in preorder.">tlv_walk_tree()</a> conventions. Zero is a real limit; a value out of range returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. </p>
+<p>Maximum nesting depth, following <a class="el" href="group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9" title="Traverses nested elements in preorder.">tlv_walk_tree()</a> conventions. Zero is a real limit; a value out of range returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. </p>
 
 </div>
 </div>
@@ -207,7 +190,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Maximum element count, following <a class="el" href="group__traversal.html#gae8314a5f8388d8fcb255241344feee2d" title="Traverses nested elements in preorder.">tlv_walk_tree()</a> conventions. Zero is a real limit. </p>
+<p>Maximum element count, following <a class="el" href="group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9" title="Traverses nested elements in preorder.">tlv_walk_tree()</a> conventions. Zero is a real limit. </p>
 
 </div>
 </div>
