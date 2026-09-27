@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix a Clang `-Wunused-const-variable` error in the integration architecture
+  test, whose `full_format` fixture became dead code once its only user
+  switched to a copy with `is_constructed` set. (#332)
 - Fix the Doxygen build failing with an unresolved link to `format`, caused by
   `@see` comments that spelled out `docs/guides/memory.md#format-context-ownership-and-lifetime`
   as literal text; use the project's `@docs{}` alias instead, which does not

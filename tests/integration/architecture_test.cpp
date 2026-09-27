@@ -56,8 +56,6 @@ int constructed(const void*, const tlv_tag_t* tag) {
 }
 const tlv_format_t format = {nullptr, tag_read, length_read, nullptr, nullptr,
                              nullptr, nullptr,  nullptr,     nullptr, nullptr};
-const tlv_format_t full_format = {nullptr,   tag_read,     length_read, nullptr, nullptr,
-                                  tag_write, length_write, length_size, nullptr, nullptr};
 const tlv_format_t constructed_format = {nullptr, tag_read, length_read, nullptr, nullptr,
                                          nullptr, nullptr,  nullptr,     nullptr, constructed};
 const tlv_format_t constructed_full_format = {nullptr, tag_read,   length_read,  nullptr,
