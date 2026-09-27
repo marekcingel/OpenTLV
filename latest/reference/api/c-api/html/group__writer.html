@@ -199,7 +199,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Sequential writer over a caller-owned buffer. </p>
-<p>Initialize with <a class="el" href="group__writer.html#ga8abdb0fa4de532f391f3df5257d6dccb" title="Initializes a sequential writer.">tlv_writer_init()</a>. The writer never allocates; it borrows its format and buffer, which must outlive it. </p>
+<p>Initialize with <a class="el" href="group__writer.html#ga8abdb0fa4de532f391f3df5257d6dccb" title="Initializes a sequential writer.">tlv_writer_init()</a>. The writer never allocates; it borrows its format and buffer, which must outlive it, transitively including the format's own context. </p><dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 
 </div>
 </div>

@@ -104,6 +104,7 @@ Public Member Functions</h2></td></tr>
 <div class="textblock"><p>Thin C++ wrapper around <a class="elRef" href="../../c-api/html/group__writer.html#gab60fe025fad90cee69e0d2d92eb5d259">tlv_writer_t</a>. </p>
 <p>Writes elements sequentially into a caller-owned buffer. Successful writes do not allocate; an error result carries a <code>std::string</code> message and therefore may allocate.</p>
 <dl class="section warning"><dt>Warning</dt><dd>The caller must keep the buffer, format, and format context alive for the lifetime of the writer. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a00ae5fd6ea3f246141d985911d497a33" name="a00ae5fd6ea3f246141d985911d497a33"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a00ae5fd6ea3f246141d985911d497a33">&#9670;&#160;</a></span>writer()</h2>

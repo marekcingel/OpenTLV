@@ -2987,8 +2987,11 @@ same encoder and advances its position only on success.</p>
 </ul>
 <p>Pass the descriptor to <code>tlv_reader_init</code> or <code>tlv_writer_init</code> as the last
 argument after the buffer and its size. The descriptor and its optional
-immutable <code>context</code> are borrowed and must remain valid and unchanged throughout
-use. Read and write capability are independently optional: <code>read_tag</code> and
+immutable <code>context</code> are borrowed and must remain valid and unchanged
+throughout use; see <a href="../guides/memory/#format-context-ownership-and-lifetime">format context ownership and
+lifetime</a> for the
+full contract, including copying, sharing and moving. Read and write
+capability are independently optional: <code>read_tag</code> and
 <code>read_length</code> are required for reading unless <code>read_element</code> is set, and
 <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> are required for writing unless
 <code>write_header</code> is set. A format that leaves an entire group unset (all <code>NULL</code>)

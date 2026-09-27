@@ -147,6 +147,7 @@ Static Public Member Functions</h2></td></tr>
 <p>Wraps <a class="elRef" href="../../c-api/html/group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a>. Unlike the reader and walker wrappers, a document copies the data it is given, allocates memory and lets the data be searched, changed and encoded again. It is independent of the zero-copy APIs: nothing in the core depends on it, and it never refers to the buffer it was parsed from.</p>
 <p>A document is move-only. Moving keeps every <a class="el" href="classtlv_1_1node.html" title="A non-owning handle to one element of a tlv::document.">tlv::node</a> handle valid; the moved-from document is empty and unusable except for destruction and assignment.</p>
 <dl class="section warning"><dt>Warning</dt><dd>The format callbacks' contexts are borrowed and must outlive the document. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a21d3dd045aa4ead04d484d876746bd05" name="a21d3dd045aa4ead04d484d876746bd05"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a21d3dd045aa4ead04d484d876746bd05">&#9670;&#160;</a></span>document() <span class="overload">[1/2]</span></h2>
