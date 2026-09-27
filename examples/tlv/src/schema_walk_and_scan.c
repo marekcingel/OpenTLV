@@ -55,8 +55,8 @@ int main(void) {
     /* One tag byte and one length byte; config must outlive its readers. */
     const tlv_fixed_config_t config = {
         .tag_size = 1, .length_size = 1, .order = TLV_BYTE_ORDER_BIG_ENDIAN};
-    tlv_reader_format_t reader_format;
-    if (tlv_fixed_reader_format_init(&reader_format, &config) != TLV_OK) return 1;
+    tlv_format_t format;
+    if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
 
     const uint8_t   input[] = {1, 2, 0xAB, 0xCD, 2, 0};
     const uint8_t   noisy[] = {0xFF, 0xFF, 1, 2, 0xAB, 0xCD};
@@ -66,29 +66,28 @@ int main(void) {
     tlv_result_t    result;
     visit_context_t state = {0, 0};
 
-    if (tlv_walk(input, sizeof(input), &reader_format, visit, &state) != TLV_OK) return 1;
+    if (tlv_walk(input, sizeof(input), &format, visit, &state) != TLV_OK) return 1;
     printf("Visited %zu elements\n", state.count);
 
     state.count = 0;
     state.stop_after = 1;
-    if (tlv_walk(input, sizeof(input), &reader_format, visit, &state) != TLV_OK) return 1;
+    if (tlv_walk(input, sizeof(input), &format, visit, &state) != TLV_OK) return 1;
     printf("Stopped successfully after %zu element\n", state.count);
 
     /* Parsing never applies a schema automatically; our callback does. */
-    result = tlv_walk(invalid, sizeof(invalid), &reader_format, visit, &state);
+    result = tlv_walk(invalid, sizeof(invalid), &format, visit, &state);
     if (result != TLV_ERR_VISITOR) return 1;
     printf("Schema rejection by visitor: %s\n", tlv_strerror(result));
 
     puts("Recovery scan with a schema filter");
-    if (tlv_scan(noisy, sizeof(noisy), 0, &reader_format, &schema, &view, &offset, &consumed) !=
-        TLV_OK)
+    if (tlv_scan(noisy, sizeof(noisy), 0, &format, &schema, &view, &offset, &consumed) != TLV_OK)
         return 1;
     printf("Candidate at offset %zu, encoded size %zu\n", offset, consumed);
     print_view(&view);
 
     /* A candidate is not proof of an original boundary. Continue after it. */
-    result = tlv_scan(noisy, sizeof(noisy), offset + consumed, &reader_format, &schema, &view,
-                      &offset, &consumed);
+    result = tlv_scan(noisy, sizeof(noisy), offset + consumed, &format, &schema, &view, &offset,
+                      &consumed);
     if (result != TLV_ERR_END_OF_BUFFER) return 1;
     printf("No further candidate: %s\n", tlv_strerror(result));
     return 0;

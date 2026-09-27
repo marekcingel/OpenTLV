@@ -112,7 +112,7 @@ tlv_visit_result_t print_segment(const tlv_view_t* segment, void* context) {
 }
 size_t length;
 tlv_length_to_size(view.value.length, &length);
-tlv_walk(view.value.data, length, &tlv_reader_format_cer, print_segment, NULL);
+tlv_walk(view.value.data, length, &tlv_format_cer, print_segment, NULL);
 ```
 
 `view.value` here is a view of the **encoded constructed contents** (segment
@@ -217,8 +217,8 @@ length field; depth/count limits point to the first disallowed element.
 Argument, configuration, total-size and destination-capacity errors use offset
 zero.
 
-`tlv_reader_format_cer` and `tlv_writer_format_cer` also work with generic C and
-C++ readers and writers. These descriptors validate **only the current tag and
+`tlv_format_cer` also works with generic C and
+C++ readers and writers. It validates **only the current tag and
 length** — generic I/O does not inspect constructed contents, EOC placement, or
 canonical segmentation, and provides no field offsets. Use the CER-specific
 functions above when those guarantees are required.

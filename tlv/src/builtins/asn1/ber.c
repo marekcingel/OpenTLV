@@ -6,24 +6,24 @@ static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t si
                              size_t* used) {
     /* Universal tag zero is reserved for EOC, never an ordinary element. */
     if (size && (data[0] == 0 || data[0] == TLV_ASN1_CONSTRUCTED_BIT)) return TLV_ERR_INVALID_TAG;
-    return tlv_ber_reader_wire.read_tag(context, data, size, tag, used);
+    return tlv_ber_wire.read_tag(context, data, size, tag, used);
 }
 static tlv_result_t write_tag(const void* context, uint8_t* data, size_t capacity,
                               const tlv_tag_t* tag, size_t* used) {
     if (tag->size && tag->data && (tag->data[0] == 0 || tag->data[0] == TLV_ASN1_CONSTRUCTED_BIT))
         return TLV_ERR_INVALID_TAG;
-    return tlv_ber_writer_wire.write_tag(context, data, capacity, tag, used);
+    return tlv_ber_wire.write_tag(context, data, capacity, tag, used);
 }
 static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
                                 size_t* length, size_t* used) {
-    return tlv_ber_reader_wire.read_length(context, data, size, length, used);
+    return tlv_ber_wire.read_length(context, data, size, length, used);
 }
 static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity, size_t length,
                                  size_t* used) {
-    return tlv_ber_writer_wire.write_length(context, data, capacity, length, used);
+    return tlv_ber_wire.write_length(context, data, capacity, length, used);
 }
 static tlv_result_t length_size(const void* context, size_t length, size_t* size) {
-    return tlv_ber_writer_wire.length_size(context, length, size);
+    return tlv_ber_wire.length_size(context, length, size);
 }
 int tlv_ber_is_constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
@@ -163,11 +163,6 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
     return TLV_OK;
 }
 
-const tlv_reader_format_t tlv_reader_format_ber = {.context = NULL,
-                                                   .read_tag = read_tag,
-                                                   .read_length = read_length,
-                                                   .read_value_bounds = read_value_bounds};
-
 tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t length, size_t* size) {
     size_t tag_size;
     tlv_result_t rc;
@@ -215,7 +210,7 @@ tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag
     size_t written;
     tlv_result_t rc;
     if (!writer) return TLV_ERR_NULL_ARG;
-    if (writer->format != &tlv_writer_format_ber) return TLV_ERR_INVALID_ARG;
+    if (writer->format != &tlv_format_ber) return TLV_ERR_INVALID_ARG;
     if (writer->pos > writer->capacity) return TLV_ERR_BUFFER_TOO_SHORT;
     rc = tlv_ber_write_indefinite(writer->buf ? writer->buf + writer->pos : NULL,
                                   writer->capacity - writer->pos, tag, value, length, &written);
@@ -223,10 +218,13 @@ tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag
     return rc;
 }
 
-const tlv_writer_format_t tlv_writer_format_ber = {.context = NULL,
-                                                   .write_tag = write_tag,
-                                                   .write_length = write_length,
-                                                   .length_size = length_size};
+const tlv_format_t tlv_format_ber = {.context = NULL,
+                                     .read_tag = read_tag,
+                                     .read_length = read_length,
+                                     .read_value_bounds = read_value_bounds,
+                                     .write_tag = write_tag,
+                                     .write_length = write_length,
+                                     .length_size = length_size};
 
 tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_length_t* value,
                                    size_t* consumed) {

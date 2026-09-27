@@ -97,7 +97,7 @@ as `1` or `0`:
 
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-/* use tlv_reader_format_ber */
+/* use tlv_format_ber */
 #endif
 ```
 

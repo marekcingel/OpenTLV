@@ -23,7 +23,7 @@ tlv_result_t tlv_copy_value(const tlv_view_t* view, uint8_t* data, size_t capaci
     return tlv_value_copy(view->value, data, capacity, written);
 }
 
-tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_writer_format_t* format, uint8_t* data,
+tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_format_t* format, uint8_t* data,
                            size_t capacity, size_t* written) {
     size_t length, local_written;
     tlv_result_t rc;

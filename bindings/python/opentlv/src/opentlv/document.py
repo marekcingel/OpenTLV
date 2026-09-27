@@ -53,7 +53,7 @@ class Node:
     @value.setter
     def value(self, value: bytes) -> None:
         """Replaces the value. For a constructed node, `value` is parsed as
-        nested elements with the document's reader format, replacing every
+        nested elements with the document's format, replacing every
         child."""
         try:
             _native.node_set_value(self._ptr, value)
@@ -149,25 +149,18 @@ class Document:
     __slots__ = ("_capsule",)
 
     def __init__(self, data: Optional[bytes] = None, format: Format = Format.DEFAULT, *,
-                 reader_format: Optional[Format] = None, writer_format: Optional[Format] = None,
                  max_depth: int = _DEFAULT_MAX_DEPTH,
                  max_elements: int = _DEFAULT_MAX_ELEMENTS) -> None:
         """Creates a document, empty or parsed from `data`.
 
-        `format` sets both the reader format (used to parse `data` and any
-        constructed value later assigned to a node) and the writer format
-        (used to `encode()`); pass `reader_format`/`writer_format`
-        separately to use different formats for parsing and encoding.
+        `format` is used both to parse `data` (and any constructed value
+        later assigned to a node) and to `encode()` the document again.
         """
-        reader_format = format if reader_format is None else reader_format
-        writer_format = format if writer_format is None else writer_format
         try:
             if data is None:
-                self._capsule = _native.document_create(reader_format, writer_format, max_depth,
-                                                         max_elements)
+                self._capsule = _native.document_create(format, max_depth, max_elements)
             else:
-                self._capsule = _native.document_parse(data, reader_format, writer_format,
-                                                        max_depth, max_elements)
+                self._capsule = _native.document_parse(data, format, max_depth, max_elements)
         except _native.Error as native_error:
             raise _from_native(native_error) from None
 
@@ -210,7 +203,7 @@ class Document:
         `parent` is the constructed node that receives the element, or
         `None` for the top level; `before` is an existing child of `parent`
         the new node precedes, or `None` to append at the end. As for
-        `Node.value`, a value of a tag the document's reader format treats
+        `Node.value`, a value of a tag the document's format treats
         as constructed is parsed as nested elements.
         """
         tag_bytes = tag.data if isinstance(tag, Tag) else tag

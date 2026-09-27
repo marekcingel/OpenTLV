@@ -44,8 +44,10 @@ tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, size_t le
     data[1] = static_cast<uint8_t>(length >> 8);
     return TLV_OK;
 }
-const tlv_reader_format_t fixed = {&width, read_tag, read_length, nullptr, nullptr};
-const tlv_writer_format_t fixed_writer = {&width, write_tag, write_length, length_size, nullptr};
+const tlv_format_t fixed = {&width,  read_tag, read_length, nullptr, nullptr,
+                            nullptr, nullptr,  nullptr,     nullptr};
+const tlv_format_t fixed_writer = {&width,    nullptr,      nullptr,     nullptr, nullptr,
+                                   write_tag, write_length, length_size, nullptr};
 } // namespace
 
 TEST(Unit_Tlv_Format, TruncationPreservesReaderStateAndOutput) {
@@ -79,7 +81,7 @@ TEST(Unit_Tlv_Format, RequiredCallbacksAreValidatedPerDirection) {
     tlv_writer_t writer;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_init(&reader, nullptr, 0, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_init(&writer, nullptr, 0, nullptr));
-    tlv_reader_format_t format = fixed;
+    tlv_format_t format = fixed;
     format.read_tag = nullptr;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_init(&reader, nullptr, 0, &format));
     EXPECT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &fixed_writer));
@@ -87,7 +89,7 @@ TEST(Unit_Tlv_Format, RequiredCallbacksAreValidatedPerDirection) {
     format.read_length = nullptr;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_init(&reader, nullptr, 0, &format));
     for (int i = 0; i < 3; ++i) {
-        tlv_writer_format_t output_format = fixed_writer;
+        tlv_format_t output_format = fixed_writer;
         if (i == 0) output_format.write_tag = nullptr;
         if (i == 1) output_format.write_length = nullptr;
         if (i == 2) output_format.length_size = nullptr;
@@ -97,8 +99,8 @@ TEST(Unit_Tlv_Format, RequiredCallbacksAreValidatedPerDirection) {
 }
 
 TEST(Unit_Tlv_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
-    uint8_t             data[8] = {};
-    tlv_reader_format_t format = fixed;
+    uint8_t      data[8] = {};
+    tlv_format_t format = fixed;
     format.read_tag = [](const void*, const uint8_t*, size_t, tlv_tag_t*, size_t* used) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
@@ -121,7 +123,7 @@ TEST(Unit_Tlv_Format, InvalidCallbackSizesAndErrorsDoNotAdvance) {
         return TLV_OK;
     };
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next(&reader, &entry));
-    tlv_writer_format_t output_format = fixed_writer;
+    tlv_format_t output_format = fixed_writer;
     output_format.write_length = [](const void*, uint8_t*, size_t, size_t, size_t*) {
         return TLV_ERR_INVALID_LENGTH;
     };
@@ -190,12 +192,20 @@ TEST(Unit_Tlv_Format, RuntimeDefinedTagWidthsRoundTripWithoutRebuilding) {
     for (size_t tag_width :
          {size_t(1), size_t(2), size_t(8), size_t(9), size_t(12), size_t(64), size_t(300)}) {
         SCOPED_TRACE(tag_width);
-        const RuntimeTagFormat    context = {tag_width};
-        const tlv_reader_format_t reader_format = {&context, runtime_read_tag, one_byte_read_length,
-                                                   nullptr, nullptr};
-        const tlv_writer_format_t writer_format = {
-            &context, runtime_write_tag, one_byte_write_length, one_byte_length_size, nullptr};
-        std::vector<uint8_t> tag_bytes(tag_width);
+        const RuntimeTagFormat context = {tag_width};
+        const tlv_format_t     reader_format = {&context, runtime_read_tag, one_byte_read_length,
+                                                nullptr,  nullptr,          nullptr,
+                                                nullptr,  nullptr,          nullptr};
+        const tlv_format_t     writer_format = {&context,
+                                                nullptr,
+                                                nullptr,
+                                                nullptr,
+                                                nullptr,
+                                                runtime_write_tag,
+                                                one_byte_write_length,
+                                                one_byte_length_size,
+                                                nullptr};
+        std::vector<uint8_t>   tag_bytes(tag_width);
         for (size_t i = 0; i < tag_width; ++i) tag_bytes[i] = static_cast<uint8_t>(0x10 + i);
         const uint8_t value[] = {0xAA, 0xBB};
 

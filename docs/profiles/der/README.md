@@ -300,8 +300,7 @@ first disallowed element. Argument, configuration, total-size and destination
 capacity errors use offset zero. Nested offsets remain absolute. Truncated
 children cannot consume bytes beyond their parent's declared value boundary.
 
-`tlv_reader_format_der` and `tlv_writer_format_der` also work with generic C and
-C++ readers and writers, respectively. These descriptors
+`tlv_format_der` also works with generic C and C++ readers and writers. It
 validates **only the current tag and length**. Generic I/O does not inspect
 constructed contents, apply DER resource limits, or provide field offsets.
 Use the DER-specific functions above when those guarantees are required.

@@ -41,10 +41,10 @@ TEST(Integration_Tlv_Codec, ExplicitConversionBetweenFramingOperations) {
     ASSERT_EQ(tlv_codec_encode(&scalar, &value, sizeof(value), raw, sizeof(raw), &raw_size),
               TLV_CODEC_OK);
     ASSERT_EQ(
-        tlv_write(framed, sizeof(framed), &controlled::writer, tag, raw, raw_size, &framed_size),
+        tlv_write(framed, sizeof(framed), &controlled::format, tag, raw, raw_size, &framed_size),
         TLV_OK);
     tlv_view_t view = {};
-    ASSERT_EQ(tlv_read(framed, framed_size, &controlled::reader, &view, &consumed), TLV_OK);
+    ASSERT_EQ(tlv_read(framed, framed_size, &controlled::format, &view, &consumed), TLV_OK);
     EXPECT_EQ(consumed, framed_size);
     EXPECT_EQ(view.value.data, framed + 2);
     ASSERT_EQ(
@@ -53,7 +53,7 @@ TEST(Integration_Tlv_Codec, ExplicitConversionBetweenFramingOperations) {
     EXPECT_EQ(decoded, value);
     // Framing also accepts values that this codec rejects.
     framed[1] = 1;
-    ASSERT_EQ(tlv_read(framed, 3, &controlled::reader, &view, &consumed), TLV_OK);
+    ASSERT_EQ(tlv_read(framed, 3, &controlled::format, &view, &consumed), TLV_OK);
     EXPECT_EQ(
         tlv_codec_decode(&scalar, view.value.data, view.value.length, &decoded, sizeof(decoded)),
         TLV_CODEC_ERR_INVALID_VALUE);

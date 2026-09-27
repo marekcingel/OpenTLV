@@ -70,7 +70,7 @@ extern TLV_API const tlv_cer_limits_t tlv_cer_default_limits;
  * segments are ordinary primitive children one level deeper; to access them
  * zero-copy, iterate the constructed string element's own borrowed value
  * (`view->value`), for example with
- * `tlv_walk(view->value.data, size, &tlv_reader_format_cer, ...)`. See
+ * `tlv_walk(view->value.data, size, &tlv_format_cer, ...)`. See
  * docs/profiles/cer/README.md.
  *
  * Unlike #tlv_der_visitor_t's preorder guarantee, CER traversal is postorder

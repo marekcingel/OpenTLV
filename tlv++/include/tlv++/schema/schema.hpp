@@ -31,7 +31,7 @@ using schema_diagnostic = tlv_schema_diagnostic_t;
  *         tlv_schema_validate(), including #TLV_ERR_SCHEMA and
  *         #TLV_ERR_SCHEMA_MISSING.
  */
-TLV_NODISCARD inline expected<void, error> validate(bytes data, const tlv_reader_format_t& format,
+TLV_NODISCARD inline expected<void, error> validate(bytes data, const tlv_format_t& format,
                                                     tlv_is_constructed_fn         is_constructed,
                                                     const tlv_structure_schema_t& schema,
                                                     size_t max_depth, size_t max_elements,
@@ -69,7 +69,7 @@ TLV_NODISCARD inline expected<void, error> validate(bytes data, const tlv_reader
  * @see tlv_schema_issue_path_string
  */
 TLV_NODISCARD inline expected<size_t, error>
-validate_all(bytes data, const tlv_reader_format_t& format, tlv_is_constructed_fn is_constructed,
+validate_all(bytes data, const tlv_format_t& format, tlv_is_constructed_fn is_constructed,
              const tlv_structure_schema_t& schema, size_t max_depth, size_t max_elements,
              tlv_schema_issue_t* issues, size_t capacity,
              tlv_schema_unknown_policy_t unknown = TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
@@ -110,10 +110,9 @@ validate_all(bytes data, const tlv_reader_format_t& format, tlv_is_constructed_f
  * @see tlv_schema_diagnostic_t
  */
 TLV_NODISCARD inline expected<size_t, error>
-validate_all_diag(bytes data, const tlv_reader_format_t& format,
-                  tlv_is_constructed_fn is_constructed, const tlv_structure_schema_t& schema,
-                  size_t max_depth, size_t max_elements, schema_diagnostic* diagnostics,
-                  size_t                      capacity,
+validate_all_diag(bytes data, const tlv_format_t& format, tlv_is_constructed_fn is_constructed,
+                  const tlv_structure_schema_t& schema, size_t max_depth, size_t max_elements,
+                  schema_diagnostic* diagnostics, size_t capacity,
                   tlv_schema_unknown_policy_t unknown = TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
                   size_t*                     error_offset = nullptr) {
     tlv_schema_diagnostic_report_t report = {diagnostics, capacity, 0};

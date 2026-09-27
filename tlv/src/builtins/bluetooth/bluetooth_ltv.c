@@ -35,8 +35,5 @@ static tlv_result_t write_header(const void* context, uint8_t* data, size_t capa
     return TLV_OK;
 }
 
-const tlv_reader_format_t tlv_reader_format_bluetooth_ltv = {.context = NULL,
-                                                             .read_element = read_element};
-
-const tlv_writer_format_t tlv_writer_format_bluetooth_ltv = {.context = NULL,
-                                                             .write_header = write_header};
+const tlv_format_t tlv_format_bluetooth_ltv = {
+    .context = NULL, .read_element = read_element, .write_header = write_header};

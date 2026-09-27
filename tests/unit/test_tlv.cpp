@@ -10,7 +10,7 @@ TEST(Unit_Tlv, ReaderDetectsBufferTooShortForValue) {
     /* claims the value has 5 bytes, but the buffer has only 2 */
     const uint8_t data[] = {0x01, 0x05, 'a', 'b'};
     tlv_reader_t  reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_default));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
     tlv_view_t entry;
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &entry));
@@ -19,7 +19,7 @@ TEST(Unit_Tlv, ReaderDetectsBufferTooShortForValue) {
 TEST(Unit_Tlv, ReaderDetectsEndOfBuffer) {
     const uint8_t data[] = {0x01, 0x00};
     tlv_reader_t  reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_default));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
 
     tlv_view_t entry;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &entry));
@@ -29,7 +29,7 @@ TEST(Unit_Tlv, ReaderDetectsEndOfBuffer) {
 }
 
 TEST(Unit_Tlv, ReaderRejectsNullArgs) {
-    ASSERT_EQ(TLV_ERR_NULL_ARG, tlv_reader_init(NULL, NULL, 0, &tlv_reader_format_default));
+    ASSERT_EQ(TLV_ERR_NULL_ARG, tlv_reader_init(NULL, NULL, 0, &tlv_format_default));
 }
 
 /* ---------- Writer tests ---------- */
@@ -37,7 +37,7 @@ TEST(Unit_Tlv, ReaderRejectsNullArgs) {
 TEST(Unit_Tlv, ReaderBorrowsTagAndValue) {
     uint8_t      data[] = {0x01, 0x01, 0xAB};
     tlv_reader_t reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_reader_format_default));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
     tlv_view_t view{};
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
     EXPECT_EQ(1, view.tag.size);
@@ -54,7 +54,7 @@ TEST(Unit_Tlv, WriterRejectsUnsupportedTagSizesWithoutWriting) {
     uint8_t buf[8];
     std::memset(buf, 0xAA, sizeof(buf));
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_writer_format_default));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_format_default));
     // The format, not the tag type, limits tags to one byte, however long the tag is.
     const std::vector<uint8_t> tag_bytes(300, 0x42);
     for (size_t size = 0; size <= tag_bytes.size(); ++size) {
@@ -79,7 +79,7 @@ TEST(Unit_Tlv, WriterRejectsUnsupportedTagSizesWithoutWriting) {
 TEST(Unit_Tlv, WriterDetectsBufferTooShort) {
     uint8_t      buf[3];
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_writer_format_default));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_format_default));
 
     const uint8_t value[] = {'a', 'b', 'c', 'd'};
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,

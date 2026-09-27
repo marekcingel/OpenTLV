@@ -244,11 +244,9 @@ private:
 
 /** @brief Format descriptor of a #tlv::document, as for tlv_walk_tree(). */
 struct document_format {
-    /** Reader format used for parsing; its contents are copied, its context is borrowed. */
-    tlv_reader_format_t reader;
-    /** Writer format used for encoding; its contents are copied, its context is borrowed. */
-    tlv_writer_format_t writer;
-    /** Predicate receiving `reader.context` that selects nested values, or `nullptr` for opaque
+    /** Format used for parsing and encoding; its contents are copied, its context is borrowed. */
+    tlv_format_t format;
+    /** Predicate receiving `format.context` that selects nested values, or `nullptr` for opaque
      * values. */
     tlv_is_constructed_fn is_constructed;
     /** Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`. */
@@ -257,17 +255,14 @@ struct document_format {
     size_t max_elements;
 
     /**
-     * @brief Bundles the formats with the default limits.
+     * @brief Bundles the format with the default limits.
      *
-     * @param reader_format  Reader format.
-     * @param writer_format  Writer format.
-     * @param constructed    Nesting predicate, or `nullptr`.
+     * @param fmt         Format.
+     * @param constructed Nesting predicate, or `nullptr`.
      */
-    document_format(const tlv_reader_format_t& reader_format,
-                    const tlv_writer_format_t& writer_format,
-                    tlv_is_constructed_fn      constructed = nullptr)
-        : reader(reader_format), writer(writer_format), is_constructed(constructed),
-          max_depth(TLV_WALK_MAX_DEPTH), max_elements(TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {}
+    document_format(const tlv_format_t& fmt, tlv_is_constructed_fn constructed = nullptr)
+        : format(fmt), is_constructed(constructed), max_depth(TLV_WALK_MAX_DEPTH),
+          max_elements(TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {}
 };
 
 /**
@@ -448,10 +443,9 @@ private:
         }
     };
 
-    // The formats live on the heap so that the C document's pointers survive a move.
+    // The format lives on the heap so that the C document's pointer survives a move.
     struct state {
-        tlv_reader_format_t                      reader;
-        tlv_writer_format_t                      writer;
+        tlv_format_t                             format;
         std::unique_ptr<tlv_document_t, deleter> handle;
     };
 
@@ -460,12 +454,10 @@ private:
     static expected<document, error> make(const bytes* data, const document_format& format,
                                           size_t* error_offset) {
         std::unique_ptr<state> impl(new state());
-        impl->reader = format.reader;
-        impl->writer = format.writer;
+        impl->format = format.format;
 
         tlv_document_options_t options;
-        tlv_result_t rc = tlv_document_options_init(&options, &impl->reader, &impl->writer,
-                                                    format.is_constructed);
+        tlv_result_t rc = tlv_document_options_init(&options, &impl->format, format.is_constructed);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         options.max_depth = format.max_depth;
         options.max_elements = format.max_elements;

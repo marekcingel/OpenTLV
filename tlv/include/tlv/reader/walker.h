@@ -63,7 +63,7 @@ typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_view_t* view, void* contex
  * @warning The input and format must remain valid and unchanged during
  *          traversal. Effects of earlier callbacks are not rolled back on error.
  */
-TLV_API tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
+TLV_API tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_format_t* format,
                               tlv_visitor_t visitor, void* context);
 
 /** @brief Maximum `max_depth` accepted by tlv_walk_tree(). */
@@ -112,8 +112,7 @@ typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view, size_t 
  *          borrowed views follow the lifetimes documented for tlv_walk().
  * @see tlv_walk
  */
-TLV_API tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size,
-                                   const tlv_reader_format_t* format,
+TLV_API tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t* format,
                                    tlv_is_constructed_fn is_constructed, size_t max_depth,
                                    size_t max_elements, tlv_tree_visitor_t visitor, void* context,
                                    size_t* error_offset);

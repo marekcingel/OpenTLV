@@ -9,6 +9,7 @@
  * otherwise supplies a minimal equivalent with the same core interface.
  */
 
+#ifndef TLV_NODISCARD
 #if (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L
 /**
  * @brief Expands to `[[nodiscard]]` from C++17 onward, and to nothing before.
@@ -18,6 +19,7 @@
 #define TLV_NODISCARD [[nodiscard]]
 #else
 #define TLV_NODISCARD
+#endif
 #endif
 
 #include <cstddef>

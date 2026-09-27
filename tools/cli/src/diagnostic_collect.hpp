@@ -51,10 +51,10 @@ void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base, const 
 // (such as DER's canonical-form rules) may not surface through a plain read
 // the same way a full walk does. Callers should fall back to a plainer
 // rendering when this returns false.
-bool diagnostic_scope_derive_reader_diagnostic(const diagnostic_scope&    scope,
-                                               const tlv_reader_format_t* format,
-                                               const uint8_t* data, std::size_t size,
-                                               std::size_t error_offset, tlv_result_t expected_code,
+bool diagnostic_scope_derive_reader_diagnostic(const diagnostic_scope& scope,
+                                               const tlv_format_t* format, const uint8_t* data,
+                                               std::size_t size, std::size_t error_offset,
+                                               tlv_result_t             expected_code,
                                                tlv_reader_diagnostic_t* out);
 
 } // namespace cli

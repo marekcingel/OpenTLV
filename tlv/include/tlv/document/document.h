@@ -81,16 +81,18 @@ typedef struct tlv_allocator {
  * @brief Format descriptor and limits of a document.
  *
  * Initialize with tlv_document_options_init(). The document copies this
- * structure, but the formats, the format contexts and the allocator context are
+ * structure, but the format, the format's context and the allocator context are
  * borrowed and must outlive the document.
  */
 typedef struct tlv_document_options {
-    /** Reader format used to parse input and values. Required. */
-    const tlv_reader_format_t* reader_format;
-    /** Writer format used to encode the document. Required. */
-    const tlv_writer_format_t* writer_format;
     /**
-     * Predicate receiving `reader_format->context` that tells which tags hold nested
+     * Format used to parse input and values and to encode the document.
+     * Required; must be able to both read and write, see tlv_format_can_read()
+     * and tlv_format_can_write().
+     */
+    const tlv_format_t* format;
+    /**
+     * Predicate receiving `format->context` that tells which tags hold nested
      * elements, or `NULL` to keep every value opaque. Its answer is taken when a node is
      * created and stays with the node.
      */
@@ -114,23 +116,21 @@ typedef struct tlv_document tlv_document_t;
 typedef struct tlv_node tlv_node_t;
 
 /**
- * @brief Fills options with the given formats and the default limits.
+ * @brief Fills options with the given format and the default limits.
  *
  * Sets `max_depth` to #TLV_WALK_MAX_DEPTH, `max_elements` to
  * #TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS and the allocator to `NULL`.
  *
  * @param[out] options        Options to initialize.
- * @param[in]  reader_format  Reader format; borrowed.
- * @param[in]  writer_format  Writer format; borrowed.
+ * @param[in]  format         Format; borrowed.
  * @param[in]  is_constructed Nesting predicate, or `NULL` for opaque values.
  *
  * @return #TLV_OK on success.
- * @return #TLV_ERR_NULL_ARG if `options` or a format is `NULL`, or a format lacks a
- *         required callback.
+ * @return #TLV_ERR_NULL_ARG if `options` is `NULL`, or `format` cannot both
+ *         read and write.
  */
 TLV_API tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
-                                               const tlv_reader_format_t* reader_format,
-                                               const tlv_writer_format_t* writer_format,
+                                               const tlv_format_t* format,
                                                tlv_is_constructed_fn is_constructed);
 
 /**

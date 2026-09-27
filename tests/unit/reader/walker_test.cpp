@@ -22,7 +22,7 @@ TEST(Unit_Tlv_Walker, PropagatesCustomReaderErrorsIncludingEndOfBuffer) {
     const uint8_t data[] = {1, 0};
     for (auto error : {TLV_ERR_INVALID_TAG, TLV_ERR_INVALID_LENGTH, TLV_ERR_END_OF_BUFFER}) {
         for (bool fail_tag : {false, true}) {
-            auto format = controlled::reader;
+            auto format = controlled::format;
             format.context = &error;
             if (fail_tag) {
                 format.read_tag = [](const void* ctx, const uint8_t*, size_t, tlv_tag_t*, size_t*) {
@@ -43,11 +43,11 @@ TEST(Unit_Tlv_Walker, PropagatesCustomReaderErrorsIncludingEndOfBuffer) {
 TEST(Unit_Tlv_Walker, EmptyInputSucceedsAndNullContextIsAllowed) {
     const uint8_t data[] = {1, 0};
     Visits        visits;
-    EXPECT_EQ(TLV_OK, tlv_walk(nullptr, 0, &controlled::reader, collect, &visits));
-    EXPECT_EQ(TLV_OK, tlv_walk(data, 0, &controlled::reader, collect, &visits));
+    EXPECT_EQ(TLV_OK, tlv_walk(nullptr, 0, &controlled::format, collect, &visits));
+    EXPECT_EQ(TLV_OK, tlv_walk(data, 0, &controlled::format, collect, &visits));
     EXPECT_EQ(0u, visits.count);
     EXPECT_EQ(TLV_OK, tlv_walk(
-                          data, sizeof(data), &controlled::reader,
+                          data, sizeof(data), &controlled::format,
                           [](const tlv_view_t* view, void* ctx) {
                               EXPECT_EQ(nullptr, ctx);
                               EXPECT_EQ(1u, view->tag.data[0]);
@@ -59,14 +59,14 @@ TEST(Unit_Tlv_Walker, EmptyInputSucceedsAndNullContextIsAllowed) {
 TEST(Unit_Tlv_Walker, RejectsInvalidArgumentsEvenForEmptyInput) {
     const uint8_t data[] = {1, 0};
     Visits        visits;
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(nullptr, 1, &controlled::reader, collect, &visits));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(nullptr, 1, &controlled::format, collect, &visits));
     for (size_t size : {size_t(0), sizeof(data)}) {
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, nullptr, collect, &visits));
-        EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, &controlled::reader, nullptr, &visits));
-        auto format = controlled::reader;
+        EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, &controlled::format, nullptr, &visits));
+        auto format = controlled::format;
         format.read_tag = nullptr;
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, &format, collect, &visits));
-        format = controlled::reader;
+        format = controlled::format;
         format.read_length = nullptr;
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, &format, collect, &visits));
     }

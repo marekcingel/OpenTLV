@@ -39,8 +39,8 @@ extern "C" {
  *
  * @note On failure `*size` is unchanged.
  */
-TLV_API tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,
-                                      const tlv_writer_format_t* format, size_t* size);
+TLV_API tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length, const tlv_format_t* format,
+                                      size_t* size);
 
 /**
  * @brief Encodes one element directly into caller-owned memory.
@@ -75,7 +75,7 @@ TLV_API tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,
  *          have modified `data`.
  * @see tlv_encoded_size
  */
-TLV_API tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_writer_format_t* format,
+TLV_API tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_format_t* format,
                                tlv_tag_t tag, const uint8_t* value, size_t length, size_t* written);
 
 /** @brief Which encoding step a #tlv_writer_diagnostic_t reports on. */
@@ -164,10 +164,9 @@ TLV_API void tlv_writer_diagnostic_init(tlv_writer_diagnostic_t* diagnostic);
  * @note On success `*out_diagnostic` is left unchanged.
  * @see tlv_write
  */
-TLV_API tlv_result_t tlv_write_diag(uint8_t* data, size_t capacity,
-                                    const tlv_writer_format_t* format, tlv_tag_t tag,
-                                    const uint8_t* value, size_t length, size_t* written,
-                                    tlv_writer_diagnostic_t* out_diagnostic);
+TLV_API tlv_result_t tlv_write_diag(uint8_t* data, size_t capacity, const tlv_format_t* format,
+                                    tlv_tag_t tag, const uint8_t* value, size_t length,
+                                    size_t* written, tlv_writer_diagnostic_t* out_diagnostic);
 
 /**
  * @brief Sequential writer over a caller-owned buffer.
@@ -177,7 +176,7 @@ TLV_API tlv_result_t tlv_write_diag(uint8_t* data, size_t capacity,
  */
 typedef struct tlv_writer {
     /** Borrowed writer format. */
-    const tlv_writer_format_t* format;
+    const tlv_format_t* format;
     /** Buffer provided by the caller; the core never allocates. */
     uint8_t* buf;
     /** Capacity of `buf` in bytes. */
@@ -203,7 +202,7 @@ typedef struct tlv_writer {
  *          of the writer.
  */
 TLV_API tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity,
-                                     const tlv_writer_format_t* format);
+                                     const tlv_format_t* format);
 
 /**
  * @brief Writes one TLV element at the writer's current position.

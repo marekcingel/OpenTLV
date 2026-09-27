@@ -17,11 +17,11 @@ TEST(Unit_Tlv_Writer, EveryInsufficientCapacityReportsRequiredSizeAndPreservesBu
         uint8_t data[6];
         std::memset(data, 0xEE, sizeof(data));
         size_t written = 99;
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write(data, capacity, &controlled::writer, tag,
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write(data, capacity, &controlled::format, tag,
                                                       value, sizeof(value), &written));
         EXPECT_EQ(required, written);
         size_t encoded_size = 0;
-        ASSERT_EQ(TLV_OK, tlv_encoded_size(tag, sizeof(value), &controlled::writer, &encoded_size));
+        ASSERT_EQ(TLV_OK, tlv_encoded_size(tag, sizeof(value), &controlled::format, &encoded_size));
         EXPECT_EQ(encoded_size, written);
         for (auto byte : data) EXPECT_EQ(0xEE, byte);
     }
@@ -35,18 +35,18 @@ TEST(Unit_Tlv_Writer, EveryInsufficientCapacityReportsRequiredSizeAndPreservesBu
 TEST(Unit_Tlv_Writer, ZeroLengthValueUndersizedWriteThenRoundTripRegression) {
     const tlv_tag_t primitive = TLV_TAG(0x04);
     size_t          total = 0;
-    ASSERT_EQ(TLV_OK, tlv_encoded_size(primitive, 0, &controlled::writer, &total));
+    ASSERT_EQ(TLV_OK, tlv_encoded_size(primitive, 0, &controlled::format, &total));
     std::vector<uint8_t> encoded(total, 0xA5);
     size_t               written = 99;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write(encoded.data(), total - 1, &controlled::writer,
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write(encoded.data(), total - 1, &controlled::format,
                                                   primitive, nullptr, 0, &written));
     EXPECT_EQ(total, written);
     for (auto byte : encoded) EXPECT_EQ(0xA5, byte);
-    ASSERT_EQ(TLV_OK, tlv_write(encoded.data(), total, &controlled::writer, primitive, nullptr, 0,
+    ASSERT_EQ(TLV_OK, tlv_write(encoded.data(), total, &controlled::format, primitive, nullptr, 0,
                                 &written));
     EXPECT_EQ(total, written);
     tlv_reader_t reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, encoded.data(), written, &controlled::reader));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, encoded.data(), written, &controlled::format));
     tlv_view_t view{};
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
     EXPECT_EQ(primitive.size, view.tag.size);
@@ -58,7 +58,7 @@ TEST(Unit_Tlv_Writer, ZeroLengthValueUndersizedWriteThenRoundTripRegression) {
 TEST(Unit_Tlv_Writer, InvalidArgumentsAndFormatsPreserveOutputs) {
     uint8_t     data[4] = {};
     size_t      size = 99;
-    const auto* format = &controlled::writer;
+    const auto* format = &controlled::format;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_encoded_size(tag, 0, format, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_encoded_size(tag, 0, nullptr, &size));
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_encoded_size(tlv_tag_t{}, 0, format, &size));
@@ -82,7 +82,7 @@ TEST(Unit_Tlv_Writer, InvalidArgumentsAndFormatsPreserveOutputs) {
 }
 
 TEST(Unit_Tlv_Writer, OverflowAndCallbackFailuresPreserveOutput) {
-    auto    format = controlled::writer;
+    auto    format = controlled::format;
     size_t  size = 99;
     uint8_t data[4] = {};
     format.length_size = [](const void*, size_t, size_t* used) {
@@ -97,7 +97,7 @@ TEST(Unit_Tlv_Writer, OverflowAndCallbackFailuresPreserveOutput) {
     };
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_encoded_size(tag, std::numeric_limits<size_t>::max(), &format, &size));
-    format = controlled::writer;
+    format = controlled::format;
     format.write_tag = [](const void*, uint8_t* dst, size_t, const tlv_tag_t*, size_t* used) {
         *used = dst ? 2 : 1;
         return TLV_OK;
@@ -114,14 +114,14 @@ TEST(Unit_Tlv_Writer, StatefulAppendFailureAndRetry) {
     uint8_t       data[5] = {};
     const uint8_t value = 0xAB;
     tlv_writer_t  writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, nullptr, 0));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_write(&writer, tag, data, 2));
     EXPECT_EQ(2u, tlv_writer_size(&writer));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, &value, 1));
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK,
-              tlv_reader_init(&reader, data, tlv_writer_size(&writer), &controlled::reader));
+              tlv_reader_init(&reader, data, tlv_writer_size(&writer), &controlled::format));
     tlv_view_t view{};
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
     EXPECT_EQ(0u, view.value.length);
@@ -137,7 +137,7 @@ TEST(Unit_Tlv_Writer, CopyViewAppendsAtCurrentPositionAndAdvances) {
     const tlv_view_t view = {TLV_TAG(0xAB), {value, sizeof(value)}};
     tlv_writer_t     writer;
     std::memset(data, 0xEE, sizeof(data));
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, nullptr, 0));
     EXPECT_EQ(2u, tlv_writer_size(&writer));
     ASSERT_EQ(TLV_OK, tlv_writer_copy_view(&writer, &view));
@@ -153,7 +153,7 @@ TEST(Unit_Tlv_Writer, CopyViewInsufficientCapacityLeavesPositionAndDoesNotExpose
     const uint8_t    value[] = {0x11, 0x22};
     const tlv_view_t view = {TLV_TAG(0xAB), {value, sizeof(value)}};
     tlv_writer_t     writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_copy_view(&writer, &view));
     EXPECT_EQ(0u, tlv_writer_size(&writer));
 }
@@ -164,7 +164,7 @@ TEST(Unit_Tlv_Writer, CopyViewInvalidArguments) {
     const tlv_view_t view = {TLV_TAG(0xAB), {&byte, 1}};
     tlv_view_t       invalid_view = {TLV_TAG(0xAB), {nullptr, 1}};
     tlv_writer_t     writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_copy_view(nullptr, &view));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_copy_view(&writer, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_copy_view(&writer, &invalid_view));
@@ -174,7 +174,7 @@ TEST(Unit_Tlv_Writer, CopyViewNullBufferZeroCapacityIsNotASizeQuery) {
     const uint8_t    value[] = {0x11};
     const tlv_view_t view = {TLV_TAG(0xAB), {value, sizeof(value)}};
     tlv_writer_t     writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &controlled::format));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_copy_view(&writer, &view));
     EXPECT_EQ(0u, tlv_writer_size(&writer));
 }
@@ -183,7 +183,7 @@ TEST(Unit_Tlv_Writer, CopyViewInvalidPositionGreaterThanCapacity) {
     uint8_t          data[8];
     const tlv_view_t view = {TLV_TAG(0xAB), {nullptr, 0}};
     tlv_writer_t     writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     writer.pos = writer.capacity + 1;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_copy_view(&writer, &view));
     EXPECT_EQ(writer.capacity + 1, writer.pos);
@@ -194,7 +194,7 @@ TEST(Unit_Tlv_Writer, CopyEncodedAppendsAtCurrentPositionAndAdvances) {
     const uint8_t encoded[] = {0xAB, 0x02, 0x11, 0x22};
     tlv_writer_t  writer;
     std::memset(data, 0xEE, sizeof(data));
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, nullptr, 0));
     EXPECT_EQ(2u, tlv_writer_size(&writer));
     ASSERT_EQ(TLV_OK, tlv_writer_copy_encoded(&writer, encoded, sizeof(encoded)));
@@ -206,7 +206,7 @@ TEST(Unit_Tlv_Writer, CopyEncodedInsufficientCapacityLeavesPosition) {
     uint8_t       data[3];
     const uint8_t encoded[] = {0xAB, 0x02, 0x11, 0x22};
     tlv_writer_t  writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_copy_encoded(&writer, encoded, sizeof(encoded)));
     EXPECT_EQ(0u, tlv_writer_size(&writer));
 }
@@ -214,14 +214,14 @@ TEST(Unit_Tlv_Writer, CopyEncodedInsufficientCapacityLeavesPosition) {
 TEST(Unit_Tlv_Writer, CopyEncodedInvalidArguments) {
     uint8_t      data[8];
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_copy_encoded(nullptr, data, 1));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_copy_encoded(&writer, nullptr, 1));
 }
 
 TEST(Unit_Tlv_Writer, CopyEncodedNullBufferZeroCapacity) {
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &controlled::format));
     EXPECT_EQ(TLV_OK, tlv_writer_copy_encoded(&writer, nullptr, 0));
     EXPECT_EQ(0u, tlv_writer_size(&writer));
     const uint8_t byte = 0xAB;
@@ -232,7 +232,7 @@ TEST(Unit_Tlv_Writer, CopyEncodedNullBufferZeroCapacity) {
 TEST(Unit_Tlv_Writer, CopyEncodedInvalidPositionGreaterThanCapacity) {
     uint8_t      data[8];
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     writer.pos = writer.capacity + 1;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_copy_encoded(&writer, nullptr, 0));
     EXPECT_EQ(writer.capacity + 1, writer.pos);
@@ -241,7 +241,7 @@ TEST(Unit_Tlv_Writer, CopyEncodedInvalidPositionGreaterThanCapacity) {
 TEST(Unit_Tlv_Writer, CopyEncodedOverlappingByteRangesAndEmptyRange) {
     uint8_t      bytes[] = {1, 2, 3, 4};
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, bytes, sizeof(bytes), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, bytes, sizeof(bytes), &controlled::format));
     writer.pos = 1;
     ASSERT_EQ(TLV_OK, tlv_writer_copy_encoded(&writer, bytes, 3));
     const uint8_t expected[] = {1, 1, 2, 3};
@@ -261,17 +261,17 @@ TEST(Unit_Tlv_Writer, SequentialRoundTripCombiningWriteAndBothCopyHelpers) {
     size_t           encoded_written = 0;
     tlv_writer_t     writer;
 
-    ASSERT_EQ(TLV_OK, tlv_write(separately_encoded, sizeof(separately_encoded), &controlled::writer,
+    ASSERT_EQ(TLV_OK, tlv_write(separately_encoded, sizeof(separately_encoded), &controlled::format,
                                 TLV_TAG(0x33), view_value, 1, &encoded_written));
 
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, first_value, sizeof(first_value)));
     ASSERT_EQ(TLV_OK, tlv_writer_copy_view(&writer, &view));
     ASSERT_EQ(TLV_OK, tlv_writer_copy_encoded(&writer, separately_encoded, encoded_written));
 
     tlv_reader_t reader;
     ASSERT_EQ(TLV_OK,
-              tlv_reader_init(&reader, data, tlv_writer_size(&writer), &controlled::reader));
+              tlv_reader_init(&reader, data, tlv_writer_size(&writer), &controlled::format));
     tlv_view_t read_view{};
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &read_view));
     ASSERT_EQ(2u, read_view.value.length);
@@ -292,7 +292,7 @@ TEST(Unit_Tlv_Writer, SequentialRoundTripCombiningWriteAndBothCopyHelpers) {
 }
 
 TEST(Unit_Tlv_Writer, ImplicitZeroByteLength) {
-    auto format = controlled::writer;
+    auto format = controlled::format;
     format.length_size = [](const void*, size_t length, size_t* used) {
         *used = 0;
         return length == 0 ? TLV_OK : TLV_ERR_INVALID_LENGTH;
@@ -302,7 +302,7 @@ TEST(Unit_Tlv_Writer, ImplicitZeroByteLength) {
         *used = 0;
         return TLV_OK;
     };
-    auto reader_format = controlled::reader;
+    auto reader_format = controlled::format;
     reader_format.read_length = [](const void*, const uint8_t*, size_t, size_t* length,
                                    size_t* used) {
         *length = 0;
@@ -329,7 +329,7 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagLeavesDiagnosticUnchangedOnSuccess) {
     unsigned char before[sizeof(diagnostic)];
     std::memcpy(before, &diagnostic, sizeof(before));
 
-    ASSERT_EQ(TLV_OK, tlv_write_diag(data, sizeof(data), &controlled::writer, tag, nullptr, 0,
+    ASSERT_EQ(TLV_OK, tlv_write_diag(data, sizeof(data), &controlled::format, tag, nullptr, 0,
                                      &written, &diagnostic));
 
     EXPECT_EQ(0, std::memcmp(before, &diagnostic, sizeof(before)));
@@ -339,7 +339,7 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagAcceptsANullOutParameter) {
     const uint8_t value[] = {0x11, 0x22, 0x33};
     uint8_t       data[1];
     size_t        written = 0;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write_diag(data, sizeof(data), &controlled::writer, tag,
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write_diag(data, sizeof(data), &controlled::format, tag,
                                                        value, sizeof(value), &written, nullptr));
 }
 
@@ -352,7 +352,7 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagReportsRequiredSizeExceedingAvailableCa
     tlv_writer_diagnostic_t diagnostic;
 
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_write_diag(data, sizeof(data), &controlled::writer, tag, value, sizeof(value),
+              tlv_write_diag(data, sizeof(data), &controlled::format, tag, value, sizeof(value),
                              &written, &diagnostic));
 
     EXPECT_EQ(5u, written);
@@ -378,7 +378,7 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagReportsAnUnsupportedTag) {
     tlv_writer_diagnostic_t diagnostic;
 
     ASSERT_EQ(TLV_ERR_INVALID_TAG_SIZE,
-              tlv_write_diag(data, sizeof(data), &controlled::writer, tlv_tag_t{}, nullptr, 0,
+              tlv_write_diag(data, sizeof(data), &controlled::format, tlv_tag_t{}, nullptr, 0,
                              &written, &diagnostic));
 
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, diagnostic.diagnostic.code);
@@ -393,7 +393,7 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagReportsAnUnsupportedLengthWithTheValida
     size_t                  written = 0;
     tlv_writer_diagnostic_t diagnostic;
 
-    ASSERT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write_diag(data, sizeof(data), &controlled::writer, tag,
+    ASSERT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write_diag(data, sizeof(data), &controlled::format, tag,
                                                      value, 256, &written, &diagnostic));
 
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, diagnostic.diagnostic.code);
@@ -409,7 +409,7 @@ TEST(Unit_Tlv_WriterDiagnostic, WriteDiagReportsAnUnsupportedLengthWithTheValida
 TEST(Unit_Tlv_WriterDiagnostic, WriterWriteDiagReportsOffsetsAbsoluteWithinTheBuffer) {
     uint8_t      data[4] = {};
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
 
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, TLV_TAG(0xAB), nullptr, 0));
     EXPECT_EQ(2u, writer.pos);
@@ -431,7 +431,7 @@ TEST(Unit_Tlv_WriterDiagnostic, WriterWriteDiagReportsOffsetsAbsoluteWithinTheBu
 TEST(Unit_Tlv_WriterDiagnostic, WriterWriteDiagReportsInvalidStateAtTheCurrentPosition) {
     uint8_t      data[4] = {};
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::writer));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     writer.pos = writer.capacity + 1;
 
     tlv_writer_diagnostic_t diagnostic;

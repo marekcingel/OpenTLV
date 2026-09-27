@@ -109,7 +109,7 @@ static int l_walk_tree(lua_State* L) {
     } else {
         ctx.callback_ref = LUA_NOREF;
     }
-    ctx.format_context = format->reader_format.context;
+    ctx.format_context = format->format.context;
     ctx.is_constructed = format->is_constructed;
     ctx.error_ref = LUA_NOREF;
     ctx.push_failed_code = TLV_OK;
@@ -122,9 +122,9 @@ static int l_walk_tree(lua_State* L) {
     if (format->use_der_walker) {
         code = tlv_der_walk((const uint8_t*)data, data_len, NULL, visitor, &ctx, &error_offset);
     } else {
-        code = tlv_walk_tree((const uint8_t*)data, data_len, &format->reader_format,
-                             format->is_constructed, max_depth, max_elements, visitor, &ctx,
-                             &error_offset);
+        code =
+            tlv_walk_tree((const uint8_t*)data, data_len, &format->format, format->is_constructed,
+                          max_depth, max_elements, visitor, &ctx, &error_offset);
     }
 
     if (has_callback) {

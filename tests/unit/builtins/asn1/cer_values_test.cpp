@@ -30,7 +30,7 @@ std::vector<Segment> segments_of(const tlv_view_t& view) {
     std::vector<Segment> result;
     if (view.value.length)
         EXPECT_EQ(TLV_OK, tlv_walk(view.value.data, static_cast<size_t>(view.value.length),
-                                   &tlv_reader_format_cer, collect_segment, &result));
+                                   &tlv_format_cer, collect_segment, &result));
     return result;
 }
 

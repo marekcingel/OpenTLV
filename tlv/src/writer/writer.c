@@ -1,11 +1,10 @@
 #include "tlv/writer/writer.h"
 #include "tlv/length.h"
-#include "../format_internal.h"
 #include <string.h>
 
 tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity,
-                             const tlv_writer_format_t* format) {
-    if (!writer || (!buf && capacity) || !tlv_writer_format_usable(format)) return TLV_ERR_NULL_ARG;
+                             const tlv_format_t* format) {
+    if (!writer || (!buf && capacity) || !tlv_format_can_write(format)) return TLV_ERR_NULL_ARG;
     writer->buf = buf;
     writer->capacity = capacity;
     writer->pos = 0;
@@ -26,12 +25,11 @@ static void wdiag_start(tlv_writer_diagnostic_t* diagnostic, tlv_result_t code,
     diagnostic->operation = operation;
 }
 
-static tlv_result_t encoded_sizes_diag(tlv_tag_t tag, size_t length,
-                                       const tlv_writer_format_t* format, size_t* tag_size,
-                                       size_t* length_size, size_t* total,
+static tlv_result_t encoded_sizes_diag(tlv_tag_t tag, size_t length, const tlv_format_t* format,
+                                       size_t* tag_size, size_t* length_size, size_t* total,
                                        tlv_writer_diagnostic_t* out_diagnostic) {
     tlv_result_t rc;
-    if (!tlv_writer_format_usable(format)) {
+    if (!tlv_format_can_write(format)) {
         if (out_diagnostic) wdiag_start(out_diagnostic, TLV_ERR_NULL_ARG, TLV_WRITER_OP_TAG, 0);
         return TLV_ERR_NULL_ARG;
     }
@@ -108,12 +106,12 @@ static tlv_result_t encoded_sizes_diag(tlv_tag_t tag, size_t length,
     return TLV_OK;
 }
 
-static tlv_result_t encoded_sizes(tlv_tag_t tag, size_t length, const tlv_writer_format_t* format,
+static tlv_result_t encoded_sizes(tlv_tag_t tag, size_t length, const tlv_format_t* format,
                                   size_t* tag_size, size_t* length_size, size_t* total) {
     return encoded_sizes_diag(tag, length, format, tag_size, length_size, total, NULL);
 }
 
-tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length, const tlv_writer_format_t* format,
+tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length, const tlv_format_t* format,
                               size_t* size) {
     size_t tag_size = 0, length_size = 0, total = 0;
     tlv_result_t rc;
@@ -123,10 +121,9 @@ tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length, const tlv_writer_for
     return rc;
 }
 
-static tlv_result_t tlv_write_impl(uint8_t* data, size_t capacity,
-                                   const tlv_writer_format_t* format, tlv_tag_t tag,
-                                   const uint8_t* value, size_t length, size_t* out_written,
-                                   tlv_writer_diagnostic_t* out_diagnostic) {
+static tlv_result_t tlv_write_impl(uint8_t* data, size_t capacity, const tlv_format_t* format,
+                                   tlv_tag_t tag, const uint8_t* value, size_t length,
+                                   size_t* out_written, tlv_writer_diagnostic_t* out_diagnostic) {
     size_t tag_size = 0, length_size = 0, total = 0, written = 0;
     tlv_result_t rc;
     if ((!data && capacity) || (!value && length) || !out_written) {
@@ -226,12 +223,12 @@ static tlv_result_t tlv_write_impl(uint8_t* data, size_t capacity,
     return TLV_OK;
 }
 
-tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_writer_format_t* format,
-                       tlv_tag_t tag, const uint8_t* value, size_t length, size_t* out_written) {
+tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_format_t* format, tlv_tag_t tag,
+                       const uint8_t* value, size_t length, size_t* out_written) {
     return tlv_write_impl(data, capacity, format, tag, value, length, out_written, NULL);
 }
 
-tlv_result_t tlv_write_diag(uint8_t* data, size_t capacity, const tlv_writer_format_t* format,
+tlv_result_t tlv_write_diag(uint8_t* data, size_t capacity, const tlv_format_t* format,
                             tlv_tag_t tag, const uint8_t* value, size_t length, size_t* out_written,
                             tlv_writer_diagnostic_t* out_diagnostic) {
     return tlv_write_impl(data, capacity, format, tag, value, length, out_written, out_diagnostic);

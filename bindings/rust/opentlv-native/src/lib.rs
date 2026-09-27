@@ -132,22 +132,6 @@ pub type tlv_read_element_fn = unsafe extern "C" fn(
     trailer_size: *mut usize,
 ) -> tlv_result_t;
 
-/// Stateless reading format (`tlv_reader_format_t`).
-#[repr(C)]
-#[derive(Clone, Copy, Debug)]
-pub struct tlv_reader_format_t {
-    /// Borrowed, immutable configuration passed to every callback; may be null.
-    pub context: *const c_void,
-    /// Tag decoder. Required.
-    pub read_tag: Option<tlv_read_tag_fn>,
-    /// Length decoder. Required.
-    pub read_length: Option<tlv_read_length_fn>,
-    /// Optional replacement for `read_length`.
-    pub read_value_bounds: Option<tlv_read_value_bounds_fn>,
-    /// Optional whole-element parser that replaces the three callbacks above.
-    pub read_element: Option<tlv_read_element_fn>,
-}
-
 /// Tag encoder callback (`tlv_write_tag_fn`).
 pub type tlv_write_tag_fn = unsafe extern "C" fn(
     context: *const c_void,
@@ -180,19 +164,30 @@ pub type tlv_write_header_fn = unsafe extern "C" fn(
     written: *mut usize,
 ) -> tlv_result_t;
 
-/// Stateless writing format (`tlv_writer_format_t`).
+/// Stateless format descriptor (`tlv_format_t`). Read and write capability
+/// are independently optional: leaving a whole group `None` makes the format
+/// unusable in that direction, checked at [`tlv_reader_init`]/[`tlv_writer_init`]
+/// time rather than by the type system.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
-pub struct tlv_writer_format_t {
+pub struct tlv_format_t {
     /// Borrowed, immutable configuration passed to every callback; may be null.
     pub context: *const c_void,
-    /// Tag encoder. Required.
+    /// Tag decoder. Required for reading unless `read_element` is set.
+    pub read_tag: Option<tlv_read_tag_fn>,
+    /// Length decoder. Required for reading unless `read_element` is set.
+    pub read_length: Option<tlv_read_length_fn>,
+    /// Optional replacement for `read_length`.
+    pub read_value_bounds: Option<tlv_read_value_bounds_fn>,
+    /// Optional whole-element parser that replaces the three read callbacks above.
+    pub read_element: Option<tlv_read_element_fn>,
+    /// Tag encoder. Required for writing unless `write_header` is set.
     pub write_tag: Option<tlv_write_tag_fn>,
-    /// Length encoder. Required.
+    /// Length encoder. Required for writing unless `write_header` is set.
     pub write_length: Option<tlv_write_length_fn>,
-    /// Length size query. Required.
+    /// Length size query. Required for writing unless `write_header` is set.
     pub length_size: Option<tlv_length_size_fn>,
-    /// Optional whole-header encoder that replaces the three callbacks above.
+    /// Optional whole-header encoder that replaces the three write callbacks above.
     pub write_header: Option<tlv_write_header_fn>,
 }
 
@@ -200,8 +195,8 @@ pub struct tlv_writer_format_t {
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_writer_t {
-    /// Borrowed writer format.
-    pub format: *const tlv_writer_format_t,
+    /// Borrowed format.
+    pub format: *const tlv_format_t,
     /// Borrowed output buffer.
     pub buf: *mut u8,
     /// Capacity of `buf` in bytes.
@@ -214,8 +209,8 @@ pub struct tlv_writer_t {
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_reader_t {
-    /// Borrowed reader format.
-    pub format: *const tlv_reader_format_t,
+    /// Borrowed format.
+    pub format: *const tlv_format_t,
     /// Borrowed input buffer.
     pub data: *const u8,
     /// Input size in bytes.
@@ -238,28 +233,19 @@ pub struct tlv_fixed_config_t {
 
 extern "C" {
     /// Default format: one-byte tag, definite BER length.
-    pub static tlv_reader_format_default: tlv_reader_format_t;
+    pub static tlv_format_default: tlv_format_t;
     /// BER-TLV format.
-    pub static tlv_reader_format_ber: tlv_reader_format_t;
+    pub static tlv_format_ber: tlv_format_t;
     /// CER format.
-    pub static tlv_reader_format_cer: tlv_reader_format_t;
+    pub static tlv_format_cer: tlv_format_t;
     /// DER format.
-    pub static tlv_reader_format_der: tlv_reader_format_t;
-
-    /// Default writer format: one-byte tag, definite BER length.
-    pub static tlv_writer_format_default: tlv_writer_format_t;
-    /// BER-TLV writer format.
-    pub static tlv_writer_format_ber: tlv_writer_format_t;
-    /// CER writer format.
-    pub static tlv_writer_format_cer: tlv_writer_format_t;
-    /// DER writer format.
-    pub static tlv_writer_format_der: tlv_writer_format_t;
+    pub static tlv_format_der: tlv_format_t;
 
     /// Computes the encoded size of an element without accessing value bytes.
     pub fn tlv_encoded_size(
         tag: tlv_tag_t,
         length: usize,
-        format: *const tlv_writer_format_t,
+        format: *const tlv_format_t,
         size: *mut usize,
     ) -> tlv_result_t;
     /// Initializes a sequential writer over `buf`; both `buf` and `format` are borrowed.
@@ -267,7 +253,7 @@ extern "C" {
         writer: *mut tlv_writer_t,
         buf: *mut u8,
         capacity: usize,
-        format: *const tlv_writer_format_t,
+        format: *const tlv_format_t,
     ) -> tlv_result_t;
     /// Writes one element at the writer's current position.
     pub fn tlv_writer_write(
@@ -284,23 +270,18 @@ extern "C" {
         reader: *mut tlv_reader_t,
         data: *const u8,
         size: usize,
-        format: *const tlv_reader_format_t,
+        format: *const tlv_format_t,
     ) -> tlv_result_t;
     /// Returns 1 if the reader has consumed all input, otherwise 0.
     pub fn tlv_reader_at_end(reader: *const tlv_reader_t) -> c_int;
     /// Reads the next element and advances the reader.
     pub fn tlv_reader_next(reader: *mut tlv_reader_t, out_entry: *mut tlv_view_t) -> tlv_result_t;
 
-    /// Initializes a reader format for the configurable fixed-width encoding;
-    /// stores `config`'s address as the format's context.
-    pub fn tlv_fixed_reader_format_init(
-        format: *mut tlv_reader_format_t,
-        config: *const tlv_fixed_config_t,
-    ) -> tlv_result_t;
-    /// Initializes a writer format for the configurable fixed-width encoding;
-    /// stores `config`'s address as the format's context.
-    pub fn tlv_fixed_writer_format_init(
-        format: *mut tlv_writer_format_t,
+    /// Initializes a format for the configurable fixed-width encoding, with
+    /// both read and write capability; stores `config`'s address as the
+    /// format's context.
+    pub fn tlv_fixed_format_init(
+        format: *mut tlv_format_t,
         config: *const tlv_fixed_config_t,
     ) -> tlv_result_t;
 
@@ -727,7 +708,7 @@ extern "C" {
     pub fn tlv_schema_validate(
         data: *const u8,
         size: usize,
-        format: *const tlv_reader_format_t,
+        format: *const tlv_format_t,
         is_constructed: Option<tlv_is_constructed_fn>,
         schema: *const tlv_structure_schema_t,
         max_depth: usize,

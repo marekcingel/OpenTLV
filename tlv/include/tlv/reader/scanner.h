@@ -53,7 +53,7 @@ extern "C" {
  *          must outlive the returned view.
  */
 TLV_API tlv_result_t tlv_scan(const uint8_t* data, size_t size, size_t start,
-                              const tlv_reader_format_t* format, const tlv_schema_t* schema,
+                              const tlv_format_t* format, const tlv_schema_t* schema,
                               tlv_view_t* out_entry, size_t* out_offset, size_t* consumed);
 
 #ifdef __cplusplus

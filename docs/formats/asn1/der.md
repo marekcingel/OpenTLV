@@ -7,8 +7,7 @@
 | Setting | Value |
 | --- | --- |
 | Format header | `tlv/builtins/asn1/der.h` |
-| Reader descriptor | `tlv_reader_format_der` |
-| Writer descriptor | `tlv_writer_format_der` |
+| Descriptor | `tlv_format_der` |
 | CMake option (default ON) | `OPENTLV_FORMAT_DER` |
 | Link target | `tlv` |
 
@@ -33,10 +32,10 @@ int main(void) {
     uint8_t output[8];
     size_t written = 0, consumed = 0;
     tlv_view_t view;
-    if (tlv_write(output, sizeof(output), &tlv_writer_format_der,
+    if (tlv_write(output, sizeof(output), &tlv_format_der,
                   tag, value, sizeof(value), &written) != TLV_OK)
         return 1;
-    if (tlv_read(output, written, &tlv_reader_format_der,
+    if (tlv_read(output, written, &tlv_format_der,
                  &view, &consumed) != TLV_OK)
         return 1;
     return consumed == written && view.tag.size == 1 &&
@@ -85,7 +84,7 @@ Element (8 bytes)
 
 The annotations explain ASN.1 meanings; raw I/O does not decode those values.
 Use `tlv_der_read` for bounded validation of the element and its descendants.
-The generic `tlv_reader_format_der` / `tlv_writer_format_der` descriptors validate
+The generic `tlv_format_der` descriptor validates
 only the current tag and length. Indefinite lengths are rejected. Full ASN.1
 value canonicalization and SET ordering remain outside the supported scope.
 [DER profile](../../profiles/der/README.md)

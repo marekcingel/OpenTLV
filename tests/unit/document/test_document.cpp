@@ -25,7 +25,7 @@ int is_constructed(const void*, const tlv_tag_t* tag) {
 }
 
 tlv::document_format format() {
-    return tlv::document_format(controlled::reader, controlled::writer, is_constructed);
+    return tlv::document_format(controlled::format, is_constructed);
 }
 
 // 6F { 84 (AA BB), A5 { 50 (41 42) } }, 50 (FF)
@@ -165,7 +165,7 @@ TEST(Unit_Tlvpp_Document, MovedDocumentKeepsHandlesValid) {
 
 TEST(Unit_Tlvpp_Document, RejectsUnusableFormats) {
     tlv::document_format broken = format();
-    broken.reader.read_tag = nullptr;
+    broken.format.read_tag = nullptr;
     auto created = tlv::document::create(broken);
     ASSERT_FALSE(created.has_value());
     EXPECT_EQ(TLV_ERR_NULL_ARG, created.error().code);

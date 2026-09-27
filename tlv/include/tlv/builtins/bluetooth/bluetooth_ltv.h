@@ -36,10 +36,8 @@ extern "C" {
  * @{
  */
 
-/** @brief Reader format for Bluetooth LTV; a borrowed, immutable global. */
-extern TLV_API const tlv_reader_format_t tlv_reader_format_bluetooth_ltv;
-/** @brief Writer format for Bluetooth LTV; a borrowed, immutable global. */
-extern TLV_API const tlv_writer_format_t tlv_writer_format_bluetooth_ltv;
+/** @brief Format for Bluetooth LTV; a borrowed, immutable global. */
+extern TLV_API const tlv_format_t tlv_format_bluetooth_ltv;
 
 #ifdef __cplusplus
 }

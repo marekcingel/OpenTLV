@@ -15,8 +15,8 @@ protected:
     size_t     consumed = 77;
 
     tlv_result_t scan(const uint8_t* data, size_t size, size_t start = 0,
-                      const tlv_schema_t*        filter = nullptr,
-                      const tlv_reader_format_t* format = &controlled::reader) {
+                      const tlv_schema_t* filter = nullptr,
+                      const tlv_format_t* format = &controlled::format) {
         return tlv_scan(data, size, start, format, filter, &view, &offset, &consumed);
     }
 
@@ -75,17 +75,17 @@ TEST_F(Integration_Tlv_Scanner, EmptyAndReversedSchemasRejectAllCandidates) {
 TEST_F(Integration_Tlv_Scanner, HandlesEveryTruncatedPrefixSafely) {
     const uint8_t data[] = {0x42, 0x82, 0, 2, 0xAA, 0xBB};
     for (size_t size = 0; size < sizeof(data); ++size) {
-        EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, size, 0, &schema, &tlv_reader_format_default));
+        EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, size, 0, &schema, &tlv_format_default));
         unchanged();
     }
-    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_reader_format_default));
+    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_format_default));
     EXPECT_EQ(0u, offset);
     EXPECT_EQ(sizeof(data), consumed);
 }
 
 TEST_F(Integration_Tlv_Scanner, ContinuesAfterInvalidLengthAndTruncatedCandidate) {
     const uint8_t data[] = {0xFF, 0xFF, 0x42, 0x81, 1, 0xAA};
-    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_reader_format_default));
+    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_format_default));
     EXPECT_EQ(2u, offset);
     EXPECT_EQ(4u, consumed);
     const uint8_t nested[] = {0x42, 0x7F, 0x42, 1, 0xAA};
@@ -96,7 +96,7 @@ TEST_F(Integration_Tlv_Scanner, ContinuesAfterInvalidLengthAndTruncatedCandidate
 TEST_F(Integration_Tlv_Scanner, NormalReaderStillStopsAtInvalidBoundary) {
     const uint8_t data[] = {0xFF, 0xFF, 0x42, 1, 0xAA};
     tlv_reader_t  reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::reader));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::format));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &view));
     EXPECT_EQ(0u, reader.pos);
     unchanged();

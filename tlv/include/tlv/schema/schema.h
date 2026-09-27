@@ -249,7 +249,7 @@ typedef struct tlv_structure_schema {
  * @return Any other error of tlv_walk_tree().
  */
 TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
-                                         const tlv_reader_format_t* format,
+                                         const tlv_format_t* format,
                                          tlv_is_constructed_fn is_constructed,
                                          const tlv_structure_schema_t* schema, size_t max_depth,
                                          size_t max_elements, size_t* error_offset);
@@ -378,7 +378,7 @@ typedef struct tlv_schema_report {
  * @see tlv_schema_issue_path_string
  */
 TLV_API tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size,
-                                             const tlv_reader_format_t* format,
+                                             const tlv_format_t* format,
                                              tlv_is_constructed_fn is_constructed,
                                              const tlv_structure_schema_t* schema, size_t max_depth,
                                              size_t max_elements,
@@ -538,7 +538,7 @@ typedef struct tlv_schema_diagnostic_report {
  * @see tlv_schema_validate_all
  */
 TLV_API tlv_result_t tlv_schema_validate_all_diag(
-    const uint8_t* data, size_t size, const tlv_reader_format_t* format,
+    const uint8_t* data, size_t size, const tlv_format_t* format,
     tlv_is_constructed_fn is_constructed, const tlv_structure_schema_t* schema, size_t max_depth,
     size_t max_elements, tlv_schema_unknown_policy_t unknown,
     tlv_schema_diagnostic_report_t* report, size_t* error_offset);

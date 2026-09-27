@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix a Clang `-Wmissing-field-initializers` error in the architecture and
+  format tests, whose custom `tlv_format_t` literals used positional
+  initializers for only some of the struct's fields. (#326)
+- Fix `cargo fmt --all --check` failures in the Rust `opentlv` reader and
+  writer modules after `Format`/`FixedFormat`'s `reader_raw()`/`writer_raw()`
+  collapsed into one `raw()`. (#326)
+- Fix a Windows/MSVC build failure (`warning C4005` treated as an error) when
+  a translation unit includes both `tlv/attributes.h` and `tlv++/compat.hpp`,
+  which independently defined `TLV_NODISCARD`. (#326)
 - Fix the Lua binding's CMake build failing to configure in CI, where Lua is
   installed to a non-standard prefix `FindLua` cannot locate a library in on
   its own: on Linux and macOS, `bindings/lua/CMakeLists.txt` no longer
@@ -32,6 +41,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Unify `tlv_reader_format_t`/`tlv_writer_format_t` into one
+  `tlv_format_t`, with read and write capability independently optional;
+  replace `tlv_reader_format_init`/`tlv_writer_format_init`/
+  `tlv_reader_format_init_element`/`tlv_writer_format_init_header` with
+  `tlv_format_init`/`tlv_format_init_element`, and the private
+  `tlv_reader_format_usable`/`tlv_writer_format_usable` checks with the
+  now-public `tlv_format_can_read`/`tlv_format_can_write`. Built-in formats
+  collapse to one global each (`tlv_format_default`/`_ber`/`_der`/`_cer`/
+  `_bluetooth_ltv`), and `tlv_fixed_reader_format_init`/
+  `tlv_fixed_writer_format_init` become `tlv_fixed_format_init`.
+  `tlv_structure_codec_t` and `tlv_document_options_t` each take one `format`
+  field instead of two; `tlv_document_options_init` drops its `writer_format`
+  parameter. `tlv::document_format` and `tlv::fixed_format<>` (`tlv++`)
+  collapse the same way, with `fixed_format<>::reader()`/`::writer()`
+  replaced by `::format()`. The Python `Document` constructor drops
+  `reader_format=`/`writer_format=` in favor of `format=`. No compatibility
+  shim; rebuild all consumers. (#326)
 - Prepracovanie internej implementácie `otlv` CLI z voľných funkcií nad
   zdieľanou štruktúrou `options` na hierarchiu tried príkazov (`command`,
   `command_factory`) s virtuálnym dispatchom, rozdelenú po jednej triede na

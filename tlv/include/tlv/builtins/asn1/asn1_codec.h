@@ -16,7 +16,7 @@ extern "C" {
  * @brief Value codecs for ASN.1 primitive, string and time universal types (ITU-T X.690).
  *
  * Use tlv_codec_decode() and tlv_codec_encode() with these codecs on a raw
- * value already read by a BER-family format (#tlv_reader_format_ber, or a
+ * value already read by a BER-family format (#tlv_format_ber, or a
  * DER or CER profile reader). A codec interprets only the value bytes it is
  * given; it never reads a tag, so callers choose the codec matching an
  * element's universal type themselves, for example from a schema or

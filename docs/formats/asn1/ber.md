@@ -7,8 +7,7 @@
 | Setting | Value |
 | --- | --- |
 | Format header | `tlv/builtins/asn1/ber.h` |
-| Reader descriptor | `tlv_reader_format_ber` |
-| Writer descriptor | `tlv_writer_format_ber` |
+| Descriptor | `tlv_format_ber` |
 | CMake option (default ON) | `OPENTLV_FORMAT_BER` |
 | Link target | `tlv` |
 
@@ -33,10 +32,10 @@ int main(void) {
     uint8_t output[8];
     size_t written = 0, consumed = 0;
     tlv_view_t view;
-    if (tlv_write(output, sizeof(output), &tlv_writer_format_ber,
+    if (tlv_write(output, sizeof(output), &tlv_format_ber,
                   tag, value, sizeof(value), &written) != TLV_OK)
         return 1;
-    if (tlv_read(output, written, &tlv_reader_format_ber,
+    if (tlv_read(output, written, &tlv_format_ber,
                  &view, &consumed) != TLV_OK)
         return 1;
     return consumed == written && view.tag.size == 1 &&
@@ -45,8 +44,7 @@ int main(void) {
 }
 ```
 
-Use `tlv_reader_format_ber` with the reader and `tlv_writer_format_ber` with
-the writer for raw BER-TLV tags
+Use `tlv_format_ber` with the reader and the writer for raw BER-TLV tags
 such as `5A`, `5F 2A`, `9F 1C`, and `9F 81 01`. Tags retain their wire bytes,
 including class and constructed bits. High-tag-number form ends at the first
 subsequent byte with bit 7 clear; its first subsequent byte must have a nonzero
@@ -68,7 +66,7 @@ BER-family format shares them. ASN.1 type semantics such as `INTEGER` or
 const uint8_t input[] = {0xA0, 3, 0x02, 1, 42}; /* Context-specific, constructed, tag 0 */
 tlv_view_t view;
 size_t consumed;
-if (tlv_read(input, sizeof(input), &tlv_reader_format_ber, &view, &consumed) == TLV_OK) {
+if (tlv_read(input, sizeof(input), &tlv_format_ber, &view, &consumed) == TLV_OK) {
     tlv_asn1_class_t cls = tlv_ber_tag_class(&view.tag);         /* TLV_ASN1_CONTEXT_SPECIFIC */
     int constructed = tlv_ber_tag_is_constructed(&view.tag);     /* 1 */
     uint64_t number;
@@ -92,7 +90,7 @@ apply a canonical primitive/constructed rule tied to a universal type number
 (for example DER's `must be constructed` rule for `SEQUENCE`): BER accepts
 either form for every tag number. The only identifier `tlv_ber_tag_make()`
 rejects outright is the reserved EOC tag (universal class, tag number 0, in
-either form), matching `tlv_reader_format_ber` and `tlv_writer_format_ber`.
+either form), matching `tlv_format_ber`.
 See [DER](der.md) for the canonical restrictions.
 
 Definite lengths range from zero through `SIZE_MAX` (the complete element must
@@ -149,7 +147,7 @@ destination must not overlap. Capacity failures leave bytes and outputs unchange
 An empty sequence accepts `NULL, 0` children. NULL destination with zero capacity
 reports insufficient capacity; use the separate size query for sizing.
 `tlv_ber_writer_write_indefinite` appends to a stateful writer initialized with
-`&tlv_writer_format_ber` and advances its position only on success.
+`&tlv_format_ber` and advances its position only on success.
 
 The C++ `tlv::reader`, traversal, and schema wrappers support indefinite input
 through the same BER descriptor. Include `tlv++/builtins/asn1/ber.hpp` for
@@ -200,14 +198,14 @@ if (tlv_ber_length_decode(out, written, &value, &consumed) == TLV_OK) {
 
 `tlv_ber_length_decode` accepts short form and long form, including nonminimal
 (zero-padded) long-form encodings whose numeric value still fits `tlv_length_t`
--- the same nonminimal acceptance as `tlv_reader_format_ber`, just against the
+-- the same nonminimal acceptance as `tlv_format_ber`, just against the
 full 64-bit range instead of the current build's `size_t`. The indefinite
 marker (`80` alone) and the reserved `FF` prefix are rejected with
 `TLV_ERR_INVALID_LENGTH`, as is a padded value wider than `tlv_length_t` or
 nonzero excess padding. A field that declares more length octets than
 `data_size` provides returns `TLV_ERR_BUFFER_TOO_SHORT`. It does not process
 the indefinite-length marker's associated content or constructed EOC framing;
-use `tlv_reader_format_ber` or `tlv_ber_write_indefinite` for that.
+use `tlv_format_ber` or `tlv_ber_write_indefinite` for that.
 
 `tlv_ber_length_encode` always produces the shortest definite form and
 supports a size query: pass `out == NULL` with `out_capacity == 0` to receive
@@ -235,7 +233,7 @@ dictionary:
 ```c
 #include "tlv/builtins/asn1/asn1_codec.h"
 
-/* view.value already read through tlv_reader_format_ber, DER or CER */
+/* view.value already read through tlv_format_ber, DER or CER */
 int64_t number;
 size_t  length;
 if (tlv_length_to_size(view.value.length, &length) == TLV_OK &&
@@ -297,7 +295,7 @@ OID-IRI/RELATIVE-OID-IRI's arc labels borrow the input value bytes.
 
 Every codec enforces the same canonical content rules ITU-T X.690 section 11
 defines for DER and CER, even when the raw value was read through the more
-permissive `tlv_reader_format_ber`: for example a BOOLEAN of `01`, a
+permissive `tlv_format_ber`: for example a BOOLEAN of `01`, a
 non-minimal two's complement INTEGER, or a UTCTime missing its trailing `Z`,
 is rejected with `TLV_CODEC_ERR_INVALID_VALUE`. See
 `tlv/builtins/asn1/asn1_codec.h` for each codec's exact content and
@@ -383,5 +381,5 @@ Element (8 bytes)
 The returned outer value excludes its EOC; the consumed byte count includes it.
 Primitive indefinite-length values are rejected. Ordinary BER writing emits
 definite lengths; use `tlv_ber_write_indefinite` for explicit indefinite output.
-Use `tlv_reader_format_ber` / `tlv_writer_format_ber`.
+Use `tlv_format_ber`.
 [BER rules and limits](ber.md)

@@ -95,7 +95,7 @@ static tlv_visit_result_t on_element(const tlv_view_t* view, size_t depth, size_
     return walk->visitor(view, depth, offset, walk->context);
 }
 
-tlv_result_t tlv_query_walk(const uint8_t* data, size_t size, const tlv_reader_format_t* format,
+tlv_result_t tlv_query_walk(const uint8_t* data, size_t size, const tlv_format_t* format,
                             tlv_is_constructed_fn is_constructed, const tlv_query_t* query,
                             size_t max_depth, size_t max_elements, tlv_tree_visitor_t visitor,
                             void* context, size_t* error_offset) {

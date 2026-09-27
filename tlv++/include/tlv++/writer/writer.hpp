@@ -36,7 +36,7 @@ public:
      * @param capacity Buffer capacity in bytes.
      * @param format   Writer format; borrowed.
      */
-    writer(byte* buf, size_t capacity, const tlv_writer_format_t& format) {
+    writer(byte* buf, size_t capacity, const tlv_format_t& format) {
         tlv_writer_init(&impl_, reinterpret_cast<uint8_t*>(buf), capacity, &format);
     }
 

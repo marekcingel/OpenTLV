@@ -60,7 +60,7 @@ tlv_result_t rc = tlv_query_parse("6F/A5/50", &query, &text_offset);
 /* On TLV_ERR_INVALID_ARG, text_offset is the index of the offending character. */
 
 size_t error_offset;
-rc = tlv_query_walk(data, size, &tlv_reader_format_ber, tlv_ber_is_constructed,
+rc = tlv_query_walk(data, size, &tlv_format_ber, tlv_ber_is_constructed,
                     &query, TLV_WALK_MAX_DEPTH, 100000, print_match, NULL,
                     &error_offset);
 ```
@@ -96,7 +96,7 @@ auto query = tlv::query::parse("6F/A5/50", &text_offset);
 if (!query) return;  // query.error().code; text_offset is the offending character
 
 auto walked = query->walk(
-    tlv::bytes(data, size), tlv_reader_format_ber, tlv_ber_is_constructed,
+    tlv::bytes(data, size), tlv_format_ber, tlv_ber_is_constructed,
     TLV_WALK_MAX_DEPTH, 100000,
     [](const tlv::entry& item, size_t depth, size_t offset) {
         // item.value borrows the input

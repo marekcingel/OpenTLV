@@ -25,12 +25,11 @@ extern "C" {
  * sequence, including nested elements, to a single application object. No tag
  * is prescribed for the complete object.
  *
- * Reader format, writer format, schema and context are all borrowed and must
- * outlive every use of the descriptor. The `decode` and `encode` callbacks
- * follow the alignment, ownership, capacity, overlap and error contracts of
- * #tlv_codec_t and receive their direction's format explicitly. They must be
- * stable across sizing and writing and must consume or produce the complete
- * sequence.
+ * Format, schema and context are all borrowed and must outlive every use of
+ * the descriptor. The `decode` and `encode` callbacks follow the alignment,
+ * ownership, capacity, overlap and error contracts of #tlv_codec_t. They must
+ * be stable across sizing and writing and must consume or produce the
+ * complete sequence.
  *
  * Decode validates the entire structure before invoking the callback. Encode
  * validates the produced bytes before reporting success; a `NULL`/0 size
@@ -43,17 +42,15 @@ typedef struct tlv_structure_codec {
     /** Borrowed context passed to the object callbacks only; may be `NULL`. */
     const void* context;
     /**
-     * Borrowed reader format. Required for decode and for validating encoded bytes.
+     * Borrowed format. Must be able to read for decode and for validating
+     * encoded bytes, and able to write for encode; see tlv_format_can_read()
+     * and tlv_format_can_write(). A decode-only codec uses a format whose
+     * write callbacks are unset.
      */
-    const tlv_reader_format_t* reader_format;
+    const tlv_format_t* format;
     /**
-     * Borrowed writer format. Required only for encode; decode-only codecs may use `NULL`.
-     * Must describe the same wire encoding as `reader_format` for encode validation.
-     */
-    const tlv_writer_format_t* writer_format;
-    /**
-     * Optional nesting predicate; receives `reader_format->context`. `NULL`
-     * makes every value opaque.
+     * Optional nesting predicate; receives `format->context`. `NULL` makes
+     * every value opaque.
      */
     tlv_is_constructed_fn is_constructed;
     /** Optional borrowed schema; `NULL` validates framing and nesting only. */
@@ -66,12 +63,11 @@ typedef struct tlv_structure_codec {
     /** Maximum element count, following tlv_walk_tree() conventions. Zero is a real limit. */
     size_t max_elements;
     /** Converts a validated sequence to the application object; `NULL` if unsupported. */
-    tlv_codec_result_t (*decode)(const void* context, const tlv_reader_format_t* format,
+    tlv_codec_result_t (*decode)(const void* context, const tlv_format_t* format,
                                  const uint8_t* data, size_t size, void* value, size_t capacity);
     /** Converts the application object to a sequence; `NULL` if unsupported. */
-    tlv_codec_result_t (*encode)(const void* context, const tlv_writer_format_t* format,
-                                 const void* value, size_t size, uint8_t* data, size_t capacity,
-                                 size_t* written);
+    tlv_codec_result_t (*encode)(const void* context, const tlv_format_t* format, const void* value,
+                                 size_t size, uint8_t* data, size_t capacity, size_t* written);
 } tlv_structure_codec_t;
 
 /**

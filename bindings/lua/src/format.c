@@ -21,13 +21,13 @@ static int format_tostring(lua_State* L) {
 }
 
 /* Pushes a new format userdata backed by a copy of a stateless, global
- * reader format (default/ber/cer/der/bluetooth_ltv); leaves it on top of
- * the stack. */
-static void push_builtin_format(lua_State* L, tlv_reader_format_t reader_format,
+ * format (default/ber/cer/der/bluetooth_ltv); leaves it on top of the
+ * stack. */
+static void push_builtin_format(lua_State* L, tlv_format_t format_value,
                                 tlv_is_constructed_fn is_constructed, int use_der_walker,
                                 const char* name) {
     tlv_lua_format_t* format = (tlv_lua_format_t*)lua_newuserdata(L, sizeof(tlv_lua_format_t));
-    format->reader_format = reader_format;
+    format->format = format_value;
     format->is_constructed = is_constructed;
     format->use_der_walker = use_der_walker;
     format->name = name;
@@ -66,7 +66,7 @@ static int l_format_fixed(lua_State* L) {
     format->use_der_walker = 0;
     format->name = "fixed";
 
-    tlv_result_t code = tlv_fixed_reader_format_init(&format->reader_format, &format->fixed_config);
+    tlv_result_t code = tlv_fixed_format_init(&format->format, &format->fixed_config);
     if (code != TLV_OK) {
         return opentlv_lua_raise(L, code, 0, 0);
     }
@@ -81,15 +81,15 @@ void opentlv_lua_open_format(lua_State* L, int module_table_index) {
 
     lua_newtable(L); /* formats */
 
-    push_builtin_format(L, tlv_reader_format_default, NULL, 0, "default");
+    push_builtin_format(L, tlv_format_default, NULL, 0, "default");
     lua_setfield(L, -2, "default");
-    push_builtin_format(L, tlv_reader_format_ber, tlv_ber_is_constructed, 0, "ber");
+    push_builtin_format(L, tlv_format_ber, tlv_ber_is_constructed, 0, "ber");
     lua_setfield(L, -2, "ber");
-    push_builtin_format(L, tlv_reader_format_cer, tlv_cer_is_constructed, 0, "cer");
+    push_builtin_format(L, tlv_format_cer, tlv_cer_is_constructed, 0, "cer");
     lua_setfield(L, -2, "cer");
-    push_builtin_format(L, tlv_reader_format_der, tlv_der_is_constructed, 1, "der");
+    push_builtin_format(L, tlv_format_der, tlv_der_is_constructed, 1, "der");
     lua_setfield(L, -2, "der");
-    push_builtin_format(L, tlv_reader_format_bluetooth_ltv, NULL, 0, "bluetooth_ltv");
+    push_builtin_format(L, tlv_format_bluetooth_ltv, NULL, 0, "bluetooth_ltv");
     lua_setfield(L, -2, "bluetooth_ltv");
     lua_pushcfunction(L, l_format_fixed);
     lua_setfield(L, -2, "fixed");

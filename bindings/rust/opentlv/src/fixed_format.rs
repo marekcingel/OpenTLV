@@ -27,8 +27,7 @@ impl From<ByteOrder> for native::tlv_byte_order_t {
 /// A runtime-configurable fixed-width TLV format: independent tag width,
 /// length width (1 to 8 bytes) and length byte order.
 ///
-/// Equivalent to the C `tlv_fixed_config_t` and
-/// `tlv_fixed_reader_format_init()`/`tlv_fixed_writer_format_init()`. A
+/// Equivalent to the C `tlv_fixed_config_t` and `tlv_fixed_format_init()`. A
 /// one-byte tag and a one-byte big-endian length is
 /// `FixedFormat::new(1, 1, ByteOrder::Big)`.
 ///
@@ -47,10 +46,9 @@ impl From<ByteOrder> for native::tlv_byte_order_t {
 #[derive(Debug)]
 pub struct FixedFormat {
     // Heap-allocated so its address stays stable even when `FixedFormat`
-    // itself is moved; `reader`/`writer` below borrow it as their context.
+    // itself is moved; `format` below borrows it as its context.
     config: Box<native::tlv_fixed_config_t>,
-    reader: native::tlv_reader_format_t,
-    writer: native::tlv_writer_format_t,
+    format: native::tlv_format_t,
 }
 
 impl FixedFormat {
@@ -67,21 +65,16 @@ impl FixedFormat {
             length_size,
             order: order.into(),
         });
-        let mut reader = MaybeUninit::<native::tlv_reader_format_t>::uninit();
-        let mut writer = MaybeUninit::<native::tlv_writer_format_t>::uninit();
+        let mut format = MaybeUninit::<native::tlv_format_t>::uninit();
         // SAFETY: `config`'s address is stable (heap-allocated, independent of
-        // this `FixedFormat` value's own address); `reader`/`writer` are writable.
-        let code = unsafe { native::tlv_fixed_reader_format_init(reader.as_mut_ptr(), &*config) };
-        Error::check(code)?;
-        // SAFETY: as above.
-        let code = unsafe { native::tlv_fixed_writer_format_init(writer.as_mut_ptr(), &*config) };
+        // this `FixedFormat` value's own address); `format` is writable.
+        let code = unsafe { native::tlv_fixed_format_init(format.as_mut_ptr(), &*config) };
         Error::check(code)?;
         Ok(FixedFormat {
             config,
-            // SAFETY: both `tlv_fixed_*_format_init` calls above succeeded,
-            // so both descriptors are fully initialized.
-            reader: unsafe { reader.assume_init() },
-            writer: unsafe { writer.assume_init() },
+            // SAFETY: tlv_fixed_format_init() above succeeded, so the
+            // descriptor is fully initialized.
+            format: unsafe { format.assume_init() },
         })
     }
 
@@ -95,12 +88,8 @@ impl FixedFormat {
         self.config.length_size
     }
 
-    pub(crate) fn reader_raw(&self) -> *const native::tlv_reader_format_t {
-        &self.reader
-    }
-
-    pub(crate) fn writer_raw(&self) -> *const native::tlv_writer_format_t {
-        &self.writer
+    pub(crate) fn raw(&self) -> *const native::tlv_format_t {
+        &self.format
     }
 }
 

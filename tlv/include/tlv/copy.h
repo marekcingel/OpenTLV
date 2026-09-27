@@ -106,7 +106,7 @@ TLV_API tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encode
  *          write `data`.
  * @see tlv_write, tlv_copy_encoded
  */
-TLV_API tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_writer_format_t* format,
+TLV_API tlv_result_t tlv_copy_view(const tlv_view_t* view, const tlv_format_t* format,
                                    uint8_t* data, size_t capacity, size_t* written);
 
 #ifdef __cplusplus

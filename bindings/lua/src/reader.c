@@ -104,8 +104,8 @@ static int l_reader_new(lua_State* L) {
     tlv_lua_format_t* format = opentlv_lua_check_format(L, format_index);
 
     tlv_lua_reader_t* self = (tlv_lua_reader_t*)lua_newuserdata(L, sizeof(tlv_lua_reader_t));
-    tlv_result_t code = tlv_reader_init(&self->reader, len > 0 ? (const uint8_t*)data : NULL, len,
-                                        &format->reader_format);
+    tlv_result_t      code =
+        tlv_reader_init(&self->reader, len > 0 ? (const uint8_t*)data : NULL, len, &format->format);
     if (code != TLV_OK) {
         return opentlv_lua_raise(L, code, 0, 0);
     }

@@ -69,13 +69,11 @@ TEST(Integration_Tlv_Emv, AllDefinitionsUseGenericBerAndSchemas) {
                 entry.max_length == SIZE_MAX ? entry.min_length : entry.max_length;
             std::vector<uint8_t> value(length, 0x5A), wire(length + 16);
             tlv_writer_t         writer;
-            ASSERT_EQ(TLV_OK,
-                      tlv_writer_init(&writer, wire.data(), wire.size(), &tlv_writer_format_ber));
+            ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, wire.data(), wire.size(), &tlv_format_ber));
             ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, entry.tag, value.data(), length));
             EXPECT_EQ(0, std::memcmp(wire.data(), entry.tag.data, entry.tag.size));
             tlv_reader_t reader;
-            ASSERT_EQ(TLV_OK,
-                      tlv_reader_init(&reader, wire.data(), writer.pos, &tlv_reader_format_ber));
+            ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire.data(), writer.pos, &tlv_format_ber));
             tlv_view_t view;
             ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
             EXPECT_TRUE(tlv_reader_at_end(&reader));
@@ -179,7 +177,7 @@ TEST(Integration_Tlv_Emv, CurrencyListsAreNotSingleNumbers) {
 TEST(Integration_Tlv_Emv, FramingSchemaAndValueValidationAreIndependent) {
     const uint8_t wire[] = {0x9F, 0x02, 6, 0, 0, 0, 0, 0, 0xFA, 0x9F, 0x02, 0, 0xDF, 0x01, 0};
     tlv_reader_t  reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire, sizeof(wire), &tlv_reader_format_ber));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire, sizeof(wire), &tlv_format_ber));
     tlv_view_t view;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
     ASSERT_EQ(TLV_OK, tlv_schema_validate_length(tlv_schema_find(&tlv_emv_schema, &view.tag),

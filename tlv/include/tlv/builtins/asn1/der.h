@@ -87,16 +87,13 @@ TLV_API tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructe
 TLV_API tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number);
 
 /**
- * @brief Reader format for canonical ASN.1 DER identifiers and definite lengths.
+ * @brief Format for canonical ASN.1 DER identifiers and definite lengths.
  *
  * Validates universal primitive/constructed bits, but does not inspect values
  * or nested headers. Use tlv/builtins/asn1/der_profile.h for bounded recursive validation
  * and error offsets.
  */
-extern TLV_API const tlv_reader_format_t tlv_reader_format_der;
-/** @brief Writer format for canonical ASN.1 DER identifiers and definite lengths.
- *  @copydetails tlv_reader_format_der */
-extern TLV_API const tlv_writer_format_t tlv_writer_format_der;
+extern TLV_API const tlv_format_t tlv_format_der;
 
 /**
  * @brief Nesting predicate for tree traversal of DER data.

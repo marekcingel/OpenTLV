@@ -2,8 +2,7 @@
 #define OPENTLV_BER_INTERNAL_H
 #include "tlv/format.h"
 #include "tlv/builtins/asn1/ber.h"
-extern const tlv_reader_format_t tlv_ber_reader_wire;
-extern const tlv_writer_format_t tlv_ber_writer_wire;
+extern const tlv_format_t tlv_ber_wire;
 
 /* BER high-tag-number form: the tag number is carried across one or more
  * base-128 digit octets following the identifier octet (X.690 §8.1.2.4.2). */
@@ -35,7 +34,7 @@ enum { TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE = 1, TLV_BER_EOC_SIZE = 2 };
  * the content length up to (but excluding) any matching outer EOC and
  * *consumed receives the same plus that EOC's 2 bytes when indefinite.
  * Bounded by TLV_BER_MAX_DEPTH nested scopes; no allocation, no recursion.
- * Shared by tlv_reader_format_ber, tlv_ber_write_indefinite, and CER. */
+ * Shared by tlv_format_ber, tlv_ber_write_indefinite, and CER. */
 tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefinite,
                                    size_t* value_size, size_t* consumed);
 #endif

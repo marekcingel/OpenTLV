@@ -25,22 +25,12 @@ static PyObject* opentlv_native_error = NULL;
 static PyObject* opentlv_native_codec_error = NULL;
 
 /* Mirrors opentlv.Format: 0 default, 1 ber, 2 cer, 3 der. */
-static const tlv_reader_format_t* reader_format_for(int format_id) {
+static const tlv_format_t* format_for(int format_id) {
     switch (format_id) {
-        case 0: return &tlv_reader_format_default;
-        case 1: return &tlv_reader_format_ber;
-        case 2: return &tlv_reader_format_cer;
-        case 3: return &tlv_reader_format_der;
-        default: return NULL;
-    }
-}
-
-static const tlv_writer_format_t* writer_format_for(int format_id) {
-    switch (format_id) {
-        case 0: return &tlv_writer_format_default;
-        case 1: return &tlv_writer_format_ber;
-        case 2: return &tlv_writer_format_cer;
-        case 3: return &tlv_writer_format_der;
+        case 0: return &tlv_format_default;
+        case 1: return &tlv_format_ber;
+        case 2: return &tlv_format_cer;
+        case 3: return &tlv_format_der;
         default: return NULL;
     }
 }
@@ -382,7 +372,7 @@ static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* a
                           &max_elements)) {
         return NULL;
     }
-    const tlv_reader_format_t* format = reader_format_for(format_id);
+    const tlv_format_t* format = format_for(format_id);
     if (format == NULL) {
         PyBuffer_Release(&buffer);
         PyErr_SetString(PyExc_ValueError, "unknown format");
@@ -521,14 +511,13 @@ static PyObject* node_to_py(tlv_node_t* node) {
     return PyLong_FromVoidPtr(node);
 }
 
-/* Builds document options from Python-supplied format IDs and limits.
+/* Builds document options from a Python-supplied format ID and limits.
  * Returns 1 on success; on failure an exception is set and `*out` is
  * unusable. */
-static int build_document_options(int reader_format_id, int writer_format_id, Py_ssize_t max_depth,
-                                  Py_ssize_t max_elements, tlv_document_options_t* out) {
-    const tlv_reader_format_t* reader_format = reader_format_for(reader_format_id);
-    const tlv_writer_format_t* writer_format = writer_format_for(writer_format_id);
-    if (reader_format == NULL || writer_format == NULL) {
+static int build_document_options(int format_id, Py_ssize_t max_depth, Py_ssize_t max_elements,
+                                  tlv_document_options_t* out) {
+    const tlv_format_t* format = format_for(format_id);
+    if (format == NULL) {
         PyErr_SetString(PyExc_ValueError, "unknown format");
         return 0;
     }
@@ -536,8 +525,7 @@ static int build_document_options(int reader_format_id, int writer_format_id, Py
         PyErr_SetString(PyExc_ValueError, "max_depth and max_elements must not be negative");
         return 0;
     }
-    tlv_result_t code = tlv_document_options_init(out, reader_format, writer_format,
-                                                  is_constructed_for(reader_format_id));
+    tlv_result_t code = tlv_document_options_init(out, format, is_constructed_for(format_id));
     if (code != TLV_OK) {
         raise_code_only(code);
         return 0;
@@ -547,20 +535,18 @@ static int build_document_options(int reader_format_id, int writer_format_id, Py
     return 1;
 }
 
-/* document_create(reader_format, writer_format, max_depth, max_elements) -> capsule
+/* document_create(format, max_depth, max_elements) -> capsule
  *
  * Creates an empty document. Raises opentlv_native.Error on failure. */
 static PyObject* opentlv_native_document_create(PyObject* module, PyObject* args) {
     (void)module;
-    int        reader_format_id, writer_format_id;
+    int        format_id;
     Py_ssize_t max_depth, max_elements;
-    if (!PyArg_ParseTuple(args, "iinn", &reader_format_id, &writer_format_id, &max_depth,
-                          &max_elements)) {
+    if (!PyArg_ParseTuple(args, "inn", &format_id, &max_depth, &max_elements)) {
         return NULL;
     }
     tlv_document_options_t options;
-    if (!build_document_options(reader_format_id, writer_format_id, max_depth, max_elements,
-                                &options)) {
+    if (!build_document_options(format_id, max_depth, max_elements, &options)) {
         return NULL;
     }
     tlv_document_t* document = NULL;
@@ -577,22 +563,20 @@ static PyObject* opentlv_native_document_create(PyObject* module, PyObject* args
     return capsule;
 }
 
-/* document_parse(data, reader_format, writer_format, max_depth, max_elements) -> capsule
+/* document_parse(data, format, max_depth, max_elements) -> capsule
  *
  * Parses `data` into a new owned document. Raises opentlv_native.Error with
  * "code" and "offset" on failure. */
 static PyObject* opentlv_native_document_parse(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  buffer;
-    int        reader_format_id, writer_format_id;
+    int        format_id;
     Py_ssize_t max_depth, max_elements;
-    if (!PyArg_ParseTuple(args, "y*iinn", &buffer, &reader_format_id, &writer_format_id, &max_depth,
-                          &max_elements)) {
+    if (!PyArg_ParseTuple(args, "y*inn", &buffer, &format_id, &max_depth, &max_elements)) {
         return NULL;
     }
     tlv_document_options_t options;
-    if (!build_document_options(reader_format_id, writer_format_id, max_depth, max_elements,
-                                &options)) {
+    if (!build_document_options(format_id, max_depth, max_elements, &options)) {
         PyBuffer_Release(&buffer);
         return NULL;
     }
@@ -924,7 +908,7 @@ static PyObject* opentlv_native_read(PyObject* module, PyObject* args) {
     if (!PyArg_ParseTuple(args, "y*ni", &buffer, &offset, &format_id)) {
         return NULL;
     }
-    const tlv_reader_format_t* format = reader_format_for(format_id);
+    const tlv_format_t* format = format_for(format_id);
     if (format == NULL) {
         PyBuffer_Release(&buffer);
         PyErr_SetString(PyExc_ValueError, "unknown format");
@@ -990,7 +974,7 @@ static PyObject* opentlv_native_write(PyObject* module, PyObject* args) {
     if (!PyArg_ParseTuple(args, "w*ny*y*i", &buffer, &offset, &tag_buf, &value_buf, &format_id)) {
         return NULL;
     }
-    const tlv_writer_format_t* format = writer_format_for(format_id);
+    const tlv_format_t* format = format_for(format_id);
     if (format == NULL) {
         PyBuffer_Release(&buffer);
         PyBuffer_Release(&tag_buf);
@@ -1038,7 +1022,7 @@ static PyObject* opentlv_native_encoded_size(PyObject* module, PyObject* args) {
     if (!PyArg_ParseTuple(args, "y*ni", &tag_buf, &value_length, &format_id)) {
         return NULL;
     }
-    const tlv_writer_format_t* format = writer_format_for(format_id);
+    const tlv_format_t* format = format_for(format_id);
     if (format == NULL) {
         PyBuffer_Release(&tag_buf);
         PyErr_SetString(PyExc_ValueError, "unknown format");
@@ -1098,8 +1082,8 @@ static PyObject* opentlv_native_read_fixed(PyObject* module, PyObject* args) {
         PyBuffer_Release(&buffer);
         return NULL;
     }
-    tlv_reader_format_t format;
-    tlv_result_t        init_code = tlv_fixed_reader_format_init(&format, &config);
+    tlv_format_t format;
+    tlv_result_t init_code = tlv_fixed_format_init(&format, &config);
     if (init_code != TLV_OK) {
         PyBuffer_Release(&buffer);
         raise_code_only(init_code);
@@ -1170,8 +1154,8 @@ static PyObject* opentlv_native_write_fixed(PyObject* module, PyObject* args) {
         PyBuffer_Release(&value_buf);
         return NULL;
     }
-    tlv_writer_format_t format;
-    tlv_result_t        init_code = tlv_fixed_writer_format_init(&format, &config);
+    tlv_format_t format;
+    tlv_result_t init_code = tlv_fixed_format_init(&format, &config);
     if (init_code != TLV_OK) {
         PyBuffer_Release(&buffer);
         PyBuffer_Release(&tag_buf);
@@ -1224,8 +1208,8 @@ static PyObject* opentlv_native_encoded_size_fixed(PyObject* module, PyObject* a
         PyBuffer_Release(&tag_buf);
         return NULL;
     }
-    tlv_writer_format_t format;
-    tlv_result_t        init_code = tlv_fixed_writer_format_init(&format, &config);
+    tlv_format_t format;
+    tlv_result_t init_code = tlv_fixed_format_init(&format, &config);
     if (init_code != TLV_OK) {
         PyBuffer_Release(&tag_buf);
         raise_code_only(init_code);

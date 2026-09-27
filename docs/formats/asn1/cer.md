@@ -7,8 +7,7 @@
 | Setting | Value |
 | --- | --- |
 | Format header | `tlv/builtins/asn1/cer.h` |
-| Reader descriptor | `tlv_reader_format_cer` |
-| Writer descriptor | `tlv_writer_format_cer` |
+| Descriptor | `tlv_format_cer` |
 | CMake option (default ON) | `OPENTLV_FORMAT_CER` |
 | Link target | `tlv` |
 
@@ -45,10 +44,10 @@ int main(void) {
     uint8_t output[8];
     size_t written = 0, consumed = 0;
     tlv_view_t view;
-    if (tlv_write(output, sizeof(output), &tlv_writer_format_cer,
+    if (tlv_write(output, sizeof(output), &tlv_format_cer,
                   tag, value, sizeof(value), &written) != TLV_OK)
         return 1;
-    if (tlv_read(output, written, &tlv_reader_format_cer,
+    if (tlv_read(output, written, &tlv_format_cer,
                  &view, &consumed) != TLV_OK)
         return 1;
     return consumed == written && view.tag.size == 1 &&

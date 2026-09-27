@@ -56,7 +56,7 @@ int main(void) {
          * included) -- distinct from the logical string data each segment's
          * own borrowed value exposes below. */
         CHECK(tlv_length_to_size(view.value.length, &value_size));
-        CHECK(tlv_walk(view.value.data, value_size, &tlv_reader_format_cer, print_segment, NULL));
+        CHECK(tlv_walk(view.value.data, value_size, &tlv_format_cer, print_segment, NULL));
     }
     return 0;
 }
