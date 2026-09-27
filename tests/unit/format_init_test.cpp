@@ -46,6 +46,7 @@ TEST(Unit_Tlv_FormatInit, BothDirectionsValidInputAndOptionalContext) {
         EXPECT_EQ(write_length, format.write_length);
         EXPECT_EQ(length_size, format.length_size);
         EXPECT_EQ(nullptr, format.write_header);
+        EXPECT_EQ(nullptr, format.is_constructed);
     }
 }
 
@@ -78,7 +79,7 @@ TEST(Unit_Tlv_FormatInit, WriteOnlyLeavesReadCallbacksUnset) {
 TEST(Unit_Tlv_FormatInit, RejectsNullFormatOrPartialOrEmptyGroupsWithoutModification) {
     const int     context = 42;
     tlv_format_t  format = {&context,  read_tag,     read_length, nullptr, nullptr,
-                            write_tag, write_length, length_size, nullptr};
+                            write_tag, write_length, length_size, nullptr, nullptr};
     unsigned char before[sizeof(format)];
     std::memcpy(before, &format, sizeof(format));
 
@@ -120,6 +121,7 @@ TEST(Unit_Tlv_FormatInitElement, BothDirectionsAndEachAlone) {
     EXPECT_EQ(write_header, format.write_header);
     EXPECT_EQ(nullptr, format.read_tag);
     EXPECT_EQ(nullptr, format.write_tag);
+    EXPECT_EQ(nullptr, format.is_constructed);
 
     ASSERT_EQ(TLV_OK, tlv_format_init_element(&format, nullptr, read_element, nullptr));
     EXPECT_TRUE(tlv_format_can_read(&format));
@@ -131,8 +133,8 @@ TEST(Unit_Tlv_FormatInitElement, BothDirectionsAndEachAlone) {
 }
 
 TEST(Unit_Tlv_FormatInitElement, RejectsNullFormatOrBothCallbacksMissing) {
-    tlv_format_t  format = {nullptr, nullptr, nullptr, nullptr,     read_element,
-                            nullptr, nullptr, nullptr, write_header};
+    tlv_format_t  format = {nullptr, nullptr, nullptr, nullptr,      read_element,
+                            nullptr, nullptr, nullptr, write_header, nullptr};
     unsigned char before[sizeof(format)];
     std::memcpy(before, &format, sizeof(format));
 

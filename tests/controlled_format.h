@@ -41,7 +41,7 @@ inline tlv_result_t write_length(const void* context, uint8_t* data, size_t size
     return TLV_OK;
 }
 const tlv_format_t format = {nullptr,   read_tag,     read_length, nullptr, nullptr,
-                             write_tag, write_length, length_size, nullptr};
+                             write_tag, write_length, length_size, nullptr, nullptr};
 } // namespace controlled
 
 #endif

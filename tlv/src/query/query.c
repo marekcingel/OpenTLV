@@ -96,9 +96,8 @@ static tlv_visit_result_t on_element(const tlv_view_t* view, size_t depth, size_
 }
 
 tlv_result_t tlv_query_walk(const uint8_t* data, size_t size, const tlv_format_t* format,
-                            tlv_is_constructed_fn is_constructed, const tlv_query_t* query,
-                            size_t max_depth, size_t max_elements, tlv_tree_visitor_t visitor,
-                            void* context, size_t* error_offset) {
+                            const tlv_query_t* query, size_t max_depth, size_t max_elements,
+                            tlv_tree_visitor_t visitor, void* context, size_t* error_offset) {
     query_walk_t walk;
     tlv_result_t rc;
     if (!visitor) return TLV_ERR_NULL_ARG;
@@ -106,6 +105,6 @@ tlv_result_t tlv_query_walk(const uint8_t* data, size_t size, const tlv_format_t
     if (rc != TLV_OK) return rc;
     walk.visitor = visitor;
     walk.context = context;
-    return tlv_walk_tree(data, size, format, is_constructed, max_depth, max_elements, on_element,
-                         &walk, error_offset);
+    return tlv_walk_tree(data, size, format, max_depth, max_elements, on_element, &walk,
+                         error_offset);
 }

@@ -439,7 +439,6 @@ impl StructureSchema {
                 data.as_ptr(),
                 data.len(),
                 format.raw(),
-                format.is_constructed_raw(),
                 self.as_raw(),
                 limits.max_depth,
                 limits.max_elements,

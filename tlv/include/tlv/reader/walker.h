@@ -86,14 +86,13 @@ typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view, size_t 
 /**
  * @brief Traverses nested elements in preorder.
  *
- * Constructed values (identified by `is_constructed`) are traversed as
- * bounded views of the input. There is no allocation and no C recursion.
+ * Constructed values (identified by `format->is_constructed`) are traversed
+ * as bounded views of the input. There is no allocation and no C recursion.
  * A `NULL` visitor validates only. #TLV_VISIT_STOP succeeds immediately.
  *
  * @param[in]  data          Input buffer.
  * @param[in]  size          Input size in bytes.
- * @param[in]  format        Reader format.
- * @param[in]  is_constructed Predicate receiving `format->context`; `NULL`
+ * @param[in]  format        Reader format. A `NULL` `format->is_constructed`
  *                           treats every value as opaque.
  * @param[in]  max_depth     Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`.
  * @param[in]  max_elements  Bound on all visited nodes; zero permits only empty input.
@@ -113,9 +112,8 @@ typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_view_t* view, size_t 
  * @see tlv_walk
  */
 TLV_API tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                   tlv_is_constructed_fn is_constructed, size_t max_depth,
-                                   size_t max_elements, tlv_tree_visitor_t visitor, void* context,
-                                   size_t* error_offset);
+                                   size_t max_depth, size_t max_elements,
+                                   tlv_tree_visitor_t visitor, void* context, size_t* error_offset);
 
 #ifdef __cplusplus
 }

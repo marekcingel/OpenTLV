@@ -204,8 +204,7 @@ and issuer for a generic schema and are accepted unchecked at the root.
 
 /* Inside a function; wire/size hold one or more concatenated EMV elements. */
 size_t       offset;
-tlv_result_t rc = tlv_schema_validate(wire, size, &tlv_format_ber,
-                                      tlv_ber_is_constructed, &tlv_emv_structure_schema,
+tlv_result_t rc = tlv_schema_validate(wire, size, &tlv_format_ber, &tlv_emv_structure_schema,
                                       64, 100000, &offset);
 /* TLV_OK, or an element-anchored TLV_ERR_SCHEMA/TLV_ERR_INVALID_LENGTH, or
  * TLV_ERR_SCHEMA_MISSING (a missing required tag) with offset at the end of

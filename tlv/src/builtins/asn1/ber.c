@@ -224,7 +224,8 @@ const tlv_format_t tlv_format_ber = {.context = NULL,
                                      .read_value_bounds = read_value_bounds,
                                      .write_tag = write_tag,
                                      .write_length = write_length,
-                                     .length_size = length_size};
+                                     .length_size = length_size,
+                                     .is_constructed = tlv_ber_is_constructed};
 
 tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_length_t* value,
                                    size_t* consumed) {

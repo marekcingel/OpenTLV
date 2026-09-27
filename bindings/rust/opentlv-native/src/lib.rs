@@ -189,6 +189,10 @@ pub struct tlv_format_t {
     pub length_size: Option<tlv_length_size_fn>,
     /// Optional whole-header encoder that replaces the three write callbacks above.
     pub write_header: Option<tlv_write_header_fn>,
+    /// Optional nesting predicate reporting whether a parsed tag's value is a
+    /// sequence in this same format; `None` means every value is opaque to
+    /// generic tree traversal and structure validation.
+    pub is_constructed: Option<tlv_is_constructed_fn>,
 }
 
 /// Sequential writer over a caller-owned buffer (`tlv_writer_t`).
@@ -303,7 +307,7 @@ extern "C" {
     pub fn tlv_tag_compare(lhs: tlv_tag_t, rhs: tlv_tag_t) -> c_int;
 }
 
-/// Nesting predicate passed to schema validation (`tlv_is_constructed_fn`).
+/// Optional nesting predicate carried by `tlv_format_t::is_constructed` (`tlv_is_constructed_fn`).
 pub type tlv_is_constructed_fn =
     unsafe extern "C" fn(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
 
@@ -709,7 +713,6 @@ extern "C" {
         data: *const u8,
         size: usize,
         format: *const tlv_format_t,
-        is_constructed: Option<tlv_is_constructed_fn>,
         schema: *const tlv_structure_schema_t,
         max_depth: usize,
         max_elements: usize,

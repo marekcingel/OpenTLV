@@ -128,7 +128,6 @@ typedef struct scope {
 } scope_t;
 
 tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                 tlv_is_constructed_fn is_constructed,
                                  const tlv_structure_schema_t* schema, size_t max_depth,
                                  size_t max_elements, size_t* error_offset) {
     scope_t stack[TLV_WALK_MAX_DEPTH + 1];
@@ -138,8 +137,7 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size, const tlv_for
         if (error_offset) *error_offset = 0;
         return TLV_ERR_NULL_ARG;
     }
-    rc = tlv_walk_tree(data, size, format, is_constructed, max_depth, max_elements, NULL, NULL,
-                       error_offset);
+    rc = tlv_walk_tree(data, size, format, max_depth, max_elements, NULL, NULL, error_offset);
     if (rc != TLV_OK) return rc;
     stack[0] = (scope_t){schema, 0, size, 0, 0};
     for (;;) {
@@ -186,7 +184,8 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size, const tlv_for
                     if (error_offset) *error_offset = pos;
                     return rc;
                 }
-                int constructed = is_constructed && is_constructed(format->context, &view.tag);
+                int constructed =
+                    format->is_constructed && format->is_constructed(format->context, &view.tag);
                 if ((rule->kind == TLV_SCHEMA_PRIMITIVE && constructed) ||
                     (rule->kind == TLV_SCHEMA_CONSTRUCTED && !constructed))
                     return invalid(pos, error_offset);

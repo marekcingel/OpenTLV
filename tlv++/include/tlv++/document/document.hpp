@@ -247,11 +247,11 @@ private:
  * @see @docs{guides/memory,format context ownership and lifetime}
  */
 struct document_format {
-    /** Format used for parsing and encoding; its contents are copied, its context is borrowed. */
+    /**
+     * Format used for parsing and encoding; its contents are copied, its context is borrowed.
+     * `format.is_constructed` selects nested values, or `nullptr` for opaque values.
+     */
     tlv_format_t format;
-    /** Predicate receiving `format.context` that selects nested values, or `nullptr` for opaque
-     * values. */
-    tlv_is_constructed_fn is_constructed;
     /** Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`. */
     size_t max_depth;
     /** Maximum number of elements, including nested ones. */
@@ -260,11 +260,10 @@ struct document_format {
     /**
      * @brief Bundles the format with the default limits.
      *
-     * @param fmt         Format.
-     * @param constructed Nesting predicate, or `nullptr`.
+     * @param fmt Format.
      */
-    document_format(const tlv_format_t& fmt, tlv_is_constructed_fn constructed = nullptr)
-        : format(fmt), is_constructed(constructed), max_depth(TLV_WALK_MAX_DEPTH),
+    document_format(const tlv_format_t& fmt)
+        : format(fmt), max_depth(TLV_WALK_MAX_DEPTH),
           max_elements(TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {}
 };
 
@@ -461,7 +460,7 @@ private:
         impl->format = format.format;
 
         tlv_document_options_t options;
-        tlv_result_t rc = tlv_document_options_init(&options, &impl->format, format.is_constructed);
+        tlv_result_t           rc = tlv_document_options_init(&options, &impl->format);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         options.max_depth = format.max_depth;
         options.max_elements = format.max_elements;

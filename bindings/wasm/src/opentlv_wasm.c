@@ -298,12 +298,8 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
         } else
 #endif
         {
-            tlv_is_constructed_fn constructed = NULL;
-#if OPENTLV_FORMAT_BER
-            if (ber) constructed = tlv_ber_is_constructed;
-#endif
-            result->code = tlv_walk_tree(data, size, reader, constructed, TLV_WALK_MAX_DEPTH,
-                                         WASM_MAX_ELEMENTS, emit_element, w, &error_offset);
+            result->code = tlv_walk_tree(data, size, reader, TLV_WALK_MAX_DEPTH, WASM_MAX_ELEMENTS,
+                                         emit_element, w, &error_offset);
         }
     }
     if (w->out.failed) result->code = TLV_ERR_OUT_OF_MEMORY;

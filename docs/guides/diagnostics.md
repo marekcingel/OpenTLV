@@ -127,9 +127,9 @@ additionally fills each recorded violation as a `tlv_schema_diagnostic_t`.
 tlv_schema_diagnostic_t        diagnostics[16];
 tlv_schema_diagnostic_report_t report = {diagnostics, 16, 0};
 
-tlv_result_t rc = tlv_schema_validate_all_diag(data, size, &tlv_format_ber,
-                                               tlv_ber_is_constructed, &template_schema, 16, 1000,
-                                               TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &offset);
+tlv_result_t rc = tlv_schema_validate_all_diag(data, size, &tlv_format_ber, &template_schema, 16,
+                                               1000, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report,
+                                               &offset);
 if (rc == TLV_ERR_SCHEMA) {
     for (size_t i = 0; i < report.count && i < report.capacity; ++i) {
         const tlv_schema_diagnostic_t* d = &diagnostics[i];
@@ -182,13 +182,12 @@ tlv_diagnostic_path_init(&path);
 
 tlv_visit_result_t on_element(const tlv_view_t* view, size_t depth, size_t offset, void* context) {
     while (path.length > depth) tlv_diagnostic_path_pop(&path);
-    if (is_constructed(NULL, &view->tag)) tlv_diagnostic_path_push(&path, view->tag);
+    if (format.is_constructed(format.context, &view->tag)) tlv_diagnostic_path_push(&path, view->tag);
     /* ... validate view, using `path` as the location of the current element's parent ... */
     return TLV_VISIT_CONTINUE;
 }
 
-tlv_walk_tree(data, size, &format, is_constructed, TLV_WALK_MAX_DEPTH, SIZE_MAX, on_element, NULL,
-             NULL);
+tlv_walk_tree(data, size, &format, TLV_WALK_MAX_DEPTH, SIZE_MAX, on_element, NULL, NULL);
 ```
 
 Popping back to `depth` before pushing keeps `path` in sync with preorder

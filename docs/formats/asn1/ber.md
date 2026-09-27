@@ -361,7 +361,8 @@ Element (10 bytes)
 The parent's length includes each child's tag, length, and value. These are
 illustrative opaque payloads, not an EMV-valid record. Generic `tlv_read`
 returns the outer value without automatically visiting definite-length children.
-Use `tlv_walk_tree` with `tlv_ber_is_constructed` to traverse the hierarchy.
+Use `tlv_walk_tree` with `tlv_format_ber`, whose `is_constructed` is
+`tlv_ber_is_constructed`, to traverse the hierarchy.
 
 ### Indefinite constructed value
 

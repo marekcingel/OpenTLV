@@ -152,14 +152,12 @@ TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_
  *
  * The whole input is traversed unless the visitor stops, so malformed data
  * after the last match is reported like any other error. Values are only
- * entered when `is_constructed` says so; with a `NULL` predicate only
- * one-tag queries can match.
+ * entered when `format->is_constructed` says so; with a `NULL`
+ * `format->is_constructed` only one-tag queries can match.
  *
  * @param[in]  data          Input buffer.
  * @param[in]  size          Input size in bytes.
  * @param[in]  format        Reader format.
- * @param[in]  is_constructed Predicate receiving `format->context`, or `NULL` to
- *                           treat every value as opaque.
  * @param[in]  query         Parsed query.
  * @param[in]  max_depth     Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`.
  * @param[in]  max_elements  Bound on all traversed elements, matching or not.
@@ -182,8 +180,7 @@ TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_
  * @see tlv_walk_tree
  */
 TLV_API tlv_result_t tlv_query_walk(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                    tlv_is_constructed_fn is_constructed, const tlv_query_t* query,
-                                    size_t max_depth, size_t max_elements,
+                                    const tlv_query_t* query, size_t max_depth, size_t max_elements,
                                     tlv_tree_visitor_t visitor, void* context,
                                     size_t* error_offset);
 

@@ -7,12 +7,11 @@ static int valid_descriptor(const tlv_structure_codec_t* codec) {
 
 static tlv_codec_result_t validate(const tlv_structure_codec_t* codec, const uint8_t* data,
                                    size_t size) {
-    tlv_result_t rc =
-        codec->schema
-            ? tlv_schema_validate(data, size, codec->format, codec->is_constructed, codec->schema,
-                                  codec->max_depth, codec->max_elements, NULL)
-            : tlv_walk_tree(data, size, codec->format, codec->is_constructed, codec->max_depth,
-                            codec->max_elements, NULL, NULL, NULL);
+    tlv_result_t rc = codec->schema
+                          ? tlv_schema_validate(data, size, codec->format, codec->schema,
+                                                codec->max_depth, codec->max_elements, NULL)
+                          : tlv_walk_tree(data, size, codec->format, codec->max_depth,
+                                          codec->max_elements, NULL, NULL, NULL);
     return rc == TLV_OK ? TLV_CODEC_OK : TLV_CODEC_ERR_INVALID_STRUCTURE;
 }
 

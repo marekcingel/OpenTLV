@@ -54,10 +54,15 @@ tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity, size_
 int constructed(const void*, const tlv_tag_t* tag) {
     return (tag->data[0] & 0x80) != 0;
 }
-const tlv_format_t         format = {nullptr, tag_read, length_read, nullptr, nullptr,
-                                     nullptr, nullptr,  nullptr,     nullptr};
-const tlv_format_t         full_format = {nullptr,   tag_read,     length_read, nullptr, nullptr,
-                                          tag_write, length_write, length_size, nullptr};
+const tlv_format_t format = {nullptr, tag_read, length_read, nullptr, nullptr,
+                             nullptr, nullptr,  nullptr,     nullptr, nullptr};
+const tlv_format_t full_format = {nullptr,   tag_read,     length_read, nullptr, nullptr,
+                                  tag_write, length_write, length_size, nullptr, nullptr};
+const tlv_format_t constructed_format = {nullptr, tag_read, length_read, nullptr, nullptr,
+                                         nullptr, nullptr,  nullptr,     nullptr, constructed};
+const tlv_format_t constructed_full_format = {nullptr, tag_read,   length_read,  nullptr,
+                                              nullptr, tag_write,  length_write, length_size,
+                                              nullptr, constructed};
 const tlv_structure_rule_t child_rules[] = {
     {{TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
     {{TLV_TAG(2), 1, 1, 0, nullptr}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
@@ -110,22 +115,22 @@ TEST(Unit_Tlv_Architecture, SchemaUnknownPolicyKindsAndInvalidTables) {
     tlv_structure_schema_t open = children;
     open.allow_unknown = 1;
     EXPECT_EQ(TLV_OK,
-              tlv_schema_validate(wire, sizeof(wire), &format, constructed, &open, 0, 2, nullptr));
+              tlv_schema_validate(wire, sizeof(wire), &constructed_format, &open, 0, 2, nullptr));
     tlv_structure_rule_t rule = child_rules[0];
     rule.kind = TLV_SCHEMA_CONSTRUCTED;
     tlv_structure_schema_t bad = {&rule, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate(wire, sizeof(wire), &format, constructed, &bad, 0, 2, nullptr));
+              tlv_schema_validate(wire, sizeof(wire), &constructed_format, &bad, 0, 2, nullptr));
     rule.kind = TLV_SCHEMA_PRIMITIVE;
     rule.min_occurs = 2;
     rule.max_occurs = 1;
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate(wire, sizeof(wire), &format, constructed, &bad, 0, 2, nullptr));
+              tlv_schema_validate(wire, sizeof(wire), &constructed_format, &bad, 0, 2, nullptr));
     tlv_structure_rule_t duplicates[] = {child_rules[0], child_rules[0]};
     bad.rules = duplicates;
     bad.count = 2;
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate(wire, sizeof(wire), &format, constructed, &bad, 0, 2, nullptr));
+              tlv_schema_validate(wire, sizeof(wire), &constructed_format, &bad, 0, 2, nullptr));
 }
 
 TEST(Unit_Tlv_Architecture, SchemaGroupTableValidity) {
@@ -134,7 +139,7 @@ TEST(Unit_Tlv_Architecture, SchemaGroupTableValidity) {
     tlv_structure_rule_t grouped = child_rules[1];
     grouped.group = 1;
     tlv_structure_schema_t dangling_group = {&grouped, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, constructed,
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &constructed_format,
                                                   &dangling_group, 0, 2, nullptr));
 
     // A grouped rule's own min_occurs must be 0; requiredness belongs to the group.
@@ -142,19 +147,19 @@ TEST(Unit_Tlv_Architecture, SchemaGroupTableValidity) {
     tlv_structure_rule_t        required_member = grouped;
     required_member.min_occurs = 1;
     tlv_structure_schema_t bad_member = {&required_member, 1, 1, groups, 1, TLV_SCHEMA_ORDER_ANY};
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, constructed,
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &constructed_format,
                                                   &bad_member, 0, 2, nullptr));
 
     // A group with no member rule can never be satisfied and is rejected outright.
     const tlv_structure_group_t orphan_groups[] = {{2, 0, 1, nullptr}};
     tlv_structure_schema_t orphan = {child_rules, 2, 0, orphan_groups, 1, TLV_SCHEMA_ORDER_ANY};
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, constructed, &orphan,
-                                                  0, 2, nullptr));
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              tlv_schema_validate(wire, sizeof(wire), &constructed_format, &orphan, 0, 2, nullptr));
 
     // An out-of-range order value is likewise an invalid table.
     tlv_structure_schema_t bad_order = children;
     bad_order.order = static_cast<tlv_schema_order_t>(2);
-    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &format, constructed,
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire, sizeof(wire), &constructed_format,
                                                   &bad_order, 0, 2, nullptr));
 }
 
@@ -199,8 +204,8 @@ tlv_codec_result_t object_encode(const void*, const tlv_format_t* selected, cons
 }
 
 TEST(Unit_Tlv_Architecture, StructureCodecValidatesArgumentsDirectionsAndCallbackCounts) {
-    tlv_structure_codec_t codec = {nullptr, &full_format, constructed, nullptr, 0,
-                                   2,       nullptr,      nullptr};
+    tlv_structure_codec_t codec = {nullptr, &constructed_full_format, nullptr, 0, 2, nullptr,
+                                   nullptr};
     object                value{};
     uint8_t               wire[6]{};
     size_t                used = 99;
@@ -230,10 +235,10 @@ TEST(Unit_Tlv_Architecture, StructureCodecValidatesArgumentsDirectionsAndCallbac
 }
 
 TEST(Unit_Tlv_Architecture, StructureCodecDecodesWithoutWriterAndChecksEncoderFormat) {
-    // `format` can only read, so this codec is decode-only, as tlv_structure_codec_t's
-    // documentation describes for a format with unset write callbacks.
-    tlv_structure_codec_t codec = {nullptr, &format, constructed,   &children,
-                                   0,       2,       object_decode, object_encode};
+    // `constructed_format` can only read, so this codec is decode-only, as
+    // tlv_structure_codec_t's documentation describes for a format with unset write callbacks.
+    tlv_structure_codec_t codec = {nullptr, &constructed_format, &children,    0,
+                                   2,       object_decode,       object_encode};
     const uint8_t         wire[] = {1, 1, 42, 2, 1, 7};
     object                value{};
     ASSERT_EQ(TLV_CODEC_OK,

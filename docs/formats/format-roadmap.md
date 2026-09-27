@@ -79,7 +79,7 @@ so a candidate's "components" show which layers stay separate.
 | Component | Existing implementation | Role |
 | --- | --- | --- |
 | Format adapter | `tlv_format_t` in `tlv/format.h`; the whole-element callbacks `read_element` and `write_header` handle any field order or packing | Splits bytes into tag, header, value and trailer, and writes a header. |
-| Nesting predicate | `tlv_is_constructed_fn`, passed to the tree walker | Says which values contain children in the same format. |
+| Nesting predicate | `tlv_format_t::is_constructed` (`tlv_is_constructed_fn`) | Says which values contain children in the same format. |
 | Structure schema | `tlv_schema_t` and `tlv_structure_schema_t` in `tlv/schema/schema.h` | Length bounds, occurrence and membership rules. |
 | DER schema | `tlv_der_schema_type_t` in `tlv/builtins/asn1/der_schema.h` | ASN.1 type rules with canonical DER semantics; a fixed, small subset. |
 | Value codecs | `tlv/codec/codec.h` and `tlv/codec/structure.h` | Decode and encode value contents. |
@@ -197,7 +197,7 @@ number of raw bytes the format accepts. **No candidate has been prototyped again
 | Header size depends on the type or flags | PFCP (enterprise ID), GTPv2 (type 254), GTPv1-C (TV versus TLV), RFC 5444 (flags) | `header_size` is reported per element, so this fits. GTPv1-C needs a type-to-length table in the borrowed descriptor context. |
 | Elements without a length, and a terminator | DHCPv4 Pad and End, NFC tag TLV NULL and Terminator | Each can be read as a header-only element, but the walker has no built-in "skip padding" or "stop at terminator" policy. Needs an explicit policy. |
 | Composite tag identity (type plus instance, vendor or flags) | GTPv2, PFCP, LLDP, Diameter, RADIUS VSA, LDP | Raw tag bytes can carry it (PFCP type plus a 2-byte enterprise ID fits in 8 bytes); the meaning lives in the dictionary. |
-| Grouped or nested elements decided by the type | PFCP, GTPv2, Diameter, IS-IS sub-TLVs, DHCPv4 option 82 | `tlv_is_constructed_fn` receives the format context and the tag, so a table in the context can decide; the flags and value are not visible to it. |
+| Grouped or nested elements decided by the type | PFCP, GTPv2, Diameter, IS-IS sub-TLVs, DHCPv4 option 82 | `tlv_format_t::is_constructed` receives the format context and the tag, so a table in the context can decide; the flags and value are not visible to it. |
 | Different formats at successive nesting levels | LDP, SNMP, SIM Toolkit | A caller can parse level by level today; automatic tree walking needs [mixed-format traversal](#generic-processing-extensions). |
 | Fixed PDU header followed by a TLV region | IS-IS, DHCP, LDP, PFCP, GTPv2 | The header is outside the core; the caller passes the region. |
 | Untagged positional fields | NAS imperative part | Not framing and not TLV: stays with the caller, see the [NAS row](format-catalogue.md#telecommunications). |

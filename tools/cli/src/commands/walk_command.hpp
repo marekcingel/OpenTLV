@@ -90,15 +90,13 @@ protected:
         return data_.size();
     }
 
-    options               options_;
-    std::size_t           base_;
-    int                   ber_;
-    tlv_is_constructed_fn constructed_;
-    cli_presentation_t    presentation_;
-    tlv_is_constructed_fn predicate_;
-    const tlv_format_t*   format_;
-    bool                  is_der_;
-    diagnostic_scope      scope_;
+    options             options_;
+    std::size_t         base_;
+    int                 ber_;
+    cli_presentation_t  presentation_;
+    const tlv_format_t* format_;
+    bool                is_der_;
+    diagnostic_scope    scope_;
     // --output json only: elements not yet attached to their parent's nested
     // "elements" array, one per currently open depth, and the finished
     // document's top-level array.

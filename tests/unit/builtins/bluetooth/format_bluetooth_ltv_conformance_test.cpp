@@ -296,7 +296,7 @@ TEST(Unit_Tlv_BluetoothLtvConformance, WalkerReportsElementOffsets) {
     size_t   error_offset = 99;
     ASSERT_EQ(TLV_OK,
               tlv_walk_tree(advertising_data.data(), advertising_data.size(), &reader_format,
-                            nullptr, TLV_WALK_MAX_DEPTH, 100, log_visit, &log, &error_offset));
+                            TLV_WALK_MAX_DEPTH, 100, log_visit, &log, &error_offset));
     EXPECT_EQ(std::vector<size_t>({0, 3, 9, 12}), log.offsets);
     EXPECT_EQ(99u, error_offset);
 
@@ -304,7 +304,7 @@ TEST(Unit_Tlv_BluetoothLtvConformance, WalkerReportsElementOffsets) {
     stopped.stop_after = 2;
     EXPECT_EQ(TLV_OK,
               tlv_walk_tree(advertising_data.data(), advertising_data.size(), &reader_format,
-                            nullptr, TLV_WALK_MAX_DEPTH, 100, log_visit, &stopped, nullptr));
+                            TLV_WALK_MAX_DEPTH, 100, log_visit, &stopped, nullptr));
     EXPECT_EQ(2u, stopped.count);
 }
 
@@ -314,15 +314,15 @@ TEST(Unit_Tlv_BluetoothLtvConformance, WalkerReportsOffsetOfMalformedElement) {
     VisitLog    log;
     size_t      error_offset = 0;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_walk_tree(data.data(), data.size(), &reader_format, nullptr, TLV_WALK_MAX_DEPTH,
-                            100, log_visit, &log, &error_offset));
+              tlv_walk_tree(data.data(), data.size(), &reader_format, TLV_WALK_MAX_DEPTH, 100,
+                            log_visit, &log, &error_offset));
     EXPECT_EQ(6u, error_offset);
     EXPECT_EQ(2u, log.count);
 
     const Bytes zero = {0x02, 0x01, 0x06, 0x00};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_walk_tree(zero.data(), zero.size(), &reader_format, nullptr, TLV_WALK_MAX_DEPTH,
-                            100, nullptr, nullptr, &error_offset));
+              tlv_walk_tree(zero.data(), zero.size(), &reader_format, TLV_WALK_MAX_DEPTH, 100,
+                            nullptr, nullptr, &error_offset));
     EXPECT_EQ(3u, error_offset);
 }
 
@@ -330,8 +330,8 @@ TEST(Unit_Tlv_BluetoothLtvConformance, WalkerEnforcesElementLimit) {
     size_t error_offset = 0;
     EXPECT_EQ(TLV_ERR_LIMIT,
               tlv_walk_tree(advertising_data.data(), advertising_data.size(), &reader_format,
-                            nullptr, TLV_WALK_MAX_DEPTH, 3, nullptr, nullptr, &error_offset));
+                            TLV_WALK_MAX_DEPTH, 3, nullptr, nullptr, &error_offset));
     EXPECT_EQ(TLV_OK,
               tlv_walk_tree(advertising_data.data(), advertising_data.size(), &reader_format,
-                            nullptr, TLV_WALK_MAX_DEPTH, 4, nullptr, nullptr, nullptr));
+                            TLV_WALK_MAX_DEPTH, 4, nullptr, nullptr, nullptr));
 }

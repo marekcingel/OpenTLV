@@ -19,8 +19,8 @@ using schema_diagnostic = tlv_schema_diagnostic_t;
  * the same. Values are never decoded and no allocation occurs.
  *
  * @param data          Encoded input; borrowed.
- * @param format        Reader format.
- * @param is_constructed Nesting predicate, or `nullptr` to treat values as opaque.
+ * @param format        Reader format. A `nullptr` `format.is_constructed`
+ *                      treats values as opaque.
  * @param schema        Structural schema; borrowed.
  * @param max_depth     Maximum nesting depth.
  * @param max_elements  Maximum total elements.
@@ -32,13 +32,12 @@ using schema_diagnostic = tlv_schema_diagnostic_t;
  *         #TLV_ERR_SCHEMA_MISSING.
  */
 TLV_NODISCARD inline expected<void, error> validate(bytes data, const tlv_format_t& format,
-                                                    tlv_is_constructed_fn         is_constructed,
                                                     const tlv_structure_schema_t& schema,
                                                     size_t max_depth, size_t max_elements,
                                                     size_t* error_offset = nullptr) {
     tlv_result_t rc =
         tlv_schema_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format,
-                            is_constructed, &schema, max_depth, max_elements, error_offset);
+                            &schema, max_depth, max_elements, error_offset);
     if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
     return {};
 }
@@ -50,8 +49,8 @@ TLV_NODISCARD inline expected<void, error> validate(bytes data, const tlv_format
  * violation and the storage conventions are the same. No allocation occurs.
  *
  * @param data          Encoded input; borrowed.
- * @param format        Reader format.
- * @param is_constructed Nesting predicate, or `nullptr` to treat values as opaque.
+ * @param format        Reader format. A `nullptr` `format.is_constructed`
+ *                      treats values as opaque.
  * @param schema        Structural schema; borrowed.
  * @param max_depth     Maximum nesting depth.
  * @param max_elements  Maximum total elements.
@@ -69,15 +68,14 @@ TLV_NODISCARD inline expected<void, error> validate(bytes data, const tlv_format
  * @see tlv_schema_issue_path_string
  */
 TLV_NODISCARD inline expected<size_t, error>
-validate_all(bytes data, const tlv_format_t& format, tlv_is_constructed_fn is_constructed,
-             const tlv_structure_schema_t& schema, size_t max_depth, size_t max_elements,
-             tlv_schema_issue_t* issues, size_t capacity,
+validate_all(bytes data, const tlv_format_t& format, const tlv_structure_schema_t& schema,
+             size_t max_depth, size_t max_elements, tlv_schema_issue_t* issues, size_t capacity,
              tlv_schema_unknown_policy_t unknown = TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
              size_t*                     error_offset = nullptr) {
     tlv_schema_report_t report = {issues, capacity, 0};
-    tlv_result_t        rc = tlv_schema_validate_all(
-        reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format, is_constructed,
-        &schema, max_depth, max_elements, unknown, &report, error_offset);
+    tlv_result_t        rc =
+        tlv_schema_validate_all(reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format,
+                                &schema, max_depth, max_elements, unknown, &report, error_offset);
     if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) return unexpected<error>(error::from_c(rc));
     return report.count;
 }
@@ -91,8 +89,8 @@ validate_all(bytes data, const tlv_format_t& format, tlv_is_constructed_fn is_co
  * expected-versus-actual detail for its kind.
  *
  * @param data          Encoded input; borrowed.
- * @param format        Reader format.
- * @param is_constructed Nesting predicate, or `nullptr` to treat values as opaque.
+ * @param format        Reader format. A `nullptr` `format.is_constructed`
+ *                      treats values as opaque.
  * @param schema        Structural schema; borrowed.
  * @param max_depth     Maximum nesting depth.
  * @param max_elements  Maximum total elements.
@@ -110,15 +108,15 @@ validate_all(bytes data, const tlv_format_t& format, tlv_is_constructed_fn is_co
  * @see tlv_schema_diagnostic_t
  */
 TLV_NODISCARD inline expected<size_t, error>
-validate_all_diag(bytes data, const tlv_format_t& format, tlv_is_constructed_fn is_constructed,
-                  const tlv_structure_schema_t& schema, size_t max_depth, size_t max_elements,
-                  schema_diagnostic* diagnostics, size_t capacity,
+validate_all_diag(bytes data, const tlv_format_t& format, const tlv_structure_schema_t& schema,
+                  size_t max_depth, size_t max_elements, schema_diagnostic* diagnostics,
+                  size_t                      capacity,
                   tlv_schema_unknown_policy_t unknown = TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
                   size_t*                     error_offset = nullptr) {
     tlv_schema_diagnostic_report_t report = {diagnostics, capacity, 0};
-    tlv_result_t                   rc = tlv_schema_validate_all_diag(
-        reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format, is_constructed,
-        &schema, max_depth, max_elements, unknown, &report, error_offset);
+    tlv_result_t rc = tlv_schema_validate_all_diag(reinterpret_cast<const uint8_t*>(data.data()),
+                                                   data.size(), &format, &schema, max_depth,
+                                                   max_elements, unknown, &report, error_offset);
     if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) return unexpected<error>(error::from_c(rc));
     return report.count;
 }

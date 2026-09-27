@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix a Clang `-Wunused-const-variable` error in the integration architecture
+  test, whose `full_format` fixture became dead code once its only user
+  switched to a copy with `is_constructed` set. (#332)
 - Fix the Doxygen build failing with an unresolved link to `format`, caused by
   `@see` comments that spelled out `docs/guides/memory.md#format-context-ownership-and-lifetime`
   as literal text; use the project's `@docs{}` alias instead, which does not
@@ -50,6 +53,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Move constructed-element detection into `tlv_format_t` as an
+  optional `is_constructed` field, instead of a separate predicate argument:
+  `tlv_walk_tree()`, `tlv_schema_validate()`, `tlv_schema_validate_all()`,
+  `tlv_schema_validate_all_diag()`, `tlv_query_walk()` and their `tlv++`
+  wrappers drop that parameter and read `format->is_constructed` instead;
+  `tlv_document_options_t`/`tlv::document_format` and `tlv_structure_codec_t`
+  drop their own separate field, and `tlv_document_options_init()` drops its
+  parameter. BER, DER and CER's format descriptors now set `is_constructed`
+  themselves; the default and Fixed formats still leave it `NULL`. No
+  compatibility shim; rebuild all consumers. (#332)
 - **Breaking:** `tlv::fixed_format<>` (`tlv++`) no longer reimplements the
   fixed-width wire format; `format()` now delegates every read and write to
   `tlv_fixed_format_init()`, so it needs the library built with

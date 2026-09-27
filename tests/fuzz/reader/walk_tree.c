@@ -11,9 +11,8 @@ static void check_walk(const uint8_t* data, size_t size, size_t format, size_t d
     ctx.max_value_size = size;
     ctx.stop_at = stop_at;
     ctx.action = action;
-    tlv_result_t rc =
-        tlv_walk_tree(data, size, fuzz_formats[format].format, fuzz_formats[format].constructed,
-                      depth, elements, fuzz_visit, &ctx, &error);
+    tlv_result_t rc = tlv_walk_tree(data, size, fuzz_formats[format].format, depth, elements,
+                                    fuzz_visit, &ctx, &error);
     if (rc == TLV_OK)
         FUZZ_CHECK(error == SIZE_MAX);
     else
@@ -23,9 +22,8 @@ static void check_walk(const uint8_t* data, size_t size, size_t format, size_t d
     }
     if (!stop_at) {
         size_t other_error = SIZE_MAX;
-        FUZZ_CHECK(rc == tlv_walk_tree(data, size, fuzz_formats[format].format,
-                                       fuzz_formats[format].constructed, depth, elements, NULL,
-                                       NULL, &other_error));
+        FUZZ_CHECK(rc == tlv_walk_tree(data, size, fuzz_formats[format].format, depth, elements,
+                                       NULL, NULL, &other_error));
         FUZZ_CHECK(error == other_error);
     }
 }

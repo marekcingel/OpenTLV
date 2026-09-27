@@ -215,7 +215,8 @@ TLV_API tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_t
 /**
  * @brief Nesting predicate for tree traversal of BER data.
  *
- * Matches #tlv_is_constructed_fn.
+ * Matches #tlv_is_constructed_fn. This is #tlv_format_ber's own
+ * `is_constructed`.
  *
  * @param context Unused; may be `NULL`.
  * @param tag     A successfully parsed BER tag.

@@ -61,10 +61,9 @@ public:
      *                 returning #tlv_visit_result_t, as for walk_tree().
      *
      * @param data          Encoded input; borrowed.
-     * @param format        Reader format.
-     * @param is_constructed Nesting predicate receiving `format.context`, or
-     *                      `nullptr` to treat every value as opaque, in which
-     *                      case only one-tag queries can match.
+     * @param format        Reader format. A `nullptr` `format.is_constructed`
+     *                      treats every value as opaque, in which case only
+     *                      one-tag queries can match.
      * @param max_depth     Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`.
      * @param max_elements  Bound on all traversed elements.
      * @param visitor       Visitor callable; returning #TLV_VISIT_STOP succeeds
@@ -77,10 +76,9 @@ public:
      * @warning Visitor side effects are not rolled back on error.
      */
     template <typename Visitor>
-    TLV_NODISCARD expected<void, error> walk(bytes data, const tlv_format_t& format,
-                                             tlv_is_constructed_fn is_constructed, size_t max_depth,
-                                             size_t max_elements, Visitor&& visitor,
-                                             size_t* error_offset = nullptr) const {
+    TLV_NODISCARD expected<void, error>
+    walk(bytes data, const tlv_format_t& format, size_t max_depth, size_t max_elements,
+         Visitor&& visitor, size_t* error_offset = nullptr) const {
         typedef typename std::remove_reference<Visitor>::type visitor_type;
         struct adapter {
             visitor_type*             visitor;
@@ -97,9 +95,9 @@ public:
             }
         };
         adapter      state{&visitor};
-        tlv_result_t rc = tlv_query_walk(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
-                                         &format, is_constructed, &query_, max_depth, max_elements,
-                                         &adapter::call, &state, error_offset);
+        tlv_result_t rc =
+            tlv_query_walk(reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format,
+                           &query_, max_depth, max_elements, &adapter::call, &state, error_offset);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return {};
     }

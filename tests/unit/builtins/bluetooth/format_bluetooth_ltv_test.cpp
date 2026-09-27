@@ -164,11 +164,11 @@ TEST(Unit_Tlv_BluetoothLtv, GenericScannerWalkerAndTreeWalkWork) {
     EXPECT_EQ(3u, count);
 
     size_t error_offset = 99;
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(advertising, sizeof(advertising), &reader_format, nullptr, 8,
-                                    100, nullptr, nullptr, &error_offset));
+    EXPECT_EQ(TLV_OK, tlv_walk_tree(advertising, sizeof(advertising), &reader_format, 8, 100,
+                                    nullptr, nullptr, &error_offset));
     const uint8_t bad[] = {0x02, 0x01, 0x06, 0x00};
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_walk_tree(bad, sizeof(bad), &reader_format, nullptr, 8,
-                                                    100, nullptr, nullptr, &error_offset));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_walk_tree(bad, sizeof(bad), &reader_format, 8, 100,
+                                                    nullptr, nullptr, &error_offset));
     EXPECT_EQ(3u, error_offset);
 }
 

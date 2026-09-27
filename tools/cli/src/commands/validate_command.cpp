@@ -14,7 +14,7 @@ void validate_command::run_emv_checks() {
 #if OPENTLV_PROFILE_EMV
     check_.presentation = cli_presentation_t();
     check_.data = data();
-    check_.predicate = predicate_;
+    check_.predicate = format_->is_constructed;
     diagnostic_scope_init(check_.scope, size());
     check_.result = TLV_OK;
     check_.offset = 0;
@@ -25,7 +25,7 @@ void validate_command::run_emv_checks() {
         tlv_schema_diagnostic_report_t report = {&diag, 1, 0};
         std::size_t                    schema_offset = error_offset_;
         tlv_result_t                   schema_result = tlv_schema_validate_all_diag(
-            data(), size(), format_, predicate_, &tlv_emv_structure_schema, options_.max_depth,
+            data(), size(), format_, &tlv_emv_structure_schema, options_.max_depth,
             options_.max_elements, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &schema_offset);
         // tlv_schema_validate_all_diag() only reports the generic
         // TLV_ERR_SCHEMA itself and leaves *error_offset alone for a
@@ -50,7 +50,7 @@ void validate_command::run_emv_checks() {
         check_.presentation.data = data();
         check_.presentation.ends[0] = size();
         check_.presentation.contexts[0] = options_.emv_context;
-        const walk_env env = {&options_, format_, predicate_, is_der_};
+        const walk_env env = {&options_, format_, is_der_};
         result_ = walk_slice(env, data(), size(), 0, options_.max_elements,
                              check_dictionary_trampoline, this, &error_offset_);
         if (result_ == TLV_OK && check_.result != TLV_OK) {

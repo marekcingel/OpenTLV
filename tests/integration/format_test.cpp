@@ -44,9 +44,9 @@ tlv_result_t write_length(const void* ctx, uint8_t* data, size_t size, size_t le
     return TLV_OK;
 }
 const tlv_format_t fixed = {&width,  read_tag, read_length, nullptr, nullptr,
-                            nullptr, nullptr,  nullptr,     nullptr};
+                            nullptr, nullptr,  nullptr,     nullptr, nullptr};
 const tlv_format_t fixed_writer = {&width,    nullptr,      nullptr,     nullptr, nullptr,
-                                   write_tag, write_length, length_size, nullptr};
+                                   write_tag, write_length, length_size, nullptr, nullptr};
 } // namespace
 
 TEST(Integration_Tlv_Format, CustomFormatRoundTripAndWireBytes) {

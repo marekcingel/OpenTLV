@@ -64,10 +64,9 @@ void flush_stack(std::vector<Json>& stack, Json& root, size_t target_depth, cons
 namespace cli {
 
 walk_command::walk_command(const options& o, std::vector<uint8_t> data)
-    : options_(o), base_(0), ber_(0), constructed_(NULL), presentation_(), predicate_(NULL),
-      format_(NULL), is_der_(false), scope_(), matcher_(), matches_(0), result_(TLV_OK),
-      error_offset_(0), stage_(""), schema_diag_(), has_schema_diag_(false),
-      data_(std::move(data)) {}
+    : options_(o), base_(0), ber_(0), presentation_(), format_(NULL), is_der_(false), scope_(),
+      matcher_(), matches_(0), result_(TLV_OK), error_offset_(0), stage_(""), schema_diag_(),
+      has_schema_diag_(false), data_(std::move(data)) {}
 
 tlv_visit_result_t walk_command::visit_trampoline(const tlv_view_t* view, std::size_t depth,
                                                   std::size_t offset, void* context) {
@@ -80,7 +79,7 @@ tlv_visit_result_t walk_command::visit_element(const tlv_view_t* view, std::size
     // keep the diagnostic scope current, so a failure the walk doesn't itself
     // annotate (a value that overruns its own container, not the whole
     // buffer) can still be reported with the path and boundary enclosing it.
-    diagnostic_scope_visit(scope_, data(), view, depth, predicate_);
+    diagnostic_scope_visit(scope_, data(), view, depth, format_->is_constructed);
     return TLV_VISIT_CONTINUE;
 }
 
@@ -188,7 +187,7 @@ tlv_result_t walk_command::walk_pdol(std::size_t* error_offset) {
 // plausible element starts at, and the bytes in between are recorded as
 // skipped. Resource limits are not damage and still fail the run.
 tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
-    const walk_env env = {&options_, format_, predicate_, is_der_};
+    const walk_env env = {&options_, format_, is_der_};
     const bool     inline_text = prints_skipped_inline();
     size_t         pos = 0, budget = options_.max_elements;
     bool           skipping = false;
@@ -265,7 +264,6 @@ int walk_command::run() {
     is_der_ = is_der != 0;
     base_ = 0;
     ber_ = is_ber;
-    constructed_ = NULL;
     cli_presentation_init(&presentation_, data(), size(), options_.color, options_.pretty);
     presentation_.contexts[0] = options_.emv_context;
     matches_ = 0;
@@ -273,16 +271,8 @@ int walk_command::run() {
     const int prepared = prepare();
     if (prepared) return prepared;
 
-    predicate_ = NULL;
-#if OPENTLV_FORMAT_BER
-    if (structured) predicate_ = tlv_ber_is_constructed;
-    if (is_ber) constructed_ = tlv_ber_is_constructed;
-#endif
-#if OPENTLV_FORMAT_DER
-    if (is_der) constructed_ = tlv_der_is_constructed;
-#endif
     diagnostic_scope_init(scope_, size());
-    const walk_env env = {&options_, format_, predicate_, is_der_};
+    const walk_env env = {&options_, format_, is_der_};
     if (options_.pdol)
         result = walk_pdol(&error_offset);
     else if (options_.recover)

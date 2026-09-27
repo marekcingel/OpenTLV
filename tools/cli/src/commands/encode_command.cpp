@@ -13,9 +13,6 @@
 #include "tlv/config.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/writer/writer.h"
-#if OPENTLV_FORMAT_DER
-#include "tlv/builtins/asn1/der.h"
-#endif
 #ifdef _WIN32
 #include <fcntl.h>
 #include <io.h>
@@ -83,14 +80,7 @@ public:
 
 private:
     bool is_constructed(const tlv_tag_t& tag) const {
-#if OPENTLV_FORMAT_BER
-        if (ber_) return tlv_ber_is_constructed(nullptr, &tag) != 0;
-#endif
-#if OPENTLV_FORMAT_DER
-        if (der_) return tlv_der_is_constructed(nullptr, &tag) != 0;
-#endif
-        (void)tag;
-        return false;
+        return format_->is_constructed && format_->is_constructed(format_->context, &tag) != 0;
     }
 
     int reject(std::size_t index, const std::string& reason) {

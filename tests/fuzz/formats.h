@@ -25,41 +25,57 @@ static inline int fuzz_constructed(const void* context, const tlv_tag_t* tag) {
     return (tag->data[0] & 0x20) != 0;
 }
 
+/* Local, mutable copies of the formats without a built-in nesting rule, so
+ * fuzz_constructed() can be attached to `is_constructed` without mutating the
+ * library's own extern const globals. Populated by LLVMFuzzerInitialize()
+ * below; tlv_fixed_format_t-based formats additionally need a runtime init
+ * call and cannot be compile-time constants like the other entries here. */
+#if OPENTLV_FORMAT_DEFAULT
+static tlv_format_t fuzz_default_format;
+#endif
 #if OPENTLV_FORMAT_FIXED
-/* One tag byte and one length byte: populated by LLVMFuzzerInitialize()
- * below, since tlv_fixed_format_t-based formats need a runtime init call
- * and cannot be compile-time constants like the other entries here. */
 static const tlv_fixed_format_t fuzz_fixed_config = {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN};
 static tlv_format_t             fuzz_fixed_format;
 #endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+static tlv_format_t fuzz_bluetooth_ltv_format;
+#endif
 
 static const struct {
-    const tlv_format_t*   format;
-    tlv_is_constructed_fn constructed;
+    const tlv_format_t* format;
 } fuzz_formats[] = {
 #if OPENTLV_FORMAT_DEFAULT
-    {&tlv_format_default, fuzz_constructed},
+    {&fuzz_default_format},
 #endif
 #if OPENTLV_FORMAT_FIXED
-    {&fuzz_fixed_format, fuzz_constructed},
+    {&fuzz_fixed_format},
 #endif
 #if OPENTLV_FORMAT_BLUETOOTH_LTV
-    {&tlv_format_bluetooth_ltv, fuzz_constructed},
+    {&fuzz_bluetooth_ltv_format},
 #endif
 #if OPENTLV_FORMAT_BER
-    {&tlv_format_ber, tlv_ber_is_constructed},
+    {&tlv_format_ber},
 #endif
 #if OPENTLV_FORMAT_DER
-    {&tlv_format_der, tlv_der_is_constructed},
+    {&tlv_format_der},
 #endif
-    {NULL, NULL}};
+    {NULL}};
 
 /* libFuzzer calls this once before any input is fuzzed. */
 int LLVMFuzzerInitialize(int* argc, char*** argv) {
     (void)argc;
     (void)argv;
+#if OPENTLV_FORMAT_DEFAULT
+    fuzz_default_format = tlv_format_default;
+    fuzz_default_format.is_constructed = fuzz_constructed;
+#endif
 #if OPENTLV_FORMAT_FIXED
     tlv_fixed_format_init(&fuzz_fixed_format, &fuzz_fixed_config);
+    fuzz_fixed_format.is_constructed = fuzz_constructed;
+#endif
+#if OPENTLV_FORMAT_BLUETOOTH_LTV
+    fuzz_bluetooth_ltv_format = tlv_format_bluetooth_ltv;
+    fuzz_bluetooth_ltv_format.is_constructed = fuzz_constructed;
 #endif
     return 0;
 }

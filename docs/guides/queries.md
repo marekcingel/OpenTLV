@@ -32,8 +32,8 @@ Tags are read in either case, must have an even number of digits and are of
 any length, within `TLV_QUERY_MAX_BYTES` (512) tag bytes in total. Whitespace, empty steps and a leading or trailing
 `/` are errors. The tag bytes are compared as they are, so the query does not
 depend on a format or profile. A path of more than one tag needs a reader
-format whose values can be constructed and a matching `is_constructed`
-predicate, such as BER or DER; without a predicate only one-tag queries match.
+format whose `is_constructed` says which values can be constructed, such as
+BER or DER; without one only one-tag queries match.
 
 This is a deliberately small language. Wildcards, indexes, recursive search and
 predicates are not part of it.
@@ -60,9 +60,8 @@ tlv_result_t rc = tlv_query_parse("6F/A5/50", &query, &text_offset);
 /* On TLV_ERR_INVALID_ARG, text_offset is the index of the offending character. */
 
 size_t error_offset;
-rc = tlv_query_walk(data, size, &tlv_format_ber, tlv_ber_is_constructed,
-                    &query, TLV_WALK_MAX_DEPTH, 100000, print_match, NULL,
-                    &error_offset);
+rc = tlv_query_walk(data, size, &tlv_format_ber, &query, TLV_WALK_MAX_DEPTH, 100000, print_match,
+                    NULL, &error_offset);
 ```
 
 `tlv_query_walk()` builds on `tlv_walk_tree()`: it neither allocates nor
@@ -96,7 +95,7 @@ auto query = tlv::query::parse("6F/A5/50", &text_offset);
 if (!query) return;  // query.error().code; text_offset is the offending character
 
 auto walked = query->walk(
-    tlv::bytes(data, size), tlv_format_ber, tlv_ber_is_constructed,
+    tlv::bytes(data, size), tlv_format_ber,
     TLV_WALK_MAX_DEPTH, 100000,
     [](const tlv::entry& item, size_t depth, size_t offset) {
         // item.value borrows the input

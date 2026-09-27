@@ -70,7 +70,8 @@ const tlv_format_t tlv_format_cer = {.context = NULL,
                                      .read_value_bounds = read_value_bounds,
                                      .write_tag = cer_write_tag,
                                      .write_length = cer_write_length,
-                                     .length_size = cer_length_size};
+                                     .length_size = cer_length_size,
+                                     .is_constructed = tlv_cer_is_constructed};
 
 tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
                               uint8_t* storage, tlv_tag_t* tag) {
