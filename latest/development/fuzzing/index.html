@@ -2682,6 +2682,10 @@ flags. Contract checks remain active with <code>NDEBUG</code>; UBSan errors are 
 <td>Generated tags and values, sizing, insufficient-capacity output preservation, successful write/read tag and value equality.</td>
 </tr>
 <tr>
+<td><code>fuzz_fixed</code></td>
+<td>The configurable Fixed format (<code>tlv_fixed_format_init()</code>) with tag width, length width and byte order all derived from the fuzz input: exact framing-overhead round trips and insufficient-capacity output preservation for the derived configuration, plus sequential malformed-input <code>tlv_read</code> against the same raw bytes.</td>
+</tr>
+<tr>
 <td><code>fuzz_codec</code></td>
 <td><code>tlv_codec_decode</code>/<code>tlv_codec_encode</code> for every EMV dictionary tag's codec (NUMBER, FLAGS, DIGITS, DATE, TIME, ACCOUNT, CRYPTOGRAM, BIOMETRIC, NUMBER_LIST), one-byte-short capacities, decode/encode/decode round-trip equality, and undersized-output rejection.</td>
 </tr>
@@ -2693,11 +2697,17 @@ flags. Contract checks remain active with <code>NDEBUG</code>; UBSan errors are 
 </table>
 <p>The reader, walker, and round-trip targets run each input against every enabled
 built-in format: default, fixed-width (one tag byte, one length byte), Bluetooth LTV, BER, and DER. Component switches still
-apply; <code>fuzz_der</code> and <code>fuzz_der_schema</code> are omitted when <code>OPENTLV_FORMAT_DER=OFF</code>,
+apply; <code>fuzz_fixed</code> is omitted when <code>OPENTLV_FORMAT_FIXED=OFF</code>, <code>fuzz_der</code> and
+<code>fuzz_der_schema</code> are omitted when <code>OPENTLV_FORMAT_DER=OFF</code>,
 and <code>fuzz_codec</code> and <code>fuzz_dol</code> are omitted when <code>OPENTLV_PROFILE_EMV=OFF</code>. At
 least one built-in format must be enabled. For the raw-byte formats, the
 walker harness uses tag bit <code>0x20</code> as a test-only container convention. BER
-and DER use their public nesting predicates. <code>fuzz_der</code> covers the existing
+and DER use their public nesting predicates. <code>fuzz_fixed</code> covers the
+configurable dimensions (tag width, length width, byte order) that the
+reader/walker/round-trip targets' one fixed 1/1/big-endian configuration
+cannot reach; deriving a valid <code>tlv_fixed_format_t</code> from the input itself,
+rather than hard-coding a handful of configurations, lets libFuzzer explore
+the full valid range. <code>fuzz_der</code> covers the existing
 DER-TLV contract, not ASN.1 value semantics or SET/SET OF ordering;
 <code>fuzz_der_schema</code> covers the schema-aware layer that does (SET/SET OF
 ordering, tagging, CHOICE, DEFAULT omission) against one fixed schema.
@@ -2714,7 +2724,8 @@ exceptions rather than requiring every output to remain unchanged on error.</p>
 folder in the same subsystem or built-in directory of <code>tests/fuzz/</code>, which
 mirrors <code>tlv/src</code>'s own layout: <code>tests/fuzz/reader/corpus/read</code> and
 <code>tests/fuzz/reader/corpus/walk_tree</code> for the generic reader/walker targets,
-<code>tests/fuzz/corpus/roundtrip</code> for the cross-cutting round-trip target, and
+<code>tests/fuzz/corpus/roundtrip</code> for the cross-cutting round-trip target,
+<code>tests/fuzz/builtins/fixed/corpus/fixed</code>,
 <code>tests/fuzz/builtins/asn1/corpus/{der,der_schema}</code> /
 <code>tests/fuzz/builtins/emv/corpus/{codec,dol}</code> for the built-in-specific ones.
 Checked-in seed files use the <code>.bin</code> extension to identify binary test inputs.
@@ -2739,6 +2750,17 @@ produces an empty candidate tag/value. Every input is also tested as a value
 with the valid primitive tag <code>04</code>, ensuring successful writes are exercised.
 Long-value seeds cover 127/128 and 255/256 length transitions, including the
 Bluetooth LTV 254/255-byte value limit.</p>
+<p><code>builtins/fixed/corpus/fixed</code> uses its own layout: the first three bytes
+select the <code>tlv_fixed_format_t</code> under test (tag width, length width, and
+byte order, each masked into its valid range), and the rest is a payload
+tried both as a tag/value pair to round-trip through that configuration and
+as raw bytes fed directly to a malformed-input read. Seed names describe the
+configuration or boundary covered: the issue's representative tag/length/order
+combinations (<code>tag1-length1-be</code>, <code>tag2-length2-be</code>, <code>tag2-length2-le</code>,
+<code>tag4-length4-be</code>, <code>tag3-length8-le</code>), a zero-length value, the maximum
+length a 1-byte length field can represent, a multi-byte raw tag, a truncated
+tag, a truncated length field, a declared length that overruns the remaining
+input, and a value too large for its configured length width.</p>
 <p><code>builtins/emv/corpus/codec</code> also contains raw bytes with no selector prefix:
 every input is tried as the raw value of every EMV dictionary tag's codec, so
 a seed only needs to be interesting for one value kind (BCD/binary numbers,
@@ -2765,21 +2787,22 @@ For one target:</p>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="o">[</span>read<span class="o">]=</span>tests/fuzz/reader/corpus/read
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="o">[</span>walk_tree<span class="o">]=</span>tests/fuzz/reader/corpus/walk_tree
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="o">[</span>roundtrip<span class="o">]=</span>tests/fuzz/corpus/roundtrip
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="o">[</span>der<span class="o">]=</span>tests/fuzz/builtins/asn1/corpus/der
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="o">[</span>der_schema<span class="o">]=</span>tests/fuzz/builtins/asn1/corpus/der_schema
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="o">[</span>codec<span class="o">]=</span>tests/fuzz/builtins/emv/corpus/codec
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="o">[</span>dol<span class="o">]=</span>tests/fuzz/builtins/emv/corpus/dol
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="o">)</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">for</span><span class="w"> </span>target<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>walk_tree<span class="w"> </span>der<span class="w"> </span>der_schema<span class="w"> </span>roundtrip<span class="w"> </span>codec<span class="w"> </span>dol<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">  </span><span class="nv">executable</span><span class="o">=</span><span class="s2">"build/fuzz/tests/fuzz/fuzz_</span><span class="nv">$target</span><span class="s2">"</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="o">[</span><span class="w"> </span>-x<span class="w"> </span><span class="s2">"</span><span class="nv">$executable</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">continue</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"build/fuzz/corpus/</span><span class="nv">$target</span><span class="s2">"</span><span class="w"> </span><span class="s2">"build/fuzz/findings/</span><span class="nv">$target</span><span class="s2">"</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span><span class="s2">"</span><span class="nv">$executable</span><span class="s2">"</span><span class="w"> </span><span class="s2">"build/fuzz/corpus/</span><span class="nv">$target</span><span class="s2">"</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">corpus_dir</span><span class="p">[</span><span class="nv">$target</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span>-max_total_time<span class="o">=</span><span class="m">60</span><span class="w"> </span>-max_len<span class="o">=</span><span class="m">4096</span><span class="w"> </span>-timeout<span class="o">=</span><span class="m">10</span><span class="w"> </span>-rss_limit_mb<span class="o">=</span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span>-artifact_prefix<span class="o">=</span><span class="s2">"build/fuzz/findings/</span><span class="nv">$target</span><span class="s2">/"</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span><span class="s2">"build/fuzz/findings/</span><span class="nv">$target</span><span class="s2">/run.log"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">status</span><span class="o">=</span><span class="m">1</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="k">done</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="nb">test</span><span class="w"> </span><span class="s2">"</span><span class="nv">$status</span><span class="s2">"</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="o">[</span>fixed<span class="o">]=</span>tests/fuzz/builtins/fixed/corpus/fixed
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="o">[</span>der<span class="o">]=</span>tests/fuzz/builtins/asn1/corpus/der
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="o">[</span>der_schema<span class="o">]=</span>tests/fuzz/builtins/asn1/corpus/der_schema
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="o">[</span>codec<span class="o">]=</span>tests/fuzz/builtins/emv/corpus/codec
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">  </span><span class="o">[</span>dol<span class="o">]=</span>tests/fuzz/builtins/emv/corpus/dol
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="o">)</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">for</span><span class="w"> </span>target<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>walk_tree<span class="w"> </span>fixed<span class="w"> </span>der<span class="w"> </span>der_schema<span class="w"> </span>roundtrip<span class="w"> </span>codec<span class="w"> </span>dol<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="nv">executable</span><span class="o">=</span><span class="s2">"build/fuzz/tests/fuzz/fuzz_</span><span class="nv">$target</span><span class="s2">"</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">  </span><span class="o">[</span><span class="w"> </span>-x<span class="w"> </span><span class="s2">"</span><span class="nv">$executable</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">continue</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">  </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"build/fuzz/corpus/</span><span class="nv">$target</span><span class="s2">"</span><span class="w"> </span><span class="s2">"build/fuzz/findings/</span><span class="nv">$target</span><span class="s2">"</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">  </span><span class="s2">"</span><span class="nv">$executable</span><span class="s2">"</span><span class="w"> </span><span class="s2">"build/fuzz/corpus/</span><span class="nv">$target</span><span class="s2">"</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">corpus_dir</span><span class="p">[</span><span class="nv">$target</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span>-max_total_time<span class="o">=</span><span class="m">60</span><span class="w"> </span>-max_len<span class="o">=</span><span class="m">4096</span><span class="w"> </span>-timeout<span class="o">=</span><span class="m">10</span><span class="w"> </span>-rss_limit_mb<span class="o">=</span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span>-artifact_prefix<span class="o">=</span><span class="s2">"build/fuzz/findings/</span><span class="nv">$target</span><span class="s2">/"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">    </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span><span class="s2">"build/fuzz/findings/</span><span class="nv">$target</span><span class="s2">/run.log"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">status</span><span class="o">=</span><span class="m">1</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="k">done</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="nb">test</span><span class="w"> </span><span class="s2">"</span><span class="nv">$status</span><span class="s2">"</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span>
 </code></pre></div>
 <p>Increase <code>-max_total_time</code> for longer sessions, or use <code>-runs=N</code> for a bounded
 number of executions. <code>-max_len</code> limits generated inputs, not the API's supported
@@ -2803,8 +2826,8 @@ commit, and build with the same component options and Clang version. Pass the
 saved input as a file instead of a corpus directory:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>build/fuzz/tests/fuzz/fuzz_read<span class="w"> </span>path/to/read/crash-&lt;hash&gt;
 </code></pre></div>
-<p>Use the corresponding target for <code>walk_tree</code>, <code>der</code>, <code>der_schema</code>, <code>roundtrip</code>,
-<code>codec</code>, or <code>dol</code>. Findings
+<p>Use the corresponding target for <code>walk_tree</code>, <code>fixed</code>, <code>der</code>, <code>der_schema</code>,
+<code>roundtrip</code>, <code>codec</code>, or <code>dol</code>. Findings
 may also use names such as <code>timeout-&lt;hash&gt;</code> or <code>oom-&lt;hash&gt;</code>; retain the original
 timeout/RSS settings when reproducing those. Keep the sanitizer environment
 variables from the local-run example and ensure <code>llvm-symbolizer-18</code> is on
