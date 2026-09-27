@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#layered-opentlv-architecture-65-279-280-281" class="md-skip">
+        <a href="#layered-opentlv-architecture-65-279-280-281-327" class="md-skip">
           Skip to content
         </a>
       
@@ -2720,7 +2720,7 @@
   
 
 
-<h1 id="layered-opentlv-architecture-65-279-280-281">Layered OpenTLV architecture (#65, #279, #280, #281)<a class="headerlink" href="#layered-opentlv-architecture-65-279-280-281" title="Permanent link">&para;</a></h1>
+<h1 id="layered-opentlv-architecture-65-279-280-281-327">Layered OpenTLV architecture (#65, #279, #280, #281, #327)<a class="headerlink" href="#layered-opentlv-architecture-65-279-280-281-327" title="Permanent link">&para;</a></h1>
 <p>OpenTLV provides one C library (<code>tlv</code>) and a header-only C++ interface (<code>tlv++</code>)
 that links to it. Core is a logical responsibility, not a directory. Optional
 components are concrete formats and profiles, rather than entire layers.</p>
@@ -2770,12 +2770,21 @@ components are concrete formats and profiles, rather than entire layers.</p>
 format implementations never need to be named by the reader/writer. A codec
 does not have to use a schema. Existing C++ tag-associated codecs remain valid.
 Bindings are part of the codec area, not another architectural layer.</p>
-<p>Formats and profiles are roles, not folders: every concrete format or profile
-implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV, the fixed formats)
-lives under <code>builtins/&lt;protocol&gt;/</code>, grouped by protocol rather than by role,
-so all of a protocol's format, schema, codec and profile files sit together.
-Generic subsystems (<code>reader/</code>, <code>writer/</code>, <code>query/</code>, <code>schema/</code>, <code>codec/</code>,
-<code>document/</code>) never depend on <code>builtins/</code>.</p>
+<p>Formats and profiles are roles, not folders: every protocol-specific format or
+profile implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV, the one-byte
+default format) lives under <code>builtins/&lt;protocol&gt;/</code>, grouped by protocol rather
+than by role, so all of a protocol's format, schema, codec and profile files
+sit together. Generic subsystems (<code>reader/</code>, <code>writer/</code>, <code>query/</code>, <code>schema/</code>,
+<code>codec/</code>, <code>document/</code>) never depend on <code>builtins/</code>.</p>
+<p>A format mechanism that names no protocol -- it is parameterized entirely by
+caller-supplied widths and byte order, with no knowledge of any concrete
+wire standard -- lives under the separate top-level <code>formats/</code> instead. The
+configurable fixed-width format is the only member so far; other protocol-
+agnostic mechanisms (not per-protocol formats) would join it there. This is
+narrower than the pre-#279 <code>tlv/formats/</code> (see Migration): that one held
+every concrete format regardless of whether it was protocol-specific, and was
+retired in favor of <code>builtins/&lt;protocol&gt;/</code> for exactly the protocol-specific
+ones. <code>formats/</code> returns only for mechanisms that stay protocol-agnostic.</p>
 <p><code>reader/scanner</code> is a recovery utility above the raw reader and schema lookup.
 Its location groups reading-related tools, without classifying every file in
 that folder as the lowest-level core. Profiles compose lower facilities; lower
@@ -2793,18 +2802,21 @@ backend; selecting DER does not require the public BER component.</p>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  writer/    writer.h
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  schema/    schema.h
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  codec/     codec.h, structure.h
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  builtins/
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    fixed/     default.h, fixed.h
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    bluetooth/ bluetooth_ltv.h
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  formats/
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    fixed.h
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  builtins/
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    fixed/     default.h
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    bluetooth/ bluetooth_ltv.h
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
 </code></pre></div>
 <p>The tree shows the public layout; corresponding implementation files use <code>.c</code>.
 Small fundamental types (<code>tag.h</code>, <code>length.h</code>, <code>value.h</code>, <code>view.h</code>, and the
 generic <code>format.h</code> descriptor contracts) sit directly under <code>tlv/</code>, alongside
-the generic subsystem folders. Every concrete format or profile OpenTLV ships
-lives under <code>builtins/&lt;protocol&gt;/</code>, so all of a protocol's functionality is
-in one place instead of scattered across role-based folders: EMV's schema,
+the generic subsystem folders. <code>formats/fixed.h</code> holds the one format
+mechanism that names no protocol; every protocol-specific format or profile
+OpenTLV ships lives under <code>builtins/&lt;protocol&gt;/</code>, so all of a protocol's
+functionality is in one place instead of scattered across role-based folders: EMV's schema,
 codec, DOL and umbrella profile header are all under <code>builtins/emv/</code>, and
 ASN.1's wire formats and bounded DER/CER profile operations are all under
 <code>builtins/asn1/</code>. Wire-level <code>der.h</code>/<code>cer.h</code> and the bounded profile headers
@@ -2828,9 +2840,10 @@ counterpart and each protocol's wrapper under <code>builtins/&lt;protocol&gt;/</
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  writer/    writer.hpp
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  schema/    schema.hpp
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  codec/     codec.hpp, structure.hpp, registry.hpp
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  builtins/
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    fixed/ fixed_format.hpp
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    asn1/  ber.hpp
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  formats/
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    fixed_format.hpp
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>  builtins/
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    asn1/  ber.hpp
 </code></pre></div>
 <p><code>tlv++</code> is header-only, so there is no separate <code>tlv++/src/</code>. <code>registry.hpp</code>
 sits under <code>codec/</code> alongside <code>codec.hpp</code> and <code>structure.hpp</code>: it is a
@@ -2951,7 +2964,7 @@ to ON and can be disabled independently:</p>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_FIXED</code></td>
-<td>Configurable fixed-width tag and length (<code>tlv_fixed_config_t</code>)</td>
+<td>Configurable fixed-width tag and length (<code>tlv_fixed_format_t</code>)</td>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
@@ -3010,7 +3023,7 @@ best-effort record of the breaking changes below, not a compatibility
 guarantee or an exhaustive migration guide.</p>
 <p>Update flat includes to the folders above (<code>tlv/reader.h</code> becomes
 <code>tlv/reader/reader.h</code>, and so on). Concrete format declarations use
-<code>tlv/builtins/fixed/default.h</code>, <code>tlv/builtins/fixed/fixed.h</code>,
+<code>tlv/builtins/fixed/default.h</code>, <code>tlv/formats/fixed.h</code>,
 <code>tlv/builtins/asn1/ber.h</code>, or <code>tlv/builtins/asn1/der.h</code>; the public
 aggregate includes enabled formats.</p>
 <p><code>tlv/formats/</code> and <code>tlv/profiles/</code> (#279) no longer exist: every built-in
@@ -3074,6 +3087,17 @@ each replace their separate <code>reader_format</code>/<code>writer_format</code
 parameter. <code>tlv::document_format</code> and <code>tlv::fixed_format&lt;&gt;</code> (<code>tlv++</code>) collapse
 the same way, with <code>fixed_format&lt;&gt;::reader()</code>/<code>::writer()</code> replaced by
 <code>::format()</code>. Rebuild all consumers. (#326)</p>
+<p>Move the configurable fixed-width format out of <code>builtins/</code> into the new
+top-level <code>formats/</code>, since it names no protocol: <code>tlv/builtins/fixed/fixed.h</code>
+becomes <code>tlv/formats/fixed.h</code>, and <code>tlv++/builtins/fixed/fixed_format.hpp</code>
+becomes <code>tlv++/formats/fixed_format.hpp</code>. This is a narrower, second
+reintroduction of a <code>formats/</code> folder than the one #279 removed (see above):
+it holds only mechanisms that are themselves protocol-agnostic, not every
+concrete format regardless of protocol, so <code>tlv/builtins/fixed/default.h</code>
+(the unrelated one-byte default format, which does name a protocol shape) stays
+under <code>builtins/fixed/</code>. <code>tlv_fixed_config_t</code> is renamed to <code>tlv_fixed_format_t</code>
+without any other change to its fields or to <code>tlv_fixed_format_init()</code>'s
+behavior. No compatibility shim; rebuild all consumers. (#327)</p>
 <p>See also the generated <a href="../../reference/c-api/">C API reference</a> and <a href="../../reference/cxx-api/">C++ API reference</a>.</p>
 
 

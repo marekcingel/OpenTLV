@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv_fixed_config Struct Reference</title>
+<title>OpenTLV C API: tlv_fixed_format Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -71,36 +71,36 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
-  <div class="headertitle"><div class="title">tlv_fixed_config Struct Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
+  <div class="headertitle"><div class="title">tlv_fixed_format Struct Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Configuration for the configurable fixed-width format.  
- <a href="structtlv__fixed__config.html#details">More...</a></p>
+<p>State describing a configurable fixed-width format.  
+ <a href="structtlv__fixed__format.html#details">More...</a></p>
 
 <p><code>#include &lt;fixed.h&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:ab48baa23e85bfa55feb7214fea2726b2" id="r_ab48baa23e85bfa55feb7214fea2726b2"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__config.html#ab48baa23e85bfa55feb7214fea2726b2">tag_size</a></td></tr>
-<tr class="separator:ab48baa23e85bfa55feb7214fea2726b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2097ebcb7df803aa1a623afd1a750b93" id="r_a2097ebcb7df803aa1a623afd1a750b93"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__config.html#a2097ebcb7df803aa1a623afd1a750b93">length_size</a></td></tr>
-<tr class="separator:a2097ebcb7df803aa1a623afd1a750b93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3149f9360e04a219be5741b1cb1a7d95" id="r_a3149f9360e04a219be5741b1cb1a7d95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__config.html#a3149f9360e04a219be5741b1cb1a7d95">order</a></td></tr>
-<tr class="separator:a3149f9360e04a219be5741b1cb1a7d95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a013ae76820636687c23eea541746bde4" id="r_a013ae76820636687c23eea541746bde4"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__format.html#a013ae76820636687c23eea541746bde4">tag_size</a></td></tr>
+<tr class="separator:a013ae76820636687c23eea541746bde4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc1ab3693cac0e2193ffd4c08145c5b5" id="r_afc1ab3693cac0e2193ffd4c08145c5b5"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__format.html#afc1ab3693cac0e2193ffd4c08145c5b5">length_size</a></td></tr>
+<tr class="separator:afc1ab3693cac0e2193ffd4c08145c5b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad79d282e519b36be8a28b8c44fe1e492" id="r_ad79d282e519b36be8a28b8c44fe1e492"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__format.html#ad79d282e519b36be8a28b8c44fe1e492">order</a></td></tr>
+<tr class="separator:ad79d282e519b36be8a28b8c44fe1e492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Configuration for the configurable fixed-width format. </p>
-<p>A borrowed, immutable value: the address passed to <a class="el" href="group__formats.html#ga4d7ff48b9bd3d470a0c957abbbc01737" title="Initializes a format for the configurable fixed-width encoding.">tlv_fixed_format_init()</a> becomes the initialized format's context, so the configuration must outlive every reader or writer built from it. </p>
+<div class="textblock"><p>State describing a configurable fixed-width format. </p>
+<p>A borrowed, immutable value: the address passed to <a class="el" href="group__formats.html#ga42dd642a7d68261d64df08528ad6cf7e" title="Initializes a format for the configurable fixed-width encoding.">tlv_fixed_format_init()</a> becomes the initialized format's context, so this state must outlive every reader or writer built from it. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a id="a2097ebcb7df803aa1a623afd1a750b93" name="a2097ebcb7df803aa1a623afd1a750b93"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2097ebcb7df803aa1a623afd1a750b93">&#9670;&#160;</a></span>length_size</h2>
+<a id="afc1ab3693cac0e2193ffd4c08145c5b5" name="afc1ab3693cac0e2193ffd4c08145c5b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc1ab3693cac0e2193ffd4c08145c5b5">&#9670;&#160;</a></span>length_size</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">size_t tlv_fixed_config::length_size</td>
+          <td class="memname">size_t tlv_fixed_format::length_size</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -108,14 +108,14 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="a3149f9360e04a219be5741b1cb1a7d95" name="a3149f9360e04a219be5741b1cb1a7d95"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3149f9360e04a219be5741b1cb1a7d95">&#9670;&#160;</a></span>order</h2>
+<a id="ad79d282e519b36be8a28b8c44fe1e492" name="ad79d282e519b36be8a28b8c44fe1e492"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad79d282e519b36be8a28b8c44fe1e492">&#9670;&#160;</a></span>order</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> tlv_fixed_config::order</td>
+          <td class="memname"><a class="el" href="group__core.html#ga4706cf1001cdc65be8aa7f678487a366">tlv_byte_order_t</a> tlv_fixed_format::order</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -123,14 +123,14 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="ab48baa23e85bfa55feb7214fea2726b2" name="ab48baa23e85bfa55feb7214fea2726b2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab48baa23e85bfa55feb7214fea2726b2">&#9670;&#160;</a></span>tag_size</h2>
+<a id="a013ae76820636687c23eea541746bde4" name="a013ae76820636687c23eea541746bde4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a013ae76820636687c23eea541746bde4">&#9670;&#160;</a></span>tag_size</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">size_t tlv_fixed_config::tag_size</td>
+          <td class="memname">size_t tlv_fixed_format::tag_size</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -139,7 +139,7 @@ Data Fields</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>tlv/builtins/fixed/<a class="el" href="fixed_8h.html">fixed.h</a></li>
+<li>tlv/formats/<a class="el" href="fixed_8h.html">fixed.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

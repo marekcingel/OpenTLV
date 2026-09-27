@@ -38,7 +38,7 @@ var searchData=
   ['tlv_5femv_5fnumber_5flist_5ft_35',['tlv_emv_number_list_t',['../structtlv__emv__number__list__t.html',1,'']]],
   ['tlv_5femv_5ftime_5ft_36',['tlv_emv_time_t',['../structtlv__emv__time__t.html',1,'']]],
   ['tlv_5femv_5ftrack2_5ft_37',['tlv_emv_track2_t',['../structtlv__emv__track2__t.html',1,'']]],
-  ['tlv_5ffixed_5fconfig_38',['tlv_fixed_config',['../structtlv__fixed__config.html',1,'']]],
+  ['tlv_5ffixed_5fformat_38',['tlv_fixed_format',['../structtlv__fixed__format.html',1,'']]],
   ['tlv_5fformat_39',['tlv_format',['../structtlv__format.html',1,'']]],
   ['tlv_5fquery_40',['tlv_query',['../structtlv__query.html',1,'']]],
   ['tlv_5fquery_5fmatcher_41',['tlv_query_matcher',['../structtlv__query__matcher.html',1,'']]],

@@ -2733,9 +2733,10 @@
 
 
 <h1 id="c-library-formats">C library formats<a class="headerlink" href="#c-library-formats" title="Permanent link">&para;</a></h1>
-<p>The directory layout follows the C library's <code>formats/default</code>, <code>formats/fixed</code>,
-and <code>formats/asn1</code> implementation families. Each page includes a byte example.
-Profile semantics are documented separately.</p>
+<p>Each page includes a byte example. Profile semantics are documented separately.
+Concrete C implementations live under <code>tlv/builtins/&lt;protocol&gt;/</code> (grouped by
+protocol) or, for protocol-agnostic mechanisms like the configurable fixed-width
+format, <code>tlv/formats/</code>; see <a href="../concepts/architecture/#layout">architecture</a>.</p>
 <ul>
 <li><a href="default/">Default TLV</a></li>
 <li><a href="fixed/configurable/">Configurable fixed-width TLV</a></li>
@@ -2900,7 +2901,7 @@ built. Each format keeps its own page with the byte layout and a worked example.
 <p>Include <code>tlv/reader/reader.h</code> and call <code>tlv_read</code> to parse one element from the
 beginning of a buffer:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">/* One tag byte and one length byte; config must outlive its readers. */</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_config_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="p">.</span><span class="n">tag_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">};</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
@@ -2950,7 +2951,7 @@ even when they contain nested TLVs.</p>
 <p>Include <code>tlv/writer/writer.h</code>. Query the complete encoded size without providing value
 bytes, then write into a caller-owned buffer:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cm">/* One tag byte and one length byte; config must outlive its writers. */</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_config_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">.</span><span class="n">tag_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">};</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
@@ -3051,7 +3052,7 @@ generic reader and writer to round-trip multiple items. Adding a format only
 requires a descriptor and callbacks in application code, without parser edits.</p>
 <h2 id="nested-traversal">Nested traversal<a class="headerlink" href="#nested-traversal" title="Permanent link">&para;</a></h2>
 <p>Concrete descriptors are declared in <code>tlv/builtins/fixed/default.h</code>,
-<code>tlv/builtins/fixed/fixed.h</code>, <code>tlv/builtins/asn1/ber.h</code>,
+<code>tlv/formats/fixed.h</code>, <code>tlv/builtins/asn1/ber.h</code>,
 <code>tlv/builtins/asn1/der.h</code>, and <code>tlv/builtins/asn1/cer.h</code>. The generic <code>format.h</code>
 declares only the contract.</p>
 <p>The separate optional <code>tlv_is_constructed_fn</code> traversal argument identifies

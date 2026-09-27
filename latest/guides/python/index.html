@@ -2759,7 +2759,7 @@ used. <code>Reader(data)</code> uses <code>opentlv.Format.DEFAULT</code>; pass <
 another wire format, for example <code>opentlv.Reader(data, opentlv.Format.BER)</code>,
 or an <code>opentlv.FixedFormat(tag_size, length_size, byte_order="big")</code> for a
 runtime-configurable fixed-width tag and length (equivalent to the C
-<code>tlv_fixed_config_t</code>).</p>
+<code>tlv_fixed_format_t</code>).</p>
 <p>Runnable version, parsing a nested BER document and handling truncated
 input:
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/parse.py">parse.py</a>

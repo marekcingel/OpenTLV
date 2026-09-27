@@ -2671,7 +2671,7 @@ Rust or Python view can) and <code>offset</code>, the absolute position of the e
 tag within <code>data</code>. <code>format</code> defaults to <code>opentlv.formats.default</code>; pass
 <code>opentlv.formats.ber</code>, <code>.cer</code>, <code>.der</code>, <code>.bluetooth_ltv</code>, or
 <code>opentlv.formats.fixed(tag_size, length_size, byte_order)</code> (<code>byte_order</code> is
-<code>"big"</code> or <code>"little"</code>, equivalent to the C <code>tlv_fixed_config_t</code>) for another
+<code>"big"</code> or <code>"little"</code>, equivalent to the C <code>tlv_fixed_format_t</code>) for another
 wire format. Constructed entries are not expanded automatically; construct a
 new reader over <code>entry.value</code> to descend, as in the runnable example below.</p>
 <p>The explicit method form, <code>reader:next()</code> (<code>nil</code> at the end) and

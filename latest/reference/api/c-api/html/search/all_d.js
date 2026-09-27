@@ -24,5 +24,5 @@ var searchData=
   ['opentlv_5fversion_5frevision_21',['OPENTLV_VERSION_REVISION',['../group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97',1,'version.h']]],
   ['opentlv_5fversion_5fstring_22',['OPENTLV_VERSION_STRING',['../group__core.html#ga193562e270081cce2e0ec2cf3dc9becf',1,'version.h']]],
   ['operation_23',['operation',['../structtlv__writer__diagnostic.html#ad38578a4ed1275942fda0c6a22736522',1,'tlv_writer_diagnostic::operation'],['../structtlv__reader__diagnostic.html#a16279bb35f837ad2b9905ffdebd5db58',1,'tlv_reader_diagnostic::operation']]],
-  ['order_24',['order',['../structtlv__structure__schema.html#ab2d922f63cd11d4d355b0d92cec6e415',1,'tlv_structure_schema::order'],['../structtlv__fixed__config.html#a3149f9360e04a219be5741b1cb1a7d95',1,'tlv_fixed_config::order']]]
+  ['order_24',['order',['../structtlv__structure__schema.html#ab2d922f63cd11d4d355b0d92cec6e415',1,'tlv_structure_schema::order'],['../structtlv__fixed__format.html#ad79d282e519b36be8a28b8c44fe1e492',1,'tlv_fixed_format::order']]]
 ];

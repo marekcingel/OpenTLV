@@ -66,7 +66,7 @@ export async function loadOpenTLV(moduleOptions = {}) {
      *   defaults to "default"; `profile` ("none" or "emv") defaults to "none".
      *   `fixedTagSize`, `fixedLengthSize` (1-8) and `fixedByteOrder` configure
      *   `format: "fixed"`'s tag width, length width and length byte order
-     *   (`tlv_fixed_config_t`); ignored for every other format.
+     *   (`tlv_fixed_format_t`); ignored for every other format.
      */
     parse(bytes, { format = "default", profile = "none", fixedTagSize = 1, fixedLengthSize = 1,
                   fixedByteOrder = "big" } = {}) {

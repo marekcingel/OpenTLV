@@ -4,7 +4,7 @@ var searchData=
   ['tag_5fclass_1',['tag_class',['../structtlv__der__schema__component.html#a7fd819f3eabc32b261d337b8c6f897e6',1,'tlv_der_schema_component']]],
   ['tag_5fnumber_2',['tag_number',['../structtlv__der__schema__component.html#aa4e26a3673b62c7d5e018e379ee21c2f',1,'tlv_der_schema_component']]],
   ['tag_5foffset_3',['tag_offset',['../structtlv__reader__diagnostic.html#a25df7c08fcc21519563ced6d2f8bc4fe',1,'tlv_reader_diagnostic']]],
-  ['tag_5fsize_4',['tag_size',['../structtlv__fixed__config.html#ab48baa23e85bfa55feb7214fea2726b2',1,'tlv_fixed_config']]],
+  ['tag_5fsize_4',['tag_size',['../structtlv__fixed__format.html#a013ae76820636687c23eea541746bde4',1,'tlv_fixed_format']]],
   ['tagging_5',['tagging',['../structtlv__der__schema__component.html#a094fe0a9d8596a84fe3b78692bfa822c',1,'tlv_der_schema_component']]],
   ['tags_6',['tags',['../structtlv__diagnostic__path.html#adf217c1d0119f95076e6dfa60a2063be',1,'tlv_diagnostic_path']]],
   ['tlv_5fasn1_5fcodec_5fbit_5fstring_7',['tlv_asn1_codec_bit_string',['../group__codecs.html#ga0720b5fdcc52bf44ea6c6ee183f809ce',1,'asn1_codec.h']]],

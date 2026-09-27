@@ -2643,7 +2643,7 @@ and adapts, see the <a href="../../concepts/bindings/">language bindings concept
 element-parsing and -encoding calls (<code>read</code>, <code>write</code>, <code>encoded_size</code>)
 parameterized by wire format, their <code>*_fixed</code> counterparts
 (<code>read_fixed</code>, <code>write_fixed</code>, <code>encoded_size_fixed</code>) for the configurable
-fixed-width format (<code>tlv_fixed_config_t</code>), <code>structure_validate</code> (a serialized
+fixed-width format (<code>tlv_fixed_format_t</code>), <code>structure_validate</code> (a serialized
 rule tree in, a pass/fail with diagnostic detail out), <code>emv_decode_amount</code>/
 <code>emv_encode_amount</code> (the one concrete <code>tlv_codec_t</code> the public C API
 exports), and a <code>document_*</code>/<code>node_*</code> family wrapping <code>tlv_document_t</code>

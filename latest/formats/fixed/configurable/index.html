@@ -2686,7 +2686,7 @@ TLV_BYTE_ORDER_BIG_ENDIAN&gt;</code>); define your own file-scope constant for a
 configuration your application reuses.</p>
 <p>Two equivalent APIs share this wire layout:</p>
 <ul>
-<li><strong>C</strong>, <code>tlv_fixed_config_t</code>: chosen at runtime, checked when the format is initialized.</li>
+<li><strong>C</strong>, <code>tlv_fixed_format_t</code>: chosen at runtime, checked when the format is initialized.</li>
 <li><strong>C++</strong>, <code>tlv::fixed_format&lt;TagWidth, LengthWidth, Order&gt;</code>: chosen at compile time, checked with <code>static_assert</code>.</li>
 </ul>
 <h2 id="api-and-build">API and build<a class="headerlink" href="#api-and-build" title="Permanent link">&para;</a></h2>
@@ -2701,12 +2701,12 @@ configuration your application reuses.</p>
 <tbody>
 <tr>
 <td>Header</td>
-<td><code>tlv/builtins/fixed/fixed.h</code></td>
-<td><code>tlv++/builtins/fixed/fixed_format.hpp</code> (also usable without the rest of <code>tlv++</code>)</td>
+<td><code>tlv/formats/fixed.h</code></td>
+<td><code>tlv++/formats/fixed_format.hpp</code> (also usable without the rest of <code>tlv++</code>)</td>
 </tr>
 <tr>
 <td>Configuration</td>
-<td><code>tlv_fixed_config_t{tag_size, length_size, order}</code></td>
+<td><code>tlv_fixed_format_t{tag_size, length_size, order}</code></td>
 <td><code>tlv::fixed_format&lt;TagWidth, LengthWidth, Order&gt;</code></td>
 </tr>
 <tr>
@@ -2763,7 +2763,7 @@ performs allocation.</p>
 </tbody>
 </table>
 <p>An out-of-range C++ template argument fails to compile with a <code>static_assert</code>
-message; an invalid C <code>tlv_fixed_config_t</code> is rejected at init time (see
+message; an invalid C <code>tlv_fixed_format_t</code> is rejected at init time (see
 <a href="#errors">Errors</a>).</p>
 <h2 id="wire-layout">Wire layout<a class="headerlink" href="#wire-layout" title="Permanent link">&para;</a></h2>
 <p>Each element is <code>tag_size</code>/<code>TagWidth</code> tag bytes, <code>length_size</code>/<code>LengthWidth</code>
@@ -2821,13 +2821,13 @@ length bytes and then that many value bytes.</p>
 </tbody>
 </table>
 <h2 id="example-c">Example (C)<a class="headerlink" href="#example-c" title="Permanent link">&para;</a></h2>
-<!-- example: examples/tlv/src/builtins/fixed/fixed_format.c -->
+<!-- example: examples/tlv/src/formats/fixed_format.c -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cm">/*</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="cm"> * Defines a fixed-width TLV format at runtime: two tag bytes and a one-byte</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="cm"> * length, then writes and reads one element. See tlv/builtins/fixed/fixed.h.</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="cm"> * length, then writes and reads one element. See tlv/formats/fixed.h.</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="cm"> */</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/fixed/fixed.h"</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/formats/fixed.h"</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/reader.h"</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/writer/writer.h"</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
@@ -2841,7 +2841,7 @@ length bytes and then that many value bytes.</p>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="cp">    } while (0)</span>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_config_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">        </span><span class="p">.</span><span class="n">tag_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">};</span>
 <a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="cm">/* config must outlive every reader and writer built from it. */</span>
 <a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">    </span><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
@@ -2861,14 +2861,14 @@ length bytes and then that many value bytes.</p>
 <a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="example-c_1">Example (C++)<a class="headerlink" href="#example-c_1" title="Permanent link">&para;</a></h2>
-<!-- example: examples/tlv++/src/builtins/fixed/fixed_format.cpp -->
+<!-- example: examples/tlv++/src/formats/fixed_format.cpp -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// Defines a fixed-width TLV format at compile time: two tag bytes and a</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1">// two-byte little-endian length, then writes and reads one element.</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;array&gt;</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstddef&gt;</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/builtins/fixed/fixed_format.hpp"</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/formats/fixed_format.hpp"</span>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/tlv.hpp"</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
 <a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">using</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">fixed_format</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_LITTLE_ENDIAN</span><span class="o">&gt;</span><span class="p">;</span>
