@@ -72,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add exhaustive DHCP Code/Length round-trip coverage and architecture regression tests for generic Reader, Writer, Document, Query, Schema, source preservation and diagnostics. (#372)
 - Add DHCPv4 options container validation with configurable End and trailing-byte rules, significant-region extent, element limits and source diagnostics, plus a C++ wrapper. (#371)
 - Add allocation-free generic integer, byte sequence and IPv4 value codecs, plus a DHCPv4 Message Type codec; Parameter Request Lists and opaque identifiers reuse the generic byte codec. (#370)
 - Add a DHCPv4 option Definition registry for 17 common Codes, with allocation-free name lookup independent of framing and Value interpretation. (#369)

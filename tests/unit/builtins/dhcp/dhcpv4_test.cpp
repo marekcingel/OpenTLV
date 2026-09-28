@@ -10,7 +10,7 @@ TEST(Unit_Tlv_Dhcpv4, EveryCodeLengthsRangesAndPreservation) {
     EXPECT_EQ(1, tlv_config_dhcp());
     for (unsigned code = 0; code < 256; ++code) {
         const bool special = code == 0 || code == 255;
-        for (size_t length : {size_t(0), size_t(1), size_t(255)}) {
+        for (size_t length = 0; length <= 255; ++length) {
             if (special && length) continue;
             SCOPED_TRACE(code);
             SCOPED_TRACE(length);
