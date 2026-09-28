@@ -105,7 +105,7 @@ Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
 ```text
 tlv/
   element.h, value.h, length.h, size.h, error.h, endian.h, copy.h, format.h, tlv.h
-  compiler.h, attributes.h
+  compiler.h, attributes.h, definition.h
   reader/    reader.h, walker.h, scanner.h
   query/     query.h
   document/  document.h
@@ -115,12 +115,15 @@ tlv/
   formats/
     fixed.h
   builtins/
-    bluetooth/ bluetooth_ltv.h
+    bluetooth/ bluetooth_ltv.h, ad_types.h
     asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
     emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
 ```
 
 The tree shows the public layout; corresponding implementation files use `.c`.
+`definition.h` provides borrowed identifier/name entries and a generic registry
+lookup. Bluetooth AD types use this model independently of their wire format;
+definitions neither validate structure nor decode values.
 Small fundamental types (`tag.h`, `length.h`, `size.h`, `value.h`, `element.h`, and the
 generic `format.h` descriptor contracts) sit directly under `tlv/`, alongside
 the generic subsystem folders. `formats/fixed.h` holds the one format
