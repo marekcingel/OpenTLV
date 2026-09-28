@@ -2644,6 +2644,8 @@ callbacks with a borrowed, immutable context pointer. Codecs convert raw value
 bytes and application-defined C representations. They do not receive tags,
 formats, readers, or writers. Applications choose and invoke codecs explicitly;
 reading an element never invokes one automatically.</p>
+<p>For built-in Flags, Local Name and signed Tx Power conversions, see
+<a href="../../formats/bluetooth/#basic-advertising-data-value-codecs">Bluetooth Advertising Data value codecs</a>.</p>
 <p>Each codec documents the type and alignment of its representation. Decode takes
 raw bytes plus a caller-owned destination object and its capacity in bytes.
 Encode takes a C object and its size in bytes plus a caller-owned byte buffer.

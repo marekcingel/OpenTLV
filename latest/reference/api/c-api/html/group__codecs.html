@@ -85,6 +85,9 @@ Files</h2></td></tr>
 <tr class="memitem:asn1__codec_8h" id="r_asn1__codec_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="asn1__codec_8h.html">asn1_codec.h</a></td></tr>
 <tr class="memdesc:asn1__codec_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codecs for ASN.1 primitive, string and time universal types (ITU-T X.690). <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad__codec_8h" id="r_ad__codec_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ad__codec_8h.html">ad_codec.h</a></td></tr>
+<tr class="memdesc:ad__codec_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free codecs for basic Bluetooth Advertising Data values. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:emv__codec_8h" id="r_emv__codec_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="emv__codec_8h.html">emv_codec.h</a></td></tr>
 <tr class="memdesc:emv__codec_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Semantic codecs and C representations for EMV data element values. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -214,6 +217,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gae8f1386c752002b7ef06f09984bac139" id="r_gae8f1386c752002b7ef06f09984bac139"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__iri.html">tlv_asn1_iri</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139">tlv_asn1_iri_t</a></td></tr>
 <tr class="memdesc:gae8f1386c752002b7ef06f09984bac139"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.  <br /></td></tr>
 <tr class="separator:gae8f1386c752002b7ef06f09984bac139"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4ed6b29049d4a7eb8ef386054cfa012d" id="r_ga4ed6b29049d4a7eb8ef386054cfa012d"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__codecs.html#ga798c4638c9a55ff43b932d29586b5d78">tlv_bluetooth_ad_flag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga4ed6b29049d4a7eb8ef386054cfa012d">tlv_bluetooth_ad_flag_t</a></td></tr>
+<tr class="memdesc:ga4ed6b29049d4a7eb8ef386054cfa012d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined masks in the first Flags octet (CSS Part A, section 1.3).  <br /></td></tr>
+<tr class="separator:ga4ed6b29049d4a7eb8ef386054cfa012d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6033534ecdbfc36953062aed6279562f" id="r_ga6033534ecdbfc36953062aed6279562f"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">tlv_codec_result</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a></td></tr>
 <tr class="memdesc:ga6033534ecdbfc36953062aed6279562f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result code of a value conversion.  <br /></td></tr>
 <tr class="separator:ga6033534ecdbfc36953062aed6279562f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -234,6 +240,13 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gadf764cbdea00d65edcd07bb9953ad2b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of arcs <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a> can hold.  <a href="group__codecs.html#gadf764cbdea00d65edcd07bb9953ad2b7">More...</a><br /></td></tr>
 <tr class="separator:gadf764cbdea00d65edcd07bb9953ad2b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga798c4638c9a55ff43b932d29586b5d78" id="r_ga798c4638c9a55ff43b932d29586b5d78"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga798c4638c9a55ff43b932d29586b5d78">tlv_bluetooth_ad_flag</a> { <a class="el" href="group__codecs.html#gga798c4638c9a55ff43b932d29586b5d78aec3297cd96e3a7ac6326d264cefe54c4">TLV_BLUETOOTH_AD_FLAG_LE_LIMITED_DISCOVERABLE</a> = 0x01
+, <a class="el" href="group__codecs.html#gga798c4638c9a55ff43b932d29586b5d78a91a87f8a48df34d23912576d09e20089">TLV_BLUETOOTH_AD_FLAG_LE_GENERAL_DISCOVERABLE</a> = 0x02
+, <a class="el" href="group__codecs.html#gga798c4638c9a55ff43b932d29586b5d78a49ea1249bb00d5b7be1349546c44fded">TLV_BLUETOOTH_AD_FLAG_BR_EDR_NOT_SUPPORTED</a> = 0x04
+, <a class="el" href="group__codecs.html#gga798c4638c9a55ff43b932d29586b5d78a477822fd204667fae9d0c32ce46c45b0">TLV_BLUETOOTH_AD_FLAG_SIMULTANEOUS_LE_BR_EDR_CONTROLLER</a> = 0x08
+ }</td></tr>
+<tr class="memdesc:ga798c4638c9a55ff43b932d29586b5d78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined masks in the first Flags octet (CSS Part A, section 1.3).  <a href="group__codecs.html#ga798c4638c9a55ff43b932d29586b5d78">More...</a><br /></td></tr>
+<tr class="separator:ga798c4638c9a55ff43b932d29586b5d78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga26f5dc718be113048f862c727c8ed6c1" id="r_ga26f5dc718be113048f862c727c8ed6c1"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">tlv_emv_value_kind_t</a> { <br />
 &#160;&#160;<a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a4931c654f4ede2a6730c12d43624aaff">TLV_EMV_VALUE_BYTES</a>
 , <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ac18eb9cbac255b6372b3f5586f3c447e">TLV_EMV_VALUE_TEXT</a>
@@ -312,6 +325,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gabb62fecb5eff09ae46d803c0b6d77ba6" id="r_gabb62fecb5eff09ae46d803c0b6d77ba6"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gabb62fecb5eff09ae46d803c0b6d77ba6">tlv_asn1_named_bit_find</a> (const <a class="el" href="group__codecs.html#gad3f2cfce6e140ff762d95d6ab64175d5">tlv_asn1_named_bit_t</a> *names, size_t count, size_t position)</td></tr>
 <tr class="memdesc:gabb62fecb5eff09ae46d803c0b6d77ba6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Looks up a named bit's display name by position in a table.  <br /></td></tr>
 <tr class="separator:gabb62fecb5eff09ae46d803c0b6d77ba6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaad5ac34251b7088343919f082e03d6e7" id="r_gaad5ac34251b7088343919f082e03d6e7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gaad5ac34251b7088343919f082e03d6e7">tlv_bluetooth_ad_flags_test</a> (const <a class="el" href="structtlv__value__t.html">tlv_value_t</a> *flags, uint8_t mask)</td></tr>
+<tr class="memdesc:gaad5ac34251b7088343919f082e03d6e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tests masks in the first octet of a decoded Flags value.  <br /></td></tr>
+<tr class="separator:gaad5ac34251b7088343919f082e03d6e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga79fa5b1488b431a86da823d7a27a29cb" id="r_ga79fa5b1488b431a86da823d7a27a29cb"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga79fa5b1488b431a86da823d7a27a29cb">tlv_emv_value_kind_description</a> (<a class="el" href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">tlv_emv_value_kind_t</a> kind)</td></tr>
 <tr class="memdesc:ga79fa5b1488b431a86da823d7a27a29cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes a value kind's C representation and wire meaning.  <br /></td></tr>
 <tr class="separator:ga79fa5b1488b431a86da823d7a27a29cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -420,6 +436,15 @@ Variables</h2></td></tr>
 <tr class="memitem:ga9914fddfd3432d314de4433e14ac3d90" id="r_ga9914fddfd3432d314de4433e14ac3d90"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga9914fddfd3432d314de4433e14ac3d90">tlv_asn1_codec_relative_oid_iri</a></td></tr>
 <tr class="memdesc:ga9914fddfd3432d314de4433e14ac3d90"><td class="mdescLeft">&#160;</td><td class="mdescRight">RELATIVE-OID-IRI codec (X.690 section 8.22 and 11.3): <a class="el" href="group__codecs.html#gae8f1386c752002b7ef06f09984bac139" title="Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.">tlv_asn1_iri_t</a>.  <br /></td></tr>
 <tr class="separator:ga9914fddfd3432d314de4433e14ac3d90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3f9e2f06044f8ce7e759800385be114e" id="r_ga3f9e2f06044f8ce7e759800385be114e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga3f9e2f06044f8ce7e759800385be114e">tlv_bluetooth_ad_codec_flags</a></td></tr>
+<tr class="memdesc:ga3f9e2f06044f8ce7e759800385be114e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flags codec for AD Type 0x01, represented by a borrowed <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>.  <br /></td></tr>
+<tr class="separator:ga3f9e2f06044f8ce7e759800385be114e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga025bd73c1545a4291a54f7472b8db0c9" id="r_ga025bd73c1545a4291a54f7472b8db0c9"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga025bd73c1545a4291a54f7472b8db0c9">tlv_bluetooth_ad_codec_local_name</a></td></tr>
+<tr class="memdesc:ga025bd73c1545a4291a54f7472b8db0c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Local Name codec for AD Types 0x08 and 0x09, using a borrowed <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>.  <br /></td></tr>
+<tr class="separator:ga025bd73c1545a4291a54f7472b8db0c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6dbe65e259dd2503de3e85e3ea9c2f1e" id="r_ga6dbe65e259dd2503de3e85e3ea9c2f1e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga6dbe65e259dd2503de3e85e3ea9c2f1e">tlv_bluetooth_ad_codec_tx_power</a></td></tr>
+<tr class="memdesc:ga6dbe65e259dd2503de3e85e3ea9c2f1e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tx Power Level codec for AD Type 0x0A, represented by <code>int8_t</code> dBm.  <br /></td></tr>
+<tr class="separator:ga6dbe65e259dd2503de3e85e3ea9c2f1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga50927eb38e1526e39099baf48ce69748" id="r_ga50927eb38e1526e39099baf48ce69748"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga50927eb38e1526e39099baf48ce69748">tlv_emv_codec_amount</a></td></tr>
 <tr class="memdesc:ga50927eb38e1526e39099baf48ce69748"><td class="mdescLeft">&#160;</td><td class="mdescRight">Codec for amounts (format n12): six bytes of BCD to and from <code>uint64_t</code>.  <br /></td></tr>
 <tr class="separator:ga50927eb38e1526e39099baf48ce69748"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -655,6 +680,22 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="ga4ed6b29049d4a7eb8ef386054cfa012d" name="ga4ed6b29049d4a7eb8ef386054cfa012d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4ed6b29049d4a7eb8ef386054cfa012d">&#9670;&#160;</a></span>tlv_bluetooth_ad_flag_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__codecs.html#ga798c4638c9a55ff43b932d29586b5d78">tlv_bluetooth_ad_flag</a> <a class="el" href="group__codecs.html#ga4ed6b29049d4a7eb8ef386054cfa012d">tlv_bluetooth_ad_flag_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Defined masks in the first Flags octet (CSS Part A, section 1.3). </p>
+
+</div>
+</div>
 <a id="ga6033534ecdbfc36953062aed6279562f" name="ga6033534ecdbfc36953062aed6279562f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga6033534ecdbfc36953062aed6279562f">&#9670;&#160;</a></span>tlv_codec_result_t</h2>
 
@@ -795,6 +836,32 @@ Variables</h2></td></tr>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggac36f475ca5b446f4fde4c9b90bec77c8a5f387811faa1c85d5b50891377301efb" name="ggac36f475ca5b446f4fde4c9b90bec77c8a5f387811faa1c85d5b50891377301efb"></a>TLV_EMV_TRACK2_PAN_MAX_DIGITS&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="ggac36f475ca5b446f4fde4c9b90bec77c8aab83be4e64aafbbc8777f4f3b02c98be" name="ggac36f475ca5b446f4fde4c9b90bec77c8aab83be4e64aafbbc8777f4f3b02c98be"></a>TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga798c4638c9a55ff43b932d29586b5d78" name="ga798c4638c9a55ff43b932d29586b5d78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga798c4638c9a55ff43b932d29586b5d78">&#9670;&#160;</a></span>tlv_bluetooth_ad_flag</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__codecs.html#ga798c4638c9a55ff43b932d29586b5d78">tlv_bluetooth_ad_flag</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Defined masks in the first Flags octet (CSS Part A, section 1.3). </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga798c4638c9a55ff43b932d29586b5d78aec3297cd96e3a7ac6326d264cefe54c4" name="gga798c4638c9a55ff43b932d29586b5d78aec3297cd96e3a7ac6326d264cefe54c4"></a>TLV_BLUETOOTH_AD_FLAG_LE_LIMITED_DISCOVERABLE&#160;</td><td class="fielddoc"><p>LE Limited Discoverable Mode. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga798c4638c9a55ff43b932d29586b5d78a91a87f8a48df34d23912576d09e20089" name="gga798c4638c9a55ff43b932d29586b5d78a91a87f8a48df34d23912576d09e20089"></a>TLV_BLUETOOTH_AD_FLAG_LE_GENERAL_DISCOVERABLE&#160;</td><td class="fielddoc"><p>LE General Discoverable Mode. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga798c4638c9a55ff43b932d29586b5d78a49ea1249bb00d5b7be1349546c44fded" name="gga798c4638c9a55ff43b932d29586b5d78a49ea1249bb00d5b7be1349546c44fded"></a>TLV_BLUETOOTH_AD_FLAG_BR_EDR_NOT_SUPPORTED&#160;</td><td class="fielddoc"><p>BR/EDR is not supported. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga798c4638c9a55ff43b932d29586b5d78a477822fd204667fae9d0c32ce46c45b0" name="gga798c4638c9a55ff43b932d29586b5d78a477822fd204667fae9d0c32ce46c45b0"></a>TLV_BLUETOOTH_AD_FLAG_SIMULTANEOUS_LE_BR_EDR_CONTROLLER&#160;</td><td class="fielddoc"><p>Controller supports simultaneous LE and BR/EDR to the same device. </p>
+</td></tr>
 </table>
 
 </div>
@@ -1047,6 +1114,45 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>The borrowed, NUL-terminated name of the entry whose <code>position</code> matches. </dd>
 <dd>
 <code>NULL</code> if no entry matches. </dd></dl>
+
+</div>
+</div>
+<a id="gaad5ac34251b7088343919f082e03d6e7" name="gaad5ac34251b7088343919f082e03d6e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaad5ac34251b7088343919f082e03d6e7">&#9670;&#160;</a></span>tlv_bluetooth_ad_flags_test()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tlv_bluetooth_ad_flags_test </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structtlv__value__t.html">tlv_value_t</a> *&#160;</td>
+          <td class="paramname"><em>flags</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>mask</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Tests masks in the first octet of a decoded Flags value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">flags</td><td>Borrowed Flags view; NULL and empty views report false. A nonempty view must have at least one readable byte. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">mask</td><td>Bit mask, or bitwise OR of masks; zero reports false.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><code>true</code> if any masked bit is set, otherwise <code>false</code>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Does not validate or modify the view and never allocates. An absent Flags AD structure must not be interpreted as an all-clear value. </dd></dl>
 
 </div>
 </div>
@@ -2121,6 +2227,84 @@ Variables</h2></td></tr>
 
 <p>VisibleString codec (X.690 section 8.23): <a class="el" href="group__codecs.html#gaf086d7e5a7ab70e22f9a99a698c17fde" title="Decoded restricted character string content (X.690 section 8.23): borrowed bytes.">tlv_asn1_string_t</a>. </p>
 <p>Every content byte must be a printable ASCII character, space through <code>~</code> (<code>0x20</code>-<code>0x7E</code>); any other byte is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> on decode or encode. </p>
+
+</div>
+</div>
+<a id="ga3f9e2f06044f8ce7e759800385be114e" name="ga3f9e2f06044f8ce7e759800385be114e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3f9e2f06044f8ce7e759800385be114e">&#9670;&#160;</a></span>tlv_bluetooth_ad_codec_flags</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_bluetooth_ad_codec_flags</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Flags codec for AD Type 0x01, represented by a borrowed <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>. </p>
+<p>Accepts zero or more octets, preserving unknown bits and extension octets. Bit 4 was previously used and is not assigned a current meaning here. An empty value means all bits clear; an absent AD structure is a separate condition. Both directions reject a nonempty value ending in an all-zero octet with <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> (CSS requires trailing zero octets to be omitted). No channel-specific or connectability policy is enforced.</p>
+<p>Encode validates the borrowed pointer and native size before accessing it; a nonempty NULL span is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>, and an unrepresentable size is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Insufficient destination capacity is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Encode preserves accepted bytes exactly. </p>
+
+</div>
+</div>
+<a id="ga025bd73c1545a4291a54f7472b8db0c9" name="ga025bd73c1545a4291a54f7472b8db0c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga025bd73c1545a4291a54f7472b8db0c9">&#9670;&#160;</a></span>tlv_bluetooth_ad_codec_local_name</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_bluetooth_ad_codec_local_name</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Local Name codec for AD Types 0x08 and 0x09, using a borrowed <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>. </p>
+<p>Both shortened and complete names use the same codec. Accepts 0 through 248 bytes of valid UTF-8, including embedded U+0000; no NUL terminator is appended or required. Length is in bytes, not characters. Encode copies exactly the supplied bytes. The caller retains the AD Type to distinguish a shortened name from a complete name; no full-name comparison is made.</p>
+<p>Both directions report <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> for excessive length, malformed/truncated UTF-8, overlong encodings, surrogates or code points above U+10FFFF. A nonempty NULL span is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>; insufficient destination capacity is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>.</p>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html">https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="ga6dbe65e259dd2503de3e85e3ea9c2f1e" name="ga6dbe65e259dd2503de3e85e3ea9c2f1e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6dbe65e259dd2503de3e85e3ea9c2f1e">&#9670;&#160;</a></span>tlv_bluetooth_ad_codec_tx_power</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_bluetooth_ad_codec_tx_power</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Tx Power Level codec for AD Type 0x0A, represented by <code>int8_t</code> dBm. </p>
+<p>Decode requires exactly one signed two's-complement octet in the Bluetooth range -127 through +127 dBm; for example, FC decodes to -4. Encode writes exactly one octet. The excluded value -128 (80 on wire), incorrect wire length or incorrect encode object size is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Insufficient destination capacity is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. </p>
 
 </div>
 </div>
