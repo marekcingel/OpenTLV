@@ -1597,6 +1597,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
@@ -1773,6 +1801,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -3094,11 +3150,10 @@ C++ wrapper adds cost only for the headers a program includes.</p>
 own option, and no code or dependency added to builds that do not enable it.</p>
 <p>Language bindings are expected to follow the same rule: a binding should expose a
 component only when the matching C component is enabled, so a binding build can also be
-limited to what it needs. <strong>This is not implemented yet for the Rust bindings.</strong>
-<code>opentlv-native</code> configures the C library with its default options, so all built-in
-components are included, and the <code>opentlv</code> crate has no Cargo features for choosing
-components. Mapping the component options to Cargo features is a requirement for
-future work; see <a href="../../development/rust/#build">Rust bindings</a>. Ready-made CMake recipes are in
+limited to what it needs. Rust maps its default <code>lldp</code> Cargo feature to
+<code>OPENTLV_LLDP</code>; other components still use the C library defaults. Mapping the
+remaining component options to Cargo features is future work; see
+<a href="../../development/rust/#build">Rust bindings</a>. Ready-made CMake recipes are in
 <a href="../../guides/select-components/">building only the components you need</a>.</p>
 <h2 id="build-configuration">Build configuration<a class="headerlink" href="#build-configuration" title="Permanent link">&para;</a></h2>
 <p>All generic facilities, including the configurable Fixed format, are always available.</p>
@@ -3130,6 +3185,10 @@ future work; see <a href="../../development/rust/#build">Rust bindings</a>. Read
 <tr>
 <td><code>OPENTLV_BLUETOOTH</code></td>
 <td>Bluetooth LTV format, containers, definitions, schemas and codecs</td>
+</tr>
+<tr>
+<td><code>OPENTLV_LLDP</code></td>
+<td>LLDP packed framing, base definitions and binding presets; no LLDPDU schemas/codecs</td>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_ASN1</code></td>
@@ -3172,7 +3231,7 @@ omitted. Generic architecture tests use an application-defined format and run
 even when all protocol extensions are disabled. The benchmark uses BER and
 is built only when that component is enabled.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-minimal<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-minimal<span class="w"> </span>--parallel
 </code></pre></div>
 <h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>

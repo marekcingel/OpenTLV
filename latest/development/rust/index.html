@@ -1418,6 +1418,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
@@ -1594,6 +1622,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -2983,10 +3039,10 @@ compiler. On Windows use the MSVC Rust toolchain with Visual Studio.</p>
 repository root with CMake, as a static Release library inside Cargo's <code>target</code>
 directory, and links it. The C++ layer, CLI, tests and examples are not built.</p>
 <p>The build script passes no <code>OPENTLV_FORMAT_*</code> or <code>OPENTLV_PROFILE_*</code> options, so the
-C library is built with its default components, all built-in formats and profiles. The
-crates define no Cargo features for selecting components. Choosing components from Cargo
-(the <a href="../../concepts/architecture/#include-only-what-you-need">include only what you need</a>
-rule) is not implemented yet.</p>
+C library uses its default components except LLDP: the default <code>lldp</code> Cargo
+feature enables <code>OPENTLV_LLDP</code>; <code>--no-default-features</code> disables it. For prebuilt
+libraries, match the feature to the C build's option. Component selection for
+other built-ins remains future work. See <a href="../../formats/lldp/">LLDP presets</a>.</p>
 <h2 id="versioning">Versioning<a class="headerlink" href="#versioning" title="Permanent link">&para;</a></h2>
 <p>The Cargo workspace version (<code>version.workspace = true</code> in each crate's
 <code>Cargo.toml</code>) is independent of the OpenTLV C library's version and is not

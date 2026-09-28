@@ -1795,6 +1795,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
@@ -1971,6 +1999,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -3493,7 +3549,9 @@ rather than polluting the format-independent Element contract.</p>
 <h2 id="11-borrow-by-default">11. Borrow by default<a class="headerlink" href="#11-borrow-by-default" title="Permanent link">&para;</a></h2>
 <p>Core parsing should remain zero/minimal-copy.</p>
 <p>Parsed elements normally borrow their Value and identifier bytes from the
-input buffer.</p>
+input buffer. Formats with transformed identifiers may borrow immutable
+format-supplied identifier storage under the <a href="../format-contract/#decoded-identifier-consistency">Format contract</a>;
+Value still borrows the input. All borrowed storage must outlive retained results.</p>
 <p>Therefore:</p>
 <ul>
 <li>Element does not own the source buffer.</li>

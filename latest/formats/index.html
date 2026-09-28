@@ -1620,6 +1620,34 @@
   
   
     <li class="md-nav__item">
+      <a href="lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="asn1/ber/" class="md-nav__link">
         
   
@@ -1796,6 +1824,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -2914,6 +2970,11 @@ optional. Both use the same Format, Reader and Writer contracts.</p>
 <td>Values up to 254 bytes, no nesting</td>
 </tr>
 <tr>
+<td>LLDP packed Type/Length headers</td>
+<td><a href="lldp/">LLDP TLV framing</a></td>
+<td>Types 0..127, Values up to 511 bytes; no LLDPDU semantics</td>
+</tr>
+<tr>
 <td>Multi-byte tags or constructed indefinite values</td>
 <td><a href="asn1/ber/">BER-TLV</a></td>
 <td>Payload semantics are separate</td>
@@ -2991,6 +3052,15 @@ explains its wire layout and supported scope.</p>
 <td>length, type, value</td>
 <td>none</td>
 <td><code>OPENTLV_BLUETOOTH</code></td>
+</tr>
+<tr>
+<td><a href="lldp/#wire-layout-and-logical-model">LLDP</a></td>
+<td>7-bit Type, canonical one-byte Tag</td>
+<td>9 bits, Value only</td>
+<td>511 bytes</td>
+<td>packed Type/Length, Value</td>
+<td>none</td>
+<td><code>OPENTLV_LLDP</code></td>
 </tr>
 <tr>
 <td><a href="asn1/ber/#layout-and-typical-use">BER-TLV</a></td>

@@ -94,6 +94,9 @@ Files</h2></td></tr>
 <tr class="memitem:bluetooth__ltv_8h" id="r_bluetooth__ltv_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="bluetooth__ltv_8h.html">bluetooth_ltv.h</a></td></tr>
 <tr class="memdesc:bluetooth__ltv_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth LTV: one length byte, one type byte, then the value. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:lldp_8h" id="r_lldp_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lldp_8h.html">lldp.h</a></td></tr>
+<tr class="memdesc:lldp_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP packed 7-bit Type and 9-bit Length framing. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:format_8h" id="r_format_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="format_8h.html">format.h</a></td></tr>
 <tr class="memdesc:format_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical wire-to-element contract and borrowed source information. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -148,6 +151,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga41a69be060b77335ad4032b16727738d" id="r_ga41a69be060b77335ad4032b16727738d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__encoding.html">tlv_encoding</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga41a69be060b77335ad4032b16727738d">tlv_encoding_t</a></td></tr>
 <tr class="memdesc:ga41a69be060b77335ad4032b16727738d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logical framing sizes, before any native buffer conversion.  <br /></td></tr>
 <tr class="separator:ga41a69be060b77335ad4032b16727738d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9477918442d515ac1a1a67db085eaae7" id="r_ga9477918442d515ac1a1a67db085eaae7"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__formats.html#ga2a0f743da28ba779ffa4fa40478e953c">tlv_tag_binding</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga9477918442d515ac1a1a67db085eaae7">tlv_tag_binding_t</a></td></tr>
+<tr class="memdesc:ga9477918442d515ac1a1a67db085eaae7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Storage binding of a decoded semantic identifier.  <br /></td></tr>
+<tr class="separator:ga9477918442d515ac1a1a67db085eaae7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa059c2a96e6efca0a92f863a056a5e1d" id="r_gaa059c2a96e6efca0a92f863a056a5e1d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__source.html">tlv_source</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa059c2a96e6efca0a92f863a056a5e1d">tlv_source_t</a></td></tr>
 <tr class="memdesc:gaa059c2a96e6efca0a92f863a056a5e1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable borrowed representation of one decoded element.  <br /></td></tr>
 <tr class="separator:gaa059c2a96e6efca0a92f863a056a5e1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -242,6 +248,11 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga88f6b600ab2cd64a4e706f09adb7982b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wire region involved in an operation.  <a href="group__formats.html#ga88f6b600ab2cd64a4e706f09adb7982b">More...</a><br /></td></tr>
 <tr class="separator:ga88f6b600ab2cd64a4e706f09adb7982b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2a0f743da28ba779ffa4fa40478e953c" id="r_ga2a0f743da28ba779ffa4fa40478e953c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga2a0f743da28ba779ffa4fa40478e953c">tlv_tag_binding</a> { <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca02d559be575d42952548b57116818172">TLV_TAG_BINDING_SOURCE</a> = 0
+, <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca6d430bb7836140794c8073e0a18a64b0">TLV_TAG_BINDING_FORMAT</a>
+ }</td></tr>
+<tr class="memdesc:ga2a0f743da28ba779ffa4fa40478e953c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Storage binding of a decoded semantic identifier.  <a href="group__formats.html#ga2a0f743da28ba779ffa4fa40478e953c">More...</a><br /></td></tr>
+<tr class="separator:ga2a0f743da28ba779ffa4fa40478e953c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga147f000cda6c501c60b0580eaed62653" id="r_ga147f000cda6c501c60b0580eaed62653"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga147f000cda6c501c60b0580eaed62653">tlv_element_order</a> { <a class="el" href="group__formats.html#gga147f000cda6c501c60b0580eaed62653a1a034c64b69be34f862197043d103360">TLV_ELEMENT_ORDER_TLV</a> = 0
 , <a class="el" href="group__formats.html#gga147f000cda6c501c60b0580eaed62653a4d6f13804271ce37f938ca08c7a64eb4">TLV_ELEMENT_ORDER_LTV</a>
  }</td></tr>
@@ -431,7 +442,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Decode one complete element and validate its framing. </p>
-<p>A present source Tag range must match the element Tag pointer and size, including an empty range. An absent Tag range requires <code>{ NULL, 0 }</code>. Value likewise borrows exactly its declared source range.</p>
+<p>With <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca02d559be575d42952548b57116818172">TLV_TAG_BINDING_SOURCE</a> (the default), a present source Tag range must match the element Tag pointer and size, including an empty range. An absent Tag range requires <code>{ NULL, 0 }</code>. With <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca6d430bb7836140794c8073e0a18a64b0">TLV_TAG_BINDING_FORMAT</a>, the semantic Tag borrows immutable format-supplied storage with the lifetime specified by <a class="el" href="group__formats.html#ga9477918442d515ac1a1a67db085eaae7" title="Storage binding of a decoded semantic identifier.">tlv_tag_binding_t</a>. Its optional source range locates wire bytes only; it may overlap the Length range for packed fields. All present ranges remain bounded by the encoded element. Unknown binding values are rejected. Value likewise borrows exactly its declared source range.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed immutable format configuration. </td></tr>
@@ -833,6 +844,23 @@ A framing or buffer error reported by the resolver.</dd></dl>
 
 </div>
 </div>
+<a id="ga9477918442d515ac1a1a67db085eaae7" name="ga9477918442d515ac1a1a67db085eaae7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9477918442d515ac1a1a67db085eaae7">&#9670;&#160;</a></span>tlv_tag_binding_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__formats.html#ga2a0f743da28ba779ffa4fa40478e953c">tlv_tag_binding</a> <a class="el" href="group__formats.html#ga9477918442d515ac1a1a67db085eaae7">tlv_tag_binding_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Storage binding of a decoded semantic identifier. </p>
+<p>This distinguishes identifier bytes from their wire location without changing <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of identifier bytes.">tlv_tag_t</a> or making the generic reader interpret packed fields. </p>
+
+</div>
+</div>
 <a id="ga919c4b22dca908366cff40a213467413" name="ga919c4b22dca908366cff40a213467413"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga919c4b22dca908366cff40a213467413">&#9670;&#160;</a></span>tlv_write_length_fn</h2>
 
@@ -917,7 +945,7 @@ An identifier or buffer error reported by the codec.</dd></dl>
 </td></tr>
 <tr><td class="fieldname"><a id="gga99fb83031ce9923c84392b4e92f956b5ad6b5d7306421b68182b7adc716e360ab" name="gga99fb83031ce9923c84392b4e92f956b5ad6b5d7306421b68182b7adc716e360ab"></a>TLV_ASN1_LOW_TAG_LIMIT&#160;</td><td class="fielddoc"><p>Low-tag-number value that escapes to high-tag-number form. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e" name="gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e"></a>TLV_ASN1_TAG_MAX_SIZE&#160;</td><td class="fielddoc"><p>Longest tag, in bytes, that the BER, CER and DER formats read, write or construct. This is a limit of these formats, not of <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of raw bytes in wire order.">tlv_tag_t</a>. </p>
+<tr><td class="fieldname"><a id="gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e" name="gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e"></a>TLV_ASN1_TAG_MAX_SIZE&#160;</td><td class="fielddoc"><p>Longest tag, in bytes, that the BER, CER and DER formats read, write or construct. This is a limit of these formats, not of <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of identifier bytes.">tlv_tag_t</a>. </p>
 </td></tr>
 </table>
 
@@ -1058,6 +1086,29 @@ An identifier or buffer error reported by the codec.</dd></dl>
 <tr><td class="fieldname"><a id="gga88f6b600ab2cd64a4e706f09adb7982ba11f57137482d7a683ea86a4b92cdc99a" name="gga88f6b600ab2cd64a4e706f09adb7982ba11f57137482d7a683ea86a4b92cdc99a"></a>TLV_REGION_VALUE&#160;</td><td class="fielddoc"><p>Semantic value bytes. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga88f6b600ab2cd64a4e706f09adb7982bab98beabea6ea25b00247c0bedf3c3314" name="gga88f6b600ab2cd64a4e706f09adb7982bab98beabea6ea25b00247c0bedf3c3314"></a>TLV_REGION_TRAILER&#160;</td><td class="fielddoc"><p>Trailing framing. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga2a0f743da28ba779ffa4fa40478e953c" name="ga2a0f743da28ba779ffa4fa40478e953c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2a0f743da28ba779ffa4fa40478e953c">&#9670;&#160;</a></span>tlv_tag_binding</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__formats.html#ga2a0f743da28ba779ffa4fa40478e953c">tlv_tag_binding</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Storage binding of a decoded semantic identifier. </p>
+<p>This distinguishes identifier bytes from their wire location without changing <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of identifier bytes.">tlv_tag_t</a> or making the generic reader interpret packed fields. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga2a0f743da28ba779ffa4fa40478e953ca02d559be575d42952548b57116818172" name="gga2a0f743da28ba779ffa4fa40478e953ca02d559be575d42952548b57116818172"></a>TLV_TAG_BINDING_SOURCE&#160;</td><td class="fielddoc"><p>Tag borrows exactly source.tag; an absent range means an absent Tag. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga2a0f743da28ba779ffa4fa40478e953ca6d430bb7836140794c8073e0a18a64b0" name="gga2a0f743da28ba779ffa4fa40478e953ca6d430bb7836140794c8073e0a18a64b0"></a>TLV_TAG_BINDING_FORMAT&#160;</td><td class="fielddoc"><p>Tag borrows immutable storage supplied by the format, for example an identifier table in its context or static storage. The storage must outlive every returned element, source, tag and shallow copy, including results retained after subsequent reads. No mutable scratch or callback local storage is permitted. The Tag pointer must be non-NULL; zero size denotes an explicit empty identifier. source.tag is only an optional wire byte envelope and need not match the semantic Tag pointer or size. </p>
 </td></tr>
 </table>
 
@@ -1678,7 +1729,7 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </div><div class="memdoc">
 
 <p>Decode binary fields; context points to <a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354" title="Fixed-width binary fields, independent of any protocol.">tlv_binary_layout_t</a>. </p>
-<p>A present source Tag range must match the element Tag pointer and size, including an empty range. An absent Tag range requires <code>{ NULL, 0 }</code>. Value likewise borrows exactly its declared source range.</p>
+<p>With <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca02d559be575d42952548b57116818172">TLV_TAG_BINDING_SOURCE</a> (the default), a present source Tag range must match the element Tag pointer and size, including an empty range. An absent Tag range requires <code>{ NULL, 0 }</code>. With <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca6d430bb7836140794c8073e0a18a64b0">TLV_TAG_BINDING_FORMAT</a>, the semantic Tag borrows immutable format-supplied storage with the lifetime specified by <a class="el" href="group__formats.html#ga9477918442d515ac1a1a67db085eaae7" title="Storage binding of a decoded semantic identifier.">tlv_tag_binding_t</a>. Its optional source range locates wire bytes only; it may overlap the Length range for packed fields. All present ranges remain bounded by the encoded element. Unknown binding values are rejected. Value likewise borrows exactly its declared source range.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed immutable format configuration. </td></tr>
@@ -2309,7 +2360,7 @@ A format error if the semantic input cannot be represented.   </dd></dl>
 </div><div class="memdoc">
 
 <p>Decode a field composition; context points to <a class="el" href="group__formats.html#ga219256615355bced52734b26d900f4cf" title="Borrowed field codec composition for a contiguous header and value.">tlv_field_layout_t</a>. </p>
-<p>A present source Tag range must match the element Tag pointer and size, including an empty range. An absent Tag range requires <code>{ NULL, 0 }</code>. Value likewise borrows exactly its declared source range.</p>
+<p>With <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca02d559be575d42952548b57116818172">TLV_TAG_BINDING_SOURCE</a> (the default), a present source Tag range must match the element Tag pointer and size, including an empty range. An absent Tag range requires <code>{ NULL, 0 }</code>. With <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca6d430bb7836140794c8073e0a18a64b0">TLV_TAG_BINDING_FORMAT</a>, the semantic Tag borrows immutable format-supplied storage with the lifetime specified by <a class="el" href="group__formats.html#ga9477918442d515ac1a1a67db085eaae7" title="Storage binding of a decoded semantic identifier.">tlv_tag_binding_t</a>. Its optional source range locates wire bytes only; it may overlap the Length range for packed fields. All present ranges remain bounded by the encoded element. Unknown binding values are rejected. Value likewise borrows exactly its declared source range.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed immutable format configuration. </td></tr>

@@ -153,7 +153,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Tags from the outermost scope to the affected tag; <code>path_length</code> entries are valid. They borrow the input buffer, or the schema for a missing tag, so both must outlive the issue. </p>
+<p>Tags from the outermost scope to the affected tag; <code>path_length</code> entries are valid. They borrow the input buffer, immutable format identifier storage, or the schema for a missing tag. Every backing store must outlive the issue. </p>
 
 </div>
 </div>

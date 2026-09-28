@@ -1542,6 +1542,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
@@ -1718,6 +1746,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -2731,6 +2787,8 @@ Header, Value and Trailer are contiguous and partition the encoded range.
 Additional header bytes and trailers remain available without adding protocol
 fields to the semantic element.</p>
 <p>The buffer, format and immutable context must outlive source information.
+A format-supplied semantic identifier also borrows immutable storage that must
+outlive every element, source, tag and shallow copy returned from decoding.
 Never mutate the source buffer while a source is live. Struct copies copy only
 borrowed descriptors, not bytes or ownership. The implementation cannot detect
 external mutation of borrowed storage; immutability is a caller obligation.</p>
@@ -2796,7 +2854,10 @@ convenience wrapper; it does not replace logical measurement.</p>
 <p>Wire integer byte order is explicit and independent of the host. A format's
 accepted logical range must not silently change between 32-bit and 64-bit builds.</p>
 <h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>
-<p>Rebuild all consumers: both <code>tlv_format_t</code> and <code>tlv_element_t</code> changed layout.
+<p>Rebuild all consumers: <code>tlv_source_t</code> now includes <code>tag_binding</code>, which also
+changes the layout of <code>tlv_decoded_t</code>. Existing decoders retain direct source
+binding when this field is zero; zero-initialize callback results. Earlier
+format migrations also changed <code>tlv_format_t</code> and <code>tlv_element_t</code>.
 Replace old format callback tables with canonical operations or public field
 composition. No compatibility callback table remains. Obtain raw Length from
 source ranges (<code>tlv_read_source_diag()</code> also returns reader diagnostics).
@@ -2810,7 +2871,37 @@ and <code>decode_fixed()</code>; raw Length belongs to <code>Decoded::raw_length
 Lua/WASM semantic walker records no longer expose raw Length. Python's existing
 raw-length inspection is populated from separate source information.</p>
 <h3 id="decoded-identifier-consistency">Decoded identifier consistency<a class="headerlink" href="#decoded-identifier-consistency" title="Permanent link">&para;</a></h3>
-<p>A present <code>source.tag</code> range must match <code>element.tag</code> in both pointer and size, just as the Value range does. An absent Tag range requires <code>{NULL, 0}</code>. Inconsistent successful callback results are rejected with <code>TLV_ERR_INVALID_ARG</code> without publishing the decoded result.</p>
+<p><code>source.tag_binding</code> makes identifier storage explicit:</p>
+<ul>
+<li><code>TLV_TAG_BINDING_SOURCE</code> (zero/default): a present <code>source.tag</code> range must
+  match <code>element.tag</code> in pointer and size. An absent range requires <code>{NULL, 0}</code>.</li>
+<li><code>TLV_TAG_BINDING_FORMAT</code>: <code>element.tag</code> borrows immutable storage supplied by
+  the format, such as a lookup table in its context or static storage. Its
+  pointer must be non-NULL; zero size is an explicit empty identifier. The
+  optional <code>source.tag</code> is only a byte envelope locating the encoded identifier;
+  it may overlap Length and need not match semantic Tag size or bytes. An absent
+  envelope means the wire location is unavailable, not that the Tag is absent.</li>
+</ul>
+<p>Every present range still must fit inside the encoded element. Value always
+borrows its exact source range. Unknown bindings, NULL format-bound Tags and
+inconsistent direct bindings are rejected with <code>TLV_ERR_INVALID_ARG</code> without
+publishing the decoded result.</p>
+<p>Format-bound identifier storage must remain valid and unchanged for <strong>all</strong>
+retained results, including after subsequent reads and shallow copies. Do not
+return stack arrays, mutable scratch buffers or pointers into temporary decode
+results. Core checks the binding and ranges, not the external storage's extent
+or lifetime; these remain callback obligations. Arbitrary transformations that
+cannot provide stable storage are not supported by this binding.</p>
+<p>For a finite packed Type field, a format can return a one-byte identifier from
+an immutable table while preserving the packed header as source bytes. The
+identifier is a deterministic byte sequence, never a host integer or a raw
+header with Length bits mixed into identity. No bit-field interpreter is added
+to Reader or Writer.</p>
+<p>Source preservation compares semantic Tag bytes and Value bytes with the
+original semantic snapshot, independent of wire envelopes. Ordinary copies and
+Writer encode semantic identifiers; Document copies their bytes into owned
+nodes, and Query/Schema compare those bytes. Failure diagnostics remain raw
+wire ranges: <code>error.tag</code> describes an envelope, not a transformed semantic Tag.</p>
 <p>For zero-length identifiers, a NULL pointer denotes absence and a non-NULL pointer denotes an explicit empty field. Source preservation checks this distinction but does not compare non-NULL pointer addresses; the original source range retains the wire location.</p>
 
 

@@ -1423,6 +1423,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../asn1/ber/" class="md-nav__link">
         
   
@@ -1690,6 +1718,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -2697,6 +2753,16 @@ size queries. For a fixed-width tag and length, use the built-in
 callbacks; write custom callbacks for anything with a different shape, such as
 a variable-length or protocol-specific length field.
 See <a href="../../guides/memory/#format-context-ownership-and-lifetime">format context ownership and lifetime</a>.</p>
+<p>For packed or otherwise transformed identifiers, set
+<code>result-&gt;source.tag_binding = TLV_TAG_BINDING_FORMAT</code> in the decoder and return
+semantic Tag bytes from immutable format-supplied storage. The default binding
+requires a direct input slice. The optional source Tag range describes the wire
+byte envelope, which may overlap Length; it does not hold the transformed bytes.
+Storage must outlive all retained results and must not be reused as scratch.
+See the <a href="../../concepts/format-contract/#decoded-identifier-consistency">identifier contract</a>
+for validation, copying and lifetime rules. These semantics require a complete
+Format callback; sequential <code>tlv_field_layout_t</code> helpers still describe byte
+fields rather than packed bits.</p>
 <h2 id="c-usage">C usage<a class="headerlink" href="#c-usage" title="Permanent link">&para;</a></h2>
 <p>Use the complete custom-format implementation in the
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/custom_format.c">C example</a>, which includes callback

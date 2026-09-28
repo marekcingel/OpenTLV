@@ -1423,6 +1423,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../asn1/ber/" class="md-nav__link">
         
   
@@ -1756,6 +1784,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -2811,7 +2867,11 @@ semantics separate. Generic formats such as Fixed belong to the always-available
 core. Standard-specific built-ins remain selectable through their package
 build options, such as <code>OPENTLV_BLUETOOTH</code>. Preserve caller-owned storage,
 capacity checks, and zero-copy value reads in the C API.</p>
-<p>The current callback contract reads a tag before resolving length/value bounds.
+<p>The current callback contract decodes a complete element and reports separate
+semantic content and source ranges. The semantic Tag borrows its exact source
+byte range by default; <code>TLV_TAG_BINDING_FORMAT</code> permits immutable format-supplied
+identifier storage for transformations such as packed fields. See the
+<a href="../lldp-review/">LLDP review</a>.
 An adapter for packed headers, length-before-type framing, padding, or a length
 that includes header bytes needs an explicit compatibility review. These formats
 are candidates, not a claim that every one fits the existing callbacks unchanged.
@@ -3107,7 +3167,8 @@ commitment. The <strong>fit</strong> column is by inspection of the callback con
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/include/tlv/format.h"><code>format.h</code></a>: <code>decode</code> sees the bytes from
 the start of an element and reports the tag, the header size, the value size and the
 trailer size; <code>encode</code> writes the complete Header/Value/Trailer representation. A tag is any
-number of raw bytes the format accepts. <strong>No candidate has been prototyped against these callbacks.</strong></p>
+number of raw bytes the format accepts. <strong>A generic packed-header fixture and the LLDP framing adapter exercise
+transformed identifiers. LLDPDU protocol conformance remains separate.</strong></p>
 <table>
 <thead>
 <tr>
@@ -3125,7 +3186,7 @@ number of raw bytes the format accepts. <strong>No candidate has been prototyped
 <tr>
 <td>Bit-packed type and length, or flag bits sharing a field</td>
 <td>LLDP, LDP, RFC 5444, NAS half-octet IEIs</td>
-<td><code>decode</code> sees the whole header, and <code>encode</code> can encode it. The adapter must define the tag bytes (masked or unmasked flags).</td>
+<td>Whole-header callbacks handle packing; <code>TLV_TAG_BINDING_FORMAT</code> permits canonical identifiers in immutable format storage. <a href="../lldp-review/">LLDP review</a>: framing adapter and presets implemented and tested, normative verification pending. Other candidates need individual review.</td>
 </tr>
 <tr>
 <td>Length includes the header</td>
@@ -3149,8 +3210,8 @@ number of raw bytes the format accepts. <strong>No candidate has been prototyped
 </tr>
 <tr>
 <td>Composite tag identity (type plus instance, vendor or flags)</td>
-<td>GTPv2, PFCP, LLDP, Diameter, RADIUS VSA, LDP</td>
-<td>Raw tag bytes can carry it (PFCP type plus a 2-byte enterprise ID fits in 8 bytes); the meaning lives in the dictionary.</td>
+<td>GTPv2, PFCP, Diameter, RADIUS VSA, LDP</td>
+<td>Direct binding requires a compatible contiguous source byte range; transformed identities require stable immutable format storage and individual review. LLDP keeps OUI/subtype in Value, not in its outer Tag.</td>
 </tr>
 <tr>
 <td>Grouped or nested elements decided by the type</td>
@@ -3200,8 +3261,10 @@ bounded iterative traversal. It does not allocate an object tree. See
 <h2 id="proposed-order">Proposed order<a class="headerlink" href="#proposed-order" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Assess DGI, NDN, and RADIUS as concrete adapters with different length rules.</li>
-<li>Assess packed headers through LwM2M; derive any further generic contract
-   extension from those requirements (reordered headers are covered by
+<li>Complete the normative checks in the <a href="../lldp-review/">LLDP requirements review</a>;
+   its canonical Tag storage requirement is covered by the generic binding.
+   Assess further packed-header reuse through LwM2M before adding a bit-field
+   Layout primitive (reordered headers are covered by
    <a href="../bluetooth/">Bluetooth LTV</a>).</li>
 <li>Add mixed-format traversal and incremental parsing as separately scoped core work.</li>
 <li>Expand semantic profiles and ASN.1 canonical validation with explicit standard

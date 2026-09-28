@@ -1525,6 +1525,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
@@ -1701,6 +1729,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -2730,14 +2786,18 @@
 <p>Keep the input buffer alive and unchanged while using any view into it, including
 nested child views. Reusing a receive buffer invalidates the previous values.
 A successful read copies neither the tag nor the value and does not allocate a
-tree: <code>element.tag</code> and <code>element.value</code> both point into the input. Do not return a
+tree: <code>element.value</code> points into the input. <code>element.tag</code> normally does too,
+but <code>TLV_TAG_BINDING_FORMAT</code> permits immutable identifier storage supplied by
+the format. Keep that storage alive and unchanged for all retained elements,
+tags and shallow copies, even after the reader advances. Do not return a
 borrowed view into a local array that goes out of scope.</p>
 <h2 id="tags">Tags<a class="headerlink" href="#tags" title="Permanent link">&para;</a></h2>
 <p>A <code>tlv_tag_t</code> is a pointer and a size. The bytes it refers to must stay valid,
 and unchanged, for as long as the tag is used, and copying the tag never extends
 that lifetime.</p>
 <ul>
-<li>A tag read from input references the input buffer.</li>
+<li>A decoded tag references input or immutable format-supplied storage; see the
+  <a href="../../concepts/format-contract/#decoded-identifier-consistency">decoded identifier contract</a>.</li>
 <li><code>TLV_TAG(0x9F, 0x02)</code> refers to constant storage the compiler provides. In
   C++ that storage is static; in C it is a compound literal that lives until the
   end of the enclosing block.</li>
@@ -2749,7 +2809,8 @@ that lifetime.</p>
   <code>tlv_dol_entry_t</code>, a <code>tlv_schema_issue_t</code> path, or a reader's view, therefore
   borrow the bytes too: a schema table needs its tag bytes to have static (or
   otherwise long) storage, and a validation report's paths point into the input
-  that was validated, or into the schema for a missing tag.</li>
+  that was validated, immutable format-supplied identifier storage, or the schema
+  for a missing tag.</li>
 <li>A <code>tlv_query_t</code> is the exception: it copies the tag bytes it parses, so it is
   a self-contained value, and <code>tlv_query_step()</code> returns tags that borrow it.</li>
 <li>An empty tag is <code>{ NULL, 0 }</code>. <code>{ NULL, size }</code> with a nonzero size is invalid.</li>

@@ -1542,6 +1542,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
@@ -1718,6 +1746,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -2818,8 +2874,10 @@ passed to a format; only a format rejects lengths it does not support.</p>
 of <code>tlv_tag_t</code> no longer depends on a compile-time setting, so the library and
 its consumers, including other languages' bindings, never have to be rebuilt to
 agree on it, and tests for different tag lengths run in a single build.</p>
-<p>The reader returns <code>tlv_element_t</code> with the tag and value borrowed from the input
-buffer. The writer accepts <code>tlv_tag_t</code> by value and only reads it during the
+<p>The reader returns <code>tlv_element_t</code> with Value borrowed from the input buffer.
+Tag borrows either input or immutable format-supplied identifier storage under
+the <a href="../format-contract/#decoded-identifier-consistency">decoded identifier contract</a>.
+The writer accepts <code>tlv_tag_t</code> by value and only reads it during the
 call, and the C++ layer uses the same type for tags. A codec registry, or any
 container that has to keep a tag, must copy the bytes.
 See <a href="../../guides/memory/">memory ownership and lifetime</a> for shared buffer rules.</p>

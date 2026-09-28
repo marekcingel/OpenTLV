@@ -1536,6 +1536,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
@@ -1712,6 +1740,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -2722,6 +2778,10 @@ compiler. To link a library you built yourself, set <code>OPENTLV_LIB_DIR</code>
 optionally <code>OPENTLV_LINK_KIND</code>); see
 <a href="../../development/rust/#linking-a-prebuilt-library">Linking a prebuilt library</a>.</p>
 <h2 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">&para;</a></h2>
+<p>The default Cargo feature <code>lldp</code> exposes <code>Format::Lldp</code> and enables the shared
+LLDP C package in source builds. Use <code>default-features = false</code> to omit it.
+For a prebuilt C library, match this feature to its <code>OPENTLV_LLDP</code> option.
+See <a href="../../formats/lldp/">LLDP framing and presets</a>.</p>
 <p><code>Reader</code> iterates over <code>Result&lt;Element&gt;</code>. Each <code>Element</code> has a <code>Tag</code> and a value
 that is a <code>&amp;[u8]</code> slice of your input. Constructed elements are not expanded
 automatically; create a new <code>Reader</code> over <code>element.value()</code> to descend.</p>

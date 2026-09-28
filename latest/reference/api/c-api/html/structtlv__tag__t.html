@@ -75,7 +75,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>A TLV tag: a borrowed sequence of raw bytes in wire order.  
+<p>A TLV tag: a borrowed sequence of identifier bytes.  
  <a href="structtlv__tag__t.html#details">More...</a></p>
 
 <p><code>#include &lt;tag.h&gt;</code></p>
@@ -88,9 +88,9 @@ Data Fields</h2></td></tr>
 <tr class="separator:a63521b77cae7ea90d23dc67c22ef0bea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A TLV tag: a borrowed sequence of raw bytes in wire order. </p>
-<p>A tag is only a pointer and a length. It does not own, allocate or copy memory and imposes no OpenTLV-specific maximum length. It carries no format metadata; the selected format or schema decides whether the bytes form a valid tag. Copying a <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of raw bytes in wire order.">tlv_tag_t</a> copies the pointer and length, not the bytes.</p>
-<p>The referenced bytes must stay valid, and unchanged, for as long as the tag is used. OpenTLV functions never retain a borrowed tag beyond the call unless their documentation says so. Tags produced by a reader reference the input buffer that was parsed.</p>
+<div class="textblock"><p>A TLV tag: a borrowed sequence of identifier bytes. </p>
+<p>A tag is only a pointer and a length. It does not own, allocate or copy memory and imposes no OpenTLV-specific maximum length. It carries no format metadata; the selected format or schema decides whether the bytes form a valid tag. Copying a <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of identifier bytes.">tlv_tag_t</a> copies the pointer and length, not the bytes.</p>
+<p>The referenced bytes must stay valid, and unchanged, for as long as the tag is used. OpenTLV functions never retain a borrowed tag beyond the call unless their documentation says so. Tags produced by a reader reference the input buffer that was parsed by default. A format can supply a transformed identifier from immutable format storage using <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca6d430bb7836140794c8073e0a18a64b0">TLV_TAG_BINDING_FORMAT</a>; that storage must outlive every retained tag. Identifier byte identity is deterministic and does not depend on host byte order.</p>
 <p><code>{ NULL, 0 }</code> is the empty tag. <code>{ NULL, size }</code> with <code>size &gt; 0</code> is invalid. Whether an empty tag is acceptable for reading or writing is decided by the format.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b" title="Builds an allocation-free tag from literal bytes, e.g. TLV_TAG(0x9F, 0x02).">TLV_TAG</a>, <a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0" title="Builds a tag that borrows size bytes at data.">tlv_tag</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
@@ -105,7 +105,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Raw tag bytes in wire order; <code>size</code> readable bytes, or <code>NULL</code> when <code>size</code> is zero. </p>
+<p>Identifier bytes; <code>size</code> readable bytes, or <code>NULL</code> when <code>size</code> is zero. </p>
 
 </div>
 </div>

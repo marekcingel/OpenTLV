@@ -16,7 +16,7 @@
         <link rel="prev" href="../format-roadmap/">
       
       
-        <link rel="next" href="../../profiles/der/">
+        <link rel="next" href="../lldp-review/">
       
       
         
@@ -1423,6 +1423,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../asn1/ber/" class="md-nav__link">
         
   
@@ -1891,6 +1919,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3335,12 +3391,12 @@ a caller slices the region first.</p>
 </thead>
 <tbody>
 <tr>
-<td>LLDP (<code>[?]</code>)</td>
+<td><a href="../lldp/">LLDP framing</a> (<code>[x]</code>)</td>
 <td>IEEE Std 802.1AB-2016</td>
-<td>LLDPDU TLV region: 7-bit type and 9-bit length packed in two bytes; End of LLDPDU TLV; organisationally specific TLVs (OUI and subtype).</td>
-<td>format adapter (<code>decode</code>, <code>encode</code>), dictionary</td>
-<td>Packed bit fields (fit by inspection, see the roadmap). Composite tag for organisational TLVs. No LLDP agent or MIB.</td>
-<td>Not verified: IEEE standard not read.</td>
+<td>Basic single-frame LLDPDU TLVs; packed 7-bit Type/9-bit Length; organisational Value prefix.</td>
+<td>format adapter (<code>decode</code>, <code>measure</code>, <code>encode</code>), definitions, schemas, codecs</td>
+<td>Implemented descriptor <code>tlv_format_lldp</code>, base definitions and binding presets use immutable canonical Types. Schema/codecs remain pending. OUI/subtype remain in Value. See the <a href="../lldp-review/">requirements review</a>. No LLDP agent or MIB.</td>
+<td>Normative verification pending: public IEEE contributions reviewed, full standard unavailable. Local Format/Layout contract reviewed for <a href="https://github.com/marekcingel/OpenTLV/issues/360">#360</a>.</td>
 </tr>
 <tr>
 <td>IS-IS (<code>[?]</code>)</td>
@@ -3706,13 +3762,13 @@ listed so the reason is recorded.</p>
         
         
           
-          <a href="../../profiles/der/" class="md-footer__link md-footer__link--next" aria-label="Next: DER">
+          <a href="../lldp-review/" class="md-footer__link md-footer__link--next" aria-label="Next: LLDP requirements review">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                DER
+                LLDP requirements review
               </div>
             </div>
             <div class="md-footer__button md-icon">

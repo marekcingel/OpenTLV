@@ -100,6 +100,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:a2f37cb72a4fa39e86bec460e778926b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5903f4a3baa84e04ddd32cc92c83886d" id="r_a5903f4a3baa84e04ddd32cc92c83886d"><td class="memItemLeft" align="right" valign="top">const struct <a class="el" href="structtlv__format.html">tlv_format</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__source.html#a5903f4a3baa84e04ddd32cc92c83886d">format</a></td></tr>
 <tr class="separator:a5903f4a3baa84e04ddd32cc92c83886d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfe64dfb7d98175fa8cc645e8d744128" id="r_acfe64dfb7d98175fa8cc645e8d744128"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#ga9477918442d515ac1a1a67db085eaae7">tlv_tag_binding_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__source.html#acfe64dfb7d98175fa8cc645e8d744128">tag_binding</a></td></tr>
+<tr class="separator:acfe64dfb7d98175fa8cc645e8d744128"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Immutable borrowed representation of one decoded element. </p>
@@ -206,7 +208,22 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Optional explicit identifier field. </p>
+<p>Optional wire identifier byte envelope; see tag_binding. </p>
+
+</div>
+</div>
+<a id="acfe64dfb7d98175fa8cc645e8d744128" name="acfe64dfb7d98175fa8cc645e8d744128"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfe64dfb7d98175fa8cc645e8d744128">&#9670;&#160;</a></span>tag_binding</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__formats.html#ga9477918442d515ac1a1a67db085eaae7">tlv_tag_binding_t</a> tlv_source::tag_binding</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Tag storage binding; defaults to source. </p>
 
 </div>
 </div>

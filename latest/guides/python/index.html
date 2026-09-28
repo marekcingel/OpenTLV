@@ -1558,6 +1558,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
@@ -1734,6 +1762,34 @@
     
   
     Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
   
 
     
@@ -2755,6 +2811,17 @@
 plus a narrow <code>codec</code> submodule (see <a href="#codec">Codec</a>). For layout and build
 details, see <a href="../../development/python/">Python bindings</a>.</p>
 <h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p><code>Format.LLDP</code> selects <a href="../../formats/lldp/">LLDP framing</a> when the native
+extension was built with <code>OPENTLV_LLDP=ON</code>. It is absent when the option is OFF;
+<code>opentlv_native.HAS_LLDP</code> reports the compiled selection.</p>
+<p>The BER, CER and DER presets likewise follow <code>OPENTLV_FORMAT_BER</code>,
+<code>OPENTLV_FORMAT_CER</code> and <code>OPENTLV_FORMAT_DER</code>, with corresponding <code>HAS_BER</code>,
+<code>HAS_CER</code> and <code>HAS_DER</code> flags. Disabled presets are absent from <code>Format</code>.
+Without BER, pass an explicit format to Reader, Writer, Document,
+<code>encoded_size()</code> and schema validation; omitting it raises <code>ValueError</code>.
+<code>FixedFormat</code> remains available for Reader and Writer in every build.
+EMV amount functions raise <code>NotImplementedError</code> when <code>OPENTLV_PROFILE_EMV</code>
+is disabled. The Python binding still requires <code>OPENTLV_DOCUMENT=ON</code>.</p>
 <p>Neither package is published to PyPI yet. Install both by path from a
 checkout of the repository, in one <code>pip install</code> call so the <code>opentlv</code>
 package's dependency on <code>opentlv-native</code> resolves to the local build:</p>
