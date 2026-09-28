@@ -227,7 +227,7 @@ int main() {
                 size_t   size = 0;
                 if (tlv_size_to_native(element.value.size, &size) != TLV_OK ||
                     tlv_codec_decode(&tlv_lldp_codec_ttl, element.value.data, size, &seconds,
-                                       sizeof(seconds)) != TLV_CODEC_OK ||
+                                     sizeof(seconds)) != TLV_CODEC_OK ||
                     seconds != 120)
                     return TLV_VISIT_ERROR;
             }

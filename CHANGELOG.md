@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the LLDP C++ documentation example differing from its source and failing the documentation example check. (#363)
 - Respect optional format components in the Python binding; disabled presets are absent and builds without BER require an explicit format.
 - Respect optional format components in the Lua binding; builds without BER require an explicit Reader format. (#360)
 - Fix fuzz target compilation after the element refactoring by removing checks of the obsolete raw Length field. (#346)
