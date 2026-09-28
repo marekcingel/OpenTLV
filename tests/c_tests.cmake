@@ -7,63 +7,67 @@ set(HEADERS
 
 set(SOURCES
     architecture_test.cpp
-    transformed_tag_test.cpp
-    lldp_test.cpp
-    compiler_test.cpp
-    compiler_c_test.c
-    attributes_test.cpp
     attributes_c_test.c
-    copy_test.cpp
-    diagnostic_test.cpp
-    definition_test.cpp
-    builtins/bluetooth/ad_types_test.cpp
-    builtins/bluetooth/ad_schema_test.cpp
+    attributes_test.cpp
+    builtins/asn1/asn1_codec_test.cpp
+    builtins/asn1/ber_io_test.cpp
+    builtins/asn1/cer_test.cpp
+    builtins/asn1/cer_values_test.cpp
+    builtins/asn1/der_schema_test.cpp
+    builtins/asn1/der_test.cpp
+    builtins/asn1/der_values_test.cpp
+    builtins/asn1/format_ber_test.cpp
     builtins/bluetooth/ad_codec_test.cpp
-    builtins/bluetooth/uuid_test.cpp
-    builtins/bluetooth/service_data_test.cpp
-    builtins/bluetooth/manufacturer_data_test.cpp
+    builtins/bluetooth/ad_data_test.cpp
+    builtins/bluetooth/ad_schema_test.cpp
+    builtins/bluetooth/ad_types_test.cpp
     builtins/bluetooth/company_ids_test.cpp
-    endian_test.cpp
-    packed_field_test.cpp
-    tagged_binary_test.cpp
-    dhcpv4_test.cpp
-    endian_c_test.c
-    size_test.cpp
-    value_test.cpp
-    tag_test.cpp
+    builtins/bluetooth/format_bluetooth_ltv_conformance_test.cpp
+    builtins/bluetooth/format_bluetooth_ltv_test.cpp
+    builtins/bluetooth/manufacturer_data_test.cpp
+    builtins/bluetooth/service_data_test.cpp
+    builtins/bluetooth/uuid_test.cpp
+    builtins/dhcp/codec_test.cpp
+    builtins/dhcp/dhcpv4_test.cpp
+    builtins/dhcp/options_test.cpp
+    builtins/emv/dol_test.cpp
+    builtins/emv/emv_schema_test.cpp
+    builtins/emv/emv_test.cpp
+    builtins/emv/tag_c_test.c
+    builtins/lldp/codec_test.cpp
+    builtins/lldp/lldp_test.cpp
+    codec/codec_test.cpp
+    codec/ipv4_test.cpp
+    codec/values_test.cpp
+    compiler_c_test.c
+    compiler_test.cpp
+    copy_test.cpp
+    definition_test.cpp
+    diagnostic_test.cpp
+    document/document_test.cpp
     element_test.cpp
-    versiontest.cpp
+    endian_c_test.c
+    endian_test.cpp
     format_init_test.cpp
     format_test.cpp
-    test_tlv.cpp
+    formats/fixed_dhcp_options_test.cpp
+    formats/fixed_io_test.cpp
+    formats/format_fixed_test.cpp
+    packed_field_test.cpp
+    query/query_test.cpp
     reader/reader_test.cpp
     reader/scanner_test.cpp
     reader/walker_test.cpp
-    writer/writer_test.cpp
-    query/query_test.cpp
-    schema/schema_test.cpp
-    schema/schema_report_test.cpp
     schema/constraint_test.cpp
-    document/document_test.cpp
-    codec/codec_test.cpp
-    codec/values_test.cpp
-    dhcp_codec_test.cpp
-    builtins/asn1/format_ber_test.cpp
-    builtins/asn1/asn1_codec_test.cpp
-    builtins/asn1/der_test.cpp
-    builtins/asn1/der_values_test.cpp
-    builtins/asn1/der_schema_test.cpp
-    builtins/asn1/cer_test.cpp
-    builtins/asn1/cer_values_test.cpp
-    builtins/emv/emv_test.cpp
-    builtins/emv/emv_schema_test.cpp
-    builtins/emv/dol_test.cpp
-    builtins/emv/tag_c_test.c
-    builtins/bluetooth/format_bluetooth_ltv_test.cpp
-    builtins/bluetooth/ad_data_test.cpp
-    builtins/bluetooth/format_bluetooth_ltv_conformance_test.cpp
-    formats/format_fixed_test.cpp
-    builtins/fixed/dhcp_option_tests.cpp
+    schema/schema_report_test.cpp
+    schema/schema_test.cpp
+    size_test.cpp
+    tag_test.cpp
+    tagged_binary_test.cpp
+    transformed_tag_test.cpp
+    value_test.cpp
+    versiontest.cpp
+    writer/writer_test.cpp
 )
 
 # A split source exists only in the group containing relevant cases.
@@ -75,10 +79,10 @@ endforeach()
 
 # Tests that name an optional component follow the same feature selection.
 if(NOT OPENTLV_DHCP)
-    list(REMOVE_ITEM SOURCES dhcpv4_test.cpp dhcp_codec_test.cpp)
+    list(FILTER SOURCES EXCLUDE REGEX "^builtins/dhcp/")
 endif()
 if(NOT OPENTLV_LLDP)
-    list(REMOVE_ITEM SOURCES lldp_test.cpp)
+    list(FILTER SOURCES EXCLUDE REGEX "^builtins/lldp/")
 endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_BER))
@@ -114,7 +118,7 @@ if(test_group STREQUAL "integration")
     endif()
 endif()
 if(test_group STREQUAL "integration" AND NOT OPENTLV_FORMAT_BER)
-    list(REMOVE_ITEM SOURCES test_tlv.cpp)
+    list(REMOVE_ITEM SOURCES builtins/asn1/ber_io_test.cpp)
 endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_BER))

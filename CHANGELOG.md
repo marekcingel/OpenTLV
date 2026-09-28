@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Align unit and integration test directories with library modules, separating DHCP option definitions and IPv4 codec tests and documenting the test layout. (#370)
 - **Breaking:** Extend `tlv_source_t` with an explicit Tag storage binding, allowing formats to expose canonical identifiers from immutable format storage while retaining raw wire ranges. Direct source borrowing remains the default; rebuild consumers of `tlv_source_t` and `tlv_decoded_t`, including native bindings. (#360)
 - **Breaking:** Make the generic Fixed format always available and remove `OPENTLV_FORMAT_FIXED` and `tlv_config_format_fixed()`. Rename the Bluetooth feature query to `tlv_config_bluetooth()` to match the whole extension.
 - **Breaking:** Rename `OPENTLV_FORMAT_BLUETOOTH_LTV` to `OPENTLV_BLUETOOTH` and use it to control all Bluetooth formats, containers, definitions, schemas and codecs. Update build configurations to use the new option; disabling it removes the entire Bluetooth implementation. (#350)
