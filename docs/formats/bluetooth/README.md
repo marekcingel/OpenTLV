@@ -304,6 +304,34 @@ To create new list bytes, encode individual UUID values into caller-owned storag
 All these codecs remain available with `OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`.
 Byte-order interpretation stays in Codec; Element continues to expose opaque bytes.
 
+## Service Data
+
+Include `tlv/builtins/bluetooth/service_data.h` to decode a service UUID prefix
+and an opaque service-specific payload.
+
+| AD Type | Codec | C representation |
+| --- | --- | --- |
+| `0x16` | `tlv_bluetooth_codec_service_data16` | `tlv_bluetooth_service_data16_t` |
+| `0x20` | `tlv_bluetooth_codec_service_data32` | `tlv_bluetooth_service_data32_t` |
+| `0x21` | `tlv_bluetooth_codec_service_data128` | `tlv_bluetooth_service_data128_t` |
+
+Each representation exposes `uuid`, a borrowed `payload` span and the complete
+borrowed `raw` value. The UUID uses the same representation and byte order as
+the UUID value codecs above. Keep the source storage alive and immutable while
+using either span. A missing or incomplete UUID is rejected; an empty payload
+is valid.
+
+For `05 16 0F 18 64 01`, the reader returns AD Type `0x16` and value
+`0F 18 64 01`. Its Service Data codec exposes UUID `0x180F`, payload
+`64 01` and raw value `0F 18 64 01`. It does not interpret those payload
+bytes as Battery Service fields.
+
+Encoding uses `uuid` and `payload`, regenerating the UUID prefix through the
+UUID codec and copying the payload unchanged. The informational `raw` span
+is ignored, so caller-constructed objects can leave it empty. Both directions
+are allocation-free. These codecs are available independently of the Bluetooth
+format and do not impose its framing size limit.
+
 ## Encoding
 
 Writing uses `tlv_format_bluetooth_ltv` with the same `tlv_write` and

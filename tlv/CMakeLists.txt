@@ -13,6 +13,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/builtins/bluetooth/ad_schema.c
     src/builtins/bluetooth/ad_codec.c
     src/builtins/bluetooth/uuid.c
+    src/builtins/bluetooth/service_data.c
     src/codec/codec.c
     src/codec/structure.c
     src/format.c
