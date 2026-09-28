@@ -28,6 +28,7 @@ set(SOURCES
     builtins/bluetooth/service_data_test.cpp
     builtins/bluetooth/uuid_test.cpp
     builtins/dhcp/codec_test.cpp
+    builtins/dhcp/container_test.cpp
     builtins/dhcp/dhcpv4_test.cpp
     builtins/dhcp/options_test.cpp
     builtins/emv/dol_test.cpp

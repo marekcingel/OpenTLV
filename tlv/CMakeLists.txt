@@ -41,6 +41,7 @@ if(OPENTLV_DHCP)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/dhcp/dhcpv4.c
         src/builtins/dhcp/options.c
+        src/builtins/dhcp/container.c
         src/builtins/dhcp/codec.c)
 endif()
 if(OPENTLV_LLDP)

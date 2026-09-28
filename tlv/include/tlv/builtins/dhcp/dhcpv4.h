@@ -15,8 +15,10 @@
  *
  * The caller supplies an option region without the packet header or magic
  * cookie. Pad and End are returned as elements; the generic Reader neither
- * skips Pad nor stops at End. Termination, option-specific validation,
- * concatenation, overload and nested suboptions belong to the caller.
+ * skips Pad nor stops at End. Use tlv_dhcpv4_options_validate() from
+ * `tlv/builtins/dhcp/container.h` for termination and tail validation.
+ * Option-specific validation, concatenation, overload and nested suboptions
+ * belong to the caller.
  */
 
 #ifdef __cplusplus
