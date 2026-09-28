@@ -44,6 +44,72 @@ metadata does not impose schema constraints or interpret values. Both the
 generic API and Bluetooth registry are available even with
 `OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`.
 
+## Basic Advertising Data value codecs
+
+Include `tlv/builtins/bluetooth/ad_codec.h` and call the generic
+`tlv_codec_decode()` / `tlv_codec_encode()` functions on an element's value.
+The codecs are allocation-free and available even with
+`OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`. They do not select or invoke a format,
+schema or registry.
+
+| AD type | Codec | C representation |
+| --- | --- | --- |
+| Flags (`01`) | `tlv_bluetooth_ad_codec_flags` | Borrowed `tlv_value_t` |
+| Shortened / Complete Local Name (`08`, `09`) | `tlv_bluetooth_ad_codec_local_name` | Borrowed UTF-8 `tlv_value_t` |
+| Tx Power Level (`0A`) | `tlv_bluetooth_ad_codec_tx_power` | `int8_t`, in dBm |
+
+Flags preserve all bytes, including unknown bits and extension octets.
+Use `tlv_bluetooth_ad_flags_test()` with `TLV_BLUETOOTH_AD_FLAG_LE_LIMITED_DISCOVERABLE`,
+`TLV_BLUETOOTH_AD_FLAG_LE_GENERAL_DISCOVERABLE`,
+`TLV_BLUETOOTH_AD_FLAG_BR_EDR_NOT_SUPPORTED` or
+`TLV_BLUETOOTH_AD_FLAG_SIMULTANEOUS_LE_BR_EDR_CONTROLLER` to test defined bits.
+Bit 4 is previously used; it has no current named meaning here. Empty Flags
+mean all bits clear, while an absent Flags structure conveys no such value.
+Trailing all-zero octets are rejected; omit them when encoding.
+
+Names accept 0 through 248 bytes of valid UTF-8. They are byte spans, not
+NUL-terminated C strings: embedded U+0000 is retained, and no terminator is
+appended. Keep the AD Type to distinguish shortened and complete names.
+Tx Power accepts exactly one octet in the range -127 through +127 dBm;
+`FC` decodes to `-4`, while `80` (-128) is invalid.
+These rules follow [Bluetooth CSS, Part A, sections 1.2, 1.3 and 1.5](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v14/out/en/core-supplementary-features/data-types-specification.html)
+and the [GAP Device Name representation](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html).
+
+For the example `02 01 06 02 0A FC 07 09 53 65 6E 73 6F 72`, decode the three
+values as Flags `06`, Tx Power `-4 dBm` and Complete Local Name `Sensor`.
+After reading the Tx Power element, for example:
+
+```c
+#include "tlv/builtins/bluetooth/ad_codec.h"
+
+/* element is the AD Type 0x0A element returned by the reader. */
+size_t length;
+int8_t dbm;
+if (tlv_size_to_native(element.value.size, &length) == TLV_OK) {
+    tlv_codec_result_t result = tlv_codec_decode(
+        &tlv_bluetooth_ad_codec_tx_power, element.value.data, length,
+        &dbm, sizeof(dbm));
+    /* On success dbm is -4; otherwise tlv_codec_strerror(result) describes the error. */
+    (void)result;
+}
+```
+
+Decoding never changes `element.value`; even a rejected semantic value remains
+available as raw bytes. Borrowed Flags and name results require the input to
+remain alive and immutable. Encode takes the same C representation and supports
+`NULL, 0` size queries; a `tlv_value_t` input must have a valid native size and
+borrowed pointer. Accepted bytes round-trip exactly.
+
+Malformed values (including invalid UTF-8, non-minimal Flags and invalid Tx
+Power) report `TLV_CODEC_ERR_INVALID_VALUE`. Missing pointers report
+`TLV_CODEC_ERR_NULL_ARG`, and insufficient output capacity reports
+`TLV_CODEC_ERR_BUFFER_TOO_SHORT`. `tlv_codec_strerror()` provides readable
+diagnostics; these are distinct from framing and schema errors. Applications
+can retain the parsed tag and source offset alongside a codec error.
+
+UUID lists, Service Data and Manufacturer Specific Data codecs are outside
+this initial set.
+
 ## Advertising Data schema
 
 Include `tlv/builtins/bluetooth/ad_schema.h` and pass

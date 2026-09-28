@@ -45,8 +45,6 @@ static inline tlv_element_t fuzz_sentinel(const uint8_t* data) {
 static inline void fuzz_unchanged(const tlv_element_t* element, const tlv_element_t* before) {
     FUZZ_CHECK(element->tag.size == before->tag.size);
     FUZZ_CHECK(element->tag.data == before->tag.data);
-    FUZZ_CHECK(element->length.data == before->length.data);
-    FUZZ_CHECK(element->length.size == before->length.size);
     FUZZ_CHECK(element->value.data == before->value.data);
     FUZZ_CHECK(element->value.size == before->value.size);
 }

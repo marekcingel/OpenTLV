@@ -66,7 +66,7 @@ typedef struct tlv_cer_segment_state {
     const uint8_t* pending_value; /* borrows the input; zero-copy */
     size_t pending_length;
     size_t pending_offset;
-    tlv_asn1_utf8_stream_t utf8;
+    tlv_utf8_stream_t utf8;
 } tlv_cer_segment_state_t;
 
 /* element_tag is the enclosing constructed element's own tag (UNIVERSAL,
