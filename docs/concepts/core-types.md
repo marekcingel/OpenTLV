@@ -97,8 +97,10 @@ of `tlv_tag_t` no longer depends on a compile-time setting, so the library and
 its consumers, including other languages' bindings, never have to be rebuilt to
 agree on it, and tests for different tag lengths run in a single build.
 
-The reader returns `tlv_element_t` with the tag and value borrowed from the input
-buffer. The writer accepts `tlv_tag_t` by value and only reads it during the
+The reader returns `tlv_element_t` with Value borrowed from the input buffer.
+Tag borrows either input or immutable format-supplied identifier storage under
+the [decoded identifier contract](format-contract.md#decoded-identifier-consistency).
+The writer accepts `tlv_tag_t` by value and only reads it during the
 call, and the C++ layer uses the same type for tags. A codec registry, or any
 container that has to keep a tag, must copy the bytes.
 See [memory ownership and lifetime](../guides/memory.md) for shared buffer rules.

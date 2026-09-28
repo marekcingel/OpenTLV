@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import enum
+import opentlv_native
 
 
 class Format(enum.IntEnum):
@@ -12,11 +13,27 @@ class Format(enum.IntEnum):
     them.
     """
 
-    BER = 1
-    """BER-TLV."""
+    if opentlv_native.HAS_BER:
+        BER = 1
+        """BER-TLV."""
 
-    CER = 2
-    """Canonical Encoding Rules."""
+    if opentlv_native.HAS_CER:
+        CER = 2
+        """Canonical Encoding Rules."""
 
-    DER = 3
-    """Distinguished Encoding Rules."""
+    if opentlv_native.HAS_DER:
+        DER = 3
+        """Distinguished Encoding Rules."""
+
+    if opentlv_native.HAS_LLDP:
+        LLDP = 4
+        """LLDP packed header framing, without LLDPDU semantic validation."""
+
+
+def _resolve_format(format):
+    """Use BER by default, or require an explicit format when unavailable."""
+    if format is not None:
+        return format
+    if opentlv_native.HAS_BER:
+        return Format.BER
+    raise ValueError("format is required when BER is disabled")

@@ -21,6 +21,7 @@ Turn off what you do not use.
 | Option | Component |
 | --- | --- |
 | `OPENTLV_BLUETOOTH` | [Bluetooth](../formats/bluetooth/README.md): LTV format, containers, definitions, schemas and codecs |
+| `OPENTLV_LLDP` | [LLDP](../formats/lldp/README.md): packed framing and base Type definitions; no schemas or value codecs |
 | `OPENTLV_FORMAT_ASN1` | The ASN.1 group; must be ON for BER, DER, CER and EMV |
 | `OPENTLV_FORMAT_BER` | [BER-TLV](../formats/asn1/ber.md); must be ON for DER, CER and EMV |
 | `OPENTLV_FORMAT_DER` | [DER-TLV](../formats/asn1/der.md); must be ON for EMV |
@@ -46,7 +47,7 @@ Use this when you supply your own [format callbacks](../formats/custom/README.md
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_FORMAT_ASN1=OFF
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build --parallel --target tlv
 ```
 
@@ -54,7 +55,7 @@ cmake --build build --parallel --target tlv
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_BLUETOOTH=OFF \
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF \
   -DOPENTLV_FORMAT_DER=OFF -DOPENTLV_FORMAT_CER=OFF -DOPENTLV_PROFILE_EMV=OFF
 cmake --build build --parallel --target tlv
 ```
@@ -65,7 +66,7 @@ EMV needs DER and DER needs BER, so all three are on. CER is off.
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_FORMAT_CER=OFF
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_FORMAT_CER=OFF
 cmake --build build --parallel --target tlv
 ```
 
@@ -75,7 +76,7 @@ Bluetooth uses the generic binary layout primitives. Fixed is always available.
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_ASN1=OFF
+  -DOPENTLV_FORMAT_ASN1=OFF -DOPENTLV_LLDP=OFF
 cmake --build build --parallel --target tlv
 ```
 
@@ -112,8 +113,8 @@ header of a disabled component does not provide its symbols.
 
 - Tests, examples and the CLI that need a disabled component are omitted from that build.
 - The C++ wrapper adds cost only for the headers you include.
-- The Rust bindings do not choose components yet: they build the C library with its
-  default options. See
+- Rust exposes LLDP through the default `lldp` feature; `--no-default-features`
+  disables that package in source builds. Other C components retain their defaults. See
   [include only what you need](../concepts/architecture.md#include-only-what-you-need).
 - Protocol extensions remain optional; generic formats belong to the core. See the
   [format expansion candidates](../formats/format-roadmap.md).

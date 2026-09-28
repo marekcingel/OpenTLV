@@ -21,6 +21,17 @@ callbacks; write custom callbacks for anything with a different shape, such as
 a variable-length or protocol-specific length field.
 See [format context ownership and lifetime](../../guides/memory.md#format-context-ownership-and-lifetime).
 
+For packed or otherwise transformed identifiers, set
+`result->source.tag_binding = TLV_TAG_BINDING_FORMAT` in the decoder and return
+semantic Tag bytes from immutable format-supplied storage. The default binding
+requires a direct input slice. The optional source Tag range describes the wire
+byte envelope, which may overlap Length; it does not hold the transformed bytes.
+Storage must outlive all retained results and must not be reused as scratch.
+See the [identifier contract](../../concepts/format-contract.md#decoded-identifier-consistency)
+for validation, copying and lifetime rules. These semantics require a complete
+Format callback; sequential `tlv_field_layout_t` helpers still describe byte
+fields rather than packed bits.
+
 ## C usage
 
 Use the complete custom-format implementation in the

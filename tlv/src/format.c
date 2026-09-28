@@ -25,6 +25,21 @@ static int bytes_equal(const uint8_t* a, const uint8_t* b, size_t size) {
     return !size || (a && b && memcmp(a, b, size) == 0);
 }
 
+static int tag_binding_valid(const tlv_decoded_t* result, const uint8_t* data) {
+    const tlv_source_t* source = &result->source;
+    const tlv_tag_t tag = result->element.tag;
+    switch (source->tag_binding) {
+        case TLV_TAG_BINDING_SOURCE:
+            return source->tag.present
+                       ? tag.size == source->tag.size && tag.data == data + source->tag.offset
+                       : !tag.size && !tag.data;
+        case TLV_TAG_BINDING_FORMAT:
+            /* Storage extent and immutable lifetime are the callback's contract. */
+            return tag.data != NULL;
+        default: return 0;
+    }
+}
+
 tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data, size_t size,
                                tlv_decoded_t* decoded, tlv_format_error_t* error) {
     tlv_decoded_t result = {0};
@@ -48,9 +63,7 @@ tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data, 
             s->trailer.size != s->size - s->trailer.offset ||
             result.element.value.size != s->value.size ||
             result.element.value.data != data + s->value.offset ||
-            (s->tag.present ? (result.element.tag.size != s->tag.size ||
-                               result.element.tag.data != data + s->tag.offset)
-                            : (result.element.tag.size || result.element.tag.data)))
+            !tag_binding_valid(&result, data))
             rc = TLV_ERR_INVALID_ARG;
     }
     if (rc != TLV_OK) {

@@ -24,7 +24,8 @@ extern "C" {
  * @brief Parses one element from the beginning of a buffer.
  *
  * Trailing bytes after the element are ignored. On success `out_element`
- * borrows the input identifier and value (zero-copy) and `consumed` receives the
+ * borrows the input value and either input or immutable format-supplied identifier
+ * storage (see #tlv_tag_binding_t). `consumed` receives the
  * complete encoded size (tag + length + value + optional trailer). The value excludes enclosing
  * framing such as BER EOC. No allocation, value copying, or schema validation occurs.
  *
@@ -46,6 +47,7 @@ extern "C" {
  *
  * @note On failure both outputs remain unchanged.
  * @warning The caller must keep `data` alive and unchanged while any part of `out_element` is used.
+ *          Format-supplied identifier storage must likewise outlive every retained Tag.
  */
 TLV_API tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_format_t* format,
                               tlv_element_t* out_element, size_t* consumed);
@@ -73,8 +75,9 @@ typedef enum tlv_reader_operation {
  * parsing failure precisely: which step failed, the tag being processed if
  * one was already decoded, the offsets of the fields involved, and the sizes
  * that made the operation fail. Every field is a fixed-size value or a
- * borrowed pointer, so filling one never allocates; `tag`, like any
- * #tlv_tag_t a reader produces, borrows the input buffer that was parsed.
+ * borrowed pointer, so filling one never allocates. Diagnostic `tag` borrows
+ * the raw wire envelope reported in the format error; for transformed
+ * identifiers this is not the canonical semantic Tag.
  *
  * A field not applicable to the failure that produced the diagnostic is left
  * unset, indicated by its paired `has_*` flag being zero.
@@ -213,8 +216,9 @@ TLV_API int tlv_reader_at_end(const tlv_reader_t* reader);
 /**
  * @brief Reads the next TLV element and advances the reader.
  *
- * On success `*out_element` is set and the position advances. The tag, raw length
- * and value borrow the original buffer; no bytes are copied.
+ * On success `*out_element` is set and the position advances. Value borrows the
+ * input; Tag borrows input or immutable format storage as in tlv_read().
+ * No bytes are copied.
  *
  * @param[in,out] reader    Reader to advance.
  * @param[out]    out_element Receives the next element.

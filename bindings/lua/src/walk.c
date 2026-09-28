@@ -3,7 +3,9 @@
 #include "error.h"
 #include "format.h"
 
+#if OPENTLV_FORMAT_DER
 #include <tlv/builtins/asn1/der_profile.h>
+#endif
 #include <tlv/reader/walker.h>
 
 /* tlv_walk_tree() requires a real max_elements bound (zero permits only
@@ -119,9 +121,12 @@ static int l_walk_tree(lua_State* L) {
     tlv_tree_visitor_t visitor = has_callback ? walk_trampoline : NULL;
     size_t             error_offset = 0;
     tlv_result_t       code;
+#if OPENTLV_FORMAT_DER
     if (format->use_der_walker) {
         code = tlv_der_walk((const uint8_t*)data, data_len, NULL, visitor, &ctx, &error_offset);
-    } else {
+    } else
+#endif
+    {
         code = tlv_walk_tree((const uint8_t*)data, data_len, &format->format, max_depth,
                              max_elements, visitor, &ctx, &error_offset);
     }

@@ -76,6 +76,27 @@ typedef struct tlv_encoding {
 struct tlv_format;
 
 /**
+ * @brief Storage binding of a decoded semantic identifier.
+ *
+ * This distinguishes identifier bytes from their wire location without
+ * changing #tlv_tag_t or making the generic reader interpret packed fields.
+ */
+typedef enum tlv_tag_binding {
+    /** Tag borrows exactly source.tag; an absent range means an absent Tag. */
+    TLV_TAG_BINDING_SOURCE = 0,
+    /**
+     * Tag borrows immutable storage supplied by the format, for example an
+     * identifier table in its context or static storage. The storage must
+     * outlive every returned element, source, tag and shallow copy, including
+     * results retained after subsequent reads. No mutable scratch or callback
+     * local storage is permitted. The Tag pointer must be non-NULL; zero size
+     * denotes an explicit empty identifier. source.tag is only an optional
+     * wire byte envelope and need not match the semantic Tag pointer or size.
+     */
+    TLV_TAG_BINDING_FORMAT
+} tlv_tag_binding_t;
+
+/**
  * @brief Immutable borrowed representation of one decoded element.
  *
  * All ranges are relative to data. Header, value and trailer partition size.
@@ -84,15 +105,16 @@ struct tlv_format;
  * a source is live. Mutation of an element does not mutate this source.
  */
 typedef struct tlv_source {
-    const uint8_t* data;             /**< Original encoded bytes. */
-    size_t size;                     /**< Complete native encoded extent. */
-    tlv_range_t header;              /**< Header, possibly empty. */
-    tlv_range_t tag;                 /**< Optional explicit identifier field. */
-    tlv_range_t length;              /**< Optional explicit length field. */
-    tlv_range_t value;               /**< Value, possibly empty. */
-    tlv_range_t trailer;             /**< Trailer, possibly empty. */
-    tlv_element_t element;           /**< Original semantic value for mutation checks. */
+    const uint8_t* data;   /**< Original encoded bytes. */
+    size_t size;           /**< Complete native encoded extent. */
+    tlv_range_t header;    /**< Header, possibly empty. */
+    tlv_range_t tag;       /**< Optional wire identifier byte envelope; see tag_binding. */
+    tlv_range_t length;    /**< Optional explicit length field. */
+    tlv_range_t value;     /**< Value, possibly empty. */
+    tlv_range_t trailer;   /**< Trailer, possibly empty. */
+    tlv_element_t element; /**< Original semantic value for mutation checks. */
     const struct tlv_format* format; /**< Borrowed originating descriptor. */
+    tlv_tag_binding_t tag_binding;   /**< Tag storage binding; defaults to source. */
 } tlv_source_t;
 
 /**
@@ -106,8 +128,13 @@ typedef struct tlv_decoded {
 /**
  * @brief Decode one complete element and validate its framing.
  *
- * A present source Tag range must match the element Tag pointer and size,
- * including an empty range. An absent Tag range requires `{ NULL, 0 }`.
+ * With #TLV_TAG_BINDING_SOURCE (the default), a present source Tag range must
+ * match the element Tag pointer and size, including an empty range. An absent
+ * Tag range requires `{ NULL, 0 }`. With #TLV_TAG_BINDING_FORMAT, the semantic
+ * Tag borrows immutable format-supplied storage with the lifetime specified by
+ * #tlv_tag_binding_t. Its optional source range locates wire bytes only; it may
+ * overlap the Length range for packed fields. All present ranges remain bounded
+ * by the encoded element. Unknown binding values are rejected.
  * Value likewise borrows exactly its declared source range.
  *
  * @param[in]  context Borrowed immutable format configuration.

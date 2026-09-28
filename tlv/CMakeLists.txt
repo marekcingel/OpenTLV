@@ -35,6 +35,9 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     ${OpenTLV_BINARY_DIR}/generated/src/config.c
 )
 
+if(OPENTLV_LLDP)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/lldp/lldp.c)
+endif()
 if(OPENTLV_BLUETOOTH)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/bluetooth/ad_types.c

@@ -8,6 +8,19 @@ details, see [Python bindings](../development/python.md).
 
 ## Setup
 
+`Format.LLDP` selects [LLDP framing](../formats/lldp/README.md) when the native
+extension was built with `OPENTLV_LLDP=ON`. It is absent when the option is OFF;
+`opentlv_native.HAS_LLDP` reports the compiled selection.
+
+The BER, CER and DER presets likewise follow `OPENTLV_FORMAT_BER`,
+`OPENTLV_FORMAT_CER` and `OPENTLV_FORMAT_DER`, with corresponding `HAS_BER`,
+`HAS_CER` and `HAS_DER` flags. Disabled presets are absent from `Format`.
+Without BER, pass an explicit format to Reader, Writer, Document,
+`encoded_size()` and schema validation; omitting it raises `ValueError`.
+`FixedFormat` remains available for Reader and Writer in every build.
+EMV amount functions raise `NotImplementedError` when `OPENTLV_PROFILE_EMV`
+is disabled. The Python binding still requires `OPENTLV_DOCUMENT=ON`.
+
 Neither package is published to PyPI yet. Install both by path from a
 checkout of the repository, in one `pip install` call so the `opentlv`
 package's dependency on `opentlv-native` resolves to the local build:

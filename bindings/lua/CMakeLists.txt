@@ -29,12 +29,29 @@ add_library(opentlv_lua MODULE
     src/error.h
     src/format.c
     src/format.h
+    src/formats/fixed.c
     src/reader.c
     src/reader.h
     src/walk.c
     src/walk.h
     src/compat.h
 )
+if(OPENTLV_FORMAT_BER)
+    target_sources(opentlv_lua PRIVATE src/formats/ber.c)
+endif()
+if(OPENTLV_FORMAT_CER)
+    target_sources(opentlv_lua PRIVATE src/formats/cer.c)
+endif()
+if(OPENTLV_FORMAT_DER)
+    target_sources(opentlv_lua PRIVATE src/formats/der.c)
+endif()
+if(OPENTLV_BLUETOOTH)
+    target_sources(opentlv_lua PRIVATE src/formats/bluetooth_ltv.c)
+endif()
+if(OPENTLV_LLDP)
+    target_sources(opentlv_lua PRIVATE src/formats/lldp.c)
+endif()
+
 target_include_directories(opentlv_lua PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(opentlv_lua PRIVATE tlv)
 opentlv_configure_compiler(opentlv_lua)
@@ -124,24 +141,38 @@ if(OPENTLV_BUILD_LUA_TESTS)
     set(_lua_cpath "$<TARGET_FILE_DIR:opentlv_lua>/?$<TARGET_FILE_SUFFIX:opentlv_lua>;;")
     set(_lua_test_environment "LUA_PATH=${_lua_path};LUA_CPATH=${_lua_cpath}")
 
-    if(OPENTLV_BUSTED_EXECUTABLE)
+    # The existing suite exercises all original presets. Reduced builds use
+    # the configuration-aware smoke test below.
+    if(OPENTLV_BUSTED_EXECUTABLE AND OPENTLV_FORMAT_BER AND OPENTLV_FORMAT_CER
+       AND OPENTLV_FORMAT_DER AND OPENTLV_BLUETOOTH)
         add_test(NAME Integration_lua
             COMMAND ${OPENTLV_BUSTED_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests")
         set_tests_properties(Integration_lua PROPERTIES
             LABELS "integration;lua"
             ENVIRONMENT "${_lua_test_environment}")
     else()
-        message(STATUS "busted not found; skipping the Lua binding test suite.")
+        message(STATUS "busted or required presets unavailable; skipping the full Lua binding test suite.")
     endif()
 
     if(OPENTLV_LUA_EXECUTABLE)
-        foreach(example parse quick_start)
-            add_test(NAME Integration_example_lua_${example}
-                COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/examples/${example}.lua")
-            set_tests_properties(Integration_example_lua_${example} PROPERTIES
-                LABELS "integration;examples;lua"
-                ENVIRONMENT "${_lua_test_environment}")
-        endforeach()
+        add_test(NAME Integration_lua_components
+            COMMAND ${OPENTLV_LUA_EXECUTABLE}
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/components.lua"
+                $<BOOL:${OPENTLV_FORMAT_BER}> $<BOOL:${OPENTLV_FORMAT_CER}>
+                $<BOOL:${OPENTLV_FORMAT_DER}> $<BOOL:${OPENTLV_BLUETOOTH}>
+                $<BOOL:${OPENTLV_LLDP}>)
+        set_tests_properties(Integration_lua_components PROPERTIES
+            LABELS "integration;lua"
+            ENVIRONMENT "${_lua_test_environment}")
+        if(OPENTLV_FORMAT_BER)
+            foreach(example parse quick_start)
+                add_test(NAME Integration_example_lua_${example}
+                    COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/examples/${example}.lua")
+                set_tests_properties(Integration_example_lua_${example} PROPERTIES
+                    LABELS "integration;examples;lua"
+                    ENVIRONMENT "${_lua_test_environment}")
+            endforeach()
+        endif()
     else()
         message(STATUS "lua interpreter not found; skipping the Lua binding examples.")
     endif()

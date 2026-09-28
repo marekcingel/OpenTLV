@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <tlv/builtins/asn1/ber.h>
-#include <tlv/builtins/asn1/cer.h>
-#include <tlv/builtins/asn1/der.h>
+#include "format.h"
+#include <tlv/config.h>
+#if OPENTLV_PROFILE_EMV
 #include <tlv/builtins/emv/emv_codec.h>
+#endif
 #include <tlv/formats/fixed.h>
 #include <tlv/codec/codec.h>
 #include <tlv/document/document.h>
@@ -22,16 +23,6 @@
 
 static PyObject* opentlv_native_error = NULL;
 static PyObject* opentlv_native_codec_error = NULL;
-
-/* Mirrors opentlv.Format: 1 ber, 2 cer, 3 der. */
-static const tlv_format_t* format_for(int format_id) {
-    switch (format_id) {
-        case 1: return &tlv_format_ber;
-        case 2: return &tlv_format_cer;
-        case 3: return &tlv_format_der;
-        default: return NULL;
-    }
-}
 
 static PyObject* opentlv_native_version_string(PyObject* module, PyObject* Py_UNUSED(args)) {
     (void)module;
@@ -372,7 +363,7 @@ static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* a
                           &max_elements)) {
         return NULL;
     }
-    const tlv_format_t* format = format_for(format_id);
+    const tlv_format_t* format = opentlv_python_format_for(format_id);
     if (format == NULL) {
         PyBuffer_Release(&buffer);
         PyErr_SetString(PyExc_ValueError, "unknown format");
@@ -416,6 +407,7 @@ static PyObject* opentlv_native_codec_strerror(PyObject* module, PyObject* args)
  * tlv_codec_result_t code. This is a separate error domain from
  * opentlv_native.Error: tlv_codec_result_t conversion errors are
  * independent of the tlv_result_t framing errors that raises. */
+#if OPENTLV_PROFILE_EMV
 static void raise_codec_error(tlv_codec_result_t code) {
     PyObject* codec_args = Py_BuildValue("(i)", (int)code);
     if (codec_args == NULL) {
@@ -472,6 +464,8 @@ static PyObject* opentlv_native_emv_encode_amount(PyObject* module, PyObject* ar
     return PyBytes_FromStringAndSize((const char*)data, (Py_ssize_t)written);
 }
 
+#endif
+
 #define DOCUMENT_CAPSULE_NAME "opentlv_native.Document"
 
 static void document_capsule_destructor(PyObject* capsule) {
@@ -516,7 +510,7 @@ static PyObject* node_to_py(tlv_node_t* node) {
  * unusable. */
 static int build_document_options(int format_id, Py_ssize_t max_depth, Py_ssize_t max_elements,
                                   tlv_document_options_t* out) {
-    const tlv_format_t* format = format_for(format_id);
+    const tlv_format_t* format = opentlv_python_format_for(format_id);
     if (format == NULL) {
         PyErr_SetString(PyExc_ValueError, "unknown format");
         return 0;
@@ -909,7 +903,7 @@ static PyObject* opentlv_native_read(PyObject* module, PyObject* args) {
     if (!PyArg_ParseTuple(args, "y*ni", &buffer, &offset, &format_id)) {
         return NULL;
     }
-    const tlv_format_t* format = format_for(format_id);
+    const tlv_format_t* format = opentlv_python_format_for(format_id);
     if (format == NULL) {
         PyBuffer_Release(&buffer);
         PyErr_SetString(PyExc_ValueError, "unknown format");
@@ -980,7 +974,7 @@ static PyObject* opentlv_native_write(PyObject* module, PyObject* args) {
     if (!PyArg_ParseTuple(args, "w*ny*y*i", &buffer, &offset, &tag_buf, &value_buf, &format_id)) {
         return NULL;
     }
-    const tlv_format_t* format = format_for(format_id);
+    const tlv_format_t* format = opentlv_python_format_for(format_id);
     if (format == NULL) {
         PyBuffer_Release(&buffer);
         PyBuffer_Release(&tag_buf);
@@ -1028,7 +1022,7 @@ static PyObject* opentlv_native_encoded_size(PyObject* module, PyObject* args) {
     if (!PyArg_ParseTuple(args, "y*ni", &tag_buf, &value_length, &format_id)) {
         return NULL;
     }
-    const tlv_format_t* format = format_for(format_id);
+    const tlv_format_t* format = opentlv_python_format_for(format_id);
     if (format == NULL) {
         PyBuffer_Release(&tag_buf);
         PyErr_SetString(PyExc_ValueError, "unknown format");
@@ -1268,10 +1262,12 @@ static PyMethodDef opentlv_native_methods[] = {
      "Validate a buffer against a serialized structural schema."},
     {"codec_strerror", opentlv_native_codec_strerror, METH_VARARGS,
      "Return the readable description of a tlv_codec_result_t code."},
+#if OPENTLV_PROFILE_EMV
     {"emv_decode_amount", opentlv_native_emv_decode_amount, METH_VARARGS,
      "Decode 6 bytes of BCD (EMV format n12) into an unscaled minor-unit amount."},
     {"emv_encode_amount", opentlv_native_emv_encode_amount, METH_VARARGS,
      "Encode an unscaled minor-unit amount as 6 bytes of BCD (EMV format n12)."},
+#endif
     {"document_create", opentlv_native_document_create, METH_VARARGS, "Create an empty document."},
     {"document_parse", opentlv_native_document_parse, METH_VARARGS,
      "Parse a buffer into a new owned document."},
@@ -1323,6 +1319,10 @@ static struct PyModuleDef opentlv_native_module = {
 PyMODINIT_FUNC PyInit_opentlv_native(void) {
     PyObject* module = PyModule_Create(&opentlv_native_module);
     if (module == NULL) {
+        return NULL;
+    }
+    if (opentlv_python_register_formats(module) < 0) {
+        Py_DECREF(module);
         return NULL;
     }
 

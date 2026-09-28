@@ -270,11 +270,10 @@ own option, and no code or dependency added to builds that do not enable it.
 
 Language bindings are expected to follow the same rule: a binding should expose a
 component only when the matching C component is enabled, so a binding build can also be
-limited to what it needs. **This is not implemented yet for the Rust bindings.**
-`opentlv-native` configures the C library with its default options, so all built-in
-components are included, and the `opentlv` crate has no Cargo features for choosing
-components. Mapping the component options to Cargo features is a requirement for
-future work; see [Rust bindings](../development/rust.md#build). Ready-made CMake recipes are in
+limited to what it needs. Rust maps its default `lldp` Cargo feature to
+`OPENTLV_LLDP`; other components still use the C library defaults. Mapping the
+remaining component options to Cargo features is future work; see
+[Rust bindings](../development/rust.md#build). Ready-made CMake recipes are in
 [building only the components you need](../guides/select-components.md).
 
 ## Build configuration
@@ -294,6 +293,7 @@ These packages default to ON and can be disabled subject to the dependencies bel
 | CMake option / generated config macro | Included component |
 | --- | --- |
 | `OPENTLV_BLUETOOTH` | Bluetooth LTV format, containers, definitions, schemas and codecs |
+| `OPENTLV_LLDP` | LLDP packed framing, base definitions and binding presets; no LLDPDU schemas/codecs |
 | `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER, CER) |
 | `OPENTLV_FORMAT_BER` | Public BER format |
 | `OPENTLV_FORMAT_DER` | DER format and bounded DER profile operations |
@@ -323,7 +323,7 @@ is built only when that component is enabled.
 
 ```sh
 cmake -S . -B build-minimal \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_FORMAT_ASN1=OFF
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build-minimal --parallel
 ```
 

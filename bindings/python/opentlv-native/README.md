@@ -18,3 +18,12 @@ print(opentlv_native.version_string())
 
 Not meant to be used directly; use the `opentlv` package instead. See
 [Python bindings](https://marekcingel.github.io/OpenTLV/development/python/).
+
+Built-in format providers live in `src/formats/` and are selected by their
+CMake component options. `src/format.c` maps stable Python format IDs to the
+enabled providers and registers availability flags. `module.c` uses that
+shared lookup without including protocol format headers. Fixed-format
+operations remain always available. Document remains a required component.
+
+For reduced builds, run `pytest bindings/python/opentlv/tests/test_components.py`
+with the rebuilt native extension and Python package on `PYTHONPATH`.

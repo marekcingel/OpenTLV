@@ -8,3 +8,7 @@ license.workspace = true
 repository.workspace = true
 links = "tlv"
 build = "build.rs"
+
+[features]
+default = ["lldp"]
+lldp = []

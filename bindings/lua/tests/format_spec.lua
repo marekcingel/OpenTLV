@@ -1,6 +1,18 @@
 local opentlv = require("opentlv")
 
 describe("opentlv.formats", function()
+    if opentlv.formats.lldp then
+        it("reads canonical types through the LLDP preset", function()
+            assert(tostring(opentlv.formats.lldp) == "opentlv.Format<lldp>")
+            local elements = {}
+            for element in opentlv.reader(string.char(6, 2, 0, 120), opentlv.formats.lldp) do
+                elements[#elements + 1] = element
+            end
+            assert(#elements == 1)
+            assert(elements[1].tag == string.char(3))
+            assert(elements[1].value == string.char(0, 120))
+        end)
+    end
     it("exposes the built-in stateless formats", function()
         assert(opentlv.formats.compact == nil)
         assert(opentlv.formats.ber ~= nil)

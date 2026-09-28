@@ -9,6 +9,14 @@ const opentlv = await loadOpenTLV();
 
 assert.match(opentlv.version, /^\d+\.\d+\.\d+/);
 
+if (opentlv.formats.includes("lldp")) {
+  const lldp = opentlv.parse(hexToBytes("06 02 00 78 00 00"), { format: "lldp" });
+  assert.equal(lldp.error, undefined);
+  assert.deepEqual(lldp.elements.map(({ tag, length, value }) => [tag, length, value]),
+    [["03", 2, "0078"], ["00", 0, ""]]);
+  assert.deepEqual(lldp.elements[0].source.tag, { offset: 0, length: 1 });
+}
+
 // A one-byte fixed format has no constructed tags: one flat element holds the whole value.
 const sample = hexToBytes("6F 0A 84 03 41 42 43 A5 03 50 01 01");
 let result = opentlv.parse(sample, { format: "fixed" });

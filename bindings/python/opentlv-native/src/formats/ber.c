@@ -1,0 +1,6 @@
+#include "../format.h"
+#include <tlv/builtins/asn1/ber.h>
+
+const tlv_format_t* opentlv_python_format_ber(void) {
+    return &tlv_format_ber;
+}

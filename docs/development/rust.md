@@ -159,10 +159,10 @@ repository root with CMake, as a static Release library inside Cargo's `target`
 directory, and links it. The C++ layer, CLI, tests and examples are not built.
 
 The build script passes no `OPENTLV_FORMAT_*` or `OPENTLV_PROFILE_*` options, so the
-C library is built with its default components, all built-in formats and profiles. The
-crates define no Cargo features for selecting components. Choosing components from Cargo
-(the [include only what you need](../concepts/architecture.md#include-only-what-you-need)
-rule) is not implemented yet.
+C library uses its default components except LLDP: the default `lldp` Cargo
+feature enables `OPENTLV_LLDP`; `--no-default-features` disables it. For prebuilt
+libraries, match the feature to the C build's option. Component selection for
+other built-ins remains future work. See [LLDP presets](../formats/lldp/README.md).
 
 ## Versioning
 

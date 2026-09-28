@@ -20,11 +20,20 @@ pub enum Format {
     Cer,
     /// Distinguished Encoding Rules.
     Der,
+    /// LLDP packed Type/Length framing; no LLDPDU semantic validation.
+    #[cfg(feature = "lldp")]
+    Lldp,
 }
 
 impl Format {
     /// Every supported format.
-    pub const ALL: [Format; 3] = [Format::Ber, Format::Cer, Format::Der];
+    pub const ALL: [Format; 3 + cfg!(feature = "lldp") as usize] = [
+        Format::Ber,
+        Format::Cer,
+        Format::Der,
+        #[cfg(feature = "lldp")]
+        Format::Lldp,
+    ];
 
     /// Returns the lowercase name of the format, accepted by [`FromStr`].
     pub fn name(self) -> &'static str {
@@ -32,6 +41,8 @@ impl Format {
             Format::Ber => "ber",
             Format::Cer => "cer",
             Format::Der => "der",
+            #[cfg(feature = "lldp")]
+            Format::Lldp => "lldp",
         }
     }
 
@@ -45,6 +56,8 @@ impl Format {
                 Format::Ber => ptr::addr_of!(native::tlv_format_ber),
                 Format::Cer => ptr::addr_of!(native::tlv_format_cer),
                 Format::Der => ptr::addr_of!(native::tlv_format_der),
+                #[cfg(feature = "lldp")]
+                Format::Lldp => ptr::addr_of!(native::tlv_format_lldp),
             }
         }
     }

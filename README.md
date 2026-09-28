@@ -57,6 +57,7 @@ Built-in components are enabled by default and can be selected with
 - **Wire formats**
   - **Default and fixed-width**
     - [x] **Bluetooth LTV** - length-before-type framing used by Bluetooth advertising data, values up to 254 bytes. [Details](docs/formats/bluetooth/README.md) [Tree and bytes](docs/formats/bluetooth/README.md#byte-example)
+    - [x] **LLDP TLV framing** - packed 7-bit Type/9-bit Length, base definitions and binding presets; LLDPDU schemas/codecs remain pending. [Details](docs/formats/lldp/README.md)
     - [x] **Configurable fixed-width TLV** - independent tag width, length width (1-8 bytes) and length byte order, chosen at runtime (C) or compile time (C++). [Details](docs/formats/fixed/configurable.md) [Tree and bytes](docs/formats/fixed/configurable.md#wire-layout)
   - **ASN.1-related encodings**
     - [x] **BER-TLV** - multi-byte tags. [Scope](docs/formats/asn1/ber.md) [Tree and bytes](docs/formats/asn1/ber.md#byte-example)
@@ -111,7 +112,7 @@ support never means full protocol support.
 | ASN.1 notation (X.680) | Wider type coverage, BER/CER schema variants, open types, optional schema generator | Extends the [DER schema subset](docs/profiles/der/README.md#schema-aware-validation-and-encoding) |
 | ASN.1 profiles | X.509, PKCS#1, PKCS#7, PKCS#8, PKCS#10, CMS/S-MIME, Kerberos, OCSP | Schemas over [DER/BER](docs/profiles/der/README.md) |
 | Smart cards and SIM | ISO 7816 (BER-TLV and SIMPLE-TLV), GlobalPlatform beyond DGI, eSIM, SIM Toolkit, NFC tag TLV container | BER reuse plus new adapters |
-| Networking | LLDP, IS-IS, DHCPv4/DHCPv6, LDP, RFC 5444 TLV blocks, Diameter | New adapters |
+| Networking | IS-IS, DHCPv4/DHCPv6, LDP, RFC 5444 TLV blocks, Diameter | New adapters |
 | Telecommunications | PFCP, GTPv2-C, GTPv1-C, NAS | New adapters and profiles |
 | Excluded (not TLV) | CBOR, CWT, COSE, QUIC frames, NDEF records, ASN.1 PER/OER/XER (S1AP, X2AP, NGAP) | Different encodings; out of scope |
 

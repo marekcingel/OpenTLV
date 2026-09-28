@@ -18,7 +18,7 @@
  */
 
 /**
- * @brief A TLV tag: a borrowed sequence of raw bytes in wire order.
+ * @brief A TLV tag: a borrowed sequence of identifier bytes.
  *
  * A tag is only a pointer and a length. It does not own, allocate or copy
  * memory and imposes no OpenTLV-specific maximum length. It carries no format
@@ -29,7 +29,10 @@
  * The referenced bytes must stay valid, and unchanged, for as long as the
  * tag is used. OpenTLV functions never retain a borrowed tag beyond the call
  * unless their documentation says so. Tags produced by a reader reference the
- * input buffer that was parsed.
+ * input buffer that was parsed by default. A format can supply a transformed
+ * identifier from immutable format storage using #TLV_TAG_BINDING_FORMAT;
+ * that storage must outlive every retained tag. Identifier byte identity is
+ * deterministic and does not depend on host byte order.
  *
  * `{ NULL, 0 }` is the empty tag. `{ NULL, size }` with `size > 0` is
  * invalid. Whether an empty tag is acceptable for reading or writing is
@@ -38,7 +41,7 @@
  * @see TLV_TAG, tlv_tag
  */
 typedef struct {
-    /** Raw tag bytes in wire order; `size` readable bytes, or `NULL` when `size` is zero. */
+    /** Identifier bytes; `size` readable bytes, or `NULL` when `size` is zero. */
     const uint8_t* data;
     /** Number of bytes in `data`. */
     size_t size;

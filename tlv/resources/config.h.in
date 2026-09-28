@@ -15,6 +15,7 @@
  */
 
 #cmakedefine01 OPENTLV_BLUETOOTH
+#cmakedefine01 OPENTLV_LLDP
 #cmakedefine01 OPENTLV_FORMAT_ASN1
 #cmakedefine01 OPENTLV_FORMAT_BER
 #cmakedefine01 OPENTLV_FORMAT_DER
@@ -35,6 +36,10 @@ extern "C" {
  *         Bluetooth were built, or 0 if `OPENTLV_BLUETOOTH` was disabled.
  */
 TLV_API int tlv_config_bluetooth(void);
+/** @brief Reports whether LLDP framing and definitions were built.
+ * @return 1 if `OPENTLV_LLDP` was enabled, otherwise 0.
+ */
+TLV_API int tlv_config_lldp(void);
 TLV_API int tlv_config_format_asn1(void);
 TLV_API int tlv_config_format_ber(void);
 TLV_API int tlv_config_format_der(void);

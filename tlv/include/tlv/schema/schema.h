@@ -304,8 +304,9 @@ typedef struct tlv_schema_issue {
     tlv_schema_issue_kind_t kind;
     /**
      * Tags from the outermost scope to the affected tag; `path_length` entries
-     * are valid. They borrow the input buffer, or the schema for a missing tag,
-     * so both must outlive the issue.
+     * are valid. They borrow the input buffer, immutable format identifier
+     * storage, or the schema for a missing tag. Every backing store must
+     * outlive the issue.
      */
     tlv_tag_t path[TLV_SCHEMA_PATH_MAX];
     /** Number of valid entries in `path`, at least one. */
@@ -450,7 +451,7 @@ typedef struct tlv_schema_diagnostic {
     /** Which rule was violated; same meaning as #tlv_schema_issue_t::kind. */
     tlv_schema_issue_kind_t kind;
     /** Affected tag; for #TLV_SCHEMA_ISSUE_MISSING, the tag that is absent. Borrows the input
-     * buffer, or the schema for a missing tag. */
+     * buffer, immutable format identifier storage, or the schema for a missing tag. */
     tlv_tag_t tag;
     /** Tags of the scopes enclosing `tag`, outermost first; does not include `tag` itself. */
     tlv_diagnostic_path_t path;

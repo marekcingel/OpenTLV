@@ -17,7 +17,7 @@
 /**
  * @brief Canonical identifier and resolved borrowed value.
  *
- * Both fields borrow source storage, which must remain valid and
+ * Both fields borrow storage, which must remain valid and
  * unchanged while any copy of the element is used. Copying this structure
  * copies descriptors only; no allocation, byte copying, ownership transfer
  * or hidden lifetime management occurs.
@@ -25,6 +25,9 @@
  * `tag` preserves identifier byte identity; `{ NULL, 0 }` means no identifier.
  * A non-NULL pointer with zero size denotes an explicit empty identifier;
  * source preservation distinguishes it from an absent identifier.
+ * A decoded Tag normally borrows the input; formats may instead supply
+ * immutable identifier storage under #TLV_TAG_BINDING_FORMAT. That storage
+ * must outlive every use of this element and its shallow copies.
  * `value.size` is the logical value byte count, independent of native pointer
  * width, excluding framing. Value bytes are contiguous. Neither a wire Length
  * field nor a particular header layout is implied.
@@ -38,7 +41,7 @@
  * @note This plain type does not validate its fields or own their storage.
  */
 typedef struct {
-    /** Raw identifier bytes borrowed from the source. */
+    /** Semantic identifier bytes borrowed from input or immutable format storage. */
     tlv_tag_t tag;
     /** Borrowed value bytes and their decoded logical size. */
     tlv_value_t value;

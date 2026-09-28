@@ -8,7 +8,7 @@ from typing import Dict, Iterable, Optional, Union
 import opentlv_native as _native
 
 from opentlv.error import InvalidLengthError, SchemaError, _from_native
-from opentlv.format import Format
+from opentlv.format import Format, _resolve_format
 from opentlv.tag import Tag
 
 UNRESTRICTED = 2**64 - 1
@@ -159,7 +159,7 @@ class StructureSchema:
     def _to_native(self):
         return (self.allow_unknown, [rule._to_native() for rule in self.rules])
 
-    def validate(self, data, format: Format = Format.BER, max_depth: int = 32,
+    def validate(self, data, format: Format | None = None, max_depth: int = 32,
                  max_elements: int = 100_000) -> None:
         """Validates framing, nesting, lengths, occurrence counts and child
         membership of `data` against this schema.
@@ -173,6 +173,7 @@ class StructureSchema:
         `SchemaError` for other rule violations, `InvalidLengthError` for a
         length failure, or a reading error such as `LimitError`.
         """
+        format = _resolve_format(format)
         try:
             _native.structure_validate(data, format, self._to_native(), max_depth, max_elements)
         except _native.Error as native_error:

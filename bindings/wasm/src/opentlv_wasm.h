@@ -52,8 +52,8 @@ extern "C" {
 typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 
 /*
- * Parses `size` bytes as `format` ("fixed", "bluetooth-ltv", "bluetooth-ad", "ber", "der" or
- * "cer"). `profile` annotates elements with dictionary metadata: NULL, "" or "none" for none, or
+ * Parses `size` bytes as `format` ("fixed", "bluetooth-ltv", "bluetooth-ad", "lldp", "ber", "der"
+ * or "cer"). `profile` annotates elements with dictionary metadata: NULL, "" or "none" for none, or
  * "emv" (EMV Contact Book 3 tags) with the "ber" format. `fixed_tag_size`, `fixed_length_size` and
  * `fixed_big_endian` (nonzero for big-endian) configure `format == "fixed"`'s tag width, length
  * width (1-8 bytes) and length byte order (tlv_fixed_format_t); ignored for every other format.
