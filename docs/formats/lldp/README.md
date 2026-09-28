@@ -1,4 +1,4 @@
-# LLDP TLV framing
+# LLDP TLV support
 
 [Format overview](../README.md) · [Requirements review](../lldp-review.md)
 
@@ -6,8 +6,10 @@ The LLDP built-in implements the packed Type/Length framing used by IEEE
 802.1AB LLDP. The selected review target is IEEE 802.1AB-2016; full normative
 verification is deferred to separate work across formats, outside #360, as
 documented in the [review](../lldp-review.md).
-This implementation provides framing and base Type names, not LLDPDU semantic
-validation or an LLDP agent.
+The built-in provides framing, base Type names, LLDPDU structural validation and
+allocation-free value codecs. It does not implement an LLDP agent.
+The [reference and conformance notes](conformance.md) distinguish tested
+contracts from the remaining full-edition normative audit.
 
 ## API and build
 
@@ -19,6 +21,8 @@ validation or an LLDP agent.
 | C++ header/preset | `tlv++/builtins/lldp/lldp.hpp`, `tlv::lldp_format()` |
 | CMake option | `OPENTLV_LLDP` (ON by default, independent of ASN.1 and Bluetooth) |
 | Availability query | `tlv_config_lldp()` |
+| Structural API | `tlv/builtins/lldp/schema.h`: `tlv_lldp_schema`, `tlv_lldp_validate()` |
+| Value codecs | `tlv/builtins/lldp/codec.h` |
 
 ## Wire layout and logical model
 
@@ -61,13 +65,89 @@ invalid LLDP data without making Schema a dependency of Reader.
 - Truncated headers or Values return `TLV_ERR_BUFFER_TOO_SHORT`. Non-single-byte
   Tags return `TLV_ERR_INVALID_TAG_SIZE`, Types above 127 `TLV_ERR_INVALID_TAG`,
   and Values larger than 511 `TLV_ERR_INVALID_LENGTH`.
-- Schema checks for ordering, occurrences, End, and per-Type lengths, as well
-  as value codecs, remain work for [#363](https://github.com/marekcingel/OpenTLV/issues/363).
+- Structural and value checks are explicit APIs above framing, described below.
+  Generic Reader, Writer, Document and Query never invoke them implicitly.
 
 Ordinary encoding regenerates the header. `tlv_source_preserve()` copies the
 original encoded bytes only while semantic content remains unchanged. Reader,
 Writer, Schema, Document and Query use the normal generic contracts; Query
 addresses the canonical Type, for example `7F`, not its packed header byte `FE`.
+
+## Schema and sequence validation
+
+`tlv_lldp_schema` is an ordinary `tlv_structure_schema_t` for base lengths and
+occurrences. Use `tlv_lldp_validate(data, size, max_elements, diagnostic)` to
+also check the mandatory prefix and End position. It delegates length and
+occurrence rules to generic Schema, then checks sequence rules in the LLDP
+module. No core Reader, Writer, Document or Query branch is needed.
+
+| Type | Value length | Occurrence rule |
+| --- | --- | --- |
+| 0: End | 0 | Optional, at most once, last if present |
+| 1: Chassis ID | 2..256 | Exactly once, first |
+| 2: Port ID | 2..256 | Exactly once, second |
+| 3: Time To Live | 2 | Exactly once, third |
+| 4..6: Port Description, System Name, System Description | 0..255 | Each at most once |
+| 7: System Capabilities | 4 | At most once |
+| 8: Management Address | 9..167 | May repeat |
+| 127: Organisationally Specific | 4..511 | May repeat |
+
+Other Types are accepted after the mandatory prefix. Optional Types may appear
+in any order. The input is the exact TLV region: bytes after End, including
+Ethernet padding, are rejected. End may be omitted when the region ends after
+a complete TLV. A TTL of zero is representable; agent shutdown behavior is
+outside this library.
+
+`max_elements` is a hard bound, including End and unknown TLVs; zero permits
+no elements. Diagnostics use `tlv_diagnostic_t` with the first error's byte
+offset and static descriptions. Missing fields use the end-of-region offset.
+For an aggregate length/occurrence report, use generic
+`tlv_schema_validate_all()` with `tlv_lldp_schema`; that report does not include
+the extra prefix/End-position checks.
+
+The validator is strict structural validation, not the standard's agent
+receive/discard procedure. It does not decode Value contents, compare repeated
+management addresses, or enforce vendor-specific occurrence rules.
+
+## Value codecs
+
+Use the normal `tlv_codec_decode()` / `tlv_codec_encode()` APIs. A size query
+uses NULL output and zero capacity. Descriptors are immutable, allocation-free,
+and independent of the Format and Schema. Borrowed spans must outlive their
+use. Input and output must not overlap.
+
+| Descriptor suffix (`tlv_lldp_codec_`) | C representation | Behavior |
+| --- | --- | --- |
+| `chassis_id`, `port_id` | `tlv_lldp_id_t` | Subtype 1..7 plus 1..255 borrowed ID octets; separate MAC/network subtype namespaces; MAC length 6 and IPv4/IPv6 lengths checked |
+| `ttl` | `uint16_t` | Two big-endian octets, 0..65535 seconds |
+| `text` | `tlv_value_t` | Types 4..6; preserves 0..255 octets, including empty strings and embedded NUL, without character validation or a terminator |
+| `capabilities` | `tlv_lldp_capabilities_t` | Two big-endian bitmaps; enabled must be a subset of supported; reserved bits preserved |
+| `management_address` | `tlv_lldp_management_address_t` | Family, borrowed address, numbering subtype 1..3, big-endian interface number and borrowed OID; exact inner lengths and full consumption checked |
+| `organisation` | `tlv_lldp_organisation_t` | Three OUI octets, subtype, and 0..507 borrowed payload octets; no vendor dispatch |
+
+Management addresses contain 1..31 address octets, excluding the nonzero family
+byte; IPv4/IPv6 use 4/16 octets. OIDs contain 0..128 opaque octets. Other address
+families, non-address identifier syntax, character encodings, OID validity,
+capability role restrictions and OUI ownership are not validated. These are
+explicit limits of the supported value subset, not claims of full conformance.
+
+For example, `06 02 00 78` is Type 3 with a two-byte Value: the TTL codec yields
+120 seconds. `FE 06 00 80 C2 01 00 2A` is Type 127 with OUI `00 80 C2`, subtype
+1, and opaque payload `00 2A`. `00 00` is the optional End marker.
+
+## Coverage of #362 and #363
+
+The combined implementation provides framing, definitions, structural rules,
+value codecs, shared diagnostics and generic layer integration. The independent
+build option is `OPENTLV_LLDP`, following the `OPENTLV_BLUETOOTH` package naming
+convention. It removes all LLDP implementation sources when disabled.
+
+Framing tests cover all 65,536 Type/Length combinations, canonical identity,
+borrowed Values, exact source preservation and round trips. Codec and structural
+tests cover bounds, malformed values, ordering, duplicates, End, diagnostics and
+composition with Reader/Writer. Existing tests cover Document and Query. See
+[reference and conformance notes](conformance.md) for provenance and the remaining
+normative verification boundary.
 
 ## Presets in bindings
 
@@ -90,25 +170,72 @@ new writing API.
 
 ### C
 
+<!-- example: examples/tlv/src/lldp.c -->
 ```c
-#include <tlv/builtins/lldp/lldp.h>
-#include <tlv/reader/reader.h>
+#include "tlv/builtins/lldp/lldp.h"
+#include "tlv/builtins/lldp/schema.h"
+#include "tlv/builtins/lldp/codec.h"
+#include "tlv/reader/reader.h"
 
-const uint8_t wire[] = {0x06, 0x02, 0x00, 0x78};
-tlv_element_t element;
-size_t consumed;
-tlv_result_t rc = tlv_read(wire, sizeof(wire), &tlv_format_lldp, &element, &consumed);
-/* On success: tag = {03}, value = {00, 78}, consumed = 4. */
+int main(void) {
+    /* Local IDs "c"/"p", TTL 120 seconds, optional End. No Ethernet padding. */
+    const uint8_t    wire[] = {2, 2, 7, 'c', 4, 2, 7, 'p', 6, 2, 0, 120, 0, 0};
+    tlv_diagnostic_t diagnostic;
+    tlv_reader_t     reader;
+    tlv_element_t    element;
+    tlv_result_t     rc;
+    if (tlv_lldp_validate(wire, sizeof(wire), 16, &diagnostic) != TLV_OK) return 1;
+    if (tlv_reader_init(&reader, wire, sizeof(wire), &tlv_format_lldp) != TLV_OK) return 1;
+    while ((rc = tlv_reader_next(&reader, &element)) == TLV_OK) {
+        if (!tlv_definition_find(&tlv_lldp_types, &element.tag)) return 1;
+        if (element.tag.data[0] == 3) {
+            uint16_t seconds;
+            size_t   size;
+            if (tlv_size_to_native(element.value.size, &size) != TLV_OK) return 1;
+            if (tlv_codec_decode(&tlv_lldp_codec_ttl, element.value.data, size, &seconds,
+                                 sizeof(seconds)) != TLV_CODEC_OK)
+                return 1;
+            if (seconds != 120) return 1;
+        }
+    }
+    return rc == TLV_ERR_END_OF_BUFFER ? 0 : 1;
+}
 ```
 
 ### C++
 
-```cpp
-#include <tlv++/format.hpp>
-#include <tlv++/builtins/lldp/lldp.hpp>
+The C++ layer reuses the C semantic types and codecs, with the shared LLDP
+Format preset for traversal.
 
-const tlv::byte wire[] = {tlv::byte{6}, tlv::byte{2}, tlv::byte{0}, tlv::byte{120}};
-auto decoded = tlv::decode(tlv::lldp_format(), tlv::bytes(wire, sizeof(wire)));
+<!-- example: examples/tlv++/src/lldp.cpp -->
+```cpp
+#include "tlv++/tlv.hpp"
+#include "tlv++/builtins/lldp/lldp.hpp"
+#include "tlv/builtins/lldp/schema.h"
+#include "tlv/builtins/lldp/codec.h"
+
+int main() {
+    const uint8_t    wire[] = {2, 2, 7, 'c', 4, 2, 7, 'p', 6, 2, 0, 120, 0, 0};
+    tlv_diagnostic_t diagnostic{};
+    if (tlv_lldp_validate(wire, sizeof(wire), 16, &diagnostic) != TLV_OK) return 1;
+    size_t count = 0;
+    auto   result = tlv::walk_tree(
+        tlv::bytes(reinterpret_cast<const tlv::byte*>(wire), sizeof(wire)), tlv::lldp_format(), 0,
+        16, [&count](const tlv::element& element, size_t, size_t) {
+            if (element.tag.data[0] == 3) {
+                uint16_t seconds = 0;
+                size_t   size = 0;
+                if (tlv_size_to_native(element.value.size, &size) != TLV_OK ||
+                    tlv_codec_decode(&tlv_lldp_codec_ttl, element.value.data, size, &seconds,
+                                       sizeof(seconds)) != TLV_CODEC_OK ||
+                    seconds != 120)
+                    return TLV_VISIT_ERROR;
+            }
+            ++count;
+            return TLV_VISIT_CONTINUE;
+        });
+    return result && count == 4 ? 0 : 1;
+}
 ```
 
 ### Rust

@@ -15,6 +15,11 @@ requirements, and the dependencies. The per-candidate detail (specification, sub
 components, limits, and what was checked) is in the
 [format candidate catalogue](format-catalogue.md).
 
+LLDP now provides the [base built-in](lldp/README.md): packed framing,
+definitions, structural validation and value codecs. Its remaining work is
+full-edition normative verification and any separately scoped extensions;
+Ethernet transport and LLDP agents remain outside OpenTLV.
+
 ## Keep the core generic
 
 Keep raw framing, nesting rules, structural schemas, value codecs, and protocol
@@ -138,7 +143,7 @@ OpenTLV
 │   │   ├── [ ] PEAP TLV (existing entry)
 │   │   └── [ ] NDN packet TLV (existing entry)
 │   ├── Networking, link and routing
-│   │   ├── [?] LLDP (IEEE 802.1AB)
+│   │   ├── [x] LLDP base TLVs (IEEE 802.1AB; normative audit pending)
 │   │   ├── [?] IS-IS TLVs and sub-TLVs (ISO 10589 and extensions)
 │   │   ├── [?] DHCPv4 options (RFC 2132, RFC 3396, RFC 3046)
 │   │   ├── [?] DHCPv6 options (RFC 8415)

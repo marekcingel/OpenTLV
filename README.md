@@ -57,7 +57,7 @@ Built-in components are enabled by default and can be selected with
 - **Wire formats**
   - **Default and fixed-width**
     - [x] **Bluetooth LTV** - length-before-type framing used by Bluetooth advertising data, values up to 254 bytes. [Details](docs/formats/bluetooth/README.md) [Tree and bytes](docs/formats/bluetooth/README.md#byte-example)
-    - [x] **LLDP TLV framing** - packed 7-bit Type/9-bit Length, base definitions and binding presets; LLDPDU schemas/codecs remain pending. [Details](docs/formats/lldp/README.md)
+    - [x] **LLDP TLV support** - packed headers, base definitions, LLDPDU structural validation, allocation-free value codecs and binding framing presets. [Details](docs/formats/lldp/README.md)
     - [x] **Configurable fixed-width TLV** - independent tag width, length width (1-8 bytes) and length byte order, chosen at runtime (C) or compile time (C++). [Details](docs/formats/fixed/configurable.md) [Tree and bytes](docs/formats/fixed/configurable.md#wire-layout)
   - **ASN.1-related encodings**
     - [x] **BER-TLV** - multi-byte tags. [Scope](docs/formats/asn1/ber.md) [Tree and bytes](docs/formats/asn1/ber.md#byte-example)

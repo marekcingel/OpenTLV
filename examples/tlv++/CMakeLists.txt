@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 3.16)
 
 project(example-tlv++ LANGUAGES CXX)
 
+if(OPENTLV_LLDP)
+    add_executable(example-tlvpp-lldp src/lldp.cpp)
+    target_link_libraries(example-tlvpp-lldp PRIVATE tlv++)
+    opentlv_configure_compiler(example-tlvpp-lldp)
+    opentlv_copy_shared_runtime(example-tlvpp-lldp)
+    add_test(NAME Integration_example_tlvpp_lldp COMMAND $<TARGET_FILE:example-tlvpp-lldp>)
+    set_tests_properties(Integration_example_tlvpp_lldp PROPERTIES LABELS "integration;examples")
+endif()
+
 if(OPENTLV_FORMAT_BER)
     set(HEADERS
     )

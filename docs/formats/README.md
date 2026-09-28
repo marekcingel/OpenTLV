@@ -22,7 +22,7 @@ optional. Both use the same Format, Reader and Writer contracts.
 | Need | Start with | Boundary |
 | --- | --- | --- |
 | Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
-| LLDP packed Type/Length headers | [LLDP TLV framing](lldp/README.md) | Types 0..127, Values up to 511 bytes; no LLDPDU semantics |
+| LLDP packed Type/Length headers | [LLDP TLV support](lldp/README.md) | Packed framing, base definitions, LLDPDU structural rules and value codecs |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
 | Canonical ASN.1 framing and nested checks | [DER](../profiles/der/README.md) | Structural validation, not full semantic DER |
 | Canonical ASN.1 with indefinite-length framing and segmented strings | [CER](../profiles/cer/README.md) | Structural validation, not full semantic CER |

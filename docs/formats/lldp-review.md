@@ -1,8 +1,8 @@
 # LLDP requirements and Format/Layout review
 
 Architecture review for [#360](https://github.com/marekcingel/OpenTLV/issues/360).
-[LLDP framing and binding presets](lldp/README.md) are implemented. LLDPDU
-schemas and value codecs remain outside this change. The review found a decoded-identifier restriction;
+[LLDP base support](lldp/README.md) now includes framing, definitions, structural
+validation and value codecs through the combined #362/#363 implementation. The review found a decoded-identifier restriction;
 the generic `TLV_TAG_BINDING_FORMAT` extension now allows canonical Type bytes
 in immutable format storage. The follow-up #361 adds a reusable packed-field
 primitive used by the LLDP adapter; it is independent of that storage extension.
@@ -17,8 +17,8 @@ architecture review. This scope decision does not establish IEEE conformance.
 | --- | --- |
 | [#360: requirements review](https://github.com/marekcingel/OpenTLV/issues/360) | Architecture assessment, layer mapping and generic Tag storage support are complete. Normative verification is tracked separately and does not block closure. |
 | [#361: packed Layout primitive](https://github.com/marekcingel/OpenTLV/issues/361) | Implemented as `tlv_packed_field_t` with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks. |
-| [#362: LLDP format and definitions](https://github.com/marekcingel/OpenTLV/issues/362) | Framing, base Type definitions and named binding presets are implemented using `tlv_format_lldp`. Full normative verification remains open. |
-| [#363: schemas, codecs and conformance](https://github.com/marekcingel/OpenTLV/issues/363) | Not implemented. Generic integration tests do not establish LLDP protocol conformance. |
+| [#362: LLDP format and definitions](https://github.com/marekcingel/OpenTLV/issues/362) | Implemented with #363; see [combined coverage](lldp/README.md#coverage-of-362-and-363). Full normative verification remains separate. |
+| [#363: schemas, codecs and conformance](https://github.com/marekcingel/OpenTLV/issues/363) | Base structural validator, value codecs, reference tests and C/C++ examples implemented. See the [conformance boundary](lldp/conformance.md); full IEEE conformance is not established. |
 
 ## Evidence and scope
 
@@ -41,8 +41,9 @@ separate from closing the architecture scope of #360.
   describes Type 127, OUI, subtype and their lengths.
 - [IEEE proxy discussion, Table 8-1 and Figure 8-11](https://www.ieee802.org/1/files/public/docs2024/60802-woods-proxy-considerations-1024-v02.pdf)
   reproduces the basic Type assignments and Management Address structure.
-  Its table labels End of LLDPDU **optional**; verify termination rules in the
-  chosen edition instead of assuming an always-required End TLV.
+  Its table labels End of LLDPDU **optional**. The later
+  [published-text excerpt](lldp/conformance.md#evidence) confirms optional End in
+  10.2.3; full receive/padding semantics still need the complete edition.
 
 ## Preliminary wire requirements
 
@@ -179,7 +180,9 @@ tests exercise the shared contracts without protocol-specific core branches.
 
 Separate normative verification work across formats should read the selected
 edition and resolve every checklist item above, particularly End TLV omission,
-duplicate handling and per-type bounds. The shared LLDP adapter and presets now provide framing; the remaining
-implementation story adds sequence/Codec checks, including unknown extensions,
-OUI/subtype boundaries and the verified End/padding rules. No further framing core change has been
-identified for the preliminary LLDP subset.
+duplicate handling and per-type bounds. The combined #362/#363 implementation now adds sequence validation and base
+value codecs above the shared framing adapter. The validator accepts optional
+End and rejects bytes following it because its input is the exact TLV region,
+not an Ethernet frame. Unknown extensions remain opaque. See the documented
+[subset and limitations](lldp/README.md) and [reference evidence](lldp/conformance.md).
+No further generic core change was needed.

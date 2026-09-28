@@ -36,7 +36,10 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
 )
 
 if(OPENTLV_LLDP)
-    target_sources(${PROJECT_NAME} PRIVATE src/builtins/lldp/lldp.c)
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/builtins/lldp/lldp.c
+        src/builtins/lldp/schema.c
+        src/builtins/lldp/codec.c)
 endif()
 if(OPENTLV_BLUETOOTH)
     target_sources(${PROJECT_NAME} PRIVATE
