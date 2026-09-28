@@ -33,6 +33,7 @@
 #include "tlv/builtins/bluetooth/ad_types.h"
 #endif
 #include "tlv/formats/fixed.h"
+#include "tlv/formats/variable.h"
 #if OPENTLV_LLDP
 #include "tlv/builtins/lldp/lldp.h"
 #endif

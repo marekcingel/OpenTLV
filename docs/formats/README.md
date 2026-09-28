@@ -16,6 +16,7 @@ optional. Both use the same Format, Reader and Writer contracts.
 | Need | Start with | Boundary |
 | --- | --- | --- |
 | Small internal records with fixed header sizes, or fixed tag/length widths chosen at runtime (C) or compile time (C++) | [Configurable fixed-width TLV](fixed/configurable.md) | Any tag width, length widths up to 8 bytes |
+| Escaped variable identifiers and short/long length fields | [Configurable variable-width TLV](variable.md) | Generic framing; concrete validity and termination rules supplied separately |
 
 ### Built-in standards
 
@@ -36,13 +37,13 @@ They are an extension mechanism, not a built-in standard or a supplied format.
 
 ### Generic core formats
 
-These reusable formats describe wire layouts without protocol policy. Fixed is
-currently the supplied generic format; future generic formats belong in this
-group. They are part of the core rather than optional standards packages.
+These reusable formats describe wire layouts without protocol policy. Fixed and
+Variable are part of the core rather than optional standards packages.
 
 | Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree walker | Availability |
 | --- | --- | --- | --- | --- | --- | --- |
 | [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | 1 to 8 bytes | 1 to 8 bytes, big or little endian, counting the value alone or the tag and value | set by the length width | tag, length, value or length, tag, value | none (opaque values) | Always available (C and C++) |
+| [Configurable variable-width TLV](variable.md) | inline or escaped continuation octets; configurable maximum width | short/long, big or little endian, counting value or tag and value | `tlv_size_t`, subject to configured count width and native buffer limits | tag, length, value or length, tag, value | supplied by concrete composition | Always available (C API) |
 
 ### Built-in standards
 

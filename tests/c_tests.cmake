@@ -54,6 +54,7 @@ set(SOURCES
     formats/fixed_dhcp_options_test.cpp
     formats/fixed_io_test.cpp
     formats/format_fixed_test.cpp
+    formats/variable_test.cpp
     packed_field_test.cpp
     query/query_test.cpp
     reader/reader_test.cpp

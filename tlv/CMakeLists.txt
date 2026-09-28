@@ -16,6 +16,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/format.c
     src/layout.c
     src/formats/fixed.c
+    src/formats/variable.c
     src/copy.c
     src/diagnostic.c
     src/tag.c
