@@ -21,6 +21,8 @@
  * No codec allocates, adds framing, or changes the original element.
  * Input and output must not overlap. Size queries and error behavior follow
  * #tlv_codec_t; tlv_codec_strerror() supplies readable diagnostics.
+ * UUID list codecs for AD Types 0x02 through 0x07 are declared separately in
+ * tlv/builtins/bluetooth/uuid.h, together with reusable UUID value codecs.
  *
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v14/out/en/core-supplementary-features/data-types-specification.html
