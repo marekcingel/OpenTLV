@@ -1620,6 +1620,34 @@
   
   
     <li class="md-nav__item">
+      <a href="dhcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DHCPv4 option framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="lldp/" class="md-nav__link">
         
   
@@ -2993,6 +3021,11 @@ optional. Both use the same Format, Reader and Writer contracts.</p>
 </thead>
 <tbody>
 <tr>
+<td>DHCPv4 options with Pad and End</td>
+<td><a href="dhcp/">DHCPv4 option framing</a></td>
+<td>Individual options; caller handles termination and packet semantics</td>
+</tr>
+<tr>
 <td>Bluetooth advertising data (length before type)</td>
 <td><a href="bluetooth/">Bluetooth LTV</a></td>
 <td>Values up to 254 bytes, no nesting</td>
@@ -3072,6 +3105,15 @@ explains its wire layout and supported scope.</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><a href="dhcp/">DHCPv4 options</a></td>
+<td>1-byte code</td>
+<td>1 byte; absent for Pad/End</td>
+<td>255 bytes; 0 for Pad/End</td>
+<td>code, length, value; code only for Pad/End</td>
+<td>none</td>
+<td><code>OPENTLV_DHCP</code></td>
+</tr>
 <tr>
 <td><a href="bluetooth/#wire-layout-and-logical-model">Bluetooth LTV</a></td>
 <td>1-byte type</td>

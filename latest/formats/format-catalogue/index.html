@@ -1423,6 +1423,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../dhcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DHCPv4 option framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../lldp/" class="md-nav__link">
         
   
@@ -3435,11 +3463,11 @@ a caller slices the region first.</p>
 <td>Partly: RFC 1195 (TLV length is the value length) and RFC 5305 (sub-TLVs) read; the field widths and ISO 10589 not verified.</td>
 </tr>
 <tr>
-<td>DHCPv4 options (<code>[?]</code>)</td>
+<td><a href="../dhcp/">DHCPv4 option framing</a> (<code>[x]</code>)</td>
 <td><a href="https://www.rfc-editor.org/rfc/rfc2132.html">RFC 2132</a>, <a href="https://www.rfc-editor.org/rfc/rfc2131.html">RFC 2131</a>, <a href="https://www.rfc-editor.org/rfc/rfc3396.html">RFC 3396</a>, <a href="https://www.rfc-editor.org/rfc/rfc3046.html">RFC 3046</a></td>
 <td>Options region: code and length, with Pad (0) and End (255) as the only options that are a single tag octet. Relay agent information holds sub-options in SubOpt/Len/Value form.</td>
-<td>format adapter, nesting predicate (option 82), dictionary</td>
-<td>Pad and End need a skip and stop policy. RFC 3396 splits one logical option across several occurrences to be concatenated: that conflicts with zero-copy reads and needs an explicit policy. No client or server.</td>
+<td>Implemented framing adapter; nesting and dictionary excluded</td>
+<td>Pad and End are returned as elements; the caller supplies skip and stop policy. RFC 3396 splits one logical option across several occurrences to be concatenated: that conflicts with zero-copy reads and needs an explicit policy. No client or server.</td>
 <td>Verified: RFC 2132 (Pad, End), RFC 3396, RFC 3046.</td>
 </tr>
 <tr>

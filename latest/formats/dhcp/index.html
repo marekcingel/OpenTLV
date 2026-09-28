@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/development/rust/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/formats/dhcp/">
       
       
-        <link rel="prev" href="../webassembly/">
+        <link rel="prev" href="../bluetooth/">
       
       
-        <link rel="next" href="../python/">
+        <link rel="next" href="../lldp/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Rust bindings - OpenTLV</title>
+        <title>DHCPv4 option framing - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#rust-bindings-experimental" class="md-skip">
+        <a href="#dhcpv4-option-framing" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Rust bindings
+              DHCPv4 option framing
             
           </span>
         </div>
@@ -321,11 +321,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../formats/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -421,13 +423,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../workflow/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../development/workflow/" class="md-tabs__link">
           
   
   
@@ -1279,26 +1279,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1316,7 +1321,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1334,7 +1339,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1362,7 +1367,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/fixed/configurable/" class="md-nav__link">
+      <a href="../fixed/configurable/" class="md-nav__link">
         
   
   
@@ -1390,7 +1395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/bluetooth/" class="md-nav__link">
+      <a href="../bluetooth/" class="md-nav__link">
         
   
   
@@ -1415,10 +1420,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../formats/dhcp/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DHCPv4 option framing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1434,6 +1466,48 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#element-and-source-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Element and source contracts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope-and-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope and composition
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1446,7 +1520,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/lldp/" class="md-nav__link">
+      <a href="../lldp/" class="md-nav__link">
         
   
   
@@ -1474,7 +1548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/lldp/conformance/" class="md-nav__link">
+      <a href="../lldp/conformance/" class="md-nav__link">
         
   
   
@@ -1502,7 +1576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/asn1/ber/" class="md-nav__link">
+      <a href="../asn1/ber/" class="md-nav__link">
         
   
   
@@ -1530,7 +1604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/asn1/der/" class="md-nav__link">
+      <a href="../asn1/der/" class="md-nav__link">
         
   
   
@@ -1558,7 +1632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/asn1/cer/" class="md-nav__link">
+      <a href="../asn1/cer/" class="md-nav__link">
         
   
   
@@ -1586,7 +1660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/custom/" class="md-nav__link">
+      <a href="../custom/" class="md-nav__link">
         
   
   
@@ -1614,7 +1688,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/format-examples/" class="md-nav__link">
+      <a href="../format-examples/" class="md-nav__link">
         
   
   
@@ -1642,7 +1716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/format-roadmap/" class="md-nav__link">
+      <a href="../format-roadmap/" class="md-nav__link">
         
   
   
@@ -1670,7 +1744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/format-catalogue/" class="md-nav__link">
+      <a href="../format-catalogue/" class="md-nav__link">
         
   
   
@@ -1698,7 +1772,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../formats/lldp-review/" class="md-nav__link">
+      <a href="../lldp-review/" class="md-nav__link">
         
   
   
@@ -2274,31 +2348,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
             
   
   
@@ -2316,7 +2385,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2334,7 +2403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../workflow/" class="md-nav__link">
+      <a href="../../development/workflow/" class="md-nav__link">
         
   
   
@@ -2362,7 +2431,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../abi-compatibility/" class="md-nav__link">
+      <a href="../../development/abi-compatibility/" class="md-nav__link">
         
   
   
@@ -2390,7 +2459,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../documentation-layout/" class="md-nav__link">
+      <a href="../../development/documentation-layout/" class="md-nav__link">
         
   
   
@@ -2418,7 +2487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fuzzing/" class="md-nav__link">
+      <a href="../../development/fuzzing/" class="md-nav__link">
         
   
   
@@ -2446,7 +2515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../webassembly/" class="md-nav__link">
+      <a href="../../development/webassembly/" class="md-nav__link">
         
   
   
@@ -2471,37 +2540,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Rust bindings
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../development/rust/" class="md-nav__link">
         
   
   
@@ -2517,136 +2559,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#core-types" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core types
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reader" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reader
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#writer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Writer
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#schemas" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Schemas
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#codecs-and-the-emv-dictionary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Codecs and the EMV dictionary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#profiles-and-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Profiles and formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#build" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#versioning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Versioning
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#continuous-integration-and-quality-checks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Continuous integration and quality checks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#linking-a-prebuilt-library" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Linking a prebuilt library
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2659,7 +2571,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../python/" class="md-nav__link">
+      <a href="../../development/python/" class="md-nav__link">
         
   
   
@@ -2687,7 +2599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lua/" class="md-nav__link">
+      <a href="../../development/lua/" class="md-nav__link">
         
   
   
@@ -2770,10 +2682,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#core-types" class="md-nav__link">
+  <a href="#element-and-source-contracts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Core types
+        Element and source contracts
       
     </span>
   </a>
@@ -2781,98 +2693,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reader" class="md-nav__link">
+  <a href="#scope-and-composition" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reader
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#writer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Writer
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#schemas" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Schemas
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#codecs-and-the-emv-dictionary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Codecs and the EMV dictionary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#profiles-and-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Profiles and formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#build" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#versioning" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Versioning
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#continuous-integration-and-quality-checks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Continuous integration and quality checks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#linking-a-prebuilt-library" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Linking a prebuilt library
+        Scope and composition
       
     </span>
   </a>
@@ -2896,7 +2720,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/development/rust.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/formats/dhcp/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2904,238 +2728,75 @@
   
 
 
-<h1 id="rust-bindings-experimental">Rust bindings (experimental)<a class="headerlink" href="#rust-bindings-experimental" title="Permanent link">&para;</a></h1>
-<p>The Rust bindings live in <code>bindings/rust/</code>, a Cargo workspace with two crates:</p>
+<h1 id="dhcpv4-option-framing">DHCPv4 option framing<a class="headerlink" href="#dhcpv4-option-framing" title="Permanent link">&para;</a></h1>
+<p>Include <code>tlv/builtins/dhcp/dhcpv4.h</code> and select <code>tlv_format_dhcpv4</code>.
+C++ callers can include <code>tlv++/builtins/dhcp/dhcpv4.hpp</code> and use
+<code>tlv::dhcpv4_format()</code> with the existing Reader and Writer wrappers.
+The independent CMake option <code>OPENTLV_DHCP</code> defaults to <code>ON</code>;
+<code>tlv_config_dhcp()</code> reports the compiled library's availability.</p>
+<p>The descriptor implements the option framing in
+<a href="https://www.rfc-editor.org/rfc/rfc2132.html#section-2">RFC 2132 sections 2, 3.1 and 3.2</a>:</p>
 <table>
 <thead>
 <tr>
-<th>Crate</th>
-<th>Purpose</th>
+<th>Code</th>
+<th>Wire representation</th>
+<th>Logical Value size</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>opentlv-native</code></td>
-<td>Raw <code>extern "C"</code> declarations of the OpenTLV C API and the build script that links the C library</td>
+<td>1..254</td>
+<td>Code, Length, Value</td>
+<td>0..255 bytes</td>
 </tr>
 <tr>
-<td><code>opentlv</code></td>
-<td>Safe Rust API built on <code>opentlv-native</code></td>
+<td>0 (Pad)</td>
+<td>Code only</td>
+<td>0</td>
+</tr>
+<tr>
+<td>255 (End)</td>
+<td>Code only</td>
+<td>0</td>
 </tr>
 </tbody>
 </table>
-<p>For setup, examples, error handling and ownership as a user, see
-<a href="../../guides/rust/">Using OpenTLV from Rust</a>. For the naming and shape this
-crate follows and adapts, see the <a href="../../concepts/bindings/">language bindings conceptual
-model</a>.</p>
-<p>All <code>unsafe</code> FFI interaction is isolated in <code>opentlv-native</code>; <code>opentlv</code> contains no
-<code>extern</code> declarations. Only the part of the C API the safe crate needs is bound
-so far.</p>
-<h2 id="core-types">Core types<a class="headerlink" href="#core-types" title="Permanent link">&para;</a></h2>
-<p>The <code>opentlv</code> crate exposes these safe types; none of them exposes a raw pointer:</p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Wraps</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Tag</code></td>
-<td><code>tlv_tag_t</code></td>
-<td>Owned bytes of any length, <code>Clone</code> but not <code>Copy</code>; built with <code>from_bytes</code>, read with <code>as_bytes</code></td>
-</tr>
-<tr>
-<td><code>Element&lt;'a&gt;</code></td>
-<td><code>tlv_element_t</code></td>
-<td>A <code>Tag</code> (copied out of the input) plus a value borrowed as <code>&amp;'a [u8]</code></td>
-</tr>
-<tr>
-<td><code>Error</code></td>
-<td><code>tlv_result_t</code></td>
-<td>One variant per <code>TLV_ERR_*</code> code, plus <code>Unknown(code)</code>; implements <code>std::error::Error</code></td>
-</tr>
-<tr>
-<td><code>Result&lt;T&gt;</code></td>
-<td></td>
-<td>Alias for <code>std::result::Result&lt;T, Error&gt;</code></td>
-</tr>
-<tr>
-<td><code>FixedFormatConfig</code></td>
-<td><code>tlv_fixed_format_t</code></td>
-<td>Runtime-configurable tag width, length width (1-8 bytes) and length byte order; a plain <code>Copy</code> value the caller owns</td>
-</tr>
-<tr>
-<td><code>FixedFormat&lt;'a&gt;</code></td>
-<td><code>tlv_format_t</code></td>
-<td>Borrows a <code>&amp;'a FixedFormatConfig</code>, mirroring the C <code>tlv_fixed_format_t</code>/<code>tlv_format_t</code> split directly; no heap allocation</td>
-</tr>
-<tr>
-<td><code>ByteOrder</code></td>
-<td><code>tlv_byte_order_t</code></td>
-<td><code>Big</code> or <code>Little</code>, the length field's byte order for <code>FixedFormatConfig</code></td>
-</tr>
-</tbody>
-</table>
-<p>The C <code>tlv_tag_t</code> is a borrowed pointer and size (<code>opentlv_native::tlv_tag_t</code>), so
-its layout does not depend on how the library was built. <code>Tag</code> owns its bytes
-because the safe API cannot hand out a pointer whose lifetime C does not track;
-it converts to a borrowed C tag only for the duration of each call. A tag has no
-length limit; a format may reject some lengths.</p>
-<h2 id="reader">Reader<a class="headerlink" href="#reader" title="Permanent link">&para;</a></h2>
-<p><code>Reader&lt;'a&gt;</code> parses a <code>&amp;'a [u8]</code> and iterates over <code>Result&lt;Element&lt;'a&gt;&gt;</code>. It wraps
-the C <code>tlv_reader_t</code>; element values are zero-copy slices of the input, and the
-borrow checker keeps the input alive for as long as the reader or any element.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">let</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Reader</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">);</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">for</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">element</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">element</span><span class="o">?</span><span class="p">;</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">"{:?}: {:?}"</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">(),</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">());</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
-</code></pre></div>
-<p><code>Reader::new</code> uses BER;
-<code>Reader::with_format</code> takes a <code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>), and
-<code>Reader::with_fixed_format</code> takes a borrowed <code>&amp;FixedFormat</code> for a
-runtime-configurable tag width, length width and length byte order (wraps the C
-<code>tlv_fixed_format_t</code> and <code>tlv_fixed_format_init()</code>: <code>FixedFormatConfig::new(tag_size,
-length_size, order)</code> builds the caller-owned configuration, and
-<code>FixedFormat::new(&amp;config)</code> returns <code>Result&lt;FixedFormat&lt;'_&gt;&gt;</code> borrowing it;
-<code>config</code> must outlive <code>format</code>, and <code>format</code> must outlive every reader or
-writer built from it). Malformed input yields an <code>Err(Error)</code> item, after
-which the iterator ends, since the C reader does not advance past bad data.
-Library users need no <code>unsafe</code>.</p>
-<h2 id="writer">Writer<a class="headerlink" href="#writer" title="Permanent link">&para;</a></h2>
-<p><code>Writer&lt;'a&gt;</code> encodes elements into a caller-owned <code>&amp;'a mut [u8]</code>. It wraps the C
-<code>tlv_writer_t</code> and never allocates. Tags are <code>Tag</code>s and values are <code>&amp;[u8]</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="k">u8</span><span class="p">;</span><span class="w"> </span><span class="mi">64</span><span class="p">];</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Writer</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">buf</span><span class="p">);</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">writer</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">opentlv</span><span class="p">::</span><span class="n">Tag</span><span class="p">::</span><span class="n">from_bytes</span><span class="p">(</span><span class="o">&amp;</span><span class="p">[</span><span class="mh">0x01</span><span class="p">]),</span><span class="w"> </span><span class="s">b"abc"</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kd">let</span><span class="w"> </span><span class="n">encoded</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="p">[</span><span class="kt">u8</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">writer</span><span class="p">.</span><span class="n">written</span><span class="p">();</span>
-</code></pre></div>
-<p><code>Writer::with_format</code> takes the same <code>Format</code> as the reader. <code>write_element</code>
-appends an <code>Element</code> (for example one produced by a <code>Reader</code>), <code>position</code>,
-<code>remaining</code> and <code>capacity</code> report buffer usage, and <code>finish</code> returns the written
-bytes with the buffer's lifetime. <code>encoded_size</code> computes the size of an element
-without writing it. Failures use the common <code>Error</code>; an element that does not fit
-gives <code>Error::BufferTooShort</code> and leaves the position unchanged. Library users
-need no <code>unsafe</code>.</p>
-<h2 id="schemas">Schemas<a class="headerlink" href="#schemas" title="Permanent link">&para;</a></h2>
-<p>Both schema types wrap the C library's tables; validation runs in C.</p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Wraps</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>LengthSchema</code></td>
-<td><code>tlv_schema_t</code></td>
-<td>Per-tag length rules: <code>find</code> and <code>validate_length</code></td>
-</tr>
-<tr>
-<td><code>StructureSchema</code></td>
-<td><code>tlv_structure_schema_t</code></td>
-<td>Required, optional, duplicate, kind and child-membership rules for a whole buffer</td>
-</tr>
-</tbody>
-</table>
-<p><code>LengthSchema::new</code> and <code>StructureSchema::new</code> build owned tables from
-<code>LengthRule</code> and <code>StructureRule</code> values; <code>LengthSchema::emv</code>,
-<code>LengthSchema::emv_for</code> and <code>StructureSchema::emv</code> return the built-in EMV
-schemas. <code>StructureSchema::validate</code> takes the data, a <code>Format</code> (which decides
-which tags are constructed) and <code>ValidationLimits</code>, and returns
-<code>Result&lt;(), SchemaError&gt;</code>. <code>SchemaError</code> carries the C <code>Error</code>
-(<code>Schema</code>, <code>SchemaMissing</code>, <code>InvalidLength</code>, <code>Limit</code>, ...) and the failing
-offset.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">let</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Tag</span><span class="p">::</span><span class="n">from_bytes</span><span class="p">(</span><span class="o">&amp;</span><span class="p">[</span><span class="mh">0x84</span><span class="p">]);</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kd">let</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">StructureSchema</span><span class="p">::</span><span class="n">new</span><span class="p">(</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">[</span><span class="n">opentlv</span><span class="p">::</span><span class="n">StructureRule</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="n">tag</span><span class="p">).</span><span class="n">length</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">).</span><span class="n">required_once</span><span class="p">()],</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="kc">false</span><span class="p">,</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">);</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">schema</span><span class="p">.</span><span class="n">validate</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Format</span><span class="p">::</span><span class="n">Ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">opentlv</span><span class="p">::</span><span class="n">ValidationLimits</span><span class="p">::</span><span class="n">default</span><span class="p">())</span><span class="o">?</span><span class="p">;</span>
-</code></pre></div>
-<h2 id="codecs-and-the-emv-dictionary">Codecs and the EMV dictionary<a class="headerlink" href="#codecs-and-the-emv-dictionary" title="Permanent link">&para;</a></h2>
-<p><code>Codec</code> converts a raw value to a typed <code>Value</code> (<code>Number</code>, <code>Flags</code>, <code>Digits</code>,
-<code>Date</code>, <code>Time</code>, <code>Afl</code>, <code>Track2</code>, ...) with <code>decode</code>, and back with <code>encode</code>,
-<code>encode_into</code> and <code>encoded_size</code>. Errors use <code>CodecError</code>, mapped from
-<code>tlv_codec_result_t</code>, which is separate from the framing <code>Error</code>. <code>Codec::amount</code>
-is the amount codec; every other codec comes from the EMV dictionary:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">use</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">emv</span><span class="p">::{</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">Context</span><span class="p">};</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kd">let</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::</span><span class="n">Tag</span><span class="p">::</span><span class="n">from_bytes</span><span class="p">(</span><span class="o">&amp;</span><span class="p">[</span><span class="mh">0x9A</span><span class="p">]);</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kd">let</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emv</span><span class="p">::</span><span class="n">find</span><span class="p">(</span><span class="n">Context</span><span class="p">::</span><span class="n">Base</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tag</span><span class="p">).</span><span class="n">unwrap</span><span class="p">();</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kd">let</span><span class="w"> </span><span class="n">date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">definition</span><span class="p">.</span><span class="n">codec</span><span class="p">().</span><span class="n">unwrap</span><span class="p">().</span><span class="n">decode</span><span class="p">(</span><span class="o">&amp;</span><span class="p">[</span><span class="mh">0x25</span><span class="p">,</span><span class="w"> </span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0x31</span><span class="p">])</span><span class="o">?</span><span class="p">;</span>
-</code></pre></div>
-<p><code>emv::find</code> returns a <code>Definition</code> (name, <code>ValueKind</code>, length bounds and step,
-<code>validate_length</code>, optional <code>Codec</code>); <code>Context::child</code> follows template
-contexts. Opaque bytes, text and templates have no codec; use the reader's
-borrowed value.</p>
-<h2 id="profiles-and-formats">Profiles and formats<a class="headerlink" href="#profiles-and-formats" title="Permanent link">&para;</a></h2>
-<p><code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>) selects the wire
-encoding; it implements <code>FromStr</code> and <code>Display</code> for names such as <code>"der"</code>.
-<code>Profile</code> (<code>Der</code>, <code>Cer</code>) adds canonical-encoding checks and resource <code>Limits</code>
-on top of the format: <code>validate</code>, <code>read</code>, <code>encoded_size</code> and <code>write</code>, each with
-a <code>Strictness</code> (<code>Canonical</code> or <code>Strict</code>, which also validates UNIVERSAL
-content). Failures are <code>ProfileError</code> values with the failing offset.</p>
-<p>The DOL profile and the callback-based visitors and structure codecs of the C
-API are not bound yet.</p>
-<h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
-<p>Requirements: a Rust toolchain (1.70 or newer), CMake 3.16 or newer and a C99
-compiler. On Windows use the MSVC Rust toolchain with Visual Studio.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span>bindings/rust
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>cargo<span class="w"> </span>build
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>cargo<span class="w"> </span><span class="nb">test</span>
-</code></pre></div>
-<p>By default the build script configures and builds the OpenTLV C library from the
-repository root with CMake, as a static Release library inside Cargo's <code>target</code>
-directory, and links it. The C++ layer, CLI, tests and examples are not built.</p>
-<p>The build script passes no <code>OPENTLV_FORMAT_*</code> or <code>OPENTLV_PROFILE_*</code> options, so the
-C library uses its default components except LLDP: the default <code>lldp</code> Cargo
-feature enables <code>OPENTLV_LLDP</code>; <code>--no-default-features</code> disables it. For prebuilt
-libraries, match the feature to the C build's option. Component selection for
-other built-ins remains future work. See <a href="../../formats/lldp/">LLDP presets</a>.</p>
-<h2 id="versioning">Versioning<a class="headerlink" href="#versioning" title="Permanent link">&para;</a></h2>
-<p>The Cargo workspace version (<code>version.workspace = true</code> in each crate's
-<code>Cargo.toml</code>) is independent of the OpenTLV C library's version and is not
-derived from the repository's Git tags; it follows its own release cadence,
-the same way the Python package's <code>pyproject.toml</code> version does (see
-<a href="../python/#versioning">Python bindings</a>). <code>opentlv::version()</code> is a separate
-thing: it calls <code>tlv_version_string()</code> at run time and reports the version of
-the <em>linked C library</em>, not the crate's own version. The two can differ, for
-example crate <code>0.1.0</code> built against OpenTLV C library <code>0.6.0</code>.</p>
-<h2 id="continuous-integration-and-quality-checks">Continuous integration and quality checks<a class="headerlink" href="#continuous-integration-and-quality-checks" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/rust.yml">Rust Bindings workflow</a>
-runs on every push and pull request to <code>main</code> and fails on any of:</p>
-<ul>
-<li><code>cargo fmt --all --check</code>, formatting differs from rustfmt;</li>
-<li><code>cargo clippy --workspace --all-targets -- -D warnings</code>, any clippy or
-  compiler warning;</li>
-<li><code>cargo build</code> and <code>cargo test</code> on Linux, Windows and macOS, with warnings
-  denied.</li>
-</ul>
-<p>Run the same checks locally from <code>bindings/rust</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>cargo<span class="w"> </span>fmt<span class="w"> </span>--all<span class="w"> </span>--check
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>cargo<span class="w"> </span>clippy<span class="w"> </span>--workspace<span class="w"> </span>--all-targets<span class="w"> </span>--<span class="w"> </span>-D<span class="w"> </span>warnings
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>cargo<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--workspace
-</code></pre></div>
-<p><code>opentlv/tests/corpus.rs</code> replays the C fuzz seeds (each harness's <code>corpus/</code>
-folder under <code>tests/fuzz/</code>) through the safe API (reader on every format, DER
-and CER profiles, writer and reader round trips, every EMV codec), so seeds
-added for the C harnesses also cover the bindings without being copied.</p>
-<h2 id="linking-a-prebuilt-library">Linking a prebuilt library<a class="headerlink" href="#linking-a-prebuilt-library" title="Permanent link">&para;</a></h2>
-<p>To link a library you built yourself, point <code>OPENTLV_LIB_DIR</code> at the directory
-containing it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">OPENTLV_LIB_DIR</span><span class="o">=</span>/path/to/build/tlv<span class="w"> </span>cargo<span class="w"> </span>build
-</code></pre></div>
-<p><code>OPENTLV_LINK_KIND</code> selects <code>static</code> or <code>dylib</code> (default <code>dylib</code>, matching the
-default CMake build). With a shared library, the platform's loader must find it
-at run time (<code>PATH</code> on Windows, <code>LD_LIBRARY_PATH</code> on Linux, <code>DYLD_LIBRARY_PATH</code>
-on macOS).</p>
+<p>For example, <code>35 01 01</code> decodes to identifier byte <code>35</code> and Value byte <code>01</code>.
+<code>00</code> and <code>FF</code> each decode to one element with an empty Value. <code>FE 00</code> is a
+normal empty option and retains an explicit Length field.</p>
+<h2 id="element-and-source-contracts">Element and source contracts<a class="headerlink" href="#element-and-source-contracts" title="Permanent link">&para;</a></h2>
+<p>The canonical <code>tlv_element_t</code> contains a borrowed Tag and Value;
+<code>element.value.size</code> is the logical Value byte count. No DHCP-specific state
+is added. The descriptor and its configuration have static lifetime, while
+the caller owns the input and must keep it alive and immutable while views
+or source records are retained. No operation allocates or copies on decode.</p>
+<p>For normal options, Header covers two bytes, Tag is <code>(0, 1)</code>, Length is
+<code>(1, 1)</code>, and Value starts at offset 2. For Pad/End, Header and Tag cover
+<code>(0, 1)</code>, Length is absent, and Value and Trailer are present empty ranges
+at offset 1. Offsets are relative to the individual element.</p>
+<p>Measurement accepts Value sizes without accessing Value bytes. Encoding
+rejects identifiers with widths other than one, normal Values larger than
+255 bytes and nonempty Pad/End Values. Decoding rejects incomplete Length
+and Value fields. <code>tlv_source_preserve()</code> copies the original representation
+only when the supplied element remains semantically unchanged.</p>
+<h2 id="scope-and-composition">Scope and composition<a class="headerlink" href="#scope-and-composition" title="Permanent link">&para;</a></h2>
+<p>Pass only the option region, excluding the DHCP packet header and magic
+cookie. Reader returns Pad and End as ordinary elements. The caller decides
+when to stop at End; Reader can continue through the remaining supplied bytes.
+The format does not require End or validate padding after it.</p>
+<p>Values stay opaque. This feature does not validate individual option semantics,
+join RFC 3396 fragments, process option overload, recurse into suboptions,
+or implement DHCPv6 framing. Other language binding presets are not added.</p>
+<p>The implementation configures <code>tlv_tagged_binary_layout_t</code> with two tag-only
+identifiers, <code>00</code> and <code>FF</code>. The generic primitive selects by byte identity and
+delegates all other elements to the existing binary TLV layout. Its table can
+use different identifiers and widths; no core Reader/Writer logic knows DHCP.
+The table, its identifier bytes and the layout are borrowed immutable storage
+when applications initialize their own descriptors with
+<code>tlv_tagged_binary_format_init()</code>.</p>
+<p>See the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/dhcpv4.c">compiled C example</a> for reading
+options, writing them back and applying caller-controlled End handling.</p>
 
 
 
@@ -3173,7 +2834,7 @@ on macOS).</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../webassembly/" class="md-footer__link md-footer__link--prev" aria-label="Previous: WebAssembly build">
+          <a href="../bluetooth/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Bluetooth LTV">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3183,20 +2844,20 @@ on macOS).</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                WebAssembly build
+                Bluetooth LTV
               </div>
             </div>
           </a>
         
         
           
-          <a href="../python/" class="md-footer__link md-footer__link--next" aria-label="Next: Python bindings">
+          <a href="../lldp/" class="md-footer__link md-footer__link--next" aria-label="Next: LLDP TLV support">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Python bindings
+                LLDP TLV support
               </div>
             </div>
             <div class="md-footer__button md-icon">

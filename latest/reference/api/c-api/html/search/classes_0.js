@@ -76,8 +76,9 @@ var searchData=
   ['tlv_5fstructure_5frule_73',['tlv_structure_rule',['../structtlv__structure__rule.html',1,'']]],
   ['tlv_5fstructure_5fschema_74',['tlv_structure_schema',['../structtlv__structure__schema.html',1,'']]],
   ['tlv_5ftag_5ft_75',['tlv_tag_t',['../structtlv__tag__t.html',1,'']]],
-  ['tlv_5fvalue_5fconstraint_76',['tlv_value_constraint',['../structtlv__value__constraint.html',1,'']]],
-  ['tlv_5fvalue_5ft_77',['tlv_value_t',['../structtlv__value__t.html',1,'']]],
-  ['tlv_5fwriter_78',['tlv_writer',['../structtlv__writer.html',1,'']]],
-  ['tlv_5fwriter_5fdiagnostic_79',['tlv_writer_diagnostic',['../structtlv__writer__diagnostic.html',1,'']]]
+  ['tlv_5ftagged_5fbinary_5flayout_76',['tlv_tagged_binary_layout',['../structtlv__tagged__binary__layout.html',1,'']]],
+  ['tlv_5fvalue_5fconstraint_77',['tlv_value_constraint',['../structtlv__value__constraint.html',1,'']]],
+  ['tlv_5fvalue_5ft_78',['tlv_value_t',['../structtlv__value__t.html',1,'']]],
+  ['tlv_5fwriter_79',['tlv_writer',['../structtlv__writer.html',1,'']]],
+  ['tlv_5fwriter_5fdiagnostic_80',['tlv_writer_diagnostic',['../structtlv__writer__diagnostic.html',1,'']]]
 ];

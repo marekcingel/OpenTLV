@@ -94,6 +94,9 @@ Files</h2></td></tr>
 <tr class="memitem:bluetooth__ltv_8h" id="r_bluetooth__ltv_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="bluetooth__ltv_8h.html">bluetooth_ltv.h</a></td></tr>
 <tr class="memdesc:bluetooth__ltv_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth LTV: one length byte, one type byte, then the value. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:dhcpv4_8h" id="r_dhcpv4_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dhcpv4_8h.html">dhcpv4.h</a></td></tr>
+<tr class="memdesc:dhcpv4_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">DHCPv4 option framing from RFC 2132 sections 2, 3.1 and 3.2. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:lldp_8h" id="r_lldp_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lldp_8h.html">lldp.h</a></td></tr>
 <tr class="memdesc:lldp_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">LLDP packed 7-bit Type and 9-bit Length framing. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,6 +135,9 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__binary__layout.html">tlv_binary_layout</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-width binary fields, independent of any protocol.  <a href="structtlv__binary__layout.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tagged__binary__layout.html">tlv_tagged_binary_layout</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed binary TLV framing with identifier-selected tag-only elements.  <a href="structtlv__tagged__binary__layout.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__packed__field.html">tlv_packed_field</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One unsigned bit field within a fixed-size wire integer.  <a href="structtlv__packed__field.html#details">More...</a><br /></td></tr>
@@ -211,6 +217,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gaa539a67f6feeae3003c2935741734354" id="r_gaa539a67f6feeae3003c2935741734354"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__binary__layout.html">tlv_binary_layout</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354">tlv_binary_layout_t</a></td></tr>
 <tr class="memdesc:gaa539a67f6feeae3003c2935741734354"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-width binary fields, independent of any protocol.  <br /></td></tr>
 <tr class="separator:gaa539a67f6feeae3003c2935741734354"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6dabfa6296f354ccba50da3921f9e4e9" id="r_ga6dabfa6296f354ccba50da3921f9e4e9"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__tagged__binary__layout.html">tlv_tagged_binary_layout</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga6dabfa6296f354ccba50da3921f9e4e9">tlv_tagged_binary_layout_t</a></td></tr>
+<tr class="memdesc:ga6dabfa6296f354ccba50da3921f9e4e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed binary TLV framing with identifier-selected tag-only elements.  <br /></td></tr>
+<tr class="separator:ga6dabfa6296f354ccba50da3921f9e4e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6975503eb92e58c68b69207256ee70f1" id="r_ga6975503eb92e58c68b69207256ee70f1"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__packed__field.html">tlv_packed_field</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a></td></tr>
 <tr class="memdesc:ga6975503eb92e58c68b69207256ee70f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">One unsigned bit field within a fixed-size wire integer.  <br /></td></tr>
 <tr class="separator:ga6975503eb92e58c68b69207256ee70f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -380,6 +389,18 @@ Functions</h2></td></tr>
 <tr class="memitem:gadb7b42e4eca81463445758549038fb5b" id="r_gadb7b42e4eca81463445758549038fb5b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gadb7b42e4eca81463445758549038fb5b">tlv_binary_encode</a> (const void *context, const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, uint8_t *data, size_t capacity, size_t *written, <a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *error)</td></tr>
 <tr class="memdesc:gadb7b42e4eca81463445758549038fb5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode binary fields; context points to <a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354" title="Fixed-width binary fields, independent of any protocol.">tlv_binary_layout_t</a>.  <br /></td></tr>
 <tr class="separator:gadb7b42e4eca81463445758549038fb5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad4789c5a97f7a00ec84705c1648e0def" id="r_gad4789c5a97f7a00ec84705c1648e0def"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gad4789c5a97f7a00ec84705c1648e0def">tlv_tagged_binary_decode</a> (const void *context, const uint8_t *data, size_t size, <a class="el" href="group__formats.html#ga3bc09282da50bc43b6467030f2e5bc4e">tlv_decoded_t</a> *result, <a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *error)</td></tr>
+<tr class="memdesc:gad4789c5a97f7a00ec84705c1648e0def"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode identifier-selected binary framing.  <br /></td></tr>
+<tr class="separator:gad4789c5a97f7a00ec84705c1648e0def"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac145d947d4301518802cecd607236be8" id="r_gac145d947d4301518802cecd607236be8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gac145d947d4301518802cecd607236be8">tlv_tagged_binary_measure</a> (const void *context, const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, <a class="el" href="group__formats.html#ga41a69be060b77335ad4032b16727738d">tlv_encoding_t</a> *encoding, <a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *error)</td></tr>
+<tr class="memdesc:gac145d947d4301518802cecd607236be8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure identifier-selected binary framing.  <br /></td></tr>
+<tr class="separator:gac145d947d4301518802cecd607236be8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9b67f3addfde12070f3341c071d236dc" id="r_ga9b67f3addfde12070f3341c071d236dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga9b67f3addfde12070f3341c071d236dc">tlv_tagged_binary_encode</a> (const void *context, const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, uint8_t *data, size_t capacity, size_t *written, <a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *error)</td></tr>
+<tr class="memdesc:ga9b67f3addfde12070f3341c071d236dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode identifier-selected binary framing.  <br /></td></tr>
+<tr class="separator:ga9b67f3addfde12070f3341c071d236dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac036d7599c8dbe6d1ec76bae3768a53f" id="r_gac036d7599c8dbe6d1ec76bae3768a53f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gac036d7599c8dbe6d1ec76bae3768a53f">tlv_tagged_binary_format_init</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="group__formats.html#ga6dabfa6296f354ccba50da3921f9e4e9">tlv_tagged_binary_layout_t</a> *layout)</td></tr>
+<tr class="memdesc:gac036d7599c8dbe6d1ec76bae3768a53f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a bidirectional descriptor with identifier-selected framing.  <br /></td></tr>
+<tr class="separator:gac036d7599c8dbe6d1ec76bae3768a53f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2f0bc6baee687d0d1f946119eaff728e" id="r_ga2f0bc6baee687d0d1f946119eaff728e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga2f0bc6baee687d0d1f946119eaff728e">tlv_packed_field_read</a> (const <a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a> *field, const uint8_t *data, size_t size, uint64_t *value)</td></tr>
 <tr class="memdesc:ga2f0bc6baee687d0d1f946119eaff728e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract an unsigned field from its complete backing wire integer.  <br /></td></tr>
 <tr class="separator:ga2f0bc6baee687d0d1f946119eaff728e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -887,6 +908,24 @@ A framing or buffer error reported by the resolver.</dd></dl>
 
 <p>Storage binding of a decoded semantic identifier. </p>
 <p>This distinguishes identifier bytes from their wire location without changing <a class="el" href="structtlv__tag__t.html" title="A TLV tag: a borrowed sequence of identifier bytes.">tlv_tag_t</a> or making the generic reader interpret packed fields. </p>
+
+</div>
+</div>
+<a id="ga6dabfa6296f354ccba50da3921f9e4e9" name="ga6dabfa6296f354ccba50da3921f9e4e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6dabfa6296f354ccba50da3921f9e4e9">&#9670;&#160;</a></span>tlv_tagged_binary_layout_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__tagged__binary__layout.html">tlv_tagged_binary_layout</a> <a class="el" href="group__formats.html#ga6dabfa6296f354ccba50da3921f9e4e9">tlv_tagged_binary_layout_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fixed binary TLV framing with identifier-selected tag-only elements. </p>
+<p>Identifiers listed in tag_only omit both Length and Value; all other tags use fields. Selection compares raw identifier bytes, without numeric or protocol interpretation. Listed identifiers require an empty semantic Value. A decoded tag-only element has an absent Length range and present empty Value and Trailer ranges immediately after Tag. No terminator policy is implied.</p>
+<p>Configuration, table and identifier bytes are borrowed and immutable and must outlive the descriptor. No operation allocates. fields must use TLV ordering and VALUE scope, with nonzero tag_size and length_size in 1..8. Duplicate table entries are permitted and have no additional effect. </p>
 
 </div>
 </div>
@@ -3110,6 +3149,242 @@ Any measurement error, propagated unchanged. </dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302">TLV_ERR_NATIVE_SIZE</a> if the value size exceeds <code>SIZE_MAX</code>. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if the destination cannot hold the source. </dd></dl>
+
+</div>
+</div>
+<a id="gad4789c5a97f7a00ec84705c1648e0def" name="gad4789c5a97f7a00ec84705c1648e0def"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad4789c5a97f7a00ec84705c1648e0def">&#9670;&#160;</a></span>tlv_tagged_binary_decode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tagged_binary_decode </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__formats.html#ga3bc09282da50bc43b6467030f2e5bc4e">tlv_decoded_t</a> *&#160;</td>
+          <td class="paramname"><em>result</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *&#160;</td>
+          <td class="paramname"><em>error</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decode identifier-selected binary framing. </p>
+<p>With <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca02d559be575d42952548b57116818172">TLV_TAG_BINDING_SOURCE</a> (the default), a present source Tag range must match the element Tag pointer and size, including an empty range. An absent Tag range requires <code>{ NULL, 0 }</code>. With <a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca6d430bb7836140794c8073e0a18a64b0">TLV_TAG_BINDING_FORMAT</a>, the semantic Tag borrows immutable format-supplied storage with the lifetime specified by <a class="el" href="group__formats.html#ga9477918442d515ac1a1a67db085eaae7" title="Storage binding of a decoded semantic identifier.">tlv_tag_binding_t</a>. Its optional source range locates wire bytes only; it may overlap the Length range for packed fields. All present ranges remain bounded by the encoded element. Unknown binding values are rejected. Value likewise borrows exactly its declared source range.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed immutable format configuration. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Input bytes; NULL only when size is zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Available native bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">result</td><td>Element and source ranges on success. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>Partial failure information; always non-NULL.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+A wire or buffer error reported by the format.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs.   </dd>
+<dd>
+context points to a valid immutable <a class="el" href="group__formats.html#ga6dabfa6296f354ccba50da3921f9e4e9" title="Fixed binary TLV framing with identifier-selected tag-only elements.">tlv_tagged_binary_layout_t</a>. </dd></dl>
+
+</div>
+</div>
+<a id="ga9b67f3addfde12070f3341c071d236dc" name="ga9b67f3addfde12070f3341c071d236dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9b67f3addfde12070f3341c071d236dc">&#9670;&#160;</a></span>tlv_tagged_binary_encode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tagged_binary_encode </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *&#160;</td>
+          <td class="paramname"><em>element</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>written</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *&#160;</td>
+          <td class="paramname"><em>error</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encode identifier-selected binary framing. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed immutable configuration. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">element</td><td>Valid readable semantic input; must not overlap data. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Output buffer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Native writable extent. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">written</td><td>Complete bytes written on success. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>Failure information; always non-NULL.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+A format error if encoding fails.</dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>On failure, destination bytes are unspecified.   </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>context points to a valid immutable <a class="el" href="group__formats.html#ga6dabfa6296f354ccba50da3921f9e4e9" title="Fixed binary TLV framing with identifier-selected tag-only elements.">tlv_tagged_binary_layout_t</a>. Tag-only elements with nonempty Value return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>. </dd></dl>
+
+</div>
+</div>
+<a id="gac036d7599c8dbe6d1ec76bae3768a53f" name="gac036d7599c8dbe6d1ec76bae3768a53f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac036d7599c8dbe6d1ec76bae3768a53f">&#9670;&#160;</a></span>tlv_tagged_binary_format_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tagged_binary_format_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#ga6dabfa6296f354ccba50da3921f9e4e9">tlv_tagged_binary_layout_t</a> *&#160;</td>
+          <td class="paramname"><em>layout</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize a bidirectional descriptor with identifier-selected framing. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">format</td><td>Descriptor; unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">layout</td><td>Borrowed immutable configuration; must outlive format. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if format or layout is NULL. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid widths, ordering, scope or table entries. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for unsupported length byte order. </dd></dl>
+
+</div>
+</div>
+<a id="gac145d947d4301518802cecd607236be8" name="gac145d947d4301518802cecd607236be8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac145d947d4301518802cecd607236be8">&#9670;&#160;</a></span>tlv_tagged_binary_measure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tagged_binary_measure </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *&#160;</td>
+          <td class="paramname"><em>element</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__formats.html#ga41a69be060b77335ad4032b16727738d">tlv_encoding_t</a> *&#160;</td>
+          <td class="paramname"><em>encoding</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *&#160;</td>
+          <td class="paramname"><em>error</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Measure identifier-selected binary framing. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed immutable configuration. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">element</td><td>Semantic input. A NULL value pointer with nonzero size is permitted for a size-only query if this format does not inspect content. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">encoding</td><td>Exact framing sizes on success. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">error</td><td>Failure information; always non-NULL.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if logical size arithmetic overflows. </dd>
+<dd>
+A format error if the semantic input cannot be represented.   </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>context points to a valid immutable <a class="el" href="group__formats.html#ga6dabfa6296f354ccba50da3921f9e4e9" title="Fixed binary TLV framing with identifier-selected tag-only elements.">tlv_tagged_binary_layout_t</a>. Tag-only elements with nonempty Value return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>. </dd></dl>
 
 </div>
 </div>

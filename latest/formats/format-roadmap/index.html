@@ -1423,6 +1423,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../dhcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DHCPv4 option framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../lldp/" class="md-nav__link">
         
   
@@ -3081,7 +3109,7 @@ so a candidate's "components" show which layers stay separate.</p>
 <a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>│   ├── Networking, link and routing
 <a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>│   │   ├── [x] LLDP base TLVs (IEEE 802.1AB; normative audit pending)
 <a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>│   │   ├── [?] IS-IS TLVs and sub-TLVs (ISO 10589 and extensions)
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>│   │   ├── [?] DHCPv4 options (RFC 2132, RFC 3396, RFC 3046)
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>│   │   ├── [x] DHCPv4 option framing (RFC 2132; packet semantics excluded)
 <a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>│   │   ├── [?] DHCPv6 options (RFC 8415)
 <a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>│   │   ├── [?] LDP (RFC 5036 and extensions)
 <a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>│   │   └── [?] RFC 5444 TLV blocks (TLVs only)
@@ -3238,7 +3266,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.</strong><
 <tr>
 <td>Elements without a length, and a terminator</td>
 <td>DHCPv4 Pad and End, NFC tag TLV NULL and Terminator</td>
-<td>Each can be read as a header-only element, but the walker has no built-in "skip padding" or "stop at terminator" policy. Needs an explicit policy.</td>
+<td>DHCPv4 uses the generic identifier-selected binary layout for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC requires separate assessment.</td>
 </tr>
 <tr>
 <td>Composite tag identity (type plus instance, vendor or flags)</td>
