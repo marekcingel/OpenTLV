@@ -5,6 +5,20 @@
 #include "tlv/reader/scanner.h"
 #include "tlv/codec/structure.h"
 #include "tlv/config.h"
+#include "tlv/formats/fixed.h"
+#include "tlv/query/query.h"
+#if OPENTLV_DHCP
+#include "tlv/builtins/dhcp/dhcpv4.h"
+#endif
+#if OPENTLV_LLDP
+#include "tlv/builtins/lldp/lldp.h"
+#endif
+#if OPENTLV_BLUETOOTH
+#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
+#endif
+#if OPENTLV_DOCUMENT
+#include "tlv/document/document.h"
+#endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/copy.h"
@@ -15,6 +29,7 @@
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>
+#include <memory>
 
 namespace {
 // Deliberately different from BER: bit 7 identifies a container.
@@ -332,3 +347,96 @@ TEST(Integration_Tlv_Architecture, WholeObjectCodecRoundtripAndValidationBeforeM
 }
 
 } // namespace
+
+TEST(Integration_Tlv_Architecture, WireFamiliesShareCanonicalElementAndGenericOperations) {
+    const tlv_fixed_format_t config{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
+                                    TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t             fixed{};
+    ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&fixed, &config));
+    struct Case {
+        const char*          name;
+        const tlv_format_t*  format;
+        std::vector<uint8_t> wire;
+    };
+    const Case cases[] = {
+        {"Fixed TLV", &fixed, {0, 0, 53, 1, 3, 127, 0}},
+#if OPENTLV_DHCP
+        {"DHCP identifier-dependent", &tlv_format_dhcpv4, {0, 53, 1, 3, 127, 0}},
+#endif
+#if OPENTLV_LLDP
+        {"LLDP packed", &tlv_format_lldp, {0, 0, 106, 1, 3, 254, 0}},
+#endif
+#if OPENTLV_BLUETOOTH
+        {"Bluetooth LTV", &tlv_format_bluetooth_ltv, {1, 0, 2, 53, 3, 1, 127}},
+#endif
+    };
+    const uint8_t tags[] = {0, 53, 127};
+    const size_t  lengths[] = {0, 1, 0};
+    // Only descriptors and reference bytes vary; consumers have no protocol branches.
+    for (const auto& test : cases) {
+        SCOPED_TRACE(test.name);
+        tlv_reader_t         reader{};
+        tlv_writer_t         writer{};
+        std::vector<uint8_t> output(test.wire.size());
+        ASSERT_EQ(TLV_OK,
+                  tlv_reader_init(&reader, test.wire.data(), test.wire.size(), test.format));
+        ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, output.data(), output.size(), test.format));
+        size_t message_offset = 0;
+        for (size_t i = 0; i < 3; ++i) {
+            const size_t start = reader.pos;
+            if (i == 1) message_offset = start;
+            tlv_element_t element{};
+            ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+            ASSERT_EQ(1u, element.tag.size);
+            EXPECT_EQ(tags[i], element.tag.data[0]);
+            ASSERT_EQ(lengths[i], element.value.size);
+            if (lengths[i]) EXPECT_EQ(3, element.value.data[0]);
+            ASSERT_EQ(TLV_OK, tlv_writer_copy_element(&writer, &element));
+            tlv_decoded_t decoded{};
+            ASSERT_EQ(TLV_OK, tlv_format_decode(test.format, test.wire.data() + start,
+                                                test.wire.size() - start, &decoded, nullptr));
+            EXPECT_EQ(reader.pos - start, decoded.source.size);
+            EXPECT_TRUE(tlv_tag_equal(element.tag, decoded.element.tag));
+            EXPECT_EQ(element.value.data, decoded.element.value.data);
+            std::vector<uint8_t> preserved(decoded.source.size);
+            size_t               written = 0;
+            ASSERT_EQ(TLV_OK, tlv_source_preserve(&decoded.source, &element, preserved.data(),
+                                                  preserved.size(), &written));
+            EXPECT_EQ(preserved.size(), written);
+            EXPECT_EQ(0, std::memcmp(test.wire.data() + start, preserved.data(), written));
+        }
+        EXPECT_TRUE(tlv_reader_at_end(&reader));
+        EXPECT_EQ(test.wire.size(), tlv_writer_size(&writer));
+        EXPECT_EQ(test.wire, output);
+        tlv_query_t query{};
+        ASSERT_EQ(TLV_OK, tlv_query_parse("35", &query, nullptr));
+        std::vector<size_t> matches;
+        auto visit = [](const tlv_element_t* element, size_t, size_t offset, void* context) {
+            EXPECT_TRUE(tlv_tag_equal(TLV_TAG(53), element->tag));
+            EXPECT_EQ(1u, element->value.size);
+            static_cast<std::vector<size_t>*>(context)->push_back(offset);
+            return TLV_VISIT_CONTINUE;
+        };
+        ASSERT_EQ(TLV_OK, tlv_query_walk(test.wire.data(), test.wire.size(), test.format, &query, 0,
+                                         3, visit, &matches, nullptr));
+        ASSERT_EQ(1u, matches.size());
+        EXPECT_EQ(message_offset, matches[0]);
+#if OPENTLV_DOCUMENT
+        tlv_document_options_t options{};
+        ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, test.format));
+        tlv_document_t* raw = nullptr;
+        ASSERT_EQ(TLV_OK,
+                  tlv_document_parse(test.wire.data(), test.wire.size(), &options, &raw, nullptr));
+        std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
+        EXPECT_EQ(3u, tlv_document_count(doc.get()));
+        auto* node = tlv_document_find_path(doc.get(), &query);
+        ASSERT_NE(nullptr, node);
+        ASSERT_EQ(1u, tlv_node_value_size(node));
+        EXPECT_EQ(3, tlv_node_value_data(node)[0]);
+        size_t written = 0;
+        ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), output.data(), output.size(), &written));
+        EXPECT_EQ(test.wire.size(), written);
+        EXPECT_EQ(test.wire, output);
+#endif
+    }
+}
