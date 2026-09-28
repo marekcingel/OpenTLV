@@ -91,6 +91,7 @@ Variables</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bluetooth Advertising Data Type definitions. </p>
+<dl class="section note"><dt>Note</dt><dd>Requires <code>OPENTLV_BLUETOOTH=ON</code>. </dd></dl>
 </div><h2 class="groupheader">Variable Documentation</h2>
 <a id="a8a47924e4abd4d2ed030a6c27e067ef4" name="a8a47924e4abd4d2ed030a6c27e067ef4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8a47924e4abd4d2ed030a6c27e067ef4">&#9670;&#160;</a></span>tlv_bluetooth_ad_types</h2>
@@ -114,7 +115,7 @@ Variables</h2></td></tr>
 
 <p>Immutable Bluetooth Advertising Data Type registry with static lifetime. </p>
 <p>Maps canonical one-byte identifiers to Bluetooth SIG Assigned Numbers names. Initial coverage is 0x01-0x0A, 0x16, 0x20, 0x21 and 0xFF. This is not an exhaustive list of assigned types. Unknown types remain valid for structural parsing; lookup does not validate values or impose schema constraints.</p>
-<p>Use <a class="el" href="definition_8h.html#a4f3eee11f435919963ddbf725442b7d9" title="Finds the first definition with the same tag size and bytes.">tlv_definition_find()</a> for allocation-free lookup. Available independently of the Bluetooth LTV format build option; no parser or writer is required.</p>
+<p>Use <a class="el" href="definition_8h.html#a4f3eee11f435919963ddbf725442b7d9" title="Finds the first definition with the same tag size and bytes.">tlv_definition_find()</a> for allocation-free lookup. Requires <code>OPENTLV_BLUETOOTH=ON</code>; no parser or writer is required.</p>
 <dl class="section see"><dt>See also</dt><dd><a href="https://www.bluetooth.com/specifications/assigned-numbers/">https://www.bluetooth.com/specifications/assigned-numbers/</a> </dd></dl>
 
 </div>

@@ -10,7 +10,7 @@
 import createOpenTLV from "./opentlv-core.js";
 
 /** Formats the module can parse (a build may compile out some of them). */
-export const FORMATS = Object.freeze(["fixed", "bluetooth-ltv", "ber", "der"]);
+export const FORMATS = Object.freeze(["fixed", "bluetooth-ltv", "bluetooth-ad", "ber", "der", "cer"]);
 
 /** Profiles that annotate elements with known tag names ("none" adds nothing). */
 export const PROFILES = Object.freeze(["none", "emv"]);
@@ -37,7 +37,7 @@ export function hexToBytes(text) {
  * @param {object} [moduleOptions] Passed to the Emscripten factory, e.g.
  *   `{ locateFile: (name) => "/static/" + name }` to serve the .wasm file
  *   from another location.
- * @returns {Promise<{version: string, parse: Function}>}
+ * @returns {Promise<{version: string, formats: readonly string[], profiles: readonly string[], parse: Function}>}
  */
 export async function loadOpenTLV(moduleOptions = {}) {
   const module = await createOpenTLV(moduleOptions);
@@ -49,28 +49,42 @@ export async function loadOpenTLV(moduleOptions = {}) {
     return pointer;
   }
 
-  return {
+  const api = {
     version: module.UTF8ToString(module._opentlv_wasm_version()),
 
     /**
      * Parses `bytes` and returns
      * `{ format, profile?, elements: [{ offset, depth, tag, length, headerSize, constructed,
      * value | children, symbol?, name?, lengthValid? }], error? }`.
+     * Bluetooth modes add AD Type names. "bluetooth-ad" validates container padding
+     * and adds `padding: { offset, length }` when present; "bluetooth-ltv" stays strict.
      * `error` is `{ code, message, offset }` and comes with every element read
      * before the failure. Tags and values are uppercase hexadecimal strings.
-     * An element spans `headerSize + length` bytes starting at `offset`.
+     * An element spans `encodedSize` bytes starting at `offset`.
+     * `source` contains absolute {offset, length} ranges for header, tag, length,
+     * value and trailer; logical value length excludes the trailer.
      *
      * @param {Uint8Array} bytes
      * @param {{format?: string, profile?: string, fixedTagSize?: number,
-     *   fixedLengthSize?: number, fixedByteOrder?: "big"|"little"}} [options] `format`
+     *   fixedLengthSize?: number, fixedByteOrder?: "big"|"little",
+     *   fixedElementOrder?: "tlv"|"ltv", fixedLengthScope?: "value"|"tag-and-value"}} [options] `format`
      *   defaults to "ber"; `profile` ("none" or "emv") defaults to "none".
      *   `fixedTagSize`, `fixedLengthSize` (1-8) and `fixedByteOrder` configure
      *   `format: "fixed"`'s tag width, length width and length byte order
-     *   (`tlv_fixed_format_t`); ignored for every other format.
+     *   (`tlv_fixed_format_t`). `fixedElementOrder` defaults to "tlv" and
+     *   `fixedLengthScope` to "value". These options apply only to Fixed.
      */
     parse(bytes, { format = "ber", profile = "none", fixedTagSize = 1, fixedLengthSize = 1,
-                  fixedByteOrder = "big" } = {}) {
+                  fixedByteOrder = "big", fixedElementOrder = "tlv", fixedLengthScope = "value" } = {}) {
       if (!(bytes instanceof Uint8Array)) throw new TypeError("bytes must be a Uint8Array");
+      if (format === "fixed" && (
+        !Number.isSafeInteger(fixedTagSize) || fixedTagSize < 1 || fixedTagSize > 0xffffffff ||
+        !Number.isInteger(fixedLengthSize) || fixedLengthSize < 1 || fixedLengthSize > 8 ||
+        !["big", "little"].includes(fixedByteOrder) ||
+        !["tlv", "ltv"].includes(fixedElementOrder) ||
+        !["value", "tag-and-value"].includes(fixedLengthScope))) {
+        throw new TypeError("Invalid Fixed configuration: positive tag width, length width 1-8, and valid byte order, field order and length scope required");
+      }
       const formatSize = module.lengthBytesUTF8(format) + 1;
       const profileSize = module.lengthBytesUTF8(profile) + 1;
       const input = allocate(bytes.length);
@@ -85,7 +99,9 @@ export async function loadOpenTLV(moduleOptions = {}) {
         module.stringToUTF8(format, name, formatSize);
         module.stringToUTF8(profile, profileName, profileSize);
         result = module._opentlv_wasm_parse(input, bytes.length, name, profileName, fixedTagSize,
-                                            fixedLengthSize, fixedByteOrder === "big" ? 1 : 0);
+                                            fixedLengthSize, fixedByteOrder === "big" ? 1 : 0,
+                                            fixedElementOrder === "ltv" ? 1 : 0,
+                                            fixedLengthScope === "tag-and-value" ? 1 : 0);
         if (!result) throw new Error("OpenTLV: out of memory");
         const json = module.UTF8ToString(
           module._opentlv_wasm_result_json(result),
@@ -100,4 +116,8 @@ export async function loadOpenTLV(moduleOptions = {}) {
       }
     },
   };
+  api.formats = Object.freeze(FORMATS.filter(format => !api.parse(new Uint8Array(0), { format }).error));
+  api.profiles = Object.freeze(api.parse(new Uint8Array(0), { format: "ber", profile: "emv" }).error
+    ? ["none"] : ["none", "emv"]);
+  return api;
 }

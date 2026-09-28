@@ -2716,14 +2716,22 @@ native builds, and a compiled-out format is rejected as an invalid argument.</p>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">format</span><span class="o">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="w"> </span><span class="p">},</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">);</span>
 </code></pre></div>
-<p><code>parse</code> takes a <code>Uint8Array</code>, a <code>format</code> (<code>fixed</code>, <code>bluetooth-ltv</code>,
-<code>ber</code> or <code>der</code>; default <code>ber</code>) and optionally a <code>profile</code> (<code>none</code> or <code>emv</code>; default
+<p><code>parse</code> takes a <code>Uint8Array</code>, a <code>format</code> (<code>fixed</code>, <code>bluetooth-ltv</code>, <code>bluetooth-ad</code>,
+<code>ber</code>, <code>der</code> or <code>cer</code>; default <code>ber</code>) and optionally a <code>profile</code> (<code>none</code> or <code>emv</code>; default
 <code>none</code>) and returns:</p>
+<p>Bluetooth modes annotate known AD Types with <code>name</code> from the C registry.
+<code>bluetooth-ltv</code> keeps strict element framing. <code>bluetooth-ad</code> adds Advertising
+Data container semantics: validated trailing zeros are reported separately as
+<code>padding: { offset, length }</code>. Nonzero padding is an error at its original
+source offset. Neither mode validates schemas or decodes value payloads.</p>
 <p>For <code>format: "fixed"</code>, <code>fixedTagSize</code> (default <code>1</code>), <code>fixedLengthSize</code> (1-8, default
 <code>1</code>) and <code>fixedByteOrder</code> (<code>"big"</code> or <code>"little"</code>, default <code>"big"</code>) configure the
 configurable fixed-width format's tag width, length width and length byte order
-(<code>tlv_fixed_format_t</code>); they are ignored for every other format. An invalid width
-is reported through <code>result.error</code>, like any other parse error.</p>
+(<code>tlv_fixed_format_t</code>). <code>fixedElementOrder</code> selects <code>"tlv"</code> (default) or <code>"ltv"</code>;
+<code>fixedLengthScope</code> selects <code>"value"</code> (default) or <code>"tag-and-value"</code>.
+These options apply only to Fixed. Invalid JavaScript configuration values throw
+<code>TypeError</code>; invalid encoded input is reported through <code>result.error</code>.
+<code>opentlv.formats</code> and <code>opentlv.profiles</code> list the modes supported by the loaded build.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="p">,</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -2740,11 +2748,17 @@ is reported through <code>result.error</code>, like any other parse error.</p>
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="p">]</span>
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="p">}</span>
 </code></pre></div>
-<p>Tags and values are uppercase hexadecimal. Only BER and DER elements can be
+<p>Tags and values are uppercase hexadecimal. Only BER, DER and CER elements can be
 constructed; the other formats return flat elements with opaque values. An
-element occupies <code>headerSize + length</code> encoded bytes from <code>offset</code>, the first
-bytes being its encoded <code>tag</code>; a constructed element's value is the byte range
-its <code>children</code> cover.</p>
+element occupies <code>encodedSize</code> bytes from <code>offset</code>, including any trailer.
+<code>source</code> contains absolute <code>{offset, length}</code> ranges for <code>header</code>, <code>tag</code>,
+<code>length</code>, <code>value</code> and <code>trailer</code>; empty regions have length zero. The logical
+Value excludes the enclosing trailer. Field order comes from these ranges,
+so LTV and BER end-of-contents need no byte-layout guessing in the viewer.
+The JSON example above omits <code>encodedSize</code> and <code>source</code> for brevity.</p>
+<p><code>format: "cer"</code> uses the generic tree walker with <code>tlv_format_cer</code>, preserving
+preorder output and EOC source ranges. It checks framing only; full CER profile
+validation (including string segmentation and semantic values) is not applied.</p>
 <p>With <code>profile: "emv"</code> (BER only; other formats report an invalid-argument
 error) the result also has <code>"profile": "emv"</code>. Every element the
 <a href="../../profiles/emv/">EMV dictionary</a> knows carries <code>symbol</code> (the

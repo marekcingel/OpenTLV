@@ -1228,6 +1228,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#generic-core-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic core formats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#built-in-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in standards
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#recipes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2642,6 +2664,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#generic-core-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic core formats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#built-in-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in standards
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#recipes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2766,8 +2810,25 @@ recipes for the common selections. For the principle and the option reference, s
 <a href="../../concepts/architecture/#include-only-what-you-need">include only what you need</a> and
 <a href="../../concepts/architecture/#build-configuration">build configuration</a>.</p>
 <p>The generic core (reader, writer, walker, schemas, value codecs and the format
-callbacks) is always built. Each format and profile is an option that defaults to ON.
+callbacks), including the configurable Fixed format, is always built.
+Protocol extensions are options that default to ON.
 Turn off what you do not use.</p>
+<h2 id="generic-core-formats">Generic core formats<a class="headerlink" href="#generic-core-formats" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Availability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../formats/fixed/configurable/">Configurable fixed-width TLV</a></td>
+<td>Always built; shared C implementation and C++ wrapper</td>
+</tr>
+</tbody>
+</table>
+<h2 id="built-in-standards">Built-in standards<a class="headerlink" href="#built-in-standards" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -2777,12 +2838,8 @@ Turn off what you do not use.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>OPENTLV_FORMAT_FIXED</code></td>
-<td><a href="../../formats/fixed/configurable/">Configurable fixed-width TLV</a> (C and C++ API); must be ON for Bluetooth LTV</td>
-</tr>
-<tr>
-<td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
-<td><a href="../../formats/bluetooth/">Bluetooth LTV</a>, a preset of the configurable Fixed format</td>
+<td><code>OPENTLV_BLUETOOTH</code></td>
+<td><a href="../../formats/bluetooth/">Bluetooth</a>: LTV format, containers, definitions, schemas and codecs</td>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_ASN1</code></td>
@@ -2804,44 +2861,37 @@ Turn off what you do not use.</p>
 <td><code>OPENTLV_PROFILE_EMV</code></td>
 <td><a href="../../profiles/emv/">EMV profile</a></td>
 </tr>
-<tr>
-<td><code>OPENTLV_DOCUMENT</code></td>
-<td><a href="../document/">Mutable document</a>; allocates memory, so turn it OFF for allocation-free builds. Independent of every format</td>
-</tr>
 </tbody>
 </table>
+<p>The <a href="../document/">mutable document</a> is a separate optional generic component,
+controlled by <code>OPENTLV_DOCUMENT</code>; it is not a format or a standard package.</p>
 <p>Turning an option OFF also turns OFF everything below it in the chain
-<code>ASN1 -&gt; BER -&gt; DER -&gt; EMV</code>, with CER a sibling of DER under BER, and in the
-chain <code>FIXED -&gt; BLUETOOTH_LTV</code> (Bluetooth LTV is a preset of the Fixed
-format). The C++ <a href="../../formats/fixed/configurable/">configurable fixed-width format</a>
-template delegates to the C implementation, so it follows <code>OPENTLV_FORMAT_FIXED</code>
-too, unlike the rest of the header-only C++ wrapper.</p>
+<code>ASN1 -&gt; BER -&gt; DER -&gt; EMV</code>, with CER a sibling of DER under BER.
+The C++ <a href="../../formats/fixed/configurable/">configurable fixed-width format</a>
+template delegates to the always-built C implementation.</p>
 <h2 id="recipes">Recipes<a class="headerlink" href="#recipes" title="Permanent link">&para;</a></h2>
 <p>Each recipe starts from a clean build directory; replace <code>build</code> with your own. Every
 option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
 <h3 id="core-only">Core only<a class="headerlink" href="#core-only" title="Permanent link">&para;</a></h3>
 <p>Use this when you supply your own <a href="../../formats/custom/">format callbacks</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_BLUETOOTH_LTV<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-and-ber">Core and BER<a class="headerlink" href="#core-and-ber" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_BLUETOOTH_LTV<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>-DOPENTLV_FORMAT_DER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_PROFILE_EMV<span class="o">=</span>OFF
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_DER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_PROFILE_EMV<span class="o">=</span>OFF
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-ber-der-and-emv">Core, BER, DER and EMV<a class="headerlink" href="#core-ber-der-and-emv" title="Permanent link">&para;</a></h3>
 <p>EMV needs DER and DER needs BER, so all three are on. CER is off.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>-DOPENTLV_FORMAT_BLUETOOTH_LTV<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-and-bluetooth-ltv-only">Core and Bluetooth LTV only<a class="headerlink" href="#core-and-bluetooth-ltv-only" title="Permanent link">&para;</a></h3>
-<p>Bluetooth LTV is a preset of the Fixed format, so <code>OPENTLV_FORMAT_FIXED</code> stays ON.</p>
+<p>Bluetooth uses the generic binary layout primitives. Fixed is always available.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
@@ -2852,11 +2902,8 @@ option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel
 </code></pre></div>
 <h2 id="what-you-get">What you get<a class="headerlink" href="#what-you-get" title="Permanent link">&para;</a></h2>
-<p>These recipes were checked by configuring each one and building the <code>tlv</code> library target
-with MSVC in Release as a shared library. The generated <code>tlv/config.h</code> matched each recipe,
-and the symbols of the disabled formats were absent from the built library. As an
-illustration only (the sizes depend on the compiler, settings and platform), the shared
-library was about 26 KB for the core only and about 107 KB with everything.</p>
+<p>Fixed remains available in every configuration, including core-only builds.
+Disabled protocol extensions contribute no implementation symbols.</p>
 <p>Confirm your own selection from the generated <code>tlv/config.h</code>, which defines each option
 as <code>1</code> or <code>0</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/config.h"</span>
@@ -2870,13 +2917,12 @@ as <code>1</code> or <code>0</code>:</p>
 header of a disabled component does not provide its symbols.</p>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Tests, examples and the CLI that need a disabled component are omitted from that build.
-  The recipes above were checked by building the <code>tlv</code> library target.</li>
+<li>Tests, examples and the CLI that need a disabled component are omitted from that build.</li>
 <li>The C++ wrapper adds cost only for the headers you include.</li>
 <li>The Rust bindings do not choose components yet: they build the C library with its
   default options. See
   <a href="../../concepts/architecture/#include-only-what-you-need">include only what you need</a>.</li>
-<li>A future format follows the same rule, with its own option; see the
+<li>Protocol extensions remain optional; generic formats belong to the core. See the
   <a href="../../formats/format-roadmap/">format expansion candidates</a>.</li>
 </ul>
 

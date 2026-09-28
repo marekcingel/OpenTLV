@@ -806,6 +806,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Build configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generic-core-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic core formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in standards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2732,6 +2760,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Build configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generic-core-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic core formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in standards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3045,8 +3101,24 @@ components. Mapping the component options to Cargo features is a requirement for
 future work; see <a href="../../development/rust/#build">Rust bindings</a>. Ready-made CMake recipes are in
 <a href="../../guides/select-components/">building only the components you need</a>.</p>
 <h2 id="build-configuration">Build configuration<a class="headerlink" href="#build-configuration" title="Permanent link">&para;</a></h2>
-<p>All generic facilities are always available. These concrete components default
-to ON and can be disabled independently:</p>
+<p>All generic facilities, including the configurable Fixed format, are always available.</p>
+<h3 id="generic-core-formats">Generic core formats<a class="headerlink" href="#generic-core-formats" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Availability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../formats/fixed/configurable/">Configurable fixed-width TLV</a></td>
+<td>Always built; shared C implementation and C++ wrapper</td>
+</tr>
+</tbody>
+</table>
+<h3 id="built-in-standards">Built-in standards<a class="headerlink" href="#built-in-standards" title="Permanent link">&para;</a></h3>
+<p>These packages default to ON and can be disabled subject to the dependencies below.</p>
 <table>
 <thead>
 <tr>
@@ -3056,12 +3128,8 @@ to ON and can be disabled independently:</p>
 </thead>
 <tbody>
 <tr>
-<td><code>OPENTLV_FORMAT_FIXED</code></td>
-<td>Configurable fixed-width tag and length (<code>tlv_fixed_format_t</code>)</td>
-</tr>
-<tr>
-<td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
-<td>Bluetooth Length, Type, Value framing</td>
+<td><code>OPENTLV_BLUETOOTH</code></td>
+<td>Bluetooth LTV format, containers, definitions, schemas and codecs</td>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_ASN1</code></td>
@@ -3083,12 +3151,10 @@ to ON and can be disabled independently:</p>
 <td><code>OPENTLV_PROFILE_EMV</code></td>
 <td>EMV dictionary, schemas and value codecs</td>
 </tr>
-<tr>
-<td><code>OPENTLV_DOCUMENT</code></td>
-<td>Optional <a href="../../guides/document/">mutable document</a>; the only component that allocates</td>
-</tr>
 </tbody>
 </table>
+<p>The <a href="../../guides/document/">mutable document</a> is a separate optional generic component,
+controlled by <code>OPENTLV_DOCUMENT</code>; it is not a format or a standard package.</p>
 <p><code>OPENTLV_FORMAT_ASN1</code>, <code>OPENTLV_FORMAT_BER</code>, <code>OPENTLV_FORMAT_DER</code>, and
 <code>OPENTLV_PROFILE_EMV</code> form a chain (ASN1 -&gt; BER -&gt; DER -&gt; EMV): disabling an
 option forces every option below it OFF as well, regardless of how that
@@ -3103,10 +3169,10 @@ component's header does not provide its symbols; consumers should use the
 config macros when supporting reduced builds.</p>
 <p>Tests that require disabled components and examples that demonstrate them are
 omitted. Generic architecture tests use an application-defined format and run
-even when all built-ins are disabled. The benchmark uses BER and
+even when all protocol extensions are disabled. The benchmark uses BER and
 is built only when that component is enabled.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-minimal<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-minimal<span class="w"> </span>--parallel
 </code></pre></div>
 <h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>
@@ -3194,9 +3260,8 @@ callbacks; <code>format()</code> now builds and returns a descriptor from
 <code>tlv_fixed_format_init()</code>, so the C and C++ APIs share one implementation.
 Two consequences follow: the descriptor's <code>context</code> is no longer <code>NULL</code> (it
 is a static <code>tlv_fixed_format_t</code> built from <code>TagWidth</code>, <code>LengthWidth</code> and
-<code>Order</code>), and using <code>tlv::fixed_format&lt;&gt;</code> now needs the library built with
-<code>OPENTLV_FORMAT_FIXED</code> (the default), where it previously needed no CMake
-option at all. <code>static_assert</code>-checked compile-time validation of <code>TagWidth</code>,
+<code>Order</code>), and <code>tlv::fixed_format&lt;&gt;</code> links to the always-built C Fixed
+implementation. <code>static_assert</code>-checked compile-time validation of <code>TagWidth</code>,
 <code>LengthWidth</code> and <code>Order</code> is unchanged. No compatibility shim; rebuild all
 consumers.</p>
 <p>Move constructed-element detection into <code>tlv_format_t</code> as an optional

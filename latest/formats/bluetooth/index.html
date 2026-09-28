@@ -1499,6 +1499,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#advertising-data-containers-and-padding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advertising Data containers and padding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#wire-layout-and-logical-model" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2779,6 +2790,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#advertising-data-containers-and-padding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advertising Data containers and padding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#wire-layout-and-logical-model" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2970,8 +2992,8 @@ only the format descriptor differs.</p>
 <td><code>tlv_format_bluetooth_ltv</code></td>
 </tr>
 <tr>
-<td>CMake option (default ON, independent of <code>OPENTLV_FORMAT_FIXED</code>)</td>
-<td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
+<td>CMake option (default ON)</td>
+<td><code>OPENTLV_BLUETOOTH</code></td>
 </tr>
 <tr>
 <td><code>otlv</code> format name</td>
@@ -2983,6 +3005,14 @@ only the format descriptor differs.</p>
 </tr>
 </tbody>
 </table>
+<p><code>OPENTLV_BLUETOOTH</code> controls the entire Bluetooth extension: LTV format,
+Advertising Data containers, definitions, schemas and codecs. Setting it to
+<code>OFF</code> omits all Bluetooth implementations. Headers remain installed, as for
+other optional components. This replaces <code>OPENTLV_FORMAT_BLUETOOTH_LTV</code>;
+update existing CMake invocations and presets to use the new option.
+The runtime feature query is <code>tlv_config_bluetooth()</code> from <code>tlv/config.h</code>;
+it reports availability of the entire extension. The wire descriptor remains
+<code>tlv_format_bluetooth_ltv</code> and the CLI format name remains <code>bluetooth-ltv</code>.</p>
 <p>Bluetooth LTV is a preset of the <a href="../fixed/configurable/">configurable Fixed format</a>:
 <code>{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
 TLV_LENGTH_SCOPE_TAG_AND_VALUE}</code>. <code>tlv_format_bluetooth_ltv</code> exists so callers
@@ -3002,14 +3032,12 @@ that does not prevent the format from reading or writing the element.</p>
 <code>tlv_definition_registry_t</code> model from <code>tlv/definition.h</code>. Applications can
 provide their own immutable tables and use the same lookup, which compares tag
 size and bytes, returns the first match, and never allocates. Definition
-metadata does not impose schema constraints or interpret values. Both the
-generic API and Bluetooth registry are available even with
-<code>OPENTLV_FORMAT_BLUETOOTH_LTV=OFF</code>.</p>
+metadata does not impose schema constraints or interpret values. The Bluetooth
+registry requires <code>OPENTLV_BLUETOOTH=ON</code>; the generic Definition API is always available.</p>
 <h2 id="basic-advertising-data-value-codecs">Basic Advertising Data value codecs<a class="headerlink" href="#basic-advertising-data-value-codecs" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/builtins/bluetooth/ad_codec.h</code> and call the generic
 <code>tlv_codec_decode()</code> / <code>tlv_codec_encode()</code> functions on an element's value.
-The codecs are allocation-free and available even with
-<code>OPENTLV_FORMAT_BLUETOOTH_LTV=OFF</code>. They do not select or invoke a format,
+The codecs are allocation-free and require <code>OPENTLV_BLUETOOTH=ON</code>. They do not select or invoke a format,
 schema or registry.</p>
 <table>
 <thead>
@@ -3084,8 +3112,7 @@ codecs described below.</p>
 <h2 id="advertising-data-schema">Advertising Data schema<a class="headerlink" href="#advertising-data-schema" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/builtins/bluetooth/ad_schema.h</code> and pass
 <code>&amp;tlv_bluetooth_ad_schema</code> to <code>tlv_schema_validate()</code> with
-<code>&amp;tlv_format_bluetooth_ltv</code>. The immutable schema is available even when the
-Bluetooth format is disabled; it has no dependency on codecs or the registry.</p>
+<code>&amp;tlv_format_bluetooth_ltv</code>. The immutable schema requires <code>OPENTLV_BLUETOOTH=ON</code>; it has no dependency on codecs or the registry.</p>
 <table>
 <thead>
 <tr>
@@ -3140,8 +3167,31 @@ as length issues; the detailed diagnostic includes <code>length_multiple</code>.
 <p>This schema checks lengths and occurrences only. It does not check UTF-8,
 flag-bit contents, numeric ranges, assigned UUIDs/company identifiers or
 service/manufacturer payloads. The format still enforces the 254-byte value
-limit. Pass only significant AD structures; trailing zero padding remains a
-framing error and needs separate container handling.</p>
+limit. Pass only significant AD structures; use the container helper below
+to validate padding and obtain the significant prefix first.</p>
+<h2 id="advertising-data-containers-and-padding">Advertising Data containers and padding<a class="headerlink" href="#advertising-data-containers-and-padding" title="Permanent link">&para;</a></h2>
+<p>Include <code>tlv/builtins/bluetooth/ad_data.h</code> and call
+<code>tlv_bluetooth_ad_data_validate(data, size, &amp;significant_size, &amp;error_offset)</code>
+before processing a padded Advertising Data buffer. This helper is available
+with <code>OPENTLV_BLUETOOTH=ON</code> and uses the generic reader with the
+strict Bluetooth LTV format. It allocates nothing and leaves the input unchanged.</p>
+<p>For <code>02 01 06 00 00 00</code>, validation succeeds with <code>significant_size = 3</code>.
+Pass the original <code>data</code> pointer and that size to the generic reader, walker
+or schema validator. The remaining bytes are padding; source offsets still
+refer to the original buffer. Subsequent parsing performs a second pass.</p>
+<p>A zero byte starts padding only at a structure boundary, and every remaining
+byte must be zero. Zeros inside declared values are preserved. Empty input
+(including <code>NULL, 0</code>) and all-zero input succeed with a zero significant size.
+Unknown AD types and empty values are accepted; schema and value-codec checks
+remain separate.</p>
+<p>A nonzero byte after padding starts returns <code>TLV_ERR_INVALID_VALUE</code>, with
+<code>error_offset</code> pointing to the first offending byte. Truncated structures
+retain the generic reader error and failing-field offset, even when their
+available value bytes end in zeros. <code>significant_size</code> is required and remains
+unchanged on failure. <code>error_offset</code> is optional, unchanged on success, and
+zero for argument errors. Output storage must not overlap the input or each
+other. Never strip trailing zeros by scanning backward: they may belong to
+the final value.</p>
 <h2 id="wire-layout-and-logical-model">Wire layout and logical model<a class="headerlink" href="#wire-layout-and-logical-model" title="Permanent link">&para;</a></h2>
 <p>On the wire the length comes first:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>[Length][Type][Value]
@@ -3375,7 +3425,7 @@ the caller's responsibility.</p>
 </code></pre></div>
 <p>Encoding a list validates the view and copies its original wire bytes exactly.
 To create new list bytes, encode individual UUID values into caller-owned storage.
-All these codecs remain available with <code>OPENTLV_FORMAT_BLUETOOTH_LTV=OFF</code>.
+All these codecs require <code>OPENTLV_BLUETOOTH=ON</code>.
 Byte-order interpretation stays in Codec; Element continues to expose opaque bytes.</p>
 <h2 id="service-data">Service Data<a class="headerlink" href="#service-data" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/builtins/bluetooth/service_data.h</code> to decode a service UUID prefix
@@ -3418,8 +3468,8 @@ bytes as Battery Service fields.</p>
 <p>Encoding uses <code>uuid</code> and <code>payload</code>, regenerating the UUID prefix through the
 UUID codec and copying the payload unchanged. The informational <code>raw</code> span
 is ignored, so caller-constructed objects can leave it empty. Both directions
-are allocation-free. These codecs are available independently of the Bluetooth
-format and do not impose its framing size limit.</p>
+are allocation-free. These codecs require <code>OPENTLV_BLUETOOTH=ON</code> and do not
+impose the AD framing size limit.</p>
 <h2 id="manufacturer-specific-data-and-company-identifiers">Manufacturer Specific Data and Company Identifiers<a class="headerlink" href="#manufacturer-specific-data-and-company-identifiers" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/builtins/bluetooth/manufacturer_data.h</code> and use
 <code>tlv_bluetooth_codec_manufacturer_data</code> for AD Type <code>0xFF</code>.
@@ -3436,7 +3486,7 @@ Keep source storage alive and immutable while using either span. Values shorter
 than two bytes are rejected; an empty payload and unknown identifiers are valid.
 Encoding uses <code>company_id</code> and <code>payload</code>, ignores <code>raw</code>, and regenerates the
 little-endian prefix. Both directions are allocation-free and available with
-<code>OPENTLV_FORMAT_BLUETOOTH_LTV=OFF</code>, without an AD framing size limit.</p>
+<code>OPENTLV_BLUETOOTH=ON</code>, without an AD framing size limit.</p>
 <p>The independent <code>tlv/builtins/bluetooth/company_ids.h</code> header exposes
 <code>tlv_bluetooth_company_ids</code>, a Definition registry for <code>tlv_definition_find()</code>.
 Its keys are the two identifier octets, least-significant octet first: Apple's
@@ -3511,8 +3561,10 @@ they handle and ignore the rest.</p>
 <p>A length byte of zero has no type byte to report. In Bluetooth data it also
 starts the non-significant zero padding that may follow the last structure, so
 a buffer with trailing zero padding stops with <code>TLV_ERR_INVALID_LENGTH</code> after the
-last real structure. Callers that receive padded buffers should trim it first
-(or stop on that error once all wanted structures have been read).</p>
+last real structure. For padded buffers, use
+<code>tlv_bluetooth_ad_data_validate()</code> to validate the container and obtain the
+significant prefix before parsing it. Do not treat arbitrary parsing errors
+as successful termination.</p>
 <p>On error the reader position does not advance, so a truncated structure is
 never returned partially.</p>
 <h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>

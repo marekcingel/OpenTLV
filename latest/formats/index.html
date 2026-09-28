@@ -1407,6 +1407,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Choose a format">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generic-core-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic core formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in standards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1417,6 +1445,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Compare formats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generic-core-formats_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic core formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-standards_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in standards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2650,6 +2706,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Choose a format">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generic-core-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic core formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in standards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2660,6 +2744,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Compare formats">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generic-core-formats_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic core formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-standards_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in standards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2765,16 +2877,11 @@
 Concrete C implementations live under <code>tlv/builtins/&lt;protocol&gt;/</code> (grouped by
 protocol) or, for protocol-agnostic mechanisms like the configurable fixed-width
 format, <code>tlv/formats/</code>; see <a href="../concepts/architecture/#repository-layout">architecture</a>.</p>
-<ul>
-<li><a href="fixed/configurable/">Configurable fixed-width TLV</a></li>
-<li><a href="bluetooth/">Bluetooth LTV</a></li>
-<li><a href="asn1/ber/">BER-TLV</a></li>
-<li><a href="asn1/der/">DER-TLV</a></li>
-<li><a href="asn1/cer/">CER-TLV</a></li>
-<li><a href="custom/">Application-defined formats</a></li>
-<li>Profiles: <a href="../profiles/der/">DER validation</a>, <a href="../profiles/cer/">CER validation</a>, <a href="../profiles/emv/">EMV</a></li>
-</ul>
+<p>Generic formats in <code>tlv/formats/</code> are part of the core and always available.
+Built-ins in <code>tlv/builtins/&lt;protocol&gt;/</code> implement specific standards and are
+optional. Both use the same Format, Reader and Writer contracts.</p>
 <h2 id="choose-a-format">Choose a format<a class="headerlink" href="#choose-a-format" title="Permanent link">&para;</a></h2>
+<h3 id="generic-core-formats">Generic core formats<a class="headerlink" href="#generic-core-formats" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2789,6 +2896,18 @@ format, <code>tlv/formats/</code>; see <a href="../concepts/architecture/#reposi
 <td><a href="fixed/configurable/">Configurable fixed-width TLV</a></td>
 <td>Any tag width, length widths up to 8 bytes</td>
 </tr>
+</tbody>
+</table>
+<h3 id="built-in-standards">Built-in standards<a class="headerlink" href="#built-in-standards" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Start with</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td>Bluetooth advertising data (length before type)</td>
 <td><a href="bluetooth/">Bluetooth LTV</a></td>
@@ -2814,16 +2933,43 @@ format, <code>tlv/formats/</code>; see <a href="../concepts/architecture/#reposi
 <td><a href="../profiles/emv/">BER plus EMV profile</a></td>
 <td>Dictionary/codecs, not a transaction engine</td>
 </tr>
+</tbody>
+</table>
+<p>For application-specific framing, use <a href="custom/">custom callbacks</a>.
+They are an extension mechanism, not a built-in standard or a supplied format.</p>
+<h2 id="compare-formats">Compare formats<a class="headerlink" href="#compare-formats" title="Permanent link">&para;</a></h2>
+<h3 id="generic-core-formats_1">Generic core formats<a class="headerlink" href="#generic-core-formats_1" title="Permanent link">&para;</a></h3>
+<p>These reusable formats describe wire layouts without protocol policy. Fixed is
+currently the supplied generic format; future generic formats belong in this
+group. They are part of the core rather than optional standards packages.</p>
+<table>
+<thead>
 <tr>
-<td>Application-specific framing</td>
-<td><a href="custom/">Custom callbacks</a></td>
-<td>Application supplies wire rules</td>
+<th>Format</th>
+<th>Tag</th>
+<th>Length field</th>
+<th>Largest value</th>
+<th>Field order on the wire</th>
+<th>Nesting for the tree walker</th>
+<th>Availability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="fixed/configurable/#wire-layout">Configurable fixed-width TLV</a></td>
+<td>1 to 8 bytes</td>
+<td>1 to 8 bytes, big or little endian, counting the value alone or the tag and value</td>
+<td>set by the length width</td>
+<td>tag, length, value or length, tag, value</td>
+<td>none (opaque values)</td>
+<td>Always available (C and C++)</td>
 </tr>
 </tbody>
 </table>
-<h2 id="compare-formats">Compare formats<a class="headerlink" href="#compare-formats" title="Permanent link">&para;</a></h2>
-<p>All rows are TLV formats: they differ in header layout, limits, nesting and how they are
-built. Each format keeps its own page with the byte layout and a worked example.</p>
+<h3 id="built-in-standards_1">Built-in standards<a class="headerlink" href="#built-in-standards_1" title="Permanent link">&para;</a></h3>
+<p>These formats implement a specific standard. Their packages may also provide
+definitions, schemas, value codecs and container handling. Each format's page
+explains its wire layout and supported scope.</p>
 <table>
 <thead>
 <tr>
@@ -2844,16 +2990,7 @@ built. Each format keeps its own page with the byte layout and a worked example.
 <td>254 bytes</td>
 <td>length, type, value</td>
 <td>none</td>
-<td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
-</tr>
-<tr>
-<td><a href="fixed/configurable/#wire-layout">Configurable fixed-width TLV</a></td>
-<td>1 to 8 bytes</td>
-<td>1 to 8 bytes, big or little endian, counting the value alone or the tag and value</td>
-<td>set by the length width</td>
-<td>tag, length, value or length, tag, value</td>
-<td>none (opaque values)</td>
-<td><code>OPENTLV_FORMAT_FIXED</code> (C and C++)</td>
+<td><code>OPENTLV_BLUETOOTH</code></td>
 </tr>
 <tr>
 <td><a href="asn1/ber/#layout-and-typical-use">BER-TLV</a></td>
@@ -2882,17 +3019,10 @@ built. Each format keeps its own page with the byte layout and a worked example.
 <td><code>tlv_cer_is_constructed</code></td>
 <td><code>OPENTLV_FORMAT_CER</code></td>
 </tr>
-<tr>
-<td><a href="custom/">Application-defined</a></td>
-<td>any number of raw bytes</td>
-<td>your rules</td>
-<td>your rules</td>
-<td>format-defined</td>
-<td>your predicate</td>
-<td>none</td>
-</tr>
 </tbody>
 </table>
+<p><a href="custom/">Application-defined formats</a> supply their own field layout,
+limits and nesting predicate through the same generic callback contract.</p>
 <p>Notes for choosing:</p>
 <ul>
 <li>Only BER, DER and CER carry a constructed bit, so only they nest by themselves.

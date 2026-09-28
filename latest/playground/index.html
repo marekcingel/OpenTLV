@@ -2007,6 +2007,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#bluetooth-advertising-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bluetooth Advertising Data
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#limits" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2581,6 +2592,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#bluetooth-advertising-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bluetooth Advertising Data
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#limits" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2631,15 +2653,23 @@ native applications. Nothing you enter is uploaded.</p>
     </label>
     <label>Format
       <select id="otlv-pg-format" disabled>
-        <option value="fixed">Fixed-width TLV</option>
-        <option value="bluetooth-ltv">Bluetooth LTV</option>
-        <option value="ber">BER-TLV</option>
-        <option value="der">DER-TLV</option>
+        <optgroup label="Generic core formats">
+          <option value="fixed">Fixed (TLV / LTV)</option>
+        </optgroup>
+        <optgroup label="Built-in standards">
+          <option value="bluetooth-ltv">Bluetooth LTV (strict)</option>
+          <option value="ber">ASN.1 BER-TLV</option>
+          <option value="der">ASN.1 DER-TLV</option>
+          <option value="cer">ASN.1 CER-TLV</option>
+        </optgroup>
+        <optgroup label="Standard containers">
+          <option value="bluetooth-ad">Bluetooth Advertising Data</option>
+        </optgroup>
       </select>
     </label>
-    <label>Profile
+    <label>Annotations
       <select id="otlv-pg-profile" disabled>
-        <option value="none">None</option>
+        <option value="none">None (AD names are automatic)</option>
         <option value="emv">EMV tag names (BER-TLV only)</option>
       </select>
     </label>
@@ -2657,7 +2687,20 @@ native applications. Nothing you enter is uploaded.</p>
         <option value="little">Little-endian</option>
       </select>
     </label>
+    <label>Field order
+      <select id="otlv-pg-fixed-element-order" disabled>
+        <option value="tlv">Tag | Length | Value</option>
+        <option value="ltv">Length | Tag | Value</option>
+      </select>
+    </label>
+    <label>Length counts
+      <select id="otlv-pg-fixed-length-scope" disabled>
+        <option value="value">Value only</option>
+        <option value="tag-and-value">Tag + Value</option>
+      </select>
+    </label>
   </div>
+  <p id="otlv-pg-sample-note" class="otlv-pg-sample-note" hidden></p>
   <label for="otlv-pg-input" class="otlv-pg-label">TLV data (hexadecimal, whitespace ignored)</label>
   <textarea id="otlv-pg-input" class="otlv-pg-input" rows="6" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="6F 0A 84 03 41 42 43 A5 03 50 01 01"></textarea>
   <div class="otlv-pg-actions">
@@ -2670,8 +2713,8 @@ native applications. Nothing you enter is uploaded.</p>
 <!-- markdownlint-enable MD033 -->
 
 <h2 id="what-it-shows">What it shows<a class="headerlink" href="#what-it-shows" title="Permanent link">&para;</a></h2>
-<p>The result has three views of one parse; a selection in any of them is shown
-in all of them.</p>
+<p>The result has three views of one parse. Tree and Hex share the current selection;
+JSON shows the complete result and its source ranges.</p>
 <ul>
 <li><strong>Tree</strong>: the nested elements with tag, length, offset and, for primitive
   elements, the value. Select an element to inspect it.</li>
@@ -2680,26 +2723,43 @@ in all of them.</p>
   innermost element that contains it.</li>
 <li><strong>JSON</strong>: the parse result as JSON, with a <strong>Copy JSON</strong> button.</li>
 </ul>
-<p>Choosing <strong>Fixed-width TLV</strong> reveals tag size, length size (1-8 bytes) and length
-byte order controls, matching the C <code>tlv_fixed_format_t</code>/C++ <code>tlv::fixed_format</code>
-<a href="../formats/fixed/configurable/">configurable fixed-width format</a>; they default
-to a one-byte tag, a one-byte length and big-endian.</p>
+<p>Choosing <strong>Fixed (TLV / LTV)</strong> reveals tag size, length size (1-8 bytes), length
+byte order, field order and length scope controls, matching C <code>tlv_fixed_format_t</code>.
+The controls default to a one-byte tag, a one-byte length, big-endian, TLV order
+and Value-only length. The C++ <code>tlv::fixed_format</code> wrapper exposes the
+conventional TLV preset of the
+<a href="../formats/fixed/configurable/">configurable fixed-width format</a>.
+Fixed is part of the core. Built-in standards and containers are grouped separately.</p>
 <p>The inspector lists the selected element's tag, encoded tag and length bytes,
-length, offset, encoded size, nesting depth and path, and raw value, with
+logical value length, offset, complete encoded size, nesting depth and path,
+raw value and any trailer (such as BER end-of-contents), with
 buttons to copy the tag, the value or the whole encoded element. With the
-<strong>EMV</strong> profile it also shows the tag's name from the
+<strong>EMV tag names</strong> annotations it also shows the tag's name from the
 <a href="../profiles/emv/">EMV profile</a> and whether its length is permitted.</p>
-<p>In <a href="../formats/asn1/ber/">BER-TLV</a> and
-<a href="../formats/asn1/der/">DER-TLV</a> constructed elements nest their children; the
+<p>In <a href="../formats/asn1/ber/">BER-TLV</a>,
+<a href="../formats/asn1/der/">DER-TLV</a> and <a href="../formats/asn1/cer/">CER-TLV</a>, constructed elements nest their children; the
 <a href="../formats/fixed/configurable/">configurable fixed-width</a> and
 <a href="../formats/bluetooth/">Bluetooth LTV</a> formats have opaque values, so
 their elements are flat. Bluetooth LTV puts the length byte before the type, so
 in the hex view and the element details the length is shown before the tag. EMV data is BER-TLV.</p>
 <p>Invalid or truncated input reports the parser error with its code, message and
 input offset, together with every element read before the failure.</p>
+<h2 id="bluetooth-advertising-data">Bluetooth Advertising Data<a class="headerlink" href="#bluetooth-advertising-data" title="Permanent link">&para;</a></h2>
+<p>Choose a Bluetooth sample to explore named AD structures, or compare the same
+buffer in <strong>Bluetooth Advertising Data</strong> and <strong>Bluetooth LTV (strict)</strong> modes.
+Advertising Data accepts trailing all-zero padding at structure boundaries.
+The summary and hex view identify padding separately; nonzero padding reports
+its exact source offset. Strict LTV continues to reject a zero length byte.
+Both modes use the C AD Type registry for names, including Flags, Local Name,
+Service Data and Manufacturer Specific Data. Unknown types remain readable.
+Values remain raw; this view does not apply Bluetooth schemas or value codecs.</p>
+<p>CER uses the generic reader and tree walker with <code>tlv_format_cer</code>: framing and
+EOC boundaries are checked. Full CER profile validation, including string
+segmentation rules and semantic value checks, is not applied.</p>
 <h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
-<p>The playground only parses and inspects. Editing, re-encoding, schemas, OTDL
-and shareable sessions are not available. One parse reads at most 65,536
+<p>The playground only parses and inspects. Editing, re-encoding, schemas, <code>.otlv</code>
+and shareable sessions are not available. Library functionality
+not listed in the controls are not exposed by this playground yet. One parse reads at most 65,536
 elements and 64 levels of nesting; see
 <a href="../development/webassembly/#use-from-javascript">WebAssembly build</a>.</p>
 

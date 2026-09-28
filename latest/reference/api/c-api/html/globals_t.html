@@ -151,6 +151,7 @@ $(function() {
 <li>tlv_bluetooth_ad_codec_flags&#160;:&#160;<a class="el" href="group__codecs.html#ga3f9e2f06044f8ce7e759800385be114e">ad_codec.h</a></li>
 <li>tlv_bluetooth_ad_codec_local_name&#160;:&#160;<a class="el" href="group__codecs.html#ga025bd73c1545a4291a54f7472b8db0c9">ad_codec.h</a></li>
 <li>tlv_bluetooth_ad_codec_tx_power&#160;:&#160;<a class="el" href="group__codecs.html#ga6dbe65e259dd2503de3e85e3ea9c2f1e">ad_codec.h</a></li>
+<li>tlv_bluetooth_ad_data_validate()&#160;:&#160;<a class="el" href="ad__data_8h.html#ada37c406e5260fa487908e3ef88abd89">ad_data.h</a></li>
 <li>tlv_bluetooth_ad_flag&#160;:&#160;<a class="el" href="group__codecs.html#ga798c4638c9a55ff43b932d29586b5d78">ad_codec.h</a></li>
 <li>TLV_BLUETOOTH_AD_FLAG_BR_EDR_NOT_SUPPORTED&#160;:&#160;<a class="el" href="group__codecs.html#gga798c4638c9a55ff43b932d29586b5d78a49ea1249bb00d5b7be1349546c44fded">ad_codec.h</a></li>
 <li>TLV_BLUETOOTH_AD_FLAG_LE_GENERAL_DISCOVERABLE&#160;:&#160;<a class="el" href="group__codecs.html#gga798c4638c9a55ff43b932d29586b5d78a91a87f8a48df34d23912576d09e20089">ad_codec.h</a></li>
@@ -217,13 +218,12 @@ $(function() {
 <li>tlv_codec_result_t&#160;:&#160;<a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">codec.h</a></li>
 <li>tlv_codec_strerror()&#160;:&#160;<a class="el" href="group__codecs.html#ga29bac18a06040bfae9c0a783de865d46">codec.h</a></li>
 <li>tlv_codec_t&#160;:&#160;<a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">codec.h</a></li>
+<li>tlv_config_bluetooth()&#160;:&#160;<a class="el" href="group__core.html#ga356c445a2a17ae3dc26af7ab166f7250">config.h</a></li>
 <li>tlv_config_document()&#160;:&#160;<a class="el" href="group__core.html#gaaf1f29742b8251b7d7877b8a687faff5">config.h</a></li>
 <li>tlv_config_format_asn1()&#160;:&#160;<a class="el" href="group__core.html#ga15576d7eeee44a18a9e4d1c045e804f4">config.h</a></li>
 <li>tlv_config_format_ber()&#160;:&#160;<a class="el" href="group__core.html#gabd5770ca68e95e679760185b916c2af9">config.h</a></li>
-<li>tlv_config_format_bluetooth_ltv()&#160;:&#160;<a class="el" href="group__core.html#gabc3367f3e1e3cc52f4b4225192b040c6">config.h</a></li>
 <li>tlv_config_format_cer()&#160;:&#160;<a class="el" href="group__core.html#ga5f3c677a28a0c7b049c58202d2fb2ba3">config.h</a></li>
 <li>tlv_config_format_der()&#160;:&#160;<a class="el" href="group__core.html#ga34223c98a64eb464f85be2ed322d07b7">config.h</a></li>
-<li>tlv_config_format_fixed()&#160;:&#160;<a class="el" href="group__core.html#ga813e7ec4a531e68571eb7f225906b853">config.h</a></li>
 <li>tlv_config_profile_emv()&#160;:&#160;<a class="el" href="group__core.html#ga5cef3b0263e76d68d6820cac9135b1db">config.h</a></li>
 <li>tlv_copy_element()&#160;:&#160;<a class="el" href="group__copy.html#ga819da9ffb95896b67f9487eb66bd9bbd">copy.h</a></li>
 <li>tlv_copy_encoded()&#160;:&#160;<a class="el" href="group__copy.html#ga06d2f6add67c483b2c66da85faf0b942">copy.h</a></li>
@@ -924,8 +924,8 @@ $(function() {
 <li>tlv_schema_diagnostic_t&#160;:&#160;<a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">schema.h</a></li>
 <li>tlv_schema_find()&#160;:&#160;<a class="el" href="group__schemas.html#gab16e87ef133a0a302ada88c41d48a471">schema.h</a></li>
 <li>TLV_SCHEMA_ISSUE_DUPLICATE&#160;:&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">schema.h</a></li>
-<li>TLV_SCHEMA_ISSUE_KIND&#160;:&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda38bc5113a24c5cd1ec20ea2a9eff5db9">schema.h</a></li>
 <li>tlv_schema_issue_kind&#160;:&#160;<a class="el" href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">schema.h</a></li>
+<li>TLV_SCHEMA_ISSUE_KIND&#160;:&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda38bc5113a24c5cd1ec20ea2a9eff5db9">schema.h</a></li>
 <li>tlv_schema_issue_kind_string()&#160;:&#160;<a class="el" href="group__schemas.html#ga7f8651f7f1f83f182b82bdb42e07c519">schema.h</a></li>
 <li>tlv_schema_issue_kind_t&#160;:&#160;<a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">schema.h</a></li>
 <li>TLV_SCHEMA_ISSUE_LENGTH&#160;:&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f">schema.h</a></li>
@@ -967,8 +967,8 @@ $(function() {
 <li>tlv_structure_group_t&#160;:&#160;<a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9">schema.h</a></li>
 <li>tlv_structure_rule_t&#160;:&#160;<a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab">schema.h</a></li>
 <li>tlv_structure_schema_t&#160;:&#160;<a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">schema.h</a></li>
-<li>tlv_tag()&#160;:&#160;<a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0">tag.h</a></li>
 <li>TLV_TAG&#160;:&#160;<a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b">tag.h</a></li>
+<li>tlv_tag()&#160;:&#160;<a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0">tag.h</a></li>
 <li>tlv_tag_compare()&#160;:&#160;<a class="el" href="group__core.html#ga6e4293fe48f08cdd07e0d75a07d578a1">tag.h</a></li>
 <li>tlv_tag_copy()&#160;:&#160;<a class="el" href="group__core.html#ga3ecda7f62add0dd73cb7ab22651ec265">tag.h</a></li>
 <li>tlv_tag_equal()&#160;:&#160;<a class="el" href="group__core.html#gaeb5a71787b6d5f11175d261f3a5a7395">tag.h</a></li>
