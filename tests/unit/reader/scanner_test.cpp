@@ -9,7 +9,7 @@ tlv_result_t read_pair_tag(const void* context, const uint8_t* data, size_t size
     if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
     if (data[0] != *static_cast<const uint8_t*>(context) || data[1] != 0x1C)
         return TLV_ERR_INVALID_TAG;
-    *tag = TLV_TAG(0x9F, 0x1C);
+    *tag = tlv_tag(data, 2);
     *used = 2;
     return TLV_OK;
 }
@@ -81,6 +81,7 @@ TEST_F(Unit_Tlv_Scanner, UsesCustomTagCallbackAndContext) {
     EXPECT_EQ(2u, offset);
     EXPECT_EQ(4u, consumed);
     EXPECT_EQ(2, element.tag.size);
+    EXPECT_EQ(data + 2, element.tag.data);
     EXPECT_EQ(0x9F, element.tag.data[0]);
     EXPECT_EQ(0x1C, element.tag.data[1]);
     EXPECT_EQ(data + 5, element.value.data);

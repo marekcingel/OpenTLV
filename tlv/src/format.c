@@ -48,7 +48,9 @@ tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data, 
             s->trailer.size != s->size - s->trailer.offset ||
             result.element.value.size != s->value.size ||
             result.element.value.data != data + s->value.offset ||
-            (result.element.tag.size && !result.element.tag.data))
+            (s->tag.present ? (result.element.tag.size != s->tag.size ||
+                               result.element.tag.data != data + s->tag.offset)
+                            : (result.element.tag.size || result.element.tag.data)))
             rc = TLV_ERR_INVALID_ARG;
     }
     if (rc != TLV_OK) {

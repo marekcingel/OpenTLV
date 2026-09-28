@@ -649,3 +649,82 @@ TEST(Unit_Tlv_FormatContract, ReaderDiagnosticsDoNotDecodeAgain) {
     EXPECT_TRUE(diagnostic.has_raw_length);
     EXPECT_FALSE(diagnostic.has_declared_length);
 }
+
+TEST(Unit_Tlv_FormatContract, DecodeRejectsInconsistentTagWithoutPublishingOutput) {
+    const uint8_t wire[] = {0xA5, 7, 1, 0, 0xAA, 0xAA};
+    const uint8_t external_tag = 7;
+    struct Context {
+        int            variant;
+        const uint8_t* external;
+    } context{0, &external_tag};
+    tlv_format_t format = framed_format;
+    format.context = &context;
+    format.decode = [](const void* opaque, const uint8_t* data, size_t size, tlv_decoded_t* result,
+                       tlv_format_error_t* error) {
+        const auto* c = static_cast<const Context*>(opaque);
+        const auto  rc = framed_decode(nullptr, data, size, result, error);
+        if (rc != TLV_OK) return rc;
+        switch (c->variant) {
+            case 0: result->element.tag.data = c->external; break;
+            case 1: result->element.tag.data = data + 2; break;
+            case 2: result->element.tag.size = 2; break;
+            case 3: result->source.tag.present = 0; break;
+            case 4: result->element.tag = {nullptr, 0}; break;
+            case 5:
+                result->source.tag.present = 0;
+                result->element.tag = {data + 1, 0};
+                break;
+            case 6: result->source.tag = {SIZE_MAX, 1, 1}; break;
+        }
+        return TLV_OK;
+    };
+    for (int variant = 0; variant < 7; ++variant) {
+        SCOPED_TRACE(variant);
+        context.variant = variant;
+        tlv_decoded_t result{};
+        result.source.size = 99;
+        result.element.tag = tlv_tag(&external_tag, 1);
+        EXPECT_EQ(TLV_ERR_INVALID_ARG,
+                  tlv_format_decode(&format, wire, sizeof(wire), &result, nullptr));
+        EXPECT_EQ(99u, result.source.size);
+        EXPECT_EQ(&external_tag, result.element.tag.data);
+        EXPECT_EQ(1u, result.element.tag.size);
+    }
+}
+
+TEST(Unit_Tlv_FormatContract, EmptyTagPresenceIsPreservedWithoutPointerIdentity) {
+    const uint8_t wire = 42;
+    const uint8_t other_storage = 0;
+    for (bool present : {false, true}) {
+        SCOPED_TRACE(present);
+        tlv_format_t format{};
+        format.context = &present;
+        format.decode = [](const void* opaque, const uint8_t* data, size_t, tlv_decoded_t* result,
+                           tlv_format_error_t*) {
+            const bool has_tag = *static_cast<const bool*>(opaque);
+            result->element = {tlv_tag(has_tag ? data : nullptr, 0), {data, 1}};
+            result->source.header = {0, 0, 1};
+            result->source.tag = {0, 0, has_tag ? 1 : 0};
+            result->source.value = {0, 1, 1};
+            result->source.trailer = {1, 0, 1};
+            result->source.size = 1;
+            return TLV_OK;
+        };
+        tlv_decoded_t decoded{};
+        ASSERT_EQ(TLV_OK, tlv_format_decode(&format, &wire, 1, &decoded, nullptr));
+        auto element = decoded.element;
+        element.tag = tlv_tag(present ? &other_storage : nullptr, 0);
+        uint8_t output = 0;
+        size_t  written = 99;
+        ASSERT_EQ(TLV_OK, tlv_source_preserve(&decoded.source, &element, &output, 1, &written));
+        EXPECT_EQ(wire, output);
+        EXPECT_EQ(1u, written);
+        element.tag = tlv_tag(present ? nullptr : &other_storage, 0);
+        output = 0;
+        written = 99;
+        EXPECT_EQ(TLV_ERR_INVALID_ARG,
+                  tlv_source_preserve(&decoded.source, &element, &output, 1, &written));
+        EXPECT_EQ(0, output);
+        EXPECT_EQ(99u, written);
+    }
+}

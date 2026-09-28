@@ -24,7 +24,7 @@ struct Config {
     size_t             tag_bytes = 2;
     size_t             length_bytes = 2;
     size_t             value_bytes = 2;
-    size_t             tag_size = 1;
+    size_t             tag_size = 2;
     bool               tag_without_data = false;
     tlv_result_t       tag_error = TLV_OK;
     tlv_result_t       length_error = TLV_OK;
@@ -118,14 +118,9 @@ TEST(Unit_Tlv_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
     config = Config{};
     format = make_format(&config);
-    // Whether an empty tag is acceptable is up to the format, not the reader.
+    // An empty semantic Tag cannot describe a nonempty source Tag range.
     config.tag_size = 0;
-    {
-        tlv_element_t element{};
-        size_t        consumed = 0;
-        ASSERT_EQ(TLV_OK, tlv_read(data, sizeof(data), &format, &element, &consumed));
-        EXPECT_EQ(0u, element.tag.size);
-    }
+    expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_ARG);
     // A tag that claims bytes but has no pointer is malformed.
     config = Config{};
     format = make_format(&config);

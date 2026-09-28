@@ -115,3 +115,9 @@ Rust separates semantic `Element` from `Decoded`, available through `decode()`
 and `decode_fixed()`; raw Length belongs to `Decoded::raw_length()`.
 Lua/WASM semantic walker records no longer expose raw Length. Python's existing
 raw-length inspection is populated from separate source information.
+
+### Decoded identifier consistency
+
+A present `source.tag` range must match `element.tag` in both pointer and size, just as the Value range does. An absent Tag range requires `{NULL, 0}`. Inconsistent successful callback results are rejected with `TLV_ERR_INVALID_ARG` without publishing the decoded result.
+
+For zero-length identifiers, a NULL pointer denotes absence and a non-NULL pointer denotes an explicit empty field. Source preservation checks this distinction but does not compare non-NULL pointer addresses; the original source range retains the wire location.

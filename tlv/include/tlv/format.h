@@ -106,6 +106,10 @@ typedef struct tlv_decoded {
 /**
  * @brief Decode one complete element and validate its framing.
  *
+ * A present source Tag range must match the element Tag pointer and size,
+ * including an empty range. An absent Tag range requires `{ NULL, 0 }`.
+ * Value likewise borrows exactly its declared source range.
+ *
  * @param[in]  context Borrowed immutable format configuration.
  * @param[in]  data    Input bytes; NULL only when size is zero.
  * @param[in]  size    Available native bytes.
@@ -270,6 +274,8 @@ TLV_API tlv_result_t tlv_format_encode(const tlv_format_t* format, const tlv_ele
  *
  * This does not re-encode, convert formats, or reuse stale framing after mutation.
  * The source descriptor/configuration and bytes must remain alive and unchanged.
+ * For zero-length Tags, NULL means absent and non-NULL means explicitly empty.
+ * Preservation requires the same presence; non-NULL pointer addresses may differ.
  * Overlapping source/destination is supported. NULL data with zero capacity queries size.
  *
  * @param[in]  source   Original successful decode result's source.

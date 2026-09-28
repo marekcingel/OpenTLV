@@ -16,6 +16,8 @@ extern "C" {
  * These primitives compose field codecs into a single decode/measure/encode
  * contract. Reader and Writer never inspect the composition. Context and
  * codec configuration remain borrowed and immutable. Callbacks do not allocate.
+ * These types configure Format composition; runtime ranges of a decoded element
+ * are represented separately by #tlv_source_t and #tlv_range_t.
  */
 
 /** @addtogroup formats
