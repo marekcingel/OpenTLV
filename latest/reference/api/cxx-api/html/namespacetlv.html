@@ -191,6 +191,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a769708ad0664f996822354ebe2371e04" id="r_a769708ad0664f996822354ebe2371e04"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a769708ad0664f996822354ebe2371e04">ber_write_indefinite</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, <a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> children)</td></tr>
 <tr class="memdesc:a769708ad0664f996822354ebe2371e04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes explicit BER indefinite framing around an already encoded child sequence.  <br /></td></tr>
 <tr class="separator:a769708ad0664f996822354ebe2371e04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d2c6a54d4c82610c3b43fc19aa12951" id="r_a5d2c6a54d4c82610c3b43fc19aa12951"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a5d2c6a54d4c82610c3b43fc19aa12951">dhcpv4_options_validate</a> (const uint8_t *data, size_t size, const <a class="elRef" href="../../c-api/html/container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *rules, size_t max_elements, size_t &amp;significant_size, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr) noexcept</td></tr>
+<tr class="memdesc:a5d2c6a54d4c82610c3b43fc19aa12951"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a borrowed DHCPv4 options region using the C contract.  <br /></td></tr>
+<tr class="separator:a5d2c6a54d4c82610c3b43fc19aa12951"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d9c93d05877a43e3c2a829aafffe636" id="r_a7d9c93d05877a43e3c2a829aafffe636"><td class="memItemLeft" align="right" valign="top">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a7d9c93d05877a43e3c2a829aafffe636">dhcpv4_format</a> () noexcept</td></tr>
 <tr class="memdesc:a7d9c93d05877a43e3c2a829aafffe636"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the immutable DHCPv4 option framing preset.  <br /></td></tr>
 <tr class="separator:a7d9c93d05877a43e3c2a829aafffe636"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -810,6 +813,82 @@ template&lt;typename T &gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>The shared C descriptor with static lifetime. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Requires <code>OPENTLV_DHCP=ON</code>. The caller handles End and packet semantics. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/dhcpv4_8h.html#a04e13635ad3b9cb95e17ec850be18b06">tlv_format_dhcpv4</a> </dd></dl>
+
+</div>
+</div>
+<a id="a5d2c6a54d4c82610c3b43fc19aa12951" name="a5d2c6a54d4c82610c3b43fc19aa12951"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d2c6a54d4c82610c3b43fc19aa12951">&#9670;&#160;</a></span>dhcpv4_options_validate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" href="../../c-api/html/group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv::dhcpv4_options_validate </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/container_8h.html#aa83e18018ede957bfbce4e6d27e4024a">tlv_dhcpv4_options_rules_t</a> *&#160;</td>
+          <td class="paramname"><em>rules</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t &amp;&#160;</td>
+          <td class="paramname"><em>significant_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Validates a borrowed DHCPv4 options region using the C contract. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Input bytes; nullptr only for size zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Input size in bytes, without header or magic cookie. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">rules</td><td>Rules; nullptr requires End and a zero-only tail. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_elements</td><td>Element limit, including Pad and End; zero permits none. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">significant_size</td><td>Prefix size through End, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional diagnostic, reset on every call. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The result of <a class="elRef" href="../../c-api/html/container_8h.html#a44dc4ef9763852b33667034857b67516">tlv_dhcpv4_options_validate()</a>, propagated unchanged. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never allocates or retains input. Output storage must not overlap input, rules or other outputs. Requires <code>OPENTLV_DHCP=ON</code>. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/container_8h.html#a44dc4ef9763852b33667034857b67516">tlv_dhcpv4_options_validate</a> </dd></dl>
 
 </div>
 </div>

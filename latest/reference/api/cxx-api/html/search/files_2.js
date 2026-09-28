@@ -10,6 +10,8 @@ var searchData=
   ['compiler_2eh_7',['compiler.h',['../../../c-api/html/compiler_8h.html',1,'']]],
   ['config_2eh_8',['config.h',['../../../c-api/html/config_8h.html',1,'']]],
   ['constraint_2eh_9',['constraint.h',['../../../c-api/html/constraint_8h.html',1,'']]],
-  ['copy_2eh_10',['copy.h',['../../../c-api/html/copy_8h.html',1,'']]],
-  ['cxx_2dapi_2edox_11',['cxx-api.dox',['../cxx-api_8dox.html',1,'']]]
+  ['container_2eh_10',['container.h',['../../../c-api/html/container_8h.html',1,'']]],
+  ['container_2ehpp_11',['container.hpp',['../container_8hpp.html',1,'']]],
+  ['copy_2eh_12',['copy.h',['../../../c-api/html/copy_8h.html',1,'']]],
+  ['cxx_2dapi_2edox_13',['cxx-api.dox',['../cxx-api_8dox.html',1,'']]]
 ];
