@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/core-types/" class="md-nav__link">
         
   
@@ -692,6 +720,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1286,34 +1342,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../formats/default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2688,8 +2716,8 @@ native builds, and a compiled-out format is rejected as an invalid argument.</p>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">format</span><span class="o">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="w"> </span><span class="p">},</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">);</span>
 </code></pre></div>
-<p><code>parse</code> takes a <code>Uint8Array</code>, a <code>format</code> (<code>default</code>, <code>fixed</code>, <code>bluetooth-ltv</code>,
-<code>ber</code> or <code>der</code>; default <code>default</code>) and optionally a <code>profile</code> (<code>none</code> or <code>emv</code>; default
+<p><code>parse</code> takes a <code>Uint8Array</code>, a <code>format</code> (<code>fixed</code>, <code>bluetooth-ltv</code>,
+<code>ber</code> or <code>der</code>; default <code>ber</code>) and optionally a <code>profile</code> (<code>none</code> or <code>emv</code>; default
 <code>none</code>) and returns:</p>
 <p>For <code>format: "fixed"</code>, <code>fixedTagSize</code> (default <code>1</code>), <code>fixedLengthSize</code> (1-8, default
 <code>1</code>) and <code>fixedByteOrder</code> (<code>"big"</code> or <code>"little"</code>, default <code>"big"</code>) configure the
@@ -2725,7 +2753,7 @@ is permitted for the tag); other elements carry none of these.</p>
 <p>Invalid input does not throw. The result carries an <code>error</code> object with the
 numeric <code>code</code> of <code>tlv_result_t</code>, its <code>message</code> and the input <code>offset</code>, together
 with every element read before the failure:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"default"</span><span class="p">,</span><span class="w"> </span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">],</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="p">,</span><span class="w"> </span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">],</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buffer too short"</span><span class="p">,</span><span class="w"> </span><span class="nt">"offset"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <p><code>parse</code> throws only for programming errors (a non-<code>Uint8Array</code> argument) or

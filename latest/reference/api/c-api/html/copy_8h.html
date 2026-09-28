@@ -106,7 +106,7 @@ Functions</h2></td></tr>
 <li><code>written</code> is required and must not alias source or destination storage. Source descriptors must not overlap destination storage.</li>
 <li>On failure <code>*written</code> is unchanged. Insufficient capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> without modifying <code>data</code>.</li>
 <li><code>NULL</code> <code>data</code> with nonzero capacity, or <code>NULL</code> source bytes with nonzero length, returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>. Empty byte ranges may have <code>NULL</code> source bytes.</li>
-<li>An element whose <code>value.size</code> does not fit the current build's <code>size_t</code> returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> before any copying. </li>
+<li>An element whose <code>value.size</code> does not fit the current build's <code>size_t</code> returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302">TLV_ERR_NATIVE_SIZE</a> before any copying. </li>
 </ul>
 </div></div><!-- contents -->
 <!-- start footer part -->

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/builtins/fixed/default.h File Reference</title>
+<title>OpenTLV C API: tlv_decoded Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -67,34 +67,63 @@ $(function() {
 </div>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="dir_19ad8241a0a4e087f79ee19a3ff0f932.html">tlv</a></li><li class="navelem"><a class="el" href="dir_68ef050ef5f29de0a07bb3959d18ba24.html">builtins</a></li><li class="navelem"><a class="el" href="dir_812397ac223a688165cd0f920a6de353.html">fixed</a></li>  </ul>
-</div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#var-members">Variables</a>  </div>
-  <div class="headertitle"><div class="title">default.h File Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
+<a href="#pub-attribs">Data Fields</a>  </div>
+  <div class="headertitle"><div class="title">tlv_decoded Struct Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>The default format: a one-byte tag with a definite BER length.  
-<a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="format_8h.html">tlv/format.h</a>&quot;</code><br />
-<code>#include &quot;tlv/export.h&quot;</code><br />
-</div><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:ga3db9ea597a17b6d2bc6007ace1731ca3" id="r_ga3db9ea597a17b6d2bc6007ace1731ca3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga3db9ea597a17b6d2bc6007ace1731ca3">tlv_format_default</a></td></tr>
-<tr class="memdesc:ga3db9ea597a17b6d2bc6007ace1731ca3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format for the default encoding; a borrowed, immutable global.  <br /></td></tr>
-<tr class="separator:ga3db9ea597a17b6d2bc6007ace1731ca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<p>Complete decode result; published only on successful decoding.  
+ <a href="structtlv__decoded.html#details">More...</a></p>
+
+<p><code>#include &lt;format.h&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Data Fields</h2></td></tr>
+<tr class="memitem:af81feae9ab33de32489aaaec52cc6a6d" id="r_af81feae9ab33de32489aaaec52cc6a6d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv__element__t.html">tlv_element_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__decoded.html#af81feae9ab33de32489aaaec52cc6a6d">element</a></td></tr>
+<tr class="separator:af81feae9ab33de32489aaaec52cc6a6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2516316a321159de4dfe282bbd2212b1" id="r_a2516316a321159de4dfe282bbd2212b1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__formats.html#gaa059c2a96e6efca0a92f863a056a5e1d">tlv_source_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__decoded.html#a2516316a321159de4dfe282bbd2212b1">source</a></td></tr>
+<tr class="separator:a2516316a321159de4dfe282bbd2212b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The default format: a one-byte tag with a definite BER length. </p>
-<p>Encoding: one raw tag byte and a definite BER length up to 65535. This is not a full BER-TLV tag implementation; use <a class="el" href="ber_8h.html" title="ASN.1 BER reader and writer formats, indefinite-length framing and length codec.">tlv/builtins/asn1/ber.h</a> for that.</p>
-<dl class="section note"><dt>Note</dt><dd>Writing any tag size other than one returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a>. </dd></dl>
-</div></div><!-- contents -->
+<div class="textblock"><p>Complete decode result; published only on successful decoding. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="af81feae9ab33de32489aaaec52cc6a6d" name="af81feae9ab33de32489aaaec52cc6a6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af81feae9ab33de32489aaaec52cc6a6d">&#9670;&#160;</a></span>element</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structtlv__element__t.html">tlv_element_t</a> tlv_decoded::element</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Canonical content. </p>
+
+</div>
+</div>
+<a id="a2516316a321159de4dfe282bbd2212b1" name="a2516316a321159de4dfe282bbd2212b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2516316a321159de4dfe282bbd2212b1">&#9670;&#160;</a></span>source</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__formats.html#gaa059c2a96e6efca0a92f863a056a5e1d">tlv_source_t</a> tlv_decoded::source</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Original representation and ranges. </p>
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following file:<ul>
+<li>tlv/<a class="el" href="format_8h.html">format.h</a></li>
+</ul>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8

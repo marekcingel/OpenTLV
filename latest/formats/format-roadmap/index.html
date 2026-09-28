@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/core-types/" class="md-nav__link">
         
   
@@ -692,6 +720,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1291,34 +1347,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2878,8 +2906,8 @@ so a candidate's "components" show which layers stay separate.</p>
 <tbody>
 <tr>
 <td>Format adapter</td>
-<td><code>tlv_format_t</code> in <code>tlv/format.h</code>; the whole-element callbacks <code>read_element</code> and <code>write_header</code> handle any field order or packing</td>
-<td>Splits bytes into tag, header, value and trailer, and writes a header.</td>
+<td><code>tlv_format_t</code> in <code>tlv/format.h</code>; the canonical <code>decode</code>, <code>measure</code> and <code>encode</code> operations handle format-defined framing</td>
+<td>Splits bytes into tag, header, value and trailer, and writes complete framing.</td>
 </tr>
 <tr>
 <td>Nesting predicate</td>
@@ -2916,7 +2944,7 @@ so a candidate's "components" show which layers stay separate.</p>
 <h2 id="catalogue-tree">Catalogue tree<a class="headerlink" href="#catalogue-tree" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>OpenTLV
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── Implemented (built in)
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── [x] Default TLV, Bluetooth LTV, configurable fixed-width (C and C++)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── [x] Bluetooth LTV, configurable fixed-width (C and C++)
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── [x] Application-defined callbacks
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── [x] ASN.1 framing: BER-TLV, DER-TLV (+ strict values, schemas), CER-TLV
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   └── [x] Profile: EMV Contact Book 3 v4.4 (dictionary, schemas, codecs)
@@ -3071,9 +3099,9 @@ so a candidate's "components" show which layers stay separate.</p>
 <h2 id="framing-requirements">Framing requirements<a class="headerlink" href="#framing-requirements" title="Permanent link">&para;</a></h2>
 <p>These are reusable requirements collected from the candidates. Not one of them is a
 commitment. The <strong>fit</strong> column is by inspection of the callback contract in
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/include/tlv/format.h"><code>format.h</code></a>: <code>read_element</code> sees the bytes from
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/include/tlv/format.h"><code>format.h</code></a>: <code>decode</code> sees the bytes from
 the start of an element and reports the tag, the header size, the value size and the
-trailer size; <code>write_header</code> writes only the header. A tag is any
+trailer size; <code>encode</code> writes the complete Header/Value/Trailer representation. A tag is any
 number of raw bytes the format accepts. <strong>No candidate has been prototyped against these callbacks.</strong></p>
 <table>
 <thead>
@@ -3087,12 +3115,12 @@ number of raw bytes the format accepts. <strong>No candidate has been prototyped
 <tr>
 <td>Length before type, or any other field order</td>
 <td>Bluetooth LTV (implemented)</td>
-<td>Covered by <code>read_element</code> and <code>write_header</code>.</td>
+<td>Covered by <code>decode</code> and <code>encode</code>.</td>
 </tr>
 <tr>
 <td>Bit-packed type and length, or flag bits sharing a field</td>
 <td>LLDP, LDP, RFC 5444, NAS half-octet IEIs</td>
-<td><code>read_element</code> sees the whole header, and <code>write_header</code> can encode it. The adapter must define the tag bytes (masked or unmasked flags).</td>
+<td><code>decode</code> sees the whole header, and <code>encode</code> can encode it. The adapter must define the tag bytes (masked or unmasked flags).</td>
 </tr>
 <tr>
 <td>Length includes the header</td>
@@ -3102,7 +3130,7 @@ number of raw bytes the format accepts. <strong>No candidate has been prototyped
 <tr>
 <td>Trailing padding after the value</td>
 <td>Diameter</td>
-<td>Reading fits <code>trailer_size</code>. <strong>The writer has no trailer or padding hook</strong>: <code>write_header</code> cannot emit bytes after the value, so writing would need a core extension or caller-added padding.</td>
+<td>The canonical framing result includes a Trailer range and logical trailer size; <code>encode</code> writes and <code>decode</code> validates the padding.</td>
 </tr>
 <tr>
 <td>Header size depends on the type or flags</td>

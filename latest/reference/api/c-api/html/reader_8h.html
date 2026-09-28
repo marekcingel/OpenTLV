@@ -112,10 +112,14 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:ga1eb19dea4cfcbb788587e7a3208430a9" id="r_ga1eb19dea4cfcbb788587e7a3208430a9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga1eb19dea4cfcbb788587e7a3208430a9">tlv_reader_operation</a> { <a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9af1b48765f73e5817a480f3dd7b2840f4">TLV_READER_OP_TAG</a> = 0
+<tr class="memitem:ga1eb19dea4cfcbb788587e7a3208430a9" id="r_ga1eb19dea4cfcbb788587e7a3208430a9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga1eb19dea4cfcbb788587e7a3208430a9">tlv_reader_operation</a> { <br />
+&#160;&#160;<a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9af1b48765f73e5817a480f3dd7b2840f4">TLV_READER_OP_TAG</a> = 0
 , <a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9ab2ef28f1c15271f57e8fa922246f52ba">TLV_READER_OP_LENGTH</a>
 , <a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9a4a5f66bddd713974726228f5daef5717">TLV_READER_OP_VALUE</a>
 , <a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9ad54e12920a4a87d370894c493f3079bd">TLV_READER_OP_TRAILER</a>
+, <br />
+&#160;&#160;<a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9a0b6cdce18686e6622750671413c7b328">TLV_READER_OP_HEADER</a>
+<br />
  }</td></tr>
 <tr class="memdesc:ga1eb19dea4cfcbb788587e7a3208430a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which parsing step a <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85" title="Structured detail for a failed tlv_read() or tlv_reader_next() call.">tlv_reader_diagnostic_t</a> reports on.  <a href="group__reader.html#ga1eb19dea4cfcbb788587e7a3208430a9">More...</a><br /></td></tr>
 <tr class="separator:ga1eb19dea4cfcbb788587e7a3208430a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,6 +147,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gaa7c7cf5d16b93ef98c440915e513bf95" id="r_gaa7c7cf5d16b93ef98c440915e513bf95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#gaa7c7cf5d16b93ef98c440915e513bf95">tlv_reader_next_diag</a> (<a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader, <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *out_element, <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *out_diagnostic)</td></tr>
 <tr class="memdesc:gaa7c7cf5d16b93ef98c440915e513bf95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the next TLV element and advances the reader, with diagnostic detail on failure.  <br /></td></tr>
 <tr class="separator:gaa7c7cf5d16b93ef98c440915e513bf95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac198dd10b172471ffd047903cb1b7480" id="r_gac198dd10b172471ffd047903cb1b7480"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#gac198dd10b172471ffd047903cb1b7480">tlv_read_source_diag</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, size_t *consumed, <a class="el" href="group__formats.html#gaa059c2a96e6efca0a92f863a056a5e1d">tlv_source_t</a> *source, <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gac198dd10b172471ffd047903cb1b7480"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode once, returning semantic content, source information and failure detail.  <br /></td></tr>
+<tr class="separator:gac198dd10b172471ffd047903cb1b7480"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Zero-copy parsing of TLV elements from a caller-owned buffer. </p>

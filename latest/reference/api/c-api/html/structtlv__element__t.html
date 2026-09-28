@@ -75,7 +75,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Raw tag and length fields plus the resolved borrowed value.  
+<p>Canonical identifier and resolved borrowed value.  
  <a href="structtlv__element__t.html#details">More...</a></p>
 
 <p><code>#include &lt;element.h&gt;</code></p>
@@ -84,33 +84,16 @@ $(function() {
 Data Fields</h2></td></tr>
 <tr class="memitem:a277c3812e6148d9de9a161ad2ee20f74" id="r_a277c3812e6148d9de9a161ad2ee20f74"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__element__t.html#a277c3812e6148d9de9a161ad2ee20f74">tag</a></td></tr>
 <tr class="separator:a277c3812e6148d9de9a161ad2ee20f74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44a8adb343679ec2ad7bab14c9ad9cc6" id="r_a44a8adb343679ec2ad7bab14c9ad9cc6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv__length__t.html">tlv_length_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__element__t.html#a44a8adb343679ec2ad7bab14c9ad9cc6">length</a></td></tr>
-<tr class="separator:a44a8adb343679ec2ad7bab14c9ad9cc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e57ee8e6aaa480bce3cfa8cc84d2825" id="r_a3e57ee8e6aaa480bce3cfa8cc84d2825"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv__value__t.html">tlv_value_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__element__t.html#a3e57ee8e6aaa480bce3cfa8cc84d2825">value</a></td></tr>
 <tr class="separator:a3e57ee8e6aaa480bce3cfa8cc84d2825"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Raw tag and length fields plus the resolved borrowed value. </p>
-<p>All three fields borrow source storage, which must remain valid and unchanged while any copy of the element is used. Copying this structure copies descriptors only; no allocation, byte copying, ownership transfer or hidden lifetime management occurs.</p>
-<p><code>tag</code> preserves byte identity; <code>length</code> preserves the exact length-field encoding. Their <code>size_t</code> sizes are native memory extents. <code>value.size</code> is the decoded logical value byte count (<a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>, always 64 bits), excluding framing. The format interprets the raw length and resolves this count, including for terminated values or lengths that count other fields. No host-endian tag interpretation or concrete wire layout is implied.</p>
-<p>Reader-produced values fit the input buffer. Manually assembled values require validation before narrowing their size to <code>size_t</code>. Serialization uses tag and value and regenerates the length in the destination format; it does not use the raw length bytes as the value size.</p>
+<div class="textblock"><p>Canonical identifier and resolved borrowed value. </p>
+<p>Both fields borrow source storage, which must remain valid and unchanged while any copy of the element is used. Copying this structure copies descriptors only; no allocation, byte copying, ownership transfer or hidden lifetime management occurs.</p>
+<p><code>tag</code> preserves identifier byte identity; <code>{ NULL, 0 }</code> means no identifier. A non-NULL pointer with zero size denotes an explicit empty identifier; source preservation distinguishes it from an absent identifier. <code>value.size</code> is the logical value byte count, independent of native pointer width, excluding framing. Value bytes are contiguous. Neither a wire Length field nor a particular header layout is implied.</p>
+<p>Reader-produced values fit the input buffer. Manually assembled values require validation before narrowing to <code>size_t</code>. Wire/source information belongs to <a class="el" href="group__formats.html#gaa059c2a96e6efca0a92f863a056a5e1d" title="Immutable borrowed representation of one decoded element.">tlv_source_t</a>, not to this semantic value. Changing either field invalidates preservation against its original source unless semantic equality is explicitly verified. Source buffers must remain immutable.</p>
 <dl class="section note"><dt>Note</dt><dd>This plain type does not validate its fields or own their storage. </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a id="a44a8adb343679ec2ad7bab14c9ad9cc6" name="a44a8adb343679ec2ad7bab14c9ad9cc6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a44a8adb343679ec2ad7bab14c9ad9cc6">&#9670;&#160;</a></span>length</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structtlv__length__t.html">tlv_length_t</a> tlv_element_t::length</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Raw length-field bytes borrowed from the source. </p>
-
-</div>
-</div>
 <a id="a277c3812e6148d9de9a161ad2ee20f74" name="a277c3812e6148d9de9a161ad2ee20f74"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a277c3812e6148d9de9a161ad2ee20f74">&#9670;&#160;</a></span>tag</h2>
 

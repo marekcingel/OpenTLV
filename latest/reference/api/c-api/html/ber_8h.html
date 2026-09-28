@@ -157,12 +157,18 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5fd2986da5b62c19b7ef9188ef8a3af1" id="r_ga5fd2986da5b62c19b7ef9188ef8a3af1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5fd2986da5b62c19b7ef9188ef8a3af1">tlv_ber_length_encode</a> (<a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> value, uint8_t *out, size_t out_capacity, size_t *written)</td></tr>
 <tr class="memdesc:ga5fd2986da5b62c19b7ef9188ef8a3af1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes a length using the shortest BER definite form.  <br /></td></tr>
 <tr class="separator:ga5fd2986da5b62c19b7ef9188ef8a3af1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga59cf92737c894a5dc3b72637351f1096" id="r_ga59cf92737c894a5dc3b72637351f1096"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga59cf92737c894a5dc3b72637351f1096">tlv_ber_read_identifier</a> (const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t *consumed)</td></tr>
+<tr class="memdesc:ga59cf92737c894a5dc3b72637351f1096"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode one BER identifier without requiring a following length or value.  <br /></td></tr>
+<tr class="separator:ga59cf92737c894a5dc3b72637351f1096"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:ga85c85b88a553a079a3e9cd16ccd34e97" id="r_ga85c85b88a553a079a3e9cd16ccd34e97"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97">tlv_format_ber</a></td></tr>
 <tr class="memdesc:ga85c85b88a553a079a3e9cd16ccd34e97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format for raw BER-TLV.  <br /></td></tr>
 <tr class="separator:ga85c85b88a553a079a3e9cd16ccd34e97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6e726fbfef345299d129ee53edb21a10" id="r_ga6e726fbfef345299d129ee53edb21a10"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga6e726fbfef345299d129ee53edb21a10">tlv_format_ber_indefinite</a></td></tr>
+<tr class="memdesc:ga6e726fbfef345299d129ee53edb21a10"><td class="mdescLeft">&#160;</td><td class="mdescRight">BER policy writing constructed elements with indefinite length and EOC. Reads all supported BER framing; rejects primitive encoding. Context is immutable.  <br /></td></tr>
+<tr class="separator:ga6e726fbfef345299d129ee53edb21a10"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>ASN.1 BER reader and writer formats, indefinite-length framing and length codec. </p>

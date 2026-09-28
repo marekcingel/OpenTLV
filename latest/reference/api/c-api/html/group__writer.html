@@ -108,9 +108,14 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:gab650d8082fbcc856730fd85aea1ce33d" id="r_gab650d8082fbcc856730fd85aea1ce33d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gab650d8082fbcc856730fd85aea1ce33d">tlv_writer_operation</a> { <a class="el" href="group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da23870831724fe2432fe2986b69b2d31c">TLV_WRITER_OP_TAG</a> = 0
+<tr class="memitem:gab650d8082fbcc856730fd85aea1ce33d" id="r_gab650d8082fbcc856730fd85aea1ce33d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gab650d8082fbcc856730fd85aea1ce33d">tlv_writer_operation</a> { <br />
+&#160;&#160;<a class="el" href="group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da23870831724fe2432fe2986b69b2d31c">TLV_WRITER_OP_TAG</a> = 0
 , <a class="el" href="group__writer.html#ggab650d8082fbcc856730fd85aea1ce33daa8979120b8a893bec4d13dd20b788417">TLV_WRITER_OP_LENGTH</a>
 , <a class="el" href="group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da95ea6ef74341a6449609e8ef8c780751">TLV_WRITER_OP_VALUE</a>
+, <a class="el" href="group__writer.html#ggab650d8082fbcc856730fd85aea1ce33dae6fd43b1781f99d4da2ef331989b29b9">TLV_WRITER_OP_HEADER</a>
+, <br />
+&#160;&#160;<a class="el" href="group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da27ba196362627471ae8afa042721e875">TLV_WRITER_OP_TRAILER</a>
+<br />
  }</td></tr>
 <tr class="memdesc:gab650d8082fbcc856730fd85aea1ce33d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which encoding step a <a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5" title="Structured detail for a failed tlv_write() or tlv_writer_write() call.">tlv_writer_diagnostic_t</a> reports on.  <a href="group__writer.html#gab650d8082fbcc856730fd85aea1ce33d">More...</a><br /></td></tr>
 <tr class="separator:gab650d8082fbcc856730fd85aea1ce33d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -218,11 +223,15 @@ Functions</h2></td></tr>
 
 <p>Which encoding step a <a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5" title="Structured detail for a failed tlv_write() or tlv_writer_write() call.">tlv_writer_diagnostic_t</a> reports on. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggab650d8082fbcc856730fd85aea1ce33da23870831724fe2432fe2986b69b2d31c" name="ggab650d8082fbcc856730fd85aea1ce33da23870831724fe2432fe2986b69b2d31c"></a>TLV_WRITER_OP_TAG&#160;</td><td class="fielddoc"><p>Encoding the tag, or the whole header for a format with <code>write_header</code>. </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggab650d8082fbcc856730fd85aea1ce33da23870831724fe2432fe2986b69b2d31c" name="ggab650d8082fbcc856730fd85aea1ce33da23870831724fe2432fe2986b69b2d31c"></a>TLV_WRITER_OP_TAG&#160;</td><td class="fielddoc"><p>Encoding an explicit identifier field. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggab650d8082fbcc856730fd85aea1ce33daa8979120b8a893bec4d13dd20b788417" name="ggab650d8082fbcc856730fd85aea1ce33daa8979120b8a893bec4d13dd20b788417"></a>TLV_WRITER_OP_LENGTH&#160;</td><td class="fielddoc"><p>Encoding or sizing the length field. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggab650d8082fbcc856730fd85aea1ce33da95ea6ef74341a6449609e8ef8c780751" name="ggab650d8082fbcc856730fd85aea1ce33da95ea6ef74341a6449609e8ef8c780751"></a>TLV_WRITER_OP_VALUE&#160;</td><td class="fielddoc"><p>Checking the encoded element against the destination capacity. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggab650d8082fbcc856730fd85aea1ce33dae6fd43b1781f99d4da2ef331989b29b9" name="ggab650d8082fbcc856730fd85aea1ce33dae6fd43b1781f99d4da2ef331989b29b9"></a>TLV_WRITER_OP_HEADER&#160;</td><td class="fielddoc"><p>Entire header or unnamed header field. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggab650d8082fbcc856730fd85aea1ce33da27ba196362627471ae8afa042721e875" name="ggab650d8082fbcc856730fd85aea1ce33da27ba196362627471ae8afa042721e875"></a>TLV_WRITER_OP_TRAILER&#160;</td><td class="fielddoc"><p>Trailing framing. </p>
 </td></tr>
 </table>
 
@@ -268,7 +277,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes the encoded size of an element without accessing value bytes. </p>
-<p>Requires the format's <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> callbacks.</p>
+<p>Requires the format's <code>measure</code> and <code>encode</code> callbacks.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Element tag. </td></tr>

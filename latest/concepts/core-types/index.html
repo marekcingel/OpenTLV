@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/core-types/">
       
       
-        <link rel="prev" href="../architecture/">
+        <link rel="prev" href="../architectural-rules/">
       
       
-        <link rel="next" href="../value/">
+        <link rel="next" href="../format-contract/">
       
       
         
@@ -686,6 +686,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -824,6 +852,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1410,34 +1466,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../formats/default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2703,9 +2731,8 @@ come from <code>&lt;tlv/error.h&gt;</code>. Tags and their configuration are dec
   <code>tlv_size_t</code>). A null <code>data</code> pointer is valid only when <code>size</code> is zero.
   See <a href="../value/">borrowed TLV values</a> for checked construction and
   validation.</li>
-<li>There is no separate native byte-range struct. Native byte ranges in the
-  public API are passed as an explicit <code>const uint8_t*</code>/<code>size_t</code> pair, for
-  example <code>tlv_copy_encoded(encoded_data, encoded_length, ...)</code>.</li>
+<li>Native buffers use a <code>const uint8_t*</code>/<code>size_t</code> pair. Source fields use
+  optional buffer-relative <code>tlv_range_t</code> offsets and extents.</li>
 <li><code>tlv_tag_t</code> is a small non-owning type: a <code>const uint8_t* data</code> pointer and
   a <code>size_t size</code>. It represents arbitrary raw tag bytes in wire order and
   nothing else. It owns no memory, allocates none, has no storage capacity or
@@ -2713,8 +2740,8 @@ come from <code>&lt;tlv/error.h&gt;</code>. Tags and their configuration are dec
 <li><code>tlv_length_t</code> (in <code>&lt;tlv/length.h&gt;</code>) borrows the original encoded length
   field through <code>const uint8_t* data</code> and native <code>size_t size</code>. It preserves
   nonminimal encodings and termination markers without numeric interpretation.</li>
-<li><code>tlv_element_t</code> (in <code>&lt;tlv/element.h&gt;</code>) has exactly three fields: <code>tag</code>,
-  <code>length</code>, and <code>value</code>. All bytes are borrowed. <code>value.size</code> is the resolved
+<li><code>tlv_element_t</code> (in <code>&lt;tlv/element.h&gt;</code>) has exactly two fields: <code>tag</code> and
+  <code>value</code>. All bytes are borrowed. <code>value.size</code> is the resolved
   logical value byte count (<code>tlv_size_t</code>), excluding header and trailer framing.
   The format defines how the raw length maps to this count: Bluetooth's length
   also counts the tag, while BER indefinite length has no numeric wire count.
@@ -2727,14 +2754,16 @@ come from <code>&lt;tlv/error.h&gt;</code>. Tags and their configuration are dec
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"> </span><span class="n">tlv_size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="n">tlv_value_t</span><span class="p">;</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="p">;</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">tlv_length_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">tlv_value_t</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span><span class="w"> </span><span class="n">tlv_element_t</span><span class="p">;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">tlv_value_t</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span><span class="w"> </span><span class="n">tlv_element_t</span><span class="p">;</span>
 </code></pre></div>
 <p>The logical quantities and raw bytes are independent of host endianness.
 Pointer-containing structures have native layouts and must never be used as
 portable wire encodings. <code>tlv_copy_element()</code> regenerates the length for the
 destination format; <code>tlv_copy_encoded()</code> preserves an original encoded range.</p>
+<p>Raw fields and complete framing belong to separate <code>tlv_source_t</code>, returned
+with the semantic element by <code>tlv_format_decode()</code>. See the
+<a href="../format-contract/">Format/Element contract</a> for mutation and preservation.</p>
 <p>All types support zero initialization and require no dynamic allocation.</p>
 <h2 id="tags-are-borrowed">Tags are borrowed<a class="headerlink" href="#tags-are-borrowed" title="Permanent link">&para;</a></h2>
 <p><code>tlv_tag_t</code> refers to bytes that somebody else owns, exactly as <code>tlv_value_t</code>
@@ -2775,7 +2804,7 @@ array and initialize the tag as <code>{ bytes, sizeof(bytes) }</code>.</p>
 </tr>
 <tr>
 <td>A <strong>format</strong></td>
-<td>How tags are encoded and which tag lengths are valid. The default format accepts one byte, BER and DER accept 1 to 8 bytes, and a format defined at runtime can accept 12. A tag a format does not support is rejected by that format, for example with <code>TLV_ERR_INVALID_TAG_SIZE</code>. Whether an empty tag is valid is also the format's decision.</td>
+<td>How tags are encoded and which tag lengths are valid. BER and DER accept 1 to 8 bytes, and a format defined at runtime can accept 12. A tag a format does not support is rejected by that format, for example with <code>TLV_ERR_INVALID_TAG_SIZE</code>. Whether an empty tag is valid is also the format's decision.</td>
 </tr>
 <tr>
 <td>A <strong>schema</strong></td>
@@ -2840,8 +2869,8 @@ is never produced because a tag is "too long for <code>tlv_tag_t</code>".
 <code>TLV_ERR_INVALID_TAG</code> identifies malformed tag encoding.</p>
 <p>See also the <a href="../../reference/c-api/#core-types-and-utilities">C API reference: core types</a>.</p>
 <h3 id="c-element-access">C++ element access<a class="headerlink" href="#c-element-access" title="Permanent link">&para;</a></h3>
-<p><code>tlv::element</code> aliases <code>tlv_element_t</code>, including the raw length field and
-64-bit <code>value.size</code>. Access bytes through <code>element.value.data</code>. When a C++
+<p><code>tlv::element</code> aliases semantic <code>tlv_element_t</code> with 64-bit <code>value.size</code>.
+<code>tlv::decode()</code> returns separate source information for raw field inspection. Access bytes through <code>element.value.data</code>. When a C++
 codec or range operation needs <code>tlv::bytes</code>, use the checked conversion:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">as_bytes</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">);</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">// Null data with nonzero size, or size above SIZE_MAX.</span>
@@ -2884,7 +2913,7 @@ codec or range operation needs <code>tlv::bytes</code>, use the checked conversi
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../architecture/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Architecture">
+          <a href="../architectural-rules/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Core architectural rules">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2894,20 +2923,20 @@ codec or range operation needs <code>tlv::bytes</code>, use the checked conversi
                 Previous
               </span>
               <div class="md-ellipsis">
-                Architecture
+                Core architectural rules
               </div>
             </div>
           </a>
         
         
           
-          <a href="../value/" class="md-footer__link md-footer__link--next" aria-label="Next: Borrowed values">
+          <a href="../format-contract/" class="md-footer__link md-footer__link--next" aria-label="Next: Format and Element contract">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Borrowed values
+                Format and Element contract
               </div>
             </div>
             <div class="md-footer__button md-icon">

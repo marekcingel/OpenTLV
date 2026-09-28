@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/core-types/" class="md-nav__link">
         
   
@@ -692,6 +720,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1382,34 +1438,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../formats/default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2668,7 +2696,7 @@ sequentially with no explicit <code>next()</code>/<code>at_end()</code> loop:</p
 <p>Each <code>element</code> is a plain table with <code>tag</code>, <code>raw_length</code>, <code>value</code> (all copied out
 of <code>data</code>, since Lua strings cannot borrow foreign memory the way a C, C++,
 Rust or Python view can) plus numeric <code>length</code> (the value size) and <code>offset</code>, the absolute position of the element's
-tag within <code>data</code>. <code>format</code> defaults to <code>opentlv.formats.default</code>; pass
+tag within <code>data</code>. <code>format</code> defaults to <code>opentlv.formats.ber</code>; pass
 <code>opentlv.formats.ber</code>, <code>.cer</code>, <code>.der</code>, <code>.bluetooth_ltv</code>, or
 <code>opentlv.formats.fixed(tag_size, length_size, byte_order)</code> (<code>byte_order</code> is
 <code>"big"</code> or <code>"little"</code>, equivalent to the C <code>tlv_fixed_format_t</code>) for another

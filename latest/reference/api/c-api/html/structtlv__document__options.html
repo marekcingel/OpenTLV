@@ -121,7 +121,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Format used to parse input and values and to encode the document. Required; must be able to both read and write, see <a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0" title="Reports whether a format can be used for reading.">tlv_format_can_read()</a> and <a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952" title="Reports whether a format can be used for writing.">tlv_format_can_write()</a>. <code>format-&gt;is_constructed</code> tells which tags hold nested elements, or <code>NULL</code> to keep every value opaque; its answer is taken when a node is created and stays with the node. </p>
+<p>Format used to parse input and values and to encode the document. Required; must be able to both read and write, see <a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0" title="Return nonzero if format has decoding capability; NULL returns zero.">tlv_format_can_read()</a> and <a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952" title="Return nonzero if format has complete encoding capability; NULL returns zero.">tlv_format_can_write()</a>. <code>format-&gt;is_constructed</code> tells which tags hold nested elements, or <code>NULL</code> to keep every value opaque; its answer is taken when a node is created and stays with the node. </p>
 
 </div>
 </div>

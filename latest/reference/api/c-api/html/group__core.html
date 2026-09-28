@@ -122,7 +122,7 @@ Files</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__element__t.html">tlv_element_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw tag and length fields plus the resolved borrowed value.  <a href="structtlv__element__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical identifier and resolved borrowed value.  <a href="structtlv__element__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__length__t.html">tlv_length_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Original encoded length bytes, without numeric interpretation.  <a href="structtlv__length__t.html#details">More...</a><br /></td></tr>
@@ -187,8 +187,6 @@ Macros</h2></td></tr>
 <tr class="memitem:ga62240f1e8115a67ac51e5b00855a240b" id="r_ga62240f1e8115a67ac51e5b00855a240b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b">TLV_TAG</a>(...)&#160;&#160;&#160;    (<a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0">tlv_tag</a>((const uint8_t[]){__VA_ARGS__}, sizeof((const uint8_t[]){__VA_ARGS__})))</td></tr>
 <tr class="memdesc:ga62240f1e8115a67ac51e5b00855a240b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds an allocation-free tag from literal bytes, e.g. <code><a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b" title="Builds an allocation-free tag from literal bytes, e.g. TLV_TAG(0x9F, 0x02).">TLV_TAG(0x9F, 0x02)</a></code>.  <br /></td></tr>
 <tr class="separator:ga62240f1e8115a67ac51e5b00855a240b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab8c74ff779970d9fc8a46f2a647a71fe" id="r_gab8c74ff779970d9fc8a46f2a647a71fe"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gab8c74ff779970d9fc8a46f2a647a71fe">OPENTLV_FORMAT_DEFAULT</a>&#160;&#160;&#160;1</td></tr>
-<tr class="separator:gab8c74ff779970d9fc8a46f2a647a71fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae105294481ca0c15c36186e349fe0263" id="r_gae105294481ca0c15c36186e349fe0263"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gae105294481ca0c15c36186e349fe0263">OPENTLV_FORMAT_FIXED</a>&#160;&#160;&#160;1</td></tr>
 <tr class="separator:gae105294481ca0c15c36186e349fe0263"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf62b7f060281aa2c7f63c5d857d1fe56" id="r_gaf62b7f060281aa2c7f63c5d857d1fe56"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaf62b7f060281aa2c7f63c5d857d1fe56">OPENTLV_FORMAT_BLUETOOTH_LTV</a>&#160;&#160;&#160;1</td></tr>
@@ -211,19 +209,19 @@ Macros</h2></td></tr>
 <tr class="separator:gad062a7eec07ec5320048c3ce7557a06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga78642a629438a71c59f9442c78fd2c87" id="r_ga78642a629438a71c59f9442c78fd2c87"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga78642a629438a71c59f9442c78fd2c87">OPENTLV_VERSION_PATCH</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:ga78642a629438a71c59f9442c78fd2c87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa451b8da102d59f7b9458bc8e2f0bf97" id="r_gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97">OPENTLV_VERSION_REVISION</a>&#160;&#160;&#160;134</td></tr>
+<tr class="memitem:gaa451b8da102d59f7b9458bc8e2f0bf97" id="r_gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97">OPENTLV_VERSION_REVISION</a>&#160;&#160;&#160;138</td></tr>
 <tr class="separator:gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga33d8e893fc2c2576f9fd8c31cee2256b" id="r_ga33d8e893fc2c2576f9fd8c31cee2256b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga33d8e893fc2c2576f9fd8c31cee2256b">OPENTLV_VERSION_PRERELEASE</a>&#160;&#160;&#160;&quot;&quot;</td></tr>
 <tr class="separator:ga33d8e893fc2c2576f9fd8c31cee2256b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga193562e270081cce2e0ec2cf3dc9becf" id="r_ga193562e270081cce2e0ec2cf3dc9becf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga193562e270081cce2e0ec2cf3dc9becf">OPENTLV_VERSION_STRING</a>&#160;&#160;&#160;&quot;0.6.0&quot;</td></tr>
 <tr class="separator:ga193562e270081cce2e0ec2cf3dc9becf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1d93d56a9fc48abd91435938fca018a1" id="r_ga1d93d56a9fc48abd91435938fca018a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1d93d56a9fc48abd91435938fca018a1">OPENTLV_GIT_COMMIT_HASH</a>&#160;&#160;&#160;&quot;c2588d5&quot;</td></tr>
+<tr class="memitem:ga1d93d56a9fc48abd91435938fca018a1" id="r_ga1d93d56a9fc48abd91435938fca018a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1d93d56a9fc48abd91435938fca018a1">OPENTLV_GIT_COMMIT_HASH</a>&#160;&#160;&#160;&quot;78c012e&quot;</td></tr>
 <tr class="separator:ga1d93d56a9fc48abd91435938fca018a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1a408e73a0b7c9dd1117ad1cb59fa238" id="r_ga1a408e73a0b7c9dd1117ad1cb59fa238"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1a408e73a0b7c9dd1117ad1cb59fa238">OPENTLV_GIT_BRANCH</a>&#160;&#160;&#160;&quot;main&quot;</td></tr>
 <tr class="separator:ga1a408e73a0b7c9dd1117ad1cb59fa238"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2eb763ab60d23634a1db498f2eadde3c" id="r_ga2eb763ab60d23634a1db498f2eadde3c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga2eb763ab60d23634a1db498f2eadde3c">OPENTLV_GIT_TAG</a>&#160;&#160;&#160;&quot;0.6.0&quot;</td></tr>
 <tr class="separator:ga2eb763ab60d23634a1db498f2eadde3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5efa726a1d139abae3b566638e2ac0fd" id="r_ga5efa726a1d139abae3b566638e2ac0fd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5efa726a1d139abae3b566638e2ac0fd">OPENTLV_GIT_REPO_VERSION</a>&#160;&#160;&#160;&quot;0.6.0-134-c2588d5&quot;</td></tr>
+<tr class="memitem:ga5efa726a1d139abae3b566638e2ac0fd" id="r_ga5efa726a1d139abae3b566638e2ac0fd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5efa726a1d139abae3b566638e2ac0fd">OPENTLV_GIT_REPO_VERSION</a>&#160;&#160;&#160;&quot;0.6.0-138-78c012e&quot;</td></tr>
 <tr class="separator:ga5efa726a1d139abae3b566638e2ac0fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -268,6 +266,7 @@ Enumerations</h2></td></tr>
 , <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a6c282cdacb2900685e03295cf378282e">TLV_ERR_UNSUPPORTED_TYPE</a> = 15
 , <br />
 &#160;&#160;<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e93735f4f45c97989c940ff2fb68792">TLV_ERR_SCHEMA_MISSING</a> = 16
+, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302">TLV_ERR_NATIVE_SIZE</a> = 17
 <br />
  }</td></tr>
 <tr class="memdesc:ga516c7250563ee9332e2f45f2d203ae61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result code returned by OpenTLV C functions.  <a href="group__core.html#ga516c7250563ee9332e2f45f2d203ae61">More...</a><br /></td></tr>
@@ -374,8 +373,6 @@ Functions</h2></td></tr>
 <tr class="memitem:ga4a4d0f914281c34ff22bfa151146891e" id="r_ga4a4d0f914281c34ff22bfa151146891e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga4a4d0f914281c34ff22bfa151146891e">tlv_value_copy</a> (<a class="el" href="structtlv__value__t.html">tlv_value_t</a> value, uint8_t *data, size_t capacity, size_t *written)</td></tr>
 <tr class="memdesc:ga4a4d0f914281c34ff22bfa151146891e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies a value's bytes into caller-owned storage.  <br /></td></tr>
 <tr class="separator:ga4a4d0f914281c34ff22bfa151146891e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga68ed64e63494e6f7010fa0a55707dc5d" id="r_ga68ed64e63494e6f7010fa0a55707dc5d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga68ed64e63494e6f7010fa0a55707dc5d">tlv_config_format_default</a> (void)</td></tr>
-<tr class="separator:ga68ed64e63494e6f7010fa0a55707dc5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga813e7ec4a531e68571eb7f225906b853" id="r_ga813e7ec4a531e68571eb7f225906b853"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga813e7ec4a531e68571eb7f225906b853">tlv_config_format_fixed</a> (void)</td></tr>
 <tr class="separator:ga813e7ec4a531e68571eb7f225906b853"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabc3367f3e1e3cc52f4b4225192b040c6" id="r_gabc3367f3e1e3cc52f4b4225192b040c6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gabc3367f3e1e3cc52f4b4225192b040c6">tlv_config_format_bluetooth_ltv</a> (void)</td></tr>
@@ -486,20 +483,6 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="gab8c74ff779970d9fc8a46f2a647a71fe" name="gab8c74ff779970d9fc8a46f2a647a71fe"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gab8c74ff779970d9fc8a46f2a647a71fe">&#9670;&#160;</a></span>OPENTLV_FORMAT_DEFAULT</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define OPENTLV_FORMAT_DEFAULT&#160;&#160;&#160;1</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="ga6ef035b1ed80e0f6b9ea498d5085db15" name="ga6ef035b1ed80e0f6b9ea498d5085db15"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga6ef035b1ed80e0f6b9ea498d5085db15">&#9670;&#160;</a></span>OPENTLV_FORMAT_DER</h2>
 
@@ -549,7 +532,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_GIT_COMMIT_HASH&#160;&#160;&#160;&quot;c2588d5&quot;</td>
+          <td class="memname">#define OPENTLV_GIT_COMMIT_HASH&#160;&#160;&#160;&quot;78c012e&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -563,7 +546,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_GIT_REPO_VERSION&#160;&#160;&#160;&quot;0.6.0-134-c2588d5&quot;</td>
+          <td class="memname">#define OPENTLV_GIT_REPO_VERSION&#160;&#160;&#160;&quot;0.6.0-138-78c012e&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -661,7 +644,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_VERSION_REVISION&#160;&#160;&#160;134</td>
+          <td class="memname">#define OPENTLV_VERSION_REVISION&#160;&#160;&#160;138</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1083,7 +1066,7 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3" name="gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3"></a>TLV_ERR_BUFFER_TOO_SHORT&#160;</td><td class="fielddoc"><p>A supplied buffer is too small for the data or output required. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742" name="gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742"></a>TLV_ERR_INVALID_LENGTH&#160;</td><td class="fielddoc"><p>A length is malformed, out of range, or not representable as <code>size_t</code>. </p>
+<tr><td class="fieldname"><a id="gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742" name="gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742"></a>TLV_ERR_INVALID_LENGTH&#160;</td><td class="fielddoc"><p>A length is malformed or outside the wire encoding range. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88" name="gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88"></a>TLV_ERR_NULL_ARG&#160;</td><td class="fielddoc"><p>A required pointer argument is <code>NULL</code>. </p>
 </td></tr>
@@ -1114,6 +1097,8 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="gga516c7250563ee9332e2f45f2d203ae61a9e93735f4f45c97989c940ff2fb68792" name="gga516c7250563ee9332e2f45f2d203ae61a9e93735f4f45c97989c940ff2fb68792"></a>TLV_ERR_SCHEMA_MISSING&#160;</td><td class="fielddoc"><p>A required field is absent (<a class="el" href="group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416" title="Validates framing, nesting, lengths, occurrence counts, ordering, alternative groups and child member...">tlv_schema_validate()</a>).</p>
 <p>Reported when a rule's <code>min_occurs</code> exceeds its actual occurrence count. It is distinct from <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> because its error offset is the end of the enclosing parent's value: a scope boundary, not an element. That offset can coincide with the start of an unrelated sibling in the parent scope, so a tag read there is not reliably the cause.</p>
 <p>Every other <a class="el" href="group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416" title="Validates framing, nesting, lengths, occurrence counts, ordering, alternative groups and child member...">tlv_schema_validate()</a> violation (forbidden or unknown tag, duplicate or excess occurrence, kind mismatch, invalid rule table) returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> with an offset anchored to the actual element. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302" name="gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302"></a>TLV_ERR_NATIVE_SIZE&#160;</td><td class="fielddoc"><p>A valid logical quantity exceeds the host address space. </p>
 </td></tr>
 </table>
 
@@ -1200,24 +1185,6 @@ Functions</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">int tlv_config_format_cer </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ga68ed64e63494e6f7010fa0a55707dc5d" name="ga68ed64e63494e6f7010fa0a55707dc5d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga68ed64e63494e6f7010fa0a55707dc5d">&#9670;&#160;</a></span>tlv_config_format_default()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int tlv_config_format_default </td>
           <td>(</td>
           <td class="paramtype">void&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -1668,7 +1635,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>size</code> is <code>NULL</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if <code>logical_size</code> exceeds <code>SIZE_MAX</code>; <code>*size</code> is left unchanged.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302">TLV_ERR_NATIVE_SIZE</a> if <code>logical_size</code> exceeds <code>SIZE_MAX</code>; <code>*size</code> is left unchanged.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Success does not prove that a buffer of that size exists, is accessible, or has sufficient capacity; actual bounds remain the caller's responsibility. </dd></dl>
 
 </div>
@@ -1699,7 +1666,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> if it fits. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> otherwise.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302">TLV_ERR_NATIVE_SIZE</a> otherwise.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Success does not prove that a buffer exists, is accessible, or has sufficient capacity. </dd></dl>
 
 </div>
@@ -2065,7 +2032,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>written</code> is <code>NULL</code>, if <code>data</code> is <code>NULL</code> with a nonzero <code>capacity</code>, or if <code>value.data</code> is <code>NULL</code> with a nonzero <code>value.size</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if <code>value.size</code> exceeds the native size range. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302">TLV_ERR_NATIVE_SIZE</a> if <code>value.size</code> exceeds the native size range. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if <code>capacity</code> is insufficient; <code>*written</code> is unchanged. </dd></dl>
 
@@ -2158,7 +2125,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>value</code> is <code>NULL</code>, or <code>data</code> is <code>NULL</code> with a nonzero <code>length</code>; checked before the native-length range. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if <code>length</code> cannot be represented by the current build's <code>size_t</code>.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302">TLV_ERR_NATIVE_SIZE</a> if <code>length</code> cannot be represented by the current build's <code>size_t</code>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd><code>*value</code> is unchanged on every failure. Allocation bounds of <code>data</code> remain the caller's responsibility. </dd></dl>
 
 </div>
@@ -2243,7 +2210,9 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>out</code> is <code>NULL</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if <code>value</code> is not representable by the current build's <code>size_t</code>, or if <code>offset + length</code> exceeds <code>value.size</code>. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302">TLV_ERR_NATIVE_SIZE</a> if <code>value</code> is not representable by the current build's <code>size_t</code>. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if <code>offset + length</code> exceeds <code>value.size</code>. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if <code>offset + length</code> overflows <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd><code>*out</code> is unchanged on every failure. </dd></dl>
@@ -2280,7 +2249,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if its <code>data</code> is <code>NULL</code> with a nonzero length. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if the length is not representable as <code>size_t</code>. </dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a41a6cc7b4f3a4162a742132d5c5fb302">TLV_ERR_NATIVE_SIZE</a> if the length is not representable as <code>size_t</code>. </dd></dl>
 
 </div>
 </div>

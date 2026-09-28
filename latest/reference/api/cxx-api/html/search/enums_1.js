@@ -16,12 +16,13 @@ var searchData=
   ['tlv_5femv_5fvalue_5fkind_5ft_13',['tlv_emv_value_kind_t',['../../../c-api/html/group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1',1,]]],
   ['tlv_5flength_5fscope_14',['tlv_length_scope',['../../../c-api/html/group__formats.html#ga938da6e0c2615f4b959ed62fb5c2fe88',1,]]],
   ['tlv_5freader_5foperation_15',['tlv_reader_operation',['../../../c-api/html/group__reader.html#ga1eb19dea4cfcbb788587e7a3208430a9',1,]]],
-  ['tlv_5fresult_16',['tlv_result',['../../../c-api/html/group__core.html#ga516c7250563ee9332e2f45f2d203ae61',1,]]],
-  ['tlv_5fschema_5fissue_5fkind_17',['tlv_schema_issue_kind',['../../../c-api/html/group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd',1,]]],
-  ['tlv_5fschema_5fkind_18',['tlv_schema_kind',['../../../c-api/html/group__schemas.html#ga5c8a305dce94f119abad5b7137d21f51',1,]]],
-  ['tlv_5fschema_5forder_19',['tlv_schema_order',['../../../c-api/html/group__schemas.html#ga3687d250fd81cbe36e88129a2ea1cc0b',1,]]],
-  ['tlv_5fschema_5funknown_5fpolicy_20',['tlv_schema_unknown_policy',['../../../c-api/html/group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419',1,]]],
-  ['tlv_5fvalue_5fconstraint_5fkind_21',['tlv_value_constraint_kind',['../../../c-api/html/group__schemas.html#ga9842d51d0f5706b1d13fea943bcb9def',1,]]],
-  ['tlv_5fvisit_5fresult_22',['tlv_visit_result',['../../../c-api/html/group__traversal.html#ga32dd2f26caa5ae7507636430b13cc961',1,]]],
-  ['tlv_5fwriter_5foperation_23',['tlv_writer_operation',['../../../c-api/html/group__writer.html#gab650d8082fbcc856730fd85aea1ce33d',1,]]]
+  ['tlv_5fregion_16',['tlv_region',['../../../c-api/html/group__formats.html#ga88f6b600ab2cd64a4e706f09adb7982b',1,]]],
+  ['tlv_5fresult_17',['tlv_result',['../../../c-api/html/group__core.html#ga516c7250563ee9332e2f45f2d203ae61',1,]]],
+  ['tlv_5fschema_5fissue_5fkind_18',['tlv_schema_issue_kind',['../../../c-api/html/group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd',1,]]],
+  ['tlv_5fschema_5fkind_19',['tlv_schema_kind',['../../../c-api/html/group__schemas.html#ga5c8a305dce94f119abad5b7137d21f51',1,]]],
+  ['tlv_5fschema_5forder_20',['tlv_schema_order',['../../../c-api/html/group__schemas.html#ga3687d250fd81cbe36e88129a2ea1cc0b',1,]]],
+  ['tlv_5fschema_5funknown_5fpolicy_21',['tlv_schema_unknown_policy',['../../../c-api/html/group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419',1,]]],
+  ['tlv_5fvalue_5fconstraint_5fkind_22',['tlv_value_constraint_kind',['../../../c-api/html/group__schemas.html#ga9842d51d0f5706b1d13fea943bcb9def',1,]]],
+  ['tlv_5fvisit_5fresult_23',['tlv_visit_result',['../../../c-api/html/group__traversal.html#ga32dd2f26caa5ae7507636430b13cc961',1,]]],
+  ['tlv_5fwriter_5foperation_24',['tlv_writer_operation',['../../../c-api/html/group__writer.html#gab650d8082fbcc856730fd85aea1ce33d',1,]]]
 ];

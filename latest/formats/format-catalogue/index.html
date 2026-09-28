@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/core-types/" class="md-nav__link">
         
   
@@ -692,6 +720,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1291,34 +1347,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -3285,7 +3313,7 @@ depends on how much of X.680 these rows cover.</p>
 <td>Diameter AVP (<code>[?]</code>)</td>
 <td><a href="https://www.rfc-editor.org/rfc/rfc6733.html">RFC 6733</a>, section 4.1</td>
 <td>AVP framing: 4-byte code, flag byte, 24-bit length that includes the header, optional 4-byte vendor ID (V flag), data padded to a 32-bit boundary with the padding not counted in the length. Grouped AVPs nest.</td>
-<td>format adapter (<code>read_element</code>, <code>write_header</code>), nesting predicate (grouped types), dictionary</td>
+<td>format adapter (<code>decode</code>, <code>encode</code>), nesting predicate (grouped types), dictionary</td>
 <td>Length includes the header; the trailing padding fits the reader's <code>trailer_size</code>, but the writer has no trailer hook (see <a href="../format-roadmap/#framing-requirements">framing requirements</a>). Command dictionaries and applications are separate profiles. No peer state machine.</td>
 <td>Verified: RFC 6733 section 4.1 and the padding rules.</td>
 </tr>
@@ -3310,7 +3338,7 @@ a caller slices the region first.</p>
 <td>LLDP (<code>[?]</code>)</td>
 <td>IEEE Std 802.1AB-2016</td>
 <td>LLDPDU TLV region: 7-bit type and 9-bit length packed in two bytes; End of LLDPDU TLV; organisationally specific TLVs (OUI and subtype).</td>
-<td>format adapter (<code>read_element</code>, <code>write_header</code>), dictionary</td>
+<td>format adapter (<code>decode</code>, <code>encode</code>), dictionary</td>
 <td>Packed bit fields (fit by inspection, see the roadmap). Composite tag for organisational TLVs. No LLDP agent or MIB.</td>
 <td>Not verified: IEEE standard not read.</td>
 </tr>
@@ -3342,7 +3370,7 @@ a caller slices the region first.</p>
 <td>LDP (<code>[?]</code>)</td>
 <td><a href="https://www.rfc-editor.org/rfc/rfc5036.html">RFC 5036</a>; extensions such as capabilities are separate scopes</td>
 <td>Three levels: PDU header (10 bytes), messages, TLVs. TLV header: U bit, F bit, 14-bit type, 16-bit length of the value only.</td>
-<td>format adapter (<code>read_element</code>, <code>write_header</code>), mixed-format traversal, dictionary</td>
+<td>format adapter (<code>decode</code>, <code>encode</code>), mixed-format traversal, dictionary</td>
 <td>The flag bits share the type field, so the tag identity must decide whether U/F are part of the tag. Multi-level nesting with a different format per level needs <a href="../format-roadmap/#generic-processing-extensions">mixed-format traversal</a> for automatic walks. "LDP" here is the Label Distribution Protocol. No LSR behaviour.</td>
 <td>Verified: RFC 5036 PDU and TLV layouts.</td>
 </tr>
@@ -3350,7 +3378,7 @@ a caller slices the region first.</p>
 <td>RFC 5444 TLV blocks (<code>[?]</code>)</td>
 <td><a href="https://www.rfc-editor.org/rfc/rfc5444.html">RFC 5444</a>; consumers include <a href="https://www.rfc-editor.org/rfc/rfc6130.html">RFC 6130</a> (NHDP) and <a href="https://www.rfc-editor.org/rfc/rfc7181.html">RFC 7181</a> (OLSRv2)</td>
 <td>TLV blocks only: a 16-bit block length, then TLVs with type, flags, optional type extension, optional indexes, optional length and value.</td>
-<td>format adapter (<code>read_element</code>), dictionary</td>
+<td>format adapter (<code>decode</code>), dictionary</td>
 <td>The flags decide which fields exist, so the header size varies per element. Address-block index semantics are separate. The packet and message structure is <a href="#excluded-encodings">excluded</a>. No MANET routing.</td>
 <td>Verified: RFC 5444 TLV block and TLV layout.</td>
 </tr>
@@ -3375,7 +3403,7 @@ choose a release when scoping.</p>
 <td>PFCP (<code>[?]</code>)</td>
 <td><a href="https://www.etsi.org/deliver/etsi_ts/129200_129299/129244/17.09.00_60/ts_129244v170900p.pdf">3GPP TS 29.244</a> clause 8.1.1 (read at v17.9.0)</td>
 <td>IE region: 2-byte type, 2-byte length that excludes the first four octets, optional enterprise ID for vendor-specific types (bit 8 of the type); grouped IEs nest.</td>
-<td>format adapter (<code>read_element</code>, <code>write_header</code>), nesting predicate (grouped IE types), dictionary</td>
+<td>format adapter (<code>decode</code>, <code>encode</code>), nesting predicate (grouped IE types), dictionary</td>
 <td>The enterprise ID is counted inside the length and present only for types with bit 8 set, so the header size depends on the type. Message header and sessions are separate. No UPF/SMF behaviour.</td>
 <td>Verified: TS 29.244 v17.9.0 clause 8.1.1.</td>
 </tr>
@@ -3383,7 +3411,7 @@ choose a release when scoping.</p>
 <td>GTPv2-C (<code>[?]</code>)</td>
 <td><a href="https://www.etsi.org/deliver/etsi_ts/129200_129299/129274/17.10.00_60/ts_129274v171000p.pdf">3GPP TS 29.274</a> clause 8.2 (read at v17.10.0)</td>
 <td>TLIV: 1-byte type, 2-byte length that excludes the first four octets, spare and 4-bit instance; grouped IEs nest; type 254 adds a type extension field.</td>
-<td>format adapter (<code>read_element</code>, <code>write_header</code>), nesting predicate, dictionary</td>
+<td>format adapter (<code>decode</code>, <code>encode</code>), nesting predicate, dictionary</td>
 <td>IE identity is type plus instance (composite tag). GTP-U and the message header are separate. No core-network behaviour.</td>
 <td>Verified: TS 29.274 v17.10.0 clause 8.2.</td>
 </tr>
@@ -3409,7 +3437,7 @@ choose a release when scoping.</p>
 <p>Layouts for the candidates whose framing was read in the primary text. They show how
 each format is arranged so its shape is clear before any adapter exists. Diagrams are
 drawn from the cited specification; nothing here is implemented. "Adapter view" says
-how the fields would map to the callback outputs of <code>read_element</code> (tag, header size,
+how the fields would map to the callback outputs of <code>decode</code> (tag, header size,
 value size, trailer size) by inspection of the contract, <strong>not from a prototype</strong>.</p>
 <p>No diagram is given for candidates whose specification was not read (LLDP, IS-IS,
 ISO 7816-4 SIMPLE-TLV, the NFC Forum tag TLV, eSIM), to avoid drawing fields that were

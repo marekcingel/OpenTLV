@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/formats/default/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/format-contract/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../core-types/">
       
       
-        <link rel="next" href="../fixed/configurable/">
+        <link rel="next" href="../value/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Default TLV - OpenTLV</title>
+        <title>Format and Element contract - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#default-tlv" class="md-skip">
+        <a href="#format-and-element-contract" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Default TLV
+              Format and Element contract
             
           </span>
         </div>
@@ -281,11 +281,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../concepts/architecture/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture/" class="md-tabs__link">
           
   
   
@@ -321,13 +323,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
           
   
   
@@ -601,26 +601,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -638,7 +643,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -656,7 +661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -684,7 +689,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/core-types/" class="md-nav__link">
+      <a href="../architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core-types/" class="md-nav__link">
         
   
   
@@ -709,10 +742,157 @@
                 
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#semantic-content-and-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Semantic content and source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encoding-and-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encoding and preservation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#format-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Format operations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#size-domains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Size domains
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decoded-identifier-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decoded identifier consistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/value/" class="md-nav__link">
+      <a href="../value/" class="md-nav__link">
         
   
   
@@ -740,7 +920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/length/" class="md-nav__link">
+      <a href="../length/" class="md-nav__link">
         
   
   
@@ -768,7 +948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/endian/" class="md-nav__link">
+      <a href="../endian/" class="md-nav__link">
         
   
   
@@ -796,7 +976,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../concepts/bindings/" class="md-nav__link">
+      <a href="../bindings/" class="md-nav__link">
         
   
   
@@ -1223,31 +1403,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1265,7 +1440,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1283,7 +1458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../formats/" class="md-nav__link">
         
   
   
@@ -1308,140 +1483,10 @@
                 
   
   
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#api-and-build" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API and build
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scope-and-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope and limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#minimal-c-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Minimal C usage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#layout-and-typical-use" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Layout and typical use
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#byte-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Byte example
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
   
   
     <li class="md-nav__item">
-      <a href="../fixed/configurable/" class="md-nav__link">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
         
   
   
@@ -1469,7 +1514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bluetooth/" class="md-nav__link">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
         
   
   
@@ -1497,7 +1542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/ber/" class="md-nav__link">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
         
   
   
@@ -1525,7 +1570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/der/" class="md-nav__link">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
         
   
   
@@ -1553,7 +1598,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asn1/cer/" class="md-nav__link">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
         
   
   
@@ -1581,7 +1626,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../custom/" class="md-nav__link">
+      <a href="../../formats/custom/" class="md-nav__link">
         
   
   
@@ -1609,7 +1654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-examples/" class="md-nav__link">
+      <a href="../../formats/format-examples/" class="md-nav__link">
         
   
   
@@ -1637,7 +1682,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-roadmap/" class="md-nav__link">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
         
   
   
@@ -1665,7 +1710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../format-catalogue/" class="md-nav__link">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
         
   
   
@@ -2575,10 +2620,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#api-and-build" class="md-nav__link">
+  <a href="#semantic-content-and-source" class="md-nav__link">
     <span class="md-ellipsis">
       
-        API and build
+        Semantic content and source
       
     </span>
   </a>
@@ -2586,10 +2631,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scope-and-limits" class="md-nav__link">
+  <a href="#encoding-and-preservation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scope and limits
+        Encoding and preservation
       
     </span>
   </a>
@@ -2597,10 +2642,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#minimal-c-usage" class="md-nav__link">
+  <a href="#format-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Minimal C usage
+        Format operations
       
     </span>
   </a>
@@ -2608,10 +2653,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#layout-and-typical-use" class="md-nav__link">
+  <a href="#size-domains" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Layout and typical use
+        Size domains
       
     </span>
   </a>
@@ -2619,13 +2664,30 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#byte-example" class="md-nav__link">
+  <a href="#migration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Byte example
+        Migration
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decoded-identifier-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decoded identifier consistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2646,7 +2708,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/formats/default/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/format-contract.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2654,89 +2716,102 @@
   
 
 
-<h1 id="default-tlv">Default TLV<a class="headerlink" href="#default-tlv" title="Permanent link">&para;</a></h1>
-<p><a href="../">Format documentation</a></p>
-<h2 id="api-and-build">API and build<a class="headerlink" href="#api-and-build" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Format header</td>
-<td><code>tlv/builtins/fixed/default.h</code></td>
-</tr>
-<tr>
-<td>Descriptor</td>
-<td><code>tlv_format_default</code></td>
-</tr>
-<tr>
-<td>CMake option (default ON)</td>
-<td><code>OPENTLV_FORMAT_DEFAULT</code></td>
-</tr>
-<tr>
-<td>Link target</td>
-<td><code>tlv</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="scope-and-limits">Scope and limits<a class="headerlink" href="#scope-and-limits" title="Permanent link">&para;</a></h2>
-<p>One raw tag byte; definite BER-style lengths up to 65,535 bytes. Values are opaque.</p>
-<p>See <a href="../../guides/memory/">shared memory ownership rules</a> before retaining a parsed element.</p>
-<h2 id="minimal-c-usage">Minimal C usage<a class="headerlink" href="#minimal-c-usage" title="Permanent link">&para;</a></h2>
-<p>This complete example writes and reads one opaque byte. Exit code zero means success.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/fixed/default.h"</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/reader.h"</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/writer/writer.h"</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x04</span><span class="p">);</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x2A</span><span class="p">};</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_write</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_default</span><span class="p">,</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">                  </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_default</span><span class="p">,</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">                 </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">consumed</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">           </span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x04</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">           </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0x2A</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="p">}</span>
+<h1 id="format-and-element-contract">Format and Element contract<a class="headerlink" href="#format-and-element-contract" title="Permanent link">&para;</a></h1>
+<p>The format is the only layer that interprets wire mechanics. An element is a
+canonical optional byte identifier and contiguous Value bytes; <code>value.size</code>
+is its logical byte count, excluding framing. It has no raw Length member.
+No numeric tag interpretation or host byte order is implied. <code>{NULL, 0}</code> is
+an absent identifier; formats without an explicit Tag field are supported.</p>
+<h2 id="semantic-content-and-source">Semantic content and source<a class="headerlink" href="#semantic-content-and-source" title="Permanent link">&para;</a></h2>
+<p><code>tlv_format_decode()</code> returns semantic content and separate source information.
+<code>tlv_source_t</code> borrows the complete original bytes, Header/Value/Trailer ranges,
+optional Tag/Length ranges, the original semantic content and originating
+format descriptor. All source offsets are relative to that element's start.
+Header, Value and Trailer are contiguous and partition the encoded range.
+Additional header bytes and trailers remain available without adding protocol
+fields to the semantic element.</p>
+<p>The buffer, format and immutable context must outlive source information.
+Never mutate the source buffer while a source is live. Struct copies copy only
+borrowed descriptors, not bytes or ownership. The implementation cannot detect
+external mutation of borrowed storage; immutability is a caller obligation.</p>
+<h2 id="encoding-and-preservation">Encoding and preservation<a class="headerlink" href="#encoding-and-preservation" title="Permanent link">&para;</a></h2>
+<p>For every successful bidirectional encoding:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>decode(F, encode(F, E)).element == E
 </code></pre></div>
-<h2 id="layout-and-typical-use">Layout and typical use<a class="headerlink" href="#layout-and-typical-use" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>+--------+--------------------------+-------------------------+
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>| Tag    | Length                   | Value                   |
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>| 1 byte | 1 to 3 bytes             | Length bytes, opaque    |
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>+--------+--------------------------+-------------------------+
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Length forms:  00-7F          one byte, the length itself
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>               81 nn          two bytes, length 0-255
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>               82 nn nn       three bytes, length 0-65,535 (big-endian)
+<p>Equality compares identifier presence/bytes and Value size/bytes, not pointers
+or framing. Read-only and write-only capability groups remain possible.
+Encoding regenerates framing according to the selected format/context policy.
+BER normally writes minimal definite lengths; <code>tlv_format_ber_indefinite</code>
+writes constructed elements with indefinite framing. CER chooses indefinite
+framing for constructed identifiers. Strict profile validation remains a
+separate operation; framing equality does not promise application semantics.</p>
+<p>Exact preservation is explicit:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>D = decode(F, W)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>preserve(D.source, D.element) == W
 </code></pre></div>
-<p>The length counts the value only, not the tag or the length field. Nothing inside the
-value is interpreted, so a value that contains further TLVs is just bytes to this
-format. Use it for compact application-defined records that need a one-byte tag but
-values longer than 255 bytes. For nesting or multi-byte tags use
-<a href="../asn1/ber/">BER-TLV</a>.</p>
-<h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
-<p>One raw tag byte and a definite BER-style length, up to 65,535 value bytes.
-The tag has no built-in constructed-bit interpretation.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>01 03 AA BB CC
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Element (5 bytes)
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>|-- Tag:    01
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>|-- Length: 03 = 3 value bytes
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>`-- Value:  AA BB CC
-</code></pre></div>
-<p>For 128 value bytes, the header is <code>01 81 80</code>, followed by all 128 payload
-bytes. This format supports BER-style lengths, not multi-byte BER tags.
-Use <code>tlv_format_default</code>.
-<a href="../#generic-interface">Format contract</a></p>
+<p><code>tlv_source_preserve()</code> verifies semantic equality and copies the original
+encoded bytes. It rejects changed identifiers or values, including same-size
+mutations. It supports a NULL/zero size query and overlapping copies. Changing
+an element never updates or invalidates the old source bytes themselves; it
+invalidates their association with the changed content.</p>
+<p>For <code>04 81 01 AA</code>, preservation retains <code>81 01</code>. Changing Value to <code>BB CC</code>
+requires fresh encoding; ordinary BER produces <code>04 02 BB CC</code>. No stale raw
+length or checksum is silently reused. Reusing representation preferences after
+mutation must be explicitly implemented by a format policy and revalidated;
+source preservation never performs that operation or falls back to encoding.
+Conversion to another format is fresh encoding, and fails if the destination
+cannot represent the identifier/content. Identifier mapping is not implicit.
+Canonical profile transformations that change Value bytes are separate content
+transformations, not semantic identity at this boundary.</p>
+<h2 id="format-operations">Format operations<a class="headerlink" href="#format-operations" title="Permanent link">&para;</a></h2>
+<p>The descriptor has one decode operation, one measure operation and one encode
+operation. Reader and Writer have no alternate field-callback path. Field
+composition is a public Format primitive (<code>tlv_field_layout_t</code>); fixed binary
+fields use <code>tlv_binary_layout_t</code>. TLV and LTV use the same composition with
+explicit order and count scope. Bluetooth does not depend on Fixed internals.</p>
+<p>Decode must validate the entire framing, including a required trailer, before
+publishing a result. BER indefinite scanning resolves matching nested EOC in
+the ASN.1 implementation. An outer EOC is Trailer; a nested EOC remains part of
+the enclosing Value. Formats may have an empty Header or no explicit Tag/Length.
+Successful decoding must consume at least one byte so sequential reads progress.</p>
+<p>Failure detail comes from the original operation: region, position, available
+field ranges and known logical requirements. Unknown is distinct from zero.
+Only in-buffer ranges can describe borrowed data. Generic diagnostics translate
+relative positions and never infer wire rules from an error code.</p>
+<h2 id="size-domains">Size domains<a class="headerlink" href="#size-domains" title="Permanent link">&para;</a></h2>
+<p>Logical Value and planned encoded sizes use <code>tlv_size_t</code>, always unsigned
+64-bit. <code>tlv_format_measure()</code> works before a native destination exists and
+reports Header, Value, Trailer and their checked total. It accepts a null Value
+pointer for content-independent queries; content-dependent formats require
+readable content even for exact sizing.</p>
+<p>Actual buffer extents, field ranges, offsets and consumed/written counts use
+<code>size_t</code>. Narrow only after validation. <code>tlv_encoded_size()</code> is the native-sized
+convenience wrapper; it does not replace logical measurement.</p>
+<ul>
+<li><code>TLV_ERR_OVERFLOW</code>: logical arithmetic exceeds the logical size domain.</li>
+<li><code>TLV_ERR_INVALID_LENGTH</code>: the quantity is invalid for the wire encoding.</li>
+<li><code>TLV_ERR_NATIVE_SIZE</code>: a valid logical size exceeds the native address space.</li>
+<li><code>TLV_ERR_BUFFER_TOO_SHORT</code>: the concrete buffer is insufficient.</li>
+</ul>
+<p>Wire integer byte order is explicit and independent of the host. A format's
+accepted logical range must not silently change between 32-bit and 64-bit builds.</p>
+<h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>
+<p>Rebuild all consumers: both <code>tlv_format_t</code> and <code>tlv_element_t</code> changed layout.
+Replace old format callback tables with canonical operations or public field
+composition. No compatibility callback table remains. Obtain raw Length from
+source ranges (<code>tlv_read_source_diag()</code> also returns reader diagnostics).
+The historical nonstandard default/compact encoding has been removed, together
+with its descriptor, header and build option. Select a named standard such as
+BER, or configure Fixed explicitly for a protocol with fixed-width fields.
+These formats are not wire-compatible replacements for every legacy input.</p>
+<p>C++ provides <code>tlv::decode</code>, <code>measure</code>, <code>encode</code> and <code>preserve</code> in <code>tlv++/format.hpp</code>.
+Rust separates semantic <code>Element</code> from <code>Decoded</code>, available through <code>decode()</code>
+and <code>decode_fixed()</code>; raw Length belongs to <code>Decoded::raw_length()</code>.
+Lua/WASM semantic walker records no longer expose raw Length. Python's existing
+raw-length inspection is populated from separate source information.</p>
+<h3 id="decoded-identifier-consistency">Decoded identifier consistency<a class="headerlink" href="#decoded-identifier-consistency" title="Permanent link">&para;</a></h3>
+<p>A present <code>source.tag</code> range must match <code>element.tag</code> in both pointer and size, just as the Value range does. An absent Tag range requires <code>{NULL, 0}</code>. Inconsistent successful callback results are rejected with <code>TLV_ERR_INVALID_ARG</code> without publishing the decoded result.</p>
+<p>For zero-length identifiers, a NULL pointer denotes absence and a non-NULL pointer denotes an explicit empty field. Source preservation checks this distinction but does not compare non-NULL pointer addresses; the original source range retains the wire location.</p>
 
 
 
@@ -2774,7 +2849,7 @@ Use <code>tlv_format_default</code>.
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
+          <a href="../core-types/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Core types">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2784,20 +2859,20 @@ Use <code>tlv_format_default</code>.
                 Previous
               </span>
               <div class="md-ellipsis">
-                Overview
+                Core types
               </div>
             </div>
           </a>
         
         
           
-          <a href="../fixed/configurable/" class="md-footer__link md-footer__link--next" aria-label="Next: Configurable fixed-width TLV">
+          <a href="../value/" class="md-footer__link md-footer__link--next" aria-label="Next: Borrowed values">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Configurable fixed-width TLV
+                Borrowed values
               </div>
             </div>
             <div class="md-footer__button md-icon">

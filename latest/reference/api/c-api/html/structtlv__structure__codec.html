@@ -160,7 +160,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Borrowed format. Must be able to read for decode and for validating encoded bytes, and able to write for encode; see <a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0" title="Reports whether a format can be used for reading.">tlv_format_can_read()</a> and <a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952" title="Reports whether a format can be used for writing.">tlv_format_can_write()</a>. A decode-only codec uses a format whose write callbacks are unset. <code>format-&gt;is_constructed</code> is the nesting predicate; <code>NULL</code> makes every value opaque. </p>
+<p>Borrowed format. Must be able to read for decode and for validating encoded bytes, and able to write for encode; see <a class="el" href="group__formats.html#ga19078c252af7958a24d18489187e76d0" title="Return nonzero if format has decoding capability; NULL returns zero.">tlv_format_can_read()</a> and <a class="el" href="group__formats.html#ga3eac58e190e9af77bfbd71b649f29952" title="Return nonzero if format has complete encoding capability; NULL returns zero.">tlv_format_can_write()</a>. A decode-only codec uses a format whose write callbacks are unset. <code>format-&gt;is_constructed</code> is the nesting predicate; <code>NULL</code> makes every value opaque. </p>
 
 </div>
 </div>

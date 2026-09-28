@@ -74,9 +74,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Data Structures</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">fixed.h File Reference<div class="ingroups"><a class="el" href="group__formats.html">Formats</a></div></div></div>
 </div><!--header-->
@@ -85,44 +83,19 @@ $(function() {
 <p>A configurable fixed-width TLV format: independent tag and length widths, field order and length semantics.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="endian_8h.html">tlv/endian.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="format_8h.html">tlv/format.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="layout_8h.html">tlv/layout.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 <code>#include &lt;stddef.h&gt;</code><br />
 </div><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
-Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__fixed__format.html">tlv_fixed_format</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">State describing a configurable fixed-width format.  <a href="structtlv__fixed__format.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:gacb62bf57a0727d474bc74851619b6272" id="r_gacb62bf57a0727d474bc74851619b6272"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__formats.html#ga147f000cda6c501c60b0580eaed62653">tlv_element_order</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gacb62bf57a0727d474bc74851619b6272">tlv_element_order_t</a></td></tr>
-<tr class="memdesc:gacb62bf57a0727d474bc74851619b6272"><td class="mdescLeft">&#160;</td><td class="mdescRight">Element order of a configurable fixed-width format.  <br /></td></tr>
-<tr class="separator:gacb62bf57a0727d474bc74851619b6272"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga13d583efddacc347efb0899f55d23953" id="r_ga13d583efddacc347efb0899f55d23953"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__formats.html#ga938da6e0c2615f4b959ed62fb5c2fe88">tlv_length_scope</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga13d583efddacc347efb0899f55d23953">tlv_length_scope_t</a></td></tr>
-<tr class="memdesc:ga13d583efddacc347efb0899f55d23953"><td class="mdescLeft">&#160;</td><td class="mdescRight">What a configurable fixed-width format's length field counts.  <br /></td></tr>
-<tr class="separator:ga13d583efddacc347efb0899f55d23953"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5cfd21b210cb1ce86db518e86fc7a5ba" id="r_ga5cfd21b210cb1ce86db518e86fc7a5ba"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__fixed__format.html">tlv_fixed_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5cfd21b210cb1ce86db518e86fc7a5ba">tlv_fixed_format_t</a></td></tr>
-<tr class="memdesc:ga5cfd21b210cb1ce86db518e86fc7a5ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">State describing a configurable fixed-width format.  <br /></td></tr>
-<tr class="separator:ga5cfd21b210cb1ce86db518e86fc7a5ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:ga147f000cda6c501c60b0580eaed62653" id="r_ga147f000cda6c501c60b0580eaed62653"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga147f000cda6c501c60b0580eaed62653">tlv_element_order</a> { <a class="el" href="group__formats.html#gga147f000cda6c501c60b0580eaed62653a1a034c64b69be34f862197043d103360">TLV_ELEMENT_ORDER_TLV</a> = 0
-, <a class="el" href="group__formats.html#gga147f000cda6c501c60b0580eaed62653a4d6f13804271ce37f938ca08c7a64eb4">TLV_ELEMENT_ORDER_LTV</a>
- }</td></tr>
-<tr class="memdesc:ga147f000cda6c501c60b0580eaed62653"><td class="mdescLeft">&#160;</td><td class="mdescRight">Element order of a configurable fixed-width format.  <a href="group__formats.html#ga147f000cda6c501c60b0580eaed62653">More...</a><br /></td></tr>
-<tr class="separator:ga147f000cda6c501c60b0580eaed62653"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga938da6e0c2615f4b959ed62fb5c2fe88" id="r_ga938da6e0c2615f4b959ed62fb5c2fe88"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga938da6e0c2615f4b959ed62fb5c2fe88">tlv_length_scope</a> { <a class="el" href="group__formats.html#gga938da6e0c2615f4b959ed62fb5c2fe88a1be8ad64cc22cabaedb114508d942feb">TLV_LENGTH_SCOPE_VALUE</a> = 0
-, <a class="el" href="group__formats.html#gga938da6e0c2615f4b959ed62fb5c2fe88ab743288c6d19453bd6207f581eacf65a">TLV_LENGTH_SCOPE_TAG_AND_VALUE</a>
- }</td></tr>
-<tr class="memdesc:ga938da6e0c2615f4b959ed62fb5c2fe88"><td class="mdescLeft">&#160;</td><td class="mdescRight">What a configurable fixed-width format's length field counts.  <a href="group__formats.html#ga938da6e0c2615f4b959ed62fb5c2fe88">More...</a><br /></td></tr>
-<tr class="separator:ga938da6e0c2615f4b959ed62fb5c2fe88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1ea954f726e9fdc526f3bf99c4cb055b" id="r_ga1ea954f726e9fdc526f3bf99c4cb055b"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354">tlv_binary_layout_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga1ea954f726e9fdc526f3bf99c4cb055b">tlv_fixed_format_t</a></td></tr>
+<tr class="memdesc:ga1ea954f726e9fdc526f3bf99c4cb055b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed format configuration using the generic binary-field layout.  <br /></td></tr>
+<tr class="separator:ga1ea954f726e9fdc526f3bf99c4cb055b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga42dd642a7d68261d64df08528ad6cf7e" id="r_ga42dd642a7d68261d64df08528ad6cf7e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga42dd642a7d68261d64df08528ad6cf7e">tlv_fixed_format_init</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="group__formats.html#ga5cfd21b210cb1ce86db518e86fc7a5ba">tlv_fixed_format_t</a> *config)</td></tr>
+<tr class="memitem:ga42dd642a7d68261d64df08528ad6cf7e" id="r_ga42dd642a7d68261d64df08528ad6cf7e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga42dd642a7d68261d64df08528ad6cf7e">tlv_fixed_format_init</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="group__formats.html#ga1ea954f726e9fdc526f3bf99c4cb055b">tlv_fixed_format_t</a> *config)</td></tr>
 <tr class="memdesc:ga42dd642a7d68261d64df08528ad6cf7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a format for the configurable fixed-width encoding.  <br /></td></tr>
 <tr class="separator:ga42dd642a7d68261d64df08528ad6cf7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>

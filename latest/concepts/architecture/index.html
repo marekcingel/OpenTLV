@@ -16,7 +16,7 @@
         <link rel="prev" href="../../getting-started/">
       
       
-        <link rel="next" href="../core-types/">
+        <link rel="next" href="../architectural-rules/">
       
       
         
@@ -721,6 +721,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#conceptual-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conceptual model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#responsibilities-and-dependency-direction" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -732,10 +743,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#layout" class="md-nav__link">
+  <a href="#repository-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Layout
+        Repository layout
       
     </span>
   </a>
@@ -824,6 +835,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../core-types/" class="md-nav__link">
         
   
@@ -832,6 +871,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1426,34 +1493,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../formats/default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2608,6 +2647,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#conceptual-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conceptual model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#responsibilities-and-dependency-direction" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2619,10 +2669,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#layout" class="md-nav__link">
+  <a href="#repository-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Layout
+        Repository layout
       
     </span>
   </a>
@@ -2724,6 +2774,52 @@
 <p>OpenTLV provides one C library (<code>tlv</code>) and a header-only C++ interface (<code>tlv++</code>)
 that links to it. Core is a logical responsibility, not a directory. Optional
 components are concrete formats and profiles, rather than entire layers.</p>
+<p>The <a href="../architectural-rules/">core architectural rules</a> define the design and
+review constraints. This page describes how the current repository implements
+those responsibilities.</p>
+<h2 id="conceptual-model">Conceptual model<a class="headerlink" href="#conceptual-model" title="Permanent link">&para;</a></h2>
+<p>OpenTLV separates reusable definitions and rules, concrete runtime data, and
+operations that apply those rules to the data:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>DECLARATIVE / SEMANTIC MODEL
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>────────────────────────────
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Definition
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Format
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>Schema
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>Codec
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>RUNTIME REPRESENTATION
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>────────────────────────────
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>Element
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>Layout
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>OPERATIONS
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>────────────────────────────
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>Reader
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>Writer
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>Document
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>Query
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>Visitor
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>...
+</code></pre></div>
+<p>The declarative/semantic model describes meaning and rules: a Definition
+identifies a field and its associated metadata, Format defines wire encoding,
+Schema defines structural constraints, and Codec defines conversion between
+Value bytes and application values. These roles can be implemented by tables,
+descriptors and executable callbacks.</p>
+<p>The runtime representation describes a concrete instance. Element holds its
+semantic identifier and Value. Layout describes how that instance occupies
+wire bytes: Header, optional Tag and Length fields, Value, Trailer and their
+ranges. In the current C API, this source information belongs to <code>tlv_source_t</code>
+and <code>tlv_range_t</code>; <code>tlv_decoded_t</code> pairs it with <code>tlv_element_t</code>. The field and
+binary layouts declared in <code>tlv/layout.h</code> configure Format composition; they
+are reusable rules rather than a decoded instance's runtime layout.</p>
+<p>Operations consume or produce these representations using the selected model.
+Reader and Writer perform I/O, Document supports editable collections of
+elements, Query selects elements, and Visitor participates in traversal.
+Operations can carry runtime state; these categories describe their primary
+roles, not a one-to-one mapping to directories or C types.</p>
+<p>See the <a href="../format-contract/">Format and Element contract</a> for the precise
+boundary between semantic content, source layout and wire preservation.</p>
 <h2 id="responsibilities-and-dependency-direction">Responsibilities and dependency direction<a class="headerlink" href="#responsibilities-and-dependency-direction" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2746,7 +2842,7 @@ components are concrete formats and profiles, rather than entire layers.</p>
 </tr>
 <tr>
 <td>Formats</td>
-<td>Tag/length wire encoding and identification of nested containers</td>
+<td>Complete Header/Value/Trailer framing and identification of nested containers</td>
 <td>Shared contracts; private wire helpers</td>
 </tr>
 <tr>
@@ -2760,7 +2856,7 @@ components are concrete formats and profiles, rather than entire layers.</p>
 <td>Shared contracts; structure codecs may use schemas and raw I/O</td>
 </tr>
 <tr>
-<td>Profiles</td>
+<td>Profile compositions</td>
 <td>Standard-specific tables and composition of formats, schemas and codecs</td>
 <td>The facilities above</td>
 </tr>
@@ -2771,8 +2867,7 @@ format implementations never need to be named by the reader/writer. A codec
 does not have to use a schema. Existing C++ tag-associated codecs remain valid.
 Bindings are part of the codec area, not another architectural layer.</p>
 <p>Formats and profiles are roles, not folders: every protocol-specific format or
-profile implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV, the one-byte
-default format) lives under <code>builtins/&lt;protocol&gt;/</code>, grouped by protocol rather
+profile implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV) lives under <code>builtins/&lt;protocol&gt;/</code>, grouped by protocol rather
 than by role, so all of a protocol's format, schema, codec and profile files
 sit together. Generic subsystems (<code>reader/</code>, <code>writer/</code>, <code>query/</code>, <code>schema/</code>,
 <code>codec/</code>, <code>document/</code>) never depend on <code>builtins/</code>.</p>
@@ -2791,24 +2886,23 @@ that folder as the lowest-level core. Profiles compose lower facilities; lower
 generic facilities do not include profiles. DER's wire callbacks and bounded
 profile operations live in separate files. BER and DER share a private wire
 backend; selecting DER does not require the public BER component.</p>
-<h2 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h2>
+<h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
 <p>Public headers under <code>tlv/include/tlv/</code> and sources under <code>tlv/src/</code> use:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>tlv/
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  element.h, value.h, length.h, size.h, error.h, endian.h, copy.h, format.h, tlv.h
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  compiler.h, attributes.h
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  reader/    reader.h, walker.h, scanner.h
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  query/     query.h
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  document/  document.h
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  writer/    writer.h
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  schema/    schema.h
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  codec/     codec.h, structure.h
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  formats/
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    fixed.h
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  builtins/
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    fixed/     default.h
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    bluetooth/ bluetooth_ltv.h
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>tlv/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  element.h, value.h, length.h, size.h, error.h, endian.h, copy.h, format.h, tlv.h
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  compiler.h, attributes.h
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  reader/    reader.h, walker.h, scanner.h
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  query/     query.h
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  document/  document.h
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  writer/    writer.h
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  schema/    schema.h
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  codec/     codec.h, structure.h
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>  formats/
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    fixed.h
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>  builtins/
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    bluetooth/ bluetooth_ltv.h
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
 </code></pre></div>
 <p>The tree shows the public layout; corresponding implementation files use <code>.c</code>.
 Small fundamental types (<code>tag.h</code>, <code>length.h</code>, <code>size.h</code>, <code>value.h</code>, <code>element.h</code>, and the
@@ -2832,18 +2926,18 @@ consumers. C++ common types are in <code>tlv++/types.hpp</code>, independent of 
 <p>Public headers under <code>tlv++/include/tlv++/</code> mirror the same layout (#280),
 grouping the C++ wrapper for each generic subsystem alongside its C
 counterpart and each protocol's wrapper under <code>builtins/&lt;protocol&gt;/</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>tlv++/
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  types.hpp, compat.hpp, diagnostic.hpp, tlv.hpp
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  reader/    reader.hpp, walker.hpp
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  query/     query.hpp
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  document/  document.hpp
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  writer/    writer.hpp
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  schema/    schema.hpp
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  codec/     codec.hpp, structure.hpp, registry.hpp
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  formats/
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    fixed_format.hpp
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>  builtins/
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    asn1/  ber.hpp
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>tlv++/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  types.hpp, compat.hpp, diagnostic.hpp, tlv.hpp
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  reader/    reader.hpp, walker.hpp
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  query/     query.hpp
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  document/  document.hpp
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  writer/    writer.hpp
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  schema/    schema.hpp
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>  codec/     codec.hpp, structure.hpp, registry.hpp
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>  formats/
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    fixed_format.hpp
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  builtins/
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    asn1/  ber.hpp
 </code></pre></div>
 <p><code>tlv++</code> is header-only, so there is no separate <code>tlv++/src/</code>. <code>registry.hpp</code>
 sits under <code>codec/</code> alongside <code>codec.hpp</code> and <code>structure.hpp</code>: it is a
@@ -2856,9 +2950,9 @@ Every <code>tlv++</code> header keeps using full paths from the include root
 "reader.hpp"</code>), so moving a header between folders only requires updating
 <code>#include</code> lines that name it, not every include inside sibling headers.</p>
 <p><code>tests/unit/</code>, <code>tests/integration/</code> and <code>tests/fuzz/</code> (#281) each keep their
-own existing top-level meaning — component contracts, concrete wire formats
+own existing top-level meaning â€” component contracts, concrete wire formats
 and layer interactions, and libFuzzer harnesses, respectively (see
-<a href="../../getting-started/#build-and-run-tests">tests</a>) — and each
+<a href="../../getting-started/#build-and-run-tests">tests</a>) â€” and each
 independently mirrors <code>tlv/src</code>'s own layout underneath: a generic
 subsystem's tests sit under its own <code>reader/</code>, <code>writer/</code>, <code>query/</code>, <code>schema/</code>,
 <code>codec/</code> or <code>document/</code> folder, and a built-in's tests sit together under
@@ -2959,10 +3053,6 @@ to ON and can be disabled independently:</p>
 </thead>
 <tbody>
 <tr>
-<td><code>OPENTLV_FORMAT_DEFAULT</code></td>
-<td>One-byte tag with legacy definite BER-style length</td>
-</tr>
-<tr>
 <td><code>OPENTLV_FORMAT_FIXED</code></td>
 <td>Configurable fixed-width tag and length (<code>tlv_fixed_format_t</code>)</td>
 </tr>
@@ -3010,11 +3100,11 @@ component's header does not provide its symbols; consumers should use the
 config macros when supporting reduced builds.</p>
 <p>Tests that require disabled components and examples that demonstrate them are
 omitted. Generic architecture tests use an application-defined format and run
-even when all built-ins are disabled. The benchmark uses the default format and
+even when all built-ins are disabled. The benchmark uses BER and
 is built only when that component is enabled.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-minimal<span class="w"> </span>-DOPENTLV_FORMAT_DEFAULT<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-minimal<span class="w"> </span>--parallel
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-minimal<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>-DOPENTLV_FORMAT_FIXED<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-minimal<span class="w"> </span>--parallel
 </code></pre></div>
 <h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>
 <p>OpenTLV is before 1.0.0, so the public API is still allowed to change; see
@@ -3023,7 +3113,7 @@ best-effort record of the breaking changes below, not a compatibility
 guarantee or an exhaustive migration guide.</p>
 <p>Update flat includes to the folders above (<code>tlv/reader.h</code> becomes
 <code>tlv/reader/reader.h</code>, and so on). Concrete format declarations use
-<code>tlv/builtins/fixed/default.h</code>, <code>tlv/formats/fixed.h</code>,
+<code>tlv/formats/fixed.h</code>,
 <code>tlv/builtins/asn1/ber.h</code>, or <code>tlv/builtins/asn1/der.h</code>; the public
 aggregate includes enabled formats.</p>
 <p><code>tlv/formats/</code> and <code>tlv/profiles/</code> (#279) no longer exist: every built-in
@@ -3077,7 +3167,7 @@ versa; a format missing the capability an operation needs now fails at
 <code>tlv_reader_format_&lt;name&gt;</code>/<code>tlv_writer_format_&lt;name&gt;</code> constants with the
 single <code>tlv_format_&lt;name&gt;</code> per format. Replace
 <code>tlv_reader_format_init</code>/<code>tlv_writer_format_init</code>/<code>tlv_reader_format_init_element</code>/
-<code>tlv_writer_format_init_header</code> with <code>tlv_format_init</code>/<code>tlv_format_init_element</code>,
+<code>tlv_writer_format_init_header</code> with the canonical <code>tlv_format_init</code>,
 and the private <code>tlv_reader_format_usable</code>/<code>tlv_writer_format_usable</code> checks
 with the now-public <code>tlv_format_can_read</code>/<code>tlv_format_can_write</code>.
 <code>tlv_fixed_reader_format_init</code>/<code>tlv_fixed_writer_format_init</code> become one
@@ -3093,9 +3183,7 @@ becomes <code>tlv/formats/fixed.h</code>, and <code>tlv++/builtins/fixed/fixed_f
 becomes <code>tlv++/formats/fixed_format.hpp</code>. This is a narrower, second
 reintroduction of a <code>formats/</code> folder than the one #279 removed (see above):
 it holds only mechanisms that are themselves protocol-agnostic, not every
-concrete format regardless of protocol, so <code>tlv/builtins/fixed/default.h</code>
-(the unrelated one-byte default format, which does name a protocol shape) stays
-under <code>builtins/fixed/</code>. <code>tlv_fixed_config_t</code> is renamed to <code>tlv_fixed_format_t</code>
+concrete format regardless of protocol. <code>tlv_fixed_config_t</code> is renamed to <code>tlv_fixed_format_t</code>
 without any other change to its fields or to <code>tlv_fixed_format_init()</code>'s
 behavior. No compatibility shim; rebuild all consumers. (#327)</p>
 <p><code>tlv::fixed_format&lt;&gt;</code> (<code>tlv++</code>) no longer reimplements the wire-format
@@ -3119,9 +3207,10 @@ predicate alongside a format: <code>tlv_walk_tree</code>, <code>tlv_schema_valid
 separate <code>is_constructed</code> field, and <code>tlv_document_options_init()</code> drops its
 <code>is_constructed</code> parameter. The BER, DER and CER format descriptors
 (<code>tlv_format_ber</code>, <code>tlv_format_der</code>, <code>tlv_format_cer</code>) now set
-<code>is_constructed</code> themselves; the default and Fixed formats still leave it
+<code>is_constructed</code> themselves; Fixed formats still leave it
 <code>NULL</code>. No compatibility shim; rebuild all consumers.</p>
 <p>See also the generated <a href="../../reference/c-api/">C API reference</a> and <a href="../../reference/cxx-api/">C++ API reference</a>.</p>
+<p>The current wire boundary is specified by the <a href="../format-contract/">Format/Element contract</a>.</p>
 
 
 
@@ -3176,13 +3265,13 @@ separate <code>is_constructed</code> field, and <code>tlv_document_options_init(
         
         
           
-          <a href="../core-types/" class="md-footer__link md-footer__link--next" aria-label="Next: Core types">
+          <a href="../architectural-rules/" class="md-footer__link md-footer__link--next" aria-label="Next: Core architectural rules">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Core types
+                Core architectural rules
               </div>
             </div>
             <div class="md-footer__button md-icon">

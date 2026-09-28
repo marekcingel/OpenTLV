@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/core-types/" class="md-nav__link">
         
   
@@ -692,6 +720,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1286,34 +1342,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../formats/default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2855,7 +2883,7 @@ borrow checker keeps the input alive for as long as the reader or any element.</
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">"{:?}: {:?}"</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">(),</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">());</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
 </code></pre></div>
-<p><code>Reader::new</code> uses the default format (one-byte tag, definite BER length);
+<p><code>Reader::new</code> uses BER;
 <code>Reader::with_format</code> takes a <code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>), and
 <code>Reader::with_fixed_format</code> takes a borrowed <code>&amp;FixedFormat</code> for a
 runtime-configurable tag width, length width and length byte order (wraps the C

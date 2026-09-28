@@ -791,6 +791,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../concepts/core-types/" class="md-nav__link">
         
   
@@ -799,6 +827,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1393,34 +1449,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../formats/default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2916,7 +2944,7 @@ program is run directly in the Python bindings CI workflow. The
 <a href="https://github.com/marekcingel/OpenTLV/tree/main/examples/tlv/src">C examples</a>, one topic per file (sequential I/O,
 explicit copies, schema validation, codecs, a custom format, and the BER and
 CER builtins), the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/basic_usage.cpp">C++ example</a>
-with the default format, the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/builtins/emv/tag_decoding.c">EMV example</a>,
+with BER, the <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/builtins/emv/tag_decoding.c">EMV example</a>,
 the further <a href="../guides/rust/">Rust examples</a> (reading, writing, and the
 <code>parse</code>, <code>write</code> and <code>validate</code> use cases), and the further
 <a href="../guides/python/">Python examples</a> (reading, writing, validating, codecs
@@ -2992,7 +3020,7 @@ roundtrips, nested traversal, recovery and interactions between layers. A
 subsystem or built-in without an integration concern (nothing there combines
 multiple layers) has no file under <code>tests/integration/</code>. A file containing
 both kinds of cases is split between the two directories; classify new cases
-by what they verify. See <a href="../concepts/architecture/#layout">architecture</a>.</p>
+by what they verify. See <a href="../concepts/architecture/#repository-layout">architecture</a>.</p>
 <p><code>OPENTLV_BUILD_TESTS</code> is the main switch. With it enabled, both
 <code>OPENTLV_BUILD_UNIT_TESTS</code> and <code>OPENTLV_BUILD_INTEGRATION_TESTS</code> default to <code>ON</code>.
 An unfiltered CTest run executes both enabled groups. To select a group in an

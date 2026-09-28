@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/core-types/" class="md-nav__link">
         
   
@@ -692,6 +720,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1286,34 +1342,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../formats/default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2645,8 +2673,8 @@ return; this page explains what each code means and what to check first.</p>
 <tr>
 <td><code>TLV_ERR_INVALID_LENGTH</code></td>
 <td>2</td>
-<td>A length is malformed, out of range, or does not fit <code>size_t</code>.</td>
-<td>The format's length limits (for example the length width for <a href="../../formats/fixed/configurable/">configurable fixed-width TLV</a>, 65,535 for <a href="../../formats/default/">Default TLV</a>), the reserved BER length prefix <code>FF</code>, or a total that overflows <code>size_t</code>.</td>
+<td>A length is malformed or invalid for the wire encoding.</td>
+<td>The format's length limits (for example the length width for <a href="../../formats/fixed/configurable/">configurable fixed-width TLV</a>), or the reserved BER length prefix <code>FF</code>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_NULL_ARG</code></td>
@@ -2700,7 +2728,7 @@ return; this page explains what each code means and what to check first.</p>
 <td><code>TLV_ERR_INVALID_TAG_SIZE</code></td>
 <td>11</td>
 <td>A tag size is outside the range the operation or format supports.</td>
-<td>A tag length the selected format rejects (for example more than 8 bytes for BER, CER and DER, or anything but one byte for the default format), or an empty tag where the operation needs bytes. Also the numeric tag conversions for empty tags and tags longer than 8 bytes. <code>tlv_tag_t</code> itself has no size limit.</td>
+<td>A tag length the selected format rejects (for example more than 8 bytes for BER, CER and DER, or a tag width different from the configured Fixed width), or an empty tag where the operation needs bytes. Also the numeric tag conversions for empty tags and tags longer than 8 bytes. <code>tlv_tag_t</code> itself has no size limit.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_INVALID_BYTE_ORDER</code></td>
@@ -2711,7 +2739,7 @@ return; this page explains what each code means and what to check first.</p>
 <tr>
 <td><code>TLV_ERR_OVERFLOW</code></td>
 <td>13</td>
-<td>An unsigned value cannot fit the requested numeric width.</td>
+<td>An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows.</td>
 <td>The value against the destination width in the same integer conversion functions.</td>
 </tr>
 <tr>
@@ -2731,6 +2759,12 @@ return; this page explains what each code means and what to check first.</p>
 <td>16</td>
 <td>A required field is absent.</td>
 <td>Its offset is the end of the enclosing parent's value, not an element; see below.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_NATIVE_SIZE</code></td>
+<td>17</td>
+<td>A logical size exceeds the native address space.</td>
+<td>Checked conversion to <code>size_t</code>; the logical quantity itself remains valid.</td>
 </tr>
 </tbody>
 </table>

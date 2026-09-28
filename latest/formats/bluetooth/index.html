@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/core-types/" class="md-nav__link">
         
   
@@ -692,6 +720,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1291,34 +1347,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2810,7 +2838,7 @@ only the format descriptor differs.</p>
 <td><code>tlv_format_bluetooth_ltv</code></td>
 </tr>
 <tr>
-<td>CMake option (default ON, requires <code>OPENTLV_FORMAT_FIXED</code>)</td>
+<td>CMake option (default ON, independent of <code>OPENTLV_FORMAT_FIXED</code>)</td>
 <td><code>OPENTLV_FORMAT_BLUETOOTH_LTV</code></td>
 </tr>
 <tr>
@@ -2903,7 +2931,7 @@ is reported as a value of 2 bytes.</p>
 <thead>
 <tr>
 <th></th>
-<th>Conventional TLV (for example <a href="../default/">default</a>)</th>
+<th>Conventional TLV (for example <a href="../fixed/configurable/">Fixed</a>)</th>
 <th>Bluetooth LTV</th>
 </tr>
 </thead>
@@ -2939,9 +2967,9 @@ is reported as a value of 2 bytes.</p>
 <td>None</td>
 </tr>
 <tr>
-<td>Callbacks used</td>
-<td><code>read_tag</code>, <code>read_length</code></td>
-<td><code>read_element</code>, <code>write_header</code></td>
+<td>Canonical operations</td>
+<td><code>decode</code>, <code>measure</code>, <code>encode</code></td>
+<td><code>decode</code>, <code>measure</code>, <code>encode</code></td>
 </tr>
 </tbody>
 </table>
@@ -3069,20 +3097,11 @@ never returned partially.</p>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>`-- Value:  48 69 ("Hi")
 </code></pre></div>
 <h2 id="how-it-fits-the-format-architecture">How it fits the format architecture<a class="headerlink" href="#how-it-fits-the-format-architecture" title="Permanent link">&para;</a></h2>
-<p>Other formats decode a tag, then a length, through the <code>read_tag</code> and
-<code>read_length</code> callbacks. That split cannot describe a format whose length
-precedes its type, so the <a href="../fixed/configurable/">configurable Fixed format</a>
-falls back to the optional whole-element callbacks <code>read_element</code> (reader) and
-<code>write_header</code> (writer), described in the
-<a href="../#generic-interface">generic interface</a>, whenever it is configured
-with <code>TLV_ELEMENT_ORDER_LTV</code>. They report the tag, the size of everything before
-the value, and the value size in one step, so the reader, scanner, walker,
-schemas, copy helpers and the CLI work on it with no format-specific code.</p>
-<p><code>tlv_format_bluetooth_ltv</code> (<code>tlv/src/builtins/bluetooth/bluetooth_ltv.c</code>) is
-just that Fixed configuration and those same shared callbacks; it carries no
-parsing or encoding logic of its own. Bluetooth-specific naming and framing
-constraints (the fixed one-byte tag, the 254-byte value ceiling) come entirely
-from the configuration's field widths, not from extra Bluetooth-specific code.</p>
+<p>Bluetooth is a configuration of the public binary-field layout primitives in
+<code>tlv/layout.h</code>: one-byte Tag and Length, Length before Tag, Length counting Tag
+and Value. It has no dependency on Fixed-private code or the Fixed build option.
+Both formats expose the same canonical decode/measure/encode contract.</p>
+<p>See <a href="../../concepts/format-contract/">Format/Element contract</a>.</p>
 
 
 

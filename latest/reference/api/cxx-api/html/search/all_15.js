@@ -5,12 +5,11 @@ var searchData=
   ['walker_2eh_2',['walker.h',['../../../c-api/html/walker_8h.html',1,'']]],
   ['walker_2ehpp_3',['walker.hpp',['../walker_8hpp.html',1,'']]],
   ['write_4',['write',['../classtlv_1_1writer.html#a5f4d451ec3f70797b9471ca99e171510',1,'tlv::writer::write(tag_t tag, bytes value)'],['../classtlv_1_1writer.html#afd2030dba0af4d061f1112b8d68e0fca',1,'tlv::writer::write(tag_t tag, bytes value, writer_diagnostic &amp;out_diagnostic)']]],
-  ['write_5fheader_5',['write_header',['../../../c-api/html/structtlv__format.html#a56530515ec170ca860e07823414afbda',1,'tlv_format']]],
-  ['write_5flength_6',['write_length',['../../../c-api/html/structtlv__format.html#a19f4ce455fa87f850c4b9330f113bc53',1,'tlv_format']]],
-  ['write_5ftag_7',['write_tag',['../../../c-api/html/structtlv__format.html#aa1b0cee8c9e0518ba4ae6df0e5ff67d2',1,'tlv_format']]],
-  ['write_5fvalue_8',['write_value',['../namespacetlv.html#a4010f369042bb38cdc7ce33bdef47aa5',1,'tlv']]],
-  ['writer_9',['writer',['../classtlv_1_1writer.html',1,'tlv::writer'],['../classtlv_1_1writer.html#a00ae5fd6ea3f246141d985911d497a33',1,'tlv::writer::writer()'],['../../../c-api/html/group__writer.html',1,'Writer']]],
-  ['writer_2eh_10',['writer.h',['../../../c-api/html/writer_8h.html',1,'']]],
-  ['writer_2ehpp_11',['writer.hpp',['../writer_8hpp.html',1,'']]],
-  ['writer_5fdiagnostic_12',['writer_diagnostic',['../namespacetlv.html#a1df134eb9e2b476155eb324618396e4d',1,'tlv']]]
+  ['write_5flength_5',['write_length',['../../../c-api/html/structtlv__field__layout.html#ab852052d42db14d4b67ab0ade75b6c6e',1,'tlv_field_layout']]],
+  ['write_5ftag_6',['write_tag',['../../../c-api/html/structtlv__field__layout.html#a4015041306540bcc4b4aa1854b714f43',1,'tlv_field_layout']]],
+  ['write_5fvalue_7',['write_value',['../namespacetlv.html#a4010f369042bb38cdc7ce33bdef47aa5',1,'tlv']]],
+  ['writer_8',['writer',['../classtlv_1_1writer.html',1,'tlv::writer'],['../classtlv_1_1writer.html#a00ae5fd6ea3f246141d985911d497a33',1,'tlv::writer::writer()'],['../../../c-api/html/group__writer.html',1,'Writer']]],
+  ['writer_2eh_9',['writer.h',['../../../c-api/html/writer_8h.html',1,'']]],
+  ['writer_2ehpp_10',['writer.hpp',['../writer_8hpp.html',1,'']]],
+  ['writer_5fdiagnostic_11',['writer_diagnostic',['../namespacetlv.html#a1df134eb9e2b476155eb324618396e4d',1,'tlv']]]
 ];

@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['write_5fheader_0',['write_header',['../../../c-api/html/structtlv__format.html#a56530515ec170ca860e07823414afbda',1,'tlv_format']]],
-  ['write_5flength_1',['write_length',['../../../c-api/html/structtlv__format.html#a19f4ce455fa87f850c4b9330f113bc53',1,'tlv_format']]],
-  ['write_5ftag_2',['write_tag',['../../../c-api/html/structtlv__format.html#aa1b0cee8c9e0518ba4ae6df0e5ff67d2',1,'tlv_format']]]
+  ['write_5flength_0',['write_length',['../../../c-api/html/structtlv__field__layout.html#ab852052d42db14d4b67ab0ade75b6c6e',1,'tlv_field_layout']]],
+  ['write_5ftag_1',['write_tag',['../../../c-api/html/structtlv__field__layout.html#a4015041306540bcc4b4aa1854b714f43',1,'tlv_field_layout']]]
 ];

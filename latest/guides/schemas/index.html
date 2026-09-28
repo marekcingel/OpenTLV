@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/core-types/" class="md-nav__link">
         
   
@@ -692,6 +720,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1404,34 +1460,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../formats/default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2727,7 +2755,7 @@ every tag in it, alive while using returned pointers. An empty schema can use
 <li>A <code>tlv_tag_t</code> is arbitrary raw bytes with a length. It has no maximum length
   and knows nothing about encodings.</li>
 <li>A <strong>format</strong> defines how tags are encoded and which tag lengths are valid. BER
-  accepts 1 to 8 bytes, the default format exactly one, and a format defined at
+  accepts 1 to 8 bytes, and a format defined at
   runtime can accept any length, such as 12 bytes. A format rejects the tags it
   does not support, and decides whether an empty tag is valid.</li>
 <li>A <strong>schema</strong> defines which tags are allowed or required in a scope and how

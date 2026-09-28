@@ -689,6 +689,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../core-types/" class="md-nav__link">
         
   
@@ -697,6 +725,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1349,34 +1405,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../formats/default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2617,14 +2645,14 @@ current build; use the conversions below before native-size use.</p>
 every <code>size_t</code> value fits <code>tlv_size_t</code>. Its only failure is a NULL <code>length</code>
 output pointer, which returns <code>TLV_ERR_NULL_ARG</code>.</p>
 <p><code>tlv_size_to_native()</code> rejects a <code>length</code> greater than <code>SIZE_MAX</code> in the
-current build with <code>TLV_ERR_INVALID_LENGTH</code>, leaving <code>*size</code> unchanged. A NULL
+current build with <code>TLV_ERR_NATIVE_SIZE</code>, leaving <code>*size</code> unchanged. A NULL
 <code>size</code> output pointer returns <code>TLV_ERR_NULL_ARG</code>, checked before the range
 comparison. Passing this conversion does not prove that a buffer of that size
 exists, is accessible, or has sufficient capacity; actual bounds remain the
 caller's responsibility.</p>
 <p><code>tlv_size_validate_native()</code> reports the same range check as
 <code>tlv_size_to_native()</code>, without an output parameter and without accessing any
-memory: <code>TLV_OK</code> when <code>length</code> fits <code>size_t</code>, <code>TLV_ERR_INVALID_LENGTH</code>
+memory: <code>TLV_OK</code> when <code>length</code> fits <code>size_t</code>, <code>TLV_ERR_NATIVE_SIZE</code>
 otherwise.</p>
 <p><code>TLV_SIZE_MAX</code> is <code>UINT64_MAX</code>, the largest value a <code>tlv_size_t</code> can hold;
 it is distinct from <code>SIZE_MAX</code>, which bounds <code>tlv_size_to_native()</code> instead.
@@ -2644,7 +2672,7 @@ x64 without attempting any allocation or memory access, since it equals
 (<code>data</code>, native <code>size</code>) in <code>&lt;tlv/length.h&gt;</code>. They preserve the original wire
 representation; they are not the decoded value size.</p>
 <p>Readers and format callbacks decode logical value sizes into <code>tlv_size_t</code>.
-The reader checks the decoded count against the available input before any
+The format checks the decoded count against the available input before any
 native narrowing or pointer arithmetic, then publishes <code>element.value.size</code>.
 A count larger than the supplied buffer returns <code>TLV_ERR_BUFFER_TOO_SHORT</code>
 without modifying the output element or consumed count.

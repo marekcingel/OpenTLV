@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/value/">
       
       
-        <link rel="prev" href="../core-types/">
+        <link rel="prev" href="../format-contract/">
       
       
         <link rel="next" href="../length/">
@@ -689,6 +689,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../core-types/" class="md-nav__link">
         
   
@@ -697,6 +725,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1360,34 +1416,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../formats/default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
   
 
     
@@ -2653,7 +2681,7 @@ can address; validate with <code>tlv_size_validate_native()</code> or convert wi
 <p><code>tlv_value_init()</code> requires <code>value</code> and, unless <code>length</code> is zero, <code>data</code>;
 missing either returns <code>TLV_ERR_NULL_ARG</code>, checked before the native-length
 range. A <code>length</code> that cannot be represented by the current build's <code>size_t</code>
-returns <code>TLV_ERR_INVALID_LENGTH</code>. <code>*value</code> is unchanged on every failure.
+returns <code>TLV_ERR_NATIVE_SIZE</code>. <code>*value</code> is unchanged on every failure.
 Actual allocation bounds for <code>data</code> remain the caller's responsibility; no
 memory is accessed.</p>
 <p><code>tlv_value_validate()</code> checks the same representation and pointer
@@ -2693,14 +2721,14 @@ it.</p>
 </code></pre></div>
 <p><code>element.tag</code> is a borrowed <code>tlv_tag_t</code>: like the value, it points into the input
 the view was read from and must not outlive it.</p>
-<p>Readers construct <code>element.value</code> directly (its fields, not through
+<p>Formats construct <code>element.value</code> directly (its fields, not through
 <code>tlv_value_init()</code>) after validating a decoded length against the input
 buffer, so an internal reader-produced view is always representation-valid.
 <code>tlv_value_init()</code>/<code>tlv_value_validate()</code> exist for consumers building or
 checking a <code>tlv_element_t</code> by hand, for example in tests or custom format
-integrations. There is no separate native byte-range struct in the public
-API: a native <code>const uint8_t*</code>/<code>size_t</code> pair is passed directly where one is
-needed, for example in <code>tlv_copy_encoded()</code>.</p>
+integrations. Native buffers are passed as <code>const uint8_t*</code>/<code>size_t</code> pairs,
+for example in <code>tlv_copy_encoded()</code>. Source framing uses buffer-relative
+<code>tlv_range_t</code> fields separately from semantic Value.</p>
 <p>See also the <a href="../../reference/c-api/#core-types-and-utilities">C API reference: core types</a>.</p>
 
 
@@ -2739,7 +2767,7 @@ needed, for example in <code>tlv_copy_encoded()</code>.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../core-types/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Core types">
+          <a href="../format-contract/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Format and Element contract">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2749,7 +2777,7 @@ needed, for example in <code>tlv_copy_encoded()</code>.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Core types
+                Format and Element contract
               </div>
             </div>
           </a>

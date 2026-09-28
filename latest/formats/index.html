@@ -16,7 +16,7 @@
         <link rel="prev" href="../guides/lua/">
       
       
-        <link rel="next" href="default/">
+        <link rel="next" href="fixed/configurable/">
       
       
         
@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../concepts/core-types/" class="md-nav__link">
         
   
@@ -692,6 +720,34 @@
     
   
     Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
   
 
     
@@ -1440,34 +1496,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="default/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Default TLV
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -2736,9 +2764,8 @@
 <p>Each page includes a byte example. Profile semantics are documented separately.
 Concrete C implementations live under <code>tlv/builtins/&lt;protocol&gt;/</code> (grouped by
 protocol) or, for protocol-agnostic mechanisms like the configurable fixed-width
-format, <code>tlv/formats/</code>; see <a href="../concepts/architecture/#layout">architecture</a>.</p>
+format, <code>tlv/formats/</code>; see <a href="../concepts/architecture/#repository-layout">architecture</a>.</p>
 <ul>
-<li><a href="default/">Default TLV</a></li>
 <li><a href="fixed/configurable/">Configurable fixed-width TLV</a></li>
 <li><a href="bluetooth/">Bluetooth LTV</a></li>
 <li><a href="asn1/ber/">BER-TLV</a></li>
@@ -2761,11 +2788,6 @@ format, <code>tlv/formats/</code>; see <a href="../concepts/architecture/#layout
 <td>Small internal records with fixed header sizes, or fixed tag/length widths chosen at runtime (C) or compile time (C++)</td>
 <td><a href="fixed/configurable/">Configurable fixed-width TLV</a></td>
 <td>Any tag width, length widths up to 8 bytes</td>
-</tr>
-<tr>
-<td>One-byte tags with larger payloads</td>
-<td><a href="default/">Default TLV</a></td>
-<td>Values up to 65,535 bytes</td>
 </tr>
 <tr>
 <td>Bluetooth advertising data (length before type)</td>
@@ -2816,15 +2838,6 @@ built. Each format keeps its own page with the byte layout and a worked example.
 </thead>
 <tbody>
 <tr>
-<td><a href="default/#layout-and-typical-use">Default TLV</a></td>
-<td>1 byte</td>
-<td>1 byte below <code>80</code>, or <code>81 nn</code>, <code>82 nn nn</code></td>
-<td>65,535 bytes</td>
-<td>tag, length, value</td>
-<td>none (opaque values)</td>
-<td><code>OPENTLV_FORMAT_DEFAULT</code></td>
-</tr>
-<tr>
 <td><a href="bluetooth/#wire-layout-and-logical-model">Bluetooth LTV</a></td>
 <td>1-byte type</td>
 <td>1 byte, counting the type and the value</td>
@@ -2874,7 +2887,7 @@ built. Each format keeps its own page with the byte layout and a worked example.
 <td>any number of raw bytes</td>
 <td>your rules</td>
 <td>your rules</td>
-<td>any, through <code>read_element</code> and <code>write_header</code></td>
+<td>format-defined</td>
 <td>your predicate</td>
 <td>none</td>
 </tr>
@@ -2982,82 +2995,32 @@ The source value must not overlap the destination element. Callback errors
 propagate and may leave partially encoded bytes. <code>tlv_writer_write</code> uses the
 same encoder and advances its position only on success.</p>
 <h2 id="generic-interface">Generic interface<a class="headerlink" href="#generic-interface" title="Permanent link">&para;</a></h2>
-<p>Include <code>tlv/format.h</code> for the allocation-free descriptor:</p>
-<ul>
-<li><code>tlv_format_t</code>: <code>context</code>, then the read callbacks <code>read_tag</code>, <code>read_length</code>,
-  optional <code>read_value_bounds</code>, optional <code>read_element</code>, then the write
-  callbacks <code>write_tag</code>, <code>write_length</code>, <code>length_size</code>, optional <code>write_header</code>.</li>
-</ul>
-<p>Pass the descriptor to <code>tlv_reader_init</code> or <code>tlv_writer_init</code> as the last
-argument after the buffer and its size. The descriptor and its optional
-immutable <code>context</code> are borrowed and must remain valid and unchanged
-throughout use; see <a href="../guides/memory/#format-context-ownership-and-lifetime">format context ownership and
-lifetime</a> for the
-full contract, including copying, sharing and moving. Read and write
-capability are independently optional: <code>read_tag</code> and
-<code>read_length</code> are required for reading unless <code>read_element</code> is set, and
-<code>write_tag</code>, <code>write_length</code> and <code>length_size</code> are required for writing unless
-<code>write_header</code> is set. A format that leaves an entire group unset (all <code>NULL</code>)
-simply cannot be used in that direction — <code>tlv_reader_init</code>/<code>tlv_writer_init</code>
-report <code>TLV_ERR_NULL_ARG</code> for a format lacking the capability they need, the
-same code used for a <code>NULL</code> pointer — so a read-only format needs no write
-callbacks, and a write-only format needs no read callbacks.
-<code>tlv_format_can_read(format)</code>/<code>tlv_format_can_write(format)</code> report a format's
-capability without attempting an operation.</p>
-<p><code>tlv_format_init(format, context, read_tag, read_length, write_tag, write_length,
-length_size)</code> initializes a caller-owned descriptor at runtime: pass both
-<code>read_tag</code> and <code>read_length</code> for read capability (or both <code>NULL</code> to leave
-reading unsupported), and all three write callbacks for write capability (or
-all <code>NULL</code> to leave writing unsupported); at least one group must be given.
-<code>tlv_format_init_element(format, context, read_element, write_header)</code> does the
-same for the whole-element callbacks below, with <code>read_element</code> and
-<code>write_header</code> independently optional but not both <code>NULL</code>. Both return
-<code>TLV_OK</code> on success or <code>TLV_ERR_INVALID_ARG</code> for a NULL destination, a partial
-group, or neither group given, leaving the destination unchanged on failure. A
-NULL context is valid. Static C initialization can use designated fields. The
-named callback typedefs are <code>tlv_read_tag_fn</code>, <code>tlv_read_length_fn</code>,
-<code>tlv_read_value_bounds_fn</code>, <code>tlv_write_tag_fn</code>, <code>tlv_write_length_fn</code>,
-<code>tlv_length_size_fn</code>, <code>tlv_read_element_fn</code>, and <code>tlv_write_header_fn</code>.</p>
-<p>Callbacks receive the context and a bounded byte range; return a <code>tlv_result_t</code>
-and report consumed or written bytes through their output pointer.</p>
-<p><code>write_tag(context, NULL, 0, tag, &amp;size)</code> is a mandatory validation and sizing
-query. <code>length_size</code> validates a value length and returns its encoded size.
-The writer checks total capacity before invoking the actual encoding callbacks,
-which must write exactly the queried sizes. No temporary heap buffer is needed.
-A <code>tlv_tag_t</code> borrows raw bytes and has no length limit; a format's reader
-returns a tag that references the input buffer, as decoded values do. A tag must
-consume at least one byte, and the format decides which lengths (and whether an
-empty tag) it accepts. A format may use a zero-byte length field for an implicit length.</p>
-<p>When non-NULL, <code>read_value_bounds(context, tag, data, size, &amp;length_size,
-&amp;value_size, &amp;trailer_size)</code> replaces <code>read_length</code> during element parsing.
-Its bounded input begins immediately after the parsed tag. It reports three
-consecutive ranges: the length field, the borrowed value, and trailing framing.
-The core checks each size against the remaining input before publishing outputs.
-The value element excludes the trailer, while <code>consumed</code> includes it. Format-specific
-resolution, including BER EOC matching, stays in this callback.</p>
-<p>This appended field changes the descriptor ABI: rebuild the library and
-all consumers together. <code>tlv_format_init</code> keeps its signature and clears
-the optional callback; assign it afterwards when needed. Custom aggregate
-initializers should explicitly append <code>NULL</code> (C) or <code>nullptr</code> (C++) to avoid
-missing-field warnings. Descriptors assigned field by field must initialize the
-new field too. <code>tlv_element_t</code> is unchanged.</p>
-<p>On failure, reader position and output remain unchanged. Writer position also
-remains unchanged, but an encoding callback failure may leave modified bytes
-beyond that position. Callbacks must obey their buffer bounds; the core checks
-reported sizes but cannot undo an out-of-bounds write by a custom callback.
-Source values passed to the writer must not overlap the destination item.</p>
-<p><code>tlv_reader_init</code> and <code>tlv_writer_init</code> require an explicit format argument.
-The C++ reader and writer constructors both require <code>const tlv_format_t&amp;</code> as
-their last argument. There are no implicit-format overloads.
-<code>tlv_format_default</code> is a public const descriptor for one raw tag byte and a
-definite BER-style length of up to 65535; it does not implement full BER-TLV tags.
-Reader and writer structs store a borrowed format pointer; rebuild consumers.</p>
-<p>For a complete custom format, see <code>tests/integration/format_test.cpp</code>: it defines
-a two-byte tag and a fixed two-byte little-endian length, then uses the same
-generic reader and writer to round-trip multiple items. Adding a format only
-requires a descriptor and callbacks in application code, without parser edits.</p>
+<p><code>tlv_format_t</code> defines one canonical wire contract through <code>decode</code>, <code>measure</code>
+and <code>encode</code>, plus an optional nesting predicate. Its context is borrowed,
+caller-owned and immutable. Read-only descriptors provide <code>decode</code>; write-only
+descriptors provide both <code>measure</code> and <code>encode</code>.</p>
+<p><code>tlv_format_decode()</code> produces <code>tlv_decoded_t</code>: a canonical identifier/value
+<code>tlv_element_t</code> and separate <code>tlv_source_t</code> framing information. Header, Value
+and Trailer partition the complete encoded range. Tag and Length field ranges
+are optional. The core never assumes their order or interprets Length bytes.</p>
+<p><code>tlv_format_measure()</code> reports logical 64-bit Header, Value, Trailer and total
+sizes. <code>tlv_format_encode()</code> regenerates framing from current semantic content.
+A successful encoding must be accepted by the same format's decoder.
+<code>tlv_encoded_size()</code> remains a convenience query for native-sized, content-
+independent encodings; use <code>tlv_format_measure()</code> for logical sizes or formats
+whose framing depends on value content.</p>
+<p>Use <code>tlv_source_preserve()</code> for byte-identical reproduction. It compares the
+current element with the immutable source content and rejects mutation instead
+of silently reusing stale Length or Trailer bytes. Ordinary encoding does not
+preserve BER nonminimal lengths or arbitrary header padding.</p>
+<p>Field-based custom formats can compose <code>tlv_field_layout_t</code> from <code>tlv/layout.h</code>
+and initialize a descriptor with <code>tlv_fields_format_init()</code>. Fixed TLV, Fixed
+LTV and Bluetooth use the same public binary-field primitives. Formats with
+other framing implement the same canonical operations directly.</p>
+<p>See the <a href="../concepts/format-contract/">Format/Element contract</a> for lifetime,
+mutation, preservation, diagnostics and size invariants.</p>
 <h2 id="nested-traversal">Nested traversal<a class="headerlink" href="#nested-traversal" title="Permanent link">&para;</a></h2>
-<p>Concrete descriptors are declared in <code>tlv/builtins/fixed/default.h</code>,
+<p>Concrete descriptors are declared in
 <code>tlv/formats/fixed.h</code>, <code>tlv/builtins/asn1/ber.h</code>,
 <code>tlv/builtins/asn1/der.h</code>, and <code>tlv/builtins/asn1/cer.h</code>. The generic <code>format.h</code>
 declares only the contract.</p>
@@ -3065,7 +3028,7 @@ declares only the contract.</p>
 child TLVs in the same format. It receives the format's context and a parsed
 tag. NULL means opaque values. The BER, DER and CER descriptors set it to
 <code>tlv_ber_is_constructed</code>, <code>tlv_der_is_constructed</code> and <code>tlv_cer_is_constructed</code>
-respectively, inspecting their constructed bit; the default and Fixed formats
+respectively, inspecting their constructed bit; Fixed formats
 leave it NULL.
 Custom protocols can supply a different rule. Traversal follows the value element
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.</p>
@@ -3077,23 +3040,10 @@ STOP succeeds immediately without validating the remaining input. The original
 flat reader and walker retain their behavior. See <a href="../concepts/architecture/">architecture</a>.</p>
 <p>See also the <a href="../reference/c-api/#formats">C API reference: formats</a>.</p>
 <h3 id="formats-whose-length-precedes-the-tag">Formats whose length precedes the tag<a class="headerlink" href="#formats-whose-length-precedes-the-tag" title="Permanent link">&para;</a></h3>
-<p><code>read_tag</code> and <code>read_length</code> assume the tag comes first. Formats with another
-field order, such as <a href="bluetooth/">Bluetooth LTV</a> (Length | Type |
-Value), set the optional <code>read_element</code> and <code>write_header</code> callbacks instead:</p>
-<ul>
-<li><code>read_element(context, data, size, &amp;tag, &amp;header_size, &amp;value_size,
-  &amp;trailer_size)</code> parses a whole element. <code>header_size</code> covers everything
-  before the value, in any field order. It replaces <code>read_tag</code>, <code>read_length</code>
-  and <code>read_value_bounds</code>, and the core applies the same bounds checks.</li>
-<li><code>write_header(context, data, capacity, tag, length, &amp;written)</code> writes the
-  whole header. With <code>data == NULL</code> and <code>capacity == 0</code> it validates and sizes
-  the header. It replaces <code>write_tag</code>, <code>write_length</code> and <code>length_size</code>.</li>
-</ul>
-<p>Every generic operation (reader, writer, scanner, walker, schemas, copy) works
-on such formats unchanged. Code that calls <code>read_tag</code> or <code>write_tag</code> directly on
-a descriptor must check for <code>NULL</code> first. Like <code>read_value_bounds</code>, these fields
-were appended to the descriptors, so rebuild the library and all consumers
-together and append <code>NULL</code> to aggregate initializers.</p>
+<p>Field order is part of the format configuration. <code>TLV_ELEMENT_ORDER_LTV</code>
+uses the same binary-field primitives as <code>TLV_ELEMENT_ORDER_TLV</code>; neither
+Reader nor Writer branches on a concrete format. Bluetooth counts Tag and
+Value, while configurable Fixed can count Value alone or Tag and Value.</p>
 
 
 
@@ -3148,13 +3098,13 @@ together and append <code>NULL</code> to aggregate initializers.</p>
         
         
           
-          <a href="default/" class="md-footer__link md-footer__link--next" aria-label="Next: Default TLV">
+          <a href="fixed/configurable/" class="md-footer__link md-footer__link--next" aria-label="Next: Configurable fixed-width TLV">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Default TLV
+                Configurable fixed-width TLV
               </div>
             </div>
             <div class="md-footer__button md-icon">
