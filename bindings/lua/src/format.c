@@ -3,6 +3,7 @@
 #include "error.h"
 
 #include <string.h>
+#include <tlv/config.h>
 
 #include <tlv/builtins/asn1/ber.h>
 #include <tlv/builtins/asn1/cer.h>
@@ -85,8 +86,10 @@ void opentlv_lua_open_format(lua_State* L, int module_table_index) {
     lua_setfield(L, -2, "cer");
     push_builtin_format(L, tlv_format_der, 1, "der");
     lua_setfield(L, -2, "der");
+#if OPENTLV_BLUETOOTH
     push_builtin_format(L, tlv_format_bluetooth_ltv, 0, "bluetooth_ltv");
     lua_setfield(L, -2, "bluetooth_ltv");
+#endif
     lua_pushcfunction(L, l_format_fixed);
     lua_setfield(L, -2, "fixed");
 

@@ -2,7 +2,7 @@
 #include "tlv/config.h"
 #include <gtest/gtest.h>
 
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/reader/reader.h"
 #include <cstring>

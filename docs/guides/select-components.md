@@ -6,26 +6,34 @@ recipes for the common selections. For the principle and the option reference, s
 [build configuration](../concepts/architecture.md#build-configuration).
 
 The generic core (reader, writer, walker, schemas, value codecs and the format
-callbacks) is always built. Each format and profile is an option that defaults to ON.
+callbacks), including the configurable Fixed format, is always built.
+Protocol extensions are options that default to ON.
 Turn off what you do not use.
+
+## Generic core formats
+
+| Format | Availability |
+| --- | --- |
+| [Configurable fixed-width TLV](../formats/fixed/configurable.md) | Always built; shared C implementation and C++ wrapper |
+
+## Built-in standards
 
 | Option | Component |
 | --- | --- |
-| `OPENTLV_FORMAT_FIXED` | [Configurable fixed-width TLV](../formats/fixed/configurable.md) (C and C++ API); must be ON for Bluetooth LTV |
-| `OPENTLV_FORMAT_BLUETOOTH_LTV` | [Bluetooth LTV](../formats/bluetooth/README.md), a preset of the configurable Fixed format |
+| `OPENTLV_BLUETOOTH` | [Bluetooth](../formats/bluetooth/README.md): LTV format, containers, definitions, schemas and codecs |
 | `OPENTLV_FORMAT_ASN1` | The ASN.1 group; must be ON for BER, DER, CER and EMV |
 | `OPENTLV_FORMAT_BER` | [BER-TLV](../formats/asn1/ber.md); must be ON for DER, CER and EMV |
 | `OPENTLV_FORMAT_DER` | [DER-TLV](../formats/asn1/der.md); must be ON for EMV |
 | `OPENTLV_FORMAT_CER` | [CER-TLV](../formats/asn1/cer.md); independent of DER |
 | `OPENTLV_PROFILE_EMV` | [EMV profile](../profiles/emv/README.md) |
-| `OPENTLV_DOCUMENT` | [Mutable document](document.md); allocates memory, so turn it OFF for allocation-free builds. Independent of every format |
+
+The [mutable document](document.md) is a separate optional generic component,
+controlled by `OPENTLV_DOCUMENT`; it is not a format or a standard package.
 
 Turning an option OFF also turns OFF everything below it in the chain
-`ASN1 -> BER -> DER -> EMV`, with CER a sibling of DER under BER, and in the
-chain `FIXED -> BLUETOOTH_LTV` (Bluetooth LTV is a preset of the Fixed
-format). The C++ [configurable fixed-width format](../formats/fixed/configurable.md)
-template delegates to the C implementation, so it follows `OPENTLV_FORMAT_FIXED`
-too, unlike the rest of the header-only C++ wrapper.
+`ASN1 -> BER -> DER -> EMV`, with CER a sibling of DER under BER.
+The C++ [configurable fixed-width format](../formats/fixed/configurable.md)
+template delegates to the always-built C implementation.
 
 ## Recipes
 
@@ -38,8 +46,7 @@ Use this when you supply your own [format callbacks](../formats/custom/README.md
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_FIXED=OFF \
-  -DOPENTLV_FORMAT_BLUETOOTH_LTV=OFF -DOPENTLV_FORMAT_ASN1=OFF
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build --parallel --target tlv
 ```
 
@@ -47,8 +54,7 @@ cmake --build build --parallel --target tlv
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_FIXED=OFF \
-  -DOPENTLV_FORMAT_BLUETOOTH_LTV=OFF \
+  -DOPENTLV_BLUETOOTH=OFF \
   -DOPENTLV_FORMAT_DER=OFF -DOPENTLV_FORMAT_CER=OFF -DOPENTLV_PROFILE_EMV=OFF
 cmake --build build --parallel --target tlv
 ```
@@ -59,14 +65,13 @@ EMV needs DER and DER needs BER, so all three are on. CER is off.
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_FIXED=OFF \
-  -DOPENTLV_FORMAT_BLUETOOTH_LTV=OFF -DOPENTLV_FORMAT_CER=OFF
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_FORMAT_CER=OFF
 cmake --build build --parallel --target tlv
 ```
 
 ### Core and Bluetooth LTV only
 
-Bluetooth LTV is a preset of the Fixed format, so `OPENTLV_FORMAT_FIXED` stays ON.
+Bluetooth uses the generic binary layout primitives. Fixed is always available.
 
 ```sh
 cmake -S . -B build \
@@ -85,11 +90,8 @@ cmake --build build --parallel
 
 ## What you get
 
-These recipes were checked by configuring each one and building the `tlv` library target
-with MSVC in Release as a shared library. The generated `tlv/config.h` matched each recipe,
-and the symbols of the disabled formats were absent from the built library. As an
-illustration only (the sizes depend on the compiler, settings and platform), the shared
-library was about 26 KB for the core only and about 107 KB with everything.
+Fixed remains available in every configuration, including core-only builds.
+Disabled protocol extensions contribute no implementation symbols.
 
 Confirm your own selection from the generated `tlv/config.h`, which defines each option
 as `1` or `0`:
@@ -109,10 +111,9 @@ header of a disabled component does not provide its symbols.
 ## Notes
 
 - Tests, examples and the CLI that need a disabled component are omitted from that build.
-  The recipes above were checked by building the `tlv` library target.
 - The C++ wrapper adds cost only for the headers you include.
 - The Rust bindings do not choose components yet: they build the C library with its
   default options. See
   [include only what you need](../concepts/architecture.md#include-only-what-you-need).
-- A future format follows the same rule, with its own option; see the
+- Protocol extensions remain optional; generic formats belong to the core. See the
   [format expansion candidates](../formats/format-roadmap.md).

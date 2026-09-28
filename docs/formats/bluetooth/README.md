@@ -13,9 +13,18 @@ only the format descriptor differs.
 | --- | --- |
 | Format header | `tlv/builtins/bluetooth/bluetooth_ltv.h` |
 | Descriptor | `tlv_format_bluetooth_ltv` |
-| CMake option (default ON, independent of `OPENTLV_FORMAT_FIXED`) | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
+| CMake option (default ON) | `OPENTLV_BLUETOOTH` |
 | `otlv` format name | `bluetooth-ltv` |
 | Link target | `tlv` |
+
+`OPENTLV_BLUETOOTH` controls the entire Bluetooth extension: LTV format,
+Advertising Data containers, definitions, schemas and codecs. Setting it to
+`OFF` omits all Bluetooth implementations. Headers remain installed, as for
+other optional components. This replaces `OPENTLV_FORMAT_BLUETOOTH_LTV`;
+update existing CMake invocations and presets to use the new option.
+The runtime feature query is `tlv_config_bluetooth()` from `tlv/config.h`;
+it reports availability of the entire extension. The wire descriptor remains
+`tlv_format_bluetooth_ltv` and the CLI format name remains `bluetooth-ltv`.
 
 Bluetooth LTV is a preset of the [configurable Fixed format](../fixed/configurable.md):
 `{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV,
@@ -40,16 +49,14 @@ The registry uses the generic `tlv_definition_t` and
 `tlv_definition_registry_t` model from `tlv/definition.h`. Applications can
 provide their own immutable tables and use the same lookup, which compares tag
 size and bytes, returns the first match, and never allocates. Definition
-metadata does not impose schema constraints or interpret values. Both the
-generic API and Bluetooth registry are available even with
-`OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`.
+metadata does not impose schema constraints or interpret values. The Bluetooth
+registry requires `OPENTLV_BLUETOOTH=ON`; the generic Definition API is always available.
 
 ## Basic Advertising Data value codecs
 
 Include `tlv/builtins/bluetooth/ad_codec.h` and call the generic
 `tlv_codec_decode()` / `tlv_codec_encode()` functions on an element's value.
-The codecs are allocation-free and available even with
-`OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`. They do not select or invoke a format,
+The codecs are allocation-free and require `OPENTLV_BLUETOOTH=ON`. They do not select or invoke a format,
 schema or registry.
 
 | AD type | Codec | C representation |
@@ -114,8 +121,7 @@ codecs described below.
 
 Include `tlv/builtins/bluetooth/ad_schema.h` and pass
 `&tlv_bluetooth_ad_schema` to `tlv_schema_validate()` with
-`&tlv_format_bluetooth_ltv`. The immutable schema is available even when the
-Bluetooth format is disabled; it has no dependency on codecs or the registry.
+`&tlv_format_bluetooth_ltv`. The immutable schema requires `OPENTLV_BLUETOOTH=ON`; it has no dependency on codecs or the registry.
 
 | AD types | Value-length constraint | Occurrences per AD block |
 | --- | --- | --- |
@@ -141,8 +147,36 @@ as length issues; the detailed diagnostic includes `length_multiple`.
 This schema checks lengths and occurrences only. It does not check UTF-8,
 flag-bit contents, numeric ranges, assigned UUIDs/company identifiers or
 service/manufacturer payloads. The format still enforces the 254-byte value
-limit. Pass only significant AD structures; trailing zero padding remains a
-framing error and needs separate container handling.
+limit. Pass only significant AD structures; use the container helper below
+to validate padding and obtain the significant prefix first.
+
+## Advertising Data containers and padding
+
+Include `tlv/builtins/bluetooth/ad_data.h` and call
+`tlv_bluetooth_ad_data_validate(data, size, &significant_size, &error_offset)`
+before processing a padded Advertising Data buffer. This helper is available
+with `OPENTLV_BLUETOOTH=ON` and uses the generic reader with the
+strict Bluetooth LTV format. It allocates nothing and leaves the input unchanged.
+
+For `02 01 06 00 00 00`, validation succeeds with `significant_size = 3`.
+Pass the original `data` pointer and that size to the generic reader, walker
+or schema validator. The remaining bytes are padding; source offsets still
+refer to the original buffer. Subsequent parsing performs a second pass.
+
+A zero byte starts padding only at a structure boundary, and every remaining
+byte must be zero. Zeros inside declared values are preserved. Empty input
+(including `NULL, 0`) and all-zero input succeed with a zero significant size.
+Unknown AD types and empty values are accepted; schema and value-codec checks
+remain separate.
+
+A nonzero byte after padding starts returns `TLV_ERR_INVALID_VALUE`, with
+`error_offset` pointing to the first offending byte. Truncated structures
+retain the generic reader error and failing-field offset, even when their
+available value bytes end in zeros. `significant_size` is required and remains
+unchanged on failure. `error_offset` is optional, unchanged on success, and
+zero for argument errors. Output storage must not overlap the input or each
+other. Never strip trailing zeros by scanning backward: they may belong to
+the final value.
 
 ## Wire layout and logical model
 
@@ -301,7 +335,7 @@ int decode_service_uuids(void) {
 
 Encoding a list validates the view and copies its original wire bytes exactly.
 To create new list bytes, encode individual UUID values into caller-owned storage.
-All these codecs remain available with `OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`.
+All these codecs require `OPENTLV_BLUETOOTH=ON`.
 Byte-order interpretation stays in Codec; Element continues to expose opaque bytes.
 
 ## Service Data
@@ -329,8 +363,8 @@ bytes as Battery Service fields.
 Encoding uses `uuid` and `payload`, regenerating the UUID prefix through the
 UUID codec and copying the payload unchanged. The informational `raw` span
 is ignored, so caller-constructed objects can leave it empty. Both directions
-are allocation-free. These codecs are available independently of the Bluetooth
-format and do not impose its framing size limit.
+are allocation-free. These codecs require `OPENTLV_BLUETOOTH=ON` and do not
+impose the AD framing size limit.
 
 ## Manufacturer Specific Data and Company Identifiers
 
@@ -349,7 +383,7 @@ Keep source storage alive and immutable while using either span. Values shorter
 than two bytes are rejected; an empty payload and unknown identifiers are valid.
 Encoding uses `company_id` and `payload`, ignores `raw`, and regenerates the
 little-endian prefix. Both directions are allocation-free and available with
-`OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`, without an AD framing size limit.
+`OPENTLV_BLUETOOTH=ON`, without an AD framing size limit.
 
 The independent `tlv/builtins/bluetooth/company_ids.h` header exposes
 `tlv_bluetooth_company_ids`, a Definition registry for `tlv_definition_find()`.
@@ -400,8 +434,10 @@ they handle and ignore the rest.
 A length byte of zero has no type byte to report. In Bluetooth data it also
 starts the non-significant zero padding that may follow the last structure, so
 a buffer with trailing zero padding stops with `TLV_ERR_INVALID_LENGTH` after the
-last real structure. Callers that receive padded buffers should trim it first
-(or stop on that error once all wanted structures have been read).
+last real structure. For padded buffers, use
+`tlv_bluetooth_ad_data_validate()` to validate the container and obtain the
+significant prefix before parsing it. Do not treat arbitrary parsing errors
+as successful termination.
 
 On error the reader position does not advance, so a truncated structure is
 never returned partially.

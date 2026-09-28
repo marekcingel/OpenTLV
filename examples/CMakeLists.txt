@@ -4,10 +4,8 @@ project(examples LANGUAGES C)
 
 # examples/tlv also hosts the EMV builtin example (src/builtins/emv), which
 # only needs OPENTLV_PROFILE_EMV; the other flags gate the rest of the folder.
-if(OPENTLV_FORMAT_FIXED OR OPENTLV_FORMAT_BER OR OPENTLV_PROFILE_EMV)
-    add_subdirectory(tlv)
-endif()
+add_subdirectory(tlv)
 
-if(OPENTLV_BUILD_CXX AND OPENTLV_FORMAT_BER)
+if(OPENTLV_BUILD_CXX)
     add_subdirectory(tlv++)
 endif()

@@ -480,9 +480,6 @@ unsigned command_options_mask(const char* command) {
 #if !OPENTLV_PROFILE_EMV
     mask &= ~emv_only;
 #endif
-#if !OPENTLV_FORMAT_FIXED
-    mask &= ~fixed_only;
-#endif
     return mask;
 }
 

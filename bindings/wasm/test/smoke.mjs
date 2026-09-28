@@ -35,7 +35,7 @@ assert.equal(fci.children[0].value, "414243");
 assert.equal(fci.children[1].children[0].tag, "50");
 assert.equal(fci.children[1].children[0].value, "01");
 
-// Every element reports its encoded header size, so its byte range is offset..offset+headerSize+length.
+// Source ranges distinguish logical values from complete encoded elements.
 assert.deepEqual(
   [fci.headerSize, fci.children[0].headerSize, fci.children[1].children[0].headerSize],
   [2, 2, 2],
@@ -77,6 +77,35 @@ assert.equal(result.elements[1].tag, "09");
 assert.equal(result.elements[1].length, 2);
 assert.equal(result.elements[1].headerSize, 2);
 assert.equal(result.elements[1].value, "4869");
+assert.equal(result.elements[0].name, "Flags");
+
+// Container padding is separate from strict LTV framing and never trims values.
+result = opentlv.parse(hexToBytes("02 01 06 00 00 00"), { format: "bluetooth-ad" });
+assert.equal(result.error, undefined);
+assert.equal(result.elements.length, 1);
+assert.deepEqual(result.padding, { offset: 3, length: 3 });
+result = opentlv.parse(hexToBytes("02 01 06 00 00 00"), { format: "bluetooth-ltv" });
+assert.equal(result.error.code, 2);
+assert.equal(result.elements.length, 1);
+assert.equal(result.padding, undefined);
+result = opentlv.parse(hexToBytes("02 01 06 00 00 01"), { format: "bluetooth-ad" });
+assert.equal(result.error.offset, 5);
+assert.equal(result.elements.length, 1);
+assert.equal(result.padding, undefined);
+result = opentlv.parse(hexToBytes("02 FE 00"), { format: "bluetooth-ad" });
+assert.equal(result.error, undefined);
+assert.equal(result.elements[0].value, "00");
+assert.equal(result.elements[0].name, undefined);
+assert.equal(result.padding, undefined);
+result = opentlv.parse(hexToBytes("00 00"), { format: "bluetooth-ad" });
+assert.deepEqual(result.elements, []);
+assert.deepEqual(result.padding, { offset: 0, length: 2 });
+assert.deepEqual(opentlv.parse(new Uint8Array(0), { format: "bluetooth-ad" }).elements, []);
+result = opentlv.parse(hexToBytes("02 01 06 04 09 00 00"), { format: "bluetooth-ad" });
+assert.equal(result.error.code, 1);
+assert.equal(result.error.offset, 5);
+assert.equal(result.elements.length, 1);
+assert.ok(opentlv.parse(sample, { format: "bluetooth-ad", profile: "emv" }).error);
 
 // Configurable fixed-width format: a two-byte tag, then a one-byte big-endian length.
 result = opentlv.parse(hexToBytes("12 34 03 AA BB CC"), {
@@ -88,6 +117,41 @@ assert.equal(result.elements[0].tag, "1234");
 assert.equal(result.elements[0].length, 3);
 assert.equal(result.elements[0].headerSize, 3);
 assert.equal(result.elements[0].value, "AABBCC");
+
+result = opentlv.parse(hexToBytes("04 01 AA BB CC 02 04 2A"), {
+  format: "fixed", fixedElementOrder: "ltv", fixedLengthScope: "tag-and-value",
+});
+assert.equal(result.error, undefined);
+assert.equal(result.elements[0].length, 3);
+assert.equal(result.elements[0].encodedSize, 5);
+assert.deepEqual(result.elements[0].source.tag, { offset: 1, length: 1 });
+assert.deepEqual(result.elements[0].source.length, { offset: 0, length: 1 });
+assert.deepEqual(result.elements[1].source.value, { offset: 7, length: 1 });
+result = opentlv.parse(hexToBytes("30 80 02 01 05 00 00"), { format: "ber" });
+assert.equal(result.error, undefined);
+assert.equal(result.elements[0].length, 3);
+assert.equal(result.elements[0].encodedSize, 7);
+assert.deepEqual(result.elements[0].source.value, { offset: 2, length: 3 });
+assert.deepEqual(result.elements[0].source.trailer, { offset: 5, length: 2 });
+assert.equal(result.elements[0].children[0].offset, 2);
+assert.ok(opentlv.formats.includes("fixed"));
+assert.ok(opentlv.formats.includes("cer"));
+result = opentlv.parse(hexToBytes("30 80 02 01 05 0C 05 48 65 6C 6C 6F 00 00"), { format: "cer" });
+assert.equal(result.error, undefined);
+assert.equal(result.elements[0].constructed, true);
+assert.equal(result.elements[0].encodedSize, 14);
+assert.equal(result.elements[0].length, 10);
+assert.deepEqual(result.elements[0].source.trailer, { offset: 12, length: 2 });
+assert.deepEqual(result.elements[0].children.map(e => e.tag), ["02", "0C"]);
+assert.ok(opentlv.parse(hexToBytes("30 03 02 01 05"), { format: "cer" }).error);
+assert.ok(opentlv.parse(hexToBytes("30 80 02 01 05"), { format: "cer" }).error);
+assert.ok(opentlv.parse(sample, { format: "cer", profile: "emv" }).error);
+assert.ok(opentlv.formats.includes("bluetooth-ad"));
+for (const invalid of [{ fixedTagSize: 0 }, { fixedLengthSize: 9 },
+  { fixedByteOrder: "invalid" }, { fixedElementOrder: "invalid" },
+  { fixedLengthScope: "invalid" }]) {
+  assert.throws(() => opentlv.parse(sample, { format: "fixed", ...invalid }), TypeError);
+}
 
 // Unknown formats and bad arguments.
 assert.ok(opentlv.parse(sample, { format: "nope" }).error);

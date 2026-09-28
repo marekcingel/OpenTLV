@@ -9,7 +9,7 @@ TEST(Unit_Tlv_BluetoothAdSchema, AvailableWithoutFormatOrRegistry) {
     EXPECT_EQ(TLV_SCHEMA_ORDER_ANY, tlv_bluetooth_ad_schema.order);
 }
 
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/reader/reader.h"
 #include <vector>

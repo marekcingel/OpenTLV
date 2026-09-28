@@ -21,11 +21,16 @@
  *    "error": {"code": 1, "message": "...", "offset": 12}}
  *
  * "error" is present only on failure; "elements" then holds every element
- * that was read before the error. Only BER and DER elements can be
+ * that was read before the error. Only BER, DER and CER elements can be
  * constructed. Tags and values are uppercase hexadecimal. An element occupies
- * "headerSize" + "length" bytes cover Header and Value starting at "offset",
- * excluding any trailer. "tag" holds the identifier bytes.
- * "profile", "symbol", "name" and "lengthValid" appear only
+ * "encodedSize" bytes starting at "offset", including its trailer. "source"
+ * gives absolute {offset, length} ranges for header, tag, length, value and
+ * trailer. "headerSize" and logical value "length" exclude the trailer.
+ * "tag" holds the identifier bytes.
+ * Bluetooth modes also add known AD Type names. "bluetooth-ad" validates
+ * trailing zero padding and reports "padding": {"offset", "length"} when present.
+ * "bluetooth-ltv" retains strict framing. Values remain opaque in both modes.
+ * "profile", "symbol" and "lengthValid" appear only
  * when a profile was requested (and "symbol", "name" only for tags it knows).
  */
 
@@ -47,19 +52,20 @@ extern "C" {
 typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 
 /*
- * Parses `size` bytes as `format` ("fixed", "bluetooth-ltv", "ber" or "der").
- * `profile` annotates elements with dictionary metadata: NULL, "" or "none"
- * for none, or "emv" (EMV Contact Book 3 tags) with the "ber" format.
- * `fixed_tag_size`, `fixed_length_size` and `fixed_big_endian` (nonzero for
- * big-endian) configure `format == "fixed"`'s tag width, length width (1-8
- * bytes) and length byte order (tlv_fixed_format_t); ignored for every other
- * format. Returns NULL only when memory runs out. An unknown format or
- * profile, invalid fixed-format widths, or invalid input, is reported through
- * the result, never by returning NULL.
+ * Parses `size` bytes as `format` ("fixed", "bluetooth-ltv", "bluetooth-ad", "ber", "der" or
+ * "cer"). `profile` annotates elements with dictionary metadata: NULL, "" or "none" for none, or
+ * "emv" (EMV Contact Book 3 tags) with the "ber" format. `fixed_tag_size`, `fixed_length_size` and
+ * `fixed_big_endian` (nonzero for big-endian) configure `format == "fixed"`'s tag width, length
+ * width (1-8 bytes) and length byte order (tlv_fixed_format_t); ignored for every other format.
+ * Nonzero `fixed_length_first` selects LTV; nonzero `fixed_counts_tag` makes the length count Tag +
+ * Value. Both default to zero for conventional TLV. Returns NULL only when memory runs out. An
+ * unknown format or profile, invalid fixed-format widths, or invalid input, is reported through the
+ * result, never by returning NULL.
  */
 OPENTLV_WASM_API opentlv_wasm_result_t*
 opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format, const char* profile,
-                   size_t fixed_tag_size, size_t fixed_length_size, int fixed_big_endian);
+                   size_t fixed_tag_size, size_t fixed_length_size, int fixed_big_endian,
+                   int fixed_length_first, int fixed_counts_tag);
 
 /* tlv_result_t of the parse; 0 (TLV_OK) on success. */
 OPENTLV_WASM_API int opentlv_wasm_result_code(const opentlv_wasm_result_t* result);

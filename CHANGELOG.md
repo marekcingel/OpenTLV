@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Make the generic Fixed format always available and remove `OPENTLV_FORMAT_FIXED` and `tlv_config_format_fixed()`. Rename the Bluetooth feature query to `tlv_config_bluetooth()` to match the whole extension.
+- **Breaking:** Rename `OPENTLV_FORMAT_BLUETOOTH_LTV` to `OPENTLV_BLUETOOTH` and use it to control all Bluetooth formats, containers, definitions, schemas and codecs. Update build configurations to use the new option; disabling it removes the entire Bluetooth implementation. (#350)
 - **Breaking:** Extend `tlv_schema_entry_t` with an optional value-length multiple and `tlv_schema_diagnostic_t` with the expected multiple. Rebuild consumers and initialize the new schema field to zero to preserve unrestricted lengths. (#345)
 - **Breaking:** Remove the nonstandard default/compact format, its build option and binding presets. Select BER or an explicitly configured Fixed format; optional default selections in Rust, Python, Lua and WebAssembly now use BER. (#341)
 - **Breaking:** Redesign `tlv_format_t` around canonical decode, logical sizing and complete encoding, with explicit Header/Value/Trailer framing and separate borrowed source information. Keep `tlv_element_t` semantic, add checked byte-preserving source copies, share generic TLV/LTV mechanics, support generic constructed CER encoding, and distinguish native address-space limits. Update C++, Rust, Python, Lua and WebAssembly consumers; rebuild and migrate custom formats. (#341)
@@ -65,6 +67,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Expose CER framing in the WebAssembly wrapper and playground, including nested elements and EOC trailer ranges.
+- Expose Fixed TLV/LTV field order and length scope in the playground, group generic formats separately from standards and containers, and show source ranges and trailers such as BER end-of-contents in the inspector and hex view.
+- Present Bluetooth Advertising Data in the playground with named AD Types, guided samples and separate zero-padding ranges, alongside strict Bluetooth LTV parsing. (#350)
+- Add Bluetooth Advertising Data container validation with strict trailing zero padding checks, significant-prefix sizing and source error offsets, while keeping the Bluetooth LTV format strict. (#350)
 - Add an allocation-free Bluetooth Manufacturer Specific Data codec with a little-endian Company Identifier, borrowed opaque payload and complete raw value, plus an independently reusable Company Identifier Definition registry with initial coverage of six companies. (#349)
 - Add allocation-free Bluetooth Service Data codecs for 16-, 32- and 128-bit UUIDs, preserving raw values and exposing borrowed opaque payloads. (#348)
 - Add reusable Bluetooth 16-, 32- and 128-bit UUID codecs and allocation-free UUID list decoding for AD Types 0x02-0x07, preserving raw bytes and interpreting Bluetooth byte order in the codecs. (#347)

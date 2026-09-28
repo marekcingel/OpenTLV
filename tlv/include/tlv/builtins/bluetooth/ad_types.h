@@ -7,6 +7,8 @@
  * @file
  * @ingroup core
  * @brief Bluetooth Advertising Data Type definitions.
+ *
+ * @note Requires `OPENTLV_BLUETOOTH=ON`.
  */
 
 #ifdef __cplusplus
@@ -21,8 +23,8 @@ extern "C" {
  * exhaustive list of assigned types. Unknown types remain valid for structural
  * parsing; lookup does not validate values or impose schema constraints.
  *
- * Use tlv_definition_find() for allocation-free lookup. Available independently
- * of the Bluetooth LTV format build option; no parser or writer is required.
+ * Use tlv_definition_find() for allocation-free lookup. Requires
+ * `OPENTLV_BLUETOOTH=ON`; no parser or writer is required.
  *
  * @see https://www.bluetooth.com/specifications/assigned-numbers/
  */

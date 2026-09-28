@@ -50,15 +50,24 @@ const result = opentlv.parse(
 );
 ```
 
-`parse` takes a `Uint8Array`, a `format` (`fixed`, `bluetooth-ltv`,
-`ber` or `der`; default `ber`) and optionally a `profile` (`none` or `emv`; default
+`parse` takes a `Uint8Array`, a `format` (`fixed`, `bluetooth-ltv`, `bluetooth-ad`,
+`ber`, `der` or `cer`; default `ber`) and optionally a `profile` (`none` or `emv`; default
 `none`) and returns:
+
+Bluetooth modes annotate known AD Types with `name` from the C registry.
+`bluetooth-ltv` keeps strict element framing. `bluetooth-ad` adds Advertising
+Data container semantics: validated trailing zeros are reported separately as
+`padding: { offset, length }`. Nonzero padding is an error at its original
+source offset. Neither mode validates schemas or decodes value payloads.
 
 For `format: "fixed"`, `fixedTagSize` (default `1`), `fixedLengthSize` (1-8, default
 `1`) and `fixedByteOrder` (`"big"` or `"little"`, default `"big"`) configure the
 configurable fixed-width format's tag width, length width and length byte order
-(`tlv_fixed_format_t`); they are ignored for every other format. An invalid width
-is reported through `result.error`, like any other parse error.
+(`tlv_fixed_format_t`). `fixedElementOrder` selects `"tlv"` (default) or `"ltv"`;
+`fixedLengthScope` selects `"value"` (default) or `"tag-and-value"`.
+These options apply only to Fixed. Invalid JavaScript configuration values throw
+`TypeError`; invalid encoded input is reported through `result.error`.
+`opentlv.formats` and `opentlv.profiles` list the modes supported by the loaded build.
 
 ```json
 {
@@ -78,11 +87,18 @@ is reported through `result.error`, like any other parse error.
 }
 ```
 
-Tags and values are uppercase hexadecimal. Only BER and DER elements can be
+Tags and values are uppercase hexadecimal. Only BER, DER and CER elements can be
 constructed; the other formats return flat elements with opaque values. An
-element occupies `headerSize + length` encoded bytes from `offset`, the first
-bytes being its encoded `tag`; a constructed element's value is the byte range
-its `children` cover.
+element occupies `encodedSize` bytes from `offset`, including any trailer.
+`source` contains absolute `{offset, length}` ranges for `header`, `tag`,
+`length`, `value` and `trailer`; empty regions have length zero. The logical
+Value excludes the enclosing trailer. Field order comes from these ranges,
+so LTV and BER end-of-contents need no byte-layout guessing in the viewer.
+The JSON example above omits `encodedSize` and `source` for brevity.
+
+`format: "cer"` uses the generic tree walker with `tlv_format_cer`, preserving
+preorder output and EOC source ranges. It checks framing only; full CER profile
+validation (including string segmentation and semantic values) is not applied.
 
 With `profile: "emv"` (BER only; other formats report an invalid-argument
 error) the result also has `"profile": "emv"`. Every element the

@@ -74,7 +74,7 @@ const option_entry* option_table(std::size_t* count);
 // The bitmask of options valid for `command` (one of "dump", "validate",
 // "decode", "encode", "query", "tag" or "tags"; 0 for any other name),
 // narrowed to this build: EMV-only options are removed unless
-// OPENTLV_PROFILE_EMV, and --format fixed's options unless OPENTLV_FORMAT_FIXED.
+// OPENTLV_PROFILE_EMV. Fixed format options are always available.
 unsigned command_options_mask(const char* command);
 
 // The bitmask of options that never take a following value (booleans such as

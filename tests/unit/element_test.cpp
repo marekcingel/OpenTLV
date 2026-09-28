@@ -161,7 +161,7 @@ TEST(Unit_Tlv_Element, TruncationDoesNotPublishPartialRawFields) {
 }
 #endif
 
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 TEST(Unit_Tlv_Element, LengthBeforeTagKeepsRawCountSeparateFromValueSize) {
     tlv_source_t source{};
@@ -224,7 +224,6 @@ TEST(Unit_Tlv_Element, LogicalOverflowAndTruncatedLengthKeepAvailableRawBytes) {
 }
 #endif
 
-#if OPENTLV_FORMAT_FIXED
 #include "tlv/formats/fixed.h"
 TEST(Unit_Tlv_Element, FixedSizeDomainIsIndependentOfFieldOrderAndByteOrder) {
     tlv_source_t source{};
@@ -263,7 +262,6 @@ TEST(Unit_Tlv_Element, FixedSizeDomainIsIndependentOfFieldOrderAndByteOrder) {
         }
     }
 }
-#endif
 
 #if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
@@ -517,7 +515,6 @@ TEST(Unit_Tlv_FormatContract, NoExplicitFieldsAndEmptyHeaderAreValid) {
     ASSERT_EQ(TLV_OK, tlv_format_encode(&format, &decoded.element, &output, 1, &written, nullptr));
     EXPECT_EQ(wire, output);
 }
-#if OPENTLV_FORMAT_FIXED
 TEST(Unit_Tlv_FormatContract, LogicalSizeAndWireLimitsAreSeparate) {
     const tlv_fixed_format_t config = {1, 8, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,
                                        TLV_LENGTH_SCOPE_VALUE};
@@ -537,7 +534,6 @@ TEST(Unit_Tlv_FormatContract, LogicalSizeAndWireLimitsAreSeparate) {
     EXPECT_EQ(TLV_OK, tlv_size_to_native(UINT64_C(4294967296), &native));
 #endif
 }
-#endif
 
 TEST(Unit_Tlv_FormatContract, PreservationUsesByteIdentityAndReportsRequiredCapacity) {
     const uint8_t wire[] = {0xA5, 7, 1, 0x9C, 0xAA, 0xAA};

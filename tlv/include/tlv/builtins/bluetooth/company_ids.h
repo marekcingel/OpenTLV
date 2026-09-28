@@ -7,6 +7,8 @@
  * @file
  * @ingroup core
  * @brief Bluetooth Company Identifier definitions, independent of value codecs.
+ *
+ * @note Requires `OPENTLV_BLUETOOTH=ON`.
  */
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +33,7 @@ extern "C" {
  * This is a non-exhaustive snapshot, not a validity list: missing identifiers
  * remain valid and lookup returns NULL. No value validation or vendor protocol
  * interpretation occurs. Lookup never allocates and returned entries borrow
- * static storage. Available independently of codecs and the LTV build option.
+ * static storage. Requires `OPENTLV_BLUETOOTH=ON`; no value codec is invoked.
  *
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/index-en.html

@@ -7,6 +7,8 @@
  * @file
  * @ingroup schemas
  * @brief Bluetooth Advertising Data length and occurrence constraints.
+ *
+ * @note Requires `OPENTLV_BLUETOOTH=ON`.
  */
 
 #ifdef __cplusplus
@@ -37,10 +39,11 @@ extern "C" {
  * identifier assignments or payload semantics. Conditional presence based on
  * connectability and relationships between advertising and scan-response blocks
  * are outside this schema. Pass only significant structures: trailing zero
- * padding is not an element and remains a framing error.
+ * padding is not an element and remains a framing error. Use
+ * tlv_bluetooth_ad_data_validate() to obtain the significant prefix first.
  *
- * Static lifetime, allocation-free and independent of the Bluetooth format
- * build option. The definition registry and codecs are not required.
+ * Static lifetime, allocation-free and requires `OPENTLV_BLUETOOTH=ON`.
+ * The definition registry and codecs are not required.
  *
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v12/out/en/supplement-to-the-bluetooth-core-specification/data-types-specification.html

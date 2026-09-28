@@ -39,7 +39,7 @@ flags. Contract checks remain active with `NDEBUG`; UBSan errors are fatal.
 
 The reader, walker, and round-trip targets run each input against every enabled
 built-in format: default, fixed-width (one tag byte, one length byte), Bluetooth LTV, BER, and DER. Component switches still
-apply; `fuzz_fixed` is omitted when `OPENTLV_FORMAT_FIXED=OFF`, `fuzz_der` and
+apply; `fuzz_fixed` is always built when fuzzing is enabled, while `fuzz_der` and
 `fuzz_der_schema` are omitted when `OPENTLV_FORMAT_DER=OFF`,
 and `fuzz_codec` and `fuzz_dol` are omitted when `OPENTLV_PROFILE_EMV=OFF`. At
 least one built-in format must be enabled. For the raw-byte formats, the

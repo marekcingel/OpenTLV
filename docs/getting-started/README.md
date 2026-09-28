@@ -381,8 +381,8 @@ cmake --build build-c --config Release --parallel
 ```
 
 The [component configuration](../concepts/architecture.md#build-configuration) lists the
-format and profile switches. Keep `OPENTLV_FORMAT_FIXED=ON` for the README
-example. A single `tlv_format_t` descriptor serves both reads and writes, with
+protocol extension switches. The Fixed format used by the README example
+is always available. A single `tlv_format_t` descriptor serves both reads and writes, with
 read and write capability independently optional. See
 [format contracts](../formats/README.md#generic-interface) and [migration](../concepts/architecture.md#migration).
 

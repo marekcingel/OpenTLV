@@ -18,8 +18,9 @@
 # OPENTLV_PROFILE_EMV cascades only from OPENTLV_FORMAT_DER, so it is
 # unaffected by OPENTLV_FORMAT_CER either way.
 #
-# OPENTLV_FORMAT_FIXED and OPENTLV_FORMAT_BLUETOOTH_LTV are independent
-# configurations of the always-built generic binary layout primitives.
+# OPENTLV_BLUETOOTH controls the entire Bluetooth extension independently
+# of the always-built Fixed format. Both formats reuse the generic
+# binary layout primitives.
 #
 set(_OPENTLV_FORMAT_OPTIONS_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 

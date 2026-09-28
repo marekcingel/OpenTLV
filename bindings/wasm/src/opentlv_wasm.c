@@ -5,10 +5,15 @@
 #include <string.h>
 
 #include "tlv/tlv.h"
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
+#include "tlv/builtins/bluetooth/ad_data.h"
+#include "tlv/builtins/bluetooth/ad_types.h"
 #endif
 #include "tlv/version.h"
+#if OPENTLV_FORMAT_CER
+#include "tlv/builtins/asn1/cer.h"
+#endif
 
 enum {
     /* Bounds the work one browser call can request. */
@@ -38,8 +43,11 @@ typedef struct {
     size_t count[TLV_WALK_MAX_DEPTH + 2];
     int    has_children[TLV_WALK_MAX_DEPTH + 2];
     int    ber;
+    int    bluetooth;
     /* Start of the parsed input; offsets of values are measured against it. */
-    const uint8_t* input;
+    const uint8_t*      input;
+    size_t              input_size;
+    const tlv_format_t* reader;
 #if OPENTLV_PROFILE_EMV
     /* Set when the EMV dictionary annotates elements; `emv_context[d]` is the
      * dictionary context of the elements at depth d. */
@@ -151,16 +159,30 @@ static void emit_emv(writer_context_t* w, const tlv_element_t* element, size_t d
 }
 #endif
 
+static void emit_range(builder_t* out, const char* name, tlv_range_t range, size_t offset) {
+    builder_text(out, name);
+    builder_text(out, "{\"offset\":");
+    builder_number(out, offset + range.offset);
+    builder_text(out, ",\"length\":");
+    builder_number(out, range.size);
+    builder_text(out, "}");
+}
+
 static tlv_visit_result_t emit_element(const tlv_element_t* element, size_t depth, size_t offset,
                                        void* context) {
     writer_context_t* w = (writer_context_t*)context;
     int               constructed = 0;
     size_t            length, header_size;
+    tlv_decoded_t     decoded;
 
     if (tlv_size_to_native(element->value.size, &length) != TLV_OK) return TLV_VISIT_ERROR;
     if (depth > TLV_WALK_MAX_DEPTH) return TLV_VISIT_ERROR;
-    /* The value directly follows the encoded tag and length. */
-    header_size = (size_t)(element->value.data - w->input) - offset;
+    /* Obtain authoritative source ranges, including trailers such as BER EOC. */
+    if (offset > w->input_size ||
+        tlv_format_decode(w->reader, w->input + offset, w->input_size - offset, &decoded, NULL) !=
+            TLV_OK)
+        return TLV_VISIT_ERROR;
+    header_size = decoded.source.header.size;
 #if OPENTLV_FORMAT_BER
     if (w->ber) constructed = tlv_ber_is_constructed(NULL, &element->tag) != 0;
 #endif
@@ -178,9 +200,28 @@ static tlv_visit_result_t emit_element(const tlv_element_t* element, size_t dept
     builder_number(&w->out, length);
     builder_text(&w->out, ",\"headerSize\":");
     builder_number(&w->out, header_size);
+    builder_text(&w->out, ",\"encodedSize\":");
+    builder_number(&w->out, decoded.source.size);
+    builder_text(&w->out, ",\"source\":{");
+    emit_range(&w->out, "\"header\":", decoded.source.header, offset);
+    emit_range(&w->out, ",\"tag\":", decoded.source.tag, offset);
+    emit_range(&w->out, ",\"length\":", decoded.source.length, offset);
+    emit_range(&w->out, ",\"value\":", decoded.source.value, offset);
+    emit_range(&w->out, ",\"trailer\":", decoded.source.trailer, offset);
+    builder_text(&w->out, "}");
     builder_text(&w->out, constructed ? ",\"constructed\":true" : ",\"constructed\":false");
 #if OPENTLV_PROFILE_EMV
     if (w->emv) emit_emv(w, element, depth, length);
+#endif
+#if OPENTLV_BLUETOOTH
+    if (w->bluetooth) {
+        const tlv_definition_t* definition =
+            tlv_definition_find(&tlv_bluetooth_ad_types, &element->tag);
+        if (definition) {
+            builder_text(&w->out, ",\"name\":");
+            builder_json_string(&w->out, definition->name);
+        }
+    }
 #endif
     if (constructed && length) {
         /* The walker descends into it next; children close it later. */
@@ -198,12 +239,12 @@ static tlv_visit_result_t emit_element(const tlv_element_t* element, size_t dept
 
 static const tlv_format_t* select_format(const char* name, int* ber, int* der,
                                          size_t fixed_tag_size, size_t fixed_length_size,
-                                         int fixed_big_endian, tlv_fixed_format_t* fixed_config,
+                                         int fixed_big_endian, int fixed_length_first,
+                                         int fixed_counts_tag, tlv_fixed_format_t* fixed_config,
                                          tlv_format_t* fixed_format) {
     *ber = 0;
     *der = 0;
     if (!name) return NULL;
-#if OPENTLV_FORMAT_FIXED
     // Configured by the caller's fixed_tag_size/fixed_length_size/fixed_big_endian.
     // fixed_config/fixed_format are storage owned by the caller (opentlv_wasm_parse),
     // which outlives this call, since a `static` here would make the module
@@ -213,14 +254,16 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
         fixed_config->length_size = fixed_length_size;
         fixed_config->length_order =
             fixed_big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
-        fixed_config->element_order = TLV_ELEMENT_ORDER_TLV;
-        fixed_config->length_scope = TLV_LENGTH_SCOPE_VALUE;
+        fixed_config->element_order =
+            fixed_length_first ? TLV_ELEMENT_ORDER_LTV : TLV_ELEMENT_ORDER_TLV;
+        fixed_config->length_scope =
+            fixed_counts_tag ? TLV_LENGTH_SCOPE_TAG_AND_VALUE : TLV_LENGTH_SCOPE_VALUE;
         if (tlv_fixed_format_init(fixed_format, fixed_config) != TLV_OK) return NULL;
         return fixed_format;
     }
-#endif
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
-    if (!strcmp(name, "bluetooth-ltv")) return &tlv_format_bluetooth_ltv;
+#if OPENTLV_BLUETOOTH
+    if (!strcmp(name, "bluetooth-ltv") || !strcmp(name, "bluetooth-ad"))
+        return &tlv_format_bluetooth_ltv;
 #endif
 #if OPENTLV_FORMAT_BER
     if (!strcmp(name, "ber")) {
@@ -233,6 +276,12 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
         *ber = 1;
         *der = 1;
         return &tlv_format_der;
+    }
+#endif
+#if OPENTLV_FORMAT_CER
+    if (!strcmp(name, "cer")) {
+        *ber = 1;
+        return &tlv_format_cer;
     }
 #endif
     return NULL;
@@ -250,12 +299,14 @@ static void append_error(builder_t* b, tlv_result_t code, size_t offset) {
 
 opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format,
                                           const char* profile, size_t fixed_tag_size,
-                                          size_t fixed_length_size, int fixed_big_endian) {
+                                          size_t fixed_length_size, int fixed_big_endian,
+                                          int fixed_length_first, int fixed_counts_tag) {
     opentlv_wasm_result_t* result = (opentlv_wasm_result_t*)calloc(1, sizeof *result);
     const tlv_format_t*    reader;
     writer_context_t*      w;
     int                    ber, der;
     size_t                 error_offset = 0;
+    size_t                 padding_offset = size;
     /* Storage for select_format()'s "fixed" case; must outlive its use below. */
     tlv_fixed_format_t fixed_config;
     tlv_format_t       fixed_format;
@@ -267,9 +318,12 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
         return NULL;
     }
     reader = select_format(format, &ber, &der, fixed_tag_size, fixed_length_size, fixed_big_endian,
-                           &fixed_config, &fixed_format);
+                           fixed_length_first, fixed_counts_tag, &fixed_config, &fixed_format);
     w->ber = ber;
     w->input = data;
+    w->input_size = size;
+    w->reader = reader;
+    w->bluetooth = format && (!strcmp(format, "bluetooth-ltv") || !strcmp(format, "bluetooth-ad"));
 
     builder_text(&w->out, "{\"format\":");
     builder_json_string(&w->out, format ? format : "");
@@ -277,7 +331,7 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
     if (profile && *profile && strcmp(profile, "none")) {
         /* The EMV dictionary names BER-TLV tags; it does not apply to other formats. */
 #if OPENTLV_PROFILE_EMV
-        if (!strcmp(profile, "emv") && ber && !der) {
+        if (!strcmp(profile, "emv") && format && !strcmp(format, "ber") && reader) {
             w->emv = 1;
             w->emv_context[0] = TLV_EMV_CONTEXT_BASE;
             builder_text(&w->out, ",\"profile\":\"emv\"");
@@ -292,8 +346,45 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
     } else if (!data && size) {
         result->code = TLV_ERR_NULL_ARG;
     } else {
+#if OPENTLV_BLUETOOTH
+        if (!strcmp(format, "bluetooth-ad")) {
+            tlv_reader_t ad_reader;
+            size_t       count = 0;
+            result->code = tlv_reader_init(&ad_reader, data, size, reader);
+            while (result->code == TLV_OK && !tlv_reader_at_end(&ad_reader)) {
+                size_t                  offset = ad_reader.pos;
+                tlv_element_t           element;
+                tlv_reader_diagnostic_t diagnostic;
+                if (data[offset] == 0) {
+                    size_t significant_size, relative_error = 0;
+                    result->code = tlv_bluetooth_ad_data_validate(
+                        data + offset, size - offset, &significant_size, &relative_error);
+                    if (result->code == TLV_OK)
+                        padding_offset = offset;
+                    else
+                        error_offset = offset + relative_error;
+                    break;
+                }
+                if (count++ == WASM_MAX_ELEMENTS) {
+                    result->code = TLV_ERR_LIMIT;
+                    error_offset = offset;
+                    break;
+                }
+                result->code = tlv_reader_next_diag(&ad_reader, &element, &diagnostic);
+                if (result->code != TLV_OK) {
+                    error_offset =
+                        diagnostic.diagnostic.has_offset ? diagnostic.diagnostic.offset : offset;
+                    break;
+                }
+                if (emit_element(&element, 0, offset, w) != TLV_VISIT_CONTINUE) {
+                    result->code = TLV_ERR_VISITOR;
+                    error_offset = offset;
+                }
+            }
+        } else
+#endif
 #if OPENTLV_FORMAT_DER
-        if (der) {
+            if (der) {
             result->code = tlv_der_walk(data, size, NULL, emit_element, w, &error_offset);
         } else
 #endif
@@ -307,6 +398,13 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
 
     close_elements(w, 0);
     builder_text(&w->out, "]");
+    if (padding_offset < size) {
+        builder_text(&w->out, ",\"padding\":{\"offset\":");
+        builder_number(&w->out, padding_offset);
+        builder_text(&w->out, ",\"length\":");
+        builder_number(&w->out, size - padding_offset);
+        builder_text(&w->out, "}");
+    }
     if (result->code != TLV_OK) append_error(&w->out, result->code, error_offset);
     builder_text(&w->out, "}");
 
