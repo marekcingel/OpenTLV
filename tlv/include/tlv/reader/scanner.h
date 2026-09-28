@@ -34,7 +34,7 @@ extern "C" {
  * @param[in]  data       Input buffer. May be `NULL` only when `size` is zero.
  * @param[in]  size       Input size in bytes.
  * @param[in]  start      First offset to try, relative to `data`.
- * @param[in]  format     Reader format; `read_tag` and `read_length` are required.
+ * @param[in]  format     Reader format; `decode` are required.
  * @param[in]  schema     Optional schema restricting candidates; may be `NULL`.
  *                        `schema->entries` may be `NULL` only for a zero count.
  * @param[out] out_element  Receives the matched element; borrows the input value.

@@ -48,7 +48,7 @@ TEST(Unit_Tlv_Value, InitRejectsLengthBeyondNativeSizeAndLeavesOutputUnchanged) 
     if (std::numeric_limits<size_t>::max() < UINT64_MAX) {
         uint8_t     byte = 0;
         tlv_value_t value{reinterpret_cast<const uint8_t*>(0x1), 7};
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_value_init(&byte, UINT64_MAX, &value));
+        EXPECT_EQ(TLV_ERR_NATIVE_SIZE, tlv_value_init(&byte, UINT64_MAX, &value));
         EXPECT_EQ(reinterpret_cast<const uint8_t*>(0x1), value.data);
         EXPECT_EQ(7u, value.size);
     }
@@ -85,7 +85,7 @@ TEST(Unit_Tlv_Value, ValidateRejectsLengthBeyondNativeSize) {
     const tlv_value_t value = {&byte, UINT64_MAX};
     tlv_result_t      rc = tlv_value_validate(&value);
     if (std::numeric_limits<size_t>::max() < UINT64_MAX) {
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, rc);
+        EXPECT_EQ(TLV_ERR_NATIVE_SIZE, rc);
     } else {
         EXPECT_EQ(TLV_OK, rc);
     }

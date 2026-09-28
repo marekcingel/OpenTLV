@@ -1,6 +1,6 @@
 import pytest
 
-from opentlv import Element, Format, InvalidTagSizeError, Reader, Tag, Writer, encoded_size
+from opentlv import Element, FixedFormat, Format, InvalidTagSizeError, Reader, Tag, Writer, encoded_size
 
 
 def test_write_produces_the_same_bytes_as_the_default_format_example():
@@ -29,7 +29,7 @@ def test_grows_past_the_initial_capacity_without_error():
     writer = Writer()
     value = bytes(500)
     writer.write(Tag(b"\x01"), value)
-    # 500 needs the default format's 2-byte long-form length (0x82 0x01 0xF4).
+    # 500 needs BER's 2-byte long-form length (0x82 0x01 0xF4).
     assert writer.bytes() == bytes([0x01, 0x82, 0x01, 0xF4]) + value
 
 
@@ -40,8 +40,8 @@ def test_write_element_round_trips_a_reader_entry():
     assert writer.bytes() == bytes([0x01, 0x02, 0xAA, 0xBB])
 
 
-def test_default_format_rejects_a_multi_byte_tag():
-    writer = Writer()
+def test_fixed_one_byte_tag_rejects_a_multi_byte_tag():
+    writer = Writer(FixedFormat(1, 1, "big"))
     with pytest.raises(InvalidTagSizeError):
         writer.write(Tag(b"\x9f\x02"), b"")
 
@@ -57,7 +57,7 @@ def test_writes_other_formats():
 def test_repr_shows_format_and_position():
     writer = Writer()
     writer.write(Tag(b"\x01"), b"\xaa")
-    assert repr(writer) == "Writer(format=<Format.DEFAULT: 0>, position=3)"
+    assert repr(writer) == "Writer(format=<Format.BER: 1>, position=3)"
 
 
 def test_encoded_size_matches_what_write_produces():

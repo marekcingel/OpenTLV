@@ -26,7 +26,7 @@ check(2 "missing command")
 check(2 "unknown command" unknown)
 check(0 "" formats)
 set(expected_formats "")
-foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed" "BER|ber" "DER|der" "BLUETOOTH_LTV|bluetooth-ltv")
+foreach(pair IN ITEMS "FIXED|fixed" "BER|ber" "DER|der" "BLUETOOTH_LTV|bluetooth-ltv")
     string(REPLACE "|" ";" parts "${pair}")
     list(GET parts 0 flag)
     list(GET parts 1 name)
@@ -79,6 +79,8 @@ else()
 endif()
 
 check(2 "disabled format" validate --format unknown --hex " ")
+check(2 "disabled format" validate --format compact --hex " ")
+check(2 "disabled format" validate --format default --hex " ")
 check(2 "cannot both be given" dump --format ber --hex AA --input -)
 check(2 "duplicate" dump --format ber --format ber --hex AA)
 check(2 "missing option value" dump --hex)
@@ -98,7 +100,7 @@ check(2 "require dump" validate --format ber --hex AA --output json)
 check(2 "require dump" validate --format ber --hex AA --decode --profile emv)
 check(2 "text or json" dump --format ber --hex AA --output xml)
 
-foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed" "BER|ber" "DER|der")
+foreach(pair IN ITEMS "FIXED|fixed" "BER|ber" "DER|der")
     string(REPLACE "|" ";" parts "${pair}")
     list(GET parts 0 flag)
     list(GET parts 1 name)
@@ -184,7 +186,7 @@ foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed" "BER|ber" "DER|der")
     if(NOT result EQUAL 0 OR NOT error STREQUAL "" OR NOT output MATCHES "value=0A0D1AFF")
         message(FATAL_ERROR "Default stdin input failed: ${result} ${output} ${error}")
     endif()
-    if(name STREQUAL "default" OR name STREQUAL "fixed")
+    if(name STREQUAL "fixed")
         check(2 "only BER and DER" dump --format "${name}" --hex " " --tree)
     else()
         check(0 "  offset=2 tag=04 length=1 value=AA" dump --format "${name}" --hex "30030401AA" --tree)
@@ -250,7 +252,9 @@ if(HAS_BER)
     check(2 "query requires a path" query --format ber --hex "${query_hex}")
     check(2 "not valid for query" query 6F --format ber --hex "${query_hex}" --tree)
     check(2 "cannot be combined" query 6F --format ber --hex "${query_hex}" --value --output json)
-    check(2 "requires --format ber or der" query 6F/A5 --format default --hex "0100")
+    if(HAS_FIXED)
+        check(2 "requires --format ber or der" query 6F/A5 --format fixed --hex "0100")
+    endif()
     check(2 "duplicate" query 6F --format ber --hex "${query_hex}" --value --value)
     check(1 "TLV_ERR_BUFFER_TOO_SHORT at byte 2 tag=6F while reading value; raw_length=05; declared_length=5; available=0" query 6F --format ber --hex "6F05" --diagnostics compact)
     # query's own visitor tracks the enclosing path too, not just dump's.
@@ -329,16 +333,15 @@ else()
     check(2 "EMV profile is disabled" validate --format ber --hex " " --profile emv)
 endif()
 check(2 "diagnostics must be human, compact or json" validate --format ber --hex " " --diagnostics bogus)
-if(HAS_DEFAULT)
+if(HAS_BER)
     # A plain wire-level diagnostic renders the same way: human is
     # multi-line with a machine-readable code line, json is a flat object.
-    # "default" (unlike BER/DER) surfaces a full reader diagnostic for a
-    # value that overruns its input, including the declared-length-versus-
-    # available detail the issue asked for.
+    # BER retains the original reader diagnostic, including declared length
+    # and available bytes when a value overruns its input.
     check(1 "^otlv: error: buffer too short\n\ncode: TLV_ERR_BUFFER_TOO_SHORT\noffset: 0x2 \\(2\\)\ntag: 04\nwhile reading: value\nraw length: 02\ndeclared length: 2\navailable: 1\n$"
-        validate --format default --hex "0402AA")
+        validate --format ber --hex "0402AA")
     check(1 "^{\"available\":1,\"code\":\"TLV_ERR_BUFFER_TOO_SHORT\",\"declared_length\":2,\"message\":\"buffer too short\",\"offset\":2,\"operation\":\"value\",\"raw_length\":\"02\",\"severity\":\"error\",\"tag\":\"04\"}\n$"
-        validate --format default --hex "0402AA" --diagnostics json)
+        validate --format ber --hex "0402AA" --diagnostics json)
 endif()
 if(HAS_DER)
     check(1 "TLV_ERR_" validate --format der --hex "30800401AA0000")
@@ -425,7 +428,7 @@ if(HAS_FIXED)
     check(0 "^01020300AABBCC\n$" encode --format fixed --fixed-tag-size 2 --fixed-length-size 2
         --fixed-byte-order little --tag 0102 --value AABBCC)
     check(2 "not valid for tag" tag 9F02 --profile emv --fixed-tag-size 2)
-    check(2 "require --format fixed" dump --format default --fixed-tag-size 2 --hex "01")
+    check(2 "require --format fixed" dump --format ber --fixed-tag-size 2 --hex "01")
     check(2 "must be a positive decimal integer" dump --format fixed --fixed-tag-size 0 --hex "01")
     check(2 "must be between 1 and 8" dump --format fixed --fixed-length-size 9 --hex "01")
     check(2 "must be big or little" dump --format fixed --fixed-byte-order middle --hex "01")
@@ -547,7 +550,7 @@ check(2 "disabled format" encode --format unknown --input "${json_dir}/nonexiste
 
 # Every enabled format: decode, then encode reproduces the input bytes, and
 # the resource limits apply to decode.
-foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed" "BER|ber" "DER|der" "BLUETOOTH_LTV|bluetooth-ltv")
+foreach(pair IN ITEMS "FIXED|fixed" "BER|ber" "DER|der" "BLUETOOTH_LTV|bluetooth-ltv")
     string(REPLACE "|" ";" parts "${pair}")
     list(GET parts 0 flag)
     list(GET parts 1 name)
@@ -600,10 +603,10 @@ foreach(pair IN ITEMS "DEFAULT|default" "FIXED|fixed" "BER|ber" "DER|der" "BLUET
     check(3 "input-size limit" encode --format "${name}" --input "${json_dir}/cli-doc.json" --max-input-size 20)
     check(3 "element limit" encode --format "${name}" --input "${json_dir}/cli-doc.json" --max-elements 1)
 endforeach()
-if(HAS_DEFAULT)
-    # Constructed elements exist only in BER and DER.
+if(HAS_FIXED)
+    # Fixed fields have no constructed-element semantics.
     file(WRITE "${bad_json}" [=[{"schema":"opentlv.tlv","version":1,"elements":[{"tag":"30","children":[]}]}]=])
-    check(2 "format default has no constructed elements" encode --format default --input "${bad_json}")
+    check(2 "format fixed has no constructed elements" encode --format fixed --input "${bad_json}")
 endif()
 
 if(HAS_BER)
@@ -819,12 +822,12 @@ endfunction()
 if(HAS_BER)
     set(damaged "5A0112 0000 5A0134")
     run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
-        "^otlv: skipped 2 byte\\(s\\) at offset 3: TLV_ERR_INVALID_TAG at byte 3 while reading tag: invalid tag\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
+        "^otlv: skipped 2 byte\\(s\\) at offset 3: TLV_ERR_INVALID_TAG at byte 3 while reading tag; available=5: invalid tag\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
         dump --format ber --hex "${damaged}" --recover --diagnostics compact)
     # json wraps each skipped range's diagnostic with the range it recovered
     # from, since a schema-free tlv_diagnostic_t has no room for that itself.
     run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
-        "^\\{\"code\":\"TLV_ERR_INVALID_TAG\",\"message\":\"invalid tag\",\"offset\":3,\"operation\":\"tag\",\"severity\":\"warning\",\"skipped_length\":2,\"skipped_offset\":3\\}\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
+        "^\\{\"available\":5,\"code\":\"TLV_ERR_INVALID_TAG\",\"message\":\"invalid tag\",\"offset\":3,\"operation\":\"tag\",\"severity\":\"warning\",\"skipped_length\":2,\"skipped_offset\":3\\}\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
         dump --format ber --hex "${damaged}" --recover --diagnostics json)
     # Without --recover the same input fails at the first error, and validate
     # stays strict.
@@ -867,9 +870,9 @@ if(HAS_BER)
     check(3 "TLV_ERR_LIMIT" dump --format ber --hex "E1035A0112 0000" --recover --tree --max-depth 0)
     run_cli(3 "" "TLV_ERR_LIMIT" decode --format ber --hex "E1035A0112 0000" --recover --max-depth 0)
 endif()
-if(HAS_DEFAULT)
+if(HAS_BER)
     check_out(4 "^offset=0 tag=04 length=1 value=AA\nskipped offset=3 length=3 error=TLV_ERR_BUFFER_TOO_SHORT error-offset=3\n$"
-        dump --format default --hex "0401AA 04 05 AA" --recover)
+        dump --format ber --hex "0401AA 04 05 AA" --recover)
 endif()
 if(HAS_DER)
     check_out(4 "^offset=0 tag=04 length=1 value=AA\nskipped offset=3 length=2 " dump --format der --hex "0401AA 04 05" --recover)

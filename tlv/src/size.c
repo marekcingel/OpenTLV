@@ -8,13 +8,13 @@ tlv_result_t tlv_size_from_native(size_t size, tlv_size_t* logical_size) {
 
 tlv_result_t tlv_size_to_native(tlv_size_t logical_size, size_t* size) {
     if (!size) return TLV_ERR_NULL_ARG;
-    if (logical_size > (tlv_size_t)SIZE_MAX) return TLV_ERR_INVALID_LENGTH;
+    if (logical_size > (tlv_size_t)SIZE_MAX) return TLV_ERR_NATIVE_SIZE;
     *size = (size_t)logical_size;
     return TLV_OK;
 }
 
 tlv_result_t tlv_size_validate_native(tlv_size_t logical_size) {
-    if (logical_size > (tlv_size_t)SIZE_MAX) return TLV_ERR_INVALID_LENGTH;
+    if (logical_size > (tlv_size_t)SIZE_MAX) return TLV_ERR_NATIVE_SIZE;
     return TLV_OK;
 }
 

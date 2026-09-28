@@ -1,8 +1,10 @@
 #ifndef OPENTLV_BER_INTERNAL_H
 #define OPENTLV_BER_INTERNAL_H
-#include "tlv/format.h"
+#include "tlv/layout.h"
 #include "tlv/builtins/asn1/ber.h"
-extern const tlv_format_t tlv_ber_wire;
+extern const tlv_field_layout_t tlv_ber_wire;
+extern const tlv_field_layout_t tlv_der_fields;
+extern const tlv_field_layout_t tlv_cer_fields;
 
 /* BER high-tag-number form: the tag number is carried across one or more
  * base-128 digit octets following the identifier octet (X.690 §8.1.2.4.2). */
@@ -41,4 +43,10 @@ size_t tlv_ber_length_field_size(const uint8_t* data, size_t size);
  * Shared by tlv_format_ber, tlv_ber_write_indefinite, and CER. */
 tlv_result_t tlv_ber_scan_contents(const uint8_t* data, size_t size, int indefinite,
                                    size_t* value_size, size_t* consumed);
+tlv_result_t tlv_ber_scan_contents_diag(const uint8_t*, size_t, int, size_t*, size_t*,
+                                        tlv_format_error_t*);
+tlv_result_t tlv_asn1_indefinite_measure(const void*, const tlv_element_t*, tlv_encoding_t*,
+                                         tlv_format_error_t*);
+tlv_result_t tlv_asn1_indefinite_encode(const void*, const tlv_element_t*, uint8_t*, size_t,
+                                        size_t*, tlv_format_error_t*);
 #endif

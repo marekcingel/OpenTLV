@@ -1,3 +1,4 @@
+#include "tlv/layout.h"
 #include "tlv/builtins/asn1/der.h"
 #include "ber_internal.h"
 #include "asn1_internal.h"
@@ -63,13 +64,14 @@ int tlv_der_is_constructed(const void* context, const tlv_tag_t* tag) {
     return (tag->data[0] & TLV_ASN1_CONSTRUCTED_BIT) != 0;
 }
 
-const tlv_format_t tlv_format_der = {.context = NULL,
-                                     .read_tag = der_read_tag,
-                                     .read_length = der_read_length,
-                                     .write_tag = der_write_tag,
-                                     .write_length = der_write_length,
-                                     .length_size = der_length_size,
-                                     .is_constructed = tlv_der_is_constructed};
+const tlv_field_layout_t tlv_der_fields = {.context = NULL,
+                                           .read_tag = der_read_tag,
+                                           .read_length = der_read_length,
+                                           .write_tag = der_write_tag,
+                                           .write_length = der_write_length,
+                                           .length_size = der_length_size};
+const tlv_format_t tlv_format_der = {&tlv_der_fields, tlv_fields_decode, tlv_fields_measure,
+                                     tlv_fields_encode, tlv_der_is_constructed};
 
 tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
                               uint8_t* storage, tlv_tag_t* tag) {

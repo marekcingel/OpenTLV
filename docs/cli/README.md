@@ -648,7 +648,7 @@ trailer that does not fit, the declared length versus the bytes actually
 available:
 
 ```sh
-$ otlv validate --format default --hex "0402AA"
+$ otlv validate --format ber --hex "0402AA"
 otlv: error: buffer too short
 
 code: TLV_ERR_BUFFER_TOO_SHORT

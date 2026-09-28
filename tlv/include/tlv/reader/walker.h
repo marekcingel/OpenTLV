@@ -3,6 +3,7 @@
 
 #include "tlv/error.h"
 #include "tlv/format.h"
+#include "tlv/reader/reader.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -19,7 +20,9 @@ extern "C" {
  * @{
  */
 
-/** @brief Value a visitor callback returns to control traversal. */
+/**
+ * @brief Value a visitor callback returns to control traversal.
+ */
 typedef enum tlv_visit_result {
     /** Continue with the next element. */
     TLV_VISIT_CONTINUE = 0,
@@ -49,7 +52,7 @@ typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_element_t* element, void* 
  *
  * @param[in] data    Input buffer. May be `NULL` only when `size` is zero.
  * @param[in] size    Input size in bytes.
- * @param[in] format  Reader format; `read_tag` and `read_length` are required,
+ * @param[in] format  Reader format; `decode` are required,
  *                    even for empty input.
  * @param[in] visitor Callback invoked per element. Required.
  * @param[in] context Passed to the visitor unchanged; may be `NULL`.
@@ -66,7 +69,9 @@ typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_element_t* element, void* 
 TLV_API tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_format_t* format,
                               tlv_visitor_t visitor, void* context);
 
-/** @brief Maximum `max_depth` accepted by tlv_walk_tree(). */
+/**
+ * @brief Maximum `max_depth` accepted by tlv_walk_tree().
+ */
 enum { TLV_WALK_MAX_DEPTH = 64 };
 
 /**
@@ -114,6 +119,20 @@ typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_element_t* element, s
 TLV_API tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t* format,
                                    size_t max_depth, size_t max_elements,
                                    tlv_tree_visitor_t visitor, void* context, size_t* error_offset);
+
+/**
+ * @brief Traverse while retaining the original reader failure detail without reparsing.
+ *
+ * @copydetails tlv_walk_tree
+ *
+ * @param[out] diagnostic Optional reader failure detail, with absolute offsets.
+ * Cleared at entry; remains clear for walker/resource/visitor errors and success.
+ */
+TLV_API tlv_result_t tlv_walk_tree_diag(const uint8_t* data, size_t size,
+                                        const tlv_format_t* format, size_t max_depth,
+                                        size_t max_elements, tlv_tree_visitor_t visitor,
+                                        void* context, size_t* error_offset,
+                                        tlv_reader_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

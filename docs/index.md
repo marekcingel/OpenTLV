@@ -1,8 +1,8 @@
 # OpenTLV
 
 OpenTLV is a portable C99 library with a C++ wrapper for reading, writing,
-traversing and validating TLV (Tag-Length-Value) data. It covers default and
-fixed one-byte formats, BER, DER and CER, application-defined formats, and an
+traversing and validating TLV (Tag-Length-Value) data. It covers configurable Fixed, Bluetooth LTV,
+BER, DER and CER, application-defined formats, and an
 EMV Contact Book 3 profile.
 
 ## Where to start

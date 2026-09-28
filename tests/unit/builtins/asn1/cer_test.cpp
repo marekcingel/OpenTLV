@@ -1,3 +1,4 @@
+#include "tlv/layout.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
@@ -73,7 +74,8 @@ TEST(Unit_Tlv_Cer, TagSizeErrorsPreserveOutputs) {
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, tlv_cer_tag_number(&tag, &number));
     EXPECT_EQ(42u, number);
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
-              tlv_format_cer.write_tag(nullptr, output, sizeof(output), &tag, &written));
+              static_cast<const tlv_field_layout_t*>(tlv_format_cer.context)
+                  ->write_tag(nullptr, output, sizeof(output), &tag, &written));
     EXPECT_EQ(99u, written);
     EXPECT_EQ(0xEE, output[0]);
 }

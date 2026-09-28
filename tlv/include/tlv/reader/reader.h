@@ -24,15 +24,14 @@ extern "C" {
  * @brief Parses one element from the beginning of a buffer.
  *
  * Trailing bytes after the element are ignored. On success `out_element`
- * borrows the input tag, raw length field and value (zero-copy) and `consumed` receives the
+ * borrows the input identifier and value (zero-copy) and `consumed` receives the
  * complete encoded size (tag + length + value + optional trailer). The value excludes enclosing
  * framing such as BER EOC. No allocation, value copying, or schema validation occurs.
  *
  * @param[in]  data      Encoded input. May be `NULL` only when `size` is zero,
  *                       which returns #TLV_ERR_END_OF_BUFFER.
  * @param[in]  size      Input size in bytes.
- * @param[in]  format    Reader format; its `read_tag` and `read_length`
- *                       callbacks are required.
+ * @param[in]  format    Readable canonical format descriptor.
  * @param[out] out_element Receives the parsed element. Required.
  * @param[out] consumed  Receives the encoded size of the element. Required.
  *
@@ -51,7 +50,9 @@ extern "C" {
 TLV_API tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_format_t* format,
                               tlv_element_t* out_element, size_t* consumed);
 
-/** @brief Which parsing step a #tlv_reader_diagnostic_t reports on. */
+/**
+ * @brief Which parsing step a #tlv_reader_diagnostic_t reports on.
+ */
 typedef enum tlv_reader_operation {
     /** Decoding the tag. */
     TLV_READER_OP_TAG = 0,
@@ -60,7 +61,9 @@ typedef enum tlv_reader_operation {
     /** Checking the value against the bytes available or an enclosing boundary. */
     TLV_READER_OP_VALUE,
     /** Checking trailing framing, such as a BER end-of-contents marker. */
-    TLV_READER_OP_TRAILER
+    TLV_READER_OP_TRAILER,
+    /** An unnamed header field or complete header. */
+    TLV_READER_OP_HEADER
 } tlv_reader_operation_t;
 
 /**
@@ -143,8 +146,7 @@ TLV_API void tlv_reader_diagnostic_init(tlv_reader_diagnostic_t* diagnostic);
  *
  * @param[in]  data           Encoded input. May be `NULL` only when `size` is zero.
  * @param[in]  size           Input size in bytes.
- * @param[in]  format         Reader format; its `read_tag` and `read_length`
- *                            callbacks are required.
+ * @param[in]  format         Readable canonical format descriptor.
  * @param[out] out_element      Receives the parsed element. Required.
  * @param[out] consumed       Receives the encoded size of the element. Required.
  * @param[out] out_diagnostic Receives detail on failure; may be `NULL`.
@@ -245,6 +247,26 @@ TLV_API tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_element_t* out_el
  */
 TLV_API tlv_result_t tlv_reader_next_diag(tlv_reader_t* reader, tlv_element_t* out_element,
                                           tlv_reader_diagnostic_t* out_diagnostic);
+
+/**
+ * @brief Decode once, returning semantic content, source information and failure detail.
+ *
+ * @param[in]  data       Input, NULL only when size is zero.
+ * @param[in]  size       Available native bytes.
+ * @param[in]  format     Readable descriptor.
+ * @param[out] element    Semantic result.
+ * @param[out] consumed   Complete encoded size.
+ * @param[out] source     Borrowed immutable source; required.
+ * @param[out] diagnostic Optional failure detail.
+ *
+ * @return Same results as tlv_read_diag(). All success outputs remain unchanged on failure.
+ *
+ * @warning Source bytes and format/context must outlive source and remain unchanged.
+ */
+TLV_API tlv_result_t tlv_read_source_diag(const uint8_t* data, size_t size,
+                                          const tlv_format_t* format, tlv_element_t* element,
+                                          size_t* consumed, tlv_source_t* source,
+                                          tlv_reader_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

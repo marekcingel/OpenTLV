@@ -18,7 +18,7 @@ operation can be compared across languages.
 ## API tour
 
 - [`basic_usage.cpp`](basic_usage.cpp) -- a sequential `tlv::writer`/`tlv::reader`
-  round trip over the default format.
+  round trip over BER.
 
 ## Formats
 

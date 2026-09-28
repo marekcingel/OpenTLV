@@ -46,6 +46,8 @@ pub enum Error {
     UnsupportedType,
     /// A required schema field is absent.
     SchemaMissing,
+    /// A logical size exceeds the host address space.
+    NativeSize,
     /// A result code not known to this crate; carries the raw code.
     Unknown(i32),
 }
@@ -74,6 +76,7 @@ impl Error {
             native::TLV_ERR_INVALID_VALUE => Error::InvalidValue,
             native::TLV_ERR_UNSUPPORTED_TYPE => Error::UnsupportedType,
             native::TLV_ERR_SCHEMA_MISSING => Error::SchemaMissing,
+            native::TLV_ERR_NATIVE_SIZE => Error::NativeSize,
             other => Error::Unknown(other),
         })
     }
@@ -97,6 +100,7 @@ impl Error {
             Error::InvalidValue => native::TLV_ERR_INVALID_VALUE,
             Error::UnsupportedType => native::TLV_ERR_UNSUPPORTED_TYPE,
             Error::SchemaMissing => native::TLV_ERR_SCHEMA_MISSING,
+            Error::NativeSize => native::TLV_ERR_NATIVE_SIZE,
             Error::Unknown(code) => code,
         }
     }
@@ -125,7 +129,7 @@ impl error::Error for Error {}
 mod tests {
     use super::*;
 
-    const KNOWN: [(i32, Error); 16] = [
+    const KNOWN: [(i32, Error); 17] = [
         (1, Error::BufferTooShort),
         (2, Error::InvalidLength),
         (3, Error::NullArg),
@@ -142,6 +146,7 @@ mod tests {
         (14, Error::InvalidValue),
         (15, Error::UnsupportedType),
         (16, Error::SchemaMissing),
+        (17, Error::NativeSize),
     ];
 
     #[test]

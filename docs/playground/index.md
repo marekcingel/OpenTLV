@@ -15,7 +15,6 @@ native applications. Nothing you enter is uploaded.
     </label>
     <label>Format
       <select id="otlv-pg-format" disabled>
-        <option value="default">Default TLV</option>
         <option value="fixed">Fixed-width TLV</option>
         <option value="bluetooth-ltv">Bluetooth LTV</option>
         <option value="ber">BER-TLV</option>
@@ -79,7 +78,6 @@ buttons to copy the tag, the value or the whole encoded element. With the
 
 In [BER-TLV](../formats/asn1/ber.md) and
 [DER-TLV](../formats/asn1/der.md) constructed elements nest their children; the
-[Default](../formats/default/README.md),
 [configurable fixed-width](../formats/fixed/configurable.md) and
 [Bluetooth LTV](../formats/bluetooth/README.md) formats have opaque values, so
 their elements are flat. Bluetooth LTV puts the length byte before the type, so

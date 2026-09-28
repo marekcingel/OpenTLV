@@ -23,7 +23,7 @@ extern "C" {
 /**
  * @brief Computes the encoded size of an element without accessing value bytes.
  *
- * Requires the format's `write_tag`, `write_length` and `length_size`
+ * Requires the format's `measure` and `encode`
  * callbacks.
  *
  * @param[in]  tag    Element tag.
@@ -78,14 +78,20 @@ TLV_API tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length, const tlv_fo
 TLV_API tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_format_t* format,
                                tlv_tag_t tag, const uint8_t* value, size_t length, size_t* written);
 
-/** @brief Which encoding step a #tlv_writer_diagnostic_t reports on. */
+/**
+ * @brief Which encoding step a #tlv_writer_diagnostic_t reports on.
+ */
 typedef enum tlv_writer_operation {
-    /** Encoding the tag, or the whole header for a format with `write_header`. */
+    /** Encoding an explicit identifier field. */
     TLV_WRITER_OP_TAG = 0,
     /** Encoding or sizing the length field. */
     TLV_WRITER_OP_LENGTH,
     /** Checking the encoded element against the destination capacity. */
-    TLV_WRITER_OP_VALUE
+    TLV_WRITER_OP_VALUE,
+    /** Entire header or unnamed header field. */
+    TLV_WRITER_OP_HEADER,
+    /** Trailing framing. */
+    TLV_WRITER_OP_TRAILER
 } tlv_writer_operation_t;
 
 /**

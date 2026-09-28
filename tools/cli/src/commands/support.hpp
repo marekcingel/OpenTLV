@@ -18,10 +18,11 @@ namespace cli {
 
 // A byte range --recover skipped, and the first error that made it unreadable.
 struct skipped_range {
-    std::size_t  offset;
-    std::size_t  length;
-    tlv_result_t error;
-    std::size_t  error_offset;
+    tlv_reader_diagnostic_t diagnostic{};
+    std::size_t             offset;
+    std::size_t             length;
+    tlv_result_t            error;
+    std::size_t             error_offset;
 };
 
 bool is_json(const options& o);
@@ -57,7 +58,8 @@ struct walk_env {
 // *error_offset receives the failing element's absolute offset.
 tlv_result_t walk_slice(const walk_env& env, const uint8_t* slice, std::size_t slice_size,
                         std::size_t base, std::size_t max_elements, tlv_tree_visitor_t visitor,
-                        void* context, std::size_t* error_offset);
+                        void* context, std::size_t* error_offset,
+                        tlv_reader_diagnostic_t* diagnostic = nullptr);
 
 // Adds the "name" and, if requested, "description" EMV dictionary fields to
 // a JSON element object, from the same lookup the text renderer uses. A tag

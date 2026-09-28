@@ -119,6 +119,7 @@ protected:
     const char*             stage_;
     tlv_schema_diagnostic_t schema_diag_;
     bool                    has_schema_diag_;
+    tlv_reader_diagnostic_t reader_diag_{};
 
 private:
     static tlv_visit_result_t visit_trampoline(const tlv_element_t* element, std::size_t depth,

@@ -72,9 +72,9 @@ TEST(Unit_Tlv_Writer, InvalidArgumentsAndFormatsPreserveOutputs) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_write(data, 4, format, tag, nullptr, 0, nullptr));
     for (int i = 0; i < 3; ++i) {
         auto incomplete = *format;
-        if (i == 0) incomplete.write_tag = nullptr;
-        if (i == 1) incomplete.write_length = nullptr;
-        if (i == 2) incomplete.length_size = nullptr;
+        if (i == 0) incomplete.encode = nullptr;
+        if (i == 1) incomplete.encode = nullptr;
+        if (i == 2) incomplete.measure = nullptr;
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_encoded_size(tag, 0, &incomplete, &size));
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_write(data, 4, &incomplete, tag, nullptr, 0, &size));
     }
@@ -82,28 +82,33 @@ TEST(Unit_Tlv_Writer, InvalidArgumentsAndFormatsPreserveOutputs) {
 }
 
 TEST(Unit_Tlv_Writer, OverflowAndCallbackFailuresPreserveOutput) {
-    auto    format = controlled::format;
+    const auto extent_error =
+        sizeof(size_t) == sizeof(tlv_size_t) ? TLV_ERR_OVERFLOW : TLV_ERR_NATIVE_SIZE;
+    auto format_layout = controlled::format_layout;
+    auto format = controlled::format;
+    format.context = &format_layout;
     size_t  size = 99;
     uint8_t data[4] = {};
-    format.length_size = [](const void*, tlv_size_t, size_t* used) {
+    format_layout.length_size = [](const void*, tlv_size_t, size_t* used) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_encoded_size(tag, 0, &format, &size));
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write(data, 4, &format, tag, nullptr, 0, &size));
-    format.length_size = [](const void*, tlv_size_t, size_t* used) {
+    EXPECT_EQ(extent_error, tlv_encoded_size(tag, 0, &format, &size));
+    EXPECT_EQ(extent_error, tlv_write(data, 4, &format, tag, nullptr, 0, &size));
+    format_layout.length_size = [](const void*, tlv_size_t, size_t* used) {
         *used = 0;
         return TLV_OK;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+    EXPECT_EQ(extent_error,
               tlv_encoded_size(tag, std::numeric_limits<size_t>::max(), &format, &size));
-    format = controlled::format;
-    format.write_tag = [](const void*, uint8_t* dst, size_t, const tlv_tag_t*, size_t* used) {
+    format_layout = controlled::format_layout;
+    format_layout.write_tag = [](const void*, uint8_t* dst, size_t, const tlv_tag_t*,
+                                 size_t* used) {
         *used = dst ? 2 : 1;
         return TLV_OK;
     };
     EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_write(data, 4, &format, tag, nullptr, 0, &size));
-    format.write_tag = [](const void*, uint8_t*, size_t, const tlv_tag_t*, size_t*) {
+    format_layout.write_tag = [](const void*, uint8_t*, size_t, const tlv_tag_t*, size_t*) {
         return TLV_ERR_END_OF_BUFFER;
     };
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_encoded_size(tag, 0, &format, &size));
@@ -134,7 +139,7 @@ TEST(Unit_Tlv_Writer, StatefulAppendFailureAndRetry) {
 TEST(Unit_Tlv_Writer, CopyElementAppendsAtCurrentPositionAndAdvances) {
     uint8_t             data[8];
     const uint8_t       value[] = {0x11, 0x22};
-    const tlv_element_t element = {TLV_TAG(0xAB), {}, {value, sizeof(value)}};
+    const tlv_element_t element = {TLV_TAG(0xAB), {value, sizeof(value)}};
     tlv_writer_t        writer;
     std::memset(data, 0xEE, sizeof(data));
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
@@ -151,7 +156,7 @@ TEST(Unit_Tlv_Writer, CopyElementAppendsAtCurrentPositionAndAdvances) {
 TEST(Unit_Tlv_Writer, CopyElementInsufficientCapacityLeavesPositionAndDoesNotExposeSize) {
     uint8_t             data[3];
     const uint8_t       value[] = {0x11, 0x22};
-    const tlv_element_t element = {TLV_TAG(0xAB), {}, {value, sizeof(value)}};
+    const tlv_element_t element = {TLV_TAG(0xAB), {value, sizeof(value)}};
     tlv_writer_t        writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_copy_element(&writer, &element));
@@ -161,8 +166,8 @@ TEST(Unit_Tlv_Writer, CopyElementInsufficientCapacityLeavesPositionAndDoesNotExp
 TEST(Unit_Tlv_Writer, CopyElementInvalidArguments) {
     uint8_t             data[8];
     const uint8_t       byte = 0xAB;
-    const tlv_element_t element = {TLV_TAG(0xAB), {}, {&byte, 1}};
-    tlv_element_t       invalid_element = {TLV_TAG(0xAB), {}, {nullptr, 1}};
+    const tlv_element_t element = {TLV_TAG(0xAB), {&byte, 1}};
+    tlv_element_t       invalid_element = {TLV_TAG(0xAB), {nullptr, 1}};
     tlv_writer_t        writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_copy_element(nullptr, &element));
@@ -172,7 +177,7 @@ TEST(Unit_Tlv_Writer, CopyElementInvalidArguments) {
 
 TEST(Unit_Tlv_Writer, CopyElementNullBufferZeroCapacityIsNotASizeQuery) {
     const uint8_t       value[] = {0x11};
-    const tlv_element_t element = {TLV_TAG(0xAB), {}, {value, sizeof(value)}};
+    const tlv_element_t element = {TLV_TAG(0xAB), {value, sizeof(value)}};
     tlv_writer_t        writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &controlled::format));
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_copy_element(&writer, &element));
@@ -181,7 +186,7 @@ TEST(Unit_Tlv_Writer, CopyElementNullBufferZeroCapacityIsNotASizeQuery) {
 
 TEST(Unit_Tlv_Writer, CopyElementInvalidPositionGreaterThanCapacity) {
     uint8_t             data[8];
-    const tlv_element_t element = {TLV_TAG(0xAB), {}, {nullptr, 0}};
+    const tlv_element_t element = {TLV_TAG(0xAB), {nullptr, 0}};
     tlv_writer_t        writer;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, data, sizeof(data), &controlled::format));
     writer.pos = writer.capacity + 1;
@@ -257,7 +262,7 @@ TEST(Unit_Tlv_Writer, SequentialRoundTripCombiningWriteAndBothCopyHelpers) {
     const uint8_t       first_value[] = {0x01, 0x02};
     const uint8_t       element_value[] = {0xAA, 0xBB, 0xCC};
     const tlv_tag_t     element_tag = TLV_TAG(0x22);
-    const tlv_element_t element = {element_tag, {}, {element_value, sizeof(element_value)}};
+    const tlv_element_t element = {element_tag, {element_value, sizeof(element_value)}};
     size_t              encoded_written = 0;
     tlv_writer_t        writer;
 
@@ -292,19 +297,24 @@ TEST(Unit_Tlv_Writer, SequentialRoundTripCombiningWriteAndBothCopyHelpers) {
 }
 
 TEST(Unit_Tlv_Writer, ImplicitZeroByteLength) {
+    auto format_layout = controlled::format_layout;
     auto format = controlled::format;
-    format.length_size = [](const void*, tlv_size_t length, size_t* used) {
+    format.context = &format_layout;
+    format_layout.length_size = [](const void*, tlv_size_t length, size_t* used) {
         *used = 0;
         return length == 0 ? TLV_OK : TLV_ERR_INVALID_LENGTH;
     };
-    format.write_length = [](const void*, uint8_t*, size_t capacity, tlv_size_t, size_t* used) {
+    format_layout.write_length = [](const void*, uint8_t*, size_t capacity, tlv_size_t,
+                                    size_t* used) {
         EXPECT_EQ(0u, capacity);
         *used = 0;
         return TLV_OK;
     };
+    auto reader_format_layout = controlled::format_layout;
     auto reader_format = controlled::format;
-    reader_format.read_length = [](const void*, const uint8_t*, size_t, tlv_size_t* length,
-                                   size_t* used) {
+    reader_format.context = &reader_format_layout;
+    reader_format_layout.read_length = [](const void*, const uint8_t*, size_t, tlv_size_t* length,
+                                          size_t* used) {
         *length = 0;
         *used = 0;
         return TLV_OK;

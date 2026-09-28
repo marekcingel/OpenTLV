@@ -2,7 +2,7 @@ local opentlv = require("opentlv")
 
 describe("opentlv.formats", function()
     it("exposes the built-in stateless formats", function()
-        assert(opentlv.formats.default ~= nil)
+        assert(opentlv.formats.compact == nil)
         assert(opentlv.formats.ber ~= nil)
         assert(opentlv.formats.cer ~= nil)
         assert(opentlv.formats.der ~= nil)

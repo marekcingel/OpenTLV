@@ -7,7 +7,7 @@
 #if defined(OPENTLV_TLVPP_CODEC_HPP) || defined(OPENTLV_CODEC_H)
 #error Low-level APIs must not depend on the codec layer
 #endif
-#include "tlv/builtins/fixed/default.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv++/codec/structure.hpp"
 #include <gtest/gtest.h>
 #include "tlv/config.h"
@@ -107,7 +107,7 @@ TEST(Integration_Tlvpp, LayeredTraversalAndSchema) {
     const uint8_t data[] = {1, 1, 42, 2, 0};
     tlv::bytes    bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
     size_t        visits = 0;
-    auto result = tlv::walk_tree(bytes, tlv_format_default, 0, 2,
+    auto result = tlv::walk_tree(bytes, tlv_format_ber, 0, 2,
                                  [&visits](const tlv::element& item, size_t depth, size_t offset) {
                                      EXPECT_EQ(0u, depth);
                                      EXPECT_EQ(visits ? 3u : 0u, offset);
@@ -120,7 +120,7 @@ TEST(Integration_Tlvpp, LayeredTraversalAndSchema) {
     const tlv_structure_rule_t   rule = {{TLV_TAG(1), 1, 1, 0, nullptr}, 1,       1,
                                          TLV_SCHEMA_PRIMITIVE,           nullptr, 0};
     const tlv_structure_schema_t schema = {&rule, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
-    EXPECT_TRUE(tlv::validate(bytes, tlv_format_default, schema, 0, 2));
+    EXPECT_TRUE(tlv::validate(bytes, tlv_format_ber, schema, 0, 2));
 }
 
 TEST(Integration_Tlvpp, ValidateAllCountsViolationsAndReportsTagPaths) {
@@ -130,7 +130,7 @@ TEST(Integration_Tlvpp, ValidateAllCountsViolationsAndReportsTagPaths) {
                                          TLV_SCHEMA_PRIMITIVE,         nullptr, 0};
     const tlv_structure_schema_t schema = {&rule, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     tlv_schema_issue_t           issues[4];
-    auto count = tlv::validate_all(bytes, tlv_format_default, schema, 0, 2, issues, 4);
+    auto count = tlv::validate_all(bytes, tlv_format_ber, schema, 0, 2, issues, 4);
     ASSERT_TRUE(count);
     ASSERT_EQ(2u, *count); // Tag 1 is missing and tag 2 is unexpected.
     char path[8];
@@ -138,7 +138,7 @@ TEST(Integration_Tlvpp, ValidateAllCountsViolationsAndReportsTagPaths) {
     EXPECT_STREQ("01", path);
 
     auto conforming = tlv::validate_all(
-        tlv::bytes(), tlv_format_default,
+        tlv::bytes(), tlv_format_ber,
         tlv_structure_schema_t{nullptr, 0, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY}, 0, 2, nullptr, 0);
     ASSERT_TRUE(conforming);
     EXPECT_EQ(0u, *conforming);
@@ -151,7 +151,7 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
                                          TLV_SCHEMA_PRIMITIVE,         nullptr, 0};
     const tlv_structure_schema_t schema = {&rule, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     tlv_schema_diagnostic_t      diagnostics[4];
-    auto count = tlv::validate_all_diag(bytes, tlv_format_default, schema, 0, 2, diagnostics, 4);
+    auto count = tlv::validate_all_diag(bytes, tlv_format_ber, schema, 0, 2, diagnostics, 4);
     ASSERT_TRUE(count);
     ASSERT_EQ(2u, *count); // Tag 1 is missing and tag 2 is unexpected.
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostics[0].kind);
@@ -160,7 +160,7 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
     EXPECT_EQ(nullptr, diagnostics[1].field);
 
     auto conforming = tlv::validate_all_diag(
-        tlv::bytes(), tlv_format_default,
+        tlv::bytes(), tlv_format_ber,
         tlv_structure_schema_t{nullptr, 0, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY}, 0, 2, nullptr, 0);
     ASSERT_TRUE(conforming);
     EXPECT_EQ(0u, *conforming);
@@ -177,24 +177,24 @@ TEST(Integration_Tlvpp, ValidateEnforcesSequenceOrder) {
     const uint8_t in_order[] = {1, 0, 1, 0, 2, 0};
     EXPECT_TRUE(
         tlv::validate(tlv::bytes(reinterpret_cast<const tlv::byte*>(in_order), sizeof(in_order)),
-                      tlv_format_default, schema, 0, 4));
+                      tlv_format_ber, schema, 0, 4));
 
     const uint8_t    out_of_order[] = {2, 0, 1, 0};
     const tlv::bytes out_of_order_bytes(reinterpret_cast<const tlv::byte*>(out_of_order),
                                         sizeof(out_of_order));
-    auto reordered = tlv::validate(out_of_order_bytes, tlv_format_default, schema, 0, 4);
+    auto             reordered = tlv::validate(out_of_order_bytes, tlv_format_ber, schema, 0, 4);
     ASSERT_FALSE(reordered);
     EXPECT_EQ(TLV_ERR_SCHEMA, reordered.error().code);
 
     const uint8_t interleaved[] = {1, 0, 2, 0, 1, 0};
     EXPECT_FALSE(tlv::validate(
         tlv::bytes(reinterpret_cast<const tlv::byte*>(interleaved), sizeof(interleaved)),
-        tlv_format_default, schema, 0, 4));
+        tlv_format_ber, schema, 0, 4));
 
     // The same bytes conform once ordering is not required (ASN.1 SET).
     tlv_structure_schema_t unordered = schema;
     unordered.order = TLV_SCHEMA_ORDER_ANY;
-    EXPECT_TRUE(tlv::validate(out_of_order_bytes, tlv_format_default, unordered, 0, 4));
+    EXPECT_TRUE(tlv::validate(out_of_order_bytes, tlv_format_ber, unordered, 0, 4));
 }
 
 TEST(Integration_Tlvpp, ValidateEnforcesChoiceGroupOccurrence) {
@@ -208,19 +208,19 @@ TEST(Integration_Tlvpp, ValidateEnforcesChoiceGroupOccurrence) {
 
     const uint8_t one[] = {1, 0};
     EXPECT_TRUE(tlv::validate(tlv::bytes(reinterpret_cast<const tlv::byte*>(one), sizeof(one)),
-                              tlv_format_default, schema, 0, 4));
+                              tlv_format_ber, schema, 0, 4));
     const uint8_t two[] = {2, 0};
     EXPECT_TRUE(tlv::validate(tlv::bytes(reinterpret_cast<const tlv::byte*>(two), sizeof(two)),
-                              tlv_format_default, schema, 0, 4));
+                              tlv_format_ber, schema, 0, 4));
 
-    auto neither = tlv::validate(tlv::bytes(), tlv_format_default, schema, 0, 4);
+    auto neither = tlv::validate(tlv::bytes(), tlv_format_ber, schema, 0, 4);
     ASSERT_FALSE(neither);
     EXPECT_EQ(TLV_ERR_SCHEMA_MISSING, neither.error().code);
 
     const uint8_t both[] = {1, 0, 2, 0};
     auto          too_many =
         tlv::validate(tlv::bytes(reinterpret_cast<const tlv::byte*>(both), sizeof(both)),
-                      tlv_format_default, schema, 0, 4);
+                      tlv_format_ber, schema, 0, 4);
     ASSERT_FALSE(too_many);
     EXPECT_EQ(TLV_ERR_SCHEMA, too_many.error().code);
 }
@@ -236,7 +236,7 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsGroupAndOrderViolations) {
     const uint8_t           both[] = {1, 0, 2, 0};
     const tlv::bytes        bytes(reinterpret_cast<const tlv::byte*>(both), sizeof(both));
     tlv_schema_diagnostic_t diagnostics[4];
-    auto count = tlv::validate_all_diag(bytes, tlv_format_default, schema, 0, 4, diagnostics, 4);
+    auto count = tlv::validate_all_diag(bytes, tlv_format_ber, schema, 0, 4, diagnostics, 4);
     ASSERT_TRUE(count);
     ASSERT_EQ(1u, *count); // Both alternatives present: the group's max_occurs is exceeded.
     EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, diagnostics[0].kind);
@@ -255,8 +255,8 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsGroupAndOrderViolations) {
     const uint8_t                reordered[] = {2, 0, 1, 0};
     const tlv::bytes             reordered_bytes(reinterpret_cast<const tlv::byte*>(reordered),
                                                  sizeof(reordered));
-    auto order_count = tlv::validate_all_diag(reordered_bytes, tlv_format_default, order_schema, 0,
-                                              4, diagnostics, 4);
+    auto                         order_count =
+        tlv::validate_all_diag(reordered_bytes, tlv_format_ber, order_schema, 0, 4, diagnostics, 4);
     ASSERT_TRUE(order_count);
     ASSERT_EQ(1u, *order_count);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_ORDER, diagnostics[0].kind);
@@ -299,8 +299,8 @@ tlv_codec_result_t encode_pair(const void*, const tlv_format_t* format, const vo
 } // namespace
 
 TEST(Integration_Tlvpp, StructureCodecUsesCallerOwnedStorage) {
-    const tlv_structure_codec_t codec = {nullptr, &tlv_format_default, nullptr,    0,
-                                         2,       decode_pair,         encode_pair};
+    const tlv_structure_codec_t codec = {nullptr, &tlv_format_ber, nullptr,    0,
+                                         2,       decode_pair,     encode_pair};
     const pair_value            value{42, 7};
     tlv::byte                   data[6]{};
     auto                        size = tlv::encode_structure(codec, value, nullptr, 0);

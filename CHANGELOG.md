@@ -1,8 +1,9 @@
 # Changelog
 
-All notable changes to OpenTLV are documented in this file.
+All notable changes to this project will be documented in this file.
 
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
@@ -30,6 +31,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- **Breaking:** Remove the nonstandard default/compact format, its build option and binding presets. Select BER or an explicitly configured Fixed format; optional default selections in Rust, Python, Lua and WebAssembly now use BER. (#341)
+- **Breaking:** Redesign `tlv_format_t` around canonical decode, logical sizing and complete encoding, with explicit Header/Value/Trailer framing and separate borrowed source information. Keep `tlv_element_t` semantic, add checked byte-preserving source copies, share generic TLV/LTV mechanics, support generic constructed CER encoding, and distinguish native address-space limits. Update C++, Rust, Python, Lua and WebAssembly consumers; rebuild and migrate custom formats. (#341)
 - Use the canonical C `tlv_element_t` directly as C++ `tlv::element`. Add `tlv::as_bytes()` for checked conversion of `tlv_value_t` to a borrowed native byte span. (#340)
 - **Breaking:** Replace `tlv_view_t` with the canonical borrowed `tlv_element_t` containing raw `tag`, raw `length`, and `value`. `tlv_size_t` is the fixed 64-bit logical size; `tlv_length_t` now holds the original length bytes and their native byte count, and `tlv_value_t.length` becomes `size`. Numeric conversion helpers move to `tlv/size.h` as `tlv_size_from_native()`, `tlv_size_to_native()`, `tlv_size_validate_native()` and `tlv_size_add()`. Format callbacks use logical sizes and whole-element callbacks also return the raw length field. Rename element copy APIs to `tlv_copy_element()` and `tlv_writer_copy_element()`, C++ `entry` to `element`, and Rust/Python `Entry` to `Element`, including `write_element()` in the bindings. Reader diagnostics retain raw length bytes and 64-bit declared sizes on failure. No compatibility aliases are provided; rebuild consumers. (#340)
 - **Breaking:** Generalize the configurable Fixed format (`tlv_fixed_format_t`) with an `element_order` (tag-then-length or length-then-tag) and a `length_scope` (value only, or tag and value); its `order` field is renamed to `length_order` to disambiguate it from `element_order`. Bluetooth LTV is now this format preset (length-then-tag, length counts both) instead of its own reader/writer; `OPENTLV_FORMAT_BLUETOOTH_LTV` now requires `OPENTLV_FORMAT_FIXED`, and `tlv_format_bluetooth_ltv`'s `context` is no longer `NULL`, though its accepted and rejected inputs are unchanged. No compatibility shim; rebuild all consumers that name `tlv_fixed_format_t`'s fields directly. (#331)

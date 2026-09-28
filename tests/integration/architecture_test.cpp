@@ -1,3 +1,4 @@
+#include "tlv/layout.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include "tlv/reader/walker.h"
@@ -54,13 +55,38 @@ tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity, tlv_s
 int constructed(const void*, const tlv_tag_t* tag) {
     return (tag->data[0] & 0x80) != 0;
 }
-const tlv_format_t format = {nullptr, tag_read, length_read, nullptr, nullptr,
-                             nullptr, nullptr,  nullptr,     nullptr, nullptr};
-const tlv_format_t constructed_format = {nullptr, tag_read, length_read, nullptr, nullptr,
-                                         nullptr, nullptr,  nullptr,     nullptr, constructed};
-const tlv_format_t constructed_full_format = {nullptr, tag_read,   length_read,  nullptr,
-                                              nullptr, tag_write,  length_write, length_size,
-                                              nullptr, constructed};
+const tlv_field_layout_t format_layout = {nullptr,
+                                          tag_read,
+                                          length_read,
+                                          nullptr,
+                                          nullptr,
+                                          nullptr,
+                                          nullptr,
+                                          TLV_ELEMENT_ORDER_TLV,
+                                          TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t       format = {&format_layout, tlv_fields_decode, nullptr, nullptr, nullptr};
+const tlv_field_layout_t constructed_format_layout = {nullptr,
+                                                      tag_read,
+                                                      length_read,
+                                                      nullptr,
+                                                      nullptr,
+                                                      nullptr,
+                                                      nullptr,
+                                                      TLV_ELEMENT_ORDER_TLV,
+                                                      TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t constructed_format = {&constructed_format_layout, tlv_fields_decode, nullptr,
+                                         nullptr, constructed};
+const tlv_field_layout_t constructed_full_format_layout = {nullptr,
+                                                           tag_read,
+                                                           length_read,
+                                                           nullptr,
+                                                           tag_write,
+                                                           length_write,
+                                                           length_size,
+                                                           TLV_ELEMENT_ORDER_TLV,
+                                                           TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t constructed_full_format = {&constructed_full_format_layout, tlv_fields_decode,
+                                              tlv_fields_measure, tlv_fields_encode, constructed};
 const tlv_structure_rule_t child_rules[] = {
     {{TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
     {{TLV_TAG(2), 1, 1, 0, nullptr}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};

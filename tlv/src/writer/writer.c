@@ -1,7 +1,6 @@
 #include "tlv/writer/writer.h"
 #include "tlv/size.h"
 #include <string.h>
-
 tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity,
                              const tlv_format_t* format) {
     if (!writer || (!buf && capacity) || !tlv_format_can_write(format)) return TLV_ERR_NULL_ARG;
@@ -13,8 +12,7 @@ tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity
 }
 
 void tlv_writer_diagnostic_init(tlv_writer_diagnostic_t* diagnostic) {
-    if (!diagnostic) return;
-    memset(diagnostic, 0, sizeof(*diagnostic));
+    if (diagnostic) memset(diagnostic, 0, sizeof(*diagnostic));
 }
 
 static void wdiag_start(tlv_writer_diagnostic_t* diagnostic, tlv_result_t code,
@@ -25,202 +23,43 @@ static void wdiag_start(tlv_writer_diagnostic_t* diagnostic, tlv_result_t code,
     diagnostic->operation = operation;
 }
 
-static tlv_result_t encoded_sizes_diag(tlv_tag_t tag, size_t length, const tlv_format_t* format,
-                                       size_t* tag_size, size_t* length_size, size_t* total,
-                                       tlv_writer_diagnostic_t* out_diagnostic) {
-    tlv_result_t rc;
-    if (!tlv_format_can_write(format)) {
-        if (out_diagnostic) wdiag_start(out_diagnostic, TLV_ERR_NULL_ARG, TLV_WRITER_OP_TAG, 0);
-        return TLV_ERR_NULL_ARG;
-    }
-    if (tag.size && !tag.data) {
-        if (out_diagnostic) wdiag_start(out_diagnostic, TLV_ERR_NULL_ARG, TLV_WRITER_OP_TAG, 0);
-        return TLV_ERR_NULL_ARG;
-    }
-    if (format->write_header) {
-        /* The header is everything before the value, whatever order its fields use. */
-        *tag_size = 0;
-        rc = format->write_header(format->context, NULL, 0, &tag, length, length_size);
-        if (rc != TLV_OK) {
-            if (out_diagnostic) {
-                wdiag_start(out_diagnostic, rc, TLV_WRITER_OP_TAG, 0);
-                out_diagnostic->has_tag = 1;
-                out_diagnostic->tag = tag;
-                out_diagnostic->has_length = 1;
-                out_diagnostic->length = length;
-            }
-            return rc;
-        }
-        if (!*length_size || length > SIZE_MAX - *length_size) {
-            if (out_diagnostic) {
-                wdiag_start(out_diagnostic, TLV_ERR_INVALID_LENGTH, TLV_WRITER_OP_LENGTH, 0);
-                out_diagnostic->has_tag = 1;
-                out_diagnostic->tag = tag;
-                out_diagnostic->has_length = 1;
-                out_diagnostic->length = length;
-            }
-            return TLV_ERR_INVALID_LENGTH;
-        }
-        *total = *length_size + length;
-        return TLV_OK;
-    }
-    rc = format->write_tag(format->context, NULL, 0, &tag, tag_size);
-    if (rc != TLV_OK) {
-        if (out_diagnostic) {
-            wdiag_start(out_diagnostic, rc, TLV_WRITER_OP_TAG, 0);
-            out_diagnostic->has_tag = 1;
-            out_diagnostic->tag = tag;
-        }
-        return rc;
-    }
-    if (!*tag_size) {
-        if (out_diagnostic) {
-            wdiag_start(out_diagnostic, TLV_ERR_INVALID_TAG, TLV_WRITER_OP_TAG, 0);
-            out_diagnostic->has_tag = 1;
-            out_diagnostic->tag = tag;
-        }
-        return TLV_ERR_INVALID_TAG;
-    }
-    rc = format->length_size(format->context, length, length_size);
-    if (rc != TLV_OK) {
-        if (out_diagnostic) {
-            wdiag_start(out_diagnostic, rc, TLV_WRITER_OP_LENGTH, *tag_size);
-            out_diagnostic->has_tag = 1;
-            out_diagnostic->tag = tag;
-            out_diagnostic->has_length = 1;
-            out_diagnostic->length = length;
-        }
-        return rc;
-    }
-    if (*length_size > SIZE_MAX - *tag_size || length > SIZE_MAX - *tag_size - *length_size) {
-        if (out_diagnostic) {
-            wdiag_start(out_diagnostic, TLV_ERR_INVALID_LENGTH, TLV_WRITER_OP_LENGTH, *tag_size);
-            out_diagnostic->has_tag = 1;
-            out_diagnostic->tag = tag;
-            out_diagnostic->has_length = 1;
-            out_diagnostic->length = length;
-        }
-        return TLV_ERR_INVALID_LENGTH;
-    }
-    *total = *tag_size + *length_size + length;
-    return TLV_OK;
-}
-
-static tlv_result_t encoded_sizes(tlv_tag_t tag, size_t length, const tlv_format_t* format,
-                                  size_t* tag_size, size_t* length_size, size_t* total) {
-    return encoded_sizes_diag(tag, length, format, tag_size, length_size, total, NULL);
-}
-
 tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length, const tlv_format_t* format,
                               size_t* size) {
-    size_t tag_size = 0, length_size = 0, total = 0;
+    tlv_element_t element = {tag, {NULL, length}};
+    tlv_encoding_t encoding;
     tlv_result_t rc;
     if (!size) return TLV_ERR_NULL_ARG;
-    rc = encoded_sizes(tag, length, format, &tag_size, &length_size, &total);
-    if (rc == TLV_OK) *size = total;
-    return rc;
+    rc = tlv_format_measure(format, &element, &encoding, NULL);
+    if (rc != TLV_OK) return rc;
+    return tlv_size_to_native(encoding.total, size);
 }
 
 static tlv_result_t tlv_write_impl(uint8_t* data, size_t capacity, const tlv_format_t* format,
                                    tlv_tag_t tag, const uint8_t* value, size_t length,
-                                   size_t* out_written, tlv_writer_diagnostic_t* out_diagnostic) {
-    size_t tag_size = 0, length_size = 0, total = 0, written = 0;
-    tlv_result_t rc;
-    if ((!data && capacity) || (!value && length) || !out_written) {
-        if (out_diagnostic) wdiag_start(out_diagnostic, TLV_ERR_NULL_ARG, TLV_WRITER_OP_TAG, 0);
-        return TLV_ERR_NULL_ARG;
+                                   size_t* written, tlv_writer_diagnostic_t* diagnostic) {
+    tlv_element_t element = {tag, {value, length}};
+    tlv_format_error_t error = {0};
+    tlv_result_t rc = tlv_format_encode(format, &element, data, capacity, written, &error);
+    if (rc != TLV_OK && diagnostic) {
+        tlv_writer_operation_t operation = TLV_WRITER_OP_HEADER;
+        if (error.region == TLV_REGION_TAG) operation = TLV_WRITER_OP_TAG;
+        if (error.region == TLV_REGION_LENGTH) operation = TLV_WRITER_OP_LENGTH;
+        if (error.region == TLV_REGION_VALUE) operation = TLV_WRITER_OP_VALUE;
+        if (error.region == TLV_REGION_TRAILER) operation = TLV_WRITER_OP_TRAILER;
+        wdiag_start(diagnostic, rc, operation, error.offset);
+        diagnostic->diagnostic.has_offset = error.has_offset;
+        diagnostic->has_tag = 1;
+        diagnostic->tag = tag;
+        diagnostic->has_length = 1;
+        diagnostic->length = length;
+        if (error.has_required && error.required <= SIZE_MAX) {
+            diagnostic->has_required = 1;
+            diagnostic->required = (size_t)error.required;
+        }
+        diagnostic->has_available = 1;
+        diagnostic->available = capacity;
     }
-    rc = encoded_sizes_diag(tag, length, format, &tag_size, &length_size, &total, out_diagnostic);
-    if (rc != TLV_OK) return rc;
-    if (capacity < total) {
-        if (out_diagnostic) {
-            wdiag_start(out_diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_WRITER_OP_VALUE, 0);
-            out_diagnostic->has_tag = 1;
-            out_diagnostic->tag = tag;
-            out_diagnostic->has_length = 1;
-            out_diagnostic->length = length;
-            out_diagnostic->has_required = 1;
-            out_diagnostic->required = total;
-            out_diagnostic->has_available = 1;
-            out_diagnostic->available = capacity;
-        }
-        *out_written = total;
-        return TLV_ERR_BUFFER_TOO_SHORT;
-    }
-    if (format->write_header) {
-        rc = format->write_header(format->context, data, length_size, &tag, length, &written);
-        if (rc != TLV_OK) {
-            if (out_diagnostic) {
-                wdiag_start(out_diagnostic, rc, TLV_WRITER_OP_TAG, 0);
-                out_diagnostic->has_tag = 1;
-                out_diagnostic->tag = tag;
-                out_diagnostic->has_length = 1;
-                out_diagnostic->length = length;
-            }
-            return rc;
-        }
-        if (written != length_size) {
-            if (out_diagnostic) {
-                wdiag_start(out_diagnostic, TLV_ERR_INVALID_LENGTH, TLV_WRITER_OP_LENGTH, 0);
-                out_diagnostic->has_tag = 1;
-                out_diagnostic->tag = tag;
-                out_diagnostic->has_length = 1;
-                out_diagnostic->length = length;
-            }
-            return TLV_ERR_INVALID_LENGTH;
-        }
-    } else {
-        rc = format->write_tag(format->context, data, tag_size, &tag, &written);
-        if (rc != TLV_OK) {
-            if (out_diagnostic) {
-                wdiag_start(out_diagnostic, rc, TLV_WRITER_OP_TAG, 0);
-                out_diagnostic->has_tag = 1;
-                out_diagnostic->tag = tag;
-            }
-            return rc;
-        }
-        if (written != tag_size) {
-            if (out_diagnostic) {
-                wdiag_start(out_diagnostic, TLV_ERR_INVALID_TAG, TLV_WRITER_OP_TAG, 0);
-                out_diagnostic->has_tag = 1;
-                out_diagnostic->tag = tag;
-            }
-            return TLV_ERR_INVALID_TAG;
-        }
-        written = 0;
-        rc = format->write_length(format->context, data + tag_size, length_size, length, &written);
-        if (rc != TLV_OK) {
-            if (out_diagnostic) {
-                wdiag_start(out_diagnostic, rc, TLV_WRITER_OP_LENGTH, tag_size);
-                out_diagnostic->has_tag = 1;
-                out_diagnostic->tag = tag;
-                out_diagnostic->has_length = 1;
-                out_diagnostic->length = length;
-            }
-            return rc;
-        }
-        if (written != length_size) {
-            if (out_diagnostic) {
-                wdiag_start(out_diagnostic, TLV_ERR_INVALID_LENGTH, TLV_WRITER_OP_LENGTH, tag_size);
-                out_diagnostic->has_tag = 1;
-                out_diagnostic->tag = tag;
-                out_diagnostic->has_length = 1;
-                out_diagnostic->length = length;
-            }
-            return TLV_ERR_INVALID_LENGTH;
-        }
-    }
-    // data is non-NULL here: tag_size is always > 0 for a valid tag (checked in
-    // encoded_sizes()), so total >= 1, and the earlier "capacity < total" check forces
-    // capacity > 0, ruling out data == NULL (guarded at function entry). The analyzer can't
-    // fold this across the format->write_tag() indirect call. Which specific analyzer check
-    // fires here (unix.cstring.NullArg vs. core.NonNullParamChecker, depending on whether the
-    // platform's <string.h> declares memcpy's parameters nonnull) varies by libc/clang-tidy
-    // version, so this is left unnamed rather than pinned to one that may not match in CI.
-    // NOLINTNEXTLINE
-    if (length) memcpy(data + tag_size + length_size, value, length);
-    *out_written = total;
-    return TLV_OK;
+    return rc;
 }
 
 tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_format_t* format, tlv_tag_t tag,

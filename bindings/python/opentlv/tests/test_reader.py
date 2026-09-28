@@ -63,7 +63,7 @@ def test_truncated_value_raises_buffer_too_short_with_diagnostics():
 
 
 def test_invalid_length_form_raises_invalid_length_error():
-    reader = Reader(bytes([0x01, 0x83]))
+    reader = Reader(bytes([0x01, 0xFF]))
     with pytest.raises(InvalidLengthError):
         next(reader)
 

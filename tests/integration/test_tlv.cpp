@@ -1,4 +1,4 @@
-#include "tlv/builtins/fixed/default.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 
@@ -10,7 +10,7 @@ TEST(Integration_Tlv, ReaderParsesSingleShortFormEntry) {
     /* tag=0x01, len=0x03 (short form), value = "abc" */
     const uint8_t data[] = {0x01, 0x03, 'a', 'b', 'c'};
     tlv_reader_t  reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_ber));
 
     tlv_element_t element;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
@@ -24,7 +24,7 @@ TEST(Integration_Tlv, ReaderParsesSingleShortFormEntry) {
 TEST(Integration_Tlv, ReaderParsesMultipleEntries) {
     const uint8_t data[] = {0x01, 0x02, 'h', 'i', 0x02, 0x01, 'x'};
     tlv_reader_t  reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_ber));
 
     tlv_element_t e1, e2;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e1));
@@ -48,7 +48,7 @@ TEST(Integration_Tlv, ReaderParsesBerLongForm1ByteLength) {
     std::memset(data + 3, 'A', 200);
 
     tlv_reader_t reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_ber));
 
     tlv_element_t element;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
@@ -69,7 +69,7 @@ TEST(Integration_Tlv, ReaderParsesBerLongForm2ByteLength) {
     std::memset(data + 4, 'Z', len);
 
     tlv_reader_t reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_default));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_ber));
 
     tlv_element_t element;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
@@ -82,7 +82,7 @@ TEST(Integration_Tlv, ReaderParsesBerLongForm2ByteLength) {
 TEST(Integration_Tlv, WriterWritesShortFormEntry) {
     uint8_t      buf[16];
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_format_default));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_format_ber));
 
     const uint8_t value[] = {'a', 'b', 'c'};
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0x01)), value, sizeof(value)));
@@ -96,7 +96,7 @@ TEST(Integration_Tlv, WriterWritesShortFormEntry) {
 TEST(Integration_Tlv, WriterWritesLongForm1ByteLength) {
     uint8_t      buf[512];
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_format_default));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_format_ber));
 
     uint8_t value[200];
     memset(value, 'A', sizeof(value));
@@ -111,13 +111,13 @@ TEST(Integration_Tlv, WriterWritesLongForm1ByteLength) {
 TEST(Integration_Tlv, WriterReaderRoundtrip) {
     uint8_t      buf[64];
     tlv_writer_t writer;
-    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_format_default));
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, buf, sizeof(buf), &tlv_format_ber));
 
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0x01)), (const uint8_t*)"hi", 2));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, (TLV_TAG(0x02)), (const uint8_t*)"x", 1));
 
     tlv_reader_t reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, buf, tlv_writer_size(&writer), &tlv_format_default));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, buf, tlv_writer_size(&writer), &tlv_format_ber));
 
     tlv_element_t e1, e2;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &e1));

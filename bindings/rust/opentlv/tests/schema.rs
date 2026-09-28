@@ -149,12 +149,15 @@ fn kind_mismatch_is_a_schema_error() {
 }
 
 #[test]
-fn format_decides_which_values_are_nested() {
+fn ber_constructed_bit_controls_nesting() {
     // The child claims five bytes but only zero remain inside the container.
-    let opaque = StructureSchema::new([StructureRule::new(tag(&[0x30]))], false);
+    let opaque = StructureSchema::new([], true);
     let data = [0x30, 0x02, 0x11, 0x05];
-    // The default format has no constructed values, so the content is opaque.
-    assert_eq!(opaque.validate(&data, Format::Default, &limits()), Ok(()));
+    // BER leaves primitive contents opaque.
+    assert_eq!(
+        opaque.validate(&[0x10, 2, 0x11, 5], Format::Ber, &limits()),
+        Ok(())
+    );
     // In BER the container is walked and its malformed child is reported.
     assert!(opaque.validate(&data, Format::Ber, &limits()).is_err());
 }

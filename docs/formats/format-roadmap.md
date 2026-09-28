@@ -78,7 +78,7 @@ so a candidate's "components" show which layers stay separate.
 
 | Component | Existing implementation | Role |
 | --- | --- | --- |
-| Format adapter | `tlv_format_t` in `tlv/format.h`; the whole-element callbacks `read_element` and `write_header` handle any field order or packing | Splits bytes into tag, header, value and trailer, and writes a header. |
+| Format adapter | `tlv_format_t` in `tlv/format.h`; the canonical `decode`, `measure` and `encode` operations handle format-defined framing | Splits bytes into tag, header, value and trailer, and writes complete framing. |
 | Nesting predicate | `tlv_format_t::is_constructed` (`tlv_is_constructed_fn`) | Says which values contain children in the same format. |
 | Structure schema | `tlv_schema_t` and `tlv_structure_schema_t` in `tlv/schema/schema.h` | Length bounds, occurrence and membership rules. |
 | DER schema | `tlv_der_schema_type_t` in `tlv/builtins/asn1/der_schema.h` | ASN.1 type rules with canonical DER semantics; a fixed, small subset. |
@@ -91,7 +91,7 @@ so a candidate's "components" show which layers stay separate.
 ```text
 OpenTLV
 ├── Implemented (built in)
-│   ├── [x] Default TLV, Bluetooth LTV, configurable fixed-width (C and C++)
+│   ├── [x] Bluetooth LTV, configurable fixed-width (C and C++)
 │   ├── [x] Application-defined callbacks
 │   ├── [x] ASN.1 framing: BER-TLV, DER-TLV (+ strict values, schemas), CER-TLV
 │   └── [x] Profile: EMV Contact Book 3 v4.4 (dictionary, schemas, codecs)
@@ -183,17 +183,17 @@ Variants and open questions that these entries need before scoping:
 
 These are reusable requirements collected from the candidates. Not one of them is a
 commitment. The **fit** column is by inspection of the callback contract in
-[`format.h`](../../tlv/include/tlv/format.h): `read_element` sees the bytes from
+[`format.h`](../../tlv/include/tlv/format.h): `decode` sees the bytes from
 the start of an element and reports the tag, the header size, the value size and the
-trailer size; `write_header` writes only the header. A tag is any
+trailer size; `encode` writes the complete Header/Value/Trailer representation. A tag is any
 number of raw bytes the format accepts. **No candidate has been prototyped against these callbacks.**
 
 | Requirement | Seen in | Fit with the current callbacks |
 | --- | --- | --- |
-| Length before type, or any other field order | Bluetooth LTV (implemented) | Covered by `read_element` and `write_header`. |
-| Bit-packed type and length, or flag bits sharing a field | LLDP, LDP, RFC 5444, NAS half-octet IEIs | `read_element` sees the whole header, and `write_header` can encode it. The adapter must define the tag bytes (masked or unmasked flags). |
+| Length before type, or any other field order | Bluetooth LTV (implemented) | Covered by `decode` and `encode`. |
+| Bit-packed type and length, or flag bits sharing a field | LLDP, LDP, RFC 5444, NAS half-octet IEIs | `decode` sees the whole header, and `encode` can encode it. The adapter must define the tag bytes (masked or unmasked flags). |
 | Length includes the header | RADIUS, Diameter | The adapter subtracts the header size to get `value_size` and rejects a length smaller than the header. |
-| Trailing padding after the value | Diameter | Reading fits `trailer_size`. **The writer has no trailer or padding hook**: `write_header` cannot emit bytes after the value, so writing would need a core extension or caller-added padding. |
+| Trailing padding after the value | Diameter | The canonical framing result includes a Trailer range and logical trailer size; `encode` writes and `decode` validates the padding. |
 | Header size depends on the type or flags | PFCP (enterprise ID), GTPv2 (type 254), GTPv1-C (TV versus TLV), RFC 5444 (flags) | `header_size` is reported per element, so this fits. GTPv1-C needs a type-to-length table in the borrowed descriptor context. |
 | Elements without a length, and a terminator | DHCPv4 Pad and End, NFC tag TLV NULL and Terminator | Each can be read as a header-only element, but the walker has no built-in "skip padding" or "stop at terminator" policy. Needs an explicit policy. |
 | Composite tag identity (type plus instance, vendor or flags) | GTPv2, PFCP, LLDP, Diameter, RADIUS VSA, LDP | Raw tag bytes can carry it (PFCP type plus a 2-byte enterprise ID fits in 8 bytes); the meaning lives in the dictionary. |

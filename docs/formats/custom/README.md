@@ -6,8 +6,8 @@
 
 | Setting | Value |
 | --- | --- |
-| Header | `tlv/format.h` |
-| Setup | `tlv_format_init` |
+| Header | `tlv/format.h`, `tlv/layout.h` |
+| Setup | `tlv_format_init` or `tlv_fields_format_init` |
 | CMake option | None; generic callbacks are always available |
 | Link target | `tlv` |
 

@@ -1,5 +1,5 @@
 ﻿#include "controlled_format.h"
-#include "tlv/builtins/fixed/default.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
@@ -8,11 +8,11 @@
 #include <vector>
 
 namespace {
-const tlv_tag_t tag = TLV_TAG(0xFF);
+const tlv_tag_t tag = TLV_TAG(0x04);
 }
 
 TEST(Integration_Tlv_Writer, SizesWireEncodingAndRoundTripsAtLengthBoundaries) {
-    for (const auto* format : {&controlled::format, &tlv_format_default}) {
+    for (const auto* format : {&controlled::format, &tlv_format_ber}) {
         for (size_t length : {0u, 1u, 127u, 128u, 255u, 256u, 65535u}) {
             if (format == &controlled::format && length > 255) continue;
             SCOPED_TRACE(length);
@@ -29,7 +29,7 @@ TEST(Integration_Tlv_Writer, SizesWireEncodingAndRoundTripsAtLengthBoundaries) {
                                         length ? value.data() : nullptr, length, &written));
             EXPECT_EQ(required, written);
             EXPECT_EQ(0xEE, data[required]);
-            EXPECT_EQ(0xFF, data[0]);
+            EXPECT_EQ(0x04, data[0]);
             EXPECT_EQ(length_bytes == 1 ? length : 0x80 + length_bytes - 1, data[1]);
             if (length_bytes == 2) EXPECT_EQ(length, data[2]);
             if (length_bytes == 3) {

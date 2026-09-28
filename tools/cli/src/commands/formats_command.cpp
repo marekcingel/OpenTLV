@@ -7,9 +7,6 @@ namespace cli {
 
 std::vector<std::string> enabled_formats() {
     std::vector<std::string> names;
-#if OPENTLV_FORMAT_DEFAULT
-    names.push_back("default");
-#endif
 #if OPENTLV_FORMAT_FIXED
     names.push_back("fixed");
 #endif

@@ -22,22 +22,14 @@ TEST(Unit_Tlv_Fixed, InitAcceptsValidConfigs) {
         tlv_format_t reader{};
         ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&reader, &config));
         EXPECT_EQ(&config, reader.context);
-        EXPECT_NE(nullptr, reader.read_tag);
-        EXPECT_NE(nullptr, reader.read_length);
-        EXPECT_EQ(nullptr, reader.read_value_bounds);
-        EXPECT_EQ(nullptr, reader.read_element);
 
         tlv_format_t writer{};
         ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&writer, &config));
         EXPECT_EQ(&config, writer.context);
-        EXPECT_NE(nullptr, writer.write_tag);
-        EXPECT_NE(nullptr, writer.write_length);
-        EXPECT_NE(nullptr, writer.length_size);
-        EXPECT_EQ(nullptr, writer.write_header);
     }
 }
 
-TEST(Unit_Tlv_Fixed, InitUsesElementCallbacksForLtvFieldOrder) {
+TEST(Unit_Tlv_Fixed, BothOrdersUseTheSameBinaryPrimitives) {
     const tlv_fixed_format_t configs[] = {
         {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_VALUE},
         {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_TAG_AND_VALUE},
@@ -47,14 +39,8 @@ TEST(Unit_Tlv_Fixed, InitUsesElementCallbacksForLtvFieldOrder) {
         tlv_format_t format{};
         ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
         EXPECT_EQ(&config, format.context);
-        EXPECT_EQ(nullptr, format.read_tag);
-        EXPECT_EQ(nullptr, format.read_length);
-        EXPECT_EQ(nullptr, format.read_value_bounds);
-        EXPECT_NE(nullptr, format.read_element);
-        EXPECT_EQ(nullptr, format.write_tag);
-        EXPECT_EQ(nullptr, format.write_length);
-        EXPECT_EQ(nullptr, format.length_size);
-        EXPECT_NE(nullptr, format.write_header);
+        EXPECT_EQ(tlv_binary_decode, format.decode);
+        EXPECT_EQ(tlv_binary_encode, format.encode);
     }
 }
 
@@ -159,7 +145,7 @@ TEST(Unit_Tlv_Fixed, TruncationPreservesReaderAndOutput) {
     for (size_t size = 0; size < sizeof(data); ++size) {
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, size, &format));
-        tlv_element_t element = {TLV_TAG(0xEE), {}, {nullptr, 42}};
+        tlv_element_t element = {TLV_TAG(0xEE), {nullptr, 42}};
         EXPECT_EQ(size ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER,
                   tlv_reader_next(&reader, &element));
         EXPECT_EQ(0u, reader.pos);

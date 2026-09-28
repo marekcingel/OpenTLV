@@ -18,6 +18,7 @@
 #include "tlv/diagnostic.h"
 #include "tlv/endian.h"
 #include "tlv/format.h"
+#include "tlv/layout.h"
 
 #include "tlv/reader/reader.h"
 #include "tlv/reader/walker.h"
@@ -27,9 +28,6 @@
 #include "tlv/schema/schema.h"
 #include "tlv/schema/constraint.h"
 #include "tlv/config.h"
-#if OPENTLV_FORMAT_DEFAULT
-#include "tlv/builtins/fixed/default.h"
-#endif
 #if OPENTLV_FORMAT_FIXED
 #include "tlv/formats/fixed.h"
 #endif

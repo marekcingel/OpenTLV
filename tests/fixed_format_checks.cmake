@@ -34,7 +34,7 @@ function(opentlv_check_fixed_format)
         check_cxx_source_compiles("${header}
             int main() {
                 const tlv_format_t& format = tlv::fixed_format<${arguments}>::format();
-                return format.read_tag == nullptr || format.write_tag == nullptr;
+                return format.decode == nullptr || format.encode == nullptr;
             }" ${result})
         if(valid AND NOT ${result})
             message(FATAL_ERROR "Valid fixed_format case ${name} must compile")

@@ -11,6 +11,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/codec/codec.c
     src/codec/structure.c
     src/format.c
+    src/layout.c
     src/copy.c
     src/diagnostic.c
     src/tag.c
@@ -31,9 +32,6 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     ${OpenTLV_BINARY_DIR}/generated/src/config.c
 )
 
-if(OPENTLV_FORMAT_DEFAULT)
-    target_sources(${PROJECT_NAME} PRIVATE src/builtins/fixed/default.c)
-endif()
 if(OPENTLV_FORMAT_FIXED)
     target_sources(${PROJECT_NAME} PRIVATE src/formats/fixed.c)
 endif()

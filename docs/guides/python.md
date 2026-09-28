@@ -47,7 +47,7 @@ for element in opentlv.Reader(data):
 `data` may be `bytes`, `bytearray`, `memoryview`, or any other
 buffer-protocol object; the reader borrows it rather than copying it, so it
 must stay valid and unchanged for as long as the reader or its elements are
-used. `Reader(data)` uses `opentlv.Format.DEFAULT`; pass `format=` for
+used. `Reader(data)` uses `opentlv.Format.BER`; pass `format=` for
 another wire format, for example `opentlv.Reader(data, opentlv.Format.BER)`,
 or an `opentlv.FixedFormat(tag_size, length_size, byte_order="big")` for a
 runtime-configurable fixed-width tag and length (equivalent to the C
@@ -119,7 +119,7 @@ where Rust's builder methods (`.length()`, `.occurs()`, `.kind()`) become
 keyword arguments on the constructor instead. `children` nests another
 `StructureSchema` for the value's own elements and implies `Kind.CONSTRUCTED`;
 which tags are constructed depends on `format` (BER, CER and DER nest by
-their constructed bit; the default and fixed-1-byte formats never nest, so
+their constructed bit; Fixed formats never nest, so
 `children` only applies to BER, CER or DER data). `schema.validate()` raises
 `SchemaMissingError` for an absent required field, `SchemaError` for other
 rule violations (an unknown tag when `allow_unknown` is `False`, too many

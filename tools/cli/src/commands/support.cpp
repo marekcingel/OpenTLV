@@ -6,9 +6,6 @@
 #include "console_color.hpp"
 #include "tlv/config.h"
 #include "tlv++/reader/walker.hpp"
-#if OPENTLV_FORMAT_DEFAULT
-#include "tlv/builtins/fixed/default.h"
-#endif
 #if OPENTLV_FORMAT_FIXED
 #include "tlv/formats/fixed.h"
 #endif
@@ -31,9 +28,6 @@ bool is_json(const options& o) {
 
 const tlv_format_t* select_format(const options& o) {
     const char* name = o.format;
-#if OPENTLV_FORMAT_DEFAULT
-    if (!strcmp(name, "default")) return &tlv_format_default;
-#endif
 #if OPENTLV_FORMAT_FIXED
     // Configured by --fixed-tag-size/--fixed-length-size/--fixed-byte-order,
     // one tag byte/one length byte/big-endian by default.
@@ -89,7 +83,8 @@ std::string hex_string(const uint8_t* data, std::size_t length) {
 
 tlv_result_t walk_slice(const walk_env& env, const uint8_t* slice, std::size_t slice_size,
                         std::size_t base, std::size_t max_elements, tlv_tree_visitor_t visitor,
-                        void* context, std::size_t* error_offset) {
+                        void* context, std::size_t* error_offset,
+                        tlv_reader_diagnostic_t* diagnostic) {
     const options& o = *env.options;
     std::size_t    relative = 0;
     tlv_result_t   result;
@@ -100,16 +95,15 @@ tlv_result_t walk_slice(const walk_env& env, const uint8_t* slice, std::size_t s
     } else
 #endif
     {
-        // The C++ walker owns the callback adapter and exposes borrowed elements.
-        const auto walked = tlv::walk_tree(
-            tlv::bytes(reinterpret_cast<const tlv::byte*>(slice), slice_size), *env.format,
-            o.max_depth, max_elements,
-            [visitor, context](const tlv::element& element, size_t depth, size_t offset) {
-                if (!visitor) return TLV_VISIT_CONTINUE;
-                return visitor(&element, depth, offset, context);
-            },
-            &relative);
-        result = walked ? TLV_OK : walked.error().code;
+        result = tlv_walk_tree_diag(slice, slice_size, env.format, o.max_depth, max_elements,
+                                    visitor, context, &relative, diagnostic);
+        if (result != TLV_OK && diagnostic && diagnostic->diagnostic.code != TLV_OK) {
+            if (diagnostic->diagnostic.has_offset) diagnostic->diagnostic.offset += base;
+            if (diagnostic->has_tag_offset) diagnostic->tag_offset += base;
+            if (diagnostic->has_length_offset) diagnostic->length_offset += base;
+            if (diagnostic->has_value_offset) diagnostic->value_offset += base;
+            if (diagnostic->has_enclosing_end) diagnostic->enclosing_end += base;
+        }
     }
     if (result != TLV_OK) *error_offset = base + relative;
     return result;

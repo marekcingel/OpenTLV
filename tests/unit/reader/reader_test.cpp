@@ -20,20 +20,23 @@ TEST(Unit_Tlv_Reader, ReadsOnlyFirstElementAndBorrowsValue) {
 
 namespace {
 struct Config {
-    size_t       tag_bytes = 2;
-    size_t       length_bytes = 2;
-    size_t       value_bytes = 2;
-    size_t       tag_size = 1;
-    bool         tag_without_data = false;
-    tlv_result_t tag_error = TLV_OK;
-    tlv_result_t length_error = TLV_OK;
+    tlv_field_layout_t layout = controlled::format_layout;
+    size_t             tag_bytes = 2;
+    size_t             length_bytes = 2;
+    size_t             value_bytes = 2;
+    size_t             tag_size = 1;
+    bool               tag_without_data = false;
+    tlv_result_t       tag_error = TLV_OK;
+    tlv_result_t       length_error = TLV_OK;
 };
 
-tlv_format_t make_format(const Config* config) {
+tlv_format_t make_format(Config* config) {
     tlv_format_t format{};
-    format.context = config;
-    format.read_tag = [](const void* ctx, const uint8_t* data, size_t size, tlv_tag_t* tag,
-                         size_t* used) {
+    format.context = &config->layout;
+    config->layout.context = config;
+    format.decode = tlv_fields_decode;
+    config->layout.read_tag = [](const void* ctx, const uint8_t* data, size_t size, tlv_tag_t* tag,
+                                 size_t* used) {
         const auto& c = *static_cast<const Config*>(ctx);
         if (c.tag_error != TLV_OK) return c.tag_error;
         if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -41,8 +44,8 @@ tlv_format_t make_format(const Config* config) {
         *used = c.tag_bytes;
         return TLV_OK;
     };
-    format.read_length = [](const void* ctx, const uint8_t*, size_t size, tlv_size_t* length,
-                            size_t* used) {
+    config->layout.read_length = [](const void* ctx, const uint8_t*, size_t size,
+                                    tlv_size_t* length, size_t* used) {
         const auto& c = *static_cast<const Config*>(ctx);
         if (c.length_error != TLV_OK) return c.length_error;
         if (size < c.length_bytes) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -55,7 +58,7 @@ tlv_format_t make_format(const Config* config) {
 
 void expect_failure(const uint8_t* data, size_t size, const tlv_format_t* format,
                     tlv_result_t error) {
-    tlv_element_t element = {TLV_TAG(0xEE), {}, {data, 42}};
+    tlv_element_t element = {TLV_TAG(0xEE), {data, 42}};
     size_t        consumed = 99;
     EXPECT_EQ(error, tlv_read(data, size, format, &element, &consumed));
     EXPECT_EQ(99u, consumed);
@@ -98,10 +101,10 @@ TEST(Unit_Tlv_Reader, RejectsInvalidArguments) {
     expect_failure(data, sizeof(data), nullptr, TLV_ERR_NULL_ARG);
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read(data, sizeof(data), &format, nullptr, &consumed));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read(data, sizeof(data), &format, &element, nullptr));
-    format.read_tag = nullptr;
+    format.decode = nullptr;
     expect_failure(data, sizeof(data), &format, TLV_ERR_NULL_ARG);
     format = controlled::format;
-    format.read_length = nullptr;
+    format.decode = nullptr;
     expect_failure(data, sizeof(data), &format, TLV_ERR_NULL_ARG);
 }
 
@@ -114,6 +117,7 @@ TEST(Unit_Tlv_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     config.tag_bytes = std::numeric_limits<size_t>::max();
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
     config = Config{};
+    format = make_format(&config);
     // Whether an empty tag is acceptable is up to the format, not the reader.
     config.tag_size = 0;
     {
@@ -124,12 +128,14 @@ TEST(Unit_Tlv_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     }
     // A tag that claims bytes but has no pointer is malformed.
     config = Config{};
+    format = make_format(&config);
     config.tag_without_data = true;
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
     config = Config{};
+    format = make_format(&config);
     config.value_bytes = std::numeric_limits<size_t>::max();
     expect_failure(data, sizeof(data), &format, TLV_ERR_BUFFER_TOO_SHORT);
-    format.read_length = [](const void*, const uint8_t*, size_t, tlv_size_t*, size_t* used) {
+    config.layout.read_length = [](const void*, const uint8_t*, size_t, tlv_size_t*, size_t* used) {
         *used = std::numeric_limits<size_t>::max();
         return TLV_OK;
     };
@@ -138,6 +144,7 @@ TEST(Unit_Tlv_Reader, RejectsInvalidCallbackResultsAndPropagatesErrors) {
     config.tag_error = TLV_ERR_INVALID_TAG;
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_TAG);
     config = Config{};
+    format = make_format(&config);
     config.length_error = TLV_ERR_INVALID_LENGTH;
     expect_failure(data, sizeof(data), &format, TLV_ERR_INVALID_LENGTH);
 }
@@ -199,7 +206,7 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsValueExceedingAvailableBytes) {
     EXPECT_EQ(sizeof(data), diagnostic.enclosing_end);
 }
 
-TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsATruncatedTag) {
+TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsEmptyInputAtHeader) {
     tlv_element_t           element{};
     size_t                  consumed = 0;
     tlv_reader_diagnostic_t diagnostic;
@@ -208,7 +215,7 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReadDiagReportsATruncatedTag) {
               tlv_read_diag(nullptr, 0, &controlled::format, &element, &consumed, &diagnostic));
 
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, diagnostic.diagnostic.code);
-    EXPECT_EQ(TLV_READER_OP_TAG, diagnostic.operation);
+    EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.operation);
     EXPECT_EQ(0, diagnostic.has_tag);
     ASSERT_NE(0, diagnostic.has_available);
     EXPECT_EQ(0u, diagnostic.available);
@@ -269,8 +276,9 @@ TEST(Unit_Tlv_ReaderDiagnostic, ReaderNextDiagReportsEndOfBufferAtTheCurrentPosi
 
     tlv_reader_diagnostic_t diagnostic;
     ASSERT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next_diag(&reader, &element, &diagnostic));
-    ASSERT_NE(0, diagnostic.has_tag_offset);
-    EXPECT_EQ(sizeof(data), diagnostic.tag_offset);
+    EXPECT_EQ(TLV_READER_OP_HEADER, diagnostic.operation);
+    EXPECT_EQ(0, diagnostic.has_tag_offset);
+    EXPECT_EQ(sizeof(data), diagnostic.diagnostic.offset);
 }
 
 TEST(Unit_Tlv_ReaderDiagnostic, InitResetsEveryFieldAndIgnoresANullDiagnostic) {

@@ -305,7 +305,7 @@ program is run directly in the Python bindings CI workflow. The
 [C examples](../../examples/tlv/src/), one topic per file (sequential I/O,
 explicit copies, schema validation, codecs, a custom format, and the BER and
 CER builtins), the [C++ example](../../examples/tlv++/src/basic_usage.cpp)
-with the default format, the [EMV example](../../examples/tlv/src/builtins/emv/tag_decoding.c),
+with BER, the [EMV example](../../examples/tlv/src/builtins/emv/tag_decoding.c),
 the further [Rust examples](../guides/rust.md) (reading, writing, and the
 `parse`, `write` and `validate` use cases), and the further
 [Python examples](../guides/python.md) (reading, writing, validating, codecs
@@ -398,7 +398,7 @@ roundtrips, nested traversal, recovery and interactions between layers. A
 subsystem or built-in without an integration concern (nothing there combines
 multiple layers) has no file under `tests/integration/`. A file containing
 both kinds of cases is split between the two directories; classify new cases
-by what they verify. See [architecture](../concepts/architecture.md#layout).
+by what they verify. See [architecture](../concepts/architecture.md#repository-layout).
 
 `OPENTLV_BUILD_TESTS` is the main switch. With it enabled, both
 `OPENTLV_BUILD_UNIT_TESTS` and `OPENTLV_BUILD_INTEGRATION_TESTS` default to `ON`.

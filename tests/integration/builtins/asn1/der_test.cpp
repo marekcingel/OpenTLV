@@ -1,3 +1,4 @@
+#include "tlv/layout.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
@@ -78,9 +79,10 @@ TEST(Integration_Tlv_Der, CanonicalLengthBytesAndRoundTrip) {
     uint8_t     bytes[sizeof(tlv_size_t) + 1];
     size_t      written, used;
     tlv_size_t  actual;
-    ASSERT_EQ(TLV_OK,
-              tlv_format_der.write_length(nullptr, bytes, sizeof(bytes), SIZE_MAX, &written));
-    ASSERT_EQ(TLV_OK, format.read_length(nullptr, bytes, written, &actual, &used));
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(tlv_format_der.context)
+                          ->write_length(nullptr, bytes, sizeof(bytes), SIZE_MAX, &written));
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(format.context)
+                          ->read_length(nullptr, bytes, written, &actual, &used));
     EXPECT_EQ(SIZE_MAX, actual);
     EXPECT_EQ(written, used);
 }
@@ -116,7 +118,7 @@ TEST(Integration_Tlv_Der, InvalidFieldsHaveOffsetsAndPreserveOutputs) {
     cases.push_back({overflow, TLV_ERR_INVALID_LENGTH, 1});
     for (const auto& item : cases) {
         SCOPED_TRACE(::testing::PrintToString(item.bytes));
-        tlv_element_t element{TLV_TAG(0x55), {}, {nullptr, 42}};
+        tlv_element_t element{TLV_TAG(0x55), {nullptr, 42}};
         size_t        consumed = 42, offset = 99;
         EXPECT_EQ(item.error, tlv_der_read(item.bytes.data(), item.bytes.size(), nullptr, &element,
                                            &consumed, &offset));

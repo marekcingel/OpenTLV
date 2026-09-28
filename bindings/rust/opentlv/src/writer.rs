@@ -24,7 +24,7 @@ use crate::tag::Tag;
 /// use opentlv::{encoded_size, Format, Tag};
 ///
 /// let tag = Tag::from_bytes(&[0x01]);
-/// assert_eq!(encoded_size(&tag, 3, Format::Default).unwrap(), 5);
+/// assert_eq!(encoded_size(&tag, 3, Format::Ber).unwrap(), 5);
 /// ```
 pub fn encoded_size(tag: &Tag, value_len: usize, format: Format) -> Result<usize> {
     let mut size = 0usize;
@@ -72,10 +72,9 @@ pub struct Writer<'a> {
 }
 
 impl<'a> Writer<'a> {
-    /// Creates a writer for the default format: a one-byte tag and a definite
-    /// BER length.
+    /// Creates a writer for BER with its tag encoding and definite lengths.
     pub fn new(buf: &'a mut [u8]) -> Writer<'a> {
-        Writer::with_format(buf, Format::Default)
+        Writer::with_format(buf, Format::Ber)
     }
 
     /// Creates a writer for the given wire format.

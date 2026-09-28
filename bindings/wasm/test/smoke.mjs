@@ -9,9 +9,9 @@ const opentlv = await loadOpenTLV();
 
 assert.match(opentlv.version, /^\d+\.\d+\.\d+/);
 
-// The default format has no constructed tags: one flat element holds the whole value.
+// A one-byte fixed format has no constructed tags: one flat element holds the whole value.
 const sample = hexToBytes("6F 0A 84 03 41 42 43 A5 03 50 01 01");
-let result = opentlv.parse(sample);
+let result = opentlv.parse(sample, { format: "fixed" });
 assert.equal(result.error, undefined);
 assert.deepEqual(
   result.elements.map(({ tag, length, value }) => [tag, length, value]),
@@ -23,8 +23,10 @@ result = opentlv.parse(sample, { format: "ber" });
 assert.equal(result.error, undefined);
 const [fci] = result.elements;
 assert.equal(fci.tag, "6F");
-assert.equal(fci.rawLength, "0A");
 assert.equal(fci.constructed, true);
+assert.equal(opentlv.parse(sample).elements[0].constructed, true);
+assert.ok(opentlv.parse(sample, { format: "compact" }).error);
+assert.ok(opentlv.parse(sample, { format: "default" }).error);
 assert.deepEqual(
   fci.children.map((child) => [child.tag, child.offset, child.depth]),
   [["84", 2, 1], ["A5", 7, 1]],
@@ -55,11 +57,11 @@ result = opentlv.parse(hexToBytes("9F 02 06 00 00 00 00 01 00 DF 99 01 00"), { f
 assert.equal(result.elements[0].symbol, "amount_authorised");
 assert.equal(result.elements[0].lengthValid, true);
 assert.equal(result.elements[1].symbol, undefined);
-assert.ok(opentlv.parse(sample, { format: "default", profile: "emv" }).error);
+assert.ok(opentlv.parse(sample, { format: "fixed", profile: "emv" }).error);
 assert.ok(opentlv.parse(sample, { format: "ber", profile: "nope" }).error);
 
 // Errors are reported to the caller together with the elements read before them.
-result = opentlv.parse(hexToBytes("84 03 41 42 43 84 05 41"), { format: "default" });
+result = opentlv.parse(hexToBytes("84 03 41 42 43 84 05 41"), { format: "ber" });
 assert.equal(result.elements.length, 1);
 assert.equal(result.elements[0].tag, "84");
 assert.ok(result.error, "truncated input must report an error");
@@ -73,7 +75,6 @@ assert.equal(result.error, undefined);
 assert.equal(result.elements.length, 2);
 assert.equal(result.elements[1].tag, "09");
 assert.equal(result.elements[1].length, 2);
-assert.equal(result.elements[1].rawLength, "03");
 assert.equal(result.elements[1].headerSize, 2);
 assert.equal(result.elements[1].value, "4869");
 

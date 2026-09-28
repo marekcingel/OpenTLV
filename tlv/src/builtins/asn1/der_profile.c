@@ -1,3 +1,4 @@
+#include "ber_internal.h"
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/builtins/asn1/der_profile.h"
 #include "tlv/writer/writer.h"
@@ -20,19 +21,17 @@ tlv_result_t tlv_der_read_element(const uint8_t* data, size_t size, size_t base,
                                   size_t* consumed, size_t* error_offset) {
     size_t tag_size, length_size;
     tlv_size_t value_length;
-    tlv_result_t rc =
-        tlv_format_der.read_tag(tlv_format_der.context, data, size, &element->tag, &tag_size);
+    tlv_result_t rc = tlv_der_fields.read_tag(NULL, data, size, &element->tag, &tag_size);
     if (rc != TLV_OK) return fail(rc, base, error_offset);
-    rc = tlv_format_der.read_length(tlv_format_der.context, data + tag_size, size - tag_size,
-                                    &value_length, &length_size);
+    rc = tlv_der_fields.read_length(NULL, data + tag_size, size - tag_size, &value_length,
+                                    &length_size);
     if (rc != TLV_OK) return fail(rc, base + tag_size, error_offset);
     if (value_length > limits->max_value_size)
         return fail(TLV_ERR_LIMIT, base + tag_size, error_offset);
     if (value_length > size - tag_size - length_size)
         return fail(TLV_ERR_BUFFER_TOO_SHORT, base + tag_size + length_size, error_offset);
     element->value.size = value_length;
-    element->length.data = data + tag_size;
-    element->length.size = length_size;
+
     element->value.data = data + tag_size + length_size;
     *consumed = tag_size + length_size + (size_t)value_length;
     return TLV_OK;

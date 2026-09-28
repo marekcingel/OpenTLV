@@ -10,7 +10,7 @@
 import createOpenTLV from "./opentlv-core.js";
 
 /** Formats the module can parse (a build may compile out some of them). */
-export const FORMATS = Object.freeze(["default", "fixed", "bluetooth-ltv", "ber", "der"]);
+export const FORMATS = Object.freeze(["fixed", "bluetooth-ltv", "ber", "der"]);
 
 /** Profiles that annotate elements with known tag names ("none" adds nothing). */
 export const PROFILES = Object.freeze(["none", "emv"]);
@@ -63,12 +63,12 @@ export async function loadOpenTLV(moduleOptions = {}) {
      * @param {Uint8Array} bytes
      * @param {{format?: string, profile?: string, fixedTagSize?: number,
      *   fixedLengthSize?: number, fixedByteOrder?: "big"|"little"}} [options] `format`
-     *   defaults to "default"; `profile` ("none" or "emv") defaults to "none".
+     *   defaults to "ber"; `profile` ("none" or "emv") defaults to "none".
      *   `fixedTagSize`, `fixedLengthSize` (1-8) and `fixedByteOrder` configure
      *   `format: "fixed"`'s tag width, length width and length byte order
      *   (`tlv_fixed_format_t`); ignored for every other format.
      */
-    parse(bytes, { format = "default", profile = "none", fixedTagSize = 1, fixedLengthSize = 1,
+    parse(bytes, { format = "ber", profile = "none", fixedTagSize = 1, fixedLengthSize = 1,
                   fixedByteOrder = "big" } = {}) {
       if (!(bytes instanceof Uint8Array)) throw new TypeError("bytes must be a Uint8Array");
       const formatSize = module.lengthBytesUTF8(format) + 1;

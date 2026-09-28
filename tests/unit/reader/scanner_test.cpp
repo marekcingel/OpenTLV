@@ -16,7 +16,7 @@ tlv_result_t read_pair_tag(const void* context, const uint8_t* data, size_t size
 
 class Unit_Tlv_Scanner : public ::testing::Test {
 protected:
-    tlv_element_t element = {TLV_TAG(0xAA), {}, {nullptr, 99}};
+    tlv_element_t element = {TLV_TAG(0xAA), {nullptr, 99}};
     size_t        offset = 88;
     size_t        consumed = 77;
 
@@ -51,10 +51,10 @@ TEST_F(Unit_Tlv_Scanner, ValidatesArgumentsWithoutChangingOutputs) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(nullptr, 1));
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(data, sizeof(data), 0, nullptr, nullptr));
     tlv_format_t format = controlled::format;
-    format.read_tag = nullptr;
+    format.decode = nullptr;
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(data, sizeof(data), 0, nullptr, &format));
     format = controlled::format;
-    format.read_length = nullptr;
+    format.decode = nullptr;
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(nullptr, 0, 0, nullptr, &format));
     const tlv_schema_t invalid = {nullptr, 1};
     EXPECT_EQ(TLV_ERR_NULL_ARG, scan(data, sizeof(data), 0, &invalid));
@@ -68,10 +68,12 @@ TEST_F(Unit_Tlv_Scanner, ValidatesArgumentsWithoutChangingOutputs) {
 }
 
 TEST_F(Unit_Tlv_Scanner, UsesCustomTagCallbackAndContext) {
-    const uint8_t prefix = 0x9F;
-    tlv_format_t  format = controlled::format;
-    format.context = &prefix;
-    format.read_tag = read_pair_tag;
+    const uint8_t      prefix = 0x9F;
+    tlv_format_t       format = controlled::format;
+    tlv_field_layout_t layout = controlled::format_layout;
+    layout.context = &prefix;
+    layout.read_tag = read_pair_tag;
+    format.context = &layout;
     const uint8_t            data[] = {0xFF, 0xFF, 0x9F, 0x1C, 1, 0xAA};
     const tlv_schema_entry_t rule = {TLV_TAG(0x9F, 0x1C), 1, 1, 0, nullptr};
     const tlv_schema_t       filter = {&rule, 1};

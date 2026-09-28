@@ -1,5 +1,5 @@
 ﻿#include "controlled_format.h"
-#include "tlv/builtins/fixed/default.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/walker.h"
 #include <gtest/gtest.h>
 
@@ -64,7 +64,7 @@ TEST(Integration_Tlv_Walker, UsesSelectedFormatWithoutRecursingIntoValues) {
     // BER length; the first value is a TLV, the second is an invalid TLV.
     const uint8_t data[] = {1, 0x81, 2, 3, 0, 2, 0x81, 1, 0xFF};
     Visits        visits;
-    ASSERT_EQ(TLV_OK, tlv_walk(data, sizeof(data), &tlv_format_default, collect, &visits));
+    ASSERT_EQ(TLV_OK, tlv_walk(data, sizeof(data), &tlv_format_ber, collect, &visits));
     ASSERT_EQ(2u, visits.count);
     EXPECT_EQ(1u, visits.elements[0].tag.data[0]);
     EXPECT_EQ(data + 3, visits.elements[0].value.data);

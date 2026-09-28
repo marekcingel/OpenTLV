@@ -26,8 +26,8 @@ const SAMPLES = [
     hex: "30 0A 02 01 05 0C 05 48 65 6C 6C 6F",
   },
   {
-    name: "Default TLV: flat elements",
-    format: "default",
+    name: "Fixed TLV: flat elements",
+    format: "fixed",
     profile: "none",
     hex: "01 03 41 42 43 02 02 68 69",
   },

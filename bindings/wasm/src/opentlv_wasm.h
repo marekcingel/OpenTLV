@@ -23,9 +23,9 @@
  * "error" is present only on failure; "elements" then holds every element
  * that was read before the error. Only BER and DER elements can be
  * constructed. Tags and values are uppercase hexadecimal. An element occupies
- * "headerSize" + "length" encoded bytes starting at "offset"; "tag" holds the
- * encoded tag bytes. "rawLength" holds the original length bytes in uppercase
- * hexadecimal. "profile", "symbol", "name" and "lengthValid" appear only
+ * "headerSize" + "length" bytes cover Header and Value starting at "offset",
+ * excluding any trailer. "tag" holds the identifier bytes.
+ * "profile", "symbol", "name" and "lengthValid" appear only
  * when a profile was requested (and "symbol", "name" only for tags it knows).
  */
 
@@ -47,7 +47,7 @@ extern "C" {
 typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 
 /*
- * Parses `size` bytes as `format` ("default", "fixed", "bluetooth-ltv", "ber" or "der").
+ * Parses `size` bytes as `format` ("fixed", "bluetooth-ltv", "ber" or "der").
  * `profile` annotates elements with dictionary metadata: NULL, "" or "none"
  * for none, or "emv" (EMV Contact Book 3 tags) with the "ber" format.
  * `fixed_tag_size`, `fixed_length_size` and `fixed_big_endian` (nonzero for

@@ -65,7 +65,7 @@ TLV_API tlv_result_t tlv_size_from_native(size_t size, tlv_size_t* logical_size)
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `size` is `NULL`.
- * @return #TLV_ERR_INVALID_LENGTH if `logical_size` exceeds `SIZE_MAX`; `*size` is
+ * @return #TLV_ERR_NATIVE_SIZE if `logical_size` exceeds `SIZE_MAX`; `*size` is
  *         left unchanged.
  *
  * @note Success does not prove that a buffer of that size exists, is
@@ -82,7 +82,7 @@ TLV_API tlv_result_t tlv_size_to_native(tlv_size_t logical_size, size_t* size);
  * @param logical_size Logical size to check.
  *
  * @return #TLV_OK if it fits.
- * @return #TLV_ERR_INVALID_LENGTH otherwise.
+ * @return #TLV_ERR_NATIVE_SIZE otherwise.
  *
  * @note Success does not prove that a buffer exists, is accessible, or has
  *       sufficient capacity.

@@ -1,5 +1,12 @@
 # Repository instructions
 
+## Architecture
+
+Follow the [core architectural rules](docs/concepts/architectural-rules.md) when
+designing, implementing or reviewing changes. Keep protocol-specific policy
+out of generic core and preserve the shared contracts across implementations
+and bindings.
+
 ## Changelog
 
 When updating `CHANGELOG.md`:

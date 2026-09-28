@@ -1,3 +1,4 @@
+#include "tlv/layout.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include "tlv/reader/walker.h"
@@ -54,15 +55,49 @@ tlv_result_t length_write(const void* ctx, uint8_t* data, size_t capacity, tlv_s
 int constructed(const void*, const tlv_tag_t* tag) {
     return (tag->data[0] & 0x80) != 0;
 }
-const tlv_format_t format = {nullptr, tag_read, length_read, nullptr, nullptr,
-                             nullptr, nullptr,  nullptr,     nullptr, nullptr};
-const tlv_format_t full_format = {nullptr,   tag_read,     length_read, nullptr, nullptr,
-                                  tag_write, length_write, length_size, nullptr, nullptr};
-const tlv_format_t constructed_format = {nullptr, tag_read, length_read, nullptr, nullptr,
-                                         nullptr, nullptr,  nullptr,     nullptr, constructed};
-const tlv_format_t constructed_full_format = {nullptr, tag_read,   length_read,  nullptr,
-                                              nullptr, tag_write,  length_write, length_size,
-                                              nullptr, constructed};
+const tlv_field_layout_t format_layout = {nullptr,
+                                          tag_read,
+                                          length_read,
+                                          nullptr,
+                                          nullptr,
+                                          nullptr,
+                                          nullptr,
+                                          TLV_ELEMENT_ORDER_TLV,
+                                          TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t       format = {&format_layout, tlv_fields_decode, nullptr, nullptr, nullptr};
+const tlv_field_layout_t full_format_layout = {nullptr,
+                                               tag_read,
+                                               length_read,
+                                               nullptr,
+                                               tag_write,
+                                               length_write,
+                                               length_size,
+                                               TLV_ELEMENT_ORDER_TLV,
+                                               TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t       full_format = {&full_format_layout, tlv_fields_decode, tlv_fields_measure,
+                                        tlv_fields_encode, nullptr};
+const tlv_field_layout_t constructed_format_layout = {nullptr,
+                                                      tag_read,
+                                                      length_read,
+                                                      nullptr,
+                                                      nullptr,
+                                                      nullptr,
+                                                      nullptr,
+                                                      TLV_ELEMENT_ORDER_TLV,
+                                                      TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t constructed_format = {&constructed_format_layout, tlv_fields_decode, nullptr,
+                                         nullptr, constructed};
+const tlv_field_layout_t constructed_full_format_layout = {nullptr,
+                                                           tag_read,
+                                                           length_read,
+                                                           nullptr,
+                                                           tag_write,
+                                                           length_write,
+                                                           length_size,
+                                                           TLV_ELEMENT_ORDER_TLV,
+                                                           TLV_LENGTH_SCOPE_VALUE};
+const tlv_format_t constructed_full_format = {&constructed_full_format_layout, tlv_fields_decode,
+                                              tlv_fields_measure, tlv_fields_encode, constructed};
 const tlv_structure_rule_t child_rules[] = {
     {{TLV_TAG(1), 1, 1, 0, nullptr}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
     {{TLV_TAG(2), 1, 1, 0, nullptr}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
@@ -72,11 +107,13 @@ TEST(Unit_Tlv_Architecture, GenericValueBoundsAndTrailerValidation) {
         size_t       header, value, trailer;
         tlv_result_t rc;
     };
-    Bounds       bounds = {1, 1, 2, TLV_OK};
-    tlv_format_t framed = format;
-    framed.context = &bounds;
-    framed.read_value_bounds = [](const void* ctx, const tlv_tag_t*, const uint8_t*, size_t,
-                                  size_t* header, tlv_size_t* value, size_t* trailer) {
+    Bounds             bounds = {1, 1, 2, TLV_OK};
+    tlv_format_t       framed = format;
+    tlv_field_layout_t layout = format_layout;
+    layout.context = &bounds;
+    framed.context = &layout;
+    layout.resolve = [](const void* ctx, const tlv_tag_t*, const uint8_t*, size_t, size_t* header,
+                        tlv_size_t* value, size_t* trailer, tlv_format_error_t*) {
         const auto& b = *static_cast<const Bounds*>(ctx);
         *header = b.header;
         *value = b.value;
@@ -97,7 +134,7 @@ TEST(Unit_Tlv_Architecture, GenericValueBoundsAndTrailerValidation) {
                                {1, 1, 2, TLV_ERR_LIMIT}};
     for (const auto& failure : failures) {
         bounds = failure;
-        element = tlv_element_t{TLV_TAG(0xEE), {}, {nullptr, 42}};
+        element = tlv_element_t{TLV_TAG(0xEE), {nullptr, 42}};
         used = 999;
         EXPECT_NE(TLV_OK, tlv_read(wire, sizeof(wire), &framed, &element, &used));
         EXPECT_EQ(999u, used);
@@ -105,9 +142,8 @@ TEST(Unit_Tlv_Architecture, GenericValueBoundsAndTrailerValidation) {
         EXPECT_EQ(nullptr, element.value.data);
         EXPECT_EQ(42u, element.value.size);
     }
-    ASSERT_EQ(TLV_OK,
-              tlv_format_init(&framed, nullptr, tag_read, length_read, nullptr, nullptr, nullptr));
-    EXPECT_EQ(nullptr, framed.read_value_bounds);
+    ASSERT_EQ(TLV_OK, tlv_fields_format_init(&framed, &format_layout));
+    EXPECT_EQ(&format_layout, framed.context);
 }
 
 TEST(Unit_Tlv_Architecture, SchemaUnknownPolicyKindsAndInvalidTables) {
@@ -251,9 +287,9 @@ TEST(Unit_Tlv_Architecture, StructureCodecDecodesWithoutWriterAndChecksEncoderFo
     EXPECT_EQ(0u, used);
     for (int missing = 0; missing < 3; ++missing) {
         auto incomplete = full_format;
-        if (missing == 0) incomplete.write_tag = nullptr;
-        if (missing == 1) incomplete.write_length = nullptr;
-        if (missing == 2) incomplete.length_size = nullptr;
+        if (missing == 0) incomplete.encode = nullptr;
+        if (missing == 1) incomplete.encode = nullptr;
+        if (missing == 2) incomplete.measure = nullptr;
         codec.format = &incomplete;
         EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
                   tlv_structure_encode(&codec, &value, sizeof(value), nullptr, 0, &used));

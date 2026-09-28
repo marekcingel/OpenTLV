@@ -90,7 +90,7 @@ static int reader_gc(lua_State* L) {
 
 /* opentlv.reader(data, format) -> Reader
  *
- * `format` defaults to opentlv.formats.default when omitted. */
+ * `format` defaults to opentlv.formats.ber when omitted. */
 static int l_reader_new(lua_State* L) {
     size_t      len;
     const char* data = luaL_checklstring(L, 1, &len);

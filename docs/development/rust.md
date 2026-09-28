@@ -51,7 +51,7 @@ for element in reader {
 }
 ```
 
-`Reader::new` uses the default format (one-byte tag, definite BER length);
+`Reader::new` uses BER;
 `Reader::with_format` takes a `Format` (`Default`, `Ber`, `Cer`, `Der`), and
 `Reader::with_fixed_format` takes a borrowed `&FixedFormat` for a
 runtime-configurable tag width, length width and length byte order (wraps the C

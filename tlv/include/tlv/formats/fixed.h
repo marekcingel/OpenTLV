@@ -2,7 +2,7 @@
 #define OPENTLV_FORMATS_FIXED_H
 
 #include "tlv/endian.h"
-#include "tlv/format.h"
+#include "tlv/layout.h"
 #include "tlv/export.h"
 #include <stddef.h>
 
@@ -47,51 +47,12 @@ extern "C" {
  * @{
  */
 
-/** @brief Element order of a configurable fixed-width format. */
-typedef enum tlv_element_order {
-    /** Tag, then length, then value; the conventional wire layout. */
-    TLV_ELEMENT_ORDER_TLV = 0,
-    /** Length, then tag, then value; for example Bluetooth LTV. */
-    TLV_ELEMENT_ORDER_LTV
-} tlv_element_order_t;
-
-/** @brief What a configurable fixed-width format's length field counts. */
-typedef enum tlv_length_scope {
-    /** The length field counts only the value: `encoded_length = value_size`. */
-    TLV_LENGTH_SCOPE_VALUE = 0,
-    /**
-     * The length field counts the tag and the value:
-     * `encoded_length = tag_size + value_size`.
-     */
-    TLV_LENGTH_SCOPE_TAG_AND_VALUE
-} tlv_length_scope_t;
-
 /**
- * @brief State describing a configurable fixed-width format.
+ * @brief Fixed format configuration using the generic binary-field layout.
  *
- * A borrowed, immutable value: the address passed to tlv_fixed_format_init()
- * becomes the initialized format's context, so this state must outlive
- * every reader or writer built from it. It is otherwise an ordinary
- * movable/copyable value; relocating it after tlv_fixed_format_init() changes
- * its address, so re-run tlv_fixed_format_init() against the new address if a
- * format built from the old one is still needed.
- * @see @docs{guides/memory,format context ownership and lifetime}
+ * @see tlv_binary_layout_t
  */
-typedef struct tlv_fixed_format {
-    /** Tag width in bytes; must be at least 1. */
-    size_t tag_size;
-    /** Length field width in bytes; must be between 1 and 8. */
-    size_t length_size;
-    /**
-     * Byte order of the length field; #TLV_BYTE_ORDER_BIG_ENDIAN or
-     * #TLV_BYTE_ORDER_LITTLE_ENDIAN.
-     */
-    tlv_byte_order_t length_order;
-    /** Where the length field falls relative to the tag. */
-    tlv_element_order_t element_order;
-    /** What the length field counts. */
-    tlv_length_scope_t length_scope;
-} tlv_fixed_format_t;
+typedef tlv_binary_layout_t tlv_fixed_format_t;
 
 /**
  * @brief Initializes a format for the configurable fixed-width encoding.
@@ -118,6 +79,7 @@ TLV_API tlv_result_t tlv_fixed_format_init(tlv_format_t* format, const tlv_fixed
 #ifdef __cplusplus
 }
 #endif
+
 /** @} */
 
 #endif

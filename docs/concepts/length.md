@@ -38,7 +38,7 @@ every `size_t` value fits `tlv_size_t`. Its only failure is a NULL `length`
 output pointer, which returns `TLV_ERR_NULL_ARG`.
 
 `tlv_size_to_native()` rejects a `length` greater than `SIZE_MAX` in the
-current build with `TLV_ERR_INVALID_LENGTH`, leaving `*size` unchanged. A NULL
+current build with `TLV_ERR_NATIVE_SIZE`, leaving `*size` unchanged. A NULL
 `size` output pointer returns `TLV_ERR_NULL_ARG`, checked before the range
 comparison. Passing this conversion does not prove that a buffer of that size
 exists, is accessible, or has sufficient capacity; actual bounds remain the
@@ -46,7 +46,7 @@ caller's responsibility.
 
 `tlv_size_validate_native()` reports the same range check as
 `tlv_size_to_native()`, without an output parameter and without accessing any
-memory: `TLV_OK` when `length` fits `size_t`, `TLV_ERR_INVALID_LENGTH`
+memory: `TLV_OK` when `length` fits `size_t`, `TLV_ERR_NATIVE_SIZE`
 otherwise.
 
 `TLV_SIZE_MAX` is `UINT64_MAX`, the largest value a `tlv_size_t` can hold;
@@ -71,7 +71,7 @@ Raw length-field bytes are represented separately by `tlv_length_t`
 representation; they are not the decoded value size.
 
 Readers and format callbacks decode logical value sizes into `tlv_size_t`.
-The reader checks the decoded count against the available input before any
+The format checks the decoded count against the available input before any
 native narrowing or pointer arithmetic, then publishes `element.value.size`.
 A count larger than the supplied buffer returns `TLV_ERR_BUFFER_TOO_SHORT`
 without modifying the output element or consumed count.

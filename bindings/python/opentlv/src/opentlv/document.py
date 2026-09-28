@@ -148,7 +148,7 @@ class Document:
 
     __slots__ = ("_capsule",)
 
-    def __init__(self, data: Optional[bytes] = None, format: Format = Format.DEFAULT, *,
+    def __init__(self, data: Optional[bytes] = None, format: Format = Format.BER, *,
                  max_depth: int = _DEFAULT_MAX_DEPTH,
                  max_elements: int = _DEFAULT_MAX_ELEMENTS) -> None:
         """Creates a document, empty or parsed from `data`.
