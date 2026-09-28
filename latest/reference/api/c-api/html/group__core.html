@@ -75,7 +75,8 @@ $(function() {
 <a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">Core types and utilities</div></div>
 </div><!--header-->
 <div class="contents">
@@ -87,6 +88,9 @@ Files</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad__types_8h" id="r_ad__types_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ad__types_8h.html">ad_types.h</a></td></tr>
 <tr class="memdesc:ad__types_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth Advertising Data Type definitions. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:company__ids_8h" id="r_company__ids_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="company__ids_8h.html">company_ids.h</a></td></tr>
+<tr class="memdesc:company__ids_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth Company Identifier definitions, independent of value codecs. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:compiler_8h" id="r_compiler_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="compiler_8h.html">compiler.h</a></td></tr>
 <tr class="memdesc:compiler_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Centralized C language version and compiler capability detection. <br /></td></tr>
@@ -215,19 +219,19 @@ Macros</h2></td></tr>
 <tr class="separator:gad062a7eec07ec5320048c3ce7557a06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga78642a629438a71c59f9442c78fd2c87" id="r_ga78642a629438a71c59f9442c78fd2c87"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga78642a629438a71c59f9442c78fd2c87">OPENTLV_VERSION_PATCH</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:ga78642a629438a71c59f9442c78fd2c87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa451b8da102d59f7b9458bc8e2f0bf97" id="r_gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97">OPENTLV_VERSION_REVISION</a>&#160;&#160;&#160;148</td></tr>
+<tr class="memitem:gaa451b8da102d59f7b9458bc8e2f0bf97" id="r_gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaa451b8da102d59f7b9458bc8e2f0bf97">OPENTLV_VERSION_REVISION</a>&#160;&#160;&#160;150</td></tr>
 <tr class="separator:gaa451b8da102d59f7b9458bc8e2f0bf97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga33d8e893fc2c2576f9fd8c31cee2256b" id="r_ga33d8e893fc2c2576f9fd8c31cee2256b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga33d8e893fc2c2576f9fd8c31cee2256b">OPENTLV_VERSION_PRERELEASE</a>&#160;&#160;&#160;&quot;&quot;</td></tr>
 <tr class="separator:ga33d8e893fc2c2576f9fd8c31cee2256b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga193562e270081cce2e0ec2cf3dc9becf" id="r_ga193562e270081cce2e0ec2cf3dc9becf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga193562e270081cce2e0ec2cf3dc9becf">OPENTLV_VERSION_STRING</a>&#160;&#160;&#160;&quot;0.6.0&quot;</td></tr>
 <tr class="separator:ga193562e270081cce2e0ec2cf3dc9becf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1d93d56a9fc48abd91435938fca018a1" id="r_ga1d93d56a9fc48abd91435938fca018a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1d93d56a9fc48abd91435938fca018a1">OPENTLV_GIT_COMMIT_HASH</a>&#160;&#160;&#160;&quot;a444f9e&quot;</td></tr>
+<tr class="memitem:ga1d93d56a9fc48abd91435938fca018a1" id="r_ga1d93d56a9fc48abd91435938fca018a1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1d93d56a9fc48abd91435938fca018a1">OPENTLV_GIT_COMMIT_HASH</a>&#160;&#160;&#160;&quot;0922c7f&quot;</td></tr>
 <tr class="separator:ga1d93d56a9fc48abd91435938fca018a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1a408e73a0b7c9dd1117ad1cb59fa238" id="r_ga1a408e73a0b7c9dd1117ad1cb59fa238"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga1a408e73a0b7c9dd1117ad1cb59fa238">OPENTLV_GIT_BRANCH</a>&#160;&#160;&#160;&quot;main&quot;</td></tr>
 <tr class="separator:ga1a408e73a0b7c9dd1117ad1cb59fa238"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2eb763ab60d23634a1db498f2eadde3c" id="r_ga2eb763ab60d23634a1db498f2eadde3c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga2eb763ab60d23634a1db498f2eadde3c">OPENTLV_GIT_TAG</a>&#160;&#160;&#160;&quot;0.6.0&quot;</td></tr>
 <tr class="separator:ga2eb763ab60d23634a1db498f2eadde3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5efa726a1d139abae3b566638e2ac0fd" id="r_ga5efa726a1d139abae3b566638e2ac0fd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5efa726a1d139abae3b566638e2ac0fd">OPENTLV_GIT_REPO_VERSION</a>&#160;&#160;&#160;&quot;0.6.0-148-a444f9e&quot;</td></tr>
+<tr class="memitem:ga5efa726a1d139abae3b566638e2ac0fd" id="r_ga5efa726a1d139abae3b566638e2ac0fd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5efa726a1d139abae3b566638e2ac0fd">OPENTLV_GIT_REPO_VERSION</a>&#160;&#160;&#160;&quot;0.6.0-150-0922c7f&quot;</td></tr>
 <tr class="separator:ga5efa726a1d139abae3b566638e2ac0fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
@@ -415,6 +419,12 @@ Functions</h2></td></tr>
 <tr class="separator:ga48af8968211e73fd6c128f4832c8ae16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8a21f768e2d80fda52775cfca8cf1c6f" id="r_ga8a21f768e2d80fda52775cfca8cf1c6f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga8a21f768e2d80fda52775cfca8cf1c6f">tlv_version_git_repo</a> (void)</td></tr>
 <tr class="separator:ga8a21f768e2d80fda52775cfca8cf1c6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:gac765f8cdfb6c92119dba42498e46711e" id="r_gac765f8cdfb6c92119dba42498e46711e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__definition__registry__t.html">tlv_definition_registry_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gac765f8cdfb6c92119dba42498e46711e">tlv_bluetooth_company_ids</a></td></tr>
+<tr class="memdesc:gac765f8cdfb6c92119dba42498e46711e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable Company Identifier registry with static lifetime.  <br /></td></tr>
+<tr class="separator:gac765f8cdfb6c92119dba42498e46711e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Tags, lengths, values, views, byte order, errors and build metadata. Guides: <a href="https://marekcingel.github.io/OpenTLV/concepts/core-types/">C core types</a>, <a href="https://marekcingel.github.io/OpenTLV/concepts/value/">borrowed values</a> and <a href="https://marekcingel.github.io/OpenTLV/guides/memory/">memory ownership</a>. </p>
@@ -538,7 +548,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_GIT_COMMIT_HASH&#160;&#160;&#160;&quot;a444f9e&quot;</td>
+          <td class="memname">#define OPENTLV_GIT_COMMIT_HASH&#160;&#160;&#160;&quot;0922c7f&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -552,7 +562,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_GIT_REPO_VERSION&#160;&#160;&#160;&quot;0.6.0-148-a444f9e&quot;</td>
+          <td class="memname">#define OPENTLV_GIT_REPO_VERSION&#160;&#160;&#160;&quot;0.6.0-150-0922c7f&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -650,7 +660,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define OPENTLV_VERSION_REVISION&#160;&#160;&#160;148</td>
+          <td class="memname">#define OPENTLV_VERSION_REVISION&#160;&#160;&#160;150</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -2732,6 +2742,34 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if <code>value</code> does not fit in <code>width</code> bytes.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On failure the destination is unchanged. </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="gac765f8cdfb6c92119dba42498e46711e" name="gac765f8cdfb6c92119dba42498e46711e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac765f8cdfb6c92119dba42498e46711e">&#9670;&#160;</a></span>tlv_bluetooth_company_ids</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structtlv__definition__registry__t.html">tlv_definition_registry_t</a> tlv_bluetooth_company_ids</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Immutable Company Identifier registry with static lifetime. </p>
+<p>Keys are exactly two identifier octets, least-significant octet first: Apple 0x004C has key {0x4C, 0x00}. Use <a class="el" href="definition_8h.html#a4f3eee11f435919963ddbf725442b7d9" title="Finds the first definition with the same tag size and bytes.">tlv_definition_find()</a> with a borrowed two-byte tag, including an isolated Manufacturer Specific Data prefix. Do not use the native memory representation of a uint16_t as a key. The registry only compares byte identities; it does not decode numeric values.</p>
+<p>Initial coverage: 0x0000 (Ericsson), 0x0006 (Microsoft), 0x004C (Apple), 0x0059 (Nordic Semiconductor), 0x0075 (Samsung) and 0x00E0 (Google). Names follow the Bluetooth SIG Assigned Numbers HTML table dated 2023-12-21. This is a non-exhaustive snapshot, not a validity list: missing identifiers remain valid and lookup returns NULL. No value validation or vendor protocol interpretation occurs. Lookup never allocates and returned entries borrow static storage. Available independently of codecs and the LTV build option.</p>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/index-en.html">https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/index-en.html</a> </dd></dl>
 
 </div>
 </div>

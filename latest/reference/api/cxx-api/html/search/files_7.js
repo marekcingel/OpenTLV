@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['query_2eh_0',['query.h',['../../../c-api/html/query_8h.html',1,'']]],
-  ['query_2ehpp_1',['query.hpp',['../query_8hpp.html',1,'']]]
+  ['manufacturer_5fdata_2eh_0',['manufacturer_data.h',['../../../c-api/html/manufacturer__data_8h.html',1,'']]]
 ];

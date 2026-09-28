@@ -1565,6 +1565,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#manufacturer-specific-data-and-company-identifiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manufacturer Specific Data and Company Identifiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#encoding" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2834,6 +2845,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#manufacturer-specific-data-and-company-identifiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manufacturer Specific Data and Company Identifiers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#encoding" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3057,8 +3079,8 @@ Power) report <code>TLV_CODEC_ERR_INVALID_VALUE</code>. Missing pointers report
 <code>TLV_CODEC_ERR_BUFFER_TOO_SHORT</code>. <code>tlv_codec_strerror()</code> provides readable
 diagnostics; these are distinct from framing and schema errors. Applications
 can retain the parsed tag and source offset alongside a codec error.</p>
-<p>UUID lists, Service Data and Manufacturer Specific Data codecs are outside
-this initial set.</p>
+<p>UUID lists, Service Data and Manufacturer Specific Data use the separate
+codecs described below.</p>
 <h2 id="advertising-data-schema">Advertising Data schema<a class="headerlink" href="#advertising-data-schema" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/builtins/bluetooth/ad_schema.h</code> and pass
 <code>&amp;tlv_bluetooth_ad_schema</code> to <code>tlv_schema_validate()</code> with
@@ -3398,6 +3420,40 @@ UUID codec and copying the payload unchanged. The informational <code>raw</code>
 is ignored, so caller-constructed objects can leave it empty. Both directions
 are allocation-free. These codecs are available independently of the Bluetooth
 format and do not impose its framing size limit.</p>
+<h2 id="manufacturer-specific-data-and-company-identifiers">Manufacturer Specific Data and Company Identifiers<a class="headerlink" href="#manufacturer-specific-data-and-company-identifiers" title="Permanent link">&para;</a></h2>
+<p>Include <code>tlv/builtins/bluetooth/manufacturer_data.h</code> and use
+<code>tlv_bluetooth_codec_manufacturer_data</code> for AD Type <code>0xFF</code>.
+Its <code>tlv_bluetooth_manufacturer_data_t</code> representation contains:</p>
+<ul>
+<li><code>company_id</code>: the numeric 16-bit Company Identifier, decoded little-endian;</li>
+<li><code>payload</code>: a borrowed span after the two identifier bytes;</li>
+<li><code>raw</code>: the complete borrowed value, including the identifier.</li>
+</ul>
+<p>For <code>1A FF 4C 00 02 15 ...</code>, the codec exposes <code>company_id == 0x004C</code>
+and payload <code>02 15 ...</code>. It does not interpret the payload as iBeacon or
+any other vendor protocol. Such interpretation belongs in optional extensions.
+Keep source storage alive and immutable while using either span. Values shorter
+than two bytes are rejected; an empty payload and unknown identifiers are valid.
+Encoding uses <code>company_id</code> and <code>payload</code>, ignores <code>raw</code>, and regenerates the
+little-endian prefix. Both directions are allocation-free and available with
+<code>OPENTLV_FORMAT_BLUETOOTH_LTV=OFF</code>, without an AD framing size limit.</p>
+<p>The independent <code>tlv/builtins/bluetooth/company_ids.h</code> header exposes
+<code>tlv_bluetooth_company_ids</code>, a Definition registry for <code>tlv_definition_find()</code>.
+Its keys are the two identifier octets, least-significant octet first: Apple's
+key is <code>{0x4C, 0x00}</code>. A decoded value's first two <code>raw</code> bytes can be used
+directly as a <code>tlv_tag_t</code> key. For a numeric identifier, explicitly construct
+the two bytes; do not reinterpret its native memory representation.
+The registry performs byte comparison only and has no dependency on the codec,
+schema or format. A missing definition returns <code>NULL</code> and does not invalidate
+the Company Identifier.</p>
+<p>Initial coverage is <code>0x0000</code> (Ericsson), <code>0x0006</code> (Microsoft), <code>0x004C</code> (Apple),
+<code>0x0059</code> (Nordic Semiconductor), <code>0x0075</code> (Samsung) and <code>0x00E0</code> (Google).
+This is a non-exhaustive snapshot of the
+<a href="https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/index-en.html">Bluetooth SIG Assigned Numbers HTML table</a>
+(Company Identifiers table dated 2023-12-21). It is descriptive metadata,
+not an automatically updated list or a vendor payload dispatcher.
+The value structure follows
+<a href="https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v12/out/en/supplement-to-the-bluetooth-core-specification/data-types-specification.html">Core Specification Supplement, Part A, section 1.4</a>.</p>
 <h2 id="encoding">Encoding<a class="headerlink" href="#encoding" title="Permanent link">&para;</a></h2>
 <p>Writing uses <code>tlv_format_bluetooth_ltv</code> with the same <code>tlv_write</code> and
 <code>tlv_writer_write</code> calls as any other format. The writer emits the length byte
