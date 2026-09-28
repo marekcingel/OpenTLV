@@ -71,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a DHCPv4 option Definition registry for 17 common Codes, with allocation-free name lookup independent of framing and Value interpretation. (#369)
 - Add optional DHCPv4 option framing, including Pad/End, source preservation and C/C++ Reader/Writer support, backed by generic identifier-selected binary layouts. (#367)
 - Add LLDPDU structural validation with shared diagnostics and allocation-free codecs for base LLDP values, including management addresses and generic organisational payloads; add reference tests and compiled C/C++ examples. (#363)
 - Add allocation-free packed bit-field helpers for 1..8-byte TLV headers, with explicit byte order, checked unsigned extraction/insertion and preservation of neighboring fields; LLDP now reuses this primitive. (#361)

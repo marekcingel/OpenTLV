@@ -36,7 +36,9 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
 )
 
 if(OPENTLV_DHCP)
-    target_sources(${PROJECT_NAME} PRIVATE src/builtins/dhcp/dhcpv4.c)
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/builtins/dhcp/dhcpv4.c
+        src/builtins/dhcp/options.c)
 endif()
 if(OPENTLV_LLDP)
     target_sources(${PROJECT_NAME} PRIVATE
