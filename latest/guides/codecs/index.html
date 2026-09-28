@@ -1120,6 +1120,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#reusable-primitive-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reusable primitive codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2725,6 +2736,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#reusable-primitive-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reusable primitive codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2856,6 +2878,15 @@ dictionary</a>). See the
 <a href="../../concepts/bindings/">language bindings conceptual model</a> for why the two
 diverge from the C/C++ shape described above.</p>
 <p>See also the <a href="../../reference/c-api/#codecs">C API reference: codecs</a>.</p>
+<h2 id="reusable-primitive-codecs">Reusable primitive codecs<a class="headerlink" href="#reusable-primitive-codecs" title="Permanent link">&para;</a></h2>
+<p>Include <code>tlv/codec/values.h</code> for <code>tlv_codec_uint8</code>,
+<code>tlv_codec_uint16_be</code>, <code>tlv_codec_uint32_be</code> and <code>tlv_codec_bytes</code>.
+Include <code>tlv/codec/ipv4.h</code> for <code>tlv_codec_ipv4</code> and
+<code>tlv_codec_ipv4_list</code>. They use the same Codec
+contract and are available independently of protocol components.
+Byte sequences decode to borrowed <code>tlv_value_t</code> views; IPv4 lists decode
+to <code>tlv_ipv4_list_t</code> views with checked access through
+<code>tlv_ipv4_list_at()</code>. The caller retains ownership of the input.</p>
 
 
 

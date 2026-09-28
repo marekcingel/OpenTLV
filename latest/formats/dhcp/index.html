@@ -1505,6 +1505,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#scope-and-composition" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2715,6 +2726,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#scope-and-composition" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2821,6 +2843,78 @@ It is not an exhaustive option registry.</p>
 have static lifetime; lookup allocates nothing and needs no Reader or Writer.
 Definitions only describe identifiers: they do not decode Values, validate
 option lengths or control Pad/End handling. Framing does not consult the registry.</p>
+<h2 id="value-codecs">Value codecs<a class="headerlink" href="#value-codecs" title="Permanent link">&para;</a></h2>
+<p>Include <code>tlv/builtins/dhcp/codec.h</code> for the DHCP Message Type codec and
+<code>tlv/codec/values.h</code> for fundamental integer and byte representations.
+Include <code>tlv/codec/ipv4.h</code> for IPv4 addresses and address lists:</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Codec</th>
+<th>C representation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IPv4 address (for example options 1, 50, 54)</td>
+<td><code>tlv_codec_ipv4</code></td>
+<td><code>tlv_ipv4_t</code>, four network-order octets</td>
+</tr>
+<tr>
+<td>IPv4 list (3, 6)</td>
+<td><code>tlv_codec_ipv4_list</code></td>
+<td><code>tlv_ipv4_list_t</code>, borrowed bytes</td>
+</tr>
+<tr>
+<td>Unsigned byte</td>
+<td><code>tlv_codec_uint8</code></td>
+<td><code>uint8_t</code></td>
+</tr>
+<tr>
+<td>Unsigned 16-bit integer (57)</td>
+<td><code>tlv_codec_uint16_be</code></td>
+<td><code>uint16_t</code></td>
+</tr>
+<tr>
+<td>Unsigned 32-bit integer (51, 58, 59)</td>
+<td><code>tlv_codec_uint32_be</code></td>
+<td><code>uint32_t</code></td>
+</tr>
+<tr>
+<td>DHCP Message Type (53)</td>
+<td><code>tlv_dhcpv4_codec_message_type</code></td>
+<td><code>uint8_t</code></td>
+</tr>
+<tr>
+<td>Parameter Request List (55), opaque identifiers (60, 61)</td>
+<td><code>tlv_codec_bytes</code></td>
+<td>borrowed <code>tlv_value_t</code></td>
+</tr>
+</tbody>
+</table>
+<p>For <code>35 01 03</code>, Reader exposes raw Value <code>03</code>. Decode that Value with
+<code>tlv_dhcpv4_codec_message_type</code> to obtain <code>TLV_DHCPV4_REQUEST</code>.
+Use a <code>uint8_t</code> object, not an enum object, for this codec. Constants name
+the eight RFC 2132 message types; all other byte values are preserved too.
+The codec does not validate DHCP exchange state or require a known type.</p>
+<p>All codecs support decode, encode and validated encode size queries through
+<code>tlv_codec_decode()</code> and <code>tlv_codec_encode()</code>. Convert
+<code>element.value.size</code> with <code>tlv_size_to_native()</code> before passing it to a codec.
+For size queries, pass a NULL destination and zero capacity. Invalid
+representations fail even when no bytes are requested; errors report zero
+bytes written.</p>
+<p>Byte sequences and IPv4 lists borrow input storage, which must remain alive
+and immutable. Encoding preserves all bytes, including order and duplicates.
+Use <code>tlv_ipv4_list_at()</code> for checked address access without allocation.
+An IPv4 list must contain a multiple of four bytes. Generic lists and byte
+sequences permit empty values and impose no DHCP length limits. Option-specific
+constraints (such as a nonempty Router list) require separate validation.
+Parameter Request Lists preserve unknown option Codes. Opaque identifiers
+are retained whole, without interpreting hardware types or vendor payloads.</p>
+<p>Generic codecs are available with <code>OPENTLV_DHCP=OFF</code>; only the DHCP Message
+Type descriptor requires DHCP support. Codec selection is explicit and does
+not change Format or Definition behavior.</p>
 <h2 id="scope-and-composition">Scope and composition<a class="headerlink" href="#scope-and-composition" title="Permanent link">&para;</a></h2>
 <p>Pass only the option region, excluding the DHCP packet header and magic
 cookie. Reader returns Pad and End as ordinary elements. The caller decides

@@ -2804,11 +2804,11 @@ subset. They are not captures or an official IEEE conformance suite.</p>
 </tr>
 </tbody>
 </table>
-<p><code>tests/integration/lldp_test.cpp</code> covers every Type 0..127 and Length 0..511,
+<p><code>tests/integration/builtins/lldp/lldp_test.cpp</code> covers every Type 0..127 and Length 0..511,
 truncation, writer bounds, borrowed identity, source preservation, structural
 errors, shared diagnostics, Reader/Writer, Document and Query. Its exhaustive
 framing test intentionally includes semantically invalid LLDP elements.
-<code>tests/unit/lldp_test.cpp</code> tests each codec against expected bytes, both encoding
+<code>tests/unit/builtins/lldp/codec_test.cpp</code> tests each codec against expected bytes, both encoding
 directions, size queries, capacities, invalid fields and boundary sizes.
 The C and C++ examples are compiled targets and their documentation is checked
 against source by <code>scripts/check_doc_examples.py</code>.</p>
