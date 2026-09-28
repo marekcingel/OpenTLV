@@ -50,6 +50,7 @@ impl LengthRule {
             max_length: self.max_length,
             flags: 0,
             name: ptr::null(),
+            length_multiple: 0,
         }
     }
 
@@ -359,6 +360,7 @@ impl StructureSchema {
                     max_length: rule.max_length,
                     flags: 0,
                     name: ptr::null(),
+                    length_multiple: 0,
                 },
                 min_occurs: rule.min_occurs,
                 max_occurs: rule.max_occurs,

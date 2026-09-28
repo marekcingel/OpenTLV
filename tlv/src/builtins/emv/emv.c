@@ -34,9 +34,9 @@
 
 /* A leading sentinel keeps a scope with no entries valid C99. */
 #define EMV_BEGIN(scope)                                                                           \
-    static const tlv_schema_entry_t entries_##scope[] = {{{NULL, 0}, 0, 0, 0, NULL},
+    static const tlv_schema_entry_t entries_##scope[] = {{{NULL, 0}, 0, 0, 0, NULL, 0},
 #define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
-    {{emv_tag_bytes_##name, size}, min, max, 0, #name},
+    {{emv_tag_bytes_##name, size}, min, max, 0, #name, 0},
 #define EMV_END(scope)                                                                             \
     }                                                                                              \
     ;

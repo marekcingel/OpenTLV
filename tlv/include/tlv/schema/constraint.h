@@ -35,9 +35,10 @@ typedef enum tlv_value_constraint_kind {
  *
  * Checked against the C representation a #tlv_codec_t decode produces (for
  * example tlv_asn1_codec_integer's `int64_t`), not against raw TLV bytes;
- * pair it with a codec's decode step. Byte-length and occurrence bounds are
- * unrelated concerns already covered by #tlv_schema_entry_t's `min_length`/
- * `max_length` and #tlv_structure_rule_t's `min_occurs`/`max_occurs`.
+ * pair it with a codec's decode step. Byte-length and occurrence constraints
+ * are separate concerns covered by #tlv_schema_entry_t's `min_length`,
+ * `max_length`, `length_multiple` and #tlv_structure_rule_t's
+ * `min_occurs`/`max_occurs`.
  */
 typedef struct tlv_value_constraint {
     /** Which fields below apply. */

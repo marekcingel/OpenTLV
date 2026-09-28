@@ -44,6 +44,40 @@ metadata does not impose schema constraints or interpret values. Both the
 generic API and Bluetooth registry are available even with
 `OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`.
 
+## Advertising Data schema
+
+Include `tlv/builtins/bluetooth/ad_schema.h` and pass
+`&tlv_bluetooth_ad_schema` to `tlv_schema_validate()` with
+`&tlv_format_bluetooth_ltv`. The immutable schema is available even when the
+Bluetooth format is disabled; it has no dependency on codecs or the registry.
+
+| AD types | Value-length constraint | Occurrences per AD block |
+| --- | --- | --- |
+| Flags (`01`) | Any, including empty | At most one |
+| Shortened / Complete Local Name (`08`, `09`) | 0 through 248 bytes | At most one across both types |
+| Tx Power (`0A`) | Exactly 1 byte | Unrestricted |
+| Service UUID lists (`02`–`07`) | Multiple of 2, 4 or 16 bytes; empty allowed | At most one list per width, across complete and incomplete variants |
+| Service Data (`16`, `20`, `21`) | At least 2, 4 or 16 bytes | Unrestricted |
+| Manufacturer Specific Data (`FF`) | At least 2 bytes | Unrestricted |
+
+These rules follow [Bluetooth CSS v12, Part A](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v12/out/en/supplement-to-the-bluetooth-core-specification/data-types-specification.html),
+Table 1.1 and sections 1.1–1.5 and 1.11. All fields are optional in this
+context-free schema. Unknown types are accepted. Conditional requirements
+based on connectability and relationships between separate AD/SRD blocks
+require additional context and are not checked.
+
+`02 0A FC` passes; `03 0A FC FD` parses successfully but fails schema
+validation with `TLV_ERR_INVALID_LENGTH`. Likewise, `04 03 0F 18 00`
+fails because three value bytes cannot form a 16-bit UUID list.
+`tlv_schema_validate_all()` and `tlv_schema_validate_all_diag()` report these
+as length issues; the detailed diagnostic includes `length_multiple`.
+
+This schema checks lengths and occurrences only. It does not check UTF-8,
+flag-bit contents, numeric ranges, assigned UUIDs/company identifiers or
+service/manufacturer payloads. The format still enforces the 254-byte value
+limit. Pass only significant AD structures; trailing zero padding remains a
+framing error and needs separate container handling.
+
 ## Wire layout and logical model
 
 On the wire the length comes first:
@@ -191,11 +225,11 @@ never returned partially.
 
 ## Limitations
 
-- The type is exposed as a one-byte tag and the value is opaque; there is no
-  built-in GAP or assigned-numbers dictionary.
+- The type is exposed as a one-byte tag and the value is opaque; the AD Type
+  registry and schema do not decode values.
 - Values are limited to 254 bytes, and the tag is always one byte.
 - There are no constructed types; nesting is left to the caller.
-- Only the framing is implemented, not any part of a Bluetooth stack.
+- Framing and optional schema validation do not implement a Bluetooth stack.
 
 ## Byte example
 

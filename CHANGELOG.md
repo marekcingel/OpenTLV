@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Extend `tlv_schema_entry_t` with an optional value-length multiple and `tlv_schema_diagnostic_t` with the expected multiple. Rebuild consumers and initialize the new schema field to zero to preserve unrestricted lengths. (#345)
 - **Breaking:** Remove the nonstandard default/compact format, its build option and binding presets. Select BER or an explicitly configured Fixed format; optional default selections in Rust, Python, Lua and WebAssembly now use BER. (#341)
 - **Breaking:** Redesign `tlv_format_t` around canonical decode, logical sizing and complete encoding, with explicit Header/Value/Trailer framing and separate borrowed source information. Keep `tlv_element_t` semantic, add checked byte-preserving source copies, share generic TLV/LTV mechanics, support generic constructed CER encoding, and distinguish native address-space limits. Update C++, Rust, Python, Lua and WebAssembly consumers; rebuild and migrate custom formats. (#341)
 - Use the canonical C `tlv_element_t` directly as C++ `tlv::element`. Add `tlv::as_bytes()` for checked conversion of `tlv_value_t` to a borrowed native byte span. (#340)
@@ -63,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an allocation-free Bluetooth Advertising Data schema for value lengths, UUID list widths and occurrence constraints. Unknown AD types remain accepted; value decoding and trailing padding handling are separate concerns. (#345)
 - Add a generic, allocation-free Definition registry and Bluetooth Advertising Data Type names with byte-identity lookup, independent of LTV parsing. (#344)
 - Add a `fuzz_fixed` target that derives the configurable Fixed format's tag width, length width and byte order from the fuzz input itself, exercising round-trip and malformed-input parsing across arbitrary valid configurations instead of only the historical 1-byte-tag/1-byte-length shape. (#330)
 - Add an experimental Lua binding (`bindings/lua/`, `require("opentlv")` after building with `-DOPENTLV_BUILD_LUA=ON` or `luarocks make`), split into `opentlv-native` and `opentlv` like the Rust and Python bindings. Covers Reader, Entry and Tag across the default, BER, CER, DER, Bluetooth LTV and configurable fixed-width formats, plus preorder tree traversal (`opentlv.walk_tree`). Targets Lua 5.1 through 5.4 and LuaJIT. See [Using OpenTLV from Lua](docs/guides/lua.md). (#297, #298)

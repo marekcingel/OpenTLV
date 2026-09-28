@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 namespace {
-const tlv_schema_entry_t rules[] = {{TLV_TAG(0x42), 1, 2, 0, nullptr}};
+const tlv_schema_entry_t rules[] = {{TLV_TAG(0x42), 1, 2, 0, nullptr, 0}};
 const tlv_schema_t       schema = {rules, 1};
 
 class Integration_Tlv_Scanner : public ::testing::Test {
@@ -66,10 +66,19 @@ TEST_F(Integration_Tlv_Scanner, EmptyAndReversedSchemasRejectAllCandidates) {
     const tlv_schema_t empty = {nullptr, 0};
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, sizeof(data), 0, &empty));
     unchanged();
-    const tlv_schema_entry_t reversed_rule = {TLV_TAG(0x42), 2, 1, 0, nullptr};
+    const tlv_schema_entry_t reversed_rule = {TLV_TAG(0x42), 2, 1, 0, nullptr, 0};
     const tlv_schema_t       reversed = {&reversed_rule, 1};
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, sizeof(data), 0, &reversed));
     unchanged();
+}
+
+TEST_F(Integration_Tlv_Scanner, SchemaSkipsNonMultipleValueLengths) {
+    const uint8_t            data[] = {0x42, 3, 0xFF, 0xFF, 0xFF, 0x42, 2, 0xAA, 0xBB};
+    const tlv_schema_entry_t rule = {TLV_TAG(0x42), 0, SIZE_MAX, 0, nullptr, 2};
+    const tlv_schema_t       filter = {&rule, 1};
+    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &filter));
+    EXPECT_EQ(5u, offset);
+    EXPECT_EQ(2u, element.value.size);
 }
 
 TEST_F(Integration_Tlv_Scanner, HandlesEveryTruncatedPrefixSafely) {

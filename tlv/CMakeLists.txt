@@ -10,6 +10,7 @@ endif()
 add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/definition.c
     src/builtins/bluetooth/ad_types.c
+    src/builtins/bluetooth/ad_schema.c
     src/codec/codec.c
     src/codec/structure.c
     src/format.c

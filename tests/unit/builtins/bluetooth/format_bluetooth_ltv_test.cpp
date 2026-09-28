@@ -149,7 +149,7 @@ TEST(Unit_Tlv_BluetoothLtv, WriterRoundTripsThroughReader) {
 TEST(Unit_Tlv_BluetoothLtv, GenericScannerWalkerAndTreeWalkWork) {
     tlv_element_t            element;
     size_t                   offset = 0, consumed = 0;
-    const tlv_schema_entry_t entries[] = {{TLV_TAG(0x09), 0, 8, 0, nullptr}};
+    const tlv_schema_entry_t entries[] = {{TLV_TAG(0x09), 0, 8, 0, nullptr, 0}};
     const tlv_schema_t       schema = {entries, 1};
     ASSERT_EQ(TLV_OK, tlv_scan(advertising, sizeof(advertising), 0, &reader_format, &schema,
                                &element, &offset, &consumed));
