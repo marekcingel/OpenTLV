@@ -39,9 +39,6 @@ int opentlv_lua_push_element(lua_State* L, const tlv_element_t* element, size_t 
     lua_newtable(L);
     lua_pushlstring(L, (const char*)element->tag.data, element->tag.size);
     lua_setfield(L, -2, "tag");
-    lua_pushlstring(L, element->length.size ? (const char*)element->length.data : "",
-                    element->length.size);
-    lua_setfield(L, -2, "raw_length");
     lua_pushinteger(L, (lua_Integer)value_length);
     lua_setfield(L, -2, "length");
     lua_pushlstring(L, value_length > 0 ? (const char*)element->value.data : "", value_length);

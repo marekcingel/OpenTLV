@@ -72,6 +72,7 @@ enum {
 static inline tlv_asn1_class_t tlv_ber_tag_class(const tlv_tag_t* tag) {
     return (tlv_asn1_class_t)(tag->data[0] >> TLV_ASN1_CLASS_SHIFT);
 }
+
 /**
  * @brief Reports whether a BER tag has the constructed bit set.
  *
@@ -109,6 +110,7 @@ static inline int tlv_ber_tag_is_constructed(const tlv_tag_t* tag) {
  */
 TLV_API tlv_result_t tlv_ber_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
                                       uint8_t* storage, tlv_tag_t* tag);
+
 /**
  * @brief Extracts the numeric tag number from a BER tag.
  *
@@ -302,9 +304,29 @@ TLV_API tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size
 TLV_API tlv_result_t tlv_ber_length_encode(tlv_size_t value, uint8_t* out, size_t out_capacity,
                                            size_t* written);
 
+/**
+ * @brief BER policy writing constructed elements with indefinite length and EOC.
+ * Reads all supported BER framing; rejects primitive encoding. Context is immutable.
+ */
+TLV_API extern const tlv_format_t tlv_format_ber_indefinite;
+
+/**
+ * @brief Decode one BER identifier without requiring a following length or value.
+ *
+ * @param[in]  data     Input bytes.
+ * @param[in]  size     Available bytes.
+ * @param[out] tag      Borrowed identifier on success.
+ * @param[out] consumed Identifier width on success.
+ *
+ * @return #TLV_OK, #TLV_ERR_NULL_ARG, or a BER identifier error.
+ */
+TLV_API tlv_result_t tlv_ber_read_identifier(const uint8_t* data, size_t size, tlv_tag_t* tag,
+                                             size_t* consumed);
+
 #ifdef __cplusplus
 }
 #endif
+
 /** @} */
 
 #endif

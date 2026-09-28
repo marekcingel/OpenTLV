@@ -1,3 +1,4 @@
+#include "tlv++/format.hpp"
 #include "controlled_format.h"
 #include "tlv++/tlv.hpp"
 
@@ -37,7 +38,7 @@ TEST(Unit_Tlvpp, AsBytesValidatesAndBorrowsValue) {
 #if SIZE_MAX < UINT64_MAX
     auto oversized = tlv::as_bytes(tlv_value_t{data, static_cast<tlv_size_t>(SIZE_MAX) + 1});
     ASSERT_FALSE(oversized.has_value());
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, oversized.error().code);
+    EXPECT_EQ(TLV_ERR_NATIVE_SIZE, oversized.error().code);
 #endif
 }
 
@@ -63,9 +64,11 @@ TEST(Unit_Tlvpp, ReaderReportsEndOfBuffer) {
     auto e1 = reader.next();
     ASSERT_TRUE(e1.has_value());
     EXPECT_TRUE(e1->value.size == 0);
-    EXPECT_EQ(reinterpret_cast<const uint8_t*>(buf.data()) + 1, e1->length.data);
-    EXPECT_EQ(1u, e1->length.size);
-    EXPECT_EQ(0u, e1->length.data[0]);
+    auto decoded = tlv::decode(controlled::format, tlv::bytes(buf.data(), buf.size()));
+    ASSERT_TRUE(decoded);
+    EXPECT_EQ(1u, decoded->source.length.offset);
+    EXPECT_EQ(1u, decoded->source.length.size);
+    EXPECT_EQ(0u, decoded->source.data[decoded->source.length.offset]);
 
     EXPECT_TRUE(reader.at_end());
     auto e2 = reader.next();

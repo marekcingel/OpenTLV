@@ -20,32 +20,4 @@ void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base,
     tlv_diagnostic_path_push(&scope.path, element->tag);
 }
 
-bool diagnostic_scope_derive_reader_diagnostic(const diagnostic_scope& scope,
-                                               const tlv_format_t* format, const uint8_t* data,
-                                               size_t size, size_t error_offset,
-                                               tlv_result_t             expected_code,
-                                               tlv_reader_diagnostic_t* out) {
-    if (error_offset > size) return false;
-    size_t depth = scope.path.length;
-    size_t enclosing_end = depth <= TLV_WALK_MAX_DEPTH ? scope.end[depth] : size;
-    if (enclosing_end > size) enclosing_end = size;
-    if (enclosing_end < error_offset) enclosing_end = error_offset;
-
-    tlv_element_t           element;
-    size_t                  consumed;
-    tlv_reader_diagnostic_t diag;
-    tlv_reader_diagnostic_init(&diag);
-    tlv_result_t rc = tlv_read_diag(data + error_offset, enclosing_end - error_offset, format,
-                                    &element, &consumed, &diag);
-    if (rc != expected_code) return false;
-
-    diag.diagnostic.offset += error_offset;
-    if (diag.has_tag_offset) diag.tag_offset += error_offset;
-    if (diag.has_length_offset) diag.length_offset += error_offset;
-    if (diag.has_value_offset) diag.value_offset += error_offset;
-    if (diag.has_enclosing_end) diag.enclosing_end += error_offset;
-    *out = diag;
-    return true;
-}
-
 } // namespace cli

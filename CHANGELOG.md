@@ -1,63 +1,28 @@
 # Changelog
 
-All notable changes to OpenTLV are documented in this file.
+All notable changes to this project will be documented in this file.
 
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
 ### Fixed
 
-- Check logical value sizes before converting them to native sizes in CLI
-  presentation and commands, making the reader-produced element invariant
-  explicit instead of relying on direct casts. (#342)
-- Fix documentation example checks failing after the element refactoring by
-  synchronizing the README, getting-started and Fixed format code blocks with
-  their compiled example sources. (#340)
-- Fix Clang `-Wmissing-field-initializers` errors in the C++ runtime Fixed
-  format example by explicitly initializing the element order and length scope. (#340)
-- Fix the Document test owner's move semantics so returning it does not free
-  the document prematurely on builds without copy elision, including x86 Debug. (#340)
-- Fix Clang `-Wmissing-field-initializers` errors in the Fixed format tests
-  and the fuzz harness, whose `tlv_fixed_format_t` literals used positional
-  initializers for only some of the struct's fields after it gained
-  `element_order` and `length_scope`. (#331)
-- Fix a Clang `-Wunused-const-variable` error in the integration architecture
-  test, whose `full_format` fixture became dead code once its only user
-  switched to a copy with `is_constructed` set. (#332)
-- Fix the Doxygen build failing with an unresolved link to `format`, caused by
-  `@see` comments that spelled out `docs/guides/memory.md#format-context-ownership-and-lifetime`
-  as literal text; use the project's `@docs{}` alias instead, which does not
-  contain a `#` for the autolinker to misinterpret. (#328)
-- Fix the WebAssembly build's `fixed` format selection using module-instance-lifetime
-  (`static`) storage instead of per-call storage, which was not reentrant if the
-  module were ever invoked recursively or shared across Web Workers; it now
-  builds `tlv_fixed_format_t`/`tlv_format_t` on the stack for each parse call,
-  like every other format. (#328)
-- Fix a Clang `-Wmissing-field-initializers` error in the architecture and
-  format tests, whose custom `tlv_format_t` literals used positional
-  initializers for only some of the struct's fields. (#326)
-- Fix `cargo fmt --all --check` failures in the Rust `opentlv` reader and
-  writer modules after `Format`/`FixedFormat`'s `reader_raw()`/`writer_raw()`
-  collapsed into one `raw()`. (#326)
-- Fix a Windows/MSVC build failure (`warning C4005` treated as an error) when
-  a translation unit includes both `tlv/attributes.h` and `tlv++/compat.hpp`,
-  which independently defined `TLV_NODISCARD`. (#326)
-- Fix the Lua binding's CMake build failing to configure in CI, where Lua is
-  installed to a non-standard prefix `FindLua` cannot locate a library in on
-  its own: on Linux and macOS, `bindings/lua/CMakeLists.txt` no longer
-  requires or links a Lua library at all (`lua_*`/`luaL_*` symbols resolve
-  against the interpreter process at `require()` time instead, which also
-  avoids linking a second, independent copy of the Lua runtime into the
-  module); Windows, which cannot do that, locates the library itself next to
-  the already-resolved `LUA_INCLUDE_DIR` instead of relying on a LuaRocks
-  rockspec variable (`LUA_LIBDIR`/`LUA_LIBDIR_FILE`) that turned out not to
-  be substitutable for this build type. (#297, #298)
-- Fix `tlv_structure_rule_t`/`tlv_structure_schema_t` initializers in the EMV
-  structural schema, examples and tests that Clang's
-  `-Wmissing-field-initializers` rejected under `-Werror` after those types
-  gained `group`/`order` fields. (#308)
+- Reject decoder results whose semantic Tag does not match its source range, including inconsistent absent or empty Tags. (#343)
+- Check logical value sizes before converting them to native sizes in CLI presentation and commands, making the reader-produced element invariant explicit instead of relying on direct casts. (#342)
+- Fix documentation example checks failing after the element refactoring by synchronizing the README, getting-started and Fixed format code blocks with their compiled example sources. (#340)
+- Fix Clang `-Wmissing-field-initializers` errors in the C++ runtime Fixed format example by explicitly initializing the element order and length scope. (#340)
+- Fix the Document test owner's move semantics so returning it does not free the document prematurely on builds without copy elision, including x86 Debug. (#340)
+- Fix Clang `-Wmissing-field-initializers` errors in the Fixed format tests and the fuzz harness, whose `tlv_fixed_format_t` literals used positional initializers for only some of the struct's fields after it gained `element_order` and `length_scope`. (#331)
+- Fix a Clang `-Wunused-const-variable` error in the integration architecture test, whose `full_format` fixture became dead code once its only user switched to a copy with `is_constructed` set. (#332)
+- Fix the Doxygen build failing with an unresolved link to `format`, caused by `@see` comments that spelled out `docs/guides/memory.md#format-context-ownership-and-lifetime` as literal text; use the project's `@docs{}` alias instead, which does not contain a `#` for the autolinker to misinterpret. (#328)
+- Fix the WebAssembly build's `fixed` format selection using module-instance-lifetime (`static`) storage instead of per-call storage, which was not reentrant if the module were ever invoked recursively or shared across Web Workers; it now builds `tlv_fixed_format_t`/`tlv_format_t` on the stack for each parse call, like every other format. (#328)
+- Fix a Clang `-Wmissing-field-initializers` error in the architecture and format tests, whose custom `tlv_format_t` literals used positional initializers for only some of the struct's fields. (#326)
+- Fix `cargo fmt --all --check` failures in the Rust `opentlv` reader and writer modules after `Format`/`FixedFormat`'s `reader_raw()`/`writer_raw()` collapsed into one `raw()`. (#326)
+- Fix a Windows/MSVC build failure (`warning C4005` treated as an error) when a translation unit includes both `tlv/attributes.h` and `tlv++/compat.hpp`, which independently defined `TLV_NODISCARD`. (#326)
+- Fix the Lua binding's CMake build failing to configure in CI, where Lua is installed to a non-standard prefix `FindLua` cannot locate a library in on its own: on Linux and macOS, `bindings/lua/CMakeLists.txt` no longer requires or links a Lua library at all (`lua_*`/`luaL_*` symbols resolve against the interpreter process at `require()` time instead, which also avoids linking a second, independent copy of the Lua runtime into the module); Windows, which cannot do that, locates the library itself next to the already-resolved `LUA_INCLUDE_DIR` instead of relying on a LuaRocks rockspec variable (`LUA_LIBDIR`/`LUA_LIBDIR_FILE`) that turned out not to be substitutable for this build type. (#297, #298)
+- Fix `tlv_structure_rule_t`/`tlv_structure_schema_t` initializers in the EMV structural schema, examples and tests that Clang's `-Wmissing-field-initializers` rejected under `-Werror` after those types gained `group`/`order` fields. (#308)
 - Fix `cargo fmt --all --check` failures in the Rust `quick_start` and `write` examples. (#282)
 - Fix the documentation workflow being rejected on pull requests because the `tlv++/include/**` path filter was invalid; the `+` characters are now escaped. (#110)
 - Fix the WebAssembly build failing to compile the Bluetooth LTV format selection because the format header was not included. (#222)
@@ -67,91 +32,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Use the canonical C `tlv_element_t` directly as C++ `tlv::element`. Add
-  `tlv::as_bytes()` for checked conversion of `tlv_value_t` to a borrowed
-  native byte span. (#340)
-- **Breaking:** Replace `tlv_view_t` with the canonical borrowed `tlv_element_t`
-  containing raw `tag`, raw `length`, and `value`. `tlv_size_t` is the fixed
-  64-bit logical size; `tlv_length_t` now holds the original length bytes and
-  their native byte count, and `tlv_value_t.length` becomes `size`. Numeric
-  conversion helpers move to `tlv/size.h` as `tlv_size_from_native()`,
-  `tlv_size_to_native()`, `tlv_size_validate_native()` and `tlv_size_add()`.
-  Format callbacks use logical sizes and whole-element callbacks also return
-  the raw length field. Rename element copy APIs to `tlv_copy_element()` and
-  `tlv_writer_copy_element()`, C++ `entry` to `element`, and Rust/Python `Entry` to
-  `Element`, including `write_element()` in the bindings. Reader diagnostics
-  retain raw length bytes and 64-bit declared sizes on failure. No compatibility
-  aliases are provided; rebuild consumers. (#340)
-- **Breaking:** Generalize the configurable Fixed format
-  (`tlv_fixed_format_t`) with an `element_order` (tag-then-length or
-  length-then-tag) and a `length_scope` (value only, or tag and value); its
-  `order` field is renamed to `length_order` to disambiguate it from
-  `element_order`. Bluetooth LTV is now this format preset
-  (length-then-tag, length counts both) instead of its own reader/writer;
-  `OPENTLV_FORMAT_BLUETOOTH_LTV` now requires `OPENTLV_FORMAT_FIXED`, and
-  `tlv_format_bluetooth_ltv`'s `context` is no longer `NULL`, though its
-  accepted and rejected inputs are unchanged. No compatibility shim; rebuild
-  all consumers that name `tlv_fixed_format_t`'s fields directly. (#331)
-- **Breaking:** Move constructed-element detection into `tlv_format_t` as an
-  optional `is_constructed` field, instead of a separate predicate argument:
-  `tlv_walk_tree()`, `tlv_schema_validate()`, `tlv_schema_validate_all()`,
-  `tlv_schema_validate_all_diag()`, `tlv_query_walk()` and their `tlv++`
-  wrappers drop that parameter and read `format->is_constructed` instead;
-  `tlv_document_options_t`/`tlv::document_format` and `tlv_structure_codec_t`
-  drop their own separate field, and `tlv_document_options_init()` drops its
-  parameter. BER, DER and CER's format descriptors now set `is_constructed`
-  themselves; the default and Fixed formats still leave it `NULL`. No
-  compatibility shim; rebuild all consumers. (#332)
-- **Breaking:** `tlv::fixed_format<>` (`tlv++`) no longer reimplements the
-  fixed-width wire format; `format()` now delegates every read and write to
-  `tlv_fixed_format_init()`, so it needs the library built with
-  `OPENTLV_FORMAT_FIXED` (the default, previously not required) and its
-  descriptor's `context` is no longer `NULL`. `static_assert`-checked
-  compile-time validation is unchanged. No compatibility shim; rebuild all
-  consumers. (#329)
-- **Breaking:** Replace the Rust `opentlv::FixedFormat`'s internal
-  `Box<tlv_fixed_format_t>` with an explicit borrow: `FixedFormat` is now
-  `FixedFormat<'a>`, built with `FixedFormat::new(&'a FixedFormatConfig)` from a
-  new, plain, `Copy` `FixedFormatConfig` value the caller owns, directly
-  mirroring the C `tlv_fixed_format_t`/`tlv_fixed_format_init` split instead of
-  hiding it behind a heap allocation. `Reader::with_fixed_format`,
-  `Writer::with_fixed_format` and `encoded_size_fixed` take `&FixedFormat<'_>`
-  accordingly. No compatibility shim; update call sites. (#328)
-- **Breaking:** Move the configurable fixed-width format out of the
-  protocol-specific `builtins/` hierarchy into a new generic `formats/` layer,
-  since it is a protocol-agnostic wire-format mechanism rather than a
-  built-in protocol: `tlv/builtins/fixed/fixed.h` becomes `tlv/formats/fixed.h`
-  and `tlv++/builtins/fixed/fixed_format.hpp` becomes
-  `tlv++/formats/fixed_format.hpp`. Rename `tlv_fixed_config_t` to
-  `tlv_fixed_format_t`, now the single state type for both reading and
-  writing. `tlv/builtins/fixed/default.h` (the unrelated one-byte "default"
-  format) is unaffected. No compatibility shim; rebuild all consumers. (#327)
-- **Breaking:** Unify `tlv_reader_format_t`/`tlv_writer_format_t` into one
-  `tlv_format_t`, with read and write capability independently optional;
-  replace `tlv_reader_format_init`/`tlv_writer_format_init`/
-  `tlv_reader_format_init_element`/`tlv_writer_format_init_header` with
-  `tlv_format_init`/`tlv_format_init_element`, and the private
-  `tlv_reader_format_usable`/`tlv_writer_format_usable` checks with the
-  now-public `tlv_format_can_read`/`tlv_format_can_write`. Built-in formats
-  collapse to one global each (`tlv_format_default`/`_ber`/`_der`/`_cer`/
-  `_bluetooth_ltv`), and `tlv_fixed_reader_format_init`/
-  `tlv_fixed_writer_format_init` become `tlv_fixed_format_init`.
-  `tlv_structure_codec_t` and `tlv_document_options_t` each take one `format`
-  field instead of two; `tlv_document_options_init` drops its `writer_format`
-  parameter. `tlv::document_format` and `tlv::fixed_format<>` (`tlv++`)
-  collapse the same way, with `fixed_format<>::reader()`/`::writer()`
-  replaced by `::format()`. The Python `Document` constructor drops
-  `reader_format=`/`writer_format=` in favor of `format=`. No compatibility
-  shim; rebuild all consumers. (#326)
-- Prepracovanie internej implementácie `otlv` CLI z voľných funkcií nad
-  zdieľanou štruktúrou `options` na hierarchiu tried príkazov (`command`,
-  `command_factory`) s virtuálnym dispatchom, rozdelenú po jednej triede na
-  súbor v `tools/cli/src/commands/` a `tools/cli/src/completion/`; bez zmeny
-  správania CLI. (#318)
-- **Breaking:** Rename the Rust `opentlv-sys` crate to `opentlv-native`, for
-  consistency with the Python `opentlv-native` package added in the same
-  release; downstream `Cargo.toml` path dependencies on `opentlv-sys` must
-  update to `opentlv-native`. (#274)
+- **Breaking:** Remove the nonstandard default/compact format, its build option and binding presets. Select BER or an explicitly configured Fixed format; optional default selections in Rust, Python, Lua and WebAssembly now use BER. (#341)
+- **Breaking:** Redesign `tlv_format_t` around canonical decode, logical sizing and complete encoding, with explicit Header/Value/Trailer framing and separate borrowed source information. Keep `tlv_element_t` semantic, add checked byte-preserving source copies, share generic TLV/LTV mechanics, support generic constructed CER encoding, and distinguish native address-space limits. Update C++, Rust, Python, Lua and WebAssembly consumers; rebuild and migrate custom formats. (#341)
+- Use the canonical C `tlv_element_t` directly as C++ `tlv::element`. Add `tlv::as_bytes()` for checked conversion of `tlv_value_t` to a borrowed native byte span. (#340)
+- **Breaking:** Replace `tlv_view_t` with the canonical borrowed `tlv_element_t` containing raw `tag`, raw `length`, and `value`. `tlv_size_t` is the fixed 64-bit logical size; `tlv_length_t` now holds the original length bytes and their native byte count, and `tlv_value_t.length` becomes `size`. Numeric conversion helpers move to `tlv/size.h` as `tlv_size_from_native()`, `tlv_size_to_native()`, `tlv_size_validate_native()` and `tlv_size_add()`. Format callbacks use logical sizes and whole-element callbacks also return the raw length field. Rename element copy APIs to `tlv_copy_element()` and `tlv_writer_copy_element()`, C++ `entry` to `element`, and Rust/Python `Entry` to `Element`, including `write_element()` in the bindings. Reader diagnostics retain raw length bytes and 64-bit declared sizes on failure. No compatibility aliases are provided; rebuild consumers. (#340)
+- **Breaking:** Generalize the configurable Fixed format (`tlv_fixed_format_t`) with an `element_order` (tag-then-length or length-then-tag) and a `length_scope` (value only, or tag and value); its `order` field is renamed to `length_order` to disambiguate it from `element_order`. Bluetooth LTV is now this format preset (length-then-tag, length counts both) instead of its own reader/writer; `OPENTLV_FORMAT_BLUETOOTH_LTV` now requires `OPENTLV_FORMAT_FIXED`, and `tlv_format_bluetooth_ltv`'s `context` is no longer `NULL`, though its accepted and rejected inputs are unchanged. No compatibility shim; rebuild all consumers that name `tlv_fixed_format_t`'s fields directly. (#331)
+- **Breaking:** Move constructed-element detection into `tlv_format_t` as an optional `is_constructed` field, instead of a separate predicate argument: `tlv_walk_tree()`, `tlv_schema_validate()`, `tlv_schema_validate_all()`, `tlv_schema_validate_all_diag()`, `tlv_query_walk()` and their `tlv++` wrappers drop that parameter and read `format->is_constructed` instead; `tlv_document_options_t`/`tlv::document_format` and `tlv_structure_codec_t` drop their own separate field, and `tlv_document_options_init()` drops its parameter. BER, DER and CER's format descriptors now set `is_constructed` themselves; the default and Fixed formats still leave it `NULL`. No compatibility shim; rebuild all consumers. (#332)
+- **Breaking:** `tlv::fixed_format<>` (`tlv++`) no longer reimplements the fixed-width wire format; `format()` now delegates every read and write to `tlv_fixed_format_init()`, so it needs the library built with `OPENTLV_FORMAT_FIXED` (the default, previously not required) and its descriptor's `context` is no longer `NULL`. `static_assert`-checked compile-time validation is unchanged. No compatibility shim; rebuild all consumers. (#329)
+- **Breaking:** Replace the Rust `opentlv::FixedFormat`'s internal `Box<tlv_fixed_format_t>` with an explicit borrow: `FixedFormat` is now `FixedFormat<'a>`, built with `FixedFormat::new(&'a FixedFormatConfig)` from a new, plain, `Copy` `FixedFormatConfig` value the caller owns, directly mirroring the C `tlv_fixed_format_t`/`tlv_fixed_format_init` split instead of hiding it behind a heap allocation. `Reader::with_fixed_format`, `Writer::with_fixed_format` and `encoded_size_fixed` take `&FixedFormat<'_>` accordingly. No compatibility shim; update call sites. (#328)
+- **Breaking:** Move the configurable fixed-width format out of the protocol-specific `builtins/` hierarchy into a new generic `formats/` layer, since it is a protocol-agnostic wire-format mechanism rather than a built-in protocol: `tlv/builtins/fixed/fixed.h` becomes `tlv/formats/fixed.h` and `tlv++/builtins/fixed/fixed_format.hpp` becomes `tlv++/formats/fixed_format.hpp`. Rename `tlv_fixed_config_t` to `tlv_fixed_format_t`, now the single state type for both reading and writing. `tlv/builtins/fixed/default.h` (the unrelated one-byte "default" format) is unaffected. No compatibility shim; rebuild all consumers. (#327)
+- **Breaking:** Unify `tlv_reader_format_t`/`tlv_writer_format_t` into one `tlv_format_t`, with read and write capability independently optional; replace `tlv_reader_format_init`/`tlv_writer_format_init`/ `tlv_reader_format_init_element`/`tlv_writer_format_init_header` with `tlv_format_init`/`tlv_format_init_element`, and the private `tlv_reader_format_usable`/`tlv_writer_format_usable` checks with the now-public `tlv_format_can_read`/`tlv_format_can_write`. Built-in formats collapse to one global each (`tlv_format_default`/`_ber`/`_der`/`_cer`/ `_bluetooth_ltv`), and `tlv_fixed_reader_format_init`/ `tlv_fixed_writer_format_init` become `tlv_fixed_format_init`. `tlv_structure_codec_t` and `tlv_document_options_t` each take one `format` field instead of two; `tlv_document_options_init` drops its `writer_format` parameter. `tlv::document_format` and `tlv::fixed_format<>` (`tlv++`) collapse the same way, with `fixed_format<>::reader()`/`::writer()` replaced by `::format()`. The Python `Document` constructor drops `reader_format=`/`writer_format=` in favor of `format=`. No compatibility shim; rebuild all consumers. (#326)
+- Prepracovanie internej implementácie `otlv` CLI z voľných funkcií nad zdieľanou štruktúrou `options` na hierarchiu tried príkazov (`command`, `command_factory`) s virtuálnym dispatchom, rozdelenú po jednej triede na súbor v `tools/cli/src/commands/` a `tools/cli/src/completion/`; bez zmeny správania CLI. (#318)
+- **Breaking:** Rename the Rust `opentlv-sys` crate to `opentlv-native`, for consistency with the Python `opentlv-native` package added in the same release; downstream `Cargo.toml` path dependencies on `opentlv-sys` must update to `opentlv-native`. (#274)
 - Split the C `basic_usage.c` "API tour" into one focused example per topic (`sequential_io.c`, `copies.c`, `schema_walk_and_scan.c`, `codecs_and_endian.c`, `custom_format.c`, and the BER/CER builtins under `builtins/asn1/`), each its own small self-checking program registered as a `ctest` entry, instead of one large file mixing unrelated topics. (#282)
 - Reorganize builtin-specific examples to mirror the library's layout: move `examples/tlv++/src/fixed_format.cpp` into `examples/tlv++/src/builtins/fixed/`, and merge the standalone `examples/emv` project into `examples/tlv/src/builtins/emv/tag_decoding.c`; their CMake targets and `ctest` entries are renamed to match. (#282)
 - Reorganize C and C++ tests to mirror the library's layout: within each of `tests/unit/`, `tests/integration/` and `tests/fuzz/`, move subsystem tests into `reader/`, `writer/`, `query/`, `schema/`, `codec/` and `document/`, and built-in tests into `builtins/asn1/`, `builtins/emv/`, `builtins/bluetooth/` and `builtins/fixed/`, with C and C++ tests of the same subsystem sharing a folder (told apart by name, e.g. `document_test.cpp` vs `test_document.cpp`); core-type and cross-cutting tests stay at each group's top level. Fuzz seed corpora move alongside their harness, under a sibling `corpus/`. See [architecture](docs/concepts/architecture.md#layout). (#281)
@@ -166,137 +58,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- **Breaking:** Remove the dedicated Fixed 1-byte TLV format: `tlv_reader_format_fixed_1byte`,
-  `tlv_writer_format_fixed_1byte`, `tlv/builtins/fixed/fixed_1byte.h`, the
-  `OPENTLV_FORMAT_FIXED_1BYTE` CMake option and `tlv_config_format_fixed_1byte()`,
-  the Rust `Format::Fixed1Byte` and Python `Format.FIXED_1BYTE` variants, and
-  the CLI/WASM `fixed-1byte` format name (now `fixed`); use the configurable
-  fixed-width format's `tlv_fixed_config_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}`
-  (or `tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>`) instead. (#317)
+- **Breaking:** Remove the dedicated Fixed 1-byte TLV format: `tlv_reader_format_fixed_1byte`, `tlv_writer_format_fixed_1byte`, `tlv/builtins/fixed/fixed_1byte.h`, the `OPENTLV_FORMAT_FIXED_1BYTE` CMake option and `tlv_config_format_fixed_1byte()`, the Rust `Format::Fixed1Byte` and Python `Format.FIXED_1BYTE` variants, and the CLI/WASM `fixed-1byte` format name (now `fixed`); use the configurable fixed-width format's `tlv_fixed_config_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}` (or `tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>`) instead. (#317)
 - **Breaking:** Remove `TLV_TAG_CAPACITY`, `tlv_tag_from_bytes()`, `tlv_tag_equal_bytes()` and the numeric `tlv_tag_to_u*()`, `tlv_tag_from_u*()` and `tlv_tag_equal_u*()`; use `tlv_tag()` and `tlv_tag_equal()` instead, and the Rust `Tag` loses `ByteOrder`, `from_u64` and `to_u64`. (#256)
 
 ### Added
 
-- Add a `fuzz_fixed` target that derives the configurable Fixed format's tag
-  width, length width and byte order from the fuzz input itself, exercising
-  round-trip and malformed-input parsing across arbitrary valid
-  configurations instead of only the historical 1-byte-tag/1-byte-length
-  shape. (#330)
-- Add an experimental Lua binding (`bindings/lua/`, `require("opentlv")`
-  after building with `-DOPENTLV_BUILD_LUA=ON` or `luarocks make`), split
-  into `opentlv-native` and `opentlv` like the Rust and Python bindings.
-  Covers Reader, Entry and Tag across the default, BER, CER, DER, Bluetooth
-  LTV and configurable fixed-width formats, plus preorder tree traversal
-  (`opentlv.walk_tree`). Targets Lua 5.1 through 5.4 and LuaJIT. See [Using
-  OpenTLV from Lua](docs/guides/lua.md). (#297, #298)
-- Add `tlv/compiler.h` (C language version and compiler capability detection)
-  and `tlv/attributes.h` (`TLV_NODISCARD`, `TLV_MAYBE_UNUSED`,
-  `TLV_DEPRECATED_MSG`, `TLV_FALLTHROUGH`), a small infrastructure layer that
-  lets future public API annotations use newer C attributes where available
-  while degrading cleanly under the C99 baseline. (#320)
-- Default `otlv dump`/`validate`/`decode`/`query` (and `encode` without `--tag`) to reading
-  stdin when neither `--input` nor `--hex` is given, the same as `--input -`, so these
-  commands compose directly in shell pipelines. (#319)
-- Add a `completion` command to the `otlv` CLI, printing a bash, zsh, fish or
-  PowerShell completion script for its commands and options to stdout; see
-  [Shell completion](docs/cli/README.md#shell-completion). (#318)
-- Add `fixedTagSize`/`fixedLengthSize`/`fixedByteOrder` to the WebAssembly
-  module's `opentlv_wasm_parse()`/`opentlv.parse()` and matching controls to
-  the web playground, configuring `format: "fixed"` instead of a hardcoded
-  one-byte tag and length; **breaking:** `opentlv_wasm_parse()` gains three
-  required parameters. (#317)
-- Add `FixedFormat` (Rust) and `FixedFormat` (Python) wrapping the C
-  `tlv_fixed_config_t`, so `Reader`/`Writer` in both languages support a
-  runtime-configurable fixed-width tag and length, not just the built-in
-  `Format` variants. (#317)
-- Add `--fixed-tag-size`, `--fixed-length-size` and `--fixed-byte-order` to
-  the `otlv` CLI, configuring `--format fixed`'s tag width, length width and
-  length byte order instead of a hardcoded one-byte tag and length. (#317)
-- Add `tlv_fixed_config_t` and `tlv_fixed_reader_format_init()`/
-  `tlv_fixed_writer_format_init()` to `tlv/builtins/fixed/fixed.h`, a
-  runtime-configurable fixed-width TLV format (independent tag width, length
-  width and length byte order) behind a new `OPENTLV_FORMAT_FIXED` CMake
-  option. See
-  [Configurable fixed-width TLV](docs/formats/fixed/configurable.md). (#317)
-- Add an `extensible` field to `tlv_der_schema_type_t` `SEQUENCE`s, modeling
-  an ASN.1 extension marker (`...`): `tlv_der_schema_read()` accepts and
-  skips, as opaque well-formed DER-TLV elements, any content left over once
-  every declared component is matched or skipped, instead of rejecting it;
-  see
-  [Schema-aware validation and encoding](docs/profiles/der/README.md#schema-aware-validation-and-encoding). (#310)
-- Add `tlv_asn1_bit_string_test()` and `tlv_asn1_named_bit_find()` to
-  `tlv/builtins/asn1/asn1_codec.h`, for X.680's `NamedBitList` notation on
-  BIT STRING (for example `KeyUsage ::= BIT STRING {digitalSignature(0),
-  nonRepudiation(1), ...}`); see
-  [Universal-type value codecs](docs/formats/asn1/ber.md#universal-type-value-codecs). (#310)
-- Add `tlv_codec_t` codecs and canonical `_strict` content rules to
-  `tlv/builtins/asn1/asn1_codec.h` for 12 more universal types: ObjectDescriptor,
-  TeletexString, VideotexString, GraphicString and GeneralString (unconstrained,
-  like OCTET STRING); generic TIME, DATE, TIME-OF-DAY, DATE-TIME and DURATION;
-  and OID-IRI and RELATIVE-OID-IRI; see
-  [Universal-type value codecs](docs/formats/asn1/ber.md#universal-type-value-codecs). (#310)
-- Add an optional `allowed_value_names` field to `tlv_value_constraint_t` and
-  a new `tlv_value_constraint_name()` lookup, for ASN.1 named numbers (for
-  example `INTEGER {red(0), green(1), blue(2)}`) attached to an
-  allowed-values constraint; see
-  [Value constraints on decoded values](docs/guides/schemas.md#value-constraints-on-decoded-values). (#310)
-- Add a `constraint` field (`tlv_der_schema_leaf_constraint_t`) to
-  `tlv_der_schema_type_t` UNIVERSAL leaves, for ASN.1 SIZE and INTEGER/
-  ENUMERATED value-range constraints (for example `INTEGER (0..255)` or
-  `OCTET STRING (SIZE(1..16))`) checked by `tlv_der_schema_read()` and
-  `tlv_der_schema_write()` on top of a leaf's own canonical DER content
-  rules; see
-  [Schema-aware validation and encoding](docs/profiles/der/README.md#schema-aware-validation-and-encoding). (#310)
-- Add `TLV_DER_SCHEMA_SEQUENCE_OF` to `tlv/builtins/asn1/der_schema.h` for
-  ASN.1 SEQUENCE OF: like SET OF, but keeps elements in encoding order
-  instead of SET OF's canonical sort order; see
-  [Schema-aware validation and encoding](docs/profiles/der/README.md#schema-aware-validation-and-encoding). (#310)
-- Add `tlv/schema/constraint.h` with `tlv_value_constraint_t` and
-  `tlv_value_constraint_validate()`, a generic value-range/allowed-values
-  constraint checked against a codec's decoded representation, for
-  ASN.1-style restrictions such as `INTEGER (0..255)`; the existing
-  `min_length`/`max_length` and `min_occurs`/`max_occurs` already cover SIZE
-  and collection-count constraints. See
-  [Value constraints on decoded values](docs/guides/schemas.md#value-constraints-on-decoded-values). (#309)
-- Add `order` and `groups`/`group_count` to `tlv_structure_schema_t`, and
-  `group` to `tlv_structure_rule_t`, so a schema can require SEQUENCE-like
-  element order or express a CHOICE-like group of mutually exclusive
-  alternatives, on top of the existing required/optional/repeated members;
-  see
-  [Ordered, unordered and CHOICE-like structures](docs/guides/schemas.md#ordered-unordered-and-choice-like-structures). (#308)
-- Add `tlv_codec_t` codecs to `tlv/builtins/asn1/asn1_codec.h` for the ASN.1
-  string and time universal types (UTF8String, NumericString,
-  PrintableString, IA5String, VisibleString, BMPString, UniversalString,
-  UTCTime and GeneralizedTime); see
-  [BER-TLV](docs/formats/asn1/ber.md#universal-type-value-codecs). (#307)
-- Add `tlv/builtins/asn1/asn1_codec.h`, `tlv_codec_t` codecs for the ASN.1
-  primitive universal types (BOOLEAN, INTEGER, ENUMERATED, BIT STRING, OCTET
-  STRING, NULL, OBJECT IDENTIFIER and RELATIVE-OID), converting raw values
-  read by any BER-family format to and from C representations; see
-  [BER-TLV](docs/formats/asn1/ber.md#universal-type-value-codecs). (#306)
-- Add `tlv_ber_tag_class()`, `tlv_ber_tag_is_constructed()`, `tlv_ber_tag_make()`
-  and `tlv_ber_tag_number()` to `tlv/builtins/asn1/ber.h`, exposing the ASN.1
-  tag model (class, primitive/constructed form, low- and high-tag-number
-  numbers) at the BER format layer, reusing `tlv_tag_t` and without any
-  canonical DER/CER restriction on universal type numbers; see
-  [BER-TLV](docs/formats/asn1/ber.md#tag-model-class-form-and-number). (#305)
-- Add C/C++/Python/Rust language tabs to the Quick Start, path query, and
-  schema validation guides, and a Python tab to the mutable document guide,
-  so each concept is explained once with equivalent examples per binding; run
-  Python examples in CI and check their documented copies with
-  `scripts/check_doc_examples.py`, the same guarantee C, C++ and Rust
-  examples already have. (#278)
-- Add `Reader`, `Writer`, `Document`/`Node`, `Entry`, `Tag`, `Format`,
-  `LengthSchema`/`StructureSchema`, the `OpenTLVError` exception hierarchy
-  and a narrow `codec` submodule (EMV format n12 amounts only) to the Python
-  `opentlv` package, covering the default, BER, CER, DER and fixed-1-byte
-  wire formats, plus runnable examples under `bindings/python/opentlv/examples/`;
-  see [Using OpenTLV from Python](docs/guides/python.md#reading). (#275)
-- Add experimental Python binding infrastructure under `bindings/python`: an
-  `opentlv-native` native extension built with the CPython Limited API
-  against the public OpenTLV C API, and a minimal `opentlv` package exposing
-  the library version; see [Python bindings](docs/development/python.md).
-  (#274)
+- Add a `fuzz_fixed` target that derives the configurable Fixed format's tag width, length width and byte order from the fuzz input itself, exercising round-trip and malformed-input parsing across arbitrary valid configurations instead of only the historical 1-byte-tag/1-byte-length shape. (#330)
+- Add an experimental Lua binding (`bindings/lua/`, `require("opentlv")` after building with `-DOPENTLV_BUILD_LUA=ON` or `luarocks make`), split into `opentlv-native` and `opentlv` like the Rust and Python bindings. Covers Reader, Entry and Tag across the default, BER, CER, DER, Bluetooth LTV and configurable fixed-width formats, plus preorder tree traversal (`opentlv.walk_tree`). Targets Lua 5.1 through 5.4 and LuaJIT. See [Using OpenTLV from Lua](docs/guides/lua.md). (#297, #298)
+- Add `tlv/compiler.h` (C language version and compiler capability detection) and `tlv/attributes.h` (`TLV_NODISCARD`, `TLV_MAYBE_UNUSED`, `TLV_DEPRECATED_MSG`, `TLV_FALLTHROUGH`), a small infrastructure layer that lets future public API annotations use newer C attributes where available while degrading cleanly under the C99 baseline. (#320)
+- Default `otlv dump`/`validate`/`decode`/`query` (and `encode` without `--tag`) to reading stdin when neither `--input` nor `--hex` is given, the same as `--input -`, so these commands compose directly in shell pipelines. (#319)
+- Add a `completion` command to the `otlv` CLI, printing a bash, zsh, fish or PowerShell completion script for its commands and options to stdout; see [Shell completion](docs/cli/README.md#shell-completion). (#318)
+- Add `fixedTagSize`/`fixedLengthSize`/`fixedByteOrder` to the WebAssembly module's `opentlv_wasm_parse()`/`opentlv.parse()` and matching controls to the web playground, configuring `format: "fixed"` instead of a hardcoded one-byte tag and length; **breaking:** `opentlv_wasm_parse()` gains three required parameters. (#317)
+- Add `FixedFormat` (Rust) and `FixedFormat` (Python) wrapping the C `tlv_fixed_config_t`, so `Reader`/`Writer` in both languages support a runtime-configurable fixed-width tag and length, not just the built-in `Format` variants. (#317)
+- Add `--fixed-tag-size`, `--fixed-length-size` and `--fixed-byte-order` to the `otlv` CLI, configuring `--format fixed`'s tag width, length width and length byte order instead of a hardcoded one-byte tag and length. (#317)
+- Add `tlv_fixed_config_t` and `tlv_fixed_reader_format_init()`/ `tlv_fixed_writer_format_init()` to `tlv/builtins/fixed/fixed.h`, a runtime-configurable fixed-width TLV format (independent tag width, length width and length byte order) behind a new `OPENTLV_FORMAT_FIXED` CMake option. See [Configurable fixed-width TLV](docs/formats/fixed/configurable.md). (#317)
+- Add an `extensible` field to `tlv_der_schema_type_t` `SEQUENCE`s, modeling an ASN.1 extension marker (`...`): `tlv_der_schema_read()` accepts and skips, as opaque well-formed DER-TLV elements, any content left over once every declared component is matched or skipped, instead of rejecting it; see [Schema-aware validation and encoding](docs/profiles/der/README.md#schema-aware-validation-and-encoding). (#310)
+- Add `tlv_asn1_bit_string_test()` and `tlv_asn1_named_bit_find()` to `tlv/builtins/asn1/asn1_codec.h`, for X.680's `NamedBitList` notation on BIT STRING (for example `KeyUsage ::= BIT STRING {digitalSignature(0), nonRepudiation(1), ...}`); see [Universal-type value codecs](docs/formats/asn1/ber.md#universal-type-value-codecs). (#310)
+- Add `tlv_codec_t` codecs and canonical `_strict` content rules to `tlv/builtins/asn1/asn1_codec.h` for 12 more universal types: ObjectDescriptor, TeletexString, VideotexString, GraphicString and GeneralString (unconstrained, like OCTET STRING); generic TIME, DATE, TIME-OF-DAY, DATE-TIME and DURATION; and OID-IRI and RELATIVE-OID-IRI; see [Universal-type value codecs](docs/formats/asn1/ber.md#universal-type-value-codecs). (#310)
+- Add an optional `allowed_value_names` field to `tlv_value_constraint_t` and a new `tlv_value_constraint_name()` lookup, for ASN.1 named numbers (for example `INTEGER {red(0), green(1), blue(2)}`) attached to an allowed-values constraint; see [Value constraints on decoded values](docs/guides/schemas.md#value-constraints-on-decoded-values). (#310)
+- Add a `constraint` field (`tlv_der_schema_leaf_constraint_t`) to `tlv_der_schema_type_t` UNIVERSAL leaves, for ASN.1 SIZE and INTEGER/ ENUMERATED value-range constraints (for example `INTEGER (0..255)` or `OCTET STRING (SIZE(1..16))`) checked by `tlv_der_schema_read()` and `tlv_der_schema_write()` on top of a leaf's own canonical DER content rules; see [Schema-aware validation and encoding](docs/profiles/der/README.md#schema-aware-validation-and-encoding). (#310)
+- Add `TLV_DER_SCHEMA_SEQUENCE_OF` to `tlv/builtins/asn1/der_schema.h` for ASN.1 SEQUENCE OF: like SET OF, but keeps elements in encoding order instead of SET OF's canonical sort order; see [Schema-aware validation and encoding](docs/profiles/der/README.md#schema-aware-validation-and-encoding). (#310)
+- Add `tlv/schema/constraint.h` with `tlv_value_constraint_t` and `tlv_value_constraint_validate()`, a generic value-range/allowed-values constraint checked against a codec's decoded representation, for ASN.1-style restrictions such as `INTEGER (0..255)`; the existing `min_length`/`max_length` and `min_occurs`/`max_occurs` already cover SIZE and collection-count constraints. See [Value constraints on decoded values](docs/guides/schemas.md#value-constraints-on-decoded-values). (#309)
+- Add `order` and `groups`/`group_count` to `tlv_structure_schema_t`, and `group` to `tlv_structure_rule_t`, so a schema can require SEQUENCE-like element order or express a CHOICE-like group of mutually exclusive alternatives, on top of the existing required/optional/repeated members; see [Ordered, unordered and CHOICE-like structures](docs/guides/schemas.md#ordered-unordered-and-choice-like-structures). (#308)
+- Add `tlv_codec_t` codecs to `tlv/builtins/asn1/asn1_codec.h` for the ASN.1 string and time universal types (UTF8String, NumericString, PrintableString, IA5String, VisibleString, BMPString, UniversalString, UTCTime and GeneralizedTime); see [BER-TLV](docs/formats/asn1/ber.md#universal-type-value-codecs). (#307)
+- Add `tlv/builtins/asn1/asn1_codec.h`, `tlv_codec_t` codecs for the ASN.1 primitive universal types (BOOLEAN, INTEGER, ENUMERATED, BIT STRING, OCTET STRING, NULL, OBJECT IDENTIFIER and RELATIVE-OID), converting raw values read by any BER-family format to and from C representations; see [BER-TLV](docs/formats/asn1/ber.md#universal-type-value-codecs). (#306)
+- Add `tlv_ber_tag_class()`, `tlv_ber_tag_is_constructed()`, `tlv_ber_tag_make()` and `tlv_ber_tag_number()` to `tlv/builtins/asn1/ber.h`, exposing the ASN.1 tag model (class, primitive/constructed form, low- and high-tag-number numbers) at the BER format layer, reusing `tlv_tag_t` and without any canonical DER/CER restriction on universal type numbers; see [BER-TLV](docs/formats/asn1/ber.md#tag-model-class-form-and-number). (#305)
+- Add C/C++/Python/Rust language tabs to the Quick Start, path query, and schema validation guides, and a Python tab to the mutable document guide, so each concept is explained once with equivalent examples per binding; run Python examples in CI and check their documented copies with `scripts/check_doc_examples.py`, the same guarantee C, C++ and Rust examples already have. (#278)
+- Add `Reader`, `Writer`, `Document`/`Node`, `Entry`, `Tag`, `Format`, `LengthSchema`/`StructureSchema`, the `OpenTLVError` exception hierarchy and a narrow `codec` submodule (EMV format n12 amounts only) to the Python `opentlv` package, covering the default, BER, CER, DER and fixed-1-byte wire formats, plus runnable examples under `bindings/python/opentlv/examples/`; see [Using OpenTLV from Python](docs/guides/python.md#reading). (#275)
+- Add experimental Python binding infrastructure under `bindings/python`: an `opentlv-native` native extension built with the CPython Limited API against the public OpenTLV C API, and a minimal `opentlv` package exposing the library version; see [Python bindings](docs/development/python.md). (#274)
 - Document the common conceptual model every language binding follows (Reader, Writer, Document, Entry, Tag, Schema, Codec, Diagnostics), the design principle that bindings adapt ergonomics rather than concepts, and the rule that the public OpenTLV C API is the binding boundary and a binding must not depend on another language's binding; see [Language bindings](docs/concepts/bindings.md). (#273)
 - Add a Rust tab, alongside C and C++, to the quick start example in [Getting started](docs/getting-started/README.md#quick-start); `scripts/check_doc_examples.py` now also verifies a documented example against a Rust binding source under `bindings/rust/*/examples/`. (#283)
 - Add a `README.md` to `examples/tlv/src/` and `examples/tlv++/src/` grouping their example files into "start here," use cases, API tour and builtins, so a newcomer has one entry point instead of a flat file listing. (#282)

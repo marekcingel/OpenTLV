@@ -209,7 +209,8 @@ TEST(Unit_Tlv_BluetoothLtvConformance, EncodingRejectsValuesAboveMaximum) {
         EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_write(out.data(), out.size(), &writer_format, tag,
                                                     value.data(), length, &written));
     }
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_encoded_size(tag, SIZE_MAX, &writer_format, &size));
+    EXPECT_EQ(sizeof(size_t) == sizeof(tlv_size_t) ? TLV_ERR_OVERFLOW : TLV_ERR_INVALID_LENGTH,
+              tlv_encoded_size(tag, SIZE_MAX, &writer_format, &size));
     for (uint8_t b : out) EXPECT_EQ(0xEE, b);
 }
 

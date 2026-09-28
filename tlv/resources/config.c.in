@@ -1,9 +1,5 @@
 #include "tlv/config.h"
 
-int tlv_config_format_default(void) {
-    return OPENTLV_FORMAT_DEFAULT;
-}
-
 int tlv_config_format_fixed(void) {
     return OPENTLV_FORMAT_FIXED;
 }

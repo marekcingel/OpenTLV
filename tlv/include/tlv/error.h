@@ -31,7 +31,7 @@ typedef enum tlv_result {
     TLV_OK = 0,
     /** A supplied buffer is too small for the data or output required. */
     TLV_ERR_BUFFER_TOO_SHORT = 1,
-    /** A length is malformed, out of range, or not representable as `size_t`. */
+    /** A length is malformed or outside the wire encoding range. */
     TLV_ERR_INVALID_LENGTH = 2,
     /** A required pointer argument is `NULL`. */
     TLV_ERR_NULL_ARG = 3,
@@ -73,7 +73,9 @@ typedef enum tlv_result {
      * duplicate or excess occurrence, kind mismatch, invalid rule table)
      * returns #TLV_ERR_SCHEMA with an offset anchored to the actual element.
      */
-    TLV_ERR_SCHEMA_MISSING = 16
+    TLV_ERR_SCHEMA_MISSING = 16,
+    /** A valid logical quantity exceeds the host address space. */
+    TLV_ERR_NATIVE_SIZE = 17
 } tlv_result_t;
 
 /**

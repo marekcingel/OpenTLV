@@ -9,7 +9,6 @@
 #include <tlv/builtins/asn1/cer.h>
 #include <tlv/builtins/asn1/der.h>
 #include <tlv/builtins/emv/emv_codec.h>
-#include <tlv/builtins/fixed/default.h>
 #include <tlv/formats/fixed.h>
 #include <tlv/codec/codec.h>
 #include <tlv/document/document.h>
@@ -24,10 +23,9 @@
 static PyObject* opentlv_native_error = NULL;
 static PyObject* opentlv_native_codec_error = NULL;
 
-/* Mirrors opentlv.Format: 0 default, 1 ber, 2 cer, 3 der. */
+/* Mirrors opentlv.Format: 1 ber, 2 cer, 3 der. */
 static const tlv_format_t* format_for(int format_id) {
     switch (format_id) {
-        case 0: return &tlv_format_default;
         case 1: return &tlv_format_ber;
         case 2: return &tlv_format_cer;
         case 3: return &tlv_format_der;
@@ -56,6 +54,7 @@ static const char* reader_operation_name(tlv_reader_operation_t operation) {
         case TLV_READER_OP_LENGTH: return "length";
         case TLV_READER_OP_VALUE: return "value";
         case TLV_READER_OP_TRAILER: return "trailer";
+        case TLV_READER_OP_HEADER: return "header";
         default: return NULL;
     }
 }
@@ -66,6 +65,8 @@ static const char* writer_operation_name(tlv_writer_operation_t operation) {
         case TLV_WRITER_OP_TAG: return "tag";
         case TLV_WRITER_OP_LENGTH: return "length";
         case TLV_WRITER_OP_VALUE: return "value";
+        case TLV_WRITER_OP_TRAILER: return "trailer";
+        case TLV_WRITER_OP_HEADER: return "header";
         default: return NULL;
     }
 }
@@ -927,7 +928,9 @@ static PyObject* opentlv_native_read(PyObject* module, PyObject* args) {
     tlv_reader_diagnostic_t diag;
     tlv_reader_diagnostic_init(&diag);
 
-    tlv_result_t code = tlv_read_diag(base + offset, size, format, &element, &consumed, &diag);
+    tlv_source_t source;
+    tlv_result_t code =
+        tlv_read_source_diag(base + offset, size, format, &element, &consumed, &source, &diag);
     if (code != TLV_OK) {
         raise_reader_error(code, &diag);
         PyBuffer_Release(&buffer);
@@ -944,8 +947,9 @@ static PyObject* opentlv_native_read(PyObject* module, PyObject* args) {
     Py_ssize_t value_offset =
         value_length == 0 ? 0 : (Py_ssize_t)((const uint8_t*)element.value.data - base);
 
-    Py_ssize_t length_offset = element.length.size ? (Py_ssize_t)(element.length.data - base) : 0;
-    PyObject*  tag_obj =
+    Py_ssize_t length_offset =
+        source.length.size ? (Py_ssize_t)(source.data + source.length.offset - base) : 0;
+    PyObject* tag_obj =
         PyBytes_FromStringAndSize((const char*)element.tag.data, (Py_ssize_t)element.tag.size);
     PyBuffer_Release(&buffer);
     if (tag_obj == NULL) {
@@ -957,7 +961,7 @@ static PyObject* opentlv_native_read(PyObject* module, PyObject* args) {
         return NULL;
     }
 
-    return Py_BuildValue("(NnnnnN)", tag_obj, length_offset, (Py_ssize_t)element.length.size,
+    return Py_BuildValue("(NnnnnN)", tag_obj, length_offset, (Py_ssize_t)source.length.size,
                          value_offset, (Py_ssize_t)value_length, consumed_obj);
 }
 
@@ -1107,7 +1111,9 @@ static PyObject* opentlv_native_read_fixed(PyObject* module, PyObject* args) {
     tlv_reader_diagnostic_t diag;
     tlv_reader_diagnostic_init(&diag);
 
-    tlv_result_t code = tlv_read_diag(base + offset, size, &format, &element, &consumed, &diag);
+    tlv_source_t source;
+    tlv_result_t code =
+        tlv_read_source_diag(base + offset, size, &format, &element, &consumed, &source, &diag);
     if (code != TLV_OK) {
         raise_reader_error(code, &diag);
         PyBuffer_Release(&buffer);
@@ -1124,8 +1130,9 @@ static PyObject* opentlv_native_read_fixed(PyObject* module, PyObject* args) {
     Py_ssize_t value_offset =
         value_length == 0 ? 0 : (Py_ssize_t)((const uint8_t*)element.value.data - base);
 
-    Py_ssize_t length_offset = element.length.size ? (Py_ssize_t)(element.length.data - base) : 0;
-    PyObject*  tag_obj =
+    Py_ssize_t length_offset =
+        source.length.size ? (Py_ssize_t)(source.data + source.length.offset - base) : 0;
+    PyObject* tag_obj =
         PyBytes_FromStringAndSize((const char*)element.tag.data, (Py_ssize_t)element.tag.size);
     PyBuffer_Release(&buffer);
     if (tag_obj == NULL) {
@@ -1137,7 +1144,7 @@ static PyObject* opentlv_native_read_fixed(PyObject* module, PyObject* args) {
         return NULL;
     }
 
-    return Py_BuildValue("(NnnnnN)", tag_obj, length_offset, (Py_ssize_t)element.length.size,
+    return Py_BuildValue("(NnnnnN)", tag_obj, length_offset, (Py_ssize_t)source.length.size,
                          value_offset, (Py_ssize_t)value_length, consumed_obj);
 }
 

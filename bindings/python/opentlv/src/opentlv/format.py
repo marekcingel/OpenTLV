@@ -12,9 +12,6 @@ class Format(enum.IntEnum):
     them.
     """
 
-    DEFAULT = 0
-    """One-byte tag and a definite BER length."""
-
     BER = 1
     """BER-TLV."""
 

@@ -7,9 +7,11 @@ static tlv_result_t tree_error(tlv_result_t rc, size_t offset, size_t* out) {
     return rc;
 }
 
-tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t* format,
-                           size_t max_depth, size_t max_elements, tlv_tree_visitor_t visitor,
-                           void* context, size_t* error_offset) {
+static tlv_result_t walk_tree_impl(const uint8_t* data, size_t size, const tlv_format_t* format,
+                                   size_t max_depth, size_t max_elements,
+                                   tlv_tree_visitor_t visitor, void* context, size_t* error_offset,
+                                   tlv_reader_diagnostic_t* diagnostic) {
+    if (diagnostic) tlv_reader_diagnostic_init(diagnostic);
     size_t ends[TLV_WALK_MAX_DEPTH + 1];
     size_t resumes[TLV_WALK_MAX_DEPTH + 1];
     size_t depth = 0, pos = 0, count = 0;
@@ -27,8 +29,17 @@ tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t*
             continue;
         }
         if (count == max_elements) return tree_error(TLV_ERR_LIMIT, pos, error_offset);
-        rc = tlv_read(data + pos, ends[depth] - pos, format, &element, &used);
-        if (rc != TLV_OK) return tree_error(rc, pos, error_offset);
+        rc = tlv_read_diag(data + pos, ends[depth] - pos, format, &element, &used, diagnostic);
+        if (rc != TLV_OK) {
+            if (diagnostic) {
+                if (diagnostic->diagnostic.has_offset) diagnostic->diagnostic.offset += pos;
+                if (diagnostic->has_tag_offset) diagnostic->tag_offset += pos;
+                if (diagnostic->has_length_offset) diagnostic->length_offset += pos;
+                if (diagnostic->has_value_offset) diagnostic->value_offset += pos;
+                if (diagnostic->has_enclosing_end) diagnostic->enclosing_end += pos;
+            }
+            return tree_error(rc, pos, error_offset);
+        }
         ++count;
         end = pos + used;
         if (visitor) {
@@ -69,4 +80,19 @@ tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_format_t* form
         }
     }
     return TLV_OK;
+}
+
+tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t* format,
+                           size_t max_depth, size_t max_elements, tlv_tree_visitor_t visitor,
+                           void* context, size_t* error_offset) {
+    return walk_tree_impl(data, size, format, max_depth, max_elements, visitor, context,
+                          error_offset, NULL);
+}
+
+tlv_result_t tlv_walk_tree_diag(const uint8_t* data, size_t size, const tlv_format_t* format,
+                                size_t max_depth, size_t max_elements, tlv_tree_visitor_t visitor,
+                                void* context, size_t* error_offset,
+                                tlv_reader_diagnostic_t* diagnostic) {
+    return walk_tree_impl(data, size, format, max_depth, max_elements, visitor, context,
+                          error_offset, diagnostic);
 }

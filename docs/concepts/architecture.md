@@ -4,16 +4,71 @@ OpenTLV provides one C library (`tlv`) and a header-only C++ interface (`tlv++`)
 that links to it. Core is a logical responsibility, not a directory. Optional
 components are concrete formats and profiles, rather than entire layers.
 
+The [core architectural rules](architectural-rules.md) define the design and
+review constraints. This page describes how the current repository implements
+those responsibilities.
+
+## Conceptual model
+
+OpenTLV separates reusable definitions and rules, concrete runtime data, and
+operations that apply those rules to the data:
+
+```text
+DECLARATIVE / SEMANTIC MODEL
+────────────────────────────
+Definition
+Format
+Schema
+Codec
+
+RUNTIME REPRESENTATION
+────────────────────────────
+Element
+Layout
+
+OPERATIONS
+────────────────────────────
+Reader
+Writer
+Document
+Query
+Visitor
+...
+```
+
+The declarative/semantic model describes meaning and rules: a Definition
+identifies a field and its associated metadata, Format defines wire encoding,
+Schema defines structural constraints, and Codec defines conversion between
+Value bytes and application values. These roles can be implemented by tables,
+descriptors and executable callbacks.
+
+The runtime representation describes a concrete instance. Element holds its
+semantic identifier and Value. Layout describes how that instance occupies
+wire bytes: Header, optional Tag and Length fields, Value, Trailer and their
+ranges. In the current C API, this source information belongs to `tlv_source_t`
+and `tlv_range_t`; `tlv_decoded_t` pairs it with `tlv_element_t`. The field and
+binary layouts declared in `tlv/layout.h` configure Format composition; they
+are reusable rules rather than a decoded instance's runtime layout.
+
+Operations consume or produce these representations using the selected model.
+Reader and Writer perform I/O, Document supports editable collections of
+elements, Query selects elements, and Visitor participates in traversal.
+Operations can carry runtime state; these categories describe their primary
+roles, not a one-to-one mapping to directories or C types.
+
+See the [Format and Element contract](format-contract.md) for the precise
+boundary between semantic content, source layout and wire preservation.
+
 ## Responsibilities and dependency direction
 
 | Area | Responsibility | Allowed dependencies |
 | --- | --- | --- |
 | Shared contracts | Borrowed values, logical lengths, raw tags, errors, format callbacks | Standard C types |
 | Reader / writer | Bounded raw TLV I/O, iteration, copies, generic traversal | Shared contracts |
-| Formats | Tag/length wire encoding and identification of nested containers | Shared contracts; private wire helpers |
+| Formats | Complete Header/Value/Trailer framing and identification of nested containers | Shared contracts; private wire helpers |
 | Schemas | Tag length, occurrence, primitive/container and child membership rules | Shared contracts, raw reader and traversal |
 | Codec | Value conversion and complete-structure object mappings (bindings) | Shared contracts; structure codecs may use schemas and raw I/O |
-| Profiles | Standard-specific tables and composition of formats, schemas and codecs | The facilities above |
+| Profile compositions | Standard-specific tables and composition of formats, schemas and codecs | The facilities above |
 
 The format descriptor is a shared contract consumed by generic I/O; concrete
 format implementations never need to be named by the reader/writer. A codec
@@ -21,8 +76,7 @@ does not have to use a schema. Existing C++ tag-associated codecs remain valid.
 Bindings are part of the codec area, not another architectural layer.
 
 Formats and profiles are roles, not folders: every protocol-specific format or
-profile implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV, the one-byte
-default format) lives under `builtins/<protocol>/`, grouped by protocol rather
+profile implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV) lives under `builtins/<protocol>/`, grouped by protocol rather
 than by role, so all of a protocol's format, schema, codec and profile files
 sit together. Generic subsystems (`reader/`, `writer/`, `query/`, `schema/`,
 `codec/`, `document/`) never depend on `builtins/`.
@@ -44,7 +98,7 @@ generic facilities do not include profiles. DER's wire callbacks and bounded
 profile operations live in separate files. BER and DER share a private wire
 backend; selecting DER does not require the public BER component.
 
-## Layout
+## Repository layout
 
 Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
 
@@ -61,7 +115,6 @@ tlv/
   formats/
     fixed.h
   builtins/
-    fixed/     default.h
     bluetooth/ bluetooth_ltv.h
     asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
     emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
@@ -118,9 +171,9 @@ Every `tlv++` header keeps using full paths from the include root
 `#include` lines that name it, not every include inside sibling headers.
 
 `tests/unit/`, `tests/integration/` and `tests/fuzz/` (#281) each keep their
-own existing top-level meaning — component contracts, concrete wire formats
+own existing top-level meaning â€” component contracts, concrete wire formats
 and layer interactions, and libFuzzer harnesses, respectively (see
-[tests](../getting-started/README.md#build-and-run-tests)) — and each
+[tests](../getting-started/README.md#build-and-run-tests)) â€” and each
 independently mirrors `tlv/src`'s own layout underneath: a generic
 subsystem's tests sit under its own `reader/`, `writer/`, `query/`, `schema/`,
 `codec/` or `document/` folder, and a built-in's tests sit together under
@@ -228,7 +281,6 @@ to ON and can be disabled independently:
 
 | CMake option / generated config macro | Included component |
 | --- | --- |
-| `OPENTLV_FORMAT_DEFAULT` | One-byte tag with legacy definite BER-style length |
 | `OPENTLV_FORMAT_FIXED` | Configurable fixed-width tag and length (`tlv_fixed_format_t`) |
 | `OPENTLV_FORMAT_BLUETOOTH_LTV` | Bluetooth Length, Type, Value framing |
 | `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER, CER) |
@@ -253,11 +305,11 @@ config macros when supporting reduced builds.
 
 Tests that require disabled components and examples that demonstrate them are
 omitted. Generic architecture tests use an application-defined format and run
-even when all built-ins are disabled. The benchmark uses the default format and
+even when all built-ins are disabled. The benchmark uses BER and
 is built only when that component is enabled.
 
 ```sh
-cmake -S . -B build-minimal -DOPENTLV_FORMAT_DEFAULT=OFF \
+cmake -S . -B build-minimal \
   -DOPENTLV_FORMAT_FIXED=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build-minimal --parallel
 ```
@@ -271,7 +323,7 @@ guarantee or an exhaustive migration guide.
 
 Update flat includes to the folders above (`tlv/reader.h` becomes
 `tlv/reader/reader.h`, and so on). Concrete format declarations use
-`tlv/builtins/fixed/default.h`, `tlv/formats/fixed.h`,
+`tlv/formats/fixed.h`,
 `tlv/builtins/asn1/ber.h`, or `tlv/builtins/asn1/der.h`; the public
 aggregate includes enabled formats.
 
@@ -330,7 +382,7 @@ versa; a format missing the capability an operation needs now fails at
 `tlv_reader_format_<name>`/`tlv_writer_format_<name>` constants with the
 single `tlv_format_<name>` per format. Replace
 `tlv_reader_format_init`/`tlv_writer_format_init`/`tlv_reader_format_init_element`/
-`tlv_writer_format_init_header` with `tlv_format_init`/`tlv_format_init_element`,
+`tlv_writer_format_init_header` with the canonical `tlv_format_init`,
 and the private `tlv_reader_format_usable`/`tlv_writer_format_usable` checks
 with the now-public `tlv_format_can_read`/`tlv_format_can_write`.
 `tlv_fixed_reader_format_init`/`tlv_fixed_writer_format_init` become one
@@ -347,9 +399,7 @@ becomes `tlv/formats/fixed.h`, and `tlv++/builtins/fixed/fixed_format.hpp`
 becomes `tlv++/formats/fixed_format.hpp`. This is a narrower, second
 reintroduction of a `formats/` folder than the one #279 removed (see above):
 it holds only mechanisms that are themselves protocol-agnostic, not every
-concrete format regardless of protocol, so `tlv/builtins/fixed/default.h`
-(the unrelated one-byte default format, which does name a protocol shape) stays
-under `builtins/fixed/`. `tlv_fixed_config_t` is renamed to `tlv_fixed_format_t`
+concrete format regardless of protocol. `tlv_fixed_config_t` is renamed to `tlv_fixed_format_t`
 without any other change to its fields or to `tlv_fixed_format_init()`'s
 behavior. No compatibility shim; rebuild all consumers. (#327)
 
@@ -375,7 +425,9 @@ predicate alongside a format: `tlv_walk_tree`, `tlv_schema_validate`,
 separate `is_constructed` field, and `tlv_document_options_init()` drops its
 `is_constructed` parameter. The BER, DER and CER format descriptors
 (`tlv_format_ber`, `tlv_format_der`, `tlv_format_cer`) now set
-`is_constructed` themselves; the default and Fixed formats still leave it
+`is_constructed` themselves; Fixed formats still leave it
 `NULL`. No compatibility shim; rebuild all consumers.
 
 See also the generated [C API reference](../reference/c-api.md) and [C++ API reference](../reference/cxx-api.md).
+
+The current wire boundary is specified by the [Format/Element contract](format-contract.md).

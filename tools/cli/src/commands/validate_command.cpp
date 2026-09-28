@@ -75,7 +75,7 @@ std::string validate_command::render_failure_diagnostic(diagnostic_format  diag_
         if (check_.field_name)
             tlv_diagnostic_add_context(&diag, &check_.field_context, "dictionary", "field",
                                        check_.field_name);
-        return format_diagnostic(diag, diag_format, "dictionary", tag_hex_ptr);
+        return format_diagnostic(diag, diag_format, "dictionary", check_.tag.c_str());
     }
 #endif
     return walk_command::render_failure_diagnostic(diag_format, tag_hex_ptr, stage_name);
@@ -102,6 +102,7 @@ tlv_visit_result_t validate_command::check_dictionary_element(const tlv_element_
     const size_t       value_length = cli_element_value_size(element);
     const tlv_result_t rc = tlv_emv_validate_length(definition, value_length);
     if (rc == TLV_OK) return TLV_VISIT_CONTINUE;
+    check_.tag = hex_string(element->tag.data, element->tag.size);
     check_.result = rc;
     check_.offset = offset;
     std::ostringstream expected;

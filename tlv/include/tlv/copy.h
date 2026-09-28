@@ -29,7 +29,7 @@ extern "C" {
  *   length, returns #TLV_ERR_NULL_ARG. Empty byte ranges may have `NULL`
  *   source bytes.
  * - An element whose `value.size` does not fit the current build's `size_t`
- *   returns #TLV_ERR_INVALID_LENGTH before any copying.
+ *   returns #TLV_ERR_NATIVE_SIZE before any copying.
  */
 
 /** @addtogroup copy
@@ -49,7 +49,7 @@ extern "C" {
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for missing required pointers.
- * @return #TLV_ERR_INVALID_LENGTH if the value length exceeds the native size range.
+ * @return #TLV_ERR_NATIVE_SIZE if the value length exceeds the native size range.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient.
  *
  * @see tlv_copy_encoded

@@ -47,6 +47,7 @@ const char* operation_name(tlv_reader_operation_t operation) {
         case TLV_READER_OP_LENGTH: return "length";
         case TLV_READER_OP_VALUE: return "value";
         case TLV_READER_OP_TRAILER: return "trailer";
+        case TLV_READER_OP_HEADER: return "header";
     }
     return "unknown";
 }
@@ -260,6 +261,7 @@ const char* error_name(tlv_result_t rc) {
         ERROR_NAME(TLV_ERR_INVALID_VALUE);
         ERROR_NAME(TLV_ERR_UNSUPPORTED_TYPE);
         ERROR_NAME(TLV_ERR_SCHEMA_MISSING);
+        ERROR_NAME(TLV_ERR_NATIVE_SIZE);
 #undef ERROR_NAME
         default: return "TLV_ERR_UNKNOWN";
     }

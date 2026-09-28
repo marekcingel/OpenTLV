@@ -1,3 +1,4 @@
+#include "tlv/layout.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -16,20 +17,23 @@ TEST(Unit_Tlv_Ber, InvalidAndNonminimalLengths) {
     tlv_size_t length = 42;
     size_t     used = 42;
     for (uint8_t prefix : {0x80, 0xFF})
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, ber.read_length(nullptr, &prefix, 1, &length, &used));
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, static_cast<const tlv_field_layout_t*>(ber.context)
+                                              ->read_length(nullptr, &prefix, 1, &length, &used));
     std::vector<uint8_t> overflow(sizeof(tlv_size_t) + 2, 0);
     overflow[0] = 0x80 | (sizeof(tlv_size_t) + 1);
     overflow[1] = 1;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              ber.read_length(nullptr, overflow.data(), overflow.size(), &length, &used));
+              static_cast<const tlv_field_layout_t*>(ber.context)
+                  ->read_length(nullptr, overflow.data(), overflow.size(), &length, &used));
     EXPECT_EQ(42u, length);
     EXPECT_EQ(overflow.size(), used);
     const uint8_t padded[] = {0x83, 0, 0, 0x7F};
-    ASSERT_EQ(TLV_OK, ber.read_length(nullptr, padded, sizeof(padded), &length, &used));
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+                          ->read_length(nullptr, padded, sizeof(padded), &length, &used));
     EXPECT_EQ(127u, length);
     EXPECT_EQ(4u, used);
     size_t total = 42;
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+    EXPECT_EQ(sizeof(size_t) == sizeof(tlv_size_t) ? TLV_ERR_OVERFLOW : TLV_ERR_NATIVE_SIZE,
               tlv_encoded_size((TLV_TAG(0x5A)), SIZE_MAX, &ber_writer, &total));
     EXPECT_EQ(42u, total);
 }
@@ -42,32 +46,41 @@ TEST(Unit_Tlv_Ber, TagSizeLimitAndContinuation) {
     bytes.back() = 0x01;
     tlv_tag_t tag{};
     size_t    used = 0;
-    ASSERT_EQ(TLV_OK, ber.read_tag(nullptr, bytes.data(), bytes.size(), &tag, &used));
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+                          ->read_tag(nullptr, bytes.data(), bytes.size(), &tag, &used));
     EXPECT_EQ(bytes.size(), used);
     // The tag borrows the input rather than copying it.
     EXPECT_EQ(bytes.data(), tag.data);
     EXPECT_EQ(bytes.size(), tag.size);
-    ASSERT_EQ(TLV_OK, ber_writer.write_tag(nullptr, nullptr, 0, &tag, &used));
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber_writer.context)
+                          ->write_tag(nullptr, nullptr, 0, &tag, &used));
     std::vector<uint8_t> output(bytes.size(), 0xEE);
     for (size_t capacity = 0; capacity < bytes.size(); ++capacity) {
         EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                  ber_writer.write_tag(nullptr, output.data(), capacity, &tag, &used));
+                  static_cast<const tlv_field_layout_t*>(ber_writer.context)
+                      ->write_tag(nullptr, output.data(), capacity, &tag, &used));
         for (auto byte : output) EXPECT_EQ(0xEE, byte);
     }
-    ASSERT_EQ(TLV_OK, ber_writer.write_tag(nullptr, output.data(), output.size(), &tag, &used));
+    ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber_writer.context)
+                          ->write_tag(nullptr, output.data(), output.size(), &tag, &used));
     EXPECT_EQ(bytes, output);
     // One byte more than the format supports is rejected, however the tag ends.
     bytes.assign(TLV_ASN1_TAG_MAX_SIZE + 1, 0x81);
     bytes[0] = 0x9F;
     bytes.back() = 1;
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
-              ber.read_tag(nullptr, bytes.data(), bytes.size(), &tag, &used));
+              static_cast<const tlv_field_layout_t*>(ber.context)
+                  ->read_tag(nullptr, bytes.data(), bytes.size(), &tag, &used));
     EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE,
-              ber.read_tag(nullptr, bytes.data(), TLV_ASN1_TAG_MAX_SIZE, &tag, &used));
+              static_cast<const tlv_field_layout_t*>(ber.context)
+                  ->read_tag(nullptr, bytes.data(), TLV_ASN1_TAG_MAX_SIZE, &tag, &used));
     tag = tlv_tag(bytes.data(), bytes.size());
-    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, ber_writer.write_tag(nullptr, nullptr, 0, &tag, &used));
+    EXPECT_EQ(TLV_ERR_INVALID_TAG_SIZE, static_cast<const tlv_field_layout_t*>(ber_writer.context)
+                                            ->write_tag(nullptr, nullptr, 0, &tag, &used));
     for (size_t size = 0; size < TLV_ASN1_TAG_MAX_SIZE; ++size)
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, ber.read_tag(nullptr, bytes.data(), size, &tag, &used));
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  static_cast<const tlv_field_layout_t*>(ber.context)
+                      ->read_tag(nullptr, bytes.data(), size, &tag, &used));
 }
 
 TEST(Unit_Tlv_Ber, InvalidTagsAndWriterState) {
@@ -87,11 +100,13 @@ TEST(Unit_Tlv_Ber, InvalidTagsAndWriterState) {
     // A tag whose bytes are missing is reported before its size is looked at.
     size_t          used;
     const tlv_tag_t missing = tlv_tag(nullptr, 1);
-    EXPECT_EQ(TLV_ERR_NULL_ARG, ber_writer.write_tag(nullptr, nullptr, 0, &missing, &used));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, static_cast<const tlv_field_layout_t*>(ber_writer.context)
+                                    ->write_tag(nullptr, nullptr, 0, &missing, &used));
     const uint8_t invalid_tag[] = {0x9F, 0x80, 1};
     tlv_tag_t     tag{};
     EXPECT_EQ(TLV_ERR_INVALID_TAG,
-              ber.read_tag(nullptr, invalid_tag, sizeof(invalid_tag), &tag, &used));
+              static_cast<const tlv_field_layout_t*>(ber.context)
+                  ->read_tag(nullptr, invalid_tag, sizeof(invalid_tag), &tag, &used));
 }
 
 TEST(Unit_Tlv_Ber, TagClassFormAndNumberFromWireBytes) {
@@ -177,7 +192,7 @@ TEST(Unit_Tlv_Ber, TruncationPreservesReaderOutput) {
     for (size_t size = 0; size < data.size(); ++size) {
         tlv_reader_t reader;
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data.data(), size, &ber));
-        tlv_element_t element = {TLV_TAG(0xEE), {}, {nullptr, 42}};
+        tlv_element_t element = {TLV_TAG(0xEE), {nullptr, 42}};
         EXPECT_EQ(size ? TLV_ERR_BUFFER_TOO_SHORT : TLV_ERR_END_OF_BUFFER,
                   tlv_reader_next(&reader, &element));
         EXPECT_EQ(0u, reader.pos);
@@ -207,7 +222,8 @@ TEST(Unit_Tlv_Ber, IndefiniteWriterCapacityValidationAndDefault) {
         EXPECT_EQ(999u, written);
         for (auto byte : output) EXPECT_EQ(0xEE, byte);
     }
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_ber_indefinite_encoded_size(tag, SIZE_MAX, &written));
+    EXPECT_EQ(sizeof(size_t) == sizeof(tlv_size_t) ? TLV_ERR_OVERFLOW : TLV_ERR_NATIVE_SIZE,
+              tlv_ber_indefinite_encoded_size(tag, SIZE_MAX, &written));
     EXPECT_EQ(999u, written);
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_ber_indefinite_encoded_size(TLV_TAG(4), 0, &written));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
@@ -357,26 +373,31 @@ TEST(Unit_Tlv_Ber, LongPaddedLengthsAndTruncation) {
         bytes.back() = 0x7F;
         tlv_size_t length = 42;
         size_t     used = 43;
-        ASSERT_EQ(TLV_OK, ber.read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
+        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+                              ->read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
         EXPECT_EQ(127u, length);
         EXPECT_EQ(bytes.size(), used);
         bytes.back() = 0;
-        ASSERT_EQ(TLV_OK, ber.read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
+        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+                              ->read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
         EXPECT_EQ(0u, length);
         std::memset(bytes.data() + bytes.size() - sizeof(tlv_size_t), 255, sizeof(tlv_size_t));
-        ASSERT_EQ(TLV_OK, ber.read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
+        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+                              ->read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
         EXPECT_EQ(TLV_SIZE_MAX, length);
         bytes[1] = 1;
         length = 42;
         used = 43;
         for (size_t size = 0; size < bytes.size(); ++size) {
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                      ber.read_length(nullptr, bytes.data(), size, &length, &used));
+                      static_cast<const tlv_field_layout_t*>(ber.context)
+                          ->read_length(nullptr, bytes.data(), size, &length, &used));
             EXPECT_EQ(42u, length);
             EXPECT_EQ(size, used);
         }
         EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-                  ber.read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
+                  static_cast<const tlv_field_layout_t*>(ber.context)
+                      ->read_length(nullptr, bytes.data(), bytes.size(), &length, &used));
         EXPECT_EQ(42u, length);
         EXPECT_EQ(bytes.size(), used);
     }

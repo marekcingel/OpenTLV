@@ -22,14 +22,16 @@ TEST(Unit_Tlv_Walker, PropagatesCustomReaderErrorsIncludingEndOfBuffer) {
     const uint8_t data[] = {1, 0};
     for (auto error : {TLV_ERR_INVALID_TAG, TLV_ERR_INVALID_LENGTH, TLV_ERR_END_OF_BUFFER}) {
         for (bool fail_tag : {false, true}) {
+            auto layout = controlled::format_layout;
             auto format = controlled::format;
-            format.context = &error;
+            format.context = &layout;
+            layout.context = &error;
             if (fail_tag) {
-                format.read_tag = [](const void* ctx, const uint8_t*, size_t, tlv_tag_t*, size_t*) {
+                layout.read_tag = [](const void* ctx, const uint8_t*, size_t, tlv_tag_t*, size_t*) {
                     return *static_cast<const tlv_result_t*>(ctx);
                 };
             } else {
-                format.read_length = [](const void* ctx, const uint8_t*, size_t, tlv_size_t*,
+                layout.read_length = [](const void* ctx, const uint8_t*, size_t, tlv_size_t*,
                                         size_t*) { return *static_cast<const tlv_result_t*>(ctx); };
             }
             Visits visits;
@@ -62,11 +64,13 @@ TEST(Unit_Tlv_Walker, RejectsInvalidArgumentsEvenForEmptyInput) {
     for (size_t size : {size_t(0), sizeof(data)}) {
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, nullptr, collect, &visits));
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, &controlled::format, nullptr, &visits));
+        auto layout = controlled::format_layout;
         auto format = controlled::format;
-        format.read_tag = nullptr;
+        format.context = &layout;
+        format.decode = nullptr;
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, &format, collect, &visits));
         format = controlled::format;
-        format.read_length = nullptr;
+        format.decode = nullptr;
         EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, &format, collect, &visits));
     }
     EXPECT_EQ(0u, visits.count);

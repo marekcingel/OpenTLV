@@ -56,7 +56,7 @@ These are three separate questions:
 - A `tlv_tag_t` is arbitrary raw bytes with a length. It has no maximum length
   and knows nothing about encodings.
 - A **format** defines how tags are encoded and which tag lengths are valid. BER
-  accepts 1 to 8 bytes, the default format exactly one, and a format defined at
+  accepts 1 to 8 bytes, and a format defined at
   runtime can accept any length, such as 12 bytes. A format rejects the tags it
   does not support, and decides whether an empty tag is valid.
 - A **schema** defines which tags are allowed or required in a scope and how

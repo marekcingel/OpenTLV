@@ -65,8 +65,7 @@ int parse_emv_tag(const char* text, std::vector<uint8_t>& bytes, tlv_tag_t& tag)
     if (rc == 3) return fail(2, "tag is longer than the longest tag a supported format accepts");
     if (rc) return rc;
     if (bytes.empty()) return fail(2, "tag must not be empty");
-    if (tlv_format_ber.read_tag(tlv_format_ber.context, bytes.data(), bytes.size(), &tag, &used) !=
-            TLV_OK ||
+    if (tlv_ber_read_identifier(bytes.data(), bytes.size(), &tag, &used) != TLV_OK ||
         used != bytes.size())
         return fail(2, "tag is not a single complete BER tag");
     return 0;

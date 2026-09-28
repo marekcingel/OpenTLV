@@ -21,18 +21,6 @@ using cli::fail;
 
 namespace {
 
-/* Reads the tag at the start of an element, including for formats that parse whole elements
- * (whose tag is only known once the element is well-formed). */
-bool read_tag_at(const tlv_format_t* format, const uint8_t* data, size_t size, tlv_tag_t* tag,
-                 size_t* used) {
-    if (format->read_tag) return format->read_tag(format->context, data, size, tag, used) == TLV_OK;
-    tlv_size_t   value_size;
-    size_t       trailer_size;
-    tlv_length_t raw_length{};
-    return format->read_element(format->context, data, size, tag, &raw_length, used, &value_size,
-                                &trailer_size) == TLV_OK;
-}
-
 tlv_visit_result_t count_element(const tlv_element_t*, size_t, size_t, void* context) {
     ++*static_cast<size_t*>(context);
     return TLV_VISIT_CONTINUE;
@@ -117,24 +105,9 @@ std::string walk_command::render_failure_diagnostic(diagnostic_format  diag_form
                                                     const char*        tag_hex_ptr,
                                                     const std::string& stage_name) {
     if (has_schema_diag_) return format_schema_diagnostic(schema_diag_, diag_format);
-    // A wire-level error the walk already found at error_offset_ has no
-    // tlv_reader_diagnostic_t of its own (neither tlv_walk_tree() nor
-    // tlv_der_walk() produce one); re-deriving it, bounded to its enclosing
-    // scope, adds the failing step and declared-length-versus-available
-    // detail when it can be reproduced exactly. Not attempted for --pdol,
-    // whose flat tag/length pairs the reader-diagnostic model doesn't
-    // describe, nor for DER: tlv_der_walk()'s own error_offset is not always
-    // a tlv_read()-style element start the way tlv_walk_tree()'s is (it
-    // comes from DER's own recursive validator), so re-reading one element
-    // there could coincidentally reproduce the same result code at the wrong
-    // field instead of failing the way TLV_ERR_LIMIT/TLV_ERR_VISITOR do.
-    tlv_reader_diagnostic_t reader_diag;
-    const bool              derived = !options_.pdol && !is_der_ &&
-                                      diagnostic_scope_derive_reader_diagnostic(
-                                          scope_, format_, data(), size(), error_offset_, result_, &reader_diag);
-    if (derived) {
-        if (scope_.path.length) tlv_diagnostic_set_path(&reader_diag.diagnostic, &scope_.path);
-        return format_reader_diagnostic(reader_diag, diag_format);
+    if (reader_diag_.diagnostic.code == result_) {
+        if (scope_.path.length) tlv_diagnostic_set_path(&reader_diag_.diagnostic, &scope_.path);
+        return format_reader_diagnostic(reader_diag_, diag_format);
     }
     tlv::diagnostic diag = tlv::make_diagnostic(result_, TLV_DIAGNOSTIC_SEVERITY_ERROR);
     tlv_diagnostic_set_offset(&diag, error_offset_);
@@ -152,7 +125,7 @@ tlv_result_t walk_command::walk_pdol(std::size_t* error_offset) {
         tlv_result_t  rc;
         *error_offset = pos;
         if (count == options_.max_elements) return TLV_ERR_LIMIT;
-        rc = format_->read_tag(format_->context, data() + pos, size() - pos, &element.tag, &used);
+        rc = tlv_ber_read_identifier(data() + pos, size() - pos, &element.tag, &used);
         if (rc != TLV_OK) return rc;
         if (element.tag.size > 2) return TLV_ERR_INVALID_TAG_SIZE;
         pos += used;
@@ -193,7 +166,7 @@ tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
     const bool     inline_text = prints_skipped_inline();
     size_t         pos = 0, budget = options_.max_elements;
     bool           skipping = false;
-    skipped_range  current = {0, 0, TLV_OK, 0};
+    skipped_range  current{};
 
     auto close_range = [&](size_t end) {
         current.length = end - current.offset;
@@ -202,12 +175,26 @@ tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
         skipping = false;
     };
     while (pos < size()) {
-        tlv_element_t element;
-        size_t        consumed = 0, fault = pos, count = 0;
-        tlv_result_t  rc = tlv_read(data() + pos, size() - pos, format_, &element, &consumed);
-        if (rc == TLV_OK)
-            rc =
-                walk_slice(env, data() + pos, consumed, pos, budget, count_element, &count, &fault);
+        tlv_element_t           element;
+        size_t                  consumed = 0, fault = pos, count = 0;
+        tlv_reader_diagnostic_t attempt{};
+        tlv_result_t            rc =
+            tlv_read_diag(data() + pos, size() - pos, format_, &element, &consumed, &attempt);
+        if (rc != TLV_OK) {
+            if (attempt.diagnostic.has_offset) attempt.diagnostic.offset += pos;
+            if (attempt.has_tag_offset) attempt.tag_offset += pos;
+            if (attempt.has_length_offset) attempt.length_offset += pos;
+            if (attempt.has_value_offset) attempt.value_offset += pos;
+            if (attempt.has_enclosing_end) attempt.enclosing_end += pos;
+        }
+        if (rc == TLV_OK) {
+            rc = walk_slice(env, data() + pos, consumed, pos, budget, count_element, &count, &fault,
+                            &attempt);
+            if ((rc == TLV_ERR_LIMIT || rc == TLV_ERR_OUT_OF_MEMORY) && fault == pos) {
+                reader_diag_.has_tag = 1;
+                reader_diag_.tag = element.tag;
+            }
+        }
         if (rc == TLV_ERR_LIMIT || rc == TLV_ERR_OUT_OF_MEMORY) {
             *error_offset = fault;
             return rc;
@@ -230,6 +217,7 @@ tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
             current.offset = pos;
             current.error = rc;
             current.error_offset = fault;
+            current.diagnostic = attempt;
         }
         tlv_element_t next;
         size_t        next_offset, next_size;
@@ -281,7 +269,7 @@ int walk_command::run() {
         result = walk_recovering(&error_offset);
     else
         result = walk_slice(env, data(), size(), 0, options_.max_elements, visit_trampoline, this,
-                            &error_offset);
+                            &error_offset, &reader_diag_);
     result_ = result;
     error_offset_ = error_offset;
 
@@ -293,19 +281,11 @@ int walk_command::run() {
     int rc = flush_stdout();
     if (rc) return rc;
     if (result_ != TLV_OK) {
-        // TLV_ERR_SCHEMA_MISSING's offset (from run_emv_checks(), above)
-        // anchors the enclosing element's own tag, and its tag is the absent
-        // one -- both borrowed from the schema/diagnostic itself, so both are
-        // reliable; a re-read at the offset is only needed, and only safe,
-        // for every other result, whose offset anchors an actual element.
         std::string stage_name(stage_);
         if (!stage_name.empty() && stage_name.back() == ' ') stage_name.pop_back();
-        tlv_tag_t   tag;
-        size_t      used;
         std::string tag_hex;
-        if (result_ != TLV_ERR_SCHEMA_MISSING && error_offset_ < size() &&
-            read_tag_at(format_, data() + error_offset_, size() - error_offset_, &tag, &used))
-            tag_hex = hex_string(tag.data, tag.size);
+        if (reader_diag_.has_tag)
+            tag_hex = hex_string(reader_diag_.tag.data, reader_diag_.tag.size);
         const char* tag_hex_ptr = tag_hex.empty() ? nullptr : tag_hex.c_str();
 
         const std::string rendered =
@@ -327,14 +307,11 @@ int walk_command::run() {
         // through the derivation below and falls back to the plain form.
         // Never attempted for DER; see the same rationale where the final
         // wire-error case above excludes it.
-        diagnostic_scope range_scope;
-        diagnostic_scope_init(range_scope, size());
         for (const skipped_range& range : skipped_) {
             tlv_reader_diagnostic_t reader_diag;
             std::string             rendered;
-            if (!is_der_ && diagnostic_scope_derive_reader_diagnostic(range_scope, format_, data(),
-                                                                      size(), range.error_offset,
-                                                                      range.error, &reader_diag)) {
+            if (range.diagnostic.diagnostic.code == range.error) {
+                reader_diag = range.diagnostic;
                 reader_diag.diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_WARNING;
                 rendered = format_reader_diagnostic(reader_diag, diag_format);
             } else {

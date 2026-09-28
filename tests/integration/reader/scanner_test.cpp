@@ -1,5 +1,5 @@
 ﻿#include "controlled_format.h"
-#include "tlv/builtins/fixed/default.h"
+#include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/scanner.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
@@ -10,7 +10,7 @@ const tlv_schema_t       schema = {rules, 1};
 
 class Integration_Tlv_Scanner : public ::testing::Test {
 protected:
-    tlv_element_t element = {TLV_TAG(0xAA), {}, {nullptr, 99}};
+    tlv_element_t element = {TLV_TAG(0xAA), {nullptr, 99}};
     size_t        offset = 88;
     size_t        consumed = 77;
 
@@ -75,17 +75,17 @@ TEST_F(Integration_Tlv_Scanner, EmptyAndReversedSchemasRejectAllCandidates) {
 TEST_F(Integration_Tlv_Scanner, HandlesEveryTruncatedPrefixSafely) {
     const uint8_t data[] = {0x42, 0x82, 0, 2, 0xAA, 0xBB};
     for (size_t size = 0; size < sizeof(data); ++size) {
-        EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, size, 0, &schema, &tlv_format_default));
+        EXPECT_EQ(TLV_ERR_END_OF_BUFFER, scan(data, size, 0, &schema, &tlv_format_ber));
         unchanged();
     }
-    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_format_default));
+    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_format_ber));
     EXPECT_EQ(0u, offset);
     EXPECT_EQ(sizeof(data), consumed);
 }
 
 TEST_F(Integration_Tlv_Scanner, ContinuesAfterInvalidLengthAndTruncatedCandidate) {
     const uint8_t data[] = {0xFF, 0xFF, 0x42, 0x81, 1, 0xAA};
-    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_format_default));
+    ASSERT_EQ(TLV_OK, scan(data, sizeof(data), 0, &schema, &tlv_format_ber));
     EXPECT_EQ(2u, offset);
     EXPECT_EQ(4u, consumed);
     const uint8_t nested[] = {0x42, 0x7F, 0x42, 1, 0xAA};

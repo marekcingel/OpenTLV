@@ -7,16 +7,14 @@ use opentlv_native as native;
 use crate::error::{Error, Result};
 use crate::tag::Tag;
 
-/// A decoded TLV element: a tag, borrowed raw length bytes and a borrowed value.
+/// A canonical TLV element: an identifier and a borrowed value.
 ///
-/// Both length and value borrow the input it was decoded from, so the input must outlive
-/// the element. The tag is copied out of the input, so it does not. Cloning an
+/// Value borrows the input, which must outlive the element. The tag is owned. Cloning an
 /// element clones the tag but not the borrowed bytes. Equality compares tag
 /// and value, ignoring differences in raw length encoding.
 #[derive(Clone, Debug)]
 pub struct Element<'a> {
     tag: Tag,
-    length: &'a [u8],
     value: &'a [u8],
 }
 
@@ -31,21 +29,12 @@ impl Eq for Element<'_> {}
 impl<'a> Element<'a> {
     /// Creates an element from a tag and a value.
     pub fn new(tag: Tag, value: &'a [u8]) -> Element<'a> {
-        Element {
-            tag,
-            length: &[],
-            value,
-        }
+        Element { tag, value }
     }
 
     /// Returns the element tag.
     pub fn tag(&self) -> &Tag {
         &self.tag
-    }
-
-    /// Returns the original encoded length bytes (empty for manually built elements).
-    pub fn length(&self) -> &'a [u8] {
-        self.length
     }
 
     /// Returns the element value bytes.
@@ -59,7 +48,7 @@ impl<'a> Element<'a> {
     ///
     /// If `raw.value.data` is non-null, it must point to `raw.value.size`
     /// readable bytes that stay valid and unmodified for `'a`. The same
-    /// applies to `raw.length.data` for `raw.length.size` bytes.
+    /// also applies to the identifier bytes.
     pub(crate) unsafe fn from_raw(raw: &native::tlv_element_t) -> Result<Element<'a>> {
         // SAFETY: the caller guarantees the tag bytes are readable, as for the value.
         let tag = unsafe { Tag::from_raw(&raw.tag) }?;
@@ -69,7 +58,7 @@ impl<'a> Element<'a> {
         Error::check(unsafe { native::tlv_size_to_native(raw.value.size, &mut length) })?;
 
         if length > isize::MAX as usize {
-            return Err(Error::InvalidLength);
+            return Err(Error::NativeSize);
         }
         let value: &'a [u8] = if length == 0 {
             &[]
@@ -80,21 +69,7 @@ impl<'a> Element<'a> {
             // bytes valid for `'a`.
             unsafe { slice::from_raw_parts(raw.value.data, length) }
         };
-        let raw_length = if raw.length.size == 0 {
-            &[]
-        } else if raw.length.data.is_null() {
-            return Err(Error::NullArg);
-        } else if raw.length.size > isize::MAX as usize {
-            return Err(Error::InvalidLength);
-        } else {
-            // SAFETY: the caller guarantees the raw field lives for 'a.
-            unsafe { slice::from_raw_parts(raw.length.data, raw.length.size) }
-        };
-        Ok(Element {
-            tag,
-            length: raw_length,
-            value,
-        })
+        Ok(Element { tag, value })
     }
 }
 
@@ -113,10 +88,6 @@ mod tests {
         };
         native::tlv_element_t {
             tag: raw_tag,
-            length: native::tlv_length_t {
-                data: std::ptr::null(),
-                size: 0,
-            },
             value: native::tlv_value_t { data, size: length },
         }
     }
@@ -178,9 +149,6 @@ mod tests {
         let bytes = [0u8; 1];
         let raw = raw_element(&[0x01], bytes.as_ptr(), u64::MAX);
         // SAFETY: the length is rejected before any read.
-        assert_eq!(
-            unsafe { Element::from_raw(&raw) },
-            Err(Error::InvalidLength)
-        );
+        assert_eq!(unsafe { Element::from_raw(&raw) }, Err(Error::NativeSize));
     }
 }

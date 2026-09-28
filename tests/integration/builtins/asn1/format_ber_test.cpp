@@ -1,3 +1,4 @@
+#include "tlv/layout.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -95,22 +96,26 @@ TEST(Integration_Tlv_Ber, LengthWireBytesAndBounds) {
     for (const auto& item : cases) {
         size_t     used = 0;
         tlv_size_t length = 0;
-        ASSERT_EQ(TLV_OK, ber_writer.length_size(nullptr, item.value, &used));
+        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber_writer.context)
+                              ->length_size(nullptr, item.value, &used));
         EXPECT_EQ(item.bytes.size(), used);
         std::vector<uint8_t> data(used, 0xEE);
         for (size_t capacity = 0; capacity < data.size(); ++capacity) {
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                      ber_writer.write_length(nullptr, data.data(), capacity, item.value, &used));
+                      static_cast<const tlv_field_layout_t*>(ber_writer.context)
+                          ->write_length(nullptr, data.data(), capacity, item.value, &used));
             for (auto byte : data) EXPECT_EQ(0xEE, byte);
         }
-        ASSERT_EQ(TLV_OK,
-                  ber_writer.write_length(nullptr, data.data(), data.size(), item.value, &used));
+        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber_writer.context)
+                              ->write_length(nullptr, data.data(), data.size(), item.value, &used));
         EXPECT_EQ(item.bytes, data);
-        ASSERT_EQ(TLV_OK, ber.read_length(nullptr, data.data(), data.size(), &length, &used));
+        ASSERT_EQ(TLV_OK, static_cast<const tlv_field_layout_t*>(ber.context)
+                              ->read_length(nullptr, data.data(), data.size(), &length, &used));
         EXPECT_EQ(item.value, length);
         for (size_t size = 0; size < data.size(); ++size)
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-                      ber.read_length(nullptr, data.data(), size, &length, &used));
+                      static_cast<const tlv_field_layout_t*>(ber.context)
+                          ->read_length(nullptr, data.data(), size, &length, &used));
     }
 }
 
@@ -152,7 +157,7 @@ TEST(Integration_Tlv_Ber, IndefiniteReferenceEncodingsAndRoundTrip) {
         EXPECT_TRUE(tlv_reader_at_end(&reader));
         // Every proper prefix of a valid outer element is truncated.
         for (size_t size = 1; size < required; ++size) {
-            element = tlv_element_t{TLV_TAG(0xEE), {}, {nullptr, 42}};
+            element = tlv_element_t{TLV_TAG(0xEE), {nullptr, 42}};
             used = 999;
             EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
                       tlv_read(output.data(), size, &ber, &element, &used));
@@ -190,7 +195,7 @@ TEST(Integration_Tlv_Ber, IndefiniteMalformedInputIsAtomic) {
     for (const auto& item : cases) {
         tlv_reader_t reader{};
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, item.wire.data(), item.wire.size(), &ber));
-        tlv_element_t element = {TLV_TAG(0xEE), {}, {nullptr, 42}};
+        tlv_element_t element = {TLV_TAG(0xEE), {nullptr, 42}};
         EXPECT_EQ(item.result, tlv_reader_next(&reader, &element));
         EXPECT_EQ(0u, reader.pos);
         EXPECT_EQ(0xEE, element.tag.data[0]);

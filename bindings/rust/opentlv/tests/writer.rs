@@ -98,10 +98,10 @@ fn round_trip(format: Format, entries: &[(&[u8], &[u8])]) {
 }
 
 #[test]
-fn round_trips_default_format() {
+fn round_trips_default_ber_format() {
     round_trip(
-        Format::Default,
-        &[(&[0x01], b"hello"), (&[0x02], &[]), (&[0x7F], &[0x55; 300])],
+        Format::Ber,
+        &[(&[0x01], b"hello"), (&[0x02], &[]), (&[0x5A], &[0x55; 300])],
     );
 }
 
@@ -119,19 +119,16 @@ fn round_trips_ber_format_with_multi_byte_tags() {
 }
 
 #[test]
-fn default_format_rejects_multi_byte_tags() {
+fn default_ber_format_accepts_multi_byte_tags() {
     let mut buf = [0u8; 16];
     let mut writer = Writer::new(&mut buf);
-    assert_eq!(
-        writer.write(&tag(&[0x9F, 0x02]), &[]),
-        Err(Error::InvalidTagSize)
-    );
-    assert_eq!(writer.position(), 0);
+    assert_eq!(writer.write(&tag(&[0x9F, 0x02]), &[]), Ok(()));
+    assert_eq!(writer.position(), 3);
 }
 
 #[test]
 fn round_trips_default_and_der_formats() {
-    for format in [Format::Default, Format::Der] {
+    for format in [Format::Ber, Format::Der] {
         let mut buf = [0u8; 32];
         let mut writer = Writer::with_format(&mut buf, format);
         writer.write(&tag(&[0x04]), &[1, 2, 3]).unwrap();

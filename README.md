@@ -56,7 +56,6 @@ Built-in components are enabled by default and can be selected with
   - [ ] Incremental parsing across input chunks
 - **Wire formats**
   - **Default and fixed-width**
-    - [x] **Default TLV** - one-byte tags, definite BER-style lengths up to 65,535 bytes. [Details](docs/formats/README.md#generic-interface) [Tree and bytes](docs/formats/default/README.md#byte-example)
     - [x] **Bluetooth LTV** - length-before-type framing used by Bluetooth advertising data, values up to 254 bytes. [Details](docs/formats/bluetooth/README.md) [Tree and bytes](docs/formats/bluetooth/README.md#byte-example)
     - [x] **Configurable fixed-width TLV** - independent tag width, length width (1-8 bytes) and length byte order, chosen at runtime (C) or compile time (C++). [Details](docs/formats/fixed/configurable.md) [Tree and bytes](docs/formats/fixed/configurable.md#wire-layout)
   - **ASN.1-related encodings**
@@ -177,7 +176,7 @@ cmake --build build --config Release --parallel
 See [getting started](docs/getting-started/README.md) for linking this example, CMake
 integration, C-only builds, and running tests. The [C](examples/tlv/src/) examples
 cover more of the API, one topic per file, and the [C++](examples/tlv++/src/basic_usage.cpp)
-example covers the default format; [examples/tlv/src/builtins/emv/tag_decoding.c](examples/tlv/src/builtins/emv/tag_decoding.c)
+example covers BER; [examples/tlv/src/builtins/emv/tag_decoding.c](examples/tlv/src/builtins/emv/tag_decoding.c)
 walks a full EMV TLV record through tag lookup, length validation, and value decoding.
 
 ## Documentation

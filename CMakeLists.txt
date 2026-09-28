@@ -36,7 +36,6 @@ option(OPENTLV_BUILD_LUA "Build the experimental Lua native extension" OFF)
 option(OPENTLV_BUILD_DOCS "Enable the Doxygen C and C++ API reference targets" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
-option(OPENTLV_FORMAT_DEFAULT "Include the default wire format" ON)
 option(OPENTLV_FORMAT_FIXED "Include the configurable fixed-width wire format" ON)
 option(OPENTLV_FORMAT_BLUETOOTH_LTV "Include the Bluetooth LTV (length, type, value) wire format" ON)
 option(OPENTLV_FORMAT_ASN1 "Include ASN.1-related wire formats (BER, DER)" ON)
@@ -127,7 +126,7 @@ if(OPENTLV_BUILD_CLI)
     add_subdirectory(tools/cli)
 endif()
 
-if(OPENTLV_BUILD_BENCHMARKS AND OPENTLV_FORMAT_DEFAULT)
+if(OPENTLV_BUILD_BENCHMARKS AND OPENTLV_FORMAT_BER)
     add_subdirectory(benchmarks)
 endif()
 

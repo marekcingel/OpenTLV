@@ -11,7 +11,6 @@ Turn off what you do not use.
 
 | Option | Component |
 | --- | --- |
-| `OPENTLV_FORMAT_DEFAULT` | [Default TLV](../formats/default/README.md) |
 | `OPENTLV_FORMAT_FIXED` | [Configurable fixed-width TLV](../formats/fixed/configurable.md) (C and C++ API); must be ON for Bluetooth LTV |
 | `OPENTLV_FORMAT_BLUETOOTH_LTV` | [Bluetooth LTV](../formats/bluetooth/README.md), a preset of the configurable Fixed format |
 | `OPENTLV_FORMAT_ASN1` | The ASN.1 group; must be ON for BER, DER, CER and EMV |
@@ -39,7 +38,7 @@ Use this when you supply your own [format callbacks](../formats/custom/README.md
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED=OFF \
+  -DOPENTLV_FORMAT_FIXED=OFF \
   -DOPENTLV_FORMAT_BLUETOOTH_LTV=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build --parallel --target tlv
 ```
@@ -48,7 +47,7 @@ cmake --build build --parallel --target tlv
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED=OFF \
+  -DOPENTLV_FORMAT_FIXED=OFF \
   -DOPENTLV_FORMAT_BLUETOOTH_LTV=OFF \
   -DOPENTLV_FORMAT_DER=OFF -DOPENTLV_FORMAT_CER=OFF -DOPENTLV_PROFILE_EMV=OFF
 cmake --build build --parallel --target tlv
@@ -60,7 +59,7 @@ EMV needs DER and DER needs BER, so all three are on. CER is off.
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_FIXED=OFF \
+  -DOPENTLV_FORMAT_FIXED=OFF \
   -DOPENTLV_FORMAT_BLUETOOTH_LTV=OFF -DOPENTLV_FORMAT_CER=OFF
 cmake --build build --parallel --target tlv
 ```
@@ -71,7 +70,7 @@ Bluetooth LTV is a preset of the Fixed format, so `OPENTLV_FORMAT_FIXED` stays O
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_DEFAULT=OFF -DOPENTLV_FORMAT_ASN1=OFF
+  -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build --parallel --target tlv
 ```
 

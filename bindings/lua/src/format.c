@@ -8,7 +8,6 @@
 #include <tlv/builtins/asn1/cer.h>
 #include <tlv/builtins/asn1/der.h>
 #include <tlv/builtins/bluetooth/bluetooth_ltv.h>
-#include <tlv/builtins/fixed/default.h>
 
 tlv_lua_format_t* opentlv_lua_check_format(lua_State* L, int arg) {
     return (tlv_lua_format_t*)luaL_checkudata(L, arg, OPENTLV_LUA_FORMAT_MT);
@@ -80,8 +79,6 @@ void opentlv_lua_open_format(lua_State* L, int module_table_index) {
 
     lua_newtable(L); /* formats */
 
-    push_builtin_format(L, tlv_format_default, 0, "default");
-    lua_setfield(L, -2, "default");
     push_builtin_format(L, tlv_format_ber, 0, "ber");
     lua_setfield(L, -2, "ber");
     push_builtin_format(L, tlv_format_cer, 0, "cer");
@@ -93,7 +90,7 @@ void opentlv_lua_open_format(lua_State* L, int module_table_index) {
     lua_pushcfunction(L, l_format_fixed);
     lua_setfield(L, -2, "fixed");
 
-    lua_getfield(L, -1, "default");
+    lua_getfield(L, -1, "ber");
     lua_setfield(L, LUA_REGISTRYINDEX, OPENTLV_LUA_DEFAULT_FORMAT_KEY);
 
     lua_setfield(L, module_table_index, "formats");

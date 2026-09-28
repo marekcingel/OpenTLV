@@ -66,9 +66,9 @@ static tlv_result_t write_length(const void* context, uint8_t* data, size_t capa
     return tlv_ber_length_encode(length, data, capacity, written);
 }
 
-const tlv_format_t tlv_ber_wire = {.context = NULL,
-                                   .read_tag = read_tag,
-                                   .read_length = read_length,
-                                   .write_tag = write_tag,
-                                   .write_length = write_length,
-                                   .length_size = length_size};
+const tlv_field_layout_t tlv_ber_wire = {.context = NULL,
+                                         .read_tag = read_tag,
+                                         .read_length = read_length,
+                                         .write_tag = write_tag,
+                                         .write_length = write_length,
+                                         .length_size = length_size};

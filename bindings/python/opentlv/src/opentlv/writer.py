@@ -35,7 +35,7 @@ class Writer:
 
     __slots__ = ("_buffer", "_pos", "_format")
 
-    def __init__(self, format: AnyFormat = Format.DEFAULT) -> None:
+    def __init__(self, format: AnyFormat = Format.BER) -> None:
         self._buffer = bytearray(_INITIAL_CAPACITY)
         self._pos = 0
         self._format = format
@@ -95,7 +95,7 @@ class Writer:
 
 
 def encoded_size(tag: Union[Tag, bytes], value_length: int,
-                 format: AnyFormat = Format.DEFAULT) -> int:
+                 format: AnyFormat = Format.BER) -> int:
     """Returns the encoded size of an element with `tag` and a value of
     `value_length` bytes in `format`, without writing anything.
 

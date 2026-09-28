@@ -7,7 +7,7 @@
 
 TEST(Unit_Tlv_Copy, InsufficientCapacityLeavesOutputsUnchanged) {
     const uint8_t       value[] = {0xAB, 0xCD};
-    const tlv_element_t element = {TLV_TAG(1), {}, {value, sizeof(value)}};
+    const tlv_element_t element = {TLV_TAG(1), {value, sizeof(value)}};
     for (size_t capacity = 0; capacity < 4; ++capacity) {
         uint8_t output[] = {0xEE, 0xEE, 0xEE, 0xEE};
         size_t  written = 99;
@@ -26,7 +26,7 @@ TEST(Unit_Tlv_Copy, InsufficientCapacityLeavesOutputsUnchanged) {
 }
 
 TEST(Unit_Tlv_Copy, EmptyValuesAndOverlappingByteRanges) {
-    const tlv_element_t empty = {TLV_TAG(1), {}, {nullptr, 0}};
+    const tlv_element_t empty = {TLV_TAG(1), {nullptr, 0}};
     size_t              written = 99;
     uint8_t             output[2] = {};
     EXPECT_EQ(TLV_OK, tlv_copy_value(&empty, nullptr, 0, &written));
@@ -41,7 +41,7 @@ TEST(Unit_Tlv_Copy, EmptyValuesAndOverlappingByteRanges) {
     EXPECT_EQ(TLV_OK, tlv_copy_encoded(bytes, 3, bytes + 1, 3, &written));
     const uint8_t expected[] = {1, 1, 2, 3};
     EXPECT_EQ(0, std::memcmp(expected, bytes, 4));
-    const tlv_element_t element = {{}, {}, {bytes + 1, 3}};
+    const tlv_element_t element = {{}, {bytes + 1, 3}};
     EXPECT_EQ(TLV_OK, tlv_copy_value(&element, bytes, 3, &written));
     EXPECT_EQ(2, bytes[1]);
     EXPECT_EQ(3, bytes[2]);
@@ -49,7 +49,7 @@ TEST(Unit_Tlv_Copy, EmptyValuesAndOverlappingByteRanges) {
 
 TEST(Unit_Tlv_Copy, InvalidArgumentsAndEncodingErrors) {
     uint8_t       byte = 0xEE;
-    tlv_element_t element = {TLV_TAG(1), {}, {&byte, 1}};
+    tlv_element_t element = {TLV_TAG(1), {&byte, 1}};
     size_t        written = 99;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_value(nullptr, &byte, 1, &written));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_copy_value(&element, nullptr, 1, &written));

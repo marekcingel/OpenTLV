@@ -1,0 +1,667 @@
+# Core architectural rules
+
+These rules guide OpenTLV design, implementation and review. They define the
+shared conceptual model and dependency boundaries for current and future work.
+The [architecture overview](architecture.md) maps these concepts to the current
+repository; the [Format and Element contract](format-contract.md) specifies the
+current C API invariants.
+
+Phase 1 refers here to the generic foundation; Phase 2 refers to dynamic
+configuration of those same contracts. Rules for `.otlv`, generated formats
+and additional language bindings constrain their design; they do not claim
+that these facilities are already implemented.
+
+## 1. Generic core first
+
+OpenTLV core must contain only generic TLV mechanisms.
+
+- No EMV-specific logic in core.
+- No ASN.1-specific logic in core.
+- No Bluetooth-specific logic in core.
+- Standards and protocols are built on top of generic primitives.
+- Dependency direction is always:
+
+```text
+extensions / standards / presets
+              |
+              v
+             core
+```
+
+Core must never depend on a specific standard.
+
+---
+
+## 2. Stable conceptual model
+
+OpenTLV uses these concepts:
+
+```text
+Definition
+    |
+    v
+Format
+    |
+    v
+Reader / Writer
+    |
+    v
+Element + Layout
+    |
+    v
+Schema
+    |
+    v
+Codec
+```
+
+This diagram relates the concepts; it is not a mandatory pipeline or a module
+dependency graph. Format does not require a Definition registry. Reader and
+Writer use Format directly; Schema and Codec are optional consumers. The
+[conceptual model](architecture.md#conceptual-model) groups descriptions,
+runtime representations and operations separately.
+
+Their responsibilities must remain separated.
+
+### Definition
+
+Defines which identifiers exist and their metadata.
+
+It answers:
+
+> What is this identifier?
+
+It must not define how the identifier is encoded on wire.
+
+### Format
+
+Defines how an element is represented on wire.
+
+It answers:
+
+> How do I find Tag / Length / Value in these bytes?
+
+Examples of Format properties:
+
+- field ordering
+- tag encoding
+- length encoding
+- fixed/variable widths
+- endian rules
+- constructed representation
+- length scope
+- additional Header fields and Trailer framing
+
+Format must not interpret the semantic meaning of Value.
+
+### Layout
+
+Represents where the parts of one concrete encoded element are located in the source bytes.
+
+Examples:
+
+- Header range
+- optional Tag range
+- optional Length range
+- Value range
+- Trailer range
+- complete element range
+
+Layout is runtime information produced while parsing.
+
+In the current C API, `tlv_source_t` and `tlv_range_t` carry this information;
+`tlv_decoded_t` pairs it with the semantic Element. The reusable field-layout
+configuration types in `tlv/layout.h` belong to Format composition, not to a
+concrete decoded instance's Layout.
+
+Format defines the rules.
+Layout describes the result of applying those rules to concrete bytes.
+
+### Element
+
+`tlv_element_t` is the format-independent representation of a recognized TLV element.
+
+Conceptually:
+
+```text
+Element
+├── Identifier / Tag
+├── Length
+└── Value
+```
+
+Length here means the logical Value byte count, currently `tlv_element_t.value.size`.
+It is not an additional raw Length field. An identifier or an explicit wire
+Length field may be absent if the Format permits it.
+
+It must not contain Format-specific parsing state.
+
+It is the common boundary reused by Reader, Schema, Codec, Document,
+Query, diagnostics, bindings, runtime formats and generated/native formats.
+
+Do not introduce parallel representations such as:
+
+```text
+runtime_element_t
+compiled_element_t
+ber_element_t
+emv_element_t
+```
+
+unless they represent genuinely different concepts.
+
+### Schema
+
+Defines how elements may be composed.
+
+It answers:
+
+> Where may this element occur and under what constraints?
+
+Examples:
+
+- required / optional
+- occurrence counts
+- nesting
+- ordering constraints
+- allowed children
+- structural constraints
+
+Schema must not define wire encoding.
+
+### Codec
+
+Interprets the bytes contained in Value.
+
+It answers:
+
+> What do these Value bytes mean?
+
+Examples:
+
+- INTEGER
+- BOOLEAN
+- STRING
+- ENUM
+- date/time
+- protocol-specific semantic values
+
+Codec operates on Value, not on the wire representation of the complete element.
+Structure codecs may compose Reader/Writer, Schema and value codecs to map
+complete objects. They still delegate wire interpretation to Format.
+
+---
+
+## 3. Declarative descriptions vs runtime objects
+
+Definition, Format, Schema and Codec are descriptions/contracts.
+
+Element and Layout are runtime representations.
+
+Do not create architectural layers merely because a new runtime object is needed.
+
+---
+
+## 4. Phase 2 must not introduce another architecture
+
+Phase 2 dynamically configures the same abstractions established by Phase 1.
+
+Runtime:
+
+```text
+runtime Format
+runtime Definition
+runtime Schema
+```
+
+must implement the same contracts as their compile-time/native equivalents.
+
+Phase 2 must not introduce:
+
+```text
+RuntimeFormat
+RuntimeSchema
+RuntimeElement
+RuntimeValidator
+```
+
+as parallel architectural concepts.
+
+Runtime configuration is another implementation strategy of the same model.
+
+---
+
+## 5. Runtime / compiled / native are implementation strategies
+
+A layer may be implemented as:
+
+- runtime configuration
+- generated/compiled representation
+- hand-optimized native implementation
+
+but all implementations must preserve the same contract and semantics.
+
+For example:
+
+```text
+generic runtime BER Format
+generated BER Format
+optimized native BER Format
+```
+
+must still behave as the same conceptual Format.
+
+Optimization must not create a second OpenTLV API.
+
+---
+
+## 6. Tag / identifier is byte identity
+
+A TLV identifier is fundamentally a sequence of bytes.
+
+Do not treat a Tag as a host integer.
+
+Therefore:
+
+- no implicit endian conversion
+- no numeric normalization
+- no architecture-dependent representation
+- comparison is based on bytes
+- representation must be deterministic across platforms
+
+Conceptually:
+
+```text
+identifier = { bytes, size }
+```
+
+The same wire identifier must have the same identity on little-endian
+and big-endian machines.
+
+---
+
+## 7. Endianness belongs to wire interpretation
+
+Endianness describes how numeric fields encoded on wire are interpreted.
+
+It must never depend on CPU endianness.
+
+For example:
+
+```text
+wire length = big-endian
+```
+
+means OpenTLV interprets it as big-endian on every architecture.
+
+The host CPU may affect which optimized implementation is used,
+but never the externally visible result.
+
+---
+
+## 8. Length has two different concepts
+
+Do not confuse:
+
+1. encoded Length field
+2. logical Value size
+
+The wire Length representation may contain:
+
+- fixed-width integer
+- variable-width integer
+- continuation encoding
+- protocol-specific representation
+
+while the resulting logical value size is represented using OpenTLV's
+size type.
+
+Never assume:
+
+```text
+encoded length bytes == size_t
+```
+
+and never perform unchecked conversions to `size_t`.
+
+---
+
+## 9. Writer regenerates wire representation
+
+An Element represents logical TLV information.
+
+When writing an Element using a Format, the Writer generates the wire
+representation required by the destination Format.
+
+Therefore a parsed Length encoding must not force the Writer to reproduce
+the original Length bytes unless an explicit lossless/raw mode requires it.
+
+In the current API, exact preservation uses `tlv_source_preserve()` with the
+original immutable source and semantically unchanged content. Changed content
+requires fresh encoding; preservation must reject it rather than reuse stale
+framing. A destination Format may reject identifiers or values it cannot
+represent; conversion does not implicitly remap identifier identity.
+
+This enables transformations such as:
+
+```text
+source Format A
+    ↓
+  Element
+    ↓
+destination Format B
+```
+
+---
+
+## 10. Source location is metadata, not Element identity
+
+Source offsets/ranges are important for:
+
+- diagnostics
+- editors
+- Wireshark integration
+- highlighting
+- Document
+- Query results
+
+but they do not define the logical Element.
+
+Therefore source location belongs to Reader/Layout/Source/Diagnostics metadata,
+rather than polluting the format-independent Element contract.
+
+---
+
+## 11. Borrow by default
+
+Core parsing should remain zero/minimal-copy.
+
+Parsed elements normally borrow their Value and identifier bytes from the
+input buffer.
+
+Therefore:
+
+- Element does not own the source buffer.
+- Reader/document lifetime contracts must be explicit.
+- Bindings may provide safer ownership wrappers.
+- Core must not silently allocate just to simplify ownership.
+
+---
+
+## 12. Reader must not require Schema or Codec
+
+The basic parser pipeline must work as:
+
+```text
+bytes
+  ↓
+Format
+  ↓
+Reader
+  ↓
+Element
+```
+
+Schema and Codec are optional higher-level functionality.
+
+Therefore it must always be possible to parse unknown TLV data without
+having a Schema or Codec.
+
+---
+
+## 13. TLV / LTV is ordering, not a separate architecture
+
+TLV and LTV describe field ordering.
+
+For example:
+
+```text
+TLV = Tag → Length → Value
+LTV = Length → Tag → Value
+```
+
+Generic Format configuration should represent this as field ordering.
+
+Do not create completely separate parser architectures merely because
+the fields appear in a different order.
+
+Bluetooth LTV can therefore reuse generic ordering primitives while keeping
+Bluetooth-specific semantics inside the Bluetooth extension.
+
+---
+
+## 14. OTLV is declarative
+
+`.otlv` must describe data, not implement programs.
+
+Do not introduce general control-flow constructs such as:
+
+```text
+if / else
+for
+while
+switch
+break
+continue
+```
+
+Use declarative primitives instead:
+
+- variants
+- identifiers
+- ranges
+- counts
+- repetition
+- continuation
+- until
+- size
+- references
+- constraints
+
+If OpenTLV needs a general-purpose programming language to describe a TLV
+format, the abstraction is probably wrong.
+
+---
+
+## 15. New functionality does not automatically mean a new layer
+
+Before adding another architectural layer, determine whether the concept is
+actually:
+
+- a Format property
+- Schema constraint
+- Codec
+- Definition metadata
+- Layout/runtime metadata
+- reusable primitive
+- extension
+- preset
+- tooling
+
+Avoid catch-all architectural layers such as "Profile" when composition of
+existing concepts is sufficient.
+
+Existing named profiles are compositions of Format, Schema, Codec and
+Definition responsibilities, not a new foundational layer. This rule does
+not itself remove their public APIs.
+
+---
+
+## 16. Standards should be compositions of generic primitives
+
+A standard implementation should ideally look like:
+
+```text
+generic OpenTLV primitives
+          +
+    standard configuration
+          +
+  standard-specific semantics
+```
+
+rather than:
+
+```text
+completely separate parser
+```
+
+Examples:
+
+- Bluetooth may be a preset/configuration over generic Fixed/LTV primitives.
+- BER uses generic Format mechanisms plus BER-specific rules.
+- EMV builds on generic TLV + Schema + Codec + Definition functionality.
+
+Whenever a standard exposes a reusable concept, move the concept into the
+generic layer and keep only the standard-specific policy in the extension.
+
+---
+
+## 17. Phase 1 must prove genericity
+
+Phase 1 is the foundation of everything that follows.
+
+Before considering it complete, it should demonstrate that genuinely
+different TLV families can be represented without protocol-specific hacks.
+
+The architecture should be tested against formats with differences such as:
+
+- TLV vs LTV
+- fixed vs variable fields
+- different tag encodings
+- different length encodings
+- different endian rules
+- primitive / constructed elements
+- BER-style formats
+- Bluetooth-style formats
+- absent explicit Tag or Length fields
+- additional Header fields and Trailer framing
+- semantic round trips and exact preservation of unchanged source bytes
+
+If supporting another legitimate TLV format requires bypassing the core
+architecture, the Phase 1 abstraction is not generic enough yet.
+
+---
+
+## 18. Features must remain independently usable
+
+Users should be able to use only the parts they need.
+
+For example:
+
+```text
+Reader only
+Reader + Schema
+Reader + Codec
+Document + Query
+full runtime OTLV stack
+```
+
+Disabled functionality should ideally introduce no unnecessary:
+
+- runtime cost
+- binary-size cost
+- dependency cost
+
+Higher layers depend on lower layers, not the reverse.
+
+---
+
+## 19. Bindings expose the same OpenTLV model
+
+Rust, Python, Go, Java, Lua, WASM and other bindings should not invent
+different conceptual APIs.
+
+The language ergonomics may differ, but users should still recognize:
+
+- Format
+- Reader
+- Writer
+- Element
+- Schema
+- Codec
+- Document
+- Query
+- Diagnostics
+
+Learning OpenTLV in one language should transfer to another language.
+
+---
+
+## 20. Ergonomics belong above the stable core
+
+The C core defines the stable low-level contracts.
+
+Higher-level APIs may provide:
+
+- RAII
+- ownership
+- iterators
+- exceptions/results
+- Pythonic APIs
+- Rust lifetimes
+- Java objects
+- Lua tables/userdata
+
+without changing the semantics of the underlying OpenTLV model.
+
+---
+
+## 21. Diagnostics must preserve useful raw context
+
+Diagnostics should be layered on top of the normal parsing model rather than
+requiring a separate parser.
+
+Useful diagnostic information includes:
+
+- error code
+- source offset
+- identifier/tag
+- path
+- expected value
+- actual value
+- schema context
+- raw/declared length information where relevant
+
+Fast paths that do not request diagnostics should not be forced to pay the
+full diagnostics cost.
+
+---
+
+## 22. OpenTLV scope remains binary TLV
+
+Even when implementing ASN.1-related functionality, OpenTLV remains focused
+on binary TLV representation.
+
+For ASN.1/X.680/X.690 this means reusing relevant concepts across:
+
+```text
+Format
+Schema
+Codec
+```
+
+without turning OpenTLV core into:
+
+- an ASN.1 language parser
+- ASN.1 AST
+- module/import system
+- complete ASN.1 compiler
+- complete ASN.1 constraint language
+
+Generic capabilities discovered while implementing ASN.1 should become
+OpenTLV primitives where appropriate.
+
+---
+
+## Architectural invariant
+
+A useful test for every future OpenTLV feature is:
+
+> Can this functionality be expressed using the existing generic contracts
+> without teaching the core about a particular protocol or creating a parallel
+> representation of the same concept?
+
+If yes, compose the existing architecture.
+
+If no, first determine whether OpenTLV is missing a genuinely generic primitive
+before introducing protocol-specific machinery.

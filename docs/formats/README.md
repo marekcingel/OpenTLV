@@ -3,9 +3,8 @@
 Each page includes a byte example. Profile semantics are documented separately.
 Concrete C implementations live under `tlv/builtins/<protocol>/` (grouped by
 protocol) or, for protocol-agnostic mechanisms like the configurable fixed-width
-format, `tlv/formats/`; see [architecture](../concepts/architecture.md#layout).
+format, `tlv/formats/`; see [architecture](../concepts/architecture.md#repository-layout).
 
-- [Default TLV](default/README.md)
 - [Configurable fixed-width TLV](fixed/configurable.md)
 - [Bluetooth LTV](bluetooth/README.md)
 - [BER-TLV](asn1/ber.md)
@@ -19,7 +18,6 @@ format, `tlv/formats/`; see [architecture](../concepts/architecture.md#layout).
 | Need | Start with | Boundary |
 | --- | --- | --- |
 | Small internal records with fixed header sizes, or fixed tag/length widths chosen at runtime (C) or compile time (C++) | [Configurable fixed-width TLV](fixed/configurable.md) | Any tag width, length widths up to 8 bytes |
-| One-byte tags with larger payloads | [Default TLV](default/README.md) | Values up to 65,535 bytes |
 | Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
 | Canonical ASN.1 framing and nested checks | [DER](../profiles/der/README.md) | Structural validation, not full semantic DER |
@@ -34,13 +32,12 @@ built. Each format keeps its own page with the byte layout and a worked example.
 
 | Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree walker | Build option |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Default TLV](default/README.md#layout-and-typical-use) | 1 byte | 1 byte below `80`, or `81 nn`, `82 nn nn` | 65,535 bytes | tag, length, value | none (opaque values) | `OPENTLV_FORMAT_DEFAULT` |
 | [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
 | [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | 1 to 8 bytes | 1 to 8 bytes, big or little endian, counting the value alone or the tag and value | set by the length width | tag, length, value or length, tag, value | none (opaque values) | `OPENTLV_FORMAT_FIXED` (C and C++) |
 | [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_ber_is_constructed` | `OPENTLV_FORMAT_BER` |
 | [DER-TLV](asn1/der.md#layout-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_der_is_constructed` | `OPENTLV_FORMAT_DER` |
 | [CER-TLV](asn1/cer.md#layout-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_cer_is_constructed` | `OPENTLV_FORMAT_CER` |
-| [Application-defined](custom/README.md) | any number of raw bytes | your rules | your rules | any, through `read_element` and `write_header` | your predicate | none |
+| [Application-defined](custom/README.md) | any number of raw bytes | your rules | your rules | format-defined | your predicate | none |
 
 Notes for choosing:
 
@@ -164,92 +161,39 @@ same encoder and advances its position only on success.
 
 ## Generic interface
 
-Include `tlv/format.h` for the allocation-free descriptor:
+`tlv_format_t` defines one canonical wire contract through `decode`, `measure`
+and `encode`, plus an optional nesting predicate. Its context is borrowed,
+caller-owned and immutable. Read-only descriptors provide `decode`; write-only
+descriptors provide both `measure` and `encode`.
 
-- `tlv_format_t`: `context`, then the read callbacks `read_tag`, `read_length`,
-  optional `read_value_bounds`, optional `read_element`, then the write
-  callbacks `write_tag`, `write_length`, `length_size`, optional `write_header`.
+`tlv_format_decode()` produces `tlv_decoded_t`: a canonical identifier/value
+`tlv_element_t` and separate `tlv_source_t` framing information. Header, Value
+and Trailer partition the complete encoded range. Tag and Length field ranges
+are optional. The core never assumes their order or interprets Length bytes.
 
-Pass the descriptor to `tlv_reader_init` or `tlv_writer_init` as the last
-argument after the buffer and its size. The descriptor and its optional
-immutable `context` are borrowed and must remain valid and unchanged
-throughout use; see [format context ownership and
-lifetime](../guides/memory.md#format-context-ownership-and-lifetime) for the
-full contract, including copying, sharing and moving. Read and write
-capability are independently optional: `read_tag` and
-`read_length` are required for reading unless `read_element` is set, and
-`write_tag`, `write_length` and `length_size` are required for writing unless
-`write_header` is set. A format that leaves an entire group unset (all `NULL`)
-simply cannot be used in that direction — `tlv_reader_init`/`tlv_writer_init`
-report `TLV_ERR_NULL_ARG` for a format lacking the capability they need, the
-same code used for a `NULL` pointer — so a read-only format needs no write
-callbacks, and a write-only format needs no read callbacks.
-`tlv_format_can_read(format)`/`tlv_format_can_write(format)` report a format's
-capability without attempting an operation.
+`tlv_format_measure()` reports logical 64-bit Header, Value, Trailer and total
+sizes. `tlv_format_encode()` regenerates framing from current semantic content.
+A successful encoding must be accepted by the same format's decoder.
+`tlv_encoded_size()` remains a convenience query for native-sized, content-
+independent encodings; use `tlv_format_measure()` for logical sizes or formats
+whose framing depends on value content.
 
-`tlv_format_init(format, context, read_tag, read_length, write_tag, write_length,
-length_size)` initializes a caller-owned descriptor at runtime: pass both
-`read_tag` and `read_length` for read capability (or both `NULL` to leave
-reading unsupported), and all three write callbacks for write capability (or
-all `NULL` to leave writing unsupported); at least one group must be given.
-`tlv_format_init_element(format, context, read_element, write_header)` does the
-same for the whole-element callbacks below, with `read_element` and
-`write_header` independently optional but not both `NULL`. Both return
-`TLV_OK` on success or `TLV_ERR_INVALID_ARG` for a NULL destination, a partial
-group, or neither group given, leaving the destination unchanged on failure. A
-NULL context is valid. Static C initialization can use designated fields. The
-named callback typedefs are `tlv_read_tag_fn`, `tlv_read_length_fn`,
-`tlv_read_value_bounds_fn`, `tlv_write_tag_fn`, `tlv_write_length_fn`,
-`tlv_length_size_fn`, `tlv_read_element_fn`, and `tlv_write_header_fn`.
+Use `tlv_source_preserve()` for byte-identical reproduction. It compares the
+current element with the immutable source content and rejects mutation instead
+of silently reusing stale Length or Trailer bytes. Ordinary encoding does not
+preserve BER nonminimal lengths or arbitrary header padding.
 
-Callbacks receive the context and a bounded byte range; return a `tlv_result_t`
-and report consumed or written bytes through their output pointer.
+Field-based custom formats can compose `tlv_field_layout_t` from `tlv/layout.h`
+and initialize a descriptor with `tlv_fields_format_init()`. Fixed TLV, Fixed
+LTV and Bluetooth use the same public binary-field primitives. Formats with
+other framing implement the same canonical operations directly.
 
-`write_tag(context, NULL, 0, tag, &size)` is a mandatory validation and sizing
-query. `length_size` validates a value length and returns its encoded size.
-The writer checks total capacity before invoking the actual encoding callbacks,
-which must write exactly the queried sizes. No temporary heap buffer is needed.
-A `tlv_tag_t` borrows raw bytes and has no length limit; a format's reader
-returns a tag that references the input buffer, as decoded values do. A tag must
-consume at least one byte, and the format decides which lengths (and whether an
-empty tag) it accepts. A format may use a zero-byte length field for an implicit length.
-
-When non-NULL, `read_value_bounds(context, tag, data, size, &length_size,
-&value_size, &trailer_size)` replaces `read_length` during element parsing.
-Its bounded input begins immediately after the parsed tag. It reports three
-consecutive ranges: the length field, the borrowed value, and trailing framing.
-The core checks each size against the remaining input before publishing outputs.
-The value element excludes the trailer, while `consumed` includes it. Format-specific
-resolution, including BER EOC matching, stays in this callback.
-
-This appended field changes the descriptor ABI: rebuild the library and
-all consumers together. `tlv_format_init` keeps its signature and clears
-the optional callback; assign it afterwards when needed. Custom aggregate
-initializers should explicitly append `NULL` (C) or `nullptr` (C++) to avoid
-missing-field warnings. Descriptors assigned field by field must initialize the
-new field too. `tlv_element_t` is unchanged.
-
-On failure, reader position and output remain unchanged. Writer position also
-remains unchanged, but an encoding callback failure may leave modified bytes
-beyond that position. Callbacks must obey their buffer bounds; the core checks
-reported sizes but cannot undo an out-of-bounds write by a custom callback.
-Source values passed to the writer must not overlap the destination item.
-
-`tlv_reader_init` and `tlv_writer_init` require an explicit format argument.
-The C++ reader and writer constructors both require `const tlv_format_t&` as
-their last argument. There are no implicit-format overloads.
-`tlv_format_default` is a public const descriptor for one raw tag byte and a
-definite BER-style length of up to 65535; it does not implement full BER-TLV tags.
-Reader and writer structs store a borrowed format pointer; rebuild consumers.
-
-For a complete custom format, see `tests/integration/format_test.cpp`: it defines
-a two-byte tag and a fixed two-byte little-endian length, then uses the same
-generic reader and writer to round-trip multiple items. Adding a format only
-requires a descriptor and callbacks in application code, without parser edits.
+See the [Format/Element contract](../concepts/format-contract.md) for lifetime,
+mutation, preservation, diagnostics and size invariants.
 
 ## Nested traversal
 
-Concrete descriptors are declared in `tlv/builtins/fixed/default.h`,
+Concrete descriptors are declared in
 `tlv/formats/fixed.h`, `tlv/builtins/asn1/ber.h`,
 `tlv/builtins/asn1/der.h`, and `tlv/builtins/asn1/cer.h`. The generic `format.h`
 declares only the contract.
@@ -258,7 +202,7 @@ The optional `tlv_format_t::is_constructed` field identifies values containing
 child TLVs in the same format. It receives the format's context and a parsed
 tag. NULL means opaque values. The BER, DER and CER descriptors set it to
 `tlv_ber_is_constructed`, `tlv_der_is_constructed` and `tlv_cer_is_constructed`
-respectively, inspecting their constructed bit; the default and Fixed formats
+respectively, inspecting their constructed bit; Fixed formats
 leave it NULL.
 Custom protocols can supply a different rule. Traversal follows the value element
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.
@@ -274,20 +218,7 @@ See also the [C API reference: formats](../reference/c-api.md#formats).
 
 ### Formats whose length precedes the tag
 
-`read_tag` and `read_length` assume the tag comes first. Formats with another
-field order, such as [Bluetooth LTV](bluetooth/README.md) (Length | Type |
-Value), set the optional `read_element` and `write_header` callbacks instead:
-
-- `read_element(context, data, size, &tag, &header_size, &value_size,
-  &trailer_size)` parses a whole element. `header_size` covers everything
-  before the value, in any field order. It replaces `read_tag`, `read_length`
-  and `read_value_bounds`, and the core applies the same bounds checks.
-- `write_header(context, data, capacity, tag, length, &written)` writes the
-  whole header. With `data == NULL` and `capacity == 0` it validates and sizes
-  the header. It replaces `write_tag`, `write_length` and `length_size`.
-
-Every generic operation (reader, writer, scanner, walker, schemas, copy) works
-on such formats unchanged. Code that calls `read_tag` or `write_tag` directly on
-a descriptor must check for `NULL` first. Like `read_value_bounds`, these fields
-were appended to the descriptors, so rebuild the library and all consumers
-together and append `NULL` to aggregate initializers.
+Field order is part of the format configuration. `TLV_ELEMENT_ORDER_LTV`
+uses the same binary-field primitives as `TLV_ELEMENT_ORDER_TLV`; neither
+Reader nor Writer branches on a concrete format. Bluetooth counts Tag and
+Value, while configurable Fixed can count Value alone or Tag and Value.

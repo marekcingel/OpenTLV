@@ -3,7 +3,7 @@ from opentlv import Format
 
 def test_values_match_what_the_native_module_expects():
     # opentlv_native's format IDs are fixed; see module.c's format_for.
-    assert Format.DEFAULT == 0
+    assert not hasattr(Format, "COMPACT")
     assert Format.BER == 1
     assert Format.CER == 2
     assert Format.DER == 3

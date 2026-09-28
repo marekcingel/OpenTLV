@@ -12,6 +12,7 @@ governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 Before opening a pull request:
 
+- Follow the [core architectural rules](docs/concepts/architectural-rules.md).
 - Keep changes focused and preserve documented memory ownership and API boundaries.
 - Update relevant documentation and add meaningful tests for behavior changes;
   document new or changed public API as described in

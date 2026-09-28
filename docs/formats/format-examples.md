@@ -6,7 +6,6 @@ Examples live with their implementation documentation. Bytes are hexadecimal;
 explained lengths are decimal. Trees describe wire fields and logical nesting,
 not allocated C objects.
 
-- [Default TLV](default/README.md#byte-example)
 - [Configurable fixed-width TLV](fixed/configurable.md#wire-layout)
 - [BER-TLV](asn1/ber.md#byte-example)
 - [DER-TLV](asn1/der.md#byte-example)

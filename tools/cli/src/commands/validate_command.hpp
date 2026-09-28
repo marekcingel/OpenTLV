@@ -29,6 +29,7 @@ private:
         diagnostic_scope         scope = {};
         tlv_result_t             result = TLV_OK;
         std::size_t              offset = 0;
+        std::string              tag;
         std::string              expected;
         std::string              actual;
         const char*              field_name = nullptr;

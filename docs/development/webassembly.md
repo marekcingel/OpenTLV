@@ -50,8 +50,8 @@ const result = opentlv.parse(
 );
 ```
 
-`parse` takes a `Uint8Array`, a `format` (`default`, `fixed`, `bluetooth-ltv`,
-`ber` or `der`; default `default`) and optionally a `profile` (`none` or `emv`; default
+`parse` takes a `Uint8Array`, a `format` (`fixed`, `bluetooth-ltv`,
+`ber` or `der`; default `ber`) and optionally a `profile` (`none` or `emv`; default
 `none`) and returns:
 
 For `format: "fixed"`, `fixedTagSize` (default `1`), `fixedLengthSize` (1-8, default
@@ -95,7 +95,7 @@ numeric `code` of `tlv_result_t`, its `message` and the input `offset`, together
 with every element read before the failure:
 
 ```json
-{ "format": "default", "elements": [ ... ],
+{ "format": "ber", "elements": [ ... ],
   "error": { "code": 1, "message": "buffer too short", "offset": 5 } }
 ```
 

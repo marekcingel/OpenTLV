@@ -104,6 +104,10 @@ class SchemaMissingError(OpenTLVError):
     """A required schema field is absent."""
 
 
+class NativeSizeError(OpenTLVError):
+    """A logical size exceeds the native address space."""
+
+
 # Keyed by tlv_result_t; mirrors tlv/include/tlv/error.h.
 _ERROR_TYPES = {
     1: BufferTooShortError,
@@ -122,6 +126,7 @@ _ERROR_TYPES = {
     14: InvalidValueError,
     15: UnsupportedTypeError,
     16: SchemaMissingError,
+    17: NativeSizeError,
 }
 
 

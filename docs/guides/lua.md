@@ -47,7 +47,7 @@ end
 Each `element` is a plain table with `tag`, `raw_length`, `value` (all copied out
 of `data`, since Lua strings cannot borrow foreign memory the way a C, C++,
 Rust or Python view can) plus numeric `length` (the value size) and `offset`, the absolute position of the element's
-tag within `data`. `format` defaults to `opentlv.formats.default`; pass
+tag within `data`. `format` defaults to `opentlv.formats.ber`; pass
 `opentlv.formats.ber`, `.cer`, `.der`, `.bluetooth_ltv`, or
 `opentlv.formats.fixed(tag_size, length_size, byte_order)` (`byte_order` is
 `"big"` or `"little"`, equivalent to the C `tlv_fixed_format_t`) for another

@@ -167,7 +167,7 @@ TEST(Unit_Tlvpp_Document, MovedDocumentKeepsHandlesValid) {
 
 TEST(Unit_Tlvpp_Document, RejectsUnusableFormats) {
     tlv::document_format broken = format();
-    broken.format.read_tag = nullptr;
+    broken.format.decode = nullptr;
     auto created = tlv::document::create(broken);
     ASSERT_FALSE(created.has_value());
     EXPECT_EQ(TLV_ERR_NULL_ARG, created.error().code);

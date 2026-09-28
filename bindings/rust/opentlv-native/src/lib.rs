@@ -112,116 +112,124 @@ pub struct tlv_length_t {
 pub struct tlv_element_t {
     /// Raw tag identity.
     pub tag: tlv_tag_t,
-    /// Raw length field.
-    pub length: tlv_length_t,
     /// Value bytes and decoded size.
     pub value: tlv_value_t,
 }
 
-/// Tag decoder callback (`tlv_read_tag_fn`).
-pub type tlv_read_tag_fn = unsafe extern "C" fn(
-    context: *const c_void,
-    data: *const u8,
-    size: usize,
-    tag: *mut tlv_tag_t,
-    consumed: *mut usize,
+/// Native optional source range.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_range_t {
+    /// Offset; follows the corresponding C field contract.
+    pub offset: usize,
+    /// Size; follows the corresponding C field contract.
+    pub size: usize,
+    /// Present; follows the corresponding C field contract.
+    pub present: c_int,
+}
+/// Format-produced failure information.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_format_error_t {
+    /// Region; follows the corresponding C field contract.
+    pub region: c_int,
+    /// Offset; follows the corresponding C field contract.
+    pub offset: usize,
+    /// Has offset; follows the corresponding C field contract.
+    pub has_offset: c_int,
+    /// Required; follows the corresponding C field contract.
+    pub required: tlv_size_t,
+    /// Has required; follows the corresponding C field contract.
+    pub has_required: c_int,
+    /// Tag; follows the corresponding C field contract.
+    pub tag: tlv_range_t,
+    /// Length; follows the corresponding C field contract.
+    pub length: tlv_range_t,
+    /// Value; follows the corresponding C field contract.
+    pub value: tlv_range_t,
+}
+/// Logical encoding sizes.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_encoding_t {
+    /// Header; follows the corresponding C field contract.
+    pub header: tlv_size_t,
+    /// Value; follows the corresponding C field contract.
+    pub value: tlv_size_t,
+    /// Trailer; follows the corresponding C field contract.
+    pub trailer: tlv_size_t,
+    /// Total; follows the corresponding C field contract.
+    pub total: tlv_size_t,
+}
+/// Immutable borrowed source and framing information.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_source_t {
+    /// Data; follows the corresponding C field contract.
+    pub data: *const u8,
+    /// Size; follows the corresponding C field contract.
+    pub size: usize,
+    /// Header; follows the corresponding C field contract.
+    pub header: tlv_range_t,
+    /// Tag; follows the corresponding C field contract.
+    pub tag: tlv_range_t,
+    /// Length; follows the corresponding C field contract.
+    pub length: tlv_range_t,
+    /// Value; follows the corresponding C field contract.
+    pub value: tlv_range_t,
+    /// Trailer; follows the corresponding C field contract.
+    pub trailer: tlv_range_t,
+    /// Element; follows the corresponding C field contract.
+    pub element: tlv_element_t,
+    /// Format; follows the corresponding C field contract.
+    pub format: *const tlv_format_t,
+}
+/// Semantic element plus its original wire representation.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_decoded_t {
+    /// Element; follows the corresponding C field contract.
+    pub element: tlv_element_t,
+    /// Source; follows the corresponding C field contract.
+    pub source: tlv_source_t,
+}
+/// Complete framing decoder.
+pub type tlv_decode_fn = unsafe extern "C" fn(
+    *const c_void,
+    *const u8,
+    usize,
+    *mut tlv_decoded_t,
+    *mut tlv_format_error_t,
 ) -> tlv_result_t;
-
-/// Length decoder callback (`tlv_read_length_fn`).
-pub type tlv_read_length_fn = unsafe extern "C" fn(
-    context: *const c_void,
-    data: *const u8,
-    size: usize,
-    length: *mut tlv_size_t,
-    consumed: *mut usize,
+/// Logical sizing callback.
+pub type tlv_measure_fn = unsafe extern "C" fn(
+    *const c_void,
+    *const tlv_element_t,
+    *mut tlv_encoding_t,
+    *mut tlv_format_error_t,
 ) -> tlv_result_t;
-
-/// Optional value-bounds callback (`tlv_read_value_bounds_fn`).
-pub type tlv_read_value_bounds_fn = unsafe extern "C" fn(
-    context: *const c_void,
-    tag: *const tlv_tag_t,
-    data: *const u8,
-    size: usize,
-    length_size: *mut usize,
-    value_size: *mut tlv_size_t,
-    trailer_size: *mut usize,
+/// Complete framing encoder.
+pub type tlv_encode_fn = unsafe extern "C" fn(
+    *const c_void,
+    *const tlv_element_t,
+    *mut u8,
+    usize,
+    *mut usize,
+    *mut tlv_format_error_t,
 ) -> tlv_result_t;
-
-/// Whole-element parser callback (`tlv_read_element_fn`).
-pub type tlv_read_element_fn = unsafe extern "C" fn(
-    context: *const c_void,
-    data: *const u8,
-    size: usize,
-    tag: *mut tlv_tag_t,
-    raw_length: *mut tlv_length_t,
-    header_size: *mut usize,
-    value_size: *mut tlv_size_t,
-    trailer_size: *mut usize,
-) -> tlv_result_t;
-
-/// Tag encoder callback (`tlv_write_tag_fn`).
-pub type tlv_write_tag_fn = unsafe extern "C" fn(
-    context: *const c_void,
-    data: *mut u8,
-    capacity: usize,
-    tag: *const tlv_tag_t,
-    written: *mut usize,
-) -> tlv_result_t;
-
-/// Length encoder callback (`tlv_write_length_fn`).
-pub type tlv_write_length_fn = unsafe extern "C" fn(
-    context: *const c_void,
-    data: *mut u8,
-    capacity: usize,
-    length: tlv_size_t,
-    written: *mut usize,
-) -> tlv_result_t;
-
-/// Length size callback (`tlv_length_size_fn`).
-pub type tlv_length_size_fn = unsafe extern "C" fn(
-    context: *const c_void,
-    length: tlv_size_t,
-    size: *mut usize,
-) -> tlv_result_t;
-
-/// Whole-header encoder callback (`tlv_write_header_fn`).
-pub type tlv_write_header_fn = unsafe extern "C" fn(
-    context: *const c_void,
-    data: *mut u8,
-    capacity: usize,
-    tag: *const tlv_tag_t,
-    length: tlv_size_t,
-    written: *mut usize,
-) -> tlv_result_t;
-
-/// Stateless format descriptor (`tlv_format_t`). Read and write capability
-/// are independently optional: leaving a whole group `None` makes the format
-/// unusable in that direction, checked at [`tlv_reader_init`]/[`tlv_writer_init`]
-/// time rather than by the type system.
+/// Canonical wire-format descriptor with borrowed immutable configuration.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_format_t {
-    /// Borrowed, immutable configuration passed to every callback; may be null.
+    /// Context; follows the corresponding C field contract.
     pub context: *const c_void,
-    /// Tag decoder. Required for reading unless `read_element` is set.
-    pub read_tag: Option<tlv_read_tag_fn>,
-    /// Length decoder. Required for reading unless `read_element` is set.
-    pub read_length: Option<tlv_read_length_fn>,
-    /// Optional replacement for `read_length`.
-    pub read_value_bounds: Option<tlv_read_value_bounds_fn>,
-    /// Optional whole-element parser that replaces the three read callbacks above.
-    pub read_element: Option<tlv_read_element_fn>,
-    /// Tag encoder. Required for writing unless `write_header` is set.
-    pub write_tag: Option<tlv_write_tag_fn>,
-    /// Length encoder. Required for writing unless `write_header` is set.
-    pub write_length: Option<tlv_write_length_fn>,
-    /// Length size query. Required for writing unless `write_header` is set.
-    pub length_size: Option<tlv_length_size_fn>,
-    /// Optional whole-header encoder that replaces the three write callbacks above.
-    pub write_header: Option<tlv_write_header_fn>,
-    /// Optional nesting predicate reporting whether a parsed tag's value is a
-    /// sequence in this same format; `None` means every value is opaque to
-    /// generic tree traversal and structure validation.
+    /// Decode; follows the corresponding C field contract.
+    pub decode: Option<tlv_decode_fn>,
+    /// Measure; follows the corresponding C field contract.
+    pub measure: Option<tlv_measure_fn>,
+    /// Encode; follows the corresponding C field contract.
+    pub encode: Option<tlv_encode_fn>,
+    /// Is constructed; follows the corresponding C field contract.
     pub is_constructed: Option<tlv_is_constructed_fn>,
 }
 
@@ -270,8 +278,6 @@ pub struct tlv_fixed_format_t {
 }
 
 extern "C" {
-    /// Default format: one-byte tag, definite BER length.
-    pub static tlv_format_default: tlv_format_t;
     /// BER-TLV format.
     pub static tlv_format_ber: tlv_format_t;
     /// CER format.
@@ -924,6 +930,44 @@ extern "C" {
         limits: *const tlv_cer_limits_t,
         written: *mut usize,
         error_offset: *mut usize,
+    ) -> tlv_result_t;
+}
+
+/// Logical size cannot fit the native address space.
+pub const TLV_ERR_NATIVE_SIZE: tlv_result_t = 17;
+
+extern "C" {
+    /// Decode semantic content and original source information.
+    pub fn tlv_format_decode(
+        format: *const tlv_format_t,
+        data: *const u8,
+        size: usize,
+        decoded: *mut tlv_decoded_t,
+        error: *mut tlv_format_error_t,
+    ) -> tlv_result_t;
+    /// Compute exact logical framing sizes.
+    pub fn tlv_format_measure(
+        format: *const tlv_format_t,
+        element: *const tlv_element_t,
+        encoding: *mut tlv_encoding_t,
+        error: *mut tlv_format_error_t,
+    ) -> tlv_result_t;
+    /// Encode semantic content with complete framing.
+    pub fn tlv_format_encode(
+        format: *const tlv_format_t,
+        element: *const tlv_element_t,
+        data: *mut u8,
+        capacity: usize,
+        written: *mut usize,
+        error: *mut tlv_format_error_t,
+    ) -> tlv_result_t;
+    /// Reproduce immutable original bytes after checking semantic equality.
+    pub fn tlv_source_preserve(
+        source: *const tlv_source_t,
+        element: *const tlv_element_t,
+        data: *mut u8,
+        capacity: usize,
+        written: *mut usize,
     ) -> tlv_result_t;
 }
 

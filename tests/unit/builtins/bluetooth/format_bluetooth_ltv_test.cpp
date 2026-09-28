@@ -21,12 +21,8 @@ tlv_visit_result_t count_element(const tlv_element_t*, void* context) {
     return TLV_VISIT_CONTINUE;
 }
 
-tlv_result_t empty_header(const void*, const uint8_t*, size_t, tlv_tag_t* tag, tlv_length_t*,
-                          size_t* header, tlv_size_t* value, size_t* trailer) {
-    *tag = TLV_TAG(1);
-    *header = 0;
-    *value = 0;
-    *trailer = 0;
+tlv_result_t empty_header(const void*, const uint8_t*, size_t, tlv_decoded_t*,
+                          tlv_format_error_t*) {
     return TLV_OK;
 }
 } // namespace
@@ -77,7 +73,7 @@ TEST(Unit_Tlv_BluetoothLtv, AcceptsEmptyAndMaximumValues) {
 }
 
 TEST(Unit_Tlv_BluetoothLtv, RejectsZeroLengthAndTruncation) {
-    tlv_element_t element = {TLV_TAG(0xEE), {}, {nullptr, 42}};
+    tlv_element_t element = {TLV_TAG(0xEE), {nullptr, 42}};
     size_t        consumed = 42;
     const uint8_t zero[] = {0x00, 0x00};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
@@ -174,46 +170,27 @@ TEST(Unit_Tlv_BluetoothLtv, GenericScannerWalkerAndTreeWalkWork) {
     EXPECT_EQ(3u, error_offset);
 }
 
-TEST(Unit_Tlv_BluetoothLtv, InitHelpersCreateWholeElementFormats) {
-    tlv_format_t reader{};
-    tlv_format_t writer{};
-    // Unlike a hardcoded implementation, tlv_format_bluetooth_ltv's callbacks
-    // are the shared, config-driven Fixed format callbacks: they need this
-    // same context (the Bluetooth LTV preset), not an arbitrary or null one.
-    ASSERT_EQ(TLV_OK, tlv_format_init_element(&reader, reader_format.context,
-                                              reader_format.read_element, nullptr));
-    EXPECT_EQ(nullptr, reader.read_tag);
-    EXPECT_EQ(nullptr, reader.read_length);
-    EXPECT_EQ(nullptr, reader.read_value_bounds);
-    EXPECT_EQ(nullptr, reader.write_tag);
-    ASSERT_EQ(TLV_OK, tlv_format_init_element(&writer, writer_format.context, nullptr,
-                                              writer_format.write_header));
-    EXPECT_EQ(nullptr, writer.write_tag);
-    EXPECT_EQ(nullptr, writer.write_length);
-    EXPECT_EQ(nullptr, writer.length_size);
-    EXPECT_EQ(nullptr, writer.read_tag);
-
-    tlv_format_t before = reader;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              tlv_format_init_element(nullptr, nullptr, reader.read_element, nullptr));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_format_init_element(&reader, nullptr, nullptr, nullptr));
-    EXPECT_EQ(0, std::memcmp(&before, &reader, sizeof(reader)));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              tlv_format_init_element(nullptr, nullptr, nullptr, writer.write_header));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_format_init_element(&writer, nullptr, nullptr, nullptr));
-
+TEST(Unit_Tlv_BluetoothLtv, CapabilitiesUseCanonicalContract) {
+    tlv_format_t reader{}, writer{};
+    ASSERT_EQ(TLV_OK, tlv_format_init(&reader, reader_format.context, reader_format.decode, nullptr,
+                                      nullptr));
+    ASSERT_EQ(TLV_OK, tlv_format_init(&writer, writer_format.context, nullptr,
+                                      writer_format.measure, writer_format.encode));
+    EXPECT_TRUE(tlv_format_can_read(&reader));
+    EXPECT_FALSE(tlv_format_can_write(&reader));
+    EXPECT_TRUE(tlv_format_can_write(&writer));
+    EXPECT_FALSE(tlv_format_can_read(&writer));
     tlv_element_t element;
     size_t        consumed = 0;
     ASSERT_EQ(TLV_OK, tlv_read(advertising, sizeof(advertising), &reader, &element, &consumed));
     EXPECT_EQ(3u, consumed);
 }
-
-TEST(Unit_Tlv_BluetoothLtv, GenericLayerRejectsEmptyHeader) {
-    // A format that reports an empty header must not make the reader loop forever.
+TEST(Unit_Tlv_BluetoothLtv, RejectsDecoderThatMakesNoProgress) {
     tlv_format_t reader{};
-    ASSERT_EQ(TLV_OK, tlv_format_init_element(&reader, nullptr, empty_header, nullptr));
-    tlv_element_t element;
-    size_t        consumed = 0;
+    ASSERT_EQ(TLV_OK, tlv_format_init(&reader, nullptr, empty_header, nullptr, nullptr));
+    tlv_element_t element{};
+    size_t        consumed = 99;
     const uint8_t data[] = {1, 2, 3};
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_read(data, sizeof(data), &reader, &element, &consumed));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_read(data, sizeof(data), &reader, &element, &consumed));
+    EXPECT_EQ(99u, consumed);
 }

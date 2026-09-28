@@ -174,8 +174,6 @@ static tlv_visit_result_t emit_element(const tlv_element_t* element, size_t dept
     builder_number(&w->out, depth);
     builder_text(&w->out, ",\"tag\":\"");
     builder_hex(&w->out, element->tag.data, element->tag.size);
-    builder_text(&w->out, "\",\"rawLength\":\"");
-    builder_hex(&w->out, element->length.data, element->length.size);
     builder_text(&w->out, "\",\"length\":");
     builder_number(&w->out, length);
     builder_text(&w->out, ",\"headerSize\":");
@@ -205,9 +203,6 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
     *ber = 0;
     *der = 0;
     if (!name) return NULL;
-#if OPENTLV_FORMAT_DEFAULT
-    if (!strcmp(name, "default")) return &tlv_format_default;
-#endif
 #if OPENTLV_FORMAT_FIXED
     // Configured by the caller's fixed_tag_size/fixed_length_size/fixed_big_endian.
     // fixed_config/fixed_format are storage owned by the caller (opentlv_wasm_parse),

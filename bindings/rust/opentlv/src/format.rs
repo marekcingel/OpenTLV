@@ -13,10 +13,8 @@ use crate::error::Error;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum Format {
-    /// One-byte tag and a definite BER length.
-    #[default]
-    Default,
     /// BER-TLV.
+    #[default]
     Ber,
     /// Canonical Encoding Rules.
     Cer,
@@ -26,12 +24,11 @@ pub enum Format {
 
 impl Format {
     /// Every supported format.
-    pub const ALL: [Format; 4] = [Format::Default, Format::Ber, Format::Cer, Format::Der];
+    pub const ALL: [Format; 3] = [Format::Ber, Format::Cer, Format::Der];
 
     /// Returns the lowercase name of the format, accepted by [`FromStr`].
     pub fn name(self) -> &'static str {
         match self {
-            Format::Default => "default",
             Format::Ber => "ber",
             Format::Cer => "cer",
             Format::Der => "der",
@@ -45,7 +42,6 @@ impl Format {
         #[allow(unused_unsafe)]
         unsafe {
             match self {
-                Format::Default => ptr::addr_of!(native::tlv_format_default),
                 Format::Ber => ptr::addr_of!(native::tlv_format_ber),
                 Format::Cer => ptr::addr_of!(native::tlv_format_cer),
                 Format::Der => ptr::addr_of!(native::tlv_format_der),

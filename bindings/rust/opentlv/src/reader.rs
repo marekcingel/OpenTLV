@@ -35,10 +35,9 @@ pub struct Reader<'a> {
 }
 
 impl<'a> Reader<'a> {
-    /// Creates a reader for the default format: a one-byte tag and a definite
-    /// BER length.
+    /// Creates a reader for BER with its tag encoding and definite lengths.
     pub fn new(data: &'a [u8]) -> Reader<'a> {
-        Reader::with_format(data, Format::Default)
+        Reader::with_format(data, Format::Ber)
     }
 
     /// Creates a reader for the given wire format.

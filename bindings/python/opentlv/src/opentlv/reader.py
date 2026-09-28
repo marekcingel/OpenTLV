@@ -35,7 +35,7 @@ class Reader:
 
     __slots__ = ("_data", "_format", "_pos", "_failed")
 
-    def __init__(self, data: Buffer, format: AnyFormat = Format.DEFAULT) -> None:
+    def __init__(self, data: Buffer, format: AnyFormat = Format.BER) -> None:
         self._data = data if isinstance(data, memoryview) else memoryview(data)
         self._format = format
         self._pos = 0

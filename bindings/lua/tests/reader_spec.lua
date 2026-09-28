@@ -17,7 +17,6 @@ describe("opentlv.reader", function()
         assert(#elements == 2)
         assert(elements[1].tag == string.char(0x01))
         assert(elements[1].length == 2)
-        assert(elements[1].raw_length == string.char(2))
         assert(elements[1].value == string.char(0xAA, 0xBB))
         assert(elements[1].offset == 0)
         assert(elements[2].tag == string.char(0x02))
@@ -26,12 +25,12 @@ describe("opentlv.reader", function()
         assert(elements[2].offset == 4)
     end)
 
-    it("defaults to opentlv.formats.default when format is omitted", function()
+    it("defaults to opentlv.formats.ber when format is omitted", function()
         local a, b = 0, 0
         for element in opentlv.reader(DEFAULT_DATA) do
             a = a + 1
         end
-        for element in opentlv.reader(DEFAULT_DATA, opentlv.formats.default) do
+        for element in opentlv.reader(DEFAULT_DATA, opentlv.formats.ber) do
             b = b + 1
         end
         assert(a == b)

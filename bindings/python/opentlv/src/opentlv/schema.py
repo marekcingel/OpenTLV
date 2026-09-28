@@ -159,14 +159,13 @@ class StructureSchema:
     def _to_native(self):
         return (self.allow_unknown, [rule._to_native() for rule in self.rules])
 
-    def validate(self, data, format: Format = Format.DEFAULT, max_depth: int = 32,
+    def validate(self, data, format: Format = Format.BER, max_depth: int = 32,
                  max_elements: int = 100_000) -> None:
         """Validates framing, nesting, lengths, occurrence counts and child
         membership of `data` against this schema.
 
         Which tags are constructed is decided by `format`: BER, CER and DER
-        nest by their constructed bit, while the default and fixed-1-byte
-        formats have no nesting, so every value is opaque. `max_depth` and
+        nest by their constructed bit, while Fixed formats have no nesting, so every value is opaque. `max_depth` and
         `max_elements` bound traversal the same way `Reader` does not need
         to, since validation may recurse into nested elements.
 

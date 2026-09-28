@@ -39,24 +39,5 @@ void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base,
                             const tlv_element_t* element, std::size_t depth,
                             tlv_is_constructed_fn constructed);
 
-// Re-derives a full tlv_reader_diagnostic_t for a wire-level failure a walk
-// already detected at `error_offset`, bounded to `scope`'s enclosing value
-// (not necessarily the whole buffer), and shifts every offset it reports
-// back to being absolute in `data`. `scope` is not, itself, updated for the
-// failing element (which the walk's visitor was never called for).
-//
-// Returns false, leaving `*out` unchanged, unless the re-derived call
-// reproduces `expected_code` exactly: a walker/resource-level failure
-// (TLV_ERR_LIMIT, TLV_ERR_VISITOR, TLV_ERR_OUT_OF_MEMORY) has no
-// corresponding single-element read, and a format's own extra validation
-// (such as DER's canonical-form rules) may not surface through a plain read
-// the same way a full walk does. Callers should fall back to a plainer
-// rendering when this returns false.
-bool diagnostic_scope_derive_reader_diagnostic(const diagnostic_scope& scope,
-                                               const tlv_format_t* format, const uint8_t* data,
-                                               std::size_t size, std::size_t error_offset,
-                                               tlv_result_t             expected_code,
-                                               tlv_reader_diagnostic_t* out);
-
 } // namespace cli
 #endif

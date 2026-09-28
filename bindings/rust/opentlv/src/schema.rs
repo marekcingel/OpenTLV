@@ -312,8 +312,8 @@ enum Backing {
 /// let tag = Tag::from_bytes(&[0x01]);
 /// let schema = StructureSchema::new([StructureRule::new(tag).required_once()], false);
 /// let limits = ValidationLimits::default();
-/// assert!(schema.validate(&[0x01, 0x00], Format::Default, &limits).is_ok());
-/// assert!(schema.validate(&[], Format::Default, &limits).is_err());
+/// assert!(schema.validate(&[0x01, 0x00], Format::Ber, &limits).is_ok());
+/// assert!(schema.validate(&[], Format::Ber, &limits).is_err());
 /// ```
 pub struct StructureSchema {
     backing: Backing,
@@ -417,7 +417,7 @@ impl StructureSchema {
     ///
     /// Values are never decoded. Which tags are constructed is decided by
     /// `format`: BER, CER and DER nest by their constructed bit, while
-    /// [`Format::Default`] has no nesting, so every value is opaque.
+    /// [`Format::Ber`] has no nesting, so every value is opaque.
     ///
     /// # Errors
     ///

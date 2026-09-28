@@ -39,7 +39,7 @@ TEST(Unit_Tlv_Size, ToSizeRejectsLengthsBeyondSizeMaxAndLeavesOutputUnchanged) {
         // number but does not fit the native size_t.
         const tlv_size_t oversized =
             static_cast<tlv_size_t>(std::numeric_limits<size_t>::max()) + 1;
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_size_to_native(oversized, &size));
+        EXPECT_EQ(TLV_ERR_NATIVE_SIZE, tlv_size_to_native(oversized, &size));
         EXPECT_EQ(99u, size);
     }
     // On a 64-bit build UINT64_MAX fits size_t; on a 32-bit build it does not.
@@ -49,7 +49,7 @@ TEST(Unit_Tlv_Size, ToSizeRejectsLengthsBeyondSizeMaxAndLeavesOutputUnchanged) {
         EXPECT_EQ(TLV_OK, rc);
         EXPECT_EQ(std::numeric_limits<size_t>::max(), size);
     } else {
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, rc);
+        EXPECT_EQ(TLV_ERR_NATIVE_SIZE, rc);
         EXPECT_EQ(99u, size);
     }
 }
@@ -63,7 +63,7 @@ TEST(Unit_Tlv_Size, ValidateNativeDoesNotAccessMemoryForOversizedLength) {
     // No pointer is passed; a value beyond SIZE_MAX is rejected purely
     // numerically, without touching any buffer.
     if (std::numeric_limits<size_t>::max() < UINT64_MAX) {
-        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_size_validate_native(UINT64_MAX));
+        EXPECT_EQ(TLV_ERR_NATIVE_SIZE, tlv_size_validate_native(UINT64_MAX));
     } else {
         EXPECT_EQ(TLV_OK, tlv_size_validate_native(UINT64_MAX));
     }

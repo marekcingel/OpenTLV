@@ -76,6 +76,7 @@ mod format;
 mod profile;
 mod reader;
 mod schema;
+mod source;
 mod tag;
 mod writer;
 
@@ -94,6 +95,7 @@ pub use reader::Reader;
 pub use schema::{
     Kind, LengthRule, LengthSchema, SchemaError, StructureRule, StructureSchema, ValidationLimits,
 };
+pub use source::{decode, decode_fixed, Decoded};
 pub use tag::Tag;
 pub use writer::{encoded_size, encoded_size_fixed, Writer};
 

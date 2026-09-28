@@ -106,7 +106,9 @@ nav:
       - Getting started: getting-started/README.md
   - Concepts:
       - Architecture: concepts/architecture.md
+      - Core architectural rules: concepts/architectural-rules.md
       - Core types: concepts/core-types.md
+      - Format and Element contract: concepts/format-contract.md
       - Borrowed values: concepts/value.md
       - Logical lengths: concepts/length.md
       - Byte order: concepts/endian.md
@@ -126,7 +128,6 @@ nav:
       - Using OpenTLV from Lua: guides/lua.md
   - Formats:
       - Overview: formats/README.md
-      - Default TLV: formats/default/README.md
       - Configurable fixed-width TLV: formats/fixed/configurable.md
       - Bluetooth LTV: formats/bluetooth/README.md
       - BER-TLV: formats/asn1/ber.md

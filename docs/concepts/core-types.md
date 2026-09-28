@@ -14,9 +14,8 @@ come from `<tlv/error.h>`. Tags and their configuration are declared in
   `tlv_size_t`). A null `data` pointer is valid only when `size` is zero.
   See [borrowed TLV values](value.md) for checked construction and
   validation.
-- There is no separate native byte-range struct. Native byte ranges in the
-  public API are passed as an explicit `const uint8_t*`/`size_t` pair, for
-  example `tlv_copy_encoded(encoded_data, encoded_length, ...)`.
+- Native buffers use a `const uint8_t*`/`size_t` pair. Source fields use
+  optional buffer-relative `tlv_range_t` offsets and extents.
 - `tlv_tag_t` is a small non-owning type: a `const uint8_t* data` pointer and
   a `size_t size`. It represents arbitrary raw tag bytes in wire order and
   nothing else. It owns no memory, allocates none, has no storage capacity or
@@ -24,8 +23,8 @@ come from `<tlv/error.h>`. Tags and their configuration are declared in
 - `tlv_length_t` (in `<tlv/length.h>`) borrows the original encoded length
   field through `const uint8_t* data` and native `size_t size`. It preserves
   nonminimal encodings and termination markers without numeric interpretation.
-- `tlv_element_t` (in `<tlv/element.h>`) has exactly three fields: `tag`,
-  `length`, and `value`. All bytes are borrowed. `value.size` is the resolved
+- `tlv_element_t` (in `<tlv/element.h>`) has exactly two fields: `tag` and
+  `value`. All bytes are borrowed. `value.size` is the resolved
   logical value byte count (`tlv_size_t`), excluding header and trailer framing.
   The format defines how the raw length maps to this count: Bluetooth's length
   also counts the tag, while BER indefinite length has no numeric wire count.
@@ -39,7 +38,6 @@ typedef struct { const uint8_t* data; size_t size; } tlv_length_t;
 typedef struct { const uint8_t* data; tlv_size_t size; } tlv_value_t;
 typedef struct {
     tlv_tag_t tag;
-    tlv_length_t length;
     tlv_value_t value;
 } tlv_element_t;
 ```
@@ -48,6 +46,10 @@ The logical quantities and raw bytes are independent of host endianness.
 Pointer-containing structures have native layouts and must never be used as
 portable wire encodings. `tlv_copy_element()` regenerates the length for the
 destination format; `tlv_copy_encoded()` preserves an original encoded range.
+
+Raw fields and complete framing belong to separate `tlv_source_t`, returned
+with the semantic element by `tlv_format_decode()`. See the
+[Format/Element contract](format-contract.md) for mutation and preservation.
 
 All types support zero initialization and require no dynamic allocation.
 
@@ -84,7 +86,7 @@ Several layers are involved, and each has its own job:
 | Layer | What it decides |
 | ----- | --------------- |
 | `tlv_tag_t` | Nothing: it is arbitrary raw bytes with a length. |
-| A **format** | How tags are encoded and which tag lengths are valid. The default format accepts one byte, BER and DER accept 1 to 8 bytes, and a format defined at runtime can accept 12. A tag a format does not support is rejected by that format, for example with `TLV_ERR_INVALID_TAG_SIZE`. Whether an empty tag is valid is also the format's decision. |
+| A **format** | How tags are encoded and which tag lengths are valid. BER and DER accept 1 to 8 bytes, and a format defined at runtime can accept 12. A tag a format does not support is rejected by that format, for example with `TLV_ERR_INVALID_TAG_SIZE`. Whether an empty tag is valid is also the format's decision. |
 | A **schema** | Which tags are allowed or required and how long their values may be. |
 
 A `tlv_tag_t` of any length can be created, compared, stored in a schema and
@@ -164,8 +166,8 @@ See also the [C API reference: core types](../reference/c-api.md#core-types-and-
 
 ### C++ element access
 
-`tlv::element` aliases `tlv_element_t`, including the raw length field and
-64-bit `value.size`. Access bytes through `element.value.data`. When a C++
+`tlv::element` aliases semantic `tlv_element_t` with 64-bit `value.size`.
+`tlv::decode()` returns separate source information for raw field inspection. Access bytes through `element.value.data`. When a C++
 codec or range operation needs `tlv::bytes`, use the checked conversion:
 
 ```cpp

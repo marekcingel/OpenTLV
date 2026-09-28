@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(example-tlv LANGUAGES C)
 
-if(OPENTLV_FORMAT_DEFAULT AND OPENTLV_FORMAT_FIXED AND OPENTLV_FORMAT_BER)
+if(OPENTLV_FORMAT_FIXED AND OPENTLV_FORMAT_BER)
     # Backs the C example in the README and Getting Started; scripts/check_doc_examples.py
     # keeps the Markdown copies identical to this file.
     add_executable(example-tlv-quick-start src/quick_start.c)

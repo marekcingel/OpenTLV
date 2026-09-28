@@ -56,7 +56,7 @@ typedef struct {
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `value` is `NULL`, or `data` is `NULL` with a
  *         nonzero `length`; checked before the native-length range.
- * @return #TLV_ERR_INVALID_LENGTH if `length` cannot be represented by the
+ * @return #TLV_ERR_NATIVE_SIZE if `length` cannot be represented by the
  *         current build's `size_t`.
  *
  * @note `*value` is unchanged on every failure. Allocation bounds of `data`
@@ -76,7 +76,7 @@ TLV_API tlv_result_t tlv_value_init(const uint8_t* data, tlv_size_t length, tlv_
  * @return #TLV_OK if the view is well formed.
  * @return #TLV_ERR_NULL_ARG if `value` is `NULL`.
  * @return #TLV_ERR_NULL_ARG if its `data` is `NULL` with a nonzero length.
- * @return #TLV_ERR_INVALID_LENGTH if the length is not representable as `size_t`.
+ * @return #TLV_ERR_NATIVE_SIZE if the length is not representable as `size_t`.
  */
 TLV_API tlv_result_t tlv_value_validate(const tlv_value_t* value);
 
@@ -135,9 +135,9 @@ TLV_API bool tlv_value_is_empty(tlv_value_t value);
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `out` is `NULL`.
- * @return #TLV_ERR_INVALID_LENGTH if `value` is not representable by the
- *         current build's `size_t`, or if `offset + length` exceeds
- *         `value.size`.
+ * @return #TLV_ERR_NATIVE_SIZE if `value` is not representable by the
+ *         current build's `size_t`.
+ * @return #TLV_ERR_INVALID_LENGTH if `offset + length` exceeds `value.size`.
  * @return #TLV_ERR_OVERFLOW if `offset + length` overflows #tlv_size_t.
  *
  * @note `*out` is unchanged on every failure.
@@ -163,7 +163,7 @@ TLV_API tlv_result_t tlv_value_slice(tlv_value_t value, tlv_size_t offset, tlv_s
  * @return #TLV_ERR_NULL_ARG if `written` is `NULL`, if `data` is `NULL` with
  *         a nonzero `capacity`, or if `value.data` is `NULL` with a nonzero
  *         `value.size`.
- * @return #TLV_ERR_INVALID_LENGTH if `value.size` exceeds the native size range.
+ * @return #TLV_ERR_NATIVE_SIZE if `value.size` exceeds the native size range.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient; `*written`
  *         is unchanged.
  */

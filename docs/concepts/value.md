@@ -42,7 +42,7 @@ if (tlv_value_init(storage + 1, 2, &value) == TLV_OK) {
 `tlv_value_init()` requires `value` and, unless `length` is zero, `data`;
 missing either returns `TLV_ERR_NULL_ARG`, checked before the native-length
 range. A `length` that cannot be represented by the current build's `size_t`
-returns `TLV_ERR_INVALID_LENGTH`. `*value` is unchanged on every failure.
+returns `TLV_ERR_NATIVE_SIZE`. `*value` is unchanged on every failure.
 Actual allocation bounds for `data` remain the caller's responsibility; no
 memory is accessed.
 
@@ -94,13 +94,13 @@ typedef struct {
 `element.tag` is a borrowed `tlv_tag_t`: like the value, it points into the input
 the view was read from and must not outlive it.
 
-Readers construct `element.value` directly (its fields, not through
+Formats construct `element.value` directly (its fields, not through
 `tlv_value_init()`) after validating a decoded length against the input
 buffer, so an internal reader-produced view is always representation-valid.
 `tlv_value_init()`/`tlv_value_validate()` exist for consumers building or
 checking a `tlv_element_t` by hand, for example in tests or custom format
-integrations. There is no separate native byte-range struct in the public
-API: a native `const uint8_t*`/`size_t` pair is passed directly where one is
-needed, for example in `tlv_copy_encoded()`.
+integrations. Native buffers are passed as `const uint8_t*`/`size_t` pairs,
+for example in `tlv_copy_encoded()`. Source framing uses buffer-relative
+`tlv_range_t` fields separately from semantic Value.
 
 See also the [C API reference: core types](../reference/c-api.md#core-types-and-utilities).
