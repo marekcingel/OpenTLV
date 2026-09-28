@@ -23,6 +23,27 @@ TLV_LENGTH_SCOPE_TAG_AND_VALUE}`. `tlv_format_bluetooth_ltv` exists so callers
 do not have to spell that configuration out themselves; there is no
 Bluetooth-specific parser or writer underneath it.
 
+## Advertising Data Type definitions
+
+Include `tlv/builtins/bluetooth/ad_types.h` to resolve AD type names with
+`tlv_definition_find(&tlv_bluetooth_ad_types, &element.tag)`. The result is a
+borrowed `const tlv_definition_t*`: `tag` preserves the one-byte identifier and
+`name` provides its official Bluetooth SIG name. For `02 01 06`, lookup resolves
+`01` to `Flags`; the value remains the borrowed byte `06`.
+
+The initial registry covers `01` through `0A`, `16`, `20`, `21`, and `FF`, using
+the [Bluetooth SIG Assigned Numbers](https://www.bluetooth.com/specifications/assigned-numbers/).
+It is not exhaustive. Lookup returns `NULL` for an unlisted type such as `FE`;
+that does not prevent the format from reading or writing the element.
+
+The registry uses the generic `tlv_definition_t` and
+`tlv_definition_registry_t` model from `tlv/definition.h`. Applications can
+provide their own immutable tables and use the same lookup, which compares tag
+size and bytes, returns the first match, and never allocates. Definition
+metadata does not impose schema constraints or interpret values. Both the
+generic API and Bluetooth registry are available even with
+`OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`.
+
 ## Wire layout and logical model
 
 On the wire the length comes first:

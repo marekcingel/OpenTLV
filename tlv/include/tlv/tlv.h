@@ -10,6 +10,8 @@
 #include "tlv/attributes.h"
 #include "tlv/compiler.h"
 #include "tlv/element.h"
+#include "tlv/definition.h"
+#include "tlv/builtins/bluetooth/ad_types.h"
 #include "tlv/size.h"
 #include "tlv/value.h"
 #include "tlv/codec/codec.h"

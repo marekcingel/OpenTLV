@@ -13,6 +13,8 @@ set(SOURCES
     attributes_c_test.c
     copy_test.cpp
     diagnostic_test.cpp
+    definition_test.cpp
+    builtins/bluetooth/ad_types_test.cpp
     endian_test.cpp
     endian_c_test.c
     size_test.cpp
