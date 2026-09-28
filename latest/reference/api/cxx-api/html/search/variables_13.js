@@ -1,5 +1,6 @@
 var searchData=
 [
   ['universal_5fnumber_0',['universal_number',['../../../c-api/html/structtlv__der__schema__type.html#a91a56f0d0ac1f25c13950c93041ecc51',1,'tlv_der_schema_type']]],
-  ['unused_5fbits_1',['unused_bits',['../../../c-api/html/structtlv__asn1__bit__string.html#ac6fc51d020e8b8f3b789ca9a3cd01208',1,'tlv_asn1_bit_string']]]
+  ['unused_5fbits_1',['unused_bits',['../../../c-api/html/structtlv__asn1__bit__string.html#ac6fc51d020e8b8f3b789ca9a3cd01208',1,'tlv_asn1_bit_string']]],
+  ['uuid_5fsize_2',['uuid_size',['../../../c-api/html/structtlv__bluetooth__uuid__list.html#ab76338f977f74e9cfd6006021f1843c5',1,'tlv_bluetooth_uuid_list']]]
 ];

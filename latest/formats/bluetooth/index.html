@@ -1543,6 +1543,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#uuid-values-and-lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UUID values and lists
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#encoding" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2790,6 +2801,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#uuid-values-and-lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UUID values and lists
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#encoding" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3240,6 +3262,77 @@ CLI:</p>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>offset=0 tag=01 length=1 value=06
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>offset=3 tag=09 length=2 value=4869
 </code></pre></div>
+<h2 id="uuid-values-and-lists">UUID values and lists<a class="headerlink" href="#uuid-values-and-lists" title="Permanent link">&para;</a></h2>
+<p>Include <code>tlv/builtins/bluetooth/uuid.h</code> for reusable value codecs. They interpret
+Bluetooth little-endian byte order independently of the AD Type and format.</p>
+<table>
+<thead>
+<tr>
+<th>UUID width</th>
+<th>Value codec</th>
+<th>C representation</th>
+<th>List codec</th>
+<th>AD Types</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16 bits</td>
+<td><code>tlv_bluetooth_codec_uuid16</code></td>
+<td><code>uint16_t</code></td>
+<td><code>tlv_bluetooth_codec_uuid16_list</code></td>
+<td><code>0x02</code>, <code>0x03</code></td>
+</tr>
+<tr>
+<td>32 bits</td>
+<td><code>tlv_bluetooth_codec_uuid32</code></td>
+<td><code>uint32_t</code></td>
+<td><code>tlv_bluetooth_codec_uuid32_list</code></td>
+<td><code>0x04</code>, <code>0x05</code></td>
+</tr>
+<tr>
+<td>128 bits</td>
+<td><code>tlv_bluetooth_codec_uuid128</code></td>
+<td><code>tlv_bluetooth_uuid128_t</code></td>
+<td><code>tlv_bluetooth_codec_uuid128_list</code></td>
+<td><code>0x06</code>, <code>0x07</code></td>
+</tr>
+</tbody>
+</table>
+<p>The 128-bit representation contains 16 bytes in canonical printed UUID order
+(most significant byte first). Its codec reverses the entire wire sequence;
+it does not use the mixed-endian layout of a Windows GUID. Value codecs consume
+exactly one UUID and can also decode a UUID prefix isolated from Service Data.
+They do not validate assigned numbers or expand short UUIDs to the Bluetooth base UUID.</p>
+<p>List codecs return <code>tlv_bluetooth_uuid_list_t</code>, borrowing the complete raw value
+without allocation. Length must be a multiple of 2, 4 or 16 respectively; empty
+lists are accepted. Keep the source alive and immutable while using the view.
+The AD Type retains the complete/incomplete distinction; codec selection is
+the caller's responsibility.</p>
+<p>For <code>05 03 0F 18 0A 18</code>, the reader returns AD Type <code>0x03</code> and raw value
+<code>0F 18 0A 18</code>. Decode and iterate that value as follows:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv/builtins/bluetooth/uuid.h&gt;</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kt">int</span><span class="w"> </span><span class="nf">decode_service_uuids</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">raw</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x0F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x18</span><span class="p">,</span><span class="w"> </span><span class="mh">0x0A</span><span class="p">,</span><span class="w"> </span><span class="mh">0x18</span><span class="p">};</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">tlv_bluetooth_uuid_list_t</span><span class="w"> </span><span class="n">list</span><span class="p">;</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">;</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_codec_decode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tlv_bluetooth_codec_uuid16_list</span><span class="p">,</span><span class="w"> </span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">raw</span><span class="p">),</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">                         </span><span class="o">&amp;</span><span class="n">list</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">list</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_CODEC_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_size_to_native</span><span class="p">(</span><span class="n">list</span><span class="p">.</span><span class="n">raw</span><span class="p">.</span><span class="n">size</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">list</span><span class="p">.</span><span class="n">uuid_size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">count</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">        </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">uuid</span><span class="p">;</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_bluetooth_uuid_list_at</span><span class="p">(</span><span class="o">&amp;</span><span class="n">list</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">uuid</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">uuid</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_CODEC_OK</span><span class="p">)</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">        </span><span class="cm">/* uuid is 0x180F, then 0x180A. list.raw still points to raw. */</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="p">}</span>
+</code></pre></div>
+<p>Encoding a list validates the view and copies its original wire bytes exactly.
+To create new list bytes, encode individual UUID values into caller-owned storage.
+All these codecs remain available with <code>OPENTLV_FORMAT_BLUETOOTH_LTV=OFF</code>.
+Byte-order interpretation stays in Codec; Element continues to expose opaque bytes.</p>
 <h2 id="encoding">Encoding<a class="headerlink" href="#encoding" title="Permanent link">&para;</a></h2>
 <p>Writing uses <code>tlv_format_bluetooth_ltv</code> with the same <code>tlv_write</code> and
 <code>tlv_writer_write</code> calls as any other format. The writer emits the length byte
@@ -3310,11 +3403,11 @@ never returned partially.</p>
 <li>Framing and optional schema validation do not implement a Bluetooth stack.</li>
 </ul>
 <h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>03 09 48 69
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Element (4 bytes)
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>|-- Length: 03 = type byte + 2 value bytes
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>|-- Type:   09 (Complete Local Name), exposed as the tag
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>`-- Value:  48 69 ("Hi")
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>03 09 48 69
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Element (4 bytes)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>|-- Length: 03 = type byte + 2 value bytes
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>|-- Type:   09 (Complete Local Name), exposed as the tag
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>`-- Value:  48 69 ("Hi")
 </code></pre></div>
 <h2 id="how-it-fits-the-format-architecture">How it fits the format architecture<a class="headerlink" href="#how-it-fits-the-format-architecture" title="Permanent link">&para;</a></h2>
 <p>Bluetooth is a configuration of the public binary-field layout primitives in
