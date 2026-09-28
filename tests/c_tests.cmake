@@ -19,6 +19,8 @@ set(SOURCES
     builtins/bluetooth/ad_codec_test.cpp
     builtins/bluetooth/uuid_test.cpp
     builtins/bluetooth/service_data_test.cpp
+    builtins/bluetooth/manufacturer_data_test.cpp
+    builtins/bluetooth/company_ids_test.cpp
     endian_test.cpp
     endian_c_test.c
     size_test.cpp

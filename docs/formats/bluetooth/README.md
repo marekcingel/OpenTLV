@@ -107,8 +107,8 @@ Power) report `TLV_CODEC_ERR_INVALID_VALUE`. Missing pointers report
 diagnostics; these are distinct from framing and schema errors. Applications
 can retain the parsed tag and source offset alongside a codec error.
 
-UUID lists, Service Data and Manufacturer Specific Data codecs are outside
-this initial set.
+UUID lists, Service Data and Manufacturer Specific Data use the separate
+codecs described below.
 
 ## Advertising Data schema
 
@@ -331,6 +331,44 @@ UUID codec and copying the payload unchanged. The informational `raw` span
 is ignored, so caller-constructed objects can leave it empty. Both directions
 are allocation-free. These codecs are available independently of the Bluetooth
 format and do not impose its framing size limit.
+
+## Manufacturer Specific Data and Company Identifiers
+
+Include `tlv/builtins/bluetooth/manufacturer_data.h` and use
+`tlv_bluetooth_codec_manufacturer_data` for AD Type `0xFF`.
+Its `tlv_bluetooth_manufacturer_data_t` representation contains:
+
+- `company_id`: the numeric 16-bit Company Identifier, decoded little-endian;
+- `payload`: a borrowed span after the two identifier bytes;
+- `raw`: the complete borrowed value, including the identifier.
+
+For `1A FF 4C 00 02 15 ...`, the codec exposes `company_id == 0x004C`
+and payload `02 15 ...`. It does not interpret the payload as iBeacon or
+any other vendor protocol. Such interpretation belongs in optional extensions.
+Keep source storage alive and immutable while using either span. Values shorter
+than two bytes are rejected; an empty payload and unknown identifiers are valid.
+Encoding uses `company_id` and `payload`, ignores `raw`, and regenerates the
+little-endian prefix. Both directions are allocation-free and available with
+`OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`, without an AD framing size limit.
+
+The independent `tlv/builtins/bluetooth/company_ids.h` header exposes
+`tlv_bluetooth_company_ids`, a Definition registry for `tlv_definition_find()`.
+Its keys are the two identifier octets, least-significant octet first: Apple's
+key is `{0x4C, 0x00}`. A decoded value's first two `raw` bytes can be used
+directly as a `tlv_tag_t` key. For a numeric identifier, explicitly construct
+the two bytes; do not reinterpret its native memory representation.
+The registry performs byte comparison only and has no dependency on the codec,
+schema or format. A missing definition returns `NULL` and does not invalidate
+the Company Identifier.
+
+Initial coverage is `0x0000` (Ericsson), `0x0006` (Microsoft), `0x004C` (Apple),
+`0x0059` (Nordic Semiconductor), `0x0075` (Samsung) and `0x00E0` (Google).
+This is a non-exhaustive snapshot of the
+[Bluetooth SIG Assigned Numbers HTML table](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/index-en.html)
+(Company Identifiers table dated 2023-12-21). It is descriptive metadata,
+not an automatically updated list or a vendor payload dispatcher.
+The value structure follows
+[Core Specification Supplement, Part A, section 1.4](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v12/out/en/supplement-to-the-bluetooth-core-specification/data-types-specification.html).
 
 ## Encoding
 
