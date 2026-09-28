@@ -279,19 +279,29 @@ future work; see [Rust bindings](../development/rust.md#build). Ready-made CMake
 
 ## Build configuration
 
-All generic facilities are always available. These concrete components default
-to ON and can be disabled independently:
+All generic facilities, including the configurable Fixed format, are always available.
+
+### Generic core formats
+
+| Format | Availability |
+| --- | --- |
+| [Configurable fixed-width TLV](../formats/fixed/configurable.md) | Always built; shared C implementation and C++ wrapper |
+
+### Built-in standards
+
+These packages default to ON and can be disabled subject to the dependencies below.
 
 | CMake option / generated config macro | Included component |
 | --- | --- |
-| `OPENTLV_FORMAT_FIXED` | Configurable fixed-width tag and length (`tlv_fixed_format_t`) |
-| `OPENTLV_FORMAT_BLUETOOTH_LTV` | Bluetooth Length, Type, Value framing |
+| `OPENTLV_BLUETOOTH` | Bluetooth LTV format, containers, definitions, schemas and codecs |
 | `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER, CER) |
 | `OPENTLV_FORMAT_BER` | Public BER format |
 | `OPENTLV_FORMAT_DER` | DER format and bounded DER profile operations |
 | `OPENTLV_FORMAT_CER` | CER format and bounded CER profile operations |
 | `OPENTLV_PROFILE_EMV` | EMV dictionary, schemas and value codecs |
-| `OPENTLV_DOCUMENT` | Optional [mutable document](../guides/document.md); the only component that allocates |
+
+The [mutable document](../guides/document.md) is a separate optional generic component,
+controlled by `OPENTLV_DOCUMENT`; it is not a format or a standard package.
 
 `OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`, and
 `OPENTLV_PROFILE_EMV` form a chain (ASN1 -> BER -> DER -> EMV): disabling an
@@ -308,12 +318,12 @@ config macros when supporting reduced builds.
 
 Tests that require disabled components and examples that demonstrate them are
 omitted. Generic architecture tests use an application-defined format and run
-even when all built-ins are disabled. The benchmark uses BER and
+even when all protocol extensions are disabled. The benchmark uses BER and
 is built only when that component is enabled.
 
 ```sh
 cmake -S . -B build-minimal \
-  -DOPENTLV_FORMAT_FIXED=OFF -DOPENTLV_FORMAT_ASN1=OFF
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build-minimal --parallel
 ```
 
@@ -411,9 +421,8 @@ callbacks; `format()` now builds and returns a descriptor from
 `tlv_fixed_format_init()`, so the C and C++ APIs share one implementation.
 Two consequences follow: the descriptor's `context` is no longer `NULL` (it
 is a static `tlv_fixed_format_t` built from `TagWidth`, `LengthWidth` and
-`Order`), and using `tlv::fixed_format<>` now needs the library built with
-`OPENTLV_FORMAT_FIXED` (the default), where it previously needed no CMake
-option at all. `static_assert`-checked compile-time validation of `TagWidth`,
+`Order`), and `tlv::fixed_format<>` links to the always-built C Fixed
+implementation. `static_assert`-checked compile-time validation of `TagWidth`,
 `LengthWidth` and `Order` is unchanged. No compatibility shim; rebuild all
 consumers.
 

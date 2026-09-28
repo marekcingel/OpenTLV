@@ -18,8 +18,9 @@ components, limits, and what was checked) is in the
 ## Keep the core generic
 
 Keep raw framing, nesting rules, structural schemas, value codecs, and protocol
-semantics separate. Concrete adapters should remain selectable (each behind its own
-build option, like `OPENTLV_FORMAT_BLUETOOTH_LTV`). Preserve caller-owned storage,
+semantics separate. Generic formats such as Fixed belong to the always-available
+core. Standard-specific built-ins remain selectable through their package
+build options, such as `OPENTLV_BLUETOOTH`. Preserve caller-owned storage,
 capacity checks, and zero-copy value reads in the C API.
 
 The current callback contract reads a tag before resolving length/value bounds.
@@ -90,9 +91,13 @@ so a candidate's "components" show which layers stay separate.
 
 ```text
 OpenTLV
-├── Implemented (built in)
-│   ├── [x] Bluetooth LTV, configurable fixed-width (C and C++)
+├── Generic core formats and extension mechanisms
+│   ├── [x] Configurable fixed-width (C and C++)
 │   ├── [x] Application-defined callbacks
+│   └── [ ] Variable format (planned generic core format)
+│
+├── Implemented built-in standards
+│   ├── [x] Bluetooth (LTV, containers, definitions, schemas, codecs)
 │   ├── [x] ASN.1 framing: BER-TLV, DER-TLV (+ strict values, schemas), CER-TLV
 │   └── [x] Profile: EMV Contact Book 3 v4.4 (dictionary, schemas, codecs)
 │

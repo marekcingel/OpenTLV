@@ -1,6 +1,6 @@
 #include "tlv/builtins/bluetooth/ad_types.h"
 #include "tlv/config.h"
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -40,7 +40,7 @@ TEST(Unit_Tlv_BluetoothAdTypes, ResolvesCanonicalIdentifiersAndOfficialNames) {
     EXPECT_EQ(nullptr, tlv_definition_find(&tlv_bluetooth_ad_types, &padded));
 }
 
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#if OPENTLV_BLUETOOTH
 TEST(Unit_Tlv_BluetoothAdTypes, ReadsAndWritesKnownAndUnknownTypesIndependently) {
     const uint8_t input[] = {0x02, 0x01, 0x06, 0x02, 0xFE, 0x42};
     tlv_reader_t  reader;

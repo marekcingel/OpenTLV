@@ -28,7 +28,7 @@ wrapper that delegates every read and write to the C one:
 | Header | `tlv/formats/fixed.h` | `tlv++/formats/fixed_format.hpp` |
 | Configuration | `tlv_fixed_format_t{tag_size, length_size, length_order, element_order, length_scope}` | `tlv::fixed_format<TagWidth, LengthWidth, Order>` (TLV element order, value-only length scope) |
 | Descriptor | `tlv_fixed_format_init(&format, &config)` | `fixed_format<...>::format()` returns `const tlv_format_t&` |
-| CMake option (default ON) | `OPENTLV_FORMAT_FIXED` | `OPENTLV_FORMAT_FIXED` |
+| Availability | Always built | Always available with the C++ wrapper |
 | Link target | `tlv` | `tlv++` |
 
 Both descriptors have static storage duration, so neither needs lifetime

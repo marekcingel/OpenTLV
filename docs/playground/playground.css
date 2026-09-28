@@ -95,3 +95,16 @@
 .otlv-pg-field dd { font-family: var(--md-code-font-family, monospace); font-size: 0.8rem; margin: 0; overflow-wrap: anywhere; }
 .otlv-pg-copy-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
 .otlv-pg-copy-row .otlv-pg-copy { margin-left: 0; }
+
+.otlv-pg-summary, .otlv-pg-sample-note {
+  border-left: 3px solid var(--md-accent-fg-color);
+  background: var(--md-code-bg-color);
+  padding: 0.65rem 0.9rem;
+  margin: 0.7rem 0;
+}
+.otlv-pg-summary p { margin: 0.3rem 0; font-size: 0.8rem; }
+.otlv-pg-padding-note { padding: 0.5rem 0; color: var(--md-default-fg-color--light); }
+.otlv-pg-byte.otlv-pg-b-padding { background: var(--md-default-fg-color--lightest); border-bottom: 2px dotted var(--md-default-fg-color--light); }
+
+.otlv-pg-legend { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.7rem; font-size: 0.7rem; }
+.otlv-pg-byte.otlv-pg-b-trailer { background: #6a408c; color: #fff; }

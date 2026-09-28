@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(example-tlv LANGUAGES C)
 
-if(OPENTLV_FORMAT_FIXED AND OPENTLV_FORMAT_BER)
+if(OPENTLV_FORMAT_BER)
     # Backs the C example in the README and Getting Started; scripts/check_doc_examples.py
     # keeps the Markdown copies identical to this file.
     add_executable(example-tlv-quick-start src/quick_start.c)
@@ -52,16 +52,14 @@ if(OPENTLV_FORMAT_FIXED AND OPENTLV_FORMAT_BER)
 endif()
 
 # Generic-format example: a runtime-configurable fixed-width format.
-# Kept independent of the flags above; it only needs OPENTLV_FORMAT_FIXED.
-if(OPENTLV_FORMAT_FIXED)
-    add_executable(example-tlv-formats-fixed-format src/formats/fixed_format.c)
-    target_link_libraries(example-tlv-formats-fixed-format PRIVATE tlv)
-    opentlv_configure_compiler(example-tlv-formats-fixed-format)
-    opentlv_copy_shared_runtime(example-tlv-formats-fixed-format)
-    add_test(NAME Integration_example_tlv_formats_fixed_format
-        COMMAND $<TARGET_FILE:example-tlv-formats-fixed-format>)
-    set_tests_properties(Integration_example_tlv_formats_fixed_format PROPERTIES LABELS "integration;examples")
-endif()
+# Fixed is always available as part of the generic core.
+add_executable(example-tlv-formats-fixed-format src/formats/fixed_format.c)
+target_link_libraries(example-tlv-formats-fixed-format PRIVATE tlv)
+opentlv_configure_compiler(example-tlv-formats-fixed-format)
+opentlv_copy_shared_runtime(example-tlv-formats-fixed-format)
+add_test(NAME Integration_example_tlv_formats_fixed_format
+    COMMAND $<TARGET_FILE:example-tlv-formats-fixed-format>)
+set_tests_properties(Integration_example_tlv_formats_fixed_format PROPERTIES LABELS "integration;examples")
 
 # Builtin-specific example: walks an EMV template with the EMV dictionary.
 # Kept independent of the flags above; it only needs OPENTLV_PROFILE_EMV

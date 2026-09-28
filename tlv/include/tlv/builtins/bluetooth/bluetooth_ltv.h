@@ -36,6 +36,8 @@ extern "C" {
  *
  * @note Writing any tag size other than one returns #TLV_ERR_INVALID_TAG_SIZE,
  *       and a value longer than 254 bytes returns #TLV_ERR_INVALID_LENGTH.
+ *
+ * @note Requires `OPENTLV_BLUETOOTH=ON`.
  */
 
 /** @addtogroup formats

@@ -5,39 +5,58 @@ Concrete C implementations live under `tlv/builtins/<protocol>/` (grouped by
 protocol) or, for protocol-agnostic mechanisms like the configurable fixed-width
 format, `tlv/formats/`; see [architecture](../concepts/architecture.md#repository-layout).
 
-- [Configurable fixed-width TLV](fixed/configurable.md)
-- [Bluetooth LTV](bluetooth/README.md)
-- [BER-TLV](asn1/ber.md)
-- [DER-TLV](asn1/der.md)
-- [CER-TLV](asn1/cer.md)
-- [Application-defined formats](custom/README.md)
-- Profiles: [DER validation](../profiles/der/README.md), [CER validation](../profiles/cer/README.md), [EMV](../profiles/emv/README.md)
+Generic formats in `tlv/formats/` are part of the core and always available.
+Built-ins in `tlv/builtins/<protocol>/` implement specific standards and are
+optional. Both use the same Format, Reader and Writer contracts.
 
 ## Choose a format
+
+### Generic core formats
 
 | Need | Start with | Boundary |
 | --- | --- | --- |
 | Small internal records with fixed header sizes, or fixed tag/length widths chosen at runtime (C) or compile time (C++) | [Configurable fixed-width TLV](fixed/configurable.md) | Any tag width, length widths up to 8 bytes |
+
+### Built-in standards
+
+| Need | Start with | Boundary |
+| --- | --- | --- |
 | Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
 | Canonical ASN.1 framing and nested checks | [DER](../profiles/der/README.md) | Structural validation, not full semantic DER |
 | Canonical ASN.1 with indefinite-length framing and segmented strings | [CER](../profiles/cer/README.md) | Structural validation, not full semantic CER |
 | EMV Contact Book 3 data objects | [BER plus EMV profile](../profiles/emv/README.md) | Dictionary/codecs, not a transaction engine |
-| Application-specific framing | [Custom callbacks](custom/README.md) | Application supplies wire rules |
+
+For application-specific framing, use [custom callbacks](custom/README.md).
+They are an extension mechanism, not a built-in standard or a supplied format.
 
 ## Compare formats
 
-All rows are TLV formats: they differ in header layout, limits, nesting and how they are
-built. Each format keeps its own page with the byte layout and a worked example.
+### Generic core formats
+
+These reusable formats describe wire layouts without protocol policy. Fixed is
+currently the supplied generic format; future generic formats belong in this
+group. They are part of the core rather than optional standards packages.
+
+| Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree walker | Availability |
+| --- | --- | --- | --- | --- | --- | --- |
+| [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | 1 to 8 bytes | 1 to 8 bytes, big or little endian, counting the value alone or the tag and value | set by the length width | tag, length, value or length, tag, value | none (opaque values) | Always available (C and C++) |
+
+### Built-in standards
+
+These formats implement a specific standard. Their packages may also provide
+definitions, schemas, value codecs and container handling. Each format's page
+explains its wire layout and supported scope.
 
 | Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree walker | Build option |
 | --- | --- | --- | --- | --- | --- | --- |
-| [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_FORMAT_BLUETOOTH_LTV` |
-| [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | 1 to 8 bytes | 1 to 8 bytes, big or little endian, counting the value alone or the tag and value | set by the length width | tag, length, value or length, tag, value | none (opaque values) | `OPENTLV_FORMAT_FIXED` (C and C++) |
+| [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_BLUETOOTH` |
 | [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_ber_is_constructed` | `OPENTLV_FORMAT_BER` |
 | [DER-TLV](asn1/der.md#layout-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_der_is_constructed` | `OPENTLV_FORMAT_DER` |
 | [CER-TLV](asn1/cer.md#layout-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_cer_is_constructed` | `OPENTLV_FORMAT_CER` |
-| [Application-defined](custom/README.md) | any number of raw bytes | your rules | your rules | format-defined | your predicate | none |
+
+[Application-defined formats](custom/README.md) supply their own field layout,
+limits and nesting predicate through the same generic callback contract.
 
 Notes for choosing:
 

@@ -15,15 +15,23 @@ native applications. Nothing you enter is uploaded.
     </label>
     <label>Format
       <select id="otlv-pg-format" disabled>
-        <option value="fixed">Fixed-width TLV</option>
-        <option value="bluetooth-ltv">Bluetooth LTV</option>
-        <option value="ber">BER-TLV</option>
-        <option value="der">DER-TLV</option>
+        <optgroup label="Generic core formats">
+          <option value="fixed">Fixed (TLV / LTV)</option>
+        </optgroup>
+        <optgroup label="Built-in standards">
+          <option value="bluetooth-ltv">Bluetooth LTV (strict)</option>
+          <option value="ber">ASN.1 BER-TLV</option>
+          <option value="der">ASN.1 DER-TLV</option>
+          <option value="cer">ASN.1 CER-TLV</option>
+        </optgroup>
+        <optgroup label="Standard containers">
+          <option value="bluetooth-ad">Bluetooth Advertising Data</option>
+        </optgroup>
       </select>
     </label>
-    <label>Profile
+    <label>Annotations
       <select id="otlv-pg-profile" disabled>
-        <option value="none">None</option>
+        <option value="none">None (AD names are automatic)</option>
         <option value="emv">EMV tag names (BER-TLV only)</option>
       </select>
     </label>
@@ -41,7 +49,20 @@ native applications. Nothing you enter is uploaded.
         <option value="little">Little-endian</option>
       </select>
     </label>
+    <label>Field order
+      <select id="otlv-pg-fixed-element-order" disabled>
+        <option value="tlv">Tag | Length | Value</option>
+        <option value="ltv">Length | Tag | Value</option>
+      </select>
+    </label>
+    <label>Length counts
+      <select id="otlv-pg-fixed-length-scope" disabled>
+        <option value="value">Value only</option>
+        <option value="tag-and-value">Tag + Value</option>
+      </select>
+    </label>
   </div>
+  <p id="otlv-pg-sample-note" class="otlv-pg-sample-note" hidden></p>
   <label for="otlv-pg-input" class="otlv-pg-label">TLV data (hexadecimal, whitespace ignored)</label>
   <textarea id="otlv-pg-input" class="otlv-pg-input" rows="6" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="6F 0A 84 03 41 42 43 A5 03 50 01 01"></textarea>
   <div class="otlv-pg-actions">
@@ -55,8 +76,8 @@ native applications. Nothing you enter is uploaded.
 
 ## What it shows
 
-The result has three views of one parse; a selection in any of them is shown
-in all of them.
+The result has three views of one parse. Tree and Hex share the current selection;
+JSON shows the complete result and its source ranges.
 
 - **Tree**: the nested elements with tag, length, offset and, for primitive
   elements, the value. Select an element to inspect it.
@@ -65,19 +86,23 @@ in all of them.
   innermost element that contains it.
 - **JSON**: the parse result as JSON, with a **Copy JSON** button.
 
-Choosing **Fixed-width TLV** reveals tag size, length size (1-8 bytes) and length
-byte order controls, matching the C `tlv_fixed_format_t`/C++ `tlv::fixed_format`
-[configurable fixed-width format](../formats/fixed/configurable.md); they default
-to a one-byte tag, a one-byte length and big-endian.
+Choosing **Fixed (TLV / LTV)** reveals tag size, length size (1-8 bytes), length
+byte order, field order and length scope controls, matching C `tlv_fixed_format_t`.
+The controls default to a one-byte tag, a one-byte length, big-endian, TLV order
+and Value-only length. The C++ `tlv::fixed_format` wrapper exposes the
+conventional TLV preset of the
+[configurable fixed-width format](../formats/fixed/configurable.md).
+Fixed is part of the core. Built-in standards and containers are grouped separately.
 
 The inspector lists the selected element's tag, encoded tag and length bytes,
-length, offset, encoded size, nesting depth and path, and raw value, with
+logical value length, offset, complete encoded size, nesting depth and path,
+raw value and any trailer (such as BER end-of-contents), with
 buttons to copy the tag, the value or the whole encoded element. With the
-**EMV** profile it also shows the tag's name from the
+**EMV tag names** annotations it also shows the tag's name from the
 [EMV profile](../profiles/emv/README.md) and whether its length is permitted.
 
-In [BER-TLV](../formats/asn1/ber.md) and
-[DER-TLV](../formats/asn1/der.md) constructed elements nest their children; the
+In [BER-TLV](../formats/asn1/ber.md),
+[DER-TLV](../formats/asn1/der.md) and [CER-TLV](../formats/asn1/cer.md), constructed elements nest their children; the
 [configurable fixed-width](../formats/fixed/configurable.md) and
 [Bluetooth LTV](../formats/bluetooth/README.md) formats have opaque values, so
 their elements are flat. Bluetooth LTV puts the length byte before the type, so
@@ -86,9 +111,25 @@ in the hex view and the element details the length is shown before the tag. EMV 
 Invalid or truncated input reports the parser error with its code, message and
 input offset, together with every element read before the failure.
 
+## Bluetooth Advertising Data
+
+Choose a Bluetooth sample to explore named AD structures, or compare the same
+buffer in **Bluetooth Advertising Data** and **Bluetooth LTV (strict)** modes.
+Advertising Data accepts trailing all-zero padding at structure boundaries.
+The summary and hex view identify padding separately; nonzero padding reports
+its exact source offset. Strict LTV continues to reject a zero length byte.
+Both modes use the C AD Type registry for names, including Flags, Local Name,
+Service Data and Manufacturer Specific Data. Unknown types remain readable.
+Values remain raw; this view does not apply Bluetooth schemas or value codecs.
+
+CER uses the generic reader and tree walker with `tlv_format_cer`: framing and
+EOC boundaries are checked. Full CER profile validation, including string
+segmentation rules and semantic value checks, is not applied.
+
 ## Limits
 
-The playground only parses and inspects. Editing, re-encoding, schemas, OTDL
-and shareable sessions are not available. One parse reads at most 65,536
+The playground only parses and inspects. Editing, re-encoding, schemas, `.otlv`
+and shareable sessions are not available. Library functionality
+not listed in the controls are not exposed by this playground yet. One parse reads at most 65,536
 elements and 64 levels of nesting; see
 [WebAssembly build](../development/webassembly.md#use-from-javascript).

@@ -54,8 +54,8 @@ namespace tlv {
  * @tparam LengthWidth Length field width in bytes.
  * @tparam Order       Byte order of the length field.
  *
- * @note Needs the library built with `OPENTLV_FORMAT_FIXED` (the default),
- *       since format() delegates to tlv_fixed_format_init().
+ * @note Uses the always-available C Fixed format implementation;
+ *       format() delegates to tlv_fixed_format_init().
  * @see tlv_fixed_format_t for the same format chosen at runtime instead of
  *      compile time (tlv/formats/fixed.h), usable from C++ via
  *      `tlv::writer`/`tlv::reader`'s `const tlv_format_t&` constructor

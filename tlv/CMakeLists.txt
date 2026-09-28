@@ -9,17 +9,11 @@ endif()
 
 add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/definition.c
-    src/builtins/bluetooth/ad_types.c
-    src/builtins/bluetooth/ad_schema.c
-    src/builtins/bluetooth/ad_codec.c
-    src/builtins/bluetooth/uuid.c
-    src/builtins/bluetooth/service_data.c
-    src/builtins/bluetooth/manufacturer_data.c
-    src/builtins/bluetooth/company_ids.c
     src/codec/codec.c
     src/codec/structure.c
     src/format.c
     src/layout.c
+    src/formats/fixed.c
     src/copy.c
     src/diagnostic.c
     src/tag.c
@@ -41,11 +35,16 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     ${OpenTLV_BINARY_DIR}/generated/src/config.c
 )
 
-if(OPENTLV_FORMAT_FIXED)
-    target_sources(${PROJECT_NAME} PRIVATE src/formats/fixed.c)
-endif()
-if(OPENTLV_FORMAT_BLUETOOTH_LTV)
-    target_sources(${PROJECT_NAME} PRIVATE src/builtins/bluetooth/bluetooth_ltv.c)
+if(OPENTLV_BLUETOOTH)
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/builtins/bluetooth/ad_types.c
+        src/builtins/bluetooth/ad_schema.c
+        src/builtins/bluetooth/ad_codec.c
+        src/builtins/bluetooth/uuid.c
+        src/builtins/bluetooth/service_data.c
+        src/builtins/bluetooth/manufacturer_data.c
+        src/builtins/bluetooth/company_ids.c
+        src/builtins/bluetooth/bluetooth_ltv.c src/builtins/bluetooth/ad_data.c)
 endif()
 if(OPENTLV_FORMAT_BER)
     target_sources(${PROJECT_NAME} PRIVATE src/builtins/asn1/ber.c src/builtins/asn1/asn1_codec.c)

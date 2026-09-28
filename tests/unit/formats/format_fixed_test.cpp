@@ -2,7 +2,7 @@
 #include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #endif
 #include <gtest/gtest.h>
@@ -44,7 +44,7 @@ TEST(Unit_Tlv_Fixed, BothOrdersUseTheSameBinaryPrimitives) {
     }
 }
 
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#if OPENTLV_BLUETOOTH
 // A TLV_ELEMENT_ORDER_LTV/TLV_LENGTH_SCOPE_TAG_AND_VALUE configuration matching
 // tag_size/length_size/length_order must behave exactly like
 // tlv_format_bluetooth_ltv, since that global is this same configuration.

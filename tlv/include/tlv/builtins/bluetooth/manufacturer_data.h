@@ -16,6 +16,8 @@
  * must not overlap. Supply correctly typed and aligned representation objects.
  * Decode requires at least sizeof(object); encode requires exactly sizeof(object).
  * Decode preserves the destination on error. Encode reports written == 0 on error.
+ *
+ * @note Requires `OPENTLV_BLUETOOTH=ON`.
  */
 #ifdef __cplusplus
 extern "C" {

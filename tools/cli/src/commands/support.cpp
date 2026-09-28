@@ -6,10 +6,8 @@
 #include "console_color.hpp"
 #include "tlv/config.h"
 #include "tlv++/reader/walker.hpp"
-#if OPENTLV_FORMAT_FIXED
 #include "tlv/formats/fixed.h"
-#endif
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #endif
 #if OPENTLV_FORMAT_BER
@@ -28,7 +26,6 @@ bool is_json(const options& o) {
 
 const tlv_format_t* select_format(const options& o) {
     const char* name = o.format;
-#if OPENTLV_FORMAT_FIXED
     // Configured by --fixed-tag-size/--fixed-length-size/--fixed-byte-order,
     // one tag byte/one length byte/big-endian by default.
     if (!strcmp(name, "fixed")) {
@@ -43,14 +40,13 @@ const tlv_format_t* select_format(const options& o) {
         if (tlv_fixed_format_init(&format, &config) != TLV_OK) return NULL;
         return &format;
     }
-#endif
 #if OPENTLV_FORMAT_BER
     if (!strcmp(name, "ber")) return &tlv_format_ber;
 #endif
 #if OPENTLV_FORMAT_DER
     if (!strcmp(name, "der")) return &tlv_format_der;
 #endif
-#if OPENTLV_FORMAT_BLUETOOTH_LTV
+#if OPENTLV_BLUETOOTH
     if (!strcmp(name, "bluetooth-ltv")) return &tlv_format_bluetooth_ltv;
 #endif
     (void)name;

@@ -21,6 +21,8 @@
  *
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v14/out/en/core-supplementary-features/data-types-specification.html
+ *
+ * @note Requires `OPENTLV_BLUETOOTH=ON`.
  */
 
 #ifdef __cplusplus

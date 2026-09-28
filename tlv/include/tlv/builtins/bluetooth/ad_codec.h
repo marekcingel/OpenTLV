@@ -12,7 +12,7 @@
  * Use tlv_codec_decode() and tlv_codec_encode() on value bytes only. Callers
  * select the codec from the AD Type; these immutable, static-lifetime
  * descriptors do not depend on the Bluetooth LTV format, schema or registry.
- * They remain available with OPENTLV_FORMAT_BLUETOOTH_LTV disabled.
+ * They require `OPENTLV_BLUETOOTH=ON`.
  *
  * Flags and Local Name use #tlv_value_t, borrowing the complete input without
  * changing it. Keep that storage alive and immutable while using the result.
@@ -26,6 +26,8 @@
  *
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v14/out/en/core-supplementary-features/data-types-specification.html
+ *
+ * @note Requires `OPENTLV_BLUETOOTH=ON`.
  */
 
 #ifdef __cplusplus

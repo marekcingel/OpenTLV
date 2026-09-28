@@ -30,9 +30,7 @@
 #include "tlv/schema/schema.h"
 #include "tlv/schema/constraint.h"
 #include "tlv/config.h"
-#if OPENTLV_FORMAT_FIXED
 #include "tlv/formats/fixed.h"
-#endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
 #endif
