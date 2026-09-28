@@ -20,6 +20,9 @@
 #include "tlv++/reader/walker.hpp"
 #include "tlv++/query/query.hpp"
 #include "tlv++/schema/schema.hpp"
+#if OPENTLV_DHCP
+#include "tlv++/builtins/dhcp/dhcpv4.hpp"
+#endif
 #if OPENTLV_LLDP
 #include "tlv++/builtins/lldp/lldp.hpp"
 #endif

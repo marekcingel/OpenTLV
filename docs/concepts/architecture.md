@@ -292,6 +292,7 @@ These packages default to ON and can be disabled subject to the dependencies bel
 
 | CMake option / generated config macro | Included component |
 | --- | --- |
+| `OPENTLV_DHCP` | [DHCPv4 option framing](../formats/dhcp/README.md), including Pad and End |
 | `OPENTLV_BLUETOOTH` | Bluetooth LTV format, containers, definitions, schemas and codecs |
 | `OPENTLV_LLDP` | LLDP packed framing, base definitions and binding presets; no LLDPDU schemas/codecs |
 | `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER, CER) |
@@ -323,7 +324,7 @@ is built only when that component is enabled.
 
 ```sh
 cmake -S . -B build-minimal \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_FORMAT_ASN1=OFF
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build-minimal --parallel
 ```
 

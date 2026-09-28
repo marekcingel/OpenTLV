@@ -21,6 +21,7 @@ optional. Both use the same Format, Reader and Writer contracts.
 
 | Need | Start with | Boundary |
 | --- | --- | --- |
+| DHCPv4 options with Pad and End | [DHCPv4 option framing](dhcp/README.md) | Individual options; caller handles termination and packet semantics |
 | Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
 | LLDP packed Type/Length headers | [LLDP TLV support](lldp/README.md) | Packed framing, base definitions, LLDPDU structural rules and value codecs |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
@@ -51,6 +52,7 @@ explains its wire layout and supported scope.
 
 | Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree walker | Build option |
 | --- | --- | --- | --- | --- | --- | --- |
+| [DHCPv4 options](dhcp/README.md) | 1-byte code | 1 byte; absent for Pad/End | 255 bytes; 0 for Pad/End | code, length, value; code only for Pad/End | none | `OPENTLV_DHCP` |
 | [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_BLUETOOTH` |
 | [LLDP](lldp/README.md#wire-layout-and-logical-model) | 7-bit Type, canonical one-byte Tag | 9 bits, Value only | 511 bytes | packed Type/Length, Value | none | `OPENTLV_LLDP` |
 | [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_ber_is_constructed` | `OPENTLV_FORMAT_BER` |

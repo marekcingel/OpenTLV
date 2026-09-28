@@ -71,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add optional DHCPv4 option framing, including Pad/End, source preservation and C/C++ Reader/Writer support, backed by generic identifier-selected binary layouts. (#367)
 - Add LLDPDU structural validation with shared diagnostics and allocation-free codecs for base LLDP values, including management addresses and generic organisational payloads; add reference tests and compiled C/C++ examples. (#363)
 - Add allocation-free packed bit-field helpers for 1..8-byte TLV headers, with explicit byte order, checked unsigned extraction/insertion and preservation of neighboring fields; LLDP now reuses this primitive. (#361)
 - Add optional LLDP packed-header framing and base Type definitions, with shared C++, Rust, Python, Lua and JavaScript/WASM presets. Enable it with `OPENTLV_LLDP`; LLDPDU schemas and value codecs remain outside this change. (#362)
