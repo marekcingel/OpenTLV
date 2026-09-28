@@ -31,11 +31,11 @@ subset. They are not captures or an official IEEE conformance suite.
 | `FE 06 00 80 C2 01 00 2A` | Organisational OUI/subtype prefix and opaque two-byte payload |
 | `05 01 C0 00 02 01 02 01 02 03 04 00` | Management Address Value: IPv4 192.0.2.1, ifIndex 0x01020304, empty OID |
 
-`tests/integration/lldp_test.cpp` covers every Type 0..127 and Length 0..511,
+`tests/integration/builtins/lldp/lldp_test.cpp` covers every Type 0..127 and Length 0..511,
 truncation, writer bounds, borrowed identity, source preservation, structural
 errors, shared diagnostics, Reader/Writer, Document and Query. Its exhaustive
 framing test intentionally includes semantically invalid LLDP elements.
-`tests/unit/lldp_test.cpp` tests each codec against expected bytes, both encoding
+`tests/unit/builtins/lldp/codec_test.cpp` tests each codec against expected bytes, both encoding
 directions, size queries, capacities, invalid fields and boundary sizes.
 The C and C++ examples are compiled targets and their documentation is checked
 against source by `scripts/check_doc_examples.py`.

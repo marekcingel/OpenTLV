@@ -129,3 +129,14 @@ dictionary](../development/rust.md#codecs-and-the-emv-dictionary)). See the
 diverge from the C/C++ shape described above.
 
 See also the [C API reference: codecs](../reference/c-api.md#codecs).
+
+## Reusable primitive codecs
+
+Include `tlv/codec/values.h` for `tlv_codec_uint8`,
+`tlv_codec_uint16_be`, `tlv_codec_uint32_be` and `tlv_codec_bytes`.
+Include `tlv/codec/ipv4.h` for `tlv_codec_ipv4` and
+`tlv_codec_ipv4_list`. They use the same Codec
+contract and are available independently of protocol components.
+Byte sequences decode to borrowed `tlv_value_t` views; IPv4 lists decode
+to `tlv_ipv4_list_t` views with checked access through
+`tlv_ipv4_list_at()`. The caller retains ownership of the input.

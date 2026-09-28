@@ -10,6 +10,8 @@ endif()
 add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/definition.c
     src/codec/codec.c
+    src/codec/values.c
+    src/codec/ipv4.c
     src/codec/structure.c
     src/format.c
     src/layout.c
@@ -38,7 +40,8 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
 if(OPENTLV_DHCP)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/dhcp/dhcpv4.c
-        src/builtins/dhcp/options.c)
+        src/builtins/dhcp/options.c
+        src/builtins/dhcp/codec.c)
 endif()
 if(OPENTLV_LLDP)
     target_sources(${PROJECT_NAME} PRIVATE

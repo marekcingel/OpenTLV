@@ -22,7 +22,7 @@ endif()
 if(test_group STREQUAL "integration")
     list(APPEND SOURCES layers_test.cpp)
     if(OPENTLV_DHCP)
-        list(APPEND SOURCES dhcpv4_cpp_test.cpp)
+        list(APPEND SOURCES builtins/dhcp/dhcpv4_cpp_test.cpp)
     endif()
 endif()
 

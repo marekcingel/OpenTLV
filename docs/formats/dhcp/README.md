@@ -64,6 +64,48 @@ have static lifetime; lookup allocates nothing and needs no Reader or Writer.
 Definitions only describe identifiers: they do not decode Values, validate
 option lengths or control Pad/End handling. Framing does not consult the registry.
 
+## Value codecs
+
+Include `tlv/builtins/dhcp/codec.h` for the DHCP Message Type codec and
+`tlv/codec/values.h` for fundamental integer and byte representations.
+Include `tlv/codec/ipv4.h` for IPv4 addresses and address lists:
+
+| Value | Codec | C representation |
+| --- | --- | --- |
+| IPv4 address (for example options 1, 50, 54) | `tlv_codec_ipv4` | `tlv_ipv4_t`, four network-order octets |
+| IPv4 list (3, 6) | `tlv_codec_ipv4_list` | `tlv_ipv4_list_t`, borrowed bytes |
+| Unsigned byte | `tlv_codec_uint8` | `uint8_t` |
+| Unsigned 16-bit integer (57) | `tlv_codec_uint16_be` | `uint16_t` |
+| Unsigned 32-bit integer (51, 58, 59) | `tlv_codec_uint32_be` | `uint32_t` |
+| DHCP Message Type (53) | `tlv_dhcpv4_codec_message_type` | `uint8_t` |
+| Parameter Request List (55), opaque identifiers (60, 61) | `tlv_codec_bytes` | borrowed `tlv_value_t` |
+
+For `35 01 03`, Reader exposes raw Value `03`. Decode that Value with
+`tlv_dhcpv4_codec_message_type` to obtain `TLV_DHCPV4_REQUEST`.
+Use a `uint8_t` object, not an enum object, for this codec. Constants name
+the eight RFC 2132 message types; all other byte values are preserved too.
+The codec does not validate DHCP exchange state or require a known type.
+
+All codecs support decode, encode and validated encode size queries through
+`tlv_codec_decode()` and `tlv_codec_encode()`. Convert
+`element.value.size` with `tlv_size_to_native()` before passing it to a codec.
+For size queries, pass a NULL destination and zero capacity. Invalid
+representations fail even when no bytes are requested; errors report zero
+bytes written.
+
+Byte sequences and IPv4 lists borrow input storage, which must remain alive
+and immutable. Encoding preserves all bytes, including order and duplicates.
+Use `tlv_ipv4_list_at()` for checked address access without allocation.
+An IPv4 list must contain a multiple of four bytes. Generic lists and byte
+sequences permit empty values and impose no DHCP length limits. Option-specific
+constraints (such as a nonempty Router list) require separate validation.
+Parameter Request Lists preserve unknown option Codes. Opaque identifiers
+are retained whole, without interpreting hardware types or vendor payloads.
+
+Generic codecs are available with `OPENTLV_DHCP=OFF`; only the DHCP Message
+Type descriptor requires DHCP support. Codec selection is explicit and does
+not change Format or Definition behavior.
+
 ## Scope and composition
 
 Pass only the option region, excluding the DHCP packet header and magic
