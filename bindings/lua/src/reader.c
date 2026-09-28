@@ -97,6 +97,9 @@ static int l_reader_new(lua_State* L) {
 
     if (lua_isnoneornil(L, 2)) {
         lua_getfield(L, LUA_REGISTRYINDEX, OPENTLV_LUA_DEFAULT_FORMAT_KEY);
+        if (lua_isnil(L, -1)) {
+            return luaL_argerror(L, 2, "format is required when BER is disabled");
+        }
     } else {
         lua_pushvalue(L, 2);
     }

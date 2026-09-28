@@ -1,12 +1,28 @@
 #include "tlv++/format.hpp"
 #include "controlled_format.h"
 #include "tlv++/tlv.hpp"
+#include "tlv/config.h"
+#if OPENTLV_LLDP
+#include "tlv++/builtins/lldp/lldp.hpp"
+#endif
 
 #include <gtest/gtest.h>
 
 #include <array>
 #include <string>
 #include <type_traits>
+
+#if OPENTLV_LLDP
+TEST(Unit_Tlvpp, LldpPresetUsesSharedDescriptor) {
+    EXPECT_EQ(&tlv_format_lldp, &tlv::lldp_format());
+    const std::array<tlv::byte, 4> wire = {tlv::byte{6}, tlv::byte{2}, tlv::byte{0},
+                                           tlv::byte{120}};
+    auto result = tlv::decode(tlv::lldp_format(), tlv::bytes(wire.data(), wire.size()));
+    ASSERT_TRUE(result.has_value());
+    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(3), result->element.tag));
+    EXPECT_EQ(2u, result->element.value.size);
+}
+#endif
 
 #if __cplusplus >= 201703L
 static_assert(std::is_same<tlv::byte, std::byte>::value, "C++17 must use std::byte");

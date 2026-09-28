@@ -51,6 +51,11 @@ fn build_from_source() {
         .arg(&source_dir)
         .arg("-B")
         .arg(&build_dir)
+        .arg(if cfg!(feature = "lldp") {
+            "-DOPENTLV_LLDP=ON"
+        } else {
+            "-DOPENTLV_LLDP=OFF"
+        })
         .args([
             "-DCMAKE_BUILD_TYPE=Release",
             "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",

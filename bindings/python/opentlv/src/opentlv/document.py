@@ -7,7 +7,7 @@ from typing import Iterator, Optional, Union
 import opentlv_native as _native
 
 from opentlv.error import _from_native
-from opentlv.format import Format
+from opentlv.format import Format, _resolve_format
 from opentlv.tag import Tag
 
 _DEFAULT_MAX_DEPTH = 64
@@ -148,7 +148,7 @@ class Document:
 
     __slots__ = ("_capsule",)
 
-    def __init__(self, data: Optional[bytes] = None, format: Format = Format.BER, *,
+    def __init__(self, data: Optional[bytes] = None, format: Format | None = None, *,
                  max_depth: int = _DEFAULT_MAX_DEPTH,
                  max_elements: int = _DEFAULT_MAX_ELEMENTS) -> None:
         """Creates a document, empty or parsed from `data`.
@@ -156,6 +156,7 @@ class Document:
         `format` is used both to parse `data` (and any constructed value
         later assigned to a node) and to `encode()` the document again.
         """
+        format = _resolve_format(format)
         try:
             if data is None:
                 self._capsule = _native.document_create(format, max_depth, max_elements)

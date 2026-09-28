@@ -5,6 +5,9 @@
 #include <string.h>
 
 #include "tlv/tlv.h"
+#if OPENTLV_LLDP
+#include "tlv/builtins/lldp/lldp.h"
+#endif
 #if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/builtins/bluetooth/ad_data.h"
@@ -261,6 +264,9 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
         if (tlv_fixed_format_init(fixed_format, fixed_config) != TLV_OK) return NULL;
         return fixed_format;
     }
+#if OPENTLV_LLDP
+    if (!strcmp(name, "lldp")) return &tlv_format_lldp;
+#endif
 #if OPENTLV_BLUETOOTH
     if (!strcmp(name, "bluetooth-ltv") || !strcmp(name, "bluetooth-ad"))
         return &tlv_format_bluetooth_ltv;

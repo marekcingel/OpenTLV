@@ -9,7 +9,7 @@ import opentlv_native as _native
 from opentlv.element import Element
 from opentlv.error import BufferTooShortError, _from_native
 from opentlv.fixed_format import FixedFormat
-from opentlv.format import Format
+from opentlv.format import Format, _resolve_format
 from opentlv.tag import Tag
 
 Value = Union[bytes, bytearray, memoryview]
@@ -35,10 +35,10 @@ class Writer:
 
     __slots__ = ("_buffer", "_pos", "_format")
 
-    def __init__(self, format: AnyFormat = Format.BER) -> None:
+    def __init__(self, format: AnyFormat | None = None) -> None:
         self._buffer = bytearray(_INITIAL_CAPACITY)
         self._pos = 0
-        self._format = format
+        self._format = _resolve_format(format)
 
     @property
     def format(self) -> AnyFormat:
@@ -95,13 +95,14 @@ class Writer:
 
 
 def encoded_size(tag: Union[Tag, bytes], value_length: int,
-                 format: AnyFormat = Format.BER) -> int:
+                 format: AnyFormat | None = None) -> int:
     """Returns the encoded size of an element with `tag` and a value of
     `value_length` bytes in `format`, without writing anything.
 
     >>> encoded_size(Tag(b"\\x01"), 3)
     5
     """
+    format = _resolve_format(format)
     tag_bytes = tag.data if isinstance(tag, Tag) else tag
     try:
         if isinstance(format, FixedFormat):

@@ -1,0 +1,29 @@
+#ifndef OPENTLV_PYTHON_FORMAT_H
+#define OPENTLV_PYTHON_FORMAT_H
+
+#include <Python.h>
+#include <tlv/config.h>
+#include <tlv/format.h>
+
+/* Stable IDs shared with opentlv.Format; unavailable IDs return NULL. */
+const tlv_format_t* opentlv_python_format_for(int format_id);
+/* Adds availability flags to the module; returns -1 on a Python error. */
+int opentlv_python_register_formats(PyObject* module);
+
+#if OPENTLV_FORMAT_BER
+const tlv_format_t* opentlv_python_format_ber(void);
+#endif
+
+#if OPENTLV_FORMAT_CER
+const tlv_format_t* opentlv_python_format_cer(void);
+#endif
+
+#if OPENTLV_FORMAT_DER
+const tlv_format_t* opentlv_python_format_der(void);
+#endif
+
+#if OPENTLV_LLDP
+const tlv_format_t* opentlv_python_format_lldp(void);
+#endif
+
+#endif

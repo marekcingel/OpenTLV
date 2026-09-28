@@ -377,7 +377,9 @@ rather than polluting the format-independent Element contract.
 Core parsing should remain zero/minimal-copy.
 
 Parsed elements normally borrow their Value and identifier bytes from the
-input buffer.
+input buffer. Formats with transformed identifiers may borrow immutable
+format-supplied identifier storage under the [Format contract](format-contract.md#decoded-identifier-consistency);
+Value still borrows the input. All borrowed storage must outlive retained results.
 
 Therefore:
 

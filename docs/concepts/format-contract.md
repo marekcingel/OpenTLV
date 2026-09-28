@@ -17,6 +17,8 @@ Additional header bytes and trailers remain available without adding protocol
 fields to the semantic element.
 
 The buffer, format and immutable context must outlive source information.
+A format-supplied semantic identifier also borrows immutable storage that must
+outlive every element, source, tag and shallow copy returned from decoding.
 Never mutate the source buffer while a source is live. Struct copies copy only
 borrowed descriptors, not bytes or ownership. The implementation cannot detect
 external mutation of borrowed storage; immutability is a caller obligation.
@@ -101,7 +103,10 @@ accepted logical range must not silently change between 32-bit and 64-bit builds
 
 ## Migration
 
-Rebuild all consumers: both `tlv_format_t` and `tlv_element_t` changed layout.
+Rebuild all consumers: `tlv_source_t` now includes `tag_binding`, which also
+changes the layout of `tlv_decoded_t`. Existing decoders retain direct source
+binding when this field is zero; zero-initialize callback results. Earlier
+format migrations also changed `tlv_format_t` and `tlv_element_t`.
 Replace old format callback tables with canonical operations or public field
 composition. No compatibility callback table remains. Obtain raw Length from
 source ranges (`tlv_read_source_diag()` also returns reader diagnostics).
@@ -118,6 +123,39 @@ raw-length inspection is populated from separate source information.
 
 ### Decoded identifier consistency
 
-A present `source.tag` range must match `element.tag` in both pointer and size, just as the Value range does. An absent Tag range requires `{NULL, 0}`. Inconsistent successful callback results are rejected with `TLV_ERR_INVALID_ARG` without publishing the decoded result.
+`source.tag_binding` makes identifier storage explicit:
+
+- `TLV_TAG_BINDING_SOURCE` (zero/default): a present `source.tag` range must
+  match `element.tag` in pointer and size. An absent range requires `{NULL, 0}`.
+- `TLV_TAG_BINDING_FORMAT`: `element.tag` borrows immutable storage supplied by
+  the format, such as a lookup table in its context or static storage. Its
+  pointer must be non-NULL; zero size is an explicit empty identifier. The
+  optional `source.tag` is only a byte envelope locating the encoded identifier;
+  it may overlap Length and need not match semantic Tag size or bytes. An absent
+  envelope means the wire location is unavailable, not that the Tag is absent.
+
+Every present range still must fit inside the encoded element. Value always
+borrows its exact source range. Unknown bindings, NULL format-bound Tags and
+inconsistent direct bindings are rejected with `TLV_ERR_INVALID_ARG` without
+publishing the decoded result.
+
+Format-bound identifier storage must remain valid and unchanged for **all**
+retained results, including after subsequent reads and shallow copies. Do not
+return stack arrays, mutable scratch buffers or pointers into temporary decode
+results. Core checks the binding and ranges, not the external storage's extent
+or lifetime; these remain callback obligations. Arbitrary transformations that
+cannot provide stable storage are not supported by this binding.
+
+For a finite packed Type field, a format can return a one-byte identifier from
+an immutable table while preserving the packed header as source bytes. The
+identifier is a deterministic byte sequence, never a host integer or a raw
+header with Length bits mixed into identity. No bit-field interpreter is added
+to Reader or Writer.
+
+Source preservation compares semantic Tag bytes and Value bytes with the
+original semantic snapshot, independent of wire envelopes. Ordinary copies and
+Writer encode semantic identifiers; Document copies their bytes into owned
+nodes, and Query/Schema compare those bytes. Failure diagnostics remain raw
+wire ranges: `error.tag` describes an envelope, not a transformed semantic Tag.
 
 For zero-length identifiers, a NULL pointer denotes absence and a non-NULL pointer denotes an explicit empty field. Source preservation checks this distinction but does not compare non-NULL pointer addresses; the original source range retains the wire location.

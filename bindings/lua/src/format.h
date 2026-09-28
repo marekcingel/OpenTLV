@@ -2,12 +2,12 @@
 #define OPENTLV_LUA_FORMAT_H
 
 #include "compat.h"
+#include <tlv/config.h>
 
 #include <tlv/formats/fixed.h>
 #include <tlv/format.h>
 
-/* Metatable name for opentlv.formats.ber/cer/der/bluetooth_ltv and
- * every table returned by opentlv.formats.fixed(). */
+/* Metatable name shared by all built-in and configured formats. */
 #define OPENTLV_LUA_FORMAT_MT "opentlv.Format"
 
 /* Registry key under which opentlv.formats.ber is stashed, so
@@ -22,7 +22,7 @@
  * whether tree traversal should dispatch to the stricter tlv_der_walk()
  * instead of the generic tlv_walk_tree(), and give a name for diagnostics.
  *
- * For the built-in presets (ber/cer/der/bluetooth_ltv) format is a
+ * For the built-in presets format is a
  * copy of the corresponding extern const global; for opentlv.formats.fixed()
  * it is initialized by tlv_fixed_format_init() with `fixed_config` (embedded
  * in this same userdata, so its address stays valid for exactly as long as
@@ -35,7 +35,7 @@ typedef struct tlv_lua_format {
 } tlv_lua_format_t;
 
 /* Registers the "opentlv.Format" metatable, builds module_table["formats"]
- * and stashes the BER format under OPENTLV_LUA_DEFAULT_FORMAT_KEY.
+ * and stashes BER (or nil when disabled) under OPENTLV_LUA_DEFAULT_FORMAT_KEY.
  * module_table must be on top of the stack; the stack is unchanged on
  * return. Call once from luaopen_opentlv_native(). */
 void opentlv_lua_open_format(lua_State* L, int module_table_index);
@@ -43,5 +43,26 @@ void opentlv_lua_open_format(lua_State* L, int module_table_index);
 /* Checks that the value at `arg` is an opentlv.Format, raising a Lua
  * argument error otherwise. */
 tlv_lua_format_t* opentlv_lua_check_format(lua_State* L, int arg);
+
+/* Registration helpers expect the formats table on top of the stack and
+ * leave the stack unchanged. Built-in descriptors and names must outlive Lua. */
+void opentlv_lua_register_builtin(lua_State* L, tlv_format_t format_value, int use_der_walker,
+                                  const char* name);
+void opentlv_lua_register_fixed(lua_State* L);
+#if OPENTLV_FORMAT_BER
+void opentlv_lua_register_ber(lua_State* L);
+#endif
+#if OPENTLV_FORMAT_CER
+void opentlv_lua_register_cer(lua_State* L);
+#endif
+#if OPENTLV_FORMAT_DER
+void opentlv_lua_register_der(lua_State* L);
+#endif
+#if OPENTLV_BLUETOOTH
+void opentlv_lua_register_bluetooth_ltv(lua_State* L);
+#endif
+#if OPENTLV_LLDP
+void opentlv_lua_register_lldp(lua_State* L);
+#endif
 
 #endif /* OPENTLV_LUA_FORMAT_H */

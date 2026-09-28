@@ -36,6 +36,8 @@ def decode_amount(data: bytes) -> int:
     >>> decode_amount(bytes.fromhex("000000012345"))
     12345
     """
+    if not _native.HAS_EMV:
+        raise NotImplementedError("EMV is disabled in this build")
     try:
         return _native.emv_decode_amount(data)
     except _native.CodecError as native_error:
@@ -49,6 +51,8 @@ def encode_amount(value: int) -> bytes:
     >>> encode_amount(12345).hex()
     '000000012345'
     """
+    if not _native.HAS_EMV:
+        raise NotImplementedError("EMV is disabled in this build")
     try:
         return _native.emv_encode_amount(value)
     except _native.CodecError as native_error:

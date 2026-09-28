@@ -18,7 +18,10 @@
 Keep the input buffer alive and unchanged while using any view into it, including
 nested child views. Reusing a receive buffer invalidates the previous values.
 A successful read copies neither the tag nor the value and does not allocate a
-tree: `element.tag` and `element.value` both point into the input. Do not return a
+tree: `element.value` points into the input. `element.tag` normally does too,
+but `TLV_TAG_BINDING_FORMAT` permits immutable identifier storage supplied by
+the format. Keep that storage alive and unchanged for all retained elements,
+tags and shallow copies, even after the reader advances. Do not return a
 borrowed view into a local array that goes out of scope.
 
 ## Tags
@@ -27,7 +30,8 @@ A `tlv_tag_t` is a pointer and a size. The bytes it refers to must stay valid,
 and unchanged, for as long as the tag is used, and copying the tag never extends
 that lifetime.
 
-- A tag read from input references the input buffer.
+- A decoded tag references input or immutable format-supplied storage; see the
+  [decoded identifier contract](../concepts/format-contract.md#decoded-identifier-consistency).
 - `TLV_TAG(0x9F, 0x02)` refers to constant storage the compiler provides. In
   C++ that storage is static; in C it is a compound literal that lives until the
   end of the enclosing block.
@@ -39,7 +43,8 @@ that lifetime.
   `tlv_dol_entry_t`, a `tlv_schema_issue_t` path, or a reader's view, therefore
   borrow the bytes too: a schema table needs its tag bytes to have static (or
   otherwise long) storage, and a validation report's paths point into the input
-  that was validated, or into the schema for a missing tag.
+  that was validated, immutable format-supplied identifier storage, or the schema
+  for a missing tag.
 - A `tlv_query_t` is the exception: it copies the tag bytes it parses, so it is
   a self-contained value, and `tlv_query_step()` returns tags that borrow it.
 - An empty tag is `{ NULL, 0 }`. `{ NULL, size }` with a nonzero size is invalid.

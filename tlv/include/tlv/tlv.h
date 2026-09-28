@@ -11,7 +11,6 @@
 #include "tlv/compiler.h"
 #include "tlv/element.h"
 #include "tlv/definition.h"
-#include "tlv/builtins/bluetooth/ad_types.h"
 #include "tlv/size.h"
 #include "tlv/value.h"
 #include "tlv/codec/codec.h"
@@ -30,7 +29,13 @@
 #include "tlv/schema/schema.h"
 #include "tlv/schema/constraint.h"
 #include "tlv/config.h"
+#if OPENTLV_BLUETOOTH
+#include "tlv/builtins/bluetooth/ad_types.h"
+#endif
 #include "tlv/formats/fixed.h"
+#if OPENTLV_LLDP
+#include "tlv/builtins/lldp/lldp.h"
+#endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
 #endif

@@ -23,7 +23,11 @@ core. Standard-specific built-ins remain selectable through their package
 build options, such as `OPENTLV_BLUETOOTH`. Preserve caller-owned storage,
 capacity checks, and zero-copy value reads in the C API.
 
-The current callback contract reads a tag before resolving length/value bounds.
+The current callback contract decodes a complete element and reports separate
+semantic content and source ranges. The semantic Tag borrows its exact source
+byte range by default; `TLV_TAG_BINDING_FORMAT` permits immutable format-supplied
+identifier storage for transformations such as packed fields. See the
+[LLDP review](lldp-review.md).
 An adapter for packed headers, length-before-type framing, padding, or a length
 that includes header bytes needs an explicit compatibility review. These formats
 are candidates, not a claim that every one fits the existing callbacks unchanged.
@@ -191,17 +195,18 @@ commitment. The **fit** column is by inspection of the callback contract in
 [`format.h`](../../tlv/include/tlv/format.h): `decode` sees the bytes from
 the start of an element and reports the tag, the header size, the value size and the
 trailer size; `encode` writes the complete Header/Value/Trailer representation. A tag is any
-number of raw bytes the format accepts. **No candidate has been prototyped against these callbacks.**
+number of raw bytes the format accepts. **A generic packed-header fixture and the LLDP framing adapter exercise
+transformed identifiers. LLDPDU protocol conformance remains separate.**
 
 | Requirement | Seen in | Fit with the current callbacks |
 | --- | --- | --- |
 | Length before type, or any other field order | Bluetooth LTV (implemented) | Covered by `decode` and `encode`. |
-| Bit-packed type and length, or flag bits sharing a field | LLDP, LDP, RFC 5444, NAS half-octet IEIs | `decode` sees the whole header, and `encode` can encode it. The adapter must define the tag bytes (masked or unmasked flags). |
+| Bit-packed type and length, or flag bits sharing a field | LLDP, LDP, RFC 5444, NAS half-octet IEIs | Whole-header callbacks handle packing; `TLV_TAG_BINDING_FORMAT` permits canonical identifiers in immutable format storage. [LLDP review](lldp-review.md): framing adapter and presets implemented and tested, normative verification pending. Other candidates need individual review. |
 | Length includes the header | RADIUS, Diameter | The adapter subtracts the header size to get `value_size` and rejects a length smaller than the header. |
 | Trailing padding after the value | Diameter | The canonical framing result includes a Trailer range and logical trailer size; `encode` writes and `decode` validates the padding. |
 | Header size depends on the type or flags | PFCP (enterprise ID), GTPv2 (type 254), GTPv1-C (TV versus TLV), RFC 5444 (flags) | `header_size` is reported per element, so this fits. GTPv1-C needs a type-to-length table in the borrowed descriptor context. |
 | Elements without a length, and a terminator | DHCPv4 Pad and End, NFC tag TLV NULL and Terminator | Each can be read as a header-only element, but the walker has no built-in "skip padding" or "stop at terminator" policy. Needs an explicit policy. |
-| Composite tag identity (type plus instance, vendor or flags) | GTPv2, PFCP, LLDP, Diameter, RADIUS VSA, LDP | Raw tag bytes can carry it (PFCP type plus a 2-byte enterprise ID fits in 8 bytes); the meaning lives in the dictionary. |
+| Composite tag identity (type plus instance, vendor or flags) | GTPv2, PFCP, Diameter, RADIUS VSA, LDP | Direct binding requires a compatible contiguous source byte range; transformed identities require stable immutable format storage and individual review. LLDP keeps OUI/subtype in Value, not in its outer Tag. |
 | Grouped or nested elements decided by the type | PFCP, GTPv2, Diameter, IS-IS sub-TLVs, DHCPv4 option 82 | `tlv_format_t::is_constructed` receives the format context and the tag, so a table in the context can decide; the flags and value are not visible to it. |
 | Different formats at successive nesting levels | LDP, SNMP, SIM Toolkit | A caller can parse level by level today; automatic tree walking needs [mixed-format traversal](#generic-processing-extensions). |
 | Fixed PDU header followed by a TLV region | IS-IS, DHCP, LDP, PFCP, GTPv2 | The header is outside the core; the caller passes the region. |
@@ -227,8 +232,10 @@ bounded iterative traversal. It does not allocate an object tree. See
 ## Proposed order
 
 1. Assess DGI, NDN, and RADIUS as concrete adapters with different length rules.
-2. Assess packed headers through LwM2M; derive any further generic contract
-   extension from those requirements (reordered headers are covered by
+2. Complete the normative checks in the [LLDP requirements review](lldp-review.md);
+   its canonical Tag storage requirement is covered by the generic binding.
+   Assess further packed-header reuse through LwM2M before adding a bit-field
+   Layout primitive (reordered headers are covered by
    [Bluetooth LTV](bluetooth/README.md)).
 3. Add mixed-format traversal and incremental parsing as separately scoped core work.
 4. Expand semantic profiles and ASN.1 canonical validation with explicit standard

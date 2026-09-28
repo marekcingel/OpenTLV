@@ -38,6 +38,17 @@ This produces `opentlv_native.so` (`opentlv_native.dll` on Windows) under
 `require("opentlv")` finds `lua/opentlv/init.lua`, which in turn finds the
 compiled module.
 
+Each built-in format registration is compiled only when its CMake component
+is enabled: `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_CER`, `OPENTLV_FORMAT_DER`,
+`OPENTLV_BLUETOOTH` and `OPENTLV_LLDP`. Disabled presets are absent from
+`opentlv.formats`; Fixed is always available. When BER is disabled, pass a
+format explicitly to `opentlv.reader(data, format)`.
+
+CTest registers `Integration_lua_components` when a Lua interpreter is found.
+It checks preset availability and parsing against the selected build options,
+including builds with every optional format disabled. The full busted suite
+requires BER, CER, DER and Bluetooth; the examples require BER.
+
 **On Windows**, link against the same Lua you run this module with, and make
 sure it is a *shared* `lua5x.dll`, not a static `liblua*.a`/`.lib`: a Lua
 interpreter statically linked against Lua and a module (this one, or any

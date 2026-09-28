@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Respect optional format components in the Python binding; disabled presets are absent and builds without BER require an explicit format.
+- Respect optional format components in the Lua binding; builds without BER require an explicit Reader format. (#360)
 - Fix fuzz target compilation after the element refactoring by removing checks of the obsolete raw Length field. (#346)
 - Reject decoder results whose semantic Tag does not match its source range, including inconsistent absent or empty Tags. (#343)
 - Check logical value sizes before converting them to native sizes in CLI presentation and commands, making the reader-produced element invariant explicit instead of relying on direct casts. (#342)
@@ -33,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Extend `tlv_source_t` with an explicit Tag storage binding, allowing formats to expose canonical identifiers from immutable format storage while retaining raw wire ranges. Direct source borrowing remains the default; rebuild consumers of `tlv_source_t` and `tlv_decoded_t`, including native bindings. (#360)
 - **Breaking:** Make the generic Fixed format always available and remove `OPENTLV_FORMAT_FIXED` and `tlv_config_format_fixed()`. Rename the Bluetooth feature query to `tlv_config_bluetooth()` to match the whole extension.
 - **Breaking:** Rename `OPENTLV_FORMAT_BLUETOOTH_LTV` to `OPENTLV_BLUETOOTH` and use it to control all Bluetooth formats, containers, definitions, schemas and codecs. Update build configurations to use the new option; disabling it removes the entire Bluetooth implementation. (#350)
 - **Breaking:** Extend `tlv_schema_entry_t` with an optional value-length multiple and `tlv_schema_diagnostic_t` with the expected multiple. Rebuild consumers and initialize the new schema field to zero to preserve unrestricted lengths. (#345)
@@ -67,6 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add optional LLDP packed-header framing and base Type definitions, with shared C++, Rust, Python, Lua and JavaScript/WASM presets. Enable it with `OPENTLV_LLDP`; LLDPDU schemas and value codecs remain outside this change. (#362)
+- Document the LLDP Format/Layout assessment, generic support for transformed identifiers and outstanding normative verification. (#360)
 - Expose CER framing in the WebAssembly wrapper and playground, including nested elements and EOC trailer ranges.
 - Expose Fixed TLV/LTV field order and length scope in the playground, group generic formats separately from standards and containers, and show source ranges and trailers such as BER end-of-contents in the inspector and hex view.
 - Present Bluetooth Advertising Data in the playground with named AD Types, guided samples and separate zero-padding ranges, alongside strict Bluetooth LTV parsing. (#350)

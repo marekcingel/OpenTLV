@@ -9,7 +9,7 @@ import opentlv_native as _native
 from opentlv.element import Element
 from opentlv.error import _from_native
 from opentlv.fixed_format import FixedFormat
-from opentlv.format import Format
+from opentlv.format import Format, _resolve_format
 from opentlv.tag import Tag
 
 Buffer = Union[bytes, bytearray, memoryview]
@@ -35,9 +35,9 @@ class Reader:
 
     __slots__ = ("_data", "_format", "_pos", "_failed")
 
-    def __init__(self, data: Buffer, format: AnyFormat = Format.BER) -> None:
+    def __init__(self, data: Buffer, format: AnyFormat | None = None) -> None:
         self._data = data if isinstance(data, memoryview) else memoryview(data)
-        self._format = format
+        self._format = _resolve_format(format)
         self._pos = 0
         self._failed = False
 

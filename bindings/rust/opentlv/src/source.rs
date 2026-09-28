@@ -93,6 +93,7 @@ mod tests {
     fn preserves_nonminimal_length_and_rejects_mutation() {
         let bytes = [4, 0x81, 1, 0xAA];
         let mut decoded = decode(&bytes, Format::Ber).unwrap();
+        assert_eq!(decoded.source.tag_binding, native::TLV_TAG_BINDING_SOURCE);
         assert_eq!(decoded.raw_length(), &[0x81, 1]);
         let mut output = [0; 4];
         assert_eq!(decoded.preserve(&mut output), Ok(4));

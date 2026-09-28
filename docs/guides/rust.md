@@ -24,6 +24,11 @@ optionally `OPENTLV_LINK_KIND`); see
 
 ## Reading
 
+The default Cargo feature `lldp` exposes `Format::Lldp` and enables the shared
+LLDP C package in source builds. Use `default-features = false` to omit it.
+For a prebuilt C library, match this feature to its `OPENTLV_LLDP` option.
+See [LLDP framing and presets](../formats/lldp/README.md).
+
 `Reader` iterates over `Result<Element>`. Each `Element` has a `Tag` and a value
 that is a `&[u8]` slice of your input. Constructed elements are not expanded
 automatically; create a new `Reader` over `element.value()` to descend.

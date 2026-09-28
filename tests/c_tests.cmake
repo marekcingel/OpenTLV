@@ -7,6 +7,8 @@ set(HEADERS
 
 set(SOURCES
     architecture_test.cpp
+    transformed_tag_test.cpp
+    lldp_test.cpp
     compiler_test.cpp
     compiler_c_test.c
     attributes_test.cpp
@@ -67,6 +69,9 @@ foreach(source IN LISTS SOURCES)
 endforeach()
 
 # Tests that name an optional component follow the same feature selection.
+if(NOT OPENTLV_LLDP)
+    list(REMOVE_ITEM SOURCES lldp_test.cpp)
+endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_BER))
         list(REMOVE_ITEM SOURCES copy_test.cpp)

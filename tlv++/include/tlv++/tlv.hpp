@@ -20,6 +20,9 @@
 #include "tlv++/reader/walker.hpp"
 #include "tlv++/query/query.hpp"
 #include "tlv++/schema/schema.hpp"
+#if OPENTLV_LLDP
+#include "tlv++/builtins/lldp/lldp.hpp"
+#endif
 #if OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/ber.hpp"
 #endif

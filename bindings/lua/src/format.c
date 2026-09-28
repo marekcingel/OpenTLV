@@ -1,14 +1,7 @@
 #include "format.h"
 #include "common.h"
-#include "error.h"
 
-#include <string.h>
 #include <tlv/config.h>
-
-#include <tlv/builtins/asn1/ber.h>
-#include <tlv/builtins/asn1/cer.h>
-#include <tlv/builtins/asn1/der.h>
-#include <tlv/builtins/bluetooth/bluetooth_ltv.h>
 
 tlv_lua_format_t* opentlv_lua_check_format(lua_State* L, int arg) {
     return (tlv_lua_format_t*)luaL_checkudata(L, arg, OPENTLV_LUA_FORMAT_MT);
@@ -20,59 +13,15 @@ static int format_tostring(lua_State* L) {
     return 1;
 }
 
-/* Pushes a new format userdata backed by a copy of a stateless, global
- * format (default/ber/cer/der/bluetooth_ltv); leaves it on top of the
- * stack. */
-static void push_builtin_format(lua_State* L, tlv_format_t format_value, int use_der_walker,
-                                const char* name) {
+void opentlv_lua_register_builtin(lua_State* L, tlv_format_t format_value, int use_der_walker,
+                                  const char* name) {
     tlv_lua_format_t* format = (tlv_lua_format_t*)lua_newuserdata(L, sizeof(tlv_lua_format_t));
     format->format = format_value;
     format->use_der_walker = use_der_walker;
     format->name = name;
     luaL_getmetatable(L, OPENTLV_LUA_FORMAT_MT);
     lua_setmetatable(L, -2);
-}
-
-/* opentlv.formats.fixed(tag_size, length_size, byte_order) -> Format
- *
- * byte_order is "big" or "little", matching tlv_byte_order_t. */
-static int l_format_fixed(lua_State* L) {
-    lua_Integer tag_size = luaL_checkinteger(L, 1);
-    lua_Integer length_size = luaL_checkinteger(L, 2);
-    const char* order_name = luaL_checkstring(L, 3);
-
-    if (tag_size <= 0) {
-        return luaL_argerror(L, 1, "tag_size must be positive");
-    }
-    if (length_size <= 0) {
-        return luaL_argerror(L, 2, "length_size must be positive");
-    }
-    tlv_byte_order_t order;
-    if (strcmp(order_name, "big") == 0) {
-        order = TLV_BYTE_ORDER_BIG_ENDIAN;
-    } else if (strcmp(order_name, "little") == 0) {
-        order = TLV_BYTE_ORDER_LITTLE_ENDIAN;
-    } else {
-        return luaL_argerror(L, 3, "expected \"big\" or \"little\"");
-    }
-
-    tlv_lua_format_t* format = (tlv_lua_format_t*)lua_newuserdata(L, sizeof(tlv_lua_format_t));
-    format->fixed_config.tag_size = (size_t)tag_size;
-    format->fixed_config.length_size = (size_t)length_size;
-    format->fixed_config.length_order = order;
-    format->fixed_config.element_order = TLV_ELEMENT_ORDER_TLV;
-    format->fixed_config.length_scope = TLV_LENGTH_SCOPE_VALUE;
-    format->use_der_walker = 0;
-    format->name = "fixed";
-
-    tlv_result_t code = tlv_fixed_format_init(&format->format, &format->fixed_config);
-    if (code != TLV_OK) {
-        return opentlv_lua_raise(L, code, 0, 0);
-    }
-
-    luaL_getmetatable(L, OPENTLV_LUA_FORMAT_MT);
-    lua_setmetatable(L, -2);
-    return 1;
+    lua_setfield(L, -2, name);
 }
 
 void opentlv_lua_open_format(lua_State* L, int module_table_index) {
@@ -80,18 +29,22 @@ void opentlv_lua_open_format(lua_State* L, int module_table_index) {
 
     lua_newtable(L); /* formats */
 
-    push_builtin_format(L, tlv_format_ber, 0, "ber");
-    lua_setfield(L, -2, "ber");
-    push_builtin_format(L, tlv_format_cer, 0, "cer");
-    lua_setfield(L, -2, "cer");
-    push_builtin_format(L, tlv_format_der, 1, "der");
-    lua_setfield(L, -2, "der");
-#if OPENTLV_BLUETOOTH
-    push_builtin_format(L, tlv_format_bluetooth_ltv, 0, "bluetooth_ltv");
-    lua_setfield(L, -2, "bluetooth_ltv");
+#if OPENTLV_FORMAT_BER
+    opentlv_lua_register_ber(L);
 #endif
-    lua_pushcfunction(L, l_format_fixed);
-    lua_setfield(L, -2, "fixed");
+#if OPENTLV_FORMAT_CER
+    opentlv_lua_register_cer(L);
+#endif
+#if OPENTLV_FORMAT_DER
+    opentlv_lua_register_der(L);
+#endif
+#if OPENTLV_BLUETOOTH
+    opentlv_lua_register_bluetooth_ltv(L);
+#endif
+#if OPENTLV_LLDP
+    opentlv_lua_register_lldp(L);
+#endif
+    opentlv_lua_register_fixed(L);
 
     lua_getfield(L, -1, "ber");
     lua_setfield(L, LUA_REGISTRYINDEX, OPENTLV_LUA_DEFAULT_FORMAT_KEY);

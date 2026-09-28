@@ -161,6 +161,13 @@ pub struct tlv_encoding_t {
     /// Total; follows the corresponding C field contract.
     pub total: tlv_size_t,
 }
+/// Decoded Tag borrows exactly its source range (the default).
+pub const TLV_TAG_BINDING_SOURCE: c_int = 0;
+/// Decoded Tag borrows immutable format-supplied storage that outlives all results.
+pub const TLV_TAG_BINDING_FORMAT: c_int = 1;
+/// C enum describing the storage binding of a decoded identifier.
+pub type tlv_tag_binding_t = c_int;
+
 /// Immutable borrowed source and framing information.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -183,6 +190,8 @@ pub struct tlv_source_t {
     pub element: tlv_element_t,
     /// Format; follows the corresponding C field contract.
     pub format: *const tlv_format_t,
+    /// Semantic identifier storage; the wire Tag range is only an envelope for FORMAT.
+    pub tag_binding: tlv_tag_binding_t,
 }
 /// Semantic element plus its original wire representation.
 #[repr(C)]
@@ -280,6 +289,11 @@ pub struct tlv_fixed_format_t {
 extern "C" {
     /// BER-TLV format.
     pub static tlv_format_ber: tlv_format_t;
+    /// LLDP framing descriptor; requires a C library built with OPENTLV_LLDP=ON.
+    #[cfg(feature = "lldp")]
+    pub static tlv_format_lldp: tlv_format_t;
+    /// Reports whether the linked C library includes LLDP framing.
+    pub fn tlv_config_lldp() -> c_int;
     /// CER format.
     pub static tlv_format_cer: tlv_format_t;
     /// DER format.
