@@ -102,6 +102,7 @@ static void add_diagnostic(collector_t* c, tlv_schema_issue_kind_t kind, const t
             diagnostic->min_length = rule->entry.min_length;
             diagnostic->max_length = rule->entry.max_length;
             diagnostic->actual_length = detail->actual_length;
+            diagnostic->length_multiple = rule->entry.length_multiple;
         }
         if (detail->has_form) {
             diagnostic->has_form = 1;

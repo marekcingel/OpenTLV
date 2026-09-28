@@ -12,6 +12,14 @@ OF tag- or encoding-based sort order), see
 [schema-aware DER validation and encoding](../profiles/der/README.md#schema-aware-validation-and-encoding),
 a distinct schema type built for that purpose.
 
+A nonzero `tlv_schema_entry_t.length_multiple` requires the value length to be
+divisible by that width as well as satisfying the inclusive bounds. Zero
+disables the multiple constraint; an empty value satisfies any multiple when
+the minimum permits it. All schema validators and the schema-aware scanner
+use this rule. Length diagnostics expose the expected `length_multiple`.
+The [Bluetooth AD schema](../formats/bluetooth/README.md#advertising-data-schema)
+uses it for UUID lists without decoding their values.
+
 ```c
 /* A schema entry borrows its tag bytes, so they need static storage. */
 static const uint8_t tag_01[] = {0x01};
@@ -19,10 +27,10 @@ static const uint8_t tag_02[] = {0x02};
 static const uint8_t tag_9f02[] = {0x9F, 0x02};
 
 static const tlv_schema_entry_t entries[] = {
-    /* tag (bytes, size), minimum length, maximum length, flags, name */
-    {{tag_01, sizeof(tag_01)}, 4, 4, 0, "counter"},   /* Exactly four bytes. */
-    {{tag_02, sizeof(tag_02)}, 0, 32, 0, NULL},       /* Zero through 32 bytes, inclusive. */
-    {{tag_9f02, sizeof(tag_9f02)}, 1, SIZE_MAX, 0, NULL}
+    /* tag (bytes, size), minimum length, maximum length, flags, name, length multiple */
+    {{tag_01, sizeof(tag_01)}, 4, 4, 0, "counter", 0},   /* Exactly four bytes. */
+    {{tag_02, sizeof(tag_02)}, 0, 32, 0, NULL, 0},       /* Zero through 32 bytes, inclusive. */
+    {{tag_9f02, sizeof(tag_9f02)}, 1, SIZE_MAX, 0, NULL, 0}
 };
 static const tlv_schema_t schema = {
     entries, sizeof(entries) / sizeof(entries[0])
@@ -87,8 +95,8 @@ require CONSTRUCTED and are checked even for an empty container.
 static const uint8_t tag_1[] = {1};
 static const uint8_t tag_2[] = {2};
 static const tlv_structure_rule_t rules[] = {
-    { { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter" }, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL },
-    { { { tag_2, sizeof(tag_2) }, 0, 255, 0, NULL }, 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL }
+    { { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL },
+    { { { tag_2, sizeof(tag_2) }, 0, 255, 0, NULL, 0}, 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL }
 };
 static const tlv_structure_schema_t message = {rules, 2, 0};
 /* tlv_schema_validate(data, size, format, &message, 16, 1000, &offset); */
@@ -107,8 +115,8 @@ document missing a required field:
 static const uint8_t tag_1[] = {1};
 static const uint8_t tag_2[] = {2};
 static const tlv_structure_rule_t rules[] = {
-    { { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter" }, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr },
-    { { { tag_2, sizeof(tag_2) }, 0, 255, 0, nullptr }, 0, SIZE_MAX, TLV_SCHEMA_ANY, nullptr }
+    { { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr },
+    { { { tag_2, sizeof(tag_2) }, 0, 255, 0, nullptr, 0}, 0, SIZE_MAX, TLV_SCHEMA_ANY, nullptr }
 };
 static const tlv_structure_schema_t message = {rules, 2, 0};
 // tlv::validate(tlv::bytes(data, size), format, message, 16, 1000);
@@ -229,9 +237,9 @@ Person ::= SEQUENCE {
 
 ```c
 static const tlv_structure_rule_t person_rules[] = {
-    {{TLV_TAG(1), 1, 8, 0, "id"}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL},
-    {{TLV_TAG(2), 0, 255, 0, "name"}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL},
-    {{TLV_TAG(3), 0, 255, 0, "comment"}, 0, 1, TLV_SCHEMA_PRIMITIVE, NULL},
+    {{TLV_TAG(1), 1, 8, 0, "id", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL},
+    {{TLV_TAG(2), 0, 255, 0, "name", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL},
+    {{TLV_TAG(3), 0, 255, 0, "comment", 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, NULL},
 };
 static const tlv_structure_schema_t person_schema = {
     person_rules, 3, 0, NULL, 0, TLV_SCHEMA_ORDER_SEQUENCE};
@@ -243,9 +251,9 @@ static const tlv_structure_schema_t person_schema = {
 
 ```cpp
 static const tlv_structure_rule_t person_rules[] = {
-    {{TLV_TAG(1), 1, 8, 0, "id"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{TLV_TAG(2), 0, 255, 0, "name"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{TLV_TAG(3), 0, 255, 0, "comment"}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(1), 1, 8, 0, "id", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(2), 0, 255, 0, "name", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {{TLV_TAG(3), 0, 255, 0, "comment", 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
 };
 static const tlv_structure_schema_t person_schema = {
     person_rules, 3, 0, nullptr, 0, TLV_SCHEMA_ORDER_SEQUENCE};
@@ -336,7 +344,7 @@ For example, `OCTET STRING (SIZE(8))` needs nothing new:
 
 ```c
 static const uint8_t tag_id[] = {0x04};
-static const tlv_schema_entry_t identifier = {{tag_id, sizeof(tag_id)}, 8, 8, 0, "identifier"};
+static const tlv_schema_entry_t identifier = {{tag_id, sizeof(tag_id)}, 8, 8, 0, "identifier", 0};
 ```
 
 ## Reporting every violation

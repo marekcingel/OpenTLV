@@ -11,8 +11,8 @@ using Wire = std::vector<uint8_t>;
 
 // Template 77: AIP (82) and Application Cryptogram-like tag 9F36 are required, nothing else.
 const tlv_structure_rule_t rules77[] = {
-    {{TLV_TAG(0x82), 2, 2, 0, "aip"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
-    {{TLV_TAG(0x9F, 0x36), 2, 2, 0, "application_cryptogram"},
+    {{TLV_TAG(0x82), 2, 2, 0, "aip", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {{TLV_TAG(0x9F, 0x36), 2, 2, 0, "application_cryptogram", 0},
      1,
      1,
      TLV_SCHEMA_PRIMITIVE,
@@ -23,20 +23,30 @@ const tlv_structure_schema_t schema77 = {rules77, 2, 0, nullptr, 0, TLV_SCHEMA_O
 
 // Template 70: 5A required; 5F24 optional once; 77 optional once; 9F4A may repeat.
 const tlv_structure_rule_t rules70[] = {
-    {{TLV_TAG(0x5A), 1, 10, 0, "primary_account_number"}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
-    {{TLV_TAG(0x5F, 0x24), 3, 3, 0, "expiration_date"}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
-    {{TLV_TAG(0x77), 0, SIZE_MAX, 0, "response_message_template2"},
+    {{TLV_TAG(0x5A), 1, 10, 0, "primary_account_number", 0},
+     1,
+     1,
+     TLV_SCHEMA_PRIMITIVE,
+     nullptr,
+     0},
+    {{TLV_TAG(0x5F, 0x24), 3, 3, 0, "expiration_date", 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {{TLV_TAG(0x77), 0, SIZE_MAX, 0, "response_message_template2", 0},
      0,
      1,
      TLV_SCHEMA_CONSTRUCTED,
      &schema77,
      0},
-    {{TLV_TAG(0x9F, 0x4A), 0, SIZE_MAX, 0, nullptr}, 0, SIZE_MAX, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {{TLV_TAG(0x9F, 0x4A), 0, SIZE_MAX, 0, nullptr, 0},
+     0,
+     SIZE_MAX,
+     TLV_SCHEMA_PRIMITIVE,
+     nullptr,
+     0},
 };
 const tlv_structure_schema_t schema70 = {rules70, 4, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
 const tlv_structure_rule_t rootRules[] = {
-    {{TLV_TAG(0x70), 0, SIZE_MAX, 0, "read_record_template"},
+    {{TLV_TAG(0x70), 0, SIZE_MAX, 0, "read_record_template", 0},
      1,
      1,
      TLV_SCHEMA_CONSTRUCTED,
@@ -199,13 +209,13 @@ TEST(Integration_Tlv_SchemaReport, ReportsUnexpectedTagAndLengthAndHonoursUnknow
 
 TEST(Integration_Tlv_SchemaReport, ReportsPrimitiveConstructedMismatchAndDoesNotDescend) {
     static const tlv_structure_rule_t kindRules[] = {
-        {{TLV_TAG(0x5A), 0, SIZE_MAX, 0, "constructed_field"},
+        {{TLV_TAG(0x5A), 0, SIZE_MAX, 0, "constructed_field", 0},
          0,
          1,
          TLV_SCHEMA_CONSTRUCTED,
          nullptr,
          0},
-        {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, "primitive_field"},
+        {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, "primitive_field", 0},
          0,
          1,
          TLV_SCHEMA_PRIMITIVE,
@@ -297,7 +307,7 @@ TEST(Integration_Tlv_SchemaReport, LimitsSchemaNestingToThePathCapacity) {
     static tlv_structure_schema_t recursive;
     static tlv_structure_rule_t   recursiveRules[1];
     recursiveRules[0] = {
-        {TLV_TAG(0x6F), 0, SIZE_MAX, 0, nullptr}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0};
+        {TLV_TAG(0x6F), 0, SIZE_MAX, 0, nullptr, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0};
     recursive = {recursiveRules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
     Wire wire = {0x6F, 0x00};
@@ -432,13 +442,13 @@ TEST(Integration_Tlv_SchemaReport, DiagReportsLengthAndUnexpectedDetail) {
 
 TEST(Integration_Tlv_SchemaReport, DiagReportsPrimitiveConstructedMismatchDetail) {
     static const tlv_structure_rule_t kindRules[] = {
-        {{TLV_TAG(0x5A), 0, SIZE_MAX, 0, "constructed_field"},
+        {{TLV_TAG(0x5A), 0, SIZE_MAX, 0, "constructed_field", 0},
          0,
          1,
          TLV_SCHEMA_CONSTRUCTED,
          nullptr,
          0},
-        {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, "primitive_field"},
+        {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, "primitive_field", 0},
          0,
          1,
          TLV_SCHEMA_PRIMITIVE,

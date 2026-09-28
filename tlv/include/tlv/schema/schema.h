@@ -25,6 +25,7 @@ extern "C" {
  * @brief Length rule for one tag in a #tlv_schema_t.
  *
  * Length bounds are inclusive; equal bounds specify an exact length.
+ * A nonzero `length_multiple` additionally requires divisibility by that width.
  */
 typedef struct {
     /** Tag this entry describes; borrows its bytes, which must outlive the schema. */
@@ -38,6 +39,9 @@ typedef struct {
     /** Borrowed name of the field this entry describes, for example `"df_name"`, or `NULL` if
      * unnamed. Used only for diagnostics; never affects validation. */
     const char* name;
+    /** Required value-length multiple in bytes; 0 disables this constraint.
+     * Zero length is divisible by every nonzero width, subject to the bounds. */
+    size_t length_multiple;
 } tlv_schema_entry_t;
 
 /**
@@ -77,13 +81,15 @@ TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, co
  *
  * Checks only the length, independently of parsing or tag lookup. Bounds are
  * inclusive; equal bounds specify an exact length, and `SIZE_MAX` can be used
- * as an unrestricted upper bound. The entry's flags do not affect validation.
+ * as an unrestricted upper bound. A nonzero `length_multiple` requires
+ * `length % length_multiple == 0`. The entry's flags do not affect validation.
  *
  * @param[in] entry  Entry providing the bounds.
  * @param[in] length Value length to check.
  *
- * @return #TLV_OK if the length is within the bounds.
- * @return #TLV_ERR_INVALID_LENGTH for an out-of-range length or reversed bounds.
+ * @return #TLV_OK if the length satisfies both the bounds and the multiple.
+ * @return #TLV_ERR_INVALID_LENGTH for an out-of-range length, a non-multiple,
+ *         or reversed bounds.
  * @return #TLV_ERR_NULL_ARG if `entry` is `NULL`.
  */
 TLV_API tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry, size_t length);
@@ -266,7 +272,7 @@ typedef enum tlv_schema_issue_kind {
     TLV_SCHEMA_ISSUE_UNEXPECTED,
     /** A primitive value where a constructed one is required, or the reverse. */
     TLV_SCHEMA_ISSUE_KIND,
-    /** A value length is outside the bounds of the tag's rule. */
+    /** A value length violates the bounds or required multiple of the tag's rule. */
     TLV_SCHEMA_ISSUE_LENGTH,
     /** An element appears before an earlier-listed rule's element in a scope whose
      * #tlv_structure_schema_t::order is #TLV_SCHEMA_ORDER_SEQUENCE. */
@@ -467,7 +473,7 @@ typedef struct tlv_schema_diagnostic {
     /** Occurrences found so far at the point of the violation, of `tag` or, when `is_group` is
      * nonzero, of the group's members combined. */
     size_t occurs;
-    /** Nonzero if `min_length`, `max_length` and `actual_length` are set
+    /** Nonzero if `min_length`, `max_length`, `actual_length` and `length_multiple` are set
      * (#TLV_SCHEMA_ISSUE_LENGTH). */
     int has_length;
     /** Minimum permitted value length in bytes, inclusive. */
@@ -482,6 +488,8 @@ typedef struct tlv_schema_diagnostic {
     tlv_schema_kind_t expected_form;
     /** Nonzero if the actual value was constructed, zero if primitive. */
     int actual_constructed;
+    /** Required value-length multiple for a length violation; 0 means unrestricted. */
+    size_t length_multiple;
 } tlv_schema_diagnostic_t;
 
 /**

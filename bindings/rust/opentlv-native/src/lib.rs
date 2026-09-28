@@ -368,6 +368,8 @@ pub struct tlv_schema_entry_t {
     pub flags: u32,
     /// Borrowed name of the field this entry describes, or null if unnamed.
     pub name: *const c_char,
+    /// Required value-length multiple in bytes; zero disables the constraint.
+    pub length_multiple: usize,
 }
 
 /// Borrowed table of per-tag length rules (`tlv_schema_t`).

@@ -5,11 +5,11 @@
 
 namespace {
 static const tlv_schema_entry_t entries[] = {
-    {TLV_TAG(2), 2, 4, 0, nullptr},
-    {TLV_TAG(1), 3, 3, 0, nullptr},
-    {TLV_TAG(0x9F, 0x02), 0, SIZE_MAX, UINT32_MAX, nullptr},
-    {TLV_TAG(2), 9, 9, 0, nullptr},
-    {tlv_tag(nullptr, 0), 0, 0, 0, nullptr}};
+    {TLV_TAG(2), 2, 4, 0, nullptr, 0},
+    {TLV_TAG(1), 3, 3, 0, nullptr, 0},
+    {TLV_TAG(0x9F, 0x02), 0, SIZE_MAX, UINT32_MAX, nullptr, 0},
+    {TLV_TAG(2), 9, 9, 0, nullptr, 0},
+    {tlv_tag(nullptr, 0), 0, 0, 0, nullptr, 0}};
 static const tlv_schema_t schema = {entries, sizeof(entries) / sizeof(entries[0])};
 } // namespace
 

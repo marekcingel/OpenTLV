@@ -4,13 +4,35 @@
 
 namespace {
 static const tlv_schema_entry_t entries[] = {
-    {TLV_TAG(2), 2, 4, 0, "two"},
-    {TLV_TAG(1), 3, 3, 0, nullptr},
-    {TLV_TAG(0x9F, 0x02), 0, SIZE_MAX, UINT32_MAX, nullptr},
-    {TLV_TAG(2), 9, 9, 0, nullptr},
-    {tlv_tag(nullptr, 0), 0, 0, 0, nullptr}};
+    {TLV_TAG(2), 2, 4, 0, "two", 0},
+    {TLV_TAG(1), 3, 3, 0, nullptr, 0},
+    {TLV_TAG(0x9F, 0x02), 0, SIZE_MAX, UINT32_MAX, nullptr, 0},
+    {TLV_TAG(2), 9, 9, 0, nullptr, 0},
+    {tlv_tag(nullptr, 0), 0, 0, 0, nullptr, 0}};
 static const tlv_schema_t schema = {entries, sizeof(entries) / sizeof(entries[0])};
 } // namespace
+
+TEST(Unit_Tlv_Schema, LengthMultipleCombinesWithBoundsWithoutOverflow) {
+    tlv_schema_entry_t rule = {TLV_TAG(1), 0, SIZE_MAX, 0, nullptr, 16};
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 0));
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 32));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&rule, 31));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&rule, SIZE_MAX));
+    rule.length_multiple = SIZE_MAX;
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, SIZE_MAX));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&rule, SIZE_MAX - 1));
+    rule.length_multiple = 4;
+    rule.min_length = 5;
+    rule.max_length = 9;
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&rule, 4));
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 8));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&rule, 9));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&rule, 12));
+    rule.length_multiple = 0;
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 9));
+    rule.length_multiple = 1;
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 9));
+}
 
 TEST(Unit_Tlv_Schema, FindsUnsortedTagsAndReturnsFirstDuplicate) {
     tlv_tag_t tag = TLV_TAG(1);
@@ -59,6 +81,6 @@ TEST(Unit_Tlv_Schema, ValidatesExactAndInclusiveRangeLengths) {
     EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&entries[4], 0));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&entries[4], 1));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_schema_validate_length(nullptr, 0));
-    const tlv_schema_entry_t reversed = {TLV_TAG(1), 4, 2, 0, nullptr};
+    const tlv_schema_entry_t reversed = {TLV_TAG(1), 4, 2, 0, nullptr, 0};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&reversed, 3));
 }

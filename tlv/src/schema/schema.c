@@ -16,7 +16,8 @@ const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, const tlv_
 tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry, size_t length) {
     if (!entry) return TLV_ERR_NULL_ARG;
     if (entry->min_length > entry->max_length || length < entry->min_length ||
-        length > entry->max_length)
+        length > entry->max_length ||
+        (entry->length_multiple && length % entry->length_multiple != 0))
         return TLV_ERR_INVALID_LENGTH;
     return TLV_OK;
 }
