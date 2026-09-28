@@ -38,6 +38,32 @@ rejects identifiers with widths other than one, normal Values larger than
 and Value fields. `tlv_source_preserve()` copies the original representation
 only when the supplied element remains semantically unchanged.
 
+## Option definitions
+
+Include `tlv/builtins/dhcp/options.h` to use `tlv_dhcpv4_options` with the
+generic Definition API:
+
+```c
+const tlv_definition_t* definition =
+    tlv_definition_find(&tlv_dhcpv4_options, &element.tag);
+```
+
+For `35 01 03`, the decoded Tag is `35`, Value is `03`, and the definition's
+name is `"DHCP Message Type"`. For `E0 02 AA BB`, decoding still succeeds with
+opaque Value `AA BB`; lookup returns `NULL` because Code `E0` is not listed.
+
+The initial registry covers Pad, Subnet Mask, Router, Domain Name Server,
+Host Name, Domain Name, Requested IP Address, IP Address Lease Time,
+DHCP Message Type, Server Identifier, Parameter Request List, Maximum DHCP
+Message Size, Renewal Time Value, Rebinding Time Value, Vendor Class Identifier,
+Client Identifier and End, as defined in [RFC 2132](https://www.rfc-editor.org/rfc/rfc2132.html).
+It is not an exhaustive option registry.
+
+The registry requires `OPENTLV_DHCP=ON`. Entries, identifier bytes and names
+have static lifetime; lookup allocates nothing and needs no Reader or Writer.
+Definitions only describe identifiers: they do not decode Values, validate
+option lengths or control Pad/End handling. Framing does not consult the registry.
+
 ## Scope and composition
 
 Pass only the option region, excluding the DHCP packet header and magic
