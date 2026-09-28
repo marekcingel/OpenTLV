@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the LLDP C++ documentation example differing from its source and failing the documentation example check. (#363)
 - Respect optional format components in the Python binding; disabled presets are absent and builds without BER require an explicit format.
 - Respect optional format components in the Lua binding; builds without BER require an explicit Reader format. (#360)
 - Fix fuzz target compilation after the element refactoring by removing checks of the obsolete raw Length field. (#346)
@@ -70,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add LLDPDU structural validation with shared diagnostics and allocation-free codecs for base LLDP values, including management addresses and generic organisational payloads; add reference tests and compiled C/C++ examples. (#363)
 - Add allocation-free packed bit-field helpers for 1..8-byte TLV headers, with explicit byte order, checked unsigned extraction/insertion and preservation of neighboring fields; LLDP now reuses this primitive. (#361)
 - Add optional LLDP packed-header framing and base Type definitions, with shared C++, Rust, Python, Lua and JavaScript/WASM presets. Enable it with `OPENTLV_LLDP`; LLDPDU schemas and value codecs remain outside this change. (#362)
 - Document the LLDP Format/Layout assessment, generic support for transformed identifiers and outstanding normative verification. (#360)

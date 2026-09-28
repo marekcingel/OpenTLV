@@ -1,4 +1,6 @@
 #include "tlv/builtins/lldp/lldp.h"
+#include "tlv/builtins/lldp/codec.h"
+#include "tlv/builtins/lldp/schema.h"
 #include "tlv/config.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -10,6 +12,167 @@
 #include <array>
 #include <cstring>
 #include <memory>
+#include <vector>
+
+namespace {
+// Hand-authored base LLDPDU reference: local Chassis/Port identifiers and TTL 120.
+const std::vector<uint8_t> base_lldpdu = {2, 2, 7, 'c', 4, 2, 7, 'p', 6, 2, 0, 120};
+} // namespace
+
+TEST(Integration_Tlv_Lldp, SchemaMandatoryPrefixOptionalEndAndDiagnostics) {
+    tlv_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_OK, tlv_lldp_validate(base_lldpdu.data(), base_lldpdu.size(), 3, &diagnostic));
+    EXPECT_EQ(TLV_OK, diagnostic.code);
+    EXPECT_FALSE(diagnostic.has_offset);
+    auto wire = base_lldpdu;
+    wire.insert(wire.end(), {0, 0});
+    EXPECT_EQ(TLV_OK, tlv_lldp_validate(wire.data(), wire.size(), 4, nullptr));
+    wire.insert(wire.end(), {10, 0});
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_lldp_validate(wire.data(), wire.size(), 5, &diagnostic));
+    EXPECT_EQ(14u, diagnostic.offset);
+    EXPECT_STREQ("end of region after End TLV", diagnostic.expected);
+    wire = base_lldpdu;
+    wire[0] = 4;
+    wire[4] = 2;
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_lldp_validate(wire.data(), wire.size(), 3, &diagnostic));
+    EXPECT_EQ(0u, diagnostic.offset);
+    EXPECT_STREQ("Chassis ID, Port ID, TTL prefix", diagnostic.expected);
+    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING, tlv_lldp_validate(base_lldpdu.data(), 8, 3, &diagnostic));
+    EXPECT_EQ(8u, diagnostic.offset);
+    EXPECT_EQ(TLV_ERR_SCHEMA_MISSING, tlv_lldp_validate(nullptr, 0, 3, &diagnostic));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_lldp_validate(nullptr, 1, 3, &diagnostic));
+    EXPECT_EQ(TLV_ERR_LIMIT,
+              tlv_lldp_validate(base_lldpdu.data(), base_lldpdu.size(), 2, &diagnostic));
+    EXPECT_EQ(8u, diagnostic.offset);
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_lldp_validate(base_lldpdu.data(), base_lldpdu.size(), 0, nullptr));
+}
+
+TEST(Integration_Tlv_Lldp, SchemaOptionalOrderUnknownsAndRepeatedExtensions) {
+    auto wire = base_lldpdu;
+    // Optional Types need not be numerically sorted. Unknown Type 9 is accepted.
+    wire.insert(wire.end(), {12,  0, 10, 0,    8,    0, 18,  0,  254, 4,   0,  0x80, 0xC2, 1,
+                             254, 4, 0,  0x80, 0xC2, 1, 16,  9,  2,   250, 42, 1,    0,    0,
+                             0,   0, 0,  16,   9,    2, 250, 43, 1,   0,   0,  0,    0,    0});
+    EXPECT_EQ(TLV_OK, tlv_lldp_validate(wire.data(), wire.size(), 20, nullptr));
+    wire.insert(wire.begin(), {18, 0});
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_lldp_validate(wire.data(), wire.size(), 20, nullptr));
+}
+
+TEST(Integration_Tlv_Lldp, SchemaRejectsDuplicatesLengthsAndTruncation) {
+    for (const std::vector<uint8_t>& extra : {std::vector<uint8_t>{2, 2, 7, 'd'},
+                                              {4, 2, 7, 'q'},
+                                              {6, 2, 0, 0},
+                                              {8, 0, 8, 0},
+                                              {10, 0, 10, 0},
+                                              {12, 0, 12, 0},
+                                              {14, 4, 0, 0, 0, 0, 14, 4, 0, 0, 0, 0},
+                                              {0, 0, 0, 0}}) {
+        auto wire = base_lldpdu;
+        wire.insert(wire.end(), extra.begin(), extra.end());
+        EXPECT_EQ(TLV_ERR_SCHEMA, tlv_lldp_validate(wire.data(), wire.size(), 20, nullptr));
+    }
+    for (const std::vector<uint8_t>& extra : {std::vector<uint8_t>{0, 1, 0},
+                                              {14, 3, 0, 0, 0},
+                                              {254, 3, 0, 0, 0},
+                                              {16, 8, 0, 0, 0, 0, 0, 0, 0, 0}}) {
+        auto wire = base_lldpdu;
+        wire.insert(wire.end(), extra.begin(), extra.end());
+        tlv_diagnostic_t diagnostic{};
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                  tlv_lldp_validate(wire.data(), wire.size(), 20, &diagnostic));
+        EXPECT_EQ(base_lldpdu.size(), diagnostic.offset);
+    }
+    auto wire = base_lldpdu;
+    wire.push_back(0xFE);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_lldp_validate(wire.data(), wire.size(), 20, nullptr));
+    wire.insert(wire.end(), {4, 0, 0});
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_lldp_validate(wire.data(), wire.size(), 20, nullptr));
+}
+
+TEST(Integration_Tlv_Lldp, GenericSchemaReportAndValueCodecComposition) {
+    auto wire = base_lldpdu;
+    wire.insert(wire.end(), {6, 2, 0, 0});
+    tlv_schema_issue_t  issue{};
+    tlv_schema_report_t report = {&issue, 1, 0};
+    EXPECT_EQ(TLV_ERR_SCHEMA,
+              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_lldp, &tlv_lldp_schema,
+                                      0, 10, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
+    EXPECT_EQ(1u, report.count);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, issue.kind);
+    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(3), issue.path[0]));
+    tlv_reader_t reader{};
+    ASSERT_EQ(TLV_OK,
+              tlv_reader_init(&reader, base_lldpdu.data(), base_lldpdu.size(), &tlv_format_lldp));
+    std::vector<uint8_t> rebuilt;
+    while (!tlv_reader_at_end(&reader)) {
+        tlv_element_t element{};
+        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+        if (element.tag.data[0] == 3) {
+            uint16_t ttl = 0;
+            size_t   value_size = 0;
+            ASSERT_EQ(TLV_OK, tlv_size_to_native(element.value.size, &value_size));
+            ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&tlv_lldp_codec_ttl, element.value.data,
+                                                     value_size, &ttl, sizeof(ttl)));
+            EXPECT_EQ(120, ttl);
+        }
+        uint8_t encoded[258];
+        size_t  size = 0;
+        ASSERT_EQ(TLV_OK, tlv_format_encode(&tlv_format_lldp, &element, encoded, sizeof(encoded),
+                                            &size, nullptr));
+        rebuilt.insert(rebuilt.end(), encoded, encoded + size);
+    }
+    EXPECT_EQ(base_lldpdu, rebuilt);
+}
+
+#if OPENTLV_DOCUMENT
+TEST(Integration_Tlv_Lldp, DocumentQueryCodecEditAndStructuralRevalidation) {
+    tlv_document_options_t options{};
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &tlv_format_lldp));
+    tlv_document_t* raw = nullptr;
+    ASSERT_EQ(TLV_OK,
+              tlv_document_parse(base_lldpdu.data(), base_lldpdu.size(), &options, &raw, nullptr));
+    std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
+    tlv_query_t                                                   query{};
+    ASSERT_EQ(TLV_OK, tlv_query_parse("03", &query, nullptr));
+    auto* ttl_node = tlv_document_find_path(doc.get(), &query);
+    ASSERT_NE(nullptr, ttl_node);
+    const uint16_t ttl = 300;
+    uint8_t        value[2];
+    size_t         written = 0;
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_encode(&tlv_lldp_codec_ttl, &ttl, sizeof(ttl), value,
+                                             sizeof(value), &written));
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(ttl_node, value, written));
+    std::array<uint8_t, 12> wire{};
+    ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), wire.data(), wire.size(), &written));
+    ASSERT_EQ(TLV_OK, tlv_lldp_validate(wire.data(), written, 3, nullptr));
+    EXPECT_EQ(1, wire[10]);
+    EXPECT_EQ(0x2C, wire[11]);
+    // Structural validation stays opt-in even after a Document edit.
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(ttl_node, value, 1));
+    ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), wire.data(), wire.size(), &written));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_lldp_validate(wire.data(), written, 3, nullptr));
+}
+#endif
+
+TEST(Integration_Tlv_Lldp, SchemaLengthBoundariesRemainSeparateFromFraming) {
+    struct Bounds {
+        uint8_t type;
+        size_t  minimum;
+        size_t  maximum;
+    };
+    for (auto bounds :
+         {Bounds{4, 0, 255}, {5, 0, 255}, {6, 0, 255}, {7, 4, 4}, {8, 9, 167}, {127, 4, 511}}) {
+        for (size_t length : {bounds.minimum, bounds.maximum, bounds.maximum + 1}) {
+            if (length > 511) continue; // Framing's 512 rejection is tested separately.
+            auto wire = base_lldpdu;
+            wire.push_back(static_cast<uint8_t>((bounds.type << 1) | (length >> 8)));
+            wire.push_back(static_cast<uint8_t>(length));
+            wire.insert(wire.end(), length, 0);
+            EXPECT_EQ(length <= bounds.maximum ? TLV_OK : TLV_ERR_INVALID_LENGTH,
+                      tlv_lldp_validate(wire.data(), wire.size(), 4, nullptr));
+        }
+    }
+}
 
 TEST(Integration_Tlv_Lldp, EveryRepresentableTypeAndLengthRoundtrips) {
     EXPECT_EQ(1, tlv_config_lldp());

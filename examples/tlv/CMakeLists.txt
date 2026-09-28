@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 3.16)
 
 project(example-tlv LANGUAGES C)
 
+if(OPENTLV_LLDP)
+    add_executable(example-tlv-lldp src/lldp.c)
+    target_link_libraries(example-tlv-lldp PRIVATE tlv)
+    opentlv_configure_compiler(example-tlv-lldp)
+    opentlv_copy_shared_runtime(example-tlv-lldp)
+    add_test(NAME Integration_example_tlv_lldp COMMAND $<TARGET_FILE:example-tlv-lldp>)
+    set_tests_properties(Integration_example_tlv_lldp PROPERTIES LABELS "integration;examples")
+endif()
+
 if(OPENTLV_FORMAT_BER)
     # Backs the C example in the README and Getting Started; scripts/check_doc_examples.py
     # keeps the Markdown copies identical to this file.
