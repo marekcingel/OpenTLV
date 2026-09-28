@@ -65,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add reusable Bluetooth 16-, 32- and 128-bit UUID codecs and allocation-free UUID list decoding for AD Types 0x02-0x07, preserving raw bytes and interpreting Bluetooth byte order in the codecs. (#347)
 - Add allocation-free Bluetooth AD value codecs for Flags, Shortened/Complete Local Name and signed Tx Power Level, with borrowed raw spans, named flag masks and malformed-value diagnostics, independently of the Bluetooth LTV format. (#346)
 - Add an allocation-free Bluetooth Advertising Data schema for value lengths, UUID list widths and occurrence constraints. Unknown AD types remain accepted; value decoding and trailing padding handling are separate concerns. (#345)
 - Add a generic, allocation-free Definition registry and Bluetooth Advertising Data Type names with byte-identity lookup, independent of LTV parsing. (#344)

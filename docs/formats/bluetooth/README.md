@@ -253,6 +253,57 @@ offset=0 tag=01 length=1 value=06
 offset=3 tag=09 length=2 value=4869
 ```
 
+## UUID values and lists
+
+Include `tlv/builtins/bluetooth/uuid.h` for reusable value codecs. They interpret
+Bluetooth little-endian byte order independently of the AD Type and format.
+
+| UUID width | Value codec | C representation | List codec | AD Types |
+| --- | --- | --- | --- | --- |
+| 16 bits | `tlv_bluetooth_codec_uuid16` | `uint16_t` | `tlv_bluetooth_codec_uuid16_list` | `0x02`, `0x03` |
+| 32 bits | `tlv_bluetooth_codec_uuid32` | `uint32_t` | `tlv_bluetooth_codec_uuid32_list` | `0x04`, `0x05` |
+| 128 bits | `tlv_bluetooth_codec_uuid128` | `tlv_bluetooth_uuid128_t` | `tlv_bluetooth_codec_uuid128_list` | `0x06`, `0x07` |
+
+The 128-bit representation contains 16 bytes in canonical printed UUID order
+(most significant byte first). Its codec reverses the entire wire sequence;
+it does not use the mixed-endian layout of a Windows GUID. Value codecs consume
+exactly one UUID and can also decode a UUID prefix isolated from Service Data.
+They do not validate assigned numbers or expand short UUIDs to the Bluetooth base UUID.
+
+List codecs return `tlv_bluetooth_uuid_list_t`, borrowing the complete raw value
+without allocation. Length must be a multiple of 2, 4 or 16 respectively; empty
+lists are accepted. Keep the source alive and immutable while using the view.
+The AD Type retains the complete/incomplete distinction; codec selection is
+the caller's responsibility.
+
+For `05 03 0F 18 0A 18`, the reader returns AD Type `0x03` and raw value
+`0F 18 0A 18`. Decode and iterate that value as follows:
+
+```c
+#include <tlv/builtins/bluetooth/uuid.h>
+
+int decode_service_uuids(void) {
+    const uint8_t raw[] = {0x0F, 0x18, 0x0A, 0x18};
+    tlv_bluetooth_uuid_list_t list;
+    size_t count;
+    if (tlv_codec_decode(&tlv_bluetooth_codec_uuid16_list, raw, sizeof(raw),
+                         &list, sizeof(list)) != TLV_CODEC_OK) return 1;
+    if (tlv_size_to_native(list.raw.size / list.uuid_size, &count) != TLV_OK) return 1;
+    for (size_t i = 0; i < count; ++i) {
+        uint16_t uuid;
+        if (tlv_bluetooth_uuid_list_at(&list, i, &uuid, sizeof(uuid)) != TLV_CODEC_OK)
+            return 1;
+        /* uuid is 0x180F, then 0x180A. list.raw still points to raw. */
+    }
+    return 0;
+}
+```
+
+Encoding a list validates the view and copies its original wire bytes exactly.
+To create new list bytes, encode individual UUID values into caller-owned storage.
+All these codecs remain available with `OPENTLV_FORMAT_BLUETOOTH_LTV=OFF`.
+Byte-order interpretation stays in Codec; Element continues to expose opaque bytes.
+
 ## Encoding
 
 Writing uses `tlv_format_bluetooth_ltv` with the same `tlv_write` and
