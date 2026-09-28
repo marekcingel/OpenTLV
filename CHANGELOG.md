@@ -65,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an allocation-free Bluetooth Manufacturer Specific Data codec with a little-endian Company Identifier, borrowed opaque payload and complete raw value, plus an independently reusable Company Identifier Definition registry with initial coverage of six companies. (#349)
 - Add allocation-free Bluetooth Service Data codecs for 16-, 32- and 128-bit UUIDs, preserving raw values and exposing borrowed opaque payloads. (#348)
 - Add reusable Bluetooth 16-, 32- and 128-bit UUID codecs and allocation-free UUID list decoding for AD Types 0x02-0x07, preserving raw bytes and interpreting Bluetooth byte order in the codecs. (#347)
 - Add allocation-free Bluetooth AD value codecs for Flags, Shortened/Complete Local Name and signed Tx Power Level, with borrowed raw spans, named flag masks and malformed-value diagnostics, independently of the Bluetooth LTV format. (#346)
