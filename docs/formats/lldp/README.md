@@ -4,7 +4,8 @@
 
 The LLDP built-in implements the packed Type/Length framing used by IEEE
 802.1AB LLDP. The selected review target is IEEE 802.1AB-2016; full normative
-verification remains open as documented in the [review](../lldp-review.md).
+verification is deferred to separate work across formats, outside #360, as
+documented in the [review](../lldp-review.md).
 This implementation provides framing and base Type names, not LLDPDU semantic
 validation or an LLDP agent.
 
