@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv/builtins/bluetooth Directory Reference</title>
+<title>OpenTLV C API: tlv/builtins/bluetooth/ad_types.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -73,19 +73,52 @@ $(function() {
 </div>
 </div><!-- top -->
 <div class="header">
-  <div class="headertitle"><div class="title">bluetooth Directory Reference</div></div>
+  <div class="summary">
+<a href="#var-members">Variables</a>  </div>
+  <div class="headertitle"><div class="title">ad_types.h File Reference<div class="ingroups"><a class="el" href="group__core.html">Core types and utilities</a></div></div></div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>
-Files</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><span class="icondoc"></span>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ad__types_8h.html">ad_types.h</a></td></tr>
-<tr class="memdesc:ad__types_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth Advertising Data Type definitions. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><span class="icondoc"></span>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="bluetooth__ltv_8h.html">bluetooth_ltv.h</a></td></tr>
-<tr class="memdesc:bluetooth__ltv_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth LTV: one length byte, one type byte, then the value. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+
+<p>Bluetooth Advertising Data Type definitions.  
+<a href="#details">More...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="definition_8h.html">tlv/definition.h</a>&quot;</code><br />
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a8a47924e4abd4d2ed030a6c27e067ef4" id="r_a8a47924e4abd4d2ed030a6c27e067ef4"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__definition__registry__t.html">tlv_definition_registry_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ad__types_8h.html#a8a47924e4abd4d2ed030a6c27e067ef4">tlv_bluetooth_ad_types</a></td></tr>
+<tr class="memdesc:a8a47924e4abd4d2ed030a6c27e067ef4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable Bluetooth Advertising Data Type registry with static lifetime.  <br /></td></tr>
+<tr class="separator:a8a47924e4abd4d2ed030a6c27e067ef4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Bluetooth Advertising Data Type definitions. </p>
+</div><h2 class="groupheader">Variable Documentation</h2>
+<a id="a8a47924e4abd4d2ed030a6c27e067ef4" name="a8a47924e4abd4d2ed030a6c27e067ef4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a47924e4abd4d2ed030a6c27e067ef4">&#9670;&#160;</a></span>tlv_bluetooth_ad_types</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structtlv__definition__registry__t.html">tlv_definition_registry_t</a> tlv_bluetooth_ad_types</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Immutable Bluetooth Advertising Data Type registry with static lifetime. </p>
+<p>Maps canonical one-byte identifiers to Bluetooth SIG Assigned Numbers names. Initial coverage is 0x01-0x0A, 0x16, 0x20, 0x21 and 0xFF. This is not an exhaustive list of assigned types. Unknown types remain valid for structural parsing; lookup does not validate values or impose schema constraints.</p>
+<p>Use <a class="el" href="definition_8h.html#a4f3eee11f435919963ddbf725442b7d9" title="Finds the first definition with the same tag size and bytes.">tlv_definition_find()</a> for allocation-free lookup. Available independently of the Bluetooth LTV format build option; no parser or writer is required.</p>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.bluetooth.com/specifications/assigned-numbers/">https://www.bluetooth.com/specifications/assigned-numbers/</a> </dd></dl>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

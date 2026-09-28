@@ -1466,6 +1466,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#advertising-data-type-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advertising Data Type definitions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#wire-layout-and-logical-model" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2680,6 +2691,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#advertising-data-type-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advertising Data Type definitions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#wire-layout-and-logical-model" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2856,6 +2878,23 @@ only the format descriptor differs.</p>
 TLV_LENGTH_SCOPE_TAG_AND_VALUE}</code>. <code>tlv_format_bluetooth_ltv</code> exists so callers
 do not have to spell that configuration out themselves; there is no
 Bluetooth-specific parser or writer underneath it.</p>
+<h2 id="advertising-data-type-definitions">Advertising Data Type definitions<a class="headerlink" href="#advertising-data-type-definitions" title="Permanent link">&para;</a></h2>
+<p>Include <code>tlv/builtins/bluetooth/ad_types.h</code> to resolve AD type names with
+<code>tlv_definition_find(&amp;tlv_bluetooth_ad_types, &amp;element.tag)</code>. The result is a
+borrowed <code>const tlv_definition_t*</code>: <code>tag</code> preserves the one-byte identifier and
+<code>name</code> provides its official Bluetooth SIG name. For <code>02 01 06</code>, lookup resolves
+<code>01</code> to <code>Flags</code>; the value remains the borrowed byte <code>06</code>.</p>
+<p>The initial registry covers <code>01</code> through <code>0A</code>, <code>16</code>, <code>20</code>, <code>21</code>, and <code>FF</code>, using
+the <a href="https://www.bluetooth.com/specifications/assigned-numbers/">Bluetooth SIG Assigned Numbers</a>.
+It is not exhaustive. Lookup returns <code>NULL</code> for an unlisted type such as <code>FE</code>;
+that does not prevent the format from reading or writing the element.</p>
+<p>The registry uses the generic <code>tlv_definition_t</code> and
+<code>tlv_definition_registry_t</code> model from <code>tlv/definition.h</code>. Applications can
+provide their own immutable tables and use the same lookup, which compares tag
+size and bytes, returns the first match, and never allocates. Definition
+metadata does not impose schema constraints or interpret values. Both the
+generic API and Bluetooth registry are available even with
+<code>OPENTLV_FORMAT_BLUETOOTH_LTV=OFF</code>.</p>
 <h2 id="wire-layout-and-logical-model">Wire layout and logical model<a class="headerlink" href="#wire-layout-and-logical-model" title="Permanent link">&para;</a></h2>
 <p>On the wire the length comes first:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[Length][Type][Value]
