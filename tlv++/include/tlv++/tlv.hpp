@@ -22,6 +22,7 @@
 #include "tlv++/schema/schema.hpp"
 #if OPENTLV_DHCP
 #include "tlv++/builtins/dhcp/dhcpv4.hpp"
+#include "tlv++/builtins/dhcp/container.hpp"
 #endif
 #if OPENTLV_LLDP
 #include "tlv++/builtins/lldp/lldp.hpp"
