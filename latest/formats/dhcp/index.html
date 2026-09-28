@@ -1494,6 +1494,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#option-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option definitions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#scope-and-composition" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2693,6 +2704,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#option-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option definitions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#scope-and-composition" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2780,6 +2802,25 @@ rejects identifiers with widths other than one, normal Values larger than
 255 bytes and nonempty Pad/End Values. Decoding rejects incomplete Length
 and Value fields. <code>tlv_source_preserve()</code> copies the original representation
 only when the supplied element remains semantically unchanged.</p>
+<h2 id="option-definitions">Option definitions<a class="headerlink" href="#option-definitions" title="Permanent link">&para;</a></h2>
+<p>Include <code>tlv/builtins/dhcp/options.h</code> to use <code>tlv_dhcpv4_options</code> with the
+generic Definition API:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_definition_t</span><span class="o">*</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">tlv_definition_find</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tlv_dhcpv4_options</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">);</span>
+</code></pre></div>
+<p>For <code>35 01 03</code>, the decoded Tag is <code>35</code>, Value is <code>03</code>, and the definition's
+name is <code>"DHCP Message Type"</code>. For <code>E0 02 AA BB</code>, decoding still succeeds with
+opaque Value <code>AA BB</code>; lookup returns <code>NULL</code> because Code <code>E0</code> is not listed.</p>
+<p>The initial registry covers Pad, Subnet Mask, Router, Domain Name Server,
+Host Name, Domain Name, Requested IP Address, IP Address Lease Time,
+DHCP Message Type, Server Identifier, Parameter Request List, Maximum DHCP
+Message Size, Renewal Time Value, Rebinding Time Value, Vendor Class Identifier,
+Client Identifier and End, as defined in <a href="https://www.rfc-editor.org/rfc/rfc2132.html">RFC 2132</a>.
+It is not an exhaustive option registry.</p>
+<p>The registry requires <code>OPENTLV_DHCP=ON</code>. Entries, identifier bytes and names
+have static lifetime; lookup allocates nothing and needs no Reader or Writer.
+Definitions only describe identifiers: they do not decode Values, validate
+option lengths or control Pad/End handling. Framing does not consult the registry.</p>
 <h2 id="scope-and-composition">Scope and composition<a class="headerlink" href="#scope-and-composition" title="Permanent link">&para;</a></h2>
 <p>Pass only the option region, excluding the DHCP packet header and magic
 cookie. Reader returns Pad and End as ordinary elements. The caller decides
