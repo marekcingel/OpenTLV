@@ -4,7 +4,8 @@ Architecture review for [#360](https://github.com/marekcingel/OpenTLV/issues/360
 [LLDP framing and binding presets](lldp/README.md) are implemented. LLDPDU
 schemas and value codecs remain outside this change. The review found a decoded-identifier restriction;
 the generic `TLV_TAG_BINDING_FORMAT` extension now allows canonical Type bytes
-in immutable format storage. No bit-field Layout primitive is required.
+in immutable format storage. The follow-up #361 adds a reusable packed-field
+primitive used by the LLDP adapter; it is independent of that storage extension.
 
 Normative verification is deferred to separate work covering multiple formats.
 It is outside the agreed scope of #360 and is not a closure criterion for this
@@ -15,7 +16,7 @@ architecture review. This scope decision does not establish IEEE conformance.
 | Issue | Current coverage |
 | --- | --- |
 | [#360: requirements review](https://github.com/marekcingel/OpenTLV/issues/360) | Architecture assessment, layer mapping and generic Tag storage support are complete. Normative verification is tracked separately and does not block closure. |
-| [#361: packed Layout primitive](https://github.com/marekcingel/OpenTLV/issues/361) | Conditional proposal. This review recommends using complete Format callbacks; no standalone bit-field primitive is implemented or currently justified. |
+| [#361: packed Layout primitive](https://github.com/marekcingel/OpenTLV/issues/361) | Implemented as `tlv_packed_field_t` with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks. |
 | [#362: LLDP format and definitions](https://github.com/marekcingel/OpenTLV/issues/362) | Framing, base Type definitions and named binding presets are implemented using `tlv_format_lldp`. Full normative verification remains open. |
 | [#363: schemas, codecs and conformance](https://github.com/marekcingel/OpenTLV/issues/363) | Not implemented. Generic integration tests do not establish LLDP protocol conformance. |
 
@@ -145,11 +146,13 @@ an occurrence bound on the shared outer Type 127.
 
 ## Decision and follow-up
 
-Prefer a small LLDP adapter implementing the existing three Format operations
-over a new general bit-field configuration language. The present sequential
-field helpers cannot model this packed header, but the callback signatures can.
-A bit-field primitive would not have fixed the original identifier-storage
-restriction and is not justified by this single encoding.
+The original #360 review selected a small LLDP adapter implementing the existing
+three Format operations. The sequential field helpers cannot model this packed
+header, but the callback signatures can. Follow-up #361 adds a deliberately
+bounded `tlv_packed_field_t` primitive for fixed wire integers of 1..8 bytes,
+used inside that adapter. It does not introduce a generic packed Format or a
+bitstream framework. Canonical identifier mapping and protocol bounds remain
+in LLDP. This helper does not address the separate identifier-storage restriction.
 
 The implemented generic extension adds `tlv_source_t::tag_binding`. Direct
 source binding remains the zero/default value with its existing strict checks.

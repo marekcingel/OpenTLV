@@ -70,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add allocation-free packed bit-field helpers for 1..8-byte TLV headers, with explicit byte order, checked unsigned extraction/insertion and preservation of neighboring fields; LLDP now reuses this primitive. (#361)
 - Add optional LLDP packed-header framing and base Type definitions, with shared C++, Rust, Python, Lua and JavaScript/WASM presets. Enable it with `OPENTLV_LLDP`; LLDPDU schemas and value codecs remain outside this change. (#362)
 - Document the LLDP Format/Layout assessment, generic support for transformed identifiers and outstanding normative verification. (#360)
 - Expose CER framing in the WebAssembly wrapper and playground, including nested elements and EOC trailer ranges.
