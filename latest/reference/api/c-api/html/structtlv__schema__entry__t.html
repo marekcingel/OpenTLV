@@ -92,10 +92,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:a97d895ef6074c5849a9abf35355930c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c944dfecb999762714e32e8e65d25ea" id="r_a8c944dfecb999762714e32e8e65d25ea"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__entry__t.html#a8c944dfecb999762714e32e8e65d25ea">name</a></td></tr>
 <tr class="separator:a8c944dfecb999762714e32e8e65d25ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20fb7e8c3883a4782980a006445f755f" id="r_a20fb7e8c3883a4782980a006445f755f"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__entry__t.html#a20fb7e8c3883a4782980a006445f755f">length_multiple</a></td></tr>
+<tr class="separator:a20fb7e8c3883a4782980a006445f755f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Length rule for one tag in a <a class="el" href="structtlv__schema__t.html" title="Borrowed table of per-tag length rules.">tlv_schema_t</a>. </p>
-<p>Length bounds are inclusive; equal bounds specify an exact length. </p>
+<p>Length bounds are inclusive; equal bounds specify an exact length. A nonzero <code>length_multiple</code> additionally requires divisibility by that width. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a97d895ef6074c5849a9abf35355930c6" name="a97d895ef6074c5849a9abf35355930c6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a97d895ef6074c5849a9abf35355930c6">&#9670;&#160;</a></span>flags</h2>
@@ -109,6 +111,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Reserved for future extensions; currently ignored. </p>
+
+</div>
+</div>
+<a id="a20fb7e8c3883a4782980a006445f755f" name="a20fb7e8c3883a4782980a006445f755f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20fb7e8c3883a4782980a006445f755f">&#9670;&#160;</a></span>length_multiple</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_schema_entry_t::length_multiple</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Required value-length multiple in bytes; 0 disables this constraint. Zero length is divisible by every nonzero width, subject to the bounds. </p>
 
 </div>
 </div>

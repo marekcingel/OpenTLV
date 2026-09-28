@@ -116,6 +116,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:aa11c9145a0234f60d7c9ec300708c92f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a019f857940904b200295824ddba202db" id="r_a019f857940904b200295824ddba202db"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a019f857940904b200295824ddba202db">actual_constructed</a></td></tr>
 <tr class="separator:a019f857940904b200295824ddba202db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab314a9325c1f7d0de54bf88701bc0fa1" id="r_ab314a9325c1f7d0de54bf88701bc0fa1"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#ab314a9325c1f7d0de54bf88701bc0fa1">length_multiple</a></td></tr>
+<tr class="separator:ab314a9325c1f7d0de54bf88701bc0fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Structured detail for one violation found by <a class="el" href="group__schemas.html#ga1cdee0d758d2b8cc4043806b60542f6c" title="Validates a TLV structure and reports every schema violation as a tlv_schema_diagnostic_t.">tlv_schema_validate_all_diag()</a>. </p>
@@ -225,7 +227,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Nonzero if <code>min_length</code>, <code>max_length</code> and <code>actual_length</code> are set (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f">TLV_SCHEMA_ISSUE_LENGTH</a>). </p>
+<p>Nonzero if <code>min_length</code>, <code>max_length</code>, <code>actual_length</code> and <code>length_multiple</code> are set (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f">TLV_SCHEMA_ISSUE_LENGTH</a>). </p>
 
 </div>
 </div>
@@ -271,6 +273,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Which rule was violated; same meaning as <a class="el" href="structtlv__schema__issue.html#a60703cc66aa114c4df0203a5aa8116d0">tlv_schema_issue_t::kind</a>. </p>
+
+</div>
+</div>
+<a id="ab314a9325c1f7d0de54bf88701bc0fa1" name="ab314a9325c1f7d0de54bf88701bc0fa1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab314a9325c1f7d0de54bf88701bc0fa1">&#9670;&#160;</a></span>length_multiple</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_schema_diagnostic::length_multiple</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Required value-length multiple for a length violation; 0 means unrestricted. </p>
 
 </div>
 </div>

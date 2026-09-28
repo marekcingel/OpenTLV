@@ -1477,6 +1477,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#advertising-data-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advertising Data schema
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#wire-layout-and-logical-model" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2702,6 +2713,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#advertising-data-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advertising Data schema
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#wire-layout-and-logical-model" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2895,6 +2917,67 @@ size and bytes, returns the first match, and never allocates. Definition
 metadata does not impose schema constraints or interpret values. Both the
 generic API and Bluetooth registry are available even with
 <code>OPENTLV_FORMAT_BLUETOOTH_LTV=OFF</code>.</p>
+<h2 id="advertising-data-schema">Advertising Data schema<a class="headerlink" href="#advertising-data-schema" title="Permanent link">&para;</a></h2>
+<p>Include <code>tlv/builtins/bluetooth/ad_schema.h</code> and pass
+<code>&amp;tlv_bluetooth_ad_schema</code> to <code>tlv_schema_validate()</code> with
+<code>&amp;tlv_format_bluetooth_ltv</code>. The immutable schema is available even when the
+Bluetooth format is disabled; it has no dependency on codecs or the registry.</p>
+<table>
+<thead>
+<tr>
+<th>AD types</th>
+<th>Value-length constraint</th>
+<th>Occurrences per AD block</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flags (<code>01</code>)</td>
+<td>Any, including empty</td>
+<td>At most one</td>
+</tr>
+<tr>
+<td>Shortened / Complete Local Name (<code>08</code>, <code>09</code>)</td>
+<td>0 through 248 bytes</td>
+<td>At most one across both types</td>
+</tr>
+<tr>
+<td>Tx Power (<code>0A</code>)</td>
+<td>Exactly 1 byte</td>
+<td>Unrestricted</td>
+</tr>
+<tr>
+<td>Service UUID lists (<code>02</code>–<code>07</code>)</td>
+<td>Multiple of 2, 4 or 16 bytes; empty allowed</td>
+<td>At most one list per width, across complete and incomplete variants</td>
+</tr>
+<tr>
+<td>Service Data (<code>16</code>, <code>20</code>, <code>21</code>)</td>
+<td>At least 2, 4 or 16 bytes</td>
+<td>Unrestricted</td>
+</tr>
+<tr>
+<td>Manufacturer Specific Data (<code>FF</code>)</td>
+<td>At least 2 bytes</td>
+<td>Unrestricted</td>
+</tr>
+</tbody>
+</table>
+<p>These rules follow <a href="https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v12/out/en/supplement-to-the-bluetooth-core-specification/data-types-specification.html">Bluetooth CSS v12, Part A</a>,
+Table 1.1 and sections 1.1–1.5 and 1.11. All fields are optional in this
+context-free schema. Unknown types are accepted. Conditional requirements
+based on connectability and relationships between separate AD/SRD blocks
+require additional context and are not checked.</p>
+<p><code>02 0A FC</code> passes; <code>03 0A FC FD</code> parses successfully but fails schema
+validation with <code>TLV_ERR_INVALID_LENGTH</code>. Likewise, <code>04 03 0F 18 00</code>
+fails because three value bytes cannot form a 16-bit UUID list.
+<code>tlv_schema_validate_all()</code> and <code>tlv_schema_validate_all_diag()</code> report these
+as length issues; the detailed diagnostic includes <code>length_multiple</code>.</p>
+<p>This schema checks lengths and occurrences only. It does not check UTF-8,
+flag-bit contents, numeric ranges, assigned UUIDs/company identifiers or
+service/manufacturer payloads. The format still enforces the 254-byte value
+limit. Pass only significant AD structures; trailing zero padding remains a
+framing error and needs separate container handling.</p>
 <h2 id="wire-layout-and-logical-model">Wire layout and logical model<a class="headerlink" href="#wire-layout-and-logical-model" title="Permanent link">&para;</a></h2>
 <p>On the wire the length comes first:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[Length][Type][Value]
@@ -3122,11 +3205,11 @@ last real structure. Callers that receive padded buffers should trim it first
 never returned partially.</p>
 <h2 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h2>
 <ul>
-<li>The type is exposed as a one-byte tag and the value is opaque; there is no
-  built-in GAP or assigned-numbers dictionary.</li>
+<li>The type is exposed as a one-byte tag and the value is opaque; the AD Type
+  registry and schema do not decode values.</li>
 <li>Values are limited to 254 bytes, and the tag is always one byte.</li>
 <li>There are no constructed types; nesting is left to the caller.</li>
-<li>Only the framing is implemented, not any part of a Bluetooth stack.</li>
+<li>Framing and optional schema validation do not implement a Bluetooth stack.</li>
 </ul>
 <h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>03 09 48 69

@@ -85,6 +85,9 @@ Files</h2></td></tr>
 <tr class="memitem:der__schema_8h" id="r_der__schema_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="der__schema_8h.html">der_schema.h</a></td></tr>
 <tr class="memdesc:der__schema_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema-aware ASN.1 DER validation and encoding. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad__schema_8h" id="r_ad__schema_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ad__schema_8h.html">ad_schema.h</a></td></tr>
+<tr class="memdesc:ad__schema_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bluetooth Advertising Data length and occurrence constraints. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:emv__schema_8h" id="r_emv__schema_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="emv__schema_8h.html">emv_schema.h</a></td></tr>
 <tr class="memdesc:emv__schema_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structural schema for common EMV Book 3 v4.4 top-level data objects. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -334,6 +337,9 @@ Variables</h2></td></tr>
 <tr class="memitem:ga0a1118c0cbb0fb019323e0f347579c9e" id="r_ga0a1118c0cbb0fb019323e0f347579c9e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__schemas.html#gac653d1783bcb690c579cb8b799041006">tlv_der_schema_limits_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga0a1118c0cbb0fb019323e0f347579c9e">tlv_der_schema_default_limits</a></td></tr>
 <tr class="memdesc:ga0a1118c0cbb0fb019323e0f347579c9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default limits used when a function receives <code>NULL</code> limits.  <br /></td></tr>
 <tr class="separator:ga0a1118c0cbb0fb019323e0f347579c9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadd274b049bcb3c2d3be49733287ba3c9" id="r_gadd274b049bcb3c2d3be49733287ba3c9"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gadd274b049bcb3c2d3be49733287ba3c9">tlv_bluetooth_ad_schema</a></td></tr>
+<tr class="memdesc:gadd274b049bcb3c2d3be49733287ba3c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Immutable schema for one block of significant Advertising Data structures.  <br /></td></tr>
+<tr class="separator:gadd274b049bcb3c2d3be49733287ba3c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga636257569235233ad48236240ee0f1ca" id="r_ga636257569235233ad48236240ee0f1ca"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga636257569235233ad48236240ee0f1ca">tlv_emv_structure_schema</a></td></tr>
 <tr class="memdesc:ga636257569235233ad48236240ee0f1ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structural validation schema for common EMV Book 3 v4.4 top-level data objects.  <br /></td></tr>
 <tr class="separator:ga636257569235233ad48236240ee0f1ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -727,7 +733,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fixed set of legal values. </p>
-<p>Checked against the C representation a <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785" title="Borrowed codec descriptor with an optional immutable context.">tlv_codec_t</a> decode produces (for example tlv_asn1_codec_integer's <code>int64_t</code>), not against raw TLV bytes; pair it with a codec's decode step. Byte-length and occurrence bounds are unrelated concerns already covered by <a class="el" href="structtlv__schema__entry__t.html" title="Length rule for one tag in a tlv_schema_t.">tlv_schema_entry_t</a>'s <code>min_length</code>/ <code>max_length</code> and <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>'s <code>min_occurs</code>/<code>max_occurs</code>. </p>
+<p>Checked against the C representation a <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785" title="Borrowed codec descriptor with an optional immutable context.">tlv_codec_t</a> decode produces (for example tlv_asn1_codec_integer's <code>int64_t</code>), not against raw TLV bytes; pair it with a codec's decode step. Byte-length and occurrence constraints are separate concerns covered by <a class="el" href="structtlv__schema__entry__t.html" title="Length rule for one tag in a tlv_schema_t.">tlv_schema_entry_t</a>'s <code>min_length</code>, <code>max_length</code>, <code>length_multiple</code> and <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>'s <code>min_occurs</code>/<code>max_occurs</code>. </p>
 
 </div>
 </div>
@@ -896,7 +902,7 @@ Variables</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda38bc5113a24c5cd1ec20ea2a9eff5db9" name="ggae8780ff71af2d72d1dcb5f8189af7dfda38bc5113a24c5cd1ec20ea2a9eff5db9"></a>TLV_SCHEMA_ISSUE_KIND&#160;</td><td class="fielddoc"><p>A primitive value where a constructed one is required, or the reverse. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f" name="ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f"></a>TLV_SCHEMA_ISSUE_LENGTH&#160;</td><td class="fielddoc"><p>A value length is outside the bounds of the tag's rule. </p>
+<tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f" name="ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f"></a>TLV_SCHEMA_ISSUE_LENGTH&#160;</td><td class="fielddoc"><p>A value length violates the bounds or required multiple of the tag's rule. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggae8780ff71af2d72d1dcb5f8189af7dfda6f97bf896b2aa5c6284cae0e20c98475" name="ggae8780ff71af2d72d1dcb5f8189af7dfda6f97bf896b2aa5c6284cae0e20c98475"></a>TLV_SCHEMA_ISSUE_ORDER&#160;</td><td class="fielddoc"><p>An element appears before an earlier-listed rule's element in a scope whose <a class="el" href="structtlv__structure__schema.html#ab2d922f63cd11d4d355b0d92cec6e415">tlv_structure_schema_t::order</a> is <a class="el" href="group__schemas.html#gga3687d250fd81cbe36e88129a2ea1cc0baad2d9e708bae288f99341d3e7850fc6b">TLV_SCHEMA_ORDER_SEQUENCE</a>. </p>
 </td></tr>
@@ -1693,7 +1699,7 @@ Any other error of <a class="el" href="group__traversal.html#ga67f4429a613aed793
 </div><div class="memdoc">
 
 <p>Validates a value length against an entry's bounds. </p>
-<p>Checks only the length, independently of parsing or tag lookup. Bounds are inclusive; equal bounds specify an exact length, and <code>SIZE_MAX</code> can be used as an unrestricted upper bound. The entry's flags do not affect validation.</p>
+<p>Checks only the length, independently of parsing or tag lookup. Bounds are inclusive; equal bounds specify an exact length, and <code>SIZE_MAX</code> can be used as an unrestricted upper bound. A nonzero <code>length_multiple</code> requires <code>length % length_multiple == 0</code>. The entry's flags do not affect validation.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">entry</td><td>Entry providing the bounds. </td></tr>
@@ -1701,9 +1707,9 @@ Any other error of <a class="el" href="group__traversal.html#ga67f4429a613aed793
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> if the length is within the bounds. </dd>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> if the length satisfies both the bounds and the multiple. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for an out-of-range length or reversed bounds. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for an out-of-range length, a non-multiple, or reversed bounds. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>entry</code> is <code>NULL</code>. </dd></dl>
 
@@ -1793,6 +1799,37 @@ Any other error of <a class="el" href="group__traversal.html#ga67f4429a613aed793
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="gadd274b049bcb3c2d3be49733287ba3c9" name="gadd274b049bcb3c2d3be49733287ba3c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadd274b049bcb3c2d3be49733287ba3c9">&#9670;&#160;</a></span>tlv_bluetooth_ad_schema</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> tlv_bluetooth_ad_schema</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Immutable schema for one block of significant Advertising Data structures. </p>
+<p>Use with <a class="el" href="group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416" title="Validates framing, nesting, lengths, occurrence counts, ordering, alternative groups and child member...">tlv_schema_validate()</a> and tlv_format_bluetooth_ltv. Covers Flags, Local Name, Tx Power, Service UUID lists, Service Data and Manufacturer Specific Data. Unknown types are accepted without value constraints. All entries are optional. Flags and Local Name occur at most once; shortened and complete names share one limit. Complete and incomplete UUID lists share one occurrence limit per UUID width. Other covered types may repeat.</p>
+<p>Tx Power has exactly one value byte. UUID lists have lengths divisible by 2, 4 or 16, including empty lists. Service Data requires its 2-, 4- or 16-byte UUID prefix; Manufacturer Specific Data requires a two-byte Company Identifier. Flags accept any length, including zero; names accept 0 through 248 bytes. The format enforces the 254-byte value limit independently.</p>
+<p>Checks only lengths and occurrences, not flag bits, UTF-8, numeric ranges, identifier assignments or payload semantics. Conditional presence based on connectability and relationships between advertising and scan-response blocks are outside this schema. Pass only significant structures: trailing zero padding is not an element and remains a framing error.</p>
+<p>Static lifetime, allocation-free and independent of the Bluetooth format build option. The definition registry and codecs are not required.</p>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v12/out/en/supplement-to-the-bluetooth-core-specification/data-types-specification.html">https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v12/out/en/supplement-to-the-bluetooth-core-specification/data-types-specification.html</a> </dd>
+<dd>
+<a href="https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html">https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html</a> </dd></dl>
+
+</div>
+</div>
 <a id="ga0a1118c0cbb0fb019323e0f347579c9e" name="ga0a1118c0cbb0fb019323e0f347579c9e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga0a1118c0cbb0fb019323e0f347579c9e">&#9670;&#160;</a></span>tlv_der_schema_default_limits</h2>
 
