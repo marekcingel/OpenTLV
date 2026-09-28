@@ -88,6 +88,9 @@ Files</h2></td></tr>
 <tr class="memitem:ad__codec_8h" id="r_ad__codec_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ad__codec_8h.html">ad_codec.h</a></td></tr>
 <tr class="memdesc:ad__codec_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free codecs for basic Bluetooth Advertising Data values. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:service__data_8h" id="r_service__data_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="service__data_8h.html">service_data.h</a></td></tr>
+<tr class="memdesc:service__data_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free Bluetooth Service Data value codecs. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:uuid_8h" id="r_uuid_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uuid_8h.html">uuid.h</a></td></tr>
 <tr class="memdesc:uuid_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free Bluetooth UUID value and list codecs. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,6 +147,15 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__asn1__iri.html">tlv_asn1_iri</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decoded OID-IRI or RELATIVE-OID-IRI content (X.690 section 8.21 and 8.22): arc labels.  <a href="structtlv__asn1__iri.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__bluetooth__service__data16.html">tlv_bluetooth_service_data16</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Data with a 16-bit UUID and borrowed opaque payload.  <a href="structtlv__bluetooth__service__data16.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__bluetooth__service__data32.html">tlv_bluetooth_service_data32</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Data with a 32-bit UUID and borrowed opaque payload.  <a href="structtlv__bluetooth__service__data32.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__bluetooth__service__data128.html">tlv_bluetooth_service_data128</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Data with a 128-bit UUID and borrowed opaque payload.  <a href="structtlv__bluetooth__service__data128.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__bluetooth__uuid128.html">tlv_bluetooth_uuid128</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A 128-bit UUID in canonical most-significant-byte-first order.  <a href="structtlv__bluetooth__uuid128.html#details">More...</a><br /></td></tr>
@@ -229,6 +241,15 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga4ed6b29049d4a7eb8ef386054cfa012d" id="r_ga4ed6b29049d4a7eb8ef386054cfa012d"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__codecs.html#ga798c4638c9a55ff43b932d29586b5d78">tlv_bluetooth_ad_flag</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga4ed6b29049d4a7eb8ef386054cfa012d">tlv_bluetooth_ad_flag_t</a></td></tr>
 <tr class="memdesc:ga4ed6b29049d4a7eb8ef386054cfa012d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined masks in the first Flags octet (CSS Part A, section 1.3).  <br /></td></tr>
 <tr class="separator:ga4ed6b29049d4a7eb8ef386054cfa012d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf516bf8a267edeb4de5364bf48a2dcf4" id="r_gaf516bf8a267edeb4de5364bf48a2dcf4"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__bluetooth__service__data16.html">tlv_bluetooth_service_data16</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gaf516bf8a267edeb4de5364bf48a2dcf4">tlv_bluetooth_service_data16_t</a></td></tr>
+<tr class="memdesc:gaf516bf8a267edeb4de5364bf48a2dcf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Data with a 16-bit UUID and borrowed opaque payload.  <br /></td></tr>
+<tr class="separator:gaf516bf8a267edeb4de5364bf48a2dcf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadec783bc1ef90f1e6881a25687154de5" id="r_gadec783bc1ef90f1e6881a25687154de5"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__bluetooth__service__data32.html">tlv_bluetooth_service_data32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gadec783bc1ef90f1e6881a25687154de5">tlv_bluetooth_service_data32_t</a></td></tr>
+<tr class="memdesc:gadec783bc1ef90f1e6881a25687154de5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Data with a 32-bit UUID and borrowed opaque payload.  <br /></td></tr>
+<tr class="separator:gadec783bc1ef90f1e6881a25687154de5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae82c78856868db9aedd9018ffed7c044" id="r_gae82c78856868db9aedd9018ffed7c044"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__bluetooth__service__data128.html">tlv_bluetooth_service_data128</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gae82c78856868db9aedd9018ffed7c044">tlv_bluetooth_service_data128_t</a></td></tr>
+<tr class="memdesc:gae82c78856868db9aedd9018ffed7c044"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Data with a 128-bit UUID and borrowed opaque payload.  <br /></td></tr>
+<tr class="separator:gae82c78856868db9aedd9018ffed7c044"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae07dd0f5046612e06f8074acdb9edc7e" id="r_gae07dd0f5046612e06f8074acdb9edc7e"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__bluetooth__uuid128.html">tlv_bluetooth_uuid128</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gae07dd0f5046612e06f8074acdb9edc7e">tlv_bluetooth_uuid128_t</a></td></tr>
 <tr class="memdesc:gae07dd0f5046612e06f8074acdb9edc7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">A 128-bit UUID in canonical most-significant-byte-first order.  <br /></td></tr>
 <tr class="separator:gae07dd0f5046612e06f8074acdb9edc7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -463,6 +484,15 @@ Variables</h2></td></tr>
 <tr class="memitem:ga6dbe65e259dd2503de3e85e3ea9c2f1e" id="r_ga6dbe65e259dd2503de3e85e3ea9c2f1e"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga6dbe65e259dd2503de3e85e3ea9c2f1e">tlv_bluetooth_ad_codec_tx_power</a></td></tr>
 <tr class="memdesc:ga6dbe65e259dd2503de3e85e3ea9c2f1e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tx Power Level codec for AD Type 0x0A, represented by <code>int8_t</code> dBm.  <br /></td></tr>
 <tr class="separator:ga6dbe65e259dd2503de3e85e3ea9c2f1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga107f26fa8c20a4877fc7228ab5d6fba3" id="r_ga107f26fa8c20a4877fc7228ab5d6fba3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga107f26fa8c20a4877fc7228ab5d6fba3">tlv_bluetooth_codec_service_data16</a></td></tr>
+<tr class="memdesc:ga107f26fa8c20a4877fc7228ab5d6fba3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Data codec for AD Type 0x16, using <a class="el" href="group__codecs.html#gaf516bf8a267edeb4de5364bf48a2dcf4" title="Service Data with a 16-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data16_t</a>.  <br /></td></tr>
+<tr class="separator:ga107f26fa8c20a4877fc7228ab5d6fba3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga450ff3e93a08b6b622969172232b6b37" id="r_ga450ff3e93a08b6b622969172232b6b37"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga450ff3e93a08b6b622969172232b6b37">tlv_bluetooth_codec_service_data32</a></td></tr>
+<tr class="memdesc:ga450ff3e93a08b6b622969172232b6b37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Data codec for AD Type 0x20, using <a class="el" href="group__codecs.html#gadec783bc1ef90f1e6881a25687154de5" title="Service Data with a 32-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data32_t</a>.  <br /></td></tr>
+<tr class="separator:ga450ff3e93a08b6b622969172232b6b37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga85065b8ed22e2b19adfee7866c1cb42f" id="r_ga85065b8ed22e2b19adfee7866c1cb42f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga85065b8ed22e2b19adfee7866c1cb42f">tlv_bluetooth_codec_service_data128</a></td></tr>
+<tr class="memdesc:ga85065b8ed22e2b19adfee7866c1cb42f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Data codec for AD Type 0x21, using <a class="el" href="group__codecs.html#gae82c78856868db9aedd9018ffed7c044" title="Service Data with a 128-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data128_t</a>.  <br /></td></tr>
+<tr class="separator:ga85065b8ed22e2b19adfee7866c1cb42f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga842de05f7755d67145b3c01cf30e7548" id="r_ga842de05f7755d67145b3c01cf30e7548"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga842de05f7755d67145b3c01cf30e7548">tlv_bluetooth_codec_uuid16</a></td></tr>
 <tr class="memdesc:ga842de05f7755d67145b3c01cf30e7548"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly two wire bytes to/from <code>uint16_t</code>.  <br /></td></tr>
 <tr class="separator:ga842de05f7755d67145b3c01cf30e7548"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -729,6 +759,57 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Defined masks in the first Flags octet (CSS Part A, section 1.3). </p>
+
+</div>
+</div>
+<a id="gae82c78856868db9aedd9018ffed7c044" name="gae82c78856868db9aedd9018ffed7c044"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae82c78856868db9aedd9018ffed7c044">&#9670;&#160;</a></span>tlv_bluetooth_service_data128_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__bluetooth__service__data128.html">tlv_bluetooth_service_data128</a> <a class="el" href="group__codecs.html#gae82c78856868db9aedd9018ffed7c044">tlv_bluetooth_service_data128_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Service Data with a 128-bit UUID and borrowed opaque payload. </p>
+<p>Keep decoded input storage alive and immutable while either span is used. Encoding uses uuid and payload; raw is informational and ignored, so a caller-constructed object may leave raw empty. </p>
+
+</div>
+</div>
+<a id="gaf516bf8a267edeb4de5364bf48a2dcf4" name="gaf516bf8a267edeb4de5364bf48a2dcf4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf516bf8a267edeb4de5364bf48a2dcf4">&#9670;&#160;</a></span>tlv_bluetooth_service_data16_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__bluetooth__service__data16.html">tlv_bluetooth_service_data16</a> <a class="el" href="group__codecs.html#gaf516bf8a267edeb4de5364bf48a2dcf4">tlv_bluetooth_service_data16_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Service Data with a 16-bit UUID and borrowed opaque payload. </p>
+<p>Keep decoded input storage alive and immutable while either span is used. Encoding uses uuid and payload; raw is informational and ignored, so a caller-constructed object may leave raw empty. </p>
+
+</div>
+</div>
+<a id="gadec783bc1ef90f1e6881a25687154de5" name="gadec783bc1ef90f1e6881a25687154de5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadec783bc1ef90f1e6881a25687154de5">&#9670;&#160;</a></span>tlv_bluetooth_service_data32_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__bluetooth__service__data32.html">tlv_bluetooth_service_data32</a> <a class="el" href="group__codecs.html#gadec783bc1ef90f1e6881a25687154de5">tlv_bluetooth_service_data32_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Service Data with a 32-bit UUID and borrowed opaque payload. </p>
+<p>Keep decoded input storage alive and immutable while either span is used. Encoding uses uuid and payload; raw is informational and ignored, so a caller-constructed object may leave raw empty. </p>
 
 </div>
 </div>
@@ -2433,6 +2514,81 @@ Variables</h2></td></tr>
 
 <p>Tx Power Level codec for AD Type 0x0A, represented by <code>int8_t</code> dBm. </p>
 <p>Decode requires exactly one signed two's-complement octet in the Bluetooth range -127 through +127 dBm; for example, FC decodes to -4. Encode writes exactly one octet. The excluded value -128 (80 on wire), incorrect wire length or incorrect encode object size is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Insufficient destination capacity is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. </p>
+
+</div>
+</div>
+<a id="ga85065b8ed22e2b19adfee7866c1cb42f" name="ga85065b8ed22e2b19adfee7866c1cb42f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga85065b8ed22e2b19adfee7866c1cb42f">&#9670;&#160;</a></span>tlv_bluetooth_codec_service_data128</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_bluetooth_codec_service_data128</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Service Data codec for AD Type 0x21, using <a class="el" href="group__codecs.html#gae82c78856868db9aedd9018ffed7c044" title="Service Data with a 128-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data128_t</a>. </p>
+<p>Decode requires at least 16 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga79e9303bfcbf57aae637be9e77db2684" title="Converts exactly 16 wire bytes to/from tlv_bluetooth_uuid128_t.">tlv_bluetooth_codec_uuid128</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
+
+</div>
+</div>
+<a id="ga107f26fa8c20a4877fc7228ab5d6fba3" name="ga107f26fa8c20a4877fc7228ab5d6fba3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga107f26fa8c20a4877fc7228ab5d6fba3">&#9670;&#160;</a></span>tlv_bluetooth_codec_service_data16</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_bluetooth_codec_service_data16</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Service Data codec for AD Type 0x16, using <a class="el" href="group__codecs.html#gaf516bf8a267edeb4de5364bf48a2dcf4" title="Service Data with a 16-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data16_t</a>. </p>
+<p>Decode requires at least 2 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga842de05f7755d67145b3c01cf30e7548" title="Converts exactly two wire bytes to/from uint16_t.">tlv_bluetooth_codec_uuid16</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
+
+</div>
+</div>
+<a id="ga450ff3e93a08b6b622969172232b6b37" name="ga450ff3e93a08b6b622969172232b6b37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga450ff3e93a08b6b622969172232b6b37">&#9670;&#160;</a></span>tlv_bluetooth_codec_service_data32</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_bluetooth_codec_service_data32</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Service Data codec for AD Type 0x20, using <a class="el" href="group__codecs.html#gadec783bc1ef90f1e6881a25687154de5" title="Service Data with a 32-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data32_t</a>. </p>
+<p>Decode requires at least 4 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga2dd1ca224e663d278df9d2a4af340eed" title="Converts exactly four wire bytes to/from uint32_t.">tlv_bluetooth_codec_uuid32</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
 
 </div>
 </div>
