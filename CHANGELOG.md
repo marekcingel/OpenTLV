@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix fuzz target compilation after the element refactoring by removing checks of the obsolete raw Length field. (#346)
 - Reject decoder results whose semantic Tag does not match its source range, including inconsistent absent or empty Tags. (#343)
 - Check logical value sizes before converting them to native sizes in CLI presentation and commands, making the reader-produced element invariant explicit instead of relying on direct casts. (#342)
 - Fix documentation example checks failing after the element refactoring by synchronizing the README, getting-started and Fixed format code blocks with their compiled example sources. (#340)
@@ -64,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add allocation-free Bluetooth AD value codecs for Flags, Shortened/Complete Local Name and signed Tx Power Level, with borrowed raw spans, named flag masks and malformed-value diagnostics, independently of the Bluetooth LTV format. (#346)
 - Add an allocation-free Bluetooth Advertising Data schema for value lengths, UUID list widths and occurrence constraints. Unknown AD types remain accepted; value decoding and trailing padding handling are separate concerns. (#345)
 - Add a generic, allocation-free Definition registry and Bluetooth Advertising Data Type names with byte-identity lookup, independent of LTV parsing. (#344)
 - Add a `fuzz_fixed` target that derives the configurable Fixed format's tag width, length width and byte order from the fuzz input itself, exercising round-trip and malformed-input parsing across arbitrary valid configurations instead of only the historical 1-byte-tag/1-byte-length shape. (#330)

@@ -99,7 +99,7 @@ void tlv_cer_segment_state_init(tlv_cer_segment_state_t* state, uint64_t number,
     state->pending_length = 0;
     state->pending_offset = 0;
     if (strict && info.form == TLV_CER_FORM_CHARACTERS && info.is_utf8)
-        tlv_asn1_utf8_stream_init(&state->utf8);
+        tlv_utf8_stream_init(&state->utf8);
 }
 
 tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state, const tlv_tag_t* tag,
@@ -130,7 +130,7 @@ tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state, const tlv
     if (state->strict && state->info.form == TLV_CER_FORM_CHARACTERS) {
         tlv_result_t rc;
         if (state->info.is_utf8)
-            rc = tlv_asn1_utf8_stream_update(&state->utf8, value, length);
+            rc = tlv_utf8_stream_update(&state->utf8, value, length);
         else
             rc = validate_character_segment(state->number, state->info.code_unit_width, value,
                                             length);
@@ -168,7 +168,7 @@ tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state, size_t
                 return rc;
             }
         } else if (state->info.form == TLV_CER_FORM_CHARACTERS && state->info.is_utf8) {
-            rc = tlv_asn1_utf8_stream_finish(&state->utf8);
+            rc = tlv_utf8_stream_finish(&state->utf8);
             if (rc != TLV_OK) {
                 if (error_offset) *error_offset = state->pending_offset;
                 return rc;

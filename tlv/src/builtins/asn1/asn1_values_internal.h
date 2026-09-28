@@ -1,6 +1,7 @@
 #ifndef OPENTLV_ASN1_VALUES_INTERNAL_H
 #define OPENTLV_ASN1_VALUES_INTERNAL_H
 #include "tlv/error.h"
+#include "../../utf8_internal.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -70,25 +71,5 @@ tlv_result_t tlv_asn1_validate_relative_oid_iri(const uint8_t* value, size_t len
  * implemented canonical content rule. */
 tlv_result_t tlv_asn1_validate_universal_value(uint64_t number, const uint8_t* value,
                                                size_t length);
-
-/* Streaming UTF8String validator, for CER's constructed UTF8String content: a
- * multi-byte character may legally straddle a 1000-octet segment boundary,
- * so this validates across segments without ever concatenating them. state
- * must be initialized with tlv_asn1_utf8_stream_init() before the first
- * update. Feed each segment's content bytes, in that order, to update();
- * call finish() exactly once after the last segment. update() returns TLV_OK
- * or TLV_ERR_INVALID_VALUE; once it returns an error, state must be
- * discarded (no further calls). finish() additionally rejects content ending
- * mid-sequence. Fixed O(1) state (a 4-byte pending buffer); no allocation. */
-typedef struct tlv_asn1_utf8_stream {
-    uint8_t pending[4];
-    size_t pending_len;  /* bytes already collected for the code point in progress */
-    size_t pending_need; /* total bytes that code point requires (0 = none pending) */
-} tlv_asn1_utf8_stream_t;
-
-void tlv_asn1_utf8_stream_init(tlv_asn1_utf8_stream_t* state);
-tlv_result_t tlv_asn1_utf8_stream_update(tlv_asn1_utf8_stream_t* state, const uint8_t* value,
-                                         size_t length);
-tlv_result_t tlv_asn1_utf8_stream_finish(const tlv_asn1_utf8_stream_t* state);
 
 #endif /* OPENTLV_ASN1_VALUES_INTERNAL_H */

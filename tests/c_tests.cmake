@@ -16,6 +16,7 @@ set(SOURCES
     definition_test.cpp
     builtins/bluetooth/ad_types_test.cpp
     builtins/bluetooth/ad_schema_test.cpp
+    builtins/bluetooth/ad_codec_test.cpp
     endian_test.cpp
     endian_c_test.c
     size_test.cpp

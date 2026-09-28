@@ -6,6 +6,9 @@ bytes and application-defined C representations. They do not receive tags,
 formats, readers, or writers. Applications choose and invoke codecs explicitly;
 reading an element never invokes one automatically.
 
+For built-in Flags, Local Name and signed Tx Power conversions, see
+[Bluetooth Advertising Data value codecs](../formats/bluetooth/README.md#basic-advertising-data-value-codecs).
+
 Each codec documents the type and alignment of its representation. Decode takes
 raw bytes plus a caller-owned destination object and its capacity in bytes.
 Encode takes a C object and its size in bytes plus a caller-owned byte buffer.
