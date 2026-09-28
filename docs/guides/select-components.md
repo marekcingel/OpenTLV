@@ -20,6 +20,7 @@ Turn off what you do not use.
 
 | Option | Component |
 | --- | --- |
+| `OPENTLV_DHCP` | [DHCPv4 option framing](../formats/dhcp/README.md), including Pad and End |
 | `OPENTLV_BLUETOOTH` | [Bluetooth](../formats/bluetooth/README.md): LTV format, containers, definitions, schemas and codecs |
 | `OPENTLV_LLDP` | [LLDP](../formats/lldp/README.md): packed framing and base Type definitions; no schemas or value codecs |
 | `OPENTLV_FORMAT_ASN1` | The ASN.1 group; must be ON for BER, DER, CER and EMV |
@@ -47,7 +48,7 @@ Use this when you supply your own [format callbacks](../formats/custom/README.md
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_FORMAT_ASN1=OFF
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF -DOPENTLV_FORMAT_ASN1=OFF
 cmake --build build --parallel --target tlv
 ```
 
@@ -55,7 +56,7 @@ cmake --build build --parallel --target tlv
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF \
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF \
   -DOPENTLV_FORMAT_DER=OFF -DOPENTLV_FORMAT_CER=OFF -DOPENTLV_PROFILE_EMV=OFF
 cmake --build build --parallel --target tlv
 ```
@@ -66,7 +67,7 @@ EMV needs DER and DER needs BER, so all three are on. CER is off.
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_FORMAT_CER=OFF
+  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF -DOPENTLV_FORMAT_CER=OFF
 cmake --build build --parallel --target tlv
 ```
 
@@ -76,7 +77,7 @@ Bluetooth uses the generic binary layout primitives. Fixed is always available.
 
 ```sh
 cmake -S . -B build \
-  -DOPENTLV_FORMAT_ASN1=OFF -DOPENTLV_LLDP=OFF
+  -DOPENTLV_FORMAT_ASN1=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF
 cmake --build build --parallel --target tlv
 ```
 

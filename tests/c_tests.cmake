@@ -25,6 +25,8 @@ set(SOURCES
     builtins/bluetooth/company_ids_test.cpp
     endian_test.cpp
     packed_field_test.cpp
+    tagged_binary_test.cpp
+    dhcpv4_test.cpp
     endian_c_test.c
     size_test.cpp
     value_test.cpp
@@ -70,6 +72,9 @@ foreach(source IN LISTS SOURCES)
 endforeach()
 
 # Tests that name an optional component follow the same feature selection.
+if(NOT OPENTLV_DHCP)
+    list(REMOVE_ITEM SOURCES dhcpv4_test.cpp)
+endif()
 if(NOT OPENTLV_LLDP)
     list(REMOVE_ITEM SOURCES lldp_test.cpp)
 endif()

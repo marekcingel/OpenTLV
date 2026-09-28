@@ -4,6 +4,10 @@ int tlv_config_bluetooth(void) {
     return OPENTLV_BLUETOOTH;
 }
 
+int tlv_config_dhcp(void) {
+    return OPENTLV_DHCP;
+}
+
 int tlv_config_lldp(void) {
     return OPENTLV_LLDP;
 }

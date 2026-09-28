@@ -37,6 +37,7 @@ option(OPENTLV_BUILD_DOCS "Enable the Doxygen C and C++ API reference targets" O
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
 option(OPENTLV_BLUETOOTH "Include Bluetooth format, containers, definitions, schemas and codecs" ON)
+option(OPENTLV_DHCP "Include DHCPv4 option framing" ON)
 option(OPENTLV_LLDP "Include LLDP framing, definitions, structural validation and value codecs" ON)
 option(OPENTLV_FORMAT_ASN1 "Include ASN.1-related wire formats (BER, DER)" ON)
 option(OPENTLV_FORMAT_BER "Include the BER wire format" ON)

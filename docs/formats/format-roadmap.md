@@ -145,7 +145,7 @@ OpenTLV
 │   ├── Networking, link and routing
 │   │   ├── [x] LLDP base TLVs (IEEE 802.1AB; normative audit pending)
 │   │   ├── [?] IS-IS TLVs and sub-TLVs (ISO 10589 and extensions)
-│   │   ├── [?] DHCPv4 options (RFC 2132, RFC 3396, RFC 3046)
+│   │   ├── [x] DHCPv4 option framing (RFC 2132; packet semantics excluded)
 │   │   ├── [?] DHCPv6 options (RFC 8415)
 │   │   ├── [?] LDP (RFC 5036 and extensions)
 │   │   └── [?] RFC 5444 TLV blocks (TLVs only)
@@ -210,7 +210,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.**
 | Length includes the header | RADIUS, Diameter | The adapter subtracts the header size to get `value_size` and rejects a length smaller than the header. |
 | Trailing padding after the value | Diameter | The canonical framing result includes a Trailer range and logical trailer size; `encode` writes and `decode` validates the padding. |
 | Header size depends on the type or flags | PFCP (enterprise ID), GTPv2 (type 254), GTPv1-C (TV versus TLV), RFC 5444 (flags) | `header_size` is reported per element, so this fits. GTPv1-C needs a type-to-length table in the borrowed descriptor context. |
-| Elements without a length, and a terminator | DHCPv4 Pad and End, NFC tag TLV NULL and Terminator | Each can be read as a header-only element, but the walker has no built-in "skip padding" or "stop at terminator" policy. Needs an explicit policy. |
+| Elements without a length, and a terminator | DHCPv4 Pad and End, NFC tag TLV NULL and Terminator | DHCPv4 uses the generic identifier-selected binary layout for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC requires separate assessment. |
 | Composite tag identity (type plus instance, vendor or flags) | GTPv2, PFCP, Diameter, RADIUS VSA, LDP | Direct binding requires a compatible contiguous source byte range; transformed identities require stable immutable format storage and individual review. LLDP keeps OUI/subtype in Value, not in its outer Tag. |
 | Grouped or nested elements decided by the type | PFCP, GTPv2, Diameter, IS-IS sub-TLVs, DHCPv4 option 82 | `tlv_format_t::is_constructed` receives the format context and the tag, so a table in the context can decide; the flags and value are not visible to it. |
 | Different formats at successive nesting levels | LDP, SNMP, SIM Toolkit | A caller can parse level by level today; automatic tree walking needs [mixed-format traversal](#generic-processing-extensions). |

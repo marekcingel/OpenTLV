@@ -15,6 +15,7 @@
  */
 
 #cmakedefine01 OPENTLV_BLUETOOTH
+#cmakedefine01 OPENTLV_DHCP
 #cmakedefine01 OPENTLV_LLDP
 #cmakedefine01 OPENTLV_FORMAT_ASN1
 #cmakedefine01 OPENTLV_FORMAT_BER
@@ -40,6 +41,11 @@ TLV_API int tlv_config_bluetooth(void);
  * @return 1 if `OPENTLV_LLDP` was enabled, otherwise 0.
  */
 TLV_API int tlv_config_lldp(void);
+/**
+ * @brief Reports whether DHCPv4 option framing was built.
+ * @return 1 if `OPENTLV_DHCP` was enabled, otherwise 0.
+ */
+TLV_API int tlv_config_dhcp(void);
 TLV_API int tlv_config_format_asn1(void);
 TLV_API int tlv_config_format_ber(void);
 TLV_API int tlv_config_format_der(void);

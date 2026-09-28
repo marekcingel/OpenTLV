@@ -233,6 +233,69 @@ TLV_API tlv_result_t tlv_binary_encode(const void* context, const tlv_element_t*
                                        tlv_format_error_t* error);
 
 /**
+ * @brief Fixed binary TLV framing with identifier-selected tag-only elements.
+ *
+ * Identifiers listed in tag_only omit both Length and Value; all other tags
+ * use fields. Selection compares raw identifier bytes, without numeric or
+ * protocol interpretation. Listed identifiers require an empty semantic Value.
+ * A decoded tag-only element has an absent Length range and present empty
+ * Value and Trailer ranges immediately after Tag. No terminator policy is implied.
+ *
+ * Configuration, table and identifier bytes are borrowed and immutable and
+ * must outlive the descriptor. No operation allocates. fields must use TLV
+ * ordering and VALUE scope, with nonzero tag_size and length_size in 1..8.
+ * Duplicate table entries are permitted and have no additional effect.
+ */
+typedef struct tlv_tagged_binary_layout {
+    tlv_binary_layout_t fields; /**< Default binary TLV field configuration. */
+    const tlv_tag_t* tag_only;  /**< Identifier table; NULL only when count is zero. */
+    size_t count;               /**< Number of entries; each must have fields.tag_size bytes. */
+} tlv_tagged_binary_layout_t;
+
+/**
+ * @brief Decode identifier-selected binary framing.
+ *
+ * @copydetails tlv_decode_fn
+ * @note context points to a valid immutable #tlv_tagged_binary_layout_t.
+ */
+TLV_API tlv_result_t tlv_tagged_binary_decode(const void* context, const uint8_t* data, size_t size,
+                                              tlv_decoded_t* result, tlv_format_error_t* error);
+
+/**
+ * @brief Measure identifier-selected binary framing.
+ *
+ * @copydetails tlv_measure_fn
+ * @note context points to a valid immutable #tlv_tagged_binary_layout_t.
+ * Tag-only elements with nonempty Value return #TLV_ERR_INVALID_LENGTH.
+ */
+TLV_API tlv_result_t tlv_tagged_binary_measure(const void* context, const tlv_element_t* element,
+                                               tlv_encoding_t* encoding, tlv_format_error_t* error);
+
+/**
+ * @brief Encode identifier-selected binary framing.
+ *
+ * @copydetails tlv_encode_fn
+ * @note context points to a valid immutable #tlv_tagged_binary_layout_t.
+ * Tag-only elements with nonempty Value return #TLV_ERR_INVALID_LENGTH.
+ */
+TLV_API tlv_result_t tlv_tagged_binary_encode(const void* context, const tlv_element_t* element,
+                                              uint8_t* data, size_t capacity, size_t* written,
+                                              tlv_format_error_t* error);
+
+/**
+ * @brief Initialize a bidirectional descriptor with identifier-selected framing.
+ *
+ * @param[out] format Descriptor; unchanged on failure.
+ * @param[in] layout Borrowed immutable configuration; must outlive format.
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG if format or layout is NULL.
+ * @return #TLV_ERR_INVALID_ARG for invalid widths, ordering, scope or table entries.
+ * @return #TLV_ERR_INVALID_BYTE_ORDER for unsupported length byte order.
+ */
+TLV_API tlv_result_t tlv_tagged_binary_format_init(tlv_format_t* format,
+                                                   const tlv_tagged_binary_layout_t* layout);
+
+/**
  * @brief One unsigned bit field within a fixed-size wire integer.
  *
  * This is Format composition configuration, not decoded source metadata.

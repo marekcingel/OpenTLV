@@ -130,6 +130,7 @@ nav:
       - Overview: formats/README.md
       - Configurable fixed-width TLV: formats/fixed/configurable.md
       - Bluetooth LTV: formats/bluetooth/README.md
+      - DHCPv4 option framing: formats/dhcp/README.md
       - LLDP TLV support: formats/lldp/README.md
       - LLDP reference and conformance notes: formats/lldp/conformance.md
       - BER-TLV: formats/asn1/ber.md
