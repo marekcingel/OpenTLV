@@ -232,8 +232,10 @@ bounded iterative traversal. It does not allocate an object tree. See
 ## Proposed order
 
 1. Assess DGI, NDN, and RADIUS as concrete adapters with different length rules.
-2. Complete the normative checks in the [LLDP requirements review](lldp-review.md);
-   its canonical Tag storage requirement is covered by the generic binding.
+2. Track normative verification across formats as separate work, including the
+   deferred checklist in the [LLDP requirements review](lldp-review.md). This
+   does not block #360; its architecture assessment and canonical Tag storage
+   requirement are complete.
    Assess further packed-header reuse through LwM2M before adding a bit-field
    Layout primitive (reordered headers are covered by
    [Bluetooth LTV](bluetooth/README.md)).

@@ -70,6 +70,28 @@ composition is a public Format primitive (`tlv_field_layout_t`); fixed binary
 fields use `tlv_binary_layout_t`. TLV and LTV use the same composition with
 explicit order and count scope. Bluetooth does not depend on Fixed internals.
 
+Packed fields sharing a wire integer use `tlv_packed_field_t` from `tlv/layout.h`.
+It describes 1..8 backing bytes, explicit byte order, bit offset counted from
+the decoded integer's least significant bit, and bit width. The read/write
+helpers operate on unsigned `uint64_t` values and require the complete backing
+storage. Writes preserve other bits, reject values that do not fit, and leave
+the destination unchanged on failure. Initialize storage before first insertion.
+For example, two fields in a three-byte little-endian header can be composed as:
+
+```c
+const tlv_packed_field_t kind = {3, 13, 11, TLV_BYTE_ORDER_LITTLE_ENDIAN};
+const tlv_packed_field_t count = {3, 0, 13, TLV_BYTE_ORDER_LITTLE_ENDIAN};
+uint8_t header[3] = {0};
+tlv_result_t rc = tlv_packed_field_write(&kind, header, sizeof(header), 5);
+if (rc == TLV_OK)
+    rc = tlv_packed_field_write(&count, header, sizeof(header), 300);
+```
+
+These helpers configure Format composition, not runtime source ranges. Format
+callbacks retain responsibility for Tag mapping and its storage lifetime,
+logical Length semantics, Value bounds and diagnostics. LLDP uses this primitive
+without depending on Fixed or changing the canonical Format operations.
+
 Decode must validate the entire framing, including a required trailer, before
 publishing a result. BER indefinite scanning resolves matching nested EOC in
 the ASN.1 implementation. An outer EOC is Trailer; a nested EOC remains part of

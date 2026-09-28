@@ -4,14 +4,19 @@ Architecture review for [#360](https://github.com/marekcingel/OpenTLV/issues/360
 [LLDP framing and binding presets](lldp/README.md) are implemented. LLDPDU
 schemas and value codecs remain outside this change. The review found a decoded-identifier restriction;
 the generic `TLV_TAG_BINDING_FORMAT` extension now allows canonical Type bytes
-in immutable format storage. No bit-field Layout primitive is required.
+in immutable format storage. The follow-up #361 adds a reusable packed-field
+primitive used by the LLDP adapter; it is independent of that storage extension.
+
+Normative verification is deferred to separate work covering multiple formats.
+It is outside the agreed scope of #360 and is not a closure criterion for this
+architecture review. This scope decision does not establish IEEE conformance.
 
 ## Issue coverage
 
 | Issue | Current coverage |
 | --- | --- |
-| [#360: requirements review](https://github.com/marekcingel/OpenTLV/issues/360) | Architecture assessment and generic Tag storage support; normative checks remain open. |
-| [#361: packed Layout primitive](https://github.com/marekcingel/OpenTLV/issues/361) | Conditional proposal. This review recommends using complete Format callbacks; no standalone bit-field primitive is implemented or currently justified. |
+| [#360: requirements review](https://github.com/marekcingel/OpenTLV/issues/360) | Architecture assessment, layer mapping and generic Tag storage support are complete. Normative verification is tracked separately and does not block closure. |
+| [#361: packed Layout primitive](https://github.com/marekcingel/OpenTLV/issues/361) | Implemented as `tlv_packed_field_t` with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks. |
 | [#362: LLDP format and definitions](https://github.com/marekcingel/OpenTLV/issues/362) | Framing, base Type definitions and named binding presets are implemented using `tlv_format_lldp`. Full normative verification remains open. |
 | [#363: schemas, codecs and conformance](https://github.com/marekcingel/OpenTLV/issues/363) | Not implemented. Generic integration tests do not establish LLDP protocol conformance. |
 
@@ -27,7 +32,8 @@ outside this review's proposed implementation subset.
 retrieved during this review: IEEE Xplore required browser verification. The
 public IEEE contributions below support preliminary requirements, but are not
 a substitute for reading the published standard. Do not mark the candidate
-normatively verified or close #360 on this evidence alone.
+normatively verified on this evidence alone. Completing that verification is
+separate from closing the architecture scope of #360.
 
 - [IEEE LLDP overview, slide 9](https://www.ieee802.org/1/files/public/docs2025/new-bottorff-lldp-for-lsvr-0425-v02.pdf)
   shows the packed header and Chassis ID, Port ID and TTL mandatory prefix.
@@ -57,11 +63,11 @@ subtype; Length is 4..511, leaving 0..507 payload octets. Keep this prefix in
 Value and retain Type 127 as the outer identifier. OUI/subtype dispatch belongs
 to Definition/Codec composition, not a composite outer Tag.
 
-## Normative checklist still to complete
+## Deferred normative verification checklist
 
 Clause references below are reading targets, not claims that their full text
 was inspected. Record transmit requirements separately from receive/discard
-behaviour when completing the review.
+behaviour during the separate normative verification work.
 
 | Requirement | Reading target in 802.1AB-2016 | OpenTLV responsibility |
 | --- | --- | --- |
@@ -140,11 +146,13 @@ an occurrence bound on the shared outer Type 127.
 
 ## Decision and follow-up
 
-Prefer a small LLDP adapter implementing the existing three Format operations
-over a new general bit-field configuration language. The present sequential
-field helpers cannot model this packed header, but the callback signatures can.
-A bit-field primitive would not have fixed the original identifier-storage
-restriction and is not justified by this single encoding.
+The original #360 review selected a small LLDP adapter implementing the existing
+three Format operations. The sequential field helpers cannot model this packed
+header, but the callback signatures can. Follow-up #361 adds a deliberately
+bounded `tlv_packed_field_t` primitive for fixed wire integers of 1..8 bytes,
+used inside that adapter. It does not introduce a generic packed Format or a
+bitstream framework. Canonical identifier mapping and protocol bounds remain
+in LLDP. This helper does not address the separate identifier-storage restriction.
 
 The implemented generic extension adds `tlv_source_t::tag_binding`. Direct
 source binding remains the zero/default value with its existing strict checks.
@@ -165,9 +173,13 @@ matches the changed layout; its safe API exposes `Format::Lldp` with the default
 Python copies semantic Tag bytes; Lua/WASM compile against the C headers.
 Consumers must rebuild because `tlv_source_t` and `tlv_decoded_t` changed ABI.
 
-To complete the normative part of #360, read the selected edition and resolve
-every checklist item above, particularly End TLV omission, duplicate handling
-and per-type bounds. The shared LLDP adapter and presets now provide framing; the remaining
+The architecture scope of #360 is complete: LLDP requirements are mapped to
+the generic layers, the canonical Tag restriction is resolved, and integration
+tests exercise the shared contracts without protocol-specific core branches.
+
+Separate normative verification work across formats should read the selected
+edition and resolve every checklist item above, particularly End TLV omission,
+duplicate handling and per-type bounds. The shared LLDP adapter and presets now provide framing; the remaining
 implementation story adds sequence/Codec checks, including unknown extensions,
 OUI/subtype boundaries and the verified End/padding rules. No further framing core change has been
 identified for the preliminary LLDP subset.

@@ -24,6 +24,7 @@ set(SOURCES
     builtins/bluetooth/manufacturer_data_test.cpp
     builtins/bluetooth/company_ids_test.cpp
     endian_test.cpp
+    packed_field_test.cpp
     endian_c_test.c
     size_test.cpp
     value_test.cpp

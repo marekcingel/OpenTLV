@@ -4,7 +4,8 @@
 
 The LLDP built-in implements the packed Type/Length framing used by IEEE
 802.1AB LLDP. The selected review target is IEEE 802.1AB-2016; full normative
-verification remains open as documented in the [review](../lldp-review.md).
+verification is deferred to separate work across formats, outside #360, as
+documented in the [review](../lldp-review.md).
 This implementation provides framing and base Type names, not LLDPDU semantic
 validation or an LLDP agent.
 
@@ -34,6 +35,11 @@ The header is two bytes in big-endian order. Type is 0..127; Length is 0..511
 and counts only Value bytes. Encoded size is `2 + Length`, at most 513 bytes.
 The logical Tag is a **single byte containing Type**, independent of Length.
 For example, `06 02 00 78` becomes Tag `03` and Value `00 78`.
+
+The adapter composes two `tlv_packed_field_t` configurations from `tlv/layout.h`:
+Type uses offset 9 and width 7; Length uses offset 0 and width 9. Both use
+two-byte big-endian storage. The primitive handles unsigned extraction and
+insertion; the adapter maps Type to canonical Tag bytes and validates framing.
 
 Decoded Tags borrow a static immutable table with `TLV_TAG_BINDING_FORMAT`.
 Value borrows the original input. Source Header covers two bytes; the Tag wire

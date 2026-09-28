@@ -1,5 +1,9 @@
 #include "tlv/builtins/lldp/lldp.h"
+#include "tlv/layout.h"
 #include <string.h>
+
+static const tlv_packed_field_t type_field = {2, 9, 7, TLV_BYTE_ORDER_BIG_ENDIAN};
+static const tlv_packed_field_t length_field = {2, 0, 9, TLV_BYTE_ORDER_BIG_ENDIAN};
 
 /* Canonical Type bytes must survive subsequent decodes and shallow copies. */
 static const uint8_t identifiers[128] = {
@@ -14,6 +18,8 @@ static const uint8_t identifiers[128] = {
 static tlv_result_t decode(const void* context, const uint8_t* data, size_t size,
                            tlv_decoded_t* result, tlv_format_error_t* error) {
     size_t length;
+    uint64_t type, count;
+    tlv_result_t rc;
     (void)context;
     error->region = TLV_REGION_HEADER;
     error->has_offset = 1;
@@ -23,13 +29,18 @@ static tlv_result_t decode(const void* context, const uint8_t* data, size_t size
     if (size < 2) return TLV_ERR_BUFFER_TOO_SHORT;
     error->tag = (tlv_range_t){0, 1, 1};
     error->length = (tlv_range_t){0, 2, 1};
-    length = ((size_t)(data[0] & 1) << 8) | data[1];
+    rc = tlv_packed_field_read(&type_field, data, size, &type);
+    if (rc != TLV_OK) return rc;
+    rc = tlv_packed_field_read(&length_field, data, size, &count);
+    if (rc != TLV_OK) return rc;
+    /* The configured nine-bit count fits every supported size_t. */
+    length = (size_t)count;
     error->region = TLV_REGION_VALUE;
     error->offset = 2;
     error->required = length;
     error->value = (tlv_range_t){2, length <= size - 2 ? length : size - 2, 1};
     if (length > size - 2) return TLV_ERR_BUFFER_TOO_SHORT;
-    result->element.tag = tlv_tag(identifiers + (data[0] >> 1), 1);
+    result->element.tag = tlv_tag(identifiers + (size_t)type, 1);
     result->element.value = (tlv_value_t){data + 2, length};
     result->source.header = (tlv_range_t){0, 2, 1};
     result->source.tag = error->tag;
@@ -64,8 +75,11 @@ static tlv_result_t encode(const void* context, const tlv_element_t* element, ui
     /* The validated 0..511 range fits every supported native size_t. */
     length = (size_t)element->value.size;
     if (capacity < length + 2) return TLV_ERR_BUFFER_TOO_SHORT;
-    data[0] = (uint8_t)((element->tag.data[0] << 1) | (length >> 8));
-    data[1] = (uint8_t)(length & 0xff);
+    data[0] = data[1] = 0;
+    rc = tlv_packed_field_write(&type_field, data, capacity, element->tag.data[0]);
+    if (rc != TLV_OK) return rc;
+    rc = tlv_packed_field_write(&length_field, data, capacity, length);
+    if (rc != TLV_OK) return rc;
     if (length) memcpy(data + 2, element->value.data, length);
     *written = length + 2;
     return TLV_OK;
