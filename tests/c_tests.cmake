@@ -46,6 +46,8 @@ set(SOURCES
     schema/constraint_test.cpp
     document/document_test.cpp
     codec/codec_test.cpp
+    codec/values_test.cpp
+    dhcp_codec_test.cpp
     builtins/asn1/format_ber_test.cpp
     builtins/asn1/asn1_codec_test.cpp
     builtins/asn1/der_test.cpp
@@ -73,7 +75,7 @@ endforeach()
 
 # Tests that name an optional component follow the same feature selection.
 if(NOT OPENTLV_DHCP)
-    list(REMOVE_ITEM SOURCES dhcpv4_test.cpp)
+    list(REMOVE_ITEM SOURCES dhcpv4_test.cpp dhcp_codec_test.cpp)
 endif()
 if(NOT OPENTLV_LLDP)
     list(REMOVE_ITEM SOURCES lldp_test.cpp)
