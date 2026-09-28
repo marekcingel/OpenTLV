@@ -106,6 +106,9 @@ Files</h2></td></tr>
 <tr class="memitem:fixed_8h" id="r_fixed_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="fixed_8h.html">fixed.h</a></td></tr>
 <tr class="memdesc:fixed_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">A configurable fixed-width TLV format: independent tag and length widths, field order and length semantics. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:variable_8h" id="r_variable_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="variable_8h.html">variable.h</a></td></tr>
+<tr class="memdesc:variable_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configurable variable-width identifier and count primitives. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:layout_8h" id="r_layout_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="layout_8h.html">layout.h</a></td></tr>
 <tr class="memdesc:layout_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Public field-layout composition primitives for canonical formats. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -129,6 +132,15 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__format.html">tlv_format</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lightweight canonical wire-format descriptor.  <a href="structtlv__format.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__identifier.html">tlv_variable_identifier</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inline identifier bits with an escape into continuation octets.  <a href="structtlv__variable__identifier.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__length.html">tlv_variable_length</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Short unsigned count or a prefix specifying the following octet count.  <a href="structtlv__variable__length.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__variable__format.html">tlv_variable_format</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definite variable-width field configuration for TLV or LTV.  <a href="structtlv__variable__format.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__field__layout.html">tlv_field_layout</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed field codec composition for a contiguous header and value.  <a href="structtlv__field__layout.html#details">More...</a><br /></td></tr>
@@ -187,6 +199,15 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga1ea954f726e9fdc526f3bf99c4cb055b" id="r_ga1ea954f726e9fdc526f3bf99c4cb055b"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354">tlv_binary_layout_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga1ea954f726e9fdc526f3bf99c4cb055b">tlv_fixed_format_t</a></td></tr>
 <tr class="memdesc:ga1ea954f726e9fdc526f3bf99c4cb055b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed format configuration using the generic binary-field layout.  <br /></td></tr>
 <tr class="separator:ga1ea954f726e9fdc526f3bf99c4cb055b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6f571fc336adff5ecbcb18fdeb432846" id="r_ga6f571fc336adff5ecbcb18fdeb432846"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__variable__identifier.html">tlv_variable_identifier</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a></td></tr>
+<tr class="memdesc:ga6f571fc336adff5ecbcb18fdeb432846"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inline identifier bits with an escape into continuation octets.  <br /></td></tr>
+<tr class="separator:ga6f571fc336adff5ecbcb18fdeb432846"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa63b1e8474b5f92b9d39cd928eb9d60d" id="r_gaa63b1e8474b5f92b9d39cd928eb9d60d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__variable__length.html">tlv_variable_length</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a></td></tr>
+<tr class="memdesc:gaa63b1e8474b5f92b9d39cd928eb9d60d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Short unsigned count or a prefix specifying the following octet count.  <br /></td></tr>
+<tr class="separator:gaa63b1e8474b5f92b9d39cd928eb9d60d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacf4370ef904f1de0996496b92a1f6679" id="r_gacf4370ef904f1de0996496b92a1f6679"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__variable__format.html">tlv_variable_format</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gacf4370ef904f1de0996496b92a1f6679">tlv_variable_format_t</a></td></tr>
+<tr class="memdesc:gacf4370ef904f1de0996496b92a1f6679"><td class="mdescLeft">&#160;</td><td class="mdescRight">Definite variable-width field configuration for TLV or LTV.  <br /></td></tr>
+<tr class="separator:gacf4370ef904f1de0996496b92a1f6679"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga42a852e645b64b1d92281ba236613b67" id="r_ga42a852e645b64b1d92281ba236613b67"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga42a852e645b64b1d92281ba236613b67">tlv_read_tag_fn</a>) (const void *context, const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t *consumed)</td></tr>
 <tr class="memdesc:ga42a852e645b64b1d92281ba236613b67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode identifier bytes and their consumed extent.  <br /></td></tr>
 <tr class="separator:ga42a852e645b64b1d92281ba236613b67"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -368,6 +389,24 @@ Functions</h2></td></tr>
 <tr class="memitem:ga42dd642a7d68261d64df08528ad6cf7e" id="r_ga42dd642a7d68261d64df08528ad6cf7e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga42dd642a7d68261d64df08528ad6cf7e">tlv_fixed_format_init</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="group__formats.html#ga1ea954f726e9fdc526f3bf99c4cb055b">tlv_fixed_format_t</a> *config)</td></tr>
 <tr class="memdesc:ga42dd642a7d68261d64df08528ad6cf7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a format for the configurable fixed-width encoding.  <br /></td></tr>
 <tr class="separator:ga42dd642a7d68261d64df08528ad6cf7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab96fa0fd2f00eaea14615ddfe4616577" id="r_gab96fa0fd2f00eaea14615ddfe4616577"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gab96fa0fd2f00eaea14615ddfe4616577">tlv_variable_identifier_read</a> (const <a class="el" href="group__formats.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a> *config, const uint8_t *data, size_t size, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, size_t *consumed)</td></tr>
+<tr class="memdesc:gab96fa0fd2f00eaea14615ddfe4616577"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a complete variable identifier without copying its bytes.  <br /></td></tr>
+<tr class="separator:gab96fa0fd2f00eaea14615ddfe4616577"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1a1e8e03b3606f61f54aa243bd97eb5f" id="r_ga1a1e8e03b3606f61f54aa243bd97eb5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga1a1e8e03b3606f61f54aa243bd97eb5f">tlv_variable_identifier_write</a> (const <a class="el" href="group__formats.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a> *config, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag, uint8_t *data, size_t capacity, size_t *written)</td></tr>
+<tr class="memdesc:ga1a1e8e03b3606f61f54aa243bd97eb5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate and copy a raw identifier, or measure it with NULL output.  <br /></td></tr>
+<tr class="separator:ga1a1e8e03b3606f61f54aa243bd97eb5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga72d26e71a434830afb98051697bef35b" id="r_ga72d26e71a434830afb98051697bef35b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga72d26e71a434830afb98051697bef35b">tlv_variable_length_read</a> (const <a class="el" href="group__formats.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a> *config, const uint8_t *data, size_t size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *length, size_t *consumed)</td></tr>
+<tr class="memdesc:ga72d26e71a434830afb98051697bef35b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a definite count without narrowing to native size.  <br /></td></tr>
+<tr class="separator:ga72d26e71a434830afb98051697bef35b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa83a0cbd4983a982f7ba3eec98a76366" id="r_gaa83a0cbd4983a982f7ba3eec98a76366"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa83a0cbd4983a982f7ba3eec98a76366">tlv_variable_length_write</a> (const <a class="el" href="group__formats.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a> *config, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> length, uint8_t *data, size_t capacity, size_t *written)</td></tr>
+<tr class="memdesc:gaa83a0cbd4983a982f7ba3eec98a76366"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode a definite count, or measure it with NULL output.  <br /></td></tr>
+<tr class="separator:gaa83a0cbd4983a982f7ba3eec98a76366"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga733cac9d8ecc8d87ceb1f760b7fac710" id="r_ga733cac9d8ecc8d87ceb1f760b7fac710"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga733cac9d8ecc8d87ceb1f760b7fac710">tlv_variable_fields_init</a> (<a class="el" href="group__formats.html#ga219256615355bced52734b26d900f4cf">tlv_field_layout_t</a> *fields, const <a class="el" href="group__formats.html#gacf4370ef904f1de0996496b92a1f6679">tlv_variable_format_t</a> *config)</td></tr>
+<tr class="memdesc:ga733cac9d8ecc8d87ceb1f760b7fac710"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize reusable variable field callbacks for format composition.  <br /></td></tr>
+<tr class="separator:ga733cac9d8ecc8d87ceb1f760b7fac710"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga68ed194abac8f01ace32853e31822957" id="r_ga68ed194abac8f01ace32853e31822957"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga68ed194abac8f01ace32853e31822957">tlv_variable_format_init</a> (<a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="group__formats.html#gacf4370ef904f1de0996496b92a1f6679">tlv_variable_format_t</a> *config)</td></tr>
+<tr class="memdesc:ga68ed194abac8f01ace32853e31822957"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a bidirectional definite variable-width format.  <br /></td></tr>
+<tr class="separator:ga68ed194abac8f01ace32853e31822957"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga22c38dafe5c63d6f137d434a9d625598" id="r_ga22c38dafe5c63d6f137d434a9d625598"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga22c38dafe5c63d6f137d434a9d625598">tlv_fields_decode</a> (const void *context, const uint8_t *data, size_t size, <a class="el" href="group__formats.html#ga3bc09282da50bc43b6467030f2e5bc4e">tlv_decoded_t</a> *result, <a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *error)</td></tr>
 <tr class="memdesc:ga22c38dafe5c63d6f137d434a9d625598"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a field composition; context points to <a class="el" href="group__formats.html#ga219256615355bced52734b26d900f4cf" title="Borrowed field codec composition for a contiguous header and value.">tlv_field_layout_t</a>.  <br /></td></tr>
 <tr class="separator:ga22c38dafe5c63d6f137d434a9d625598"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -926,6 +965,57 @@ A framing or buffer error reported by the resolver.</dd></dl>
 <p>Fixed binary TLV framing with identifier-selected tag-only elements. </p>
 <p>Identifiers listed in tag_only omit both Length and Value; all other tags use fields. Selection compares raw identifier bytes, without numeric or protocol interpretation. Listed identifiers require an empty semantic Value. A decoded tag-only element has an absent Length range and present empty Value and Trailer ranges immediately after Tag. No terminator policy is implied.</p>
 <p>Configuration, table and identifier bytes are borrowed and immutable and must outlive the descriptor. No operation allocates. fields must use TLV ordering and VALUE scope, with nonzero tag_size and length_size in 1..8. Duplicate table entries are permitted and have no additional effect. </p>
+
+</div>
+</div>
+<a id="gacf4370ef904f1de0996496b92a1f6679" name="gacf4370ef904f1de0996496b92a1f6679"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gacf4370ef904f1de0996496b92a1f6679">&#9670;&#160;</a></span>tlv_variable_format_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__variable__format.html">tlv_variable_format</a> <a class="el" href="group__formats.html#gacf4370ef904f1de0996496b92a1f6679">tlv_variable_format_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definite variable-width field configuration for TLV or LTV. </p>
+<p>Length scope is applied using the actual encoded identifier width. This configuration describes framing only, without constructed or tag semantics. </p>
+
+</div>
+</div>
+<a id="ga6f571fc336adff5ecbcb18fdeb432846" name="ga6f571fc336adff5ecbcb18fdeb432846"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6f571fc336adff5ecbcb18fdeb432846">&#9670;&#160;</a></span>tlv_variable_identifier_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__variable__identifier.html">tlv_variable_identifier</a> <a class="el" href="group__formats.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inline identifier bits with an escape into continuation octets. </p>
+<p>One octet is sufficient unless <code>(first &amp; inline_mask) == escape</code>. In that case at least one continuation octet follows, ending when continuation_bit is clear. Only payload_mask and continuation_bit may be set in those octets. Zero payloads and nonminimal forms are accepted. Bits outside inline_mask in the first octet are preserved without interpretation. </p>
+
+</div>
+</div>
+<a id="gaa63b1e8474b5f92b9d39cd928eb9d60d" name="gaa63b1e8474b5f92b9d39cd928eb9d60d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa63b1e8474b5f92b9d39cd928eb9d60d">&#9670;&#160;</a></span>tlv_variable_length_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__variable__length.html">tlv_variable_length</a> <a class="el" href="group__formats.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Short unsigned count or a prefix specifying the following octet count. </p>
+<p>When long_form_bit is clear, payload_mask holds the count itself. Otherwise it holds the number of following full octets, interpreted in byte_order. Mask bits are packed from least to most significant, even for noncontiguous masks. Other prefix bits must be zero. A long-form octet count of zero has no definite count and is rejected by this primitive; a concrete format may recognize it in its bounds resolver. No prefix is reserved by a standard. Reading accepts padded and nonminimal counts that fit <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>. Writing uses short form when possible, otherwise the fewest full count octets. </p>
 
 </div>
 </div>
@@ -3385,6 +3475,378 @@ A format error if encoding fails.</dd></dl>
 <dd>
 A format error if the semantic input cannot be represented.   </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>context points to a valid immutable <a class="el" href="group__formats.html#ga6dabfa6296f354ccba50da3921f9e4e9" title="Fixed binary TLV framing with identifier-selected tag-only elements.">tlv_tagged_binary_layout_t</a>. Tag-only elements with nonempty Value return <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a>. </dd></dl>
+
+</div>
+</div>
+<a id="ga733cac9d8ecc8d87ceb1f760b7fac710" name="ga733cac9d8ecc8d87ceb1f760b7fac710"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga733cac9d8ecc8d87ceb1f760b7fac710">&#9670;&#160;</a></span>tlv_variable_fields_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_variable_fields_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#ga219256615355bced52734b26d900f4cf">tlv_field_layout_t</a> *&#160;</td>
+          <td class="paramname"><em>fields</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gacf4370ef904f1de0996496b92a1f6679">tlv_variable_format_t</a> *&#160;</td>
+          <td class="paramname"><em>config</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize reusable variable field callbacks for format composition. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">fields</td><td>Field composition, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>Immutable configuration, borrowed; must outlive fields and its users. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL fields or config. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid masks, widths, ordering or scope. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for unsupported length byte order. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation occurs. The resulting context points to config. A concrete format may add a <a class="el" href="group__formats.html#ga046ea185156d4b70a4168c0def1ac11b" title="Resolve terminated framing after an identifier.">tlv_resolve_bounds_fn</a> for terminated TLV/VALUE framing; it must provide matching canonical measure/encode callbacks to write trailers. Standalone primitives also support compositions with a caller-defined context. </dd></dl>
+
+</div>
+</div>
+<a id="ga68ed194abac8f01ace32853e31822957" name="ga68ed194abac8f01ace32853e31822957"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga68ed194abac8f01ace32853e31822957">&#9670;&#160;</a></span>tlv_variable_format_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_variable_format_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gacf4370ef904f1de0996496b92a1f6679">tlv_variable_format_t</a> *&#160;</td>
+          <td class="paramname"><em>config</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize a bidirectional definite variable-width format. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">format</td><td>Descriptor, unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>Immutable configuration, borrowed; must outlive format and its users. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL format or config. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid masks, widths, ordering or scope. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for unsupported length byte order. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation occurs. The descriptor borrows config directly and can be copied. No runtime engine or builtin is required. </dd></dl>
+
+</div>
+</div>
+<a id="gab96fa0fd2f00eaea14615ddfe4616577" name="gab96fa0fd2f00eaea14615ddfe4616577"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab96fa0fd2f00eaea14615ddfe4616577">&#9670;&#160;</a></span>tlv_variable_identifier_read()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_variable_identifier_read </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a> *&#160;</td>
+          <td class="paramname"><em>config</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>consumed</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Read a complete variable identifier without copying its bytes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>Immutable identifier configuration, not NULL. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Source bytes; NULL is allowed only when size is zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Available source bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Identifier borrowing data, which must outlive the result. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">consumed</td><td>Complete identifier width on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a missing required pointer. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid configuration. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for a missing prefix or continuation octet. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if the identifier would exceed max_size. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> for bits outside the continuation/payload masks. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Outputs are unchanged on failure. No allocation occurs. </dd></dl>
+
+</div>
+</div>
+<a id="ga1a1e8e03b3606f61f54aa243bd97eb5f" name="ga1a1e8e03b3606f61f54aa243bd97eb5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1a1e8e03b3606f61f54aa243bd97eb5f">&#9670;&#160;</a></span>tlv_variable_identifier_write()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_variable_identifier_write </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#ga6f571fc336adff5ecbcb18fdeb432846">tlv_variable_identifier_t</a> *&#160;</td>
+          <td class="paramname"><em>config</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>written</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validate and copy a raw identifier, or measure it with NULL output. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>Immutable identifier configuration, not NULL. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Complete raw identifier, not NULL. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Destination; NULL with zero capacity queries the width. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Destination capacity in bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">written</td><td>Complete identifier width on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers or NULL data with nonzero capacity. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid configuration. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> for an empty or oversized identifier. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> for an incomplete identifier, trailing bytes or invalid bits. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for insufficient destination capacity. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Outputs are unchanged on failure. Source and destination may overlap. </dd></dl>
+
+</div>
+</div>
+<a id="ga72d26e71a434830afb98051697bef35b" name="ga72d26e71a434830afb98051697bef35b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga72d26e71a434830afb98051697bef35b">&#9670;&#160;</a></span>tlv_variable_length_read()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_variable_length_read </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a> *&#160;</td>
+          <td class="paramname"><em>config</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *&#160;</td>
+          <td class="paramname"><em>length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>consumed</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decode a definite count without narrowing to native size. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>Immutable count configuration, not NULL. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Source bytes; NULL is allowed only when size is zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Available source bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">length</td><td>Decoded count on success; unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">consumed</td><td>Field width on success; available field prefix on wire errors. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a missing required pointer. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid masks. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for unsupported byte order. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for an incomplete field. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for invalid prefix bits or zero long-form width. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if the complete count exceeds <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Argument/configuration errors leave both outputs unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="gaa83a0cbd4983a982f7ba3eec98a76366" name="gaa83a0cbd4983a982f7ba3eec98a76366"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa83a0cbd4983a982f7ba3eec98a76366">&#9670;&#160;</a></span>tlv_variable_length_write()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_variable_length_write </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gaa63b1e8474b5f92b9d39cd928eb9d60d">tlv_variable_length_t</a> *&#160;</td>
+          <td class="paramname"><em>config</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a>&#160;</td>
+          <td class="paramname"><em>length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>written</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encode a definite count, or measure it with NULL output. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>Immutable count configuration, not NULL. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">length</td><td>Logical unsigned count. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Destination; NULL with zero capacity queries the width. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Destination capacity in bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">written</td><td>Encoded count field width on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing pointers or NULL data with nonzero capacity. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid masks. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for unsupported byte order. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> if the prefix cannot represent the required width. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for insufficient destination capacity. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Outputs are unchanged on failure. No allocation occurs. </dd></dl>
 
 </div>
 </div>

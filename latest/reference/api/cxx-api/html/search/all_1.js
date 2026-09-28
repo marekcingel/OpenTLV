@@ -10,6 +10,6 @@ var searchData=
   ['bluetooth_5fltv_2eh_7',['bluetooth_ltv.h',['../../../c-api/html/bluetooth__ltv_8h.html',1,'']]],
   ['buf_8',['buf',['../../../c-api/html/structtlv__writer.html#a37ce6d8aacd5dd9ac7ddd58a45d5e428',1,'tlv_writer']]],
   ['byte_9',['byte',['../namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51',1,'tlv']]],
-  ['byte_5forder_10',['byte_order',['../../../c-api/html/structtlv__packed__field.html#a01bacd8d635b580ed9dd9429eda0c0d0',1,'tlv_packed_field']]],
+  ['byte_5forder_10',['byte_order',['../../../c-api/html/structtlv__packed__field.html#a01bacd8d635b580ed9dd9429eda0c0d0',1,'tlv_packed_field::byte_order'],['../../../c-api/html/structtlv__variable__length.html#aec8204af2bde4699b095c5b4db90e980',1,'tlv_variable_length::byte_order']]],
   ['bytes_11',['bytes',['../../../c-api/html/structtlv__bluetooth__uuid128.html#a5f304111a954b5e400ef494fb9eda57c',1,'tlv_bluetooth_uuid128::bytes'],['../../../c-api/html/structtlv__ipv4.html#a087af4e7ecd3ab0eb445082b0810302e',1,'tlv_ipv4::bytes'],['../../../c-api/html/structtlv__query.html#a46e17ab6db9d8691d81b59f0717cc00b',1,'tlv_query::bytes'],['../namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d',1,'tlv::bytes']]]
 ];

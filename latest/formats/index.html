@@ -1592,6 +1592,34 @@
   
   
     <li class="md-nav__item">
+      <a href="variable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable variable-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="bluetooth/" class="md-nav__link">
         
   
@@ -3008,6 +3036,11 @@ optional. Both use the same Format, Reader and Writer contracts.</p>
 <td><a href="fixed/configurable/">Configurable fixed-width TLV</a></td>
 <td>Any tag width, length widths up to 8 bytes</td>
 </tr>
+<tr>
+<td>Escaped variable identifiers and short/long length fields</td>
+<td><a href="variable/">Configurable variable-width TLV</a></td>
+<td>Generic framing; concrete validity and termination rules supplied separately</td>
+</tr>
 </tbody>
 </table>
 <h3 id="built-in-standards">Built-in standards<a class="headerlink" href="#built-in-standards" title="Permanent link">&para;</a></h3>
@@ -3061,9 +3094,8 @@ optional. Both use the same Format, Reader and Writer contracts.</p>
 They are an extension mechanism, not a built-in standard or a supplied format.</p>
 <h2 id="compare-formats">Compare formats<a class="headerlink" href="#compare-formats" title="Permanent link">&para;</a></h2>
 <h3 id="generic-core-formats_1">Generic core formats<a class="headerlink" href="#generic-core-formats_1" title="Permanent link">&para;</a></h3>
-<p>These reusable formats describe wire layouts without protocol policy. Fixed is
-currently the supplied generic format; future generic formats belong in this
-group. They are part of the core rather than optional standards packages.</p>
+<p>These reusable formats describe wire layouts without protocol policy. Fixed and
+Variable are part of the core rather than optional standards packages.</p>
 <table>
 <thead>
 <tr>
@@ -3085,6 +3117,15 @@ group. They are part of the core rather than optional standards packages.</p>
 <td>tag, length, value or length, tag, value</td>
 <td>none (opaque values)</td>
 <td>Always available (C and C++)</td>
+</tr>
+<tr>
+<td><a href="variable/">Configurable variable-width TLV</a></td>
+<td>inline or escaped continuation octets; configurable maximum width</td>
+<td>short/long, big or little endian, counting value or tag and value</td>
+<td><code>tlv_size_t</code>, subject to configured count width and native buffer limits</td>
+<td>tag, length, value or length, tag, value</td>
+<td>supplied by concrete composition</td>
+<td>Always available (C API)</td>
 </tr>
 </tbody>
 </table>

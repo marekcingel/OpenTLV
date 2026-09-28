@@ -82,6 +82,9 @@ var searchData=
   ['tlv_5ftagged_5fbinary_5flayout_79',['tlv_tagged_binary_layout',['../../../c-api/html/structtlv__tagged__binary__layout.html',1,'']]],
   ['tlv_5fvalue_5fconstraint_80',['tlv_value_constraint',['../../../c-api/html/structtlv__value__constraint.html',1,'']]],
   ['tlv_5fvalue_5ft_81',['tlv_value_t',['../../../c-api/html/structtlv__value__t.html',1,'']]],
-  ['tlv_5fwriter_82',['tlv_writer',['../../../c-api/html/structtlv__writer.html',1,'']]],
-  ['tlv_5fwriter_5fdiagnostic_83',['tlv_writer_diagnostic',['../../../c-api/html/structtlv__writer__diagnostic.html',1,'']]]
+  ['tlv_5fvariable_5fformat_82',['tlv_variable_format',['../../../c-api/html/structtlv__variable__format.html',1,'']]],
+  ['tlv_5fvariable_5fidentifier_83',['tlv_variable_identifier',['../../../c-api/html/structtlv__variable__identifier.html',1,'']]],
+  ['tlv_5fvariable_5flength_84',['tlv_variable_length',['../../../c-api/html/structtlv__variable__length.html',1,'']]],
+  ['tlv_5fwriter_85',['tlv_writer',['../../../c-api/html/structtlv__writer.html',1,'']]],
+  ['tlv_5fwriter_5fdiagnostic_86',['tlv_writer_diagnostic',['../../../c-api/html/structtlv__writer__diagnostic.html',1,'']]]
 ];
