@@ -1430,7 +1430,35 @@
   <span class="md-ellipsis">
     
   
-    LLDP TLV framing
+    LLDP TLV support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lldp/conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
   
 
     
@@ -2861,6 +2889,10 @@ support.</strong></p>
 requirements, and the dependencies. The per-candidate detail (specification, subset,
 components, limits, and what was checked) is in the
 <a href="../format-catalogue/">format candidate catalogue</a>.</p>
+<p>LLDP now provides the <a href="../lldp/">base built-in</a>: packed framing,
+definitions, structural validation and value codecs. Its remaining work is
+full-edition normative verification and any separately scoped extensions;
+Ethernet transport and LLDP agents remain outside OpenTLV.</p>
 <h2 id="keep-the-core-generic">Keep the core generic<a class="headerlink" href="#keep-the-core-generic" title="Permanent link">&para;</a></h2>
 <p>Keep raw framing, nesting rules, structural schemas, value codecs, and protocol
 semantics separate. Generic formats such as Fixed belong to the always-available
@@ -3047,7 +3079,7 @@ so a candidate's "components" show which layers stay separate.</p>
 <a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>│   │   ├── [ ] PEAP TLV (existing entry)
 <a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>│   │   └── [ ] NDN packet TLV (existing entry)
 <a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>│   ├── Networking, link and routing
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>│   │   ├── [?] LLDP (IEEE 802.1AB)
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>│   │   ├── [x] LLDP base TLVs (IEEE 802.1AB; normative audit pending)
 <a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>│   │   ├── [?] IS-IS TLVs and sub-TLVs (ISO 10589 and extensions)
 <a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>│   │   ├── [?] DHCPv4 options (RFC 2132, RFC 3396, RFC 3046)
 <a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>│   │   ├── [?] DHCPv6 options (RFC 8415)
@@ -3261,8 +3293,10 @@ bounded iterative traversal. It does not allocate an object tree. See
 <h2 id="proposed-order">Proposed order<a class="headerlink" href="#proposed-order" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Assess DGI, NDN, and RADIUS as concrete adapters with different length rules.</li>
-<li>Complete the normative checks in the <a href="../lldp-review/">LLDP requirements review</a>;
-   its canonical Tag storage requirement is covered by the generic binding.
+<li>Track normative verification across formats as separate work, including the
+   deferred checklist in the <a href="../lldp-review/">LLDP requirements review</a>. This
+   does not block #360; its architecture assessment and canonical Tag storage
+   requirement are complete.
    Assess further packed-header reuse through LwM2M before adding a bit-field
    Layout primitive (reordered headers are covered by
    <a href="../bluetooth/">Bluetooth LTV</a>).</li>

@@ -1549,7 +1549,35 @@
   <span class="md-ellipsis">
     
   
-    LLDP TLV framing
+    LLDP TLV support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
   
 
     
@@ -2827,6 +2855,24 @@ operation. Reader and Writer have no alternate field-callback path. Field
 composition is a public Format primitive (<code>tlv_field_layout_t</code>); fixed binary
 fields use <code>tlv_binary_layout_t</code>. TLV and LTV use the same composition with
 explicit order and count scope. Bluetooth does not depend on Fixed internals.</p>
+<p>Packed fields sharing a wire integer use <code>tlv_packed_field_t</code> from <code>tlv/layout.h</code>.
+It describes 1..8 backing bytes, explicit byte order, bit offset counted from
+the decoded integer's least significant bit, and bit width. The read/write
+helpers operate on unsigned <code>uint64_t</code> values and require the complete backing
+storage. Writes preserve other bits, reject values that do not fit, and leave
+the destination unchanged on failure. Initialize storage before first insertion.
+For example, two fields in a three-byte little-endian header can be composed as:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_packed_field_t</span><span class="w"> </span><span class="n">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_LITTLE_ENDIAN</span><span class="p">};</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_packed_field_t</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_LITTLE_ENDIAN</span><span class="p">};</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">header</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_packed_field_write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kind</span><span class="p">,</span><span class="w"> </span><span class="n">header</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">header</span><span class="p">),</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_packed_field_write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">header</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">header</span><span class="p">),</span><span class="w"> </span><span class="mi">300</span><span class="p">);</span>
+</code></pre></div>
+<p>These helpers configure Format composition, not runtime source ranges. Format
+callbacks retain responsibility for Tag mapping and its storage lifetime,
+logical Length semantics, Value bounds and diagnostics. LLDP uses this primitive
+without depending on Fixed or changing the canonical Format operations.</p>
 <p>Decode must validate the entire framing, including a required trailer, before
 publishing a result. BER indefinite scanning resolves matching nested EOC in
 the ASN.1 implementation. An outer EOC is Trailer; a nested EOC remains part of

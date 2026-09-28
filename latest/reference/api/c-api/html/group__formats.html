@@ -133,6 +133,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__binary__layout.html">tlv_binary_layout</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-width binary fields, independent of any protocol.  <a href="structtlv__binary__layout.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__packed__field.html">tlv_packed_field</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One unsigned bit field within a fixed-size wire integer.  <a href="structtlv__packed__field.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -208,6 +211,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gaa539a67f6feeae3003c2935741734354" id="r_gaa539a67f6feeae3003c2935741734354"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__binary__layout.html">tlv_binary_layout</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354">tlv_binary_layout_t</a></td></tr>
 <tr class="memdesc:gaa539a67f6feeae3003c2935741734354"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-width binary fields, independent of any protocol.  <br /></td></tr>
 <tr class="separator:gaa539a67f6feeae3003c2935741734354"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6975503eb92e58c68b69207256ee70f1" id="r_ga6975503eb92e58c68b69207256ee70f1"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__packed__field.html">tlv_packed_field</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a></td></tr>
+<tr class="memdesc:ga6975503eb92e58c68b69207256ee70f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">One unsigned bit field within a fixed-size wire integer.  <br /></td></tr>
+<tr class="separator:ga6975503eb92e58c68b69207256ee70f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -374,6 +380,12 @@ Functions</h2></td></tr>
 <tr class="memitem:gadb7b42e4eca81463445758549038fb5b" id="r_gadb7b42e4eca81463445758549038fb5b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gadb7b42e4eca81463445758549038fb5b">tlv_binary_encode</a> (const void *context, const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, uint8_t *data, size_t capacity, size_t *written, <a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *error)</td></tr>
 <tr class="memdesc:gadb7b42e4eca81463445758549038fb5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode binary fields; context points to <a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354" title="Fixed-width binary fields, independent of any protocol.">tlv_binary_layout_t</a>.  <br /></td></tr>
 <tr class="separator:gadb7b42e4eca81463445758549038fb5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2f0bc6baee687d0d1f946119eaff728e" id="r_ga2f0bc6baee687d0d1f946119eaff728e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga2f0bc6baee687d0d1f946119eaff728e">tlv_packed_field_read</a> (const <a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a> *field, const uint8_t *data, size_t size, uint64_t *value)</td></tr>
+<tr class="memdesc:ga2f0bc6baee687d0d1f946119eaff728e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract an unsigned field from its complete backing wire integer.  <br /></td></tr>
+<tr class="separator:ga2f0bc6baee687d0d1f946119eaff728e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad47b28afa3abe5fbc33c3b4cbbf3d989" id="r_gad47b28afa3abe5fbc33c3b4cbbf3d989"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gad47b28afa3abe5fbc33c3b4cbbf3d989">tlv_packed_field_write</a> (const <a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a> *field, uint8_t *data, size_t capacity, uint64_t value)</td></tr>
+<tr class="memdesc:gad47b28afa3abe5fbc33c3b4cbbf3d989"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert an unsigned field, preserving every bit outside the field.  <br /></td></tr>
+<tr class="separator:gad47b28afa3abe5fbc33c3b4cbbf3d989"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -701,6 +713,23 @@ A length error reported by the codec.</dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if logical size arithmetic overflows. </dd>
 <dd>
 A format error if the semantic input cannot be represented. </dd></dl>
+
+</div>
+</div>
+<a id="ga6975503eb92e58c68b69207256ee70f1" name="ga6975503eb92e58c68b69207256ee70f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6975503eb92e58c68b69207256ee70f1">&#9670;&#160;</a></span>tlv_packed_field_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__packed__field.html">tlv_packed_field</a> <a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>One unsigned bit field within a fixed-size wire integer. </p>
+<p>This is Format composition configuration, not decoded source metadata. Offsets count from the least significant bit after applying byte_order, independently of host endianness. No protocol semantics or storage ownership are implied. Multiple fields may share the same backing bytes. </p>
 
 </div>
 </div>
@@ -2889,6 +2918,130 @@ Any measurement or encoder error, propagated unchanged.</dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if the measured framing sizes are inconsistent. </dd>
 <dd>
 Any measurement error, propagated unchanged. </dd></dl>
+
+</div>
+</div>
+<a id="ga2f0bc6baee687d0d1f946119eaff728e" name="ga2f0bc6baee687d0d1f946119eaff728e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2f0bc6baee687d0d1f946119eaff728e">&#9670;&#160;</a></span>tlv_packed_field_read()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_packed_field_read </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a> *&#160;</td>
+          <td class="paramname"><em>field</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t *&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Extract an unsigned field from its complete backing wire integer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">field</td><td>Immutable field configuration, borrowed for this call. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Beginning of the backing integer; no alignment required. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Available source bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>Extracted unsigned value on success.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for any required NULL pointer. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid storage size, offset or width. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for unsupported byte order. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if the complete storage is unavailable.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Validation follows the order above. Failure leaves *value unchanged. No allocation or access beyond storage_size bytes occurs. </dd></dl>
+
+</div>
+</div>
+<a id="gad47b28afa3abe5fbc33c3b4cbbf3d989" name="gad47b28afa3abe5fbc33c3b4cbbf3d989"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad47b28afa3abe5fbc33c3b4cbbf3d989">&#9670;&#160;</a></span>tlv_packed_field_write()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_packed_field_write </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a> *&#160;</td>
+          <td class="paramname"><em>field</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Insert an unsigned field, preserving every bit outside the field. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">field</td><td>Immutable field configuration, borrowed for this call. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">data</td><td>Initialized backing bytes; no alignment required. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Available destination bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Unsigned value to insert without truncation.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for any required NULL pointer. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid storage size, offset or width. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a9e5b567aeff9d3d6549f5a2fdc9074f3">TLV_ERR_INVALID_BYTE_ORDER</a> for unsupported byte order. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> if the complete storage is unavailable. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if value does not fit bit_width.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Validation follows the order above. Failure leaves data unchanged. Initialize backing bytes (for example to zero) before first insertion. No allocation or access beyond storage_size bytes occurs. </dd></dl>
 
 </div>
 </div>

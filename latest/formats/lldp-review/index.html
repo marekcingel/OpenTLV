@@ -1430,7 +1430,35 @@
   <span class="md-ellipsis">
     
   
-    LLDP TLV framing
+    LLDP TLV support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lldp/conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
   
 
     
@@ -1740,10 +1768,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#normative-checklist-still-to-complete" class="md-nav__link">
+  <a href="#deferred-normative-verification-checklist" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Normative checklist still to complete
+        Deferred normative verification checklist
       
     </span>
   </a>
@@ -2731,10 +2759,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#normative-checklist-still-to-complete" class="md-nav__link">
+  <a href="#deferred-normative-verification-checklist" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Normative checklist still to complete
+        Deferred normative verification checklist
       
     </span>
   </a>
@@ -2818,10 +2846,14 @@
 
 <h1 id="lldp-requirements-and-formatlayout-review">LLDP requirements and Format/Layout review<a class="headerlink" href="#lldp-requirements-and-formatlayout-review" title="Permanent link">&para;</a></h1>
 <p>Architecture review for <a href="https://github.com/marekcingel/OpenTLV/issues/360">#360</a>.
-<a href="../lldp/">LLDP framing and binding presets</a> are implemented. LLDPDU
-schemas and value codecs remain outside this change. The review found a decoded-identifier restriction;
+<a href="../lldp/">LLDP base support</a> now includes framing, definitions, structural
+validation and value codecs through the combined #362/#363 implementation. The review found a decoded-identifier restriction;
 the generic <code>TLV_TAG_BINDING_FORMAT</code> extension now allows canonical Type bytes
-in immutable format storage. No bit-field Layout primitive is required.</p>
+in immutable format storage. The follow-up #361 adds a reusable packed-field
+primitive used by the LLDP adapter; it is independent of that storage extension.</p>
+<p>Normative verification is deferred to separate work covering multiple formats.
+It is outside the agreed scope of #360 and is not a closure criterion for this
+architecture review. This scope decision does not establish IEEE conformance.</p>
 <h2 id="issue-coverage">Issue coverage<a class="headerlink" href="#issue-coverage" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2833,19 +2865,19 @@ in immutable format storage. No bit-field Layout primitive is required.</p>
 <tbody>
 <tr>
 <td><a href="https://github.com/marekcingel/OpenTLV/issues/360">#360: requirements review</a></td>
-<td>Architecture assessment and generic Tag storage support; normative checks remain open.</td>
+<td>Architecture assessment, layer mapping and generic Tag storage support are complete. Normative verification is tracked separately and does not block closure.</td>
 </tr>
 <tr>
 <td><a href="https://github.com/marekcingel/OpenTLV/issues/361">#361: packed Layout primitive</a></td>
-<td>Conditional proposal. This review recommends using complete Format callbacks; no standalone bit-field primitive is implemented or currently justified.</td>
+<td>Implemented as <code>tlv_packed_field_t</code> with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks.</td>
 </tr>
 <tr>
 <td><a href="https://github.com/marekcingel/OpenTLV/issues/362">#362: LLDP format and definitions</a></td>
-<td>Framing, base Type definitions and named binding presets are implemented using <code>tlv_format_lldp</code>. Full normative verification remains open.</td>
+<td>Implemented with #363; see <a href="../lldp/#coverage-of-362-and-363">combined coverage</a>. Full normative verification remains separate.</td>
 </tr>
 <tr>
 <td><a href="https://github.com/marekcingel/OpenTLV/issues/363">#363: schemas, codecs and conformance</a></td>
-<td>Not implemented. Generic integration tests do not establish LLDP protocol conformance.</td>
+<td>Base structural validator, value codecs, reference tests and C/C++ examples implemented. See the <a href="../lldp/conformance/">conformance boundary</a>; full IEEE conformance is not established.</td>
 </tr>
 </tbody>
 </table>
@@ -2859,7 +2891,8 @@ outside this review's proposed implementation subset.</p>
 retrieved during this review: IEEE Xplore required browser verification. The
 public IEEE contributions below support preliminary requirements, but are not
 a substitute for reading the published standard. Do not mark the candidate
-normatively verified or close #360 on this evidence alone.</p>
+normatively verified on this evidence alone. Completing that verification is
+separate from closing the architecture scope of #360.</p>
 <ul>
 <li><a href="https://www.ieee802.org/1/files/public/docs2025/new-bottorff-lldp-for-lsvr-0425-v02.pdf">IEEE LLDP overview, slide 9</a>
   shows the packed header and Chassis ID, Port ID and TTL mandatory prefix.</li>
@@ -2867,8 +2900,9 @@ normatively verified or close #360 on this evidence alone.</p>
   describes Type 127, OUI, subtype and their lengths.</li>
 <li><a href="https://www.ieee802.org/1/files/public/docs2024/60802-woods-proxy-considerations-1024-v02.pdf">IEEE proxy discussion, Table 8-1 and Figure 8-11</a>
   reproduces the basic Type assignments and Management Address structure.
-  Its table labels End of LLDPDU <strong>optional</strong>; verify termination rules in the
-  chosen edition instead of assuming an always-required End TLV.</li>
+  Its table labels End of LLDPDU <strong>optional</strong>. The later
+  <a href="../lldp/conformance/#evidence">published-text excerpt</a> confirms optional End in
+  10.2.3; full receive/padding semantics still need the complete edition.</li>
 </ul>
 <h2 id="preliminary-wire-requirements">Preliminary wire requirements<a class="headerlink" href="#preliminary-wire-requirements" title="Permanent link">&para;</a></h2>
 <p>The two-byte header carries Type in its upper seven bits and Length in its lower
@@ -2884,10 +2918,10 @@ extent 2 + Length. Type 127 Value starts with a three-octet OUI and one-octet
 subtype; Length is 4..511, leaving 0..507 payload octets. Keep this prefix in
 Value and retain Type 127 as the outer identifier. OUI/subtype dispatch belongs
 to Definition/Codec composition, not a composite outer Tag.</p>
-<h2 id="normative-checklist-still-to-complete">Normative checklist still to complete<a class="headerlink" href="#normative-checklist-still-to-complete" title="Permanent link">&para;</a></h2>
+<h2 id="deferred-normative-verification-checklist">Deferred normative verification checklist<a class="headerlink" href="#deferred-normative-verification-checklist" title="Permanent link">&para;</a></h2>
 <p>Clause references below are reading targets, not claims that their full text
 was inspected. Record transmit requirements separately from receive/discard
-behaviour when completing the review.</p>
+behaviour during the separate normative verification work.</p>
 <table>
 <thead>
 <tr>
@@ -3028,11 +3062,13 @@ Reader/Document/Query must not learn that Type 0 ends an LLDPDU. Likewise,
 OUI/subtype-specific occurrence checks require decoded Value context, not just
 an occurrence bound on the shared outer Type 127.</p>
 <h2 id="decision-and-follow-up">Decision and follow-up<a class="headerlink" href="#decision-and-follow-up" title="Permanent link">&para;</a></h2>
-<p>Prefer a small LLDP adapter implementing the existing three Format operations
-over a new general bit-field configuration language. The present sequential
-field helpers cannot model this packed header, but the callback signatures can.
-A bit-field primitive would not have fixed the original identifier-storage
-restriction and is not justified by this single encoding.</p>
+<p>The original #360 review selected a small LLDP adapter implementing the existing
+three Format operations. The sequential field helpers cannot model this packed
+header, but the callback signatures can. Follow-up #361 adds a deliberately
+bounded <code>tlv_packed_field_t</code> primitive for fixed wire integers of 1..8 bytes,
+used inside that adapter. It does not introduce a generic packed Format or a
+bitstream framework. Canonical identifier mapping and protocol bounds remain
+in LLDP. This helper does not address the separate identifier-storage restriction.</p>
 <p>The implemented generic extension adds <code>tlv_source_t::tag_binding</code>. Direct
 source binding remains the zero/default value with its existing strict checks.
 <code>TLV_TAG_BINDING_FORMAT</code> explicitly allows semantic identifier bytes in immutable
@@ -3049,12 +3085,17 @@ LLDP built-in and does not validate LLDP semantics.</p>
 matches the changed layout; its safe API exposes <code>Format::Lldp</code> with the default <code>lldp</code> Cargo feature.
 Python copies semantic Tag bytes; Lua/WASM compile against the C headers.
 Consumers must rebuild because <code>tlv_source_t</code> and <code>tlv_decoded_t</code> changed ABI.</p>
-<p>To complete the normative part of #360, read the selected edition and resolve
-every checklist item above, particularly End TLV omission, duplicate handling
-and per-type bounds. The shared LLDP adapter and presets now provide framing; the remaining
-implementation story adds sequence/Codec checks, including unknown extensions,
-OUI/subtype boundaries and the verified End/padding rules. No further framing core change has been
-identified for the preliminary LLDP subset.</p>
+<p>The architecture scope of #360 is complete: LLDP requirements are mapped to
+the generic layers, the canonical Tag restriction is resolved, and integration
+tests exercise the shared contracts without protocol-specific core branches.</p>
+<p>Separate normative verification work across formats should read the selected
+edition and resolve every checklist item above, particularly End TLV omission,
+duplicate handling and per-type bounds. The combined #362/#363 implementation now adds sequence validation and base
+value codecs above the shared framing adapter. The validator accepts optional
+End and rejects bytes following it because its input is the exact TLV region,
+not an Ethernet frame. Unknown extensions remain opaque. See the documented
+<a href="../lldp/">subset and limitations</a> and <a href="../lldp/conformance/">reference evidence</a>.
+No further generic core change was needed.</p>
 
 
 

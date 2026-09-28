@@ -16,7 +16,7 @@
         <link rel="prev" href="../bluetooth/">
       
       
-        <link rel="next" href="../asn1/ber/">
+        <link rel="next" href="conformance/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>LLDP TLV framing - OpenTLV</title>
+        <title>LLDP TLV support - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#lldp-tlv-framing" class="md-skip">
+        <a href="#lldp-tlv-support" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              LLDP TLV framing
+              LLDP TLV support
             
           </span>
         </div>
@@ -1439,7 +1439,7 @@
   <span class="md-ellipsis">
     
   
-    LLDP TLV framing
+    LLDP TLV support
   
 
     
@@ -1457,7 +1457,7 @@
   <span class="md-ellipsis">
     
   
-    LLDP TLV framing
+    LLDP TLV support
   
 
     
@@ -1509,6 +1509,39 @@
     <span class="md-ellipsis">
       
         Scope and errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-and-sequence-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema and sequence validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coverage-of-362-and-363" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coverage of #362 and #363
       
     </span>
   </a>
@@ -1602,6 +1635,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2753,6 +2814,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#schema-and-sequence-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema and sequence validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coverage-of-362-and-363" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coverage of #362 and #363
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#presets-in-bindings" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2860,13 +2954,16 @@
   
 
 
-<h1 id="lldp-tlv-framing">LLDP TLV framing<a class="headerlink" href="#lldp-tlv-framing" title="Permanent link">&para;</a></h1>
+<h1 id="lldp-tlv-support">LLDP TLV support<a class="headerlink" href="#lldp-tlv-support" title="Permanent link">&para;</a></h1>
 <p><a href="../">Format overview</a> · <a href="../lldp-review/">Requirements review</a></p>
 <p>The LLDP built-in implements the packed Type/Length framing used by IEEE
 802.1AB LLDP. The selected review target is IEEE 802.1AB-2016; full normative
-verification remains open as documented in the <a href="../lldp-review/">review</a>.
-This implementation provides framing and base Type names, not LLDPDU semantic
-validation or an LLDP agent.</p>
+verification is deferred to separate work across formats, outside #360, as
+documented in the <a href="../lldp-review/">review</a>.
+The built-in provides framing, base Type names, LLDPDU structural validation and
+allocation-free value codecs. It does not implement an LLDP agent.
+The <a href="conformance/">reference and conformance notes</a> distinguish tested
+contracts from the remaining full-edition normative audit.</p>
 <h2 id="api-and-build">API and build<a class="headerlink" href="#api-and-build" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2900,6 +2997,14 @@ validation or an LLDP agent.</p>
 <td>Availability query</td>
 <td><code>tlv_config_lldp()</code></td>
 </tr>
+<tr>
+<td>Structural API</td>
+<td><code>tlv/builtins/lldp/schema.h</code>: <code>tlv_lldp_schema</code>, <code>tlv_lldp_validate()</code></td>
+</tr>
+<tr>
+<td>Value codecs</td>
+<td><code>tlv/builtins/lldp/codec.h</code></td>
+</tr>
 </tbody>
 </table>
 <h2 id="wire-layout-and-logical-model">Wire layout and logical model<a class="headerlink" href="#wire-layout-and-logical-model" title="Permanent link">&para;</a></h2>
@@ -2914,6 +3019,10 @@ validation or an LLDP agent.</p>
 and counts only Value bytes. Encoded size is <code>2 + Length</code>, at most 513 bytes.
 The logical Tag is a <strong>single byte containing Type</strong>, independent of Length.
 For example, <code>06 02 00 78</code> becomes Tag <code>03</code> and Value <code>00 78</code>.</p>
+<p>The adapter composes two <code>tlv_packed_field_t</code> configurations from <code>tlv/layout.h</code>:
+Type uses offset 9 and width 7; Length uses offset 0 and width 9. Both use
+two-byte big-endian storage. The primitive handles unsigned extraction and
+insertion; the adapter maps Type to canonical Tag bytes and validates framing.</p>
 <p>Decoded Tags borrow a static immutable table with <code>TLV_TAG_BINDING_FORMAT</code>.
 Value borrows the original input. Source Header covers two bytes; the Tag wire
 envelope covers the first byte and Length covers both bytes, so they overlap.
@@ -2932,13 +3041,149 @@ invalid LLDP data without making Schema a dependency of Reader.</p>
 <li>Truncated headers or Values return <code>TLV_ERR_BUFFER_TOO_SHORT</code>. Non-single-byte
   Tags return <code>TLV_ERR_INVALID_TAG_SIZE</code>, Types above 127 <code>TLV_ERR_INVALID_TAG</code>,
   and Values larger than 511 <code>TLV_ERR_INVALID_LENGTH</code>.</li>
-<li>Schema checks for ordering, occurrences, End, and per-Type lengths, as well
-  as value codecs, remain work for <a href="https://github.com/marekcingel/OpenTLV/issues/363">#363</a>.</li>
+<li>Structural and value checks are explicit APIs above framing, described below.
+  Generic Reader, Writer, Document and Query never invoke them implicitly.</li>
 </ul>
 <p>Ordinary encoding regenerates the header. <code>tlv_source_preserve()</code> copies the
 original encoded bytes only while semantic content remains unchanged. Reader,
 Writer, Schema, Document and Query use the normal generic contracts; Query
 addresses the canonical Type, for example <code>7F</code>, not its packed header byte <code>FE</code>.</p>
+<h2 id="schema-and-sequence-validation">Schema and sequence validation<a class="headerlink" href="#schema-and-sequence-validation" title="Permanent link">&para;</a></h2>
+<p><code>tlv_lldp_schema</code> is an ordinary <code>tlv_structure_schema_t</code> for base lengths and
+occurrences. Use <code>tlv_lldp_validate(data, size, max_elements, diagnostic)</code> to
+also check the mandatory prefix and End position. It delegates length and
+occurrence rules to generic Schema, then checks sequence rules in the LLDP
+module. No core Reader, Writer, Document or Query branch is needed.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Value length</th>
+<th>Occurrence rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0: End</td>
+<td>0</td>
+<td>Optional, at most once, last if present</td>
+</tr>
+<tr>
+<td>1: Chassis ID</td>
+<td>2..256</td>
+<td>Exactly once, first</td>
+</tr>
+<tr>
+<td>2: Port ID</td>
+<td>2..256</td>
+<td>Exactly once, second</td>
+</tr>
+<tr>
+<td>3: Time To Live</td>
+<td>2</td>
+<td>Exactly once, third</td>
+</tr>
+<tr>
+<td>4..6: Port Description, System Name, System Description</td>
+<td>0..255</td>
+<td>Each at most once</td>
+</tr>
+<tr>
+<td>7: System Capabilities</td>
+<td>4</td>
+<td>At most once</td>
+</tr>
+<tr>
+<td>8: Management Address</td>
+<td>9..167</td>
+<td>May repeat</td>
+</tr>
+<tr>
+<td>127: Organisationally Specific</td>
+<td>4..511</td>
+<td>May repeat</td>
+</tr>
+</tbody>
+</table>
+<p>Other Types are accepted after the mandatory prefix. Optional Types may appear
+in any order. The input is the exact TLV region: bytes after End, including
+Ethernet padding, are rejected. End may be omitted when the region ends after
+a complete TLV. A TTL of zero is representable; agent shutdown behavior is
+outside this library.</p>
+<p><code>max_elements</code> is a hard bound, including End and unknown TLVs; zero permits
+no elements. Diagnostics use <code>tlv_diagnostic_t</code> with the first error's byte
+offset and static descriptions. Missing fields use the end-of-region offset.
+For an aggregate length/occurrence report, use generic
+<code>tlv_schema_validate_all()</code> with <code>tlv_lldp_schema</code>; that report does not include
+the extra prefix/End-position checks.</p>
+<p>The validator is strict structural validation, not the standard's agent
+receive/discard procedure. It does not decode Value contents, compare repeated
+management addresses, or enforce vendor-specific occurrence rules.</p>
+<h2 id="value-codecs">Value codecs<a class="headerlink" href="#value-codecs" title="Permanent link">&para;</a></h2>
+<p>Use the normal <code>tlv_codec_decode()</code> / <code>tlv_codec_encode()</code> APIs. A size query
+uses NULL output and zero capacity. Descriptors are immutable, allocation-free,
+and independent of the Format and Schema. Borrowed spans must outlive their
+use. Input and output must not overlap.</p>
+<table>
+<thead>
+<tr>
+<th>Descriptor suffix (<code>tlv_lldp_codec_</code>)</th>
+<th>C representation</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chassis_id</code>, <code>port_id</code></td>
+<td><code>tlv_lldp_id_t</code></td>
+<td>Subtype 1..7 plus 1..255 borrowed ID octets; separate MAC/network subtype namespaces; MAC length 6 and IPv4/IPv6 lengths checked</td>
+</tr>
+<tr>
+<td><code>ttl</code></td>
+<td><code>uint16_t</code></td>
+<td>Two big-endian octets, 0..65535 seconds</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td><code>tlv_value_t</code></td>
+<td>Types 4..6; preserves 0..255 octets, including empty strings and embedded NUL, without character validation or a terminator</td>
+</tr>
+<tr>
+<td><code>capabilities</code></td>
+<td><code>tlv_lldp_capabilities_t</code></td>
+<td>Two big-endian bitmaps; enabled must be a subset of supported; reserved bits preserved</td>
+</tr>
+<tr>
+<td><code>management_address</code></td>
+<td><code>tlv_lldp_management_address_t</code></td>
+<td>Family, borrowed address, numbering subtype 1..3, big-endian interface number and borrowed OID; exact inner lengths and full consumption checked</td>
+</tr>
+<tr>
+<td><code>organisation</code></td>
+<td><code>tlv_lldp_organisation_t</code></td>
+<td>Three OUI octets, subtype, and 0..507 borrowed payload octets; no vendor dispatch</td>
+</tr>
+</tbody>
+</table>
+<p>Management addresses contain 1..31 address octets, excluding the nonzero family
+byte; IPv4/IPv6 use 4/16 octets. OIDs contain 0..128 opaque octets. Other address
+families, non-address identifier syntax, character encodings, OID validity,
+capability role restrictions and OUI ownership are not validated. These are
+explicit limits of the supported value subset, not claims of full conformance.</p>
+<p>For example, <code>06 02 00 78</code> is Type 3 with a two-byte Value: the TTL codec yields
+120 seconds. <code>FE 06 00 80 C2 01 00 2A</code> is Type 127 with OUI <code>00 80 C2</code>, subtype
+1, and opaque payload <code>00 2A</code>. <code>00 00</code> is the optional End marker.</p>
+<h2 id="coverage-of-362-and-363">Coverage of #362 and #363<a class="headerlink" href="#coverage-of-362-and-363" title="Permanent link">&para;</a></h2>
+<p>The combined implementation provides framing, definitions, structural rules,
+value codecs, shared diagnostics and generic layer integration. The independent
+build option is <code>OPENTLV_LLDP</code>, following the <code>OPENTLV_BLUETOOTH</code> package naming
+convention. It removes all LLDP implementation sources when disabled.</p>
+<p>Framing tests cover all 65,536 Type/Length combinations, canonical identity,
+borrowed Values, exact source preservation and round trips. Codec and structural
+tests cover bounds, malformed values, ordering, duplicates, End, diagnostics and
+composition with Reader/Writer. Existing tests cover Document and Query. See
+<a href="conformance/">reference and conformance notes</a> for provenance and the remaining
+normative verification boundary.</p>
 <h2 id="presets-in-bindings">Presets in bindings<a class="headerlink" href="#presets-in-bindings" title="Permanent link">&para;</a></h2>
 <p>All presets select the shared C descriptor; bindings do not reimplement packing.</p>
 <table>
@@ -2984,21 +3229,67 @@ The Python native extension and its Python package must be rebuilt/updated
 together. Lua and WASM currently expose parsing, so their presets do not add a
 new writing API.</p>
 <h3 id="c">C<a class="headerlink" href="#c" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv/builtins/lldp/lldp.h&gt;</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv/reader/reader.h&gt;</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">wire</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x06</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x78</span><span class="p">};</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">;</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_read</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">wire</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_lldp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">);</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="cm">/* On success: tag = {03}, value = {00, 78}, consumed = 4. */</span>
+<!-- example: examples/tlv/src/lldp.c -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/lldp/lldp.h"</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/lldp/schema.h"</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/lldp/codec.h"</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/reader.h"</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="cm">/* Local IDs "c"/"p", TTL 120 seconds, optional End. No Ethernet padding. */</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w">    </span><span class="n">wire</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="sc">'c'</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="sc">'p'</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">tlv_diagnostic_t</span><span class="w"> </span><span class="n">diagnostic</span><span class="p">;</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">tlv_reader_t</span><span class="w">     </span><span class="n">reader</span><span class="p">;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">tlv_element_t</span><span class="w">    </span><span class="n">element</span><span class="p">;</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="n">tlv_result_t</span><span class="w">     </span><span class="n">rc</span><span class="p">;</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_lldp_validate</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">wire</span><span class="p">),</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_reader_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">wire</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_lldp</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_reader_next</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tlv_definition_find</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tlv_lldp_types</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">            </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">seconds</span><span class="p">;</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">            </span><span class="kt">size_t</span><span class="w">   </span><span class="n">size</span><span class="p">;</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_size_to_native</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_codec_decode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tlv_lldp_codec_ttl</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">seconds</span><span class="p">,</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">                                 </span><span class="k">sizeof</span><span class="p">(</span><span class="n">seconds</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_CODEC_OK</span><span class="p">)</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">seconds</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">120</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_ERR_END_OF_BUFFER</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="c_1">C++<a class="headerlink" href="#c_1" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv++/format.hpp&gt;</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv++/builtins/lldp/lldp.hpp&gt;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="w"> </span><span class="n">wire</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">{</span><span class="mi">6</span><span class="p">},</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">{</span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">{</span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="p">{</span><span class="mi">120</span><span class="p">}};</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">auto</span><span class="w"> </span><span class="n">decoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">decode</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">lldp_format</span><span class="p">(),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">wire</span><span class="p">)));</span>
+<p>The C++ layer reuses the C semantic types and codecs, with the shared LLDP
+Format preset for traversal.</p>
+<!-- example: examples/tlv++/src/lldp.cpp -->
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/tlv.hpp"</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv++/builtins/lldp/lldp.hpp"</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/lldp/schema.h"</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/lldp/codec.h"</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w">    </span><span class="n">wire</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="sc">'c'</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="sc">'p'</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="n">tlv_diagnostic_t</span><span class="w"> </span><span class="n">diagnostic</span><span class="p">{};</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_lldp_validate</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">wire</span><span class="p">),</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">diagnostic</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="k">auto</span><span class="w">   </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">walk_tree</span><span class="p">(</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">        </span><span class="n">tlv</span><span class="o">::</span><span class="n">bytes</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="kt">byte</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">wire</span><span class="p">),</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">wire</span><span class="p">)),</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">lldp_format</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">        </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">&amp;</span><span class="n">count</span><span class="p">](</span><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">element</span><span class="o">&amp;</span><span class="w"> </span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">                </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">seconds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">                </span><span class="kt">size_t</span><span class="w">   </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_size_to_native</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">||</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">                    </span><span class="n">tlv_codec_decode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tlv_lldp_codec_ttl</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">seconds</span><span class="p">,</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">                                     </span><span class="k">sizeof</span><span class="p">(</span><span class="n">seconds</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_CODEC_OK</span><span class="w"> </span><span class="o">||</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">                    </span><span class="n">seconds</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">120</span><span class="p">)</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_ERROR</span><span class="p">;</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">            </span><span class="o">++</span><span class="n">count</span><span class="p">;</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="w">        </span><span class="p">});</span>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="rust">Rust<a class="headerlink" href="#rust" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">use</span><span class="w"> </span><span class="n">opentlv</span><span class="p">::{</span><span class="n">Format</span><span class="p">,</span><span class="w"> </span><span class="n">Reader</span><span class="p">};</span>
@@ -3076,13 +3367,13 @@ new writing API.</p>
         
         
           
-          <a href="../asn1/ber/" class="md-footer__link md-footer__link--next" aria-label="Next: BER-TLV">
+          <a href="conformance/" class="md-footer__link md-footer__link--next" aria-label="Next: LLDP reference and conformance notes">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                BER-TLV
+                LLDP reference and conformance notes
               </div>
             </div>
             <div class="md-footer__button md-icon">

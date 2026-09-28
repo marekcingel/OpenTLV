@@ -1430,7 +1430,35 @@
   <span class="md-ellipsis">
     
   
-    LLDP TLV framing
+    LLDP TLV support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lldp/conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
   
 
     
@@ -3391,12 +3419,12 @@ a caller slices the region first.</p>
 </thead>
 <tbody>
 <tr>
-<td><a href="../lldp/">LLDP framing</a> (<code>[x]</code>)</td>
+<td><a href="../lldp/">LLDP base support</a> (<code>[x]</code>)</td>
 <td>IEEE Std 802.1AB-2016</td>
 <td>Basic single-frame LLDPDU TLVs; packed 7-bit Type/9-bit Length; organisational Value prefix.</td>
 <td>format adapter (<code>decode</code>, <code>measure</code>, <code>encode</code>), definitions, schemas, codecs</td>
-<td>Implemented descriptor <code>tlv_format_lldp</code>, base definitions and binding presets use immutable canonical Types. Schema/codecs remain pending. OUI/subtype remain in Value. See the <a href="../lldp-review/">requirements review</a>. No LLDP agent or MIB.</td>
-<td>Normative verification pending: public IEEE contributions reviewed, full standard unavailable. Local Format/Layout contract reviewed for <a href="https://github.com/marekcingel/OpenTLV/issues/360">#360</a>.</td>
+<td>Implemented descriptor <code>tlv_format_lldp</code>, base definitions and binding presets use immutable canonical Types. Structural validation and base value codecs are implemented; see the documented subset and conformance limits. OUI/subtype remain in Value. See the <a href="../lldp-review/">requirements review</a>. No LLDP agent or MIB.</td>
+<td>Normative verification deferred to separate work across formats: public IEEE contributions reviewed, full standard unavailable. Architecture assessment complete for <a href="https://github.com/marekcingel/OpenTLV/issues/360">#360</a>.</td>
 </tr>
 <tr>
 <td>IS-IS (<code>[?]</code>)</td>

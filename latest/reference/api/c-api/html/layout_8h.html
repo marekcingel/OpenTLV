@@ -95,6 +95,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__binary__layout.html">tlv_binary_layout</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-width binary fields, independent of any protocol.  <a href="structtlv__binary__layout.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__packed__field.html">tlv_packed_field</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">One unsigned bit field within a fixed-size wire integer.  <a href="structtlv__packed__field.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -128,6 +131,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gaa539a67f6feeae3003c2935741734354" id="r_gaa539a67f6feeae3003c2935741734354"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__binary__layout.html">tlv_binary_layout</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354">tlv_binary_layout_t</a></td></tr>
 <tr class="memdesc:gaa539a67f6feeae3003c2935741734354"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-width binary fields, independent of any protocol.  <br /></td></tr>
 <tr class="separator:gaa539a67f6feeae3003c2935741734354"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6975503eb92e58c68b69207256ee70f1" id="r_ga6975503eb92e58c68b69207256ee70f1"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__packed__field.html">tlv_packed_field</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a></td></tr>
+<tr class="memdesc:ga6975503eb92e58c68b69207256ee70f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">One unsigned bit field within a fixed-size wire integer.  <br /></td></tr>
+<tr class="separator:ga6975503eb92e58c68b69207256ee70f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -165,6 +171,12 @@ Functions</h2></td></tr>
 <tr class="memitem:gadb7b42e4eca81463445758549038fb5b" id="r_gadb7b42e4eca81463445758549038fb5b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gadb7b42e4eca81463445758549038fb5b">tlv_binary_encode</a> (const void *context, const <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, uint8_t *data, size_t capacity, size_t *written, <a class="el" href="group__formats.html#gaf56623f95321491247ba733426e0333f">tlv_format_error_t</a> *error)</td></tr>
 <tr class="memdesc:gadb7b42e4eca81463445758549038fb5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode binary fields; context points to <a class="el" href="group__formats.html#gaa539a67f6feeae3003c2935741734354" title="Fixed-width binary fields, independent of any protocol.">tlv_binary_layout_t</a>.  <br /></td></tr>
 <tr class="separator:gadb7b42e4eca81463445758549038fb5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2f0bc6baee687d0d1f946119eaff728e" id="r_ga2f0bc6baee687d0d1f946119eaff728e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga2f0bc6baee687d0d1f946119eaff728e">tlv_packed_field_read</a> (const <a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a> *field, const uint8_t *data, size_t size, uint64_t *value)</td></tr>
+<tr class="memdesc:ga2f0bc6baee687d0d1f946119eaff728e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract an unsigned field from its complete backing wire integer.  <br /></td></tr>
+<tr class="separator:ga2f0bc6baee687d0d1f946119eaff728e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad47b28afa3abe5fbc33c3b4cbbf3d989" id="r_gad47b28afa3abe5fbc33c3b4cbbf3d989"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gad47b28afa3abe5fbc33c3b4cbbf3d989">tlv_packed_field_write</a> (const <a class="el" href="group__formats.html#ga6975503eb92e58c68b69207256ee70f1">tlv_packed_field_t</a> *field, uint8_t *data, size_t capacity, uint64_t value)</td></tr>
+<tr class="memdesc:gad47b28afa3abe5fbc33c3b4cbbf3d989"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert an unsigned field, preserving every bit outside the field.  <br /></td></tr>
+<tr class="separator:gad47b28afa3abe5fbc33c3b4cbbf3d989"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Public field-layout composition primitives for canonical formats. </p>

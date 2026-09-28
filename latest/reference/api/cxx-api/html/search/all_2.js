@@ -11,7 +11,7 @@ var searchData=
   ['children_8',['children',['../classtlv_1_1document.html#a3cb9fd5d1c821cf3e9626cdd387d06f1',1,'tlv::document::children()'],['../../../c-api/html/structtlv__structure__rule.html#a617ed4c7f509616172efadcd2a666607',1,'tlv_structure_rule::children']]],
   ['code_9',['code',['../structtlv_1_1error.html#a95ae94d214e3a104026eeaa4bb7bf769',1,'tlv::error::code'],['../../../c-api/html/structtlv__diagnostic.html#ad32322414b2d7a9ad41dc625d4b71604',1,'tlv_diagnostic::code']]],
   ['codec_10',['codec',['../../../c-api/html/structtlv__emv__definition__t.html#a832a1627aaf5bd856ca0315ba71f946f',1,'tlv_emv_definition_t']]],
-  ['codec_2eh_11',['codec.h',['../../../c-api/html/codec_8h.html',1,'']]],
+  ['codec_2eh_11',['codec.h',['../../../c-api/html/codec_2codec_8h.html',1,'(Global Namespace)'],['../../../c-api/html/builtins_2lldp_2codec_8h.html',1,'(Global Namespace)']]],
   ['codec_2ehpp_12',['codec.hpp',['../codec_8hpp.html',1,'']]],
   ['codec_5fregistry_13',['codec_registry',['../classtlv_1_1codec__registry.html',1,'tlv']]],
   ['codecs_14',['Codecs',['../../../c-api/html/group__codecs.html',1,'']]],
