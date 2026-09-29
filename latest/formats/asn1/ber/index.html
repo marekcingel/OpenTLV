@@ -1617,6 +1617,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#generic-mechanics-and-asn1-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic mechanics and ASN.1 rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#minimal-c-usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2843,6 +2854,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#generic-mechanics-and-asn1-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic mechanics and ASN.1 rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#minimal-c-usage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3010,6 +3032,72 @@
 <h2 id="scope-and-limits">Scope and limits<a class="headerlink" href="#scope-and-limits" title="Permanent link">&para;</a></h2>
 <p>Multi-byte tags of up to <code>TLV_ASN1_TAG_MAX_SIZE</code> (8) bytes; definite lengths and constructed indefinite input. Ordinary writes use definite lengths.</p>
 <p>See <a href="../../../guides/memory/">shared memory ownership rules</a> before retaining a parsed element.</p>
+<h2 id="generic-mechanics-and-asn1-rules">Generic mechanics and ASN.1 rules<a class="headerlink" href="#generic-mechanics-and-asn1-rules" title="Permanent link">&para;</a></h2>
+<p>BER composes the <a href="../../variable/">generic Variable primitives</a> through the
+existing field-layout contract. Its immutable configuration selects inline
+mask/escape <code>1F</code>, continuation bit <code>80</code>, payload mask <code>7F</code>, an eight-byte
+identifier limit, and short/long length prefixes with big-endian count octets.
+The generic implementation owns identifier boundary detection and definite
+count decoding/encoding. <code>ber_internal.c</code> is now an ASN.1 policy adapter over
+those primitives; it does not own another copy of their algorithms.</p>
+<p>The responsibilities are separated as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Owner and current behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Class bits and primitive/constructed bit</td>
+<td>ASN.1 accessors and <code>tlv_ber_is_constructed()</code> interpret them; generic identifier handling preserves the raw bytes.</td>
+</tr>
+<tr>
+<td>Low/high-tag-number wire forms</td>
+<td>Variable identifies inline/escaped boundaries; ASN.1 tag-number helpers interpret and construct numeric tag numbers.</td>
+</tr>
+<tr>
+<td>Identifier minimality</td>
+<td>BER rejects a zero first continuation payload. The constructor uses low form below 31; raw parsing/writing retains acceptance of encodings such as <code>9F 1C</code> for compatibility.</td>
+</tr>
+<tr>
+<td>UNIVERSAL restrictions</td>
+<td>BER rejects tag zero in either form as an ordinary element. Other assignments, including reserved number 15, and type-specific primitive/constructed constraints are outside this raw API's validation.</td>
+</tr>
+<tr>
+<td>Definite lengths</td>
+<td>Variable handles short/long counts and padding; BER selects big endian, rejects <code>FF</code>, and retains <code>TLV_ERR_INVALID_LENGTH</code> for numeric overflow.</td>
+</tr>
+<tr>
+<td>Indefinite lengths</td>
+<td>BER recognizes <code>80</code>, requires a constructed identifier, and resolves Value plus Trailer. The generic definite decoder does not assign indefinite semantics.</td>
+</tr>
+<tr>
+<td>End-of-Contents</td>
+<td>BER recognizes <code>00 00</code> only at child boundaries within an indefinite scope. Primitive payload bytes are skipped as opaque data.</td>
+</tr>
+<tr>
+<td>Constructed traversal</td>
+<td>BER supplies the nesting predicate and an allocation-free bounded scanner for indefinite boundaries. Definite parent bounds constrain nested scans. Generic Reader/Writer do not branch on BER.</td>
+</tr>
+<tr>
+<td>Value/type semantics</td>
+<td>ASN.1 codecs, schemas and higher-level validators operate above framing; Variable does not interpret Value.</td>
+</tr>
+</tbody>
+</table>
+<p>The ASN.1 rules are defined by <a href="https://www.itu.int/rec/T-REC-X.690/en">ITU-T X.690</a>,
+particularly sections 8.1.2–8.1.5. The raw compatibility behavior above is not
+complete ASN.1 identifier or value validation: accepting <code>9F 1C</code>, UNIVERSAL 15
+or arbitrary UNIVERSAL forms does not make those encodings conforming ASN.1.
+This refactoring preserves the public BER contract, including those limits.
+DER/CER wrappers, EMV framing, Definition and DOL are separate work.</p>
+<p>The public <code>tlv_ber_length_decode()</code> preserves both outputs on failure. Internal
+field callbacks additionally report the available Length prefix for diagnostics,
+including truncation and overflow. The BER adapter preserves this distinction
+when calling the shared primitives. Bounds-resolver offsets remain relative to
+the bytes after Tag and are translated by the generic field composition.</p>
 <h2 id="minimal-c-usage">Minimal C usage<a class="headerlink" href="#minimal-c-usage" title="Permanent link">&para;</a></h2>
 <p>This complete example writes and reads one opaque byte. Exit code zero means success.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/ber.h"</span>
@@ -3068,10 +3156,11 @@ wire bytes from these three parts into <code>storage</code>
 (<code>TLV_ASN1_TAG_MAX_SIZE</code> writable bytes, which the returned tag then borrows
 and must outlive), using low-tag-number form below 31 and high-tag-number form
 otherwise. These reuse <code>tlv_tag_t</code> rather than a separate ASN.1 tag type.</p>
-<p>Unlike the corresponding DER and CER tag accessors, none of these functions
-apply a canonical primitive/constructed rule tied to a universal type number
-(for example DER's <code>must be constructed</code> rule for <code>SEQUENCE</code>): BER accepts
-either form for every tag number. The only identifier <code>tlv_ber_tag_make()</code>
+<p>Unlike the corresponding DER and CER tag accessors, this raw BER API does not
+apply type-specific primitive/constructed rules tied to a UNIVERSAL number
+(for example the constructed representation of <code>SEQUENCE</code>). For compatibility,
+it accepts either form for nonzero tag numbers; this is a validation limit of
+the API, not permission granted by X.690. The only identifier <code>tlv_ber_tag_make()</code>
 rejects outright is the reserved EOC tag (universal class, tag number 0, in
 either form), matching <code>tlv_format_ber</code>.
 See <a href="../der/">DER</a> for the canonical restrictions.</p>
@@ -3079,7 +3168,7 @@ See <a href="../der/">DER</a> for the canonical restrictions.</p>
 also fit <code>size_t</code>). The writer uses short form below 128 and the shortest
 big-endian long form otherwise: 128 is <code>81 80</code>, 256 is <code>82 01 00</code>.
 The reader also accepts nonminimal definite lengths, including leading zeros.
-Reserved length prefix <code>FF</code> and lengths overflowing <code>size_t</code> return
+Reserved length prefix <code>FF</code> and counts overflowing <code>tlv_size_t</code> return
 <code>TLV_ERR_INVALID_LENGTH</code>. The length-only callback still accepts definite
 lengths only: <code>80</code> needs the parsed tag and surrounding bytes, supplied through
 the optional value-boundary callback.</p>

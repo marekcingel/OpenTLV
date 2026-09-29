@@ -82,7 +82,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>ASN.1 BER reader and writer formats, indefinite-length framing and length codec.  
+<p>ASN.1 BER framing over generic variable-width identifier and length primitives.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="format_8h.html">tlv/format.h</a>&quot;</code><br />
@@ -171,7 +171,8 @@ Variables</h2></td></tr>
 <tr class="separator:ga6e726fbfef345299d129ee53edb21a10"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>ASN.1 BER reader and writer formats, indefinite-length framing and length codec. </p>
+<div class="textblock"><p>ASN.1 BER framing over generic variable-width identifier and length primitives. </p>
+<p>ASN.1 class/form interpretation, identifier restrictions, reserved length prefixes and indefinite/EOC handling belong to this builtin. The existing raw BER-TLV compatibility contract is retained; see <a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97" title="Format for raw BER-TLV.">tlv_format_ber</a> for its validation limits. No operation requires a runtime engine or allocates. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

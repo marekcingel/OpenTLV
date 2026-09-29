@@ -83,7 +83,7 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>
 Files</h2></td></tr>
 <tr class="memitem:ber_8h" id="r_ber_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ber_8h.html">ber.h</a></td></tr>
-<tr class="memdesc:ber_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">ASN.1 BER reader and writer formats, indefinite-length framing and length codec. <br /></td></tr>
+<tr class="memdesc:ber_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">ASN.1 BER framing over generic variable-width identifier and length primitives. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:cer_8h" id="r_cer_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cer_8h.html">cer.h</a></td></tr>
 <tr class="memdesc:cer_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">ASN.1 CER reader and writer formats with tag accessors. <br /></td></tr>
@@ -1143,7 +1143,7 @@ An identifier or buffer error reported by the codec.</dd></dl>
 
 <p>Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>. </p>
 <p>One prefix octet plus up to 8 big-endian value octets for <code>UINT64_MAX</code>. Use this constant to size a destination buffer for <a class="el" href="group__formats.html#ga5fd2986da5b62c19b7ef9188ef8a3af1" title="Encodes a length using the shortest BER definite form.">tlv_ber_length_encode()</a>.</p>
-<dl class="section note"><dt>Note</dt><dd>It is smaller than the largest field <a class="el" href="group__formats.html#ga7b04af2ed12fb865560d737bbfa28e03" title="Decodes one BER definite-length field starting at data[0].">tlv_ber_length_decode()</a> can still accept, since BER permits nonminimal (zero-padded) definite encodings with up to 127 length octets (X.690 section 8.1.3.4); decoding such padding needs no buffer this large, only reading one. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>It is smaller than the largest field <a class="el" href="group__formats.html#ga7b04af2ed12fb865560d737bbfa28e03" title="Decodes one BER definite-length field starting at data[0].">tlv_ber_length_decode()</a> can still accept, since BER permits nonminimal (zero-padded) definite encodings with up to 126 length octets (0xFF is reserved); decoding such padding needs no buffer this large, only reading one. </dd></dl>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggadc29c2ff13d900c2f185ee95427fb06ca64906a3a7749fb32293ae5bdf23ecc8b" name="ggadc29c2ff13d900c2f185ee95427fb06ca64906a3a7749fb32293ae5bdf23ecc8b"></a>TLV_BER_LENGTH_MAX_ENCODED_SIZE&#160;</td><td class="fielddoc"></td></tr>
 </table>
@@ -1520,16 +1520,26 @@ An error code for a null output, an invalid or non-constructed tag, or size over
 </div><div class="memdoc">
 
 <p>Decode one BER identifier without requiring a following length or value. </p>
+<p>Applies the raw identifier policy documented for <a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97" title="Format for raw BER-TLV.">tlv_format_ber</a>. Class and constructed bits remain part of the borrowed identifier's byte identity.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Input bytes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Input bytes; NULL only when size is zero. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Available bytes. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Borrowed identifier on success. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">tag</td><td>Borrowed identifier on success; data must outlive its use. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">consumed</td><td>Identifier width on success.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a>, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a>, or a BER identifier error. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a missing required pointer. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> for a reserved EOC tag or zero first payload digit. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a10505614abc0b8d1ef8e5eef944dc014">TLV_ERR_INVALID_TAG_SIZE</a> if the identifier exceeds the supported width. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> for an incomplete identifier. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Both outputs remain unchanged on failure. An invalid available first payload digit is reported before later truncation or width errors. </dd></dl>
 
 </div>
 </div>
@@ -3872,7 +3882,8 @@ A format error if the semantic input cannot be represented.   </dd></dl>
 </div><div class="memdoc">
 
 <p>Format for raw BER-TLV. </p>
-<p>Accepts tags up to <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> bytes, including high-tag-number form, and definite lengths up to <code>SIZE_MAX</code>. Reads accept nonminimal definite lengths and constructed indefinite lengths. Tag bytes are preserved (including <code>9F 1C</code>); ASN.1 semantics are not validated. Writes definite lengths using the shortest length encoding. Use <a class="el" href="group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d" title="Writes an explicit indefinite-length constructed element.">tlv_ber_write_indefinite()</a> for explicit indefinite framing. </p>
+<p>Accepts tags up to <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> bytes, including high-tag-number form, and logical definite counts up to <a class="el" href="group__core.html#ga73d52bcab339de48e179019788abfdd2" title="The largest value a tlv_size_t can hold.">TLV_SIZE_MAX</a>; complete input/output must fit native buffers. Reads accept nonminimal definite lengths and constructed indefinite lengths. Tag bytes are preserved (including <code>9F 1C</code>); ASN.1 semantics are not validated. Writes definite lengths using the shortest length encoding. Use <a class="el" href="group__formats.html#gaf2e0f147f54e46645447b4fe5fc9dc0d" title="Writes an explicit indefinite-length constructed element.">tlv_ber_write_indefinite()</a> for explicit indefinite framing.</p>
+<p>A zero first high-tag-number payload digit and UNIVERSAL tag zero in either form are rejected. For raw-tag compatibility, high-tag-number encodings of numbers below 31 remain accepted. Other UNIVERSAL assignments and type/form constraints are not validated here (including reserved number 15). These limits are not a claim of complete X.690 conformance. The generic Variable primitives do not impose any of these ASN.1 policies. </p>
 
 </div>
 </div>

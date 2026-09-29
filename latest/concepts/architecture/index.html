@@ -3080,8 +3080,9 @@ ones. <code>formats/</code> returns only for mechanisms that stay protocol-agnos
 Its location groups reading-related tools, without classifying every file in
 that folder as the lowest-level core. Profiles compose lower facilities; lower
 generic facilities do not include profiles. DER's wire callbacks and bounded
-profile operations live in separate files. BER and DER share a private wire
-backend; selecting DER does not require the public BER component.</p>
+profile operations live in separate files. BER uses generic Variable primitives
+through a private ASN.1 field adapter also consumed by DER/CER. The wrappers
+retain their concrete rules and current component dependencies.</p>
 <h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
 <p>Public headers under <code>tlv/include/tlv/</code> and sources under <code>tlv/src/</code> use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>tlv/
@@ -3106,8 +3107,8 @@ lookup. Bluetooth AD types use this model independently of their wire format;
 definitions neither validate structure nor decode values.
 Small fundamental types (<code>tag.h</code>, <code>length.h</code>, <code>size.h</code>, <code>value.h</code>, <code>element.h</code>, and the
 generic <code>format.h</code> descriptor contracts) sit directly under <code>tlv/</code>, alongside
-the generic subsystem folders. <code>formats/fixed.h</code> holds the one format
-mechanism that names no protocol; every protocol-specific format or profile
+the generic subsystem folders. <code>formats/fixed.h</code> and <code>formats/variable.h</code> hold
+format mechanisms that name no protocol; every protocol-specific format or profile
 OpenTLV ships lives under <code>builtins/&lt;protocol&gt;/</code>, so all of a protocol's
 functionality is in one place instead of scattered across role-based folders: EMV's schema,
 codec, DOL and umbrella profile header are all under <code>builtins/emv/</code>, and
@@ -3116,7 +3117,9 @@ ASN.1's wire formats and bounded DER/CER profile operations are all under
 that build on them would otherwise share a name, so the profile headers are
 <code>der_profile.h</code>/<code>cer_profile.h</code>; similarly <code>builtins/emv/emv_codec.h</code> (moved
 from <code>codec/emv.h</code>) is distinct from the umbrella <code>builtins/emv/emv.h</code>.
-BER and DER share <code>src/builtins/asn1/ber_internal.c</code> and its private header.
+BER, DER and CER share the ASN.1 field adapter in
+<code>src/builtins/asn1/ber_internal.c</code> and its private header. Reusable variable-width
+identifier and definite-length algorithms live in <code>src/formats/variable.c</code>.
 Internal schema validation, BER helpers and EMV value codecs have dedicated
 source files. <code>config.h</code> and <code>version.h</code> are generated into the build include
 directory. The public aggregate <code>tlv/tlv.h</code> includes enabled components; generic
