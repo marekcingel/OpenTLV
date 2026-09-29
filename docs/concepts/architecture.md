@@ -37,7 +37,7 @@ Visitor
 ```
 
 The declarative/semantic model describes meaning and rules: a Definition
-identifies a field and its associated metadata, Format defines wire encoding,
+associates an identifier with a descriptive name in a registry, Format defines wire encoding,
 Schema defines structural constraints, and Codec defines conversion between
 Value bytes and application values. These roles can be implemented by tables,
 descriptors and executable callbacks.
@@ -123,13 +123,20 @@ tlv/
   builtins/
     bluetooth/ bluetooth_ltv.h, ad_types.h
     asn1/      ber.h, der.h, cer.h, der_validation.h, cer_validation.h, der_schema.h
-    emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
+    emv/       emv.h, emv_schema.h, dol.h, emv_codec.h
 ```
 
 The tree shows the public layout; corresponding implementation files use `.c`.
 `definition.h` provides borrowed identifier/name entries and a generic registry
 lookup. Bluetooth AD types use this model independently of their wire format;
 definitions neither validate structure nor decode values.
+Identifier meaning is scoped to the selected registry, and descriptive names are
+not unique domain identities. Rich standard dictionaries may compose Definition,
+Schema and Codec without adding protocol fields to the generic Definition or
+requiring Definition lookup before parsing or decoding. The caller/dictionary
+selects the value codec; the codec does not resolve its enclosing tag.
+The [Definition boundary audit](definition-boundaries.md) records this contract,
+evidence across five standard families and the identifier-mapping decision.
 Small fundamental types (`tag.h`, `length.h`, `size.h`, `value.h`, `element.h`, and the
 generic `format.h` descriptor contracts) sit directly under `tlv/`, alongside
 the generic subsystem folders. `formats/fixed.h` and `formats/variable.h` hold
@@ -360,10 +367,10 @@ to avoid colliding with the wire-format headers of the same name
 `tlv/profiles/cer.h` becomes `tlv/builtins/asn1/cer_validation.h`). EMV moves
 and consolidates under `tlv/builtins/emv/`: `tlv/profiles/emv.h` becomes
 `tlv/builtins/emv/emv.h`, `tlv/profiles/emv_schema.h`,
-`tlv/profiles/emv_tags.def` and `tlv/profiles/dol.h` move alongside it
-unchanged, and `tlv/codec/emv.h` (the semantic value codecs) becomes
+and `tlv/profiles/dol.h` move alongside it unchanged, and `tlv/codec/emv.h` (the semantic value codecs) becomes
 `tlv/builtins/emv/emv_codec.h` to avoid colliding with the umbrella EMV
-header. `tlv/schemas/schema.h` becomes `tlv/schema/schema.h`.
+header. The former `emv_tags.def` X-macro is subsequently removed in #381;
+EMV uses explicit domain dictionary tables. `tlv/schemas/schema.h` becomes `tlv/schema/schema.h`.
 
 `tlv++`'s previously flat `tlv++/include/tlv++/*.hpp` headers (#280) move
 into the same folders as their C counterparts:

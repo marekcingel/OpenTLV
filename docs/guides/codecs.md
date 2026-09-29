@@ -133,10 +133,92 @@ See also the [C API reference: codecs](../reference/c-api.md#codecs).
 ## Reusable primitive codecs
 
 Include `tlv/codec/values.h` for `tlv_codec_uint8`,
-`tlv_codec_uint16_be`, `tlv_codec_uint32_be` and `tlv_codec_bytes`.
+`tlv_codec_uint16_be`, `tlv_codec_uint32_be`, their `_le` equivalents,
+`tlv_codec_int64_minimal_be` and `tlv_codec_bytes`.
 Include `tlv/codec/ipv4.h` for `tlv_codec_ipv4` and
 `tlv_codec_ipv4_list`. They use the same Codec
 contract and are available independently of protocol components.
 Byte sequences decode to borrowed `tlv_value_t` views; IPv4 lists decode
 to `tlv_ipv4_list_t` views with checked access through
 `tlv_ipv4_list_at()`. The caller retains ownership of the input.
+
+## Declarative numeric codecs
+
+`tlv/codec/number.h` describes unsigned `uint64_t` conversion using ordinary
+immutable data. Select binary BE/LE or unsigned BCD, byte-length bounds, a
+positive length step and (for BCD) a decimal digit limit. Encode selects the
+shortest permitted width that fits; decode accepts all permitted widths.
+BCD has high-nibble-first decimal digits and left zero padding, without a sign,
+F padding or implicit scaling. Binary widths are 1..8 bytes and BCD widths are
+1..9 bytes with at most 18 significant digits.
+
+```c
+#include "tlv/codec/number.h"
+
+static const tlv_number_codec_config_t amount_config = {
+    TLV_NUMBER_BCD, 6, 6, 1, 12
+};
+static const tlv_codec_t amount_codec = {
+    &amount_config, tlv_number_decode, tlv_number_encode
+};
+```
+
+Caller-owned configuration uses `tlv_number_codec(&config)` to create the same
+borrowed descriptor. Keep the configuration alive and unchanged while it is in
+use. No allocation, registration or protocol lookup occurs. Invalid configuration,
+unrepresentable numbers and malformed digits are rejected, including during
+encode size queries. The callback functions also support direct invocation and
+leave output bytes unchanged on failure.
+
+`tlv_codec_int64_minimal_be` converts minimal signed two's-complement values
+without any ASN.1 dependency. It rejects redundant leading sign bytes and values
+outside its eight-byte representation. Domain schemas still choose the codec
+and impose any additional constraints.
+
+## Digit strings and text
+
+`tlv/codec/digits.h` packs decimal character strings high nibble first, with
+trailing `F` padding. Leading zeros remain digits; this is distinct from numeric
+BCD. Decode returns a NUL-terminated string; encode takes the digit count
+**excluding** the NUL. Byte-length and digit-count bounds are independent.
+Encode chooses the shortest permitted byte length and fills unused nibbles with
+`F`; decode also accepts additional trailing padding within the byte bounds.
+Digits after padding and nibbles `A..E` are rejected.
+
+```c
+#include "tlv/codec/digits.h"
+
+static const tlv_digits_codec_config_t identifier_config = {1, 7, 4, 4};
+static const tlv_codec_t identifier_codec = {
+    &identifier_config, tlv_digits_decode, tlv_digits_encode
+};
+/* "00123" encodes as 00 12 3F FF; decoding preserves both leading zeros. */
+```
+
+`tlv/codec/text.h` converts explicitly selected ASCII text. Choose
+`TLV_TEXT_ASCII_PRINTABLE` (space through `~`) or `TLV_TEXT_ASCII_ALNUM`
+(letters and digits only). It does not infer the meaning of protocol labels
+such as AN/ANS and is not a Unicode codec. Optional zero padding strips trailing
+zero bytes on decode and pads to the minimum wire length on encode. Embedded
+zeros, controls and bytes outside the selected alphabet are invalid.
+
+```c
+#include "tlv/codec/text.h"
+
+static const tlv_text_codec_config_t label_config = {
+    TLV_TEXT_ASCII_PRINTABLE, 16, 16, 1
+};
+static const tlv_codec_t label_codec = {
+    &label_config, tlv_text_decode, tlv_text_encode
+};
+```
+
+The text C representation is `tlv_value_t`, not a C string. Decode returns an
+unpadded borrowed span into the original wire bytes without adding a terminator;
+encode takes the span object and `sizeof(tlv_value_t)`. Keep the wire storage
+alive while using the view. An all-padding field represents empty text.
+
+Both configurations can be caller-owned, using `tlv_digits_codec()` or
+`tlv_text_codec()` to construct borrowed descriptors. Configurations must remain
+alive and immutable. Size queries validate input, errors leave output unchanged,
+and neither codec performs allocation, tag lookup or domain selection.

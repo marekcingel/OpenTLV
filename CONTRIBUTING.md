@@ -89,9 +89,8 @@ state each of the following explicitly:
 - A family of overloads that differ only by type (for example `_u8`, `_u16`,
   `_u32`, `_u64`) documents the first in full and uses `@copydetails` on the
   rest, each with its own `@brief`.
-- Generated code, such as constants produced from
-  [emv_tags.def](tlv/include/tlv/builtins/emv/emv_tags.def), is documented once on the
-  generating macro or in the header that expands it.
+- Generated declarations must carry the same public documentation as handwritten
+  declarations. Document explicit dictionary constants alongside their declarations.
 - Preserve existing useful documentation when converting a comment; move its
   content into the structure above rather than rewriting it.
 - Public C headers stay C99 and must not need Doxygen to compile.

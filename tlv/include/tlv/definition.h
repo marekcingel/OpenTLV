@@ -19,6 +19,11 @@ extern "C" {
  *
  * Both fields borrow immutable storage. No allocation, encoding rules,
  * value interpretation or schema constraints are implied.
+ * Identifier meaning is scoped to the selected registry, not global across
+ * standards. The name is descriptive, not a unique symbol or domain identity.
+ * Canonical identifier bytes need not equal the raw wire header bytes.
+ * Rich domain dictionaries may compose these entries with schema, codec and
+ * protocol metadata; such metadata does not belong in this generic contract.
  */
 typedef struct {
     /** Canonical identifier bytes; storage must outlive the definition's use. */
@@ -32,6 +37,8 @@ typedef struct {
  *
  * No allocation or registration occurs. Keep the entries, tag bytes and names
  * alive and unchanged while using the registry or a returned entry pointer.
+ * Callers select the registry for their domain/context. Lookup does not resolve
+ * context, select a codec or map identifiers between formats.
  */
 typedef struct {
     /** Borrowed entries; may be `NULL` only when count is zero. */

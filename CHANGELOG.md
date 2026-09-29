@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Add length-policy flags to `tlv_schema_diagnostic_t`; rebuild consumers. EMV BIC and public-key-exponent schemas now reject intermediate lengths consistently with dictionary validation. (#381)
+- **Breaking:** Replace the EMV `emv_tags.def` X-macro with explicit typed dictionary tables. Consumers of the removed include must iterate `tlv_emv_dictionary_for()` instead; existing tag constants, context lookup and Value representations are preserved. EMV numbers, ASN.1 integers, Bluetooth UUID16/32 and LLDP TTL reuse generic value codecs. (#381)
 - Remove Profile from the OpenTLV architecture and public API terminology. Modules compose any subset of Definition, Format, Schema and Codec; native optional builtins remain independent of the future `.otlv` runtime. Rename `OPENTLV_PROFILE_EMV` / `tlv_config_profile_emv()` to `OPENTLV_EMV` / `tlv_config_emv()`, DER/CER `*_profile.h` headers to `*_validation.h`, and CLI/WASM selectors and JSON fields to `module`. Rust canonical operations now use `Format::Der` / `Format::Cer` and `ValidationError`, removing `Profile`. Update consumers to the new names; see the [migration guide](docs/concepts/architecture.md#removing-profile-380). (#380)
 - **Breaking:** Share ASN.1 tag accessors through `tlv/builtins/asn1/identifier.h`: replace BER/DER/CER `tag_class`, `tag_is_constructed` and `is_constructed` helpers with their `tlv_asn1_*` equivalents, without compatibility aliases. DER and CER reuse BER framing and common ASN.1 validation while retaining their distinct format and tag-validation contracts. (#378)
 - Build BER framing on generic Variable primitives while preserving its public helpers, raw-tag compatibility, indefinite/EOC handling and diagnostics; document the boundary between framing and ASN.1 validation. (#377)
@@ -74,6 +76,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Remove `TLV_TAG_CAPACITY`, `tlv_tag_from_bytes()`, `tlv_tag_equal_bytes()` and the numeric `tlv_tag_to_u*()`, `tlv_tag_from_u*()` and `tlv_tag_equal_u*()`; use `tlv_tag()` and `tlv_tag_equal()` instead, and the Rust `Tag` loses `ByteOrder`, `from_u64` and `to_u64`. (#256)
 
 ### Added
+
+- Add configurable packed digit-string and ASCII text codecs with explicit padding policies, usable without protocol builtins. Add `TLV_SCHEMA_LENGTH_ENDPOINTS` for fields that accept only their minimum or maximum length. (#381)
+
+- Add caller-owned EMV dictionary lookup and configurable unsigned binary/BCD value codecs, plus little-endian uint16/uint32 and minimal signed int64 codecs, usable independently of protocol builtins and with runtime-owned configuration. (#381)
+
+- Document the Definition boundary audit across ASN.1, EMV, Bluetooth, LLDP and DHCP: keep generic identifier/name registries minimal, domain dictionaries optional and value codec selection outside the codec. No new mandatory mapping layer is required. (#381)
 
 - Add definite EMV BER-TLV framing over generic variable-width primitives, exposed as `tlv_format_emv` and the `emv` preset in bindings and tooling. EMV no longer requires DER; the existing DOL helper retains its BER dependency. (#379)
 - Add allocation-free configurable variable-width identifier and short/long length primitives, a Variable TLV/LTV format, and field composition support for concrete boundary and trailer rules. (#376)

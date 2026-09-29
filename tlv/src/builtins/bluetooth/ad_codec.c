@@ -1,6 +1,7 @@
 #include "tlv/builtins/bluetooth/ad_codec.h"
 #include "../../utf8_internal.h"
 #include <string.h>
+#include "tlv/codec/values.h"
 
 static tlv_codec_result_t validate_flags(const uint8_t* data, size_t size) {
     if (size && data[size - 1] == 0) return TLV_CODEC_ERR_INVALID_VALUE;
@@ -18,14 +19,9 @@ typedef tlv_codec_result_t (*ad_validator_t)(const uint8_t*, size_t);
 
 static tlv_codec_result_t decode_span(const uint8_t* data, size_t size, void* value,
                                       size_t capacity, ad_validator_t validate) {
-    tlv_value_t result;
     tlv_codec_result_t rc = validate(data, size);
     if (rc != TLV_CODEC_OK) return rc;
-    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-    result.data = data;
-    result.size = size;
-    memcpy(value, &result, sizeof(result));
-    return TLV_CODEC_OK;
+    return tlv_codec_decode(&tlv_codec_bytes, data, size, value, capacity);
 }
 
 static tlv_codec_result_t encode_span(const void* value, size_t size, uint8_t* data,
@@ -39,12 +35,7 @@ static tlv_codec_result_t encode_span(const void* value, size_t size, uint8_t* d
     if (tlv_size_to_native(input.size, &length) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
     rc = validate(input.data, length);
     if (rc != TLV_CODEC_OK) return rc;
-    if (data) {
-        if (capacity < length) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-        if (length) memcpy(data, input.data, length);
-    }
-    *written = length;
-    return TLV_CODEC_OK;
+    return tlv_codec_encode(&tlv_codec_bytes, value, size, data, capacity, written);
 }
 
 static tlv_codec_result_t decode_flags(const void* context, const uint8_t* data, size_t size,

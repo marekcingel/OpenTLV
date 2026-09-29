@@ -4,26 +4,6 @@
 
 #define FUZZ_CODEC_DIGITS_CAPACITY 4096
 
-typedef struct {
-    tlv_emv_context_t context;
-    const tlv_tag_t*  tag;
-} fuzz_codec_entry;
-
-/* Every (context, tag) pair the EMV dictionary defines, so each tag's own
- * codec instance (one per definition; see tlv/src/builtins/emv/emv.c) is fuzzed
- * individually rather than only through one representative per value kind. */
-#define EMV_BEGIN(scope)
-#define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
-    {TLV_EMV_CONTEXT_##scope, &tlv_emv_tag_##name},
-#define EMV_END(scope)
-static const fuzz_codec_entry fuzz_codec_entries[] = {
-#include "tlv/builtins/emv/emv_tags.def"
-};
-#undef EMV_BEGIN
-#undef EMV_TAG
-#undef EMV_END
-#define FUZZ_CODEC_ENTRY_COUNT (sizeof(fuzz_codec_entries) / sizeof(fuzz_codec_entries[0]))
-
 /* Every fixed-size C representation a non-DIGITS EMV codec can decode into. */
 typedef union {
     uint64_t                  number;
@@ -180,11 +160,12 @@ static void check_definition(const tlv_emv_definition_t* definition, const uint8
 }
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-    size_t i;
-    for (i = 0; i < FUZZ_CODEC_ENTRY_COUNT; ++i) {
-        const tlv_emv_definition_t* definition =
-            tlv_emv_find(fuzz_codec_entries[i].context, fuzz_codec_entries[i].tag);
-        check_definition(definition, data, size);
+    int context;
+    for (context = 0; context < TLV_EMV_CONTEXT_COUNT; ++context) {
+        const tlv_emv_dictionary_t* dictionary = tlv_emv_dictionary_for((tlv_emv_context_t)context);
+        size_t                      i;
+        for (i = 0; i < dictionary->count; ++i)
+            check_definition(&dictionary->entries[i], data, size);
     }
     return 0;
 }

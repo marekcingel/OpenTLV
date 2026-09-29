@@ -17,6 +17,8 @@ tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry, size_t 
     if (!entry) return TLV_ERR_NULL_ARG;
     if (entry->min_length > entry->max_length || length < entry->min_length ||
         length > entry->max_length ||
+        ((entry->flags & TLV_SCHEMA_LENGTH_ENDPOINTS) && length != entry->min_length &&
+         length != entry->max_length) ||
         (entry->length_multiple && length % entry->length_multiple != 0))
         return TLV_ERR_INVALID_LENGTH;
     return TLV_OK;

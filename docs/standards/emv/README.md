@@ -10,8 +10,38 @@ this implementation. Book 3 data elements without a tag are not assigned invente
 
 The reference is [EMVCo Book 3 v4.4](https://www.emvco.com/specifications/book-3-application-specification-2/),
 also available as a [public copy of the specification](https://www.scribd.com/document/648236969/EMV-v4-4-Book-3-Application-Specification-1).
-Tag constants, schema entries, length steps, and codec bindings are maintained
-together in [emv_tags.def](../../../tlv/include/tlv/builtins/emv/emv_tags.def).
+The builtin dictionary uses explicit typed C tables in
+`tlv/src/builtins/emv/dictionary.c`. Public tag constants are declared directly
+in `tlv/builtins/emv/emv.h`; no repeated-include X-macro or build-time dictionary
+generator is required. Regression tests check all 168 context entries against
+the pre-refactoring constants and metadata.
+
+`tlv_emv_dictionary_for(context)` returns a borrowed builtin table. The same
+`tlv_emv_dictionary_find(dictionary, tag)` operation accepts caller-owned tables;
+`tlv_emv_find(context, tag)` selects the builtin table then uses that operation.
+A table represents one selected context, with byte-identity lookup, first-match
+handling of duplicates and no fallback to another context. Entries refer to
+schemas and codec descriptors, whose configuration may also be caller-owned.
+All referenced storage must remain immutable and alive while in use.
+
+Numeric and flag entries use the generic configuration in `tlv/codec/number.h`:
+binary byte order or unsigned packed decimal, permitted byte lengths and decimal
+digit limits. EMV amount is the BCD preset `{TLV_NUMBER_BCD, 6, 6, 1, 12}`.
+Date/time codecs reuse numeric conversion and add EMV calendar rules; Track 2,
+AFL, account/biometric enums and other domain representations keep their own
+semantics. Descriptive labels remain separate from dictionary symbols.
+
+The contiguous schema tables support `tlv_emv_schema_for()` and generic schema
+consumers; dictionary entries reference those tables instead of copying schema
+objects. Public integer constants remain C/C++ constant expressions and borrowed
+tag objects retain their existing names and bytes.
+
+## Migration from the X-macro dictionary (#381)
+
+`emv_tags.def` is removed. Consumers that expanded it must iterate the selected
+`tlv_emv_dictionary_t` instead. Existing tag constants, lookup functions, schema
+accessors and value representations remain available. No runtime `.otlv` parser
+is introduced: native and caller-owned descriptors already use the same model.
 
 ## Framing and lookup
 

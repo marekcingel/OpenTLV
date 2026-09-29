@@ -1,6 +1,7 @@
 #include "tlv/builtins/asn1/asn1_codec.h"
 #include "asn1_values_internal.h"
 #include <string.h>
+#include "tlv/codec/values.h"
 
 /* BOOLEAN: X.690 section 8.2/11.1, canonical content is exactly one byte, 00 or FF. */
 
@@ -33,59 +34,16 @@ static tlv_codec_result_t encode_boolean(const void* context, const void* value,
  * complement; shared here because both universal types carry identical
  * content rules under section 11.2. */
 
-static int integer_decode_value(const uint8_t* data, size_t size, int64_t* out) {
-    uint64_t bits;
-    size_t i;
-    if (size < 1 || size > sizeof(int64_t)) return 0;
-    bits = (data[0] & 0x80) ? ~(uint64_t)0 : 0;
-    for (i = 0; i < size; ++i) bits = (bits << 8) | data[i];
-    *out = (int64_t)bits;
-    return 1;
-}
-
-static size_t integer_minimal_size(const uint8_t full[sizeof(int64_t)]) {
-    size_t start = 0;
-    while (start + 1 < sizeof(int64_t) && ((full[start] == 0x00 && (full[start + 1] & 0x80) == 0) ||
-                                           (full[start] == 0xFF && (full[start + 1] & 0x80) != 0)))
-        ++start;
-    return sizeof(int64_t) - start;
-}
-
-static void integer_encode_value(int64_t value, uint8_t full[sizeof(int64_t)]) {
-    uint64_t bits = (uint64_t)value;
-    size_t i;
-    for (i = 0; i < sizeof(int64_t); ++i)
-        full[i] = (uint8_t)(bits >> (8 * (sizeof(int64_t) - 1 - i)));
-}
-
 static tlv_codec_result_t decode_integer(const void* context, const uint8_t* data, size_t size,
                                          void* value, size_t capacity) {
-    int64_t result;
     (void)context;
-    if (tlv_asn1_validate_integer(data, size) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
-    if (!integer_decode_value(data, size, &result)) return TLV_CODEC_ERR_INVALID_VALUE;
-    if (capacity < sizeof(result)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-    memcpy(value, &result, sizeof(result));
-    return TLV_CODEC_OK;
+    return tlv_codec_decode(&tlv_codec_int64_minimal_be, data, size, value, capacity);
 }
 
 static tlv_codec_result_t encode_integer(const void* context, const void* value, size_t size,
                                          uint8_t* data, size_t capacity, size_t* written) {
-    int64_t input;
-    uint8_t full[sizeof(int64_t)];
-    size_t minimal_size, offset;
     (void)context;
-    if (size != sizeof(input)) return TLV_CODEC_ERR_INVALID_VALUE;
-    memcpy(&input, value, sizeof(input));
-    integer_encode_value(input, full);
-    minimal_size = integer_minimal_size(full);
-    offset = sizeof(full) - minimal_size;
-    if (data) {
-        if (capacity < minimal_size) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-        memcpy(data, full + offset, minimal_size);
-    }
-    *written = minimal_size;
-    return TLV_CODEC_OK;
+    return tlv_codec_encode(&tlv_codec_int64_minimal_be, value, size, data, capacity, written);
 }
 
 /* BIT STRING: X.690 section 8.6/11.2, leading unused-bits octet plus borrowed

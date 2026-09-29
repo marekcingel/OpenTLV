@@ -6,7 +6,7 @@ namespace {
 static const tlv_schema_entry_t entries[] = {
     {TLV_TAG(2), 2, 4, 0, "two", 0},
     {TLV_TAG(1), 3, 3, 0, nullptr, 0},
-    {TLV_TAG(0x9F, 0x02), 0, SIZE_MAX, UINT32_MAX, nullptr, 0},
+    {TLV_TAG(0x9F, 0x02), 0, SIZE_MAX, UINT32_MAX & ~TLV_SCHEMA_LENGTH_ENDPOINTS, nullptr, 0},
     {TLV_TAG(2), 9, 9, 0, nullptr, 0},
     {tlv_tag(nullptr, 0), 0, 0, 0, nullptr, 0}};
 static const tlv_schema_t schema = {entries, sizeof(entries) / sizeof(entries[0])};
@@ -32,6 +32,28 @@ TEST(Unit_Tlv_Schema, LengthMultipleCombinesWithBoundsWithoutOverflow) {
     EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 9));
     rule.length_multiple = 1;
     EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 9));
+}
+
+TEST(Unit_Tlv_Schema, LengthEndpointsCombineWithMultipleAndBoundaryValues) {
+    tlv_schema_entry_t rule = {TLV_TAG(1), 4, 8, TLV_SCHEMA_LENGTH_ENDPOINTS, nullptr, 0};
+    for (size_t length = 0; length <= 10; ++length)
+        EXPECT_EQ(length == 4 || length == 8 ? TLV_OK : TLV_ERR_INVALID_LENGTH,
+                  tlv_schema_validate_length(&rule, length));
+    rule.length_multiple = 8;
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&rule, 4));
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 8));
+    rule.length_multiple = 0;
+    rule.min_length = rule.max_length = 4;
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 4));
+    rule.min_length = 5;
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&rule, 4));
+    rule.min_length = 0;
+    rule.max_length = SIZE_MAX;
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 0));
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, SIZE_MAX));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&rule, 1));
+    rule.flags = UINT32_MAX & ~TLV_SCHEMA_LENGTH_ENDPOINTS;
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&rule, 1));
 }
 
 TEST(Unit_Tlv_Schema, FindsUnsortedTagsAndReturnsFirstDuplicate) {

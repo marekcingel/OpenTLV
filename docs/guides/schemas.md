@@ -20,6 +20,14 @@ use this rule. Length diagnostics expose the expected `length_multiple`.
 The [Bluetooth AD schema](../formats/bluetooth/README.md#advertising-data-schema)
 uses it for UUID lists without decoding their values.
 
+Set `flags = TLV_SCHEMA_LENGTH_ENDPOINTS` to permit only `min_length` or
+`max_length`, for example 4 or 8 bytes while rejecting 5, 6 and 7. Both endpoints
+must still satisfy `length_multiple` when it is nonzero. Equal bounds remain an
+exact length; flags zero retains the inclusive interval. Unknown flag bits are
+ignored. Length diagnostics also expose `length_flags`, so an endpoint-only
+constraint can be distinguished from an interval. Rebuild consumers of the
+extended `tlv_schema_diagnostic_t`; `tlv_schema_entry_t` retains its layout.
+
 ```c
 /* A schema entry borrows its tag bytes, so they need static storage. */
 static const uint8_t tag_01[] = {0x01};

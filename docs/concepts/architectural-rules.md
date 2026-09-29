@@ -65,13 +65,24 @@ Their responsibilities must remain separated.
 
 ### Definition
 
-Defines which identifiers exist and their metadata.
+Provides a minimal registry of identifiers and their descriptive names.
 
 It answers:
 
-> What is this identifier?
+> What identifier is this, and what is its descriptive name in this registry?
 
 It must not define how the identifier is encoded on wire.
+
+Identifier meaning is scoped to a registry; a name is not a unique domain
+identity. Generic Definition must not acquire codec pointers, schema references,
+ASN.1 types, EMV value kinds, length rules or other standard-specific metadata.
+Standards may own richer dictionaries that compose these capabilities, optionally
+reusing Definition entries. A dictionary is domain composition, not a new
+mandatory layer; a factory is only a possible implementation choice.
+Definition lookup is not a required parsing step.
+
+See the [Definition boundary audit](definition-boundaries.md) for the evidence
+and the separate assessment of logical identity versus identifier mapping.
 
 ### Format
 
@@ -187,6 +198,15 @@ Examples:
 - protocol-specific semantic values
 
 Codec operates on Value, not on the wire representation of the complete element.
+Standards should reuse generic value codecs and declarative codec configuration
+where their Value encoding and C representation match. Extract reusable
+conversion primitives rather than duplicating them across standards; retain
+specialized codecs for domain semantics that generic composition cannot express.
+Native and future `.otlv` dictionaries must compose the same contracts, differing
+in construction and ownership rather than creating parallel semantic models.
+The caller or domain dictionary selects a value codec for a tag in context before
+invoking it. A value codec does not look up its enclosing tag in a Definition
+registry or dictionary to decide what it is decoding.
 Structure codecs may compose Reader/Writer, Schema and value codecs to map
 complete objects. They still delegate wire interpretation to Format.
 

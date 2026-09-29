@@ -1,6 +1,7 @@
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
+#include "tlv/codec/number.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -46,16 +47,26 @@ unsigned number_of(const tlv_tag_t& tag) {
     return number;
 }
 
+#include "dictionary_cases.h"
+
 TEST(Unit_Tlv_Emv, PublicTagConstantsMatchDefinitions) {
-#define EMV_BEGIN(scope)
-#define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
-    EXPECT_NE(nullptr, find(tlv_emv_tag_##name, TLV_EMV_CONTEXT_##scope));                         \
-    EXPECT_EQ(static_cast<unsigned>(tlv_emv_tag_##name##_u64), number_of(tlv_emv_tag_##name));
-#define EMV_END(scope)
-#include "tlv/builtins/emv/emv_tags.def"
-#undef EMV_BEGIN
-#undef EMV_TAG
-#undef EMV_END
+    size_t total = 0;
+    for (int c = 0; c < TLV_EMV_CONTEXT_COUNT; ++c)
+        total += tlv_emv_dictionary_for(static_cast<tlv_emv_context_t>(c))->count;
+    ASSERT_EQ(sizeof(dictionary_cases) / sizeof(dictionary_cases[0]), total);
+    for (const auto& expected : dictionary_cases) {
+        SCOPED_TRACE(expected.symbol);
+        const auto* entry = tlv_emv_find(expected.context, expected.tag);
+        ASSERT_NE(nullptr, entry);
+        EXPECT_EQ(expected.expected_number, expected.number);
+        EXPECT_EQ(expected.number, number_of(*expected.tag));
+        EXPECT_STREQ(expected.symbol, entry->name);
+        EXPECT_EQ(expected.min_length, entry->schema->min_length);
+        EXPECT_EQ(expected.max_length, entry->schema->max_length);
+        EXPECT_EQ(expected.step, entry->length_step);
+        EXPECT_EQ(expected.kind, entry->value_kind);
+        EXPECT_EQ(expected.has_codec, entry->codec != nullptr);
+    }
 }
 
 TEST(Unit_Tlv_Emv, ScopeAndInvalidLookup) {
@@ -156,6 +167,14 @@ TEST(Unit_Tlv_Emv, ChildContextTracksNestedTemplates) {
 }
 
 TEST(Unit_Tlv_Emv, NonContiguousLengthRules) {
+    for (const auto* tag :
+         {&tlv_emv_tag_bic, &tlv_emv_tag_issuer_public_key_exponent,
+          &tlv_emv_tag_icc_public_key_exponent, &tlv_emv_tag_icc_pin_public_key_exponent}) {
+        const auto* definition = find(*tag);
+        for (size_t length = 0; length <= definition->schema->max_length + 1; ++length)
+            EXPECT_EQ(tlv_emv_validate_length(definition, length),
+                      tlv_schema_validate_length(definition->schema, length));
+    }
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_afl), 5));
     EXPECT_EQ(TLV_OK, tlv_schema_validate_length(find(tlv_emv_tag_afl)->schema, 5));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_cvm_list), 11));
@@ -484,4 +503,40 @@ TEST(Unit_Tlv_Emv, NumericConstantsInSwitch) {
 extern "C" int tlv_test_c_tag_switch(void);
 TEST(Unit_Tlv_Emv, NumericConstantsInCSwitch) {
     EXPECT_EQ(1, tlv_test_c_tag_switch());
+}
+
+TEST(Unit_Tlv_Emv, CallerOwnedDictionaryUsesTheSameLookupAndGenericCodec) {
+    const std::vector<uint8_t>      bytes{0x9F, 0x02};
+    const tlv_tag_t                 tag = tlv_tag(bytes.data(), bytes.size());
+    const tlv_number_codec_config_t config{TLV_NUMBER_BCD, 6, 6, 1, 12};
+    const tlv_codec_t               codec = tlv_number_codec(&config);
+    const tlv_schema_entry_t        schema{tag, 6, 6, 0, "amount", 0};
+    const tlv_emv_definition_t      entries[] = {
+        {nullptr, "invalid", TLV_EMV_VALUE_NUMBER, nullptr, 1},
+        {&schema, "amount", TLV_EMV_VALUE_NUMBER, &codec, 1},
+        {&schema, "duplicate", TLV_EMV_VALUE_NUMBER, nullptr, 1}};
+    const tlv_emv_dictionary_t dictionary{entries, 3};
+    const auto*                entry = tlv_emv_dictionary_find(&dictionary, &tag);
+    ASSERT_EQ(entries + 1, entry);
+    EXPECT_EQ(TLV_OK, tlv_emv_validate_length(entry, 6));
+    const uint8_t value[] = {0, 0, 0, 0, 0x12, 0x34};
+    uint64_t      decoded = 0;
+    ASSERT_EQ(TLV_CODEC_OK,
+              tlv_codec_decode(entry->codec, value, sizeof(value), &decoded, sizeof(decoded)));
+    EXPECT_EQ(1234u, decoded);
+    const auto* builtin = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &tag);
+    ASSERT_NE(nullptr, builtin);
+    EXPECT_EQ(builtin->codec->decode, codec.decode);
+    EXPECT_EQ(builtin->codec->encode, codec.encode);
+    const auto unknown = TLV_TAG(0x81);
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&dictionary, &unknown));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(nullptr, &tag));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&dictionary, nullptr));
+    const tlv_emv_dictionary_t malformed{nullptr, 1}, empty{nullptr, 0};
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&malformed, &tag));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&empty, &tag));
+    const auto bad = tlv_tag(nullptr, 1);
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&dictionary, &bad));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_for(TLV_EMV_CONTEXT_COUNT));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_for(static_cast<tlv_emv_context_t>(-1)));
 }

@@ -11,6 +11,9 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/definition.c
     src/codec/codec.c
     src/codec/values.c
+    src/codec/number.c
+    src/codec/digits.c
+    src/codec/text.c
     src/codec/ipv4.c
     src/codec/structure.c
     src/format.c
@@ -97,7 +100,8 @@ endif()
 if(OPENTLV_EMV)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/emv/format.c
-        src/builtins/emv/emv.c src/builtins/emv/emv_codec.c src/builtins/emv/dol.c src/builtins/emv/emv_schema.c)
+        src/builtins/emv/emv.c src/builtins/emv/dictionary.c
+        src/builtins/emv/emv_codec.c src/builtins/emv/dol.c src/builtins/emv/emv_schema.c)
 endif()
 if(OPENTLV_DOCUMENT)
     # The only component that allocates; nothing else in the library depends on it.

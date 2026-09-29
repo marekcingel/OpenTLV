@@ -370,6 +370,9 @@ extern "C" {
 pub type tlv_is_constructed_fn =
     unsafe extern "C" fn(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
 
+/// Permit only the minimum or maximum length; length_multiple still applies.
+pub const TLV_SCHEMA_LENGTH_ENDPOINTS: u32 = 1;
+
 /// Length rule for one tag (`tlv_schema_entry_t`).
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -380,7 +383,7 @@ pub struct tlv_schema_entry_t {
     pub min_length: usize,
     /// Maximum permitted value length, inclusive; `usize::MAX` is unrestricted.
     pub max_length: usize,
-    /// Reserved; currently ignored.
+    /// Length policy bits; unknown bits are ignored.
     pub flags: u32,
     /// Borrowed name of the field this entry describes, or null if unnamed.
     pub name: *const c_char,

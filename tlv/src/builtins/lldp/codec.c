@@ -1,15 +1,10 @@
 #include "tlv/builtins/lldp/codec.h"
 #include <string.h>
+#include "tlv/codec/values.h"
+#include "tlv/endian.h"
 
 enum { CHASSIS, PORT, TTL, TEXT, CAPABILITIES, MANAGEMENT, ORGANISATION };
 
-static uint16_t read16(const uint8_t* p) {
-    return (uint16_t)(((uint16_t)p[0] << 8) | p[1]);
-}
-static void write16(uint8_t* p, uint16_t value) {
-    p[0] = (uint8_t)(value >> 8);
-    p[1] = (uint8_t)value;
-}
 static int address_valid(uint8_t family, size_t size) {
     return family != 0 && size != 0 && (family != 1 || size == 4) && (family != 2 || size == 16);
 }
@@ -46,22 +41,16 @@ static tlv_codec_result_t decode(const void* context, const uint8_t* data, size_
             result.identifier = (tlv_value_t){data + 1, size - 1};
             RETURN_VALUE(result);
         }
-        case TTL: {
-            uint16_t result;
-            if (size != 2) return TLV_CODEC_ERR_INVALID_VALUE;
-            result = read16(data);
-            RETURN_VALUE(result);
-        }
+        case TTL: return tlv_codec_decode(&tlv_codec_uint16_be, data, size, value, capacity);
         case TEXT: {
-            tlv_value_t result = {data, size};
             if (size > 255) return TLV_CODEC_ERR_INVALID_VALUE;
-            RETURN_VALUE(result);
+            return tlv_codec_decode(&tlv_codec_bytes, data, size, value, capacity);
         }
         case CAPABILITIES: {
             tlv_lldp_capabilities_t result;
             if (size != 4) return TLV_CODEC_ERR_INVALID_VALUE;
-            result.supported = read16(data);
-            result.enabled = read16(data + 2);
+            result.supported = tlv_read_u16_be(data);
+            result.enabled = tlv_read_u16_be(data + 2);
             if ((result.enabled & (uint16_t)~result.supported) != 0)
                 return TLV_CODEC_ERR_INVALID_VALUE;
             RETURN_VALUE(result);
@@ -128,28 +117,22 @@ static tlv_codec_result_t encode(const void* context, const void* value, size_t 
             length = 1 + count;
             break;
         }
-        case TTL: {
-            uint16_t input;
-            READ_VALUE(input);
-            write16(wire, input);
-            length = 2;
-            break;
-        }
+        case TTL:
+            return tlv_codec_encode(&tlv_codec_uint16_be, value, size, data, capacity, written);
         case TEXT: {
             tlv_value_t input;
             READ_VALUE(input);
             rc = span_size(input, 255, &length);
             if (rc != TLV_CODEC_OK) return rc;
-            if (length) memcpy(wire, input.data, length);
-            break;
+            return tlv_codec_encode(&tlv_codec_bytes, value, size, data, capacity, written);
         }
         case CAPABILITIES: {
             tlv_lldp_capabilities_t input;
             READ_VALUE(input);
             if ((input.enabled & (uint16_t)~input.supported) != 0)
                 return TLV_CODEC_ERR_INVALID_VALUE;
-            write16(wire, input.supported);
-            write16(wire + 2, input.enabled);
+            tlv_write_u16_be(wire, input.supported);
+            tlv_write_u16_be(wire + 2, input.enabled);
             length = 4;
             break;
         }

@@ -1,5 +1,6 @@
 #include "tlv/builtins/bluetooth/uuid.h"
 #include "tlv/endian.h"
+#include "tlv/codec/values.h"
 #include <string.h>
 
 static const size_t width16 = 2;
@@ -17,12 +18,9 @@ static tlv_codec_result_t decode_uuid(const void* context, const uint8_t* data, 
     const size_t width = *(const size_t*)context;
     if (size != width) return TLV_CODEC_ERR_INVALID_VALUE;
     if (capacity < object_size(width)) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-    if (width == 2) {
-        const uint16_t result = tlv_read_u16_le(data);
-        memcpy(value, &result, sizeof(result));
-    } else if (width == 4) {
-        const uint32_t result = tlv_read_u32_le(data);
-        memcpy(value, &result, sizeof(result));
+    if (width == 2 || width == 4) {
+        return tlv_codec_decode(width == 2 ? &tlv_codec_uint16_le : &tlv_codec_uint32_le, data,
+                                size, value, capacity);
     } else {
         tlv_bluetooth_uuid128_t result;
         size_t i;
@@ -36,17 +34,12 @@ static tlv_codec_result_t encode_uuid(const void* context, const void* value, si
                                       uint8_t* data, size_t capacity, size_t* written) {
     const size_t width = *(const size_t*)context;
     if (size != object_size(width)) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (width == 2 || width == 4)
+        return tlv_codec_encode(width == 2 ? &tlv_codec_uint16_le : &tlv_codec_uint32_le, value,
+                                size, data, capacity, written);
     if (data) {
         if (capacity < width) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
-        if (width == 2) {
-            uint16_t input;
-            memcpy(&input, value, sizeof(input));
-            tlv_write_u16_le(data, input);
-        } else if (width == 4) {
-            uint32_t input;
-            memcpy(&input, value, sizeof(input));
-            tlv_write_u32_le(data, input);
-        } else {
+        {
             tlv_bluetooth_uuid128_t input;
             size_t i;
             memcpy(&input, value, sizeof(input));

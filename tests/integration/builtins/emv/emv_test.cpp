@@ -46,6 +46,33 @@ void check_vector(const tlv_codec_t* codec, const T& expected, std::initializer_
 }
 } // namespace
 
+TEST(Integration_Tlv_Emv, CallerSelectsAmountCodecFromParsedIdentifier) {
+    const std::vector<std::vector<uint8_t>> encodings{{0x9F, 0x02, 0x06, 0, 0, 0, 0, 0x12, 0x34},
+                                                      {0x81, 0x04, 0, 0, 0x04, 0xD2}};
+    for (const auto& wire : encodings) {
+        tlv_element_t element{};
+        size_t        consumed = 0;
+        ASSERT_EQ(TLV_OK, tlv_read(wire.data(), wire.size(), &tlv_format_emv, &element, &consumed));
+        ASSERT_EQ(wire.size(), consumed);
+        const auto* entry = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &element.tag);
+        ASSERT_NE(nullptr, entry);
+        ASSERT_NE(nullptr, entry->codec);
+        ASSERT_EQ(TLV_EMV_VALUE_NUMBER, entry->value_kind);
+        size_t size = 0;
+        ASSERT_EQ(TLV_OK, tlv_size_to_native(element.value.size, &size));
+        uint64_t decoded = 0;
+        ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(entry->codec, element.value.data, size, &decoded,
+                                                 sizeof(decoded)));
+        EXPECT_EQ(UINT64_C(1234), decoded);
+        // The already selected codec also operates on standalone Value bytes.
+        std::vector<uint8_t> value(element.value.data, element.value.data + size);
+        decoded = 0;
+        ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(entry->codec, value.data(), value.size(), &decoded,
+                                                 sizeof(decoded)));
+        EXPECT_EQ(UINT64_C(1234), decoded);
+    }
+}
+
 TEST(Integration_Tlv_Emv, AllDefinitionsUseEmvFramingAndSchemas) {
     for (int ctx = 0; ctx < TLV_EMV_CONTEXT_COUNT; ++ctx) {
         auto        context = static_cast<tlv_emv_context_t>(ctx);

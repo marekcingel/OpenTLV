@@ -41,6 +41,8 @@ set(SOURCES
     codec/codec_test.cpp
     codec/ipv4_test.cpp
     codec/values_test.cpp
+    codec/digits_test.cpp
+    codec/text_test.cpp
     compiler_c_test.c
     compiler_test.cpp
     copy_test.cpp

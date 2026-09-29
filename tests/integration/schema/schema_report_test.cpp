@@ -129,6 +129,27 @@ const Wire valid = {0x70, 0x0E, 0x5A, 0x01, 0x12, 0x77, 0x09, 0x82,
                     0x02, 0x00, 0x00, 0x9F, 0x36, 0x02, 0x00, 0x01};
 } // namespace
 
+TEST(Integration_Tlv_SchemaReport, EndpointLengthPolicySurvivesDiagnostics) {
+    const tlv_structure_rule_t rules[] = {
+        {{TLV_TAG(0x04), 1, 3, TLV_SCHEMA_LENGTH_ENDPOINTS, "field", 0},
+         1,
+         1,
+         TLV_SCHEMA_PRIMITIVE,
+         nullptr,
+         0}};
+    const tlv_structure_schema_t schema = {rules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
+    const auto                   result = runDiag({0x04, 0x02, 0xAA, 0xBB}, schema);
+    ASSERT_EQ(1u, result.diagnostics.size());
+    const auto& diagnostic = result.diagnostics[0];
+    EXPECT_TRUE(diagnostic.has_length);
+    EXPECT_EQ(1u, diagnostic.min_length);
+    EXPECT_EQ(3u, diagnostic.max_length);
+    EXPECT_EQ(2u, diagnostic.actual_length);
+    EXPECT_EQ(static_cast<uint32_t>(TLV_SCHEMA_LENGTH_ENDPOINTS), diagnostic.length_flags);
+    EXPECT_TRUE(runDiag({0x04, 0x01, 0xAA}, schema).diagnostics.empty());
+    EXPECT_TRUE(runDiag({0x04, 0x03, 0xAA, 0xBB, 0xCC}, schema).diagnostics.empty());
+}
+
 TEST(Integration_Tlv_SchemaReport, AcceptsConformingTemplateWithoutViolations) {
     Outcome out = run(valid);
     EXPECT_EQ(TLV_OK, out.rc);

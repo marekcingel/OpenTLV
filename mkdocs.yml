@@ -109,6 +109,7 @@ nav:
       - Core architectural rules: concepts/architectural-rules.md
       - Core types: concepts/core-types.md
       - Format and Element contract: concepts/format-contract.md
+      - Definition boundaries: concepts/definition-boundaries.md
       - Borrowed values: concepts/value.md
       - Logical lengths: concepts/length.md
       - Byte order: concepts/endian.md

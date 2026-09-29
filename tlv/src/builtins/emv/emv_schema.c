@@ -1,7 +1,7 @@
 #include "tlv/builtins/emv/emv_schema.h"
 #include <stdint.h>
 
-/* Tag bytes and length bounds mirror tlv/builtins/emv/emv_tags.def; kept as
+/* Tag bytes and length bounds mirror the explicit EMV dictionary; kept as
  * literals here because tlv_structure_rule_t embeds a tlv_schema_entry_t by
  * value in an immutable static table, which the dictionary's extern
  * tlv_emv_tag_* objects (ordinary runtime-linked constants) cannot initialize.
