@@ -7,7 +7,9 @@ void tlv_reader_diagnostic_init(tlv_reader_diagnostic_t* diagnostic) {
 static void diag_start(tlv_reader_diagnostic_t* diagnostic, tlv_result_t code,
                        tlv_reader_operation_t operation, size_t offset) {
     tlv_reader_diagnostic_init(diagnostic);
-    tlv_diagnostic_init(&diagnostic->diagnostic, code, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    tlv_diagnostic_init(&diagnostic->diagnostic, code,
+                        code == TLV_NEED_MORE_DATA ? TLV_DIAGNOSTIC_SEVERITY_INFO
+                                                   : TLV_DIAGNOSTIC_SEVERITY_ERROR);
     tlv_diagnostic_set_offset(&diagnostic->diagnostic, offset);
     diagnostic->operation = operation;
 }
@@ -47,6 +49,8 @@ static tlv_result_t tlv_read_impl(const uint8_t* data, size_t size, const tlv_fo
         diagnostic->value_offset = error.value.present ? error.value.offset : error.offset;
         diagnostic->has_declared_length = error.has_required && error.region == TLV_REGION_VALUE;
         diagnostic->declared_length = error.required;
+        diagnostic->has_required = error.has_required;
+        diagnostic->required = error.required;
         diagnostic->has_available = error.has_offset && error.offset <= size;
         diagnostic->available = diagnostic->has_available ? size - error.offset : 0;
         diagnostic->has_enclosing_end = 1;
@@ -62,11 +66,57 @@ tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data, size_t s
     reader->size = size;
     reader->pos = 0;
     reader->format = format;
+    reader->base_offset = 0;
+    reader->final_input = 1;
     return TLV_OK;
 }
 
+tlv_result_t tlv_reader_init_incremental(tlv_reader_t* reader, const uint8_t* data, size_t size,
+                                         const tlv_format_t* format) {
+    tlv_result_t rc = tlv_reader_init(reader, data, size, format);
+    if (rc == TLV_OK) reader->final_input = 0;
+    return rc;
+}
+
+static tlv_result_t reader_valid(const tlv_reader_t* reader) {
+    if (!reader || (!reader->data && reader->size) || !tlv_format_can_read(reader->format))
+        return TLV_ERR_NULL_ARG;
+    if (reader->pos > reader->size || (reader->final_input != 0 && reader->final_input != 1))
+        return TLV_ERR_INVALID_ARG;
+    if (reader->size > SIZE_MAX - reader->base_offset) return TLV_ERR_OVERFLOW;
+    return TLV_OK;
+}
+
+tlv_result_t tlv_reader_set_input(tlv_reader_t* reader, const uint8_t* data, size_t size,
+                                  size_t discard, int final_input) {
+    size_t base, retained;
+    tlv_result_t rc = reader_valid(reader);
+    if (rc != TLV_OK) return rc;
+    if (!data && size) return TLV_ERR_NULL_ARG;
+    if (discard > reader->pos || (final_input != 0 && final_input != 1)) return TLV_ERR_INVALID_ARG;
+    retained = reader->size - discard;
+    if (size < retained || (reader->final_input && (!final_input || size != retained)))
+        return TLV_ERR_INVALID_ARG;
+    base = reader->base_offset + discard; /* Already bounded by the old window end. */
+    if (size > SIZE_MAX - base) return TLV_ERR_OVERFLOW;
+    reader->data = data;
+    reader->size = size;
+    reader->pos -= discard;
+    reader->base_offset = base;
+    reader->final_input = final_input;
+    return TLV_OK;
+}
+
+size_t tlv_reader_consumed(const tlv_reader_t* reader) {
+    return reader ? reader->pos : 0;
+}
+
+size_t tlv_reader_offset(const tlv_reader_t* reader) {
+    return reader ? reader->base_offset + reader->pos : 0;
+}
+
 int tlv_reader_at_end(const tlv_reader_t* reader) {
-    return reader && reader->pos == reader->size;
+    return reader && reader->final_input && reader->pos == reader->size;
 }
 
 tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_format_t* format,
@@ -86,38 +136,44 @@ tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_element_t* out_element) {
 
 static tlv_result_t reader_next(tlv_reader_t* reader, tlv_element_t* out_element,
                                 tlv_source_t* source, tlv_reader_diagnostic_t* out_diagnostic) {
-    size_t consumed;
-    tlv_result_t rc;
-    if (!reader || !out_element || (!reader->data && reader->size) ||
-        !tlv_format_can_read(reader->format)) {
-        if (out_diagnostic) diag_start(out_diagnostic, TLV_ERR_NULL_ARG, TLV_READER_OP_HEADER, 0);
-        return TLV_ERR_NULL_ARG;
-    }
-    if (reader->pos > reader->size) {
+    size_t consumed, offset;
+    tlv_result_t rc = reader_valid(reader);
+    if (rc == TLV_OK && !out_element) rc = TLV_ERR_NULL_ARG;
+    if (rc != TLV_OK) {
         if (out_diagnostic)
-            diag_start(out_diagnostic, TLV_ERR_INVALID_ARG, TLV_READER_OP_HEADER, reader->pos);
-        return TLV_ERR_INVALID_ARG;
+            diag_start(out_diagnostic, rc, TLV_READER_OP_HEADER, reader ? reader->pos : 0);
+        return rc;
     }
-    if (tlv_reader_at_end(reader)) {
+    offset = tlv_reader_offset(reader);
+    if (reader->pos == reader->size) {
+        rc = reader->final_input ? TLV_ERR_END_OF_BUFFER : TLV_NEED_MORE_DATA;
         if (out_diagnostic) {
-            diag_start(out_diagnostic, TLV_ERR_END_OF_BUFFER, TLV_READER_OP_HEADER, reader->pos);
+            diag_start(out_diagnostic, rc, TLV_READER_OP_HEADER, offset);
             out_diagnostic->has_available = 1;
-            out_diagnostic->available = 0;
             out_diagnostic->has_enclosing_end = 1;
-            out_diagnostic->enclosing_end = reader->size;
+            out_diagnostic->enclosing_end = offset;
         }
-        return TLV_ERR_END_OF_BUFFER;
+        return rc;
     }
     rc = tlv_read_impl(reader->data + reader->pos, reader->size - reader->pos, reader->format,
                        out_element, &consumed, source, out_diagnostic);
+    if (rc == TLV_ERR_BUFFER_TOO_SHORT && !reader->final_input) rc = TLV_NEED_MORE_DATA;
     if (rc == TLV_OK) {
         reader->pos += consumed;
     } else if (out_diagnostic) {
-        if (out_diagnostic->diagnostic.has_offset) out_diagnostic->diagnostic.offset += reader->pos;
-        if (out_diagnostic->has_tag_offset) out_diagnostic->tag_offset += reader->pos;
-        if (out_diagnostic->has_length_offset) out_diagnostic->length_offset += reader->pos;
-        if (out_diagnostic->has_value_offset) out_diagnostic->value_offset += reader->pos;
-        if (out_diagnostic->has_enclosing_end) out_diagnostic->enclosing_end += reader->pos;
+        const size_t remaining = reader->size - reader->pos;
+        /* A callback may not know a bounded failure offset. Do not wrap it. */
+        if (out_diagnostic->diagnostic.offset > remaining)
+            out_diagnostic->diagnostic.has_offset = 0;
+        if (out_diagnostic->value_offset > remaining) out_diagnostic->has_value_offset = 0;
+        if (out_diagnostic->diagnostic.has_offset) out_diagnostic->diagnostic.offset += offset;
+        if (out_diagnostic->has_tag_offset) out_diagnostic->tag_offset += offset;
+        if (out_diagnostic->has_length_offset) out_diagnostic->length_offset += offset;
+        if (out_diagnostic->has_value_offset) out_diagnostic->value_offset += offset;
+        if (out_diagnostic->has_enclosing_end) out_diagnostic->enclosing_end += offset;
+        out_diagnostic->diagnostic.code = rc;
+        if (rc == TLV_NEED_MORE_DATA)
+            out_diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_INFO;
     }
     return rc;
 }

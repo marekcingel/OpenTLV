@@ -8,7 +8,7 @@ use opentlv_native as native;
 
 /// An OpenTLV error, mapped from a non-zero `tlv_result_t`.
 ///
-/// Variants mirror the C `TLV_ERR_*` codes. A code this crate does not know
+/// Variants mirror the C non-success codes, including `TLV_NEED_MORE_DATA`. A code this crate does not know
 /// (for example one added by a newer C library) is preserved as
 /// [`Error::Unknown`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -48,6 +48,8 @@ pub enum Error {
     SchemaMissing,
     /// A logical size exceeds the host address space.
     NativeSize,
+    /// Non-final input is exhausted or incomplete; this condition is resumable.
+    NeedMoreData,
     /// A result code not known to this crate; carries the raw code.
     Unknown(i32),
 }
@@ -77,6 +79,7 @@ impl Error {
             native::TLV_ERR_UNSUPPORTED_TYPE => Error::UnsupportedType,
             native::TLV_ERR_SCHEMA_MISSING => Error::SchemaMissing,
             native::TLV_ERR_NATIVE_SIZE => Error::NativeSize,
+            native::TLV_NEED_MORE_DATA => Error::NeedMoreData,
             other => Error::Unknown(other),
         })
     }
@@ -101,6 +104,7 @@ impl Error {
             Error::UnsupportedType => native::TLV_ERR_UNSUPPORTED_TYPE,
             Error::SchemaMissing => native::TLV_ERR_SCHEMA_MISSING,
             Error::NativeSize => native::TLV_ERR_NATIVE_SIZE,
+            Error::NeedMoreData => native::TLV_NEED_MORE_DATA,
             Error::Unknown(code) => code,
         }
     }

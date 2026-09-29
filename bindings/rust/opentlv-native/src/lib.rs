@@ -268,6 +268,10 @@ pub struct tlv_reader_t {
     pub size: usize,
     /// Offset of the next element to read.
     pub pos: usize,
+    /// Absolute logical offset of the current input window.
+    pub base_offset: usize,
+    /// Whether the input window ends at EOF.
+    pub final_input: c_int,
 }
 
 /// State describing a configurable fixed-width format (`tlv_fixed_format_t`).
@@ -332,7 +336,29 @@ extern "C" {
         size: usize,
         format: *const tlv_format_t,
     ) -> tlv_result_t;
-    /// Returns 1 if the reader has consumed all input, otherwise 0.
+    /// Initializes non-final borrowed input at logical offset zero.
+    pub fn tlv_reader_init_incremental(
+        reader: *mut tlv_reader_t,
+        data: *const u8,
+        size: usize,
+        format: *const tlv_format_t,
+    ) -> tlv_result_t;
+
+    /// Replaces input, preserving the unconsumed prefix and borrowed lifetimes.
+    pub fn tlv_reader_set_input(
+        reader: *mut tlv_reader_t,
+        data: *const u8,
+        size: usize,
+        discard: usize,
+        final_input: c_int,
+    ) -> tlv_result_t;
+
+    /// Returns the consumed prefix of the current window.
+    pub fn tlv_reader_consumed(reader: *const tlv_reader_t) -> usize;
+    /// Returns the absolute logical cursor offset.
+    pub fn tlv_reader_offset(reader: *const tlv_reader_t) -> usize;
+
+    /// Returns 1 only when final input has been consumed.
     pub fn tlv_reader_at_end(reader: *const tlv_reader_t) -> c_int;
     /// Reads the next element and advances the reader.
     pub fn tlv_reader_next(
@@ -967,6 +993,8 @@ extern "C" {
 
 /// Logical size cannot fit the native address space.
 pub const TLV_ERR_NATIVE_SIZE: tlv_result_t = 17;
+/// Incremental Reader requires more bytes or explicit EOF.
+pub const TLV_NEED_MORE_DATA: tlv_result_t = 18;
 
 extern "C" {
     /// Decode semantic content and original source information.

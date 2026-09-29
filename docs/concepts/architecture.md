@@ -229,7 +229,8 @@ zero-copy and allocation-free whether or not it is built. See
   or C recursion. C++ offers `tlv::walk_tree` with a callable visitor.
 
 The [Reader contract](../guides/reader.md) distinguishes an available element,
-end of supplied input, incomplete input and parsing errors. Scanner is removed
+final end of input, resumable input shortage and parsing errors. Incremental
+input uses caller-owned contiguous windows with absolute logical offsets. Scanner is removed
 from the core API (#391); applications own any recovery policy.
 
 The nesting contract covers containers whose value views contain a sequence

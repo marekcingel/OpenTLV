@@ -12,6 +12,7 @@ from opentlv.error import (
     LimitError,
     NullArgError,
     NativeSizeError,
+    NeedMoreDataError,
     OpenTLVError,
     OutOfMemoryError,
     SchemaError,
@@ -40,6 +41,7 @@ KNOWN = [
     (15, UnsupportedTypeError),
     (16, SchemaMissingError),
     (17, NativeSizeError),
+    (18, NeedMoreDataError),
 ]
 
 

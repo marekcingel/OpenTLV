@@ -262,6 +262,7 @@ const char* error_name(tlv_result_t rc) {
         ERROR_NAME(TLV_ERR_UNSUPPORTED_TYPE);
         ERROR_NAME(TLV_ERR_SCHEMA_MISSING);
         ERROR_NAME(TLV_ERR_NATIVE_SIZE);
+        ERROR_NAME(TLV_NEED_MORE_DATA);
 #undef ERROR_NAME
         default: return "TLV_ERR_UNKNOWN";
     }
