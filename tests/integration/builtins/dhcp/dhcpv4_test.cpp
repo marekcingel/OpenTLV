@@ -138,9 +138,9 @@ TEST(Integration_Tlv_Dhcpv4, QueryAndDocumentTreatPadAndEndAsOrdinaryElements) {
 
 TEST(Integration_Tlv_Dhcpv4, GenericSchemaKeepsValueConstraintsSeparateFromContainerPolicy) {
     const tlv_structure_rule_t rules[] = {
-        {{TLV_TAG(0), 0, 0, 0, "Pad", 0}, 0, SIZE_MAX, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
-        {{TLV_TAG(53), 1, 1, 0, "Message Type", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
-        {{TLV_TAG(255), 0, 0, 0, "End", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
+        {{TLV_TAG(0), 0, 0, 0, "Pad", 0}, 0, SIZE_MAX, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL},
+        {{TLV_TAG(53), 1, 1, 0, "Message Type", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL},
+        {{TLV_TAG(255), 0, 0, 0, "End", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL}};
     const tlv_structure_schema_t schema{rules, 3, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     const uint8_t                valid[] = {0, 53, 1, 3, 255, 0, 224, 0};
     EXPECT_EQ(TLV_OK, tlv_schema_validate(valid, sizeof(valid), &tlv_format_dhcpv4, &schema, 0, 6,

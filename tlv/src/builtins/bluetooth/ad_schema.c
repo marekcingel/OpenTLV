@@ -12,7 +12,8 @@ static const uint8_t identifiers[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
      occurs,                                                                                       \
      TLV_SCHEMA_PRIMITIVE,                                                                         \
      NULL,                                                                                         \
-     group}
+     group,                                                                                        \
+     NULL}
 
 static const tlv_structure_rule_t rules[] = {
     AD_RULE(0, 0, SIZE_MAX, 0, 1, 0, "Flags"),

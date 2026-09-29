@@ -25,24 +25,19 @@ typedef enum tlv_number_encoding {
 /**
  * @brief Borrowed declarative configuration for a uint64_t value codec.
  *
- * Binary widths are 1..8 bytes; BCD widths are 1..9 bytes. Both bounds are
- * inclusive and min_length must not exceed max_length. Decode accepts every
- * width min_length + n * length_step (n >= 0), including leading zeros; encode
- * uses the shortest fitting permitted width. BCD digits are 1..18 and bound
- * the numeric value, not the supplied byte count; binary configurations require
- * digits == 0.
- * No decimal scaling, tag semantics or domain value constraints are implied.
+ * Binary widths are 1..8 bytes and packed BCD widths are 1..9 bytes.
+ * Width zero selects minimal encoding and accepts any supported input width;
+ * nonzero width selects a fixed-width representation with leading zero padding.
+ * BCD precision is 1..18 decimal digits; unused high decimal positions must be
+ * zero. Binary configurations require digits == 0. Field-length acceptance is
+ * owned by Schema, not this configuration. No decimal scaling is implied.
  * Storage must remain valid and immutable while any descriptor borrows it.
  */
 typedef struct tlv_number_codec_config {
     /** Binary byte order or packed-decimal representation. */
     tlv_number_encoding_t encoding;
-    /** Minimum encoded length in bytes. */
-    size_t min_length;
-    /** Maximum encoded length in bytes. */
-    size_t max_length;
-    /** Positive increment between permitted byte lengths. */
-    size_t length_step;
+    /** Fixed representation width in bytes, or zero for minimal encoding. */
+    size_t width;
     /** Maximum significant decimal digits for BCD; zero for binary. */
     unsigned digits;
 } tlv_number_codec_config_t;
@@ -52,7 +47,7 @@ typedef struct tlv_number_codec_config {
  * @param[in] context Required immutable #tlv_number_codec_config_t.
  * @param[in] data Readable Value bytes; NULL is allowed only with zero size,
  *                 which is rejected as an invalid length. Never an enclosing TLV.
- * @param[in] size Value byte count, within the configured bounds.
+ * @param[in] size Value byte count, matching the selected representation.
  * @param[out] value Required uint64_t destination, not overlapping input/configuration.
  * @param[in] capacity Destination capacity in bytes, at least sizeof(uint64_t).
  * @return #TLV_CODEC_OK on success.
@@ -75,7 +70,7 @@ TLV_API tlv_codec_result_t tlv_number_decode(const void* context, const uint8_t*
  * @return #TLV_CODEC_OK on success, including a validated size query.
  * @return #TLV_CODEC_ERR_NULL_ARG for missing required pointers.
  * @return #TLV_CODEC_ERR_INVALID_VALUE for invalid configuration/object size or a value
- *         that cannot fit the configured lengths/digit limit.
+ *         that cannot fit the selected width/decimal precision.
  * @return #TLV_CODEC_ERR_BUFFER_TOO_SHORT for insufficient output capacity.
  * @note No allocation occurs. Output bytes are unchanged on failure. Input,
  *       output, configuration and written must not overlap.

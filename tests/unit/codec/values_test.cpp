@@ -72,7 +72,7 @@ TEST(Unit_Tlv_NumberCodecs, RuntimeConfigurationAndEncodingBoundaries) {
     for (auto encoding : {TLV_NUMBER_BINARY_BE, TLV_NUMBER_BINARY_LE, TLV_NUMBER_BCD}) {
         const size_t max_width = encoding == TLV_NUMBER_BCD ? 9 : 8;
         for (size_t width = 1; width <= max_width; ++width) {
-            const tlv_number_codec_config_t config{encoding, width, width, 1,
+            const tlv_number_codec_config_t config{encoding, width,
                                                    encoding == TLV_NUMBER_BCD ? 18u : 0u};
             const auto                      codec = tlv_number_codec(&config);
             uint64_t                        maximum = 0;
@@ -111,8 +111,8 @@ TEST(Unit_Tlv_NumberCodecs, RuntimeConfigurationAndEncodingBoundaries) {
     }
 }
 
-TEST(Unit_Tlv_NumberCodecs, WireVectorsStepsAndInvalidInputs) {
-    const tlv_number_codec_config_t config{TLV_NUMBER_BINARY_LE, 1, 3, 2, 0};
+TEST(Unit_Tlv_NumberCodecs, WireVectorsFixedWidthsAndInvalidInputs) {
+    const tlv_number_codec_config_t config{TLV_NUMBER_BINARY_LE, 3, 0};
     const auto                      codec = tlv_number_codec(&config);
     const uint64_t                  input = 0x1234;
     uint8_t                         wire[3] = {0xAA, 0xAA, 0xAA};
@@ -127,7 +127,7 @@ TEST(Unit_Tlv_NumberCodecs, WireVectorsStepsAndInvalidInputs) {
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
               tlv_codec_decode(&codec, wire, 2, &output, sizeof(output)));
     EXPECT_EQ(77u, output);
-    const tlv_number_codec_config_t decimal{TLV_NUMBER_BCD, 2, 2, 1, 3};
+    const tlv_number_codec_config_t decimal{TLV_NUMBER_BCD, 2, 3};
     const auto                      bcd = tlv_number_codec(&decimal);
     const uint8_t                   valid[] = {0x01, 0x23};
     ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&bcd, valid, 2, &output, sizeof(output)));
@@ -145,15 +145,9 @@ TEST(Unit_Tlv_NumberCodecs, WireVectorsStepsAndInvalidInputs) {
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
               tlv_codec_encode(&bcd, &input, sizeof(input) - 1, nullptr, 0, &written));
     const tlv_number_codec_config_t invalid[] = {
-        {TLV_NUMBER_BINARY_BE, 0, 1, 1, 0},
-        {TLV_NUMBER_BINARY_BE, 2, 1, 1, 0},
-        {TLV_NUMBER_BINARY_BE, 1, 9, 1, 0},
-        {TLV_NUMBER_BINARY_BE, 1, 8, 0, 0},
-        {TLV_NUMBER_BINARY_BE, 1, 8, 1, 1},
-        {TLV_NUMBER_BCD, 1, 10, 1, 18},
-        {TLV_NUMBER_BCD, 1, 9, 1, 0},
-        {TLV_NUMBER_BCD, 1, 9, 1, 19},
-        {static_cast<tlv_number_encoding_t>(99), 1, 1, 1, 0}};
+        {TLV_NUMBER_BINARY_BE, 9, 0}, {TLV_NUMBER_BINARY_BE, 8, 1},
+        {TLV_NUMBER_BCD, 10, 18},     {TLV_NUMBER_BCD, 9, 0},
+        {TLV_NUMBER_BCD, 9, 19},      {static_cast<tlv_number_encoding_t>(99), 1, 0}};
     for (const auto& bad : invalid) {
         const auto rejected = tlv_number_codec(&bad);
         output = 77;
@@ -178,6 +172,24 @@ TEST(Unit_Tlv_NumberCodecs, WireVectorsStepsAndInvalidInputs) {
               tlv_number_encode(&config, &input, sizeof(input), nullptr, 1, &written));
     EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
               tlv_number_encode(&config, &input, sizeof(input), nullptr, 0, nullptr));
+}
+
+TEST(Unit_Tlv_NumberCodecs, MinimalRepresentationDoesNotImposeFieldLengthPolicy) {
+    const tlv_number_codec_config_t config{TLV_NUMBER_BINARY_BE, 0, 0};
+    const auto                      codec = tlv_number_codec(&config);
+    const uint64_t                  number = 256;
+    uint8_t                         wire[3] = {};
+    size_t                          written = 0;
+    ASSERT_EQ(TLV_CODEC_OK,
+              tlv_codec_encode(&codec, &number, sizeof(number), wire, sizeof(wire), &written));
+    EXPECT_EQ(2u, written);
+    EXPECT_EQ(1, wire[0]);
+    EXPECT_EQ(0, wire[1]);
+    const uint8_t padded[] = {0, 1, 0};
+    uint64_t      decoded = 0;
+    ASSERT_EQ(TLV_CODEC_OK,
+              tlv_codec_decode(&codec, padded, sizeof(padded), &decoded, sizeof(decoded)));
+    EXPECT_EQ(number, decoded);
 }
 
 TEST(Unit_Tlv_ValueCodecs, MinimalSignedIntegerWithoutAsn1) {

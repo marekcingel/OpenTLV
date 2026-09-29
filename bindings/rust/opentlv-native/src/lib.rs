@@ -426,6 +426,8 @@ pub struct tlv_structure_rule_t {
     pub children: *const tlv_structure_schema_t,
     /// Group this rule belongs to, or 0 if it stands alone (`tlv_structure_rule_t::group`).
     pub group: u32,
+    /// Optional borrowed authoritative field rule; null uses entry.
+    pub entry_ref: *const tlv_schema_entry_t,
 }
 
 /// Ordering required among a scope's matched elements (`tlv_schema_order_t`).
@@ -567,6 +569,8 @@ pub const TLV_EMV_VALUE_AFL: tlv_emv_value_kind_t = 12;
 pub const TLV_EMV_VALUE_CVM_RESULT: tlv_emv_value_kind_t = 13;
 /// [`tlv_emv_track2_t`] (`TLV_EMV_VALUE_TRACK2`).
 pub const TLV_EMV_VALUE_TRACK2: tlv_emv_value_kind_t = 14;
+/// Caller-selected codec not recognized by the compatibility presenter.
+pub const TLV_EMV_VALUE_UNKNOWN: tlv_emv_value_kind_t = 15;
 
 /// Decoded EMV date (`tlv_emv_date_t`).
 #[repr(C)]
@@ -699,20 +703,37 @@ pub struct tlv_emv_track2_t {
     pub discretionary_data: [c_char; TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS + 1],
 }
 
-/// One entry of the EMV data dictionary (`tlv_emv_definition_t`).
+/// Generic borrowed identifier and descriptive name.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_definition_t {
+    /// Canonical identifier bytes.
+    pub tag: tlv_tag_t,
+    /// Borrowed descriptive name.
+    pub name: *const c_char,
+}
+
+/// No independent EMV interpretation annotation.
+pub const TLV_EMV_SEMANTICS_NONE: c_int = 0;
+/// Text whose character repertoire belongs to the domain.
+pub const TLV_EMV_SEMANTICS_TEXT: c_int = 1;
+/// EMV bit assignments instead of arithmetic meaning.
+pub const TLV_EMV_SEMANTICS_BITMASK: c_int = 2;
+/// Semantic nesting, including primitive-wire templates.
+pub const TLV_EMV_SEMANTICS_TEMPLATE: c_int = 3;
+
+/// Borrowed composition of Definition, Schema, Codec and EMV semantics.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_emv_definition_t {
-    /// Tag and length bounds; borrowed from static tables.
+    /// Canonical identifier and descriptive name.
+    pub definition: *const tlv_definition_t,
+    /// Authoritative field schema and diagnostic symbol.
     pub schema: *const tlv_schema_entry_t,
-    /// Stable symbolic name.
-    pub name: *const c_char,
-    /// C representation of the value.
-    pub value_kind: tlv_emv_value_kind_t,
-    /// Semantic codec; null when no conversion is provided.
+    /// Selected semantic codec, or null for opaque input.
     pub codec: *const tlv_codec_t,
-    /// Permitted lengths: `min + n * step`.
-    pub length_step: usize,
+    /// Independent EMV interpretation annotation.
+    pub semantics: c_int,
 }
 
 /// Inclusive resource limits for DER validation and writing (`tlv_der_limits_t`).
@@ -796,6 +817,12 @@ extern "C" {
         tag: *const tlv_tag_t,
     ) -> tlv_emv_context_t;
     /// Validates a length against a definition.
+    /// Derives the display length step from the referenced Schema.
+    pub fn tlv_emv_value_kind(definition: *const tlv_emv_definition_t) -> tlv_emv_value_kind_t;
+    /// Borrows the symbol from the entry's Schema.
+    pub fn tlv_emv_symbol(definition: *const tlv_emv_definition_t) -> *const c_char;
+    /// Derives length spacing from Schema.
+    pub fn tlv_emv_length_step(definition: *const tlv_emv_definition_t) -> usize;
     pub fn tlv_emv_validate_length(
         definition: *const tlv_emv_definition_t,
         length: usize,

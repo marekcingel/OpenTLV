@@ -2,8 +2,7 @@
 #include <string.h>
 
 static int valid_config(const tlv_text_codec_config_t* config) {
-    return config->min_length <= config->max_length &&
-           (config->alphabet == TLV_TEXT_ASCII_PRINTABLE ||
+    return (config->alphabet == TLV_TEXT_ASCII_PRINTABLE ||
             config->alphabet == TLV_TEXT_ASCII_ALNUM) &&
            (config->zero_padding == 0 || config->zero_padding == 1);
 }
@@ -25,7 +24,7 @@ tlv_codec_result_t tlv_text_decode(const void* context, const uint8_t* data, siz
     const tlv_text_codec_config_t* config = (const tlv_text_codec_config_t*)context;
     tlv_value_t text;
     if (!config || !value || (!data && size)) return TLV_CODEC_ERR_NULL_ARG;
-    if (!valid_config(config) || size < config->min_length || size > config->max_length)
+    if (!valid_config(config) || (config->width && size != config->width))
         return TLV_CODEC_ERR_INVALID_VALUE;
     if (config->zero_padding)
         while (size && data[size - 1] == 0) --size;
@@ -50,9 +49,8 @@ tlv_codec_result_t tlv_text_encode(const void* context, const void* value, size_
     if (!text.data && text.size) return TLV_CODEC_ERR_NULL_ARG;
     if (tlv_size_to_native(text.size, &length) != TLV_OK) return TLV_CODEC_ERR_INVALID_VALUE;
     bytes = length;
-    if (config->zero_padding && bytes < config->min_length) bytes = config->min_length;
-    if (bytes < config->min_length || bytes > config->max_length ||
-        !valid_text(config, text.data, length))
+    if (config->zero_padding && bytes < config->width) bytes = config->width;
+    if ((config->width && bytes != config->width) || !valid_text(config, text.data, length))
         return TLV_CODEC_ERR_INVALID_VALUE;
     if (data) {
         if (capacity < bytes) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;

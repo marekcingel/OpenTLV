@@ -368,6 +368,7 @@ impl StructureSchema {
                 children: child_ptr,
                 // Alternative groups (CHOICE) are not yet exposed by this crate.
                 group: 0,
+                entry_ref: std::ptr::null(),
             });
             // Moving a tag moves its handle, not the heap bytes the rule borrows.
             tags.push(rule.tag);

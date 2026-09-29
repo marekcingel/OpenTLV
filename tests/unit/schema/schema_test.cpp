@@ -1,4 +1,5 @@
 #include "tlv/schema/schema.h"
+#include "tlv/schema/number.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
 
@@ -105,4 +106,42 @@ TEST(Unit_Tlv_Schema, ValidatesExactAndInclusiveRangeLengths) {
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_schema_validate_length(nullptr, 0));
     const tlv_schema_entry_t reversed = {TLV_TAG(1), 4, 2, 0, nullptr, 0};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&reversed, 3));
+}
+
+TEST(Unit_Tlv_Schema, NumberCompositionSelectsSchemaWidthsWithoutCopyingPolicy) {
+    const tlv_schema_entry_t  field = {TLV_TAG(1), 1, 3, TLV_SCHEMA_LENGTH_ENDPOINTS, nullptr, 0};
+    const tlv_schema_number_t config = {&field, {TLV_NUMBER_BINARY_BE, 0, 0}};
+    const auto                codec = tlv_schema_number_codec(&config);
+    const uint64_t            number = 256;
+    uint8_t                   wire[3] = {0xAA, 0xAA, 0xAA};
+    size_t                    written = 99;
+    ASSERT_EQ(TLV_CODEC_OK,
+              tlv_codec_encode(&codec, &number, sizeof(number), wire, sizeof(wire), &written));
+    EXPECT_EQ(3u, written);
+    EXPECT_EQ(0, wire[0]);
+    EXPECT_EQ(1, wire[1]);
+    EXPECT_EQ(0, wire[2]);
+    uint64_t decoded = 99;
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_codec_decode(&codec, wire + 1, 2, &decoded, sizeof(decoded)));
+    EXPECT_EQ(99u, decoded);
+    ASSERT_EQ(TLV_CODEC_OK, tlv_codec_decode(&codec, wire, 3, &decoded, sizeof(decoded)));
+    EXPECT_EQ(number, decoded);
+    EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
+              tlv_codec_encode(&codec, &number, sizeof(number), wire, 2, &written));
+    EXPECT_EQ(0u, written);
+    EXPECT_EQ(1, wire[1]);
+    const tlv_schema_number_t fixed = {&field, {TLV_NUMBER_BINARY_BE, 2, 0}};
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_schema_number_encode(&fixed, &number, sizeof(number), nullptr, 0, &written));
+    EXPECT_EQ(0u, written);
+    const tlv_schema_entry_t  impossible = {TLV_TAG(1), 9, 12, 0, nullptr, 0};
+    const tlv_schema_number_t unsupported = {&impossible, {TLV_NUMBER_BINARY_BE, 0, 0}};
+    EXPECT_EQ(
+        TLV_CODEC_ERR_INVALID_VALUE,
+        tlv_schema_number_encode(&unsupported, &number, sizeof(number), nullptr, 0, &written));
+    EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
+              tlv_schema_number_decode(nullptr, wire, 3, &decoded, sizeof(decoded)));
+    EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
+              tlv_schema_number_encode(nullptr, &number, sizeof(number), nullptr, 0, &written));
 }

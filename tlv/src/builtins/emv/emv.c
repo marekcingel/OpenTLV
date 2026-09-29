@@ -40,39 +40,39 @@ tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const tlv_tag
 }
 
 tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definition, size_t length) {
-    tlv_result_t result;
     if (!definition) return TLV_ERR_NULL_ARG;
-    result = tlv_schema_validate_length(definition->schema, length);
-    if (result != TLV_OK) return result;
-    if (!definition->length_step ||
-        (length - definition->schema->min_length) % definition->length_step)
-        return TLV_ERR_INVALID_LENGTH;
-    return TLV_OK;
+    return tlv_schema_validate_length(definition->schema, length);
+}
+
+size_t tlv_emv_length_step(const tlv_emv_definition_t* definition) {
+    const tlv_schema_entry_t* schema;
+    if (!definition || !definition->schema) return 0;
+    schema = definition->schema;
+    if (schema->min_length > schema->max_length) return 0;
+    if ((schema->flags & TLV_SCHEMA_LENGTH_ENDPOINTS) && schema->min_length != schema->max_length)
+        return schema->max_length - schema->min_length;
+    return schema->length_multiple ? schema->length_multiple : 1;
 }
 
 /* Curated only where a generic title-cased label would be misleading:
  * abbreviations and initialisms that deserve their expansion and acronym. */
-static const struct {
-    const char *symbol, *label;
-} emv_display_labels[] = {
-    {"pan", "Primary Account Number (PAN)"},
-    {"aip", "Application Interchange Profile (AIP)"},
-    {"afl", "Application File Locator (AFL)"},
-    {"tvr", "Terminal Verification Results (TVR)"},
-    {"tsi", "Transaction Status Information (TSI)"},
-    {"atc", "Application Transaction Counter (ATC)"},
-    {"df_name", "Dedicated File (DF) Name"},
-    {"adf_name", "Application Dedicated File (ADF) Name"},
-    {"fci_template", "File Control Information (FCI) Template"},
-    {"fci_proprietary_template", "File Control Information (FCI) Proprietary Template"},
-    {"iin", "Issuer Identification Number (IIN)"},
-    {"sfi", "Short File Identifier (SFI)"}};
+static const char* const emv_curated_symbols[] = {
+    "pan", "aip",     "afl",      "tvr",          "tsi",
+    "atc", "df_name", "adf_name", "fci_template", "fci_proprietary_template",
+    "iin", "sfi"};
 
 const char* tlv_emv_display_label(const char* name) {
-    size_t i;
+    size_t i, j;
+    const tlv_emv_dictionary_t* dictionary;
     if (!name) return NULL;
-    for (i = 0; i < EMV_COUNT(emv_display_labels); ++i)
-        if (!strcmp(name, emv_display_labels[i].symbol)) return emv_display_labels[i].label;
+    for (i = 0; i < EMV_COUNT(emv_curated_symbols); ++i) {
+        if (strcmp(name, emv_curated_symbols[i])) continue;
+        dictionary = tlv_emv_dictionary_for(TLV_EMV_CONTEXT_BASE);
+        for (j = 0; j < dictionary->count; ++j) {
+            const tlv_emv_definition_t* entry = &dictionary->entries[j];
+            if (!strcmp(name, tlv_emv_symbol(entry))) return entry->definition->name;
+        }
+    }
     return NULL;
 }
 

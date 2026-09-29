@@ -118,7 +118,7 @@ struct tlv_structure_schema;
  * @see tlv_structure_schema_t
  */
 typedef struct tlv_structure_rule {
-    /** Tag and permitted value-length bounds for this rule. */
+    /** Inline field rule, used only when entry_ref is NULL. */
     tlv_schema_entry_t entry;
     /**
      * Minimum occurrences within the parent: 1 makes a field required; 0
@@ -148,7 +148,20 @@ typedef struct tlv_structure_rule {
      * repeat, independently of the group's own bounds.
      */
     uint32_t group;
+    /** Optional authoritative field Schema. When non-NULL, entry is ignored.
+     * Borrows immutable storage that must outlive validation. This permits a
+     * dictionary and multiple structural contexts to share one field rule. */
+    const tlv_schema_entry_t* entry_ref;
 } tlv_structure_rule_t;
+
+/** @brief Selects a structural rule's authoritative field Schema.
+ * @param[in] rule Borrowed structural rule, or NULL.
+ * @return entry_ref when present, otherwise the inline entry; NULL for NULL rule.
+ * @note No ownership transfer or validation occurs.
+ */
+static inline const tlv_schema_entry_t* tlv_structure_rule_entry(const tlv_structure_rule_t* rule) {
+    return rule ? (rule->entry_ref ? rule->entry_ref : &rule->entry) : NULL;
+}
 
 /**
  * @brief Ordering required among a scope's matched elements.

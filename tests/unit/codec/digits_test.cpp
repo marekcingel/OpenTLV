@@ -3,7 +3,7 @@
 #include <cstring>
 
 TEST(Unit_Tlv_Digits, LeadingZerosOddDigitsAndFixedWidthPadding) {
-    const tlv_digits_codec_config_t config = {1, 19, 4, 4};
+    const tlv_digits_codec_config_t config = {4};
     const tlv_codec_t               codec = tlv_digits_codec(&config);
     const uint8_t                   expected[] = {0x00, 0x12, 0x3F, 0xFF};
     uint8_t                         wire[4] = {};
@@ -19,11 +19,12 @@ TEST(Unit_Tlv_Digits, LeadingZerosOddDigitsAndFixedWidthPadding) {
 }
 
 TEST(Unit_Tlv_Digits, RejectsInvalidNibblesAndDigitsFollowingPaddingWithoutWrites) {
-    const tlv_digits_codec_config_t config = {1, 4, 1, 2};
+    const tlv_digits_codec_config_t config = {0};
     char                            output[5] = "keep";
     for (unsigned byte = 0; byte < 256; ++byte) {
         const uint8_t wire = static_cast<uint8_t>(byte);
-        const bool    valid = (byte >> 4) <= 9 && ((byte & 15) <= 9 || (byte & 15) == 15);
+        const bool    valid =
+            byte == 255 || ((byte >> 4) <= 9 && ((byte & 15) <= 9 || (byte & 15) == 15));
         std::memcpy(output, "keep", sizeof(output));
         EXPECT_EQ(valid ? TLV_CODEC_OK : TLV_CODEC_ERR_INVALID_VALUE,
                   tlv_digits_decode(&config, &wire, 1, output, sizeof(output)));
@@ -40,7 +41,7 @@ TEST(Unit_Tlv_Digits, RejectsInvalidNibblesAndDigitsFollowingPaddingWithoutWrite
 }
 
 TEST(Unit_Tlv_Digits, EmptyAndNoncanonicalPaddingAreExplicit) {
-    const tlv_digits_codec_config_t config = {0, SIZE_MAX, 0, SIZE_MAX};
+    const tlv_digits_codec_config_t config = {0};
     const uint8_t                   padding[] = {0xFF, 0xFF};
     char                            decoded[1] = {'x'};
     ASSERT_EQ(TLV_CODEC_OK, tlv_digits_decode(&config, padding, 2, decoded, 1));
@@ -54,10 +55,10 @@ TEST(Unit_Tlv_Digits, EmptyAndNoncanonicalPaddingAreExplicit) {
 }
 
 TEST(Unit_Tlv_Digits, InvalidConfigurationBoundsAndInputsDoNotWrite) {
-    tlv_digits_codec_config_t config = {1, 3, 1, 2};
+    tlv_digits_codec_config_t config = {2};
     uint8_t                   output[] = {0xA5, 0xA5};
     size_t                    written = 9;
-    for (const char* invalid : {"", "1234", "1F", "-1"}) {
+    for (const char* invalid : {"12345", "1F", "-1"}) {
         EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
                   tlv_digits_encode(&config, invalid, std::strlen(invalid), output, 2, &written));
         EXPECT_EQ(0u, written);
@@ -71,13 +72,13 @@ TEST(Unit_Tlv_Digits, InvalidConfigurationBoundsAndInputsDoNotWrite) {
     EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG, tlv_digits_encode(&config, "1", 1, nullptr, 1, &written));
     EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
               tlv_digits_decode(nullptr, output, 1, &written, sizeof(written)));
-    config.min_digits = 4;
+    config.width = 1;
+    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+              tlv_digits_encode(&config, "123", 3, nullptr, 0, &written));
+    config = {SIZE_MAX};
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
               tlv_digits_encode(&config, "1", 1, nullptr, 0, &written));
-    config = {0, SIZE_MAX, SIZE_MAX, SIZE_MAX};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
-              tlv_digits_encode(&config, "1", 1, nullptr, 0, &written));
-    config = {0, SIZE_MAX, 2, 1};
+    config = {2};
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
               tlv_digits_decode(&config, output, 1, &written, sizeof(written)));
 }

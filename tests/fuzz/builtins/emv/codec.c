@@ -153,10 +153,10 @@ static void check_digits(const tlv_codec_t* codec, const uint8_t* data, size_t s
 static void check_definition(const tlv_emv_definition_t* definition, const uint8_t* data,
                              size_t size) {
     if (!definition || !definition->codec) return;
-    if (definition->value_kind == TLV_EMV_VALUE_DIGITS)
+    if (tlv_emv_value_kind(definition) == TLV_EMV_VALUE_DIGITS)
         check_digits(definition->codec, data, size);
     else
-        check_fixed(definition->codec, definition->value_kind, data, size);
+        check_fixed(definition->codec, tlv_emv_value_kind(definition), data, size);
 }
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {

@@ -37,15 +37,15 @@ int tag_command::run() {
                   << "Result:      Unknown tag in the EMV module (base context)\n";
     } else {
         std::cout << "Tag:         " << tag_hex << "\n"
-                  << "Name:        " << cli_emv_display_name(definition->name) << "\n"
-                  << "Type:        " << tlv_emv_value_kind_description(definition->value_kind)
-                  << "\n"
+                  << "Name:        " << cli_emv_display_name(definition->definition) << "\n"
+                  << "Type:        "
+                  << tlv_emv_value_kind_description(tlv_emv_value_kind(definition)) << "\n"
                   << "Form:        "
                   << (tlv_asn1_is_constructed(nullptr, &parsed) ? "Constructed" : "Primitive")
                   << "\n"
                   << "Length:      " << emv_length_range(*definition->schema) << "\n";
-        if (definition->length_step != 1)
-            std::cout << "Length step: " << definition->length_step << "\n";
+        if (tlv_emv_length_step(definition) != 1)
+            std::cout << "Length step: " << tlv_emv_length_step(definition) << "\n";
     }
     return flush_stdout();
 #else

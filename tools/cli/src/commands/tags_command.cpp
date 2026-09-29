@@ -25,8 +25,8 @@ int tags_command::run() {
     for (size_t i = 0; schema && i < schema->count; ++i) {
         const tlv_emv_definition_t* definition =
             tlv_emv_find(TLV_EMV_CONTEXT_BASE, &schema->entries[i].tag);
-        if (definition &&
-            lowercase(cli_emv_display_name(definition->name)).find(needle) != std::string::npos)
+        if (definition && lowercase(cli_emv_display_name(definition->definition)).find(needle) !=
+                              std::string::npos)
             matches.push_back(definition);
     }
     std::sort(matches.begin(), matches.end(), emv_tag_less);
@@ -41,7 +41,7 @@ int tags_command::run() {
     } else {
         for (size_t i = 0; i < matches.size(); ++i)
             std::cout << std::left << std::setw(8) << tag_hex_string(matches[i]->schema->tag)
-                      << cli_emv_display_name(matches[i]->name) << "\n";
+                      << cli_emv_display_name(matches[i]->definition) << "\n";
     }
     return flush_stdout();
 #else

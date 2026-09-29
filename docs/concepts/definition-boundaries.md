@@ -57,13 +57,13 @@ are relative to the repository root.
 | Family | Current implementation evidence | Boundary established |
 | --- | --- | --- |
 | ASN.1 BER/DER/CER | `tlv/builtins/asn1/identifier.h` shares identifier accessors; the formats retain identifier octets. `der_schema.h` separates a component's type from IMPLICIT/EXPLICIT tagging. `asn1_codec.h` explicitly assigns codec selection to the caller/schema/dictionary. | Identifier bytes do not identify a complete ASN.1 type or schema component. No generic Definition registry is needed for the implemented schema and codec operations. |
-| EMV | `tlv/src/builtins/emv/dictionary.c` assigns `80` to `response_template1` in BASE and `biometric_header_version` in BHT. `tlv_emv_find(context, tag)` selects a context with no fallback. `tlv_emv_definition_t` composes schema, symbol, value kind, codec and length step. | Meaning is context-dependent. The rich EMV entry is a domain dictionary entry, not a proposed expansion of generic Definition. Its symbolic `name` differs from the generic descriptive-name contract; display labels are separate. |
+| EMV | `tlv/src/builtins/emv/dictionary.c` assigns `80` to `response_template1` in BASE and `biometric_header_version` in BHT. `tlv_emv_find(context, tag)` selects a context with no fallback. `tlv_emv_definition_t` references generic Definition, field Schema and Codec, plus independent EMV interpretation annotations. | Meaning is context-dependent. The rich EMV entry is a domain dictionary entry, not a proposed expansion of generic Definition. Its descriptive name belongs to Definition; the diagnostic symbol belongs to Schema. |
 | Bluetooth | `tlv_bluetooth_ad_types` names one-byte AD Types. `tlv_bluetooth_company_ids` names two-byte keys, least-significant octet first; `{4C, 00}` is a Company Identifier inside a Value. Codecs and AD schema are independent consumers. | A registry can name identifiers beyond an element's Tag. Explicit key representation is independent of CPU endianity; generic lookup does not decode integers or interpret vendor payloads. |
 | LLDP | `tlv/src/builtins/lldp/lldp.c` extracts the packed seven-bit Type into an immutable one-byte key used by `tlv_lldp_types`. The raw header also contains Length bits. | Format performs wire extraction. Definition uses canonical keys, not the raw header or its byte envelope. Schema and value codecs remain separate. |
 | DHCP | `tlv_dhcpv4_options` names option Codes, including Pad and End. DHCP framing and container policy are separate from the registry. | A definition's presence does not validate an option, interpret Value or cause generic Reader to stop at End. |
 
 All five families can use this boundary without extending `tlv_definition_t`.
-ASN.1 and EMV do not need to be rewritten to embed it to demonstrate compliance.
+ASN.1 can use the boundary without a registry; EMV composes Definition by reference.
 Unknown identifiers remain structurally parseable whenever their Format accepts
 them; a dictionary miss is not a framing error.
 
@@ -131,25 +131,26 @@ is implemented by this audit.
 
 These are architectural regressions, not exhaustive standards conformance or
 validation of a future `.otlv` runtime. The generic Definition layout and encoded-byte behavior remain unchanged.
-The EMV X-macro include is removed; public dictionary access and generic codec
-configuration are additive APIs. See the [EMV migration notes](../standards/emv/README.md#migration-from-the-x-macro-dictionary-381).
+The EMV X-macro include is removed. Dictionary and generic codec configuration
+layouts change, and structural rules gain optional borrowed field references. See the [EMV migration notes](../standards/emv/README.md#migration-from-the-x-macro-dictionary-381).
 
 ## Runtime-model readiness and codec reuse
 
 EMV now provides explicit typed tables and `tlv_emv_dictionary_t`, a borrowed
 view that works equally with builtin or caller-owned entries. The existing
-`tlv_emv_definition_t` names an EMV entry for source compatibility; it does not
-expand generic Definition. `tlv_emv_dictionary_find()` has the same semantics
+`tlv_emv_definition_t` composes borrowed Definition, Schema and Codec objects;
+it does not expand generic Definition. `tlv_emv_dictionary_find()` has the same semantics
 for static and dynamically owned storage. The context is selected before lookup.
 Caller-owned dictionary tests configure a BCD codec and decode through the same
-callbacks used by the builtin, without a parallel runtime object model.
+generic conversion used by the builtin adapters, without a parallel runtime
+object model. Builtin adapters additionally validate the referenced Schema.
 
 The codec audit follows wire representation and C representation, not just
 similar names:
 
 | Family | Generic reuse implemented | Semantics retained in the domain |
 | --- | --- | --- |
-| EMV | Numeric/flag entries configure generic unsigned binary/BCD conversion. Digit strings reuse generic F-padded conversion. Amount is a six-byte BCD preset; date, time, account and number-list codecs reuse that numeric primitive internally. | Calendar checks, allowed account/biometric values, digit-count/length constraints, AFL, CVM and Track 2 structures. |
+| EMV | Numeric/flag entries configure generic unsigned binary/BCD conversion. Digit strings reuse generic F-padded conversion. Amount borrows its schema and delegates BCD conversion; date, time, account and number-list codecs reuse that numeric primitive internally. | Calendar checks, allowed account/biometric values, digit-count/length constraints, AFL, CVM and Track 2 structures. |
 | ASN.1 | INTEGER and ENUMERATED delegate conversion to the generic minimal signed big-endian `int64_t` codec. | Universal-type selection, BOOLEAN content rules, BIT STRING padding, OID, character/time rules and structured representations. |
 | Bluetooth | UUID16/32 delegate to generic LE integer codecs; Flags and Local Name reuse generic borrowed-byte conversion after validation. | UUID128 representation and UUID-list views, Flags minimality, UTF-8/length checks, Tx Power range and compound Service/Manufacturer Data views. |
 | LLDP | TTL delegates to the generic BE uint16 codec; text reuses generic borrowed bytes after length validation. | Identifier subtypes, capabilities relationships, address families, management/organisation structures and length policy. |
@@ -157,8 +158,8 @@ similar names:
 
 These are different typed representations: for example a `uint16_t` UUID codec
 cannot be substituted by a `uint64_t` number codec without an explicit adapter.
-The unsigned number configuration exposes byte order/BCD, minimum/maximum byte
-lengths, length step and decimal digit limit as data. It does not encode tags,
+The unsigned number configuration exposes byte order/BCD, fixed or minimal
+representation width, and decimal precision as data. It does not encode tags,
 EMV value kinds, currency scaling or callbacks that choose a codec by tag.
 The same descriptor can be initialized statically or created from caller-owned
 configuration. The signed primitive encodes minimal two's-complement values;
@@ -204,3 +205,43 @@ A dictionary can describe identifiers that its selected Format does not accept.
 Supporting private identifiers in a separate domain must not silently widen the
 strict EMV wire grammar. Runtime owners can compose these existing primitives;
 no universal descriptor, symbol resolver or `.otlv` loader is introduced here.
+
+## Single ownership after the composition review (#389)
+
+| Property | Authoritative object |
+| --- | --- |
+| Identifier bytes | Canonical tag storage shared by Definition and Schema views |
+| Descriptive name | Generic Definition |
+| Symbol used for diagnostics | Schema entry name |
+| Field-length bounds, multiples and alternatives | Schema entry |
+| Parent-specific occurrences, wire form and nesting | Structural rule |
+| Byte conversion and output padding/width | Selected Codec representation |
+| EMV bit assignments, domain text or semantic template interpretation | EMV annotation |
+| Context selection | Domain dictionary/caller |
+
+EMV entries no longer store `value_kind` or `length_step`. The legacy kind enum
+remains only as a derived presentation adapter for CLI/Rust and existing C
+consumers, not as a second type declaration required by runtime modules. Numeric
+versus bitmask interpretation is independent of their identical `uint64_t` codec;
+EMV text does not imply printable ASCII, and semantic templates may carry a
+primitive wire identifier. These distinctions justify the retained annotations.
+
+Codec representation width is distinct from field-length validity. The generic
+codecs contain no min/max length or step policy, and packed digits contain no
+field digit-count bounds. The optional `tlv_schema_number_t` adapter borrows a schema to select an
+allowed output width, then delegates conversion; it does not duplicate rules.
+Builtin and caller-owned EMV entries use the same generic adapter, also tested
+with LLDP TTL constraints.
+BCD precision describes decimal representability. Calendar, account and PAN
+semantics remain explicit domain checks around shared conversion primitives.
+
+A structural rule may borrow `entry_ref`; when present it is the sole field
+schema and the inline entry is ignored. All structural validators and reports
+use `tlv_structure_rule_entry()`. EMV templates, dictionary entries and codec
+adapters now reference the same immutable field objects. Tests cover reference
+identity and length acceptance across every dictionary entry, conflicting inline
+metadata, diagnostics, and reuse with LLDP's independent framing.
+
+This changes the ABI of EMV dictionary entries, generic codec configurations and
+`tlv_structure_rule_t`. Zero-initialize `entry_ref` for existing inline rules and
+rebuild consumers. It introduces no mandatory new layer or runtime loader.

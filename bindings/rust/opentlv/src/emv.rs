@@ -108,7 +108,7 @@ impl Definition {
     /// Returns the stable symbolic name, for example `"application_label"`.
     pub fn name(&self) -> &'static str {
         // SAFETY: names are static NUL-terminated ASCII strings.
-        unsafe { CStr::from_ptr(self.raw.name) }
+        unsafe { CStr::from_ptr(native::tlv_emv_symbol(self.raw)) }
             .to_str()
             .expect("dictionary names are ASCII")
     }
@@ -118,7 +118,7 @@ impl Definition {
     pub fn display_label(&self) -> Option<&'static str> {
         // SAFETY: `name` is a valid C string; a non-null result is a static
         // NUL-terminated string.
-        let label = unsafe { native::tlv_emv_display_label(self.raw.name) };
+        let label = unsafe { native::tlv_emv_display_label(native::tlv_emv_symbol(self.raw)) };
         if label.is_null() {
             return None;
         }
@@ -134,7 +134,8 @@ impl Definition {
 
     /// Returns the representation of the value.
     pub fn kind(&self) -> ValueKind {
-        ValueKind::from_raw(self.raw.value_kind).expect("dictionary kinds are known")
+        ValueKind::from_raw(unsafe { native::tlv_emv_value_kind(self.raw) })
+            .expect("dictionary kinds are known")
     }
 
     /// Returns the minimum value length in bytes.
@@ -150,7 +151,8 @@ impl Definition {
 
     /// Returns the step between permitted lengths: `min + n * step`.
     pub fn length_step(&self) -> usize {
-        self.raw.length_step
+        // SAFETY: the borrowed builtin definition has a valid static schema.
+        unsafe { native::tlv_emv_length_step(self.raw) }
     }
 
     /// Checks that a value of `length` bytes is permitted, including the

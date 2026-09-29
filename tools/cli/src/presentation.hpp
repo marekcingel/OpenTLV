@@ -1,6 +1,7 @@
 #ifndef OPENTLV_CLI_PRESENTATION_H
 #define OPENTLV_CLI_PRESENTATION_H
 #include <string>
+#include "tlv/definition.h"
 #include "tlv/reader/walker.h"
 
 // Structured EMV dictionary metadata for one element, shared by the text
@@ -15,10 +16,10 @@ struct cli_emv_info {
     std::string description;
 };
 
-// Human-readable label for an EMV dictionary symbol (curated when available,
-// otherwise title-cased). Shared by dump annotations and the tag command.
+// Authoritative descriptive name from the composed generic Definition.
+// Shared by dump annotations and the tag command.
 // Available only when the EMV module is enabled.
-std::string cli_emv_display_name(const char* name);
+std::string cli_emv_display_name(const tlv_definition_t* definition);
 
 typedef struct cli_presentation {
     const uint8_t* data;

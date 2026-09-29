@@ -24,24 +24,48 @@ handling of duplicates and no fallback to another context. Entries refer to
 schemas and codec descriptors, whose configuration may also be caller-owned.
 All referenced storage must remain immutable and alive while in use.
 
-Numeric and flag entries use the generic configuration in `tlv/codec/number.h`:
-binary byte order or unsigned packed decimal, permitted byte lengths and decimal
-digit limits. EMV amount is the BCD preset `{TLV_NUMBER_BCD, 6, 6, 1, 12}`.
-Date/time codecs reuse numeric conversion and add EMV calendar rules; Track 2,
-AFL, account/biometric enums and other domain representations keep their own
-semantics. Descriptive labels remain separate from dictionary symbols.
+Each entry borrows a generic `tlv_definition_t` (canonical tag and descriptive
+name), a `tlv_schema_entry_t` (field constraints and diagnostic symbol), and a
+selected `tlv_codec_t`. `semantics` records only independent EMV meaning:
+bit assignments rather than arithmetic, domain text without an assumed
+character repertoire, or semantic nesting even with a primitive wire tag.
+These annotations neither select a codec nor replace structural validation.
 
-The contiguous schema tables support `tlv_emv_schema_for()` and generic schema
-consumers; dictionary entries reference those tables instead of copying schema
-objects. Public integer constants remain C/C++ constant expressions and borrowed
-tag objects retain their existing names and bytes.
+Field lengths have one owner. `tlv_emv_validate_length()` delegates to Schema;
+AFL/CVM/UUID-like length progressions use `length_multiple`, and BIC/RSA-exponent
+alternatives use `TLV_SCHEMA_LENGTH_ENDPOINTS`. Semantic codec adapters reference the
+same schema entries, then delegate conversion to the generic primitives.
+Numeric entries use the reusable `tlv_schema_number_t` composition in
+`tlv/schema/number.h`, available equally to builtin and caller-owned tables.
+Numeric encoding chooses a fitting schema-permitted width before invoking the
+primitive. `tlv_emv_codec_amount` borrows the Amount Authorised schema.
+
+The structural templates also borrow those exact field entries through
+`tlv_structure_rule_t.entry_ref`. They add occurrence, nesting and wire-form
+requirements without copying names, identifiers or field-length constraints.
+Canonical tag byte arrays are shared by Definitions, Schema and public tag
+objects; `_u64` constants remain convenience API, checked by independent tests.
 
 ## Migration from the X-macro dictionary (#381)
 
-`emv_tags.def` is removed. Consumers that expanded it must iterate the selected
-`tlv_emv_dictionary_t` instead. Existing tag constants, lookup functions, schema
-accessors and value representations remain available. No runtime `.otlv` parser
-is introduced: native and caller-owned descriptors already use the same model.
+`emv_tags.def` is removed; iterate `tlv_emv_dictionary_for(context)` instead.
+The dictionary entry layout changes: `definition`, `schema`, `codec`, and
+`semantics` replace the old symbolic-name/value-kind/length-step fields.
+Use `entry->definition->name` for a descriptive name and `tlv_emv_symbol(entry)`
+for the symbol borrowed from Schema. `tlv_emv_length_step(entry)` derives the
+legacy display value; validity always comes from Schema.
+
+`tlv_emv_value_kind(entry)` is a compatibility presenter for known codec
+representations and EMV annotations. The old enum is not dictionary state or a
+runtime type system. Unrecognized caller-provided callbacks yield
+`TLV_EMV_VALUE_UNKNOWN`; their context is never interpreted as a known codec.
+Callers that selected their own codecs already know the C representation and
+do not need this adapter. Public tag constants and context lookup remain stable.
+Rebuild native consumers and update aggregate initializers.
+
+The same borrowed Definition/Schema/Codec composition supports caller-owned
+storage. Runtime owners select codecs and validate Schema explicitly; no
+`.otlv` loader, syntax, mandatory factory or generic dictionary layer is added.
 
 ## Framing and lookup
 
@@ -116,7 +140,7 @@ if (tlv_read(wire, wire_size, &tlv_format_emv, &element, &consumed) == TLV_OK) {
     const tlv_emv_definition_t* def =
         tlv_emv_find(TLV_EMV_CONTEXT_BASE, &element.tag);
     if (def && tlv_emv_validate_length(def, element.value.size) == TLV_OK &&
-        def->value_kind == TLV_EMV_VALUE_NUMBER && def->codec) {
+        tlv_emv_value_kind(def) == TLV_EMV_VALUE_NUMBER && def->codec) {
         uint64_t amount;
         tlv_codec_result_t result = tlv_codec_decode(
             def->codec, element.value.data, element.value.size,
@@ -157,7 +181,9 @@ parameters and proprietary template contents do not acquire invented schemas.
 
 ## Value representations
 
-`def->value_kind` determines the C representation required by `def->codec`.
+For builtin entries, `tlv_emv_value_kind(def)` reports the known C representation
+required by `def->codec`. For custom codecs, callers own that contract; an
+unrecognized callback pair returns `TLV_EMV_VALUE_UNKNOWN`.
 
 | Kind (`TLV_EMV_VALUE_` prefix) | Representation and examples |
 | --- | --- |
@@ -379,7 +405,7 @@ object does not represent a complete or validated transaction.
 [examples/tlv/src/builtins/emv/tag_decoding.c](../../../examples/tlv/src/builtins/emv/tag_decoding.c) walks
 a whole record instead of one element: it looks up every child tag with
 `tlv_emv_find()`, checks its length with `tlv_emv_validate_length()`, decodes it
-according to `value_kind`, and leaves a tag that is unknown or has an invalid
+using the derived compatibility presentation kind, and leaves a tag that is unknown or has an invalid
 length skipped rather than aborting the walk.
 [EMV module and codecs](README.md)
 

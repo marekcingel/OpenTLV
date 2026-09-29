@@ -21,19 +21,17 @@ typedef enum tlv_text_alphabet {
 } tlv_text_alphabet_t;
 
 /** @brief Immutable borrowed text-codec configuration, independent of tags.
- * Bounds apply to wire bytes and must be ordered. With padding enabled, decode
- * strips all trailing zero bytes and encode pads to min_length. Otherwise the
- * logical length itself must satisfy the bounds. Embedded zeros are rejected.
- * Equal bounds select a fixed-width field. Empty logical text is allowed when
- * its wire representation meets the bounds. Configuration must outlive its codec.
+ * Width zero selects variable-width text. Nonzero width selects a fixed-width
+ * representation. With padding enabled, decode strips trailing zero bytes and
+ * encode pads to that width; otherwise text must occupy the entire width.
+ * Embedded zeros are rejected. Field-length limits belong to Schema.
+ * Configuration must outlive its codec.
  */
 typedef struct tlv_text_codec_config {
     /** Explicit character repertoire. */
     tlv_text_alphabet_t alphabet;
-    /** Minimum wire length. */
-    size_t min_length;
-    /** Maximum wire length. */
-    size_t max_length;
+    /** Fixed wire width, or zero for variable-width text. */
+    size_t width;
     /** Zero disables padding; one enables trailing zero padding. */
     int zero_padding;
 } tlv_text_codec_config_t;

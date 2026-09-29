@@ -3,12 +3,10 @@
 #include <string.h>
 
 static int valid_config(const tlv_number_codec_config_t* config) {
-    if (!config->min_length || !config->length_step || config->min_length > config->max_length)
-        return 0;
     if (config->encoding == TLV_NUMBER_BCD)
-        return config->max_length <= 9 && config->digits >= 1 && config->digits <= 18;
+        return config->width <= 9 && config->digits >= 1 && config->digits <= 18;
     return (config->encoding == TLV_NUMBER_BINARY_BE || config->encoding == TLV_NUMBER_BINARY_LE) &&
-           config->max_length <= 8 && config->digits == 0;
+           config->width <= 8 && config->digits == 0;
 }
 
 static uint64_t decimal_limit(unsigned digits) {
@@ -23,8 +21,8 @@ tlv_codec_result_t tlv_number_decode(const void* context, const uint8_t* data, s
     uint64_t number = 0;
     size_t i;
     if (!config || !value || (!data && size)) return TLV_CODEC_ERR_NULL_ARG;
-    if (!valid_config(config) || size < config->min_length || size > config->max_length ||
-        (size - config->min_length) % config->length_step)
+    if (!valid_config(config) || !size || size > (config->encoding == TLV_NUMBER_BCD ? 9u : 8u) ||
+        (config->width && size != config->width))
         return TLV_CODEC_ERR_INVALID_VALUE;
     if (config->encoding == TLV_NUMBER_BCD) {
         for (i = 0; i < size; ++i) {
@@ -64,10 +62,10 @@ tlv_codec_result_t tlv_number_encode(const void* context, const void* value, siz
         remaining /= radix;
         ++width;
     }
-    if (width < config->min_length) width = config->min_length;
-    while (width <= config->max_length && (width - config->min_length) % config->length_step)
-        ++width;
-    if (width > config->max_length) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (config->width) {
+        if (width > config->width) return TLV_CODEC_ERR_INVALID_VALUE;
+        width = config->width;
+    }
     if (data && capacity < width) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
     if (config->encoding == TLV_NUMBER_BCD) {
         for (i = width; i > 0; --i) {

@@ -15,21 +15,15 @@
 extern "C" {
 #endif
 
-/** @brief Borrowed immutable constraints for a packed digit-string codec.
- * Both pairs of bounds are inclusive and must be ordered. Decode accepts any
- * trailing F nibbles, including full padding bytes. Encode uses the shortest
- * representation satisfying min_length, filling unused nibbles with F.
- * Set equal byte bounds for a fixed-width field. Storage must outlive its codec.
+/** @brief Borrowed immutable packed digit-string representation.
+ * Decode accepts trailing F nibbles, including full padding bytes. Width zero
+ * selects minimal encoding; a nonzero width selects fixed-width F padding.
+ * Empty strings are representable. Field length and digit-count constraints
+ * belong to Schema/domain validation. Storage must outlive its codec.
  */
 typedef struct tlv_digits_codec_config {
-    /** Minimum number of decimal digits; zero permits empty strings. */
-    size_t min_digits;
-    /** Maximum number of decimal digits; SIZE_MAX means unrestricted. */
-    size_t max_digits;
-    /** Minimum encoded byte length. */
-    size_t min_length;
-    /** Maximum encoded byte length. */
-    size_t max_length;
+    /** Fixed byte width, or zero for minimal encoding. */
+    size_t width;
 } tlv_digits_codec_config_t;
 
 /** @brief Decodes packed digits to a NUL-terminated ASCII string.
@@ -39,7 +33,7 @@ typedef struct tlv_digits_codec_config {
  * @param[out] value Required character buffer; must not overlap input/configuration.
  * @param[in] capacity Buffer size including the terminating NUL.
  * @return #TLV_CODEC_OK, #TLV_CODEC_ERR_NULL_ARG, #TLV_CODEC_ERR_INVALID_VALUE
- *         for invalid bounds/digits/padding, or #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ *         for invalid width/digits/padding, or #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
  * @note No allocation occurs; output is unchanged on failure.
  */
 TLV_API tlv_codec_result_t tlv_digits_decode(const void* context, const uint8_t* data, size_t size,
@@ -53,7 +47,7 @@ TLV_API tlv_codec_result_t tlv_digits_decode(const void* context, const uint8_t*
  * @param[in] capacity Destination byte capacity.
  * @param[out] written Required byte count; zero on failure.
  * @return #TLV_CODEC_OK, #TLV_CODEC_ERR_NULL_ARG, #TLV_CODEC_ERR_INVALID_VALUE
- *         for invalid bounds/digits, or #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
+ *         for invalid width/digits, or #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
  * @note No allocation occurs; output bytes are unchanged on failure. Input,
  *       output, configuration and written must not overlap.
  */

@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Make EMV dictionaries compose generic Definition, Schema and Codec objects; remove stored value kinds and length steps in favor of derived compatibility accessors. Generic number/digits/text codec configuration now describes representation width rather than field-length policy. Structural rules gain optional borrowed field schemas (`entry_ref`), shared by EMV templates, dictionaries and codec adapters; rebuild consumers and update initializers. EMV structural validation now enforces the shared AFL and language-preference length multiples. (#389, #381)
 - **Breaking:** Add length-policy flags to `tlv_schema_diagnostic_t`; rebuild consumers. EMV BIC and public-key-exponent schemas now reject intermediate lengths consistently with dictionary validation. (#381)
 - **Breaking:** Replace the EMV `emv_tags.def` X-macro with explicit typed dictionary tables. Consumers of the removed include must iterate `tlv_emv_dictionary_for()` instead; existing tag constants, context lookup and Value representations are preserved. EMV numbers, ASN.1 integers, Bluetooth UUID16/32 and LLDP TTL reuse generic value codecs. (#381)
 - Remove Profile from the OpenTLV architecture and public API terminology. Modules compose any subset of Definition, Format, Schema and Codec; native optional builtins remain independent of the future `.otlv` runtime. Rename `OPENTLV_PROFILE_EMV` / `tlv_config_profile_emv()` to `OPENTLV_EMV` / `tlv_config_emv()`, DER/CER `*_profile.h` headers to `*_validation.h`, and CLI/WASM selectors and JSON fields to `module`. Rust canonical operations now use `Format::Der` / `Format::Cer` and `ValidationError`, removing `Profile`. Update consumers to the new names; see the [migration guide](docs/concepts/architecture.md#removing-profile-380). (#380)
@@ -76,6 +77,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Remove `TLV_TAG_CAPACITY`, `tlv_tag_from_bytes()`, `tlv_tag_equal_bytes()` and the numeric `tlv_tag_to_u*()`, `tlv_tag_from_u*()` and `tlv_tag_equal_u*()`; use `tlv_tag()` and `tlv_tag_equal()` instead, and the Rust `Tag` loses `ByteOrder`, `from_u64` and `to_u64`. (#256)
 
 ### Added
+
+- Add optional Schema/number codec composition that selects an output width from the authoritative field schema, shared by builtin and caller-owned dictionaries. (#389, #381)
 
 - Add configurable packed digit-string and ASCII text codecs with explicit padding policies, usable without protocol builtins. Add `TLV_SCHEMA_LENGTH_ENDPOINTS` for fields that accept only their minimum or maximum length. (#381)
 

@@ -37,14 +37,14 @@ nlohmann::json emv_definition_json(const tlv_tag_t& tag, const tlv_emv_definitio
     nlohmann::json object;
     object["tag"] = tag_hex_string(tag);
     object["known"] = true;
-    object["name"] = cli_emv_display_name(definition.name);
-    object["symbol"] = definition.name;
-    object["type"] = tlv_emv_value_kind_description(definition.value_kind);
+    object["name"] = cli_emv_display_name(definition.definition);
+    object["symbol"] = tlv_emv_symbol(&definition);
+    object["type"] = tlv_emv_value_kind_description(tlv_emv_value_kind(&definition));
     object["constructed"] = tlv_asn1_is_constructed(nullptr, &tag) != 0;
     object["min_length"] = (uint64_t)definition.schema->min_length;
     if (definition.schema->max_length != SIZE_MAX)
         object["max_length"] = (uint64_t)definition.schema->max_length;
-    object["length_step"] = (uint64_t)definition.length_step;
+    object["length_step"] = (uint64_t)tlv_emv_length_step(&definition);
     return object;
 }
 

@@ -1,5 +1,6 @@
 #ifndef OPENTLV_BUILTINS_EMV_H
 #define OPENTLV_BUILTINS_EMV_H
+#include "tlv/definition.h"
 
 #include "tlv/error.h"
 #include "tlv/builtins/emv/format.h"
@@ -911,29 +912,53 @@ extern TLV_API const tlv_tag_t tlv_emv_tag_enciphered_biometric_data;
 extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_data_mac;
 /** @} */
 
-/**
- * @brief One entry of the EMV data dictionary.
- *
- * Builtin entries returned by tlv_emv_find() borrow immutable static storage.
- * Caller-owned dictionaries may construct the same entry type with borrowed
- * schemas, names and codecs; all referenced storage must outlive its use.
- * This is a domain-specific composition of schema, codec and EMV metadata,
- * not the generic identifier/name Definition contract. The caller selects an
- * entry using an explicit context and tag, then invokes its codec if present.
- * No generic Definition registry is required for this lookup.
+/** @brief EMV interpretation not implied by a codec's C representation.
+ * These are annotations, never codec selectors or substitutes for schema rules.
+ */
+typedef enum tlv_emv_semantics {
+    /** No additional EMV annotation. */
+    TLV_EMV_SEMANTICS_NONE,
+    /** EMV text with a domain-selected character repertoire, not necessarily ASCII/UTF-8. */
+    TLV_EMV_SEMANTICS_TEXT,
+    /** Bit assignments interpreted by EMV; distinct from arithmetic uint64_t values. */
+    TLV_EMV_SEMANTICS_BITMASK,
+    /** EMV semantic nesting, including templates with a primitive wire identifier. */
+    TLV_EMV_SEMANTICS_TEMPLATE
+} tlv_emv_semantics_t;
+
+/** @brief Borrowed composition of identifier metadata, field Schema and Value Codec.
+ * Each referenced object is authoritative for its own properties. The schema's
+ * tag must equal definition->tag; both should borrow the same canonical bytes.
+ * A dictionary selects context, without imposing a required generic pipeline.
+ * All referenced objects and their storage must remain immutable and alive
+ * while an entry is used. Builtin entries borrow static storage.
  */
 typedef struct {
-    /** Tag and inclusive length bounds; borrowed from the static tables. */
+    /** Identifier and descriptive name; all storage is borrowed. */
+    const tlv_definition_t* definition;
+    /** Field constraints and optional diagnostic symbol; borrowed. */
     const tlv_schema_entry_t* schema;
-    /** Stable symbolic name within the selected dictionary. */
-    const char* name;
-    /** C representation of the value. */
-    tlv_emv_value_kind_t value_kind;
-    /** Semantic codec for the value; `NULL` when no conversion is provided. */
+    /** Selected Value conversion; NULL means retain opaque input bytes. */
     const tlv_codec_t* codec;
-    /** Permitted lengths: `min + n * step`. */
-    size_t length_step;
+    /** Independent EMV interpretation, not a duplicate conversion type. */
+    tlv_emv_semantics_t semantics;
 } tlv_emv_definition_t;
+
+/** @brief Returns the optional dictionary symbol owned by the referenced Schema.
+ * @param[in] definition Borrowed entry, or NULL.
+ * @return Borrowed NUL-terminated symbol, or NULL when absent.
+ */
+TLV_API const char* tlv_emv_symbol(const tlv_emv_definition_t* definition);
+
+/** @brief Compatibility presentation of recognized codecs and EMV annotations.
+ * @param[in] definition Borrowed entry, or NULL.
+ * @return Legacy presentation kind, or TLV_EMV_VALUE_UNKNOWN for an unrecognized
+ *         caller-provided codec. This is derived, never stored in the dictionary.
+ * @note Recognition uses the selected codec callbacks/configuration, never tags.
+ *       Runtime callers already know their codec's C representation and need not
+ *       use this adapter. Unknown callbacks are never cast to known contexts.
+ */
+TLV_API tlv_emv_value_kind_t tlv_emv_value_kind(const tlv_emv_definition_t* definition);
 
 /**
  * @brief Borrowed EMV domain dictionary for one explicitly selected context.
@@ -962,9 +987,9 @@ TLV_API const tlv_emv_dictionary_t* tlv_emv_dictionary_for(tlv_emv_context_t con
  * @param[in] dictionary Borrowed table to search; may be NULL.
  * @param[in] tag Identifier to find; may be NULL.
  * @return Borrowed matching entry, or NULL for invalid arguments or no match.
- * @note Empty/invalid lookup tags are rejected. Entries without a schema or
- *       readable tag are skipped. No fallback, allocation, schema validation
- *       or value decoding occurs.
+ * @note Empty/invalid lookup tags are rejected. Entries without Definition or
+ *       Schema, or whose identifiers disagree, are skipped. No fallback, allocation, schema
+ * validation or value decoding occurs.
  */
 TLV_API const tlv_emv_definition_t* tlv_emv_dictionary_find(const tlv_emv_dictionary_t* dictionary,
                                                             const tlv_tag_t* tag);
@@ -1000,8 +1025,7 @@ TLV_API const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context, cons
 /**
  * @brief Validates a value length against a definition.
  *
- * Adds length-step checks (AFL, CVM lists, BIC, RSA exponents, and so on) to
- * the generic schema's inclusive bounds.
+ * Delegates all field-length validation to the referenced generic Schema.
  *
  * @param definition Definition to validate against.
  * @param length     Value length in bytes.
@@ -1017,13 +1041,23 @@ TLV_API const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context, cons
 TLV_API tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definition, size_t length);
 
 /**
+ * @brief Returns the spacing of permitted lengths for EMV display compatibility.
+ * @param[in] definition Entry whose Schema supplies the authoritative constraints.
+ * @return Endpoint separation, nonzero length multiple, or one for an interval;
+ *         zero for a missing or invalid schema.
+ * @note This is derived information, not a separate constraint. Always validate
+ *       through tlv_emv_validate_length(), including when bounds are equal.
+ */
+TLV_API size_t tlv_emv_length_step(const tlv_emv_definition_t* definition);
+
+/**
  * @brief Returns a curated human-readable label for a dictionary symbol.
  *
  * For example, `"afl"` maps to `"Application File Locator (AFL)"`. Intended
  * for diagnostics or tooling. Coverage is limited to symbols whose
  * title-cased form would be misleading (abbreviations, initialisms).
  *
- * @param name Symbol from #tlv_emv_definition_t::name; may be `NULL`.
+ * @param name Symbol returned by tlv_emv_symbol(); may be `NULL`.
  *
  * @return A static label, or `NULL` if `name` has no curated label
  *         (including for a `NULL` `name`); tlv_emv_titlecase_name() derives

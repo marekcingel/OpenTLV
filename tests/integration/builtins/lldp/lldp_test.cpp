@@ -1,6 +1,7 @@
 #include "tlv/builtins/lldp/lldp.h"
 #include "tlv/builtins/lldp/codec.h"
 #include "tlv/builtins/lldp/schema.h"
+#include "tlv/schema/number.h"
 #include "tlv/config.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -18,6 +19,36 @@ namespace {
 // Hand-authored base LLDPDU reference: local Chassis/Port identifiers and TTL 120.
 const std::vector<uint8_t> base_lldpdu = {2, 2, 7, 'c', 4, 2, 7, 'p', 6, 2, 0, 120};
 } // namespace
+
+TEST(Integration_Tlv_Lldp, StructuralRulesCanBorrowExistingFieldSchemas) {
+    std::vector<tlv_structure_rule_t> rules(tlv_lldp_schema.rules,
+                                            tlv_lldp_schema.rules + tlv_lldp_schema.count);
+    for (size_t i = 0; i < rules.size(); ++i) {
+        rules[i].entry_ref = tlv_structure_rule_entry(&tlv_lldp_schema.rules[i]);
+        rules[i].entry = {};
+    }
+    tlv_structure_schema_t schema = tlv_lldp_schema;
+    schema.rules = rules.data();
+    EXPECT_EQ(TLV_OK, tlv_schema_validate(base_lldpdu.data(), base_lldpdu.size(), &tlv_format_lldp,
+                                          &schema, 8, 100, nullptr));
+    auto invalid = base_lldpdu;
+    invalid[9] = 1;
+    invalid.pop_back();
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_schema_validate(invalid.data(), invalid.size(), &tlv_format_lldp, &schema, 8, 100,
+                                  nullptr));
+    // Explicit uint64_t composition, not the builtin TTL's uint16_t representation.
+    const tlv_schema_number_t ttl = {rules[3].entry_ref, {TLV_NUMBER_BINARY_BE, 0, 0}};
+    const auto                codec = tlv_schema_number_codec(&ttl);
+    const uint64_t            seconds = 120;
+    uint8_t                   bytes[2] = {};
+    size_t                    written = 0;
+    EXPECT_EQ(TLV_CODEC_OK,
+              tlv_codec_encode(&codec, &seconds, sizeof(seconds), bytes, sizeof(bytes), &written));
+    EXPECT_EQ(2u, written);
+    EXPECT_EQ(0, bytes[0]);
+    EXPECT_EQ(120, bytes[1]);
+}
 
 TEST(Integration_Tlv_Lldp, SchemaMandatoryPrefixOptionalEndAndDiagnostics) {
     tlv_diagnostic_t diagnostic{};

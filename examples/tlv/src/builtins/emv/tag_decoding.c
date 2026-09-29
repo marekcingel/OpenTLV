@@ -193,7 +193,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
         ++record->unknown_count;
         return TLV_VISIT_CONTINUE;
     }
-    printf(" (%s)", def->name);
+    printf(" (%s)", tlv_emv_symbol(def));
 
     if (tlv_emv_validate_length(def, length) != TLV_OK) {
         printf(" -> invalid length %zu for this tag; skipping\n", length);
@@ -201,7 +201,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
         return TLV_VISIT_CONTINUE;
     }
 
-    switch (def->value_kind) {
+    switch (tlv_emv_value_kind(def)) {
         case TLV_EMV_VALUE_DIGITS: {
             tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                      record->pan, sizeof(record->pan));
@@ -306,9 +306,9 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
         default:
             /* TEXT, TEMPLATE, TIME, BIOMETRIC, NUMBER_LIST: not present in this
              * demo record. Decode with the same tlv_codec_decode() dispatch,
-             * keyed on def->value_kind, into their documented C representation. */
-            printf(" -> %s value, %zu raw bytes (not decoded by this example)\n", def->name,
-                   length);
+             * keyed on tlv_emv_value_kind(def), into their documented C representation. */
+            printf(" -> %s value, %zu raw bytes (not decoded by this example)\n",
+                   tlv_emv_symbol(def), length);
             break;
     }
     ++record->known_count;

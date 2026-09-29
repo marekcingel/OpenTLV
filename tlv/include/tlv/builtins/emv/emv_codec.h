@@ -44,7 +44,9 @@ extern "C" {
  */
 
 /**
- * @brief C representation a semantic EMV codec converts a value to and from.
+ * @brief Legacy presentation categories derived by tlv_emv_value_kind().
+ *
+ * These categories are not dictionary state and are not a runtime type system.
  *
  * #TLV_EMV_VALUE_BYTES, #TLV_EMV_VALUE_TEXT and #TLV_EMV_VALUE_TEMPLATE have
  * no codec: callers retain the reader's borrowed value. Text does not imply
@@ -83,7 +85,9 @@ typedef enum {
     /** #tlv_emv_cvm_result_t. */
     TLV_EMV_VALUE_CVM_RESULT,
     /** #tlv_emv_track2_t. */
-    TLV_EMV_VALUE_TRACK2
+    TLV_EMV_VALUE_TRACK2,
+    /** Caller-selected codec with a representation unknown to the legacy presenter. */
+    TLV_EMV_VALUE_UNKNOWN
 } tlv_emv_value_kind_t;
 
 /**

@@ -9,7 +9,8 @@ static const uint8_t identifiers[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 127};
      occurs,                                                                                       \
      TLV_SCHEMA_PRIMITIVE,                                                                         \
      NULL,                                                                                         \
-     0}
+     0,                                                                                            \
+     NULL}
 static const tlv_structure_rule_t rules[] = {
     RULE(0, 0, 0, 0, 1, "End of LLDPDU"),
     RULE(1, 2, 256, 1, 1, "Chassis ID"),

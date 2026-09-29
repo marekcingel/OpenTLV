@@ -57,7 +57,7 @@ TEST(Integration_Tlv_Emv, CallerSelectsAmountCodecFromParsedIdentifier) {
         const auto* entry = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &element.tag);
         ASSERT_NE(nullptr, entry);
         ASSERT_NE(nullptr, entry->codec);
-        ASSERT_EQ(TLV_EMV_VALUE_NUMBER, entry->value_kind);
+        ASSERT_EQ(TLV_EMV_VALUE_NUMBER, tlv_emv_value_kind(entry));
         size_t size = 0;
         ASSERT_EQ(TLV_OK, tlv_size_to_native(element.value.size, &size));
         uint64_t decoded = 0;
@@ -87,8 +87,8 @@ TEST(Integration_Tlv_Emv, AllDefinitionsUseEmvFramingAndSchemas) {
             const auto* definition = tlv_emv_find(context, &entry.tag);
             ASSERT_NE(nullptr, definition);
             EXPECT_EQ(&entry, definition->schema);
-            EXPECT_NE(nullptr, definition->name);
-            EXPECT_EQ(definition->value_kind > TLV_EMV_VALUE_TEMPLATE,
+            EXPECT_NE(nullptr, tlv_emv_symbol(definition));
+            EXPECT_EQ(tlv_emv_value_kind(definition) > TLV_EMV_VALUE_TEMPLATE,
                       definition->codec != nullptr);
             EXPECT_EQ(TLV_OK, tlv_emv_validate_length(definition, entry.min_length));
             EXPECT_EQ(TLV_OK, tlv_emv_validate_length(definition, entry.max_length));
@@ -236,7 +236,7 @@ TEST(Integration_Tlv_Emv, SemanticTemplateDoesNotChangeWireConstructedBit) {
     EXPECT_FALSE(tlv_format_emv.is_constructed(tlv_format_emv.context, &outer.element.tag));
     const auto* definition = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &outer.element.tag);
     ASSERT_NE(nullptr, definition);
-    EXPECT_EQ(TLV_EMV_VALUE_TEMPLATE, definition->value_kind);
+    EXPECT_EQ(TLV_EMV_VALUE_TEMPLATE, tlv_emv_value_kind(definition));
     EXPECT_EQ(TLV_EMV_CONTEXT_BASE,
               tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &outer.element.tag));
     size_t visits = 0;

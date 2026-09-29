@@ -1,4 +1,5 @@
 #include "emv_codec_internal.h"
+#include "tlv/builtins/emv/emv.h"
 #include <string.h>
 #include "tlv/codec/number.h"
 #include "tlv/codec/digits.h"
@@ -39,21 +40,20 @@ enum {
 enum { EMV_MAX_ENCODED_VALUE_SIZE = 252 };
 
 static int valid_length(const emv_value_rule_t* rule, size_t size) {
-    return size >= rule->min_length && size <= rule->max_length && rule->step &&
-           (size - rule->min_length) % rule->step == 0;
+    return tlv_schema_validate_length(rule->schema, size) == TLV_OK;
 }
 
 /* Domain codecs compose the same numeric primitive as dictionary entries. */
 static int read_number(const uint8_t* data, size_t size, unsigned digits, uint64_t* value) {
     const tlv_number_codec_config_t config = {digits ? TLV_NUMBER_BCD : TLV_NUMBER_BINARY_BE, size,
-                                              size, 1, digits};
+                                              digits};
     return size <= 8 &&
            tlv_number_decode(&config, data, size, value, sizeof(*value)) == TLV_CODEC_OK;
 }
 
 static int write_number(uint64_t value, unsigned digits, uint8_t* data, size_t size) {
     const tlv_number_codec_config_t config = {digits ? TLV_NUMBER_BCD : TLV_NUMBER_BINARY_BE, size,
-                                              size, 1, digits};
+                                              digits};
     size_t written;
     return size <= 8 &&
            tlv_number_encode(&config, &value, sizeof(value), data, size, &written) == TLV_CODEC_OK;
@@ -97,23 +97,29 @@ static size_t emv_strnlen(const char* value, size_t limit) {
     return length;
 }
 
-static tlv_digits_codec_config_t digits_config(const emv_value_rule_t* rule) {
-    tlv_digits_codec_config_t config = {rule->argument ? 1 : 0,
-                                        rule->argument ? rule->argument : SIZE_MAX, 0, SIZE_MAX};
-    return config;
-}
-
 static tlv_codec_result_t decode_digits(const emv_value_rule_t* rule, const uint8_t* data,
                                         size_t size, void* value, size_t capacity) {
-    const tlv_digits_codec_config_t config = digits_config(rule);
-    return tlv_digits_decode(&config, data, size, value, capacity);
+    const tlv_digits_codec_config_t config = {0};
+    char pan[20];
+    tlv_codec_result_t result;
+    size_t count;
+    if (!rule->argument) return tlv_digits_decode(&config, data, size, value, capacity);
+    result = tlv_digits_decode(&config, data, size, pan, sizeof(pan));
+    if (result != TLV_CODEC_OK) return TLV_CODEC_ERR_INVALID_VALUE;
+    count = strlen(pan);
+    if (!count || count > rule->argument) return TLV_CODEC_ERR_INVALID_VALUE;
+    if (capacity <= count) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+    memcpy(value, pan, count + 1);
+    return TLV_CODEC_OK;
 }
 
 static tlv_codec_result_t encode_digits(const emv_value_rule_t* rule, const void* value,
                                         size_t size, uint8_t* data, size_t capacity,
                                         size_t* written) {
-    const tlv_digits_codec_config_t config = digits_config(rule);
-    if (!valid_length(rule, size / 2 + size % 2)) return TLV_CODEC_ERR_INVALID_VALUE;
+    const tlv_digits_codec_config_t config = {0};
+    if (!valid_length(rule, size / 2 + size % 2) ||
+        (rule->argument && (!size || size > rule->argument)))
+        return TLV_CODEC_ERR_INVALID_VALUE;
     return tlv_digits_encode(&config, value, size, data, capacity, written);
 }
 
@@ -269,7 +275,7 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
     const emv_value_rule_t* rule = (const emv_value_rule_t*)context;
     uint8_t bytes[EMV_MAX_ENCODED_VALUE_SIZE];
     uint64_t number;
-    size_t count = rule->min_length;
+    size_t count = rule->schema->min_length;
     if (rule->kind == TLV_EMV_VALUE_DIGITS)
         return encode_digits(rule, value, size, data, capacity, written);
     switch (rule->kind) {
@@ -402,9 +408,6 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
 }
 #undef EMV_LOAD
 
-static const tlv_number_codec_config_t amount_rule = {TLV_NUMBER_BCD, 6, 6, 1, 12};
-const tlv_codec_t tlv_emv_codec_amount = {&amount_rule, tlv_number_decode, tlv_number_encode};
-
 const char* tlv_emv_value_kind_description(tlv_emv_value_kind_t kind) {
     switch (kind) {
         case TLV_EMV_VALUE_BYTES: return "Raw bytes";
@@ -425,4 +428,28 @@ const char* tlv_emv_value_kind_description(tlv_emv_value_kind_t kind) {
             return "Track 2 equivalent data (PAN, expiry, service code, discretionary data)";
         default: return "Unspecified representation";
     }
+}
+
+const char* tlv_emv_symbol(const tlv_emv_definition_t* definition) {
+    return definition && definition->schema ? definition->schema->name : NULL;
+}
+
+tlv_emv_value_kind_t tlv_emv_value_kind(const tlv_emv_definition_t* definition) {
+    const tlv_codec_t* codec;
+    if (!definition) return TLV_EMV_VALUE_UNKNOWN;
+    codec = definition->codec;
+    if (!codec) {
+        if (definition->semantics == TLV_EMV_SEMANTICS_TEXT) return TLV_EMV_VALUE_TEXT;
+        if (definition->semantics == TLV_EMV_SEMANTICS_TEMPLATE) return TLV_EMV_VALUE_TEMPLATE;
+        return TLV_EMV_VALUE_BYTES;
+    }
+    if ((codec->decode == tlv_schema_number_decode && codec->encode == tlv_schema_number_encode) ||
+        (codec->decode == tlv_number_decode && codec->encode == tlv_number_encode))
+        return definition->semantics == TLV_EMV_SEMANTICS_BITMASK ? TLV_EMV_VALUE_FLAGS
+                                                                  : TLV_EMV_VALUE_NUMBER;
+    if (codec->decode == tlv_digits_decode && codec->encode == tlv_digits_encode)
+        return TLV_EMV_VALUE_DIGITS;
+    if (codec->decode == emv_value_decode && codec->encode == emv_value_encode && codec->context)
+        return ((const emv_value_rule_t*)codec->context)->kind;
+    return TLV_EMV_VALUE_UNKNOWN;
 }

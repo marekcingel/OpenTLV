@@ -32,6 +32,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/reader/walker.c
     src/query/query.c
     src/schema/schema.c
+    src/schema/number.c
     src/schema/structure.c
     src/schema/report.c
     src/schema/constraint.c

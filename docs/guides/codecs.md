@@ -145,18 +145,23 @@ to `tlv_ipv4_list_t` views with checked access through
 ## Declarative numeric codecs
 
 `tlv/codec/number.h` describes unsigned `uint64_t` conversion using ordinary
-immutable data. Select binary BE/LE or unsigned BCD, byte-length bounds, a
-positive length step and (for BCD) a decimal digit limit. Encode selects the
-shortest permitted width that fits; decode accepts all permitted widths.
-BCD has high-nibble-first decimal digits and left zero padding, without a sign,
-F padding or implicit scaling. Binary widths are 1..8 bytes and BCD widths are
-1..9 bytes with at most 18 significant digits.
+immutable data: binary BE/LE or unsigned BCD, representation width, and BCD
+decimal precision. Width zero encodes the shortest representation and accepts
+any supported input width. A nonzero width selects a fixed-width representation
+with leading zero padding. Binary supports 1..8 bytes; BCD supports 1..9 bytes
+and 1..18 decimal digits. Unused high decimal positions must be zero.
+
+Field-length intervals, steps and alternatives belong to Schema. A codec cannot
+choose a fixed output width from a validation rule it has not been given. The
+caller/domain composes the two: choose the representation, encode, and validate
+the resulting length. For variable-width fields, domain code can choose the
+shortest schema-permitted width that fits. No codec performs tag lookup.
 
 ```c
 #include "tlv/codec/number.h"
 
 static const tlv_number_codec_config_t amount_config = {
-    TLV_NUMBER_BCD, 6, 6, 1, 12
+    TLV_NUMBER_BCD, 6, 12
 };
 static const tlv_codec_t amount_codec = {
     &amount_config, tlv_number_decode, tlv_number_encode
@@ -180,15 +185,16 @@ and impose any additional constraints.
 `tlv/codec/digits.h` packs decimal character strings high nibble first, with
 trailing `F` padding. Leading zeros remain digits; this is distinct from numeric
 BCD. Decode returns a NUL-terminated string; encode takes the digit count
-**excluding** the NUL. Byte-length and digit-count bounds are independent.
-Encode chooses the shortest permitted byte length and fills unused nibbles with
-`F`; decode also accepts additional trailing padding within the byte bounds.
+**excluding** the NUL. Width zero selects the shortest encoding; nonzero width
+selects fixed-width padding. Decode accepts trailing padding within that
+representation. Field-length and digit-count constraints are applied separately
+by Schema/domain validation.
 Digits after padding and nibbles `A..E` are rejected.
 
 ```c
 #include "tlv/codec/digits.h"
 
-static const tlv_digits_codec_config_t identifier_config = {1, 7, 4, 4};
+static const tlv_digits_codec_config_t identifier_config = {4};
 static const tlv_codec_t identifier_codec = {
     &identifier_config, tlv_digits_decode, tlv_digits_encode
 };
@@ -199,14 +205,14 @@ static const tlv_codec_t identifier_codec = {
 `TLV_TEXT_ASCII_PRINTABLE` (space through `~`) or `TLV_TEXT_ASCII_ALNUM`
 (letters and digits only). It does not infer the meaning of protocol labels
 such as AN/ANS and is not a Unicode codec. Optional zero padding strips trailing
-zero bytes on decode and pads to the minimum wire length on encode. Embedded
+zero bytes on decode and pads to the selected fixed width on encode. Embedded
 zeros, controls and bytes outside the selected alphabet are invalid.
 
 ```c
 #include "tlv/codec/text.h"
 
 static const tlv_text_codec_config_t label_config = {
-    TLV_TEXT_ASCII_PRINTABLE, 16, 16, 1
+    TLV_TEXT_ASCII_PRINTABLE, 16, 1
 };
 static const tlv_codec_t label_codec = {
     &label_config, tlv_text_decode, tlv_text_encode

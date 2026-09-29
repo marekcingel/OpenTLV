@@ -2,6 +2,7 @@
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
 #include "tlv/codec/number.h"
+#include "tlv/schema/number.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -60,12 +61,30 @@ TEST(Unit_Tlv_Emv, PublicTagConstantsMatchDefinitions) {
         ASSERT_NE(nullptr, entry);
         EXPECT_EQ(expected.expected_number, expected.number);
         EXPECT_EQ(expected.number, number_of(*expected.tag));
-        EXPECT_STREQ(expected.symbol, entry->name);
+        EXPECT_STREQ(expected.symbol, tlv_emv_symbol(entry));
         EXPECT_EQ(expected.min_length, entry->schema->min_length);
         EXPECT_EQ(expected.max_length, entry->schema->max_length);
-        EXPECT_EQ(expected.step, entry->length_step);
-        EXPECT_EQ(expected.kind, entry->value_kind);
+        EXPECT_EQ(expected.step, tlv_emv_length_step(entry));
+        EXPECT_EQ(expected.kind, tlv_emv_value_kind(entry));
         EXPECT_EQ(expected.has_codec, entry->codec != nullptr);
+        ASSERT_NE(nullptr, entry->definition);
+        EXPECT_EQ(entry->schema->tag.data, entry->definition->tag.data);
+        EXPECT_EQ(expected.tag->data, entry->definition->tag.data);
+        for (size_t length = 0; length <= 260; ++length) {
+            const bool permitted = length >= expected.min_length && length <= expected.max_length &&
+                                   (length - expected.min_length) % expected.step == 0;
+            EXPECT_EQ(permitted ? TLV_OK : TLV_ERR_INVALID_LENGTH,
+                      tlv_schema_validate_length(entry->schema, length));
+            EXPECT_EQ(tlv_schema_validate_length(entry->schema, length),
+                      tlv_emv_validate_length(entry, length));
+            if (!permitted && entry->codec) {
+                const uint8_t wire[261] = {};
+                uint64_t      output = 99;
+                EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+                          tlv_codec_decode(entry->codec, wire, length, &output, sizeof(output)));
+                EXPECT_EQ(99u, output);
+            }
+        }
     }
 }
 
@@ -95,8 +114,8 @@ TEST(Unit_Tlv_Emv, ContextPreventsTagCollisions) {
     const auto* biometric = find(tlv_emv_tag_amount_authorised_binary, TLV_EMV_CONTEXT_BHT);
     ASSERT_NE(nullptr, amount);
     ASSERT_NE(nullptr, biometric);
-    EXPECT_EQ(TLV_EMV_VALUE_NUMBER, amount->value_kind);
-    EXPECT_EQ(TLV_EMV_VALUE_BIOMETRIC, biometric->value_kind);
+    EXPECT_EQ(TLV_EMV_VALUE_NUMBER, tlv_emv_value_kind(amount));
+    EXPECT_EQ(TLV_EMV_VALUE_BIOMETRIC, tlv_emv_value_kind(biometric));
     EXPECT_EQ(TLV_OK, tlv_emv_validate_length(amount, 4));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(biometric, 4));
     EXPECT_EQ(nullptr, find(tlv_emv_tag_tvr, TLV_EMV_CONTEXT_BHT));
@@ -176,7 +195,7 @@ TEST(Unit_Tlv_Emv, NonContiguousLengthRules) {
                       tlv_schema_validate_length(definition->schema, length));
     }
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_afl), 5));
-    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(find(tlv_emv_tag_afl)->schema, 5));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(find(tlv_emv_tag_afl)->schema, 5));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_cvm_list), 11));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_bic), 9));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
@@ -508,13 +527,15 @@ TEST(Unit_Tlv_Emv, NumericConstantsInCSwitch) {
 TEST(Unit_Tlv_Emv, CallerOwnedDictionaryUsesTheSameLookupAndGenericCodec) {
     const std::vector<uint8_t>      bytes{0x9F, 0x02};
     const tlv_tag_t                 tag = tlv_tag(bytes.data(), bytes.size());
-    const tlv_number_codec_config_t config{TLV_NUMBER_BCD, 6, 6, 1, 12};
-    const tlv_codec_t               codec = tlv_number_codec(&config);
+    const tlv_number_codec_config_t config{TLV_NUMBER_BCD, 6, 12};
     const tlv_schema_entry_t        schema{tag, 6, 6, 0, "amount", 0};
+    const tlv_schema_number_t       composition{&schema, config};
+    const auto                      codec = tlv_schema_number_codec(&composition);
+    const tlv_definition_t          identifier{tag, "Amount"};
     const tlv_emv_definition_t      entries[] = {
-        {nullptr, "invalid", TLV_EMV_VALUE_NUMBER, nullptr, 1},
-        {&schema, "amount", TLV_EMV_VALUE_NUMBER, &codec, 1},
-        {&schema, "duplicate", TLV_EMV_VALUE_NUMBER, nullptr, 1}};
+        {nullptr, &schema, nullptr, TLV_EMV_SEMANTICS_NONE},
+        {&identifier, &schema, &codec, TLV_EMV_SEMANTICS_NONE},
+        {&identifier, &schema, nullptr, TLV_EMV_SEMANTICS_NONE}};
     const tlv_emv_dictionary_t dictionary{entries, 3};
     const auto*                entry = tlv_emv_dictionary_find(&dictionary, &tag);
     ASSERT_EQ(entries + 1, entry);
@@ -528,6 +549,10 @@ TEST(Unit_Tlv_Emv, CallerOwnedDictionaryUsesTheSameLookupAndGenericCodec) {
     ASSERT_NE(nullptr, builtin);
     EXPECT_EQ(builtin->codec->decode, codec.decode);
     EXPECT_EQ(builtin->codec->encode, codec.encode);
+    uint64_t builtin_value = 0;
+    EXPECT_EQ(TLV_CODEC_OK, tlv_codec_decode(builtin->codec, value, sizeof(value), &builtin_value,
+                                             sizeof(builtin_value)));
+    EXPECT_EQ(decoded, builtin_value);
     const auto unknown = TLV_TAG(0x81);
     EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&dictionary, &unknown));
     EXPECT_EQ(nullptr, tlv_emv_dictionary_find(nullptr, &tag));
@@ -539,4 +564,25 @@ TEST(Unit_Tlv_Emv, CallerOwnedDictionaryUsesTheSameLookupAndGenericCodec) {
     EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&dictionary, &bad));
     EXPECT_EQ(nullptr, tlv_emv_dictionary_for(TLV_EMV_CONTEXT_COUNT));
     EXPECT_EQ(nullptr, tlv_emv_dictionary_for(static_cast<tlv_emv_context_t>(-1)));
+}
+
+TEST(Unit_Tlv_Emv, CallerOwnedMetadataDoesNotInferRepresentationFromTag) {
+    const auto                 tag = TLV_TAG(0x9F, 0x02);
+    const tlv_definition_t     identifier{tag, "Caller field"};
+    const tlv_schema_entry_t   schema{tag, 1, 3, TLV_SCHEMA_LENGTH_ENDPOINTS, "caller", 0};
+    const tlv_codec_t          unknown{nullptr, nullptr, nullptr};
+    const tlv_emv_definition_t entry{&identifier, &schema, &unknown, TLV_EMV_SEMANTICS_NONE};
+    EXPECT_EQ(TLV_EMV_VALUE_UNKNOWN, tlv_emv_value_kind(&entry));
+    EXPECT_EQ(TLV_EMV_VALUE_UNKNOWN, tlv_emv_value_kind(nullptr));
+    EXPECT_STREQ("caller", tlv_emv_symbol(&entry));
+    EXPECT_EQ(TLV_OK, tlv_emv_validate_length(&entry, 1));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(&entry, 2));
+    EXPECT_EQ(TLV_OK, tlv_emv_validate_length(&entry, 3));
+    const tlv_emv_dictionary_t dictionary{&entry, 1};
+    EXPECT_EQ(&entry, tlv_emv_dictionary_find(&dictionary, &tag));
+    const tlv_definition_t     other{TLV_TAG(0x01), "Other"};
+    const tlv_emv_definition_t mismatch{&other, &schema, &unknown, TLV_EMV_SEMANTICS_NONE};
+    const tlv_emv_dictionary_t malformed{&mismatch, 1};
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&malformed, &tag));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&malformed, &other.tag));
 }

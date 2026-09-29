@@ -11,13 +11,14 @@ using Wire = std::vector<uint8_t>;
 
 // Template 77: AIP (82) and Application Cryptogram-like tag 9F36 are required, nothing else.
 const tlv_structure_rule_t rules77[] = {
-    {{TLV_TAG(0x82), 2, 2, 0, "aip", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {{TLV_TAG(0x82), 2, 2, 0, "aip", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL},
     {{TLV_TAG(0x9F, 0x36), 2, 2, 0, "application_cryptogram", 0},
      1,
      1,
      TLV_SCHEMA_PRIMITIVE,
      nullptr,
-     0},
+     0,
+     NULL},
 };
 const tlv_structure_schema_t schema77 = {rules77, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
@@ -28,20 +29,29 @@ const tlv_structure_rule_t rules70[] = {
      1,
      TLV_SCHEMA_PRIMITIVE,
      nullptr,
-     0},
-    {{TLV_TAG(0x5F, 0x24), 3, 3, 0, "expiration_date", 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+     0,
+     NULL},
+    {{TLV_TAG(0x5F, 0x24), 3, 3, 0, "expiration_date", 0},
+     0,
+     1,
+     TLV_SCHEMA_PRIMITIVE,
+     nullptr,
+     0,
+     NULL},
     {{TLV_TAG(0x77), 0, SIZE_MAX, 0, "response_message_template2", 0},
      0,
      1,
      TLV_SCHEMA_CONSTRUCTED,
      &schema77,
-     0},
+     0,
+     NULL},
     {{TLV_TAG(0x9F, 0x4A), 0, SIZE_MAX, 0, nullptr, 0},
      0,
      SIZE_MAX,
      TLV_SCHEMA_PRIMITIVE,
      nullptr,
-     0},
+     0,
+     NULL},
 };
 const tlv_structure_schema_t schema70 = {rules70, 4, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
@@ -51,7 +61,8 @@ const tlv_structure_rule_t rootRules[] = {
      1,
      TLV_SCHEMA_CONSTRUCTED,
      &schema70,
-     0},
+     0,
+     NULL},
 };
 const tlv_structure_schema_t rootSchema = {rootRules, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
@@ -136,7 +147,8 @@ TEST(Integration_Tlv_SchemaReport, EndpointLengthPolicySurvivesDiagnostics) {
          1,
          TLV_SCHEMA_PRIMITIVE,
          nullptr,
-         0}};
+         0,
+         NULL}};
     const tlv_structure_schema_t schema = {rules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     const auto                   result = runDiag({0x04, 0x02, 0xAA, 0xBB}, schema);
     ASSERT_EQ(1u, result.diagnostics.size());
@@ -154,6 +166,39 @@ TEST(Integration_Tlv_SchemaReport, AcceptsConformingTemplateWithoutViolations) {
     Outcome out = run(valid);
     EXPECT_EQ(TLV_OK, out.rc);
     EXPECT_EQ(0u, out.count);
+}
+
+TEST(Integration_Tlv_SchemaReport, BorrowedFieldIsAuthoritativeForValidationAndDiagnostics) {
+    const tlv_schema_entry_t field = {TLV_TAG(0x04), 1, 3, TLV_SCHEMA_LENGTH_ENDPOINTS,
+                                      "shared",      0};
+    // Deliberately contradictory inline data must be ignored by every validator.
+    const tlv_structure_rule_t   rules[] = {{{TLV_TAG(0x05), 100, 99, 0, "ignored", 0},
+                                             1,
+                                             1,
+                                             TLV_SCHEMA_PRIMITIVE,
+                                             nullptr,
+                                             0,
+                                             &field}};
+    const tlv_structure_schema_t schema = {rules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
+    const Wire                   wire = {0x04, 2, 0xAA, 0xBB};
+    EXPECT_EQ(&field, tlv_structure_rule_entry(rules));
+    EXPECT_EQ(nullptr, tlv_structure_rule_entry(nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_schema_validate(wire.data(), wire.size(), &tlv_format_ber, &schema,
+                                  TLV_WALK_MAX_DEPTH, 1000, nullptr));
+    const auto result = runDiag(wire, schema);
+    ASSERT_EQ(1u, result.diagnostics.size());
+    EXPECT_STREQ("shared", result.diagnostics[0].field);
+    EXPECT_EQ(1u, result.diagnostics[0].min_length);
+    EXPECT_EQ(3u, result.diagnostics[0].max_length);
+    EXPECT_EQ(static_cast<uint32_t>(TLV_SCHEMA_LENGTH_ENDPOINTS),
+              result.diagnostics[0].length_flags);
+    EXPECT_TRUE(runDiag({0x04, 1, 0xAA}, schema).diagnostics.empty());
+    const auto missing = runDiag({}, schema);
+    ASSERT_EQ(1u, missing.diagnostics.size());
+    EXPECT_EQ("", pathOf(missing.diagnostics[0]));
+    EXPECT_TRUE(tlv_tag_equal(field.tag, missing.diagnostics[0].tag));
+    EXPECT_STREQ("shared", missing.diagnostics[0].field);
 }
 
 TEST(Integration_Tlv_SchemaReport, ReportsMissingRequiredTagWithFullPathAndParentOffset) {
@@ -235,13 +280,15 @@ TEST(Integration_Tlv_SchemaReport, ReportsPrimitiveConstructedMismatchAndDoesNot
          1,
          TLV_SCHEMA_CONSTRUCTED,
          nullptr,
-         0},
+         0,
+         NULL},
         {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, "primitive_field", 0},
          0,
          1,
          TLV_SCHEMA_PRIMITIVE,
          nullptr,
-         0},
+         0,
+         NULL},
     };
     static const tlv_structure_schema_t kindSchema = {kindRules, 2, 0,
                                                       nullptr,   0, TLV_SCHEMA_ORDER_ANY};
@@ -327,8 +374,13 @@ TEST(Integration_Tlv_SchemaReport, RejectsInvalidArgumentsAndRuleTables) {
 TEST(Integration_Tlv_SchemaReport, LimitsSchemaNestingToThePathCapacity) {
     static tlv_structure_schema_t recursive;
     static tlv_structure_rule_t   recursiveRules[1];
-    recursiveRules[0] = {
-        {TLV_TAG(0x6F), 0, SIZE_MAX, 0, nullptr, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0};
+    recursiveRules[0] = {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, nullptr, 0},
+                         0,
+                         1,
+                         TLV_SCHEMA_CONSTRUCTED,
+                         &recursive,
+                         0,
+                         nullptr};
     recursive = {recursiveRules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
     Wire wire = {0x6F, 0x00};
@@ -468,13 +520,15 @@ TEST(Integration_Tlv_SchemaReport, DiagReportsPrimitiveConstructedMismatchDetail
          1,
          TLV_SCHEMA_CONSTRUCTED,
          nullptr,
-         0},
+         0,
+         NULL},
         {{TLV_TAG(0x6F), 0, SIZE_MAX, 0, "primitive_field", 0},
          0,
          1,
          TLV_SCHEMA_PRIMITIVE,
          nullptr,
-         0},
+         0,
+         NULL},
     };
     static const tlv_structure_schema_t kindSchema = {kindRules, 2, 0,
                                                       nullptr,   0, TLV_SCHEMA_ORDER_ANY};

@@ -107,10 +107,11 @@ tlv_visit_result_t validate_command::check_dictionary_element(const tlv_element_
     check_.offset = offset;
     std::ostringstream expected;
     expected << definition->schema->min_length << ".." << definition->schema->max_length;
-    if (definition->length_step > 1) expected << " (step " << definition->length_step << ")";
+    if (tlv_emv_length_step(definition) > 1)
+        expected << " (step " << tlv_emv_length_step(definition) << ")";
     check_.expected = expected.str();
     check_.actual = std::to_string(value_length);
-    check_.field_name = definition->name; // borrowed from the immutable dictionary tables
+    check_.field_name = tlv_emv_symbol(definition); // borrowed from the immutable dictionary tables
     return TLV_VISIT_STOP;
 }
 #else
