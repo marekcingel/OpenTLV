@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: tlv Directory Reference</title>
+<title>OpenTLV C API: tlv_digits_codec_config Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -67,21 +67,45 @@ $(function() {
 </div>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="dir_a3f9ba04959ce8c6652d691c0e4bba49.html">tlv</a></li>  </ul>
-</div>
 </div><!-- top -->
 <div class="header">
-  <div class="headertitle"><div class="title">tlv Directory Reference</div></div>
+  <div class="summary">
+<a href="#pub-attribs">Data Fields</a>  </div>
+  <div class="headertitle"><div class="title">tlv_digits_codec_config Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Borrowed immutable packed digit-string representation. Decode accepts trailing F nibbles, including full padding bytes. Width zero selects minimal encoding; a nonzero width selects fixed-width F padding. Empty strings are representable. Field length and digit-count constraints belong to Schema/domain validation. Storage must outlive its codec.  
+ <a href="structtlv__digits__codec__config.html#details">More...</a></p>
+
+<p><code>#include &lt;digits.h&gt;</code></p>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="subdirs" name="subdirs"></a>
-Directories</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><span class="iconfclosed"></span>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="dir_8b82bffcd3c512cd15acf505c369c9fa.html">builtins</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Data Fields</h2></td></tr>
+<tr class="memitem:aad1b4d061bd3d6d7a0250c202dac7777" id="r_aad1b4d061bd3d6d7a0250c202dac7777"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__digits__codec__config.html#aad1b4d061bd3d6d7a0250c202dac7777">width</a></td></tr>
+<tr class="separator:aad1b4d061bd3d6d7a0250c202dac7777"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Borrowed immutable packed digit-string representation. Decode accepts trailing F nibbles, including full padding bytes. Width zero selects minimal encoding; a nonzero width selects fixed-width F padding. Empty strings are representable. Field length and digit-count constraints belong to Schema/domain validation. Storage must outlive its codec. </p>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="aad1b4d061bd3d6d7a0250c202dac7777" name="aad1b4d061bd3d6d7a0250c202dac7777"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad1b4d061bd3d6d7a0250c202dac7777">&#9670;&#160;</a></span>width</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_digits_codec_config::width</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Fixed byte width, or zero for minimal encoding. </p>
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following file:<ul>
+<li>tlv/codec/<a class="el" href="digits_8h.html">digits.h</a></li>
+</ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -89,7 +89,7 @@ Data Fields</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>An identifier and its descriptive name. </p>
-<p>Both fields borrow immutable storage. No allocation, encoding rules, value interpretation or schema constraints are implied. </p>
+<p>Both fields borrow immutable storage. No allocation, encoding rules, value interpretation or schema constraints are implied. Identifier meaning is scoped to the selected registry, not global across standards. The name is descriptive, not a unique symbol or domain identity. Canonical identifier bytes need not equal the raw wire header bytes. Rich domain dictionaries may compose these entries with schema, codec and protocol metadata; such metadata does not belong in this generic contract. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a42e765aaea8d9a84909c6729b0b5bed7" name="a42e765aaea8d9a84909c6729b0b5bed7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a42e765aaea8d9a84909c6729b0b5bed7">&#9670;&#160;</a></span>name</h2>

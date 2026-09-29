@@ -72,6 +72,7 @@ $(function() {
   <div class="summary">
 <a href="#files">Files</a> &#124;
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a> &#124;
@@ -103,17 +104,29 @@ Files</h2></td></tr>
 <tr class="memitem:emv__codec_8h" id="r_emv__codec_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="emv__codec_8h.html">emv_codec.h</a></td></tr>
 <tr class="memdesc:emv__codec_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Semantic codecs and C representations for EMV data element values. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:presentation_8h" id="r_presentation_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="presentation_8h.html">presentation.h</a></td></tr>
+<tr class="memdesc:presentation_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional display and typed binding adapter for the builtin EMV profile. This adapter is not part of dictionary resolution or codec execution. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:builtins_2lldp_2codec_8h" id="r_builtins_2lldp_2codec_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2lldp_2codec_8h.html">codec.h</a></td></tr>
 <tr class="memdesc:builtins_2lldp_2codec_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free codecs for the LLDP base information strings. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:codec_2codec_8h" id="r_codec_2codec_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2codec_8h.html">codec.h</a></td></tr>
 <tr class="memdesc:codec_2codec_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value codec descriptors for converting raw TLV values to and from C representations. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:digits_8h" id="r_digits_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="digits_8h.html">digits.h</a></td></tr>
+<tr class="memdesc:digits_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decimal digit strings packed high nibble first with trailing F padding. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ipv4_8h" id="r_ipv4_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ipv4_8h.html">ipv4.h</a></td></tr>
 <tr class="memdesc:ipv4_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free IPv4 address and address list codecs. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:codec_2number_8h" id="r_codec_2number_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2number_8h.html">number.h</a></td></tr>
+<tr class="memdesc:codec_2number_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configurable unsigned integer and packed-decimal Value conversion. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:structure_8h" id="r_structure_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structure_8h.html">structure.h</a></td></tr>
 <tr class="memdesc:structure_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Codec bindings between a complete TLV sequence and one application object. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:text_8h" id="r_text_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="text_8h.html">text.h</a></td></tr>
+<tr class="memdesc:text_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Explicit ASCII text conversion with optional trailing zero padding. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:values_8h" id="r_values_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="values_8h.html">values.h</a></td></tr>
 <tr class="memdesc:values_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free fundamental integer and byte sequence codecs. <br /></td></tr>
@@ -212,6 +225,15 @@ Data Structures</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Descriptor mapping a complete TLV sequence to one caller-owned application object.  <a href="structtlv__structure__codec.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:ga05b87cc6cebac9f37c496b9096bac999" id="r_ga05b87cc6cebac9f37c496b9096bac999"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga05b87cc6cebac9f37c496b9096bac999">tlv_bluetooth_codec_uuid16</a>&#160;&#160;&#160;<a class="el" href="values_8h.html#a72d1faf0ff645ca471616cc11dd3cc55">tlv_codec_uint16_le</a></td></tr>
+<tr class="memdesc:ga05b87cc6cebac9f37c496b9096bac999"><td class="mdescLeft">&#160;</td><td class="mdescRight">Source alias of <a class="el" href="values_8h.html#a72d1faf0ff645ca471616cc11dd3cc55" title="Converts exactly two little-endian bytes to/from uint16_t.">tlv_codec_uint16_le</a>; no separate binary symbol. Requires no optional Bluetooth component.  <br /></td></tr>
+<tr class="separator:ga05b87cc6cebac9f37c496b9096bac999"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga39621698a4bb1f752738f8f893bc8f17" id="r_ga39621698a4bb1f752738f8f893bc8f17"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga39621698a4bb1f752738f8f893bc8f17">tlv_bluetooth_codec_uuid32</a>&#160;&#160;&#160;<a class="el" href="values_8h.html#a1bb77924e725b108040b7eab108759da">tlv_codec_uint32_le</a></td></tr>
+<tr class="memdesc:ga39621698a4bb1f752738f8f893bc8f17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Source alias of <a class="el" href="values_8h.html#a1bb77924e725b108040b7eab108759da" title="Converts exactly four little-endian bytes to/from uint32_t.">tlv_codec_uint32_le</a>; no separate binary symbol. Requires no optional Bluetooth component.  <br /></td></tr>
+<tr class="separator:ga39621698a4bb1f752738f8f893bc8f17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:gaec5421760b455d46e3e00715da90b1c1" id="r_gaec5421760b455d46e3e00715da90b1c1"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__asn1__bit__string.html">tlv_asn1_bit_string</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gaec5421760b455d46e3e00715da90b1c1">tlv_asn1_bit_string_t</a></td></tr>
@@ -304,29 +326,6 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga798c4638c9a55ff43b932d29586b5d78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined masks in the first Flags octet (CSS Part A, section 1.3).  <a href="group__codecs.html#ga798c4638c9a55ff43b932d29586b5d78">More...</a><br /></td></tr>
 <tr class="separator:ga798c4638c9a55ff43b932d29586b5d78"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga26f5dc718be113048f862c727c8ed6c1" id="r_ga26f5dc718be113048f862c727c8ed6c1"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">tlv_emv_value_kind_t</a> { <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a4931c654f4ede2a6730c12d43624aaff">TLV_EMV_VALUE_BYTES</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ac18eb9cbac255b6372b3f5586f3c447e">TLV_EMV_VALUE_TEXT</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a1792a38c8d476faab22551a0a7456330">TLV_EMV_VALUE_TEMPLATE</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ac028e81a3d46fae702e65b762e14b186">TLV_EMV_VALUE_NUMBER</a>
-, <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a3fb91105467dc44433cfb079f74ad091">TLV_EMV_VALUE_FLAGS</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ab4765d08613d1a8b328e3eae59e4d4e4">TLV_EMV_VALUE_DIGITS</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a3eca46ce83a786340e57e0d920a7aaa0">TLV_EMV_VALUE_DATE</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a129114d78026be92a036554484141fc1">TLV_EMV_VALUE_TIME</a>
-, <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ad0faf76a195adf8331a5b3c649dfa996">TLV_EMV_VALUE_ACCOUNT</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1af44508e49a6d79aeb7cfb1a9f5940fbf">TLV_EMV_VALUE_CRYPTOGRAM</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1af266a56d962d6f653e95cc415fa7a0a9">TLV_EMV_VALUE_BIOMETRIC</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ae588dd7a30824be2193f2d3656cab426">TLV_EMV_VALUE_NUMBER_LIST</a>
-, <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a58f618aa7411fd4403da70f1dcca7899">TLV_EMV_VALUE_AFL</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1adbe7264da0526e486eda3853fabf7024">TLV_EMV_VALUE_CVM_RESULT</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1aec5dc0a7009c33b78eb70e7fa188d3c5">TLV_EMV_VALUE_TRACK2</a>
-<br />
- }</td></tr>
-<tr class="memdesc:ga26f5dc718be113048f862c727c8ed6c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">C representation a semantic EMV codec converts a value to and from.  <a href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">More...</a><br /></td></tr>
-<tr class="separator:ga26f5dc718be113048f862c727c8ed6c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5fea94eb6f0d75aef6fe7b3a2fb0567a" id="r_ga5fea94eb6f0d75aef6fe7b3a2fb0567a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga5fea94eb6f0d75aef6fe7b3a2fb0567a">tlv_emv_account_type_t</a> { <a class="el" href="group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aad3ac9bddd5cd5627403c6d604e7e7127">TLV_EMV_ACCOUNT_DEFAULT</a> = 0
 , <a class="el" href="group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aa0bc78f898e9179e90fc480d0011b5d25">TLV_EMV_ACCOUNT_SAVINGS</a> = 10
 , <a class="el" href="group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aab77f1f5725c7119e8778c4f494377082">TLV_EMV_ACCOUNT_CHEQUE_DEBIT</a> = 20
@@ -352,15 +351,15 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gaaf0044fa9cb624a58696e6660ffea8e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Biometric type; undefined values are rejected by the codec.  <a href="group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">More...</a><br /></td></tr>
 <tr class="separator:gaaf0044fa9cb624a58696e6660ffea8e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabc5c98fcc1211af2b80116dd6e0a035d" id="r_gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggabc5c98fcc1211af2b80116dd6e0a035dae6c14b14e63e8a84a683cbad42f6284c">TLV_EMV_AFL_MAX_ENTRIES</a> = 63
+<tr class="memitem:gac36f475ca5b446f4fde4c9b90bec77c8" id="r_gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggac36f475ca5b446f4fde4c9b90bec77c8ae6c14b14e63e8a84a683cbad42f6284c">TLV_EMV_AFL_MAX_ENTRIES</a> = 63
  }</td></tr>
-<tr class="memdesc:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of AFL entries: 252 / 4.  <a href="group__codecs.html#gabc5c98fcc1211af2b80116dd6e0a035d">More...</a><br /></td></tr>
-<tr class="separator:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gac36f475ca5b446f4fde4c9b90bec77c8" id="r_gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggac36f475ca5b446f4fde4c9b90bec77c8a5f387811faa1c85d5b50891377301efb">TLV_EMV_TRACK2_PAN_MAX_DIGITS</a> = 19
-, <a class="el" href="group__codecs.html#ggac36f475ca5b446f4fde4c9b90bec77c8aab83be4e64aafbbc8777f4f3b02c98be">TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS</a> = 30
- }</td></tr>
-<tr class="memdesc:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of PAN digits in Track 2 Equivalent Data, and of discretionary digits.  <a href="group__codecs.html#gac36f475ca5b446f4fde4c9b90bec77c8">More...</a><br /></td></tr>
+<tr class="memdesc:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of AFL entries: 252 / 4.  <a href="group__codecs.html#gac36f475ca5b446f4fde4c9b90bec77c8">More...</a><br /></td></tr>
 <tr class="separator:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga05589fbab0657f08285ebdfe93f5ec9e" id="r_ga05589fbab0657f08285ebdfe93f5ec9e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#gga05589fbab0657f08285ebdfe93f5ec9ea5f387811faa1c85d5b50891377301efb">TLV_EMV_TRACK2_PAN_MAX_DIGITS</a> = 19
+, <a class="el" href="group__codecs.html#gga05589fbab0657f08285ebdfe93f5ec9eaab83be4e64aafbbc8777f4f3b02c98be">TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS</a> = 30
+ }</td></tr>
+<tr class="memdesc:ga05589fbab0657f08285ebdfe93f5ec9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of PAN digits in Track 2 Equivalent Data, and of discretionary digits.  <a href="group__codecs.html#ga05589fbab0657f08285ebdfe93f5ec9e">More...</a><br /></td></tr>
+<tr class="separator:ga05589fbab0657f08285ebdfe93f5ec9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5aefdf4a40140da8025256c425474b1a" id="r_ga5aefdf4a40140da8025256c425474b1a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga5aefdf4a40140da8025256c425474b1a">tlv_codec_result</a> { <br />
 &#160;&#160;<a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aac7febd810d4499676ac656cfaac83e51">TLV_CODEC_OK</a> = 0
 , <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>
@@ -388,9 +387,6 @@ Functions</h2></td></tr>
 <tr class="memitem:gaab5d092233db9472376dced8d1b09f53" id="r_gaab5d092233db9472376dced8d1b09f53"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#gaab5d092233db9472376dced8d1b09f53">tlv_bluetooth_uuid_list_at</a> (const <a class="el" href="group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908">tlv_bluetooth_uuid_list_t</a> *list, size_t index, void *value, size_t capacity)</td></tr>
 <tr class="memdesc:gaab5d092233db9472376dced8d1b09f53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes one UUID by index without allocation or advancing state.  <br /></td></tr>
 <tr class="separator:gaab5d092233db9472376dced8d1b09f53"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga79fa5b1488b431a86da823d7a27a29cb" id="r_ga79fa5b1488b431a86da823d7a27a29cb"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga79fa5b1488b431a86da823d7a27a29cb">tlv_emv_value_kind_description</a> (<a class="el" href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">tlv_emv_value_kind_t</a> kind)</td></tr>
-<tr class="memdesc:ga79fa5b1488b431a86da823d7a27a29cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes a value kind's C representation and wire meaning.  <br /></td></tr>
-<tr class="separator:ga79fa5b1488b431a86da823d7a27a29cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7de8d4351e9f4b98cd480ec634eced7a" id="r_ga7de8d4351e9f4b98cd480ec634eced7a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga7de8d4351e9f4b98cd480ec634eced7a">tlv_codec_decode</a> (const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> *codec, const uint8_t *data, size_t size, void *value, size_t capacity)</td></tr>
 <tr class="memdesc:ga7de8d4351e9f4b98cd480ec634eced7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes a raw value with a codec.  <br /></td></tr>
 <tr class="separator:ga7de8d4351e9f4b98cd480ec634eced7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -517,12 +513,6 @@ Variables</h2></td></tr>
 <tr class="memitem:ga85065b8ed22e2b19adfee7866c1cb42f" id="r_ga85065b8ed22e2b19adfee7866c1cb42f"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga85065b8ed22e2b19adfee7866c1cb42f">tlv_bluetooth_codec_service_data128</a></td></tr>
 <tr class="memdesc:ga85065b8ed22e2b19adfee7866c1cb42f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Service Data codec for AD Type 0x21, using <a class="el" href="group__codecs.html#gae82c78856868db9aedd9018ffed7c044" title="Service Data with a 128-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data128_t</a>.  <br /></td></tr>
 <tr class="separator:ga85065b8ed22e2b19adfee7866c1cb42f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga842de05f7755d67145b3c01cf30e7548" id="r_ga842de05f7755d67145b3c01cf30e7548"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga842de05f7755d67145b3c01cf30e7548">tlv_bluetooth_codec_uuid16</a></td></tr>
-<tr class="memdesc:ga842de05f7755d67145b3c01cf30e7548"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly two wire bytes to/from <code>uint16_t</code>.  <br /></td></tr>
-<tr class="separator:ga842de05f7755d67145b3c01cf30e7548"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga2dd1ca224e663d278df9d2a4af340eed" id="r_ga2dd1ca224e663d278df9d2a4af340eed"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga2dd1ca224e663d278df9d2a4af340eed">tlv_bluetooth_codec_uuid32</a></td></tr>
-<tr class="memdesc:ga2dd1ca224e663d278df9d2a4af340eed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly four wire bytes to/from <code>uint32_t</code>.  <br /></td></tr>
-<tr class="separator:ga2dd1ca224e663d278df9d2a4af340eed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga79e9303bfcbf57aae637be9e77db2684" id="r_ga79e9303bfcbf57aae637be9e77db2684"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga79e9303bfcbf57aae637be9e77db2684">tlv_bluetooth_codec_uuid128</a></td></tr>
 <tr class="memdesc:ga79e9303bfcbf57aae637be9e77db2684"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly 16 wire bytes to/from <a class="el" href="group__codecs.html#gae07dd0f5046612e06f8074acdb9edc7e" title="A 128-bit UUID in canonical most-significant-byte-first order.">tlv_bluetooth_uuid128_t</a>.  <br /></td></tr>
 <tr class="separator:ga79e9303bfcbf57aae637be9e77db2684"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -541,6 +531,39 @@ Variables</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Value conversion and structured codecs, including EMV values. Guides: <a href="https://marekcingel.github.io/OpenTLV/guides/codecs/">value codecs</a>. </p>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="ga05b87cc6cebac9f37c496b9096bac999" name="ga05b87cc6cebac9f37c496b9096bac999"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga05b87cc6cebac9f37c496b9096bac999">&#9670;&#160;</a></span>tlv_bluetooth_codec_uuid16</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define tlv_bluetooth_codec_uuid16&#160;&#160;&#160;<a class="el" href="values_8h.html#a72d1faf0ff645ca471616cc11dd3cc55">tlv_codec_uint16_le</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Source alias of <a class="el" href="values_8h.html#a72d1faf0ff645ca471616cc11dd3cc55" title="Converts exactly two little-endian bytes to/from uint16_t.">tlv_codec_uint16_le</a>; no separate binary symbol. Requires no optional Bluetooth component. </p>
+
+</div>
+</div>
+<a id="ga39621698a4bb1f752738f8f893bc8f17" name="ga39621698a4bb1f752738f8f893bc8f17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga39621698a4bb1f752738f8f893bc8f17">&#9670;&#160;</a></span>tlv_bluetooth_codec_uuid32</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define tlv_bluetooth_codec_uuid32&#160;&#160;&#160;<a class="el" href="values_8h.html#a1bb77924e725b108040b7eab108759da">tlv_codec_uint32_le</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Source alias of <a class="el" href="values_8h.html#a1bb77924e725b108040b7eab108759da" title="Converts exactly four little-endian bytes to/from uint32_t.">tlv_codec_uint32_le</a>; no separate binary symbol. Requires no optional Bluetooth component. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Typedef Documentation</h2>
 <a id="gaec5421760b455d46e3e00715da90b1c1" name="gaec5421760b455d46e3e00715da90b1c1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaec5421760b455d46e3e00715da90b1c1">&#9670;&#160;</a></span>tlv_asn1_bit_string_t</h2>
@@ -919,6 +942,7 @@ Variables</h2></td></tr>
 
 <p>Borrowed codec descriptor with an optional immutable context. </p>
 <p>A descriptor neither allocates nor takes ownership of anything. Each codec documents its C representation and required alignment; callers supply correctly typed and aligned objects. Capacities and sizes are in bytes. Callbacks must respect bounds and must not require heap allocation.</p>
+<p>Value conversion is independent of the enclosing element's tag. The caller or a domain dictionary selects the codec before invoking it; a value codec must not resolve that tag through a Definition registry or domain dictionary. Structure codecs may interpret nested elements by composing Reader/Writer, schema and value codecs; they still do not select themselves by an enclosing tag.</p>
 <ul>
 <li><b>Decode</b> consumes the entire raw value and may return a representation that borrows the input bytes; that input must then outlive the representation.</li>
 <li><b>Encode</b> with <code>data == NULL</code> and <code>capacity == 0</code> validates the value and reports its exact encoded size without writing. A normal success reports the bytes written.</li>
@@ -991,8 +1015,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="gabc5c98fcc1211af2b80116dd6e0a035d" name="gabc5c98fcc1211af2b80116dd6e0a035d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gabc5c98fcc1211af2b80116dd6e0a035d">&#9670;&#160;</a></span>anonymous enum</h2>
+<a id="gac36f475ca5b446f4fde4c9b90bec77c8" name="gac36f475ca5b446f4fde4c9b90bec77c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac36f475ca5b446f4fde4c9b90bec77c8">&#9670;&#160;</a></span>anonymous enum</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1006,13 +1030,13 @@ Variables</h2></td></tr>
 <p>Maximum number of AFL entries: 252 / 4. </p>
 <p>The largest AFL value permitted by the Book 3 dictionary (afl, tag 94) divided by the fixed four-byte entry size. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggabc5c98fcc1211af2b80116dd6e0a035dae6c14b14e63e8a84a683cbad42f6284c" name="ggabc5c98fcc1211af2b80116dd6e0a035dae6c14b14e63e8a84a683cbad42f6284c"></a>TLV_EMV_AFL_MAX_ENTRIES&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggac36f475ca5b446f4fde4c9b90bec77c8ae6c14b14e63e8a84a683cbad42f6284c" name="ggac36f475ca5b446f4fde4c9b90bec77c8ae6c14b14e63e8a84a683cbad42f6284c"></a>TLV_EMV_AFL_MAX_ENTRIES&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
 </div>
-<a id="gac36f475ca5b446f4fde4c9b90bec77c8" name="gac36f475ca5b446f4fde4c9b90bec77c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gac36f475ca5b446f4fde4c9b90bec77c8">&#9670;&#160;</a></span>anonymous enum</h2>
+<a id="ga05589fbab0657f08285ebdfe93f5ec9e" name="ga05589fbab0657f08285ebdfe93f5ec9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga05589fbab0657f08285ebdfe93f5ec9e">&#9670;&#160;</a></span>anonymous enum</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1025,8 +1049,8 @@ Variables</h2></td></tr>
 
 <p>Maximum number of PAN digits in Track 2 Equivalent Data, and of discretionary digits. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggac36f475ca5b446f4fde4c9b90bec77c8a5f387811faa1c85d5b50891377301efb" name="ggac36f475ca5b446f4fde4c9b90bec77c8a5f387811faa1c85d5b50891377301efb"></a>TLV_EMV_TRACK2_PAN_MAX_DIGITS&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ggac36f475ca5b446f4fde4c9b90bec77c8aab83be4e64aafbbc8777f4f3b02c98be" name="ggac36f475ca5b446f4fde4c9b90bec77c8aab83be4e64aafbbc8777f4f3b02c98be"></a>TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga05589fbab0657f08285ebdfe93f5ec9ea5f387811faa1c85d5b50891377301efb" name="gga05589fbab0657f08285ebdfe93f5ec9ea5f387811faa1c85d5b50891377301efb"></a>TLV_EMV_TRACK2_PAN_MAX_DIGITS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="gga05589fbab0657f08285ebdfe93f5ec9eaab83be4e64aafbbc8777f4f3b02c98be" name="gga05589fbab0657f08285ebdfe93f5ec9eaab83be4e64aafbbc8777f4f3b02c98be"></a>TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -1164,56 +1188,6 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="ggad9ef9a150810bfd246dd8f3b25bd01ffa353baabfbceb3e50209eea17307b3ac4" name="ggad9ef9a150810bfd246dd8f3b25bd01ffa353baabfbceb3e50209eea17307b3ac4"></a>TLV_EMV_CRYPTOGRAM_ARQC&#160;</td><td class="fielddoc"><p>Authorisation Request Cryptogram (ARQC). </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggad9ef9a150810bfd246dd8f3b25bd01ffaa57fa62fbedfceaa73e8bab0e324be83" name="ggad9ef9a150810bfd246dd8f3b25bd01ffaa57fa62fbedfceaa73e8bab0e324be83"></a>TLV_EMV_CRYPTOGRAM_RFU&#160;</td><td class="fielddoc"><p>Reserved for future use; represented explicitly rather than rejected. </p>
-</td></tr>
-</table>
-
-</div>
-</div>
-<a id="ga26f5dc718be113048f862c727c8ed6c1" name="ga26f5dc718be113048f862c727c8ed6c1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga26f5dc718be113048f862c727c8ed6c1">&#9670;&#160;</a></span>tlv_emv_value_kind_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">tlv_emv_value_kind_t</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>C representation a semantic EMV codec converts a value to and from. </p>
-<p><a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a4931c654f4ede2a6730c12d43624aaff">TLV_EMV_VALUE_BYTES</a>, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ac18eb9cbac255b6372b3f5586f3c447e">TLV_EMV_VALUE_TEXT</a> and <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a1792a38c8d476faab22551a0a7456330">TLV_EMV_VALUE_TEMPLATE</a> have no codec: callers retain the reader's borrowed value. Text does not imply UTF-8 or a terminating NUL. <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a3fb91105467dc44433cfb079f74ad091">TLV_EMV_VALUE_FLAGS</a> preserves every wire bit, including RFU bits, in a big-endian integer.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__codecs.html#ga79fa5b1488b431a86da823d7a27a29cb" title="Describes a value kind&#39;s C representation and wire meaning.">tlv_emv_value_kind_description</a> </dd></dl>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1a4931c654f4ede2a6730c12d43624aaff" name="gga26f5dc718be113048f862c727c8ed6c1a4931c654f4ede2a6730c12d43624aaff"></a>TLV_EMV_VALUE_BYTES&#160;</td><td class="fielddoc"><p>Opaque bytes; no codec. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1ac18eb9cbac255b6372b3f5586f3c447e" name="gga26f5dc718be113048f862c727c8ed6c1ac18eb9cbac255b6372b3f5586f3c447e"></a>TLV_EMV_VALUE_TEXT&#160;</td><td class="fielddoc"><p>Text bytes, not necessarily UTF-8 or NUL-terminated; no codec. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1a1792a38c8d476faab22551a0a7456330" name="gga26f5dc718be113048f862c727c8ed6c1a1792a38c8d476faab22551a0a7456330"></a>TLV_EMV_VALUE_TEMPLATE&#160;</td><td class="fielddoc"><p>Semantic template of nested data objects; no codec. May have a primitive wire bit. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1ac028e81a3d46fae702e65b762e14b186" name="gga26f5dc718be113048f862c727c8ed6c1ac028e81a3d46fae702e65b762e14b186"></a>TLV_EMV_VALUE_NUMBER&#160;</td><td class="fielddoc"><p><code>uint64_t</code>: binary or decimal BCD number. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1a3fb91105467dc44433cfb079f74ad091" name="gga26f5dc718be113048f862c727c8ed6c1a3fb91105467dc44433cfb079f74ad091"></a>TLV_EMV_VALUE_FLAGS&#160;</td><td class="fielddoc"><p><code>uint64_t</code>: bit flags, every wire bit preserved. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1ab4765d08613d1a8b328e3eae59e4d4e4" name="gga26f5dc718be113048f862c727c8ed6c1ab4765d08613d1a8b328e3eae59e4d4e4"></a>TLV_EMV_VALUE_DIGITS&#160;</td><td class="fielddoc"><p><code>char[]</code>: NUL-terminated decimal digits. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1a3eca46ce83a786340e57e0d920a7aaa0" name="gga26f5dc718be113048f862c727c8ed6c1a3eca46ce83a786340e57e0d920a7aaa0"></a>TLV_EMV_VALUE_DATE&#160;</td><td class="fielddoc"><p><a class="el" href="structtlv__emv__date__t.html" title="Decoded EMV date (BCD YYMMDD on the wire).">tlv_emv_date_t</a>. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1a129114d78026be92a036554484141fc1" name="gga26f5dc718be113048f862c727c8ed6c1a129114d78026be92a036554484141fc1"></a>TLV_EMV_VALUE_TIME&#160;</td><td class="fielddoc"><p><a class="el" href="structtlv__emv__time__t.html" title="Decoded EMV time (BCD HHMMSS on the wire).">tlv_emv_time_t</a>. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1ad0faf76a195adf8331a5b3c649dfa996" name="gga26f5dc718be113048f862c727c8ed6c1ad0faf76a195adf8331a5b3c649dfa996"></a>TLV_EMV_VALUE_ACCOUNT&#160;</td><td class="fielddoc"><p><a class="el" href="group__codecs.html#ga5fea94eb6f0d75aef6fe7b3a2fb0567a" title="EMV account type; undefined values are rejected by the codec.">tlv_emv_account_type_t</a>. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1af44508e49a6d79aeb7cfb1a9f5940fbf" name="gga26f5dc718be113048f862c727c8ed6c1af44508e49a6d79aeb7cfb1a9f5940fbf"></a>TLV_EMV_VALUE_CRYPTOGRAM&#160;</td><td class="fielddoc"><p><a class="el" href="structtlv__emv__cryptogram__info__t.html" title="Decoded Cryptogram Information Data.">tlv_emv_cryptogram_info_t</a>. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1af266a56d962d6f653e95cc415fa7a0a9" name="gga26f5dc718be113048f862c727c8ed6c1af266a56d962d6f653e95cc415fa7a0a9"></a>TLV_EMV_VALUE_BIOMETRIC&#160;</td><td class="fielddoc"><p><a class="el" href="group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2" title="Biometric type; undefined values are rejected by the codec.">tlv_emv_biometric_type_t</a>. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1ae588dd7a30824be2193f2d3656cab426" name="gga26f5dc718be113048f862c727c8ed6c1ae588dd7a30824be2193f2d3656cab426"></a>TLV_EMV_VALUE_NUMBER_LIST&#160;</td><td class="fielddoc"><p><a class="el" href="structtlv__emv__number__list__t.html" title="Decoded list of up to four numbers.">tlv_emv_number_list_t</a>. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1a58f618aa7411fd4403da70f1dcca7899" name="gga26f5dc718be113048f862c727c8ed6c1a58f618aa7411fd4403da70f1dcca7899"></a>TLV_EMV_VALUE_AFL&#160;</td><td class="fielddoc"><p><a class="el" href="structtlv__emv__afl__t.html" title="Decoded Application File Locator.">tlv_emv_afl_t</a>. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1adbe7264da0526e486eda3853fabf7024" name="gga26f5dc718be113048f862c727c8ed6c1adbe7264da0526e486eda3853fabf7024"></a>TLV_EMV_VALUE_CVM_RESULT&#160;</td><td class="fielddoc"><p><a class="el" href="structtlv__emv__cvm__result__t.html" title="CVM Results (Book 3 Annex C6), preserved raw.">tlv_emv_cvm_result_t</a>. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="gga26f5dc718be113048f862c727c8ed6c1aec5dc0a7009c33b78eb70e7fa188d3c5" name="gga26f5dc718be113048f862c727c8ed6c1aec5dc0a7009c33b78eb70e7fa188d3c5"></a>TLV_EMV_VALUE_TRACK2&#160;</td><td class="fielddoc"><p><a class="el" href="structtlv__emv__track2__t.html" title="Decoded Track 2 Equivalent Data (Book 3 Annex III, ISO 7813).">tlv_emv_track2_t</a>. </p>
 </td></tr>
 </table>
 
@@ -1571,34 +1545,6 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A static, NUL-terminated string. The caller must not free or modify it. </dd></dl>
-
-</div>
-</div>
-<a id="ga79fa5b1488b431a86da823d7a27a29cb" name="ga79fa5b1488b431a86da823d7a27a29cb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga79fa5b1488b431a86da823d7a27a29cb">&#9670;&#160;</a></span>tlv_emv_value_kind_description()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char * tlv_emv_value_kind_description </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">tlv_emv_value_kind_t</a>&#160;</td>
-          <td class="paramname"><em>kind</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Describes a value kind's C representation and wire meaning. </p>
-<p>Intended for diagnostics or tooling, for example <code>"Bit flags"</code> for <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a3fb91105467dc44433cfb079f74ad091">TLV_EMV_VALUE_FLAGS</a>.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">kind</td><td>Value kind to describe.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>A static, NUL-terminated description, never <code>NULL</code>. Every declared kind has one; any other value returns <code>"Unspecified representation"</code>. </dd></dl>
 
 </div>
 </div>
@@ -2527,8 +2473,8 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Local Name codec for AD Types 0x08 and 0x09, using a borrowed <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>. </p>
-<p>Both shortened and complete names use the same codec. Accepts 0 through 248 bytes of valid UTF-8, including embedded U+0000; no NUL terminator is appended or required. Length is in bytes, not characters. Encode copies exactly the supplied bytes. The caller retains the AD Type to distinguish a shortened name from a complete name; no full-name comparison is made.</p>
-<p>Both directions report <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> for excessive length, malformed/truncated UTF-8, overlong encodings, surrogates or code points above U+10FFFF. A nonempty NULL span is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>; insufficient destination capacity is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>.</p>
+<p>Both shortened and complete names use the same codec. Accepts valid UTF-8 of any native length, including embedded U+0000; no NUL terminator is appended or required. Length is in bytes, not characters. Encode copies exactly the supplied bytes. The caller retains the AD Type to distinguish a shortened name from a complete name; no full-name comparison is made.</p>
+<p>The 248-byte field limit belongs to tlv_bluetooth_ad_schema. Both directions report <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a> for malformed/truncated UTF-8, overlong encodings, surrogates or code points above U+10FFFF. A nonempty NULL span is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>; insufficient destination capacity is <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>.</p>
 <dl class="section see"><dt>See also</dt><dd><a href="https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html">https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html</a> </dd></dl>
 
 </div>
@@ -2629,7 +2575,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Service Data codec for AD Type 0x16, using <a class="el" href="group__codecs.html#gaf516bf8a267edeb4de5364bf48a2dcf4" title="Service Data with a 16-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data16_t</a>. </p>
-<p>Decode requires at least 2 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga842de05f7755d67145b3c01cf30e7548" title="Converts exactly two wire bytes to/from uint16_t.">tlv_bluetooth_codec_uuid16</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
+<p>Decode requires at least 2 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga05b87cc6cebac9f37c496b9096bac999" title="Source alias of tlv_codec_uint16_le; no separate binary symbol. Requires no optional Bluetooth compon...">tlv_bluetooth_codec_uuid16</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
 
 </div>
 </div>
@@ -2654,7 +2600,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Service Data codec for AD Type 0x20, using <a class="el" href="group__codecs.html#gadec783bc1ef90f1e6881a25687154de5" title="Service Data with a 32-bit UUID and borrowed opaque payload.">tlv_bluetooth_service_data32_t</a>. </p>
-<p>Decode requires at least 4 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga2dd1ca224e663d278df9d2a4af340eed" title="Converts exactly four wire bytes to/from uint32_t.">tlv_bluetooth_codec_uuid32</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
+<p>Decode requires at least 4 UUID bytes; the remainder is borrowed as payload. Encode regenerates the UUID through <a class="el" href="group__codecs.html#ga39621698a4bb1f752738f8f893bc8f17" title="Source alias of tlv_codec_uint32_le; no separate binary symbol. Requires no optional Bluetooth compon...">tlv_bluetooth_codec_uuid32</a> and copies payload unchanged. Empty payloads are valid; no AD framing size limit applies. A short UUID, incorrect encode object size, non-native payload size or total size overflow returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>. Missing required pointers or nonempty NULL payload return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. Insufficient output capacity returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. Neither direction allocates. </p>
 
 </div>
 </div>
@@ -2708,30 +2654,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ga842de05f7755d67145b3c01cf30e7548" name="ga842de05f7755d67145b3c01cf30e7548"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga842de05f7755d67145b3c01cf30e7548">&#9670;&#160;</a></span>tlv_bluetooth_codec_uuid16</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_bluetooth_codec_uuid16</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Converts exactly two wire bytes to/from <code>uint16_t</code>. </p>
-
-</div>
-</div>
 <a id="ga8d41d988308320da3c1a8d508235b1bf" name="ga8d41d988308320da3c1a8d508235b1bf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga8d41d988308320da3c1a8d508235b1bf">&#9670;&#160;</a></span>tlv_bluetooth_codec_uuid16_list</h2>
 
@@ -2754,30 +2676,6 @@ Variables</h2></td></tr>
 
 <p>UUID16 list codec using <a class="el" href="group__codecs.html#ga46e7a4a78d27c5ff93b99aca25766908" title="Borrowed UUID list, retaining all original bytes in wire order.">tlv_bluetooth_uuid_list_t</a> (width 2). </p>
 <p>Decode borrows the input and validates its length is a multiple of the UUID width, including zero. Encode validates the view and copies its raw bytes exactly. A mismatched width, partial UUID or size exceeding SIZE_MAX returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>; nonempty NULL data returns <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>. No AD framing limit or completeness policy applies. Use for AD Types 0x02 and 0x03; retain the AD Type separately. </p>
-
-</div>
-</div>
-<a id="ga2dd1ca224e663d278df9d2a4af340eed" name="ga2dd1ca224e663d278df9d2a4af340eed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga2dd1ca224e663d278df9d2a4af340eed">&#9670;&#160;</a></span>tlv_bluetooth_codec_uuid32</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_bluetooth_codec_uuid32</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Converts exactly four wire bytes to/from <code>uint32_t</code>. </p>
 
 </div>
 </div>

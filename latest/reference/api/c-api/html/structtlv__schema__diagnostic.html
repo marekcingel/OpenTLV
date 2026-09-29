@@ -118,6 +118,8 @@ Data Fields</h2></td></tr>
 <tr class="separator:a019f857940904b200295824ddba202db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab314a9325c1f7d0de54bf88701bc0fa1" id="r_ab314a9325c1f7d0de54bf88701bc0fa1"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#ab314a9325c1f7d0de54bf88701bc0fa1">length_multiple</a></td></tr>
 <tr class="separator:ab314a9325c1f7d0de54bf88701bc0fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab155844647b309fc9ccf17c3ff1a767d" id="r_ab155844647b309fc9ccf17c3ff1a767d"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#ab155844647b309fc9ccf17c3ff1a767d">length_flags</a></td></tr>
+<tr class="separator:ab155844647b309fc9ccf17c3ff1a767d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Structured detail for one violation found by <a class="el" href="group__schemas.html#ga1cdee0d758d2b8cc4043806b60542f6c" title="Validates a TLV structure and reports every schema violation as a tlv_schema_diagnostic_t.">tlv_schema_validate_all_diag()</a>. </p>
@@ -197,7 +199,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Borrowed schema name for <code>tag</code> (the violated rule's <code>entry.name</code>, or the violated group's <code>name</code> when <code>is_group</code> is nonzero), or <code>NULL</code> if it has none or no rule matched (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfdafc246b6e80fb54d8e829aec4992776a6">TLV_SCHEMA_ISSUE_UNEXPECTED</a>). </p>
+<p>Borrowed schema name for <code>tag</code> (the violated rule's <code>entry-&gt;name</code>, or the violated group's <code>name</code> when <code>is_group</code> is nonzero), or <code>NULL</code> if it has none or no rule matched (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfdafc246b6e80fb54d8e829aec4992776a6">TLV_SCHEMA_ISSUE_UNEXPECTED</a>). </p>
 
 </div>
 </div>
@@ -227,7 +229,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Nonzero if <code>min_length</code>, <code>max_length</code>, <code>actual_length</code> and <code>length_multiple</code> are set (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f">TLV_SCHEMA_ISSUE_LENGTH</a>). </p>
+<p>Nonzero if <code>min_length</code>, <code>max_length</code>, <code>actual_length</code>, <code>length_multiple</code> and <code>length_flags</code> are set (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f">TLV_SCHEMA_ISSUE_LENGTH</a>). </p>
 
 </div>
 </div>
@@ -273,6 +275,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Which rule was violated; same meaning as <a class="el" href="structtlv__schema__issue.html#a60703cc66aa114c4df0203a5aa8116d0">tlv_schema_issue_t::kind</a>. </p>
+
+</div>
+</div>
+<a id="ab155844647b309fc9ccf17c3ff1a767d" name="ab155844647b309fc9ccf17c3ff1a767d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab155844647b309fc9ccf17c3ff1a767d">&#9670;&#160;</a></span>length_flags</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t tlv_schema_diagnostic::length_flags</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Schema length-policy flags, including <a class="el" href="group__schemas.html#ggaf9bdc3014f3d54c426b6d2df10de4960acc3339f15dea2994e9d305ae3c4d518a">TLV_SCHEMA_LENGTH_ENDPOINTS</a>, when has_length. </p>
 
 </div>
 </div>

@@ -75,6 +75,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">codec.h File Reference<div class="ingroups"><a class="el" href="group__codecs.html">Codecs</a></div></div></div>
@@ -83,7 +84,7 @@ $(function() {
 
 <p>Allocation-free codecs for the LLDP base information strings.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="codec_2codec_8h.html">tlv/codec/codec.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="values_8h.html">tlv/codec/values.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="value_8h.html">tlv/value.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -100,6 +101,15 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__lldp__organisation.html">tlv_lldp_organisation</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic organisational information string, without vendor dispatch.  <a href="structtlv__lldp__organisation.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a4d6fccc37ce85382456bef746e863a8c" id="r_a4d6fccc37ce85382456bef746e863a8c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2lldp_2codec_8h.html#a4d6fccc37ce85382456bef746e863a8c">tlv_lldp_codec_ttl</a>&#160;&#160;&#160;<a class="el" href="values_8h.html#a4019a00d5e6489aa11b1f092f08813a1">tlv_codec_uint16_be</a></td></tr>
+<tr class="memdesc:a4d6fccc37ce85382456bef746e863a8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Source alias of <a class="el" href="values_8h.html#a4019a00d5e6489aa11b1f092f08813a1" title="Converts exactly two big-endian bytes to/from uint16_t.">tlv_codec_uint16_be</a> for TTL (Type 3), including zero. No separate binary symbol or domain dispatcher is used.  <br /></td></tr>
+<tr class="separator:a4d6fccc37ce85382456bef746e863a8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5af0d0c2975a6e5d6534b6cc32a36ce3" id="r_a5af0d0c2975a6e5d6534b6cc32a36ce3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2lldp_2codec_8h.html#a5af0d0c2975a6e5d6534b6cc32a36ce3">tlv_lldp_codec_text</a>&#160;&#160;&#160;<a class="el" href="values_8h.html#a44c314b294101bf6857aa434d3fa66b0">tlv_codec_bytes</a></td></tr>
+<tr class="memdesc:a5af0d0c2975a6e5d6534b6cc32a36ce3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Text information codec for Types 4, 5 and 6, represented by <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>.  <br /></td></tr>
+<tr class="separator:a5af0d0c2975a6e5d6534b6cc32a36ce3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -124,12 +134,6 @@ Variables</h2></td></tr>
 <tr class="memitem:a0b96a5dada7b8b62717f2379eb45912b" id="r_a0b96a5dada7b8b62717f2379eb45912b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2lldp_2codec_8h.html#a0b96a5dada7b8b62717f2379eb45912b">tlv_lldp_codec_port_id</a></td></tr>
 <tr class="memdesc:a0b96a5dada7b8b62717f2379eb45912b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Port ID codec (Type 2), represented by <a class="el" href="builtins_2lldp_2codec_8h.html#ad3b4bb2fd5578dc4f9abfaf80ae6ecf1" title="Chassis or Port ID: subtype plus borrowed identifier octets.">tlv_lldp_id_t</a>.  <br /></td></tr>
 <tr class="separator:a0b96a5dada7b8b62717f2379eb45912b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa27304fea8e1e514b6a09c67c0af819b" id="r_aa27304fea8e1e514b6a09c67c0af819b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2lldp_2codec_8h.html#aa27304fea8e1e514b6a09c67c0af819b">tlv_lldp_codec_ttl</a></td></tr>
-<tr class="memdesc:aa27304fea8e1e514b6a09c67c0af819b"><td class="mdescLeft">&#160;</td><td class="mdescRight">TTL codec (Type 3): uint16_t seconds encoded as two big-endian bytes, including zero.  <br /></td></tr>
-<tr class="separator:aa27304fea8e1e514b6a09c67c0af819b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48c7e75bd085b980a66ca1244b6c44ea" id="r_a48c7e75bd085b980a66ca1244b6c44ea"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2lldp_2codec_8h.html#a48c7e75bd085b980a66ca1244b6c44ea">tlv_lldp_codec_text</a></td></tr>
-<tr class="memdesc:a48c7e75bd085b980a66ca1244b6c44ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Text information codec for Types 4, 5 and 6, represented by <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>.  <br /></td></tr>
-<tr class="separator:a48c7e75bd085b980a66ca1244b6c44ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5cea4b045e19620a986b415fca93a428" id="r_a5cea4b045e19620a986b415fca93a428"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2lldp_2codec_8h.html#a5cea4b045e19620a986b415fca93a428">tlv_lldp_codec_capabilities</a></td></tr>
 <tr class="memdesc:a5cea4b045e19620a986b415fca93a428"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type 7 codec: <a class="el" href="builtins_2lldp_2codec_8h.html#ada1e8adb2814c168a06e05eeac13fd16" title="System Capabilities and Enabled Capabilities bitmaps.">tlv_lldp_capabilities_t</a> as two big-endian 16-bit fields.  <br /></td></tr>
 <tr class="separator:a5cea4b045e19620a986b415fca93a428"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -142,8 +146,42 @@ Variables</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Allocation-free codecs for the LLDP base information strings. </p>
-<p>Requires <code>OPENTLV_LLDP=ON</code>. Descriptors have static lifetime. Decode borrows variable-length fields; keep input storage alive and unchanged. Encode takes exactly sizeof the documented C representation; decode needs at least that capacity. Use <a class="el" href="group__codecs.html#ga6ab3f99685db43f4572a27c3ddae2a62" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode()</a> with NULL/0 for validated size queries. Input and output must not overlap. Invalid lengths or field values return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>, nonempty NULL spans <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>, and insufficient output capacity <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. These codecs interpret Values only, without framing or sequence validation. </p>
-</div><h2 class="groupheader">Typedef Documentation</h2>
+<p>Specialized descriptors require <code>OPENTLV_LLDP=ON</code>; the TTL/text source aliases use core codecs and need no optional component. Descriptors have static lifetime. Decode borrows variable-length fields; keep input storage alive and unchanged. Encode takes exactly sizeof the documented C representation; decode needs at least that capacity. Use <a class="el" href="group__codecs.html#ga6ab3f99685db43f4572a27c3ddae2a62" title="Encodes a C representation into raw value bytes with a codec.">tlv_codec_encode()</a> with NULL/0 for validated size queries. Input and output must not overlap. Invalid lengths or field values return <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa2dde6f557037bd68cdf6004636648291">TLV_CODEC_ERR_INVALID_VALUE</a>, nonempty NULL spans <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aaa8a374fe8d72bbae4f25046774dcc686">TLV_CODEC_ERR_NULL_ARG</a>, and insufficient output capacity <a class="el" href="group__codecs.html#gga5aefdf4a40140da8025256c425474b1aa187607751b25c1e4b9a9c2032e93f4d2">TLV_CODEC_ERR_BUFFER_TOO_SHORT</a>. These codecs interpret Values only, without framing or sequence validation. </p>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a5af0d0c2975a6e5d6534b6cc32a36ce3" name="a5af0d0c2975a6e5d6534b6cc32a36ce3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5af0d0c2975a6e5d6534b6cc32a36ce3">&#9670;&#160;</a></span>tlv_lldp_codec_text</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define tlv_lldp_codec_text&#160;&#160;&#160;<a class="el" href="values_8h.html#a44c314b294101bf6857aa434d3fa66b0">tlv_codec_bytes</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Text information codec for Types 4, 5 and 6, represented by <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>. </p>
+<p>Source alias of <a class="el" href="values_8h.html#a44c314b294101bf6857aa434d3fa66b0" title="Converts arbitrary bytes to/from a borrowed tlv_value_t.">tlv_codec_bytes</a>; no separate binary symbol. Preserves arbitrary octets exactly, without a terminator, character conversion, UTF-8 validation or locale interpretation. An empty string is representable. The LLDP field limit of 255 octets belongs to tlv_lldp_schema. </p>
+
+</div>
+</div>
+<a id="a4d6fccc37ce85382456bef746e863a8c" name="a4d6fccc37ce85382456bef746e863a8c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d6fccc37ce85382456bef746e863a8c">&#9670;&#160;</a></span>tlv_lldp_codec_ttl</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define tlv_lldp_codec_ttl&#160;&#160;&#160;<a class="el" href="values_8h.html#a4019a00d5e6489aa11b1f092f08813a1">tlv_codec_uint16_be</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Source alias of <a class="el" href="values_8h.html#a4019a00d5e6489aa11b1f092f08813a1" title="Converts exactly two big-endian bytes to/from uint16_t.">tlv_codec_uint16_be</a> for TTL (Type 3), including zero. No separate binary symbol or domain dispatcher is used. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Typedef Documentation</h2>
 <a id="ada1e8adb2814c168a06e05eeac13fd16" name="ada1e8adb2814c168a06e05eeac13fd16"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ada1e8adb2814c168a06e05eeac13fd16">&#9670;&#160;</a></span>tlv_lldp_capabilities_t</h2>
 
@@ -255,7 +293,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Chassis ID codec (Type 1), represented by <a class="el" href="builtins_2lldp_2codec_8h.html#ad3b4bb2fd5578dc4f9abfaf80ae6ecf1" title="Chassis or Port ID: subtype plus borrowed identifier octets.">tlv_lldp_id_t</a>. </p>
-<p>Subtypes 1..7 and 1..255 identifier octets. Subtype 4 requires six MAC octets; subtype 5 requires an address-family byte and at least one address octet. IPv4/IPv6 families require 4/16 address octets. Other identifier subtypes are opaque; no textual normalization or assignment lookup occurs. </p>
+<p>Subtypes 1..7 and a nonempty identifier. Schema owns the maximum field length. Subtype 4 requires six MAC octets; subtype 5 requires an address-family byte and at least one address octet. IPv4/IPv6 families require 4/16 address octets. Other identifier subtypes are opaque; no textual normalization or assignment lookup occurs. </p>
 
 </div>
 </div>
@@ -305,7 +343,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Type 127 codec, represented by <a class="el" href="builtins_2lldp_2codec_8h.html#adfdfa2a7b1ec23dedf370f56b574e3f9" title="Generic organisational information string, without vendor dispatch.">tlv_lldp_organisation_t</a>. </p>
-<p>Accepts 4..511 octets: three OUI bytes, subtype, and 0..507 payload bytes. Does not validate OUI ownership, vendor syntax, or nested TLVs. </p>
+<p>Requires a four-octet prefix: three OUI bytes and subtype, then opaque payload. No outer length limit is applied; tlv_lldp_schema owns the 511-octet limit. Does not validate OUI ownership, vendor syntax, or nested TLVs. </p>
 
 </div>
 </div>
@@ -330,56 +368,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Port ID codec (Type 2), represented by <a class="el" href="builtins_2lldp_2codec_8h.html#ad3b4bb2fd5578dc4f9abfaf80ae6ecf1" title="Chassis or Port ID: subtype plus borrowed identifier octets.">tlv_lldp_id_t</a>. </p>
-<p>Same bounds as Chassis ID; MAC is subtype 3 and network address subtype 4. Other subtype-specific syntax is left to the application. </p>
-
-</div>
-</div>
-<a id="a48c7e75bd085b980a66ca1244b6c44ea" name="a48c7e75bd085b980a66ca1244b6c44ea"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a48c7e75bd085b980a66ca1244b6c44ea">&#9670;&#160;</a></span>tlv_lldp_codec_text</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_lldp_codec_text</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Text information codec for Types 4, 5 and 6, represented by <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>. </p>
-<p>Preserves 0..255 octets exactly, without a terminator, character conversion, UTF-8 validation or locale interpretation. An empty string is representable. </p>
-
-</div>
-</div>
-<a id="aa27304fea8e1e514b6a09c67c0af819b" name="aa27304fea8e1e514b6a09c67c0af819b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa27304fea8e1e514b6a09c67c0af819b">&#9670;&#160;</a></span>tlv_lldp_codec_ttl</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_lldp_codec_ttl</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>TTL codec (Type 3): uint16_t seconds encoded as two big-endian bytes, including zero. </p>
+<p>Same representation as Chassis ID; MAC is subtype 3 and network address subtype 4. Other subtype-specific syntax is left to the application. </p>
 
 </div>
 </div>

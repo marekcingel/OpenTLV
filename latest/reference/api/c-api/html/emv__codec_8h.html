@@ -76,7 +76,6 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">emv_codec.h File Reference<div class="ingroups"><a class="el" href="group__codecs.html">Codecs</a></div></div></div>
 </div><!--header-->
@@ -116,29 +115,6 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:ga26f5dc718be113048f862c727c8ed6c1" id="r_ga26f5dc718be113048f862c727c8ed6c1"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">tlv_emv_value_kind_t</a> { <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a4931c654f4ede2a6730c12d43624aaff">TLV_EMV_VALUE_BYTES</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ac18eb9cbac255b6372b3f5586f3c447e">TLV_EMV_VALUE_TEXT</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a1792a38c8d476faab22551a0a7456330">TLV_EMV_VALUE_TEMPLATE</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ac028e81a3d46fae702e65b762e14b186">TLV_EMV_VALUE_NUMBER</a>
-, <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a3fb91105467dc44433cfb079f74ad091">TLV_EMV_VALUE_FLAGS</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ab4765d08613d1a8b328e3eae59e4d4e4">TLV_EMV_VALUE_DIGITS</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a3eca46ce83a786340e57e0d920a7aaa0">TLV_EMV_VALUE_DATE</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a129114d78026be92a036554484141fc1">TLV_EMV_VALUE_TIME</a>
-, <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ad0faf76a195adf8331a5b3c649dfa996">TLV_EMV_VALUE_ACCOUNT</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1af44508e49a6d79aeb7cfb1a9f5940fbf">TLV_EMV_VALUE_CRYPTOGRAM</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1af266a56d962d6f653e95cc415fa7a0a9">TLV_EMV_VALUE_BIOMETRIC</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1ae588dd7a30824be2193f2d3656cab426">TLV_EMV_VALUE_NUMBER_LIST</a>
-, <br />
-&#160;&#160;<a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1a58f618aa7411fd4403da70f1dcca7899">TLV_EMV_VALUE_AFL</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1adbe7264da0526e486eda3853fabf7024">TLV_EMV_VALUE_CVM_RESULT</a>
-, <a class="el" href="group__codecs.html#gga26f5dc718be113048f862c727c8ed6c1aec5dc0a7009c33b78eb70e7fa188d3c5">TLV_EMV_VALUE_TRACK2</a>
-<br />
- }</td></tr>
-<tr class="memdesc:ga26f5dc718be113048f862c727c8ed6c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">C representation a semantic EMV codec converts a value to and from.  <a href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">More...</a><br /></td></tr>
-<tr class="separator:ga26f5dc718be113048f862c727c8ed6c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5fea94eb6f0d75aef6fe7b3a2fb0567a" id="r_ga5fea94eb6f0d75aef6fe7b3a2fb0567a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga5fea94eb6f0d75aef6fe7b3a2fb0567a">tlv_emv_account_type_t</a> { <a class="el" href="group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aad3ac9bddd5cd5627403c6d604e7e7127">TLV_EMV_ACCOUNT_DEFAULT</a> = 0
 , <a class="el" href="group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aa0bc78f898e9179e90fc480d0011b5d25">TLV_EMV_ACCOUNT_SAVINGS</a> = 10
 , <a class="el" href="group__codecs.html#gga5fea94eb6f0d75aef6fe7b3a2fb0567aab77f1f5725c7119e8778c4f494377082">TLV_EMV_ACCOUNT_CHEQUE_DEBIT</a> = 20
@@ -164,21 +140,15 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gaaf0044fa9cb624a58696e6660ffea8e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Biometric type; undefined values are rejected by the codec.  <a href="group__codecs.html#gaaf0044fa9cb624a58696e6660ffea8e2">More...</a><br /></td></tr>
 <tr class="separator:gaaf0044fa9cb624a58696e6660ffea8e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabc5c98fcc1211af2b80116dd6e0a035d" id="r_gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggabc5c98fcc1211af2b80116dd6e0a035dae6c14b14e63e8a84a683cbad42f6284c">TLV_EMV_AFL_MAX_ENTRIES</a> = 63
+<tr class="memitem:gac36f475ca5b446f4fde4c9b90bec77c8" id="r_gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggac36f475ca5b446f4fde4c9b90bec77c8ae6c14b14e63e8a84a683cbad42f6284c">TLV_EMV_AFL_MAX_ENTRIES</a> = 63
  }</td></tr>
-<tr class="memdesc:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of AFL entries: 252 / 4.  <a href="group__codecs.html#gabc5c98fcc1211af2b80116dd6e0a035d">More...</a><br /></td></tr>
-<tr class="separator:gabc5c98fcc1211af2b80116dd6e0a035d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gac36f475ca5b446f4fde4c9b90bec77c8" id="r_gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#ggac36f475ca5b446f4fde4c9b90bec77c8a5f387811faa1c85d5b50891377301efb">TLV_EMV_TRACK2_PAN_MAX_DIGITS</a> = 19
-, <a class="el" href="group__codecs.html#ggac36f475ca5b446f4fde4c9b90bec77c8aab83be4e64aafbbc8777f4f3b02c98be">TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS</a> = 30
- }</td></tr>
-<tr class="memdesc:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of PAN digits in Track 2 Equivalent Data, and of discretionary digits.  <a href="group__codecs.html#gac36f475ca5b446f4fde4c9b90bec77c8">More...</a><br /></td></tr>
+<tr class="memdesc:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of AFL entries: 252 / 4.  <a href="group__codecs.html#gac36f475ca5b446f4fde4c9b90bec77c8">More...</a><br /></td></tr>
 <tr class="separator:gac36f475ca5b446f4fde4c9b90bec77c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:ga79fa5b1488b431a86da823d7a27a29cb" id="r_ga79fa5b1488b431a86da823d7a27a29cb"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga79fa5b1488b431a86da823d7a27a29cb">tlv_emv_value_kind_description</a> (<a class="el" href="group__codecs.html#ga26f5dc718be113048f862c727c8ed6c1">tlv_emv_value_kind_t</a> kind)</td></tr>
-<tr class="memdesc:ga79fa5b1488b431a86da823d7a27a29cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes a value kind's C representation and wire meaning.  <br /></td></tr>
-<tr class="separator:ga79fa5b1488b431a86da823d7a27a29cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga05589fbab0657f08285ebdfe93f5ec9e" id="r_ga05589fbab0657f08285ebdfe93f5ec9e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__codecs.html#gga05589fbab0657f08285ebdfe93f5ec9ea5f387811faa1c85d5b50891377301efb">TLV_EMV_TRACK2_PAN_MAX_DIGITS</a> = 19
+, <a class="el" href="group__codecs.html#gga05589fbab0657f08285ebdfe93f5ec9eaab83be4e64aafbbc8777f4f3b02c98be">TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS</a> = 30
+ }</td></tr>
+<tr class="memdesc:ga05589fbab0657f08285ebdfe93f5ec9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of PAN digits in Track 2 Equivalent Data, and of discretionary digits.  <a href="group__codecs.html#ga05589fbab0657f08285ebdfe93f5ec9e">More...</a><br /></td></tr>
+<tr class="separator:ga05589fbab0657f08285ebdfe93f5ec9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>

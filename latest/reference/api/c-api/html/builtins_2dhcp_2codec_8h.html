@@ -74,9 +74,9 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle"><div class="title">codec.h File Reference<div class="ingroups"><a class="el" href="group__codecs.html">Codecs</a></div></div></div>
 </div><!--header-->
 <div class="contents">
@@ -85,6 +85,12 @@ $(function() {
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="values_8h.html">tlv/codec/values.h</a>&quot;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a5f9b44d25e8e63bbe46589683d3b2a66" id="r_a5f9b44d25e8e63bbe46589683d3b2a66"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2dhcp_2codec_8h.html#a5f9b44d25e8e63bbe46589683d3b2a66">tlv_dhcpv4_codec_message_type</a>&#160;&#160;&#160;<a class="el" href="values_8h.html#af32720386bd4480a5ec873793a5fd7e8">tlv_codec_uint8</a></td></tr>
+<tr class="memdesc:a5f9b44d25e8e63bbe46589683d3b2a66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly one DHCP Message Type byte to/from uint8_t.  <br /></td></tr>
+<tr class="separator:a5f9b44d25e8e63bbe46589683d3b2a66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:a30a0ee070d958ce4cd4e1e7b08d86f2a" id="r_a30a0ee070d958ce4cd4e1e7b08d86f2a"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="builtins_2dhcp_2codec_8h.html#ade6ed80c69f1128b1ac9fb20722d0b74">tlv_dhcpv4_message_type</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2dhcp_2codec_8h.html#a30a0ee070d958ce4cd4e1e7b08d86f2a">tlv_dhcpv4_message_type_t</a></td></tr>
@@ -107,17 +113,30 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ade6ed80c69f1128b1ac9fb20722d0b74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Named DHCP Message Type values from RFC 2132 section 9.6. These constants are not the codec's C representation; use uint8_t.  <a href="builtins_2dhcp_2codec_8h.html#ade6ed80c69f1128b1ac9fb20722d0b74">More...</a><br /></td></tr>
 <tr class="separator:ade6ed80c69f1128b1ac9fb20722d0b74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:a55a41b225a0e267b61e1694e6145b46d" id="r_a55a41b225a0e267b61e1694e6145b46d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="builtins_2dhcp_2codec_8h.html#a55a41b225a0e267b61e1694e6145b46d">tlv_dhcpv4_codec_message_type</a></td></tr>
-<tr class="memdesc:a55a41b225a0e267b61e1694e6145b46d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly one DHCP Message Type byte to/from uint8_t.  <br /></td></tr>
-<tr class="separator:a55a41b225a0e267b61e1694e6145b46d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>DHCPv4 message type semantics composed with generic value codecs. </p>
-<p>Requires OPENTLV_DHCP=ON. Integers, IPv4 addresses, address lists, opaque identifiers and Parameter Request Lists use the generic codecs in <a class="el" href="values_8h.html" title="Allocation-free fundamental integer and byte sequence codecs.">tlv/codec/values.h</a> and <a class="el" href="ipv4_8h.html" title="Allocation-free IPv4 address and address list codecs.">tlv/codec/ipv4.h</a> directly. PRL bytes retain order, duplicates and unknown option Codes. Option-specific length and value policy is not imposed here. </p>
-</div><h2 class="groupheader">Typedef Documentation</h2>
+<p>These constants and the generic codec alias require no optional component. DHCP framing/registry APIs require OPENTLV_DHCP=ON. Integers, IPv4 addresses, address lists, opaque identifiers and Parameter Request Lists use the generic codecs in <a class="el" href="values_8h.html" title="Allocation-free fundamental integer and byte sequence codecs.">tlv/codec/values.h</a> and <a class="el" href="ipv4_8h.html" title="Allocation-free IPv4 address and address list codecs.">tlv/codec/ipv4.h</a> directly. PRL bytes retain order, duplicates and unknown option Codes. Option-specific length and value policy is not imposed here. </p>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a5f9b44d25e8e63bbe46589683d3b2a66" name="a5f9b44d25e8e63bbe46589683d3b2a66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f9b44d25e8e63bbe46589683d3b2a66">&#9670;&#160;</a></span>tlv_dhcpv4_codec_message_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define tlv_dhcpv4_codec_message_type&#160;&#160;&#160;<a class="el" href="values_8h.html#af32720386bd4480a5ec873793a5fd7e8">tlv_codec_uint8</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Converts exactly one DHCP Message Type byte to/from uint8_t. </p>
+<p>Source alias of <a class="el" href="values_8h.html#af32720386bd4480a5ec873793a5fd7e8" title="Converts exactly one byte to/from uint8_t.">tlv_codec_uint8</a>; no separate binary symbol or callbacks. Named constants cover RFC 2132 types; every other byte, including unassigned values, is preserved for round-trip. This is representation validation, not validation of a DHCP exchange. Uses the generic uint8 codec contract, including validated size queries, exact encode object size, bounds checking and no allocation.</p>
+<dl class="section see"><dt>See also</dt><dd><a href="https://www.rfc-editor.org/rfc/rfc2132.html#section-9.6">https://www.rfc-editor.org/rfc/rfc2132.html#section-9.6</a> </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Typedef Documentation</h2>
 <a id="a30a0ee070d958ce4cd4e1e7b08d86f2a" name="a30a0ee070d958ce4cd4e1e7b08d86f2a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a30a0ee070d958ce4cd4e1e7b08d86f2a">&#9670;&#160;</a></span>tlv_dhcpv4_message_type_t</h2>
 
@@ -166,33 +185,6 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="ade6ed80c69f1128b1ac9fb20722d0b74a1d5d62e398d564da2fedd2e11049b2ad" name="ade6ed80c69f1128b1ac9fb20722d0b74a1d5d62e398d564da2fedd2e11049b2ad"></a>TLV_DHCPV4_INFORM&#160;</td><td class="fielddoc"><p>DHCPINFORM message. </p>
 </td></tr>
 </table>
-
-</div>
-</div>
-<h2 class="groupheader">Variable Documentation</h2>
-<a id="a55a41b225a0e267b61e1694e6145b46d" name="a55a41b225a0e267b61e1694e6145b46d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a55a41b225a0e267b61e1694e6145b46d">&#9670;&#160;</a></span>tlv_dhcpv4_codec_message_type</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_dhcpv4_codec_message_type</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Converts exactly one DHCP Message Type byte to/from uint8_t. </p>
-<p>Descriptor has static lifetime. Named constants cover RFC 2132 types; every other byte, including unassigned values, is preserved for round-trip. This is representation validation, not validation of a DHCP exchange. Uses the generic uint8 codec contract, including validated size queries, exact encode object size, bounds checking and no allocation.</p>
-<dl class="section see"><dt>See also</dt><dd><a href="https://www.rfc-editor.org/rfc/rfc2132.html#section-9.6">https://www.rfc-editor.org/rfc/rfc2132.html#section-9.6</a> </dd></dl>
 
 </div>
 </div>

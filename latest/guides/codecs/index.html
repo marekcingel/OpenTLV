@@ -768,6 +768,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/value/" class="md-nav__link">
         
   
@@ -1125,6 +1153,28 @@
     <span class="md-ellipsis">
       
         Reusable primitive codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#declarative-numeric-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declarative numeric codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#digit-strings-and-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Digit strings and text
       
     </span>
   </a>
@@ -2775,6 +2825,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#declarative-numeric-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declarative numeric codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#digit-strings-and-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Digit strings and text
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2908,13 +2980,85 @@ diverge from the C/C++ shape described above.</p>
 <p>See also the <a href="../../reference/c-api/#codecs">C API reference: codecs</a>.</p>
 <h2 id="reusable-primitive-codecs">Reusable primitive codecs<a class="headerlink" href="#reusable-primitive-codecs" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/codec/values.h</code> for <code>tlv_codec_uint8</code>,
-<code>tlv_codec_uint16_be</code>, <code>tlv_codec_uint32_be</code> and <code>tlv_codec_bytes</code>.
+<code>tlv_codec_uint16_be</code>, <code>tlv_codec_uint32_be</code>, their <code>_le</code> equivalents,
+<code>tlv_codec_int64_minimal_be</code> and <code>tlv_codec_bytes</code>.
 Include <code>tlv/codec/ipv4.h</code> for <code>tlv_codec_ipv4</code> and
 <code>tlv_codec_ipv4_list</code>. They use the same Codec
 contract and are available independently of protocol components.
 Byte sequences decode to borrowed <code>tlv_value_t</code> views; IPv4 lists decode
 to <code>tlv_ipv4_list_t</code> views with checked access through
 <code>tlv_ipv4_list_at()</code>. The caller retains ownership of the input.</p>
+<h2 id="declarative-numeric-codecs">Declarative numeric codecs<a class="headerlink" href="#declarative-numeric-codecs" title="Permanent link">&para;</a></h2>
+<p><code>tlv/codec/number.h</code> describes unsigned <code>uint64_t</code> conversion using ordinary
+immutable data: binary BE/LE or unsigned BCD, representation width, and BCD
+decimal precision. Width zero encodes the shortest representation and accepts
+any supported input width. A nonzero width selects a fixed-width representation
+with leading zero padding. Binary supports 1..8 bytes; BCD supports 1..9 bytes
+and 1..18 decimal digits. Unused high decimal positions must be zero.</p>
+<p>Field-length intervals, steps and alternatives belong to Schema. A codec cannot
+choose a fixed output width from a validation rule it has not been given. The
+caller/domain composes the two: choose the representation, encode, and validate
+the resulting length. For variable-width fields, domain code can choose the
+shortest schema-permitted width that fits. No codec performs tag lookup.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/number.h"</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_number_codec_config_t</span><span class="w"> </span><span class="n">amount_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">TLV_NUMBER_BCD</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">};</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">amount_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">amount_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_number_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_number_encode</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">};</span>
+</code></pre></div>
+<p>Caller-owned configuration uses <code>tlv_number_codec(&amp;config)</code> to create the same
+borrowed descriptor. Keep the configuration alive and unchanged while it is in
+use. No allocation, registration or protocol lookup occurs. Invalid configuration,
+unrepresentable numbers and malformed digits are rejected, including during
+encode size queries. The callback functions also support direct invocation and
+leave output bytes unchanged on failure.</p>
+<p><code>tlv_codec_int64_minimal_be</code> converts minimal signed two's-complement values
+without any ASN.1 dependency. It rejects redundant leading sign bytes and values
+outside its eight-byte representation. Domain schemas still choose the codec
+and impose any additional constraints.</p>
+<h2 id="digit-strings-and-text">Digit strings and text<a class="headerlink" href="#digit-strings-and-text" title="Permanent link">&para;</a></h2>
+<p><code>tlv/codec/digits.h</code> packs decimal character strings high nibble first, with
+trailing <code>F</code> padding. Leading zeros remain digits; this is distinct from numeric
+BCD. Decode returns a NUL-terminated string; encode takes the digit count
+<strong>excluding</strong> the NUL. Width zero selects the shortest encoding; nonzero width
+selects fixed-width padding. Decode accepts trailing padding within that
+representation. Field-length and digit-count constraints are applied separately
+by Schema/domain validation.
+Digits after padding and nibbles <code>A..E</code> are rejected.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/digits.h"</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_digits_codec_config_t</span><span class="w"> </span><span class="n">identifier_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">4</span><span class="p">};</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">identifier_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">identifier_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_digits_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_digits_encode</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">};</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="cm">/* "00123" encodes as 00 12 3F FF; decoding preserves both leading zeros. */</span>
+</code></pre></div>
+<p><code>tlv/codec/text.h</code> converts explicitly selected ASCII text. Choose
+<code>TLV_TEXT_ASCII_PRINTABLE</code> (space through <code>~</code>) or <code>TLV_TEXT_ASCII_ALNUM</code>
+(letters and digits only). It does not infer the meaning of protocol labels
+such as AN/ANS and is not a Unicode codec. Optional zero padding strips trailing
+zero bytes on decode and pads to the selected fixed width on encode. Embedded
+zeros, controls and bytes outside the selected alphabet are invalid.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/codec/text.h"</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_text_codec_config_t</span><span class="w"> </span><span class="n">label_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">TLV_TEXT_ASCII_PRINTABLE</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">};</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_codec_t</span><span class="w"> </span><span class="n">label_codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">label_config</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_text_decode</span><span class="p">,</span><span class="w"> </span><span class="n">tlv_text_encode</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">};</span>
+</code></pre></div>
+<p>The text C representation is <code>tlv_value_t</code>, not a C string. Decode returns an
+unpadded borrowed span into the original wire bytes without adding a terminator;
+encode takes the span object and <code>sizeof(tlv_value_t)</code>. Keep the wire storage
+alive while using the view. An all-padding field represents empty text.</p>
+<p>Both configurations can be caller-owned, using <code>tlv_digits_codec()</code> or
+<code>tlv_text_codec()</code> to construct borrowed descriptors. Configurations must remain
+alive and immutable. Size queries validate input, errors leave output unchanged,
+and neither codec performs allocation, tag lookup or domain selection.</p>
 
 
 

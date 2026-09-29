@@ -768,6 +768,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/value/" class="md-nav__link">
         
   
@@ -3213,7 +3241,8 @@ Use <code>tlv_bluetooth_ad_flags_test()</code> with <code>TLV_BLUETOOTH_AD_FLAG_
 Bit 4 is previously used; it has no current named meaning here. Empty Flags
 mean all bits clear, while an absent Flags structure conveys no such value.
 Trailing all-zero octets are rejected; omit them when encoding.</p>
-<p>Names accept 0 through 248 bytes of valid UTF-8. They are byte spans, not
+<p>The Name codec accepts valid UTF-8 independently of field length. AD Schema
+enforces the 0 through 248-byte field limit. They are byte spans, not
 NUL-terminated C strings: embedded U+0000 is retained, and no terminator is
 appended. Keep the AD Type to distinguish shortened and complete names.
 Tx Power accepts exactly one octet in the range -127 through +127 dBm;
@@ -3497,7 +3526,8 @@ CLI:</p>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>offset=3 tag=09 length=2 value=4869
 </code></pre></div>
 <h2 id="uuid-values-and-lists">UUID values and lists<a class="headerlink" href="#uuid-values-and-lists" title="Permanent link">&para;</a></h2>
-<p>Include <code>tlv/builtins/bluetooth/uuid.h</code> for reusable value codecs. They interpret
+<p>Include <code>tlv/builtins/bluetooth/uuid.h</code> for reusable value codecs. UUID16/32
+names are source aliases of <code>tlv_codec_uint16_le</code> / <code>tlv_codec_uint32_le</code>. They interpret
 Bluetooth little-endian byte order independently of the AD Type and format.</p>
 <table>
 <thead>

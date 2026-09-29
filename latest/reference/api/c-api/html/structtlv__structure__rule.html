@@ -82,8 +82,8 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:ad76e7e48bcbe4538663e0010890cad8c" id="r_ad76e7e48bcbe4538663e0010890cad8c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__rule.html#ad76e7e48bcbe4538663e0010890cad8c">entry</a></td></tr>
-<tr class="separator:ad76e7e48bcbe4538663e0010890cad8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8911bf790fae5449c5a76b6f268fb9ad" id="r_a8911bf790fae5449c5a76b6f268fb9ad"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__rule.html#a8911bf790fae5449c5a76b6f268fb9ad">entry</a></td></tr>
+<tr class="separator:a8911bf790fae5449c5a76b6f268fb9ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c60f2bbfb21327cf23e7c9d0fa1cd78" id="r_a2c60f2bbfb21327cf23e7c9d0fa1cd78"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__rule.html#a2c60f2bbfb21327cf23e7c9d0fa1cd78">min_occurs</a></td></tr>
 <tr class="separator:a2c60f2bbfb21327cf23e7c9d0fa1cd78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adffe20f8b029e991770f625f7332b7ed" id="r_adffe20f8b029e991770f625f7332b7ed"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__rule.html#adffe20f8b029e991770f625f7332b7ed">max_occurs</a></td></tr>
@@ -114,18 +114,18 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="ad76e7e48bcbe4538663e0010890cad8c" name="ad76e7e48bcbe4538663e0010890cad8c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad76e7e48bcbe4538663e0010890cad8c">&#9670;&#160;</a></span>entry</h2>
+<a id="a8911bf790fae5449c5a76b6f268fb9ad" name="a8911bf790fae5449c5a76b6f268fb9ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8911bf790fae5449c5a76b6f268fb9ad">&#9670;&#160;</a></span>entry</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a> tlv_structure_rule::entry</td>
+          <td class="memname">const <a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a>* tlv_structure_rule::entry</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Tag and permitted value-length bounds for this rule. </p>
+<p>Required authoritative field Schema. Borrows immutable storage (including tag bytes and name) that must outlive every use of this structural rule. Multiple rules and dictionaries may share this same field Schema. </p>
 
 </div>
 </div>

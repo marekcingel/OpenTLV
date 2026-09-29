@@ -964,6 +964,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../value/" class="md-nav__link">
         
   
@@ -3032,7 +3060,7 @@ operations that apply those rules to the data:</p>
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>...
 </code></pre></div>
 <p>The declarative/semantic model describes meaning and rules: a Definition
-identifies a field and its associated metadata, Format defines wire encoding,
+associates an identifier with a descriptive name in a registry, Format defines wire encoding,
 Schema defines structural constraints, and Codec defines conversion between
 Value bytes and application values. These roles can be implemented by tables,
 descriptors and executable callbacks.</p>
@@ -3133,12 +3161,19 @@ retain their concrete rules and current component dependencies.</p>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>  builtins/
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    bluetooth/ bluetooth_ltv.h, ad_types.h
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    asn1/      ber.h, der.h, cer.h, der_validation.h, cer_validation.h, der_schema.h
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    emv/       emv.h, emv_schema.h, dol.h, emv_codec.h
 </code></pre></div>
 <p>The tree shows the public layout; corresponding implementation files use <code>.c</code>.
 <code>definition.h</code> provides borrowed identifier/name entries and a generic registry
 lookup. Bluetooth AD types use this model independently of their wire format;
 definitions neither validate structure nor decode values.
+Identifier meaning is scoped to the selected registry, and descriptive names are
+not unique domain identities. Rich standard dictionaries may compose Definition,
+Schema and Codec without adding protocol fields to the generic Definition or
+requiring Definition lookup before parsing or decoding. The caller/dictionary
+selects the value codec; the codec does not resolve its enclosing tag.
+The <a href="../definition-boundaries/">Definition boundary audit</a> records this contract,
+evidence across five standard families and the identifier-mapping decision.
 Small fundamental types (<code>tag.h</code>, <code>length.h</code>, <code>size.h</code>, <code>value.h</code>, <code>element.h</code>, and the
 generic <code>format.h</code> descriptor contracts) sit directly under <code>tlv/</code>, alongside
 the generic subsystem folders. <code>formats/fixed.h</code> and <code>formats/variable.h</code> hold
@@ -3380,10 +3415,10 @@ to avoid colliding with the wire-format headers of the same name
 <code>tlv/profiles/cer.h</code> becomes <code>tlv/builtins/asn1/cer_validation.h</code>). EMV moves
 and consolidates under <code>tlv/builtins/emv/</code>: <code>tlv/profiles/emv.h</code> becomes
 <code>tlv/builtins/emv/emv.h</code>, <code>tlv/profiles/emv_schema.h</code>,
-<code>tlv/profiles/emv_tags.def</code> and <code>tlv/profiles/dol.h</code> move alongside it
-unchanged, and <code>tlv/codec/emv.h</code> (the semantic value codecs) becomes
+and <code>tlv/profiles/dol.h</code> move alongside it unchanged, and <code>tlv/codec/emv.h</code> (the semantic value codecs) becomes
 <code>tlv/builtins/emv/emv_codec.h</code> to avoid colliding with the umbrella EMV
-header. <code>tlv/schemas/schema.h</code> becomes <code>tlv/schema/schema.h</code>.</p>
+header. The former <code>emv_tags.def</code> X-macro is subsequently removed in #381;
+EMV uses explicit domain dictionary tables. <code>tlv/schemas/schema.h</code> becomes <code>tlv/schema/schema.h</code>.</p>
 <p><code>tlv++</code>'s previously flat <code>tlv++/include/tlv++/*.hpp</code> headers (#280) move
 into the same folders as their C counterparts:
 <code>tlv++/reader.hpp</code>/<code>tlv++/walker.hpp</code> become

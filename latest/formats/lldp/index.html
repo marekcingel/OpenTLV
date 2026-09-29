@@ -768,6 +768,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/value/" class="md-nav__link">
         
   
@@ -3074,7 +3102,13 @@ contracts from the remaining full-edition normative audit.</p>
 <p>The header is two bytes in big-endian order. Type is 0..127; Length is 0..511
 and counts only Value bytes. Encoded size is <code>2 + Length</code>, at most 513 bytes.
 The logical Tag is a <strong>single byte containing Type</strong>, independent of Length.
-For example, <code>06 02 00 78</code> becomes Tag <code>03</code> and Value <code>00 78</code>.</p>
+<code>ttl</code> and <code>text</code> are source aliases of <code>tlv_codec_uint16_be</code> and <code>tlv_codec_bytes</code>,
+with no LLDP dispatcher or exported alias symbols. Field Schema owns the maximum
+lengths for text, IDs and organisational Values. Standalone codecs therefore
+accept representable Values beyond those limits; apply Schema before treating
+them as valid LLDP fields. Compound codecs retain required prefixes, subtype
+checks and inner-length consistency. Rebuild consumers of the former symbols.</p>
+<p>For example, <code>06 02 00 78</code> becomes Tag <code>03</code> and Value <code>00 78</code>.</p>
 <p>The adapter composes two <code>tlv_packed_field_t</code> configurations from <code>tlv/layout.h</code>:
 Type uses offset 9 and width 7; Length uses offset 0 and width 9. Both use
 two-byte big-endian storage. The primitive handles unsigned extraction and
@@ -3192,17 +3226,17 @@ use. Input and output must not overlap.</p>
 <tr>
 <td><code>chassis_id</code>, <code>port_id</code></td>
 <td><code>tlv_lldp_id_t</code></td>
-<td>Subtype 1..7 plus 1..255 borrowed ID octets; separate MAC/network subtype namespaces; MAC length 6 and IPv4/IPv6 lengths checked</td>
+<td>Subtype 1..7 plus a nonempty borrowed ID; separate MAC/network subtype namespaces; MAC length 6 and IPv4/IPv6 lengths checked</td>
 </tr>
 <tr>
 <td><code>ttl</code></td>
 <td><code>uint16_t</code></td>
-<td>Two big-endian octets, 0..65535 seconds</td>
+<td>Generic uint16 BE alias, 0..65535 seconds</td>
 </tr>
 <tr>
 <td><code>text</code></td>
 <td><code>tlv_value_t</code></td>
-<td>Types 4..6; preserves 0..255 octets, including empty strings and embedded NUL, without character validation or a terminator</td>
+<td>Types 4..6; generic bytes alias preserving arbitrary octets, including empty strings and embedded NUL, without character validation or a terminator</td>
 </tr>
 <tr>
 <td><code>capabilities</code></td>
@@ -3217,7 +3251,7 @@ use. Input and output must not overlap.</p>
 <tr>
 <td><code>organisation</code></td>
 <td><code>tlv_lldp_organisation_t</code></td>
-<td>Three OUI octets, subtype, and 0..507 borrowed payload octets; no vendor dispatch</td>
+<td>Three OUI octets, subtype, and borrowed opaque payload; outer length checked by Schema; no vendor dispatch</td>
 </tr>
 </tbody>
 </table>

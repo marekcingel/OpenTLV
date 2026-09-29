@@ -75,6 +75,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
@@ -84,7 +85,7 @@ $(function() {
 
 <p>Allocation-free Bluetooth UUID value and list codecs.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="codec_2codec_8h.html">tlv/codec/codec.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="values_8h.html">tlv/codec/values.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="value_8h.html">tlv/value.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
@@ -95,6 +96,15 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__bluetooth__uuid__list.html">tlv_bluetooth_uuid_list</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed UUID list, retaining all original bytes in wire order.  <a href="structtlv__bluetooth__uuid__list.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:ga05b87cc6cebac9f37c496b9096bac999" id="r_ga05b87cc6cebac9f37c496b9096bac999"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga05b87cc6cebac9f37c496b9096bac999">tlv_bluetooth_codec_uuid16</a>&#160;&#160;&#160;<a class="el" href="values_8h.html#a72d1faf0ff645ca471616cc11dd3cc55">tlv_codec_uint16_le</a></td></tr>
+<tr class="memdesc:ga05b87cc6cebac9f37c496b9096bac999"><td class="mdescLeft">&#160;</td><td class="mdescRight">Source alias of <a class="el" href="values_8h.html#a72d1faf0ff645ca471616cc11dd3cc55" title="Converts exactly two little-endian bytes to/from uint16_t.">tlv_codec_uint16_le</a>; no separate binary symbol. Requires no optional Bluetooth component.  <br /></td></tr>
+<tr class="separator:ga05b87cc6cebac9f37c496b9096bac999"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga39621698a4bb1f752738f8f893bc8f17" id="r_ga39621698a4bb1f752738f8f893bc8f17"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga39621698a4bb1f752738f8f893bc8f17">tlv_bluetooth_codec_uuid32</a>&#160;&#160;&#160;<a class="el" href="values_8h.html#a1bb77924e725b108040b7eab108759da">tlv_codec_uint32_le</a></td></tr>
+<tr class="memdesc:ga39621698a4bb1f752738f8f893bc8f17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Source alias of <a class="el" href="values_8h.html#a1bb77924e725b108040b7eab108759da" title="Converts exactly four little-endian bytes to/from uint32_t.">tlv_codec_uint32_le</a>; no separate binary symbol. Requires no optional Bluetooth component.  <br /></td></tr>
+<tr class="separator:ga39621698a4bb1f752738f8f893bc8f17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -113,12 +123,6 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:ga842de05f7755d67145b3c01cf30e7548" id="r_ga842de05f7755d67145b3c01cf30e7548"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga842de05f7755d67145b3c01cf30e7548">tlv_bluetooth_codec_uuid16</a></td></tr>
-<tr class="memdesc:ga842de05f7755d67145b3c01cf30e7548"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly two wire bytes to/from <code>uint16_t</code>.  <br /></td></tr>
-<tr class="separator:ga842de05f7755d67145b3c01cf30e7548"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga2dd1ca224e663d278df9d2a4af340eed" id="r_ga2dd1ca224e663d278df9d2a4af340eed"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga2dd1ca224e663d278df9d2a4af340eed">tlv_bluetooth_codec_uuid32</a></td></tr>
-<tr class="memdesc:ga2dd1ca224e663d278df9d2a4af340eed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly four wire bytes to/from <code>uint32_t</code>.  <br /></td></tr>
-<tr class="separator:ga2dd1ca224e663d278df9d2a4af340eed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga79e9303bfcbf57aae637be9e77db2684" id="r_ga79e9303bfcbf57aae637be9e77db2684"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__codecs.html#ga79e9303bfcbf57aae637be9e77db2684">tlv_bluetooth_codec_uuid128</a></td></tr>
 <tr class="memdesc:ga79e9303bfcbf57aae637be9e77db2684"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly 16 wire bytes to/from <a class="el" href="group__codecs.html#gae07dd0f5046612e06f8074acdb9edc7e" title="A 128-bit UUID in canonical most-significant-byte-first order.">tlv_bluetooth_uuid128_t</a>.  <br /></td></tr>
 <tr class="separator:ga79e9303bfcbf57aae637be9e77db2684"><td class="memSeparator" colspan="2">&#160;</td></tr>

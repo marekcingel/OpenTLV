@@ -15,11 +15,12 @@ var searchData=
   ['allowed_5fvalue_5fnames_12',['allowed_value_names',['../structtlv__value__constraint.html#ab0f768acd89f4d17f51fc3423b6c18c8',1,'tlv_value_constraint']]],
   ['allowed_5fvalues_13',['allowed_values',['../structtlv__value__constraint.html#af7b3a69161d7032211cbef9279c7f4c1',1,'tlv_value_constraint']]],
   ['allowed_5fvalues_5fcount_14',['allowed_values_count',['../structtlv__value__constraint.html#a5cd5033bbaa25ccd604c128a9bf9009c',1,'tlv_value_constraint']]],
-  ['and_20scanning_15',['Traversal and scanning',['../group__traversal.html',1,'']]],
-  ['and_20utilities_16',['Core types and utilities',['../group__core.html',1,'']]],
-  ['api_20reference_17',['OpenTLV C API reference',['../index.html',1,'']]],
-  ['arcs_18',['arcs',['../structtlv__asn1__iri.html#a1c8938f0b348e3cc8a70299cddb73272',1,'tlv_asn1_iri::arcs'],['../structtlv__asn1__oid.html#a9f2d307b3c41c619a7fd14a68cae3208',1,'tlv_asn1_oid::arcs']]],
-  ['asn1_5fcodec_2eh_19',['asn1_codec.h',['../asn1__codec_8h.html',1,'']]],
-  ['attributes_2eh_20',['attributes.h',['../attributes_8h.html',1,'']]],
-  ['available_21',['available',['../structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic::available'],['../structtlv__writer__diagnostic.html#a90e2b7f189630d152336f5b2af44e233',1,'tlv_writer_diagnostic::available']]]
+  ['alphabet_15',['alphabet',['../structtlv__text__codec__config.html#af7b3207445ed78e373f7287d538f641f',1,'tlv_text_codec_config']]],
+  ['and_20scanning_16',['Traversal and scanning',['../group__traversal.html',1,'']]],
+  ['and_20utilities_17',['Core types and utilities',['../group__core.html',1,'']]],
+  ['api_20reference_18',['OpenTLV C API reference',['../index.html',1,'']]],
+  ['arcs_19',['arcs',['../structtlv__asn1__iri.html#a1c8938f0b348e3cc8a70299cddb73272',1,'tlv_asn1_iri::arcs'],['../structtlv__asn1__oid.html#a9f2d307b3c41c619a7fd14a68cae3208',1,'tlv_asn1_oid::arcs']]],
+  ['asn1_5fcodec_2eh_20',['asn1_codec.h',['../asn1__codec_8h.html',1,'']]],
+  ['attributes_2eh_21',['attributes.h',['../attributes_8h.html',1,'']]],
+  ['available_22',['available',['../structtlv__reader__diagnostic.html#ab3a6eca30829402b87a5d1b4d04dca25',1,'tlv_reader_diagnostic::available'],['../structtlv__writer__diagnostic.html#a90e2b7f189630d152336f5b2af44e233',1,'tlv_writer_diagnostic::available']]]
 ];

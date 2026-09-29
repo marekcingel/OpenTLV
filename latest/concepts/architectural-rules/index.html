@@ -1145,6 +1145,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../value/" class="md-nav__link">
         
   
@@ -3414,12 +3442,21 @@ Writer use Format directly; Schema and Codec are optional consumers. The
 runtime representations and operations separately.</p>
 <p>Their responsibilities must remain separated.</p>
 <h3 id="definition">Definition<a class="headerlink" href="#definition" title="Permanent link">&para;</a></h3>
-<p>Defines which identifiers exist and their metadata.</p>
+<p>Provides a minimal registry of identifiers and their descriptive names.</p>
 <p>It answers:</p>
 <blockquote>
-<p>What is this identifier?</p>
+<p>What identifier is this, and what is its descriptive name in this registry?</p>
 </blockquote>
 <p>It must not define how the identifier is encoded on wire.</p>
+<p>Identifier meaning is scoped to a registry; a name is not a unique domain
+identity. Generic Definition must not acquire codec pointers, schema references,
+ASN.1 types, EMV value kinds, length rules or other standard-specific metadata.
+Standards may own richer dictionaries that compose these capabilities, optionally
+reusing Definition entries. A dictionary is domain composition, not a new
+mandatory layer; a factory is only a possible implementation choice.
+Definition lookup is not a required parsing step.</p>
+<p>See the <a href="../definition-boundaries/">Definition boundary audit</a> for the evidence
+and the separate assessment of logical identity versus identifier mapping.</p>
 <h3 id="format">Format<a class="headerlink" href="#format" title="Permanent link">&para;</a></h3>
 <p>Defines how an element is represented on wire.</p>
 <p>It answers:</p>
@@ -3509,6 +3546,15 @@ Query, diagnostics, bindings, runtime formats and generated/native formats.</p>
 <li>protocol-specific semantic values</li>
 </ul>
 <p>Codec operates on Value, not on the wire representation of the complete element.
+Standards should reuse generic value codecs and declarative codec configuration
+where their Value encoding and C representation match. Extract reusable
+conversion primitives rather than duplicating them across standards; retain
+specialized codecs for domain semantics that generic composition cannot express.
+Native and future <code>.otlv</code> dictionaries must compose the same contracts, differing
+in construction and ownership rather than creating parallel semantic models.
+The caller or domain dictionary selects a value codec for a tag in context before
+invoking it. A value codec does not look up its enclosing tag in a Definition
+registry or dictionary to decide what it is decoding.
 Structure codecs may compose Reader/Writer, Schema and value codecs to map
 complete objects. They still delegate wire interpretation to Format.</p>
 <hr />

@@ -92,6 +92,7 @@ Data Fields</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Borrowed codec descriptor with an optional immutable context. </p>
 <p>A descriptor neither allocates nor takes ownership of anything. Each codec documents its C representation and required alignment; callers supply correctly typed and aligned objects. Capacities and sizes are in bytes. Callbacks must respect bounds and must not require heap allocation.</p>
+<p>Value conversion is independent of the enclosing element's tag. The caller or a domain dictionary selects the codec before invoking it; a value codec must not resolve that tag through a Definition registry or domain dictionary. Structure codecs may interpret nested elements by composing Reader/Writer, schema and value codecs; they still do not select themselves by an enclosing tag.</p>
 <ul>
 <li><b>Decode</b> consumes the entire raw value and may return a representation that borrows the input bytes; that input must then outlive the representation.</li>
 <li><b>Encode</b> with <code>data == NULL</code> and <code>capacity == 0</code> validates the value and reports its exact encoded size without writing. A normal success reports the bytes written.</li>

@@ -95,6 +95,15 @@ Variables</h2></td></tr>
 <tr class="memitem:a39604e94ab9045001a56d4115d66b8b3" id="r_a39604e94ab9045001a56d4115d66b8b3"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="values_8h.html#a39604e94ab9045001a56d4115d66b8b3">tlv_codec_uint32_be</a></td></tr>
 <tr class="memdesc:a39604e94ab9045001a56d4115d66b8b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly four big-endian bytes to/from uint32_t.  <br /></td></tr>
 <tr class="separator:a39604e94ab9045001a56d4115d66b8b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72d1faf0ff645ca471616cc11dd3cc55" id="r_a72d1faf0ff645ca471616cc11dd3cc55"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="values_8h.html#a72d1faf0ff645ca471616cc11dd3cc55">tlv_codec_uint16_le</a></td></tr>
+<tr class="memdesc:a72d1faf0ff645ca471616cc11dd3cc55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly two little-endian bytes to/from uint16_t.  <br /></td></tr>
+<tr class="separator:a72d1faf0ff645ca471616cc11dd3cc55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1bb77924e725b108040b7eab108759da" id="r_a1bb77924e725b108040b7eab108759da"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="values_8h.html#a1bb77924e725b108040b7eab108759da">tlv_codec_uint32_le</a></td></tr>
+<tr class="memdesc:a1bb77924e725b108040b7eab108759da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts exactly four little-endian bytes to/from uint32_t.  <br /></td></tr>
+<tr class="separator:a1bb77924e725b108040b7eab108759da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a667cbb1ea2eab461846509eb7607ecf7" id="r_a667cbb1ea2eab461846509eb7607ecf7"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="values_8h.html#a667cbb1ea2eab461846509eb7607ecf7">tlv_codec_int64_minimal_be</a></td></tr>
+<tr class="memdesc:a667cbb1ea2eab461846509eb7607ecf7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts minimal big-endian two's-complement bytes to/from int64_t.  <br /></td></tr>
+<tr class="separator:a667cbb1ea2eab461846509eb7607ecf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44c314b294101bf6857aa434d3fa66b0" id="r_a44c314b294101bf6857aa434d3fa66b0"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="values_8h.html#a44c314b294101bf6857aa434d3fa66b0">tlv_codec_bytes</a></td></tr>
 <tr class="memdesc:a44c314b294101bf6857aa434d3fa66b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts arbitrary bytes to/from a borrowed <a class="el" href="structtlv__value__t.html" title="Non-owning, read-only view of a TLV value.">tlv_value_t</a>.  <br /></td></tr>
 <tr class="separator:a44c314b294101bf6857aa434d3fa66b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -128,6 +137,31 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="a667cbb1ea2eab461846509eb7607ecf7" name="a667cbb1ea2eab461846509eb7607ecf7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a667cbb1ea2eab461846509eb7607ecf7">&#9670;&#160;</a></span>tlv_codec_int64_minimal_be</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_codec_int64_minimal_be</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts minimal big-endian two's-complement bytes to/from int64_t. </p>
+<p>Decode accepts 1..8 bytes and rejects redundant leading 00/FF sign octets. Encode emits the shortest signed representation, including one byte for zero. This is value encoding only; no ASN.1 tag or universal-type policy is applied. The common object-size, capacity and size-query rules above apply. </p>
+
+</div>
+</div>
 <a id="a4019a00d5e6489aa11b1f092f08813a1" name="a4019a00d5e6489aa11b1f092f08813a1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4019a00d5e6489aa11b1f092f08813a1">&#9670;&#160;</a></span>tlv_codec_uint16_be</h2>
 
@@ -152,6 +186,30 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="a72d1faf0ff645ca471616cc11dd3cc55" name="a72d1faf0ff645ca471616cc11dd3cc55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72d1faf0ff645ca471616cc11dd3cc55">&#9670;&#160;</a></span>tlv_codec_uint16_le</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_codec_uint16_le</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts exactly two little-endian bytes to/from uint16_t. </p>
+
+</div>
+</div>
 <a id="a39604e94ab9045001a56d4115d66b8b3" name="a39604e94ab9045001a56d4115d66b8b3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a39604e94ab9045001a56d4115d66b8b3">&#9670;&#160;</a></span>tlv_codec_uint32_be</h2>
 
@@ -173,6 +231,30 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Converts exactly four big-endian bytes to/from uint32_t. </p>
+
+</div>
+</div>
+<a id="a1bb77924e725b108040b7eab108759da" name="a1bb77924e725b108040b7eab108759da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1bb77924e725b108040b7eab108759da">&#9670;&#160;</a></span>tlv_codec_uint32_le</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="group__codecs.html#gab79131d94a100a55e0e58473ca95f785">tlv_codec_t</a> tlv_codec_uint32_le</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts exactly four little-endian bytes to/from uint32_t. </p>
 
 </div>
 </div>
