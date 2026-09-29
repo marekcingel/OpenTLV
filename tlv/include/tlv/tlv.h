@@ -22,6 +22,7 @@
 #include "tlv/layout.h"
 
 #include "tlv/reader/reader.h"
+#include "tlv/reader/tree.h"
 #include "tlv/reader/walker.h"
 #include "tlv/query/query.h"
 #include "tlv/writer/writer.h"

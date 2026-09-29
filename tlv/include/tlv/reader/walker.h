@@ -3,7 +3,7 @@
 
 #include "tlv/error.h"
 #include "tlv/format.h"
-#include "tlv/reader/reader.h"
+#include "tlv/reader/tree.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -13,7 +13,7 @@ extern "C" {
 /**
  * @file
  * @ingroup traversal
- * @brief Visitor-based traversal of sequential and nested TLV elements.
+ * @brief Compatibility visitor adapters over Reader and Tree Reader.
  */
 
 /** @addtogroup traversal
@@ -70,9 +70,9 @@ TLV_API tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_format
                               tlv_visitor_t visitor, void* context);
 
 /**
- * @brief Maximum `max_depth` accepted by tlv_walk_tree().
+ * @brief Stack capacity of the compatibility Walker adapter, not a Tree Reader limit.
  */
-enum { TLV_WALK_MAX_DEPTH = 64 };
+enum { TLV_WALK_MAX_DEPTH = TLV_TREE_DEFAULT_DEPTH };
 
 /**
  * @brief Callback invoked by tlv_walk_tree() for each element in preorder.
@@ -80,7 +80,7 @@ enum { TLV_WALK_MAX_DEPTH = 64 };
  * @param element    Current element; its value borrows the input data and the
  *                pointer is valid only during the callback.
  * @param depth   Nesting depth; top-level elements have depth zero.
- * @param offset  Absolute offset of the element's tag within the input.
+ * @param offset  Absolute offset of the encoded element start within the input.
  * @param context Caller context passed to tlv_walk_tree().
  *
  * @return A #tlv_visit_result_t controlling traversal.
@@ -89,7 +89,11 @@ typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_element_t* element, s
                                                  size_t offset, void* context);
 
 /**
- * @brief Traverses nested elements in preorder.
+ * @brief Visits preorder items from the canonical Tree Reader.
+ *
+ * This compatibility adapter owns a fixed stack of TLV_WALK_MAX_DEPTH frames.
+ * Use #tlv_tree_reader_t for pull processing, incremental input, subtree skipping
+ * or caller-controlled frame storage and runtime depths beyond that capacity.
  *
  * Constructed values (identified by `format->is_constructed`) are traversed
  * as bounded views of the input. There is no allocation and no C recursion.

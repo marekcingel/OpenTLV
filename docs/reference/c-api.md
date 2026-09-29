@@ -35,7 +35,8 @@ and [memory ownership](../guides/memory.md).
 ## Traversal
 
 [Generated reference](api/c-api/html/group__traversal.html). Read first:
-[pull-based reading](../guides/reader.md).
+[pull-based Tree Reader](../guides/reader.md#pull-based-tree-traversal),
+including caller-owned frame storage and Walker compatibility.
 
 ## Schemas
 

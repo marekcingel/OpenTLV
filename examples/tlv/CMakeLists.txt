@@ -9,6 +9,13 @@ opentlv_copy_shared_runtime(example-tlv-incremental-reader)
 add_test(NAME Integration_example_tlv_incremental_reader COMMAND $<TARGET_FILE:example-tlv-incremental-reader>)
 set_tests_properties(Integration_example_tlv_incremental_reader PROPERTIES LABELS "integration;examples")
 
+add_executable(example-tlv-tree-reader src/tree_reader.c)
+target_link_libraries(example-tlv-tree-reader PRIVATE tlv)
+opentlv_configure_compiler(example-tlv-tree-reader)
+opentlv_copy_shared_runtime(example-tlv-tree-reader)
+add_test(NAME Integration_example_tlv_tree_reader COMMAND $<TARGET_FILE:example-tlv-tree-reader>)
+set_tests_properties(Integration_example_tlv_tree_reader PROPERTIES LABELS "integration;examples")
+
 if(OPENTLV_DHCP)
     add_executable(example-tlv-dhcpv4 src/dhcpv4.c)
     target_link_libraries(example-tlv-dhcpv4 PRIVATE tlv)
