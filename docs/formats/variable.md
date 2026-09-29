@@ -107,6 +107,7 @@ container whose resolver skips complete definite children, including a child
 whose Value contains the trailer bytes.
 
 The primitives do not assign meaning to ASN.1 classes or numbers, constructed
-bits, EOC, EMV identifiers, dictionaries, or canonical restrictions. Existing
-BER/DER/CER and EMV implementations are unchanged by this addition; their
-migrations are separate work.
+bits, EOC, EMV identifiers, dictionaries, or canonical restrictions.
+[ASN.1 BER](asn1/ber.md#generic-mechanics-and-asn1-rules) composes these primitives
+with its own identifier, length and indefinite/EOC policy. DER/CER wrapper
+refactoring and independent EMV framing remain separate work.
