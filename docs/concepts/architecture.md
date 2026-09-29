@@ -95,8 +95,9 @@ ones. `formats/` returns only for mechanisms that stay protocol-agnostic.
 Its location groups reading-related tools, without classifying every file in
 that folder as the lowest-level core. Profiles compose lower facilities; lower
 generic facilities do not include profiles. DER's wire callbacks and bounded
-profile operations live in separate files. BER and DER share a private wire
-backend; selecting DER does not require the public BER component.
+profile operations live in separate files. BER uses generic Variable primitives
+through a private ASN.1 field adapter also consumed by DER/CER. The wrappers
+retain their concrete rules and current component dependencies.
 
 ## Repository layout
 
@@ -126,8 +127,8 @@ lookup. Bluetooth AD types use this model independently of their wire format;
 definitions neither validate structure nor decode values.
 Small fundamental types (`tag.h`, `length.h`, `size.h`, `value.h`, `element.h`, and the
 generic `format.h` descriptor contracts) sit directly under `tlv/`, alongside
-the generic subsystem folders. `formats/fixed.h` holds the one format
-mechanism that names no protocol; every protocol-specific format or profile
+the generic subsystem folders. `formats/fixed.h` and `formats/variable.h` hold
+format mechanisms that name no protocol; every protocol-specific format or profile
 OpenTLV ships lives under `builtins/<protocol>/`, so all of a protocol's
 functionality is in one place instead of scattered across role-based folders: EMV's schema,
 codec, DOL and umbrella profile header are all under `builtins/emv/`, and
@@ -136,7 +137,9 @@ ASN.1's wire formats and bounded DER/CER profile operations are all under
 that build on them would otherwise share a name, so the profile headers are
 `der_profile.h`/`cer_profile.h`; similarly `builtins/emv/emv_codec.h` (moved
 from `codec/emv.h`) is distinct from the umbrella `builtins/emv/emv.h`.
-BER and DER share `src/builtins/asn1/ber_internal.c` and its private header.
+BER, DER and CER share the ASN.1 field adapter in
+`src/builtins/asn1/ber_internal.c` and its private header. Reusable variable-width
+identifier and definite-length algorithms live in `src/formats/variable.c`.
 Internal schema validation, BER helpers and EMV value codecs have dedicated
 source files. `config.h` and `version.h` are generated into the build include
 directory. The public aggregate `tlv/tlv.h` includes enabled components; generic

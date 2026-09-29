@@ -2,7 +2,6 @@
 #include "tlv/layout.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "ber_internal.h"
-#include "tlv/endian.h"
 #include <string.h>
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* used) {
@@ -179,23 +178,20 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
     tlv_size_t length;
     size_t used, native_length;
     tlv_result_t rc;
-    *len_size = tlv_ber_length_field_size(data, size);
-    if (!size) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (data[0] != TLV_BER_LENGTH_LONG_FORM_BIT) {
-        rc = read_length(context, data, size, &length, &used);
+    if (!size || data[0] != TLV_BER_LENGTH_LONG_FORM_BIT) {
+        rc = read_length(context, data, size, &length, len_size);
         if (rc != TLV_OK) return rc;
-        *len_size = used;
         *value_size = length;
         *trailer_size = 0;
         return TLV_OK;
     }
+    *len_size = TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE;
     if (!tlv_ber_is_constructed(context, tag)) return TLV_ERR_INVALID_LENGTH;
     rc = tlv_ber_scan_contents_diag(data + 1, size - 1, 1, &native_length, &used, error);
     if (rc != TLV_OK) {
         if (error->has_offset) ++error->offset;
         return rc;
     }
-    *len_size = TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE;
     *value_size = native_length;
     *trailer_size = TLV_BER_EOC_SIZE;
     return TLV_OK;
@@ -243,64 +239,6 @@ const tlv_field_layout_t tlv_ber_fields = {.context = NULL,
                                            .length_size = length_size};
 const tlv_format_t tlv_format_ber = {&tlv_ber_fields, tlv_fields_decode, tlv_fields_measure,
                                      tlv_fields_encode, tlv_ber_is_constructed};
-
-tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_size_t* value,
-                                   size_t* consumed) {
-    size_t count, offset, width;
-    uint64_t decoded;
-    if ((!data && data_size) || !value || !consumed) return TLV_ERR_NULL_ARG;
-    if (!data_size) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (data[0] < TLV_BER_LENGTH_LONG_FORM_BIT) {
-        *value = data[0];
-        *consumed = 1;
-        return TLV_OK;
-    }
-    /* Indefinite lengths and the reserved FF prefix are unsupported. */
-    if (data[0] == TLV_BER_LENGTH_LONG_FORM_BIT || data[0] == TLV_BER_LENGTH_RESERVED_OCTET)
-        return TLV_ERR_INVALID_LENGTH;
-    count = data[0] & TLV_BER_LENGTH_COUNT_MASK;
-    if (data_size - 1 < count) return TLV_ERR_BUFFER_TOO_SHORT;
-    /* BER permits padding beyond tlv_size_t's 64-bit width. Validate the
-     * complete payload before stripping only excess zero octets. */
-    offset = 1;
-    width = count;
-    while (width > sizeof(uint64_t)) {
-        if (data[offset++] != 0) return TLV_ERR_INVALID_LENGTH;
-        --width;
-    }
-    if (tlv_read_uint(data + offset, width, TLV_BYTE_ORDER_BIG_ENDIAN, &decoded) != TLV_OK)
-        return TLV_ERR_INVALID_LENGTH;
-    *value = decoded;
-    *consumed = count + 1;
-    return TLV_OK;
-}
-
-tlv_result_t tlv_ber_length_encode(tlv_size_t value, uint8_t* out, size_t out_capacity,
-                                   size_t* written) {
-    size_t count = 1;
-    tlv_size_t remaining = value;
-    if ((!out && out_capacity) || !written) return TLV_ERR_NULL_ARG;
-    if (value >= TLV_BER_LENGTH_LONG_FORM_BIT) {
-        do {
-            ++count;
-            remaining >>= 8;
-        } while (remaining);
-    }
-    if (!out) {
-        *written = count;
-        return TLV_OK;
-    }
-    if (out_capacity < count) return TLV_ERR_BUFFER_TOO_SHORT;
-    if (count == 1)
-        out[0] = (uint8_t)value;
-    else {
-        out[0] = (uint8_t)(TLV_BER_LENGTH_LONG_FORM_BIT | (count - 1));
-        if (tlv_write_uint(out + 1, count - 1, TLV_BYTE_ORDER_BIG_ENDIAN, value) != TLV_OK)
-            return TLV_ERR_INVALID_LENGTH;
-    }
-    *written = count;
-    return TLV_OK;
-}
 
 tlv_result_t tlv_asn1_indefinite_measure(const void* context, const tlv_element_t* element,
                                          tlv_encoding_t* sizes, tlv_format_error_t* error) {

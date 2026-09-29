@@ -2,6 +2,9 @@
 #define OPENTLV_BER_INTERNAL_H
 #include "tlv/layout.h"
 #include "tlv/builtins/asn1/ber.h"
+/* Private ASN.1 field adapter over generic Variable primitives. Retains BER's
+ * leading-digit and reserved-length policy; DER/CER add their own restrictions.
+ * This is not the reusable, protocol-independent wire implementation. */
 extern const tlv_field_layout_t tlv_ber_wire;
 extern const tlv_field_layout_t tlv_der_fields;
 extern const tlv_field_layout_t tlv_cer_fields;
@@ -28,7 +31,7 @@ enum {
 enum { TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE = 1, TLV_BER_EOC_SIZE = 2 };
 
 /* Available bytes of the original BER length field, including malformed or
- * truncated fields. Does not decode a quantity or read beyond size. */
+ * truncated fields. Discards the decoded quantity and never reads beyond size. */
 size_t tlv_ber_length_field_size(const uint8_t* data, size_t size);
 
 /* Walk only framing, skipping primitive contents in one step, starting just

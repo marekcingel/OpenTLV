@@ -1,4 +1,5 @@
 #include "tlv/layout.h"
+#include "tlv/formats/variable.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -401,4 +402,80 @@ TEST(Unit_Tlv_Ber, LongPaddedLengthsAndTruncation) {
         EXPECT_EQ(42u, length);
         EXPECT_EQ(bytes.size(), used);
     }
+}
+
+TEST(Unit_Tlv_Ber, IdentifierPolicyIsSeparateFromVariableMechanics) {
+    const tlv_variable_identifier_t wire = {0x1F, 0x1F, 0x80, 0x7F, TLV_ASN1_TAG_MAX_SIZE};
+    // Exhaust the first octet and first continuation digit. The final zero
+    // terminates a continuation, including nonminimal raw identifiers.
+    for (unsigned first = 0; first <= 255; ++first) {
+        for (unsigned digit = 0; digit <= 255; ++digit) {
+            const uint8_t bytes[] = {static_cast<uint8_t>(first), static_cast<uint8_t>(digit), 0};
+            tlv_tag_t     generic = {}, concrete = tlv_tag(bytes + 2, 1);
+            size_t        generic_used = 0, concrete_used = 99;
+            ASSERT_EQ(TLV_OK, tlv_variable_identifier_read(&wire, bytes, sizeof(bytes), &generic,
+                                                           &generic_used));
+            const bool rejected =
+                first == 0 || first == 0x20 || ((first & 0x1F) == 0x1F && (digit & 0x7F) == 0);
+            ASSERT_EQ(rejected ? TLV_ERR_INVALID_TAG : TLV_OK,
+                      tlv_ber_read_identifier(bytes, sizeof(bytes), &concrete, &concrete_used));
+            if (rejected) {
+                EXPECT_EQ(bytes + 2, concrete.data);
+                EXPECT_EQ(99u, concrete_used);
+            } else {
+                EXPECT_EQ(generic.data, concrete.data);
+                EXPECT_EQ(generic.size, concrete.size);
+                EXPECT_EQ(generic_used, concrete_used);
+            }
+        }
+    }
+}
+
+TEST(Unit_Tlv_Ber, LeadingDigitPolicyKeepsErrorPrecedence) {
+    const std::vector<std::vector<uint8_t>> bytes = {
+        {0x9F, 0x80}, {0x9F, 0x80, 0x81}, {0x9F, 0x80, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 1}};
+    for (const auto& input : bytes) {
+        tlv_tag_t tag = tlv_tag(input.data(), 1);
+        size_t    used = 99;
+        EXPECT_EQ(TLV_ERR_INVALID_TAG,
+                  tlv_ber_read_identifier(input.data(), input.size(), &tag, &used));
+        EXPECT_EQ(1u, tag.size);
+        EXPECT_EQ(99u, used);
+    }
+}
+
+TEST(Unit_Tlv_Ber, LengthPolicyAndAtomicPublicOutputsDifferFromVariableMechanics) {
+    const tlv_variable_length_t wire = {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN};
+    std::vector<uint8_t>        reserved(128, 0);
+    reserved[0] = 0xFF;
+    reserved.back() = 7;
+    tlv_size_t value = 99;
+    size_t     used = 99;
+    ASSERT_EQ(TLV_OK,
+              tlv_variable_length_read(&wire, reserved.data(), reserved.size(), &value, &used));
+    EXPECT_EQ(7u, value);
+    EXPECT_EQ(128u, used);
+    value = used = 99;
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_ber_length_decode(reserved.data(), reserved.size(), &value, &used));
+    EXPECT_EQ(99u, value);
+    EXPECT_EQ(99u, used);
+    const auto* fields = static_cast<const tlv_field_layout_t*>(ber.context);
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, fields->read_length(fields->context, reserved.data(),
+                                                          reserved.size(), &value, &used));
+    EXPECT_EQ(1u, used); // Only the reserved prefix belongs to the diagnostic field.
+
+    const uint8_t overflow[] = {0x89, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+    EXPECT_EQ(TLV_ERR_OVERFLOW,
+              tlv_variable_length_read(&wire, overflow, sizeof(overflow), &value, &used));
+    EXPECT_EQ(sizeof(overflow), used);
+    used = 99;
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_ber_length_decode(overflow, sizeof(overflow), &value, &used));
+    EXPECT_EQ(99u, value);
+    EXPECT_EQ(99u, used);
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              fields->read_length(fields->context, overflow, sizeof(overflow), &value, &used));
+    EXPECT_EQ(sizeof(overflow), used);
+    EXPECT_EQ(99u, value);
 }

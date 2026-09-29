@@ -1,5 +1,6 @@
 #include "tlv/layout.h"
 #include "tlv/builtins/asn1/ber.h"
+#include "tlv/formats/variable.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
@@ -10,6 +11,88 @@ namespace {
 const auto& ber = tlv_format_ber;
 const auto& ber_writer = tlv_format_ber;
 } // namespace
+
+TEST(Integration_Tlv_Ber, VariableDelegationPreservesDiagnostics) {
+    struct Case {
+        std::vector<uint8_t> wire;
+        tlv_result_t         result;
+        tlv_region_t         region;
+        size_t               offset;
+        size_t               length_size;
+    };
+    const Case cases[] = {
+        {{0x04}, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_LENGTH, 1, 0},
+        {{0x04, 0x82, 1}, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_LENGTH, 1, 2},
+        {{0x04, 0xFF, 0}, TLV_ERR_INVALID_LENGTH, TLV_REGION_LENGTH, 1, 1},
+        {{0x04, 0x89, 1, 0, 0, 0, 0, 0, 0, 0, 0}, TLV_ERR_INVALID_LENGTH, TLV_REGION_LENGTH, 1, 10},
+        {{0x9F, 0x80}, TLV_ERR_INVALID_TAG, TLV_REGION_TAG, 0, 0},
+        {{0x30, 0x80, 0x04, 0xFF, 0, 0}, TLV_ERR_INVALID_LENGTH, TLV_REGION_LENGTH, 3, 1},
+        {{0x30, 0x80, 0x04, 0x80, 0, 0}, TLV_ERR_INVALID_LENGTH, TLV_REGION_LENGTH, 3, 1},
+        {{0x30, 0x80, 0x30, 2, 0x30, 0x80, 0, 0, 0, 0},
+         TLV_ERR_BUFFER_TOO_SHORT,
+         TLV_REGION_TRAILER,
+         6,
+         1},
+        {{0x30, 0x80, 0x04, 2, 0, 0}, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_TRAILER, 6, 1},
+        {{0x30, 0x80, 0x04, 2, 0}, TLV_ERR_BUFFER_TOO_SHORT, TLV_REGION_VALUE, 4, 1}};
+    for (const auto& c : cases) {
+        SCOPED_TRACE(::testing::Message() << "offset=" << c.offset << " size=" << c.wire.size());
+        tlv_decoded_t decoded = {};
+        decoded.source.size = 99;
+        tlv_format_error_t error = {};
+        EXPECT_EQ(c.result,
+                  tlv_format_decode(&ber, c.wire.data(), c.wire.size(), &decoded, &error));
+        EXPECT_EQ(c.region, error.region);
+        EXPECT_TRUE(error.has_offset);
+        EXPECT_EQ(c.offset, error.offset);
+        EXPECT_EQ(c.length_size, error.length.size);
+        EXPECT_EQ(99u, decoded.source.size);
+    }
+}
+
+TEST(Integration_Tlv_Ber, IndefiniteCompositionPreservesSourceAndRegeneratesFraming) {
+    // Padded child length, primitive 00 00 payload, nested indefinite child,
+    // and a following sibling exercise all three boundaries independently.
+    const uint8_t bytes[] = {0x30, 0x80, 0x04, 0x82, 0, 2, 0, 0,    0x30, 0x80,
+                             0x04, 1,    0xFF, 0,    0, 0, 0, 0x04, 0};
+    tlv_decoded_t decoded = {};
+    ASSERT_EQ(TLV_OK, tlv_format_decode(&ber, bytes, sizeof(bytes), &decoded, nullptr));
+    EXPECT_EQ(17u, decoded.source.size);
+    EXPECT_EQ(2u, decoded.source.header.size);
+    EXPECT_EQ(1u, decoded.source.tag.size);
+    EXPECT_EQ(1u, decoded.source.length.size);
+    EXPECT_EQ(13u, decoded.element.value.size);
+    EXPECT_EQ(bytes + 2, decoded.element.value.data);
+    EXPECT_EQ(15u, decoded.source.trailer.offset);
+    EXPECT_EQ(2u, decoded.source.trailer.size);
+    uint8_t out[sizeof(bytes)] = {};
+    size_t  used = 0;
+    ASSERT_EQ(TLV_OK,
+              tlv_source_preserve(&decoded.source, &decoded.element, out, sizeof(out), &used));
+    EXPECT_EQ(17u, used);
+    EXPECT_EQ(0, std::memcmp(bytes, out, used));
+    ASSERT_EQ(TLV_OK, tlv_format_encode(&tlv_format_ber_indefinite, &decoded.element, out,
+                                        sizeof(out), &used, nullptr));
+    EXPECT_EQ(17u, used);
+    EXPECT_EQ(0, std::memcmp(bytes, out, used));
+    ASSERT_EQ(TLV_OK, tlv_format_encode(&ber, &decoded.element, out, sizeof(out), &used, nullptr));
+    EXPECT_EQ(15u, used);
+    EXPECT_EQ(0x30, out[0]);
+    EXPECT_EQ(13, out[1]);
+    EXPECT_EQ(0, std::memcmp(bytes + 2, out + 2, 13));
+
+    const tlv_variable_format_t raw = {{0x1F, 0x1F, 0x80, 0x7F, 8},
+                                       {0x80, 0x7F, TLV_BYTE_ORDER_BIG_ENDIAN},
+                                       TLV_ELEMENT_ORDER_TLV,
+                                       TLV_LENGTH_SCOPE_VALUE};
+    tlv_format_t                generic = {};
+    ASSERT_EQ(TLV_OK, tlv_variable_format_init(&generic, &raw));
+    // Indefinite/EOC semantics belong to BER, not to the shared count primitive.
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_format_decode(&generic, bytes, sizeof(bytes), &decoded, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_format_decode(&generic, out, used, &decoded, nullptr));
+    EXPECT_EQ(13u, decoded.element.value.size);
+}
 
 TEST(Integration_Tlv_Ber, TagsAndLengthsRoundTrip) {
     const std::vector<std::vector<uint8_t>> tags = {

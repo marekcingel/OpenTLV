@@ -14,7 +14,12 @@ extern "C" {
 /**
  * @file
  * @ingroup formats
- * @brief ASN.1 BER reader and writer formats, indefinite-length framing and length codec.
+ * @brief ASN.1 BER framing over generic variable-width identifier and length primitives.
+ *
+ * ASN.1 class/form interpretation, identifier restrictions, reserved length
+ * prefixes and indefinite/EOC handling belong to this builtin. The existing
+ * raw BER-TLV compatibility contract is retained; see #tlv_format_ber for its
+ * validation limits. No operation requires a runtime engine or allocates.
  */
 
 /** @addtogroup formats
@@ -132,11 +137,19 @@ TLV_API tlv_result_t tlv_ber_tag_number(const tlv_tag_t* tag, uint64_t* number);
  * @brief Format for raw BER-TLV.
  *
  * Accepts tags up to #TLV_ASN1_TAG_MAX_SIZE bytes, including high-tag-number form, and
- * definite lengths up to `SIZE_MAX`. Reads accept nonminimal definite lengths
+ * logical definite counts up to #TLV_SIZE_MAX; complete input/output must fit
+ * native buffers. Reads accept nonminimal definite lengths
  * and constructed indefinite lengths. Tag bytes are preserved (including
  * `9F 1C`); ASN.1 semantics are not validated. Writes definite lengths using
  * the shortest length encoding. Use tlv_ber_write_indefinite() for explicit
  * indefinite framing.
+ *
+ * A zero first high-tag-number payload digit and UNIVERSAL tag zero in either
+ * form are rejected. For raw-tag compatibility, high-tag-number encodings of
+ * numbers below 31 remain accepted. Other UNIVERSAL assignments and type/form
+ * constraints are not validated here (including reserved number 15). These
+ * limits are not a claim of complete X.690 conformance. The generic Variable
+ * primitives do not impose any of these ASN.1 policies.
  */
 extern TLV_API const tlv_format_t tlv_format_ber;
 
@@ -245,7 +258,7 @@ TLV_API int tlv_ber_is_constructed(const void* context, const tlv_tag_t* tag);
  *
  * @note It is smaller than the largest field tlv_ber_length_decode() can
  *       still accept, since BER permits nonminimal (zero-padded) definite
- *       encodings with up to 127 length octets (X.690 section 8.1.3.4);
+ *       encodings with up to 126 length octets (0xFF is reserved);
  *       decoding such padding needs no buffer this large, only reading one.
  */
 enum { TLV_BER_LENGTH_MAX_ENCODED_SIZE = 9 };
@@ -313,12 +326,21 @@ TLV_API extern const tlv_format_t tlv_format_ber_indefinite;
 /**
  * @brief Decode one BER identifier without requiring a following length or value.
  *
- * @param[in]  data     Input bytes.
+ * Applies the raw identifier policy documented for #tlv_format_ber. Class and
+ * constructed bits remain part of the borrowed identifier's byte identity.
+ *
+ * @param[in]  data     Input bytes; NULL only when size is zero.
  * @param[in]  size     Available bytes.
- * @param[out] tag      Borrowed identifier on success.
+ * @param[out] tag      Borrowed identifier on success; data must outlive its use.
  * @param[out] consumed Identifier width on success.
  *
- * @return #TLV_OK, #TLV_ERR_NULL_ARG, or a BER identifier error.
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for a missing required pointer.
+ * @return #TLV_ERR_INVALID_TAG for a reserved EOC tag or zero first payload digit.
+ * @return #TLV_ERR_INVALID_TAG_SIZE if the identifier exceeds the supported width.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT for an incomplete identifier.
+ * @note Both outputs remain unchanged on failure. An invalid available first
+ * payload digit is reported before later truncation or width errors.
  */
 TLV_API tlv_result_t tlv_ber_read_identifier(const uint8_t* data, size_t size, tlv_tag_t* tag,
                                              size_t* consumed);
