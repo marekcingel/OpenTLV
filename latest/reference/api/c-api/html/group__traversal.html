@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C API: Traversal and scanning</title>
+<title>OpenTLV C API: Traversal</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -75,7 +75,7 @@ $(function() {
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
-  <div class="headertitle"><div class="title">Traversal and scanning</div></div>
+  <div class="headertitle"><div class="title">Traversal</div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
@@ -83,9 +83,6 @@ $(function() {
 Files</h2></td></tr>
 <tr class="memitem:query_8h" id="r_query_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="query_8h.html">query.h</a></td></tr>
 <tr class="memdesc:query_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Path queries that address TLV elements by their nested tags. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:scanner_8h" id="r_scanner_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scanner_8h.html">scanner.h</a></td></tr>
-<tr class="memdesc:scanner_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recovery scan for a plausible TLV element at any byte offset. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:walker_8h" id="r_walker_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="walker_8h.html">walker.h</a></td></tr>
 <tr class="memdesc:walker_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visitor-based traversal of sequential and nested TLV elements. <br /></td></tr>
@@ -156,9 +153,6 @@ Functions</h2></td></tr>
 <tr class="memitem:ga7c30635fc426a34a345eb1b0f2385888" id="r_ga7c30635fc426a34a345eb1b0f2385888"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga7c30635fc426a34a345eb1b0f2385888">tlv_query_walk</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query, size_t max_depth, size_t max_elements, <a class="el" href="group__traversal.html#gaf572548859302a08a316afb73d4ea641">tlv_tree_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
 <tr class="memdesc:ga7c30635fc426a34a345eb1b0f2385888"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls a visitor for every element a query addresses.  <br /></td></tr>
 <tr class="separator:ga7c30635fc426a34a345eb1b0f2385888"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga776faea9333a7800f3af513738b749c1" id="r_ga776faea9333a7800f3af513738b749c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga776faea9333a7800f3af513738b749c1">tlv_scan</a> (const uint8_t *data, size_t size, size_t start, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="structtlv__schema__t.html">tlv_schema_t</a> *schema, <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *out_element, size_t *out_offset, size_t *consumed)</td></tr>
-<tr class="memdesc:ga776faea9333a7800f3af513738b749c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finds the first complete candidate element at or after an offset.  <br /></td></tr>
-<tr class="separator:ga776faea9333a7800f3af513738b749c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac0c19dac414ac8c8337dfaa6947dcfa7" id="r_gac0c19dac414ac8c8337dfaa6947dcfa7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gac0c19dac414ac8c8337dfaa6947dcfa7">tlv_walk</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="group__traversal.html#ga2f77cb67e45cba7d095a0d5986de279a">tlv_visitor_t</a> visitor, void *context)</td></tr>
 <tr class="memdesc:gac0c19dac414ac8c8337dfaa6947dcfa7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visits each sequential element using the generic reader.  <br /></td></tr>
 <tr class="separator:gac0c19dac414ac8c8337dfaa6947dcfa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -170,7 +164,7 @@ Functions</h2></td></tr>
 <tr class="separator:gac6b3e217b544594f5d69ca8167dad36e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<p>Walking nested elements and scanning paths with caller-owned state. Guides: <a href="https://marekcingel.github.io/OpenTLV/guides/scanner/">scanning and recovery</a>. </p>
+<p>Walking adjacent or nested elements through the canonical Reader cursor. Guides: <a href="https://marekcingel.github.io/OpenTLV/guides/reader/">pull-based reading</a>. </p>
 <h2 class="groupheader">Typedef Documentation</h2>
 <a id="ga043ec7e39913845558eb965739e80968" name="ga043ec7e39913845558eb965739e80968"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga043ec7e39913845558eb965739e80968">&#9670;&#160;</a></span>tlv_query_matcher_t</h2>
@@ -632,96 +626,6 @@ Any other error of <a class="el" href="group__traversal.html#ga67f4429a613aed793
 <dl class="section note"><dt>Note</dt><dd>Never allocates and does not recurse. No match is not an error: the visitor is simply never called. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Visitor effects are not rolled back on error. The input and format must remain valid and unchanged during the call. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__traversal.html#ga67f4429a613aed793bf4c78cda4c6ac9" title="Traverses nested elements in preorder.">tlv_walk_tree</a> </dd></dl>
-
-</div>
-</div>
-<a id="ga776faea9333a7800f3af513738b749c1" name="ga776faea9333a7800f3af513738b749c1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga776faea9333a7800f3af513738b749c1">&#9670;&#160;</a></span>tlv_scan()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_scan </td>
-          <td>(</td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>data</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>start</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
-          <td class="paramname"><em>format</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="structtlv__schema__t.html">tlv_schema_t</a> *&#160;</td>
-          <td class="paramname"><em>schema</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structtlv__element__t.html">tlv_element_t</a> *&#160;</td>
-          <td class="paramname"><em>out_element</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>out_offset</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t *&#160;</td>
-          <td class="paramname"><em>consumed</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Finds the first complete candidate element at or after an offset. </p>
-<p>Tries <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a> at each byte offset from <code>start</code> through <code>size - 1</code> and returns the first complete candidate. Candidate parsing and validation errors, including truncated data, are skipped.</p>
-<p>A non-<code>NULL</code> <code>schema</code> requires a known tag and a valid value length; an empty schema rejects all candidates. With no schema only syntactic validation applies.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Input buffer. May be <code>NULL</code> only when <code>size</code> is zero. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Input size in bytes. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">start</td><td>First offset to try, relative to <code>data</code>. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Reader format; <code>decode</code> are required. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">schema</td><td>Optional schema restricting candidates; may be <code>NULL</code>. <code>schema-&gt;entries</code> may be <code>NULL</code> only for a zero count. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">out_element</td><td>Receives the matched element; borrows the input value. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">out_offset</td><td>Receives the match offset, absolute relative to <code>data</code>. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">consumed</td><td>Receives the encoded size of the match.</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> if a candidate matched. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> if there is no match, including <code>start &gt;= size</code>. </dd>
-<dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for invalid arguments.</dd></dl>
-<dl class="section note"><dt>Note</dt><dd>All outputs remain unchanged on failure. </dd>
-<dd>
-No allocation or value copying occurs; custom callbacks must obey the allocation-free format contract. </dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>A match is not proof of an original element boundary. The input, format and schema must stay valid during the call, and the input must outlive the returned view. </dd></dl>
 
 </div>
 </div>

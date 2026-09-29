@@ -1107,14 +1107,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../guides/scanner/" class="md-nav__link">
+      <a href="../../../guides/reader/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Scanning and recovery
+    Pull-based Reader
   
 
     
@@ -3269,10 +3269,9 @@ The C core does not allocate; C++ error construction retains its existing
 <code>std::string</code> behavior.</p>
 <p><code>tlv_copy_element</code> with the BER writer re-encodes the outer header as definite;
 child bytes remain unchanged. Use <code>tlv_copy_encoded</code> with the full consumed
-range to preserve the original indefinite representation. Flat walkers,
-recovery scanning, structural schemas and structure codecs use the resolved
-value range. Scanner results remain recovery candidates, not proof of a valid
-surrounding tree. DER still rejects indefinite lengths.</p>
+range to preserve the original indefinite representation. Readers, walkers,
+structural schemas and structure codecs use the resolved value range.
+DER still rejects indefinite lengths.</p>
 <h3 id="standalone-definite-length-codec">Standalone definite-length codec<a class="headerlink" href="#standalone-definite-length-codec" title="Permanent link">&para;</a></h3>
 <p><code>tlv_ber_length_decode(data, data_size, &amp;value, &amp;consumed)</code> and
 <code>tlv_ber_length_encode(value, out, out_capacity, &amp;written)</code> inspect or produce

@@ -1247,14 +1247,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../scanner/" class="md-nav__link">
+      <a href="../reader/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Scanning and recovery
+    Pull-based Reader
   
 
     
@@ -2931,8 +2931,7 @@ a distinct schema type built for that purpose.</p>
 <p>A nonzero <code>tlv_schema_entry_t.length_multiple</code> requires the value length to be
 divisible by that width as well as satisfying the inclusive bounds. Zero
 disables the multiple constraint; an empty value satisfies any multiple when
-the minimum permits it. All schema validators and the schema-aware scanner
-use this rule. Length diagnostics expose the expected <code>length_multiple</code>.
+the minimum permits it. All schema validators use this rule. Length diagnostics expose the expected <code>length_multiple</code>.
 The <a href="../../formats/bluetooth/#advertising-data-schema">Bluetooth AD schema</a>
 uses it for UUID lists without decoding their values.</p>
 <p>Set <code>flags = TLV_SCHEMA_LENGTH_ENDPOINTS</code> to permit only <code>min_length</code> or

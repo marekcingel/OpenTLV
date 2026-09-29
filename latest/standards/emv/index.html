@@ -1107,14 +1107,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/scanner/" class="md-nav__link">
+      <a href="../../guides/reader/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Scanning and recovery
+    Pull-based Reader
   
 
     
@@ -3019,7 +3019,7 @@ context lookup remain stable. Rebuild consumers and update initializers.</p>
 storage. Runtime owners select codecs and validate Schema explicitly; no
 <code>.otlv</code> loader, syntax, mandatory factory or generic dictionary layer is added.</p>
 <h2 id="framing-and-lookup">Framing and lookup<a class="headerlink" href="#framing-and-lookup" title="Permanent link">&para;</a></h2>
-<p>Use <code>&amp;tlv_format_emv</code> with the reader, walker, scanner, or writer.
+<p>Use <code>&amp;tlv_format_emv</code> with the reader, walker, or writer.
 There is no separate EMV parser and the reader never interprets values.</p>
 <p>The descriptor in <code>tlv/builtins/emv/format.h</code> composes generic variable identifier
 and count primitives with EMV policy. It calls no ASN.1 format or private BER

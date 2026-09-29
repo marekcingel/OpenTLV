@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/guides/scanner/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/guides/reader/">
       
       
         <link rel="prev" href="../copy/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Scanning and recovery - OpenTLV</title>
+        <title>Pull-based Reader - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tlv-scanning-and-recovery" class="md-skip">
+        <a href="#pull-based-reader" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Scanning and recovery
+              Pull-based Reader
             
           </span>
         </div>
@@ -1121,6 +1121,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pull-based Reader
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1128,7 +1146,7 @@
   <span class="md-ellipsis">
     
   
-    Scanning and recovery
+    Pull-based Reader
   
 
     
@@ -1137,6 +1155,69 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#outcomes-and-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outcomes and state
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-and-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source and diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ownership-and-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ownership and composition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-from-scanner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration from Scanner
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2672,6 +2753,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#outcomes-and-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outcomes and state
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-and-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source and diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ownership-and-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ownership and composition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-from-scanner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration from Scanner
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2687,7 +2820,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/guides/scanner.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/guides/reader.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2695,48 +2828,107 @@
   
 
 
-<h1 id="tlv-scanning-and-recovery">TLV scanning and recovery<a class="headerlink" href="#tlv-scanning-and-recovery" title="Permanent link">&para;</a></h1>
-<p>Include <code>tlv/reader/scanner.h</code> to search from an arbitrary byte offset. The scanner
-calls the generic <code>tlv_read()</code> at successive offsets and returns the first
-complete candidate, without allocating or copying values.</p>
+<h1 id="pull-based-reader">Pull-based Reader<a class="headerlink" href="#pull-based-reader" title="Permanent link">&para;</a></h1>
+<p><code>tlv_reader_t</code> is the canonical allocation-free cursor over caller-owned bytes.
+The caller requests one element at a time and decides how to process or retain
+it. Format alone interprets wire representation. Reader performs no I/O,
+buffering, recovery, schema validation or semantic Value decoding.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/formats/fixed.h"</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/scanner.h"</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/reader.h"</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="cm">/* One tag byte and one length byte; config must outlive its readers. */</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">.</span><span class="n">tag_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">};</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">data</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xFF</span><span class="p">,</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">,</span><span class="w"> </span><span class="mh">0x42</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mh">0xAB</span><span class="p">};</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">consumed</span><span class="p">;</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_scan</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">);</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="cm">/* TLV_OK: offset == 2, consumed == 3, element.value.data == data + 4. */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_fixed_format_t</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">.</span><span class="n">tag_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">.</span><span class="n">length_order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_BYTE_ORDER_BIG_ENDIAN</span><span class="p">};</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">tlv_format_t</span><span class="w"> </span><span class="n">format</span><span class="p">;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">tlv_reader_t</span><span class="w"> </span><span class="n">reader</span><span class="p">;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">data</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mh">0xAB</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_fixed_format_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_reader_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">format</span><span class="p">);</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_reader_next</span><span class="p">(</span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">);</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">        </span><span class="cm">/* Process or retain the borrowed element here. */</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">        </span><span class="k">continue</span><span class="p">;</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_ERR_END_OF_BUFFER</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_ERR_BUFFER_TOO_SHORT</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">        </span><span class="cm">/* Incomplete input at reader.pos; the caller owns further input. */</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">    </span><span class="cm">/* A parsing or argument error; reader.pos has not advanced. */</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="p">}</span>
 </code></pre></div>
-<p><code>offset</code> is relative to the original buffer, even with a nonzero starting
-position. To continue after a match, pass <code>offset + consumed</code> as the next start.
-The element borrows the input; keep the buffer alive while using it.</p>
-<p>Pass an optional <code>const tlv_schema_t*</code> instead of <code>NULL</code> to require both a known
-tag and a value length within its inclusive bounds. An empty schema rejects
-every candidate. Schema lookup and validation use the <a href="../schemas/">schema API</a>,
-including its first-match behavior for duplicate tags.</p>
-<p>Parsing and schema failures cause a one-byte advance, even when a candidate is
-truncated or has a decoded length that would skip later valid candidates.
-No match returns <code>TLV_ERR_END_OF_BUFFER</code>, including empty input and starts at or
-beyond the buffer end. All outputs remain unchanged on failure. Invalid pointer
-arguments or missing read callbacks return <code>TLV_ERR_NULL_ARG</code>; see the header
-for the full argument contract.</p>
-<p>A syntactically valid candidate can occur in noise or inside another value.
-Schemas reduce false positives but cannot guarantee the original TLV boundary.
-The supplied format determines tag and length syntax; the built-in formats use
-one-byte tags. Custom format callbacks must obey the allocation-free format
-contract. The scanner uses constant auxiliary memory; schema lookup is linear
-in the number of entries for each successfully parsed candidate.</p>
-<p>Scanning is separate from ordinary reading and walking. Neither API skips
-invalid bytes or implicitly applies schemas.</p>
-<p>See also the <a href="../../reference/c-api/#traversal-and-scanning">C API reference: traversal and scanning</a>.</p>
+<h2 id="outcomes-and-state">Outcomes and state<a class="headerlink" href="#outcomes-and-state" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Result</th>
+<th>Meaning</th>
+<th>Cursor and element output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TLV_OK</code></td>
+<td>One complete element is available</td>
+<td>Publish element; advance by its full encoded size, including any trailer</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_END_OF_BUFFER</code></td>
+<td>All supplied bytes have been consumed</td>
+<td>Unchanged</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
+<td>Format requires more bytes at this position</td>
+<td>Unchanged</td>
+</tr>
+<tr>
+<td>Any other result</td>
+<td>Specific parsing or argument error</td>
+<td>Unchanged</td>
+</tr>
+</tbody>
+</table>
+<p>These are the same result codes exposed by the single-element <code>tlv_read()</code>
+primitive. Custom Format decoders must distinguish incomplete input from
+malformed wire data. Reader does not infer that distinction from tag or length
+bytes. Repeated calls with unchanged input and cursor state produce the same
+outcome; Reader never skips a failing element or searches for another boundary.</p>
+<p>End means the end of the supplied buffer, not an I/O end-of-stream event.
+An empty buffer is immediately at end. Incomplete input at a known final
+boundary is truncation that the caller must handle. This foundation does not
+provide a feed, buffering or incremental transport API. Reinitialization resets
+the cursor to position zero without taking ownership of input.</p>
+<h2 id="source-and-diagnostics">Source and diagnostics<a class="headerlink" href="#source-and-diagnostics" title="Permanent link">&para;</a></h2>
+<p><code>reader.pos</code> is the byte offset of the next element within <code>reader.data</code>.
+<code>tlv_reader_next_diag()</code> reports structured errors with absolute offsets within
+that buffer, including any known field positions, declared length and available
+bytes. A successful call leaves the diagnostic unchanged.</p>
+<p>Use <code>tlv_reader_next_source_diag()</code> to obtain an element and <code>tlv_source_t</code>
+from the same decode. Source ranges remain relative to <code>source.data</code>, the
+element start. Capture <code>reader.pos</code> before the call to locate that source in
+the original buffer. Non-success leaves both success outputs unchanged.</p>
+<h2 id="ownership-and-composition">Ownership and composition<a class="headerlink" href="#ownership-and-composition" title="Permanent link">&para;</a></h2>
+<p>Input storage belongs to the caller and must stay alive and unchanged while
+borrowed results are retained. Tag may instead borrow immutable Format-supplied
+storage, which must also outlive retained results. Reader borrows Format and its
+context; retained sources also require them. Advancing, reinitializing or
+discarding the cursor does not by itself invalidate previously returned elements.
+See <a href="../memory/">memory ownership</a>.</p>
+<p>Walker composes Reader for sequential and tree traversal. Query uses that
+traversal and Document uses Reader for sequential parsing. These higher layers
+retain their own traversal, storage and validation responsibilities.</p>
+<h2 id="migration-from-scanner">Migration from Scanner<a class="headerlink" href="#migration-from-scanner" title="Permanent link">&para;</a></h2>
+<p>The public Scanner API, <code>tlv_scan()</code> and <code>tlv/reader/scanner.h</code>, has been removed
+in #391. Applications needing resynchronization choose candidate offsets and
+call <code>tlv_read()</code> themselves. Candidate acceptance and recovery policy belong
+to the application. The CLI retains its <code>--recover</code> behavior through such a
+local policy.</p>
 
 
 

@@ -1107,14 +1107,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/scanner/" class="md-nav__link">
+      <a href="../../guides/reader/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Scanning and recovery
+    Pull-based Reader
   
 
     
@@ -2836,7 +2836,7 @@ return; this page explains what each code means and what to check first.</p>
 <td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
 <td>1</td>
 <td>A supplied buffer is too small for the data or the output.</td>
-<td>Reading: the input ends before the tag, length or value does (truncated input). Writing: the output capacity is smaller than <code>tlv_encoded_size</code> reports.</td>
+<td>Reading: more bytes are required to complete the header, value or trailer (incomplete input). Writing: the output capacity is smaller than <code>tlv_encoded_size</code> reports.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_INVALID_LENGTH</code></td>
@@ -2866,7 +2866,7 @@ return; this page explains what each code means and what to check first.</p>
 <td><code>TLV_ERR_INVALID_TAG</code></td>
 <td>6</td>
 <td>A tag is malformed or invalid for the format or standard.</td>
-<td>Unterminated multi-byte BER tags, or a tag the standard rejects.</td>
+<td>Malformed BER identifier digits, or a tag the selected format rejects. Incomplete identifiers return <code>TLV_ERR_BUFFER_TOO_SHORT</code>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_VISITOR</code></td>
@@ -2955,7 +2955,7 @@ so a custom format can return any of the codes above.</p>
 <li><a href="../c-api/">C API reference</a> for the documented codes per function.</li>
 <li><a href="../../formats/#reading-one-element">Format documentation</a> for the reader and
   writer error behavior.</li>
-<li><a href="../../guides/scanner/">Scanning and recovery</a> for continuing after an error.</li>
+<li><a href="../../guides/reader/">Pull-based reading</a> for end, incomplete input and parsing errors.</li>
 </ul>
 
 

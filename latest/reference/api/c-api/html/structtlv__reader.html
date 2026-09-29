@@ -75,7 +75,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Sequential reader over a caller-owned buffer.  
+<p>Canonical pull-based cursor over a caller-owned input buffer.  
  <a href="structtlv__reader.html#details">More...</a></p>
 
 <p><code>#include &lt;reader.h&gt;</code></p>
@@ -92,8 +92,10 @@ Data Fields</h2></td></tr>
 <tr class="separator:a0df462988d0cb475dba57307819a6eaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Sequential reader over a caller-owned buffer. </p>
-<p>Initialize with <a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9" title="Initializes a sequential reader.">tlv_reader_init()</a>. The reader borrows its buffer and format; neither is copied, and both must outlive the reader, transitively including the format's own context. </p><dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
+<div class="textblock"><p>Canonical pull-based cursor over a caller-owned input buffer. </p>
+<p>Initialize with <a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9" title="Initializes a sequential reader.">tlv_reader_init()</a>. The reader borrows its buffer and format; neither is copied, and both must outlive the reader, transitively including the format's own context. The caller requests each element with <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a>; no I/O, buffering, allocation, schema validation, semantic decoding or recovery occurs. Format alone interprets the wire representation. Higher-level traversal composes this cursor rather than implementing another sequential parser.</p>
+<p>Only a successful read advances <code>pos</code>, by the complete encoded extent, including any trailer. End, incomplete input and errors preserve the cursor and success outputs. Repeating a call with unchanged input/state returns the same outcome. Reinitialize to reuse the state for another borrowed buffer; this API does not supply or accumulate additional input.</p>
+<p>Returned elements and sources do not borrow the cursor itself. Advancing or reinitializing it does not invalidate them; their input and format-supplied identifier storage must remain alive and unchanged while results are used. </p><dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="af1b8dc22d88017047e6e67f3dfa6fef4" name="af1b8dc22d88017047e6e67f3dfa6fef4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af1b8dc22d88017047e6e67f3dfa6fef4">&#9670;&#160;</a></span>data</h2>
@@ -136,7 +138,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Offset of the next element to read. </p>
+<p>Offset of the next element in data, in bytes; must not exceed size. </p>
 
 </div>
 </div>

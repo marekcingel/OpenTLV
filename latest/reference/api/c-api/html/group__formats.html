@@ -515,6 +515,8 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
+<dd>
 A wire or buffer error reported by the format.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs. </dd></dl>
 
@@ -1897,6 +1899,8 @@ An error code as for <a class="el" href="group__formats.html#gaf2e0f147f54e46645
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
+<dd>
 A wire or buffer error reported by the format.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs.   </dd></dl>
 
@@ -2309,6 +2313,8 @@ A format error if the semantic input cannot be represented.   </dd></dl>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
 <dd>
 A wire or buffer error reported by the format.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs.   </dd></dl>
@@ -3078,6 +3084,8 @@ Any measurement error, propagated unchanged. </dd></dl>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when more input bytes are required to complete the header, value or trailer. Malformed wire data must use its specific error code instead; Reader propagates this distinction. </dd>
 <dd>
 A wire or buffer error reported by the format.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Callbacks never allocate or retain data. The core initializes outputs.   </dd>

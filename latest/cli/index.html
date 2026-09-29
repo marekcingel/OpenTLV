@@ -1107,14 +1107,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/scanner/" class="md-nav__link">
+      <a href="../guides/reader/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Scanning and recovery
+    Pull-based Reader
   
 
     
@@ -3664,9 +3664,9 @@ dictionary. The structural schema models base-context templates only, so
 <code>--module emv</code> and cannot be combined with <code>--pdol</code>.</p>
 <h3 id="recovery-scanning">Recovery scanning<a class="headerlink" href="#recovery-scanning" title="Permanent link">&para;</a></h3>
 <p><code>dump</code> and <code>decode</code> stop at the first damaged byte by default. With
-<code>--recover</code> they instead resynchronize and keep going, using the library's
-recovery scanner (<code>tlv_scan</code>): when the element at the current offset cannot
-be read, or its contents are malformed, the scanner looks at each following
+<code>--recover</code> they instead resynchronize and keep going. This CLI-owned recovery
+policy uses the public single-element <code>tlv_read()</code> API: when the element at the
+current offset cannot be read, or its contents are malformed, it checks each following
 offset for the next plausible element, and the bytes in between are skipped.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"5A0112 0000 5A0134"</span><span class="w"> </span>--recover
 <a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="nv">offset</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>5A<span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="m">12</span>

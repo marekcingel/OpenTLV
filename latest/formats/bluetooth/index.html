@@ -1107,14 +1107,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/scanner/" class="md-nav__link">
+      <a href="../../guides/reader/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Scanning and recovery
+    Pull-based Reader
   
 
     
@@ -3519,7 +3519,7 @@ is reported as a value of 2 bytes.</p>
 manufacturer data) is up to the caller, keyed on the type. The views borrow the
 input buffer; see the <a href="../../guides/memory/">shared memory ownership rules</a>
 before retaining one.</p>
-<p>The reader is also usable through the scanner, walker, schemas and the <code>otlv</code>
+<p>The reader is also usable through the walker, schemas and the <code>otlv</code>
 CLI:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$ otlv dump --format bluetooth-ltv --hex "02 01 06 03 09 48 69"
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>offset=0 tag=01 length=1 value=06

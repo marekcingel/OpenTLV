@@ -211,7 +211,7 @@ Any callback error, propagated unchanged.</dd></dl>
 </div><div class="memdoc">
 
 <p>Copies an exact encoded byte range, preserving the original wire bytes. </p>
-<p>The caller identifies the range (for example <code>input + offset</code> and <code>consumed</code> from <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__traversal.html#ga776faea9333a7800f3af513738b749c1" title="Finds the first complete candidate element at or after an offset.">tlv_scan()</a>) as a native pointer/length pair. No framing validation is performed. Overlap is supported.</p>
+<p>The caller identifies the range (for example <code>input + offset</code> and <code>consumed</code> from <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a>) as a native pointer/length pair. No framing validation is performed. Overlap is supported.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">encoded_data</td><td>Encoded bytes to copy. May be <code>NULL</code> only when <code>encoded_length</code> is zero. </td></tr>
