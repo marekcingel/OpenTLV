@@ -265,7 +265,7 @@ TEST(Unit_Tlv_Element, FixedSizeDomainIsIndependentOfFieldOrderAndByteOrder) {
 
 #if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
-#include "tlv/builtins/asn1/der_profile.h"
+#include "tlv/builtins/asn1/der_validation.h"
 TEST(Unit_Tlv_Element, DerRejectsNonminimalLengthButPreservesItsRawFieldInDiagnostic) {
     tlv_source_t source{};
     (void)source;
@@ -280,7 +280,7 @@ TEST(Unit_Tlv_Element, DerRejectsNonminimalLengthButPreservesItsRawFieldInDiagno
     EXPECT_EQ(bytes + 1, diagnostic.raw_length.data);
     EXPECT_EQ(3u, diagnostic.raw_length.size);
 }
-TEST(Unit_Tlv_Element, DerProfilePublishesTheSameRawFields) {
+TEST(Unit_Tlv_Element, DerValidationPublishesTheSameRawFields) {
     tlv_source_t source{};
     (void)source;
     const uint8_t bytes[] = {4, 1, 0xAA};
@@ -295,8 +295,8 @@ TEST(Unit_Tlv_Element, DerProfilePublishesTheSameRawFields) {
 #endif
 
 #if OPENTLV_FORMAT_CER
-#include "tlv/builtins/asn1/cer_profile.h"
-TEST(Unit_Tlv_Element, CerProfilePreservesPrimitiveAndIndefiniteLengthFields) {
+#include "tlv/builtins/asn1/cer_validation.h"
+TEST(Unit_Tlv_Element, CerValidationPreservesPrimitiveAndIndefiniteLengthFields) {
     tlv_source_t source{};
     (void)source;
     const uint8_t bytes[] = {0x30, 0x80, 4, 1, 0xAA, 0, 0};

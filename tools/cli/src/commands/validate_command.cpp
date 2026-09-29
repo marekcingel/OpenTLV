@@ -3,7 +3,7 @@
 #include <sstream>
 #include "commands/support.hpp"
 #include "tlv/config.h"
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/builtins/emv/emv_schema.h"
 #endif
@@ -11,7 +11,7 @@
 namespace cli {
 
 void validate_command::run_emv_checks() {
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     check_.presentation = cli_presentation_t();
     check_.data = data();
     check_.predicate = format_->is_constructed;
@@ -65,7 +65,7 @@ void validate_command::run_emv_checks() {
 std::string validate_command::render_failure_diagnostic(diagnostic_format  diag_format,
                                                         const char*        tag_hex_ptr,
                                                         const std::string& stage_name) {
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     if (stage_name == "dictionary" && check_.result == result_) {
         tlv::diagnostic diag = tlv::make_diagnostic(result_, TLV_DIAGNOSTIC_SEVERITY_ERROR);
         tlv_diagnostic_set_offset(&diag, error_offset_);
@@ -81,7 +81,7 @@ std::string validate_command::render_failure_diagnostic(diagnostic_format  diag_
     return walk_command::render_failure_diagnostic(diag_format, tag_hex_ptr, stage_name);
 }
 
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 tlv_visit_result_t validate_command::check_dictionary_trampoline(const tlv_element_t* element,
                                                                  std::size_t          depth,
                                                                  std::size_t          offset,

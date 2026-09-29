@@ -24,7 +24,7 @@ pub enum Error {
     OutOfMemory,
     /// No further element exists, or the input is empty.
     EndOfBuffer,
-    /// A tag is malformed or invalid for the format or profile.
+    /// A tag is malformed or invalid for the format or standard.
     InvalidTag,
     /// A visitor callback requested an error stop.
     Visitor,

@@ -1,21 +1,21 @@
 # Centralizes the parent/child relationships between the
-# OPENTLV_FORMAT_*/OPENTLV_PROFILE_* options declared in the root
+# OPENTLV_FORMAT_* and OPENTLV_EMV options declared in the root
 # CMakeLists.txt, and generates tlv/config.h and tlv/config.c from
 # tlv/resources/config.h.in / config.c.in (mirrors the version file setup in
 # cmake/version.cmake).
 #
-# Format/profile tree (disabling a node forces every node below it OFF,
+# Builtin dependency tree (disabling a node forces every node below it OFF,
 # regardless of how that node's own option was set):
 #
 #   OPENTLV_FORMAT_ASN1
 #     `- OPENTLV_FORMAT_BER
 #          |- OPENTLV_FORMAT_DER
-#          |- OPENTLV_PROFILE_EMV (legacy DOL identifier helper)
+#          |- OPENTLV_EMV (legacy DOL identifier helper)
 #          `- OPENTLV_FORMAT_CER
 #
 # OPENTLV_FORMAT_DER and OPENTLV_FORMAT_CER are independent siblings under
 # OPENTLV_FORMAT_BER: CER never depends on DER (or vice versa), and
-# OPENTLV_PROFILE_EMV retains a BER dependency for the unchanged DOL helper.
+# OPENTLV_EMV retains a BER dependency for the unchanged DOL helper.
 # EMV element framing itself uses only generic primitives and needs no DER/CER.
 #
 # OPENTLV_BLUETOOTH controls the entire Bluetooth extension independently
@@ -30,16 +30,16 @@ if(NOT OPENTLV_FORMAT_ASN1)
 endif()
 if(NOT OPENTLV_FORMAT_BER)
     set(OPENTLV_FORMAT_DER OFF CACHE BOOL
-        "Include the DER wire format and validation profile" FORCE)
+        "Include the DER wire format and validation" FORCE)
     message(STATUS "OPENTLV_FORMAT_BER is OFF: forcing OPENTLV_FORMAT_DER OFF")
     set(OPENTLV_FORMAT_CER OFF CACHE BOOL
-        "Include the CER wire format and validation profile" FORCE)
+        "Include the CER wire format and validation" FORCE)
     message(STATUS "OPENTLV_FORMAT_BER is OFF: forcing OPENTLV_FORMAT_CER OFF")
 endif()
 if(NOT OPENTLV_FORMAT_BER)
-    set(OPENTLV_PROFILE_EMV OFF CACHE BOOL
+    set(OPENTLV_EMV OFF CACHE BOOL
         "Include EMV framing, dictionary, schemas and codecs" FORCE)
-    message(STATUS "OPENTLV_FORMAT_BER is OFF: forcing OPENTLV_PROFILE_EMV OFF")
+    message(STATUS "OPENTLV_FORMAT_BER is OFF: forcing OPENTLV_EMV OFF")
 endif()
 
 

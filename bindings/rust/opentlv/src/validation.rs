@@ -1,9 +1,9 @@
-//! The DER and CER profiles: strict, limit-bounded validation and canonical
+//! The DER and CER validators: strict, limit-bounded validation and canonical
 //! writing of ASN.1 encodings.
 //!
-//! Unlike the plain [`Format`]s, which only frame elements, a [`Profile`]
-//! enforces canonical-encoding rules and resource [`Limits`]. All checks run in
-//! the C library.
+//! Bounded operations on [`Format::Der`] and [`Format::Cer`] enforce canonical
+//! encoding rules and resource [`Limits`]. Other formats return
+//! [`Error::InvalidArg`] at offset zero. All checks run in the C library.
 
 use std::error;
 use std::fmt;
@@ -17,20 +17,10 @@ use crate::error::Error;
 use crate::format::Format;
 use crate::tag::Tag;
 
-/// An ASN.1 encoding profile.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[non_exhaustive]
-pub enum Profile {
-    /// Distinguished Encoding Rules.
-    Der,
-    /// Canonical Encoding Rules.
-    Cer,
-}
-
-/// How much of the content a [`Profile`] checks.
+/// How much of the content a [`Format`] checks.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub enum Strictness {
-    /// Check framing, tags and lengths against the profile's canonical rules.
+    /// Check framing, tags and lengths against the format's canonical rules.
     #[default]
     Canonical,
     /// Additionally validate the content of every UNIVERSAL-class element
@@ -38,7 +28,7 @@ pub enum Strictness {
     Strict,
 }
 
-/// Inclusive resource limits for a [`Profile`]. Zero is a real limit.
+/// Inclusive resource limits for a [`Format`]. Zero is a real limit.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Limits {
     /// Maximum number of constructed ancestors, at most 64.
@@ -51,9 +41,9 @@ pub struct Limits {
     pub max_elements: usize,
 }
 
-/// A failed profile operation: the error and where it happened.
+/// A failed validation operation: the error and where it happened.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct ProfileError {
+pub struct ValidationError {
     /// The error reported by the C library.
     pub error: Error,
     /// Offset of the failing tag, length or value field, relative to the input
@@ -62,20 +52,20 @@ pub struct ProfileError {
     pub offset: usize,
 }
 
-impl fmt::Display for ProfileError {
+impl fmt::Display for ValidationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} at offset {}", self.error, self.offset)
     }
 }
 
-impl error::Error for ProfileError {
+impl error::Error for ValidationError {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         Some(&self.error)
     }
 }
 
-impl From<ProfileError> for Error {
-    fn from(err: ProfileError) -> Error {
+impl From<ValidationError> for Error {
+    fn from(err: ValidationError) -> Error {
         err.error
     }
 }
@@ -100,31 +90,23 @@ impl Limits {
     }
 }
 
-fn outcome(code: native::tlv_result_t, offset: usize) -> Result<(), ProfileError> {
+fn outcome(code: native::tlv_result_t, offset: usize) -> Result<(), ValidationError> {
     match Error::from_code(code) {
         None => Ok(()),
-        Some(error) => Err(ProfileError { error, offset }),
+        Some(error) => Err(ValidationError { error, offset }),
     }
 }
 
-impl Profile {
-    /// Every supported profile.
-    pub const ALL: [Profile; 2] = [Profile::Der, Profile::Cer];
-
-    /// Returns the [`Format`] that frames elements of this profile.
-    pub fn format(self) -> Format {
-        match self {
-            Profile::Der => Format::Der,
-            Profile::Cer => Format::Cer,
-        }
-    }
-
-    /// Returns the library's default limits for this profile.
-    pub fn default_limits(self) -> Limits {
+impl Format {
+    /// Returns the library's default limits for DER or CER.
+    ///
+    /// # Errors
+    /// Returns [`Error::InvalidArg`] at offset zero for other formats.
+    pub fn default_limits(self) -> Result<Limits, ValidationError> {
         // SAFETY: reads an immutable static of plain integers.
         unsafe {
-            match self {
-                Profile::Der => {
+            Ok(match self {
+                Format::Der => {
                     let l = ptr::addr_of!(native::tlv_der_default_limits).read();
                     Limits {
                         max_depth: l.max_depth,
@@ -133,7 +115,7 @@ impl Profile {
                         max_elements: l.max_elements,
                     }
                 }
-                Profile::Cer => {
+                Format::Cer => {
                     let l = ptr::addr_of!(native::tlv_cer_default_limits).read();
                     Limits {
                         max_depth: l.max_depth,
@@ -142,7 +124,13 @@ impl Profile {
                         max_elements: l.max_elements,
                     }
                 }
-            }
+                _ => {
+                    return Err(ValidationError {
+                        error: Error::InvalidArg,
+                        offset: 0,
+                    })
+                }
+            })
         }
     }
 
@@ -151,25 +139,27 @@ impl Profile {
     ///
     /// # Errors
     ///
-    /// A [`ProfileError`]: [`Error::Limit`] if a limit is exceeded,
+    /// Returns [`Error::InvalidArg`] at offset zero for formats other than DER/CER.
+    ///
+    /// A [`ValidationError`]: [`Error::Limit`] if a limit is exceeded,
     /// [`Error::InvalidValue`] or [`Error::UnsupportedType`] for content that
     /// fails [`Strictness::Strict`], or another error for malformed or
     /// noncanonical input.
     ///
     /// ```
-    /// use opentlv::{Limits, Profile, Strictness};
+    /// use opentlv::{Limits, Format, Strictness};
     ///
-    /// let limits = Profile::Der.default_limits();
+    /// let limits = Format::Der.default_limits().unwrap();
     /// // INTEGER 5, then the same element with a non-minimal length.
-    /// assert!(Profile::Der.validate(&[0x02, 0x01, 0x05], &limits, Strictness::Canonical).is_ok());
-    /// assert!(Profile::Der.validate(&[0x02, 0x81, 0x01, 0x05], &limits, Strictness::Canonical).is_err());
+    /// assert!(Format::Der.validate(&[0x02, 0x01, 0x05], &limits, Strictness::Canonical).is_ok());
+    /// assert!(Format::Der.validate(&[0x02, 0x81, 0x01, 0x05], &limits, Strictness::Canonical).is_err());
     /// ```
     pub fn validate(
         self,
         data: &[u8],
         limits: &Limits,
         strictness: Strictness,
-    ) -> Result<(), ProfileError> {
+    ) -> Result<(), ValidationError> {
         let mut offset = 0usize;
         let (ptr, len) = (data.as_ptr(), data.len());
         let no_context = ptr::null_mut();
@@ -177,10 +167,10 @@ impl Profile {
         // there is no visitor, and `offset` is a writable `usize`.
         let code = unsafe {
             match (self, strictness) {
-                (Profile::Der, Strictness::Canonical) => {
+                (Format::Der, Strictness::Canonical) => {
                     native::tlv_der_walk(ptr, len, &limits.der(), None, no_context, &mut offset)
                 }
-                (Profile::Der, Strictness::Strict) => native::tlv_der_walk_strict(
+                (Format::Der, Strictness::Strict) => native::tlv_der_walk_strict(
                     ptr,
                     len,
                     &limits.der(),
@@ -188,10 +178,10 @@ impl Profile {
                     no_context,
                     &mut offset,
                 ),
-                (Profile::Cer, Strictness::Canonical) => {
+                (Format::Cer, Strictness::Canonical) => {
                     native::tlv_cer_walk(ptr, len, &limits.cer(), None, no_context, &mut offset)
                 }
-                (Profile::Cer, Strictness::Strict) => native::tlv_cer_walk_strict(
+                (Format::Cer, Strictness::Strict) => native::tlv_cer_walk_strict(
                     ptr,
                     len,
                     &limits.cer(),
@@ -199,6 +189,12 @@ impl Profile {
                     no_context,
                     &mut offset,
                 ),
+                _ => {
+                    return Err(ValidationError {
+                        error: Error::InvalidArg,
+                        offset: 0,
+                    })
+                }
             }
         };
         outcome(code, offset)
@@ -211,14 +207,16 @@ impl Profile {
     ///
     /// # Errors
     ///
-    /// Same as [`Profile::validate`], plus [`Error::EndOfBuffer`] for empty
+    /// Returns [`Error::InvalidArg`] at offset zero for formats other than DER/CER.
+    ///
+    /// Same as [`Format::validate`], plus [`Error::EndOfBuffer`] for empty
     /// input.
     pub fn read<'a>(
         self,
         data: &'a [u8],
         limits: &Limits,
         strictness: Strictness,
-    ) -> Result<(Element<'a>, usize), ProfileError> {
+    ) -> Result<(Element<'a>, usize), ValidationError> {
         let mut element = MaybeUninit::<native::tlv_element_t>::uninit();
         let mut consumed = 0usize;
         let mut offset = 0usize;
@@ -228,10 +226,10 @@ impl Profile {
         // and `out`, `consumed` and `offset` are writable.
         let code = unsafe {
             match (self, strictness) {
-                (Profile::Der, Strictness::Canonical) => {
+                (Format::Der, Strictness::Canonical) => {
                     native::tlv_der_read(ptr, len, &limits.der(), out, &mut consumed, &mut offset)
                 }
-                (Profile::Der, Strictness::Strict) => native::tlv_der_read_strict(
+                (Format::Der, Strictness::Strict) => native::tlv_der_read_strict(
                     ptr,
                     len,
                     &limits.der(),
@@ -239,10 +237,10 @@ impl Profile {
                     &mut consumed,
                     &mut offset,
                 ),
-                (Profile::Cer, Strictness::Canonical) => {
+                (Format::Cer, Strictness::Canonical) => {
                     native::tlv_cer_read(ptr, len, &limits.cer(), out, &mut consumed, &mut offset)
                 }
-                (Profile::Cer, Strictness::Strict) => native::tlv_cer_read_strict(
+                (Format::Cer, Strictness::Strict) => native::tlv_cer_read_strict(
                     ptr,
                     len,
                     &limits.cer(),
@@ -250,13 +248,19 @@ impl Profile {
                     &mut consumed,
                     &mut offset,
                 ),
+                _ => {
+                    return Err(ValidationError {
+                        error: Error::InvalidArg,
+                        offset: 0,
+                    })
+                }
             }
         };
         outcome(code, offset)?;
         // SAFETY: the read succeeded, so `element` is initialized and its value
         // borrows `data`, which lives for `'a`.
         let element = unsafe { Element::from_raw(&element.assume_init()) }
-            .map_err(|error| ProfileError { error, offset: 0 })?;
+            .map_err(|error| ValidationError { error, offset: 0 })?;
         Ok((element, consumed))
     }
 
@@ -268,7 +272,7 @@ impl Profile {
         strictness: Strictness,
         data: *mut u8,
         capacity: usize,
-    ) -> Result<usize, ProfileError> {
+    ) -> Result<usize, ValidationError> {
         let mut written = 0usize;
         let mut offset = 0usize;
         let (vptr, vlen) = (value.as_ptr(), value.len());
@@ -278,7 +282,7 @@ impl Profile {
         // and `offset` are writable.
         let code = unsafe {
             match (self, strictness) {
-                (Profile::Der, Strictness::Canonical) => native::tlv_der_write(
+                (Format::Der, Strictness::Canonical) => native::tlv_der_write(
                     data,
                     capacity,
                     tag.raw(),
@@ -288,7 +292,7 @@ impl Profile {
                     &mut written,
                     &mut offset,
                 ),
-                (Profile::Der, Strictness::Strict) => native::tlv_der_write_strict(
+                (Format::Der, Strictness::Strict) => native::tlv_der_write_strict(
                     data,
                     capacity,
                     tag.raw(),
@@ -298,7 +302,7 @@ impl Profile {
                     &mut written,
                     &mut offset,
                 ),
-                (Profile::Cer, Strictness::Canonical) => native::tlv_cer_write(
+                (Format::Cer, Strictness::Canonical) => native::tlv_cer_write(
                     data,
                     capacity,
                     tag.raw(),
@@ -308,7 +312,7 @@ impl Profile {
                     &mut written,
                     &mut offset,
                 ),
-                (Profile::Cer, Strictness::Strict) => native::tlv_cer_write_strict(
+                (Format::Cer, Strictness::Strict) => native::tlv_cer_write_strict(
                     data,
                     capacity,
                     tag.raw(),
@@ -318,6 +322,12 @@ impl Profile {
                     &mut written,
                     &mut offset,
                 ),
+                _ => {
+                    return Err(ValidationError {
+                        error: Error::InvalidArg,
+                        offset: 0,
+                    })
+                }
             }
         };
         outcome(code, offset)?;
@@ -329,14 +339,16 @@ impl Profile {
     ///
     /// # Errors
     ///
-    /// A [`ProfileError`] for an invalid tag, value or child.
+    /// Returns [`Error::InvalidArg`] at offset zero for formats other than DER/CER.
+    ///
+    /// A [`ValidationError`] for an invalid tag, value or child.
     pub fn encoded_size(
         self,
         tag: &Tag,
         value: &[u8],
         limits: &Limits,
         strictness: Strictness,
-    ) -> Result<usize, ProfileError> {
+    ) -> Result<usize, ValidationError> {
         self.write_raw(tag, value, limits, strictness, ptr::null_mut(), 0)
     }
 
@@ -348,16 +360,18 @@ impl Profile {
     ///
     /// # Errors
     ///
+    /// Returns [`Error::InvalidArg`] at offset zero for formats other than DER/CER.
+    ///
     /// [`Error::BufferTooShort`] if `out` is too small, or another
-    /// [`ProfileError`] for an invalid tag, value or child.
+    /// [`ValidationError`] for an invalid tag, value or child.
     ///
     /// ```
-    /// use opentlv::{Profile, Strictness, Tag};
+    /// use opentlv::{Format, Strictness, Tag};
     ///
     /// let mut out = [0u8; 8];
     /// let tag = Tag::from_bytes(&[0x04]); // OCTET STRING
-    /// let limits = Profile::Der.default_limits();
-    /// let n = Profile::Der.write(&tag, &[0xAB], &limits, Strictness::Strict, &mut out).unwrap();
+    /// let limits = Format::Der.default_limits().unwrap();
+    /// let n = Format::Der.write(&tag, &[0xAB], &limits, Strictness::Strict, &mut out).unwrap();
     /// assert_eq!(&out[..n], &[0x04, 0x01, 0xAB]);
     /// ```
     pub fn write(
@@ -367,7 +381,7 @@ impl Profile {
         limits: &Limits,
         strictness: Strictness,
         out: &mut [u8],
-    ) -> Result<usize, ProfileError> {
+    ) -> Result<usize, ValidationError> {
         self.write_raw(tag, value, limits, strictness, out.as_mut_ptr(), out.len())
     }
 }

@@ -7,7 +7,7 @@
 
 /* Shared ASN.1 canonical content validators (ITU-T X.690 §11, the canonical
  * value restrictions common to both CER and DER), reused by
- * the DER/CER profiles and ASN.1 value codecs
+ * the DER/CER validators and ASN.1 value codecs
  * without requiring the other component to be enabled. Each validator
  * receives one primitive element's complete content in isolation; value is
  * never NULL when length is nonzero. Returns TLV_OK or TLV_ERR_INVALID_VALUE.

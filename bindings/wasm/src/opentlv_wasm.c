@@ -51,7 +51,7 @@ typedef struct {
     const uint8_t*      input;
     size_t              input_size;
     const tlv_format_t* reader;
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     /* Set when the EMV dictionary annotates elements; `emv_context[d]` is the
      * dictionary context of the elements at depth d. */
     int               emv;
@@ -133,7 +133,7 @@ static void close_elements(writer_context_t* w, size_t depth) {
     }
 }
 
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 /* Appends the EMV dictionary entry of the element, if it has one, and derives
  * the dictionary context its children are read in. */
 static void emit_emv(writer_context_t* w, const tlv_element_t* element, size_t depth,
@@ -212,7 +212,7 @@ static tlv_visit_result_t emit_element(const tlv_element_t* element, size_t dept
     emit_range(&w->out, ",\"trailer\":", decoded.source.trailer, offset);
     builder_text(&w->out, "}");
     builder_text(&w->out, constructed ? ",\"constructed\":true" : ",\"constructed\":false");
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     if (w->emv) emit_emv(w, element, depth, length);
 #endif
 #if OPENTLV_BLUETOOTH
@@ -263,7 +263,7 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
         if (tlv_fixed_format_init(fixed_format, fixed_config) != TLV_OK) return NULL;
         return fixed_format;
     }
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     if (!strcmp(name, "emv")) return &tlv_format_emv;
 #endif
 #if OPENTLV_LLDP
@@ -306,7 +306,7 @@ static void append_error(builder_t* b, tlv_result_t code, size_t offset) {
 }
 
 opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format,
-                                          const char* profile, size_t fixed_tag_size,
+                                          const char* module, size_t fixed_tag_size,
                                           size_t fixed_length_size, int fixed_big_endian,
                                           int fixed_length_first, int fixed_counts_tag) {
     opentlv_wasm_result_t* result = (opentlv_wasm_result_t*)calloc(1, sizeof *result);
@@ -336,14 +336,14 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
     builder_text(&w->out, "{\"format\":");
     builder_json_string(&w->out, format ? format : "");
 
-    if (profile && *profile && strcmp(profile, "none")) {
+    if (module && *module && strcmp(module, "none")) {
         /* The EMV dictionary names BER-TLV tags; it does not apply to other formats. */
-#if OPENTLV_PROFILE_EMV
-        if (!strcmp(profile, "emv") && format &&
+#if OPENTLV_EMV
+        if (!strcmp(module, "emv") && format &&
             (!strcmp(format, "ber") || !strcmp(format, "emv")) && reader) {
             w->emv = 1;
             w->emv_context[0] = TLV_EMV_CONTEXT_BASE;
-            builder_text(&w->out, ",\"profile\":\"emv\"");
+            builder_text(&w->out, ",\"module\":\"emv\"");
         } else
 #endif
             reader = NULL;

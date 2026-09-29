@@ -6,7 +6,7 @@
 //! [`Writer`] that encodes them, and reports the library version. Higher-level
 //! layers wrap the C library's implementation instead of reimplementing it:
 //! [`LengthSchema`] and [`StructureSchema`] validate data, [`Codec`] converts
-//! values to and from typed [`Value`]s, [`Profile`] enforces the DER and CER
+//! values to and from typed [`Value`]s, [`Format`] enforces the DER and CER
 //! canonical rules, and the [`emv`] module exposes the EMV dictionary. No raw
 //! pointers appear in the public API.
 //!
@@ -46,7 +46,7 @@
 //!
 //! Fallible operations return [`Result`], whose error is [`Error`]: one variant
 //! per C `TLV_ERR_*` code, [`Display`](std::fmt::Display)ed with the C
-//! description. [`SchemaError`] and [`ProfileError`] add the failing offset and
+//! description. [`SchemaError`] and [`ValidationError`] add the failing offset and
 //! [`CodecError`] maps the separate codec result codes. Malformed input never
 //! panics. A [`Reader`] ends after its first error; a [`Writer`] that reports
 //! [`Error::BufferTooShort`] keeps its position.
@@ -64,7 +64,7 @@
 //! Every operation calls into the OpenTLV C library through `opentlv-native`, so
 //! behavior and error codes match the C API. The safe layer replaces pointer and
 //! length pairs with slices and lifetimes. Callback-based visitors, structure
-//! codecs and the DOL profile are not bound yet.
+//! codecs and the DOL component are not bound yet.
 
 #![warn(missing_docs)]
 
@@ -73,11 +73,11 @@ mod element;
 mod error;
 mod fixed_format;
 mod format;
-mod profile;
 mod reader;
 mod schema;
 mod source;
 mod tag;
+mod validation;
 mod writer;
 
 pub mod emv;
@@ -90,13 +90,13 @@ pub use element::Element;
 pub use error::{Error, Result};
 pub use fixed_format::{ByteOrder, FixedFormat, FixedFormatConfig};
 pub use format::Format;
-pub use profile::{Limits, Profile, ProfileError, Strictness};
 pub use reader::Reader;
 pub use schema::{
     Kind, LengthRule, LengthSchema, SchemaError, StructureRule, StructureSchema, ValidationLimits,
 };
 pub use source::{decode, decode_fixed, Decoded};
 pub use tag::Tag;
+pub use validation::{Limits, Strictness, ValidationError};
 pub use writer::{encoded_size, encoded_size_fixed, Writer};
 
 use std::ffi::CStr;

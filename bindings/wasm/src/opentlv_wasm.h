@@ -11,7 +11,7 @@
  *
  * The JSON document has the shape
  *
- *   {"format": "ber", "profile": "emv",
+ *   {"format": "ber", "module": "emv",
  *    "elements": [{"offset": 0, "depth": 0, "tag": "6F", "length": 10,
  *                  "headerSize": 2, "constructed": true,
  *                  "symbol": "fci_template", "name": "FCI Template",
@@ -30,8 +30,8 @@
  * Bluetooth modes also add known AD Type names. "bluetooth-ad" validates
  * trailing zero padding and reports "padding": {"offset", "length"} when present.
  * "bluetooth-ltv" retains strict framing. Values remain opaque in both modes.
- * "profile", "symbol" and "lengthValid" appear only
- * when a profile was requested (and "symbol", "name" only for tags it knows).
+ * "module", "symbol" and "lengthValid" appear only
+ * when a module was requested (and "symbol", "name" only for tags it knows).
  */
 
 #include <stddef.h>
@@ -53,17 +53,17 @@ typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 
 /*
  * Parses `size` bytes as `format` ("fixed", "bluetooth-ltv", "bluetooth-ad", "lldp", "ber", "der"
- * or "cer"). `profile` annotates elements with dictionary metadata: NULL, "" or "none" for none, or
+ * or "cer"). `module` annotates elements with dictionary metadata: NULL, "" or "none" for none, or
  * "emv" (EMV Contact Book 3 tags) with the "ber" format. `fixed_tag_size`, `fixed_length_size` and
  * `fixed_big_endian` (nonzero for big-endian) configure `format == "fixed"`'s tag width, length
  * width (1-8 bytes) and length byte order (tlv_fixed_format_t); ignored for every other format.
  * Nonzero `fixed_length_first` selects LTV; nonzero `fixed_counts_tag` makes the length count Tag +
  * Value. Both default to zero for conventional TLV. Returns NULL only when memory runs out. An
- * unknown format or profile, invalid fixed-format widths, or invalid input, is reported through the
+ * unknown format or module, invalid fixed-format widths, or invalid input, is reported through the
  * result, never by returning NULL.
  */
 OPENTLV_WASM_API opentlv_wasm_result_t*
-opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format, const char* profile,
+opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format, const char* module,
                    size_t fixed_tag_size, size_t fixed_length_size, int fixed_big_endian,
                    int fixed_length_first, int fixed_counts_tag);
 

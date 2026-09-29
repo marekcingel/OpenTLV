@@ -21,6 +21,7 @@ function(check expected pattern)
 endfunction()
 
 check(0 "Usage:" --help)
+check(2 "unknown option" dump --format fixed --profile emv --hex "0400")
 check(0 "otlv " --version)
 check(2 "missing command")
 check(2 "unknown command" unknown)
@@ -91,13 +92,13 @@ check(2 "requires dump" validate --format ber --hex AA --tree)
 check(2 "conflicting color" dump --format ber --hex AA --force-color --no-color)
 check(2 "requires --input" dump --format ber --hex AA --input-encoding hex)
 check(2 "binary or hex" dump --format ber --input - --input-encoding unknown)
-check(2 "requires --profile" dump --format ber --hex AA --describe)
-check(2 "requires --format ber" validate --format der --hex AA --profile emv)
-check(2 "requires --format ber" dump --format der --hex AA --profile emv)
-check(2 "unknown profile" dump --format ber --hex AA --profile unknown)
-check(2 "--decode requires --profile" dump --format ber --hex AA --decode)
+check(2 "requires --module" dump --format ber --hex AA --describe)
+check(2 "requires --format ber" validate --format der --hex AA --module emv)
+check(2 "requires --format ber" dump --format der --hex AA --module emv)
+check(2 "unknown module" dump --format ber --hex AA --module unknown)
+check(2 "--decode requires --module" dump --format ber --hex AA --decode)
 check(2 "require dump" validate --format ber --hex AA --output json)
-check(2 "require dump" validate --format ber --hex AA --decode --profile emv)
+check(2 "require dump" validate --format ber --hex AA --decode --module emv)
 check(2 "text or json" dump --format ber --hex AA --output xml)
 
 foreach(pair IN ITEMS "FIXED|fixed" "BER|ber" "DER|der")
@@ -215,12 +216,12 @@ if(HAS_BER)
     check(1 "TLV_ERR_INVALID_TAG" validate --format ber --pdol --hex "0000")
     check(3 "TLV_ERR_LIMIT.*byte 3" validate --format ber --pdol --hex "9F02069F1A02" --max-elements 1 --diagnostics compact)
     check(2 "cannot use" dump --format ber --pdol --hex " " --pretty)
-    check(2 "cannot use" dump --format ber --pdol --hex " " --profile emv --decode)
+    check(2 "cannot use" dump --format ber --pdol --hex " " --module emv --decode)
     check(2 "requires --format ber" dump --format der --pdol --hex " ")
     check(0 "^{\"elements\":\\[{\"offset\":0,\"requested_length\":6,\"tag\":\"9F02\"}\\]}\n$" dump --format ber --pdol --output json --hex "9F0206")
     if(HAS_EMV)
-        check(0 "Amount Authorised" dump --format ber --pdol --hex "9F0206" --profile emv --describe)
-        check(0 "\"name\":\"Amount Authorised\"" dump --format ber --pdol --output json --profile emv --hex "9F0206")
+        check(0 "Amount Authorised" dump --format ber --pdol --hex "9F0206" --module emv --describe)
+        check(0 "\"name\":\"Amount Authorised\"" dump --format ber --pdol --output json --module emv --hex "9F0206")
     endif()
     check(0 "" dump --format ber --hex "300730030401AA040030020400" --pretty --no-color)
     set(expected "offset=0 tag=30 length=7 value=30030401AA0400\n├── offset=2 tag=30 length=3 value=0401AA\n│   └── offset=4 tag=04 length=1 value=AA\n└── offset=7 tag=04 length=0 value=\noffset=9 tag=30 length=2 value=0400\n└── offset=11 tag=04 length=0 value=\n")
@@ -268,25 +269,25 @@ if(HAS_BER)
     check(0 "^9F0206000000001000\n$" encode --format ber --tag 9F02 --value 000000001000)
 endif()
 if(HAS_EMV)
-    check(0 "Primary Account Number" dump --format ber --hex "5A0112" --profile emv)
-    check(0 "Decimal digits; dictionary length: 1..10 bytes; step: 1" dump --format ber --hex "5A0112" --profile emv --describe)
-    check(0 "Dedicated File" dump --format ber --hex "6F0784050102030405" --profile emv --pretty)
-    check(0 "Unknown EMV tag" dump --format ber --hex "DF010100" --profile emv --describe)
-    check(0 "Biometric Subtype" dump --format ber --hex "7F6005A103820101" --profile emv --pretty)
-    check(0 "Unknown EMV tag" dump --format ber --hex "E103820101" --profile emv --pretty)
+    check(0 "Primary Account Number" dump --format ber --hex "5A0112" --module emv)
+    check(0 "Decimal digits; dictionary length: 1..10 bytes; step: 1" dump --format ber --hex "5A0112" --module emv --describe)
+    check(0 "Dedicated File" dump --format ber --hex "6F0784050102030405" --module emv --pretty)
+    check(0 "Unknown EMV tag" dump --format ber --hex "DF010100" --module emv --describe)
+    check(0 "Biometric Subtype" dump --format ber --hex "7F6005A103820101" --module emv --pretty)
+    check(0 "Unknown EMV tag" dump --format ber --hex "E103820101" --module emv --pretty)
     # --decode: a known tag with a successful decode (Amount, Authorised: BCD n12 -> a decimal integer).
-    check(0 "decoded=\"1000\"" dump --format ber --hex "9F0206000000001000" --profile emv --decode)
+    check(0 "decoded=\"1000\"" dump --format ber --hex "9F0206000000001000" --module emv --decode)
     # --decode: a tag outside the dictionary is skipped gracefully, without a decoded/decode-error field.
-    check(0 "^offset=0 tag=DF01 length=1 value=00 name=\"Unknown EMV tag in this context\"\n$" dump --format ber --hex "DF010100" --profile emv --decode)
+    check(0 "^offset=0 tag=DF01 length=1 value=00 name=\"Unknown EMV tag in this context\"\n$" dump --format ber --hex "DF010100" --module emv --decode)
     # --decode: a value with the right length but an invalid BCD nibble reports a codec diagnostic.
-    check(0 "decode-error=\"Invalid codec value\"" dump --format ber --hex "9F0206FFFFFFFFFFFF" --profile emv --decode)
+    check(0 "decode-error=\"Invalid codec value\"" dump --format ber --hex "9F0206FFFFFFFFFFFF" --module emv --decode)
     # --decode: a value kind with no codec (PAN is DIGITS, not BYTES/TEXT/TEMPLATE, so use a template tag instead).
-    check(0 "^offset=0 tag=6F length=0 value= name=\"File Control Information \\(FCI\\) Template\"\n$" dump --format ber --hex "6F00" --profile emv --decode)
-    check(0 "\"decoded\":\"12345678\"" dump --format ber --hex "5A0412345678" --profile emv --decode --output json)
+    check(0 "^offset=0 tag=6F length=0 value= name=\"File Control Information \\(FCI\\) Template\"\n$" dump --format ber --hex "6F00" --module emv --decode)
+    check(0 "\"decoded\":\"12345678\"" dump --format ber --hex "5A0412345678" --module emv --decode --output json)
     # Schema validation (#167): mandatory tags, forbidden/unknown tags, duplicate
     # tags, length constraints and nesting, with a tag/offset diagnostic
     # distinguishable from an ordinary format error.
-    check(0 "^$" validate --format ber --profile emv --hex "6F098407A0000000031010") # DF Name only.
+    check(0 "^$" validate --format ber --module emv --hex "6F098407A0000000031010") # DF Name only.
     # Missing mandatory DF Name: the distinct TLV_ERR_SCHEMA_MISSING is
     # reported with tlv_schema_validate_all_diag()'s own tag (the absent
     # field, borrowed from the schema) and offset (the enclosing FCI
@@ -294,43 +295,43 @@ if(HAS_EMV)
     # report), both reliable since they come from the diagnostic itself
     # rather than a re-read of the input.
     check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=84: required schema field missing\n$"
-        validate --format ber --profile emv --hex "6F00" --diagnostics compact)
+        validate --format ber --module emv --hex "6F00" --diagnostics compact)
     check(1 "schema TLV_ERR_SCHEMA at byte 11 tag=50:" # Application Label forbidden directly under the FCI Template.
-        validate --format ber --profile emv --hex "6F0C8407A0000000031010500141" --diagnostics compact)
-    check(1 "schema TLV_ERR_SCHEMA at byte 11 tag=84:" validate --format ber --profile emv # Duplicate DF Name.
+        validate --format ber --module emv --hex "6F0C8407A0000000031010500141" --diagnostics compact)
+    check(1 "schema TLV_ERR_SCHEMA at byte 11 tag=84:" validate --format ber --module emv # Duplicate DF Name.
         --hex "6F128407A00000000310108407A0000000031010" --diagnostics compact)
     check(1 "schema TLV_ERR_INVALID_LENGTH at byte 2 tag=84:" # DF Name shorter than the dictionary minimum.
-        validate --format ber --profile emv --hex "6F048402AABB" --diagnostics compact)
+        validate --format ber --module emv --hex "6F048402AABB" --diagnostics compact)
     # A violation nested two levels down (87 inside the optional A5 inside
     # 6F) reports the full enclosing path, not just its immediate parent.
     check(1 "path: 6F > A5\ntag: 87\nfield: application_priority_indicator"
-        validate --format ber --profile emv --hex "6F0F8407A0000000031010A5048702AABB")
-    check(0 "^$" validate --format ber --profile emv # A nested, known-optional FCI Proprietary Template child.
+        validate --format ber --module emv --hex "6F0F8407A0000000031010A5048702AABB")
+    check(0 "^$" validate --format ber --module emv # A nested, known-optional FCI Proprietary Template child.
         --hex "6F0C84053132333435A503500141")
-    check(0 "^$" validate --format ber --profile emv --hex "770A82021980940408010100") # GPO response format 2: AIP + AFL.
+    check(0 "^$" validate --format ber --module emv --hex "770A82021980940408010100") # GPO response format 2: AIP + AFL.
     check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=94: required schema field missing\n$"
-        validate --format ber --profile emv --hex "770482021980" --diagnostics compact) # Missing mandatory AFL.
-    check(0 "^$" validate --format ber --profile emv --hex "7003DF0100") # Unmodeled top-level template: accepted unchecked.
+        validate --format ber --module emv --hex "770482021980" --diagnostics compact) # Missing mandatory AFL.
+    check(0 "^$" validate --format ber --module emv --hex "7003DF0100") # Unmodeled top-level template: accepted unchecked.
     check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" # A plain format error is not labeled "schema".
-        validate --format ber --profile emv --hex "6F0AFF" --diagnostics compact)
+        validate --format ber --module emv --hex "6F0AFF" --diagnostics compact)
     # A missing-required-field's offset now anchors the enclosing FCI
     # Template's own tag (here, the same 6F at offset 0 that starts the whole
     # input), not a value-end boundary that could coincide with the unrelated
     # sibling GPO response (770A...) that follows.
     check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=84: required schema field missing\n$"
-        validate --format ber --profile emv --hex "6F00770A82021980940408010100" --diagnostics compact)
-    check(0 "tag=6F" dump --format ber --profile emv --hex "6F00") # dump's --profile never runs schema checks.
+        validate --format ber --module emv --hex "6F00770A82021980940408010100" --diagnostics compact)
+    check(0 "tag=6F" dump --format ber --module emv --hex "6F00") # dump's --module never runs schema checks.
 
     # --diagnostics (#264): human (the default) and json render the same
     # tlv_schema_diagnostic_t as compact, which is exercised throughout this
     # file and matches the pre-#264 wording.
     check(1 "^otlv: error: required schema field missing\n\ncode: TLV_ERR_SCHEMA_MISSING\noffset: 0x0 \\(0\\)\npath: 6F\ntag: 84\nfield: df_name\nexpected occurrences: 1\\.\\.1\nactual occurrences: 0\n$"
-        validate --format ber --profile emv --hex "6F00")
+        validate --format ber --module emv --hex "6F00")
     check(1 "\"code\":\"TLV_ERR_SCHEMA_MISSING\",\"field\":\"df_name\",\"kind\":\"missing\",\"max_occurs\":1,\"message\":\"required schema field missing\",\"min_occurs\":1,\"occurs\":0,\"offset\":0,\"path\":\"6F\",\"severity\":\"error\",\"tag\":\"84\""
-        validate --format ber --profile emv --hex "6F00" --diagnostics json)
+        validate --format ber --module emv --hex "6F00" --diagnostics json)
 else()
-    check(2 "EMV profile is disabled" dump --format ber --hex " " --profile emv)
-    check(2 "EMV profile is disabled" validate --format ber --hex " " --profile emv)
+    check(2 "EMV module is disabled" dump --format ber --hex " " --module emv)
+    check(2 "EMV module is disabled" validate --format ber --hex " " --module emv)
 endif()
 check(2 "diagnostics must be human, compact or json" validate --format ber --hex " " --diagnostics bogus)
 if(HAS_BER)
@@ -427,73 +428,73 @@ if(HAS_FIXED)
         --fixed-length-size 1 --hex "0102 03 AABBCC")
     check(0 "^01020300AABBCC\n$" encode --format fixed --fixed-tag-size 2 --fixed-length-size 2
         --fixed-byte-order little --tag 0102 --value AABBCC)
-    check(2 "not valid for tag" tag 9F02 --profile emv --fixed-tag-size 2)
+    check(2 "not valid for tag" tag 9F02 --module emv --fixed-tag-size 2)
     check(2 "require --format fixed" dump --format ber --fixed-tag-size 2 --hex "01")
     check(2 "must be a positive decimal integer" dump --format fixed --fixed-tag-size 0 --hex "01")
     check(2 "must be between 1 and 8" dump --format fixed --fixed-length-size 9 --hex "01")
     check(2 "must be big or little" dump --format fixed --fixed-byte-order middle --hex "01")
 endif()
 
-# tag (#169): EMV dictionary lookup from the profile layer.
+# tag (#169): EMV dictionary lookup from the native EMV definitions.
 check(2 "tag requires a hex tag" tag)
-check(2 "tag requires a hex tag" tag --profile emv)
-check(2 "tag requires --profile" tag 9F02)
-check(2 "unknown profile" tag 9F02 --profile unknown)
-check(2 "not valid for tag" tag 9F02 --profile emv --format ber)
-check(2 "not valid for tag" tag 9F02 --profile emv --hex AA)
-check(2 "duplicate" tag 9F02 --profile emv --profile emv)
-check(2 "output must be text or json" tag 9F02 --profile emv --output xml)
+check(2 "tag requires a hex tag" tag --module emv)
+check(2 "tag requires --module" tag 9F02)
+check(2 "unknown module" tag 9F02 --module unknown)
+check(2 "not valid for tag" tag 9F02 --module emv --format ber)
+check(2 "not valid for tag" tag 9F02 --module emv --hex AA)
+check(2 "duplicate" tag 9F02 --module emv --module emv)
+check(2 "output must be text or json" tag 9F02 --module emv --output xml)
 if(HAS_EMV)
-    check(0 "^Tag:         9F02\nName:        Amount Authorised\nType:        Numeric value[^\n]*\nForm:        Primitive\nLength:      6\n$" tag 9F02 --profile emv)
-    check(0 "^Tag:         9F02\n" tag "9f 02" --profile emv)
-    check(0 "Name:        Primary Account Number" tag 5A --profile emv)
-    check(0 "Length:      1..10\n" tag 5A --profile emv)
-    check(0 "Form:        Constructed" tag 6F --profile emv)
-    check(0 "Length step: 4\n" tag 94 --profile emv)
+    check(0 "^Tag:         9F02\nName:        Amount Authorised\nType:        Numeric value[^\n]*\nForm:        Primitive\nLength:      6\n$" tag 9F02 --module emv)
+    check(0 "^Tag:         9F02\n" tag "9f 02" --module emv)
+    check(0 "Name:        Primary Account Number" tag 5A --module emv)
+    check(0 "Length:      1..10\n" tag 5A --module emv)
+    check(0 "Form:        Constructed" tag 6F --module emv)
+    check(0 "Length step: 4\n" tag 94 --module emv)
     # Unknown tags are a result, not malformed TLV data.
-    check(0 "^Tag:         DF01\nResult:      Unknown tag" tag DF01 --profile emv)
-    check(0 "^{\"known\":false,\"profile\":\"emv\",\"tag\":\"DF01\"}\n$" tag DF01 --profile emv --output json)
-    check(0 "\"constructed\":false" tag 9F02 --profile emv --output json)
-    check(0 "\"known\":true" tag 9F02 --profile emv --output json)
-    check(0 "\"max_length\":6" tag 9F02 --profile emv --output json)
-    check(0 "\"min_length\":6" tag 9F02 --profile emv --output json)
-    check(0 "\"name\":\"Amount Authorised\"" tag 9F02 --profile emv --output json)
-    check(0 "\"tag\":\"9F02\"" tag 9F02 --profile emv --output json)
-    check(0 "\"constructed\":true" tag 6F --profile emv --output json)
-    check(0 "\"length_step\":4" tag 94 --profile emv --output json)
+    check(0 "^Tag:         DF01\nResult:      Unknown tag" tag DF01 --module emv)
+    check(0 "^{\"known\":false,\"module\":\"emv\",\"tag\":\"DF01\"}\n$" tag DF01 --module emv --output json)
+    check(0 "\"constructed\":false" tag 9F02 --module emv --output json)
+    check(0 "\"known\":true" tag 9F02 --module emv --output json)
+    check(0 "\"max_length\":6" tag 9F02 --module emv --output json)
+    check(0 "\"min_length\":6" tag 9F02 --module emv --output json)
+    check(0 "\"name\":\"Amount Authorised\"" tag 9F02 --module emv --output json)
+    check(0 "\"tag\":\"9F02\"" tag 9F02 --module emv --output json)
+    check(0 "\"constructed\":true" tag 6F --module emv --output json)
+    check(0 "\"length_step\":4" tag 94 --module emv --output json)
     # Invalid tags are rejected.
-    check(2 "complete hexadecimal byte pairs" tag 9F0 --profile emv)
-    check(2 "complete hexadecimal byte pairs" tag ZZ --profile emv)
-    check(2 "tag must not be empty" tag " " --profile emv)
-    check(2 "not a single complete BER tag" tag 9F --profile emv)
-    check(2 "not a single complete BER tag" tag 5A01 --profile emv)
-    check(2 "tag is longer" tag 0102030405060708090A --profile emv)
+    check(2 "complete hexadecimal byte pairs" tag 9F0 --module emv)
+    check(2 "complete hexadecimal byte pairs" tag ZZ --module emv)
+    check(2 "tag must not be empty" tag " " --module emv)
+    check(2 "not a single complete BER tag" tag 9F --module emv)
+    check(2 "not a single complete BER tag" tag 5A01 --module emv)
+    check(2 "tag is longer" tag 0102030405060708090A --module emv)
 else()
-    check(2 "EMV profile is disabled" tag 9F02 --profile emv)
+    check(2 "EMV module is disabled" tag 9F02 --module emv)
 endif()
 
 # tags (#169): dictionary listing.
-check(2 "tags requires --profile" tags)
-check(2 "unknown profile" tags --profile unknown)
-check(2 "not valid for tags" tags --profile emv --format ber)
-check(2 "not valid for tags" tags --profile emv --hex AA)
+check(2 "tags requires --module" tags)
+check(2 "unknown module" tags --module unknown)
+check(2 "not valid for tags" tags --module emv --format ber)
+check(2 "not valid for tags" tags --module emv --hex AA)
 check(2 "option requires tags" dump --format ber --hex AA --search x)
-check(2 "not valid for tag" tag 9F02 --profile emv --search x)
+check(2 "not valid for tag" tag 9F02 --module emv --search x)
 check(2 "not valid for encode" encode --format ber --tag 5A --search x)
-check(2 "missing option value" tags --profile emv --search)
-check(2 "duplicate" tags --profile emv --search a --search b)
-check(2 "output must be text or json" tags --profile emv --output xml)
+check(2 "missing option value" tags --module emv --search)
+check(2 "duplicate" tags --module emv --search a --search b)
+check(2 "output must be text or json" tags --module emv --output xml)
 if(HAS_EMV)
-    check(0 "(^|\n)5A      Primary Account Number" tags --profile emv)
-    check(0 "(^|\n)9F02    Amount Authorised\n" tags --profile emv)
-    check(0 "^42 " tags --profile emv)
-    check(0 "^81      Amount Authorised Binary\n9F02    Amount Authorised\n9F03    Amount Other\n" tags --profile emv --search "AMOUNT")
-    check(0 "^94      Application File Locator \\(AFL\\)\n$" tags --profile emv --search "file locator")
-    check(0 "^$" tags --profile emv --search "no such tag name")
-    check(0 "^{\"profile\":\"emv\",\"tags\":\\[\\]}\n$" tags --profile emv --search "no such tag name" --output json)
-    check(0 "\"length_step\":4,\"max_length\":252,\"min_length\":4,\"name\":\"Application File Locator \\(AFL\\)\"" tags --profile emv --search afl --output json)
-    check(0 "\"tag\":\"9F02\"" tags --profile emv --output json)
-    check(0 "\"tag\":\"6F\"" tags --profile emv --output json)
+    check(0 "(^|\n)5A      Primary Account Number" tags --module emv)
+    check(0 "(^|\n)9F02    Amount Authorised\n" tags --module emv)
+    check(0 "^42 " tags --module emv)
+    check(0 "^81      Amount Authorised Binary\n9F02    Amount Authorised\n9F03    Amount Other\n" tags --module emv --search "AMOUNT")
+    check(0 "^94      Application File Locator \\(AFL\\)\n$" tags --module emv --search "file locator")
+    check(0 "^$" tags --module emv --search "no such tag name")
+    check(0 "^{\"module\":\"emv\",\"tags\":\\[\\]}\n$" tags --module emv --search "no such tag name" --output json)
+    check(0 "\"length_step\":4,\"max_length\":252,\"min_length\":4,\"name\":\"Application File Locator \\(AFL\\)\"" tags --module emv --search afl --output json)
+    check(0 "\"tag\":\"9F02\"" tags --module emv --output json)
+    check(0 "\"tag\":\"6F\"" tags --module emv --output json)
 endif()
 
 # JSON export and import (#110): decode, encode --input and the versioned document.
@@ -532,13 +533,17 @@ check(2 "disabled format" decode --format unknown --hex " ")
 check(2 "cannot both be given" decode --format ber --hex AA --input -)
 check(2 "--recover requires dump or decode" validate --format ber --hex AA --recover)
 check(2 "not valid for encode" encode --format ber --tag 5A --recover)
-check(2 "not valid for tag" tag 9F02 --profile emv --recover)
+check(2 "not valid for tag" tag 9F02 --module emv --recover)
 check(2 "cannot be combined with --pdol" dump --format ber --pdol --hex " " --recover)
 check(2 "duplicate" dump --format ber --hex " " --recover --recover)
-check(2 "--emv-check requires validate" dump --format ber --hex " " --profile emv --emv-check all)
-check(2 "not valid for decode" decode --format ber --hex " " --profile emv --emv-check all)
-check(2 "--emv-context requires --profile" dump --format ber --hex " " --emv-context bit)
-check(2 "--emv-check requires --profile" validate --format ber --hex " " --emv-check all)
+check(2 "--emv-check requires validate" dump --format ber --hex " " --module emv --emv-check all)
+check(2 "not valid for decode" decode --format ber --hex " " --module emv --emv-check all)
+if(HAS_EMV)
+    check(2 "--emv-context requires --module" dump --format ber --hex " " --emv-context bit)
+else()
+    check(2 "EMV module is disabled" dump --format ber --hex " " --emv-context bit)
+endif()
+check(2 "--emv-check requires --module" validate --format ber --hex " " --emv-check all)
 check(2 "option requires encode" dump --format ber --hex " " --output-file out.bin)
 check(2 "not both" encode --format ber --tag 5A --input in.json)
 check(2 "--value requires --tag" encode --format ber --input in.json --value AA)
@@ -743,67 +748,67 @@ if(HAS_DER)
     endif()
 endif()
 
-# EMV profile (#110): dictionary annotations, explicit context and checks.
+# EMV module (#110): dictionary annotations, explicit context and checks.
 if(HAS_EMV)
     # Known tags are annotated; unknown tags stay raw and unnamed.
-    run_cli(0 "${doc_head},\"format\":\"ber\",\"elements\":[{\"tag\":\"9F02\",\"name\":\"Amount Authorised\",\"value\":\"000000001000\"},{\"tag\":\"DF01\",\"value\":\"00\"}]}\n" "" decode --format ber --profile emv --hex "9F0206000000001000 DF010100")
+    run_cli(0 "${doc_head},\"format\":\"ber\",\"elements\":[{\"tag\":\"9F02\",\"name\":\"Amount Authorised\",\"value\":\"000000001000\"},{\"tag\":\"DF01\",\"value\":\"00\"}]}\n" "" decode --format ber --module emv --hex "9F0206000000001000 DF010100")
     file(WRITE "${json_dir}/cli-emv.json" "${last_output}")
     # Annotations are informational and ignored when encoding.
     run_cli(0 "9F0206000000001000DF010100\n" "" encode --format ber --input "${json_dir}/cli-emv.json")
-    check(0 "\"description\":\"Numeric value" decode --format ber --profile emv --describe --hex "9F0206000000001000")
-    check(0 "\"decoded\":\"1000\"" decode --format ber --profile emv --decode --hex "9F0206000000001000")
-    check(0 "\"decode_error\":\"Invalid codec value\"" decode --format ber --profile emv --decode --hex "9F0206FFFFFFFFFFFF")
-    check(2 "--decode requires --profile" decode --format ber --hex "9F0206000000001000" --decode)
-    check(2 "requires --format ber" decode --format der --profile emv --hex " ")
+    check(0 "\"description\":\"Numeric value" decode --format ber --module emv --describe --hex "9F0206000000001000")
+    check(0 "\"decoded\":\"1000\"" decode --format ber --module emv --decode --hex "9F0206000000001000")
+    check(0 "\"decode_error\":\"Invalid codec value\"" decode --format ber --module emv --decode --hex "9F0206FFFFFFFFFFFF")
+    check(2 "--decode requires --module" decode --format ber --hex "9F0206000000001000" --decode)
+    check(2 "requires --format ber" decode --format der --module emv --hex " ")
     # Context-dependent names: the same tag is named per enclosing template.
-    check(0 "\"tag\":\"7F60\",\"name\":\"Biometric Information Template\",\"length_mode\":\"definite\",\"children\":\\[{\"tag\":\"A1\",\"name\":\"Biometric Header Template\"" decode --format ber --profile emv --hex "7F6005A103820101")
-    check(0 "\"tag\":\"A1\",\"name\":\"Biometric Header Template\"" decode --format ber --profile emv --emv-context bit --hex "A103820101")
-    check(0 "\"tag\":\"A1\",\"length_mode\":\"definite\"" decode --format ber --profile emv --hex "A103820101")
+    check(0 "\"tag\":\"7F60\",\"name\":\"Biometric Information Template\",\"length_mode\":\"definite\",\"children\":\\[{\"tag\":\"A1\",\"name\":\"Biometric Header Template\"" decode --format ber --module emv --hex "7F6005A103820101")
+    check(0 "\"tag\":\"A1\",\"name\":\"Biometric Header Template\"" decode --format ber --module emv --emv-context bit --hex "A103820101")
+    check(0 "\"tag\":\"A1\",\"length_mode\":\"definite\"" decode --format ber --module emv --hex "A103820101")
     if(last_output MATCHES "\"name\"")
         message(FATAL_ERROR "A tag unknown in the base context must not be named: ${last_output}")
     endif()
-    check(0 "name=\"Biometric Subtype\"" dump --format ber --profile emv --emv-context bht --hex "820101")
-    check(2 "unknown EMV context" dump --format ber --profile emv --emv-context nowhere --hex " ")
-    check(2 "unknown EMV context" decode --format ber --profile emv --emv-context BIT --hex " ")
-    check(2 "EMV check must be" validate --format ber --profile emv --emv-check everything --hex " ")
-    check(2 "requires the base EMV context" validate --format ber --profile emv --emv-context bit --hex " ")
-    check(2 "requires the base EMV context" validate --format ber --profile emv --emv-check all --emv-context bit --hex " ")
-    check(2 "--pdol cannot use" dump --format ber --pdol --profile emv --emv-context bit --hex " ")
+    check(0 "name=\"Biometric Subtype\"" dump --format ber --module emv --emv-context bht --hex "820101")
+    check(2 "unknown EMV context" dump --format ber --module emv --emv-context nowhere --hex " ")
+    check(2 "unknown EMV context" decode --format ber --module emv --emv-context BIT --hex " ")
+    check(2 "EMV check must be" validate --format ber --module emv --emv-check everything --hex " ")
+    check(2 "requires the base EMV context" validate --format ber --module emv --emv-context bit --hex " ")
+    check(2 "requires the base EMV context" validate --format ber --module emv --emv-check all --emv-context bit --hex " ")
+    check(2 "--pdol cannot use" dump --format ber --pdol --module emv --emv-context bit --hex " ")
 
     # Dictionary check: known tags must have a permitted length; unknown tags
     # are not errors. The default check stays the structure check.
-    check(0 "^$" validate --format ber --profile emv --emv-check dictionary --hex "9F0206000000001000 DF010100")
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=9F02: " validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010" --diagnostics compact)
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 7 tag=9F02: " validate --format ber --profile emv --emv-check dictionary --hex "DF010100 5A0112 9F02050000000010" --diagnostics compact)
-    check(0 "^$" validate --format ber --profile emv --hex "9F02050000000010")
-    check(0 "^$" validate --format ber --profile emv --emv-check structure --hex "9F02050000000010")
+    check(0 "^$" validate --format ber --module emv --emv-check dictionary --hex "9F0206000000001000 DF010100")
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=9F02: " validate --format ber --module emv --emv-check dictionary --hex "9F02050000000010" --diagnostics compact)
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 7 tag=9F02: " validate --format ber --module emv --emv-check dictionary --hex "DF010100 5A0112 9F02050000000010" --diagnostics compact)
+    check(0 "^$" validate --format ber --module emv --hex "9F02050000000010")
+    check(0 "^$" validate --format ber --module emv --emv-check structure --hex "9F02050000000010")
     # The dictionary check reaches the children of known templates.
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 2 tag=84: " validate --format ber --profile emv --emv-check dictionary --hex "6F0684045A0301AA" --diagnostics compact)
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 2 tag=84: " validate --format ber --module emv --emv-check dictionary --hex "6F0684045A0301AA" --diagnostics compact)
     # all runs the structure check first, then the dictionary check.
-    check(0 "^$" validate --format ber --profile emv --emv-check all --hex "6F098407A0000000031010")
-    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=84: " validate --format ber --profile emv --emv-check all --hex "6F00" --diagnostics compact)
-    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 11 tag=9F02: " validate --format ber --profile emv --emv-check all --hex "6F098407A0000000031010 9F02050000000010" --diagnostics compact)
+    check(0 "^$" validate --format ber --module emv --emv-check all --hex "6F098407A0000000031010")
+    check(1 "^otlv: schema TLV_ERR_SCHEMA_MISSING at byte 0 tag=84: " validate --format ber --module emv --emv-check all --hex "6F00" --diagnostics compact)
+    check(1 "^otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 11 tag=9F02: " validate --format ber --module emv --emv-check all --hex "6F098407A0000000031010 9F02050000000010" --diagnostics compact)
     # A framing error is still reported before any EMV check runs.
-    check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" validate --format ber --profile emv --emv-check dictionary --hex "9F0206" --diagnostics compact)
-    check(3 "TLV_ERR_LIMIT" validate --format ber --profile emv --emv-check dictionary --max-elements 0 --hex "9F02050000000010")
+    check(1 "^otlv: TLV_ERR_BUFFER_TOO_SHORT" validate --format ber --module emv --emv-check dictionary --hex "9F0206" --diagnostics compact)
+    check(3 "TLV_ERR_LIMIT" validate --format ber --module emv --emv-check dictionary --max-elements 0 --hex "9F02050000000010")
     # The same length is valid or not depending on the context: 82 is the
     # Application Interchange Profile (2 bytes) in the base context and a
     # 1-byte Biometric Subtype inside a Biometric Header Template.
-    check(0 "^$" validate --format ber --profile emv --emv-check dictionary --hex "82020101")
-    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=82: " validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "82020101" --diagnostics compact)
-    check(0 "^$" validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "820101")
-    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 5 tag=82: " validate --format ber --profile emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics compact)
+    check(0 "^$" validate --format ber --module emv --emv-check dictionary --hex "82020101")
+    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=82: " validate --format ber --module emv --emv-check dictionary --emv-context bht --hex "82020101" --diagnostics compact)
+    check(0 "^$" validate --format ber --module emv --emv-check dictionary --emv-context bht --hex "820101")
+    check(1 "dictionary TLV_ERR_INVALID_LENGTH at byte 5 tag=82: " validate --format ber --module emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics compact)
     # The same violation, nested two levels down (82 inside A1 inside 7F60),
     # also reports the enclosing path, the permitted-versus-actual length,
     # and the dictionary field name -- in both human and json.
     check(1 "path: 7F60 > A1\nstage: dictionary\nexpected: 1\\.\\.1\nactual: 2\ndictionary field: biometric_subtype"
-        validate --format ber --profile emv --emv-check dictionary --hex "7F6006A10482020101")
+        validate --format ber --module emv --emv-check dictionary --hex "7F6006A10482020101")
     check(1 "\"expected\":\"1..1\",\"message\":\"invalid length encoding\",\"offset\":5,\"path\":\"7F60 > A1\",\"severity\":\"error\",\"stage\":\"dictionary\",\"tag\":\"82\""
-        validate --format ber --profile emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics json)
-    check(0 "^$" validate --format ber --profile emv --emv-check dictionary --hex "7F6005A103820101")
+        validate --format ber --module emv --emv-check dictionary --hex "7F6006A10482020101" --diagnostics json)
+    check(0 "^$" validate --format ber --module emv --emv-check dictionary --hex "7F6005A103820101")
 else()
-    check(2 "EMV profile is disabled" decode --format ber --hex " " --profile emv)
-    check(2 "EMV profile is disabled" dump --format ber --hex " " --profile emv --emv-context bit)
+    check(2 "EMV module is disabled" decode --format ber --hex " " --module emv)
+    check(2 "EMV module is disabled" dump --format ber --hex " " --module emv --emv-context bit)
 endif()
 
 # Recovery scanning (#110): --recover on dump and decode; validate stays strict.

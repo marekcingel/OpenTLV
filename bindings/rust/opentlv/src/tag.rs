@@ -12,7 +12,7 @@ use crate::error::{Error, Result};
 ///
 /// A tag owns its bytes and has no length limit. Whether the bytes form a valid
 /// tag, and how long a tag may be, is decided by the [`Format`](crate::Format)
-/// or profile a tag is used with, and which tags are allowed is decided by a
+/// or standard a tag is used with, and which tags are allowed is decided by a
 /// schema. Tags compare equal when their bytes are equal and are ordered
 /// lexicographically by their bytes.
 ///

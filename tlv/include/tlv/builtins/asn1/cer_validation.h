@@ -1,5 +1,5 @@
-#ifndef OPENTLV_BUILTINS_ASN1_CER_PROFILE_H
-#define OPENTLV_BUILTINS_ASN1_CER_PROFILE_H
+#ifndef OPENTLV_BUILTINS_ASN1_CER_VALIDATION_H
+#define OPENTLV_BUILTINS_ASN1_CER_VALIDATION_H
 
 #include "tlv/error.h"
 #include "tlv/builtins/asn1/cer.h"
@@ -12,7 +12,7 @@ extern "C" {
 
 /**
  * @file
- * @ingroup profiles
+ * @ingroup builtins
  * @brief Bounded recursive CER validation, traversal and canonical writing.
  *
  * All functions here are allocation-free and use no C recursion. All limits
@@ -20,7 +20,7 @@ extern "C" {
  * #tlv_cer_default_limits.
  */
 
-/** @addtogroup profiles
+/** @addtogroup builtins
  * @{
  */
 
@@ -71,7 +71,7 @@ extern TLV_API const tlv_cer_limits_t tlv_cer_default_limits;
  * zero-copy, iterate the constructed string element's own borrowed value
  * (`element->value`), for example with
  * `tlv_walk(element->value.data, size, &tlv_format_cer, ...)`. See
- * docs/profiles/cer/README.md.
+ * docs/standards/cer/README.md.
  *
  * Unlike #tlv_der_visitor_t's preorder guarantee, CER traversal is postorder
  * for constructed elements: a primitive element (including each string
@@ -199,7 +199,7 @@ TLV_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  *         implemented canonical rule, including constructed ones.
  * @return Otherwise any result of tlv_cer_read().
  *
- * @see docs/profiles/cer/README.md for the supported-type table.
+ * @see docs/standards/cer/README.md for the supported-type table.
  */
 TLV_API tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size,
                                          const tlv_cer_limits_t* limits, tlv_element_t* element,
@@ -280,4 +280,4 @@ TLV_API tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capaci
 #endif
 /** @} */
 
-#endif /* OPENTLV_BUILTINS_ASN1_CER_PROFILE_H */
+#endif /* OPENTLV_BUILTINS_ASN1_CER_VALIDATION_H */

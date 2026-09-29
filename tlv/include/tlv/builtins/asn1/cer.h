@@ -27,7 +27,7 @@ extern "C" {
  *
  * Applies the identifier restrictions of #tlv_format_cer, including reserved
  * universal numbers and the always-constructed types. Unlike DER, string
- * tags may be constructed; segmentation is validated by the CER profile.
+ * tags may be constructed; segmentation is validated by the CER validation.
  *
  * @param[in]  tag_class   ASN.1 class.
  * @param[in]  constructed One for constructed form, zero for primitive.
@@ -76,7 +76,7 @@ TLV_API tlv_result_t tlv_cer_tag_number(const tlv_tag_t* tag, uint64_t* number);
  * permits either form for the segmentable string types (BIT STRING, OCTET
  * STRING and the restricted character string types), chosen by content
  * length rather than fixed by the tag alone, so that decision is left to
- * tlv/builtins/asn1/cer_profile.h. A constructed value's length must be indefinite
+ * tlv/builtins/asn1/cer_validation.h. A constructed value's length must be indefinite
  * (0x80); a primitive value's length must be definite and minimally encoded
  * (short form below 128, long form only at or above 128, no leading zero
  * padding octet).
@@ -88,7 +88,7 @@ TLV_API tlv_result_t tlv_cer_tag_number(const tlv_tag_t* tag, uint64_t* number);
  *
  * @warning Generic writing through #tlv_format_cer is therefore not by itself
  *          a complete CER encoder for constructed or segmentable values. Use
- *          tlv/builtins/asn1/cer_profile.h for bounded recursive validation,
+ *          tlv/builtins/asn1/cer_validation.h for bounded recursive validation,
  *          canonical constructed/segmented encoding, and error offsets.
  */
 extern TLV_API const tlv_format_t tlv_format_cer;

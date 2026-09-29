@@ -39,11 +39,11 @@ Documentation is grouped by purpose. See
 - [Format expansion candidates and proposed priorities](formats/format-roadmap.md)
 - [Format candidate catalogue: specifications, components and limits](formats/format-catalogue.md)
 
-## Profiles
+## Builtins
 
-- [EMV Contact Book 3 v4.4](profiles/emv/README.md)
-- [ASN.1 DER-TLV and validation limits](profiles/der/README.md)
-- [ASN.1 CER-TLV and validation limits](profiles/cer/README.md)
+- [EMV Contact Book 3 v4.4](standards/emv/README.md)
+- [ASN.1 DER-TLV and validation limits](standards/der/README.md)
+- [ASN.1 CER-TLV and validation limits](standards/cer/README.md)
 
 ## CLI
 

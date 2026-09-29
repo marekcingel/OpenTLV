@@ -3,7 +3,7 @@
 OpenTLV is a portable C99 library with a C++ wrapper for reading, writing,
 traversing and validating TLV (Tag-Length-Value) data. It covers configurable Fixed, Bluetooth LTV,
 BER, DER and CER, application-defined formats, and an
-EMV Contact Book 3 profile.
+EMV Contact Book 3 support.
 
 ## Where to start
 
@@ -14,7 +14,7 @@ EMV Contact Book 3 profile.
 | Pick a TLV format | [Formats](formats/README.md#choose-a-format) |
 | Understand who owns parsed data | [Memory ownership](guides/memory.md) |
 | Validate or decode values | [Schemas](guides/schemas.md), [value codecs](guides/codecs.md) |
-| Work with DER, CER or EMV data | [DER](profiles/der/README.md), [CER](profiles/cer/README.md), [EMV](profiles/emv/README.md) |
+| Work with DER, CER or EMV data | [DER](standards/der/README.md), [CER](standards/cer/README.md), [EMV](standards/emv/README.md) |
 | Look up an exact function, type or contract | [C API](reference/c-api.md), [C++ API](reference/cxx-api.md) |
 | Inspect TLV data from a terminal | [The `otlv` CLI](cli/README.md) |
 | Contribute or run the fuzzers | [Fuzzing](development/fuzzing.md), [Contributing](../CONTRIBUTING.md) |
@@ -25,7 +25,7 @@ EMV Contact Book 3 profile.
 - **Concepts** - architecture, core types, borrowed values, lengths and byte order.
 - **Guides** - memory ownership, schemas, value codecs, copy helpers and recovery scanning.
 - **Formats** - reading, writing and traversal for each TLV format, with byte examples.
-- **Profiles** - DER, CER and EMV semantics layered on the formats.
+- **Standards** - DER, CER and EMV validation, definitions, schemas and codecs.
 - **CLI** - the `otlv` command-line tool.
 - **Reference** - the generated [C API](reference/c-api.md) and [C++ API](reference/cxx-api.md) references and supported compilers.
 - **Development** - fuzzing and [where documentation belongs](development/documentation-layout.md).

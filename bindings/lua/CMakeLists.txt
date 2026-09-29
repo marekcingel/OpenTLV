@@ -48,7 +48,7 @@ endif()
 if(OPENTLV_BLUETOOTH)
     target_sources(opentlv_lua PRIVATE src/formats/bluetooth_ltv.c)
 endif()
-if(OPENTLV_PROFILE_EMV)
+if(OPENTLV_EMV)
     target_sources(opentlv_lua PRIVATE src/formats/emv.c)
 endif()
 if(OPENTLV_LLDP)
@@ -163,7 +163,7 @@ if(OPENTLV_BUILD_LUA_TESTS)
                 "${CMAKE_CURRENT_SOURCE_DIR}/tests/components.lua"
                 $<BOOL:${OPENTLV_FORMAT_BER}> $<BOOL:${OPENTLV_FORMAT_CER}>
                 $<BOOL:${OPENTLV_FORMAT_DER}> $<BOOL:${OPENTLV_BLUETOOTH}>
-                $<BOOL:${OPENTLV_LLDP}> $<BOOL:${OPENTLV_PROFILE_EMV}>)
+                $<BOOL:${OPENTLV_LLDP}> $<BOOL:${OPENTLV_EMV}>)
         set_tests_properties(Integration_lua_components PROPERTIES
             LABELS "integration;lua"
             ENVIRONMENT "${_lua_test_environment}")

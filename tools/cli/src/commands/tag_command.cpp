@@ -7,7 +7,7 @@
 #include "diagnostics.hpp"
 #include "presentation.hpp"
 #include "tlv/config.h"
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/builtins/emv/emv.h"
 #endif
@@ -16,7 +16,7 @@ namespace cli {
 
 int tag_command::run() {
     const options& o = options_;
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     std::vector<uint8_t> bytes;
     tlv_tag_t            parsed;
     int                  rc = parse_emv_tag(o.tag, bytes, parsed);
@@ -29,12 +29,12 @@ int tag_command::run() {
         nlohmann::json document;
         if (definition) document = emv_definition_json(parsed, *definition);
         document["tag"] = tag_hex;
-        document["profile"] = o.profile;
+        document["module"] = o.module;
         document["known"] = definition != nullptr;
         std::cout << document.dump() << "\n";
     } else if (!definition) {
         std::cout << "Tag:         " << tag_hex << "\n"
-                  << "Result:      Unknown tag in the EMV profile (base context)\n";
+                  << "Result:      Unknown tag in the EMV module (base context)\n";
     } else {
         std::cout << "Tag:         " << tag_hex << "\n"
                   << "Name:        " << cli_emv_display_name(definition->name) << "\n"
@@ -50,7 +50,7 @@ int tag_command::run() {
     return flush_stdout();
 #else
     (void)o;
-    return fail(2, "EMV profile is disabled in this build");
+    return fail(2, "EMV module is disabled in this build");
 #endif
 }
 

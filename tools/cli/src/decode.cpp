@@ -1,6 +1,6 @@
 #include "decode.hpp"
 #include "tlv/config.h"
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include <cinttypes>
 #include <cstdio>
 #include <limits>
@@ -10,7 +10,7 @@
 
 namespace cli {
 
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 namespace {
 
 std::string format_number(const uint64_t& value) {
@@ -161,7 +161,7 @@ decode_result decode_digits(const tlv_codec_t* codec, const uint8_t* data, size_
 
 decode_result decode_emv_value(int context, const tlv_element_t* element) {
     decode_result result;
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     const tlv_emv_definition_t* definition =
         tlv_emv_find((tlv_emv_context_t)context, &element->tag);
     size_t length;

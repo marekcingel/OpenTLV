@@ -13,7 +13,7 @@ extern "C" {
 
 /**
  * @file
- * @ingroup profiles
+ * @ingroup builtins
  * @brief EMV Contact Book 3 data dictionary: tag constants, schemas and lookup.
  *
  * Scope: EMV Contact Book 3 v4.4, October 2022, Annex A and the nested
@@ -26,7 +26,7 @@ extern "C" {
  * available.
  */
 
-/** @addtogroup profiles
+/** @addtogroup builtins
  * @{
  */
 

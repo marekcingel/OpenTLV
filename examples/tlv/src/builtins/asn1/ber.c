@@ -1,5 +1,5 @@
 /*
- * BER: a multi-byte tag when supported by the profile, and a long-form
+ * BER: a multi-byte tag when supported by the format, and a long-form
  * length for a value over 127 bytes.
  */
 #include <stdio.h>

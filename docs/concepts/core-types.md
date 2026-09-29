@@ -130,7 +130,7 @@ if (tlv_tag_equal(element.tag, TLV_TAG(0x9F, 0x02))) {
 
 A tag is identity, not a number: `tlv_tag_t` has no integer conversion and no
 byte order. To compare against a known tag, compare its wire bytes with
-`TLV_TAG(0x9F, 0x02)` rather than an integer. A format or profile that needs a
+`TLV_TAG(0x9F, 0x02)` rather than an integer. A format or standard that needs a
 numeric view of its own tags, such as the ASN.1 tag number of
 `tlv_der_tag_number()`, provides it in its own layer.
 

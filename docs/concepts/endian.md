@@ -2,7 +2,7 @@
 
 Include `tlv/endian.h` (also available through `tlv/tlv.h`) to convert raw
 value bytes to and from native unsigned integers. The helpers are independent
-of TLV framing and profiles; the caller chooses the byte order explicitly.
+of TLV framing and standard semantics; the caller chooses the byte order explicitly.
 
 | Integer | Big-endian | Little-endian |
 | --- | --- | --- |

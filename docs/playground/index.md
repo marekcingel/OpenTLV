@@ -31,7 +31,7 @@ native applications. Nothing you enter is uploaded.
       </select>
     </label>
     <label>Annotations
-      <select id="otlv-pg-profile" disabled>
+      <select id="otlv-pg-module" disabled>
         <option value="none">None (AD names are automatic)</option>
         <option value="emv">EMV tag names (BER or EMV)</option>
       </select>
@@ -100,11 +100,11 @@ logical value length, offset, complete encoded size, nesting depth and path,
 raw value and any trailer (such as BER end-of-contents), with
 buttons to copy the tag, the value or the whole encoded element. With the
 **EMV tag names** annotations it also shows the tag's name from the
-[EMV profile](../profiles/emv/README.md) and whether its length is permitted.
+[EMV module](../standards/emv/README.md) and whether its length is permitted.
 
 In [BER-TLV](../formats/asn1/ber.md),
 [DER-TLV](../formats/asn1/der.md), [CER-TLV](../formats/asn1/cer.md) and
-[EMV BER-TLV](../profiles/emv/README.md), wire-constructed elements nest their children; the
+[EMV BER-TLV](../standards/emv/README.md), wire-constructed elements nest their children; the
 [configurable fixed-width](../formats/fixed/configurable.md) and
 [Bluetooth LTV](../formats/bluetooth/README.md) formats have opaque values, so
 their elements are flat. Bluetooth LTV puts the length byte before the type, so
@@ -125,7 +125,7 @@ Service Data and Manufacturer Specific Data. Unknown types remain readable.
 Values remain raw; this view does not apply Bluetooth schemas or value codecs.
 
 CER uses the generic reader and tree walker with `tlv_format_cer`: framing and
-EOC boundaries are checked. Full CER profile validation, including string
+EOC boundaries are checked. Full CER validation, including string
 segmentation rules and semantic value checks, is not applied.
 
 ## Limits

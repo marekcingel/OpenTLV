@@ -12,7 +12,7 @@
 #else
 #include <unistd.h>
 #endif
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"
 #endif
 
@@ -83,7 +83,7 @@ void cli_presentation_visit(cli_presentation_t* p, const tlv_element_t* element,
     p->more[depth] = end + (indefinite ? 2u : 0u) < p->ends[depth];
     if (depth < TLV_WALK_MAX_DEPTH) {
         p->ends[depth + 1] = end;
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
         p->contexts[depth + 1] =
             tlv_emv_child_context((tlv_emv_context_t)p->contexts[depth], &element->tag);
 #endif
@@ -98,7 +98,7 @@ void cli_presentation_prefix(const cli_presentation_t* p, size_t depth) {
                                      : "\xE2\x94\x94\xE2\x94\x80\xE2\x94\x80 ");
 }
 
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 /* Presentation-only wrapper: falls back to a generic title-cased label when
  * the symbol has no curated one. Tag matching, value types and bounds come
  * from tlv itself (tlv_emv_display_label/tlv_emv_titlecase_name). */
@@ -114,7 +114,7 @@ std::string cli_emv_display_name(const char* name) {
 cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_element_t* element,
                                        size_t depth, int describe) {
     cli_emv_info info;
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     const tlv_emv_definition_t* definition =
         tlv_emv_find((tlv_emv_context_t)p->contexts[depth], &element->tag);
     if (!definition) return info;

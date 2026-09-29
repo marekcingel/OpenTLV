@@ -6,7 +6,7 @@
  */
 #include <stdio.h>
 #include "tlv/builtins/asn1/cer.h"
-#include "tlv/builtins/asn1/cer_profile.h"
+#include "tlv/builtins/asn1/cer_validation.h"
 #include "tlv/size.h"
 #include "tlv/reader/walker.h"
 

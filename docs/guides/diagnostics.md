@@ -229,7 +229,7 @@ reports failures in its own idiomatic error model instead. Python raises an
 `actual`, `operation` and `tag` fields carrying the same detail a reader or
 writer diagnostic would (see [Using OpenTLV from Python: Error
 handling](python.md#error-handling)). Rust returns a `Result<T, Error>` with
-one `Error` variant per code, plus separate `SchemaError`, `ProfileError` and
+one `Error` variant per code, plus separate `SchemaError`, `ValidationError` and
 `CodecError` types for layers that add context, rather than a single chained
 diagnostic (see [Using OpenTLV from Rust: Error
 handling](rust.md#error-handling)). Neither binds hierarchical paths or

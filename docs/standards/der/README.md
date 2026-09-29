@@ -1,6 +1,6 @@
 # ASN.1 DER-TLV
 
-Include `tlv/builtins/asn1/der_profile.h` for allocation-free DER-TLV processing. Tags use the existing
+Include `tlv/builtins/asn1/der_validation.h` for allocation-free DER-TLV processing. Tags use the existing
 `tlv_tag_t` wire-byte representation; values are borrowed `tlv_value_t` ranges.
 The caller owns input and output storage. Existing BER behavior is unchanged.
 
@@ -35,7 +35,7 @@ does not convert arbitrary BER or repair noncanonical input.
 ## Read and inspect a tag
 
 ```c
-#include "tlv/builtins/asn1/der_profile.h"
+#include "tlv/builtins/asn1/der_validation.h"
 
 const uint8_t input[] = {0x30, 3, 0x02, 1, 42};
 tlv_element_t element;
@@ -305,4 +305,4 @@ validates **only the current tag and length**. Generic I/O does not inspect
 constructed contents, apply DER resource limits, or provide field offsets.
 Use the DER-specific functions above when those guarantees are required.
 
-See also the [C API reference: profiles](../../reference/c-api.md#profiles).
+See also the [C API reference: builtins](../../reference/c-api.md#builtins).

@@ -5,7 +5,7 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 #include "tlv/config.h"
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"
 #endif
 
@@ -15,7 +15,7 @@
 
 namespace cli {
 
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 std::string tag_hex_string(const tlv_tag_t& tag);
 
 // "6", "1..10" or "0..unbounded" from the dictionary's inclusive length bounds.

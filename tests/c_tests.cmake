@@ -99,7 +99,7 @@ endif()
 if(NOT OPENTLV_FORMAT_CER)
     list(REMOVE_ITEM SOURCES builtins/asn1/cer_test.cpp builtins/asn1/cer_values_test.cpp)
 endif()
-if(NOT (OPENTLV_FORMAT_BER AND OPENTLV_PROFILE_EMV))
+if(NOT (OPENTLV_FORMAT_BER AND OPENTLV_EMV))
     list(REMOVE_ITEM SOURCES builtins/emv/emv_test.cpp builtins/emv/emv_schema_test.cpp
                                  builtins/emv/dol_test.cpp builtins/emv/tag_c_test.c
                                  builtins/emv/format_emv_test.cpp)

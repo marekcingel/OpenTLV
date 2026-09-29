@@ -24,7 +24,7 @@
 #include "tlv++/builtins/dhcp/dhcpv4.hpp"
 #include "tlv++/builtins/dhcp/container.hpp"
 #endif
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include "tlv++/builtins/emv/format.hpp"
 #endif
 #if OPENTLV_LLDP

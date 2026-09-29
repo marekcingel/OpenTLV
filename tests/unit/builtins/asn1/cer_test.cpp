@@ -4,7 +4,7 @@
 #include "tlv/builtins/asn1/ber.h"
 #endif
 #include "tlv/builtins/asn1/cer.h"
-#include "tlv/builtins/asn1/cer_profile.h"
+#include "tlv/builtins/asn1/cer_validation.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/walker.h"
 #include "tlv/writer/writer.h"
@@ -16,7 +16,7 @@
 TEST(Unit_Tlv_Cer, AlwaysConstructedSetRequiresConstructedForm) {
     /* EXTERNAL(8), EMBEDDED PDV(11), SEQUENCE(16), SET(17), CHARACTER STRING(29)
      * must be constructed; unlike DER, every other assigned number accepts
-     * either form at the raw tag level -- CER's own profile decides the
+     * either form at the raw tag level -- CER's validation decides the
      * legal form contextually (segmentable vs. not, and by content length). */
     for (uint64_t number = 0; number <= 36; ++number) {
         const bool must_construct =

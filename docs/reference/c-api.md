@@ -4,7 +4,7 @@ The C API reference is generated from the public [tlv](../../tlv/include/tlv)
 headers with Doxygen and published with this site. Open the
 [generated C API reference](api/c-api/html/index.html) for exact signatures,
 ownership, lifetime and error contracts. It covers all shipped formats and
-profiles, including those disabled in a particular library build.
+builtins, including those disabled in a particular library build.
 
 Each area below pairs the generated reference with the guides and concepts
 that explain it.
@@ -53,11 +53,11 @@ and [memory ownership](../guides/memory.md).
 [format overview](../formats/README.md), [BER](../formats/asn1/ber.md),
 [DER](../formats/asn1/der.md) and [CER](../formats/asn1/cer.md).
 
-## Profiles
+## Builtins
 
-[Generated reference](api/c-api/html/group__profiles.html). Read first:
-[DER](../profiles/der/README.md), [CER](../profiles/cer/README.md) and
-[EMV](../profiles/emv/README.md).
+[Generated reference](api/c-api/html/group__builtins.html). Read first:
+[DER](../standards/der/README.md), [CER](../standards/cer/README.md) and
+[EMV](../standards/emv/README.md).
 
 ## Copy utilities
 

@@ -8,7 +8,7 @@
  * tlv_ber_scan_contents (bounded, no allocation, no recursion); a primitive
  * tag's length must be definite and canonically minimal. Either form found
  * on the wrong kind of tag is TLV_ERR_INVALID_LENGTH. This resolves framing
- * only, not nested segmentation -- see tlv/builtins/asn1/cer_profile.h for that. */
+ * only, not nested segmentation -- see tlv/builtins/asn1/cer_validation.h for that. */
 static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
                                       const uint8_t* data, size_t size, size_t* length_size,
                                       tlv_size_t* value_size, size_t* trailer_size,

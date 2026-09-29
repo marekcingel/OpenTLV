@@ -23,7 +23,7 @@
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/copy.h"
 #endif
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"
 #endif
 #include <gtest/gtest.h>

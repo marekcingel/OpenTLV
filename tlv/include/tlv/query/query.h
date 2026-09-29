@@ -24,7 +24,7 @@ extern "C" {
  *
  * The query language is deliberately small: exact tag paths only. It carries
  * no wildcards, indexes, predicates or recursive search, and does not depend
- * on any format or profile, so the same text can address data in the reader
+ * on any format or standard, so the same text can address data in the reader
  * and, later, in other document models.
  */
 
@@ -64,7 +64,7 @@ typedef struct tlv_query {
  * example `6F/A5/50` or `9f02`. Each tag has an even, nonzero number of digits
  * in either case. Whitespace, empty steps
  * and a leading or trailing `/` are rejected. The tag bytes are not checked
- * against any format or profile.
+ * against any format or standard.
  *
  * @param[in]  text         NUL-terminated query text.
  * @param[out] query        Receives the parsed query.

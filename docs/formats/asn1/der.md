@@ -65,7 +65,7 @@ There is no indefinite length and no end-of-contents marker, and the length uses
 fewest octets possible. Typical uses are signed or hashed structures such as
 certificates and keys, where the exact bytes must be reproducible. The generic reader
 checks only this framing; canonical values and ordering come from the `_strict`
-functions and [schemas](../../profiles/der/README.md).
+functions and [schemas](../../standards/der/README.md).
 
 ## Byte example
 
@@ -90,4 +90,4 @@ Use `tlv_der_read` for bounded validation of the element and its descendants.
 The generic `tlv_format_der` descriptor validates
 only the current tag and length. Indefinite lengths are rejected. Full ASN.1
 value canonicalization and SET ordering remain outside the supported scope.
-[DER profile](../../profiles/der/README.md)
+[DER validation](../../standards/der/README.md)

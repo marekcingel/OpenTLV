@@ -8,7 +8,7 @@ to normal C and C++ builds.
 The first interface is intentionally small: it parses a byte buffer and returns
 the element structure or the parser error. It wraps the existing C API in
 `bindings/wasm/src/opentlv_wasm.c`; no parsing logic is duplicated. Editing, schemas,
-schemas and OTDL are not exposed; the EMV dictionary is available as an annotation profile (below).
+schemas and OTDL are not exposed; the EMV dictionary is available as an annotation module (below).
 Unlike a general-purpose binding, it does not follow the Reader/Writer/Element
 shape of the [language bindings conceptual model](../concepts/bindings.md); see
 that page for why.
@@ -51,7 +51,7 @@ const result = opentlv.parse(
 ```
 
 `parse` takes a `Uint8Array`, a `format` (`fixed`, `bluetooth-ltv`, `bluetooth-ad`,
-`ber`, `der`, `cer` or `emv`; default `ber`) and optionally a `profile` (`none` or `emv`; default
+`ber`, `der`, `cer` or `emv`; default `ber`) and optionally a `module` (`none` or `emv`; default
 `none`) and returns:
 
 Bluetooth modes annotate known AD Types with `name` from the C registry.
@@ -67,7 +67,7 @@ configurable fixed-width format's tag width, length width and length byte order
 `fixedLengthScope` selects `"value"` (default) or `"tag-and-value"`.
 These options apply only to Fixed. Invalid JavaScript configuration values throw
 `TypeError`; invalid encoded input is reported through `result.error`.
-`opentlv.formats` and `opentlv.profiles` list the modes supported by the loaded build.
+`opentlv.formats` and `opentlv.modules` list the modes supported by the loaded build.
 
 ```json
 {
@@ -97,12 +97,12 @@ so LTV and BER end-of-contents need no byte-layout guessing in the viewer.
 The JSON example above omits `encodedSize` and `source` for brevity.
 
 `format: "cer"` uses the generic tree walker with `tlv_format_cer`, preserving
-preorder output and EOC source ranges. It checks framing only; full CER profile
+preorder output and EOC source ranges. It checks framing only; full CER
 validation (including string segmentation and semantic values) is not applied.
 
-With `profile: "emv"` (BER or EMV framing; other formats report an invalid-argument
-error) the result also has `"profile": "emv"`. Every element the
-[EMV dictionary](../profiles/emv/README.md) knows carries `symbol` (the
+With `module: "emv"` (BER or EMV framing; other formats report an invalid-argument
+error) the result also has `"module": "emv"`. Every element the
+[EMV dictionary](../standards/emv/README.md) knows carries `symbol` (the
 dictionary name), `name` (a display name) and `lengthValid` (whether `length`
 is permitted for the tag); other elements carry none of these.
 

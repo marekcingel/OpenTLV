@@ -14,7 +14,7 @@
 #include "tlv/builtins/asn1/ber.h"
 #endif
 #if OPENTLV_FORMAT_DER
-#include "tlv/builtins/asn1/der_profile.h"
+#include "tlv/builtins/asn1/der_validation.h"
 #endif
 
 using cli::fail;
@@ -142,14 +142,14 @@ tlv_result_t walk_command::walk_pdol(std::size_t* error_offset) {
             object["offset"] = start;
             object["tag"] = hex_string(element.tag.data, element.tag.size);
             object["requested_length"] = requested;
-            if (options_.profile) json_emv(object, presentation_, &element, 0, options_.describe);
+            if (options_.module) json_emv(object, presentation_, &element, 0, options_.describe);
             json_root_.push_back(std::move(object));
             continue;
         }
         std::cout << "offset=" << start << " tag=";
         print_tag(element.tag, presentation_.color != 0);
         std::cout << " requested-length=" << requested;
-        if (options_.profile) cli_presentation_emv(&presentation_, &element, 0, options_.describe);
+        if (options_.module) cli_presentation_emv(&presentation_, &element, 0, options_.describe);
         std::cout << "\n";
         if (!std::cout) return TLV_ERR_VISITOR;
     }
@@ -274,7 +274,7 @@ int walk_command::run() {
     result_ = result;
     error_offset_ = error_offset;
 
-    if (result_ == TLV_OK && options_.profile && !options_.pdol) run_emv_checks();
+    if (result_ == TLV_OK && options_.module && !options_.pdol) run_emv_checks();
 
     render_output();
 

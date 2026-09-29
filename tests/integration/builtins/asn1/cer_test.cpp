@@ -3,7 +3,7 @@
 #include "tlv/builtins/asn1/ber.h"
 #endif
 #include "tlv/builtins/asn1/cer.h"
-#include "tlv/builtins/asn1/cer_profile.h"
+#include "tlv/builtins/asn1/cer_validation.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>

@@ -1,4 +1,4 @@
-//! The EMV profile: data dictionary, contexts and per-tag codecs.
+//! The EMV module: data dictionary, contexts and per-tag codecs.
 //!
 //! Wraps the C library's EMV Contact Book 3 dictionary. Look a tag up with
 //! [`find`] to get its [`Definition`]: name, expected [`ValueKind`], length

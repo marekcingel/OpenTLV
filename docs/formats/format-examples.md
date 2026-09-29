@@ -10,5 +10,5 @@ not allocated C objects.
 - [BER-TLV](asn1/ber.md#byte-example)
 - [DER-TLV](asn1/der.md#byte-example)
 - [CER-TLV](asn1/cer.md#byte-example-nested-indefinite-length-containers)
-- [EMV Contact Book 3 profile over BER-TLV](../profiles/emv/README.md#byte-example)
+- [EMV Contact Book 3 support over BER-TLV](../standards/emv/README.md#byte-example)
 - [Application-defined format example](custom/README.md#byte-example)

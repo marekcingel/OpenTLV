@@ -24,7 +24,7 @@ extern "C" {
  * Complements the per-tag length rules in #tlv_emv_schema
  * (tlv/builtins/emv/emv.h) with the mandatory, forbidden, duplicate and nesting
  * checks that schema explicitly leaves to the application (see "Validation
- * limits" in docs/profiles/emv/README.md).
+ * limits" in docs/standards/emv/README.md).
  *
  * Modeled: the FCI Template (6F, Book 3 section 11.3.4 Table 12) and its FCI
  * Proprietary Template (A5) child, the Application Template (61, Book 1

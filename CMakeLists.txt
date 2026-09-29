@@ -41,9 +41,9 @@ option(OPENTLV_DHCP "Include DHCPv4 option framing, definitions and value codecs
 option(OPENTLV_LLDP "Include LLDP framing, definitions, structural validation and value codecs" ON)
 option(OPENTLV_FORMAT_ASN1 "Include ASN.1-related wire formats (BER, DER)" ON)
 option(OPENTLV_FORMAT_BER "Include the BER wire format" ON)
-option(OPENTLV_FORMAT_DER "Include the DER wire format and validation profile" ON)
-option(OPENTLV_FORMAT_CER "Include the CER wire format and validation profile" ON)
-option(OPENTLV_PROFILE_EMV "Include EMV framing, dictionary, schemas and codecs" ON)
+option(OPENTLV_FORMAT_DER "Include the DER wire format and validation" ON)
+option(OPENTLV_FORMAT_CER "Include the CER wire format and validation" ON)
+option(OPENTLV_EMV "Include EMV framing, dictionary, schemas and codecs" ON)
 option(OPENTLV_DOCUMENT "Include the allocating mutable document API" ON)
 
 if(OPENTLV_BUILD_WASM)

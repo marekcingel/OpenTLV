@@ -28,14 +28,14 @@ Scope:
 - Header-only C++11+ wrapper (`tlv++`).
 - Reader, writer, visitor, and tree traversal APIs.
 - Structural schemas and value codecs.
-- Built-in TLV formats and profiles (default/fixed-width, BER/DER/CER, EMV
-  Contact Book 3), as tracked in the [README format checklist](README.md#format-and-profile-support)
+- Built-in TLV formats and standard-specific capabilities (default/fixed-width, BER/DER/CER, EMV
+  Contact Book 3), as tracked in the [README format checklist](README.md#format-and-standard-support)
   and [format expansion candidates](docs/formats/format-roadmap.md).
 - CLI and developer tooling for TLV inspection and validation.
 - Language bindings beyond C/C++.
 - Testing, fuzzing, coverage, documentation, and packaging/distribution.
 
-All formats and profiles in 1.x are defined at compile time: adding a new
+All formats and standard-specific capabilities in 1.x are defined at compile time: adding a new
 format means writing C or C++ code against the reader/writer callback
 contracts. The remaining stages exist to lift that constraint.
 

@@ -3,7 +3,7 @@
 [Back to documentation](../README.md)
 
 This is a candidate catalogue, not a release schedule. The
-[README checklist](../../README.md#format-and-profile-support) records built-in support.
+[README checklist](../../README.md#format-and-standard-support) records built-in support.
 Unchecked entries are not implemented; application-defined callbacks may already
 support particular encodings. Each implementation needs a separate scope, chosen
 specification edition, limits, and conformance tests before its checkbox is enabled.
@@ -61,8 +61,8 @@ its name, or that runs over ASN.1, is BER-TLV.
 | Class | Meaning |
 | --- | --- |
 | Adapter | A wire framing that needs a new selectable format adapter (reader/writer descriptors). |
-| Profile over BER/DER | Reuses the existing [BER](asn1/ber.md) or [DER](../profiles/der/README.md) framing; the new work is schemas, nesting rules, dictionaries, or value codecs. |
-| Adapter + profile | A new framing plus protocol-specific nesting, schemas, or codecs. |
+| Schemas and codecs over BER/DER | Reuses the existing [BER](asn1/ber.md) or [DER](../standards/der/README.md) framing; the new work is schemas, nesting rules, dictionaries, or value codecs. |
+| Adapter + semantics | A new framing plus protocol-specific nesting, schemas, or codecs. |
 | Not TLV | A binary encoding that is not TLV. Excluded from the library; recorded with a rationale. |
 | Out of scope | Needs machinery the library will not grow (for example an ASN.1 PER codec with compiled schemas). |
 
@@ -79,7 +79,7 @@ Status markers used below and in the catalogue:
 splitting bytes into tag, length, and value. It does not mean validating field
 semantics, running a state machine, verifying signatures, or implementing the
 protocol or card stack that carries the data. An entry becomes "supported" only for
-the encodings and profile functions that its own page names.
+the encodings and validation functions that its own page names.
 
 ## Components
 
@@ -93,7 +93,7 @@ so a candidate's "components" show which layers stay separate.
 | Structure schema | `tlv_schema_t` and `tlv_structure_schema_t` in `tlv/schema/schema.h` | Length bounds, occurrence and membership rules. |
 | DER schema | `tlv_der_schema_type_t` in `tlv/builtins/asn1/der_schema.h` | ASN.1 type rules with canonical DER semantics; a fixed, small subset. |
 | Value codecs | `tlv/codec/codec.h` and `tlv/codec/structure.h` | Decode and encode value contents. |
-| Dictionary | Tag tables like the [EMV profile](../profiles/emv/README.md) | Names and meanings for tags in one profile. |
+| Dictionary | Tag tables like the [EMV module](../standards/emv/README.md) | Names and meanings for tags in one standard. |
 | Mixed-format traversal | Not implemented; see [generic processing extensions](#generic-processing-extensions) | Choose a different format per nesting level. |
 
 ## Catalogue tree
@@ -108,18 +108,18 @@ OpenTLV
 ├── Implemented built-in standards
 │   ├── [x] Bluetooth (LTV, containers, definitions, schemas, codecs)
 │   ├── [x] ASN.1 framing: BER-TLV, DER-TLV (+ strict values, schemas), CER-TLV
-│   └── [x] Profile: EMV Contact Book 3 v4.4 (dictionary, schemas, codecs)
+│   └── [x] Module: EMV Contact Book 3 v4.4 (dictionary, schemas, codecs)
 │
-├── Candidates: reuse BER/DER (profile over BER/DER)
+├── Candidates: reuse BER/DER (schemas and codecs over BER/DER)
 │   ├── ASN.1 notation (ITU-T X.680 series), the type layer above X.690
-│   │   ├── [x] Small hand-authored DER schema subset (existing, see DER profile)
+│   │   ├── [x] Small hand-authored DER schema subset (existing, see DER validation)
 │   │   ├── [?] Wider X.680 type coverage and BER/CER schema variants
 │   │   ├── [?] Open types (X.681/X.682 information objects and table constraints)
 │   │   └── [?] Offline schema generator from ASN.1 modules (build tool, not runtime)
 │   ├── Protocols using BER
 │   │   ├── [?] LDAP (RFC 4511)
 │   │   └── [?] SNMP (v1 / v2c / v3)
-│   ├── ASN.1 profiles (DER unless noted)
+│   ├── ASN.1 standards (DER unless noted)
 │   │   ├── [ ] X.509 certificates and CRLs
 │   │   ├── [ ] PKCS#1 keys, PKCS#8 keys, PKCS#10 requests
 │   │   ├── [?] PKCS#7 / CMS / S/MIME (BER allowed; parts DER)
@@ -174,11 +174,11 @@ These entries existed before the expanded catalogue and are not repeated in the
 
 | Area | Candidate | Intended boundary and reference |
 | --- | --- | --- |
-| ASN.1 | Remaining DER gaps | Beyond the implemented structural, `_strict` universal-value and schema-aware layers: the universal types strict mode still rejects, full calendar validation of time values, and schema constraints. See the [ASN.1 notation rows](format-catalogue.md#asn1-notation-itu-t-x680-series) and the [DER limits](../profiles/der/README.md#supported-scope). |
-| ASN.1 | Remaining CER gaps | Canonical SET/SET OF ordering is not yet checked, and there is no schema-aware CER layer. [Current limits](../profiles/cer/README.md#supported-scope) |
+| ASN.1 | Remaining DER gaps | Beyond the implemented structural, `_strict` universal-value and schema-aware layers: the universal types strict mode still rejects, full calendar validation of time values, and schema constraints. See the [ASN.1 notation rows](format-catalogue.md#asn1-notation-itu-t-x680-series) and the [DER limits](../standards/der/README.md#supported-scope). |
+| ASN.1 | Remaining CER gaps | Canonical SET/SET OF ordering is not yet checked, and there is no schema-aware CER layer. [Current limits](../standards/cer/README.md#supported-scope) |
 | Smart cards | GlobalPlatform DGI | DGI field encoding and length handling, separately from APDU transport and card management. [Card Specification 2.3, section 11.1.12](https://globalplatform.org/wp-content/uploads/2018/03/GPC_Specification_v2.3.pdf) |
-| Payments | EMV contactless | Separate kernel-specific scope and specification selection; not implied by the existing Contact Book 3 dictionary. [Current profile](../profiles/emv/README.md) |
-| Networking | NDN | Packet TLV framing and explicit container rules; packet semantics belong in a separate profile. [NDN packet format](https://101.named-data.net/connectivity/packet-format/) |
+| Payments | EMV contactless | Separate kernel-specific scope and specification selection; not implied by the existing Contact Book 3 dictionary. [Current support](../standards/emv/README.md) |
+| Networking | NDN | Packet TLV framing and explicit container rules; packet semantics belong in schemas and codecs. [NDN packet format](https://101.named-data.net/connectivity/packet-format/) |
 | Networking | PEAP | Defined TLV structures, independently from TLS transport and authentication state machines. [Microsoft PEAP TLV](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-peap/fa418c4b-b11e-47a5-b86f-d74a9150b822) |
 | Networking | RADIUS | Base attribute framing; the length includes Type and Length. Vendor-specific and extended attributes need separately defined coverage. [RFC 2865, section 5](https://www.rfc-editor.org/rfc/rfc2865.html#section-5) |
 | IoT | OMA LwM2M TLV | Packed TLV headers and resource/container interpretation; separate from CoAP and device management. [LwM2M Core 1.2.2](https://www.openmobilealliance.org/release/LightweightM2M/V1_2_2-20240613-A/HTML-Version/OMA-TS-LightweightM2M_Core-V1_2_2-20240613-A.html) |
@@ -188,7 +188,7 @@ Variants and open questions that these entries need before scoping:
 | Element | Variants to decide | Check |
 | --- | --- | --- |
 | GlobalPlatform DGI | A DGI is coded on two bytes followed by a length indicator whose coding is defined in the GlobalPlatform scripting language specification (annex B), not in the Card Specification. That document and the later Card Specification editions must be read before scoping. | Verified: Card Specification v2.3 clause 11.1.12. The scripting specification was not read. |
-| EMV contactless | Kernel-specific: the contactless books define several kernels; each needs its own dictionary and edition. Book 3 data objects are already covered by the [EMV profile](../profiles/emv/README.md). | Not verified: EMV contactless books not read. |
+| EMV contactless | Kernel-specific: the contactless books define several kernels; each needs its own dictionary and edition. Book 3 data objects are already covered by the [EMV module](../standards/emv/README.md). | Not verified: EMV contactless books not read. |
 | RADIUS | Base attributes (RFC 2865), the Vendor-Specific attribute (type 26, vendor ID followed by vendor type and length), extended attribute types ([RFC 6929](https://www.rfc-editor.org/rfc/rfc6929.html): Extended-Type-1 to 3 and the Long Extended Type), and long-attribute fragmentation. [Diameter](format-catalogue.md#networking-aaa-and-tunnelling) is a sibling candidate. | Verified: RFC 2865 vendor-specific layout and RFC 6929 extended-type structure. |
 | NDN | Packet specification revision, variable-length number encoding for both type and length, and which packet types get explicit container rules. | Not verified: NDN specification not read. |
 | LwM2M TLV | The TLV content format appears across several LwM2M releases; pick one release and record differences. | Not verified: LwM2M specification not read. |
@@ -217,7 +217,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.**
 | Fixed PDU header followed by a TLV region | IS-IS, DHCP, LDP, PFCP, GTPv2 | The header is outside the core; the caller passes the region. |
 | Untagged positional fields | NAS imperative part | Not framing and not TLV: stays with the caller, see the [NAS row](format-catalogue.md#telecommunications). |
 | Logical values split across several elements | DHCPv4 (RFC 3396), long RADIUS attributes | Conflicts with zero-copy: needs an explicit, caller-visible policy with no hidden allocation. |
-| Mixed BER and DER strictness in one document | CMS | Profile-level checks on top of the BER reader; needs the BER schema variant. |
+| Mixed BER and DER strictness in one document | CMS | Schema checks on top of the BER reader; needs the BER schema variant. |
 
 Every new adapter keeps caller-owned storage, capacity checks before any write, and
 zero-copy value reads. A candidate that cannot meet this is not a fit for the library.
@@ -245,11 +245,11 @@ bounded iterative traversal. It does not allocate an object tree. See
    Layout primitive (reordered headers are covered by
    [Bluetooth LTV](bluetooth/README.md)).
 3. Add mixed-format traversal and incremental parsing as separately scoped core work.
-4. Expand semantic profiles and ASN.1 canonical validation with explicit standard
+4. Expand standard-specific schemas and codecs and ASN.1 canonical validation with explicit standard
    coverage, independently of basic wire-format support.
 
 These priorities are proposals. A format adapter can be useful without a full
-protocol profile; enabling one must not imply the other is complete. The expanded
+protocol semantics; enabling one must not imply the other is complete. The expanded
 candidates in the catalogue are not ranked and have no schedule.
 
 ## Verification status

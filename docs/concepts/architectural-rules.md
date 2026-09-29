@@ -480,12 +480,15 @@ actually:
 - preset
 - tooling
 
-Avoid catch-all architectural layers such as "Profile" when composition of
-existing concepts is sufficient.
+A module is a reusable unit that may provide any subset of OpenTLV capabilities:
+Definition, Format, Schema and Codec. A definition-only module or a format-only
+module is valid. Module describes composition; it adds no architectural layer.
 
-Existing named profiles are compositions of Format, Schema, Codec and
-Definition responsibilities, not a new foundational layer. This rule does
-not itself remove their public APIs.
+Builtins are functionality implemented natively and optionally compiled into
+OpenTLV. They remain independent of modules and of the future `.otlv` runtime
+interpreter. `.otlv` is a runtime description, not a requirement for using a
+builtin. Native C, runtime `.otlv` and future generated code must supply the
+same contracts to the generic core. No runtime engine is introduced here.
 
 ---
 

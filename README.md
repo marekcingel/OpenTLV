@@ -25,7 +25,7 @@ when the application needs to own its buffers and control memory use.
 
 - **Allocation-free C core:** write into caller-owned storage with capacity checks.
 - **Zero-copy value reads:** parsed values borrow the input buffer.
-- **Selectable formats and profiles:** use built-in encodings or supply custom callbacks.
+- **Selectable formats and standard-specific capabilities:** use built-in encodings or supply custom callbacks.
 - **Composable processing:** add traversal, schemas, value codecs, or recovery scanning as needed.
 - **Include only what you need:** build just the core, or add a single format such as BER; components you leave out are not compiled. Bindings should follow the same rule, but the Rust bindings do not select components yet. See [architecture](docs/concepts/architecture.md#include-only-what-you-need).
 
@@ -36,7 +36,7 @@ the C API. Raw TLV reading does not interpret values or validate an entire proto
 See [choosing a format](docs/formats/README.md#choose-a-format) and
 [memory ownership](docs/guides/memory.md) for practical guidance.
 
-## Format and profile support
+## Format and standard support
 
 Checked items are implemented; the linked documentation defines their scope.
 Unchecked items have no built-in implementation today. This is a support overview,
@@ -63,19 +63,19 @@ Built-in components are enabled by default and can be selected with
     - [x] **BER-TLV** - multi-byte tags. [Scope](docs/formats/asn1/ber.md) [Tree and bytes](docs/formats/asn1/ber.md#byte-example)
       - [x] Definite-length reading and writing
       - [x] Constructed indefinite-length reading and explicit writing
-    - [x] **DER-TLV** - canonical identifier and length framing. [Scope](docs/profiles/der/README.md) [Tree and bytes](docs/formats/asn1/der.md#byte-example)
+    - [x] **DER-TLV** - canonical identifier and length framing. [Scope](docs/standards/der/README.md) [Tree and bytes](docs/formats/asn1/der.md#byte-example)
       - [x] Structural validation
-      - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/profiles/der/README.md#strict-universal-value-validation)
-      - [x] Schema-aware SEQUENCE/SEQUENCE OF/SET/SET OF/CHOICE validation and encoding, including canonical SET/SET OF ordering, IMPLICIT/EXPLICIT tagging and DEFAULT omission (requires an explicit schema; the generic reader above does not infer SET/SET OF semantics on its own). [Scope](docs/profiles/der/README.md#schema-aware-validation-and-encoding)
-    - [x] **CER-TLV** - indefinite-length constructed framing, canonical string segmentation. [Scope](docs/profiles/cer/README.md) [Tree and bytes](docs/formats/asn1/cer.md#byte-example-nested-indefinite-length-containers)
+      - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/standards/der/README.md#strict-universal-value-validation)
+      - [x] Schema-aware SEQUENCE/SEQUENCE OF/SET/SET OF/CHOICE validation and encoding, including canonical SET/SET OF ordering, IMPLICIT/EXPLICIT tagging and DEFAULT omission (requires an explicit schema; the generic reader above does not infer SET/SET OF semantics on its own). [Scope](docs/standards/der/README.md#schema-aware-validation-and-encoding)
+    - [x] **CER-TLV** - indefinite-length constructed framing, canonical string segmentation. [Scope](docs/standards/cer/README.md) [Tree and bytes](docs/formats/asn1/cer.md#byte-example-nested-indefinite-length-containers)
       - [x] Structural validation (framing, EOC placement, canonical segmentation)
-      - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/profiles/cer/README.md#strict-universal-value-validation)
+      - [x] Universal primitive value canonical validation (`_strict` functions, documented type coverage). [Scope](docs/standards/cer/README.md#strict-universal-value-validation)
       - [ ] Canonical SET/SET OF ordering
   - [x] **Application-defined format callbacks** - independent reader and writer descriptors. [Contracts](docs/formats/README.md#generic-interface) [Tree and bytes](docs/formats/custom/README.md#byte-example)
-- **Protocol formats and profiles**
+- **Protocol formats and standard-specific capabilities**
   - **Smart cards / payments**
-    - [x] **EMV Contact Book 3 v4.4** - dictionary, contextual length schemas, and value codecs over BER-TLV; not a payment kernel. [Scope](docs/profiles/emv/README.md) [Tree and bytes](docs/profiles/emv/README.md#byte-example)
-      - [x] Structural validation (mandatory/forbidden/duplicate tags and nesting for the FCI, Application, and GPO response templates). [Scope](docs/profiles/emv/README.md#structural-validation)
+    - [x] **EMV Contact Book 3 v4.4** - dictionary, contextual length schemas, and value codecs over BER-TLV; not a payment kernel. [Scope](docs/standards/emv/README.md) [Tree and bytes](docs/standards/emv/README.md#byte-example)
+      - [x] Structural validation (mandatory/forbidden/duplicate tags and nesting for the FCI, Application, and GPO response templates). [Scope](docs/standards/emv/README.md#structural-validation)
     - [ ] **EMV contactless kernels**
     - [ ] **GlobalPlatform DGI encoding**
   - **Networking**
@@ -86,9 +86,9 @@ Built-in components are enabled by default and can be selected with
     - [ ] **OMA LwM2M TLV format**
 
 OpenTLV keeps framing, traversal, schemas, and value codecs separate. Broader
-format coverage should come through selectable adapters and profiles around the
+format coverage should come through selectable adapters and schemas around the
 generic core. Protocol entries above refer to their data encodings and explicitly
-named profile functionality, not complete networking or device stacks.
+named validation functionality, not complete networking or device stacks.
 
 Tree traversal visits borrowed values without building an allocated object tree.
 Applications that must change a message can opt into the separate, allocating
@@ -108,12 +108,12 @@ support never means full protocol support.
 
 | Area | Candidates | Relationship to existing support |
 | --- | --- | --- |
-| Protocols using BER | LDAP, SNMP | Profiles over [BER-TLV](docs/formats/asn1/ber.md) |
-| ASN.1 notation (X.680) | Wider type coverage, BER/CER schema variants, open types, optional schema generator | Extends the [DER schema subset](docs/profiles/der/README.md#schema-aware-validation-and-encoding) |
-| ASN.1 profiles | X.509, PKCS#1, PKCS#7, PKCS#8, PKCS#10, CMS/S-MIME, Kerberos, OCSP | Schemas over [DER/BER](docs/profiles/der/README.md) |
+| Protocols using BER | LDAP, SNMP | Schemas and codecs over [BER-TLV](docs/formats/asn1/ber.md) |
+| ASN.1 notation (X.680) | Wider type coverage, BER/CER schema variants, open types, optional schema generator | Extends the [DER schema subset](docs/standards/der/README.md#schema-aware-validation-and-encoding) |
+| ASN.1 standards | X.509, PKCS#1, PKCS#7, PKCS#8, PKCS#10, CMS/S-MIME, Kerberos, OCSP | Schemas over [DER/BER](docs/standards/der/README.md) |
 | Smart cards and SIM | ISO 7816 (BER-TLV and SIMPLE-TLV), GlobalPlatform beyond DGI, eSIM, SIM Toolkit, NFC tag TLV container | BER reuse plus new adapters |
 | Networking | IS-IS, DHCPv4/DHCPv6, LDP, RFC 5444 TLV blocks, Diameter | New adapters |
-| Telecommunications | PFCP, GTPv2-C, GTPv1-C, NAS | New adapters and profiles |
+| Telecommunications | PFCP, GTPv2-C, GTPv1-C, NAS | New adapters and schemas |
 | Excluded (not TLV) | CBOR, CWT, COSE, QUIC frames, NDEF records, ASN.1 PER/OER/XER (S1AP, X2AP, NGAP) | Different encodings; out of scope |
 
 See [format expansion candidates](docs/formats/format-roadmap.md) for the catalogue
@@ -123,7 +123,7 @@ components, variants, limitations, and what was checked against the primary text
 in [issues](https://github.com/marekcingel/OpenTLV/issues).
 
 See [format trees and byte examples](docs/formats/format-examples.md) for a field-by-field
-element of every implemented format, including nested BER/DER and the EMV profile.
+element of every implemented format, including nested BER/DER and the EMV module.
 
 ## Quick start
 
@@ -195,7 +195,7 @@ Start with the [documentation index](docs/README.md), or choose a topic:
 | Build and integrate | [Getting started](docs/getting-started/README.md), [distribution archives](docs/getting-started/README.md#install-and-generate-distribution-archives), [compiler support](docs/reference/compilers.md) |
 | Architecture and API migration | [Layers, component options, and migration](docs/concepts/architecture.md) |
 | Read, write, and traverse | [Formats and I/O contracts](docs/formats/README.md), [core types](docs/concepts/core-types.md) |
-| Validate and decode | [Schemas](docs/guides/schemas.md), [value codecs](docs/guides/codecs.md), [DER](docs/profiles/der/README.md), [CER](docs/profiles/cer/README.md), [EMV](docs/profiles/emv/README.md) |
+| Validate and decode | [Schemas](docs/guides/schemas.md), [value codecs](docs/guides/codecs.md), [DER](docs/standards/der/README.md), [CER](docs/standards/cer/README.md), [EMV](docs/standards/emv/README.md) |
 | Copy and recover data | [Copy helpers](docs/guides/copy.md), [recovery scanner](docs/guides/scanner.md), [byte order](docs/concepts/endian.md) |
 
 ## Long-term direction

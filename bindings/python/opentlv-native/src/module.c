@@ -7,7 +7,7 @@
 
 #include "format.h"
 #include <tlv/config.h>
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include <tlv/builtins/emv/emv_codec.h>
 #endif
 #include <tlv/formats/fixed.h>
@@ -407,7 +407,7 @@ static PyObject* opentlv_native_codec_strerror(PyObject* module, PyObject* args)
  * tlv_codec_result_t code. This is a separate error domain from
  * opentlv_native.Error: tlv_codec_result_t conversion errors are
  * independent of the tlv_result_t framing errors that raises. */
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 static void raise_codec_error(tlv_codec_result_t code) {
     PyObject* codec_args = Py_BuildValue("(i)", (int)code);
     if (codec_args == NULL) {
@@ -1262,7 +1262,7 @@ static PyMethodDef opentlv_native_methods[] = {
      "Validate a buffer against a serialized structural schema."},
     {"codec_strerror", opentlv_native_codec_strerror, METH_VARARGS,
      "Return the readable description of a tlv_codec_result_t code."},
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     {"emv_decode_amount", opentlv_native_emv_decode_amount, METH_VARARGS,
      "Decode 6 bytes of BCD (EMV format n12) into an unscaled minor-unit amount."},
     {"emv_encode_amount", opentlv_native_emv_encode_amount, METH_VARARGS,

@@ -65,7 +65,7 @@ TLV_API tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number);
  * @brief Format for canonical ASN.1 DER identifiers and definite lengths.
  *
  * Validates universal primitive/constructed bits, but does not inspect values
- * or nested headers. Use tlv/builtins/asn1/der_profile.h for bounded recursive validation
+ * or nested headers. Use tlv/builtins/asn1/der_validation.h for bounded recursive validation
  * and error offsets.
  */
 extern TLV_API const tlv_format_t tlv_format_der;

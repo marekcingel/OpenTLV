@@ -1,5 +1,5 @@
-#ifndef OPENTLV_BUILTINS_ASN1_DER_PROFILE_H
-#define OPENTLV_BUILTINS_ASN1_DER_PROFILE_H
+#ifndef OPENTLV_BUILTINS_ASN1_DER_VALIDATION_H
+#define OPENTLV_BUILTINS_ASN1_DER_VALIDATION_H
 
 #include "tlv/error.h"
 #include "tlv/builtins/asn1/der.h"
@@ -12,7 +12,7 @@ extern "C" {
 
 /**
  * @file
- * @ingroup profiles
+ * @ingroup builtins
  * @brief Bounded recursive DER validation, traversal and canonical writing.
  *
  * All functions here are allocation-free and use no C recursion. All limits
@@ -20,7 +20,7 @@ extern "C" {
  * #tlv_der_default_limits.
  */
 
-/** @addtogroup profiles
+/** @addtogroup builtins
  * @{
  */
 
@@ -156,7 +156,7 @@ TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  *         implemented canonical rule.
  * @return Otherwise any result of tlv_der_read().
  *
- * @see docs/profiles/der/README.md for the supported-type table.
+ * @see docs/standards/der/README.md for the supported-type table.
  */
 TLV_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
                                          const tlv_der_limits_t* limits, tlv_element_t* element,
@@ -188,4 +188,4 @@ TLV_API tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_ta
 #endif
 /** @} */
 
-#endif /* OPENTLV_BUILTINS_ASN1_DER_PROFILE_H */
+#endif /* OPENTLV_BUILTINS_ASN1_DER_VALIDATION_H */

@@ -1,11 +1,11 @@
 # ASN.1 CER-TLV
 
-Include `tlv/builtins/asn1/cer_profile.h` for allocation-free CER-TLV processing. Tags use the existing
+Include `tlv/builtins/asn1/cer_validation.h` for allocation-free CER-TLV processing. Tags use the existing
 `tlv_tag_t` wire-byte representation; values are borrowed `tlv_value_t` ranges.
 The caller owns input and output storage. CER is a sibling of the
-[DER profile](../der/README.md): it reuses the shared BER wire helpers and, through
+[DER validation](../der/README.md): it reuses the shared BER wire helpers and, through
 private helpers, the universal-value content rules ITU-T X.690 §11 documents as common to
-both encodings, but neither profile depends on the other. Existing BER, DER and EMV
+both encodings, but neither implementation depends on the other. Existing BER, DER and EMV
 behavior is unchanged.
 
 ## Supported scope
@@ -30,7 +30,7 @@ DEFAULT omission and SET/SET OF ordering remain outside this scope regardless.
 ## Read and traverse
 
 ```c
-#include "tlv/builtins/asn1/cer_profile.h"
+#include "tlv/builtins/asn1/cer_validation.h"
 
 const uint8_t input[] = {0x30, 0x80, 0x02, 1, 42, 0, 0}; /* SEQUENCE(indefinite){ INTEGER 42 } */
 tlv_element_t element;
@@ -223,4 +223,4 @@ length** — generic I/O does not inspect constructed contents, EOC placement, o
 canonical segmentation, and provides no field offsets. Use the CER-specific
 functions above when those guarantees are required.
 
-See also the [C API reference: profiles](../../reference/c-api.md#profiles).
+See also the [C API reference: builtins](../../reference/c-api.md#builtins).
