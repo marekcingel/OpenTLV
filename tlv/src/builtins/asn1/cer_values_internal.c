@@ -40,11 +40,6 @@ tlv_cer_type_info_t tlv_cer_type_info(uint64_t number) {
     return info;
 }
 
-tlv_result_t tlv_cer_validate_universal_value(uint64_t number, const uint8_t* value,
-                                              size_t length) {
-    return tlv_asn1_validate_universal_value(number, value, length);
-}
-
 /* All currently classified segmentable/character numbers are <=30, so every
  * legally-parsed element carrying one uses the single-byte low-tag-number
  * form (tlv_asn1_read_identifier already rejects a non-minimal high-tag-

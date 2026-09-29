@@ -40,13 +40,6 @@ typedef struct tlv_cer_type_info {
  * TLV_CER_FORM_PRIMITIVE_ONLY. */
 tlv_cer_type_info_t tlv_cer_type_info(uint64_t number);
 
-/* Strict-mode content validator for one complete, unsegmented primitive
- * value of any UNIVERSAL tag number -- identical dispatch to
- * tlv_der_validate_universal_value, sharing tlv_asn1_validate_universal_value
- * so DER and CER agree on every rule ITU-T X.690 §11 documents as common to
- * both. Returns TLV_OK, TLV_ERR_INVALID_VALUE, or TLV_ERR_UNSUPPORTED_TYPE. */
-tlv_result_t tlv_cer_validate_universal_value(uint64_t number, const uint8_t* value, size_t length);
-
 /* Accumulates and validates a segmentable constructed value's primitive
  * children as canonical CER string segments, one at a time in encounter
  * order, without ever concatenating their content. Segment tag/form and

@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Share ASN.1 tag accessors through `tlv/builtins/asn1/identifier.h`: replace BER/DER/CER `tag_class`, `tag_is_constructed` and `is_constructed` helpers with their `tlv_asn1_*` equivalents, without compatibility aliases. DER and CER reuse BER framing and common ASN.1 validation while retaining their distinct format and tag-validation contracts. (#378)
 - Build BER framing on generic Variable primitives while preserving its public helpers, raw-tag compatibility, indefinite/EOC handling and diagnostics; document the boundary between framing and ASN.1 validation. (#377)
 - Align unit and integration test directories with library modules, separating DHCP option definitions and IPv4 codec tests and documenting the test layout. (#370)
 - **Breaking:** Extend `tlv_source_t` with an explicit Tag storage binding, allowing formats to expose canonical identifiers from immutable format storage while retaining raw wire ranges. Direct source borrowing remains the default; rebuild consumers of `tlv_source_t` and `tlv_decoded_t`, including native bindings. (#360)

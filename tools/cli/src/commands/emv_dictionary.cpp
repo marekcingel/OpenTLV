@@ -40,7 +40,7 @@ nlohmann::json emv_definition_json(const tlv_tag_t& tag, const tlv_emv_definitio
     object["name"] = cli_emv_display_name(definition.name);
     object["symbol"] = definition.name;
     object["type"] = tlv_emv_value_kind_description(definition.value_kind);
-    object["constructed"] = tlv_ber_is_constructed(nullptr, &tag) != 0;
+    object["constructed"] = tlv_asn1_is_constructed(nullptr, &tag) != 0;
     object["min_length"] = (uint64_t)definition.schema->min_length;
     if (definition.schema->max_length != SIZE_MAX)
         object["max_length"] = (uint64_t)definition.schema->max_length;

@@ -31,7 +31,7 @@ The responsibilities are separated as follows:
 
 | Concern | Owner and current behavior |
 | --- | --- |
-| Class bits and primitive/constructed bit | ASN.1 accessors and `tlv_ber_is_constructed()` interpret them; generic identifier handling preserves the raw bytes. |
+| Class bits and primitive/constructed bit | ASN.1 accessors and `tlv_asn1_is_constructed()` interpret them; generic identifier handling preserves the raw bytes. |
 | Low/high-tag-number wire forms | Variable identifies inline/escaped boundaries; ASN.1 tag-number helpers interpret and construct numeric tag numbers. |
 | Identifier minimality | BER rejects a zero first continuation payload. The constructor uses low form below 31; raw parsing/writing retains acceptance of encodings such as `9F 1C` for compatibility. |
 | UNIVERSAL restrictions | BER rejects tag zero in either form as an ordinary element. Other assignments, including reserved number 15, and type-specific primitive/constructed constraints are outside this raw API's validation. |
@@ -104,14 +104,14 @@ const uint8_t input[] = {0xA0, 3, 0x02, 1, 42}; /* Context-specific, constructed
 tlv_element_t element;
 size_t consumed;
 if (tlv_read(input, sizeof(input), &tlv_format_ber, &element, &consumed) == TLV_OK) {
-    tlv_asn1_class_t cls = tlv_ber_tag_class(&element.tag);         /* TLV_ASN1_CONTEXT_SPECIFIC */
-    int constructed = tlv_ber_tag_is_constructed(&element.tag);     /* 1 */
+    tlv_asn1_class_t cls = tlv_asn1_tag_class(&element.tag);         /* TLV_ASN1_CONTEXT_SPECIFIC */
+    int constructed = tlv_asn1_tag_is_constructed(&element.tag);     /* 1 */
     uint64_t number;
     tlv_ber_tag_number(&element.tag, &number);                      /* 0 */
 }
 ```
 
-`tlv_ber_tag_class()` and `tlv_ber_tag_is_constructed()` read a successfully
+`tlv_asn1_tag_class()` and `tlv_asn1_tag_is_constructed()` read a successfully
 parsed or created, nonempty tag directly. `tlv_ber_tag_number(tag, &number)`
 re-validates the tag's wire encoding and extracts a `uint64_t`; numbers beyond
 `uint64_t` return `TLV_ERR_INVALID_TAG`, and an empty tag or one exceeding
@@ -400,7 +400,7 @@ The parent's length includes each child's tag, length, and value. These are
 illustrative opaque payloads, not an EMV-valid record. Generic `tlv_read`
 returns the outer value without automatically visiting definite-length children.
 Use `tlv_walk_tree` with `tlv_format_ber`, whose `is_constructed` is
-`tlv_ber_is_constructed`, to traverse the hierarchy.
+`tlv_asn1_is_constructed`, to traverse the hierarchy.
 
 ### Indefinite constructed value
 
@@ -422,3 +422,34 @@ Primitive indefinite-length values are rejected. Ordinary BER writing emits
 definite lengths; use `tlv_ber_write_indefinite` for explicit indefinite output.
 Use `tlv_format_ber`.
 [BER rules and limits](ber.md)
+
+## Shared ASN.1 mechanisms
+
+BER, DER and CER share identifier arithmetic and the class/form accessors in
+`tlv/builtins/asn1/identifier.h`. Use `tlv_asn1_tag_class()`,
+`tlv_asn1_tag_is_constructed()` and the Format callback
+`tlv_asn1_is_constructed()`; the former per-format accessors have been removed.
+The format headers include this common header.
+
+`tlv_ber_tag_make()` / `tlv_ber_tag_number()` and their DER/CER counterparts
+remain format-specific because they validate different identifier contracts.
+For example, DER rejects constructed OCTET STRING (`24`), CER accepts that
+identifier, and raw BER also accepts nonminimal high-tag-number identifiers
+such as `9F 1C`. Their byte construction and numeric extraction are shared;
+these helpers do not validate a Value or CER segmentation.
+
+| Responsibility | Implementation boundary |
+| --- | --- |
+| Variable-width identifier and length mechanics | Generic Variable primitives, without ASN.1 policy |
+| Raw BER identifier policy and definite length encoding | BER field adapter |
+| Indefinite boundaries and matching EOC | Shared BER scanner and indefinite encoder |
+| Canonical identifiers and minimal definite lengths | Shared ASN.1 helpers used by DER/CER |
+| Definite-only framing and DER identifier form restrictions | DER Format |
+| Primitive definite / constructed indefinite framing | CER Format |
+| Common canonical universal-value validation | Shared ASN.1 validators called by the profiles/codecs |
+| CER string segmentation and cross-segment validation | CER profile |
+
+The independent DER and CER descriptors preserve their own contracts. Neither
+component requires the other to be enabled. Value validation remains outside
+the Format layer, and sharing these mechanisms does not extend the documented
+ASN.1 conformance scope.

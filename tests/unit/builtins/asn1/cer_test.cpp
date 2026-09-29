@@ -39,8 +39,8 @@ TEST(Unit_Tlv_Cer, TagClassAndConstructedAccessors) {
     uint8_t   storage[TLV_ASN1_TAG_MAX_SIZE];
     ASSERT_EQ(TLV_OK, tlv_cer_tag_make(TLV_ASN1_APPLICATION, 1, 4, storage, &tag));
     EXPECT_EQ(storage, tag.data);
-    EXPECT_EQ(TLV_ASN1_APPLICATION, tlv_cer_tag_class(&tag));
-    EXPECT_EQ(1, tlv_cer_tag_is_constructed(&tag));
+    EXPECT_EQ(TLV_ASN1_APPLICATION, tlv_asn1_tag_class(&tag));
+    EXPECT_EQ(1, tlv_asn1_tag_is_constructed(&tag));
     uint64_t number = 0;
     ASSERT_EQ(TLV_OK, tlv_cer_tag_number(&tag, &number));
     EXPECT_EQ(4u, number);
@@ -123,8 +123,8 @@ tlv_visit_result_t collect_tags(const tlv_element_t* element, size_t depth, size
 TEST(Unit_Tlv_Cer, IsConstructedDistinguishesFormAndDrivesGenericTreeTraversal) {
     const tlv_tag_t sequence_tag = TLV_TAG(0x30);
     const tlv_tag_t integer_tag = TLV_TAG(0x02);
-    EXPECT_NE(0, tlv_cer_is_constructed(nullptr, &sequence_tag));
-    EXPECT_EQ(0, tlv_cer_is_constructed(nullptr, &integer_tag));
+    EXPECT_NE(0, tlv_asn1_is_constructed(nullptr, &sequence_tag));
+    EXPECT_EQ(0, tlv_asn1_is_constructed(nullptr, &integer_tag));
 
     /* SEQUENCE(indefinite) { INTEGER 5 }: the format-agnostic tlv_walk_tree,
      * handed this predicate, must descend into the constructed element the

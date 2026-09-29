@@ -1,6 +1,6 @@
 #include "tlv/builtins/asn1/der_schema.h"
 #include "der_profile_internal.h"
-#include "der_values_internal.h"
+#include "asn1_values_internal.h"
 #include "tlv/builtins/asn1/asn1_codec.h"
 #include "tlv/size.h"
 #include <string.h>
@@ -115,7 +115,7 @@ static int is_default_equal(const uint8_t* data, size_t elem_base, size_t elem_u
 }
 
 /* Checks a UNIVERSAL leaf's raw content against its own optional SIZE/
- * value-range constraint, beyond tlv_der_validate_universal_value()'s
+ * value-range constraint, beyond tlv_asn1_validate_universal_value()'s
  * canonical DER rules. INTEGER and ENUMERATED share an identical minimal
  * two's complement wire representation (X.690 section 11.2), so
  * tlv_asn1_codec_integer's decode logic applies to either; tlv_der_schema_check()
@@ -332,7 +332,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
             return fail(TLV_ERR_INVALID_VALUE, value_offset + inner_used, ctx->error_offset);
         if (component->type->kind == TLV_DER_SCHEMA_ANY)
             return dispatch_any(ctx, value_offset, inner_used,
-                                tlv_der_tag_is_constructed(&inner.tag), depth + 1);
+                                tlv_asn1_tag_is_constructed(&inner.tag), depth + 1);
         {
             tlv_der_schema_component_t synthetic;
             const tlv_der_schema_component_t* resolved;
@@ -352,15 +352,15 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
 
     switch (component->type->kind) {
         case TLV_DER_SCHEMA_UNIVERSAL:
-            rc = tlv_der_validate_universal_value(component->type->universal_number,
-                                                  element.value.data, value_length);
+            rc = tlv_asn1_validate_universal_value(component->type->universal_number,
+                                                   element.value.data, value_length);
             if (rc != TLV_OK) return fail(rc, value_offset, ctx->error_offset);
             rc = validate_leaf_constraint(component->type, element.value.data, value_length);
             if (rc != TLV_OK) return fail(rc, value_offset, ctx->error_offset);
             return TLV_OK;
         case TLV_DER_SCHEMA_ANY:
             return dispatch_any(ctx, value_offset, value_length,
-                                tlv_der_tag_is_constructed(&element.tag), depth);
+                                tlv_asn1_tag_is_constructed(&element.tag), depth);
         case TLV_DER_SCHEMA_SEQUENCE:
         case TLV_DER_SCHEMA_SET:
         case TLV_DER_SCHEMA_SET_OF:
@@ -413,8 +413,8 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
         rc = tlv_size_to_native(element.value.size, &value_length);
         if (rc != TLV_OK) return fail(rc, elem_base, ctx->error_offset);
         value_offset = elem_base + used - value_length;
-        rc = dispatch_any(ctx, value_offset, value_length, tlv_der_tag_is_constructed(&element.tag),
-                          *level + 1);
+        rc = dispatch_any(ctx, value_offset, value_length,
+                          tlv_asn1_tag_is_constructed(&element.tag), *level + 1);
         if (rc != TLV_OK) return rc;
         frame->pos = elem_base + used;
         return TLV_OK;
@@ -444,8 +444,8 @@ static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack
     if (frame->seen & ((uint64_t)1 << matched_index))
         return fail(TLV_ERR_SCHEMA, elem_base, ctx->error_offset);
     if (frame->has_prev) {
-        tlv_asn1_class_t pc = tlv_der_tag_class(&frame->prev_tag),
-                         cc = tlv_der_tag_class(&element.tag);
+        tlv_asn1_class_t pc = tlv_asn1_tag_class(&frame->prev_tag),
+                         cc = tlv_asn1_tag_class(&element.tag);
         uint64_t pn = 0, cn = 0;
         int known = tlv_der_tag_number(&frame->prev_tag, &pn) == TLV_OK &&
                     tlv_der_tag_number(&element.tag, &cn) == TLV_OK;
@@ -751,7 +751,7 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
         size_t j = i;
         while (j > 0) {
             tlv_tag_t prev_view = owned_view(&tags[j - 1]), view_i = owned_view(&tag_i);
-            tlv_asn1_class_t ca = tlv_der_tag_class(&prev_view), cb = tlv_der_tag_class(&view_i);
+            tlv_asn1_class_t ca = tlv_asn1_tag_class(&prev_view), cb = tlv_asn1_tag_class(&view_i);
             uint64_t na = 0, nb = 0;
             int out_of_order;
             tlv_der_tag_number(&prev_view, &na);

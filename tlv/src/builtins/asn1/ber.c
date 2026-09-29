@@ -2,6 +2,7 @@
 #include "tlv/layout.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "ber_internal.h"
+#include "asn1_internal.h"
 #include <string.h>
 static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
                              size_t* used) {
@@ -22,69 +23,13 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
     return tlv_ber_wire.read_length(context, data, size, length, used);
 }
 
-static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity,
-                                 tlv_size_t length, size_t* used) {
-    return tlv_ber_wire.write_length(context, data, capacity, length, used);
-}
-
-static tlv_result_t length_size(const void* context, tlv_size_t length, size_t* size) {
-    return tlv_ber_wire.length_size(context, length, size);
-}
-
-int tlv_ber_is_constructed(const void* context, const tlv_tag_t* tag) {
-    (void)context;
-    return (tag->data[0] & TLV_ASN1_CONSTRUCTED_BIT) != 0;
-}
-
 tlv_result_t tlv_ber_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
                               uint8_t* storage, tlv_tag_t* tag) {
-    uint8_t bytes[TLV_ASN1_TAG_MAX_SIZE] = {0};
-    tlv_tag_t result = tlv_tag(bytes, 1);
-    size_t written;
-    if (!storage || !tag) return TLV_ERR_NULL_ARG;
-    if ((unsigned)tag_class > (unsigned)TLV_ASN1_PRIVATE || (constructed != 0 && constructed != 1))
-        return TLV_ERR_INVALID_TAG;
-    bytes[0] = (uint8_t)(((unsigned)tag_class << TLV_ASN1_CLASS_SHIFT) |
-                         (constructed ? TLV_ASN1_CONSTRUCTED_BIT : 0));
-    if (number < TLV_ASN1_LOW_TAG_LIMIT)
-        bytes[0] |= (uint8_t)number;
-    else {
-        uint8_t digits[10];
-        size_t count = 0;
-        bytes[0] |= TLV_ASN1_TAG_NUMBER_MASK;
-        do {
-            digits[count++] = (uint8_t)(number & TLV_BER_TAG_DIGIT_MASK);
-            number >>= TLV_BER_TAG_DIGIT_BITS;
-        } while (number);
-        if (count + 1 > TLV_ASN1_TAG_MAX_SIZE) return TLV_ERR_INVALID_TAG_SIZE;
-        result.size = count + 1;
-        for (size_t i = 0; i < count; ++i)
-            bytes[i + 1] = (uint8_t)(digits[count - i - 1] |
-                                     (i + 1 < count ? TLV_BER_TAG_DIGIT_CONTINUATION_BIT : 0));
-    }
-    if (write_tag(NULL, NULL, 0, &result, &written) != TLV_OK) return TLV_ERR_INVALID_TAG;
-    memcpy(storage, bytes, result.size);
-    *tag = tlv_tag(storage, result.size);
-    return TLV_OK;
+    return tlv_asn1_tag_make_checked(write_tag, tag_class, constructed, number, storage, tag);
 }
 
 tlv_result_t tlv_ber_tag_number(const tlv_tag_t* tag, uint64_t* number) {
-    uint64_t result;
-    size_t written;
-    tlv_result_t rc;
-    if (!tag || !number) return TLV_ERR_NULL_ARG;
-    rc = write_tag(NULL, NULL, 0, tag, &written);
-    if (rc != TLV_OK) return rc;
-    result = tag->data[0] & TLV_ASN1_TAG_NUMBER_MASK;
-    if (tag->size > 1) {
-        result = 0;
-        for (size_t i = 1; i < tag->size; ++i) {
-            if (result > (UINT64_MAX >> TLV_BER_TAG_DIGIT_BITS)) return TLV_ERR_INVALID_TAG;
-            result = (result << TLV_BER_TAG_DIGIT_BITS) | (tag->data[i] & TLV_BER_TAG_DIGIT_MASK);
-        }
-    }
-    *number = result;
-    return TLV_OK;
+    return tlv_asn1_tag_number_checked(write_tag, tag, number);
 }
 
 static tlv_result_t scan_failure(tlv_format_error_t* error, tlv_result_t code, size_t offset,
@@ -143,7 +88,7 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
         pos += tag_size;
         region = TLV_REGION_LENGTH;
         if (pos == limit) return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, region);
-        constructed = tlv_ber_is_constructed(NULL, &tag);
+        constructed = tlv_asn1_is_constructed(NULL, &tag);
         child_indefinite = data[pos] == TLV_BER_LENGTH_LONG_FORM_BIT;
         if (child_indefinite) {
             if (!constructed) return scan_failure(error, TLV_ERR_INVALID_LENGTH, pos, region);
@@ -186,7 +131,7 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
         return TLV_OK;
     }
     *len_size = TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE;
-    if (!tlv_ber_is_constructed(context, tag)) return TLV_ERR_INVALID_LENGTH;
+    if (!tlv_asn1_is_constructed(context, tag)) return TLV_ERR_INVALID_LENGTH;
     rc = tlv_ber_scan_contents_diag(data + 1, size - 1, 1, &native_length, &used, error);
     if (rc != TLV_OK) {
         if (error->has_offset) ++error->offset;
@@ -235,10 +180,10 @@ const tlv_field_layout_t tlv_ber_fields = {.context = NULL,
                                            .read_length = read_length,
                                            .resolve = read_value_bounds,
                                            .write_tag = write_tag,
-                                           .write_length = write_length,
-                                           .length_size = length_size};
+                                           .write_length = tlv_ber_write_length,
+                                           .length_size = tlv_ber_length_size};
 const tlv_format_t tlv_format_ber = {&tlv_ber_fields, tlv_fields_decode, tlv_fields_measure,
-                                     tlv_fields_encode, tlv_ber_is_constructed};
+                                     tlv_fields_encode, tlv_asn1_is_constructed};
 
 tlv_result_t tlv_asn1_indefinite_measure(const void* context, const tlv_element_t* element,
                                          tlv_encoding_t* sizes, tlv_format_error_t* error) {
@@ -249,7 +194,7 @@ tlv_result_t tlv_asn1_indefinite_measure(const void* context, const tlv_element_
     error->has_offset = 1;
     rc = fields->write_tag(fields->context, NULL, 0, &element->tag, &tag_size);
     if (rc != TLV_OK) return rc;
-    if (!tlv_ber_is_constructed(NULL, &element->tag)) return TLV_ERR_INVALID_LENGTH;
+    if (!tlv_asn1_is_constructed(NULL, &element->tag)) return TLV_ERR_INVALID_LENGTH;
     sizes->header = tag_size + (tlv_size_t)1;
     sizes->value = element->value.size;
     sizes->trailer = 2;
@@ -282,9 +227,9 @@ tlv_result_t tlv_asn1_indefinite_encode(const void* context, const tlv_element_t
     return TLV_OK;
 }
 
-const tlv_format_t tlv_format_ber_indefinite = {&tlv_ber_fields, tlv_fields_decode,
-                                                tlv_asn1_indefinite_measure,
-                                                tlv_asn1_indefinite_encode, tlv_ber_is_constructed};
+const tlv_format_t tlv_format_ber_indefinite = {
+    &tlv_ber_fields, tlv_fields_decode, tlv_asn1_indefinite_measure, tlv_asn1_indefinite_encode,
+    tlv_asn1_is_constructed};
 
 tlv_result_t tlv_ber_read_identifier(const uint8_t* data, size_t size, tlv_tag_t* tag,
                                      size_t* consumed) {

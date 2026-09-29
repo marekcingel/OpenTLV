@@ -143,8 +143,8 @@ TEST(Integration_Tlv_Ber, TagClassesNumbersAndFormsRoundTrip) {
                     digits > TLV_ASN1_TAG_MAX_SIZE ? TLV_ERR_INVALID_TAG_SIZE : TLV_OK;
                 ASSERT_EQ(expected, tlv_ber_tag_make(cls, constructed, number, storage, &tag));
                 if (expected != TLV_OK) continue;
-                EXPECT_EQ(cls, tlv_ber_tag_class(&tag));
-                EXPECT_EQ(constructed, tlv_ber_tag_is_constructed(&tag));
+                EXPECT_EQ(cls, tlv_asn1_tag_class(&tag));
+                EXPECT_EQ(constructed, tlv_asn1_tag_is_constructed(&tag));
                 uint64_t actual = 0;
                 ASSERT_EQ(TLV_OK, tlv_ber_tag_number(&tag, &actual));
                 EXPECT_EQ(number, actual);

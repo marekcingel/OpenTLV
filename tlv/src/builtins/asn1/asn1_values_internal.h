@@ -7,7 +7,7 @@
 
 /* Shared ASN.1 canonical content validators (ITU-T X.690 §11, the canonical
  * value restrictions common to both CER and DER), reused by
- * tlv/src/builtins/asn1/der_values.c and tlv/src/builtins/asn1/cer_values_internal.c
+ * the DER/CER profiles and ASN.1 value codecs
  * without requiring the other component to be enabled. Each validator
  * receives one primitive element's complete content in isolation; value is
  * never NULL when length is nonzero. Returns TLV_OK or TLV_ERR_INVALID_VALUE.
@@ -64,8 +64,7 @@ tlv_result_t tlv_asn1_validate_oid_iri(const uint8_t* value, size_t length);
 tlv_result_t tlv_asn1_validate_relative_oid_iri(const uint8_t* value, size_t length);
 
 /* Dispatches a UNIVERSAL tag number to the validator above for one complete
- * primitive element's content, shared by DER (tlv_der_validate_universal_value)
- * and CER (tlv_cer_validate_universal_value) so both report identical results
+ * primitive element's content, shared by DER and CER so both report identical results
  * for the value rules ITU-T X.690 §11 documents as common to both encodings.
  * Returns TLV_ERR_UNSUPPORTED_TYPE for a UNIVERSAL number with no
  * implemented canonical content rule. */

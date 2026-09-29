@@ -238,7 +238,7 @@ TEST(Integration_Tlv_Cer, WriteSegmentedStringSingleAndMultiSegment) {
         size_t        consumed;
         ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &element, &consumed, nullptr));
         EXPECT_EQ(written, consumed);
-        EXPECT_FALSE(tlv_cer_tag_is_constructed(&element.tag));
+        EXPECT_FALSE(tlv_asn1_tag_is_constructed(&element.tag));
         EXPECT_EQ(1000u, element.value.size);
     }
     /* Content over the threshold: constructed, segmented, zero-copy segments. */
@@ -257,7 +257,7 @@ TEST(Integration_Tlv_Cer, WriteSegmentedStringSingleAndMultiSegment) {
         size_t        consumed;
         ASSERT_EQ(TLV_OK, tlv_cer_read(output, written, nullptr, &element, &consumed, nullptr));
         EXPECT_EQ(written, consumed);
-        EXPECT_TRUE(tlv_cer_tag_is_constructed(&element.tag));
+        EXPECT_TRUE(tlv_asn1_tag_is_constructed(&element.tag));
         /* Zero-copy segment iteration: element.value already excludes the outer EOC. */
         std::vector<Segment> segments;
         ASSERT_EQ(TLV_OK, tlv_walk(element.value.data, static_cast<size_t>(element.value.size),

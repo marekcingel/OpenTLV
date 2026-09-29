@@ -148,7 +148,7 @@ typedef struct tlv_der_schema_component {
  *
  * Mirrors the ASN.1 `SIZE` and value-range constraint notations (for example
  * `OCTET STRING (SIZE(1..16))` or `INTEGER (0..255)`), checked in addition to
- * -- not instead of -- tlv_der_validate_universal_value()'s own canonical
+ * -- not instead of -- the shared ASN.1 universal-value validators' canonical
  * rules. All pointers are borrowed and must outlive use.
  */
 typedef struct tlv_der_schema_leaf_constraint {

@@ -56,9 +56,9 @@ explains its wire layout and supported scope.
 | [DHCPv4 options](dhcp/README.md) | 1-byte code | 1 byte; absent for Pad/End | 255 bytes; 0 for Pad/End | code, length, value; code only for Pad/End | none | `OPENTLV_DHCP` |
 | [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_BLUETOOTH` |
 | [LLDP](lldp/README.md#wire-layout-and-logical-model) | 7-bit Type, canonical one-byte Tag | 9 bits, Value only | 511 bytes | packed Type/Length, Value | none | `OPENTLV_LLDP` |
-| [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_ber_is_constructed` | `OPENTLV_FORMAT_BER` |
-| [DER-TLV](asn1/der.md#layout-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_der_is_constructed` | `OPENTLV_FORMAT_DER` |
-| [CER-TLV](asn1/cer.md#layout-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_cer_is_constructed` | `OPENTLV_FORMAT_CER` |
+| [BER-TLV](asn1/ber.md#layout-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_BER` |
+| [DER-TLV](asn1/der.md#layout-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_DER` |
+| [CER-TLV](asn1/cer.md#layout-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_CER` |
 
 [Application-defined formats](custom/README.md) supply their own field layout,
 limits and nesting predicate through the same generic callback contract.
@@ -225,8 +225,7 @@ declares only the contract.
 The optional `tlv_format_t::is_constructed` field identifies values containing
 child TLVs in the same format. It receives the format's context and a parsed
 tag. NULL means opaque values. The BER, DER and CER descriptors set it to
-`tlv_ber_is_constructed`, `tlv_der_is_constructed` and `tlv_cer_is_constructed`
-respectively, inspecting their constructed bit; Fixed formats
+the shared `tlv_asn1_is_constructed`, which inspects the constructed bit; Fixed formats
 leave it NULL.
 Custom protocols can supply a different rule. Traversal follows the value element
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.

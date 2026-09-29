@@ -13,12 +13,9 @@ extern "C" {
 /**
  * @file
  * @ingroup formats
- * @brief ASN.1 CER reader and writer formats with tag accessors.
+ * @brief ASN.1 CER format and validated tag helpers.
  *
- * The tag accessors here have identical semantics to the DER accessors in
- * tlv/builtins/asn1/der.h (#tlv_asn1_class_t is shared, declared in
- * tlv/builtins/asn1/ber.h). They are duplicated rather than reused from
- * der.h so CER never depends on the DER component being enabled.
+ * Shared identifier accessors are declared in tlv/builtins/asn1/identifier.h.
  */
 
 /** @addtogroup formats
@@ -26,37 +23,14 @@ extern "C" {
  */
 
 /**
- * @brief Returns the ASN.1 class of a CER tag.
- *
- * @param tag A successfully parsed or created CER tag; must be non-`NULL`
- *            and nonempty.
- *
- * @return The identifier-octet class.
- */
-static inline tlv_asn1_class_t tlv_cer_tag_class(const tlv_tag_t* tag) {
-    return (tlv_asn1_class_t)(tag->data[0] >> TLV_ASN1_CLASS_SHIFT);
-}
-/**
- * @brief Reports whether a CER tag has the constructed bit set.
- *
- * @param tag A successfully parsed or created CER tag; must be non-`NULL`
- *            and nonempty.
- *
- * @return Nonzero if constructed, zero if primitive.
- */
-static inline int tlv_cer_tag_is_constructed(const tlv_tag_t* tag) {
-    return (tag->data[0] & TLV_ASN1_CONSTRUCTED_BIT) != 0;
-}
-
-/**
  * @brief Constructs a canonical CER tag.
  *
- * Identical rules and error conventions to tlv_der_tag_make(): ASN.1
- * identifier octets (X.690 section 8.1) are not specific to any single
- * encoding-rule profile.
+ * Applies the identifier restrictions of #tlv_format_cer, including reserved
+ * universal numbers and the always-constructed types. Unlike DER, string
+ * tags may be constructed; segmentation is validated by the CER profile.
  *
  * @param[in]  tag_class   ASN.1 class.
- * @param[in]  constructed Nonzero for constructed form, zero for primitive.
+ * @param[in]  constructed One for constructed form, zero for primitive.
  * @param[in]  number      Tag number.
  * @param[out] storage     Destination for the tag bytes; #TLV_ASN1_TAG_MAX_SIZE
  *                         writable bytes. Must outlive every use of the tag.
@@ -75,7 +49,8 @@ TLV_API tlv_result_t tlv_cer_tag_make(tlv_asn1_class_t tag_class, int constructe
 /**
  * @brief Extracts the numeric tag number from a CER tag.
  *
- * Same rules and errors as tlv_der_tag_number().
+ * Validates the identifier according to #tlv_format_cer before extraction.
+ * Constructed string tags are accepted, unlike DER.
  *
  * @param[in]  tag    CER tag.
  * @param[out] number Receives the tag number.
@@ -107,8 +82,9 @@ TLV_API tlv_result_t tlv_cer_tag_number(const tlv_tag_t* tag, uint64_t* number);
  * padding octet).
  *
  * This is a TLV-layer descriptor: it validates the current element's
- * identifier and length only, not nested framing, EOC placement, or
- * canonical segmentation across descendants.
+ * identifier and length, using the shared BER scanner to locate matching
+ * EOC boundaries. Descendants are checked for BER framing, not recursive
+ * CER canonicality or string segmentation.
  *
  * @warning Generic writing through #tlv_format_cer is therefore not by itself
  *          a complete CER encoder for constructed or segmentable values. Use
@@ -116,19 +92,6 @@ TLV_API tlv_result_t tlv_cer_tag_number(const tlv_tag_t* tag, uint64_t* number);
  *          canonical constructed/segmented encoding, and error offsets.
  */
 extern TLV_API const tlv_format_t tlv_format_cer;
-
-/**
- * @brief Nesting predicate for tree traversal of CER data.
- *
- * Matches #tlv_is_constructed_fn. This is #tlv_format_cer's own
- * `is_constructed`.
- *
- * @param context Unused; may be `NULL`.
- * @param tag     A successfully parsed CER tag.
- *
- * @return Nonzero if the tag is constructed, zero otherwise.
- */
-TLV_API int tlv_cer_is_constructed(const void* context, const tlv_tag_t* tag);
 
 #ifdef __cplusplus
 }
