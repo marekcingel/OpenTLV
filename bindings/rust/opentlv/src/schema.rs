@@ -288,6 +288,8 @@ impl StructureRule {
 /// addresses stored in parent tables stay valid when the schema is moved.
 struct Compiled {
     rules: Vec<native::tlv_structure_rule_t>,
+    // Finalized before rule pointers are formed; never resized afterwards.
+    _fields: Vec<native::tlv_schema_entry_t>,
     // Kept alive because `rules` borrows their bytes.
     _tags: Vec<Tag>,
     // Kept alive because `rules` points to their C tables.
@@ -342,6 +344,7 @@ impl StructureSchema {
         allow_unknown: bool,
     ) -> StructureSchema {
         let mut raw_rules = Vec::new();
+        let mut fields = Vec::new();
         let mut children = Vec::new();
         let mut tags = Vec::new();
         for rule in rules {
@@ -353,25 +356,28 @@ impl StructureSchema {
                 }
                 None => ptr::null(),
             };
+            fields.push(native::tlv_schema_entry_t {
+                tag: rule.tag.raw(),
+                min_length: rule.min_length,
+                max_length: rule.max_length,
+                flags: 0,
+                name: ptr::null(),
+                length_multiple: 0,
+            });
             raw_rules.push(native::tlv_structure_rule_t {
-                entry: native::tlv_schema_entry_t {
-                    tag: rule.tag.raw(),
-                    min_length: rule.min_length,
-                    max_length: rule.max_length,
-                    flags: 0,
-                    name: ptr::null(),
-                    length_multiple: 0,
-                },
+                entry: ptr::null(),
                 min_occurs: rule.min_occurs,
                 max_occurs: rule.max_occurs,
                 kind: rule.kind.raw(),
                 children: child_ptr,
                 // Alternative groups (CHOICE) are not yet exposed by this crate.
                 group: 0,
-                entry_ref: std::ptr::null(),
             });
             // Moving a tag moves its handle, not the heap bytes the rule borrows.
             tags.push(rule.tag);
+        }
+        for (rule, field) in raw_rules.iter_mut().zip(fields.iter()) {
+            rule.entry = field;
         }
         let mut compiled = Box::new(Compiled {
             raw: native::tlv_structure_schema_t {
@@ -385,6 +391,7 @@ impl StructureSchema {
                 order: native::TLV_SCHEMA_ORDER_ANY,
             },
             rules: raw_rules,
+            _fields: fields,
             _tags: tags,
             _children: children,
         });

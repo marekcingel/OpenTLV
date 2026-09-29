@@ -98,9 +98,11 @@ const tlv_field_layout_t constructed_full_format_layout = {nullptr,
                                                            TLV_LENGTH_SCOPE_VALUE};
 const tlv_format_t constructed_full_format = {&constructed_full_format_layout, tlv_fields_decode,
                                               tlv_fields_measure, tlv_fields_encode, constructed};
+const tlv_schema_entry_t   child_rules_fields[] = {{TLV_TAG(1), 1, 1, 0, nullptr, 0},
+                                                   {TLV_TAG(2), 1, 1, 0, nullptr, 0}};
 const tlv_structure_rule_t child_rules[] = {
-    {{TLV_TAG(1), 1, 1, 0, nullptr, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL},
-    {{TLV_TAG(2), 1, 1, 0, nullptr, 0}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL}};
+    {&child_rules_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {&child_rules_fields[1], 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
 const tlv_structure_schema_t children = {child_rules, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 TEST(Unit_Tlv_Architecture, GenericValueBoundsAndTrailerValidation) {
     struct Bounds {

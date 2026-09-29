@@ -102,7 +102,7 @@ if(OPENTLV_EMV)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/emv/format.c
         src/builtins/emv/emv.c src/builtins/emv/dictionary.c
-        src/builtins/emv/emv_codec.c src/builtins/emv/dol.c src/builtins/emv/emv_schema.c)
+        src/builtins/emv/emv_codec.c src/builtins/emv/presentation.c src/builtins/emv/dol.c src/builtins/emv/emv_schema.c)
 endif()
 if(OPENTLV_DOCUMENT)
     # The only component that allocates; nothing else in the library depends on it.

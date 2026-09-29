@@ -102,12 +102,15 @@ const tlv_field_layout_t constructed_full_format_layout = {nullptr,
                                                            TLV_LENGTH_SCOPE_VALUE};
 const tlv_format_t constructed_full_format = {&constructed_full_format_layout, tlv_fields_decode,
                                               tlv_fields_measure, tlv_fields_encode, constructed};
+const tlv_schema_entry_t   child_rules_fields[] = {{TLV_TAG(1), 1, 1, 0, nullptr, 0},
+                                                   {TLV_TAG(2), 1, 1, 0, nullptr, 0}};
 const tlv_structure_rule_t child_rules[] = {
-    {{TLV_TAG(1), 1, 1, 0, nullptr, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL},
-    {{TLV_TAG(2), 1, 1, 0, nullptr, 0}, 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL}};
+    {&child_rules_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {&child_rules_fields[1], 0, 2, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
 const tlv_structure_schema_t children = {child_rules, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
+const tlv_schema_entry_t     parent_rules_fields[] = {{TLV_TAG(0x80), 0, 255, 0, nullptr, 0}};
 const tlv_structure_rule_t   parent_rules[] = {
-    {{TLV_TAG(0x80), 0, 255, 0, nullptr, 0}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &children, 0, NULL}};
+    {&parent_rules_fields[0], 1, 1, TLV_SCHEMA_CONSTRUCTED, &children, 0}};
 const tlv_structure_schema_t schema = {parent_rules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
 #if OPENTLV_FORMAT_BER
@@ -125,9 +128,11 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies
               tlv_walk_tree(wire, sizeof(wire), &tlv_format_ber, 3, 6, visitor, &visits, nullptr));
     EXPECT_EQ((std::vector<size_t>{0, 0, 1, 2, 2, 4, 3, 6, 1, 11, 0, 15}), visits);
     tlv_structure_schema_t     recursive{};
+    const tlv_schema_entry_t   rules_fields[] = {{TLV_TAG(0x30), 0, 100, 0, nullptr, 0},
+                                                 {TLV_TAG(4), 0, 1, 0, nullptr, 0}};
     const tlv_structure_rule_t rules[] = {
-        {{TLV_TAG(0x30), 0, 100, 0, nullptr, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0, NULL},
-        {{TLV_TAG(4), 0, 1, 0, nullptr, 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL}};
+        {&rules_fields[0], 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0},
+        {&rules_fields[1], 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0}};
     recursive = tlv_structure_schema_t{rules, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_OK,
               tlv_schema_validate(wire, sizeof(wire), &tlv_format_ber, &recursive, 3, 6, nullptr));
@@ -155,12 +160,14 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies
     EXPECT_EQ(15u, written);
     EXPECT_EQ(0, std::memcmp(wire, copied, written));
     // An empty indefinite scope still enforces required children.
-    const uint8_t              empty[] = {0x30, 0x80, 0, 0};
-    const tlv_structure_rule_t required = {
-        {TLV_TAG(4), 0, 1, 0, nullptr, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL};
+    const uint8_t                empty[] = {0x30, 0x80, 0, 0};
+    const tlv_schema_entry_t     required_fields[] = {{TLV_TAG(4), 0, 1, 0, nullptr, 0}};
+    const tlv_structure_rule_t   required = {&required_fields[0],  1,       1,
+                                             TLV_SCHEMA_PRIMITIVE, nullptr, 0};
     const tlv_structure_schema_t child = {&required, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
-    const tlv_structure_rule_t   parent = {
-        {TLV_TAG(0x30), 0, 100, 0, nullptr, 0}, 1, 1, TLV_SCHEMA_CONSTRUCTED, &child, 0, NULL};
+    const tlv_schema_entry_t     parent_fields[] = {{TLV_TAG(0x30), 0, 100, 0, nullptr, 0}};
+    const tlv_structure_rule_t   parent = {&parent_fields[0],      1,      1,
+                                           TLV_SCHEMA_CONSTRUCTED, &child, 0};
     const tlv_structure_schema_t root = {&parent, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
               tlv_schema_validate(empty, sizeof(empty), &tlv_format_ber, &root, 0, 1, &offset));
@@ -243,9 +250,9 @@ TEST(Integration_Tlv_Architecture, MaximumDepthAndEmptyChildSchemaUseTheSameBoun
         wire.push_back(0x80);
         wire.push_back(static_cast<uint8_t>(2 * (TLV_WALK_MAX_DEPTH - i)));
     }
-    tlv_structure_schema_t recursive{};
-    tlv_structure_rule_t   rule = {
-        {TLV_TAG(0x80), 0, 255, 0, nullptr, 0}, 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0, NULL};
+    tlv_structure_schema_t   recursive{};
+    const tlv_schema_entry_t rule_fields[] = {{TLV_TAG(0x80), 0, 255, 0, nullptr, 0}};
+    tlv_structure_rule_t     rule = {&rule_fields[0], 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0};
     recursive.rules = &rule;
     recursive.count = 1;
     EXPECT_EQ(TLV_OK, tlv_schema_validate(wire.data(), wire.size(), &constructed_format, &recursive,
@@ -264,7 +271,7 @@ TEST(Integration_Tlv_Architecture, MaximumDepthAndEmptyChildSchemaUseTheSameBoun
 
 TEST(Integration_Tlv_Architecture, RecoveryAndSequentialTraversalRemainDistinct) {
     const uint8_t      noisy[] = {0x33, 0xff, 1, 1, 42};
-    tlv_schema_entry_t entry = child_rules[0].entry;
+    tlv_schema_entry_t entry = *child_rules[0].entry;
     tlv_schema_t       recovery = {&entry, 1};
     tlv_element_t      element{};
     size_t             offset = 0, used = 0;

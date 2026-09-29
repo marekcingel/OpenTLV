@@ -414,8 +414,8 @@ pub const TLV_SCHEMA_CONSTRUCTED: tlv_schema_kind_t = 2;
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_structure_rule_t {
-    /// Tag and permitted value-length bounds.
-    pub entry: tlv_schema_entry_t,
+    /// Required borrowed field Schema; immutable storage must outlive the rule.
+    pub entry: *const tlv_schema_entry_t,
     /// Minimum occurrences within the parent. Must be 0 when `group` is nonzero.
     pub min_occurs: usize,
     /// Maximum occurrences within the parent; `usize::MAX` is unrestricted.
@@ -426,8 +426,6 @@ pub struct tlv_structure_rule_t {
     pub children: *const tlv_structure_schema_t,
     /// Group this rule belongs to, or 0 if it stands alone (`tlv_structure_rule_t::group`).
     pub group: u32,
-    /// Optional borrowed authoritative field rule; null uses entry.
-    pub entry_ref: *const tlv_schema_entry_t,
 }
 
 /// Ordering required among a scope's matched elements (`tlv_schema_order_t`).
@@ -537,7 +535,7 @@ pub const TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION: tlv_emv_context_t = 7;
 /// Number of contexts, and the "no new context" result (`TLV_EMV_CONTEXT_COUNT`).
 pub const TLV_EMV_CONTEXT_COUNT: tlv_emv_context_t = 8;
 
-/// C representation of an EMV value (`tlv_emv_value_kind_t`).
+/// Optional builtin presentation category (`tlv_emv_value_kind_t` in presentation.h).
 pub type tlv_emv_value_kind_t = c_int;
 /// Opaque bytes (`TLV_EMV_VALUE_BYTES`).
 pub const TLV_EMV_VALUE_BYTES: tlv_emv_value_kind_t = 0;
@@ -713,16 +711,7 @@ pub struct tlv_definition_t {
     pub name: *const c_char,
 }
 
-/// No independent EMV interpretation annotation.
-pub const TLV_EMV_SEMANTICS_NONE: c_int = 0;
-/// Text whose character repertoire belongs to the domain.
-pub const TLV_EMV_SEMANTICS_TEXT: c_int = 1;
-/// EMV bit assignments instead of arithmetic meaning.
-pub const TLV_EMV_SEMANTICS_BITMASK: c_int = 2;
-/// Semantic nesting, including primitive-wire templates.
-pub const TLV_EMV_SEMANTICS_TEMPLATE: c_int = 3;
-
-/// Borrowed composition of Definition, Schema, Codec and EMV semantics.
+/// Borrowed composition of Definition, Schema and Codec.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_emv_definition_t {
@@ -732,8 +721,6 @@ pub struct tlv_emv_definition_t {
     pub schema: *const tlv_schema_entry_t,
     /// Selected semantic codec, or null for opaque input.
     pub codec: *const tlv_codec_t,
-    /// Independent EMV interpretation annotation.
-    pub semantics: c_int,
 }
 
 /// Inclusive resource limits for DER validation and writing (`tlv_der_limits_t`).
@@ -816,9 +803,10 @@ extern "C" {
         context: tlv_emv_context_t,
         tag: *const tlv_tag_t,
     ) -> tlv_emv_context_t;
-    /// Validates a length against a definition.
-    /// Derives the display length step from the referenced Schema.
-    pub fn tlv_emv_value_kind(definition: *const tlv_emv_definition_t) -> tlv_emv_value_kind_t;
+    /// Builtin-only presentation profile; does not inspect callbacks or custom codecs.
+    pub fn tlv_emv_builtin_value_kind(
+        definition: *const tlv_emv_definition_t,
+    ) -> tlv_emv_value_kind_t;
     /// Borrows the symbol from the entry's Schema.
     pub fn tlv_emv_symbol(definition: *const tlv_emv_definition_t) -> *const c_char;
     /// Derives length spacing from Schema.

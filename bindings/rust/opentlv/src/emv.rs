@@ -132,9 +132,10 @@ impl Definition {
         unsafe { Tag::from_raw(&self.entry().tag) }.expect("dictionary tags are valid")
     }
 
-    /// Returns the representation of the value.
+    /// Returns this immutable builtin entry's presentation category.
+    /// Uses the builtin profile, never codec callback introspection.
     pub fn kind(&self) -> ValueKind {
-        ValueKind::from_raw(unsafe { native::tlv_emv_value_kind(self.raw) })
+        ValueKind::from_raw(unsafe { native::tlv_emv_builtin_value_kind(self.raw) })
             .expect("dictionary kinds are known")
     }
 

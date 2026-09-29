@@ -1,3 +1,4 @@
+#include "tlv/builtins/emv/presentation.h"
 /*
  * Practical EMV workflow: parse a TLV record, look up each tag in the Book 3
  * dictionary, validate its value length, and decode the value into a C
@@ -201,7 +202,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
         return TLV_VISIT_CONTINUE;
     }
 
-    switch (tlv_emv_value_kind(def)) {
+    switch (tlv_emv_builtin_value_kind(def)) {
         case TLV_EMV_VALUE_DIGITS: {
             tlv_codec_result_t rc = tlv_codec_decode(def->codec, element->value.data, length,
                                                      record->pan, sizeof(record->pan));
@@ -306,7 +307,7 @@ static tlv_visit_result_t decode_field(const tlv_element_t* element, void* conte
         default:
             /* TEXT, TEMPLATE, TIME, BIOMETRIC, NUMBER_LIST: not present in this
              * demo record. Decode with the same tlv_codec_decode() dispatch,
-             * keyed on tlv_emv_value_kind(def), into their documented C representation. */
+             * keyed on tlv_emv_builtin_value_kind(def), into their documented C representation. */
             printf(" -> %s value, %zu raw bytes (not decoded by this example)\n",
                    tlv_emv_symbol(def), length);
             break;

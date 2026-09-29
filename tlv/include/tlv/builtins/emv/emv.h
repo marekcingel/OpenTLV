@@ -912,20 +912,6 @@ extern TLV_API const tlv_tag_t tlv_emv_tag_enciphered_biometric_data;
 extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_data_mac;
 /** @} */
 
-/** @brief EMV interpretation not implied by a codec's C representation.
- * These are annotations, never codec selectors or substitutes for schema rules.
- */
-typedef enum tlv_emv_semantics {
-    /** No additional EMV annotation. */
-    TLV_EMV_SEMANTICS_NONE,
-    /** EMV text with a domain-selected character repertoire, not necessarily ASCII/UTF-8. */
-    TLV_EMV_SEMANTICS_TEXT,
-    /** Bit assignments interpreted by EMV; distinct from arithmetic uint64_t values. */
-    TLV_EMV_SEMANTICS_BITMASK,
-    /** EMV semantic nesting, including templates with a primitive wire identifier. */
-    TLV_EMV_SEMANTICS_TEMPLATE
-} tlv_emv_semantics_t;
-
 /** @brief Borrowed composition of identifier metadata, field Schema and Value Codec.
  * Each referenced object is authoritative for its own properties. The schema's
  * tag must equal definition->tag; both should borrow the same canonical bytes.
@@ -940,8 +926,6 @@ typedef struct {
     const tlv_schema_entry_t* schema;
     /** Selected Value conversion; NULL means retain opaque input bytes. */
     const tlv_codec_t* codec;
-    /** Independent EMV interpretation, not a duplicate conversion type. */
-    tlv_emv_semantics_t semantics;
 } tlv_emv_definition_t;
 
 /** @brief Returns the optional dictionary symbol owned by the referenced Schema.
@@ -949,16 +933,6 @@ typedef struct {
  * @return Borrowed NUL-terminated symbol, or NULL when absent.
  */
 TLV_API const char* tlv_emv_symbol(const tlv_emv_definition_t* definition);
-
-/** @brief Compatibility presentation of recognized codecs and EMV annotations.
- * @param[in] definition Borrowed entry, or NULL.
- * @return Legacy presentation kind, or TLV_EMV_VALUE_UNKNOWN for an unrecognized
- *         caller-provided codec. This is derived, never stored in the dictionary.
- * @note Recognition uses the selected codec callbacks/configuration, never tags.
- *       Runtime callers already know their codec's C representation and need not
- *       use this adapter. Unknown callbacks are never cast to known contexts.
- */
-TLV_API tlv_emv_value_kind_t tlv_emv_value_kind(const tlv_emv_definition_t* definition);
 
 /**
  * @brief Borrowed EMV domain dictionary for one explicitly selected context.

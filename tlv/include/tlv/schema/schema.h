@@ -118,8 +118,10 @@ struct tlv_structure_schema;
  * @see tlv_structure_schema_t
  */
 typedef struct tlv_structure_rule {
-    /** Inline field rule, used only when entry_ref is NULL. */
-    tlv_schema_entry_t entry;
+    /** Required authoritative field Schema. Borrows immutable storage (including
+     * tag bytes and name) that must outlive every use of this structural rule.
+     * Multiple rules and dictionaries may share this same field Schema. */
+    const tlv_schema_entry_t* entry;
     /**
      * Minimum occurrences within the parent: 1 makes a field required; 0
      * makes it optional or, together with a default value maintained outside
@@ -148,20 +150,7 @@ typedef struct tlv_structure_rule {
      * repeat, independently of the group's own bounds.
      */
     uint32_t group;
-    /** Optional authoritative field Schema. When non-NULL, entry is ignored.
-     * Borrows immutable storage that must outlive validation. This permits a
-     * dictionary and multiple structural contexts to share one field rule. */
-    const tlv_schema_entry_t* entry_ref;
 } tlv_structure_rule_t;
-
-/** @brief Selects a structural rule's authoritative field Schema.
- * @param[in] rule Borrowed structural rule, or NULL.
- * @return entry_ref when present, otherwise the inline entry; NULL for NULL rule.
- * @note No ownership transfer or validation occurs.
- */
-static inline const tlv_schema_entry_t* tlv_structure_rule_entry(const tlv_structure_rule_t* rule) {
-    return rule ? (rule->entry_ref ? rule->entry_ref : &rule->entry) : NULL;
-}
 
 /**
  * @brief Ordering required among a scope's matched elements.
@@ -474,7 +463,7 @@ typedef struct tlv_schema_diagnostic {
     tlv_tag_t tag;
     /** Tags of the scopes enclosing `tag`, outermost first; does not include `tag` itself. */
     tlv_diagnostic_path_t path;
-    /** Borrowed schema name for `tag` (the violated rule's `entry.name`, or the violated group's
+    /** Borrowed schema name for `tag` (the violated rule's `entry->name`, or the violated group's
      * `name` when `is_group` is nonzero), or `NULL` if it has none or no rule matched
      * (#TLV_SCHEMA_ISSUE_UNEXPECTED). */
     const char* field;

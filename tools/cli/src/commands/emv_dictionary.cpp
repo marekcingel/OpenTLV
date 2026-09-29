@@ -1,3 +1,4 @@
+#include "tlv/builtins/emv/presentation.h"
 #include "commands/emv_dictionary.hpp"
 #include <cctype>
 #include <cstring>
@@ -39,7 +40,7 @@ nlohmann::json emv_definition_json(const tlv_tag_t& tag, const tlv_emv_definitio
     object["known"] = true;
     object["name"] = cli_emv_display_name(definition.definition);
     object["symbol"] = tlv_emv_symbol(&definition);
-    object["type"] = tlv_emv_value_kind_description(tlv_emv_value_kind(&definition));
+    object["type"] = tlv_emv_value_kind_description(tlv_emv_builtin_value_kind(&definition));
     object["constructed"] = tlv_asn1_is_constructed(nullptr, &tag) != 0;
     object["min_length"] = (uint64_t)definition.schema->min_length;
     if (definition.schema->max_length != SIZE_MAX)

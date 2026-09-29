@@ -216,15 +216,22 @@ no universal descriptor, symbol resolver or `.otlv` loader is introduced here.
 | Field-length bounds, multiples and alternatives | Schema entry |
 | Parent-specific occurrences, wire form and nesting | Structural rule |
 | Byte conversion and output padding/width | Selected Codec representation |
-| EMV bit assignments, domain text or semantic template interpretation | EMV annotation |
 | Context selection | Domain dictionary/caller |
 
-EMV entries no longer store `value_kind` or `length_step`. The legacy kind enum
-remains only as a derived presentation adapter for CLI/Rust and existing C
-consumers, not as a second type declaration required by runtime modules. Numeric
-versus bitmask interpretation is independent of their identical `uint64_t` codec;
-EMV text does not imply printable ASCII, and semantic templates may carry a
-primitive wire identifier. These distinctions justify the retained annotations.
+EMV entries contain only Definition, Schema and Codec references. They store no
+`value_kind`, `length_step` or `semantics`. Text, flags and template display labels
+are not additional dictionary metadata. Actual bit assignments remain EMV domain
+constants; child-context resolution remains explicit domain behavior.
+
+The optional `tlv/builtins/emv/presentation.h` adapter supplies a display/typed
+binding profile for immutable builtin entries. Its
+`tlv_emv_builtin_value_kind()` replaces `tlv_emv_value_kind()` and uses an explicit
+profile keyed by context and canonical tag objects, after checking that the entry
+belongs to the builtin tables. It never inspects codec callbacks or contexts.
+The dictionary and codec implementations do not depend on this profile. It
+preserves CLI/Rust builtin presentation without establishing a generic type
+system. Caller-owned entries and runtime modules choose their C representation
+and invoke codecs directly; this builtin-only adapter cannot interpret them.
 
 Codec representation width is distinct from field-length validity. The generic
 codecs contain no min/max length or step policy, and packed digits contain no
@@ -235,13 +242,26 @@ with LLDP TTL constraints.
 BCD precision describes decimal representability. Calendar, account and PAN
 semantics remain explicit domain checks around shared conversion primitives.
 
-A structural rule may borrow `entry_ref`; when present it is the sole field
-schema and the inline entry is ignored. All structural validators and reports
-use `tlv_structure_rule_entry()`. EMV templates, dictionary entries and codec
-adapters now reference the same immutable field objects. Tests cover reference
-identity and length acceptance across every dictionary entry, conflicting inline
-metadata, diagnostics, and reuse with LLDP's independent framing.
+A structural rule has exactly one required `entry` pointer to its authoritative
+field schema. EMV templates, dictionary entries and codec adapters reference the
+same immutable field objects. There is no inline field, override precedence or
+selection accessor. The owner keeps fields, tags and names alive while referenced;
+static builtins and owning language builders use the same relationship.
+Tests cover reference identity, missing references, diagnostics, cross-format
+reuse, caller codecs and binding storage stability.
+
+ASN.1 sequence/choice rules, Bluetooth AD, LLDP and DHCP all use the same field
+reference contract. Their framing and container policies remain independent.
+Canonical tag bytes also drive EMV child-context resolution; numeric `_u64`
+constants are only public compile-time conveniences.
+
+For a future `.otlv` module the serialization check is direct: instantiate field
+schemas, codecs and Definitions, then let structural rules and domain entries
+reference them. Each instance has one owner for each constraint; lifetime and
+construction differ from static C, not semantics. No presentation enum, callback
+identity, override rule or duplicate field-length policy needs to be serialized.
+The builtin presentation profile is an optional application adapter and is not
+part of this semantic model. No loader or syntax is introduced here.
 
 This changes the ABI of EMV dictionary entries, generic codec configurations and
-`tlv_structure_rule_t`. Zero-initialize `entry_ref` for existing inline rules and
-rebuild consumers. It introduces no mandatory new layer or runtime loader.
+`tlv_structure_rule_t`. Rebuild consumers and update aggregate initializers.

@@ -1,3 +1,4 @@
+#include "tlv/builtins/emv/presentation.h"
 #include "decode.hpp"
 #include "tlv/config.h"
 #if OPENTLV_EMV
@@ -171,7 +172,7 @@ decode_result decode_emv_value(int context, const tlv_element_t* element) {
         result.text = "value length is not representable here";
         return result;
     }
-    switch (tlv_emv_value_kind(definition)) {
+    switch (tlv_emv_builtin_value_kind(definition)) {
         case TLV_EMV_VALUE_NUMBER:
             return decode_fixed<uint64_t>(definition->codec, element->value.data, length,
                                           format_number);

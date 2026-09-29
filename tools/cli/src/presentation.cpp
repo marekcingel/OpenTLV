@@ -1,3 +1,4 @@
+#include "tlv/builtins/emv/presentation.h"
 #include "presentation.hpp"
 #include "tlv/config.h"
 #include "tlv/size.h"
@@ -118,7 +119,7 @@ cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_el
     info.name = cli_emv_display_name(definition->definition);
     if (describe) {
         std::ostringstream description;
-        description << tlv_emv_value_kind_description(tlv_emv_value_kind(definition))
+        description << tlv_emv_value_kind_description(tlv_emv_builtin_value_kind(definition))
                     << "; dictionary length: " << definition->schema->min_length;
         if (definition->schema->max_length == SIZE_MAX)
             description << "..unbounded";

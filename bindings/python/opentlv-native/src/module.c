@@ -200,11 +200,12 @@ static void raise_code_and_offset(tlv_result_t code, size_t offset) {
 
 static void free_structure_schema(tlv_structure_schema_t* schema);
 
-/* Frees a rule's own allocations (its copied tag bytes and, recursively, its
- * children schema), but not the rule struct itself: it lives inside its
+/* Frees a rule's owned field schema, copied tag bytes and, recursively, its
+ * children schema, but not the rule struct itself: it lives inside its
  * parent schema's rules array. */
 static void free_structure_rule_contents(const tlv_structure_rule_t* rule) {
-    free((void*)rule->entry.tag.data);
+    if (rule->entry) free((void*)rule->entry->tag.data);
+    free((void*)rule->entry);
     free_structure_schema((tlv_structure_schema_t*)rule->children);
 }
 
@@ -274,12 +275,20 @@ static int build_structure_rule(PyObject* rule_obj, tlv_structure_rule_t* out) {
         }
     }
 
-    out->entry.tag.data = tag_copy;
-    out->entry.tag.size = (size_t)tag_size;
-    out->entry.min_length = min_length;
-    out->entry.max_length = max_length;
-    out->entry.flags = 0;
-    out->entry.name = NULL;
+    tlv_schema_entry_t* entry = calloc(1, sizeof(*entry));
+    if (!entry) {
+        free(tag_copy);
+        free_structure_schema(children);
+        PyErr_NoMemory();
+        return 0;
+    }
+    out->entry = entry;
+    entry->tag.data = tag_copy;
+    entry->tag.size = (size_t)tag_size;
+    entry->min_length = min_length;
+    entry->max_length = max_length;
+    entry->flags = 0;
+    entry->name = NULL;
     out->min_occurs = min_occurs;
     out->max_occurs = max_occurs;
     out->kind = (tlv_schema_kind_t)kind;

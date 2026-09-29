@@ -1,3 +1,4 @@
+#include "tlv/builtins/emv/presentation.h"
 #include "commands/tag_command.hpp"
 #include <cstring>
 #include <iostream>
@@ -39,7 +40,7 @@ int tag_command::run() {
         std::cout << "Tag:         " << tag_hex << "\n"
                   << "Name:        " << cli_emv_display_name(definition->definition) << "\n"
                   << "Type:        "
-                  << tlv_emv_value_kind_description(tlv_emv_value_kind(definition)) << "\n"
+                  << tlv_emv_value_kind_description(tlv_emv_builtin_value_kind(definition)) << "\n"
                   << "Form:        "
                   << (tlv_asn1_is_constructed(nullptr, &parsed) ? "Constructed" : "Primitive")
                   << "\n"

@@ -136,8 +136,8 @@ tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data, si
     uint64_t number;
     if (!valid_length(rule, size)) return TLV_CODEC_ERR_INVALID_VALUE;
     switch (rule->kind) {
-        case TLV_EMV_VALUE_DIGITS: return decode_digits(rule, data, size, value, capacity);
-        case TLV_EMV_VALUE_DATE: {
+        case EMV_REP_DIGITS: return decode_digits(rule, data, size, value, capacity);
+        case EMV_REP_DATE: {
             tlv_emv_date_t date;
             if (!read_number(data, size, 6, &number)) return TLV_CODEC_ERR_INVALID_VALUE;
             date.year = (uint8_t)(number / EMV_DATE_TIME_MAJOR_FIELD_SCALE);
@@ -147,7 +147,7 @@ tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data, si
             if (!valid_date(date)) return TLV_CODEC_ERR_INVALID_VALUE;
             EMV_STORE(date);
         }
-        case TLV_EMV_VALUE_TIME: {
+        case EMV_REP_TIME: {
             tlv_emv_time_t time;
             if (!read_number(data, size, 6, &number)) return TLV_CODEC_ERR_INVALID_VALUE;
             time.hour = (uint8_t)(number / EMV_DATE_TIME_MAJOR_FIELD_SCALE);
@@ -159,27 +159,27 @@ tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data, si
                 return TLV_CODEC_ERR_INVALID_VALUE;
             EMV_STORE(time);
         }
-        case TLV_EMV_VALUE_ACCOUNT: {
+        case EMV_REP_ACCOUNT: {
             tlv_emv_account_type_t account;
             if (!read_number(data, size, 2, &number) || !valid_account(number))
                 return TLV_CODEC_ERR_INVALID_VALUE;
             account = (tlv_emv_account_type_t)number;
             EMV_STORE(account);
         }
-        case TLV_EMV_VALUE_CRYPTOGRAM: {
+        case EMV_REP_CRYPTOGRAM: {
             tlv_emv_cryptogram_info_t info = {TLV_EMV_CRYPTOGRAM_AAC, 0};
             info.type = (tlv_emv_cryptogram_type_t)(data[0] >> EMV_CID_TYPE_SHIFT);
             info.flags = data[0] & EMV_CID_FLAGS_MASK;
             EMV_STORE(info);
         }
-        case TLV_EMV_VALUE_BIOMETRIC: {
+        case EMV_REP_BIOMETRIC: {
             tlv_emv_biometric_type_t biometric;
             if (!read_number(data, size, 0, &number) || !valid_biometric(number))
                 return TLV_CODEC_ERR_INVALID_VALUE;
             biometric = (tlv_emv_biometric_type_t)number;
             EMV_STORE(biometric);
         }
-        case TLV_EMV_VALUE_NUMBER_LIST: {
+        case EMV_REP_NUMBER_LIST: {
             tlv_emv_number_list_t list = {{0}, 0};
             size_t i, width = (rule->argument + 1) / 2;
             list.count = size / width;
@@ -190,7 +190,7 @@ tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data, si
                     return TLV_CODEC_ERR_INVALID_VALUE;
             EMV_STORE(list);
         }
-        case TLV_EMV_VALUE_AFL: {
+        case EMV_REP_AFL: {
             tlv_emv_afl_t afl;
             size_t i;
             memset(&afl, 0, sizeof(afl));
@@ -207,14 +207,14 @@ tlv_codec_result_t emv_value_decode(const void* context, const uint8_t* data, si
             }
             EMV_STORE(afl);
         }
-        case TLV_EMV_VALUE_CVM_RESULT: {
+        case EMV_REP_CVM_RESULT: {
             tlv_emv_cvm_result_t result;
             result.method = data[0];
             result.condition = data[1];
             result.result = data[2];
             EMV_STORE(result);
         }
-        case TLV_EMV_VALUE_TRACK2: {
+        case EMV_REP_TRACK2: {
             tlv_emv_track2_t track2;
             size_t total_nibbles, pad = 0, sep = (size_t)-1, i, disc_len;
             if (!size) return TLV_CODEC_ERR_INVALID_VALUE;
@@ -276,10 +276,10 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
     uint8_t bytes[EMV_MAX_ENCODED_VALUE_SIZE];
     uint64_t number;
     size_t count = rule->schema->min_length;
-    if (rule->kind == TLV_EMV_VALUE_DIGITS)
+    if (rule->kind == EMV_REP_DIGITS)
         return encode_digits(rule, value, size, data, capacity, written);
     switch (rule->kind) {
-        case TLV_EMV_VALUE_DATE: {
+        case EMV_REP_DATE: {
             tlv_emv_date_t date;
             EMV_LOAD(date);
             if (!valid_date(date)) return TLV_CODEC_ERR_INVALID_VALUE;
@@ -288,7 +288,7 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
             write_number(number, 6, bytes, count);
             break;
         }
-        case TLV_EMV_VALUE_TIME: {
+        case EMV_REP_TIME: {
             tlv_emv_time_t time;
             EMV_LOAD(time);
             if (time.hour > EMV_MAX_HOUR || time.minute > EMV_MAX_MINUTE ||
@@ -299,14 +299,14 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
             write_number(number, 6, bytes, count);
             break;
         }
-        case TLV_EMV_VALUE_ACCOUNT: {
+        case EMV_REP_ACCOUNT: {
             tlv_emv_account_type_t account;
             EMV_LOAD(account);
             if (!valid_account((uint64_t)account)) return TLV_CODEC_ERR_INVALID_VALUE;
             write_number((uint64_t)account, 2, bytes, count);
             break;
         }
-        case TLV_EMV_VALUE_CRYPTOGRAM: {
+        case EMV_REP_CRYPTOGRAM: {
             tlv_emv_cryptogram_info_t info;
             EMV_LOAD(info);
             if ((unsigned)info.type > 3 || info.flags > EMV_CID_FLAGS_MASK)
@@ -314,7 +314,7 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
             bytes[0] = (uint8_t)(((unsigned)info.type << EMV_CID_TYPE_SHIFT) | info.flags);
             break;
         }
-        case TLV_EMV_VALUE_BIOMETRIC: {
+        case EMV_REP_BIOMETRIC: {
             tlv_emv_biometric_type_t biometric;
             EMV_LOAD(biometric);
             if (!valid_biometric((uint64_t)biometric)) return TLV_CODEC_ERR_INVALID_VALUE;
@@ -322,7 +322,7 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
             write_number((uint64_t)biometric, 0, bytes, count);
             break;
         }
-        case TLV_EMV_VALUE_NUMBER_LIST: {
+        case EMV_REP_NUMBER_LIST: {
             tlv_emv_number_list_t list;
             size_t i, width = (rule->argument + 1) / 2;
             EMV_LOAD(list);
@@ -334,7 +334,7 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
                     return TLV_CODEC_ERR_INVALID_VALUE;
             break;
         }
-        case TLV_EMV_VALUE_AFL: {
+        case EMV_REP_AFL: {
             tlv_emv_afl_t afl;
             size_t i;
             EMV_LOAD(afl);
@@ -353,7 +353,7 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
             }
             break;
         }
-        case TLV_EMV_VALUE_CVM_RESULT: {
+        case EMV_REP_CVM_RESULT: {
             tlv_emv_cvm_result_t result;
             EMV_LOAD(result);
             bytes[0] = result.method;
@@ -361,7 +361,7 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
             bytes[2] = result.result;
             break;
         }
-        case TLV_EMV_VALUE_TRACK2: {
+        case EMV_REP_TRACK2: {
             tlv_emv_track2_t track2;
             uint8_t nibbles[EMV_TRACK2_MAX_DIGITS];
             size_t pan_len, disc_len, n = 0, i;
@@ -408,48 +408,6 @@ tlv_codec_result_t emv_value_encode(const void* context, const void* value, size
 }
 #undef EMV_LOAD
 
-const char* tlv_emv_value_kind_description(tlv_emv_value_kind_t kind) {
-    switch (kind) {
-        case TLV_EMV_VALUE_BYTES: return "Raw bytes";
-        case TLV_EMV_VALUE_TEXT: return "Text bytes (not necessarily UTF-8)";
-        case TLV_EMV_VALUE_TEMPLATE: return "Template containing encoded data elements";
-        case TLV_EMV_VALUE_NUMBER: return "Numeric value (binary or decimal BCD, tag-dependent)";
-        case TLV_EMV_VALUE_FLAGS: return "Bit flags";
-        case TLV_EMV_VALUE_DIGITS: return "Decimal digits";
-        case TLV_EMV_VALUE_DATE: return "Date (YYMMDD)";
-        case TLV_EMV_VALUE_TIME: return "Time (hhmmss)";
-        case TLV_EMV_VALUE_ACCOUNT: return "Account type";
-        case TLV_EMV_VALUE_CRYPTOGRAM: return "Cryptogram information";
-        case TLV_EMV_VALUE_BIOMETRIC: return "Biometric type";
-        case TLV_EMV_VALUE_NUMBER_LIST: return "List of numeric values";
-        case TLV_EMV_VALUE_AFL: return "Application File Locator entry list";
-        case TLV_EMV_VALUE_CVM_RESULT: return "CVM method, condition, and result";
-        case TLV_EMV_VALUE_TRACK2:
-            return "Track 2 equivalent data (PAN, expiry, service code, discretionary data)";
-        default: return "Unspecified representation";
-    }
-}
-
 const char* tlv_emv_symbol(const tlv_emv_definition_t* definition) {
     return definition && definition->schema ? definition->schema->name : NULL;
-}
-
-tlv_emv_value_kind_t tlv_emv_value_kind(const tlv_emv_definition_t* definition) {
-    const tlv_codec_t* codec;
-    if (!definition) return TLV_EMV_VALUE_UNKNOWN;
-    codec = definition->codec;
-    if (!codec) {
-        if (definition->semantics == TLV_EMV_SEMANTICS_TEXT) return TLV_EMV_VALUE_TEXT;
-        if (definition->semantics == TLV_EMV_SEMANTICS_TEMPLATE) return TLV_EMV_VALUE_TEMPLATE;
-        return TLV_EMV_VALUE_BYTES;
-    }
-    if ((codec->decode == tlv_schema_number_decode && codec->encode == tlv_schema_number_encode) ||
-        (codec->decode == tlv_number_decode && codec->encode == tlv_number_encode))
-        return definition->semantics == TLV_EMV_SEMANTICS_BITMASK ? TLV_EMV_VALUE_FLAGS
-                                                                  : TLV_EMV_VALUE_NUMBER;
-    if (codec->decode == tlv_digits_decode && codec->encode == tlv_digits_encode)
-        return TLV_EMV_VALUE_DIGITS;
-    if (codec->decode == emv_value_decode && codec->encode == emv_value_encode && codec->context)
-        return ((const emv_value_rule_t*)codec->context)->kind;
-    return TLV_EMV_VALUE_UNKNOWN;
 }

@@ -3,27 +3,29 @@
 #include "tlv/reader/reader.h"
 
 static const uint8_t identifiers[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 127};
-#define RULE(index, min, max, required, occurs, name)                                              \
-    {{{identifiers + index, 1}, min, max, 0, name, 0},                                             \
-     required,                                                                                     \
-     occurs,                                                                                       \
-     TLV_SCHEMA_PRIMITIVE,                                                                         \
-     NULL,                                                                                         \
-     0,                                                                                            \
-     NULL}
+static const tlv_schema_entry_t fields[] = {
+    {{identifiers + 0, 1}, 0, 0, 0, "End of LLDPDU", 0},
+    {{identifiers + 1, 1}, 2, 256, 0, "Chassis ID", 0},
+    {{identifiers + 2, 1}, 2, 256, 0, "Port ID", 0},
+    {{identifiers + 3, 1}, 2, 2, 0, "Time To Live", 0},
+    {{identifiers + 4, 1}, 0, 255, 0, "Port Description", 0},
+    {{identifiers + 5, 1}, 0, 255, 0, "System Name", 0},
+    {{identifiers + 6, 1}, 0, 255, 0, "System Description", 0},
+    {{identifiers + 7, 1}, 4, 4, 0, "System Capabilities", 0},
+    {{identifiers + 8, 1}, 9, 167, 0, "Management Address", 0},
+    {{identifiers + 9, 1}, 4, 511, 0, "Organisationally Specific", 0}};
+
 static const tlv_structure_rule_t rules[] = {
-    RULE(0, 0, 0, 0, 1, "End of LLDPDU"),
-    RULE(1, 2, 256, 1, 1, "Chassis ID"),
-    RULE(2, 2, 256, 1, 1, "Port ID"),
-    RULE(3, 2, 2, 1, 1, "Time To Live"),
-    RULE(4, 0, 255, 0, 1, "Port Description"),
-    RULE(5, 0, 255, 0, 1, "System Name"),
-    RULE(6, 0, 255, 0, 1, "System Description"),
-    RULE(7, 4, 4, 0, 1, "System Capabilities"),
-    RULE(8, 9, 167, 0, SIZE_MAX, "Management Address"),
-    RULE(9, 4, 511, 0, SIZE_MAX, "Organisationally Specific"),
-};
-#undef RULE
+    {&fields[0], 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&fields[1], 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&fields[2], 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&fields[3], 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&fields[4], 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&fields[5], 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&fields[6], 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&fields[7], 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&fields[8], 0, SIZE_MAX, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&fields[9], 0, SIZE_MAX, TLV_SCHEMA_PRIMITIVE, NULL, 0}};
 
 const tlv_structure_schema_t tlv_lldp_schema = {
     rules, sizeof(rules) / sizeof(rules[0]), 1, NULL, 0, TLV_SCHEMA_ORDER_ANY};

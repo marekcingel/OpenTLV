@@ -19,10 +19,10 @@ TEST(Integration_Tlv_EmvSchema, StructuralScopesBorrowDictionaryFields) {
         pending.pop_back();
         for (size_t i = 0; i < scope->count; ++i) {
             const auto& rule = scope->rules[i];
-            ASSERT_NE(nullptr, rule.entry_ref);
-            const auto* dictionary = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &rule.entry_ref->tag);
+            ASSERT_NE(nullptr, rule.entry);
+            const auto* dictionary = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &rule.entry->tag);
             ASSERT_NE(nullptr, dictionary);
-            EXPECT_EQ(dictionary->schema, tlv_structure_rule_entry(&rule));
+            EXPECT_EQ(dictionary->schema, rule.entry);
             if (rule.children) pending.push_back(rule.children);
         }
     }

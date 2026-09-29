@@ -117,17 +117,17 @@ TEST(Integration_Tlvpp, LayeredTraversalAndSchema) {
                                  });
     ASSERT_TRUE(result);
     EXPECT_EQ(2u, visits);
-    const tlv_structure_rule_t rule = {
-        {TLV_TAG(1), 1, 1, 0, nullptr, 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL};
+    const tlv_schema_entry_t     rule_fields[] = {{TLV_TAG(1), 1, 1, 0, nullptr, 0}};
+    const tlv_structure_rule_t   rule = {&rule_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0};
     const tlv_structure_schema_t schema = {&rule, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_TRUE(tlv::validate(bytes, tlv_format_ber, schema, 0, 2));
 }
 
 TEST(Integration_Tlvpp, ValidateAllCountsViolationsAndReportsTagPaths) {
-    const uint8_t              data[] = {2, 0};
-    const tlv::bytes           bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
-    const tlv_structure_rule_t rule = {
-        {TLV_TAG(1), 1, 1, 0, "one", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL};
+    const uint8_t                data[] = {2, 0};
+    const tlv::bytes             bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
+    const tlv_schema_entry_t     rule_fields[] = {{TLV_TAG(1), 1, 1, 0, "one", 0}};
+    const tlv_structure_rule_t   rule = {&rule_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0};
     const tlv_structure_schema_t schema = {&rule, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     tlv_schema_issue_t           issues[4];
     auto count = tlv::validate_all(bytes, tlv_format_ber, schema, 0, 2, issues, 4);
@@ -145,10 +145,10 @@ TEST(Integration_Tlvpp, ValidateAllCountsViolationsAndReportsTagPaths) {
 }
 
 TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
-    const uint8_t              data[] = {2, 0};
-    const tlv::bytes           bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
-    const tlv_structure_rule_t rule = {
-        {TLV_TAG(1), 1, 1, 0, "one", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, NULL};
+    const uint8_t                data[] = {2, 0};
+    const tlv::bytes             bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
+    const tlv_schema_entry_t     rule_fields[] = {{TLV_TAG(1), 1, 1, 0, "one", 0}};
+    const tlv_structure_rule_t   rule = {&rule_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0};
     const tlv_structure_schema_t schema = {&rule, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     tlv_schema_diagnostic_t      diagnostics[4];
     auto count = tlv::validate_all_diag(bytes, tlv_format_ber, schema, 0, 2, diagnostics, 4);
@@ -168,10 +168,10 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
 
 TEST(Integration_Tlvpp, ValidateEnforcesSequenceOrder) {
     // Ordered structure (ASN.1 SEQUENCE): tag 1 must not follow tag 2.
-    const tlv_structure_rule_t rules[] = {
-        {{TLV_TAG(1), 0, 0, 0, nullptr, 0}, 0, 2, TLV_SCHEMA_ANY, nullptr, 0, NULL},
-        {{TLV_TAG(2), 0, 0, 0, nullptr, 0}, 0, 2, TLV_SCHEMA_ANY, nullptr, 0, NULL},
-    };
+    const tlv_schema_entry_t     rules_fields[] = {{TLV_TAG(1), 0, 0, 0, nullptr, 0},
+                                                   {TLV_TAG(2), 0, 0, 0, nullptr, 0}};
+    const tlv_structure_rule_t   rules[] = {{&rules_fields[0], 0, 2, TLV_SCHEMA_ANY, nullptr, 0},
+                                            {&rules_fields[1], 0, 2, TLV_SCHEMA_ANY, nullptr, 0}};
     const tlv_structure_schema_t schema{rules, 2, 0, nullptr, 0, TLV_SCHEMA_ORDER_SEQUENCE};
 
     const uint8_t in_order[] = {1, 0, 1, 0, 2, 0};
@@ -199,10 +199,10 @@ TEST(Integration_Tlvpp, ValidateEnforcesSequenceOrder) {
 
 TEST(Integration_Tlvpp, ValidateEnforcesChoiceGroupOccurrence) {
     // CHOICE: exactly one of tag 1 or tag 2 may appear.
-    const tlv_structure_rule_t rules[] = {
-        {{TLV_TAG(1), 0, 0, 0, "alt_one", 0}, 0, 1, TLV_SCHEMA_ANY, nullptr, 7, NULL},
-        {{TLV_TAG(2), 0, 0, 0, "alt_two", 0}, 0, 1, TLV_SCHEMA_ANY, nullptr, 7, NULL},
-    };
+    const tlv_schema_entry_t     rules_fields[] = {{TLV_TAG(1), 0, 0, 0, "alt_one", 0},
+                                                   {TLV_TAG(2), 0, 0, 0, "alt_two", 0}};
+    const tlv_structure_rule_t   rules[] = {{&rules_fields[0], 0, 1, TLV_SCHEMA_ANY, nullptr, 7},
+                                            {&rules_fields[1], 0, 1, TLV_SCHEMA_ANY, nullptr, 7}};
     const tlv_structure_group_t  groups[] = {{7, 1, 1, "choice"}};
     const tlv_structure_schema_t schema{rules, 2, 0, groups, 1, TLV_SCHEMA_ORDER_ANY};
 
@@ -226,10 +226,10 @@ TEST(Integration_Tlvpp, ValidateEnforcesChoiceGroupOccurrence) {
 }
 
 TEST(Integration_Tlvpp, ValidateAllDiagReportsGroupAndOrderViolations) {
-    const tlv_structure_rule_t rules[] = {
-        {{TLV_TAG(1), 0, 0, 0, "alt_one", 0}, 0, 1, TLV_SCHEMA_ANY, nullptr, 7, NULL},
-        {{TLV_TAG(2), 0, 0, 0, "alt_two", 0}, 0, 1, TLV_SCHEMA_ANY, nullptr, 7, NULL},
-    };
+    const tlv_schema_entry_t     rules_fields[] = {{TLV_TAG(1), 0, 0, 0, "alt_one", 0},
+                                                   {TLV_TAG(2), 0, 0, 0, "alt_two", 0}};
+    const tlv_structure_rule_t   rules[] = {{&rules_fields[0], 0, 1, TLV_SCHEMA_ANY, nullptr, 7},
+                                            {&rules_fields[1], 0, 1, TLV_SCHEMA_ANY, nullptr, 7}};
     const tlv_structure_group_t  groups[] = {{7, 1, 1, "choice"}};
     const tlv_structure_schema_t schema{rules, 2, 0, groups, 1, TLV_SCHEMA_ORDER_ANY};
 
@@ -246,10 +246,11 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsGroupAndOrderViolations) {
     EXPECT_EQ(1u, diagnostics[0].max_occurs);
     EXPECT_EQ(2u, diagnostics[0].occurs);
 
+    const tlv_schema_entry_t   order_rules_fields[] = {{TLV_TAG(1), 0, 0, 0, "one", 0},
+                                                       {TLV_TAG(2), 0, 0, 0, "two", 0}};
     const tlv_structure_rule_t order_rules[] = {
-        {{TLV_TAG(1), 0, 0, 0, "one", 0}, 0, 2, TLV_SCHEMA_ANY, nullptr, 0, NULL},
-        {{TLV_TAG(2), 0, 0, 0, "two", 0}, 0, 2, TLV_SCHEMA_ANY, nullptr, 0, NULL},
-    };
+        {&order_rules_fields[0], 0, 2, TLV_SCHEMA_ANY, nullptr, 0},
+        {&order_rules_fields[1], 0, 2, TLV_SCHEMA_ANY, nullptr, 0}};
     const tlv_structure_schema_t order_schema{order_rules, 2, 0,
                                               nullptr,     0, TLV_SCHEMA_ORDER_SEQUENCE};
     const uint8_t                reordered[] = {2, 0, 1, 0};

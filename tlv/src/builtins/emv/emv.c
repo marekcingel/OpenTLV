@@ -5,36 +5,29 @@
 #define EMV_COUNT(array) (sizeof(array) / sizeof((array)[0]))
 
 tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const tlv_tag_t* tag) {
-    unsigned value;
-    if (!tag || !tag->data) return TLV_EMV_CONTEXT_COUNT;
-    if (tag->size < 1) return TLV_EMV_CONTEXT_COUNT;
-    value = tag->data[0];
-    if (tag->size == 2)
-        value = (value << 8) | tag->data[1];
-    else if (tag->size != 1)
-        return TLV_EMV_CONTEXT_COUNT;
+    if (!tag || !tag->data || !tag->size) return TLV_EMV_CONTEXT_COUNT;
     if (context == TLV_EMV_CONTEXT_BASE || context == TLV_EMV_CONTEXT_BIT_GROUP) {
-        if (value == tlv_emv_tag_biometric_information_template_u64) return TLV_EMV_CONTEXT_BIT;
+        if (tlv_tag_equal(*tag, tlv_emv_tag_biometric_information_template))
+            return TLV_EMV_CONTEXT_BIT;
     }
     if (context == TLV_EMV_CONTEXT_BASE) {
-        switch (value) {
-            case tlv_emv_tag_offline_bit_group_template_u64:
-            case tlv_emv_tag_online_bit_group_template_u64: return TLV_EMV_CONTEXT_BIT_GROUP;
-            case tlv_emv_tag_biometric_try_counters_template_u64:
-                return TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS;
-            case tlv_emv_tag_preferred_attempts_template_u64:
-                return TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS;
-            case tlv_emv_tag_biometric_verification_data_template_u64:
-                return TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION;
-            default: break;
-        }
+        if (tlv_tag_equal(*tag, tlv_emv_tag_offline_bit_group_template) ||
+            tlv_tag_equal(*tag, tlv_emv_tag_online_bit_group_template))
+            return TLV_EMV_CONTEXT_BIT_GROUP;
+        if (tlv_tag_equal(*tag, tlv_emv_tag_biometric_try_counters_template))
+            return TLV_EMV_CONTEXT_BIOMETRIC_COUNTERS;
+        if (tlv_tag_equal(*tag, tlv_emv_tag_preferred_attempts_template))
+            return TLV_EMV_CONTEXT_BIOMETRIC_ATTEMPTS;
+        if (tlv_tag_equal(*tag, tlv_emv_tag_biometric_verification_data_template))
+            return TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION;
         /* Only known templates inherit BASE, avoiding guesses in proprietary containers. */
         if (tlv_emv_find(TLV_EMV_CONTEXT_BASE, tag)) return TLV_EMV_CONTEXT_BASE;
     }
-    if (context == TLV_EMV_CONTEXT_BIT && value == tlv_emv_tag_biometric_header_template_u64)
+    if (context == TLV_EMV_CONTEXT_BIT &&
+        tlv_tag_equal(*tag, tlv_emv_tag_biometric_header_template))
         return TLV_EMV_CONTEXT_BHT;
     if (context == TLV_EMV_CONTEXT_BHT &&
-        (value == tlv_emv_tag_bht1_u64 || value == tlv_emv_tag_bht2_u64))
+        (tlv_tag_equal(*tag, tlv_emv_tag_bht1) || tlv_tag_equal(*tag, tlv_emv_tag_bht2)))
         return TLV_EMV_CONTEXT_BHT_FORMAT;
     return TLV_EMV_CONTEXT_COUNT;
 }

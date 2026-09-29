@@ -26,10 +26,9 @@ All referenced storage must remain immutable and alive while in use.
 
 Each entry borrows a generic `tlv_definition_t` (canonical tag and descriptive
 name), a `tlv_schema_entry_t` (field constraints and diagnostic symbol), and a
-selected `tlv_codec_t`. `semantics` records only independent EMV meaning:
-bit assignments rather than arithmetic, domain text without an assumed
-character repertoire, or semantic nesting even with a primitive wire tag.
-These annotations neither select a codec nor replace structural validation.
+selected `tlv_codec_t`. There are no parallel semantic flags or presentation
+categories in the entry. Domain bit assignments and context resolution stay in
+EMV APIs, while structural form and nesting belong to structural schemas.
 
 Field lengths have one owner. `tlv_emv_validate_length()` delegates to Schema;
 AFL/CVM/UUID-like length progressions use `length_multiple`, and BIC/RSA-exponent
@@ -41,7 +40,7 @@ Numeric encoding chooses a fitting schema-permitted width before invoking the
 primitive. `tlv_emv_codec_amount` borrows the Amount Authorised schema.
 
 The structural templates also borrow those exact field entries through
-`tlv_structure_rule_t.entry_ref`. They add occurrence, nesting and wire-form
+`tlv_structure_rule_t.entry`. They add occurrence, nesting and wire-form
 requirements without copying names, identifiers or field-length constraints.
 Canonical tag byte arrays are shared by Definitions, Schema and public tag
 objects; `_u64` constants remain convenience API, checked by independent tests.
@@ -49,19 +48,20 @@ objects; `_u64` constants remain convenience API, checked by independent tests.
 ## Migration from the X-macro dictionary (#381)
 
 `emv_tags.def` is removed; iterate `tlv_emv_dictionary_for(context)` instead.
-The dictionary entry layout changes: `definition`, `schema`, `codec`, and
-`semantics` replace the old symbolic-name/value-kind/length-step fields.
+The dictionary entry now contains only `definition`, `schema` and `codec`
+references, replacing the old symbolic-name/value-kind/length-step fields.
 Use `entry->definition->name` for a descriptive name and `tlv_emv_symbol(entry)`
 for the symbol borrowed from Schema. `tlv_emv_length_step(entry)` derives the
 legacy display value; validity always comes from Schema.
 
-`tlv_emv_value_kind(entry)` is a compatibility presenter for known codec
-representations and EMV annotations. The old enum is not dictionary state or a
-runtime type system. Unrecognized caller-provided callbacks yield
-`TLV_EMV_VALUE_UNKNOWN`; their context is never interpreted as a known codec.
-Callers that selected their own codecs already know the C representation and
-do not need this adapter. Public tag constants and context lookup remain stable.
-Rebuild native consumers and update aggregate initializers.
+`tlv_emv_value_kind(entry)` is removed. For optional builtin presentation include
+`tlv/builtins/emv/presentation.h` and call `tlv_emv_builtin_value_kind(entry)`.
+This adapter has an explicit builtin display profile; it does not discover types
+from callback addresses. It accepts only entries in the immutable builtin tables;
+copies and caller-owned entries are outside that profile. Custom codecs remain
+usable directly with the application representation chosen by their caller.
+The dictionary and codecs do not require this adapter. Public tag constants and
+context lookup remain stable. Rebuild consumers and update initializers.
 
 The same borrowed Definition/Schema/Codec composition supports caller-owned
 storage. Runtime owners select codecs and validate Schema explicitly; no
@@ -126,8 +126,7 @@ for conversion limits and exact versus numeric equality.
 
 `tlv_emv_schema` is the base dictionary, compatible with `tlv_schema_find()`
 and `tlv_schema_validate_length()`. `tlv_emv_find(context, tag)` returns an
-immutable definition containing its schema entry, symbolic name, value kind,
-optional codec, and length step. Unknown tags and invalid contexts return NULL.
+immutable entry referencing its Definition, Schema and optional Codec. Unknown tags and invalid contexts return NULL.
 
 ```c
 #include "tlv/builtins/emv/emv.h"
@@ -140,7 +139,7 @@ if (tlv_read(wire, wire_size, &tlv_format_emv, &element, &consumed) == TLV_OK) {
     const tlv_emv_definition_t* def =
         tlv_emv_find(TLV_EMV_CONTEXT_BASE, &element.tag);
     if (def && tlv_emv_validate_length(def, element.value.size) == TLV_OK &&
-        tlv_emv_value_kind(def) == TLV_EMV_VALUE_NUMBER && def->codec) {
+        tlv_tag_equal(element.tag, tlv_emv_tag_amount_authorised) && def->codec) {
         uint64_t amount;
         tlv_codec_result_t result = tlv_codec_decode(
             def->codec, element.value.data, element.value.size,
@@ -176,14 +175,15 @@ within a Biometric Header Template. Select the context explicitly, using
 Context lookup never falls back to BASE. Traverse nested value buffers using
 generic EMV I/O and carry the context in application code. The `9F31` Card BIT
 Group Template contains nested objects despite its primitive BER tag bit;
-`TLV_EMV_VALUE_TEMPLATE` records this semantic distinction. Matching algorithm
+the optional presentation profile labels it as a template. Its content is still
+handled explicitly by domain-aware callers, without changing the wire form. Matching algorithm
 parameters and proprietary template contents do not acquire invented schemas.
 
 ## Value representations
 
-For builtin entries, `tlv_emv_value_kind(def)` reports the known C representation
-required by `def->codec`. For custom codecs, callers own that contract; an
-unrecognized callback pair returns `TLV_EMV_VALUE_UNKNOWN`.
+For builtin entries, `tlv_emv_builtin_value_kind(def)` in `presentation.h` reports
+the representation this adapter uses for `def->codec`. For custom codecs, callers
+own that contract; no introspection or compatibility classification is required.
 
 | Kind (`TLV_EMV_VALUE_` prefix) | Representation and examples |
 | --- | --- |
@@ -405,7 +405,7 @@ object does not represent a complete or validated transaction.
 [examples/tlv/src/builtins/emv/tag_decoding.c](../../../examples/tlv/src/builtins/emv/tag_decoding.c) walks
 a whole record instead of one element: it looks up every child tag with
 `tlv_emv_find()`, checks its length with `tlv_emv_validate_length()`, decodes it
-using the derived compatibility presentation kind, and leaves a tag that is unknown or has an invalid
+using the explicit builtin presentation profile, and leaves a tag that is unknown or has an invalid
 length skipped rather than aborting the walk.
 [EMV module and codecs](README.md)
 

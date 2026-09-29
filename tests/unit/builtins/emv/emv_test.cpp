@@ -1,3 +1,4 @@
+#include "tlv/builtins/emv/presentation.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
@@ -65,7 +66,7 @@ TEST(Unit_Tlv_Emv, PublicTagConstantsMatchDefinitions) {
         EXPECT_EQ(expected.min_length, entry->schema->min_length);
         EXPECT_EQ(expected.max_length, entry->schema->max_length);
         EXPECT_EQ(expected.step, tlv_emv_length_step(entry));
-        EXPECT_EQ(expected.kind, tlv_emv_value_kind(entry));
+        EXPECT_EQ(expected.kind, tlv_emv_builtin_value_kind(entry));
         EXPECT_EQ(expected.has_codec, entry->codec != nullptr);
         ASSERT_NE(nullptr, entry->definition);
         EXPECT_EQ(entry->schema->tag.data, entry->definition->tag.data);
@@ -114,8 +115,8 @@ TEST(Unit_Tlv_Emv, ContextPreventsTagCollisions) {
     const auto* biometric = find(tlv_emv_tag_amount_authorised_binary, TLV_EMV_CONTEXT_BHT);
     ASSERT_NE(nullptr, amount);
     ASSERT_NE(nullptr, biometric);
-    EXPECT_EQ(TLV_EMV_VALUE_NUMBER, tlv_emv_value_kind(amount));
-    EXPECT_EQ(TLV_EMV_VALUE_BIOMETRIC, tlv_emv_value_kind(biometric));
+    EXPECT_EQ(TLV_EMV_VALUE_NUMBER, tlv_emv_builtin_value_kind(amount));
+    EXPECT_EQ(TLV_EMV_VALUE_BIOMETRIC, tlv_emv_builtin_value_kind(biometric));
     EXPECT_EQ(TLV_OK, tlv_emv_validate_length(amount, 4));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(biometric, 4));
     EXPECT_EQ(nullptr, find(tlv_emv_tag_tvr, TLV_EMV_CONTEXT_BHT));
@@ -532,12 +533,11 @@ TEST(Unit_Tlv_Emv, CallerOwnedDictionaryUsesTheSameLookupAndGenericCodec) {
     const tlv_schema_number_t       composition{&schema, config};
     const auto                      codec = tlv_schema_number_codec(&composition);
     const tlv_definition_t          identifier{tag, "Amount"};
-    const tlv_emv_definition_t      entries[] = {
-        {nullptr, &schema, nullptr, TLV_EMV_SEMANTICS_NONE},
-        {&identifier, &schema, &codec, TLV_EMV_SEMANTICS_NONE},
-        {&identifier, &schema, nullptr, TLV_EMV_SEMANTICS_NONE}};
-    const tlv_emv_dictionary_t dictionary{entries, 3};
-    const auto*                entry = tlv_emv_dictionary_find(&dictionary, &tag);
+    const tlv_emv_definition_t      entries[] = {{nullptr, &schema, nullptr},
+                                                 {&identifier, &schema, &codec},
+                                                 {&identifier, &schema, nullptr}};
+    const tlv_emv_dictionary_t      dictionary{entries, 3};
+    const auto*                     entry = tlv_emv_dictionary_find(&dictionary, &tag);
     ASSERT_EQ(entries + 1, entry);
     EXPECT_EQ(TLV_OK, tlv_emv_validate_length(entry, 6));
     const uint8_t value[] = {0, 0, 0, 0, 0x12, 0x34};
@@ -547,8 +547,6 @@ TEST(Unit_Tlv_Emv, CallerOwnedDictionaryUsesTheSameLookupAndGenericCodec) {
     EXPECT_EQ(1234u, decoded);
     const auto* builtin = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &tag);
     ASSERT_NE(nullptr, builtin);
-    EXPECT_EQ(builtin->codec->decode, codec.decode);
-    EXPECT_EQ(builtin->codec->encode, codec.encode);
     uint64_t builtin_value = 0;
     EXPECT_EQ(TLV_CODEC_OK, tlv_codec_decode(builtin->codec, value, sizeof(value), &builtin_value,
                                              sizeof(builtin_value)));
@@ -567,13 +565,32 @@ TEST(Unit_Tlv_Emv, CallerOwnedDictionaryUsesTheSameLookupAndGenericCodec) {
 }
 
 TEST(Unit_Tlv_Emv, CallerOwnedMetadataDoesNotInferRepresentationFromTag) {
-    const auto                 tag = TLV_TAG(0x9F, 0x02);
-    const tlv_definition_t     identifier{tag, "Caller field"};
-    const tlv_schema_entry_t   schema{tag, 1, 3, TLV_SCHEMA_LENGTH_ENDPOINTS, "caller", 0};
-    const tlv_codec_t          unknown{nullptr, nullptr, nullptr};
-    const tlv_emv_definition_t entry{&identifier, &schema, &unknown, TLV_EMV_SEMANTICS_NONE};
-    EXPECT_EQ(TLV_EMV_VALUE_UNKNOWN, tlv_emv_value_kind(&entry));
-    EXPECT_EQ(TLV_EMV_VALUE_UNKNOWN, tlv_emv_value_kind(nullptr));
+    const auto               tag = TLV_TAG(0x9F, 0x02);
+    const tlv_definition_t   identifier{tag, "Caller field"};
+    const tlv_schema_entry_t schema{tag, 1, 3, TLV_SCHEMA_LENGTH_ENDPOINTS, "caller", 0};
+    // Same uint64_t representation behind a caller-owned wrapper: no RTTI required.
+    const tlv_number_codec_config_t config{TLV_NUMBER_BINARY_BE, 0, 0};
+    const tlv_codec_t               unknown{
+        &config,
+        [](const void* context, const uint8_t* data, size_t size, void* value, size_t capacity) {
+            return tlv_number_decode(context, data, size, value, capacity);
+        },
+        [](const void* context, const void* value, size_t size, uint8_t* data, size_t capacity,
+           size_t* written) {
+            return tlv_number_encode(context, value, size, data, capacity, written);
+        }};
+    const tlv_emv_definition_t entry{&identifier, &schema, &unknown};
+    const uint8_t              wire[] = {42};
+    uint64_t                   decoded = 0;
+    EXPECT_EQ(TLV_CODEC_OK,
+              tlv_codec_decode(entry.codec, wire, sizeof(wire), &decoded, sizeof(decoded)));
+    EXPECT_EQ(42u, decoded);
+    uint8_t encoded = 0;
+    size_t  written = 0;
+    EXPECT_EQ(TLV_CODEC_OK,
+              tlv_codec_encode(entry.codec, &decoded, sizeof(decoded), &encoded, 1, &written));
+    EXPECT_EQ(42, encoded);
+    EXPECT_EQ(1u, written);
     EXPECT_STREQ("caller", tlv_emv_symbol(&entry));
     EXPECT_EQ(TLV_OK, tlv_emv_validate_length(&entry, 1));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(&entry, 2));
@@ -581,8 +598,18 @@ TEST(Unit_Tlv_Emv, CallerOwnedMetadataDoesNotInferRepresentationFromTag) {
     const tlv_emv_dictionary_t dictionary{&entry, 1};
     EXPECT_EQ(&entry, tlv_emv_dictionary_find(&dictionary, &tag));
     const tlv_definition_t     other{TLV_TAG(0x01), "Other"};
-    const tlv_emv_definition_t mismatch{&other, &schema, &unknown, TLV_EMV_SEMANTICS_NONE};
+    const tlv_emv_definition_t mismatch{&other, &schema, &unknown};
     const tlv_emv_dictionary_t malformed{&mismatch, 1};
     EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&malformed, &tag));
     EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&malformed, &other.tag));
+}
+
+TEST(Unit_Tlv_Emv, BuiltinPresentationNeverInterpretsCallerOwnedEntries) {
+    const auto* builtin = find(tlv_emv_tag_amount_authorised);
+    ASSERT_NE(nullptr, builtin);
+    const tlv_emv_definition_t copy = *builtin;
+    // Even identical callbacks do not make a caller object part of a builtin UI profile.
+    EXPECT_EQ(TLV_EMV_VALUE_UNKNOWN, tlv_emv_builtin_value_kind(&copy));
+    EXPECT_EQ(TLV_EMV_VALUE_UNKNOWN, tlv_emv_builtin_value_kind(nullptr));
+    EXPECT_EQ(TLV_EMV_VALUE_NUMBER, tlv_emv_builtin_value_kind(builtin));
 }

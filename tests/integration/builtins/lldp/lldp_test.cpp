@@ -23,11 +23,7 @@ const std::vector<uint8_t> base_lldpdu = {2, 2, 7, 'c', 4, 2, 7, 'p', 6, 2, 0, 1
 TEST(Integration_Tlv_Lldp, StructuralRulesCanBorrowExistingFieldSchemas) {
     std::vector<tlv_structure_rule_t> rules(tlv_lldp_schema.rules,
                                             tlv_lldp_schema.rules + tlv_lldp_schema.count);
-    for (size_t i = 0; i < rules.size(); ++i) {
-        rules[i].entry_ref = tlv_structure_rule_entry(&tlv_lldp_schema.rules[i]);
-        rules[i].entry = {};
-    }
-    tlv_structure_schema_t schema = tlv_lldp_schema;
+    tlv_structure_schema_t            schema = tlv_lldp_schema;
     schema.rules = rules.data();
     EXPECT_EQ(TLV_OK, tlv_schema_validate(base_lldpdu.data(), base_lldpdu.size(), &tlv_format_lldp,
                                           &schema, 8, 100, nullptr));
@@ -38,7 +34,7 @@ TEST(Integration_Tlv_Lldp, StructuralRulesCanBorrowExistingFieldSchemas) {
               tlv_schema_validate(invalid.data(), invalid.size(), &tlv_format_lldp, &schema, 8, 100,
                                   nullptr));
     // Explicit uint64_t composition, not the builtin TTL's uint16_t representation.
-    const tlv_schema_number_t ttl = {rules[3].entry_ref, {TLV_NUMBER_BINARY_BE, 0, 0}};
+    const tlv_schema_number_t ttl = {rules[3].entry, {TLV_NUMBER_BINARY_BE, 0, 0}};
     const auto                codec = tlv_schema_number_codec(&ttl);
     const uint64_t            seconds = 120;
     uint8_t                   bytes[2] = {};

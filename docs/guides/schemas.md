@@ -89,7 +89,7 @@ the entry has none.
 ## Complete structure validation
 
 `tlv_structure_schema_t` defines rules within a parent. Each
-`tlv_structure_rule_t` contains an existing length entry, `min_occurs`,
+`tlv_structure_rule_t` references an existing field schema, `min_occurs`,
 `max_occurs`, `kind` and optional `children` schema. Required singleton fields
 use 1/1; optional fields use 0/1; repeatable fields can use `SIZE_MAX` as their
 maximum. Tags must be unique within the rule table. `allow_unknown` explicitly
@@ -102,9 +102,13 @@ require CONSTRUCTED and are checked even for an empty container.
 #include "tlv/schema/schema.h"
 static const uint8_t tag_1[] = {1};
 static const uint8_t tag_2[] = {2};
+static const tlv_schema_entry_t rules_fields[] = {
+    { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter", 0},
+    { { tag_2, sizeof(tag_2) }, 0, 255, 0, NULL, 0}
+};
 static const tlv_structure_rule_t rules[] = {
-    { { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0, NULL },
-    { { { tag_2, sizeof(tag_2) }, 0, 255, 0, NULL, 0}, 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL, 0, NULL }
+    {&rules_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&rules_fields[1], 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL, 0}
 };
 static const tlv_structure_schema_t message = {rules, 2, 0, NULL, 0, TLV_SCHEMA_ORDER_ANY};
 /* tlv_schema_validate(data, size, format, &message, 16, 1000, &offset); */
@@ -122,9 +126,13 @@ document missing a required field:
 #include "tlv++/tlv.hpp"
 static const uint8_t tag_1[] = {1};
 static const uint8_t tag_2[] = {2};
+static const tlv_schema_entry_t rules_fields[] = {
+    { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter", 0},
+    { { tag_2, sizeof(tag_2) }, 0, 255, 0, nullptr, 0}
+};
 static const tlv_structure_rule_t rules[] = {
-    { { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, nullptr },
-    { { { tag_2, sizeof(tag_2) }, 0, 255, 0, nullptr, 0}, 0, SIZE_MAX, TLV_SCHEMA_ANY, nullptr, 0, nullptr }
+    {&rules_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {&rules_fields[1], 0, SIZE_MAX, TLV_SCHEMA_ANY, nullptr, 0}
 };
 static const tlv_structure_schema_t message = {rules, 2, 0, NULL, 0, TLV_SCHEMA_ORDER_ANY};
 // tlv::validate(tlv::bytes(data, size), format, message, 16, 1000);
@@ -244,10 +252,15 @@ Person ::= SEQUENCE {
 /// tab | C
 
 ```c
+static const tlv_schema_entry_t person_rules_fields[] = {
+    {TLV_TAG(1), 1, 8, 0, "id", 0},
+    {TLV_TAG(2), 0, 255, 0, "name", 0},
+    {TLV_TAG(3), 0, 255, 0, "comment", 0}
+};
 static const tlv_structure_rule_t person_rules[] = {
-    {{TLV_TAG(1), 1, 8, 0, "id", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0, NULL},
-    {{TLV_TAG(2), 0, 255, 0, "name", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0, NULL},
-    {{TLV_TAG(3), 0, 255, 0, "comment", 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0, NULL},
+    {&person_rules_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&person_rules_fields[1], 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&person_rules_fields[2], 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0}
 };
 static const tlv_structure_schema_t person_schema = {
     person_rules, 3, 0, NULL, 0, TLV_SCHEMA_ORDER_SEQUENCE};
@@ -258,10 +271,15 @@ static const tlv_structure_schema_t person_schema = {
 /// tab | C++
 
 ```cpp
+static const tlv_schema_entry_t person_rules_fields[] = {
+    {TLV_TAG(1), 1, 8, 0, "id", 0},
+    {TLV_TAG(2), 0, 255, 0, "name", 0},
+    {TLV_TAG(3), 0, 255, 0, "comment", 0}
+};
 static const tlv_structure_rule_t person_rules[] = {
-    {{TLV_TAG(1), 1, 8, 0, "id", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, nullptr},
-    {{TLV_TAG(2), 0, 255, 0, "name", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, nullptr},
-    {{TLV_TAG(3), 0, 255, 0, "comment", 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0, nullptr},
+    {&person_rules_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {&person_rules_fields[1], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {&person_rules_fields[2], 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0}
 };
 static const tlv_structure_schema_t person_schema = {
     person_rules, 3, 0, nullptr, 0, TLV_SCHEMA_ORDER_SEQUENCE};
@@ -415,17 +433,23 @@ See also the [C API reference: schemas](../reference/c-api.md#schemas) and the [
 
 ## Sharing field rules across structural contexts
 
-`tlv_structure_rule_t.entry_ref` optionally borrows an existing
-`tlv_schema_entry_t`. When non-NULL it supplies the tag, diagnostic name and all
-field-length rules; the inline `entry` is ignored. Occurrence, wire form, groups
-and child schemas remain properties of the structural rule. Use
-`tlv_structure_rule_entry()` to inspect the effective field schema.
+`tlv_structure_rule_t.entry` is a required borrowed pointer to exactly one
+`tlv_schema_entry_t`. That object supplies the tag, diagnostic name and all
+field-length rules. Occurrence, wire form, groups and child schemas remain
+properties of the structural rule. There is no inline alternative or override.
+A NULL field pointer makes the structural schema invalid.
 
-This lets a dictionary, standalone validation and several parent contexts share
-one immutable field description. Keep referenced storage alive and unchanged
-throughout validation. Initialize the new pointer to NULL to retain inline-rule
-behavior; its addition changes the structural-rule ABI and requires rebuilding
-consumers. EMV templates use references to their dictionary's field schemas.
+A dictionary, standalone validation and several parent contexts can share one
+immutable field description. Keep the field object, tag bytes and name alive
+and unchanged for every use of the rule, including borrowed diagnostic results.
+Static arrays need no allocation. Owning builders (such as Rust and Python)
+keep field storage stable before forming rule pointers. Validation does not
+allocate. EMV templates borrow their dictionary's exact field objects.
+
+For migration, extract each former inline field into a named object or array,
+initialize `entry` with its address, remove the trailing `entry_ref`, and rebuild
+consumers. The accessor `tlv_structure_rule_entry()` is removed; read `rule.entry`
+directly.
 
 ## Composing field Schema with numeric conversion
 
