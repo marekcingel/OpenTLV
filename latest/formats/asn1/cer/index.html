@@ -2855,12 +2855,14 @@
 cascades from <code>OPENTLV_FORMAT_BER</code>, not from <code>OPENTLV_FORMAT_DER</code>, and neither
 sibling depends on the other. <code>OPENTLV_PROFILE_EMV</code> cascades only from
 <code>OPENTLV_FORMAT_DER</code> and is unaffected by <code>OPENTLV_FORMAT_CER</code> either way.</p>
+<p>See <a href="../ber/#shared-asn1-mechanisms">shared ASN.1 mechanisms</a> for the common
+identifier API, framing reuse and division of canonical validation.</p>
 <h2 id="scope-and-limits">Scope and limits<a class="headerlink" href="#scope-and-limits" title="Permanent link">&para;</a></h2>
 <p>Canonical tag/length framing: a constructed value's length must be
 indefinite (EOC-terminated); a primitive value's length must be definite and
-minimally encoded. Generic I/O validates only the current element's
-identifier and length, not nested framing, EOC placement, or canonical
-string segmentation across descendants — use <a href="../../../profiles/cer/">tlv/builtins/asn1/cer_profile.h</a>
+minimally encoded. Generic I/O validates the current element's identifier and
+length and uses the shared BER scanner to resolve matching EOC boundaries.
+It does not enforce recursive CER canonicality or canonical string segmentation — use <a href="../../../profiles/cer/">tlv/builtins/asn1/cer_profile.h</a>
 for that.</p>
 <p>See <a href="../../../guides/memory/">shared memory ownership rules</a> before retaining a
 parsed element.</p>
@@ -2899,8 +2901,8 @@ form depend on the kind of value.</p>
 the indefinite length <code>80</code> and ends with <code>00 00</code>. Long strings are split into
 segments by the canonical rules. Typical uses are canonical encodings that can be
 produced in one pass without knowing the total length in advance. Generic I/O checks
-only the current element's identifier and length; nested framing is checked by the
-<a href="../../../profiles/cer/">CER profile</a>.</p>
+the current element's identifier and length and resolves EOC through BER framing;
+recursive CER canonicality and segmentation are checked by the <a href="../../../profiles/cer/">CER profile</a>.</p>
 <h2 id="byte-example-nested-indefinite-length-containers">Byte example: nested indefinite-length containers<a class="headerlink" href="#byte-example-nested-indefinite-length-containers" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>30 80 02 01 05 30 80 04 02 00 00 00 00 00 00
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Element (15 bytes, indefinite length)

@@ -3369,13 +3369,10 @@ Split custom descriptors into <code>tlv_reader_format_t</code> and <code>tlv_wri
 Use matching <code>tlv_reader_format_&lt;name&gt;</code> / <code>tlv_writer_format_&lt;name&gt;</code> constants
 at each call site. Runtime construction uses <code>tlv_reader_format_init</code> and
 <code>tlv_writer_format_init</code>; either direction can be implemented independently.</p>
-<p>Pass the nesting predicate (or NULL) immediately after the reader format in
-<code>tlv_walk_tree</code>, <code>tlv_schema_validate</code>, <code>tlv::walk_tree</code>, and <code>tlv::validate</code>.
-It receives the reader format context. BER and DER provide
-<code>tlv_ber_is_constructed</code> and <code>tlv_der_is_constructed</code>. Structure codecs store
-both format pointers and the separate nesting predicate, and decode/encode
-callbacks receive their corresponding format type. Rebuild all consumers
-because the descriptor and affected API layouts have changed. (#68)</p>
+<p>Traversal and schema APIs obtain the optional nesting predicate from
+<code>tlv_format_t::is_constructed</code>; it receives the format context and parsed tag.
+BER, DER and CER share <code>tlv_asn1_is_constructed</code>. Structure codecs likewise
+use their Format descriptor for framing and constructed-element detection.</p>
 <p>Reunify the reader and writer format descriptors that #68 split apart:
 <code>tlv_reader_format_t</code>/<code>tlv_writer_format_t</code> are replaced by one <code>tlv_format_t</code>
 whose read and write callback groups are each independently optional. A

@@ -3,7 +3,7 @@ var searchData=
   ['tlv_5fallocator_5ft_0',['tlv_allocator_t',['../group__document.html#gaef8edf0d0b2fa43cd7a87e8a9ac425bf',1,'document.h']]],
   ['tlv_5fasn1_5fbit_5fstring_5ft_1',['tlv_asn1_bit_string_t',['../group__codecs.html#gaec5421760b455d46e3e00715da90b1c1',1,'asn1_codec.h']]],
   ['tlv_5fasn1_5fbmp_5fstring_5ft_2',['tlv_asn1_bmp_string_t',['../group__codecs.html#ga4f1ebe512479e74719a22772eba3e787',1,'asn1_codec.h']]],
-  ['tlv_5fasn1_5fclass_5ft_3',['tlv_asn1_class_t',['../group__formats.html#gac78236c0cdd66abce60097e60eb4745c',1,'ber.h']]],
+  ['tlv_5fasn1_5fclass_5ft_3',['tlv_asn1_class_t',['../group__formats.html#gac78236c0cdd66abce60097e60eb4745c',1,'identifier.h']]],
   ['tlv_5fasn1_5fdate_5ft_4',['tlv_asn1_date_t',['../group__codecs.html#ga4f441c8dd486a7519386f3d1dbb93d43',1,'asn1_codec.h']]],
   ['tlv_5fasn1_5fdate_5ftime_5ft_5',['tlv_asn1_date_time_t',['../group__codecs.html#ga745be454ade2039cf94044b0323514df',1,'asn1_codec.h']]],
   ['tlv_5fasn1_5fgeneralized_5ftime_5ft_6',['tlv_asn1_generalized_time_t',['../group__codecs.html#ga6b7ac701f8323dde5bde8fa9dd067f23',1,'asn1_codec.h']]],

@@ -3179,7 +3179,7 @@ explains its wire layout and supported scope.</p>
 <td>short, long, or indefinite for constructed values</td>
 <td>up to <code>SIZE_MAX</code></td>
 <td>identifier, length, contents (and EOC)</td>
-<td><code>tlv_ber_is_constructed</code></td>
+<td><code>tlv_asn1_is_constructed</code></td>
 <td><code>OPENTLV_FORMAT_BER</code></td>
 </tr>
 <tr>
@@ -3188,7 +3188,7 @@ explains its wire layout and supported scope.</p>
 <td>definite, shortest form only</td>
 <td>definite lengths</td>
 <td>identifier, length, contents</td>
-<td><code>tlv_der_is_constructed</code></td>
+<td><code>tlv_asn1_is_constructed</code></td>
 <td><code>OPENTLV_FORMAT_DER</code></td>
 </tr>
 <tr>
@@ -3197,7 +3197,7 @@ explains its wire layout and supported scope.</p>
 <td>primitive: definite, shortest; constructed: indefinite</td>
 <td>definite lengths for primitives</td>
 <td>identifier, length, contents (and EOC)</td>
-<td><code>tlv_cer_is_constructed</code></td>
+<td><code>tlv_asn1_is_constructed</code></td>
 <td><code>OPENTLV_FORMAT_CER</code></td>
 </tr>
 </tbody>
@@ -3338,8 +3338,7 @@ declares only the contract.</p>
 <p>The optional <code>tlv_format_t::is_constructed</code> field identifies values containing
 child TLVs in the same format. It receives the format's context and a parsed
 tag. NULL means opaque values. The BER, DER and CER descriptors set it to
-<code>tlv_ber_is_constructed</code>, <code>tlv_der_is_constructed</code> and <code>tlv_cer_is_constructed</code>
-respectively, inspecting their constructed bit; Fixed formats
+the shared <code>tlv_asn1_is_constructed</code>, which inspects the constructed bit; Fixed formats
 leave it NULL.
 Custom protocols can supply a different rule. Traversal follows the value element
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.</p>

@@ -74,7 +74,6 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
@@ -85,54 +84,25 @@ $(function() {
 <p>ASN.1 BER framing over generic variable-width identifier and length primitives.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="identifier_8h.html">tlv/builtins/asn1/identifier.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="format_8h.html">tlv/format.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="writer_8h.html">tlv/writer/writer.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="size_8h.html">tlv/size.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
 </div><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
-Typedefs</h2></td></tr>
-<tr class="memitem:gac78236c0cdd66abce60097e60eb4745c" id="r_gac78236c0cdd66abce60097e60eb4745c"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__formats.html#gae888c73e721d0ad6ba3ecea514ae7626">tlv_asn1_class</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a></td></tr>
-<tr class="memdesc:gac78236c0cdd66abce60097e60eb4745c"><td class="mdescLeft">&#160;</td><td class="mdescRight">ASN.1 identifier-octet class bits (ITU-T X.690 section 8.1).  <br /></td></tr>
-<tr class="separator:gac78236c0cdd66abce60097e60eb4745c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:gae888c73e721d0ad6ba3ecea514ae7626" id="r_gae888c73e721d0ad6ba3ecea514ae7626"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gae888c73e721d0ad6ba3ecea514ae7626">tlv_asn1_class</a> { <a class="el" href="group__formats.html#ggae888c73e721d0ad6ba3ecea514ae7626a9482df1f4b4bc3a8106fa111ab96ad6b">TLV_ASN1_UNIVERSAL</a> = 0
-, <a class="el" href="group__formats.html#ggae888c73e721d0ad6ba3ecea514ae7626a5fc78a7e3efda588646a9da548b90f34">TLV_ASN1_APPLICATION</a> = 1
-, <a class="el" href="group__formats.html#ggae888c73e721d0ad6ba3ecea514ae7626a884eadfb464210ec742499e3ed6d4958">TLV_ASN1_CONTEXT_SPECIFIC</a> = 2
-, <a class="el" href="group__formats.html#ggae888c73e721d0ad6ba3ecea514ae7626a131fe312de1817bc1ff99ea5c6856fd9">TLV_ASN1_PRIVATE</a> = 3
+<tr class="memitem:ga99fb83031ce9923c84392b4e92f956b5" id="r_ga99fb83031ce9923c84392b4e92f956b5"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5aab08cb05d4934f213e4a923a6232091c">TLV_BER_MAX_DEPTH</a> = 64
  }</td></tr>
-<tr class="memdesc:gae888c73e721d0ad6ba3ecea514ae7626"><td class="mdescLeft">&#160;</td><td class="mdescRight">ASN.1 identifier-octet class bits (ITU-T X.690 section 8.1).  <a href="group__formats.html#gae888c73e721d0ad6ba3ecea514ae7626">More...</a><br /></td></tr>
-<tr class="separator:gae888c73e721d0ad6ba3ecea514ae7626"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga99fb83031ce9923c84392b4e92f956b5" id="r_ga99fb83031ce9923c84392b4e92f956b5"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
-&#160;&#160;<a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a4dba2bfb2ef0ea7a98c348eb5a9035b3">TLV_ASN1_CLASS_SHIFT</a> = 6
-, <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a5cff02341914e111cec22fe3e5e24fb0">TLV_ASN1_CONSTRUCTED_BIT</a> = 0x20
-, <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5a2e2c2b4dd29b5cf253e9b46bdbaf4952">TLV_ASN1_TAG_NUMBER_MASK</a> = 0x1F
-, <a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5ad6b5d7306421b68182b7adc716e360ab">TLV_ASN1_LOW_TAG_LIMIT</a> = 31
-, <br />
-&#160;&#160;<a class="el" href="group__formats.html#gga99fb83031ce9923c84392b4e92f956b5adb6bdd38d8e01027743ce1a4fd82ff4e">TLV_ASN1_TAG_MAX_SIZE</a> = 8
-<br />
- }</td></tr>
-<tr class="memdesc:ga99fb83031ce9923c84392b4e92f956b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Identifier octet bit layout below the class field (X.690 section 8.1.2).  <a href="group__formats.html#ga99fb83031ce9923c84392b4e92f956b5">More...</a><br /></td></tr>
+<tr class="memdesc:ga99fb83031ce9923c84392b4e92f956b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum simultaneous constructed scopes while resolving an indefinite element.  <a href="group__formats.html#ga99fb83031ce9923c84392b4e92f956b5">More...</a><br /></td></tr>
 <tr class="separator:ga99fb83031ce9923c84392b4e92f956b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabc6126af1d45847bc59afa0aa3216b04" id="r_gabc6126af1d45847bc59afa0aa3216b04"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#ggabc6126af1d45847bc59afa0aa3216b04aab08cb05d4934f213e4a923a6232091c">TLV_BER_MAX_DEPTH</a> = 64
+<tr class="memitem:gabc6126af1d45847bc59afa0aa3216b04" id="r_gabc6126af1d45847bc59afa0aa3216b04"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#ggabc6126af1d45847bc59afa0aa3216b04a64906a3a7749fb32293ae5bdf23ecc8b">TLV_BER_LENGTH_MAX_ENCODED_SIZE</a> = 9
  }</td></tr>
-<tr class="memdesc:gabc6126af1d45847bc59afa0aa3216b04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum simultaneous constructed scopes while resolving an indefinite element.  <a href="group__formats.html#gabc6126af1d45847bc59afa0aa3216b04">More...</a><br /></td></tr>
+<tr class="memdesc:gabc6126af1d45847bc59afa0aa3216b04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>.  <a href="group__formats.html#gabc6126af1d45847bc59afa0aa3216b04">More...</a><br /></td></tr>
 <tr class="separator:gabc6126af1d45847bc59afa0aa3216b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gadc29c2ff13d900c2f185ee95427fb06c" id="r_gadc29c2ff13d900c2f185ee95427fb06c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__formats.html#ggadc29c2ff13d900c2f185ee95427fb06ca64906a3a7749fb32293ae5bdf23ecc8b">TLV_BER_LENGTH_MAX_ENCODED_SIZE</a> = 9
- }</td></tr>
-<tr class="memdesc:gadc29c2ff13d900c2f185ee95427fb06c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bytes needed for the shortest definite encoding of any <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8" title="Logical TLV value size.">tlv_size_t</a>.  <a href="group__formats.html#gadc29c2ff13d900c2f185ee95427fb06c">More...</a><br /></td></tr>
-<tr class="separator:gadc29c2ff13d900c2f185ee95427fb06c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga7399f0dfd5ab844e7d0001e4427b602c" id="r_ga7399f0dfd5ab844e7d0001e4427b602c"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga7399f0dfd5ab844e7d0001e4427b602c">tlv_ber_tag_class</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:ga7399f0dfd5ab844e7d0001e4427b602c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the ASN.1 class of a BER tag.  <br /></td></tr>
-<tr class="separator:ga7399f0dfd5ab844e7d0001e4427b602c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5423e23fcd7f4b37ed5ecc626a8ba923" id="r_ga5423e23fcd7f4b37ed5ecc626a8ba923"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga5423e23fcd7f4b37ed5ecc626a8ba923">tlv_ber_tag_is_constructed</a> (const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:ga5423e23fcd7f4b37ed5ecc626a8ba923"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether a BER tag has the constructed bit set.  <br /></td></tr>
-<tr class="separator:ga5423e23fcd7f4b37ed5ecc626a8ba923"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3ef80279ed25c266f0b921b4f4fb11c2" id="r_ga3ef80279ed25c266f0b921b4f4fb11c2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga3ef80279ed25c266f0b921b4f4fb11c2">tlv_ber_tag_make</a> (<a class="el" href="group__formats.html#gac78236c0cdd66abce60097e60eb4745c">tlv_asn1_class_t</a> tag_class, int constructed, uint64_t number, uint8_t *storage, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
 <tr class="memdesc:ga3ef80279ed25c266f0b921b4f4fb11c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructs a raw BER tag from its class, form and tag number.  <br /></td></tr>
 <tr class="separator:ga3ef80279ed25c266f0b921b4f4fb11c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -148,9 +118,6 @@ Functions</h2></td></tr>
 <tr class="memitem:ga97c798980f52acfe00e9ddf8d1f0b9c5" id="r_ga97c798980f52acfe00e9ddf8d1f0b9c5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga97c798980f52acfe00e9ddf8d1f0b9c5">tlv_ber_writer_write_indefinite</a> (<a class="el" href="group__writer.html#gab60fe025fad90cee69e0d2d92eb5d259">tlv_writer_t</a> *writer, <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, const uint8_t *value, size_t length)</td></tr>
 <tr class="memdesc:ga97c798980f52acfe00e9ddf8d1f0b9c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends an explicit indefinite-length element to a writer.  <br /></td></tr>
 <tr class="separator:ga97c798980f52acfe00e9ddf8d1f0b9c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa67e5ba1c927631b33700385111cb977" id="r_gaa67e5ba1c927631b33700385111cb977"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#gaa67e5ba1c927631b33700385111cb977">tlv_ber_is_constructed</a> (const void *context, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:gaa67e5ba1c927631b33700385111cb977"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nesting predicate for tree traversal of BER data.  <br /></td></tr>
-<tr class="separator:gaa67e5ba1c927631b33700385111cb977"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7b04af2ed12fb865560d737bbfa28e03" id="r_ga7b04af2ed12fb865560d737bbfa28e03"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__formats.html#ga7b04af2ed12fb865560d737bbfa28e03">tlv_ber_length_decode</a> (const uint8_t *data, size_t data_size, <a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> *value, size_t *consumed)</td></tr>
 <tr class="memdesc:ga7b04af2ed12fb865560d737bbfa28e03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes one BER definite-length field starting at <code>data[0]</code>.  <br /></td></tr>
 <tr class="separator:ga7b04af2ed12fb865560d737bbfa28e03"><td class="memSeparator" colspan="2">&#160;</td></tr>

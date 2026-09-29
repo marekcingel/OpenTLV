@@ -245,14 +245,14 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gaf5151939698b214c757c2cc214f04f73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether a component must appear.  <a href="group__schemas.html#gaf5151939698b214c757c2cc214f04f73">More...</a><br /></td></tr>
 <tr class="separator:gaf5151939698b214c757c2cc214f04f73"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabed82baf7f470b522273a3e37c24c600" id="r_gabed82baf7f470b522273a3e37c24c600"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggabed82baf7f470b522273a3e37c24c600a798300a9168dc388bc12647ac3352a79">TLV_DER_SCHEMA_MAX_TYPE_DEPTH</a> = 32
+<tr class="memitem:ga0411cd49bb5b71852cecd93bcbf0ca2d" id="r_ga0411cd49bb5b71852cecd93bcbf0ca2d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#gga0411cd49bb5b71852cecd93bcbf0ca2da798300a9168dc388bc12647ac3352a79">TLV_DER_SCHEMA_MAX_TYPE_DEPTH</a> = 32
  }</td></tr>
-<tr class="memdesc:gabed82baf7f470b522273a3e37c24c600"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bound on schema type-graph recursion while resolving a single wire position.  <a href="group__schemas.html#gabed82baf7f470b522273a3e37c24c600">More...</a><br /></td></tr>
+<tr class="memdesc:ga0411cd49bb5b71852cecd93bcbf0ca2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bound on schema type-graph recursion while resolving a single wire position.  <a href="group__schemas.html#ga0411cd49bb5b71852cecd93bcbf0ca2d">More...</a><br /></td></tr>
+<tr class="separator:ga0411cd49bb5b71852cecd93bcbf0ca2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabed82baf7f470b522273a3e37c24c600" id="r_gabed82baf7f470b522273a3e37c24c600"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggabed82baf7f470b522273a3e37c24c600a503cd8aa2cb92e1815c0e9acebc1db4d">TLV_DER_SCHEMA_MAX_COMPONENTS</a> = 64
+ }</td></tr>
+<tr class="memdesc:gabed82baf7f470b522273a3e37c24c600"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum direct components of one SEQUENCE, SET or CHOICE.  <a href="group__schemas.html#gabed82baf7f470b522273a3e37c24c600">More...</a><br /></td></tr>
 <tr class="separator:gabed82baf7f470b522273a3e37c24c600"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab04a0655cd1e3bcac5e8f48c18df1a57" id="r_gab04a0655cd1e3bcac5e8f48c18df1a57"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggab04a0655cd1e3bcac5e8f48c18df1a57a503cd8aa2cb92e1815c0e9acebc1db4d">TLV_DER_SCHEMA_MAX_COMPONENTS</a> = 64
- }</td></tr>
-<tr class="memdesc:gab04a0655cd1e3bcac5e8f48c18df1a57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum direct components of one SEQUENCE, SET or CHOICE.  <a href="group__schemas.html#gab04a0655cd1e3bcac5e8f48c18df1a57">More...</a><br /></td></tr>
-<tr class="separator:gab04a0655cd1e3bcac5e8f48c18df1a57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9842d51d0f5706b1d13fea943bcb9def" id="r_ga9842d51d0f5706b1d13fea943bcb9def"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga9842d51d0f5706b1d13fea943bcb9def">tlv_value_constraint_kind</a> { <a class="el" href="group__schemas.html#gga9842d51d0f5706b1d13fea943bcb9defa2a194781974fbf310d7a74a3583198f2">TLV_VALUE_CONSTRAINT_NONE</a> = 0
 , <a class="el" href="group__schemas.html#gga9842d51d0f5706b1d13fea943bcb9defa965bc46ba6e417d0bd8628f7f6ee4f78">TLV_VALUE_CONSTRAINT_RANGE</a>
 , <a class="el" href="group__schemas.html#gga9842d51d0f5706b1d13fea943bcb9defa53ba2ca9e7139f41f525ddc7d6989cba">TLV_VALUE_CONSTRAINT_ALLOWED_VALUES</a>
@@ -448,7 +448,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>SIZE and value-range/allowed-values constraints on a <a class="el" href="group__schemas.html#gga7cd10cc4b1fb1564a59ead8643fb7d3baea74920078a033e42f6cd42ae2298f01">TLV_DER_SCHEMA_UNIVERSAL</a> leaf, beyond the leaf's own canonical DER content rules. </p>
-<p>Mirrors the ASN.1 <code>SIZE</code> and value-range constraint notations (for example <code>OCTET STRING (SIZE(1..16))</code> or <code>INTEGER (0..255)</code>), checked in addition to &ndash; not instead of &ndash; tlv_der_validate_universal_value()'s own canonical rules. All pointers are borrowed and must outlive use. </p>
+<p>Mirrors the ASN.1 <code>SIZE</code> and value-range constraint notations (for example <code>OCTET STRING (SIZE(1..16))</code> or <code>INTEGER (0..255)</code>), checked in addition to &ndash; not instead of &ndash; the shared ASN.1 universal-value validators' canonical rules. All pointers are borrowed and must outlive use. </p>
 
 </div>
 </div>
@@ -760,8 +760,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="gabed82baf7f470b522273a3e37c24c600" name="gabed82baf7f470b522273a3e37c24c600"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gabed82baf7f470b522273a3e37c24c600">&#9670;&#160;</a></span>anonymous enum</h2>
+<a id="ga0411cd49bb5b71852cecd93bcbf0ca2d" name="ga0411cd49bb5b71852cecd93bcbf0ca2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0411cd49bb5b71852cecd93bcbf0ca2d">&#9670;&#160;</a></span>anonymous enum</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -775,13 +775,13 @@ Variables</h2></td></tr>
 <p>Bound on schema type-graph recursion while resolving a single wire position. </p>
 <p>Covers CHOICE alternatives and EXPLICIT unwrapping. Schemas are trusted, caller-authored static data, not attacker input; this only guards against an accidentally self-referential table. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggabed82baf7f470b522273a3e37c24c600a798300a9168dc388bc12647ac3352a79" name="ggabed82baf7f470b522273a3e37c24c600a798300a9168dc388bc12647ac3352a79"></a>TLV_DER_SCHEMA_MAX_TYPE_DEPTH&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga0411cd49bb5b71852cecd93bcbf0ca2da798300a9168dc388bc12647ac3352a79" name="gga0411cd49bb5b71852cecd93bcbf0ca2da798300a9168dc388bc12647ac3352a79"></a>TLV_DER_SCHEMA_MAX_TYPE_DEPTH&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
 </div>
-<a id="gab04a0655cd1e3bcac5e8f48c18df1a57" name="gab04a0655cd1e3bcac5e8f48c18df1a57"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gab04a0655cd1e3bcac5e8f48c18df1a57">&#9670;&#160;</a></span>anonymous enum</h2>
+<a id="gabed82baf7f470b522273a3e37c24c600" name="gabed82baf7f470b522273a3e37c24c600"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabed82baf7f470b522273a3e37c24c600">&#9670;&#160;</a></span>anonymous enum</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -795,7 +795,7 @@ Variables</h2></td></tr>
 <p>Maximum direct components of one SEQUENCE, SET or CHOICE. </p>
 <p>Presence is tracked with a 64-bit bitmap. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggab04a0655cd1e3bcac5e8f48c18df1a57a503cd8aa2cb92e1815c0e9acebc1db4d" name="ggab04a0655cd1e3bcac5e8f48c18df1a57a503cd8aa2cb92e1815c0e9acebc1db4d"></a>TLV_DER_SCHEMA_MAX_COMPONENTS&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggabed82baf7f470b522273a3e37c24c600a503cd8aa2cb92e1815c0e9acebc1db4d" name="ggabed82baf7f470b522273a3e37c24c600a503cd8aa2cb92e1815c0e9acebc1db4d"></a>TLV_DER_SCHEMA_MAX_COMPONENTS&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -1036,7 +1036,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>One-time structural self-check of a schema table. </p>
-<p>Verifies distinct effective identifiers among a SET's or CHOICE's direct components; that CHOICE alternatives are <a class="el" href="group__schemas.html#ggaf5151939698b214c757c2cc214f04f73a6b15618fe859fc6b8b423831f5df0b55">TLV_DER_REQUIRED</a> with no default; that no CHOICE-typed component uses IMPLICIT tagging; that <code>component_count</code> is within <a class="el" href="group__schemas.html#ggab04a0655cd1e3bcac5e8f48c18df1a57a503cd8aa2cb92e1815c0e9acebc1db4d">TLV_DER_SCHEMA_MAX_COMPONENTS</a>; that type-graph depth is within <a class="el" href="group__schemas.html#ggabed82baf7f470b522273a3e37c24c600a798300a9168dc388bc12647ac3352a79">TLV_DER_SCHEMA_MAX_TYPE_DEPTH</a>; that a leaf's <code>constraint-&gt;min_length</code> is at most <code>max_length</code>; and that a leaf's <code>constraint-&gt;value_constraint</code> is only set when <code>universal_number</code> is 2 (INTEGER) or 10 (ENUMERATED).</p>
+<p>Verifies distinct effective identifiers among a SET's or CHOICE's direct components; that CHOICE alternatives are <a class="el" href="group__schemas.html#ggaf5151939698b214c757c2cc214f04f73a6b15618fe859fc6b8b423831f5df0b55">TLV_DER_REQUIRED</a> with no default; that no CHOICE-typed component uses IMPLICIT tagging; that <code>component_count</code> is within <a class="el" href="group__schemas.html#ggabed82baf7f470b522273a3e37c24c600a503cd8aa2cb92e1815c0e9acebc1db4d">TLV_DER_SCHEMA_MAX_COMPONENTS</a>; that type-graph depth is within <a class="el" href="group__schemas.html#gga0411cd49bb5b71852cecd93bcbf0ca2da798300a9168dc388bc12647ac3352a79">TLV_DER_SCHEMA_MAX_TYPE_DEPTH</a>; that a leaf's <code>constraint-&gt;min_length</code> is at most <code>max_length</code>; and that a leaf's <code>constraint-&gt;value_constraint</code> is only set when <code>universal_number</code> is 2 (INTEGER) or 10 (ENUMERATED).</p>
 <p>Intended to validate a hand-authored table once (for example in a unit test). <a class="el" href="group__schemas.html#gaf5efb63ff29718cbc2480bb659902ed3" title="Validates encoded data against a schema.">tlv_der_schema_read()</a> and <a class="el" href="group__schemas.html#ga6c1c758e294d5bc0374c39f544108145" title="Encodes a schema&#39;s canonical DER-TLV bytes.">tlv_der_schema_write()</a> already enforce the depth bound live and do not require this to have been called first.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1881,7 +1881,7 @@ Any other error of <a class="el" href="group__traversal.html#ga67f4429a613aed793
 <p>Complements the per-tag length rules in <a class="el" href="group__profiles.html#ga6bb3be06c9d27230b304d3e6167765ff" title="The dictionary schema for TLV_EMV_CONTEXT_BASE; an immutable static table.">tlv_emv_schema</a> (<a class="el" href="emv_8h.html" title="EMV Contact Book 3 data dictionary: tag constants, schemas and lookup.">tlv/builtins/emv/emv.h</a>) with the mandatory, forbidden, duplicate and nesting checks that schema explicitly leaves to the application (see "Validation
 limits" in docs/profiles/emv/README.md).</p>
 <p>Modeled: the FCI Template (6F, Book 3 section 11.3.4 Table 12) and its FCI Proprietary Template (A5) child, the Application Template (61, Book 1 Table 8), and the GPO Response Message Template Format 2 (77, Book 3 Table 3). Unmodeled top-level tags (Read Record Template 70, Response Message Template Format 1 80, issuer script templates, proprietary data, etc.) are accepted unchecked at the root, because their contents vary too much by kernel and issuer for a generic schema.</p>
-<p>Use with <a class="el" href="group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416" title="Validates framing, nesting, lengths, occurrence counts, ordering, alternative groups and child member...">tlv_schema_validate()</a> and <a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97" title="Format for raw BER-TLV.">tlv_format_ber</a>, whose <code>is_constructed</code> is <a class="el" href="group__formats.html#gaa67e5ba1c927631b33700385111cb977" title="Nesting predicate for tree traversal of BER data.">tlv_ber_is_constructed()</a>. </p>
+<p>Use with <a class="el" href="group__schemas.html#ga71e48e88dafcc4c96def78a5754b2416" title="Validates framing, nesting, lengths, occurrence counts, ordering, alternative groups and child member...">tlv_schema_validate()</a> and <a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97" title="Format for raw BER-TLV.">tlv_format_ber</a>, whose <code>is_constructed</code> is <a class="el" href="group__formats.html#ga8af08b2a6aaec6b350cd9bee2092a055" title="Shared ASN.1 constructed predicate for Format and tree traversal.">tlv_asn1_is_constructed()</a>. </p>
 
 </div>
 </div>
