@@ -113,6 +113,92 @@ from the same decode. Source ranges remain relative to `source.data`, the
 element start. Capture `tlv_reader_offset()` before the call to locate that source in
 the logical stream. Non-success leaves both success outputs unchanged.
 
+## Pull-based tree traversal
+
+`tlv_tree_reader_t` is the canonical iterative preorder traversal cursor. Include
+`tlv/reader/tree.h`, provide an array of `tlv_tree_frame_t`, and initialize with
+`tlv_tree_reader_init()` or `tlv_tree_reader_init_incremental()`. Each successful
+`tlv_tree_reader_next()` returns a `tlv_tree_item_t` containing the complete
+borrowed Element, Source, depth, absolute element-start offset, and Format's
+constructed classification. Root depth is zero. Only Format interprets framing
+and identifies constructed values; a missing classification callback makes all
+values opaque.
+
+The stream has **no separate ENTER or LEAVE events**. Each element appears once,
+before its children. A decrease in the next item's depth closes prior scopes;
+final end closes the remaining scopes. Empty constructed values still appear
+once. Higher layers that need exit notifications can derive them from depth
+transitions and final end. `NEED_MORE_DATA` is not an end event.
+
+### Storage and limits
+
+`TLV_TREE_DEFAULT_DEPTH` is a suggested default of 64, not a hard maximum.
+The caller supplies both a runtime `max_depth` and a frame array with explicit
+capacity. Each entered nonempty constructed value needs one frame; the root
+sequence needs none. Capacity and depth are independent bounds. A larger array
+and runtime limit allow deeper traversal without recompiling OpenTLV. Formats
+may have their own framing limits, such as BER indefinite-length nesting.
+
+Frames hold only absolute value-end and sibling-resume offsets. They do not
+retain Elements, Tags, Sources, or pointers into the input. Frames must remain
+writable and alive throughout traversal and must not overlap input or the
+cursor. Copying a cursor does not copy its frame array; independent traversals
+need independent structural storage. The caller may release or overwrite a
+returned item object immediately; this does not alter traversal state.
+
+`max_elements` bounds the total number of published items, including parents.
+Zero permits only empty input. Depth or storage exhaustion returns
+`TLV_ERR_LIMIT` when attempting to descend, after the parent has been returned.
+Errors and `NEED_MORE_DATA` preserve the cursor, frames, and item output.
+`tlv_tree_reader_next_diag()` retains Reader diagnostics and absolute offsets
+without decoding again. Tree argument/resource errors leave the diagnostic
+unchanged.
+
+### Skipping and incremental input
+
+After receiving a nonempty constructed item, call
+`tlv_tree_reader_skip_subtree()` to continue after its complete encoded extent.
+The skipped descendants are neither decoded nor counted. The same operation is
+available after a failed descent while that subtree remains pending. Calling it
+without a pending subtree returns `TLV_ERR_INVALID_ARG`. Skipping does not
+validate descendants; Format may already have inspected their framing while
+establishing the complete parent's extent. Closing enclosing scopes uses an
+iterative loop bounded by the active depth.
+
+Tree input updates follow the sequential Reader contract:
+`tlv_tree_reader_set_input()` preserves the unconsumed prefix and accepts an
+explicit final-input flag. Use `tlv_tree_reader_consumed()` to find the prefix
+no longer needed by traversal, and `tlv_tree_reader_offset()` for its absolute
+frontier. After publishing a parent, its unvisited value remains unconsumed.
+You can relocate the retained bytes even while nested: frames use absolute
+logical offsets. Release any borrowed results referring to moved or overwritten
+storage first, including parents whose Values cover those bytes.
+
+The complete-element contract from incremental Reader still applies. **An
+incomplete child delays publication of its enclosing constructed parent.**
+Tree Reader cannot return a complete borrowed parent and then wait for bytes
+inside that parent's Value. Once published, that parent bounds child reads as
+final input; a child exceeding the bound returns `TLV_ERR_BUFFER_TOO_SHORT`,
+not `TLV_NEED_MORE_DATA`. More bytes outside the parent cannot repair it.
+Incremental traversal resumes across complete subtrees and incomplete subsequent
+roots, without requiring the entire stream in memory. It does not provide an
+early-header stream or partial Elements.
+
+See the compiled [Tree Reader example](../../examples/tlv/src/tree_reader.c)
+for caller-owned frames, incomplete input, subtree skipping, window replacement,
+and EOF.
+
+### Walker compatibility
+
+`tlv_walk_tree()` and `tlv_walk_tree_diag()` now adapt the canonical Tree Reader
+to existing callbacks; they contain no independent traversal algorithm.
+`tlv_walk()` remains a callback adapter over sequential Reader. The compatibility
+Walker owns a fixed stack of `TLV_WALK_MAX_DEPTH` frames. That name describes
+only the adapter's capacity: use Tree Reader directly for runtime depths beyond
+it, caller-owned traversal storage, incremental input, or subtree skipping.
+Existing Query and other Walker consumers therefore use Tree Reader through
+the adapter. Their own public limits and higher-level APIs remain unchanged.
+
 ## Ownership and composition
 
 Input storage belongs to the caller and must stay alive and unchanged while
@@ -122,8 +208,8 @@ context; retained sources also require them. Advancing, reinitializing or
 discarding the cursor does not by itself invalidate previously returned elements.
 See [memory ownership](memory.md).
 
-Walker composes Reader for sequential and tree traversal. Query uses that
-traversal and Document uses Reader for sequential parsing. These higher layers
+Tree Reader composes Reader for nested traversal; Walker is a callback adapter.
+Query uses that traversal and Document uses Reader for sequential parsing. These higher layers
 retain their own traversal, storage and validation responsibilities.
 
 ## Migration from Scanner

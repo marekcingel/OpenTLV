@@ -26,6 +26,8 @@ walking, codecs and endian conversion, and a fully custom format.
   helpers.
 - [`incremental_reader.c`](incremental_reader.c) -- caller-owned sliding input,
   resumable reads and explicit EOF using a buffer smaller than the full input.
+- [`tree_reader.c`](tree_reader.c) -- pull-based preorder traversal with
+  caller-owned frames, incremental input and subtree skipping.
 - [`schema_walk.c`](schema_walk.c) -- schema validation inside a
   `tlv_walk()` callback.
 - [`codecs_and_endian.c`](codecs_and_endian.c) -- an application value codec, and

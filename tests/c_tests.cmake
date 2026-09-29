@@ -63,6 +63,7 @@ set(SOURCES
     query/query_test.cpp
     reader/reader_test.cpp
     reader/incremental_test.cpp
+    reader/tree_test.cpp
     reader/walker_test.cpp
     schema/constraint_test.cpp
     schema/schema_report_test.cpp

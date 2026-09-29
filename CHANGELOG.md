@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Make Tree Reader the canonical nested traversal mechanism; Walker is now a compatibility callback adapter. `TLV_WALK_MAX_DEPTH` limits only the adapter's stack, while Tree Reader supports caller-selected depths and storage capacities. (#393)
 - **Breaking:** Extend `tlv_reader_t` and `tlv_reader_diagnostic_t` for incremental input; rebuild consumers and update FFI layouts. Existing `tlv_reader_init()` retains final-buffer behavior. BER/CER indefinite framing now rejects incomplete children within a fixed enclosing boundary as invalid lengths rather than requesting impossible additional input. (#392)
 - Establish Reader as the canonical allocation-free pull cursor with explicit element, end, incomplete-input and error outcomes. Unify cursor transitions and diagnostics, expose source metadata without a second decode, and compose tree traversal through Reader. (#391)
 - **Breaking:** Replace DHCP Message Type, LLDP TTL/text and Bluetooth UUID16/32 codec descriptors with source aliases of generic codecs; rebuild consumers and update FFI symbol references. Bluetooth Local Name and LLDP text/ID/organisational codecs now leave outer field-length limits to Schema; validate Schema separately. Add an integration build proving EMV parsing, dictionaries, validation and codecs work without the presentation adapter. (#389, #381)
@@ -82,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an allocation-free, iterative Tree Reader with preorder items, absolute offsets, incremental input windows, subtree skipping, caller-owned traversal frames, runtime depth limits and an element-count bound. Constructed items retain Reader's complete contiguous borrowed-storage contract. (#393)
 - Add allocation-free incremental Reader input windows, explicit `TLV_NEED_MORE_DATA` and EOF semantics, consumed-byte and absolute-offset accessors, and known required extents in diagnostics. Callers retain buffering and borrowed-storage ownership. (#392)
 - Add Bluetooth semantic CLI output and schema/codec validation through `--module bluetooth`, with AD container padding support and semantic conformance coverage. (#351)
 - Add optional Schema/number codec composition that selects an output width from the authoritative field schema, shared by builtin and caller-owned dictionaries. (#389, #381)

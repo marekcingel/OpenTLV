@@ -51,7 +51,7 @@ binary layouts declared in `tlv/layout.h` configure Format composition; they
 are reusable rules rather than a decoded instance's runtime layout.
 
 Operations consume or produce these representations using the selected model.
-Reader and Writer perform I/O, Document supports editable collections of
+Reader and Writer process caller-owned buffers, Document supports editable collections of
 elements, Query selects elements, and Visitor participates in traversal.
 Operations can carry runtime state; these categories describe their primary
 roles, not a one-to-one mapping to directories or C types.
@@ -96,7 +96,8 @@ every concrete format regardless of whether it was protocol-specific, and was
 retired in favor of `builtins/<protocol>/` for exactly the protocol-specific
 ones. `formats/` returns only for mechanisms that stay protocol-agnostic.
 
-Reader is the canonical pull-based cursor; Walker composes it for traversal.
+Reader is the canonical pull-based cursor; Tree Reader composes it for nested
+traversal, and Walker provides compatibility callback adapters.
 Recovery and resynchronization are application policies implemented, when needed,
 using the public single-element `tlv_read()` primitive. Standard-specific
 implementations compose generic facilities; generic facilities do not depend on them. DER's wire callbacks and bounded
@@ -223,10 +224,14 @@ zero-copy and allocation-free whether or not it is built. See
 
 * `tlv_reader_next` iterates adjacent elements without interpreting their values.
 * `tlv_walk` visits adjacent elements and fails at invalid framing.
-* `tlv_walk_tree` performs bounded preorder traversal using the format's own
-  `is_constructed` predicate. It exposes depth and absolute element offsets. A NULL
-  visitor validates framing only. It uses a bounded stack, without allocation
-  or C recursion. C++ offers `tlv::walk_tree` with a callable visitor.
+* `tlv_tree_reader_next` returns one preorder item with depth, absolute source
+  offset, source metadata and Format-owned construction classification. It uses
+  caller-provided structural frames and runtime depth/count limits, without
+  allocation or C recursion. Input windows and subtree skipping preserve Reader's
+  complete-element and borrowed-storage contracts.
+* `tlv_walk_tree` is a compatibility callback adapter over Tree Reader, with a
+  fixed stack capacity. A NULL visitor validates framing only. C++ offers
+  `tlv::walk_tree` with a callable visitor.
 
 The [Reader contract](../guides/reader.md) distinguishes an available element,
 final end of input, resumable input shortage and parsing errors. Incremental
