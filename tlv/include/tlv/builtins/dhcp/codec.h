@@ -8,10 +8,11 @@
  * @ingroup codecs
  * @brief DHCPv4 message type semantics composed with generic value codecs.
  *
- * Requires OPENTLV_DHCP=ON. Integers, IPv4 addresses, address lists, opaque
- * identifiers and Parameter Request Lists use the generic codecs in
- * tlv/codec/values.h and tlv/codec/ipv4.h directly. PRL bytes retain order, duplicates and unknown
- * option Codes. Option-specific length and value policy is not imposed here.
+ * These constants and the generic codec alias require no optional component.
+ * DHCP framing/registry APIs require OPENTLV_DHCP=ON. Integers, IPv4 addresses, address lists,
+ * opaque identifiers and Parameter Request Lists use the generic codecs in tlv/codec/values.h and
+ * tlv/codec/ipv4.h directly. PRL bytes retain order, duplicates and unknown option Codes.
+ * Option-specific length and value policy is not imposed here.
  */
 
 #ifdef __cplusplus
@@ -42,7 +43,8 @@ typedef enum tlv_dhcpv4_message_type {
 /**
  * @brief Converts exactly one DHCP Message Type byte to/from uint8_t.
  *
- * Descriptor has static lifetime. Named constants cover RFC 2132 types;
+ * Source alias of #tlv_codec_uint8; no separate binary symbol or callbacks.
+ * Named constants cover RFC 2132 types;
  * every other byte, including unassigned values, is preserved for round-trip.
  * This is representation validation, not validation of a DHCP exchange.
  * Uses the generic uint8 codec contract, including validated size queries,
@@ -50,7 +52,7 @@ typedef enum tlv_dhcpv4_message_type {
  *
  * @see https://www.rfc-editor.org/rfc/rfc2132.html#section-9.6
  */
-extern TLV_API const tlv_codec_t tlv_dhcpv4_codec_message_type;
+#define tlv_dhcpv4_codec_message_type tlv_codec_uint8
 
 #ifdef __cplusplus
 }

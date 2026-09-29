@@ -74,7 +74,8 @@ Bit 4 is previously used; it has no current named meaning here. Empty Flags
 mean all bits clear, while an absent Flags structure conveys no such value.
 Trailing all-zero octets are rejected; omit them when encoding.
 
-Names accept 0 through 248 bytes of valid UTF-8. They are byte spans, not
+The Name codec accepts valid UTF-8 independently of field length. AD Schema
+enforces the 0 through 248-byte field limit. They are byte spans, not
 NUL-terminated C strings: embedded U+0000 is retained, and no terminator is
 appended. Keep the AD Type to distinguish shortened and complete names.
 Tx Power accepts exactly one octet in the range -127 through +127 dBm;
@@ -289,7 +290,8 @@ offset=3 tag=09 length=2 value=4869
 
 ## UUID values and lists
 
-Include `tlv/builtins/bluetooth/uuid.h` for reusable value codecs. They interpret
+Include `tlv/builtins/bluetooth/uuid.h` for reusable value codecs. UUID16/32
+names are source aliases of `tlv_codec_uint16_le` / `tlv_codec_uint32_le`. They interpret
 Bluetooth little-endian byte order independently of the AD Type and format.
 
 | UUID width | Value codec | C representation | List codec | AD Types |

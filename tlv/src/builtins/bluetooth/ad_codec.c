@@ -11,7 +11,6 @@ static tlv_codec_result_t validate_flags(const uint8_t* data, size_t size) {
 /* Local names are complete UTF-8 byte sequences, even for the shortened AD
  * type: a shortened name must end at a character boundary. */
 static tlv_codec_result_t validate_name(const uint8_t* data, size_t size) {
-    if (size > 248) return TLV_CODEC_ERR_INVALID_VALUE;
     return tlv_utf8_validate(data, size) == TLV_OK ? TLV_CODEC_OK : TLV_CODEC_ERR_INVALID_VALUE;
 }
 

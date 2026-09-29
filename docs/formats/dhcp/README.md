@@ -102,9 +102,16 @@ constraints (such as a nonempty Router list) require separate validation.
 Parameter Request Lists preserve unknown option Codes. Opaque identifiers
 are retained whole, without interpreting hardware types or vendor payloads.
 
-Generic codecs are available with `OPENTLV_DHCP=OFF`; only the DHCP Message
-Type descriptor requires DHCP support. Codec selection is explicit and does
-not change Format or Definition behavior.
+Generic codecs and the Message Type source alias are available with
+`OPENTLV_DHCP=OFF`. Codec selection is explicit and does not change Format or
+Definition behavior.
+The Message Type name is a source alias of `tlv_codec_uint8`, without DHCP
+forwarding callbacks. Prefer the generic descriptor when composing a caller-owned
+Schema and codec. The old exported `tlv_dhcpv4_codec_message_type` symbol is
+removed; rebuild consumers and update FFI symbol references. The alias preserves
+C/C++ source use, including taking the descriptor's address. Option-length policy
+belongs to the caller's Schema; the codec's one-byte width is intrinsic to its
+`uint8_t` representation.
 
 ## Scope and composition
 

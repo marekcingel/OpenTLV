@@ -265,3 +265,47 @@ part of this semantic model. No loader or syntax is introduced here.
 
 This changes the ABI of EMV dictionary entries, generic codec configurations and
 `tlv_structure_rule_t`. Rebuild consumers and update aggregate initializers.
+
+## Final cross-standard codec audit (#389)
+
+Field Schema owns outer length policy. A codec must still reject bytes that
+cannot represent its documented application value: a partial integer, incomplete
+UUID, missing compound prefix or inconsistent inner length cannot be decoded by
+ignoring Schema. These conversion requirements are independent of a field's use
+in a particular parent or protocol. Standalone codec success is not full protocol
+validation; callers apply Schema separately.
+
+| Standard / value | Mechanism and reason |
+| --- | --- |
+| DHCP Message Type | Direct source alias of `tlv_codec_uint8`; caller-owned Schema can require one option byte. Unknown message bytes remain representable. No DHCP wrapper or implicit exchange validation. |
+| Bluetooth UUID16/32 | Source aliases of generic little-endian integer codecs. |
+| Bluetooth Flags | Generic borrowed bytes plus omission of trailing all-zero octets, a canonical bit-vector representation rule. |
+| Bluetooth Local Name | Generic borrowed bytes plus complete UTF-8 validation. The 248-byte maximum is enforced only by AD Schema. |
+| Bluetooth Tx Power | Signed octet conversion with the domain exclusion of -128; the one-octet representation is intrinsic. |
+| Bluetooth UUID128/list | Canonical UUID byte-order conversion and homogeneous list views; partial UUIDs cannot form a list entry. AD completeness/occurrence rules stay in Schema. |
+| Bluetooth Service/Manufacturer Data | Compound UUID/company prefix plus borrowed opaque payload. Prefix width and safe slicing are conversion requirements; no vendor lookup or payload policy. |
+| LLDP TTL/text | Source aliases of generic uint16 BE/bytes. Text's 255-byte maximum is checked only by Schema. |
+| LLDP Chassis/Port ID | Subtype-dependent compound identifier, MAC/network address validation. The maximum enclosing field length is checked only by Schema. |
+| LLDP Capabilities | Pair of bitmaps with enabled bits contained in supported bits. |
+| LLDP Management Address | Compound address/interface/OID representation, inner length consistency and domain subtype constraints. Outer bounds and occurrences stay in Schema. |
+| LLDP Organisation | Four-byte OUI/subtype prefix and opaque payload; the 511-byte enclosing field maximum stays in Schema (and the wire format's length capacity). |
+| ASN.1 INTEGER/ENUMERATED | Shared minimal signed integer primitive; universal-type names remain distinct presets. |
+| ASN.1 OCTET STRING and opaque string presets | One shared conversion implementation preserves their existing borrowed `tlv_asn1_octet_string_t` representation and empty-value contract. Character repertoire, time, bit-string and OID codecs retain intrinsic type-specific checks. Structural/type membership and field constraints remain in Schema; DER/CER canonical rules remain in their validators. |
+
+The DHCP, LLDP and Bluetooth scalar aliases preserve C/C++ source spelling, but
+remove the old exported descriptor symbols: rebuild consumers and migrate FFI
+symbol references to the generic descriptors. They are not forwarding functions.
+
+`Integration_Emv.WithoutPresentation` compiles the actual library source set
+without `presentation.c`, with an intentionally unusable `presentation.h` first
+on the include path. Its separate executable links only that library and tests
+EMV parsing, all context lookups with copied tag bytes, shared Schema identity,
+structural validation, builtin codec selection and a caller-owned dictionary.
+Thus ordinary link-time dead-code elimination cannot conceal a dependency on the
+presentation adapter. No production build switch or mandatory layer is added.
+
+Canonical tag bytes remain the source of identifier identity; `_u64` constants
+are public compile-time conveniences only. The dictionary regression fixture
+checks their consistency, while the isolated test resolves entries using copied
+bytes and never converts tags to integers. Future `.otlv` owners instantiate the
+same objects and select known representations directly, without this UI profile.

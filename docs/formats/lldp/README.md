@@ -38,6 +38,13 @@ contracts from the remaining full-edition normative audit.
 The header is two bytes in big-endian order. Type is 0..127; Length is 0..511
 and counts only Value bytes. Encoded size is `2 + Length`, at most 513 bytes.
 The logical Tag is a **single byte containing Type**, independent of Length.
+`ttl` and `text` are source aliases of `tlv_codec_uint16_be` and `tlv_codec_bytes`,
+with no LLDP dispatcher or exported alias symbols. Field Schema owns the maximum
+lengths for text, IDs and organisational Values. Standalone codecs therefore
+accept representable Values beyond those limits; apply Schema before treating
+them as valid LLDP fields. Compound codecs retain required prefixes, subtype
+checks and inner-length consistency. Rebuild consumers of the former symbols.
+
 For example, `06 02 00 78` becomes Tag `03` and Value `00 78`.
 
 The adapter composes two `tlv_packed_field_t` configurations from `tlv/layout.h`:
@@ -118,12 +125,12 @@ use. Input and output must not overlap.
 
 | Descriptor suffix (`tlv_lldp_codec_`) | C representation | Behavior |
 | --- | --- | --- |
-| `chassis_id`, `port_id` | `tlv_lldp_id_t` | Subtype 1..7 plus 1..255 borrowed ID octets; separate MAC/network subtype namespaces; MAC length 6 and IPv4/IPv6 lengths checked |
-| `ttl` | `uint16_t` | Two big-endian octets, 0..65535 seconds |
-| `text` | `tlv_value_t` | Types 4..6; preserves 0..255 octets, including empty strings and embedded NUL, without character validation or a terminator |
+| `chassis_id`, `port_id` | `tlv_lldp_id_t` | Subtype 1..7 plus a nonempty borrowed ID; separate MAC/network subtype namespaces; MAC length 6 and IPv4/IPv6 lengths checked |
+| `ttl` | `uint16_t` | Generic uint16 BE alias, 0..65535 seconds |
+| `text` | `tlv_value_t` | Types 4..6; generic bytes alias preserving arbitrary octets, including empty strings and embedded NUL, without character validation or a terminator |
 | `capabilities` | `tlv_lldp_capabilities_t` | Two big-endian bitmaps; enabled must be a subset of supported; reserved bits preserved |
 | `management_address` | `tlv_lldp_management_address_t` | Family, borrowed address, numbering subtype 1..3, big-endian interface number and borrowed OID; exact inner lengths and full consumption checked |
-| `organisation` | `tlv_lldp_organisation_t` | Three OUI octets, subtype, and 0..507 borrowed payload octets; no vendor dispatch |
+| `organisation` | `tlv_lldp_organisation_t` | Three OUI octets, subtype, and borrowed opaque payload; outer length checked by Schema; no vendor dispatch |
 
 Management addresses contain 1..31 address octets, excluding the nonzero family
 byte; IPv4/IPv6 use 4/16 octets. OIDs contain 0..128 opaque octets. Other address

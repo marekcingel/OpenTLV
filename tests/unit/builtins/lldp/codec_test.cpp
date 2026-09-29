@@ -1,3 +1,4 @@
+#include "tlv/builtins/lldp/schema.h"
 #include "tlv/builtins/lldp/codec.h"
 #include <gtest/gtest.h>
 #include <algorithm>
@@ -55,7 +56,7 @@ TEST(Unit_Tlv_LldpCodec, IdNamespacesAndBorrowing) {
         largest[0] = 7;
         roundtrip<tlv_lldp_id_t>(*codec, largest);
         largest.push_back('a');
-        invalid<tlv_lldp_id_t>(*codec, largest);
+        roundtrip<tlv_lldp_id_t>(*codec, largest);
         invalid<tlv_lldp_id_t>(*codec, {});
         invalid<tlv_lldp_id_t>(*codec, {7});
         invalid<tlv_lldp_id_t>(*codec, {0, 'a'});
@@ -87,7 +88,7 @@ TEST(Unit_Tlv_LldpCodec, TtlCapabilitiesAndText) {
     const std::vector<uint8_t> text = {'a', 0, 0xFF};
     EXPECT_EQ(text.data(), roundtrip<tlv_value_t>(tlv_lldp_codec_text, text).data);
     roundtrip<tlv_value_t>(tlv_lldp_codec_text, std::vector<uint8_t>(255, 'x'));
-    invalid<tlv_value_t>(tlv_lldp_codec_text, std::vector<uint8_t>(256, 'x'));
+    roundtrip<tlv_value_t>(tlv_lldp_codec_text, std::vector<uint8_t>(256, 'x'));
 }
 
 TEST(Unit_Tlv_LldpCodec, ManagementAddressInnerBoundsAndExactConsumption) {
@@ -135,7 +136,7 @@ TEST(Unit_Tlv_LldpCodec, OrganisationalPrefixAndMaximumPayload) {
     EXPECT_EQ(2u, org.payload.size);
     roundtrip<tlv_lldp_organisation_t>(tlv_lldp_codec_organisation, {0, 0, 0, 0});
     roundtrip<tlv_lldp_organisation_t>(tlv_lldp_codec_organisation, std::vector<uint8_t>(511, 255));
-    invalid<tlv_lldp_organisation_t>(tlv_lldp_codec_organisation, std::vector<uint8_t>(512, 0));
+    roundtrip<tlv_lldp_organisation_t>(tlv_lldp_codec_organisation, std::vector<uint8_t>(512, 0));
     for (size_t count = 0; count < 4; ++count)
         invalid<tlv_lldp_organisation_t>(tlv_lldp_codec_organisation,
                                          std::vector<uint8_t>(count, 0));
@@ -149,7 +150,7 @@ TEST(Unit_Tlv_LldpCodec, EncodingRejectsInvalidAndOversizedRepresentations) {
               tlv_codec_encode(&tlv_lldp_codec_text, &text, sizeof(text), nullptr, 0, &written));
     EXPECT_EQ(0u, written);
     text = {&byte, UINT64_MAX};
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+    EXPECT_EQ(SIZE_MAX == UINT64_MAX ? TLV_CODEC_OK : TLV_CODEC_ERR_INVALID_VALUE,
               tlv_codec_encode(&tlv_lldp_codec_text, &text, sizeof(text), nullptr, 0, &written));
     tlv_lldp_id_t id = {4, {&byte, 1}};
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
@@ -157,7 +158,7 @@ TEST(Unit_Tlv_LldpCodec, EncodingRejectsInvalidAndOversizedRepresentations) {
     tlv_lldp_capabilities_t caps = {4, 8};
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_lldp_codec_capabilities, &caps,
                                                             sizeof(caps), nullptr, 0, &written));
-    tlv_lldp_organisation_t org = {{0, 0, 0}, 0, {&byte, 508}};
+    tlv_lldp_organisation_t org = {{0, 0, 0}, 0, {&byte, UINT64_MAX}};
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_lldp_codec_organisation, &org,
                                                             sizeof(org), nullptr, 0, &written));
     tlv_lldp_management_address_t address = {250, {&byte, 1}, 4, 0, {nullptr, 0}};
@@ -169,4 +170,27 @@ TEST(Unit_Tlv_LldpCodec, EncodingRejectsInvalidAndOversizedRepresentations) {
     EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
               tlv_codec_encode(&tlv_lldp_codec_management_address, &address, sizeof(address),
                                nullptr, 0, &written));
+}
+
+TEST(Unit_Tlv_LldpCodec, SchemaOwnsOuterLengthPolicy) {
+    EXPECT_EQ(&tlv_codec_uint16_be, &tlv_lldp_codec_ttl);
+    EXPECT_EQ(&tlv_codec_bytes, &tlv_lldp_codec_text);
+    for (const auto& rule : std::vector<tlv_structure_rule_t>(
+             tlv_lldp_schema.rules, tlv_lldp_schema.rules + tlv_lldp_schema.count)) {
+        const auto*   field = rule.entry;
+        const uint8_t type = field->tag.data[0];
+        if (type != 1 && type != 2 && type != 4 && type != 5 && type != 6 && type != 127) continue;
+        EXPECT_EQ(TLV_OK, tlv_schema_validate_length(field, field->max_length));
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(field, field->max_length + 1));
+        std::vector<uint8_t> bytes(1024, 'x');
+        if (type == 1 || type == 2) {
+            bytes[0] = 7;
+            roundtrip<tlv_lldp_id_t>(type == 1 ? tlv_lldp_codec_chassis_id : tlv_lldp_codec_port_id,
+                                     bytes);
+        } else if (type == 127) {
+            roundtrip<tlv_lldp_organisation_t>(tlv_lldp_codec_organisation, bytes);
+        } else {
+            roundtrip<tlv_value_t>(tlv_lldp_codec_text, bytes);
+        }
+    }
 }
