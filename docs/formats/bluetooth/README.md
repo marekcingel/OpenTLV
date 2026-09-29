@@ -279,7 +279,7 @@ manufacturer data) is up to the caller, keyed on the type. The views borrow the
 input buffer; see the [shared memory ownership rules](../../guides/memory.md)
 before retaining one.
 
-The reader is also usable through the scanner, walker, schemas and the `otlv`
+The reader is also usable through the walker, schemas and the `otlv`
 CLI:
 
 ```text

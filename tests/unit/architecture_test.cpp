@@ -2,7 +2,6 @@
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include "tlv/reader/walker.h"
-#include "tlv/reader/scanner.h"
 #include "tlv/codec/structure.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER

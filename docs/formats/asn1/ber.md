@@ -196,10 +196,9 @@ The C core does not allocate; C++ error construction retains its existing
 
 `tlv_copy_element` with the BER writer re-encodes the outer header as definite;
 child bytes remain unchanged. Use `tlv_copy_encoded` with the full consumed
-range to preserve the original indefinite representation. Flat walkers,
-recovery scanning, structural schemas and structure codecs use the resolved
-value range. Scanner results remain recovery candidates, not proof of a valid
-surrounding tree. DER still rejects indefinite lengths.
+range to preserve the original indefinite representation. Readers, walkers,
+structural schemas and structure codecs use the resolved value range.
+DER still rejects indefinite lengths.
 
 ### Standalone definite-length codec
 

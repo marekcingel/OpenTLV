@@ -25,17 +25,17 @@ and [memory ownership](../guides/memory.md).
 ## Reader
 
 [Generated reference](api/c-api/html/group__reader.html). Read first:
-[formats](../formats/README.md).
+[pull-based Reader](../guides/reader.md) and [formats](../formats/README.md).
 
 ## Writer
 
 [Generated reference](api/c-api/html/group__writer.html). Read first:
 [formats](../formats/README.md).
 
-## Traversal and scanning
+## Traversal
 
 [Generated reference](api/c-api/html/group__traversal.html). Read first:
-[scanning and recovery](../guides/scanner.md).
+[pull-based reading](../guides/reader.md).
 
 ## Schemas
 

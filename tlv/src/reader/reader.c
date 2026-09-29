@@ -66,7 +66,7 @@ tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data, size_t s
 }
 
 int tlv_reader_at_end(const tlv_reader_t* reader) {
-    return !reader || reader->pos >= reader->size;
+    return reader && reader->pos == reader->size;
 }
 
 tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_format_t* format,
@@ -81,40 +81,35 @@ tlv_result_t tlv_read_diag(const uint8_t* data, size_t size, const tlv_format_t*
 }
 
 tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_element_t* out_element) {
-    size_t consumed;
-    tlv_result_t rc;
-    if (!reader || !out_element) return TLV_ERR_NULL_ARG;
-    if (tlv_reader_at_end(reader)) return TLV_ERR_END_OF_BUFFER;
-    if (!reader->data) return TLV_ERR_NULL_ARG;
-    rc = tlv_read(reader->data + reader->pos, reader->size - reader->pos, reader->format,
-                  out_element, &consumed);
-    if (rc == TLV_OK) reader->pos += consumed;
-    return rc;
+    return tlv_reader_next_diag(reader, out_element, NULL);
 }
 
-tlv_result_t tlv_reader_next_diag(tlv_reader_t* reader, tlv_element_t* out_element,
-                                  tlv_reader_diagnostic_t* out_diagnostic) {
+static tlv_result_t reader_next(tlv_reader_t* reader, tlv_element_t* out_element,
+                                tlv_source_t* source, tlv_reader_diagnostic_t* out_diagnostic) {
     size_t consumed;
     tlv_result_t rc;
-    if (!reader || !out_element) {
+    if (!reader || !out_element || (!reader->data && reader->size) ||
+        !tlv_format_can_read(reader->format)) {
         if (out_diagnostic) diag_start(out_diagnostic, TLV_ERR_NULL_ARG, TLV_READER_OP_HEADER, 0);
         return TLV_ERR_NULL_ARG;
+    }
+    if (reader->pos > reader->size) {
+        if (out_diagnostic)
+            diag_start(out_diagnostic, TLV_ERR_INVALID_ARG, TLV_READER_OP_HEADER, reader->pos);
+        return TLV_ERR_INVALID_ARG;
     }
     if (tlv_reader_at_end(reader)) {
         if (out_diagnostic) {
             diag_start(out_diagnostic, TLV_ERR_END_OF_BUFFER, TLV_READER_OP_HEADER, reader->pos);
             out_diagnostic->has_available = 1;
             out_diagnostic->available = 0;
+            out_diagnostic->has_enclosing_end = 1;
+            out_diagnostic->enclosing_end = reader->size;
         }
         return TLV_ERR_END_OF_BUFFER;
     }
-    if (!reader->data) {
-        if (out_diagnostic)
-            diag_start(out_diagnostic, TLV_ERR_NULL_ARG, TLV_READER_OP_HEADER, reader->pos);
-        return TLV_ERR_NULL_ARG;
-    }
     rc = tlv_read_impl(reader->data + reader->pos, reader->size - reader->pos, reader->format,
-                       out_element, &consumed, NULL, out_diagnostic);
+                       out_element, &consumed, source, out_diagnostic);
     if (rc == TLV_OK) {
         reader->pos += consumed;
     } else if (out_diagnostic) {
@@ -125,6 +120,21 @@ tlv_result_t tlv_reader_next_diag(tlv_reader_t* reader, tlv_element_t* out_eleme
         if (out_diagnostic->has_enclosing_end) out_diagnostic->enclosing_end += reader->pos;
     }
     return rc;
+}
+
+tlv_result_t tlv_reader_next_diag(tlv_reader_t* reader, tlv_element_t* out_element,
+                                  tlv_reader_diagnostic_t* out_diagnostic) {
+    return reader_next(reader, out_element, NULL, out_diagnostic);
+}
+
+tlv_result_t tlv_reader_next_source_diag(tlv_reader_t* reader, tlv_element_t* out_element,
+                                         tlv_source_t* source,
+                                         tlv_reader_diagnostic_t* out_diagnostic) {
+    if (!source) {
+        if (out_diagnostic) diag_start(out_diagnostic, TLV_ERR_NULL_ARG, TLV_READER_OP_HEADER, 0);
+        return TLV_ERR_NULL_ARG;
+    }
+    return reader_next(reader, out_element, source, out_diagnostic);
 }
 
 tlv_result_t tlv_read_source_diag(const uint8_t* data, size_t size, const tlv_format_t* format,

@@ -232,7 +232,7 @@ zero-copy value reads. A candidate that cannot meet this is not a fit for the li
 
 The current tree walker already handles nested values without a schema, using
 bounded iterative traversal. It does not allocate an object tree. See
-[architecture](../concepts/architecture.md#traversal-and-recovery).
+[architecture](../concepts/architecture.md#reader-and-traversal).
 
 ## Proposed order
 

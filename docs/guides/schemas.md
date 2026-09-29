@@ -15,8 +15,7 @@ a distinct schema type built for that purpose.
 A nonzero `tlv_schema_entry_t.length_multiple` requires the value length to be
 divisible by that width as well as satisfying the inclusive bounds. Zero
 disables the multiple constraint; an empty value satisfies any multiple when
-the minimum permits it. All schema validators and the schema-aware scanner
-use this rule. Length diagnostics expose the expected `length_multiple`.
+the minimum permits it. All schema validators use this rule. Length diagnostics expose the expected `length_multiple`.
 The [Bluetooth AD schema](../formats/bluetooth/README.md#advertising-data-schema)
 uses it for UUID lists without decoding their values.
 

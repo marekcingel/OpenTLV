@@ -1,7 +1,6 @@
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/copy.h"
 #include "tlv/reader/reader.h"
-#include "tlv/reader/scanner.h"
 #include "tlv/reader/walker.h"
 #include "tlv/schema/schema.h"
 #include "tlv/writer/writer.h"
@@ -146,16 +145,7 @@ TEST(Unit_Tlv_BluetoothLtv, WriterRoundTripsThroughReader) {
     EXPECT_EQ(0, std::memcmp(buffer + 3, copy, copied));
 }
 
-TEST(Unit_Tlv_BluetoothLtv, GenericScannerWalkerAndTreeWalkWork) {
-    tlv_element_t            element;
-    size_t                   offset = 0, consumed = 0;
-    const tlv_schema_entry_t entries[] = {{TLV_TAG(0x09), 0, 8, 0, nullptr, 0}};
-    const tlv_schema_t       schema = {entries, 1};
-    ASSERT_EQ(TLV_OK, tlv_scan(advertising, sizeof(advertising), 0, &reader_format, &schema,
-                               &element, &offset, &consumed));
-    EXPECT_EQ(3u, offset);
-    EXPECT_EQ(4u, consumed);
-
+TEST(Unit_Tlv_BluetoothLtv, GenericWalkerAndTreeWalkWork) {
     size_t count = 0;
     ASSERT_EQ(TLV_OK,
               tlv_walk(advertising, sizeof(advertising), &reader_format, count_element, &count));

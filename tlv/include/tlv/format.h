@@ -144,6 +144,9 @@ typedef struct tlv_decoded {
  * @param[out] error   Partial failure information; always non-NULL.
  *
  * @return #TLV_OK on success.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT when more input bytes are required to
+ *         complete the header, value or trailer. Malformed wire data must use
+ *         its specific error code instead; Reader propagates this distinction.
  * @return A wire or buffer error reported by the format.
  *
  * @note Callbacks never allocate or retain data. The core initializes outputs.

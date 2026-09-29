@@ -34,3 +34,56 @@ TEST(Integration_Tlv_Reader, DetectsTruncatedBerLengthAndValue) {
     const uint8_t invalid[] = {1, 0x80};
     expect_failure(invalid, sizeof(invalid), &tlv_format_ber, TLV_ERR_INVALID_LENGTH);
 }
+
+TEST(Integration_Tlv_Reader, CursorDistinguishesIncompleteTagLengthValueAndTrailer) {
+    // Two complete elements; the second uses a multibyte identifier, a long
+    // length and an indefinite parent, exercising all framing regions.
+    const uint8_t data[] = {4, 0, 0x30, 0x80, 0x9F, 0x33, 0x81, 1, 0xAB, 0, 0};
+    for (size_t size = 3; size < sizeof(data); ++size) {
+        SCOPED_TRACE(size);
+        tlv_reader_t reader;
+        ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, size, &tlv_format_ber));
+        tlv_element_t element{};
+        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+        for (int repeat = 0; repeat != 2; ++repeat) {
+            tlv_reader_diagnostic_t diagnostic{};
+            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                      tlv_reader_next_diag(&reader, &element, &diagnostic));
+            EXPECT_EQ(2u, reader.pos);
+            EXPECT_EQ(data, element.tag.data);
+            EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
+            EXPECT_GE(diagnostic.diagnostic.offset, 2u);
+            EXPECT_LE(diagnostic.diagnostic.offset, size);
+            EXPECT_EQ(size, diagnostic.enclosing_end);
+        }
+    }
+    tlv_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_ber));
+    tlv_element_t element{};
+    tlv_source_t  source{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    ASSERT_EQ(TLV_OK, tlv_reader_next_source_diag(&reader, &element, &source, nullptr));
+    EXPECT_EQ(sizeof(data), reader.pos);
+    EXPECT_EQ(data + 2, source.data);
+    EXPECT_EQ(9u, source.size);
+    EXPECT_EQ(5u, element.value.size);
+    EXPECT_EQ(7u, source.trailer.offset);
+    EXPECT_EQ(2u, source.trailer.size);
+    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &element));
+}
+
+TEST(Integration_Tlv_Reader, CursorReturnsMalformedInputWithoutScanningForLaterElement) {
+    const uint8_t data[] = {4, 0, 4, 0x80, 4, 0}; // Indefinite primitive is malformed.
+    tlv_reader_t  reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &tlv_format_ber));
+    tlv_element_t element{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
+    tlv_reader_diagnostic_t diagnostic{};
+    for (int repeat = 0; repeat != 2; ++repeat) {
+        EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_reader_next_diag(&reader, &element, &diagnostic));
+        EXPECT_EQ(2u, reader.pos);
+        EXPECT_EQ(data, element.tag.data);
+        EXPECT_EQ(3u, diagnostic.diagnostic.offset);
+        EXPECT_EQ(TLV_READER_OP_LENGTH, diagnostic.operation);
+    }
+}

@@ -24,8 +24,8 @@ walking, codecs and endian conversion, and a fully custom format.
   `tlv_writer_copy_element`/`tlv_writer_copy_encoded`.
 - [`copies.c`](copies.c) -- the explicit `tlv_copy_value`/`tlv_copy_encoded`/`tlv_copy_element`
   helpers.
-- [`schema_walk_and_scan.c`](schema_walk_and_scan.c) -- schema validation inside a
-  `tlv_walk()` callback, and recovering candidates with `tlv_scan()`.
+- [`schema_walk.c`](schema_walk.c) -- schema validation inside a
+  `tlv_walk()` callback.
 - [`codecs_and_endian.c`](codecs_and_endian.c) -- an application value codec, and
   the standalone endian helpers.
 - [`custom_format.c`](custom_format.c) -- defining your own reader/writer format.

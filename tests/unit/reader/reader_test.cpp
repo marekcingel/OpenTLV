@@ -294,3 +294,142 @@ TEST(Unit_Tlv_ReaderDiagnostic, InitResetsEveryFieldAndIgnoresANullDiagnostic) {
 
     tlv_reader_diagnostic_init(nullptr);
 }
+
+TEST(Unit_Tlv_ReaderCursor, PreservesStateAndOutputsForEveryIncompletePrefix) {
+    const uint8_t data[] = {1, 0, 2, 2, 0xAB, 0xCD};
+    for (size_t size = 2; size < sizeof(data); ++size) {
+        SCOPED_TRACE(size);
+        tlv_reader_t reader;
+        ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, size, &controlled::format));
+        tlv_element_t element{};
+        tlv_source_t  source{};
+        ASSERT_EQ(TLV_OK, tlv_reader_next_source_diag(&reader, &element, &source, nullptr));
+        const auto before = reader;
+        const auto previous = element;
+        const auto original_source = source;
+        for (int repeat = 0; repeat != 2; ++repeat) {
+            tlv_reader_diagnostic_t diagnostic{};
+            const auto expected = size == 2 ? TLV_ERR_END_OF_BUFFER : TLV_ERR_BUFFER_TOO_SHORT;
+            EXPECT_EQ(expected, tlv_reader_next(&reader, &element));
+            EXPECT_EQ(expected, tlv_reader_next_diag(&reader, &element, &diagnostic));
+            EXPECT_EQ(expected,
+                      tlv_reader_next_source_diag(&reader, &element, &source, &diagnostic));
+            EXPECT_EQ(before.pos, reader.pos);
+            EXPECT_EQ(before.data, reader.data);
+            EXPECT_EQ(before.size, reader.size);
+            EXPECT_EQ(before.format, reader.format);
+            EXPECT_EQ(previous.tag.data, element.tag.data);
+            EXPECT_EQ(previous.tag.size, element.tag.size);
+            EXPECT_EQ(previous.value.data, element.value.data);
+            EXPECT_EQ(previous.value.size, element.value.size);
+            EXPECT_EQ(original_source.data, source.data);
+            EXPECT_EQ(original_source.size, source.size);
+            EXPECT_EQ(expected, diagnostic.diagnostic.code);
+            EXPECT_EQ(size, diagnostic.enclosing_end);
+            EXPECT_EQ(size == 2, tlv_reader_at_end(&reader) != 0);
+        }
+    }
+}
+
+TEST(Unit_Tlv_ReaderCursor, RetainedResultsSurviveAdvanceAndReinitialization) {
+    const uint8_t data[] = {1, 1, 0xAB, 2, 0};
+    tlv_reader_t  reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::format));
+    tlv_element_t first{}, second{};
+    tlv_source_t  source{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next_source_diag(&reader, &first, &source, nullptr));
+    EXPECT_EQ(data, source.data);
+    EXPECT_EQ(3u, source.size);
+    EXPECT_EQ(2u, source.value.offset);
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &second));
+    EXPECT_EQ(data + 3, second.tag.data);
+    EXPECT_EQ(sizeof(data), reader.pos);
+    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &second));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, nullptr, 0, &controlled::format));
+    EXPECT_EQ(0u, reader.pos);
+    EXPECT_TRUE(tlv_reader_at_end(&reader));
+    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_reader_next(&reader, &second));
+    EXPECT_EQ(data + 2, first.value.data);
+    EXPECT_EQ(0xAB, first.value.data[0]);
+    uint8_t copy[3]{};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_OK, tlv_source_preserve(&source, &first, copy, sizeof(copy), &written));
+    EXPECT_EQ(3u, written);
+    EXPECT_EQ(0, std::memcmp(data, copy, written));
+}
+
+TEST(Unit_Tlv_ReaderCursor, DoesNotRecoverOrReinterpretFormatErrors) {
+    const uint8_t data[6] = {};
+    Config        config;
+    config.tag_error = TLV_ERR_INVALID_TAG;
+    const auto   format = make_format(&config);
+    tlv_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &format));
+    tlv_element_t element = {TLV_TAG(0xEE), {data, 42}};
+    for (int repeat = 0; repeat != 2; ++repeat) {
+        tlv_reader_diagnostic_t diagnostic{};
+        EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_reader_next_diag(&reader, &element, &diagnostic));
+        EXPECT_EQ(TLV_ERR_INVALID_TAG, diagnostic.diagnostic.code);
+        EXPECT_EQ(TLV_READER_OP_TAG, diagnostic.operation);
+        EXPECT_EQ(0u, diagnostic.diagnostic.offset);
+        EXPECT_EQ(0u, reader.pos);
+        EXPECT_FALSE(tlv_reader_at_end(&reader));
+        EXPECT_EQ(0xEE, element.tag.data[0]);
+        EXPECT_EQ(42u, element.value.size);
+    }
+}
+
+TEST(Unit_Tlv_ReaderCursor, SourceAndElementRequireOnlyOneFormatDecode) {
+    struct Counter {
+        size_t calls = 0;
+    } counter;
+    tlv_format_t format{};
+    format.context = &counter;
+    format.decode = [](const void* ctx, const uint8_t* data, size_t size, tlv_decoded_t* decoded,
+                       tlv_format_error_t* error) {
+        ++const_cast<Counter*>(static_cast<const Counter*>(ctx))->calls;
+        return controlled::format.decode(controlled::format.context, data, size, decoded, error);
+    };
+    const uint8_t data[] = {1, 0, 2, 0};
+    tlv_reader_t  reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &format));
+    tlv_element_t           element{};
+    tlv_source_t            source{};
+    tlv_reader_diagnostic_t diagnostic{};
+    diagnostic.has_available = 1;
+    diagnostic.available = 123;
+    ASSERT_EQ(TLV_OK, tlv_reader_next_source_diag(&reader, &element, &source, &diagnostic));
+    ASSERT_EQ(TLV_OK, tlv_reader_next_source_diag(&reader, &element, &source, &diagnostic));
+    EXPECT_EQ(2u, counter.calls);
+    EXPECT_EQ(data + 2, source.data);
+    EXPECT_EQ(&format, source.format);
+    EXPECT_EQ(element.tag.data, source.element.tag.data);
+    EXPECT_EQ(123u, diagnostic.available);
+    EXPECT_EQ(TLV_ERR_END_OF_BUFFER,
+              tlv_reader_next_source_diag(&reader, &element, &source, nullptr));
+    EXPECT_EQ(2u, counter.calls);
+}
+
+TEST(Unit_Tlv_ReaderCursor, RejectsInvalidStateAndArgumentsWithoutAdvancing) {
+    const uint8_t data[] = {1, 0};
+    tlv_reader_t  reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &controlled::format));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_init(&reader, nullptr, 1, &controlled::format));
+    EXPECT_EQ(data, reader.data);
+    EXPECT_EQ(sizeof(data), reader.size);
+    tlv_element_t           element{};
+    tlv_reader_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_reader_next_source_diag(&reader, &element, nullptr, &diagnostic));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_next(&reader, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_next(nullptr, &element));
+    EXPECT_EQ(0u, reader.pos);
+    reader.pos = sizeof(data) + 1;
+    EXPECT_FALSE(tlv_reader_at_end(&reader));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_reader_next_diag(&reader, &element, &diagnostic));
+    EXPECT_EQ(sizeof(data) + 1, reader.pos);
+    EXPECT_EQ(reader.pos, diagnostic.diagnostic.offset);
+    EXPECT_FALSE(tlv_reader_at_end(nullptr));
+}

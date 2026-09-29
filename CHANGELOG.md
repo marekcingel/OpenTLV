@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Establish Reader as the canonical allocation-free pull cursor with explicit element, end, incomplete-input and error outcomes. Unify cursor transitions and diagnostics, expose source metadata without a second decode, and compose tree traversal through Reader. (#391)
 - **Breaking:** Replace DHCP Message Type, LLDP TTL/text and Bluetooth UUID16/32 codec descriptors with source aliases of generic codecs; rebuild consumers and update FFI symbol references. Bluetooth Local Name and LLDP text/ID/organisational codecs now leave outer field-length limits to Schema; validate Schema separately. Add an integration build proving EMV parsing, dictionaries, validation and codecs work without the presentation adapter. (#389, #381)
 - **Breaking:** Make EMV dictionaries compose only generic Definition, Schema and Codec objects. Structural rules now require a borrowed field-schema pointer (`entry`); remove inline fields, `entry_ref` and its accessor, update initializers and rebuild consumers. Replace `tlv_emv_value_kind()` with the optional builtin-only presentation adapter in `tlv/builtins/emv/presentation.h`; custom codecs use their caller-selected representation without callback introspection. Generic number/digits/text configuration describes representation width, while shared Schema owns field-length policy. EMV structural validation enforces the shared AFL and language-preference length multiples. (#389, #381)
 - **Breaking:** Add length-policy flags to `tlv_schema_diagnostic_t`; rebuild consumers. EMV BIC and public-key-exponent schemas now reject intermediate lengths consistently with dictionary validation. (#381)
@@ -74,6 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **Breaking:** Remove the public Scanner API (`tlv_scan`, `tlv/reader/scanner.h`). Applications implement recovery policy using `tlv_read()`; CLI `--recover` remains available as CLI-owned policy. (#391)
 - **Breaking:** Remove the dedicated Fixed 1-byte TLV format: `tlv_reader_format_fixed_1byte`, `tlv_writer_format_fixed_1byte`, `tlv/builtins/fixed/fixed_1byte.h`, the `OPENTLV_FORMAT_FIXED_1BYTE` CMake option and `tlv_config_format_fixed_1byte()`, the Rust `Format::Fixed1Byte` and Python `Format.FIXED_1BYTE` variants, and the CLI/WASM `fixed-1byte` format name (now `fixed`); use the configurable fixed-width format's `tlv_fixed_config_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}` (or `tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>`) instead. (#317)
 - **Breaking:** Remove `TLV_TAG_CAPACITY`, `tlv_tag_from_bytes()`, `tlv_tag_equal_bytes()` and the numeric `tlv_tag_to_u*()`, `tlv_tag_from_u*()` and `tlv_tag_equal_u*()`; use `tlv_tag()` and `tlv_tag_equal()` instead, and the Rust `Tag` loses `ByteOrder`, `from_u64` and `to_u64`. (#256)
 

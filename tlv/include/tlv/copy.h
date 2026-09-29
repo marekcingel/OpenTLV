@@ -61,7 +61,7 @@ TLV_API tlv_result_t tlv_copy_value(const tlv_element_t* element, uint8_t* data,
  * @brief Copies an exact encoded byte range, preserving the original wire bytes.
  *
  * The caller identifies the range (for example `input + offset` and
- * `consumed` from tlv_read() or tlv_scan()) as a native pointer/length pair.
+ * `consumed` from tlv_read()) as a native pointer/length pair.
  * No framing validation is performed. Overlap is supported.
  *
  * @param[in]  encoded_data   Encoded bytes to copy. May be `NULL` only when

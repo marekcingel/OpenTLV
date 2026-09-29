@@ -40,7 +40,7 @@ if(OPENTLV_FORMAT_BER)
     endforeach()
 
     # One topic per example, each its own small self-checking program.
-    foreach(topic sequential_io copies schema_walk_and_scan codecs_and_endian custom_format)
+    foreach(topic sequential_io copies schema_walk codecs_and_endian custom_format)
         string(REPLACE "_" "-" topic_dashed ${topic})
         add_executable(example-tlv-${topic_dashed} src/${topic}.c)
         target_link_libraries(example-tlv-${topic_dashed} PRIVATE tlv)

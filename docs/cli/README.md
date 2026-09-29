@@ -521,9 +521,9 @@ dictionary. The structural schema models base-context templates only, so
 ### Recovery scanning
 
 `dump` and `decode` stop at the first damaged byte by default. With
-`--recover` they instead resynchronize and keep going, using the library's
-recovery scanner (`tlv_scan`): when the element at the current offset cannot
-be read, or its contents are malformed, the scanner looks at each following
+`--recover` they instead resynchronize and keep going. This CLI-owned recovery
+policy uses the public single-element `tlv_read()` API: when the element at the
+current offset cannot be read, or its contents are malformed, it checks each following
 offset for the next plausible element, and the bytes in between are skipped.
 
 ```sh

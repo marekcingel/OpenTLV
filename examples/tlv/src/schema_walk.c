@@ -1,12 +1,10 @@
 /*
- * Applying a length schema inside a tlv_walk() visitor, and recovering
- * candidate elements from noisy input with tlv_scan()'s schema filter.
+ * Applying a length schema inside a tlv_walk() visitor.
  * Parsing never applies a schema automatically; the visitor below does.
  */
 #include <stdio.h>
 #include "tlv/formats/fixed.h"
 #include "tlv/size.h"
-#include "tlv/reader/scanner.h"
 #include "tlv/reader/walker.h"
 #include "tlv/schema/schema.h"
 
@@ -59,10 +57,7 @@ int main(void) {
     if (tlv_fixed_format_init(&format, &config) != TLV_OK) return 1;
 
     const uint8_t   input[] = {1, 2, 0xAB, 0xCD, 2, 0};
-    const uint8_t   noisy[] = {0xFF, 0xFF, 1, 2, 0xAB, 0xCD};
     const uint8_t   invalid[] = {1, 0}; /* Valid framing, invalid schema length. */
-    tlv_element_t   element;
-    size_t          offset, consumed;
     tlv_result_t    result;
     visit_context_t state = {0, 0};
 
@@ -79,16 +74,5 @@ int main(void) {
     if (result != TLV_ERR_VISITOR) return 1;
     printf("Schema rejection by visitor: %s\n", tlv_strerror(result));
 
-    puts("Recovery scan with a schema filter");
-    if (tlv_scan(noisy, sizeof(noisy), 0, &format, &schema, &element, &offset, &consumed) != TLV_OK)
-        return 1;
-    printf("Candidate at offset %zu, encoded size %zu\n", offset, consumed);
-    print_element(&element);
-
-    /* A candidate is not proof of an original boundary. Continue after it. */
-    result = tlv_scan(noisy, sizeof(noisy), offset + consumed, &format, &schema, &element, &offset,
-                      &consumed);
-    if (result != TLV_ERR_END_OF_BUFFER) return 1;
-    printf("No further candidate: %s\n", tlv_strerror(result));
     return 0;
 }

@@ -62,7 +62,6 @@ set(SOURCES
     packed_field_test.cpp
     query/query_test.cpp
     reader/reader_test.cpp
-    reader/scanner_test.cpp
     reader/walker_test.cpp
     schema/constraint_test.cpp
     schema/schema_report_test.cpp
@@ -117,11 +116,6 @@ endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_BER))
         list(REMOVE_ITEM SOURCES reader/reader_test.cpp)
-    endif()
-endif()
-if(test_group STREQUAL "integration")
-    if(NOT (OPENTLV_FORMAT_BER))
-        list(REMOVE_ITEM SOURCES reader/scanner_test.cpp)
     endif()
 endif()
 if(test_group STREQUAL "integration" AND NOT OPENTLV_FORMAT_BER)
