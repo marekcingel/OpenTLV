@@ -27,7 +27,7 @@ Documentation is grouped by purpose. See
 - [Schemas and length validation](guides/schemas.md)
 - [Value codecs](guides/codecs.md)
 - [Copy helpers](guides/copy.md)
-- [TLV scanning and recovery](guides/scanner.md)
+- [Pull-based Reader](guides/reader.md)
 - [Mutable documents](guides/document.md)
 - [Building only the components you need](guides/select-components.md)
 

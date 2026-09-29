@@ -69,7 +69,7 @@ storage. Runtime owners select codecs and validate Schema explicitly; no
 
 ## Framing and lookup
 
-Use `&tlv_format_emv` with the reader, walker, scanner, or writer.
+Use `&tlv_format_emv` with the reader, walker, or writer.
 There is no separate EMV parser and the reader never interprets values.
 
 The descriptor in `tlv/builtins/emv/format.h` composes generic variable identifier

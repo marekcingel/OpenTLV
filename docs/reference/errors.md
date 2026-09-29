@@ -15,12 +15,12 @@ return; this page explains what each code means and what to check first.
 | Code | Value | Meaning | What to check |
 | --- | --- | --- | --- |
 | `TLV_OK` | 0 | The operation succeeded. | |
-| `TLV_ERR_BUFFER_TOO_SHORT` | 1 | A supplied buffer is too small for the data or the output. | Reading: the input ends before the tag, length or value does (truncated input). Writing: the output capacity is smaller than `tlv_encoded_size` reports. |
+| `TLV_ERR_BUFFER_TOO_SHORT` | 1 | A supplied buffer is too small for the data or the output. | Reading: more bytes are required to complete the header, value or trailer (incomplete input). Writing: the output capacity is smaller than `tlv_encoded_size` reports. |
 | `TLV_ERR_INVALID_LENGTH` | 2 | A length is malformed or invalid for the wire encoding. | The format's length limits (for example the length width for [configurable fixed-width TLV](../formats/fixed/configurable.md)), or the reserved BER length prefix `FF`. |
 | `TLV_ERR_NULL_ARG` | 3 | A required pointer argument is `NULL`. | Required outputs and descriptors; `NULL` data is valid only with size zero. |
 | `TLV_ERR_OUT_OF_MEMORY` | 4 | An allocation failed. | No current C core function returns it, because the core reads and writes without allocating. It is reserved for code that allocates. |
 | `TLV_ERR_END_OF_BUFFER` | 5 | No further element exists, or the input is empty. | Normal end of iteration with `tlv_reader_next`; for a single read, empty input. |
-| `TLV_ERR_INVALID_TAG` | 6 | A tag is malformed or invalid for the format or standard. | Unterminated multi-byte BER tags, or a tag the standard rejects. |
+| `TLV_ERR_INVALID_TAG` | 6 | A tag is malformed or invalid for the format or standard. | Malformed BER identifier digits, or a tag the selected format rejects. Incomplete identifiers return `TLV_ERR_BUFFER_TOO_SHORT`. |
 | `TLV_ERR_VISITOR` | 7 | A visitor callback requested an error stop. | Your visitor returned `TLV_VISIT_ERROR` or an unknown result. |
 | `TLV_ERR_LIMIT` | 8 | A configured depth, size or element-count limit was exceeded. | The limits passed to the tree walker or validation function, `TLV_WALK_MAX_DEPTH` (64), `TLV_BER_MAX_DEPTH` (64). Limits are inclusive and zero is a real limit. |
 | `TLV_ERR_SCHEMA` | 9 | Input violates a schema rule. | The error offset points at the offending element: a forbidden or unknown tag, a duplicate or excess occurrence, a kind mismatch, or an invalid rule table. |
@@ -56,4 +56,4 @@ so a custom format can return any of the codes above.
 - [C API reference](c-api.md) for the documented codes per function.
 - [Format documentation](../formats/README.md#reading-one-element) for the reader and
   writer error behavior.
-- [Scanning and recovery](../guides/scanner.md) for continuing after an error.
+- [Pull-based reading](../guides/reader.md) for end, incomplete input and parsing errors.

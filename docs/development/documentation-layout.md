@@ -172,7 +172,7 @@ and `standards/` retain their paths unless listed here.
 | `schemas.md` | [guides/schemas.md](../guides/schemas.md) |
 | `codecs.md` | [guides/codecs.md](../guides/codecs.md) |
 | `copy.md` | [guides/copy.md](../guides/copy.md) |
-| `scanner.md` | [guides/scanner.md](../guides/scanner.md) |
+| `reader.md` | [guides/reader.md](../guides/reader.md) |
 | `format-examples.md` | [formats/format-examples.md](../formats/format-examples.md) |
 | `format-roadmap.md` | [formats/format-roadmap.md](../formats/format-roadmap.md) |
 | `cli.md` | [cli/README.md](../cli/README.md) |

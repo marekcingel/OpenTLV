@@ -55,8 +55,14 @@ int main(void) {
     printf("Wrote %zu bytes\n", tlv_writer_size(&writer));
 
     CHECK(tlv_reader_init(&reader, buffer, tlv_writer_size(&writer), &tlv_format_ber));
-    while (!tlv_reader_at_end(&reader)) {
-        CHECK(tlv_reader_next(&reader, &element));
+    for (;;) {
+        tlv_result_t rc = tlv_reader_next(&reader, &element);
+        if (rc == TLV_ERR_END_OF_BUFFER) break;
+        if (rc == TLV_ERR_BUFFER_TOO_SHORT) {
+            fprintf(stderr, "Incomplete element at offset %zu\n", reader.pos);
+            return 1;
+        }
+        CHECK(rc);
         /* element.value borrows buffer; keep buffer alive while using the element. */
         print_element(&element);
     }

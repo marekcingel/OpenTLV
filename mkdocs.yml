@@ -120,7 +120,7 @@ nav:
       - Schemas and length validation: guides/schemas.md
       - Value codecs: guides/codecs.md
       - Copy helpers: guides/copy.md
-      - Scanning and recovery: guides/scanner.md
+      - Pull-based Reader: guides/reader.md
       - Path queries: guides/queries.md
       - Mutable documents: guides/document.md
       - Building only the components you need: guides/select-components.md

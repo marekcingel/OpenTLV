@@ -210,10 +210,17 @@ TEST(Integration_Tlv_TransformedTag, ReaderQueryAndSchemaUseCanonicalIdentity) {
     tlv_reader_t reader{};
     ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire.data(), wire.size(), &packed_format));
     tlv_element_t first{}, second{};
-    ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &first));
+    tlv_source_t  source{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next_source_diag(&reader, &first, &source, nullptr));
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &second));
     EXPECT_TRUE(tlv_tag_equal(first.tag, second.tag));
     EXPECT_TRUE(tlv_reader_at_end(&reader));
+    EXPECT_EQ(&identifiers[1], first.tag.data);
+    EXPECT_EQ(TLV_TAG_BINDING_FORMAT, source.tag_binding);
+    EXPECT_EQ(wire.data(), source.data);
+    EXPECT_EQ(257u, source.size);
+    EXPECT_EQ(first.tag.data, source.element.tag.data);
+    EXPECT_EQ(wire.data() + 2, first.value.data);
 
     tlv_query_t query{};
     ASSERT_EQ(TLV_OK, tlv_query_parse("01", &query, nullptr));

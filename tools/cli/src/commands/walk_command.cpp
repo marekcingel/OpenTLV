@@ -13,7 +13,6 @@
 #include "tlv/builtins/bluetooth/ad_data.h"
 #endif
 #include "tlv/reader/reader.h"
-#include "tlv/reader/scanner.h"
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
 #endif
@@ -162,7 +161,7 @@ tlv_result_t walk_command::walk_pdol(std::size_t* error_offset) {
 
 // Recovery scan over the top-level elements. Each element that reads cleanly
 // and whose whole subtree validates is walked (and printed) like normal
-// input; where one does not, tlv_scan() looks for the next offset a
+// input; where one does not, the CLI looks for the next offset a
 // plausible element starts at, and the bytes in between are recorded as
 // skipped. Resource limits are not damage and still fail the run.
 tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
@@ -223,12 +222,13 @@ tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
             current.error_offset = fault;
             current.diagnostic = attempt;
         }
-        tlv_element_t next;
-        size_t        next_offset, next_size;
-        if (tlv_scan(data(), size(), pos + 1, format_, NULL, &next, &next_offset, &next_size) !=
-            TLV_OK)
-            break;
-        pos = next_offset;
+        // Resynchronization is CLI policy, built on single-element decoding.
+        ++pos;
+        for (; pos < size(); ++pos) {
+            tlv_element_t next;
+            size_t        next_size;
+            if (tlv_read(data() + pos, size() - pos, format_, &next, &next_size) == TLV_OK) break;
+        }
     }
     if (skipping) close_range(size());
     return TLV_OK;

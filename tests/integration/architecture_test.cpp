@@ -2,7 +2,6 @@
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include "tlv/reader/walker.h"
-#include "tlv/reader/scanner.h"
 #include "tlv/codec/structure.h"
 #include "tlv/config.h"
 #include "tlv/formats/fixed.h"
@@ -114,7 +113,7 @@ const tlv_structure_rule_t   parent_rules[] = {
 const tlv_structure_schema_t schema = {parent_rules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
 #if OPENTLV_FORMAT_BER
-TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies) {
+TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaAndCopies) {
     // Outer indefinite -> definite -> indefinite -> primitive; then siblings.
     const uint8_t wire[] = {0x30, 0x80, 0x30, 7, 0x30, 0x80, 4, 1, 42, 0, 0, 4, 0, 0, 0, 4, 0};
     std::vector<size_t> visits;
@@ -142,9 +141,7 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaRecoveryAndCopies
     EXPECT_EQ(6u, offset);
     tlv_element_t element{};
     size_t        used = 0;
-    ASSERT_EQ(TLV_OK,
-              tlv_scan(wire, sizeof(wire), 0, &tlv_format_ber, nullptr, &element, &offset, &used));
-    EXPECT_EQ(0u, offset);
+    ASSERT_EQ(TLV_OK, tlv_read(wire, sizeof(wire), &tlv_format_ber, &element, &used));
     EXPECT_EQ(15u, used);
     EXPECT_EQ(11u, element.value.size);
     uint8_t copied[sizeof(wire)];
@@ -269,20 +266,36 @@ TEST(Integration_Tlv_Architecture, MaximumDepthAndEmptyChildSchemaUseTheSameBoun
     EXPECT_EQ(wire.size(), offset);
 }
 
-TEST(Integration_Tlv_Architecture, RecoveryAndSequentialTraversalRemainDistinct) {
-    const uint8_t      noisy[] = {0x33, 0xff, 1, 1, 42};
-    tlv_schema_entry_t entry = *child_rules[0].entry;
-    tlv_schema_t       recovery = {&entry, 1};
-    tlv_element_t      element{};
-    size_t             offset = 0, used = 0;
-    EXPECT_EQ(TLV_OK,
-              tlv_scan(noisy, sizeof(noisy), 0, &format, &recovery, &element, &offset, &used));
-    EXPECT_EQ(2u, offset);
-    EXPECT_EQ(3u, used);
-    EXPECT_EQ(42, element.value.data[0]);
+TEST(Integration_Tlv_Architecture, TreeCursorDiagnosticsKeepAbsoluteOffsetsAndParentBounds) {
+    // The child declares two bytes, but its parent contains only one. A later
+    // top-level sibling must not supply the missing child byte.
+    const uint8_t           data[] = {1, 0, 0x80, 3, 1, 2, 0xAA, 2, 0};
+    size_t                  error_offset = 99;
+    tlv_reader_diagnostic_t diagnostic{};
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_walk_tree_diag(data, sizeof(data), &constructed_format, 8, 8, nullptr, nullptr,
+                                 &error_offset, &diagnostic));
+    EXPECT_EQ(4u, error_offset);
+    EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.operation);
+    EXPECT_EQ(6u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(4u, diagnostic.tag_offset);
+    EXPECT_EQ(5u, diagnostic.length_offset);
+    EXPECT_EQ(6u, diagnostic.value_offset);
+    EXPECT_EQ(7u, diagnostic.enclosing_end);
+    EXPECT_EQ(1u, diagnostic.available);
+    EXPECT_EQ(2u, diagnostic.declared_length);
+}
+
+TEST(Integration_Tlv_Architecture, SequentialTraversalDoesNotRecoverPastInvalidInput) {
+    const uint8_t noisy[] = {0x33, 0xff, 1, 1, 42};
+    tlv_element_t element{};
+    tlv_reader_t  reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, noisy, sizeof(noisy), &format));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &element));
+    EXPECT_EQ(0u, reader.pos);
     auto visit = [](const tlv_element_t*, void*) { return TLV_VISIT_CONTINUE; };
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_walk(noisy, sizeof(noisy), &format, visit, nullptr));
-    EXPECT_EQ(TLV_OK, tlv_walk(noisy + offset, used, &format, visit, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_walk(noisy + 2, sizeof(noisy) - 2, &format, visit, nullptr));
 }
 
 struct object {

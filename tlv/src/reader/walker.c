@@ -15,13 +15,14 @@ static tlv_result_t walk_tree_impl(const uint8_t* data, size_t size, const tlv_f
     size_t ends[TLV_WALK_MAX_DEPTH + 1];
     size_t resumes[TLV_WALK_MAX_DEPTH + 1];
     size_t depth = 0, pos = 0, count = 0;
-    if ((!data && size) || !tlv_format_can_read(format))
-        return tree_error(TLV_ERR_NULL_ARG, 0, error_offset);
+    tlv_reader_t reader;
+    tlv_result_t init = tlv_reader_init(&reader, data, size, format);
+    if (init != TLV_OK) return tree_error(init, 0, error_offset);
     if (max_depth > TLV_WALK_MAX_DEPTH) return tree_error(TLV_ERR_LIMIT, 0, error_offset);
     ends[0] = size;
     while (pos < ends[depth] || depth) {
         tlv_element_t element;
-        size_t used, end;
+        size_t end;
         tlv_result_t rc;
         if (pos == ends[depth]) {
             pos = resumes[depth];
@@ -29,19 +30,13 @@ static tlv_result_t walk_tree_impl(const uint8_t* data, size_t size, const tlv_f
             continue;
         }
         if (count == max_elements) return tree_error(TLV_ERR_LIMIT, pos, error_offset);
-        rc = tlv_read_diag(data + pos, ends[depth] - pos, format, &element, &used, diagnostic);
-        if (rc != TLV_OK) {
-            if (diagnostic) {
-                if (diagnostic->diagnostic.has_offset) diagnostic->diagnostic.offset += pos;
-                if (diagnostic->has_tag_offset) diagnostic->tag_offset += pos;
-                if (diagnostic->has_length_offset) diagnostic->length_offset += pos;
-                if (diagnostic->has_value_offset) diagnostic->value_offset += pos;
-                if (diagnostic->has_enclosing_end) diagnostic->enclosing_end += pos;
-            }
-            return tree_error(rc, pos, error_offset);
-        }
+        /* Bound the cursor to this value while retaining the original source origin. */
+        reader.pos = pos;
+        reader.size = ends[depth];
+        rc = tlv_reader_next_diag(&reader, &element, diagnostic);
+        if (rc != TLV_OK) return tree_error(rc, pos, error_offset);
         ++count;
-        end = pos + used;
+        end = reader.pos;
         if (visitor) {
             tlv_visit_result_t result = visitor(&element, depth, pos, context);
             if (result == TLV_VISIT_STOP) return TLV_OK;

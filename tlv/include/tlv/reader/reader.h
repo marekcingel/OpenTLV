@@ -39,10 +39,10 @@ extern "C" {
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for missing required pointers or callbacks.
  * @return #TLV_ERR_END_OF_BUFFER for empty input.
- * @return #TLV_ERR_INVALID_TAG if the tag is truncated.
+ * @return #TLV_ERR_INVALID_TAG if the tag is malformed.
  * @return #TLV_ERR_INVALID_TAG_SIZE for an empty tag or an unsupported tag size.
- * @return #TLV_ERR_INVALID_LENGTH if the length field is truncated.
- * @return #TLV_ERR_BUFFER_TOO_SHORT if the value or trailer is truncated.
+ * @return #TLV_ERR_INVALID_LENGTH if the length field is malformed.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT if the header, value or trailer is incomplete.
  * @return Any callback error, propagated unchanged.
  *
  * @note On failure both outputs remain unchanged.
@@ -166,11 +166,25 @@ TLV_API tlv_result_t tlv_read_diag(const uint8_t* data, size_t size, const tlv_f
                                    tlv_reader_diagnostic_t* out_diagnostic);
 
 /**
- * @brief Sequential reader over a caller-owned buffer.
+ * @brief Canonical pull-based cursor over a caller-owned input buffer.
  *
  * Initialize with tlv_reader_init(). The reader borrows its buffer and
  * format; neither is copied, and both must outlive the reader, transitively
  * including the format's own context.
+ * The caller requests each element with tlv_reader_next(); no I/O, buffering,
+ * allocation, schema validation, semantic decoding or recovery occurs. Format
+ * alone interprets the wire representation. Higher-level traversal composes
+ * this cursor rather than implementing another sequential parser.
+ *
+ * Only a successful read advances `pos`, by the complete encoded extent,
+ * including any trailer. End, incomplete input and errors preserve the cursor
+ * and success outputs. Repeating a call with unchanged input/state returns the
+ * same outcome. Reinitialize to reuse the state for another borrowed buffer;
+ * this API does not supply or accumulate additional input.
+ *
+ * Returned elements and sources do not borrow the cursor itself. Advancing or
+ * reinitializing it does not invalidate them; their input and format-supplied
+ * identifier storage must remain alive and unchanged while results are used.
  * @see @docs{guides/memory,format context ownership and lifetime}
  */
 typedef struct tlv_reader {
@@ -180,7 +194,7 @@ typedef struct tlv_reader {
     const uint8_t* data;
     /** Input size in bytes. */
     size_t size;
-    /** Offset of the next element to read. */
+    /** Offset of the next element in data, in bytes; must not exceed size. */
     size_t pos;
 } tlv_reader_t;
 
@@ -197,6 +211,8 @@ typedef struct tlv_reader {
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if an argument is `NULL`, or the format lacks a
  *         required callback.
+ * @note On failure the reader remains unchanged. On success position is zero,
+ *       including when reinitializing a previously used reader.
  *
  * @warning The caller must keep `data` and `format` alive for the lifetime
  *          of the reader.
@@ -209,7 +225,8 @@ TLV_API tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data, 
  *
  * @param[in] reader Reader to query.
  *
- * @return 1 if there are no further TLV items, otherwise 0.
+ * @return 1 if position equals input size, otherwise 0 (also for `NULL`).
+ * @note This checks exhaustion only; it does not parse or validate remaining bytes.
  */
 TLV_API int tlv_reader_at_end(const tlv_reader_t* reader);
 
@@ -223,8 +240,12 @@ TLV_API int tlv_reader_at_end(const tlv_reader_t* reader);
  * @param[in,out] reader    Reader to advance.
  * @param[out]    out_element Receives the next element.
  *
- * @return #TLV_OK on success.
- * @return Any error of tlv_read() otherwise.
+ * @return #TLV_OK when an element is available.
+ * @return #TLV_ERR_END_OF_BUFFER when all supplied input has been consumed.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT when Format reports incomplete input;
+ *         additional bytes are required to complete decoding at this position.
+ * @return Any other tlv_read() error for invalid input or arguments.
+ * @return #TLV_ERR_INVALID_ARG if position exceeds input size.
  *
  * @note On error both the reader position and `*out_element` remain unchanged.
  * @warning The caller must keep the original buffer alive while the returned
@@ -251,6 +272,28 @@ TLV_API tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_element_t* out_el
  */
 TLV_API tlv_result_t tlv_reader_next_diag(tlv_reader_t* reader, tlv_element_t* out_element,
                                           tlv_reader_diagnostic_t* out_diagnostic);
+
+/**
+ * @brief Pulls one element and its borrowed source metadata in one decode.
+ *
+ * Behaves like tlv_reader_next_diag(), also publishing the source on success.
+ * Source ranges remain relative to `source->data`, the element's start; its
+ * absolute offset in the reader buffer is the cursor position before the call.
+ * Diagnostic offsets are absolute within the reader buffer.
+ *
+ * @param[in,out] reader Cursor initialized by tlv_reader_init(); required.
+ * @param[out] out_element Receives the semantic element; required.
+ * @param[out] source Receives the source and framing ranges; required.
+ * @param[out] out_diagnostic Optional structured failure detail; may be `NULL`.
+ * @return Same outcomes as tlv_reader_next().
+ * @note On non-success the cursor, element and source remain unchanged.
+ *       On success the diagnostic remains unchanged. No allocation occurs.
+ * @warning Input bytes, Format and context must outlive retained sources and
+ *          remain unchanged; format-supplied identifier storage must outlive Tags.
+ */
+TLV_API tlv_result_t tlv_reader_next_source_diag(tlv_reader_t* reader, tlv_element_t* out_element,
+                                                 tlv_source_t* source,
+                                                 tlv_reader_diagnostic_t* out_diagnostic);
 
 /**
  * @brief Decode once, returning semantic content, source information and failure detail.

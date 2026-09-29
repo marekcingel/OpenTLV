@@ -23,7 +23,6 @@
 
 #include "tlv/reader/reader.h"
 #include "tlv/reader/walker.h"
-#include "tlv/reader/scanner.h"
 #include "tlv/query/query.h"
 #include "tlv/writer/writer.h"
 #include "tlv/schema/schema.h"

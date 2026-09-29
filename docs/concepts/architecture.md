@@ -96,10 +96,10 @@ every concrete format regardless of whether it was protocol-specific, and was
 retired in favor of `builtins/<protocol>/` for exactly the protocol-specific
 ones. `formats/` returns only for mechanisms that stay protocol-agnostic.
 
-`reader/scanner` is a recovery utility above the raw reader and schema lookup.
-Its location groups reading-related tools, without classifying every file in
-that folder as the lowest-level core. Standard-specific implementations compose generic facilities; generic
-facilities do not depend on them. DER's wire callbacks and bounded
+Reader is the canonical pull-based cursor; Walker composes it for traversal.
+Recovery and resynchronization are application policies implemented, when needed,
+using the public single-element `tlv_read()` primitive. Standard-specific
+implementations compose generic facilities; generic facilities do not depend on them. DER's wire callbacks and bounded
 validation operations live in separate files. BER uses generic Variable primitives
 through a private ASN.1 field adapter also consumed by DER/CER. The wrappers
 retain their concrete rules and current component dependencies.
@@ -112,7 +112,7 @@ Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
 tlv/
   element.h, value.h, length.h, size.h, error.h, endian.h, copy.h, format.h, tlv.h
   compiler.h, attributes.h, definition.h
-  reader/    reader.h, walker.h, scanner.h
+  reader/    reader.h, walker.h
   query/     query.h
   document/  document.h
   writer/    writer.h
@@ -219,7 +219,7 @@ option. Nothing below it depends on it, so the reader, writer and walker stay
 zero-copy and allocation-free whether or not it is built. See
 [mutable documents](../guides/document.md).
 
-## Traversal and recovery
+## Reader and traversal
 
 * `tlv_reader_next` iterates adjacent elements without interpreting their values.
 * `tlv_walk` visits adjacent elements and fails at invalid framing.
@@ -227,9 +227,10 @@ zero-copy and allocation-free whether or not it is built. See
   `is_constructed` predicate. It exposes depth and absolute element offsets. A NULL
   visitor validates framing only. It uses a bounded stack, without allocation
   or C recursion. C++ offers `tlv::walk_tree` with a callable visitor.
-* `tlv_scan` searches byte offsets for a complete candidate after corruption.
-  Its optional flat schema filters tags and lengths. A candidate is not proof
-  of an original network message boundary; it is not a streaming reassembler.
+
+The [Reader contract](../guides/reader.md) distinguishes an available element,
+end of supplied input, incomplete input and parsing errors. Scanner is removed
+from the core API (#391); applications own any recovery policy.
 
 The nesting contract covers containers whose value views contain a sequence
 in the same format, including BER indefinite lengths/EOC. A NULL nesting

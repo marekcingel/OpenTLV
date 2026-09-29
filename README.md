@@ -196,7 +196,7 @@ Start with the [documentation index](docs/README.md), or choose a topic:
 | Architecture and API migration | [Layers, component options, and migration](docs/concepts/architecture.md) |
 | Read, write, and traverse | [Formats and I/O contracts](docs/formats/README.md), [core types](docs/concepts/core-types.md) |
 | Validate and decode | [Schemas](docs/guides/schemas.md), [value codecs](docs/guides/codecs.md), [DER](docs/standards/der/README.md), [CER](docs/standards/cer/README.md), [EMV](docs/standards/emv/README.md) |
-| Copy and recover data | [Copy helpers](docs/guides/copy.md), [recovery scanner](docs/guides/scanner.md), [byte order](docs/concepts/endian.md) |
+| Read and copy data | [Pull-based Reader](docs/guides/reader.md), [copy helpers](docs/guides/copy.md), [byte order](docs/concepts/endian.md) |
 
 ## Long-term direction
 

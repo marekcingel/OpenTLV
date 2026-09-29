@@ -27,16 +27,16 @@
  * Guides: @docs{guides/diagnostics,diagnostics}.
  */
 /** @defgroup reader Reader
- * Stateless reading and stateful iteration over encoded elements.
- * Guides: @docs{formats,formats}.
+ * Canonical pull-based cursor and single-element decoding over borrowed input.
+ * Guides: @docs{guides/reader,pull-based reading}, @docs{formats,formats}.
  */
 /** @defgroup writer Writer
  * Encoding and stateful output into caller-owned buffers.
  * Guides: @docs{formats,formats}.
  */
-/** @defgroup traversal Traversal and scanning
- * Walking nested elements and scanning paths with caller-owned state.
- * Guides: @docs{guides/scanner,scanning and recovery}.
+/** @defgroup traversal Traversal
+ * Walking adjacent or nested elements through the canonical Reader cursor.
+ * Guides: @docs{guides/reader,pull-based reading}.
  */
 /** @defgroup schemas Schemas
  * Structural validation and schema-driven encoding.
