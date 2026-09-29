@@ -2263,6 +2263,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#bluetooth-semantic-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bluetooth semantic inspection
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3145,6 +3156,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#bluetooth-semantic-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bluetooth semantic inspection
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3687,10 +3709,12 @@ offset for the next plausible element, and the bytes in between are skipped.</p>
 <h3 id="validation-and-limits">Validation and limits<a class="headerlink" href="#validation-and-limits" title="Permanent link">&para;</a></h3>
 <p><code>validate</code> is silent on success. Both commands consume all concatenated
 elements; empty input succeeds and invalid trailing bytes fail. Default,
-fixed and bluetooth-ltv values are opaque. BER uses constructed-tag recognition; DER uses
+fixed and bluetooth-ltv values are opaque unless a semantic module is selected.
+BER uses constructed-tag recognition; DER uses
 the existing structural validator. This does not provide full ASN.1 value
 validation or canonical SET/SET OF ordering; EMV structural
-validation is available via <code>--module emv</code>, above.</p>
+validation is available via <code>--module emv</code>, above. Bluetooth schema and codec
+validation is available via <a href="#bluetooth-semantic-inspection"><code>--module bluetooth</code></a>.</p>
 <table>
 <thead>
 <tr>
@@ -3841,6 +3865,37 @@ model.</p>
 <p>Automatic format detection, custom text input syntax, full ASN.1 value
 validation, EMV kernel behavior, and prebuilt release binaries are outside the
 scope of the CLI.</p>
+<h2 id="bluetooth-semantic-inspection">Bluetooth semantic inspection<a class="headerlink" href="#bluetooth-semantic-inspection" title="Permanent link">&para;</a></h2>
+<p>With <code>OPENTLV_BLUETOOTH=ON</code>, <code>--module bluetooth</code> adds AD Type names from the
+public Definition registry to <code>dump</code> and <code>decode</code>. Add <code>--decode</code> to render
+Flags, Local Names, Tx Power, 16/32/128-bit UUID lists, Service Data and
+Manufacturer Specific Data through the public value codecs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>bluetooth-ltv<span class="w"> </span>--module<span class="w"> </span>bluetooth<span class="w"> </span>--decode<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"020106020AFC0000"</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>bluetooth-ltv<span class="w"> </span>--module<span class="w"> </span>bluetooth<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"020106020AFC0000"</span>
+</code></pre></div>
+<p>The dump includes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>offset=0 tag=01 length=1 value=06 name="Flags" decoded="0x06"
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>offset=3 tag=0A length=1 value=FC name="Tx Power Level" decoded="-4 dBm"
+</code></pre></div>
+<p>The module accepts trailing zero padding using the public AD container API.
+Only significant structures are walked; their offsets still refer to the
+original input. Embedded zeros remain value bytes. A nonzero byte after
+padding begins is an error. Without <code>--module bluetooth</code>, <code>bluetooth-ltv</code>
+remains strict wire inspection, including rejection of zero-length structures.</p>
+<p><code>validate --module bluetooth</code> checks the public AD schema first, then the
+supported value codecs. Schema and codec failures retain original offsets and
+raw AD Types in the selected diagnostic format. Unknown AD Types and Company
+Identifiers are accepted. Company names are annotations from the bundled,
+non-exhaustive registry; service and manufacturer payloads remain opaque hex.</p>
+<p><code>dump</code> and <code>decode</code> annotate malformed known values with <code>decode_error</code>
+(<code>decode-error</code> in text) without failing wire inspection. Use <code>validate</code> for
+semantic validity. Text output escapes Local Name control characters and
+quotes. <code>--output json</code> on <code>dump</code> retains <code>offset</code>, <code>tag</code>, <code>length</code> and <code>value</code>
+and adds <code>name</code> and optional <code>decoded</code> or <code>decode_error</code> strings.</p>
+<p><code>decode</code> exports the significant structures using the existing versioned JSON
+schema. Re-encoding preserves those structures but does not restore container
+padding. <code>--recover</code> is unsupported with this module; <code>--describe</code> and EMV
+options require the EMV module.</p>
 
 
 
