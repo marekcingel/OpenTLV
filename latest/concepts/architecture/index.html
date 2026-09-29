@@ -3306,13 +3306,15 @@ remaining component options to Cargo features is future work; see
 <p>The <a href="../../guides/document/">mutable document</a> is a separate optional generic component,
 controlled by <code>OPENTLV_DOCUMENT</code>; it is not a format or a standard package.</p>
 <p><code>OPENTLV_FORMAT_ASN1</code>, <code>OPENTLV_FORMAT_BER</code>, <code>OPENTLV_FORMAT_DER</code>, and
-<code>OPENTLV_PROFILE_EMV</code> form a chain (ASN1 -&gt; BER -&gt; DER -&gt; EMV): disabling an
+<code>OPENTLV_PROFILE_EMV</code> form a tree (ASN1 -&gt; BER -&gt; DER/CER/EMV): disabling an
 option forces every option below it OFF as well, regardless of how that
 option was set, so <code>-DOPENTLV_FORMAT_BER=OFF</code> also disables DER, CER and EMV.
 <code>OPENTLV_FORMAT_CER</code> is an independent sibling of <code>OPENTLV_FORMAT_DER</code> under
 <code>OPENTLV_FORMAT_BER</code>, not a descendant of it: CER never depends on DER (or
 vice versa), and disabling DER does not affect CER or EMV. This cascade is
-centralized in <code>cmake/format_options.cmake</code>. No component creates
+centralized in <code>cmake/format_options.cmake</code>. EMV element framing uses generic
+variable-width primitives directly; the BER build dependency remains only for
+the unchanged DOL identifier helper. No component creates
 another public binary library. <code>tlv/config.h</code> exposes the configured
 selection, including <code>OPENTLV_FORMAT_ASN1</code>. Explicitly including a disabled
 component's header does not provide its symbols; consumers should use the

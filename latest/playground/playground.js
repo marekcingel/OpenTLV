@@ -9,7 +9,7 @@ const root = document.getElementById("opentlv-playground");
 const SAMPLES = [
   {
     name: "EMV: SELECT response (FCI)",
-    format: "ber",
+    format: "emv",
     profile: "emv",
     hex: "6F 19 84 07 A0 00 00 00 03 10 10 A5 0E 50 04 56 49 53 41 87 01 01 5F 2D 02 65 6E",
   },
@@ -78,7 +78,7 @@ const SAMPLES = [
   },
   {
     name: "Truncated input (parser error)",
-    format: "ber",
+    format: "emv",
     profile: "emv",
     hex: "6F 19 84 07 A0 00 00 00 03 10 10 A5 0E 50 04 56",
   },
@@ -472,7 +472,7 @@ async function start() {
 
   // The EMV dictionary names BER-TLV tags only.
   function syncProfile() {
-    const berFormat = formatSelect.value === "ber" && opentlv.profiles.includes("emv");
+    const berFormat = ["ber", "emv"].includes(formatSelect.value) && opentlv.profiles.includes("emv");
     profileSelect.querySelector('option[value="emv"]').disabled = !berFormat;
     if (!berFormat) profileSelect.value = "none";
   }

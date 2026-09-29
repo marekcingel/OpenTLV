@@ -197,6 +197,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a7d9c93d05877a43e3c2a829aafffe636" id="r_a7d9c93d05877a43e3c2a829aafffe636"><td class="memItemLeft" align="right" valign="top">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a7d9c93d05877a43e3c2a829aafffe636">dhcpv4_format</a> () noexcept</td></tr>
 <tr class="memdesc:a7d9c93d05877a43e3c2a829aafffe636"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the immutable DHCPv4 option framing preset.  <br /></td></tr>
 <tr class="separator:a7d9c93d05877a43e3c2a829aafffe636"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4503ccecc62c9ef36ffefa89f4f836ad" id="r_a4503ccecc62c9ef36ffefa89f4f836ad"><td class="memItemLeft" align="right" valign="top">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a4503ccecc62c9ef36ffefa89f4f836ad">emv_format</a> () noexcept</td></tr>
+<tr class="memdesc:a4503ccecc62c9ef36ffefa89f4f836ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the immutable definite EMV BER-TLV format.  <br /></td></tr>
+<tr class="separator:a4503ccecc62c9ef36ffefa89f4f836ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f6e7e83fa622c90e448bd2533202edd" id="r_a7f6e7e83fa622c90e448bd2533202edd"><td class="memItemLeft" align="right" valign="top">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a7f6e7e83fa622c90e448bd2533202edd">lldp_format</a> () noexcept</td></tr>
 <tr class="memdesc:a7f6e7e83fa622c90e448bd2533202edd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the immutable LLDP framing preset.  <br /></td></tr>
 <tr class="separator:a7f6e7e83fa622c90e448bd2533202edd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -889,6 +892,35 @@ template&lt;typename T &gt; </div>
 <dl class="section return"><dt>Returns</dt><dd>The result of <a class="elRef" href="../../c-api/html/container_8h.html#a44dc4ef9763852b33667034857b67516">tlv_dhcpv4_options_validate()</a>, propagated unchanged. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates or retains input. Output storage must not overlap input, rules or other outputs. Requires <code>OPENTLV_DHCP=ON</code>. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/container_8h.html#a44dc4ef9763852b33667034857b67516">tlv_dhcpv4_options_validate</a> </dd></dl>
+
+</div>
+</div>
+<a id="a4503ccecc62c9ef36ffefa89f4f836ad" name="a4503ccecc62c9ef36ffefa89f4f836ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4503ccecc62c9ef36ffefa89f4f836ad">&#9670;&#160;</a></span>emv_format()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp; tlv::emv_format </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the immutable definite EMV BER-TLV format. </p>
+<dl class="section return"><dt>Returns</dt><dd>The shared C descriptor; no allocation occurs. </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="elRef" href="../../c-api/html/builtins_2emv_2format_8h.html#ae5a675fc17f38b17b89a9e3c06d34573">tlv_format_emv</a> </dd></dl>
 
 </div>
 </div>

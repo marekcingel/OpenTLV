@@ -2799,6 +2799,7 @@ native applications. Nothing you enter is uploaded.</p>
         <optgroup label="Built-in standards">
           <option value="bluetooth-ltv">Bluetooth LTV (strict)</option>
           <option value="ber">ASN.1 BER-TLV</option>
+          <option value="emv">EMV BER-TLV (definite)</option>
           <option value="der">ASN.1 DER-TLV</option>
           <option value="cer">ASN.1 CER-TLV</option>
         </optgroup>
@@ -2810,7 +2811,7 @@ native applications. Nothing you enter is uploaded.</p>
     <label>Annotations
       <select id="otlv-pg-profile" disabled>
         <option value="none">None (AD names are automatic)</option>
-        <option value="emv">EMV tag names (BER-TLV only)</option>
+        <option value="emv">EMV tag names (BER or EMV)</option>
       </select>
     </label>
   </div>
@@ -2877,11 +2878,12 @@ buttons to copy the tag, the value or the whole encoded element. With the
 <strong>EMV tag names</strong> annotations it also shows the tag's name from the
 <a href="../profiles/emv/">EMV profile</a> and whether its length is permitted.</p>
 <p>In <a href="../formats/asn1/ber/">BER-TLV</a>,
-<a href="../formats/asn1/der/">DER-TLV</a> and <a href="../formats/asn1/cer/">CER-TLV</a>, constructed elements nest their children; the
+<a href="../formats/asn1/der/">DER-TLV</a>, <a href="../formats/asn1/cer/">CER-TLV</a> and
+<a href="../profiles/emv/">EMV BER-TLV</a>, wire-constructed elements nest their children; the
 <a href="../formats/fixed/configurable/">configurable fixed-width</a> and
 <a href="../formats/bluetooth/">Bluetooth LTV</a> formats have opaque values, so
 their elements are flat. Bluetooth LTV puts the length byte before the type, so
-in the hex view and the element details the length is shown before the tag. EMV data is BER-TLV.</p>
+in the hex view and the element details the length is shown before the tag. The EMV preset requires definite lengths; semantic primitive-bit templates remain opaque.</p>
 <p>Invalid or truncated input reports the parser error with its code, message and
 input offset, together with every element read before the failure.</p>
 <h2 id="bluetooth-advertising-data">Bluetooth Advertising Data<a class="headerlink" href="#bluetooth-advertising-data" title="Permanent link">&para;</a></h2>

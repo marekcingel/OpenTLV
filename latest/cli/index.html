@@ -3272,7 +3272,8 @@ another one with <code>--emv-context NAME</code> (see <a href="#emv-contexts">EM
 <code>--profile emv</code> itself is also accepted by <code>validate</code>, where it selects EMV
 checks instead of annotating output (see below). EMV annotations and checks
 both require BER, selected with <code>--format ber</code>; the wire format and the
-profile are separate options, so <code>--format der --profile emv</code> is an error.</p>
+profile are separate options, so <code>--format der --profile emv</code> is an error. Use <code>--format emv --profile emv</code>
+for definite EMV framing; <code>--format ber --profile emv</code> retains general BER acceptance.</p>
 <h3 id="value-decoding">Value decoding<a class="headerlink" href="#value-decoding" title="Permanent link">&para;</a></h3>
 <p><code>--decode</code> additionally decodes each known tag's value through the OpenTLV
 codec layer (<code>tlv/codec/</code>) and appends it as <code>decoded="..."</code>, for example:</p>

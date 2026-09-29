@@ -2999,7 +2999,7 @@ Turn off what you do not use.</p>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_DER</code></td>
-<td><a href="../../formats/asn1/der/">DER-TLV</a>; must be ON for EMV</td>
+<td><a href="../../formats/asn1/der/">DER-TLV</a>; independent of EMV</td>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_CER</code></td>
@@ -3014,7 +3014,9 @@ Turn off what you do not use.</p>
 <p>The <a href="../document/">mutable document</a> is a separate optional generic component,
 controlled by <code>OPENTLV_DOCUMENT</code>; it is not a format or a standard package.</p>
 <p>Turning an option OFF also turns OFF everything below it in the chain
-<code>ASN1 -&gt; BER -&gt; DER -&gt; EMV</code>, with CER a sibling of DER under BER.
+<code>ASN1 -&gt; BER</code>, with DER, CER and EMV as siblings under BER.
+EMV framing uses generic primitives; only the unchanged DOL implementation
+retains a BER dependency. EMV does not require DER or CER.
 The C++ <a href="../../formats/fixed/configurable/">configurable fixed-width format</a>
 template delegates to the always-built C implementation.</p>
 <h2 id="recipes">Recipes<a class="headerlink" href="#recipes" title="Permanent link">&para;</a></h2>
@@ -3033,7 +3035,8 @@ option defaults to ON, so a recipe lists exactly the options it turns OFF.</p>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv
 </code></pre></div>
 <h3 id="core-ber-der-and-emv">Core, BER, DER and EMV<a class="headerlink" href="#core-ber-der-and-emv" title="Permanent link">&para;</a></h3>
-<p>EMV needs DER and DER needs BER, so all three are on. CER is off.</p>
+<p>This recipe enables DER alongside EMV. EMV itself does not need DER;
+add <code>-DOPENTLV_FORMAT_DER=OFF</code> for BER and EMV only. CER is off.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_CER<span class="o">=</span>OFF
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--parallel<span class="w"> </span>--target<span class="w"> </span>tlv

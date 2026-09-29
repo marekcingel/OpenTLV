@@ -2857,7 +2857,7 @@ native builds, and a compiled-out format is rejected as an invalid argument.</p>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">);</span>
 </code></pre></div>
 <p><code>parse</code> takes a <code>Uint8Array</code>, a <code>format</code> (<code>fixed</code>, <code>bluetooth-ltv</code>, <code>bluetooth-ad</code>,
-<code>ber</code>, <code>der</code> or <code>cer</code>; default <code>ber</code>) and optionally a <code>profile</code> (<code>none</code> or <code>emv</code>; default
+<code>ber</code>, <code>der</code>, <code>cer</code> or <code>emv</code>; default <code>ber</code>) and optionally a <code>profile</code> (<code>none</code> or <code>emv</code>; default
 <code>none</code>) and returns:</p>
 <p>Bluetooth modes annotate known AD Types with <code>name</code> from the C registry.
 <code>bluetooth-ltv</code> keeps strict element framing. <code>bluetooth-ad</code> adds Advertising
@@ -2888,7 +2888,7 @@ These options apply only to Fixed. Invalid JavaScript configuration values throw
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">  </span><span class="p">]</span>
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="p">}</span>
 </code></pre></div>
-<p>Tags and values are uppercase hexadecimal. Only BER, DER and CER elements can be
+<p>Tags and values are uppercase hexadecimal. Only BER, DER, CER and EMV elements can be
 constructed; the other formats return flat elements with opaque values. An
 element occupies <code>encodedSize</code> bytes from <code>offset</code>, including any trailer.
 <code>source</code> contains absolute <code>{offset, length}</code> ranges for <code>header</code>, <code>tag</code>,
@@ -2899,7 +2899,7 @@ The JSON example above omits <code>encodedSize</code> and <code>source</code> fo
 <p><code>format: "cer"</code> uses the generic tree walker with <code>tlv_format_cer</code>, preserving
 preorder output and EOC source ranges. It checks framing only; full CER profile
 validation (including string segmentation and semantic values) is not applied.</p>
-<p>With <code>profile: "emv"</code> (BER only; other formats report an invalid-argument
+<p>With <code>profile: "emv"</code> (BER or EMV framing; other formats report an invalid-argument
 error) the result also has <code>"profile": "emv"</code>. Every element the
 <a href="../../profiles/emv/">EMV dictionary</a> knows carries <code>symbol</code> (the
 dictionary name), <code>name</code> (a display name) and <code>lengthValid</code> (whether <code>length</code>

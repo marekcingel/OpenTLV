@@ -2923,9 +2923,61 @@ also available as a <a href="https://www.scribd.com/document/648236969/EMV-v4-4-
 Tag constants, schema entries, length steps, and codec bindings are maintained
 together in <a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/include/tlv/builtins/emv/emv_tags.def">emv_tags.def</a>.</p>
 <h2 id="framing-and-lookup">Framing and lookup<a class="headerlink" href="#framing-and-lookup" title="Permanent link">&para;</a></h2>
-<p>Use <code>&amp;tlv_format_ber</code> with the reader, walker, scanner, or writer.
-There is no separate EMV parser and the reader never interprets values.
-The existing <code>tlv_emv_tag_*</code> objects use the universal <code>tlv_tag_t</code>.
+<p>Use <code>&amp;tlv_format_emv</code> with the reader, walker, scanner, or writer.
+There is no separate EMV parser and the reader never interprets values.</p>
+<p>The descriptor in <code>tlv/builtins/emv/format.h</code> composes generic variable identifier
+and count primitives with EMV policy. It calls no ASN.1 format or private BER
+helper. C++ exposes the same descriptor as <code>tlv::emv_format()</code> from
+<code>tlv++/builtins/emv/format.hpp</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>EMV framing contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identifier</td>
+<td>One or two bytes, preserved verbatim; escaped second byte is 01–7F. Unknown tags are accepted. No ASN.1 numeric-tag minimality or universal-type validation.</td>
+</tr>
+<tr>
+<td>Constructed</td>
+<td>Bit <code>20</code> in the first byte; classification only, without recursively validating the value.</td>
+</tr>
+<tr>
+<td>Length</td>
+<td>Definite, big-endian, 0–65535; short form, <code>81</code>, or <code>82</code>. Reader accepts nonminimal/padded forms; Writer emits the shortest form.</td>
+</tr>
+<tr>
+<td>Termination</td>
+<td><code>80</code> indefinite length is rejected, as are wider length prefixes. No EOC trailer or EOC stopping.</td>
+</tr>
+<tr>
+<td>Padding</td>
+<td><code>00</code> is not an element tag. The caller handles inter-element padding and APDU status bytes.</td>
+</tr>
+<tr>
+<td>Nesting</td>
+<td>Wire construction and semantic templates are separate; <code>9F31</code> needs explicit profile-aware traversal.</td>
+</tr>
+</tbody>
+</table>
+<p>This is an element-framing preset for Contact Book 3 v4.4 Annex B, not a full
+transaction validator. The Annex B card-terminal restrictions and the specific
+permission for three-byte lengths on <code>71</code>, <code>72</code>, and <code>86</code> are application/context
+checks; the format supports the common maximum without inspecting tag meanings.
+Contactless or proprietary encodings requiring wider identifiers need a different
+format. Source preservation retains accepted nonminimal length bytes; ordinary
+writing regenerates canonical field widths.</p>
+<p>The preset is available as Rust <code>Format::Emv</code>, Python <code>Format.EMV</code>, Lua
+<code>opentlv.formats.emv</code>, and <code>emv</code> in CLI/WASM. Select <code>--format emv --profile emv</code>
+in the CLI for definite framing with dictionary annotations. Selecting <code>ber</code>
+with the EMV profile still annotates BER input and does not enforce EMV framing.</p>
+<p><code>OPENTLV_PROFILE_EMV</code> controls the descriptor alongside the existing EMV APIs.
+DER and CER may be disabled. The component still requires BER solely for the
+unchanged DOL identifier helper; DOL refactoring is outside this change.</p>
+<p>The existing <code>tlv_emv_tag_*</code> objects use the universal <code>tlv_tag_t</code>.
 Each has a numeric integer constant expression with the <code>_u64</code> suffix,
 such as <code>tlv_emv_tag_aip_u64</code> (<code>0x82</code>), usable in C and C++ <code>case</code> labels.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">/* Inside a function; tag is a tlv_tag_t of at most two bytes. */</span>
@@ -2952,7 +3004,7 @@ optional codec, and length step. Unknown tags and invalid contexts return NULL.<
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="cm">/* Inside a function; wire contains an Amount, Authorised (Numeric) TLV. */</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">;</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="n">wire_size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="n">wire_size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_emv</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_emv_definition_t</span><span class="o">*</span><span class="w"> </span><span class="n">def</span><span class="w"> </span><span class="o">=</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">        </span><span class="n">tlv_emv_find</span><span class="p">(</span><span class="n">TLV_EMV_CONTEXT_BASE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">);</span>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">def</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tlv_emv_validate_length</span><span class="p">(</span><span class="n">def</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span>
@@ -2967,7 +3019,7 @@ optional codec, and length step. Unknown tags and invalid contexts return NULL.<
 </code></pre></div>
 <p>For writing, explicitly encode the C value with <code>tlv_codec_encode()</code> into
 caller-owned storage, then pass those bytes and the tag to <code>tlv_write()</code> or
-<code>tlv_writer_write()</code> with <code>&amp;tlv_format_ber</code>. Every semantic codec supports
+<code>tlv_writer_write()</code> with <code>&amp;tlv_format_emv</code>. Every semantic codec supports
 the generic encoding size query (<code>data == NULL</code>, <code>capacity == 0</code>).</p>
 <h2 id="contexts">Contexts<a class="headerlink" href="#contexts" title="Permanent link">&para;</a></h2>
 <p>A tag's meaning can depend on its enclosing template. For example, <code>81</code> means
@@ -3017,7 +3069,7 @@ within a Biometric Header Template. Select the context explicitly, using
 </tbody>
 </table>
 <p>Context lookup never falls back to BASE. Traverse nested value buffers using
-generic BER I/O and carry the context in application code. The <code>9F31</code> Card BIT
+generic EMV I/O and carry the context in application code. The <code>9F31</code> Card BIT
 Group Template contains nested objects despite its primitive BER tag bit;
 <code>TLV_EMV_VALUE_TEMPLATE</code> records this semantic distinction. Matching algorithm
 parameters and proprietary template contents do not acquire invented schemas.</p>
@@ -3143,11 +3195,12 @@ Book 3 treats zero-length objects as absent, which the application must handle
 before validating a required value. These tables do not enforce APDU size,
 required tags, duplicates, template membership, or full transaction validity;
 see <a href="#structural-validation">Structural validation</a> for the layer that does.</p>
-<p>Generic BER reading also accepts constructed indefinite lengths; the EMV
-dictionary and length schemas do not enforce a definite-only encoding policy.
-APDU status bytes and EMV
-padding are handled by the caller. Book 3 defines one- and two-byte tags;
-three-byte tags remain readable by generic BER but are unknown to this profile.
+<p><code>tlv_format_emv</code> enforces definite framing independently of ASN.1 BER. It rejects
+indefinite lengths and does not interpret <code>00 00</code> as EOC. APDU status bytes and
+padding between elements remain the caller's responsibility. Book 3 framing
+supports one- and two-byte tags; three-byte identifiers are rejected by this
+preset. Applications needing broader raw BER framing can still explicitly
+select <code>tlv_format_ber</code>, with its different validity contract.
 Every tag constant borrows constant static bytes, so the tables and constants
 are the same in every build.</p>
 <h2 id="structural-validation">Structural validation<a class="headerlink" href="#structural-validation" title="Permanent link">&para;</a></h2>
@@ -3159,12 +3212,12 @@ the Application Template (<code>61</code>), and the GPO Response Message Templat
 Format 2 (<code>77</code>). Other top-level tags, including the Read Record Template
 (<code>70</code>) and Response Message Template Format 1 (<code>80</code>), vary too much by kernel
 and issuer for a generic schema and are accepted unchecked at the root.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/ber.h"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/emv/format.h"</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/emv/emv_schema.h"</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="cm">/* Inside a function; wire/size hold one or more concatenated EMV elements. */</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="kt">size_t</span><span class="w">       </span><span class="n">offset</span><span class="p">;</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_ber</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_emv_structure_schema</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_emv</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_emv_structure_schema</span><span class="p">,</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">                                      </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="cm">/* TLV_OK, or an element-anchored TLV_ERR_SCHEMA/TLV_ERR_INVALID_LENGTH, or</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="cm"> * TLV_ERR_SCHEMA_MISSING (a missing required tag) with offset at the end of</span>
@@ -3247,7 +3300,7 @@ it does not introduce a separate wire-format descriptor.</p>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>`-- Value:  00 00 00 00 12 34
 <a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    `-- Explicit EMV numeric decoding: 1234 minor units
 </code></pre></div>
-<p>Read the framing with <code>tlv_format_ber</code>, then explicitly decode the value
+<p>Read the framing with <code>tlv_format_emv</code>, then explicitly decode the value
 with <code>tlv_emv_codec_amount</code> into caller-owned storage. Currency and decimal scale
 come from application context; the codec does not assign them. This one data
 object does not represent a complete or validated transaction.</p>

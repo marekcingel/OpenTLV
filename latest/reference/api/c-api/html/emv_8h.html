@@ -86,6 +86,7 @@ $(function() {
 <p>EMV Contact Book 3 data dictionary: tag constants, schemas and lookup.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="error_8h.html">tlv/error.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="builtins_2emv_2format_8h.html">tlv/builtins/emv/format.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="schema_2schema_8h.html">tlv/schema/schema.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="emv__codec_8h.html">tlv/builtins/emv/emv_codec.h</a>&quot;</code><br />
 <code>#include &quot;tlv/export.h&quot;</code><br />
@@ -1183,7 +1184,7 @@ Variables</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>EMV Contact Book 3 data dictionary: tag constants, schemas and lookup. </p>
 <p>Scope: EMV Contact Book 3 v4.4, October 2022, Annex A and the nested biometric tags in Annex C. No Contactless kernels, proprietary dictionaries, or subsequent specification bulletins. Untagged data elements are not tags.</p>
-<p>Use <a class="el" href="group__formats.html#ga85c85b88a553a079a3e9cd16ccd34e97" title="Format for raw BER-TLV.">tlv_format_ber</a> with generic I/O; this profile does not parse TLV. Every tag constant borrows constant static bytes and is always available. </p>
+<p>Use <a class="el" href="builtins_2emv_2format_8h.html#ae5a675fc17f38b17b89a9e3c06d34573" title="Definite EMV BER-TLV framing, independent of ASN.1 BER policy.">tlv_format_emv</a> with generic I/O for definite EMV framing. Every tag constant borrows constant static bytes and is always available. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
