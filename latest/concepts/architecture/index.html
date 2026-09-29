@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -844,6 +844,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#removing-profile-380" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removing Profile (#380)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1963,7 +1980,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1979,7 +1996,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1992,7 +2009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -2020,7 +2037,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -2048,7 +2065,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2939,6 +2956,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#removing-profile-380" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removing Profile (#380)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2969,7 +3003,7 @@
 <h1 id="layered-opentlv-architecture-65-279-280-281-327">Layered OpenTLV architecture (#65, #279, #280, #281, #327)<a class="headerlink" href="#layered-opentlv-architecture-65-279-280-281-327" title="Permanent link">&para;</a></h1>
 <p>OpenTLV provides one C library (<code>tlv</code>) and a header-only C++ interface (<code>tlv++</code>)
 that links to it. Core is a logical responsibility, not a directory. Optional
-components are concrete formats and profiles, rather than entire layers.</p>
+components are concrete formats and standard-specific capabilities, rather than entire layers.</p>
 <p>The <a href="../architectural-rules/">core architectural rules</a> define the design and
 review constraints. This page describes how the current repository implements
 those responsibilities.</p>
@@ -3051,22 +3085,22 @@ boundary between semantic content, source layout and wire preservation.</p>
 <td>Value conversion and complete-structure object mappings (bindings)</td>
 <td>Shared contracts; structure codecs may use schemas and raw I/O</td>
 </tr>
-<tr>
-<td>Profile compositions</td>
-<td>Standard-specific tables and composition of formats, schemas and codecs</td>
-<td>The facilities above</td>
-</tr>
 </tbody>
 </table>
 <p>The format descriptor is a shared contract consumed by generic I/O; concrete
 format implementations never need to be named by the reader/writer. A codec
 does not have to use a schema. Existing C++ tag-associated codecs remain valid.
 Bindings are part of the codec area, not another architectural layer.</p>
-<p>Formats and profiles are roles, not folders: every protocol-specific format or
-profile implementation OpenTLV ships (ASN.1, EMV, Bluetooth LTV) lives under <code>builtins/&lt;protocol&gt;/</code>, grouped by protocol rather
-than by role, so all of a protocol's format, schema, codec and profile files
-sit together. Generic subsystems (<code>reader/</code>, <code>writer/</code>, <code>query/</code>, <code>schema/</code>,
-<code>codec/</code>, <code>document/</code>) never depend on <code>builtins/</code>.</p>
+<p>A module is a reusable unit that may provide any subset of Definition, Format,
+Schema and Codec. This is composition, not a fifth capability or a layer.
+For example, a vendor tag module may provide only Definition, while another
+module provides only Format. No module registry or runtime loader is added.</p>
+<p>Builtins are native implementations optionally compiled into OpenTLV. Shipped
+protocol-specific functionality lives under <code>builtins/&lt;protocol&gt;/</code>, grouped by
+protocol. Builtins work without the future <code>.otlv</code> interpreter. Native C,
+runtime <code>.otlv</code> descriptions and future generated code all supply the same
+contracts to generic consumers. Generic subsystems (<code>reader/</code>, <code>writer/</code>,
+<code>query/</code>, <code>schema/</code>, <code>codec/</code>, <code>document/</code>) never depend on <code>builtins/</code>.</p>
 <p>A format mechanism that names no protocol -- it is parameterized entirely by
 caller-supplied widths and byte order, with no knowledge of any concrete
 wire standard -- lives under the separate top-level <code>formats/</code> instead. The
@@ -3078,9 +3112,9 @@ retired in favor of <code>builtins/&lt;protocol&gt;/</code> for exactly the prot
 ones. <code>formats/</code> returns only for mechanisms that stay protocol-agnostic.</p>
 <p><code>reader/scanner</code> is a recovery utility above the raw reader and schema lookup.
 Its location groups reading-related tools, without classifying every file in
-that folder as the lowest-level core. Profiles compose lower facilities; lower
-generic facilities do not include profiles. DER's wire callbacks and bounded
-profile operations live in separate files. BER uses generic Variable primitives
+that folder as the lowest-level core. Standard-specific implementations compose generic facilities; generic
+facilities do not depend on them. DER's wire callbacks and bounded
+validation operations live in separate files. BER uses generic Variable primitives
 through a private ASN.1 field adapter also consumed by DER/CER. The wrappers
 retain their concrete rules and current component dependencies.</p>
 <h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
@@ -3098,7 +3132,7 @@ retain their concrete rules and current component dependencies.</p>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    fixed.h
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>  builtins/
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    bluetooth/ bluetooth_ltv.h, ad_types.h
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    asn1/      ber.h, der.h, cer.h, der_profile.h, cer_profile.h, der_schema.h
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    asn1/      ber.h, der.h, cer.h, der_validation.h, cer_validation.h, der_schema.h
 <a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    emv/       emv.h, emv_schema.h, emv_tags.def, dol.h, emv_codec.h
 </code></pre></div>
 <p>The tree shows the public layout; corresponding implementation files use <code>.c</code>.
@@ -3108,14 +3142,14 @@ definitions neither validate structure nor decode values.
 Small fundamental types (<code>tag.h</code>, <code>length.h</code>, <code>size.h</code>, <code>value.h</code>, <code>element.h</code>, and the
 generic <code>format.h</code> descriptor contracts) sit directly under <code>tlv/</code>, alongside
 the generic subsystem folders. <code>formats/fixed.h</code> and <code>formats/variable.h</code> hold
-format mechanisms that name no protocol; every protocol-specific format or profile
+format mechanisms that name no protocol; every protocol-specific format or standard
 OpenTLV ships lives under <code>builtins/&lt;protocol&gt;/</code>, so all of a protocol's
 functionality is in one place instead of scattered across role-based folders: EMV's schema,
-codec, DOL and umbrella profile header are all under <code>builtins/emv/</code>, and
-ASN.1's wire formats and bounded DER/CER profile operations are all under
-<code>builtins/asn1/</code>. Wire-level <code>der.h</code>/<code>cer.h</code> and the bounded profile headers
-that build on them would otherwise share a name, so the profile headers are
-<code>der_profile.h</code>/<code>cer_profile.h</code>; similarly <code>builtins/emv/emv_codec.h</code> (moved
+codec, DOL and dictionary header are all under <code>builtins/emv/</code>, and
+ASN.1's wire formats and bounded DER/CER validation operations are all under
+<code>builtins/asn1/</code>. Wire-level <code>der.h</code>/<code>cer.h</code> and the bounded validation headers
+that build on them would otherwise share a name, so the validation headers are
+<code>der_validation.h</code>/<code>cer_validation.h</code>; similarly <code>builtins/emv/emv_codec.h</code> (moved
 from <code>codec/emv.h</code>) is distinct from the umbrella <code>builtins/emv/emv.h</code>.
 BER, DER and CER share the ASN.1 field adapter in
 <code>src/builtins/asn1/ber_internal.c</code> and its private header. Reusable variable-width
@@ -3227,12 +3261,12 @@ also allocate according to their representation.</p>
 <h2 id="include-only-what-you-need">Include only what you need<a class="headerlink" href="#include-only-what-you-need" title="Permanent link">&para;</a></h2>
 <p>A build contains only the components it asks for. A project that needs just the
 generic core builds just the core. A project that also needs BER enables BER and gets
-no other format. Formats and profiles are selectable components (see
+no other format. Formats and standard-specific capabilities are selectable components (see
 <a href="#build-configuration">Build configuration</a>), and each concrete component is compiled
 into the library only when it is enabled. Dependencies between components are explicit,
 for example the ASN.1 chain below, and nothing is pulled in implicitly. The header-only
 C++ wrapper adds cost only for the headers a program includes.</p>
-<p>Every new format or profile, including the candidates in the
+<p>Every new format or standard, including the candidates in the
 <a href="../../formats/format-roadmap/">format expansion candidates</a>, follows the same rule: its
 own option, and no code or dependency added to builds that do not enable it.</p>
 <p>Language bindings are expected to follow the same rule: a binding should expose a
@@ -3291,22 +3325,22 @@ remaining component options to Cargo features is future work; see
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_DER</code></td>
-<td>DER format and bounded DER profile operations</td>
+<td>DER format and bounded DER validation operations</td>
 </tr>
 <tr>
 <td><code>OPENTLV_FORMAT_CER</code></td>
-<td>CER format and bounded CER profile operations</td>
+<td>CER format and bounded CER validation operations</td>
 </tr>
 <tr>
-<td><code>OPENTLV_PROFILE_EMV</code></td>
-<td>EMV dictionary, schemas and value codecs</td>
+<td><code>OPENTLV_EMV</code></td>
+<td>EMV framing, dictionary, schemas and value codecs</td>
 </tr>
 </tbody>
 </table>
 <p>The <a href="../../guides/document/">mutable document</a> is a separate optional generic component,
 controlled by <code>OPENTLV_DOCUMENT</code>; it is not a format or a standard package.</p>
 <p><code>OPENTLV_FORMAT_ASN1</code>, <code>OPENTLV_FORMAT_BER</code>, <code>OPENTLV_FORMAT_DER</code>, and
-<code>OPENTLV_PROFILE_EMV</code> form a tree (ASN1 -&gt; BER -&gt; DER/CER/EMV): disabling an
+<code>OPENTLV_EMV</code> form a tree (ASN1 -&gt; BER -&gt; DER/CER/EMV): disabling an
 option forces every option below it OFF as well, regardless of how that
 option was set, so <code>-DOPENTLV_FORMAT_BER=OFF</code> also disables DER, CER and EMV.
 <code>OPENTLV_FORMAT_CER</code> is an independent sibling of <code>OPENTLV_FORMAT_DER</code> under
@@ -3340,10 +3374,10 @@ aggregate includes enabled formats.</p>
 <p><code>tlv/formats/</code> and <code>tlv/profiles/</code> (#279) no longer exist: every built-in
 protocol implementation moved under <code>builtins/&lt;protocol&gt;/</code>. Concrete format
 headers keep their names (<code>tlv/formats/asn1/der.h</code> becomes
-<code>tlv/builtins/asn1/der.h</code>); the bounded DER/CER profile headers are renamed
+<code>tlv/builtins/asn1/der.h</code>); the bounded DER/CER validation headers are renamed
 to avoid colliding with the wire-format headers of the same name
-(<code>tlv/profiles/der.h</code> becomes <code>tlv/builtins/asn1/der_profile.h</code>,
-<code>tlv/profiles/cer.h</code> becomes <code>tlv/builtins/asn1/cer_profile.h</code>). EMV moves
+(<code>tlv/profiles/der.h</code> becomes <code>tlv/builtins/asn1/der_validation.h</code>,
+<code>tlv/profiles/cer.h</code> becomes <code>tlv/builtins/asn1/cer_validation.h</code>). EMV moves
 and consolidates under <code>tlv/builtins/emv/</code>: <code>tlv/profiles/emv.h</code> becomes
 <code>tlv/builtins/emv/emv.h</code>, <code>tlv/profiles/emv_schema.h</code>,
 <code>tlv/profiles/emv_tags.def</code> and <code>tlv/profiles/dol.h</code> move alongside it
@@ -3428,6 +3462,65 @@ separate <code>is_constructed</code> field, and <code>tlv_document_options_init(
 <code>NULL</code>. No compatibility shim; rebuild all consumers.</p>
 <p>See also the generated <a href="../../reference/c-api/">C API reference</a> and <a href="../../reference/cxx-api/">C++ API reference</a>.</p>
 <p>The current wire boundary is specified by the <a href="../format-contract/">Format/Element contract</a>.</p>
+<h3 id="removing-profile-380">Removing Profile (#380)<a class="headerlink" href="#removing-profile-380" title="Permanent link">&para;</a></h3>
+<p>The architectural capabilities are Definition, Format, Schema and Codec. Module
+means a reusable composition of any subset of them. Builtins remain native,
+optional implementations that work without the future <code>.otlv</code> interpreter.</p>
+<table>
+<thead>
+<tr>
+<th>Previous public name</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OPENTLV_PROFILE_EMV</code></td>
+<td><code>OPENTLV_EMV</code> (same defaults and dependencies)</td>
+</tr>
+<tr>
+<td><code>tlv_config_profile_emv()</code></td>
+<td><code>tlv_config_emv()</code></td>
+</tr>
+<tr>
+<td><code>tlv/builtins/asn1/der_profile.h</code></td>
+<td><code>tlv/builtins/asn1/der_validation.h</code></td>
+</tr>
+<tr>
+<td><code>tlv/builtins/asn1/cer_profile.h</code></td>
+<td><code>tlv/builtins/asn1/cer_validation.h</code></td>
+</tr>
+<tr>
+<td>CLI <code>--profile emv</code></td>
+<td><code>--module emv</code></td>
+</tr>
+<tr>
+<td>CLI/WASM JSON <code>profile</code></td>
+<td><code>module</code></td>
+</tr>
+<tr>
+<td>WASM <code>PROFILES</code>, <code>api.profiles</code>, parse option <code>profile</code></td>
+<td><code>MODULES</code>, <code>api.modules</code>, <code>module</code></td>
+</tr>
+<tr>
+<td>Rust <code>Profile::Der</code>, <code>Profile::Cer</code></td>
+<td><code>Format::Der</code>, <code>Format::Cer</code></td>
+</tr>
+<tr>
+<td>Rust <code>ProfileError</code></td>
+<td><code>ValidationError</code></td>
+</tr>
+</tbody>
+</table>
+<p>The old names have no compatibility aliases. Reconfigure existing builds using
+<code>OPENTLV_EMV</code>; an old cache entry does not control the renamed option. Rust
+<code>default_limits()</code> now returns a <code>Result</code>; bounded validation operations reject
+formats other than DER/CER with <code>InvalidArg</code> at offset zero. Reader/Writer keep
+using their selected Format directly. Standard guides now live in <code>standards/</code>.</p>
+<p>CLI <code>--module emv</code> selects the existing native EMV definitions, schemas and
+codecs for the relevant command; <code>--format</code> selects framing independently. WASM
+uses the selected module's definitions to annotate parsed elements. Neither
+selector loads <code>.otlv</code> files or requires a runtime interpreter.</p>
 
 
 

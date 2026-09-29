@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../profiles/der/" class="md-tabs__link">
+        <a href="../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1986,7 +1986,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -2002,7 +2002,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -2015,7 +2015,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../profiles/der/" class="md-nav__link">
+      <a href="../standards/der/" class="md-nav__link">
         
   
   
@@ -2043,7 +2043,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../profiles/cer/" class="md-nav__link">
+      <a href="../standards/cer/" class="md-nav__link">
         
   
   
@@ -2071,7 +2071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../profiles/emv/" class="md-nav__link">
+      <a href="../standards/emv/" class="md-nav__link">
         
   
   
@@ -3013,7 +3013,7 @@
 
 
 <h1 id="c-library-formats">C library formats<a class="headerlink" href="#c-library-formats" title="Permanent link">&para;</a></h1>
-<p>Each page includes a byte example. Profile semantics are documented separately.
+<p>Each page includes a byte example. Standard-specific semantics are documented separately.
 Concrete C implementations live under <code>tlv/builtins/&lt;protocol&gt;/</code> (grouped by
 protocol) or, for protocol-agnostic mechanisms like the configurable fixed-width
 format, <code>tlv/formats/</code>; see <a href="../concepts/architecture/#repository-layout">architecture</a>.</p>
@@ -3075,17 +3075,17 @@ optional. Both use the same Format, Reader and Writer contracts.</p>
 </tr>
 <tr>
 <td>Canonical ASN.1 framing and nested checks</td>
-<td><a href="../profiles/der/">DER</a></td>
+<td><a href="../standards/der/">DER</a></td>
 <td>Structural validation, not full semantic DER</td>
 </tr>
 <tr>
 <td>Canonical ASN.1 with indefinite-length framing and segmented strings</td>
-<td><a href="../profiles/cer/">CER</a></td>
+<td><a href="../standards/cer/">CER</a></td>
 <td>Structural validation, not full semantic CER</td>
 </tr>
 <tr>
 <td>EMV Contact Book 3 data objects</td>
-<td><a href="../profiles/emv/">EMV framing and profile</a></td>
+<td><a href="../standards/emv/">EMV framing and semantics</a></td>
 <td>Dictionary/codecs, not a transaction engine</td>
 </tr>
 </tbody>
@@ -3210,7 +3210,7 @@ limits and nesting predicate through the same generic callback contract.</p>
   The other formats hold opaque values; nesting is then up to your predicate.</li>
 <li>DER and CER are BER with restrictions: they share the tag layout and differ in how
   lengths are chosen. Their generic readers check framing only; canonical values come from
-  the profile functions.</li>
+  the validation functions.</li>
 <li>Bluetooth LTV is a preset of the configurable Fixed format that puts the length
   before the type and has the length count the type as well as the value; the
   Fixed format's <code>element_order</code> and <code>length_scope</code> make both properties
@@ -3222,7 +3222,7 @@ limits and nesting predicate through the same generic callback contract.</p>
 <a href="format-roadmap/">format expansion candidates</a>.</p>
 <p>All formats follow the <a href="../guides/memory/">shared memory ownership rules</a>.</p>
 <p>For canonical ASN.1 framing, nested validation, limits and error offsets, see
-<a href="../profiles/der/">ASN.1 DER-TLV</a> and its sibling <a href="../profiles/cer/">ASN.1 CER-TLV</a>.
+<a href="../standards/der/">ASN.1 DER-TLV</a> and its sibling <a href="../standards/cer/">ASN.1 CER-TLV</a>.
 <code>tlv_format_der</code> and <code>tlv_format_cer</code> also support the generic I/O below.</p>
 <h2 id="reading-one-element">Reading one element<a class="headerlink" href="#reading-one-element" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/reader/reader.h</code> and call <code>tlv_read</code> to parse one element from the

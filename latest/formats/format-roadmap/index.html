@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1946,7 +1946,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1962,7 +1962,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1975,7 +1975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -2003,7 +2003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -2031,7 +2031,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2935,7 +2935,7 @@
 <h1 id="format-expansion-candidates">Format expansion candidates<a class="headerlink" href="#format-expansion-candidates" title="Permanent link">&para;</a></h1>
 <p><a href="../../">Back to documentation</a></p>
 <p>This is a candidate catalogue, not a release schedule. The
-<a href="https://github.com/marekcingel/OpenTLV/blob/main/README.md#format-and-profile-support">README checklist</a> records built-in support.
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/README.md#format-and-standard-support">README checklist</a> records built-in support.
 Unchecked entries are not implemented; application-defined callbacks may already
 support particular encodings. Each implementation needs a separate scope, chosen
 specification edition, limits, and conformance tests before its checkbox is enabled.
@@ -2992,11 +2992,11 @@ its name, or that runs over ASN.1, is BER-TLV.</p>
 <td>A wire framing that needs a new selectable format adapter (reader/writer descriptors).</td>
 </tr>
 <tr>
-<td>Profile over BER/DER</td>
-<td>Reuses the existing <a href="../asn1/ber/">BER</a> or <a href="../../profiles/der/">DER</a> framing; the new work is schemas, nesting rules, dictionaries, or value codecs.</td>
+<td>Schemas and codecs over BER/DER</td>
+<td>Reuses the existing <a href="../asn1/ber/">BER</a> or <a href="../../standards/der/">DER</a> framing; the new work is schemas, nesting rules, dictionaries, or value codecs.</td>
 </tr>
 <tr>
-<td>Adapter + profile</td>
+<td>Adapter + semantics</td>
 <td>A new framing plus protocol-specific nesting, schemas, or codecs.</td>
 </tr>
 <tr>
@@ -3040,7 +3040,7 @@ its name, or that runs over ASN.1, is BER-TLV.</p>
 splitting bytes into tag, length, and value. It does not mean validating field
 semantics, running a state machine, verifying signatures, or implementing the
 protocol or card stack that carries the data. An entry becomes "supported" only for
-the encodings and profile functions that its own page names.</p>
+the encodings and validation functions that its own page names.</p>
 <h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h2>
 <p>The catalogue names the pieces a candidate would use or add. Each maps to existing code,
 so a candidate's "components" show which layers stay separate.</p>
@@ -3080,8 +3080,8 @@ so a candidate's "components" show which layers stay separate.</p>
 </tr>
 <tr>
 <td>Dictionary</td>
-<td>Tag tables like the <a href="../../profiles/emv/">EMV profile</a></td>
-<td>Names and meanings for tags in one profile.</td>
+<td>Tag tables like the <a href="../../standards/emv/">EMV module</a></td>
+<td>Names and meanings for tags in one standard.</td>
 </tr>
 <tr>
 <td>Mixed-format traversal</td>
@@ -3100,18 +3100,18 @@ so a candidate's "components" show which layers stay separate.</p>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── Implemented built-in standards
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── [x] Bluetooth (LTV, containers, definitions, schemas, codecs)
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   ├── [x] ASN.1 framing: BER-TLV, DER-TLV (+ strict values, schemas), CER-TLV
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   └── [x] Profile: EMV Contact Book 3 v4.4 (dictionary, schemas, codecs)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│   └── [x] Module: EMV Contact Book 3 v4.4 (dictionary, schemas, codecs)
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>├── Candidates: reuse BER/DER (profile over BER/DER)
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>├── Candidates: reuse BER/DER (schemas and codecs over BER/DER)
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   ├── ASN.1 notation (ITU-T X.680 series), the type layer above X.690
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   │   ├── [x] Small hand-authored DER schema subset (existing, see DER profile)
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   │   ├── [x] Small hand-authored DER schema subset (existing, see DER validation)
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   │   ├── [?] Wider X.680 type coverage and BER/CER schema variants
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│   │   ├── [?] Open types (X.681/X.682 information objects and table constraints)
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   │   └── [?] Offline schema generator from ASN.1 modules (build tool, not runtime)
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│   ├── Protocols using BER
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>│   │   ├── [?] LDAP (RFC 4511)
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>│   │   └── [?] SNMP (v1 / v2c / v3)
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│   ├── ASN.1 profiles (DER unless noted)
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>│   ├── ASN.1 standards (DER unless noted)
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│   │   ├── [ ] X.509 certificates and CRLs
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│   │   ├── [ ] PKCS#1 keys, PKCS#8 keys, PKCS#10 requests
 <a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│   │   ├── [?] PKCS#7 / CMS / S/MIME (BER allowed; parts DER)
@@ -3173,12 +3173,12 @@ so a candidate's "components" show which layers stay separate.</p>
 <tr>
 <td>ASN.1</td>
 <td>Remaining DER gaps</td>
-<td>Beyond the implemented structural, <code>_strict</code> universal-value and schema-aware layers: the universal types strict mode still rejects, full calendar validation of time values, and schema constraints. See the <a href="../format-catalogue/#asn1-notation-itu-t-x680-series">ASN.1 notation rows</a> and the <a href="../../profiles/der/#supported-scope">DER limits</a>.</td>
+<td>Beyond the implemented structural, <code>_strict</code> universal-value and schema-aware layers: the universal types strict mode still rejects, full calendar validation of time values, and schema constraints. See the <a href="../format-catalogue/#asn1-notation-itu-t-x680-series">ASN.1 notation rows</a> and the <a href="../../standards/der/#supported-scope">DER limits</a>.</td>
 </tr>
 <tr>
 <td>ASN.1</td>
 <td>Remaining CER gaps</td>
-<td>Canonical SET/SET OF ordering is not yet checked, and there is no schema-aware CER layer. <a href="../../profiles/cer/#supported-scope">Current limits</a></td>
+<td>Canonical SET/SET OF ordering is not yet checked, and there is no schema-aware CER layer. <a href="../../standards/cer/#supported-scope">Current limits</a></td>
 </tr>
 <tr>
 <td>Smart cards</td>
@@ -3188,12 +3188,12 @@ so a candidate's "components" show which layers stay separate.</p>
 <tr>
 <td>Payments</td>
 <td>EMV contactless</td>
-<td>Separate kernel-specific scope and specification selection; not implied by the existing Contact Book 3 dictionary. <a href="../../profiles/emv/">Current profile</a></td>
+<td>Separate kernel-specific scope and specification selection; not implied by the existing Contact Book 3 dictionary. <a href="../../standards/emv/">Current support</a></td>
 </tr>
 <tr>
 <td>Networking</td>
 <td>NDN</td>
-<td>Packet TLV framing and explicit container rules; packet semantics belong in a separate profile. <a href="https://101.named-data.net/connectivity/packet-format/">NDN packet format</a></td>
+<td>Packet TLV framing and explicit container rules; packet semantics belong in schemas and codecs. <a href="https://101.named-data.net/connectivity/packet-format/">NDN packet format</a></td>
 </tr>
 <tr>
 <td>Networking</td>
@@ -3229,7 +3229,7 @@ so a candidate's "components" show which layers stay separate.</p>
 </tr>
 <tr>
 <td>EMV contactless</td>
-<td>Kernel-specific: the contactless books define several kernels; each needs its own dictionary and edition. Book 3 data objects are already covered by the <a href="../../profiles/emv/">EMV profile</a>.</td>
+<td>Kernel-specific: the contactless books define several kernels; each needs its own dictionary and edition. Book 3 data objects are already covered by the <a href="../../standards/emv/">EMV module</a>.</td>
 <td>Not verified: EMV contactless books not read.</td>
 </tr>
 <tr>
@@ -3329,7 +3329,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.</strong><
 <tr>
 <td>Mixed BER and DER strictness in one document</td>
 <td>CMS</td>
-<td>Profile-level checks on top of the BER reader; needs the BER schema variant.</td>
+<td>Schema checks on top of the BER reader; needs the BER schema variant.</td>
 </tr>
 </tbody>
 </table>
@@ -3357,11 +3357,11 @@ bounded iterative traversal. It does not allocate an object tree. See
    Layout primitive (reordered headers are covered by
    <a href="../bluetooth/">Bluetooth LTV</a>).</li>
 <li>Add mixed-format traversal and incremental parsing as separately scoped core work.</li>
-<li>Expand semantic profiles and ASN.1 canonical validation with explicit standard
+<li>Expand standard-specific schemas and codecs and ASN.1 canonical validation with explicit standard
    coverage, independently of basic wire-format support.</li>
 </ol>
 <p>These priorities are proposals. A format adapter can be useful without a full
-protocol profile; enabling one must not imply the other is complete. The expanded
+protocol semantics; enabling one must not imply the other is complete. The expanded
 candidates in the catalogue are not ranked and have no schedule.</p>
 <h2 id="verification-status">Verification status<a class="headerlink" href="#verification-status" title="Permanent link">&para;</a></h2>
 <p>Every row in the <a href="../format-catalogue/">catalogue</a> has a <strong>Check</strong> entry that says what

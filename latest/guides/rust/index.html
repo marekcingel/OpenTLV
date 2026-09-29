@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1902,7 +1902,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1918,7 +1918,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1931,7 +1931,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -1959,7 +1959,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -1987,7 +1987,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2847,7 +2847,7 @@
 <h1 id="using-opentlv-from-rust">Using OpenTLV from Rust<a class="headerlink" href="#using-opentlv-from-rust" title="Permanent link">&para;</a></h1>
 <p>The <code>opentlv</code> crate is an experimental safe Rust API over the OpenTLV C library.
 This guide covers setup, reading, writing, error handling and ownership. For
-crate layout, schemas, codecs, profiles and CI, see
+crate layout, schemas, codecs, canonical validation and CI, see
 <a href="../../development/rust/">Rust bindings</a>; every public item also has Rustdoc
 (<code>cargo doc -p opentlv --open</code> from <code>bindings/rust</code>).</p>
 <h2 id="cargo-setup">Cargo setup<a class="headerlink" href="#cargo-setup" title="Permanent link">&para;</a></h2>
@@ -2922,7 +2922,7 @@ the parent.</p>
 <li><code>Writer::write</code> returns <code>Error::BufferTooShort</code> when the element does not fit
   and leaves the position unchanged, so you can retry with a bigger buffer.</li>
 <li>Layers with more context use their own types: <code>SchemaError</code> and
-  <code>ProfileError</code> carry the C <code>Error</code> plus the failing offset, and <code>CodecError</code>
+  <code>ValidationError</code> carry the C <code>Error</code> plus the failing offset, and <code>CodecError</code>
   maps the separate <code>tlv_codec_result_t</code>.</li>
 </ul>
 <h2 id="ownership-and-lifetimes">Ownership and lifetimes<a class="headerlink" href="#ownership-and-lifetimes" title="Permanent link">&para;</a></h2>
@@ -2997,7 +2997,7 @@ so behavior matches the C API, and the C error codes map one to one onto
 become slices, initialization and <code>NULL</code> checks are done internally, and
 lifetimes replace the borrowing rules the <a href="../memory/">C memory guide</a>
 documents. Parts of the C API that need callbacks (visitors, structure codecs,
-the DOL profile) are not bound yet; see the <a href="../../reference/c-api/">C API reference</a>.</p>
+the DOL component) are not bound yet; see the <a href="../../reference/c-api/">C API reference</a>.</p>
 
 
 

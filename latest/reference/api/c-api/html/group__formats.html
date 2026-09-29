@@ -469,7 +469,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>ASN.1 identifier-octet class bits (ITU-T X.690 section 8.1). </p>
-<p>Independent of any particular encoding-rule profile; shared by the DER and CER profiles. </p>
+<p>Independent of any particular encoding rule set; shared by the DER and CER rules. </p>
 
 </div>
 </div>
@@ -1151,7 +1151,7 @@ An identifier or buffer error reported by the codec.</dd></dl>
 </div><div class="memdoc">
 
 <p>ASN.1 identifier-octet class bits (ITU-T X.690 section 8.1). </p>
-<p>Independent of any particular encoding-rule profile; shared by the DER and CER profiles. </p>
+<p>Independent of any particular encoding rule set; shared by the DER and CER rules. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggae888c73e721d0ad6ba3ecea514ae7626a9482df1f4b4bc3a8106fa111ab96ad6b" name="ggae888c73e721d0ad6ba3ecea514ae7626a9482df1f4b4bc3a8106fa111ab96ad6b"></a>TLV_ASN1_UNIVERSAL&#160;</td><td class="fielddoc"><p>UNIVERSAL class. </p>
 </td></tr>
@@ -2072,7 +2072,7 @@ A format error if the semantic input cannot be represented.   </dd></dl>
 </div><div class="memdoc">
 
 <p>Constructs a canonical CER tag. </p>
-<p>Applies the identifier restrictions of <a class="el" href="group__formats.html#ga64ffa8520ff684baf13e601bc6989439" title="Format for canonical ASN.1 CER identifiers and lengths of a single element.">tlv_format_cer</a>, including reserved universal numbers and the always-constructed types. Unlike DER, string tags may be constructed; segmentation is validated by the CER profile.</p>
+<p>Applies the identifier restrictions of <a class="el" href="group__formats.html#ga64ffa8520ff684baf13e601bc6989439" title="Format for canonical ASN.1 CER identifiers and lengths of a single element.">tlv_format_cer</a>, including reserved universal numbers and the always-constructed types. Unlike DER, string tags may be constructed; segmentation is validated by the CER validation.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">tag_class</td><td>ASN.1 class. </td></tr>
@@ -3725,9 +3725,9 @@ A format error if the semantic input cannot be represented.   </dd></dl>
 </div><div class="memdoc">
 
 <p>Format for canonical ASN.1 CER identifiers and lengths of a single element. </p>
-<p>SEQUENCE/SEQUENCE OF, SET/SET OF, EXTERNAL, EMBEDDED PDV and CHARACTER STRING must be constructed; universal tags 0 (EOC) and 15 are rejected; high-tag-number form must be minimal. Unlike DER, this descriptor does not require every other UNIVERSAL primitive tag number to stay primitive: CER permits either form for the segmentable string types (BIT STRING, OCTET STRING and the restricted character string types), chosen by content length rather than fixed by the tag alone, so that decision is left to <a class="el" href="cer__profile_8h.html" title="Bounded recursive CER validation, traversal and canonical writing.">tlv/builtins/asn1/cer_profile.h</a>. A constructed value's length must be indefinite (0x80); a primitive value's length must be definite and minimally encoded (short form below 128, long form only at or above 128, no leading zero padding octet).</p>
+<p>SEQUENCE/SEQUENCE OF, SET/SET OF, EXTERNAL, EMBEDDED PDV and CHARACTER STRING must be constructed; universal tags 0 (EOC) and 15 are rejected; high-tag-number form must be minimal. Unlike DER, this descriptor does not require every other UNIVERSAL primitive tag number to stay primitive: CER permits either form for the segmentable string types (BIT STRING, OCTET STRING and the restricted character string types), chosen by content length rather than fixed by the tag alone, so that decision is left to <a class="el" href="cer__validation_8h.html" title="Bounded recursive CER validation, traversal and canonical writing.">tlv/builtins/asn1/cer_validation.h</a>. A constructed value's length must be indefinite (0x80); a primitive value's length must be definite and minimally encoded (short form below 128, long form only at or above 128, no leading zero padding octet).</p>
 <p>This is a TLV-layer descriptor: it validates the current element's identifier and length, using the shared BER scanner to locate matching EOC boundaries. Descendants are checked for BER framing, not recursive CER canonicality or string segmentation.</p>
-<dl class="section warning"><dt>Warning</dt><dd>Generic writing through <a class="el" href="group__formats.html#ga64ffa8520ff684baf13e601bc6989439" title="Format for canonical ASN.1 CER identifiers and lengths of a single element.">tlv_format_cer</a> is therefore not by itself a complete CER encoder for constructed or segmentable values. Use <a class="el" href="cer__profile_8h.html" title="Bounded recursive CER validation, traversal and canonical writing.">tlv/builtins/asn1/cer_profile.h</a> for bounded recursive validation, canonical constructed/segmented encoding, and error offsets. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Generic writing through <a class="el" href="group__formats.html#ga64ffa8520ff684baf13e601bc6989439" title="Format for canonical ASN.1 CER identifiers and lengths of a single element.">tlv_format_cer</a> is therefore not by itself a complete CER encoder for constructed or segmentable values. Use <a class="el" href="cer__validation_8h.html" title="Bounded recursive CER validation, traversal and canonical writing.">tlv/builtins/asn1/cer_validation.h</a> for bounded recursive validation, canonical constructed/segmented encoding, and error offsets. </dd></dl>
 
 </div>
 </div>
@@ -3752,7 +3752,7 @@ A format error if the semantic input cannot be represented.   </dd></dl>
 </div><div class="memdoc">
 
 <p>Format for canonical ASN.1 DER identifiers and definite lengths. </p>
-<p>Validates universal primitive/constructed bits, but does not inspect values or nested headers. Use <a class="el" href="der__profile_8h.html" title="Bounded recursive DER validation, traversal and canonical writing.">tlv/builtins/asn1/der_profile.h</a> for bounded recursive validation and error offsets. </p>
+<p>Validates universal primitive/constructed bits, but does not inspect values or nested headers. Use <a class="el" href="der__validation_8h.html" title="Bounded recursive DER validation, traversal and canonical writing.">tlv/builtins/asn1/der_validation.h</a> for bounded recursive validation and error offsets. </p>
 
 </div>
 </div>

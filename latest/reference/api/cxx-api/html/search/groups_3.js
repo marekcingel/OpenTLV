@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['formats_0',['Formats',['../../../c-api/html/group__formats.html',1,'']]]
+  ['diagnostics_0',['Diagnostics',['../../../c-api/html/group__diagnostics.html',1,'']]],
+  ['document_1',['Mutable document',['../../../c-api/html/group__document.html',1,'']]]
 ];

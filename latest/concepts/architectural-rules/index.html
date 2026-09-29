@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -2161,7 +2161,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -2177,7 +2177,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -2190,7 +2190,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -2218,7 +2218,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -2246,7 +2246,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -3710,11 +3710,14 @@ actually:</p>
 <li>preset</li>
 <li>tooling</li>
 </ul>
-<p>Avoid catch-all architectural layers such as "Profile" when composition of
-existing concepts is sufficient.</p>
-<p>Existing named profiles are compositions of Format, Schema, Codec and
-Definition responsibilities, not a new foundational layer. This rule does
-not itself remove their public APIs.</p>
+<p>A module is a reusable unit that may provide any subset of OpenTLV capabilities:
+Definition, Format, Schema and Codec. A definition-only module or a format-only
+module is valid. Module describes composition; it adds no architectural layer.</p>
+<p>Builtins are functionality implemented natively and optionally compiled into
+OpenTLV. They remain independent of modules and of the future <code>.otlv</code> runtime
+interpreter. <code>.otlv</code> is a runtime description, not a requirement for using a
+builtin. Native C, runtime <code>.otlv</code> and future generated code must supply the
+same contracts to the generic core. No runtime engine is introduced here.</p>
 <hr />
 <h2 id="16-standards-should-be-compositions-of-generic-primitives">16. Standards should be compositions of generic primitives<a class="headerlink" href="#16-standards-should-be-compositions-of-generic-primitives" title="Permanent link">&para;</a></h2>
 <p>A standard implementation should ideally look like:</p>

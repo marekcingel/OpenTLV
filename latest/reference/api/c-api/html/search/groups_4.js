@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mutable_20document_0',['Mutable document',['../group__document.html',1,'']]]
+  ['formats_0',['Formats',['../group__formats.html',1,'']]]
 ];

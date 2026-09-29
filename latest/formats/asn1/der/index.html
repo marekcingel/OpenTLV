@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../profiles/der/" class="md-tabs__link">
+        <a href="../../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1891,7 +1891,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1907,7 +1907,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1920,7 +1920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/der/" class="md-nav__link">
+      <a href="../../../standards/der/" class="md-nav__link">
         
   
   
@@ -1948,7 +1948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/cer/" class="md-nav__link">
+      <a href="../../../standards/cer/" class="md-nav__link">
         
   
   
@@ -1976,7 +1976,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/emv/" class="md-nav__link">
+      <a href="../../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2893,7 +2893,7 @@ every value, so equal values always encode to the same bytes.</p>
 fewest octets possible. Typical uses are signed or hashed structures such as
 certificates and keys, where the exact bytes must be reproducible. The generic reader
 checks only this framing; canonical values and ordering come from the <code>_strict</code>
-functions and <a href="../../../profiles/der/">schemas</a>.</p>
+functions and <a href="../../../standards/der/">schemas</a>.</p>
 <h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>30 06 02 01 2A 04 01 FF
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Element (8 bytes)
@@ -2914,7 +2914,7 @@ Use <code>tlv_der_read</code> for bounded validation of the element and its desc
 The generic <code>tlv_format_der</code> descriptor validates
 only the current tag and length. Indefinite lengths are rejected. Full ASN.1
 value canonicalization and SET ordering remain outside the supported scope.
-<a href="../../../profiles/der/">DER profile</a></p>
+<a href="../../../standards/der/">DER validation</a></p>
 
 
 

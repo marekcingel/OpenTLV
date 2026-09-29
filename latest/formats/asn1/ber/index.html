@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../profiles/der/" class="md-tabs__link">
+        <a href="../../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1991,7 +1991,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -2007,7 +2007,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -2020,7 +2020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/der/" class="md-nav__link">
+      <a href="../../../standards/der/" class="md-nav__link">
         
   
   
@@ -2048,7 +2048,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/cer/" class="md-nav__link">
+      <a href="../../../standards/cer/" class="md-nav__link">
         
   
   
@@ -2076,7 +2076,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/emv/" class="md-nav__link">
+      <a href="../../../standards/emv/" class="md-nav__link">
         
   
   
@@ -3155,7 +3155,7 @@ reading; resolving an indefinite element inspects descendant framing.</p>
 <p><code>tlv_asn1_class_t</code> (<code>TLV_ASN1_UNIVERSAL</code>, <code>TLV_ASN1_APPLICATION</code>,
 <code>TLV_ASN1_CONTEXT_SPECIFIC</code>, <code>TLV_ASN1_PRIVATE</code>) and the ASN.1 identifier-octet
 model (class, primitive/constructed form, low- and high-tag-number number)
-are wire-format concepts, not specific to any encoding-rule profile; every
+are wire-format concepts, not specific to any encoding rule set; every
 BER-family format shares them. ASN.1 type semantics such as <code>INTEGER</code> or
 <code>SEQUENCE</code> stay outside this layer.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">input</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0xA0</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">};</span><span class="w"> </span><span class="cm">/* Context-specific, constructed, tag 0 */</span>
@@ -3300,7 +3300,7 @@ value payload to be present.</p>
 <a href="../../../guides/codecs/"><code>tlv_codec_t</code></a> descriptors that convert the raw
 value bytes of the ASN.1 primitive universal types to and from C
 representations, independent of any particular BER-family format or
-profile. The format layer above never reads ASN.1 type semantics into a
+module. The format layer above never reads ASN.1 type semantics into a
 tag; callers pick the matching codec themselves, typically from a schema or
 dictionary:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/asn1_codec.h"</span>
@@ -3419,7 +3419,7 @@ contents are more elements with the same layout, so the structure is recursive.<
 <p>The definite length covers the contents (all children with their headers), not the
 identifier or the length octets. Typical uses are ASN.1-based protocols and smart-card
 data objects, where BER is the framing and the meaning of each tag comes from a
-<a href="../../../profiles/emv/">profile</a> or a schema. See <a href="../der/">DER</a> and <a href="../cer/">CER</a>
+<a href="../../../standards/emv/">module</a> or a schema. See <a href="../der/">DER</a> and <a href="../cer/">CER</a>
 for the canonical restrictions of this layout.</p>
 <h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
 <h3 id="definite-constructed-value">Definite constructed value<a class="headerlink" href="#definite-constructed-value" title="Permanent link">&para;</a></h3>
@@ -3505,11 +3505,11 @@ these helpers do not validate a Value or CER segmentation.</p>
 </tr>
 <tr>
 <td>Common canonical universal-value validation</td>
-<td>Shared ASN.1 validators called by the profiles/codecs</td>
+<td>Shared ASN.1 validators called by the validation operations and codecs</td>
 </tr>
 <tr>
 <td>CER string segmentation and cross-segment validation</td>
-<td>CER profile</td>
+<td>CER validation</td>
 </tr>
 </tbody>
 </table>

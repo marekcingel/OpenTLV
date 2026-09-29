@@ -345,11 +345,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../profiles/der/" class="md-tabs__link">
+        <a href="../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1784,7 +1784,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1800,7 +1800,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1813,7 +1813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../profiles/der/" class="md-nav__link">
+      <a href="../standards/der/" class="md-nav__link">
         
   
   
@@ -1841,7 +1841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../profiles/cer/" class="md-nav__link">
+      <a href="../standards/cer/" class="md-nav__link">
         
   
   
@@ -1869,7 +1869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../profiles/emv/" class="md-nav__link">
+      <a href="../standards/emv/" class="md-nav__link">
         
   
   
@@ -2809,7 +2809,7 @@ native applications. Nothing you enter is uploaded.</p>
       </select>
     </label>
     <label>Annotations
-      <select id="otlv-pg-profile" disabled>
+      <select id="otlv-pg-module" disabled>
         <option value="none">None (AD names are automatic)</option>
         <option value="emv">EMV tag names (BER or EMV)</option>
       </select>
@@ -2876,10 +2876,10 @@ logical value length, offset, complete encoded size, nesting depth and path,
 raw value and any trailer (such as BER end-of-contents), with
 buttons to copy the tag, the value or the whole encoded element. With the
 <strong>EMV tag names</strong> annotations it also shows the tag's name from the
-<a href="../profiles/emv/">EMV profile</a> and whether its length is permitted.</p>
+<a href="../standards/emv/">EMV module</a> and whether its length is permitted.</p>
 <p>In <a href="../formats/asn1/ber/">BER-TLV</a>,
 <a href="../formats/asn1/der/">DER-TLV</a>, <a href="../formats/asn1/cer/">CER-TLV</a> and
-<a href="../profiles/emv/">EMV BER-TLV</a>, wire-constructed elements nest their children; the
+<a href="../standards/emv/">EMV BER-TLV</a>, wire-constructed elements nest their children; the
 <a href="../formats/fixed/configurable/">configurable fixed-width</a> and
 <a href="../formats/bluetooth/">Bluetooth LTV</a> formats have opaque values, so
 their elements are flat. Bluetooth LTV puts the length byte before the type, so
@@ -2896,7 +2896,7 @@ Both modes use the C AD Type registry for names, including Flags, Local Name,
 Service Data and Manufacturer Specific Data. Unknown types remain readable.
 Values remain raw; this view does not apply Bluetooth schemas or value codecs.</p>
 <p>CER uses the generic reader and tree walker with <code>tlv_format_cer</code>: framing and
-EOC boundaries are checked. Full CER profile validation, including string
+EOC boundaries are checked. Full CER validation, including string
 segmentation rules and semantic value checks, is not applied.</p>
 <h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
 <p>The playground only parses and inspects. Editing, re-encoding, schemas, <code>.otlv</code>

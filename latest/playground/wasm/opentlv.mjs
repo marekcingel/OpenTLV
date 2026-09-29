@@ -12,8 +12,8 @@ import createOpenTLV from "./opentlv-core.js";
 /** Formats the module can parse (a build may compile out some of them). */
 export const FORMATS = Object.freeze(["fixed", "bluetooth-ltv", "bluetooth-ad", "ber", "der", "cer", "lldp", "emv"]);
 
-/** Profiles that annotate elements with known tag names ("none" adds nothing). */
-export const PROFILES = Object.freeze(["none", "emv"]);
+/** Modules that annotate elements with known tag names ("none" adds nothing). */
+export const MODULES = Object.freeze(["none", "emv"]);
 
 /**
  * Converts hexadecimal text to bytes. Whitespace is ignored; an optional "0x"
@@ -37,24 +37,24 @@ export function hexToBytes(text) {
  * @param {object} [moduleOptions] Passed to the Emscripten factory, e.g.
  *   `{ locateFile: (name) => "/static/" + name }` to serve the .wasm file
  *   from another location.
- * @returns {Promise<{version: string, formats: readonly string[], profiles: readonly string[], parse: Function}>}
+ * @returns {Promise<{version: string, formats: readonly string[], modules: readonly string[], parse: Function}>}
  */
 export async function loadOpenTLV(moduleOptions = {}) {
-  const module = await createOpenTLV(moduleOptions);
+  const wasm = await createOpenTLV(moduleOptions);
 
   // Copies `size` bytes into module memory; the caller frees the result.
   function allocate(size) {
-    const pointer = module._opentlv_wasm_alloc(size);
+    const pointer = wasm._opentlv_wasm_alloc(size);
     if (!pointer) throw new Error("OpenTLV: out of memory");
     return pointer;
   }
 
   const api = {
-    version: module.UTF8ToString(module._opentlv_wasm_version()),
+    version: wasm.UTF8ToString(wasm._opentlv_wasm_version()),
 
     /**
      * Parses `bytes` and returns
-     * `{ format, profile?, elements: [{ offset, depth, tag, length, headerSize, constructed,
+     * `{ format, module?, elements: [{ offset, depth, tag, length, headerSize, constructed,
      * value | children, symbol?, name?, lengthValid? }], error? }`.
      * Bluetooth modes add AD Type names. "bluetooth-ad" validates container padding
      * and adds `padding: { offset, length }` when present; "bluetooth-ltv" stays strict.
@@ -65,16 +65,16 @@ export async function loadOpenTLV(moduleOptions = {}) {
      * value and trailer; logical value length excludes the trailer.
      *
      * @param {Uint8Array} bytes
-     * @param {{format?: string, profile?: string, fixedTagSize?: number,
+     * @param {{format?: string, module?: string, fixedTagSize?: number,
      *   fixedLengthSize?: number, fixedByteOrder?: "big"|"little",
      *   fixedElementOrder?: "tlv"|"ltv", fixedLengthScope?: "value"|"tag-and-value"}} [options] `format`
-     *   defaults to "ber"; `profile` ("none" or "emv") defaults to "none".
+     *   defaults to "ber"; `module` ("none" or "emv") defaults to "none".
      *   `fixedTagSize`, `fixedLengthSize` (1-8) and `fixedByteOrder` configure
      *   `format: "fixed"`'s tag width, length width and length byte order
      *   (`tlv_fixed_format_t`). `fixedElementOrder` defaults to "tlv" and
      *   `fixedLengthScope` to "value". These options apply only to Fixed.
      */
-    parse(bytes, { format = "ber", profile = "none", fixedTagSize = 1, fixedLengthSize = 1,
+    parse(bytes, { format = "ber", module = "none", fixedTagSize = 1, fixedLengthSize = 1,
                   fixedByteOrder = "big", fixedElementOrder = "tlv", fixedLengthScope = "value" } = {}) {
       if (!(bytes instanceof Uint8Array)) throw new TypeError("bytes must be a Uint8Array");
       if (format === "fixed" && (
@@ -85,39 +85,39 @@ export async function loadOpenTLV(moduleOptions = {}) {
         !["value", "tag-and-value"].includes(fixedLengthScope))) {
         throw new TypeError("Invalid Fixed configuration: positive tag width, length width 1-8, and valid byte order, field order and length scope required");
       }
-      const formatSize = module.lengthBytesUTF8(format) + 1;
-      const profileSize = module.lengthBytesUTF8(profile) + 1;
+      const formatSize = wasm.lengthBytesUTF8(format) + 1;
+      const moduleSize = wasm.lengthBytesUTF8(module) + 1;
       const input = allocate(bytes.length);
       let name = 0;
-      let profileName = 0;
+      let moduleName = 0;
       let result = 0;
       try {
         name = allocate(formatSize);
-        profileName = allocate(profileSize);
+        moduleName = allocate(moduleSize);
         // HEAPU8 is re-read on every use: it is replaced when memory grows.
-        module.HEAPU8.set(bytes, input);
-        module.stringToUTF8(format, name, formatSize);
-        module.stringToUTF8(profile, profileName, profileSize);
-        result = module._opentlv_wasm_parse(input, bytes.length, name, profileName, fixedTagSize,
+        wasm.HEAPU8.set(bytes, input);
+        wasm.stringToUTF8(format, name, formatSize);
+        wasm.stringToUTF8(module, moduleName, moduleSize);
+        result = wasm._opentlv_wasm_parse(input, bytes.length, name, moduleName, fixedTagSize,
                                             fixedLengthSize, fixedByteOrder === "big" ? 1 : 0,
                                             fixedElementOrder === "ltv" ? 1 : 0,
                                             fixedLengthScope === "tag-and-value" ? 1 : 0);
         if (!result) throw new Error("OpenTLV: out of memory");
-        const json = module.UTF8ToString(
-          module._opentlv_wasm_result_json(result),
-          module._opentlv_wasm_result_json_size(result),
+        const json = wasm.UTF8ToString(
+          wasm._opentlv_wasm_result_json(result),
+          wasm._opentlv_wasm_result_json_size(result),
         );
         return JSON.parse(json);
       } finally {
-        if (result) module._opentlv_wasm_result_free(result);
-        if (profileName) module._opentlv_wasm_free(profileName);
-        if (name) module._opentlv_wasm_free(name);
-        module._opentlv_wasm_free(input);
+        if (result) wasm._opentlv_wasm_result_free(result);
+        if (moduleName) wasm._opentlv_wasm_free(moduleName);
+        if (name) wasm._opentlv_wasm_free(name);
+        wasm._opentlv_wasm_free(input);
       }
     },
   };
   api.formats = Object.freeze(FORMATS.filter(format => !api.parse(new Uint8Array(0), { format }).error));
-  api.profiles = Object.freeze(api.parse(new Uint8Array(0), { format: "ber", profile: "emv" }).error
+  api.modules = Object.freeze(api.parse(new Uint8Array(0), { format: "ber", module: "emv" }).error
     ? ["none"] : ["none", "emv"]);
   return api;
 }

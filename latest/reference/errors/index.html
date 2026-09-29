@@ -345,11 +345,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1784,7 +1784,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1800,7 +1800,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1813,7 +1813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -1841,7 +1841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -1869,7 +1869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2837,8 +2837,8 @@ return; this page explains what each code means and what to check first.</p>
 <tr>
 <td><code>TLV_ERR_INVALID_TAG</code></td>
 <td>6</td>
-<td>A tag is malformed or invalid for the format or profile.</td>
-<td>Unterminated multi-byte BER tags, or a tag the profile rejects.</td>
+<td>A tag is malformed or invalid for the format or standard.</td>
+<td>Unterminated multi-byte BER tags, or a tag the standard rejects.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_VISITOR</code></td>
@@ -2850,7 +2850,7 @@ return; this page explains what each code means and what to check first.</p>
 <td><code>TLV_ERR_LIMIT</code></td>
 <td>8</td>
 <td>A configured depth, size or element-count limit was exceeded.</td>
-<td>The limits passed to the tree walker or profile function, <code>TLV_WALK_MAX_DEPTH</code> (64), <code>TLV_BER_MAX_DEPTH</code> (64). Limits are inclusive and zero is a real limit.</td>
+<td>The limits passed to the tree walker or validation function, <code>TLV_WALK_MAX_DEPTH</code> (64), <code>TLV_BER_MAX_DEPTH</code> (64). Limits are inclusive and zero is a real limit.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_SCHEMA</code></td>
@@ -2892,7 +2892,7 @@ return; this page explains what each code means and what to check first.</p>
 <td><code>TLV_ERR_UNSUPPORTED_TYPE</code></td>
 <td>15</td>
 <td>A universal tag number has no implemented canonical validation.</td>
-<td>Strict mode returns this instead of silently accepting a type it does not check; see the list in the <a href="../../profiles/der/#strict-universal-value-validation">DER profile</a>.</td>
+<td>Strict mode returns this instead of silently accepting a type it does not check; see the list in the <a href="../../standards/der/#strict-universal-value-validation">DER validation</a>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_SCHEMA_MISSING</code></td>
@@ -2909,13 +2909,13 @@ return; this page explains what each code means and what to check first.</p>
 </tbody>
 </table>
 <h2 id="offsets-and-diagnosis">Offsets and diagnosis<a class="headerlink" href="#offsets-and-diagnosis" title="Permanent link">&para;</a></h2>
-<p>Several APIs report an <code>error_offset</code> that is changed only on failure. For the DER profile
+<p>Several APIs report an <code>error_offset</code> that is changed only on failure. For the DER validation
 functions it identifies the start of the failing field, relative to the input: tag
 errors point to the tag, length errors to the length prefix, and truncated values to their
 value start, including missing fields at the end of the input. Value-size limits point to
 the length field and depth or count limits to the first disallowed element. Argument,
-configuration, total-size and destination-capacity errors use offset zero. The CER profile
-reports its own <code>error_offset</code>; see the <a href="../../profiles/cer/">CER profile</a>.</p>
+configuration, total-size and destination-capacity errors use offset zero. The CER validation
+reports its own <code>error_offset</code>; see the <a href="../../standards/cer/">CER validation</a>.</p>
 <p><code>TLV_ERR_SCHEMA_MISSING</code> is different from <code>TLV_ERR_SCHEMA</code>: its offset is the end of the
 parent's value, a scope boundary, and can coincide with the start of an unrelated sibling,
 so a tag read there is not reliably the cause. Every other schema violation returns

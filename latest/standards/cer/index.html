@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/profiles/emv/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/standards/cer/">
       
       
-        <link rel="prev" href="../cer/">
+        <link rel="prev" href="../der/">
       
       
-        <link rel="next" href="../../cli/">
+        <link rel="next" href="../emv/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>EMV - OpenTLV</title>
+        <title>CER - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#emv-contact-book-3-profile" class="md-skip">
+        <a href="#asn1-cer-tlv" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              EMV
+              CER
             
           </span>
         </div>
@@ -351,7 +351,7 @@
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1805,7 +1805,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1843,34 +1843,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../cer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CER
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -1890,7 +1862,7 @@
   <span class="md-ellipsis">
     
   
-    EMV
+    CER
   
 
     
@@ -1908,7 +1880,7 @@
   <span class="md-ellipsis">
     
   
-    EMV
+    CER
   
 
     
@@ -1934,10 +1906,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#framing-and-lookup" class="md-nav__link">
+  <a href="#supported-scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Framing and lookup
+        Supported scope
       
     </span>
   </a>
@@ -1945,10 +1917,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#contexts" class="md-nav__link">
+  <a href="#read-and-traverse" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Contexts
+        Read and traverse
       
     </span>
   </a>
@@ -1956,10 +1928,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#value-representations" class="md-nav__link">
+  <a href="#canonical-string-segmentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Value representations
+        Canonical string segmentation
       
     </span>
   </a>
@@ -1967,10 +1939,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagnostics-and-tooling" class="md-nav__link">
+  <a href="#zero-copy-access-to-segments" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Diagnostics and tooling
+        Zero-copy access to segments
       
     </span>
   </a>
@@ -1978,10 +1950,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#validation-limits" class="md-nav__link">
+  <a href="#encode" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Validation limits
+        Encode
       
     </span>
   </a>
@@ -1989,10 +1961,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structural-validation" class="md-nav__link">
+  <a href="#strict-universal-value-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structural validation
+        Strict universal value validation
       
     </span>
   </a>
@@ -2000,32 +1972,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-object-lists-pdolcdolddol" class="md-nav__link">
+  <a href="#errors-offsets-and-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Object Lists (PDOL/CDOL/DDOL)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#byte-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Byte example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
+        Errors, offsets and limits
       
     </span>
   </a>
@@ -2036,6 +1986,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../emv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EMV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2787,10 +2765,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#framing-and-lookup" class="md-nav__link">
+  <a href="#supported-scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Framing and lookup
+        Supported scope
       
     </span>
   </a>
@@ -2798,10 +2776,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#contexts" class="md-nav__link">
+  <a href="#read-and-traverse" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Contexts
+        Read and traverse
       
     </span>
   </a>
@@ -2809,10 +2787,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#value-representations" class="md-nav__link">
+  <a href="#canonical-string-segmentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Value representations
+        Canonical string segmentation
       
     </span>
   </a>
@@ -2820,10 +2798,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#diagnostics-and-tooling" class="md-nav__link">
+  <a href="#zero-copy-access-to-segments" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Diagnostics and tooling
+        Zero-copy access to segments
       
     </span>
   </a>
@@ -2831,10 +2809,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#validation-limits" class="md-nav__link">
+  <a href="#encode" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Validation limits
+        Encode
       
     </span>
   </a>
@@ -2842,10 +2820,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structural-validation" class="md-nav__link">
+  <a href="#strict-universal-value-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structural validation
+        Strict universal value validation
       
     </span>
   </a>
@@ -2853,32 +2831,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-object-lists-pdolcdolddol" class="md-nav__link">
+  <a href="#errors-offsets-and-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Object Lists (PDOL/CDOL/DDOL)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#byte-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Byte example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
+        Errors, offsets and limits
       
     </span>
   </a>
@@ -2902,7 +2858,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/profiles/emv/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/standards/cer/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2910,408 +2866,220 @@
   
 
 
-<h1 id="emv-contact-book-3-profile">EMV Contact Book 3 profile<a class="headerlink" href="#emv-contact-book-3-profile" title="Permanent link">&para;</a></h1>
-<p>Include <code>tlv/builtins/emv/emv.h</code> and link <code>tlv</code>. The supported set is explicitly
-<strong>EMV Contact Book 3 v4.4 (October 2022)</strong>, exposed as <code>TLV_EMV_SPECIFICATION</code>.
-It covers all tagged data elements in Annex A Tables 37/38, including the
-context-specific biometric meanings and nested tags in Annex C Tables 48/51/52.
-The dictionary contains 144 distinct wire tags. Contactless kernels, payment
-system proprietary tag sets, and bulletins issued after this edition are outside
-this profile. Book 3 data elements without a tag are not assigned invented tags.</p>
-<p>The reference is <a href="https://www.emvco.com/specifications/book-3-application-specification-2/">EMVCo Book 3 v4.4</a>,
-also available as a <a href="https://www.scribd.com/document/648236969/EMV-v4-4-Book-3-Application-Specification-1">public copy of the specification</a>.
-Tag constants, schema entries, length steps, and codec bindings are maintained
-together in <a href="https://github.com/marekcingel/OpenTLV/blob/main/tlv/include/tlv/builtins/emv/emv_tags.def">emv_tags.def</a>.</p>
-<h2 id="framing-and-lookup">Framing and lookup<a class="headerlink" href="#framing-and-lookup" title="Permanent link">&para;</a></h2>
-<p>Use <code>&amp;tlv_format_emv</code> with the reader, walker, scanner, or writer.
-There is no separate EMV parser and the reader never interprets values.</p>
-<p>The descriptor in <code>tlv/builtins/emv/format.h</code> composes generic variable identifier
-and count primitives with EMV policy. It calls no ASN.1 format or private BER
-helper. C++ exposes the same descriptor as <code>tlv::emv_format()</code> from
-<code>tlv++/builtins/emv/format.hpp</code>.</p>
+<h1 id="asn1-cer-tlv">ASN.1 CER-TLV<a class="headerlink" href="#asn1-cer-tlv" title="Permanent link">&para;</a></h1>
+<p>Include <code>tlv/builtins/asn1/cer_validation.h</code> for allocation-free CER-TLV processing. Tags use the existing
+<code>tlv_tag_t</code> wire-byte representation; values are borrowed <code>tlv_value_t</code> ranges.
+The caller owns input and output storage. CER is a sibling of the
+<a href="../der/">DER validation</a>: it reuses the shared BER wire helpers and, through
+private helpers, the universal-value content rules ITU-T X.690 §11 documents as common to
+both encodings, but neither implementation depends on the other. Existing BER, DER and EMV
+behavior is unchanged.</p>
+<h2 id="supported-scope">Supported scope<a class="headerlink" href="#supported-scope" title="Permanent link">&para;</a></h2>
+<p>The implementation enforces ITU-T X.690's Canonical Encoding Rules: a constructed
+value's length is always indefinite (EOC-terminated); a primitive value's length is
+always definite and minimally encoded. BIT STRING, OCTET STRING and the restricted
+character string types (including UTF8String) may additionally be constructed, but
+only when their logical content exceeds 1,000 octets, in which case they must be
+split into canonical segments (see below); a primitive encoding of such a type with
+more than 1,000 content octets is rejected, and so is a constructed encoding whose
+total content is 1,000 octets or fewer.</p>
+<p>This is a <strong>TLV-layer and framing validator, not a complete ASN.1 CER validator</strong>.
+Structural validation (<code>tlv_cer_read</code>/<code>tlv_cer_walk</code>/<code>tlv_cer_write</code>) covers framing,
+EOC placement, and canonical segmentation — segment tags, forms and sizes — but not
+value semantics. Universal value semantics (BOOLEAN representation, INTEGER
+minimality, BIT STRING padding, string charsets, and so on) are checked only by the
+<code>_strict</code> functions described below. Schema constraints, implicit-tag semantics,
+DEFAULT omission and SET/SET OF ordering remain outside this scope regardless.</p>
+<h2 id="read-and-traverse">Read and traverse<a class="headerlink" href="#read-and-traverse" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/cer_validation.h"</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">input</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x30</span><span class="p">,</span><span class="w"> </span><span class="mh">0x80</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span><span class="w"> </span><span class="cm">/* SEQUENCE(indefinite){ INTEGER 42 } */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_read</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">input</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">                              </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+</code></pre></div>
+<p><code>tlv_cer_read</code> validates one element and all of its descendants — indefinite
+constructed framing, EOC placement, and canonical string segmentation — before
+returning its element and complete encoded size. Trailing input is ignored. Empty
+input returns <code>TLV_ERR_END_OF_BUFFER</code>. Keep the input alive while using returned
+views (see <a href="../../guides/memory/">memory ownership</a>).</p>
+<p><code>tlv_cer_walk(data, size, limits, visitor, context, &amp;error_offset)</code> processes all
+concatenated elements, including nested constructed values. A NULL visitor
+performs validation only. Empty input succeeds.</p>
+<p>Unlike <a href="../der/"><code>tlv_der_visitor_t</code></a>, which visits every element in
+preorder, <code>tlv_cer_visitor_t</code> is <strong>postorder for constructed elements</strong>: a
+primitive element (including each string segment) is visited immediately when
+read, but a constructed element's indefinite length is not known until its
+matching EOC is found, so it is visited only afterward, once its true span is
+known. This keeps traversal a single linear pass with no rescanning. Primitive
+leaves have no descendants, so for them this is the same point either way.</p>
+<p>All CER operations accept NULL limits for <code>tlv_cer_default_limits</code>, the same
+shape and defaults as <a href="../der/#traverse-and-limit-work"><code>tlv_der_limits_t</code></a>:
+<code>max_depth</code> (32), <code>max_input_size</code> (16 MiB), <code>max_value_size</code> (16 MiB), <code>max_elements</code>
+(100,000). <code>max_depth</code> must not exceed <code>TLV_CER_MAX_DEPTH</code> (64). String segments
+count toward <code>max_elements</code>. <code>max_value_size</code> bounds a constructed element's
+assembled indefinite content (all its segments/children together, excluding
+framing overhead), not per-segment header bytes. Traversal uses a fixed stack, no
+heap allocation and no C recursion.</p>
+<h2 id="canonical-string-segmentation">Canonical string segmentation<a class="headerlink" href="#canonical-string-segmentation" title="Permanent link">&para;</a></h2>
+<p>For OCTET STRING, a primitive segment containing 1,000 octets has this header:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>04 82 03 E8
+</code></pre></div>
+<p>The canonical length field is <code>82 03 E8</code>; <code>03 E8</code> alone (without the <code>82</code> long-form
+prefix) is not a valid encoding of length 1,000 — CER requires the same minimal
+definite-length encoding DER does.</p>
+<p>When logical content exceeds 1,000 octets, it is split into segments: every
+non-final segment is exactly 1,000 content octets; the final segment is 1 to 1,000
+octets and never empty. An exact multiple of 1,000 (e.g. 2,000 octets) splits
+cleanly into that many 1,000-octet segments with no trailing empty segment.
+Empty, nested (constructed), or mistagged segments are rejected structurally,
+even without strict content validation.</p>
+<p>BIT STRING segments carry the unused-bits accounting separately from OCTET STRING:
+each segment's first content octet is the unused-bits count (so a non-final
+segment has 999 bit octets plus that count octet, still 1,000 total). Every
+non-final segment's unused-bits octet must be <code>00</code>; only the final segment may
+have a nonzero unused-bits count (0-7), with the same trailing zero-padding rule
+DER already enforces for an unsegmented BIT STRING.</p>
+<p>Character-string segmentation charset checks apply per segment except for
+UTF8String, whose multi-byte characters may legally straddle a segment boundary;
+strict validation streams UTF8String content across segments with small, fixed
+state rather than concatenating them.</p>
+<h2 id="zero-copy-access-to-segments">Zero-copy access to segments<a class="headerlink" href="#zero-copy-access-to-segments" title="Permanent link">&para;</a></h2>
+<p>A constructed string's segments are just ordinary CER primitive elements one
+level below its own element — <code>element.value</code> for a constructed CER element already
+excludes the outer EOC, the same convention <code>tlv_read</code> uses for BER. Iterate
+them with the existing generic <code>tlv_walk</code>, no dedicated API needed:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span><span class="w"> </span><span class="cm">/* a constructed OCTET STRING element from tlv_cer_read/_walk */</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">tlv_visit_result_t</span><span class="w"> </span><span class="nf">print_segment</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_element_t</span><span class="o">*</span><span class="w"> </span><span class="n">segment</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="cm">/* segment-&gt;value borrows the input; print it, hash it, etc. */</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">tlv_size_to_native</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length</span><span class="p">);</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">tlv_walk</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_cer</span><span class="p">,</span><span class="w"> </span><span class="n">print_segment</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+</code></pre></div>
+<p><code>element.value</code> here is a element of the <strong>encoded constructed contents</strong> (segment
+headers included) — distinct from the <strong>logical string data</strong> each segment's own
+<code>value</code> borrows. This library never concatenates segments into a contiguous
+logical value; assembling one from segment views, if needed, is the caller's
+responsibility with caller-owned storage.</p>
+<h2 id="encode">Encode<a class="headerlink" href="#encode" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">[</span><span class="n">TLV_ASN1_TAG_MAX_SIZE</span><span class="p">];</span><span class="w"> </span><span class="cm">/* the tag borrows these bytes */</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="p">;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">children</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">};</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_tag_make</span><span class="p">(</span><span class="n">TLV_ASN1_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tag</span><span class="p">);</span><span class="w"> </span><span class="cm">/* SEQUENCE */</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_write</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">children</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">children</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">                       </span><span class="o">&amp;</span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_write</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">children</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">children</span><span class="p">),</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">                       </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="cm">/* Success: output contains 30 80 02 01 2A 00 00 (indefinite framing + EOC). */</span>
+</code></pre></div>
+<p><code>tlv_cer_write</code> accepts <strong>pre-encoded</strong> child bytes for a constructed tag (without
+the enclosing EOC, added automatically) and validates them recursively as
+canonical CER framing — including segmentation, when the tag is itself a
+segmentable UNIVERSAL type — before writing. For a primitive tag, <code>value</code> is raw
+content; content longer than 1,000 octets for a segmentable UNIVERSAL type is
+rejected even in the non-strict function, since that is a structural defect, not
+a content one.</p>
+<p><code>tlv_cer_write_segmented_string</code> instead accepts <strong>logical</strong> string content (not
+pre-encoded segments) and automatically emits a single primitive element or a
+canonical constructed/segmented one, whichever is canonical for that content's
+length:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">content</span><span class="p">[</span><span class="mi">2500</span><span class="p">];</span><span class="w"> </span><span class="cm">/* fill with logical OCTET STRING data */</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">2600</span><span class="p">];</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">[</span><span class="n">TLV_ASN1_TAG_MAX_SIZE</span><span class="p">];</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">octet_string</span><span class="p">;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">tlv_cer_tag_make</span><span class="p">(</span><span class="n">TLV_ASN1_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">octet_string</span><span class="p">);</span><span class="w"> </span><span class="cm">/* primitive OCTET STRING */</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">tlv_cer_write_segmented_string</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="n">octet_string</span><span class="p">,</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">                              </span><span class="n">content</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">content</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="cm">/* Success: two 1000-octet segments plus a 500-octet final segment. */</span>
+</code></pre></div>
+<p>NULL output with zero capacity is a validating size query for both functions.
+Failures leave destination bytes and <code>written</code> unchanged. <code>tlv_cer_write_segmented_string</code>
+always validates content (there is no non-strict variant — its purpose is producing
+correct canonical output from logical content, unlike <code>tlv_cer_write</code>'s pre-encoded
+pass-through). Size arithmetic, including every segment header and the EOC, is
+overflow-checked before writing.</p>
+<h2 id="strict-universal-value-validation">Strict universal value validation<a class="headerlink" href="#strict-universal-value-validation" title="Permanent link">&para;</a></h2>
+<p><code>tlv_cer_read_strict</code>, <code>tlv_cer_walk_strict</code> and <code>tlv_cer_write_strict</code> are drop-in
+counterparts of <code>tlv_cer_read</code>, <code>tlv_cer_walk</code> and <code>tlv_cer_write</code>: identical
+signatures, offsets and resource limits, but every UNIVERSAL-class element they
+encounter additionally has its content validated against ASN.1 canonical rules —
+including, for a segmented constructed value, every segment, validated as it is
+encountered without ever concatenating them.</p>
 <table>
 <thead>
 <tr>
-<th>Concern</th>
-<th>EMV framing contract</th>
+<th>Group</th>
+<th>Supported types</th>
+<th>Segmentable</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Identifier</td>
-<td>One or two bytes, preserved verbatim; escaped second byte is 01–7F. Unknown tags are accepted. No ASN.1 numeric-tag minimality or universal-type validation.</td>
+<td>Simple</td>
+<td>BOOLEAN, INTEGER, BIT STRING, OCTET STRING, NULL, OBJECT IDENTIFIER, RELATIVE-OID, REAL, ENUMERATED</td>
+<td>BIT STRING, OCTET STRING only</td>
 </tr>
 <tr>
-<td>Constructed</td>
-<td>Bit <code>20</code> in the first byte; classification only, without recursively validating the value.</td>
+<td>String</td>
+<td>UTF8String, NumericString, PrintableString, IA5String, VisibleString, UniversalString, BMPString</td>
+<td>Yes</td>
 </tr>
 <tr>
-<td>Length</td>
-<td>Definite, big-endian, 0–65535; short form, <code>81</code>, or <code>82</code>. Reader accepts nonminimal/padded forms; Writer emits the shortest form.</td>
+<td>Unconstrained legacy string</td>
+<td>ObjectDescriptor, TeletexString, VideotexString, GraphicString, GeneralString</td>
+<td>Yes</td>
 </tr>
 <tr>
-<td>Termination</td>
-<td><code>80</code> indefinite length is rejected, as are wider length prefixes. No EOC trailer or EOC stopping.</td>
+<td>Date/time</td>
+<td>UTCTime, GeneralizedTime, TIME, DATE, TIME-OF-DAY, DATE-TIME, DURATION</td>
+<td>No</td>
 </tr>
 <tr>
-<td>Padding</td>
-<td><code>00</code> is not an element tag. The caller handles inter-element padding and APDU status bytes.</td>
-</tr>
-<tr>
-<td>Nesting</td>
-<td>Wire construction and semantic templates are separate; <code>9F31</code> needs explicit profile-aware traversal.</td>
+<td>OID-IRI</td>
+<td>OID-IRI, RELATIVE-OID-IRI</td>
+<td>No</td>
 </tr>
 </tbody>
 </table>
-<p>This is an element-framing preset for Contact Book 3 v4.4 Annex B, not a full
-transaction validator. The Annex B card-terminal restrictions and the specific
-permission for three-byte lengths on <code>71</code>, <code>72</code>, and <code>86</code> are application/context
-checks; the format supports the common maximum without inspecting tag meanings.
-Contactless or proprietary encodings requiring wider identifiers need a different
-format. Source preservation retains accepted nonminimal length bytes; ordinary
-writing regenerates canonical field widths.</p>
-<p>The preset is available as Rust <code>Format::Emv</code>, Python <code>Format.EMV</code>, Lua
-<code>opentlv.formats.emv</code>, and <code>emv</code> in CLI/WASM. Select <code>--format emv --profile emv</code>
-in the CLI for definite framing with dictionary annotations. Selecting <code>ber</code>
-with the EMV profile still annotates BER input and does not enforce EMV framing.</p>
-<p><code>OPENTLV_PROFILE_EMV</code> controls the descriptor alongside the existing EMV APIs.
-DER and CER may be disabled. The component still requires BER solely for the
-unchanged DOL identifier helper; DOL refactoring is outside this change.</p>
-<p>The existing <code>tlv_emv_tag_*</code> objects use the universal <code>tlv_tag_t</code>.
-Each has a numeric integer constant expression with the <code>_u64</code> suffix,
-such as <code>tlv_emv_tag_aip_u64</code> (<code>0x82</code>), usable in C and C++ <code>case</code> labels.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">/* Inside a function; tag is a tlv_tag_t of at most two bytes. */</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">unsigned</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">tag</span><span class="p">.</span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">number</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">tag</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">number</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">case</span><span class="w"> </span><span class="no">tlv_emv_tag_aip_u64</span><span class="p">:</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="cm">/* Handle AIP. */</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="k">default</span><span class="o">:</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="k">break</span><span class="p">;</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">}</span>
-</code></pre></div>
-<p>See <a href="../../concepts/core-types/#tag-comparison">tag comparison</a>
-for conversion limits and exact versus numeric equality.</p>
-<p><code>tlv_emv_schema</code> is the base dictionary, compatible with <code>tlv_schema_find()</code>
-and <code>tlv_schema_validate_length()</code>. <code>tlv_emv_find(context, tag)</code> returns an
-immutable definition containing its schema entry, symbolic name, value kind,
-optional codec, and length step. Unknown tags and invalid contexts return NULL.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/emv/emv.h"</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/reader/reader.h"</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="cm">/* Inside a function; wire contains an Amount, Authorised (Numeric) TLV. */</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">;</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_read</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="n">wire_size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_emv</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">tlv_emv_definition_t</span><span class="o">*</span><span class="w"> </span><span class="n">def</span><span class="w"> </span><span class="o">=</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">        </span><span class="n">tlv_emv_find</span><span class="p">(</span><span class="n">TLV_EMV_CONTEXT_BASE</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">);</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">def</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tlv_emv_validate_length</span><span class="p">(</span><span class="n">def</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">        </span><span class="n">def</span><span class="o">-&gt;</span><span class="n">value_kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_EMV_VALUE_NUMBER</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">def</span><span class="o">-&gt;</span><span class="n">codec</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">        </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">        </span><span class="n">tlv_codec_result_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_codec_decode</span><span class="p">(</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">            </span><span class="n">def</span><span class="o">-&gt;</span><span class="n">codec</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">,</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">            </span><span class="o">&amp;</span><span class="n">amount</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">amount</span><span class="p">));</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">        </span><span class="cm">/* Check result before using amount. */</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="p">}</span>
-</code></pre></div>
-<p>For writing, explicitly encode the C value with <code>tlv_codec_encode()</code> into
-caller-owned storage, then pass those bytes and the tag to <code>tlv_write()</code> or
-<code>tlv_writer_write()</code> with <code>&amp;tlv_format_emv</code>. Every semantic codec supports
-the generic encoding size query (<code>data == NULL</code>, <code>capacity == 0</code>).</p>
-<h2 id="contexts">Contexts<a class="headerlink" href="#contexts" title="Permanent link">&para;</a></h2>
-<p>A tag's meaning can depend on its enclosing template. For example, <code>81</code> means
-a four-byte binary amount in ordinary application data but a biometric type
-within a Biometric Header Template. Select the context explicitly, using
-<code>tlv_emv_schema_for()</code> or <code>tlv_emv_find()</code>:</p>
-<table>
-<thead>
-<tr>
-<th>Context (<code>TLV_EMV_CONTEXT_</code> prefix)</th>
-<th>Value being traversed</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>BASE</td>
-<td>Ordinary application data, including ordinary FCI/record templates</td>
-</tr>
-<tr>
-<td>BIT</td>
-<td><code>7F60</code></td>
-</tr>
-<tr>
-<td>BHT</td>
-<td>First-level <code>A1</code> inside <code>7F60</code></td>
-</tr>
-<tr>
-<td>BHT_FORMAT</td>
-<td>Second-level <code>A1</code> or <code>A2</code> inside the BHT</td>
-</tr>
-<tr>
-<td>BIT_GROUP</td>
-<td><code>BF4A</code>, <code>BF4B</code>, or the terminal BIT group</td>
-</tr>
-<tr>
-<td>BIOMETRIC_COUNTERS</td>
-<td><code>BF4C</code></td>
-</tr>
-<tr>
-<td>BIOMETRIC_ATTEMPTS</td>
-<td><code>BF4D</code></td>
-</tr>
-<tr>
-<td>BIOMETRIC_VERIFICATION</td>
-<td><code>BF4E</code></td>
-</tr>
-</tbody>
-</table>
-<p>Context lookup never falls back to BASE. Traverse nested value buffers using
-generic EMV I/O and carry the context in application code. The <code>9F31</code> Card BIT
-Group Template contains nested objects despite its primitive BER tag bit;
-<code>TLV_EMV_VALUE_TEMPLATE</code> records this semantic distinction. Matching algorithm
-parameters and proprietary template contents do not acquire invented schemas.</p>
-<h2 id="value-representations">Value representations<a class="headerlink" href="#value-representations" title="Permanent link">&para;</a></h2>
-<p><code>def-&gt;value_kind</code> determines the C representation required by <code>def-&gt;codec</code>.</p>
-<table>
-<thead>
-<tr>
-<th>Kind (<code>TLV_EMV_VALUE_</code> prefix)</th>
-<th>Representation and examples</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>NUMBER</td>
-<td><code>uint64_t</code>: BCD amounts/currency codes, binary ATC/counters/exponents</td>
-</tr>
-<tr>
-<td>FLAGS</td>
-<td><code>uint64_t</code>: AIP, TVR, TSI, capabilities, CVM result bytes; all bits preserved</td>
-</tr>
-<tr>
-<td>DIGITS</td>
-<td>NUL-terminated <code>char[]</code>: PAN and compressed-numeric track discretionary data</td>
-</tr>
-<tr>
-<td>DATE</td>
-<td><code>tlv_emv_date_t</code>: YY, month, day</td>
-</tr>
-<tr>
-<td>TIME</td>
-<td><code>tlv_emv_time_t</code>: hour, minute, second</td>
-</tr>
-<tr>
-<td>ACCOUNT</td>
-<td><code>tlv_emv_account_type_t</code>: default, savings, cheque/debit, credit</td>
-</tr>
-<tr>
-<td>CRYPTOGRAM</td>
-<td><code>tlv_emv_cryptogram_info_t</code>: AAC/TC/ARQC/RFU enum and remaining six bits</td>
-</tr>
-<tr>
-<td>BIOMETRIC</td>
-<td><code>tlv_emv_biometric_type_t</code>: facial, voice, finger, iris, palm</td>
-</tr>
-<tr>
-<td>NUMBER_LIST</td>
-<td><code>tlv_emv_number_list_t</code>: up to four reference currencies or exponents</td>
-</tr>
-<tr>
-<td>AFL</td>
-<td><code>tlv_emv_afl_t</code>: up to <code>TLV_EMV_AFL_MAX_ENTRIES</code> <code>tlv_emv_afl_entry_t</code> records (sfi, first/last record, offline-DA record count)</td>
-</tr>
-<tr>
-<td>CVM_RESULT</td>
-<td><code>tlv_emv_cvm_result_t</code>: method, condition, and result bytes, preserved raw</td>
-</tr>
-<tr>
-<td>TRACK2</td>
-<td><code>tlv_emv_track2_t</code>: PAN, expiration year/month, service code, discretionary data</td>
-</tr>
-<tr>
-<td>BYTES, TEXT, TEMPLATE</td>
-<td>No codec; use the original borrowed value bytes</td>
-</tr>
-</tbody>
-</table>
-<p>Decode capacity is at least <code>sizeof(the C representation)</code> and encode size is
-exactly that size. Representations may be unaligned; input and output buffers
-must not overlap. For DIGITS, decode needs the digit count plus one for NUL;
-encode size is the digit count excluding NUL. Leading zeroes are preserved,
-trailing <code>F</code> padding is removed, and nondecimal or interspersed padding is rejected.
-The PAN codec rejects empty/all-padding values and more than 19 digits.</p>
-<p>BCD numbers enforce the declared digit count, including zero high nibbles for
-odd-width fields such as currency codes and exponents. Variable-length numbers
-are encoded in the shortest permitted width; use the original element when exact
-wire preservation matters. Currency amounts are unscaled minor units.
-<code>tlv_emv_codec_amount</code> is a convenient standalone n12/six-byte amount codec.
-<code>TLV_EMV_AIP_*</code> masks can be used with the decoded AIP flags; <code>TLV_EMV_TVR_*</code>,
-<code>TLV_EMV_TSI_*</code>, <code>TLV_EMV_TERMINAL_CAPABILITIES_*</code>, and
-<code>TLV_EMV_ADDITIONAL_TERMINAL_CAPABILITIES_*</code> mask the TVR (<code>95</code>), TSI (<code>9B</code>),
-Terminal Capabilities (<code>9F33</code>), and Additional Terminal Capabilities (<code>9F40</code>)
-FLAGS values the same way; <code>TLV_EMV_CVM_RESULT_*</code> names the well-known
-<code>tlv_emv_cvm_result_t.result</code> byte values (unknown/failed/successful).</p>
-<p>Dates validate month/day ranges and leap years within YY. No century is chosen;
-the caller must resolve the century for year 00. Times reject hours above 23
-and minutes/seconds above 59. Account and biometric enums reject undefined
-values. Cryptogram RFU and all flag bits are retained. Transaction type, POS
-entry mode, and terminal type remain numbers: their complete enum definitions
-are outside Book 3. Text is not converted to UTF-8 or NUL-terminated storage;
-its original encoding/padding is preserved. Opaque cryptographic data and
-nested templates are not converted to scalars. The AFL (<code>94</code>) codec rejects
-an sfi outside 1-30, a first_record of zero, a last_record below first_record,
-and an offline_auth_record_count above the entry's record range. The Track 2
-Equivalent Data (<code>57</code>) codec rejects a missing/misplaced field separator, a
-PAN outside 1-19 digits, a non-decimal expiry/service-code/discretionary
-digit, and an expiration_month outside 1-12, and handles the trailing
-hex-F pad nibble used when the total digit count is odd. CVM Results (<code>9F34</code>)
-stores its three bytes without further validation, like FLAGS.
-<code>8C</code>/<code>8D</code>/<code>97</code>/<code>9F38</code>/<code>9F49</code> (CDOL1, CDOL2, TDOL, PDOL, DDOL) remain BYTES:
-see <a href="#data-object-lists-pdolcdolddol">Data Object Lists</a> for the dedicated
-component that parses and constructs them.</p>
-<h2 id="diagnostics-and-tooling">Diagnostics and tooling<a class="headerlink" href="#diagnostics-and-tooling" title="Permanent link">&para;</a></h2>
-<p><code>tlv_emv_value_kind_description(kind)</code> returns a short description of a value
-kind's C representation and wire meaning (e.g. <code>"Bit flags"</code> for
-<code>TLV_EMV_VALUE_FLAGS</code>), for logs or a dump tool. <code>tlv_emv_display_label(name)</code>
-returns a curated human-readable label for a dictionary symbol (<code>def-&gt;name</code>),
-such as <code>"Application File Locator (AFL)"</code> for <code>"afl"</code>, or <code>NULL</code> when none is
-curated; <code>tlv_emv_titlecase_name(name, buffer, capacity)</code> then derives a
-generic one (<code>"application_label"</code> -&gt; <code>"Application Label"</code>) into caller-owned
-storage, <code>TLV_ERR_BUFFER_TOO_SHORT</code> if <code>capacity</code> is less than
-<code>strlen(name) + 1</code>. These back the <code>opentlv</code> CLI's <code>--profile emv</code> output.</p>
-<h2 id="validation-limits">Validation limits<a class="headerlink" href="#validation-limits" title="Permanent link">&para;</a></h2>
-<p>Generic schemas check inclusive minimum/maximum lengths. Use
-<code>tlv_emv_validate_length()</code> for additional steps, such as AFL multiples of four,
-even CVM-list lengths, BIC lengths 8/11, and RSA exponent lengths 1/3. The
-semantic codecs enforce these rules too. Generic scanning with a schema checks
-only its minimum/maximum bounds; it does not invoke profile validation/codecs.</p>
-<p>Variable fields without a universal maximum use <code>SIZE_MAX</code>; key-dependent
-certificate/remainder lengths need the application's key and algorithm context.
-Unspecified variable minima use zero. Fixed-size entries describe present values;
-Book 3 treats zero-length objects as absent, which the application must handle
-before validating a required value. These tables do not enforce APDU size,
-required tags, duplicates, template membership, or full transaction validity;
-see <a href="#structural-validation">Structural validation</a> for the layer that does.</p>
-<p><code>tlv_format_emv</code> enforces definite framing independently of ASN.1 BER. It rejects
-indefinite lengths and does not interpret <code>00 00</code> as EOC. APDU status bytes and
-padding between elements remain the caller's responsibility. Book 3 framing
-supports one- and two-byte tags; three-byte identifiers are rejected by this
-preset. Applications needing broader raw BER framing can still explicitly
-select <code>tlv_format_ber</code>, with its different validity contract.
-Every tag constant borrows constant static bytes, so the tables and constants
-are the same in every build.</p>
-<h2 id="structural-validation">Structural validation<a class="headerlink" href="#structural-validation" title="Permanent link">&para;</a></h2>
-<p><code>tlv_emv_structure_schema</code> (<code>tlv/builtins/emv/emv_schema.h</code>) is a
-<code>tlv_structure_schema_t</code> for <code>tlv_schema_validate()</code> that fills the gap above:
-mandatory/forbidden/duplicate tags, length bounds, and required nesting, for
-the FCI Template (<code>6F</code>, including its <code>A5</code> FCI Proprietary Template child),
-the Application Template (<code>61</code>), and the GPO Response Message Template
-Format 2 (<code>77</code>). Other top-level tags, including the Read Record Template
-(<code>70</code>) and Response Message Template Format 1 (<code>80</code>), vary too much by kernel
-and issuer for a generic schema and are accepted unchecked at the root.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/emv/format.h"</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/emv/emv_schema.h"</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="cm">/* Inside a function; wire/size hold one or more concatenated EMV elements. */</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="kt">size_t</span><span class="w">       </span><span class="n">offset</span><span class="p">;</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_schema_validate</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_emv</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_emv_structure_schema</span><span class="p">,</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">                                      </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">100000</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">offset</span><span class="p">);</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="cm">/* TLV_OK, or an element-anchored TLV_ERR_SCHEMA/TLV_ERR_INVALID_LENGTH, or</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="cm"> * TLV_ERR_SCHEMA_MISSING (a missing required tag) with offset at the end of</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="cm"> * its parent's value instead - see tlv/schema/schema.h. */</span>
-</code></pre></div>
-<p>This backs the <code>opentlv</code> CLI's <code>validate --profile emv</code>.</p>
-<p>To report every violation with its path (for example <code>6F/84</code>) and offset in a
-single pass, or to define schemas for other templates such as the Read Record
-Template (<code>70</code>) for a specific kernel, use <code>tlv_schema_validate_all()</code>; see
-<a href="../../guides/schemas/#reporting-every-violation">Reporting every violation</a>.</p>
-<h2 id="data-object-lists-pdolcdolddol">Data Object Lists (PDOL/CDOL/DDOL)<a class="headerlink" href="#data-object-lists-pdolcdolddol" title="Permanent link">&para;</a></h2>
-<p>Include <code>tlv/builtins/emv/dol.h</code>. A Data Object List is a sequence of tag/
-requested-length pairs with no value bytes of its own; PDOL, CDOL1, CDOL2 and
-DDOL all share this format (Book 3 section 5.4). Reading one with <code>tlv_read</code>
-or <code>tlv_walk</code> would misinterpret the one-byte requested length as a BER
-length field, so this is a dedicated value component rather than ordinary
-TLV structure.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/emv/dol.h"</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="cm">/* Inside a function; pdol holds a PDOL value's raw bytes. */</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">static</span><span class="w"> </span><span class="n">tlv_result_t</span><span class="w"> </span><span class="nf">print_entry</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_dol_entry_t</span><span class="o">*</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">index</span><span class="p">;</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">context</span><span class="p">;</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="cm">/* entry-&gt;tag, entry-&gt;requested_length */</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">;</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">}</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_dol_read</span><span class="p">(</span><span class="n">pdol</span><span class="p">,</span><span class="w"> </span><span class="n">pdol_size</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">print_entry</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-</code></pre></div>
-<p>Constructing the command data a DOL requests resolves each entry against
-application data and applies Book 3 5.4's padding/truncation rules through a
-<code>tlv_dol_resolve_fn</code> callback:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">static</span><span class="w"> </span><span class="n">tlv_result_t</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_dol_entry_t</span><span class="o">*</span><span class="w"> </span><span class="n">entry</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">skip</span><span class="p">,</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">                            </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">capacity</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="o">*</span><span class="w"> </span><span class="n">available_length</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">                            </span><span class="n">tlv_dol_format_t</span><span class="o">*</span><span class="w"> </span><span class="n">format</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">absent</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="cm">/* Look up entry-&gt;tag in application data; report *absent = 1 if unknown. */</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="o">*</span><span class="n">absent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="o">*</span><span class="n">available_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* the value's own length */</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="o">*</span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TLV_DOL_FORMAT_BINARY</span><span class="p">;</span><span class="w"> </span><span class="cm">/* or TLV_DOL_FORMAT_NUMERIC for right-justified numeric data */</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">        </span><span class="cm">/* Write exactly capacity bytes of the value starting at offset skip. */</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">;</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="cm">/* Inside a function; pdol holds a PDOL value's raw bytes and command_data is</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="cm"> * caller-owned storage at least as large as the size query below reports. */</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_dol_write</span><span class="p">(</span><span class="n">pdol</span><span class="p">,</span><span class="w"> </span><span class="n">pdol_size</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="cm">/* rc == TLV_OK; allocate or otherwise obtain size bytes for command_data. */</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_dol_write</span><span class="p">(</span><span class="n">pdol</span><span class="p">,</span><span class="w"> </span><span class="n">pdol_size</span><span class="p">,</span><span class="w"> </span><span class="n">command_data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">resolve</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-</code></pre></div>
-<p><code>tlv_dol_write</code>'s output is always exactly the sum of the DOL's own requested
-lengths, regardless of what <code>resolve</code> reports; a size query (<code>data == NULL</code>)
-does not call <code>resolve</code> at all. An entry <code>resolve</code> reports unavailable is
-filled with zero bytes. <code>TLV_DOL_FORMAT_BINARY</code> covers alphabetic,
-alphanumeric, alphanumeric special, binary and compressed-numeric data:
-short values are padded on the right and long values truncated from the
-right. <code>TLV_DOL_FORMAT_NUMERIC</code> covers right-justified numeric data such as
-BCD or binary amounts and counters: short values are padded on the left and
-long values truncated from the left.</p>
-<p><code>tlv_dol_limits_t.max_entries</code> bounds how many entries <code>tlv_dol_read</code>/
-<code>tlv_dol_write</code> visit; <code>tlv_dol_limits_t.max_value_length</code> bounds how long a
-value <code>resolve</code> may report as available, and must not exceed the fixed
-<code>TLV_DOL_MAX_VALUE_LENGTH</code> (255, matching the single-byte requested-length
-field's own range). <code>tlv_dol_default_limits</code> selects generous defaults for
-both. No allocation is used; the tags of an entry borrow the DOL bytes, valid only during the callback.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>9F 02 06 5A 08
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>|-- Entry 1: tag 9F 02 (Amount, Authorised), requested length 06
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>`-- Entry 2: tag 5A (PAN), requested length 08
-</code></pre></div>
-<p>No value bytes follow either length; the whole five bytes above is one
-complete DOL with two entries.</p>
-<h2 id="byte-example">Byte example<a class="headerlink" href="#byte-example" title="Permanent link">&para;</a></h2>
-<p>EMV adds dictionary entries, contextual schemas, and explicit value codecs;
-it does not introduce a separate wire-format descriptor.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>9F 02 06 00 00 00 00 12 34
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Element (9 bytes)
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>|-- Tag:    9F 02 (Amount, Authorised, Numeric)
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>|-- Length: 06 = 6 value bytes
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>`-- Value:  00 00 00 00 12 34
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    `-- Explicit EMV numeric decoding: 1234 minor units
-</code></pre></div>
-<p>Read the framing with <code>tlv_format_emv</code>, then explicitly decode the value
-with <code>tlv_emv_codec_amount</code> into caller-owned storage. Currency and decimal scale
-come from application context; the codec does not assign them. This one data
-object does not represent a complete or validated transaction.</p>
-<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/builtins/emv/tag_decoding.c">examples/tlv/src/builtins/emv/tag_decoding.c</a> walks
-a whole record instead of one element: it looks up every child tag with
-<code>tlv_emv_find()</code>, checks its length with <code>tlv_emv_validate_length()</code>, decodes it
-according to <code>value_kind</code>, and leaves a tag that is unknown or has an invalid
-length skipped rather than aborting the walk.
-<a href="./">EMV profile and codecs</a></p>
-<p>See also the <a href="../../reference/c-api/#profiles">C API reference: profiles</a>.</p>
+<p>These are exactly the rules ITU-T X.690 §11 documents as common to both CER and
+DER, so results agree with <a href="../der/#strict-universal-value-validation">DER's strict validation</a>
+wherever both apply (DER never segments; CER's segment-aware checks are additional,
+per-segment for a type the "Segmentable" column marks "Yes"). Every type marked
+"No" is never eligible for segmentation (always primitive, definite length),
+including generic TIME/DATE/TIME-OF-DAY/DATE-TIME/DURATION/OID-IRI/RELATIVE-OID-IRI:
+their content is still validated, exactly as an ordinary primitive value.</p>
+<p>Recognized but explicitly unsupported (return <code>TLV_ERR_UNSUPPORTED_TYPE</code> in strict
+mode rather than being silently accepted): any UNIVERSAL primitive tag number
+beyond 36. Unlike every case above, this one is never checked at all — CER only
+attempts universal-value validation for a tag number 36 or below in the first
+place, so an unrecognized higher number is accepted structurally (not reported
+as unsupported), a difference from DER's shared dispatch, which returns
+<code>TLV_ERR_UNSUPPORTED_TYPE</code> unconditionally for any number it does not recognize.</p>
+<h2 id="errors-offsets-and-limits">Errors, offsets and limits<a class="headerlink" href="#errors-offsets-and-limits" title="Permanent link">&para;</a></h2>
+<p>Optional <code>error_offset</code> is changed only on failure, following the same
+conventions as DER: it identifies the absolute start of the failing tag, length,
+or value field, relative to the supplied input (or would-be encoded output for
+writes). A missing EOC is reported at the position where it was expected (the
+enclosing element's length field); a truncated or unexpected EOC is reported at
+its own position. A segment-level structural or content defect is reported at
+the start of the offending segment. Value-size limit failures point to the
+length field; depth/count limits point to the first disallowed element.
+Argument, configuration, total-size and destination-capacity errors use offset
+zero.</p>
+<p><code>tlv_format_cer</code> also works with generic C and
+C++ readers and writers. It validates <strong>only the current tag and
+length</strong> — generic I/O does not inspect constructed contents, EOC placement, or
+canonical segmentation, and provides no field offsets. Use the CER-specific
+functions above when those guarantees are required.</p>
+<p>See also the <a href="../../reference/c-api/#builtins">C API reference: builtins</a>.</p>
 
 
 
@@ -3349,7 +3117,7 @@ length skipped rather than aborting the walk.
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../cer/" class="md-footer__link md-footer__link--prev" aria-label="Previous: CER">
+          <a href="../der/" class="md-footer__link md-footer__link--prev" aria-label="Previous: DER">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3359,20 +3127,20 @@ length skipped rather than aborting the walk.
                 Previous
               </span>
               <div class="md-ellipsis">
-                CER
+                DER
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../cli/" class="md-footer__link md-footer__link--next" aria-label="Next: otlv command line">
+          <a href="../emv/" class="md-footer__link md-footer__link--next" aria-label="Next: EMV">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                otlv command line
+                EMV
               </div>
             </div>
             <div class="md-footer__button md-icon">

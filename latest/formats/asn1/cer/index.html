@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../profiles/der/" class="md-tabs__link">
+        <a href="../../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1891,7 +1891,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1907,7 +1907,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1920,7 +1920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/der/" class="md-nav__link">
+      <a href="../../../standards/der/" class="md-nav__link">
         
   
   
@@ -1948,7 +1948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/cer/" class="md-nav__link">
+      <a href="../../../standards/cer/" class="md-nav__link">
         
   
   
@@ -1976,7 +1976,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../profiles/emv/" class="md-nav__link">
+      <a href="../../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2853,7 +2853,7 @@
 </table>
 <p>CER is a sibling of DER over the same BER-TLV wire helpers: <code>OPENTLV_FORMAT_CER</code>
 cascades from <code>OPENTLV_FORMAT_BER</code>, not from <code>OPENTLV_FORMAT_DER</code>, and neither
-sibling depends on the other. <code>OPENTLV_PROFILE_EMV</code> cascades only from
+sibling depends on the other. <code>OPENTLV_EMV</code> cascades only from
 <code>OPENTLV_FORMAT_DER</code> and is unaffected by <code>OPENTLV_FORMAT_CER</code> either way.</p>
 <p>See <a href="../ber/#shared-asn1-mechanisms">shared ASN.1 mechanisms</a> for the common
 identifier API, framing reuse and division of canonical validation.</p>
@@ -2862,7 +2862,7 @@ identifier API, framing reuse and division of canonical validation.</p>
 indefinite (EOC-terminated); a primitive value's length must be definite and
 minimally encoded. Generic I/O validates the current element's identifier and
 length and uses the shared BER scanner to resolve matching EOC boundaries.
-It does not enforce recursive CER canonicality or canonical string segmentation — use <a href="../../../profiles/cer/">tlv/builtins/asn1/cer_profile.h</a>
+It does not enforce recursive CER canonicality or canonical string segmentation — use <a href="../../../standards/cer/">tlv/builtins/asn1/cer_validation.h</a>
 for that.</p>
 <p>See <a href="../../../guides/memory/">shared memory ownership rules</a> before retaining a
 parsed element.</p>
@@ -2902,7 +2902,7 @@ the indefinite length <code>80</code> and ends with <code>00 00</code>. Long str
 segments by the canonical rules. Typical uses are canonical encodings that can be
 produced in one pass without knowing the total length in advance. Generic I/O checks
 the current element's identifier and length and resolves EOC through BER framing;
-recursive CER canonicality and segmentation are checked by the <a href="../../../profiles/cer/">CER profile</a>.</p>
+recursive CER canonicality and segmentation are checked by the <a href="../../../standards/cer/">CER validation</a>.</p>
 <h2 id="byte-example-nested-indefinite-length-containers">Byte example: nested indefinite-length containers<a class="headerlink" href="#byte-example-nested-indefinite-length-containers" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>30 80 02 01 05 30 80 04 02 00 00 00 00 00 00
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Element (15 bytes, indefinite length)
@@ -2929,10 +2929,10 @@ bit pattern as an EOC. It never affects nesting: a primitive element's
 content is always skipped by its declared definite length, so a <code>00 00</code>
 inside it is just data, and <code>00 00</code> is only ever recognized as EOC when it
 appears at a TLV element boundary of an open indefinite container. Raw I/O
-does not decode ASN.1 meanings; use <a href="../../../profiles/cer/"><code>tlv_cer_read</code></a>
+does not decode ASN.1 meanings; use <a href="../../../standards/cer/"><code>tlv_cer_read</code></a>
 for bounded validation of the element and its descendants, including EOC
 placement.</p>
-<p><a href="../../../profiles/cer/">CER profile</a></p>
+<p><a href="../../../standards/cer/">CER validation</a></p>
 
 
 

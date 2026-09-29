@@ -115,8 +115,8 @@ Variables</h2></td></tr>
 <p>Definite EMV BER-TLV framing, independent of ASN.1 BER policy. </p>
 <p>Identifiers retain their wire bytes and have one or two octets. An escaped identifier has a nonzero seven-bit second octet with no continuation. The first octet 00 is padding, not an element identifier. No ASN.1 universal tag-number or value-type rules are applied; unknown identifiers are allowed.</p>
 <p>Lengths are unsigned big-endian counts from 0 through 65535, encoded in short form or with one or two subsequent octets (81 or 82). Reading accepts padded and nonminimal definite lengths; writing uses the shortest representation. Indefinite lengths and EOC termination are unsupported. Values remain opaque, including constructed values; framing does not recursively validate children.</p>
-<p>The constructed callback reports only bit 20 of the first identifier octet. Semantic templates such as 9F31 require explicit profile-aware traversal. Padding, APDU boundaries, per-object length limits and restrictions on the use of three-octet lengths belong to the enclosing application or schema. This descriptor covers element framing, not full Book 3 conformance.</p>
-<dl class="section note"><dt>Note</dt><dd>Available with OPENTLV_PROFILE_EMV. Immutable, allocation-free, and zero-copy on read. No ASN.1 format is called by this descriptor. </dd></dl>
+<p>The constructed callback reports only bit 20 of the first identifier octet. Semantic templates such as 9F31 require explicit EMV-aware traversal. Padding, APDU boundaries, per-object length limits and restrictions on the use of three-octet lengths belong to the enclosing application or schema. This descriptor covers element framing, not full Book 3 conformance.</p>
+<dl class="section note"><dt>Note</dt><dd>Available with OPENTLV_EMV. Immutable, allocation-free, and zero-copy on read. No ASN.1 format is called by this descriptor. </dd></dl>
 
 </div>
 </div>

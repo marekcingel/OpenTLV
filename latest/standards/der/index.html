@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/profiles/cer/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/standards/der/">
       
       
-        <link rel="prev" href="../der/">
+        <link rel="prev" href="../../formats/lldp-review/">
       
       
-        <link rel="next" href="../emv/">
+        <link rel="next" href="../cer/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>CER - OpenTLV</title>
+        <title>DER - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#asn1-cer-tlv" class="md-skip">
+        <a href="#asn1-der-tlv" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              CER
+              DER
             
           </span>
         </div>
@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../der/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1789,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1805,39 +1805,11 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../der/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    DER
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
             
               
                 
@@ -1862,7 +1834,7 @@
   <span class="md-ellipsis">
     
   
-    CER
+    DER
   
 
     
@@ -1880,7 +1852,7 @@
   <span class="md-ellipsis">
     
   
-    CER
+    DER
   
 
     
@@ -1917,10 +1889,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#read-and-traverse" class="md-nav__link">
+  <a href="#read-and-inspect-a-tag" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Read and traverse
+        Read and inspect a tag
       
     </span>
   </a>
@@ -1928,21 +1900,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#canonical-string-segmentation" class="md-nav__link">
+  <a href="#traverse-and-limit-work" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Canonical string segmentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#zero-copy-access-to-segments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Zero-copy access to segments
+        Traverse and limit work
       
     </span>
   </a>
@@ -1972,10 +1933,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#errors-offsets-and-limits" class="md-nav__link">
+  <a href="#schema-aware-validation-and-encoding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Errors, offsets and limits
+        Schema-aware validation and encoding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors-and-generic-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors and generic I/O
       
     </span>
   </a>
@@ -1986,6 +1958,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2776,10 +2776,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#read-and-traverse" class="md-nav__link">
+  <a href="#read-and-inspect-a-tag" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Read and traverse
+        Read and inspect a tag
       
     </span>
   </a>
@@ -2787,21 +2787,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#canonical-string-segmentation" class="md-nav__link">
+  <a href="#traverse-and-limit-work" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Canonical string segmentation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#zero-copy-access-to-segments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Zero-copy access to segments
+        Traverse and limit work
       
     </span>
   </a>
@@ -2831,10 +2820,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#errors-offsets-and-limits" class="md-nav__link">
+  <a href="#schema-aware-validation-and-encoding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Errors, offsets and limits
+        Schema-aware validation and encoding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors-and-generic-io" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors and generic I/O
       
     </span>
   </a>
@@ -2858,7 +2858,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/profiles/cer/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/standards/der/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2866,220 +2866,321 @@
   
 
 
-<h1 id="asn1-cer-tlv">ASN.1 CER-TLV<a class="headerlink" href="#asn1-cer-tlv" title="Permanent link">&para;</a></h1>
-<p>Include <code>tlv/builtins/asn1/cer_profile.h</code> for allocation-free CER-TLV processing. Tags use the existing
+<h1 id="asn1-der-tlv">ASN.1 DER-TLV<a class="headerlink" href="#asn1-der-tlv" title="Permanent link">&para;</a></h1>
+<p>Include <code>tlv/builtins/asn1/der_validation.h</code> for allocation-free DER-TLV processing. Tags use the existing
 <code>tlv_tag_t</code> wire-byte representation; values are borrowed <code>tlv_value_t</code> ranges.
-The caller owns input and output storage. CER is a sibling of the
-<a href="../der/">DER profile</a>: it reuses the shared BER wire helpers and, through
-private helpers, the universal-value content rules ITU-T X.690 §11 documents as common to
-both encodings, but neither profile depends on the other. Existing BER, DER and EMV
-behavior is unchanged.</p>
+The caller owns input and output storage. Existing BER behavior is unchanged.</p>
 <h2 id="supported-scope">Supported scope<a class="headerlink" href="#supported-scope" title="Permanent link">&para;</a></h2>
-<p>The implementation enforces ITU-T X.690's Canonical Encoding Rules: a constructed
-value's length is always indefinite (EOC-terminated); a primitive value's length is
-always definite and minimally encoded. BIT STRING, OCTET STRING and the restricted
-character string types (including UTF8String) may additionally be constructed, but
-only when their logical content exceeds 1,000 octets, in which case they must be
-split into canonical segments (see below); a primitive encoding of such a type with
-more than 1,000 content octets is rejected, and so is a constructed encoding whose
-total content is 1,000 octets or fewer.</p>
-<p>This is a <strong>TLV-layer and framing validator, not a complete ASN.1 CER validator</strong>.
-Structural validation (<code>tlv_cer_read</code>/<code>tlv_cer_walk</code>/<code>tlv_cer_write</code>) covers framing,
-EOC placement, and canonical segmentation — segment tags, forms and sizes — but not
-value semantics. Universal value semantics (BOOLEAN representation, INTEGER
-minimality, BIT STRING padding, string charsets, and so on) are checked only by the
-<code>_strict</code> functions described below. Schema constraints, implicit-tag semantics,
-DEFAULT omission and SET/SET OF ordering remain outside this scope regardless.</p>
-<h2 id="read-and-traverse">Read and traverse<a class="headerlink" href="#read-and-traverse" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/cer_profile.h"</span>
+<p>The implementation enforces the identifier and length rules in
+<a href="https://www.itu.int/rec/T-REC-X.690-202102-I/en">ITU-T X.690</a>, sections 8.1,
+10.1 and 10.2. It supports all four ASN.1 classes, primitive and constructed
+tags, low and high tag numbers, and definite short and long lengths.</p>
+<p>Validation rejects indefinite lengths, redundant length octets, long lengths
+below 128, zero initial high-tag digits, high-tag form for numbers below 31,
+and malformed or truncated fields. Universal tag 0 (end-of-contents) and
+reserved tag 15 are rejected. Universal EXTERNAL (8), EMBEDDED PDV (11),
+SEQUENCE/SEQUENCE OF (16), SET/SET OF (17), and CHARACTER STRING (29) must be
+constructed. Other assigned universal tags through 36 must be primitive,
+including BIT STRING, OCTET STRING and restricted character strings. Unknown
+universal tags retain their primitive/constructed bit without type validation.
+Application, context-specific and private tags permit either form.</p>
+<p>This is a <strong>TLV-layer validator, not a complete ASN.1 DER validator</strong>. Primitive
+contents are opaque by default: BOOLEAN representations, INTEGER minimality, BIT
+STRING padding, OID components and string/time/REAL encodings are only checked
+by the <code>_strict</code> functions described below. Schema constraints, implicit/explicit
+tagging, CHOICE resolution, DEFAULT omission and SET/SET OF ordering are still
+outside this scope: use <a href="#schema-aware-validation-and-encoding"><code>tlv/builtins/asn1/der_schema.h</code></a>
+when those are required. Callers must supply canonical ASN.1 contents and
+ordering when full DER conformance is required beyond what <code>_strict</code> (or the
+schema-aware layer) covers. The encoder preserves contents and child order; it
+does not convert arbitrary BER or repair noncanonical input.</p>
+<h2 id="read-and-inspect-a-tag">Read and inspect a tag<a class="headerlink" href="#read-and-inspect-a-tag" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/builtins/asn1/der_validation.h"</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">input</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x30</span><span class="p">,</span><span class="w"> </span><span class="mh">0x80</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span><span class="w"> </span><span class="cm">/* SEQUENCE(indefinite){ INTEGER 42 } */</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">input</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x30</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">};</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_read</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">input</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_der_read</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">input</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">                              </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">tlv_asn1_class_t</span><span class="w"> </span><span class="n">cls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_asn1_tag_class</span><span class="p">(</span><span class="o">&amp;</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">);</span><span class="w"> </span><span class="cm">/* UNIVERSAL */</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">constructed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_asn1_tag_is_constructed</span><span class="p">(</span><span class="o">&amp;</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">);</span><span class="w"> </span><span class="cm">/* 1 */</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">number</span><span class="p">;</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_der_tag_number</span><span class="p">(</span><span class="o">&amp;</span><span class="n">element</span><span class="p">.</span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">number</span><span class="p">);</span><span class="w"> </span><span class="cm">/* 16 */</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">cls</span><span class="p">;</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">constructed</span><span class="p">;</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">}</span>
 </code></pre></div>
-<p><code>tlv_cer_read</code> validates one element and all of its descendants — indefinite
-constructed framing, EOC placement, and canonical string segmentation — before
-returning its element and complete encoded size. Trailing input is ignored. Empty
-input returns <code>TLV_ERR_END_OF_BUFFER</code>. Keep the input alive while using returned
-views (see <a href="../../guides/memory/">memory ownership</a>).</p>
-<p><code>tlv_cer_walk(data, size, limits, visitor, context, &amp;error_offset)</code> processes all
-concatenated elements, including nested constructed values. A NULL visitor
-performs validation only. Empty input succeeds.</p>
-<p>Unlike <a href="../der/"><code>tlv_der_visitor_t</code></a>, which visits every element in
-preorder, <code>tlv_cer_visitor_t</code> is <strong>postorder for constructed elements</strong>: a
-primitive element (including each string segment) is visited immediately when
-read, but a constructed element's indefinite length is not known until its
-matching EOC is found, so it is visited only afterward, once its true span is
-known. This keeps traversal a single linear pass with no rescanning. Primitive
-leaves have no descendants, so for them this is the same point either way.</p>
-<p>All CER operations accept NULL limits for <code>tlv_cer_default_limits</code>, the same
-shape and defaults as <a href="../der/#traverse-and-limit-work"><code>tlv_der_limits_t</code></a>:
-<code>max_depth</code> (32), <code>max_input_size</code> (16 MiB), <code>max_value_size</code> (16 MiB), <code>max_elements</code>
-(100,000). <code>max_depth</code> must not exceed <code>TLV_CER_MAX_DEPTH</code> (64). String segments
-count toward <code>max_elements</code>. <code>max_value_size</code> bounds a constructed element's
-assembled indefinite content (all its segments/children together, excluding
-framing overhead), not per-segment header bytes. Traversal uses a fixed stack, no
-heap allocation and no C recursion.</p>
-<h2 id="canonical-string-segmentation">Canonical string segmentation<a class="headerlink" href="#canonical-string-segmentation" title="Permanent link">&para;</a></h2>
-<p>For OCTET STRING, a primitive segment containing 1,000 octets has this header:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>04 82 03 E8
-</code></pre></div>
-<p>The canonical length field is <code>82 03 E8</code>; <code>03 E8</code> alone (without the <code>82</code> long-form
-prefix) is not a valid encoding of length 1,000 — CER requires the same minimal
-definite-length encoding DER does.</p>
-<p>When logical content exceeds 1,000 octets, it is split into segments: every
-non-final segment is exactly 1,000 content octets; the final segment is 1 to 1,000
-octets and never empty. An exact multiple of 1,000 (e.g. 2,000 octets) splits
-cleanly into that many 1,000-octet segments with no trailing empty segment.
-Empty, nested (constructed), or mistagged segments are rejected structurally,
-even without strict content validation.</p>
-<p>BIT STRING segments carry the unused-bits accounting separately from OCTET STRING:
-each segment's first content octet is the unused-bits count (so a non-final
-segment has 999 bit octets plus that count octet, still 1,000 total). Every
-non-final segment's unused-bits octet must be <code>00</code>; only the final segment may
-have a nonzero unused-bits count (0-7), with the same trailing zero-padding rule
-DER already enforces for an unsegmented BIT STRING.</p>
-<p>Character-string segmentation charset checks apply per segment except for
-UTF8String, whose multi-byte characters may legally straddle a segment boundary;
-strict validation streams UTF8String content across segments with small, fixed
-state rather than concatenating them.</p>
-<h2 id="zero-copy-access-to-segments">Zero-copy access to segments<a class="headerlink" href="#zero-copy-access-to-segments" title="Permanent link">&para;</a></h2>
-<p>A constructed string's segments are just ordinary CER primitive elements one
-level below its own element — <code>element.value</code> for a constructed CER element already
-excludes the outer EOC, the same convention <code>tlv_read</code> uses for BER. Iterate
-them with the existing generic <code>tlv_walk</code>, no dedicated API needed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span><span class="w"> </span><span class="cm">/* a constructed OCTET STRING element from tlv_cer_read/_walk */</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">tlv_visit_result_t</span><span class="w"> </span><span class="nf">print_segment</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">tlv_element_t</span><span class="o">*</span><span class="w"> </span><span class="n">segment</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="cm">/* segment-&gt;value borrows the input; print it, hash it, etc. */</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">TLV_VISIT_CONTINUE</span><span class="p">;</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">;</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">tlv_size_to_native</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">length</span><span class="p">);</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">tlv_walk</span><span class="p">(</span><span class="n">element</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tlv_format_cer</span><span class="p">,</span><span class="w"> </span><span class="n">print_segment</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-</code></pre></div>
-<p><code>element.value</code> here is a element of the <strong>encoded constructed contents</strong> (segment
-headers included) — distinct from the <strong>logical string data</strong> each segment's own
-<code>value</code> borrows. This library never concatenates segments into a contiguous
-logical value; assembling one from segment views, if needed, is the caller's
-responsibility with caller-owned storage.</p>
+<p><code>tlv_der_read</code> validates one element and all of its descendants before returning
+its element and complete encoded size. Trailing input is ignored. Empty input
+returns <code>TLV_ERR_END_OF_BUFFER</code>. View and consumed outputs are required and
+remain unchanged on failure. Keep the input alive while using returned views.</p>
+<p>Class and constructed accessors require a valid DER tag. <code>tlv_der_tag_number</code>
+validates a tag and extracts a <code>uint64_t</code>; larger numbers return
+<code>TLV_ERR_INVALID_TAG</code> without changing the output. Raw parsing accepts tags up
+to <code>TLV_ASN1_TAG_MAX_SIZE</code> (8 bytes), including numbers larger than <code>uint64_t</code>.
+<code>tlv_der_tag_make(class, constructed, number, storage, &amp;tag)</code> creates minimal
+wire bytes from a <code>uint64_t</code> in <code>storage</code> (<code>TLV_ASN1_TAG_MAX_SIZE</code> writable
+bytes, which the tag then borrows), rejects invalid universal forms or a tag
+longer than <code>TLV_ASN1_TAG_MAX_SIZE</code>,
+and leaves the output unchanged on failure. Empty tags and insufficient tag
+capacity return <code>TLV_ERR_INVALID_TAG_SIZE</code>; invalid encodings return
+<code>TLV_ERR_INVALID_TAG</code>. <code>constructed</code> must be 0 or 1.</p>
+<h2 id="traverse-and-limit-work">Traverse and limit work<a class="headerlink" href="#traverse-and-limit-work" title="Permanent link">&para;</a></h2>
+<p><code>tlv_der_walk(data, size, limits, visitor, context, &amp;error_offset)</code> processes all
+concatenated elements in preorder, including nested constructed values. A NULL
+visitor performs validation only. Empty input succeeds. Each callback receives
+a temporary element, its depth (top-level is zero), and its absolute tag offset.
+Return <code>TLV_VISIT_CONTINUE</code>, <code>TLV_VISIT_STOP</code> (successful early termination), or
+<code>TLV_VISIT_ERROR</code> (returns <code>TLV_ERR_VISITOR</code>). Other callback results also return
+<code>TLV_ERR_VISITOR</code>. Stopping does not validate the remaining input. Callback
+effects from earlier elements persist if later validation fails.</p>
+<p>All DER operations accept NULL limits for <code>tlv_der_default_limits</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_depth</code></td>
+<td>32</td>
+<td>Maximum constructed ancestors of an element</td>
+</tr>
+<tr>
+<td><code>max_input_size</code></td>
+<td>16 MiB</td>
+<td>Supplied read/walk buffer or complete encoded output</td>
+</tr>
+<tr>
+<td><code>max_value_size</code></td>
+<td>16 MiB</td>
+<td>Value length of each element</td>
+</tr>
+<tr>
+<td><code>max_elements</code></td>
+<td>100,000</td>
+<td>Total elements, including the root and descendants</td>
+</tr>
+</tbody>
+</table>
+<p>Copy the default struct and change individual fields to customize limits. All
+limits are inclusive, and zero is a real limit. A depth of zero allows only
+top-level elements (including empty constructed values). <code>max_depth</code> must not
+exceed <code>TLV_DER_MAX_DEPTH</code> (64); invalid configurations and exceeded limits
+return <code>TLV_ERR_LIMIT</code>. Traversal uses a fixed array of 65 offsets, no heap
+allocations and no C recursion. Work is linear in visited framing bytes and
+element count; primitive value bytes are not scanned.</p>
 <h2 id="encode">Encode<a class="headerlink" href="#encode" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">[</span><span class="n">TLV_ASN1_TAG_MAX_SIZE</span><span class="p">];</span><span class="w"> </span><span class="cm">/* the tag borrows these bytes */</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="p">;</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">children</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">};</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_tag_make</span><span class="p">(</span><span class="n">TLV_ASN1_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tag</span><span class="p">);</span><span class="w"> </span><span class="cm">/* SEQUENCE */</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_write</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">children</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">children</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">                       </span><span class="o">&amp;</span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_cer_write</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">children</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">children</span><span class="p">),</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">                       </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="cm">/* Success: output contains 30 80 02 01 2A 00 00 (indefinite framing + EOC). */</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">[</span><span class="n">TLV_ASN1_TAG_MAX_SIZE</span><span class="p">];</span><span class="w"> </span><span class="cm">/* the tag borrows these bytes */</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="p">;</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">children</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">};</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_der_tag_make</span><span class="p">(</span><span class="n">TLV_ASN1_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tag</span><span class="p">);</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_der_write</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">children</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">children</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">                       </span><span class="o">&amp;</span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_der_write</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">children</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">children</span><span class="p">),</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">                       </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="cm">/* Success: output contains 30 03 02 01 2A. */</span>
 </code></pre></div>
-<p><code>tlv_cer_write</code> accepts <strong>pre-encoded</strong> child bytes for a constructed tag (without
-the enclosing EOC, added automatically) and validates them recursively as
-canonical CER framing — including segmentation, when the tag is itself a
-segmentable UNIVERSAL type — before writing. For a primitive tag, <code>value</code> is raw
-content; content longer than 1,000 octets for a segmentable UNIVERSAL type is
-rejected even in the non-strict function, since that is a structural defect, not
-a content one.</p>
-<p><code>tlv_cer_write_segmented_string</code> instead accepts <strong>logical</strong> string content (not
-pre-encoded segments) and automatically emits a single primitive element or a
-canonical constructed/segmented one, whichever is canonical for that content's
-length:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">content</span><span class="p">[</span><span class="mi">2500</span><span class="p">];</span><span class="w"> </span><span class="cm">/* fill with logical OCTET STRING data */</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">output</span><span class="p">[</span><span class="mi">2600</span><span class="p">];</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">[</span><span class="n">TLV_ASN1_TAG_MAX_SIZE</span><span class="p">];</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">octet_string</span><span class="p">;</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">tlv_cer_tag_make</span><span class="p">(</span><span class="n">TLV_ASN1_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">tag_bytes</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">octet_string</span><span class="p">);</span><span class="w"> </span><span class="cm">/* primitive OCTET STRING */</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">tlv_cer_write_segmented_string</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">output</span><span class="p">),</span><span class="w"> </span><span class="n">octet_string</span><span class="p">,</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">                              </span><span class="n">content</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">content</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">written</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="cm">/* Success: two 1000-octet segments plus a 500-octet final segment. */</span>
-</code></pre></div>
-<p>NULL output with zero capacity is a validating size query for both functions.
-Failures leave destination bytes and <code>written</code> unchanged. <code>tlv_cer_write_segmented_string</code>
-always validates content (there is no non-strict variant — its purpose is producing
-correct canonical output from logical content, unlike <code>tlv_cer_write</code>'s pre-encoded
-pass-through). Size arithmetic, including every segment header and the EOC, is
-overflow-checked before writing.</p>
+<p>Build nested values from the inside out in caller-owned buffers.
+<code>tlv_der_write</code> validates the supplied tag and all constructed descendants
+before writing. Tags must already be minimal; lengths are always emitted in
+their shortest definite form. Primitive contents are copied verbatim. Parsing
+and encoding accepted input preserves the element byte-for-byte and gives
+deterministic output within the supported TLV scope.</p>
+<p>NULL output with zero capacity is a validating size query. A NULL value is valid
+only for zero length. Otherwise the source value must not overlap the complete
+destination element. Failures leave destination bytes and <code>written</code> unchanged.
+Insufficient capacity returns <code>TLV_ERR_BUFFER_TOO_SHORT</code>. Encoded size overflow
+returns <code>TLV_ERR_INVALID_LENGTH</code>.</p>
 <h2 id="strict-universal-value-validation">Strict universal value validation<a class="headerlink" href="#strict-universal-value-validation" title="Permanent link">&para;</a></h2>
-<p><code>tlv_cer_read_strict</code>, <code>tlv_cer_walk_strict</code> and <code>tlv_cer_write_strict</code> are drop-in
-counterparts of <code>tlv_cer_read</code>, <code>tlv_cer_walk</code> and <code>tlv_cer_write</code>: identical
-signatures, offsets and resource limits, but every UNIVERSAL-class element they
-encounter additionally has its content validated against ASN.1 canonical rules —
-including, for a segmented constructed value, every segment, validated as it is
-encountered without ever concatenating them.</p>
+<p><code>tlv_der_read_strict</code>, <code>tlv_der_walk_strict</code> and <code>tlv_der_write_strict</code> are drop-in
+counterparts of <code>tlv_der_read</code>, <code>tlv_der_walk</code> and <code>tlv_der_write</code>: identical
+signatures, offsets and resource limits, but every UNIVERSAL-class <strong>primitive</strong>
+element they encounter (including nested ones, and the top-level element given
+to <code>tlv_der_write_strict</code>) additionally has its content checked against ASN.1
+DER canonical rules. Non-UNIVERSAL classes and constructed values (SEQUENCE,
+SET, EXTERNAL, EMBEDDED PDV, CHARACTER STRING) are unaffected: their contents
+are validated structurally only, exactly as with the non-strict functions.
+<code>tlv_der_read</code>, <code>tlv_der_walk</code> and <code>tlv_der_write</code> themselves are unchanged.</p>
+<p>Recognized types with invalid or noncanonical content return
+<code>TLV_ERR_INVALID_VALUE</code>. A UNIVERSAL primitive tag number without an
+implemented rule returns <code>TLV_ERR_UNSUPPORTED_TYPE</code> instead of silently
+passing, so callers can tell "checked and canonical" apart from "not checked".</p>
 <table>
 <thead>
 <tr>
 <th>Group</th>
 <th>Supported types</th>
-<th>Segmentable</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Simple</td>
-<td>BOOLEAN, INTEGER, BIT STRING, OCTET STRING, NULL, OBJECT IDENTIFIER, RELATIVE-OID, REAL, ENUMERATED</td>
-<td>BIT STRING, OCTET STRING only</td>
+<td>BOOLEAN, INTEGER, BIT STRING, OCTET STRING (unconstrained), NULL, OBJECT IDENTIFIER, RELATIVE-OID, REAL, ENUMERATED</td>
 </tr>
 <tr>
 <td>String</td>
 <td>UTF8String, NumericString, PrintableString, IA5String, VisibleString, UniversalString, BMPString</td>
-<td>Yes</td>
 </tr>
 <tr>
 <td>Unconstrained legacy string</td>
-<td>ObjectDescriptor, TeletexString, VideotexString, GraphicString, GeneralString</td>
-<td>Yes</td>
+<td>ObjectDescriptor, TeletexString, VideotexString, GraphicString, GeneralString (any byte sequence is valid, like OCTET STRING; X.690 places no canonical byte-level restriction on their complex legacy character sets)</td>
 </tr>
 <tr>
 <td>Date/time</td>
 <td>UTCTime, GeneralizedTime, TIME, DATE, TIME-OF-DAY, DATE-TIME, DURATION</td>
-<td>No</td>
 </tr>
 <tr>
 <td>OID-IRI</td>
 <td>OID-IRI, RELATIVE-OID-IRI</td>
-<td>No</td>
 </tr>
 </tbody>
 </table>
-<p>These are exactly the rules ITU-T X.690 §11 documents as common to both CER and
-DER, so results agree with <a href="../der/#strict-universal-value-validation">DER's strict validation</a>
-wherever both apply (DER never segments; CER's segment-aware checks are additional,
-per-segment for a type the "Segmentable" column marks "Yes"). Every type marked
-"No" is never eligible for segmentation (always primitive, definite length),
-including generic TIME/DATE/TIME-OF-DAY/DATE-TIME/DURATION/OID-IRI/RELATIVE-OID-IRI:
-their content is still validated, exactly as an ordinary primitive value.</p>
-<p>Recognized but explicitly unsupported (return <code>TLV_ERR_UNSUPPORTED_TYPE</code> in strict
-mode rather than being silently accepted): any UNIVERSAL primitive tag number
-beyond 36. Unlike every case above, this one is never checked at all — CER only
-attempts universal-value validation for a tag number 36 or below in the first
-place, so an unrecognized higher number is accepted structurally (not reported
-as unsupported), a difference from DER's shared dispatch, which returns
-<code>TLV_ERR_UNSUPPORTED_TYPE</code> unconditionally for any number it does not recognize.</p>
-<h2 id="errors-offsets-and-limits">Errors, offsets and limits<a class="headerlink" href="#errors-offsets-and-limits" title="Permanent link">&para;</a></h2>
-<p>Optional <code>error_offset</code> is changed only on failure, following the same
-conventions as DER: it identifies the absolute start of the failing tag, length,
-or value field, relative to the supplied input (or would-be encoded output for
-writes). A missing EOC is reported at the position where it was expected (the
-enclosing element's length field); a truncated or unexpected EOC is reported at
-its own position. A segment-level structural or content defect is reported at
-the start of the offending segment. Value-size limit failures point to the
-length field; depth/count limits point to the first disallowed element.
-Argument, configuration, total-size and destination-capacity errors use offset
-zero.</p>
-<p><code>tlv_format_cer</code> also works with generic C and
-C++ readers and writers. It validates <strong>only the current tag and
-length</strong> — generic I/O does not inspect constructed contents, EOC placement, or
-canonical segmentation, and provides no field offsets. Use the CER-specific
-functions above when those guarantees are required.</p>
-<p>See also the <a href="../../reference/c-api/#profiles">C API reference: profiles</a>.</p>
+<p>UTCTime/GeneralizedTime checks are structural (digit patterns, mandatory <code>Z</code>,
+canonical fraction rules, and range checks such as month 01-12 or day 01-31);
+they do not perform full Gregorian calendar validation (e.g. do not detect
+"30 February"). DATE/TIME-OF-DAY/DATE-TIME have the same digit-pattern and
+range-check scope, but with no separators in their canonical <code>YYYYMMDD</code>/
+<code>HHMMSS</code>/<code>YYYYMMDDHHMMSS</code> content. DURATION checks designator/digit structure
+and component order but not ISO 8601's omission of zero-valued components.
+Generic TIME's concrete syntax varies far more than those fixed-form types
+(week dates, ordinal dates, fractional seconds, UTC offsets, intervals), so
+it only checks the VisibleString character-set restriction, not the fuller
+ISO 8601 canonical-form grammar. OID-IRI/RELATIVE-OID-IRI check UTF-8
+well-formedness and <code>/</code>-separated arc structure, not each arc's characters
+against the fuller RFC 3987 IRI-label restrictions. Structured types
+(SEQUENCE, SET, EXTERNAL, EMBEDDED PDV, CHARACTER STRING) have no additional
+value semantics in this scope, and CHOICE/ANY have no wire tag of their own,
+so neither applies here.</p>
+<p>Recognized but explicitly unsupported (return <code>TLV_ERR_UNSUPPORTED_TYPE</code> in
+strict mode rather than being silently accepted): any UNIVERSAL primitive tag
+number beyond 36. See <a href="../../formats/asn1/ber/#universal-type-value-codecs"><code>tlv/builtins/asn1/asn1_codec.h</code></a>
+for the matching value codecs.</p>
+<h2 id="schema-aware-validation-and-encoding">Schema-aware validation and encoding<a class="headerlink" href="#schema-aware-validation-and-encoding" title="Permanent link">&para;</a></h2>
+<p>Include <code>tlv/builtins/asn1/der_schema.h</code> when canonical rules depend on ASN.1 type
+information that raw TLV structure alone cannot express: distinguishing SET
+from SET OF, validating implicitly tagged content against its underlying
+type, checking explicit-tag wrapper structure, resolving CHOICE alternatives,
+and enforcing REQUIRED/OPTIONAL/DEFAULT components (including DEFAULT
+omission). This is a fixed, small ASN.1 subset, <strong>not an ASN.1 compiler or an
+unrestricted type system</strong>; a schema is a borrowed, immutable, caller-authored
+static table, similar in spirit to <a href="../../guides/schemas/"><code>tlv/schema/schema.h</code></a>
+but distinct from it: <code>tlv_structure_schema_t</code> is format-agnostic and only
+expresses occurrence/membership, while <code>tlv_der_schema_type_t</code> is ASN.1-
+specific and expresses DER canonical semantics. A component's underlying
+<code>type</code> is always a <code>tlv_der_schema_type_t</code>, never the other kind of schema.</p>
+<p>Supported type kinds: <code>TLV_DER_SCHEMA_UNIVERSAL</code> (a specific universal tag
+number, content-validated the same way <code>_strict</code> validates it), <code>SEQUENCE</code>,
+<code>SET</code>, <code>SET_OF</code>, <code>SEQUENCE_OF</code>, <code>CHOICE</code>, and <code>ANY</code> (exactly one well-formed
+DER-TLV element with no further ASN.1 semantics; legal untagged only as a
+direct SEQUENCE component, since its wildcard tag would make SET/CHOICE/
+SET-OF matching ambiguous). <code>SEQUENCE_OF</code> repeats one element type like
+<code>SET_OF</code> (and shares its <code>min_elements</code>/<code>max_elements</code> bounds), but keeps
+elements in encoding order instead of requiring or enforcing the canonical
+sort order <code>SET_OF</code> does. Each component of a SEQUENCE/SET/CHOICE, and a SET
+OF's or SEQUENCE OF's element, carries a tagging mode (untagged,
+<code>TLV_DER_TAG_IMPLICIT</code> or
+<code>TLV_DER_TAG_EXPLICIT</code>, with a class and number for the latter two) and a
+presence (<code>TLV_DER_REQUIRED</code>, <code>TLV_DER_OPTIONAL</code>, or <code>TLV_DER_DEFAULT</code> with a
+complete canonical encoding to compare against). <code>tlv_der_schema_check</code>
+validates a hand-authored table's internal consistency once (distinct SET/
+CHOICE component tags, CHOICE alternatives required with no default, no
+IMPLICIT tagging of a CHOICE or ANY component, and bounds on component count
+and type-graph depth); <code>tlv_der_schema_read</code>/<code>tlv_der_schema_write</code> also
+enforce the depth bound live and do not require it to have been called first.</p>
+<p>A <code>TLV_DER_SCHEMA_UNIVERSAL</code> leaf's optional <code>constraint</code>
+(<code>tlv_der_schema_leaf_constraint_t</code>) adds ASN.1 <code>SIZE</code> and value-range checks
+on top of its own canonical DER content rules: <code>min_length</code>/<code>max_length</code> bound
+the raw content in bytes (an ASN.1 <code>SIZE</code> constraint, for example <code>OCTET
+STRING (SIZE(1..16))</code>), and <code>value_constraint</code> (a borrowed
+<a href="../../guides/schemas/#value-constraints-on-decoded-values"><code>tlv_value_constraint_t</code></a>)
+checks the leaf's decoded value, valid only when <code>universal_number</code> is 2
+(INTEGER) or 10 (ENUMERATED) — the two universal types X.680 allows a
+value-range or named-number constraint on, for example <code>INTEGER (0..255)</code>.
+<code>tlv_der_schema_check</code> rejects <code>min_length &gt; max_length</code> and a
+<code>value_constraint</code> on any other universal type; <code>tlv_der_schema_read</code> and
+<code>tlv_der_schema_write</code> both check <code>constraint</code> against the leaf's raw content.</p>
+<p>A <code>TLV_DER_SCHEMA_SEQUENCE</code>'s <code>extensible</code> flag models an ASN.1 extension
+marker (<code>...</code>): when set, <code>tlv_der_schema_read</code> accepts and skips, as one or
+more opaque well-formed DER-TLV elements (validated the same way as an <code>ANY</code>
+component but not otherwise interpreted), any content left over once every
+declared component has been matched or skipped — instead of rejecting it as
+a schema violation. <code>extensible</code> is ignored for every other kind, does not
+waive a <code>TLV_DER_REQUIRED</code> declared component, and has no effect on
+<code>tlv_der_schema_write</code> (which only ever writes the components a schema
+declares; there is nothing to write for an unknown future extension).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_der_schema_type_t</span><span class="w"> </span><span class="n">integer_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">TLV_DER_SCHEMA_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">};</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_der_schema_type_t</span><span class="w"> </span><span class="n">octet_string_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">TLV_DER_SCHEMA_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">};</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_der_schema_component_t</span><span class="w"> </span><span class="n">set_components</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="p">{</span><span class="o">&amp;</span><span class="n">integer_type</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_DER_TAG_NONE</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_ASN1_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_DER_REQUIRED</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="p">{</span><span class="o">&amp;</span><span class="n">octet_string_type</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_DER_TAG_NONE</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_ASN1_UNIVERSAL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_DER_REQUIRED</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">};</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv_der_schema_type_t</span><span class="w"> </span><span class="n">set_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">TLV_DER_SCHEMA_SET</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">set_components</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">};</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">tlv_element_t</span><span class="w"> </span><span class="n">element</span><span class="p">;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">consumed</span><span class="p">,</span><span class="w"> </span><span class="n">error_offset</span><span class="p">;</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_der_schema_read</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">set_type</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">                                      </span><span class="o">&amp;</span><span class="n">element</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">consumed</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">);</span>
+</code></pre></div>
+<p><code>tlv_der_schema_read</code> rejects a SET whose components are not encoded in
+ascending tag order and a SET OF whose elements are not encoded in ascending
+order of their complete encodings (both violations return
+<code>TLV_ERR_INVALID_VALUE</code>); validating SET/SET OF order needs no extra storage,
+since DER canonical order is checked with a single adjacent-pair scan.
+SEQUENCE OF elements are not order-checked, matching ASN.1, which does not
+constrain their order. <code>tlv_der_schema_write</code> produces canonical output
+regardless of the order its <code>tlv_der_schema_encode_fn</code> callback is invoked in:
+it sorts SET components by effective tag (schema-bounded, needing no caller
+scratch) and SET OF elements by complete encoding (using the caller-supplied
+<code>scratch</code>/<code>scratch_capacity</code> records), keeps SEQUENCE OF elements in the
+order the callback produced them (using the same <code>scratch</code>/<code>scratch_capacity</code>
+records, just without sorting), and omits a DEFAULT component whose complete
+encoding equals its <code>default_encoding</code>. Unlike <code>tlv_der_write</code>, it always
+composes the complete output in a caller-supplied <code>scratch_bytes</code> arena first
+— needed to compare and reorder content before committing to it — so
+<code>scratch_bytes</code> and <code>scratch_bytes_capacity</code> are required even for a
+<code>NULL</code>-<code>data</code> size query; size <code>scratch_bytes_capacity</code> generously, since
+composing nested content can temporarily use more arena space than the final
+output size.</p>
+<p>This API is <strong>unconditionally strict</strong>: there is no permissive mode, so every
+UNIVERSAL leaf is content-validated, and unresolved CHOICE tags, unsupported
+universal types, and schema self-check failures are always explicit errors
+rather than silently accepted.</p>
+<p><code>tlv_der_schema_limits_t</code> extends <code>tlv_der_limits_t</code> (identical <code>max_depth</code>,
+<code>max_input_size</code>, <code>max_value_size</code>, <code>max_elements</code> semantics) with
+<code>max_set_elements</code>, which bounds <code>tlv_der_schema_write</code>'s SET OF sort-record
+and SEQUENCE OF composition-record capacity; <code>tlv_der_schema_default_limits</code>
+mirrors <code>tlv_der_default_limits</code>.
+<code>TLV_DER_SCHEMA_MAX_TYPE_DEPTH</code> (32) bounds CHOICE/EXPLICIT resolution
+recursion over the schema's own type graph — trusted, caller-authored data,
+not attacker input — guarding only against an accidentally self-referential
+table. <code>TLV_DER_SCHEMA_MAX_COMPONENTS</code> (64) bounds a single SEQUENCE, SET or
+CHOICE's direct component count.</p>
+<p>Existing <code>tlv_der_read</code>/<code>walk</code>/<code>write</code> (and their <code>_strict</code> counterparts) and
+the generic <code>tlv_structure_schema_t</code> engine are unaffected: this is a purely
+additive layer.</p>
+<h2 id="errors-and-generic-io">Errors and generic I/O<a class="headerlink" href="#errors-and-generic-io" title="Permanent link">&para;</a></h2>
+<p>Optional <code>error_offset</code> is changed only on failure. It identifies the <strong>start of
+the failing field</strong>, relative to the supplied input (or would-be encoded output):
+tag errors point to the tag, length errors to the length prefix, and truncated
+values to their value start. This includes missing fields at the end of input.
+Value-size limits point to the length field; depth/count limits point to the
+first disallowed element. Argument, configuration, total-size and destination
+capacity errors use offset zero. Nested offsets remain absolute. Truncated
+children cannot consume bytes beyond their parent's declared value boundary.</p>
+<p><code>tlv_format_der</code> also works with generic C and C++ readers and writers. It
+validates <strong>only the current tag and length</strong>. Generic I/O does not inspect
+constructed contents, apply DER resource limits, or provide field offsets.
+Use the DER-specific functions above when those guarantees are required.</p>
+<p>See also the <a href="../../reference/c-api/#builtins">C API reference: builtins</a>.</p>
 
 
 
@@ -3117,7 +3218,7 @@ functions above when those guarantees are required.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../der/" class="md-footer__link md-footer__link--prev" aria-label="Previous: DER">
+          <a href="../../formats/lldp-review/" class="md-footer__link md-footer__link--prev" aria-label="Previous: LLDP requirements review">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3127,20 +3228,20 @@ functions above when those guarantees are required.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                DER
+                LLDP requirements review
               </div>
             </div>
           </a>
         
         
           
-          <a href="../emv/" class="md-footer__link md-footer__link--next" aria-label="Next: EMV">
+          <a href="../cer/" class="md-footer__link md-footer__link--next" aria-label="Next: CER">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                EMV
+                CER
               </div>
             </div>
             <div class="md-footer__button md-icon">

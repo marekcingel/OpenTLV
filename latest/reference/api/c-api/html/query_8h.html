@@ -139,7 +139,7 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Path queries that address TLV elements by their nested tags. </p>
 <p>A query is a <code>/</code>-separated list of hexadecimal tags such as <code>6F/A5/50</code>. The first tag names a top-level element, each following tag one of its direct children, and the query addresses every element reached that way, in document order. Tags are compared as raw bytes, so a query works for every reader format; a path longer than one tag needs a format whose values can be constructed (see <a class="el" href="group__traversal.html#ga7c30635fc426a34a345eb1b0f2385888" title="Calls a visitor for every element a query addresses.">tlv_query_walk()</a>).</p>
-<p>The query language is deliberately small: exact tag paths only. It carries no wildcards, indexes, predicates or recursive search, and does not depend on any format or profile, so the same text can address data in the reader and, later, in other document models. </p>
+<p>The query language is deliberately small: exact tag paths only. It carries no wildcards, indexes, predicates or recursive search, and does not depend on any format or standard, so the same text can address data in the reader and, later, in other document models. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

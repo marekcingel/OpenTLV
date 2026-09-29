@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1785,10 +1785,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#asn1-profiles" class="md-nav__link">
+  <a href="#asn1-standards" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ASN.1 profiles
+        ASN.1 standards
       
     </span>
   </a>
@@ -2073,7 +2073,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -2089,7 +2089,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -2102,7 +2102,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -2130,7 +2130,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -2158,7 +2158,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2947,10 +2947,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#asn1-profiles" class="md-nav__link">
+  <a href="#asn1-standards" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ASN.1 profiles
+        ASN.1 standards
       
     </span>
   </a>
@@ -3211,10 +3211,10 @@ types, tagging environments, universal types, extensibility, and basic constrain
 encoded (BER, CER, DER). OpenTLV's implemented BER/CER/DER framing and <code>_strict</code>
 universal value checks work at the X.690 level. The schema-aware DER layer is a small,
 hand-authored subset of X.680 type constructs
-(<a href="../../profiles/der/#schema-aware-validation-and-encoding">current scope</a>):
+(<a href="../../standards/der/#schema-aware-validation-and-encoding">current scope</a>):
 universal types, <code>SEQUENCE</code>, <code>SEQUENCE OF</code>, <code>SET</code>, <code>SET OF</code>, <code>CHOICE</code>, <code>ANY</code>,
 IMPLICIT/EXPLICIT tagging, <code>OPTIONAL</code>/<code>DEFAULT</code> components, and <code>SIZE</code>/value-range
-constraints on a leaf. It is not an ASN.1 compiler. Every ASN.1 profile below
+constraints on a leaf. It is not an ASN.1 compiler. Every ASN.1 standard below
 depends on how much of X.680 these rows cover.</p>
 <table>
 <thead>
@@ -3241,7 +3241,7 @@ depends on how much of X.680 these rows cover.</p>
 <td>X.680 with X.690 BER and CER rules</td>
 <td>Schema-aware reading with BER leniency (indefinite lengths, non-canonical forms) and CER canonical rules. The schema layer is DER only today, and it is unconditionally strict.</td>
 <td>DER schema (new BER and CER variants), structure schema</td>
-<td>Needed by <a href="#asn1-profiles">CMS</a>, which mixes BER with DER-only fields, and by LDAP and SNMP. CER canonical SET/SET OF ordering is still open in the <a href="https://github.com/marekcingel/OpenTLV/blob/main/README.md#format-and-profile-support">README</a>.</td>
+<td>Needed by <a href="#asn1-standards">CMS</a>, which mixes BER with DER-only fields, and by LDAP and SNMP. CER canonical SET/SET OF ordering is still open in the <a href="https://github.com/marekcingel/OpenTLV/blob/main/README.md#format-and-standard-support">README</a>.</td>
 <td>Not verified: as above.</td>
 </tr>
 <tr>
@@ -3293,7 +3293,7 @@ depends on how much of X.680 these rows cover.</p>
 </tr>
 </tbody>
 </table>
-<h2 id="asn1-profiles">ASN.1 profiles<a class="headerlink" href="#asn1-profiles" title="Permanent link">&para;</a></h2>
+<h2 id="asn1-standards">ASN.1 standards<a class="headerlink" href="#asn1-standards" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -3311,7 +3311,7 @@ depends on how much of X.680 these rows cover.</p>
 <td><a href="https://www.rfc-editor.org/rfc/rfc5280.html">RFC 5280</a> (PKIX profile of ITU-T X.509); DER per X.690</td>
 <td><code>Certificate</code>, <code>TBSCertificate</code>, extensions, and CRL structures.</td>
 <td>DER schema, value codecs (OID, time, names), dictionary (extension OIDs), open types</td>
-<td>Reuses <a href="../../profiles/der/#schema-aware-validation-and-encoding">DER schema-aware validation</a>. Extension values need <a href="#asn1-notation-itu-t-x680-series">open types</a>. No path validation, revocation, or signature verification.</td>
+<td>Reuses <a href="../../standards/der/#schema-aware-validation-and-encoding">DER schema-aware validation</a>. Extension values need <a href="#asn1-notation-itu-t-x680-series">open types</a>. No path validation, revocation, or signature verification.</td>
 <td>Verified: RFC 5280 states DER encoding. Field-level syntax not walked.</td>
 </tr>
 <tr>
@@ -3388,7 +3388,7 @@ depends on how much of X.680 these rows cover.</p>
 <tr>
 <td>ISO/IEC 7816-4 BER-TLV (<code>[?]</code>)</td>
 <td>ISO/IEC 7816-4 (data objects clause; edition to be chosen)</td>
-<td>BER-TLV data objects with the card-specific restrictions on tag and length forms. Related to the <a href="../../profiles/emv/">EMV profile</a>, which already uses BER.</td>
+<td>BER-TLV data objects with the card-specific restrictions on tag and length forms. Related to the <a href="../../standards/emv/">EMV module</a>, which already uses BER.</td>
 <td>BER format adapter (existing), nesting predicate, dictionary</td>
 <td>Reuses BER. Which restrictions differ from generic BER needs a check against the paid text. APDU commands and file systems are out of scope.</td>
 <td>Not verified: paid ISO document.</td>
@@ -3404,7 +3404,7 @@ depends on how much of X.680 these rows cover.</p>
 <tr>
 <td>GlobalPlatform beyond DGI (<code>[?]</code>)</td>
 <td><a href="https://globalplatform.org/wp-content/uploads/2018/03/GPC_Specification_v2.3.pdf">Card Specification v2.3</a> (later editions and amendments separately)</td>
-<td>Data objects whose tags and lengths are "coded as defined by ASN.1 BER-TLV rules" (ISO 8825-1), for example in <code>GET DATA</code>, <code>STORE DATA</code>, tokens and registry data. Each data object family is a separate profile.</td>
+<td>Data objects whose tags and lengths are "coded as defined by ASN.1 BER-TLV rules" (ISO 8825-1), for example in <code>GET DATA</code>, <code>STORE DATA</code>, tokens and registry data. Each data object family is a separate scope.</td>
 <td>BER format adapter (existing), nesting predicate, dictionary</td>
 <td>Reuses BER. Some length fields are BER with an extra allowance (a length of 128 may also be used). Not secure channel, key management, or life cycle. <a href="../format-roadmap/#previously-catalogued-candidates">DGI</a> stays a separate adapter.</td>
 <td>Verified: v2.3 text on BER-TLV tags and lengths; later editions not read.</td>
@@ -3454,7 +3454,7 @@ depends on how much of X.680 these rows cover.</p>
 <td><a href="https://www.rfc-editor.org/rfc/rfc6733.html">RFC 6733</a>, section 4.1</td>
 <td>AVP framing: 4-byte code, flag byte, 24-bit length that includes the header, optional 4-byte vendor ID (V flag), data padded to a 32-bit boundary with the padding not counted in the length. Grouped AVPs nest.</td>
 <td>format adapter (<code>decode</code>, <code>encode</code>), nesting predicate (grouped types), dictionary</td>
-<td>Length includes the header; the trailing padding fits the reader's <code>trailer_size</code>, but the writer has no trailer hook (see <a href="../format-roadmap/#framing-requirements">framing requirements</a>). Command dictionaries and applications are separate profiles. No peer state machine.</td>
+<td>Length includes the header; the trailing padding fits the reader's <code>trailer_size</code>, but the writer has no trailer hook (see <a href="../format-roadmap/#framing-requirements">framing requirements</a>). Command dictionaries and applications are separate scopes. No peer state machine.</td>
 <td>Verified: RFC 6733 section 4.1 and the padding rules.</td>
 </tr>
 </tbody>

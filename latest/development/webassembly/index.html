@@ -345,11 +345,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1784,7 +1784,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1800,7 +1800,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1813,7 +1813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -1841,7 +1841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -1869,7 +1869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2808,7 +2808,7 @@ to normal C and C++ builds.</p>
 <p>The first interface is intentionally small: it parses a byte buffer and returns
 the element structure or the parser error. It wraps the existing C API in
 <code>bindings/wasm/src/opentlv_wasm.c</code>; no parsing logic is duplicated. Editing, schemas,
-schemas and OTDL are not exposed; the EMV dictionary is available as an annotation profile (below).
+schemas and OTDL are not exposed; the EMV dictionary is available as an annotation module (below).
 Unlike a general-purpose binding, it does not follow the Reader/Writer/Element
 shape of the <a href="../../concepts/bindings/">language bindings conceptual model</a>; see
 that page for why.</p>
@@ -2857,7 +2857,7 @@ native builds, and a compiled-out format is rejected as an invalid argument.</p>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">);</span>
 </code></pre></div>
 <p><code>parse</code> takes a <code>Uint8Array</code>, a <code>format</code> (<code>fixed</code>, <code>bluetooth-ltv</code>, <code>bluetooth-ad</code>,
-<code>ber</code>, <code>der</code>, <code>cer</code> or <code>emv</code>; default <code>ber</code>) and optionally a <code>profile</code> (<code>none</code> or <code>emv</code>; default
+<code>ber</code>, <code>der</code>, <code>cer</code> or <code>emv</code>; default <code>ber</code>) and optionally a <code>module</code> (<code>none</code> or <code>emv</code>; default
 <code>none</code>) and returns:</p>
 <p>Bluetooth modes annotate known AD Types with <code>name</code> from the C registry.
 <code>bluetooth-ltv</code> keeps strict element framing. <code>bluetooth-ad</code> adds Advertising
@@ -2871,7 +2871,7 @@ configurable fixed-width format's tag width, length width and length byte order
 <code>fixedLengthScope</code> selects <code>"value"</code> (default) or <code>"tag-and-value"</code>.
 These options apply only to Fixed. Invalid JavaScript configuration values throw
 <code>TypeError</code>; invalid encoded input is reported through <code>result.error</code>.
-<code>opentlv.formats</code> and <code>opentlv.profiles</code> list the modes supported by the loaded build.</p>
+<code>opentlv.formats</code> and <code>opentlv.modules</code> list the modes supported by the loaded build.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ber"</span><span class="p">,</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
@@ -2897,11 +2897,11 @@ Value excludes the enclosing trailer. Field order comes from these ranges,
 so LTV and BER end-of-contents need no byte-layout guessing in the viewer.
 The JSON example above omits <code>encodedSize</code> and <code>source</code> for brevity.</p>
 <p><code>format: "cer"</code> uses the generic tree walker with <code>tlv_format_cer</code>, preserving
-preorder output and EOC source ranges. It checks framing only; full CER profile
+preorder output and EOC source ranges. It checks framing only; full CER
 validation (including string segmentation and semantic values) is not applied.</p>
-<p>With <code>profile: "emv"</code> (BER or EMV framing; other formats report an invalid-argument
-error) the result also has <code>"profile": "emv"</code>. Every element the
-<a href="../../profiles/emv/">EMV dictionary</a> knows carries <code>symbol</code> (the
+<p>With <code>module: "emv"</code> (BER or EMV framing; other formats report an invalid-argument
+error) the result also has <code>"module": "emv"</code>. Every element the
+<a href="../../standards/emv/">EMV dictionary</a> knows carries <code>symbol</code> (the
 dictionary name), <code>name</code> (a display name) and <code>lengthValid</code> (whether <code>length</code>
 is permitted for the tag); other elements carry none of these.</p>
 <p>Invalid input does not throw. The result carries an <code>error</code> object with the

@@ -345,11 +345,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1784,7 +1784,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1800,7 +1800,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1813,7 +1813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -1841,7 +1841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -1869,7 +1869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2617,10 +2617,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#profiles-and-formats" class="md-nav__link">
+  <a href="#formats-and-canonical-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Profiles and formats
+        Formats and canonical validation
       
     </span>
   </a>
@@ -2853,10 +2853,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#profiles-and-formats" class="md-nav__link">
+  <a href="#formats-and-canonical-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Profiles and formats
+        Formats and canonical validation
       
     </span>
   </a>
@@ -3024,7 +3024,7 @@ borrow checker keeps the input alive for as long as the reader or any element.</
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
 </code></pre></div>
 <p><code>Reader::new</code> uses BER;
-<code>Reader::with_format</code> takes a <code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>), and
+<code>Reader::with_format</code> takes a <code>Format</code> (<code>Ber</code>, <code>Emv</code>, <code>Cer</code>, <code>Der</code>, plus optional <code>Lldp</code>), and
 <code>Reader::with_fixed_format</code> takes a borrowed <code>&amp;FixedFormat</code> for a
 runtime-configurable tag width, length width and length byte order (wraps the C
 <code>tlv_fixed_format_t</code> and <code>tlv_fixed_format_init()</code>: <code>FixedFormatConfig::new(tag_size,
@@ -3103,14 +3103,16 @@ is the amount codec; every other codec comes from the EMV dictionary:</p>
 <code>validate_length</code>, optional <code>Codec</code>); <code>Context::child</code> follows template
 contexts. Opaque bytes, text and templates have no codec; use the reader's
 borrowed value.</p>
-<h2 id="profiles-and-formats">Profiles and formats<a class="headerlink" href="#profiles-and-formats" title="Permanent link">&para;</a></h2>
-<p><code>Format</code> (<code>Default</code>, <code>Ber</code>, <code>Cer</code>, <code>Der</code>) selects the wire
+<h2 id="formats-and-canonical-validation">Formats and canonical validation<a class="headerlink" href="#formats-and-canonical-validation" title="Permanent link">&para;</a></h2>
+<p><code>Format</code> (<code>Ber</code>, <code>Emv</code>, <code>Cer</code>, <code>Der</code>, plus optional <code>Lldp</code>) selects the wire
 encoding; it implements <code>FromStr</code> and <code>Display</code> for names such as <code>"der"</code>.
-<code>Profile</code> (<code>Der</code>, <code>Cer</code>) adds canonical-encoding checks and resource <code>Limits</code>
+<code>Format</code> (<code>Der</code>, <code>Cer</code>) adds canonical-encoding checks and resource <code>Limits</code>
 on top of the format: <code>validate</code>, <code>read</code>, <code>encoded_size</code> and <code>write</code>, each with
 a <code>Strictness</code> (<code>Canonical</code> or <code>Strict</code>, which also validates UNIVERSAL
-content). Failures are <code>ProfileError</code> values with the failing offset.</p>
-<p>The DOL profile and the callback-based visitors and structure codecs of the C
+content). <code>default_limits()</code> returns <code>Result&lt;Limits, ValidationError&gt;</code>.
+These bounded operations return <code>InvalidArg</code> at offset zero for formats other
+than DER/CER; ordinary framing remains available through Reader/Writer. Failures are <code>ValidationError</code> values with the failing offset.</p>
+<p>The DOL component and the callback-based visitors and structure codecs of the C
 API are not bound yet.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Requirements: a Rust toolchain (1.70 or newer), CMake 3.16 or newer and a C99
@@ -3122,7 +3124,7 @@ compiler. On Windows use the MSVC Rust toolchain with Visual Studio.</p>
 <p>By default the build script configures and builds the OpenTLV C library from the
 repository root with CMake, as a static Release library inside Cargo's <code>target</code>
 directory, and links it. The C++ layer, CLI, tests and examples are not built.</p>
-<p>The build script passes no <code>OPENTLV_FORMAT_*</code> or <code>OPENTLV_PROFILE_*</code> options, so the
+<p>The build script passes no <code>OPENTLV_FORMAT_*</code> or <code>OPENTLV_EMV</code> options, so the
 C library uses its default components except LLDP: the default <code>lldp</code> Cargo
 feature enables <code>OPENTLV_LLDP</code>; <code>--no-default-features</code> disables it. For prebuilt
 libraries, match the feature to the C build's option. Component selection for
@@ -3153,7 +3155,7 @@ runs on every push and pull request to <code>main</code> and fails on any of:</p
 </code></pre></div>
 <p><code>opentlv/tests/corpus.rs</code> replays the C fuzz seeds (each harness's <code>corpus/</code>
 folder under <code>tests/fuzz/</code>) through the safe API (reader on every format, DER
-and CER profiles, writer and reader round trips, every EMV codec), so seeds
+and CER rules, writer and reader round trips, every EMV codec), so seeds
 added for the C harnesses also cover the bindings without being copied.</p>
 <h2 id="linking-a-prebuilt-library">Linking a prebuilt library<a class="headerlink" href="#linking-a-prebuilt-library" title="Permanent link">&para;</a></h2>
 <p>To link a library you built yourself, point <code>OPENTLV_LIB_DIR</code> at the directory

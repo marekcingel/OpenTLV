@@ -197,18 +197,6 @@
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://marekcingel.github.io/OpenTLV/latest/profiles/cer/</loc>
-         <lastmod>2026-09-29</lastmod>
-    </url>
-    <url>
-         <loc>https://marekcingel.github.io/OpenTLV/latest/profiles/der/</loc>
-         <lastmod>2026-09-29</lastmod>
-    </url>
-    <url>
-         <loc>https://marekcingel.github.io/OpenTLV/latest/profiles/emv/</loc>
-         <lastmod>2026-09-29</lastmod>
-    </url>
-    <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/reference/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
@@ -226,6 +214,18 @@
     </url>
     <url>
          <loc>https://marekcingel.github.io/OpenTLV/latest/reference/errors/</loc>
+         <lastmod>2026-09-29</lastmod>
+    </url>
+    <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/standards/cer/</loc>
+         <lastmod>2026-09-29</lastmod>
+    </url>
+    <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/standards/der/</loc>
+         <lastmod>2026-09-29</lastmod>
+    </url>
+    <url>
+         <loc>https://marekcingel.github.io/OpenTLV/latest/standards/emv/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
 </urlset>

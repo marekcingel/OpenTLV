@@ -347,11 +347,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1902,7 +1902,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1918,7 +1918,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1931,7 +1931,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -1959,7 +1959,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -1987,7 +1987,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2854,7 +2854,7 @@ primitives to the ASN.1 shapes they cover (SEQUENCE, SET, SET OF, CHOICE). For
 DER-specific canonical rules this engine still cannot express (implicit/explicit
 tagging, DEFAULT-value comparison against the encoded bytes, canonical SET/SET
 OF tag- or encoding-based sort order), see
-<a href="../../profiles/der/#schema-aware-validation-and-encoding">schema-aware DER validation and encoding</a>,
+<a href="../../standards/der/#schema-aware-validation-and-encoding">schema-aware DER validation and encoding</a>,
 a distinct schema type built for that purpose.</p>
 <p>A nonzero <code>tlv_schema_entry_t.length_multiple</code> requires the value length to be
 divisible by that width as well as satisfying the inclusive bounds. Zero
@@ -3009,7 +3009,7 @@ Tables must remain immutable. Sibling order is a schema concern only when a
 scope opts into it (see below); cross-field/value semantics stay an
 application concern. <code>tlv::validate</code> exposes these same rules through the C++
 API. For a concrete structure schema built on this engine, see
-<a href="../../profiles/emv/#structural-validation">EMV structural validation</a>.</p>
+<a href="../../standards/emv/#structural-validation">EMV structural validation</a>.</p>
 <h2 id="ordered-unordered-and-choice-like-structures">Ordered, unordered and CHOICE-like structures<a class="headerlink" href="#ordered-unordered-and-choice-like-structures" title="Permanent link">&para;</a></h2>
 <p><code>tlv_structure_schema_t</code> has two more fields beyond <code>rules</code>, <code>count</code> and
 <code>allow_unknown</code>: <code>order</code> and <code>groups</code>/<code>group_count</code>. Together with
@@ -3099,7 +3099,7 @@ membership. DEFAULT has no dedicated representation here: since this engine
 never decodes values, a defaulted member is written the same way as an
 optional one (<code>min_occurs = 0</code>), and comparing an encoded value against its
 default stays a format-specific concern, as it already is for DER (see
-<a href="../../profiles/der/#schema-aware-validation-and-encoding">schema-aware DER validation and encoding</a>).</p>
+<a href="../../standards/der/#schema-aware-validation-and-encoding">schema-aware DER validation and encoding</a>).</p>
 <h2 id="value-constraints-on-decoded-values">Value constraints on decoded values<a class="headerlink" href="#value-constraints-on-decoded-values" title="Permanent link">&para;</a></h2>
 <p><code>tlv_structure_schema_t</code> never decodes values, so it cannot express an
 ASN.1-style constraint that depends on a value's <em>decoded</em> meaning, such as

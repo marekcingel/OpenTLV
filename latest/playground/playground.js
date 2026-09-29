@@ -10,76 +10,76 @@ const SAMPLES = [
   {
     name: "EMV: SELECT response (FCI)",
     format: "emv",
-    profile: "emv",
+    module: "emv",
     hex: "6F 19 84 07 A0 00 00 00 03 10 10 A5 0E 50 04 56 49 53 41 87 01 01 5F 2D 02 65 6E",
   },
   {
     name: "BER: nested constructed elements",
     format: "ber",
-    profile: "none",
+    module: "none",
     hex: "6F 0A 84 03 41 42 43 A5 03 50 01 01",
   },
   {
     name: "BER: indefinite SEQUENCE and EOC",
-    format: "ber", profile: "none",
+    format: "ber", module: "none",
     hex: "30 80 02 01 05 00 00",
     description: "The final 00 00 is the SEQUENCE trailer (end-of-contents), not its Value and not Bluetooth padding.",
   },
   {
     name: "DER: SEQUENCE of INTEGER and UTF8String",
     format: "der",
-    profile: "none",
+    module: "none",
     hex: "30 0A 02 01 05 0C 05 48 65 6C 6C 6F",
   },
   {
     name: "CER: indefinite SEQUENCE and EOC",
-    format: "cer", profile: "none",
+    format: "cer", module: "none",
     hex: "30 80 02 01 05 0C 05 48 65 6C 6C 6F 00 00",
-    description: "CER constructed framing uses an indefinite length. The final 00 00 is the SEQUENCE trailer. This view checks framing, not the full CER validation profile.",
+    description: "CER constructed framing uses an indefinite length. The final 00 00 is the SEQUENCE trailer. This view checks framing, not the full CER validation.",
   },
   {
     name: "Fixed TLV: flat elements",
     format: "fixed",
-    profile: "none",
+    module: "none",
     hex: "01 03 41 42 43 02 02 68 69",
   },
   {
     name: "Fixed: LTV with Tag + Value length",
     fixedElementOrder: "ltv", fixedLengthScope: "tag-and-value",
     format: "fixed",
-    profile: "none",
+    module: "none",
     hex: "04 01 AA BB CC 02 04 2A",
     description: "Generic Fixed configured as LTV: the encoded length counts Tag + Value, while each element reports only its logical Value length.",
   },
   {
     name: "Bluetooth: Sensor advertisement + padding",
     format: "bluetooth-ad",
-    profile: "none",
+    module: "none",
     hex: "02 01 06 07 09 53 65 6E 73 6F 72 02 0A FC 00 00 00",
     description: "Flags, the name Sensor and Tx Power (-4 dBm), followed by three zero padding bytes. Select an AD structure to inspect its Length | Type | Value bytes.",
   },
   {
     name: "Bluetooth: service and manufacturer data",
-    format: "bluetooth-ad", profile: "none",
+    format: "bluetooth-ad", module: "none",
     hex: "03 03 0F 18 05 16 0F 18 64 01 05 FF 4C 00 AA BB",
     description: "A 16-bit Service UUID list, Service Data and Manufacturer Specific Data. Payloads remain raw; names come from the C AD Type registry.",
   },
   {
     name: "Bluetooth: invalid padding",
-    format: "bluetooth-ad", profile: "none",
+    format: "bluetooth-ad", module: "none",
     hex: "02 01 06 00 00 01",
     description: "The first structure is valid. A nonzero byte after padding starts is an error at offset 5.",
   },
   {
     name: "Bluetooth LTV: strict framing",
-    format: "bluetooth-ltv", profile: "none",
+    format: "bluetooth-ltv", module: "none",
     hex: "02 01 06 00 00 00",
     description: "The same padded buffer in strict LTV mode: zero length is invalid. Choose Bluetooth Advertising Data to handle container padding.",
   },
   {
     name: "Truncated input (parser error)",
     format: "emv",
-    profile: "emv",
+    module: "emv",
     hex: "6F 19 84 07 A0 00 00 00 03 10 10 A5 0E 50 04 56",
   },
 ];
@@ -168,7 +168,7 @@ async function start() {
   const status = document.getElementById("otlv-pg-status");
   const sampleSelect = document.getElementById("otlv-pg-sample");
   const formatSelect = document.getElementById("otlv-pg-format");
-  const profileSelect = document.getElementById("otlv-pg-profile");
+  const moduleSelect = document.getElementById("otlv-pg-module");
   const fixedOptions = document.getElementById("otlv-pg-fixed-options");
   const fixedTagSize = document.getElementById("otlv-pg-fixed-tag-size");
   const fixedLengthSize = document.getElementById("otlv-pg-fixed-length-size");
@@ -203,7 +203,7 @@ async function start() {
   for (const option of formatSelect.options) option.disabled = !opentlv.formats.includes(option.value);
   if (!opentlv.formats.includes(formatSelect.value)) formatSelect.value = opentlv.formats[0];
   SAMPLES.forEach((sample, index) => {
-    if (opentlv.formats.includes(sample.format) && opentlv.profiles.includes(sample.profile)) {
+    if (opentlv.formats.includes(sample.format) && opentlv.modules.includes(sample.module)) {
       sampleSelect.append(new Option(sample.name, String(index)));
     }
   });
@@ -229,7 +229,7 @@ async function start() {
       detail.replaceChildren(element("p", "otlv-pg-empty", "Select an element in the Tree or Hex view to inspect it."));
       return;
     }
-    const { bytes, profile } = session;
+    const { bytes, module } = session;
     const { item } = selected;
     const tagBytes = bytes.subarray(selected.tagStart, selected.tagStart + selected.tagSize);
     const lengthBytes = bytes.subarray(selected.lengthStart, selected.lengthEnd);
@@ -245,11 +245,11 @@ async function start() {
       list.append(row);
     };
     if (item.name) add("Name", item.name);
-    if (item.symbol) add("Profile entry", `${profile.toUpperCase()} · ${item.symbol}`);
+    if (item.symbol) add("Module entry", `${module.toUpperCase()} · ${item.symbol}`);
     const bluetooth = session.result.format.startsWith("bluetooth-");
     add(bluetooth ? "AD Type" : "Tag", item.tag);
     if (bluetooth) add("Wire layout", "Length | Type | Value; wire length counts Type + Value");
-    add("Value length", `${item.length}${item.lengthValid === false ? " (outside the range the profile permits)" : ""}`);
+    add("Value length", `${item.length}${item.lengthValid === false ? " (outside the range the module permits)" : ""}`);
     const fields = [
       { offset: selected.tagStart, title: "Encoded tag", bytes: tagBytes },
       { offset: selected.lengthStart, title: "Encoded length", bytes: lengthBytes },
@@ -361,9 +361,9 @@ async function start() {
     return dump;
   }
 
-  function renderResult(bytes, result, profile) {
+  function renderResult(bytes, result, module) {
     const nodes = flatten(result.elements);
-    session = { bytes, result, nodes, profile };
+    session = { bytes, result, nodes, module };
     treeRows = [];
     byteCells = [];
     selected = null;
@@ -443,8 +443,8 @@ async function start() {
       showError(["Invalid input: enter an even number of hexadecimal digits (0-9, A-F). Whitespace is ignored."]);
       return;
     }
-    const profile = profileSelect.value;
-    const options = { format: formatSelect.value, profile };
+    const module = moduleSelect.value;
+    const options = { format: formatSelect.value, module };
     if (formatSelect.value === "fixed") {
       options.fixedTagSize = Number(fixedTagSize.value);
       options.fixedLengthSize = Number(fixedLengthSize.value);
@@ -464,19 +464,19 @@ async function start() {
       showError([`Parse error at offset ${offset}: ${message} (code ${code})`]);
     }
     if (bytes.length > 0) {
-      renderResult(bytes, result, profile);
+      renderResult(bytes, result, module);
     } else if (!result.error) {
       output.append(element("div", "otlv-pg-empty", "No elements (empty input)."));
     }
   }
 
   // The EMV dictionary names BER-TLV tags only.
-  function syncProfile() {
-    const berFormat = ["ber", "emv"].includes(formatSelect.value) && opentlv.profiles.includes("emv");
-    profileSelect.querySelector('option[value="emv"]').disabled = !berFormat;
-    if (!berFormat) profileSelect.value = "none";
+  function syncModule() {
+    const berFormat = ["ber", "emv"].includes(formatSelect.value) && opentlv.modules.includes("emv");
+    moduleSelect.querySelector('option[value="emv"]').disabled = !berFormat;
+    if (!berFormat) moduleSelect.value = "none";
   }
-  formatSelect.addEventListener("change", syncProfile);
+  formatSelect.addEventListener("change", syncModule);
 
   // Fixed-width TLV is the only format with runtime-configurable tag/length widths.
   function syncFixedOptions() {
@@ -493,9 +493,9 @@ async function start() {
     sampleNote.hidden = !sample.description;
     input.value = sample.hex;
     formatSelect.value = sample.format;
-    syncProfile();
+    syncModule();
     syncFixedOptions();
-    profileSelect.value = sample.profile;
+    moduleSelect.value = sample.module;
     fixedTagSize.value = sample.fixedTagSize ?? 1;
     fixedLengthSize.value = sample.fixedLengthSize ?? 1;
     fixedOrder.value = sample.fixedByteOrder ?? "big";
@@ -516,7 +516,7 @@ async function start() {
       errorBox.hidden = true;
     }
   };
-  for (const control of [input, formatSelect, profileSelect, fixedTagSize, fixedLengthSize, fixedOrder, fixedElementOrder, fixedLengthScope]) {
+  for (const control of [input, formatSelect, moduleSelect, fixedTagSize, fixedLengthSize, fixedOrder, fixedElementOrder, fixedLengthScope]) {
     control.addEventListener(control === input || control.tagName === "INPUT" ? "input" : "change", markStale);
   }
   formatSelect.addEventListener("change", clearSampleNote);
@@ -528,9 +528,9 @@ async function start() {
     }
   });
 
-  syncProfile();
+  syncModule();
   syncFixedOptions();
-  for (const control of [sampleSelect, formatSelect, profileSelect, parseButton]) control.disabled = false;
+  for (const control of [sampleSelect, formatSelect, moduleSelect, parseButton]) control.disabled = false;
 }
 
 if (root) start();

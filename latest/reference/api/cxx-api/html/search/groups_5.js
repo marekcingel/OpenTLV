@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['profiles_0',['Profiles',['../../../c-api/html/group__profiles.html',1,'']]]
+  ['mutable_20document_0',['Mutable document',['../../../c-api/html/group__document.html',1,'']]]
 ];

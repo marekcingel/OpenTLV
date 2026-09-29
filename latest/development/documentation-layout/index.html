@@ -345,11 +345,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1784,7 +1784,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1800,7 +1800,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1813,7 +1813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -1841,7 +1841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -1869,7 +1869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2921,9 +2921,9 @@ section by the page's primary purpose, and link to related material elsewhere.</
 <td><a href="../../formats/">Formats</a></td>
 </tr>
 <tr>
-<td><code>profiles/</code></td>
+<td><code>standards/</code></td>
 <td>Standards or industry semantics layered on a format</td>
-<td><a href="../../profiles/der/">DER</a></td>
+<td><a href="../../standards/der/">DER</a></td>
 </tr>
 <tr>
 <td><code>cli/</code></td>
@@ -2949,11 +2949,11 @@ lookup. A guide should link to the relevant concept or reference instead of
 copying it. Introductory build and first-program instructions belong in
 <code>getting-started/</code>; contributor workflows belong in <code>development/</code>.</p>
 <p><code>formats/</code> describes wire encoding, identifier and length framing, format
-callbacks and byte examples. <code>profiles/</code> describes validation rules, semantics
+callbacks and byte examples. <code>standards/</code> describes validation rules, semantics
 and the limits of implemented support built on those formats. For example,
-the DER and CER format pages describe their framing, while their profile pages
-describe recursive and value validation. DER and CER are sibling BER profiles;
-EMV is a profile over BER-TLV. Cross-link these pages rather than duplicating
+the DER and CER format pages describe their framing, while their validation pages
+describe recursive and value validation. DER and CER are sibling ASN.1 encoding rules;
+EMV composes framing, definitions, schemas and codecs for BER-TLV. Cross-link these pages rather than duplicating
 their contracts or implying complete protocol support.</p>
 <h2 id="generated-api-reference">Generated API reference<a class="headerlink" href="#generated-api-reference" title="Permanent link">&para;</a></h2>
 <p>The C and C++ API references are generated with Doxygen and embedded in the
@@ -3043,7 +3043,7 @@ without suppressions; do not use the indented <code>=== "Label"</code> syntax.</
   <code>guides/</code>.</li>
 <li><strong>Additional tooling</strong>: a page or directory per tool in <code>cli/</code>; contributor
   tooling in <code>development/</code>.</li>
-<li><strong>New formats and profiles</strong>: a directory under <code>formats/</code> or <code>profiles/</code>
+<li><strong>New formats and standard-specific capabilities</strong>: a directory under <code>formats/</code> or <code>standards/</code>
   with a <code>README.md</code>, as the existing ones do.</li>
 </ul>
 <p>Create these pages and directories when content is available; this layout
@@ -3070,7 +3070,7 @@ does not require placeholder pages or new OTDL, binding or tool documentation.</
 </ul>
 <h2 id="migration-for-issue-186">Migration for issue #186<a class="headerlink" href="#migration-for-issue-186" title="Permanent link">&para;</a></h2>
 <p>The following paths are relative to <code>docs/</code>. Existing pages under <code>formats/</code>
-and <code>profiles/</code> retain their paths unless listed here.</p>
+and <code>standards/</code> retain their paths unless listed here.</p>
 <table>
 <thead>
 <tr>

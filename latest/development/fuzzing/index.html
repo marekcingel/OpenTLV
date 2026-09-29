@@ -345,11 +345,11 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../profiles/der/" class="md-tabs__link">
+        <a href="../../standards/der/" class="md-tabs__link">
           
   
   
-  Profiles
+  Standards
 
         </a>
       </li>
@@ -1784,7 +1784,7 @@
   <span class="md-ellipsis">
     
   
-    Profiles
+    Standards
   
 
     
@@ -1800,7 +1800,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Profiles
+    Standards
   
 
           </label>
@@ -1813,7 +1813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/der/" class="md-nav__link">
+      <a href="../../standards/der/" class="md-nav__link">
         
   
   
@@ -1841,7 +1841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/cer/" class="md-nav__link">
+      <a href="../../standards/cer/" class="md-nav__link">
         
   
   
@@ -1869,7 +1869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../profiles/emv/" class="md-nav__link">
+      <a href="../../standards/emv/" class="md-nav__link">
         
   
   
@@ -2839,7 +2839,7 @@ flags. Contract checks remain active with <code>NDEBUG</code>; UBSan errors are 
 </tr>
 <tr>
 <td><code>fuzz_der</code></td>
-<td><code>tlv_der_read</code> and <code>tlv_der_walk</code>, canonical DER-TLV framing, all four profile limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal.</td>
+<td><code>tlv_der_read</code> and <code>tlv_der_walk</code>, canonical DER-TLV framing, all four validation limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal.</td>
 </tr>
 <tr>
 <td><code>fuzz_der_schema</code></td>
@@ -2867,7 +2867,7 @@ flags. Contract checks remain active with <code>NDEBUG</code>; UBSan errors are 
 built-in format: default, fixed-width (one tag byte, one length byte), Bluetooth LTV, BER, and DER. Component switches still
 apply; <code>fuzz_fixed</code> is always built when fuzzing is enabled, while <code>fuzz_der</code> and
 <code>fuzz_der_schema</code> are omitted when <code>OPENTLV_FORMAT_DER=OFF</code>,
-and <code>fuzz_codec</code> and <code>fuzz_dol</code> are omitted when <code>OPENTLV_PROFILE_EMV=OFF</code>. At
+and <code>fuzz_codec</code> and <code>fuzz_dol</code> are omitted when <code>OPENTLV_EMV=OFF</code>. At
 least one built-in format must be enabled. For the raw-byte formats, the
 walker harness uses tag bit <code>0x20</code> as a test-only container convention. BER
 and DER use their public nesting predicates. <code>fuzz_fixed</code> covers the
