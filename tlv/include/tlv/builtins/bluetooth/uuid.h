@@ -1,7 +1,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_UUID_H
 #define OPENTLV_BUILTINS_BLUETOOTH_UUID_H
 
-#include "tlv/codec/codec.h"
+#include "tlv/codec/values.h"
 #include "tlv/value.h"
 
 /**
@@ -39,10 +39,12 @@ typedef struct tlv_bluetooth_uuid128 {
     uint8_t bytes[16];
 } tlv_bluetooth_uuid128_t;
 
-/** @brief Converts exactly two wire bytes to/from `uint16_t`. */
-extern TLV_API const tlv_codec_t tlv_bluetooth_codec_uuid16;
-/** @brief Converts exactly four wire bytes to/from `uint32_t`. */
-extern TLV_API const tlv_codec_t tlv_bluetooth_codec_uuid32;
+/** @brief Source alias of #tlv_codec_uint16_le; no separate binary symbol.
+ * Requires no optional Bluetooth component. */
+#define tlv_bluetooth_codec_uuid16 tlv_codec_uint16_le
+/** @brief Source alias of #tlv_codec_uint32_le; no separate binary symbol.
+ * Requires no optional Bluetooth component. */
+#define tlv_bluetooth_codec_uuid32 tlv_codec_uint32_le
 /**
  * @brief Converts exactly 16 wire bytes to/from #tlv_bluetooth_uuid128_t.
  *

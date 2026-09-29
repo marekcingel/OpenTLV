@@ -20,6 +20,14 @@ use this rule. Length diagnostics expose the expected `length_multiple`.
 The [Bluetooth AD schema](../formats/bluetooth/README.md#advertising-data-schema)
 uses it for UUID lists without decoding their values.
 
+Set `flags = TLV_SCHEMA_LENGTH_ENDPOINTS` to permit only `min_length` or
+`max_length`, for example 4 or 8 bytes while rejecting 5, 6 and 7. Both endpoints
+must still satisfy `length_multiple` when it is nonzero. Equal bounds remain an
+exact length; flags zero retains the inclusive interval. Unknown flag bits are
+ignored. Length diagnostics also expose `length_flags`, so an endpoint-only
+constraint can be distinguished from an interval. Rebuild consumers of the
+extended `tlv_schema_diagnostic_t`; `tlv_schema_entry_t` retains its layout.
+
 ```c
 /* A schema entry borrows its tag bytes, so they need static storage. */
 static const uint8_t tag_01[] = {0x01};
@@ -81,7 +89,7 @@ the entry has none.
 ## Complete structure validation
 
 `tlv_structure_schema_t` defines rules within a parent. Each
-`tlv_structure_rule_t` contains an existing length entry, `min_occurs`,
+`tlv_structure_rule_t` references an existing field schema, `min_occurs`,
 `max_occurs`, `kind` and optional `children` schema. Required singleton fields
 use 1/1; optional fields use 0/1; repeatable fields can use `SIZE_MAX` as their
 maximum. Tags must be unique within the rule table. `allow_unknown` explicitly
@@ -94,11 +102,15 @@ require CONSTRUCTED and are checked even for an empty container.
 #include "tlv/schema/schema.h"
 static const uint8_t tag_1[] = {1};
 static const uint8_t tag_2[] = {2};
-static const tlv_structure_rule_t rules[] = {
-    { { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL },
-    { { { tag_2, sizeof(tag_2) }, 0, 255, 0, NULL, 0}, 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL }
+static const tlv_schema_entry_t rules_fields[] = {
+    { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter", 0},
+    { { tag_2, sizeof(tag_2) }, 0, 255, 0, NULL, 0}
 };
-static const tlv_structure_schema_t message = {rules, 2, 0};
+static const tlv_structure_rule_t rules[] = {
+    {&rules_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&rules_fields[1], 0, SIZE_MAX, TLV_SCHEMA_ANY, NULL, 0}
+};
+static const tlv_structure_schema_t message = {rules, 2, 0, NULL, 0, TLV_SCHEMA_ORDER_ANY};
 /* tlv_schema_validate(data, size, format, &message, 16, 1000, &offset); */
 ```
 
@@ -114,11 +126,15 @@ document missing a required field:
 #include "tlv++/tlv.hpp"
 static const uint8_t tag_1[] = {1};
 static const uint8_t tag_2[] = {2};
-static const tlv_structure_rule_t rules[] = {
-    { { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr },
-    { { { tag_2, sizeof(tag_2) }, 0, 255, 0, nullptr, 0}, 0, SIZE_MAX, TLV_SCHEMA_ANY, nullptr }
+static const tlv_schema_entry_t rules_fields[] = {
+    { { tag_1, sizeof(tag_1) }, 1, 8, 0, "counter", 0},
+    { { tag_2, sizeof(tag_2) }, 0, 255, 0, nullptr, 0}
 };
-static const tlv_structure_schema_t message = {rules, 2, 0};
+static const tlv_structure_rule_t rules[] = {
+    {&rules_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {&rules_fields[1], 0, SIZE_MAX, TLV_SCHEMA_ANY, nullptr, 0}
+};
+static const tlv_structure_schema_t message = {rules, 2, 0, NULL, 0, TLV_SCHEMA_ORDER_ANY};
 // tlv::validate(tlv::bytes(data, size), format, message, 16, 1000);
 ```
 
@@ -236,10 +252,15 @@ Person ::= SEQUENCE {
 /// tab | C
 
 ```c
+static const tlv_schema_entry_t person_rules_fields[] = {
+    {TLV_TAG(1), 1, 8, 0, "id", 0},
+    {TLV_TAG(2), 0, 255, 0, "name", 0},
+    {TLV_TAG(3), 0, 255, 0, "comment", 0}
+};
 static const tlv_structure_rule_t person_rules[] = {
-    {{TLV_TAG(1), 1, 8, 0, "id", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL},
-    {{TLV_TAG(2), 0, 255, 0, "name", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, NULL},
-    {{TLV_TAG(3), 0, 255, 0, "comment", 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, NULL},
+    {&person_rules_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&person_rules_fields[1], 1, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
+    {&person_rules_fields[2], 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0}
 };
 static const tlv_structure_schema_t person_schema = {
     person_rules, 3, 0, NULL, 0, TLV_SCHEMA_ORDER_SEQUENCE};
@@ -250,10 +271,15 @@ static const tlv_structure_schema_t person_schema = {
 /// tab | C++
 
 ```cpp
+static const tlv_schema_entry_t person_rules_fields[] = {
+    {TLV_TAG(1), 1, 8, 0, "id", 0},
+    {TLV_TAG(2), 0, 255, 0, "name", 0},
+    {TLV_TAG(3), 0, 255, 0, "comment", 0}
+};
 static const tlv_structure_rule_t person_rules[] = {
-    {{TLV_TAG(1), 1, 8, 0, "id", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{TLV_TAG(2), 0, 255, 0, "name", 0}, 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
-    {{TLV_TAG(3), 0, 255, 0, "comment", 0}, 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr},
+    {&person_rules_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {&person_rules_fields[1], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0},
+    {&person_rules_fields[2], 0, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0}
 };
 static const tlv_structure_schema_t person_schema = {
     person_rules, 3, 0, nullptr, 0, TLV_SCHEMA_ORDER_SEQUENCE};
@@ -404,3 +430,54 @@ primitive/constructed mismatch. See
 worked example. `tlv::validate_all_diag` wraps the same call in C++.
 
 See also the [C API reference: schemas](../reference/c-api.md#schemas) and the [C++ API reference](../reference/cxx-api.md).
+
+## Sharing field rules across structural contexts
+
+`tlv_structure_rule_t.entry` is a required borrowed pointer to exactly one
+`tlv_schema_entry_t`. That object supplies the tag, diagnostic name and all
+field-length rules. Occurrence, wire form, groups and child schemas remain
+properties of the structural rule. There is no inline alternative or override.
+A NULL field pointer makes the structural schema invalid.
+
+A dictionary, standalone validation and several parent contexts can share one
+immutable field description. Keep the field object, tag bytes and name alive
+and unchanged for every use of the rule, including borrowed diagnostic results.
+Static arrays need no allocation. Owning builders (such as Rust and Python)
+keep field storage stable before forming rule pointers. Validation does not
+allocate. EMV templates borrow their dictionary's exact field objects.
+
+For migration, extract each former inline field into a named object or array,
+initialize `entry` with its address, remove the trailing `entry_ref`, and rebuild
+consumers. The accessor `tlv_structure_rule_entry()` is removed; read `rule.entry`
+directly.
+
+## Composing field Schema with numeric conversion
+
+Include `tlv/schema/number.h` for the optional `tlv_schema_number_t` adapter.
+It borrows one authoritative Schema and a numeric representation configuration.
+Decode checks the field length before delegating to `tlv_number_decode()`.
+With representation width zero, encode selects the shortest supported width
+that both fits the number and satisfies Schema. A fixed representation width
+must satisfy Schema and is never silently widened.
+
+```c
+#include "tlv/schema/number.h"
+
+static const uint8_t field_tag[] = {1};
+static const tlv_schema_entry_t field = {
+    {field_tag, sizeof(field_tag)}, 1, 3, TLV_SCHEMA_LENGTH_ENDPOINTS, "counter", 0
+};
+static const tlv_schema_number_t number = {
+    &field, {TLV_NUMBER_BINARY_BE, 0, 0}
+};
+static const tlv_codec_t codec = {
+    &number, tlv_schema_number_decode, tlv_schema_number_encode
+};
+/* uint64_t 256 encodes as 00 01 00: Schema excludes the two-byte width. */
+```
+
+`tlv_schema_number_codec(&number)` constructs the same descriptor for
+caller-owned storage. Keep configuration and Schema alive and immutable while
+used. No tag lookup, allocation or mandatory registry is involved. EMV numeric
+entries use this adapter; LLDP tests exercise it against TTL field constraints
+with an explicitly selected `uint64_t` representation.

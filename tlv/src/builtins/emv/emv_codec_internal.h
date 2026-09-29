@@ -1,10 +1,26 @@
 #ifndef OPENTLV_EMV_CODEC_INTERNAL_H
 #define OPENTLV_EMV_CODEC_INTERNAL_H
 #include "tlv/builtins/emv/emv_codec.h"
+#include "tlv/schema/schema.h"
+#include "tlv/schema/number.h"
+
+/* Operations implemented by this private semantic codec, not dictionary metadata. */
+typedef enum {
+    EMV_REP_ACCOUNT,
+    EMV_REP_AFL,
+    EMV_REP_BIOMETRIC,
+    EMV_REP_CRYPTOGRAM,
+    EMV_REP_CVM_RESULT,
+    EMV_REP_DATE,
+    EMV_REP_DIGITS,
+    EMV_REP_NUMBER_LIST,
+    EMV_REP_TIME,
+    EMV_REP_TRACK2
+} emv_representation_t;
 
 typedef struct {
-    size_t min_length, max_length, step;
-    tlv_emv_value_kind_t kind;
+    const tlv_schema_entry_t* schema;
+    emv_representation_t kind;
     unsigned argument; /* numeric BCD digits (0=binary), or CN maximum digits */
 } emv_value_rule_t;
 

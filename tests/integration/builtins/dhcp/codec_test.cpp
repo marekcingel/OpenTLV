@@ -1,3 +1,4 @@
+#include "tlv/schema/schema.h"
 #include "tlv/builtins/dhcp/codec.h"
 #include "tlv/builtins/dhcp/dhcpv4.h"
 #include "tlv/reader/reader.h"
@@ -49,4 +50,12 @@ TEST(Integration_Tlv_DhcpCodecs, MessageTypeRejectsMalformedRepresentations) {
     EXPECT_EQ(TLV_CODEC_ERR_BUFFER_TOO_SHORT,
               tlv_codec_encode(codec, &type, sizeof(type), wire, 0, &written));
     EXPECT_EQ(0u, written);
+}
+
+TEST(Integration_Tlv_DhcpCodecs, MessageTypeIsGenericWithCallerOwnedSchema) {
+    EXPECT_EQ(&tlv_codec_uint8, &tlv_dhcpv4_codec_message_type);
+    const tlv_schema_entry_t field = {TLV_TAG(53), 1, 1, 0, "message_type", 0};
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(&field, 1));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&field, 0));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(&field, 2));
 }

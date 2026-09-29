@@ -29,6 +29,19 @@ extern TLV_API const tlv_codec_t tlv_codec_uint8;
 extern TLV_API const tlv_codec_t tlv_codec_uint16_be;
 /** @brief Converts exactly four big-endian bytes to/from uint32_t. */
 extern TLV_API const tlv_codec_t tlv_codec_uint32_be;
+/** @brief Converts exactly two little-endian bytes to/from uint16_t. */
+extern TLV_API const tlv_codec_t tlv_codec_uint16_le;
+/** @brief Converts exactly four little-endian bytes to/from uint32_t. */
+extern TLV_API const tlv_codec_t tlv_codec_uint32_le;
+/**
+ * @brief Converts minimal big-endian two's-complement bytes to/from int64_t.
+ *
+ * Decode accepts 1..8 bytes and rejects redundant leading 00/FF sign octets.
+ * Encode emits the shortest signed representation, including one byte for zero.
+ * This is value encoding only; no ASN.1 tag or universal-type policy is applied.
+ * The common object-size, capacity and size-query rules above apply.
+ */
+extern TLV_API const tlv_codec_t tlv_codec_int64_minimal_be;
 
 /**
  * @brief Converts arbitrary bytes to/from a borrowed #tlv_value_t.

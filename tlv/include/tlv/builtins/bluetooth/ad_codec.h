@@ -84,14 +84,15 @@ TLV_API bool tlv_bluetooth_ad_flags_test(const tlv_value_t* flags, uint8_t mask)
 /**
  * @brief Local Name codec for AD Types 0x08 and 0x09, using a borrowed #tlv_value_t.
  *
- * Both shortened and complete names use the same codec. Accepts 0 through
- * 248 bytes of valid UTF-8, including embedded U+0000; no NUL terminator is
+ * Both shortened and complete names use the same codec. Accepts valid UTF-8
+ * of any native length, including embedded U+0000; no NUL terminator is
  * appended or required. Length is in bytes, not characters. Encode copies
  * exactly the supplied bytes. The caller retains the AD Type to distinguish
  * a shortened name from a complete name; no full-name comparison is made.
  *
- * Both directions report #TLV_CODEC_ERR_INVALID_VALUE for excessive length,
- * malformed/truncated UTF-8, overlong encodings, surrogates or code points
+ * The 248-byte field limit belongs to tlv_bluetooth_ad_schema. Both directions
+ * report #TLV_CODEC_ERR_INVALID_VALUE for malformed/truncated UTF-8, overlong
+ * encodings, surrogates or code points
  * above U+10FFFF. A nonempty NULL span is #TLV_CODEC_ERR_NULL_ARG; insufficient
  * destination capacity is #TLV_CODEC_ERR_BUFFER_TOO_SHORT.
  *

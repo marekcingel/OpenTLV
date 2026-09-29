@@ -260,3 +260,17 @@ fn schemas_hold_tags_longer_than_any_built_in_format_accepts() {
     drop(long);
     assert_eq!(schema.len(), 1);
 }
+
+#[test]
+fn owned_field_references_survive_growth_and_schema_moves() {
+    // More entries than the initial Vec capacity; fields must be finalized before borrowing.
+    let rules = (0x80..=0x9e).map(|id| StructureRule::new(tag(&[id])).required_once());
+    let schema = StructureSchema::new(rules, false);
+    let wire: Vec<u8> = (0x80..=0x9e).flat_map(|id| [id, 0]).collect();
+    std::thread::spawn(move || {
+        assert!(schema.validate(&wire, Format::Ber, &limits()).is_ok());
+        assert!(schema.validate(&wire[2..], Format::Ber, &limits()).is_err());
+    })
+    .join()
+    .unwrap();
+}

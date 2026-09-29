@@ -179,3 +179,8 @@ TEST(Unit_Tlv_BluetoothUuid, EmptyListsAndInvalidViews) {
 #endif
     }
 }
+
+TEST(Unit_Tlv_BluetoothUuid, ScalarIntegerNamesAreGenericAliases) {
+    EXPECT_EQ(&tlv_codec_uint16_le, &tlv_bluetooth_codec_uuid16);
+    EXPECT_EQ(&tlv_codec_uint32_le, &tlv_bluetooth_codec_uuid32);
+}

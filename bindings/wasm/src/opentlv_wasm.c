@@ -145,12 +145,9 @@ static void emit_emv(writer_context_t* w, const tlv_element_t* element, size_t d
     w->emv_context[depth + 1] = child == TLV_EMV_CONTEXT_COUNT ? context : child;
     if (!definition) return;
     {
-        char        title[128];
-        const char* label = tlv_emv_display_label(definition->name);
-        if (!label && tlv_emv_titlecase_name(definition->name, title, sizeof title) == TLV_OK)
-            label = title;
+        const char* label = definition->definition->name;
         builder_text(&w->out, ",\"symbol\":");
-        builder_json_string(&w->out, definition->name);
+        builder_json_string(&w->out, tlv_emv_symbol(definition));
         if (label) {
             builder_text(&w->out, ",\"name\":");
             builder_json_string(&w->out, label);

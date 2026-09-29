@@ -370,6 +370,9 @@ extern "C" {
 pub type tlv_is_constructed_fn =
     unsafe extern "C" fn(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
 
+/// Permit only the minimum or maximum length; length_multiple still applies.
+pub const TLV_SCHEMA_LENGTH_ENDPOINTS: u32 = 1;
+
 /// Length rule for one tag (`tlv_schema_entry_t`).
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -380,7 +383,7 @@ pub struct tlv_schema_entry_t {
     pub min_length: usize,
     /// Maximum permitted value length, inclusive; `usize::MAX` is unrestricted.
     pub max_length: usize,
-    /// Reserved; currently ignored.
+    /// Length policy bits; unknown bits are ignored.
     pub flags: u32,
     /// Borrowed name of the field this entry describes, or null if unnamed.
     pub name: *const c_char,
@@ -411,8 +414,8 @@ pub const TLV_SCHEMA_CONSTRUCTED: tlv_schema_kind_t = 2;
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_structure_rule_t {
-    /// Tag and permitted value-length bounds.
-    pub entry: tlv_schema_entry_t,
+    /// Required borrowed field Schema; immutable storage must outlive the rule.
+    pub entry: *const tlv_schema_entry_t,
     /// Minimum occurrences within the parent. Must be 0 when `group` is nonzero.
     pub min_occurs: usize,
     /// Maximum occurrences within the parent; `usize::MAX` is unrestricted.
@@ -532,7 +535,7 @@ pub const TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION: tlv_emv_context_t = 7;
 /// Number of contexts, and the "no new context" result (`TLV_EMV_CONTEXT_COUNT`).
 pub const TLV_EMV_CONTEXT_COUNT: tlv_emv_context_t = 8;
 
-/// C representation of an EMV value (`tlv_emv_value_kind_t`).
+/// Optional builtin presentation category (`tlv_emv_value_kind_t` in presentation.h).
 pub type tlv_emv_value_kind_t = c_int;
 /// Opaque bytes (`TLV_EMV_VALUE_BYTES`).
 pub const TLV_EMV_VALUE_BYTES: tlv_emv_value_kind_t = 0;
@@ -564,6 +567,8 @@ pub const TLV_EMV_VALUE_AFL: tlv_emv_value_kind_t = 12;
 pub const TLV_EMV_VALUE_CVM_RESULT: tlv_emv_value_kind_t = 13;
 /// [`tlv_emv_track2_t`] (`TLV_EMV_VALUE_TRACK2`).
 pub const TLV_EMV_VALUE_TRACK2: tlv_emv_value_kind_t = 14;
+/// Caller-selected codec not recognized by the compatibility presenter.
+pub const TLV_EMV_VALUE_UNKNOWN: tlv_emv_value_kind_t = 15;
 
 /// Decoded EMV date (`tlv_emv_date_t`).
 #[repr(C)]
@@ -696,20 +701,26 @@ pub struct tlv_emv_track2_t {
     pub discretionary_data: [c_char; TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS + 1],
 }
 
-/// One entry of the EMV data dictionary (`tlv_emv_definition_t`).
+/// Generic borrowed identifier and descriptive name.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_definition_t {
+    /// Canonical identifier bytes.
+    pub tag: tlv_tag_t,
+    /// Borrowed descriptive name.
+    pub name: *const c_char,
+}
+
+/// Borrowed composition of Definition, Schema and Codec.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct tlv_emv_definition_t {
-    /// Tag and length bounds; borrowed from static tables.
+    /// Canonical identifier and descriptive name.
+    pub definition: *const tlv_definition_t,
+    /// Authoritative field schema and diagnostic symbol.
     pub schema: *const tlv_schema_entry_t,
-    /// Stable symbolic name.
-    pub name: *const c_char,
-    /// C representation of the value.
-    pub value_kind: tlv_emv_value_kind_t,
-    /// Semantic codec; null when no conversion is provided.
+    /// Selected semantic codec, or null for opaque input.
     pub codec: *const tlv_codec_t,
-    /// Permitted lengths: `min + n * step`.
-    pub length_step: usize,
 }
 
 /// Inclusive resource limits for DER validation and writing (`tlv_der_limits_t`).
@@ -792,7 +803,14 @@ extern "C" {
         context: tlv_emv_context_t,
         tag: *const tlv_tag_t,
     ) -> tlv_emv_context_t;
-    /// Validates a length against a definition.
+    /// Builtin-only presentation profile; does not inspect callbacks or custom codecs.
+    pub fn tlv_emv_builtin_value_kind(
+        definition: *const tlv_emv_definition_t,
+    ) -> tlv_emv_value_kind_t;
+    /// Borrows the symbol from the entry's Schema.
+    pub fn tlv_emv_symbol(definition: *const tlv_emv_definition_t) -> *const c_char;
+    /// Derives length spacing from Schema.
+    pub fn tlv_emv_length_step(definition: *const tlv_emv_definition_t) -> usize;
     pub fn tlv_emv_validate_length(
         definition: *const tlv_emv_definition_t,
         length: usize,

@@ -226,10 +226,9 @@ TEST(Integration_Tlv_TransformedTag, ReaderQueryAndSchemaUseCanonicalIdentity) {
     EXPECT_EQ(TLV_OK, tlv_query_walk(wire.data(), wire.size(), &packed_format, &query, 0, 2,
                                      visitor, &count, nullptr));
     EXPECT_EQ(2u, count);
-    tlv_structure_rule_t rule{};
-    rule.entry.tag = TLV_TAG(1);
-    rule.entry.min_length = 255;
-    rule.entry.max_length = 256;
+    tlv_structure_rule_t     rule{};
+    const tlv_schema_entry_t field = {TLV_TAG(1), 255, 256, 0, nullptr, 0};
+    rule.entry = &field;
     rule.min_occurs = rule.max_occurs = 2;
     tlv_structure_schema_t schema{};
     schema.rules = &rule;

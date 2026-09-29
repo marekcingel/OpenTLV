@@ -1,7 +1,7 @@
 #ifndef OPENTLV_BUILTINS_LLDP_CODEC_H
 #define OPENTLV_BUILTINS_LLDP_CODEC_H
 
-#include "tlv/codec/codec.h"
+#include "tlv/codec/values.h"
 #include "tlv/value.h"
 
 /**
@@ -9,7 +9,9 @@
  * @ingroup codecs
  * @brief Allocation-free codecs for the LLDP base information strings.
  *
- * Requires `OPENTLV_LLDP=ON`. Descriptors have static lifetime. Decode borrows
+ * Specialized descriptors require `OPENTLV_LLDP=ON`; the TTL/text source
+ * aliases use core codecs and need no optional component. Descriptors have
+ * static lifetime. Decode borrows
  * variable-length fields; keep input storage alive and unchanged. Encode takes
  * exactly sizeof the documented C representation; decode needs at least that
  * capacity. Use tlv_codec_encode() with NULL/0 for validated size queries.
@@ -27,7 +29,8 @@ extern "C" {
 typedef struct tlv_lldp_id {
     /** Subtype in 1..7, interpreted in the selected Chassis/Port namespace. */
     uint8_t subtype;
-    /** Identifier, 1..255 octets; includes address-family octet for network IDs. */
+    /** Nonempty identifier; includes address-family octet for network IDs.
+     * The enclosing LLDP field length is checked by Schema. */
     tlv_value_t identifier;
 } tlv_lldp_id_t;
 
@@ -59,14 +62,15 @@ typedef struct tlv_lldp_organisation {
     uint8_t oui[3];
     /** Organisation-defined subtype; all byte values are preserved. */
     uint8_t subtype;
-    /** Borrowed remaining payload, 0..507 octets. */
+    /** Borrowed remaining payload; enclosing field length is checked by Schema. */
     tlv_value_t payload;
 } tlv_lldp_organisation_t;
 
 /**
  * @brief Chassis ID codec (Type 1), represented by #tlv_lldp_id_t.
  *
- * Subtypes 1..7 and 1..255 identifier octets. Subtype 4 requires six MAC
+ * Subtypes 1..7 and a nonempty identifier. Schema owns the maximum field
+ * length. Subtype 4 requires six MAC
  * octets; subtype 5 requires an address-family byte and at least one address
  * octet. IPv4/IPv6 families require 4/16 address octets. Other identifier
  * subtypes are opaque; no textual normalization or assignment lookup occurs.
@@ -75,19 +79,22 @@ extern TLV_API const tlv_codec_t tlv_lldp_codec_chassis_id;
 /**
  * @brief Port ID codec (Type 2), represented by #tlv_lldp_id_t.
  *
- * Same bounds as Chassis ID; MAC is subtype 3 and network address subtype 4.
+ * Same representation as Chassis ID; MAC is subtype 3 and network address subtype 4.
  * Other subtype-specific syntax is left to the application.
  */
 extern TLV_API const tlv_codec_t tlv_lldp_codec_port_id;
-/** @brief TTL codec (Type 3): uint16_t seconds encoded as two big-endian bytes, including zero. */
-extern TLV_API const tlv_codec_t tlv_lldp_codec_ttl;
+/** @brief Source alias of #tlv_codec_uint16_be for TTL (Type 3), including zero.
+ * No separate binary symbol or domain dispatcher is used. */
+#define tlv_lldp_codec_ttl tlv_codec_uint16_be
 /**
  * @brief Text information codec for Types 4, 5 and 6, represented by #tlv_value_t.
  *
- * Preserves 0..255 octets exactly, without a terminator, character conversion,
+ * Source alias of #tlv_codec_bytes; no separate binary symbol. Preserves arbitrary
+ * octets exactly, without a terminator, character conversion,
  * UTF-8 validation or locale interpretation. An empty string is representable.
+ * The LLDP field limit of 255 octets belongs to tlv_lldp_schema.
  */
-extern TLV_API const tlv_codec_t tlv_lldp_codec_text;
+#define tlv_lldp_codec_text tlv_codec_bytes
 /**
  * @brief Type 7 codec: #tlv_lldp_capabilities_t as two big-endian 16-bit fields.
  *
@@ -107,7 +114,8 @@ extern TLV_API const tlv_codec_t tlv_lldp_codec_management_address;
 /**
  * @brief Type 127 codec, represented by #tlv_lldp_organisation_t.
  *
- * Accepts 4..511 octets: three OUI bytes, subtype, and 0..507 payload bytes.
+ * Requires a four-octet prefix: three OUI bytes and subtype, then opaque payload.
+ * No outer length limit is applied; tlv_lldp_schema owns the 511-octet limit.
  * Does not validate OUI ownership, vendor syntax, or nested TLVs.
  */
 extern TLV_API const tlv_codec_t tlv_lldp_codec_organisation;

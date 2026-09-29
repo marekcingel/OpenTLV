@@ -1,3 +1,4 @@
+#include "tlv/builtins/emv/presentation.h"
 #include "presentation.hpp"
 #include "tlv/config.h"
 #include "tlv/size.h"
@@ -102,12 +103,8 @@ void cli_presentation_prefix(const cli_presentation_t* p, size_t depth) {
 /* Presentation-only wrapper: falls back to a generic title-cased label when
  * the symbol has no curated one. Tag matching, value types and bounds come
  * from tlv itself (tlv_emv_display_label/tlv_emv_titlecase_name). */
-std::string cli_emv_display_name(const char* name) {
-    char        titlecased[128];
-    const char* label = tlv_emv_display_label(name);
-    if (label) return label;
-    if (tlv_emv_titlecase_name(name, titlecased, sizeof(titlecased)) == TLV_OK) return titlecased;
-    return name;
+std::string cli_emv_display_name(const tlv_definition_t* definition) {
+    return definition && definition->name ? definition->name : "";
 }
 #endif
 
@@ -119,16 +116,16 @@ cli_emv_info cli_presentation_emv_info(const cli_presentation_t* p, const tlv_el
         tlv_emv_find((tlv_emv_context_t)p->contexts[depth], &element->tag);
     if (!definition) return info;
     info.known = true;
-    info.name = cli_emv_display_name(definition->name);
+    info.name = cli_emv_display_name(definition->definition);
     if (describe) {
         std::ostringstream description;
-        description << tlv_emv_value_kind_description(definition->value_kind)
+        description << tlv_emv_value_kind_description(tlv_emv_builtin_value_kind(definition))
                     << "; dictionary length: " << definition->schema->min_length;
         if (definition->schema->max_length == SIZE_MAX)
             description << "..unbounded";
         else if (definition->schema->max_length != definition->schema->min_length)
             description << ".." << definition->schema->max_length;
-        description << " bytes; step: " << definition->length_step;
+        description << " bytes; step: " << tlv_emv_length_step(definition);
         info.has_description = true;
         info.description = description.str();
     }

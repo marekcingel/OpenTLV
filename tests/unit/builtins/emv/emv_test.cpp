@@ -1,6 +1,9 @@
+#include "tlv/builtins/emv/presentation.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
+#include "tlv/codec/number.h"
+#include "tlv/schema/number.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -46,16 +49,44 @@ unsigned number_of(const tlv_tag_t& tag) {
     return number;
 }
 
+#include "dictionary_cases.h"
+
 TEST(Unit_Tlv_Emv, PublicTagConstantsMatchDefinitions) {
-#define EMV_BEGIN(scope)
-#define EMV_TAG(scope, name, size, b1, b2, min, max, step, kind, arg)                              \
-    EXPECT_NE(nullptr, find(tlv_emv_tag_##name, TLV_EMV_CONTEXT_##scope));                         \
-    EXPECT_EQ(static_cast<unsigned>(tlv_emv_tag_##name##_u64), number_of(tlv_emv_tag_##name));
-#define EMV_END(scope)
-#include "tlv/builtins/emv/emv_tags.def"
-#undef EMV_BEGIN
-#undef EMV_TAG
-#undef EMV_END
+    size_t total = 0;
+    for (int c = 0; c < TLV_EMV_CONTEXT_COUNT; ++c)
+        total += tlv_emv_dictionary_for(static_cast<tlv_emv_context_t>(c))->count;
+    ASSERT_EQ(sizeof(dictionary_cases) / sizeof(dictionary_cases[0]), total);
+    for (const auto& expected : dictionary_cases) {
+        SCOPED_TRACE(expected.symbol);
+        const auto* entry = tlv_emv_find(expected.context, expected.tag);
+        ASSERT_NE(nullptr, entry);
+        EXPECT_EQ(expected.expected_number, expected.number);
+        EXPECT_EQ(expected.number, number_of(*expected.tag));
+        EXPECT_STREQ(expected.symbol, tlv_emv_symbol(entry));
+        EXPECT_EQ(expected.min_length, entry->schema->min_length);
+        EXPECT_EQ(expected.max_length, entry->schema->max_length);
+        EXPECT_EQ(expected.step, tlv_emv_length_step(entry));
+        EXPECT_EQ(expected.kind, tlv_emv_builtin_value_kind(entry));
+        EXPECT_EQ(expected.has_codec, entry->codec != nullptr);
+        ASSERT_NE(nullptr, entry->definition);
+        EXPECT_EQ(entry->schema->tag.data, entry->definition->tag.data);
+        EXPECT_EQ(expected.tag->data, entry->definition->tag.data);
+        for (size_t length = 0; length <= 260; ++length) {
+            const bool permitted = length >= expected.min_length && length <= expected.max_length &&
+                                   (length - expected.min_length) % expected.step == 0;
+            EXPECT_EQ(permitted ? TLV_OK : TLV_ERR_INVALID_LENGTH,
+                      tlv_schema_validate_length(entry->schema, length));
+            EXPECT_EQ(tlv_schema_validate_length(entry->schema, length),
+                      tlv_emv_validate_length(entry, length));
+            if (!permitted && entry->codec) {
+                const uint8_t wire[261] = {};
+                uint64_t      output = 99;
+                EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+                          tlv_codec_decode(entry->codec, wire, length, &output, sizeof(output)));
+                EXPECT_EQ(99u, output);
+            }
+        }
+    }
 }
 
 TEST(Unit_Tlv_Emv, ScopeAndInvalidLookup) {
@@ -84,8 +115,8 @@ TEST(Unit_Tlv_Emv, ContextPreventsTagCollisions) {
     const auto* biometric = find(tlv_emv_tag_amount_authorised_binary, TLV_EMV_CONTEXT_BHT);
     ASSERT_NE(nullptr, amount);
     ASSERT_NE(nullptr, biometric);
-    EXPECT_EQ(TLV_EMV_VALUE_NUMBER, amount->value_kind);
-    EXPECT_EQ(TLV_EMV_VALUE_BIOMETRIC, biometric->value_kind);
+    EXPECT_EQ(TLV_EMV_VALUE_NUMBER, tlv_emv_builtin_value_kind(amount));
+    EXPECT_EQ(TLV_EMV_VALUE_BIOMETRIC, tlv_emv_builtin_value_kind(biometric));
     EXPECT_EQ(TLV_OK, tlv_emv_validate_length(amount, 4));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(biometric, 4));
     EXPECT_EQ(nullptr, find(tlv_emv_tag_tvr, TLV_EMV_CONTEXT_BHT));
@@ -156,8 +187,16 @@ TEST(Unit_Tlv_Emv, ChildContextTracksNestedTemplates) {
 }
 
 TEST(Unit_Tlv_Emv, NonContiguousLengthRules) {
+    for (const auto* tag :
+         {&tlv_emv_tag_bic, &tlv_emv_tag_issuer_public_key_exponent,
+          &tlv_emv_tag_icc_public_key_exponent, &tlv_emv_tag_icc_pin_public_key_exponent}) {
+        const auto* definition = find(*tag);
+        for (size_t length = 0; length <= definition->schema->max_length + 1; ++length)
+            EXPECT_EQ(tlv_emv_validate_length(definition, length),
+                      tlv_schema_validate_length(definition->schema, length));
+    }
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_afl), 5));
-    EXPECT_EQ(TLV_OK, tlv_schema_validate_length(find(tlv_emv_tag_afl)->schema, 5));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(find(tlv_emv_tag_afl)->schema, 5));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_cvm_list), 11));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(find(tlv_emv_tag_bic), 9));
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
@@ -484,4 +523,93 @@ TEST(Unit_Tlv_Emv, NumericConstantsInSwitch) {
 extern "C" int tlv_test_c_tag_switch(void);
 TEST(Unit_Tlv_Emv, NumericConstantsInCSwitch) {
     EXPECT_EQ(1, tlv_test_c_tag_switch());
+}
+
+TEST(Unit_Tlv_Emv, CallerOwnedDictionaryUsesTheSameLookupAndGenericCodec) {
+    const std::vector<uint8_t>      bytes{0x9F, 0x02};
+    const tlv_tag_t                 tag = tlv_tag(bytes.data(), bytes.size());
+    const tlv_number_codec_config_t config{TLV_NUMBER_BCD, 6, 12};
+    const tlv_schema_entry_t        schema{tag, 6, 6, 0, "amount", 0};
+    const tlv_schema_number_t       composition{&schema, config};
+    const auto                      codec = tlv_schema_number_codec(&composition);
+    const tlv_definition_t          identifier{tag, "Amount"};
+    const tlv_emv_definition_t      entries[] = {{nullptr, &schema, nullptr},
+                                                 {&identifier, &schema, &codec},
+                                                 {&identifier, &schema, nullptr}};
+    const tlv_emv_dictionary_t      dictionary{entries, 3};
+    const auto*                     entry = tlv_emv_dictionary_find(&dictionary, &tag);
+    ASSERT_EQ(entries + 1, entry);
+    EXPECT_EQ(TLV_OK, tlv_emv_validate_length(entry, 6));
+    const uint8_t value[] = {0, 0, 0, 0, 0x12, 0x34};
+    uint64_t      decoded = 0;
+    ASSERT_EQ(TLV_CODEC_OK,
+              tlv_codec_decode(entry->codec, value, sizeof(value), &decoded, sizeof(decoded)));
+    EXPECT_EQ(1234u, decoded);
+    const auto* builtin = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &tag);
+    ASSERT_NE(nullptr, builtin);
+    uint64_t builtin_value = 0;
+    EXPECT_EQ(TLV_CODEC_OK, tlv_codec_decode(builtin->codec, value, sizeof(value), &builtin_value,
+                                             sizeof(builtin_value)));
+    EXPECT_EQ(decoded, builtin_value);
+    const auto unknown = TLV_TAG(0x81);
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&dictionary, &unknown));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(nullptr, &tag));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&dictionary, nullptr));
+    const tlv_emv_dictionary_t malformed{nullptr, 1}, empty{nullptr, 0};
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&malformed, &tag));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&empty, &tag));
+    const auto bad = tlv_tag(nullptr, 1);
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&dictionary, &bad));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_for(TLV_EMV_CONTEXT_COUNT));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_for(static_cast<tlv_emv_context_t>(-1)));
+}
+
+TEST(Unit_Tlv_Emv, CallerOwnedMetadataDoesNotInferRepresentationFromTag) {
+    const auto               tag = TLV_TAG(0x9F, 0x02);
+    const tlv_definition_t   identifier{tag, "Caller field"};
+    const tlv_schema_entry_t schema{tag, 1, 3, TLV_SCHEMA_LENGTH_ENDPOINTS, "caller", 0};
+    // Same uint64_t representation behind a caller-owned wrapper: no RTTI required.
+    const tlv_number_codec_config_t config{TLV_NUMBER_BINARY_BE, 0, 0};
+    const tlv_codec_t               unknown{
+        &config,
+        [](const void* context, const uint8_t* data, size_t size, void* value, size_t capacity) {
+            return tlv_number_decode(context, data, size, value, capacity);
+        },
+        [](const void* context, const void* value, size_t size, uint8_t* data, size_t capacity,
+           size_t* written) {
+            return tlv_number_encode(context, value, size, data, capacity, written);
+        }};
+    const tlv_emv_definition_t entry{&identifier, &schema, &unknown};
+    const uint8_t              wire[] = {42};
+    uint64_t                   decoded = 0;
+    EXPECT_EQ(TLV_CODEC_OK,
+              tlv_codec_decode(entry.codec, wire, sizeof(wire), &decoded, sizeof(decoded)));
+    EXPECT_EQ(42u, decoded);
+    uint8_t encoded = 0;
+    size_t  written = 0;
+    EXPECT_EQ(TLV_CODEC_OK,
+              tlv_codec_encode(entry.codec, &decoded, sizeof(decoded), &encoded, 1, &written));
+    EXPECT_EQ(42, encoded);
+    EXPECT_EQ(1u, written);
+    EXPECT_STREQ("caller", tlv_emv_symbol(&entry));
+    EXPECT_EQ(TLV_OK, tlv_emv_validate_length(&entry, 1));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_emv_validate_length(&entry, 2));
+    EXPECT_EQ(TLV_OK, tlv_emv_validate_length(&entry, 3));
+    const tlv_emv_dictionary_t dictionary{&entry, 1};
+    EXPECT_EQ(&entry, tlv_emv_dictionary_find(&dictionary, &tag));
+    const tlv_definition_t     other{TLV_TAG(0x01), "Other"};
+    const tlv_emv_definition_t mismatch{&other, &schema, &unknown};
+    const tlv_emv_dictionary_t malformed{&mismatch, 1};
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&malformed, &tag));
+    EXPECT_EQ(nullptr, tlv_emv_dictionary_find(&malformed, &other.tag));
+}
+
+TEST(Unit_Tlv_Emv, BuiltinPresentationNeverInterpretsCallerOwnedEntries) {
+    const auto* builtin = find(tlv_emv_tag_amount_authorised);
+    ASSERT_NE(nullptr, builtin);
+    const tlv_emv_definition_t copy = *builtin;
+    // Even identical callbacks do not make a caller object part of a builtin UI profile.
+    EXPECT_EQ(TLV_EMV_VALUE_UNKNOWN, tlv_emv_builtin_value_kind(&copy));
+    EXPECT_EQ(TLV_EMV_VALUE_UNKNOWN, tlv_emv_builtin_value_kind(nullptr));
+    EXPECT_EQ(TLV_EMV_VALUE_NUMBER, tlv_emv_builtin_value_kind(builtin));
 }

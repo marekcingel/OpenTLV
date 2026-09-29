@@ -1,3 +1,4 @@
+#include "tlv/builtins/bluetooth/ad_schema.h"
 #include "tlv/builtins/bluetooth/ad_codec.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -117,8 +118,7 @@ TEST(Unit_Tlv_BluetoothAdCodec, NamesBorrowCompleteUtf8IncludingEmptyAndEmbedded
     for (const auto& bytes : valid)
         check_span(tlv_bluetooth_ad_codec_local_name, bytes, TLV_CODEC_OK);
     check_span(tlv_bluetooth_ad_codec_local_name, std::vector<uint8_t>(248, 'a'), TLV_CODEC_OK);
-    check_span(tlv_bluetooth_ad_codec_local_name, std::vector<uint8_t>(249, 'a'),
-               TLV_CODEC_ERR_INVALID_VALUE);
+    check_span(tlv_bluetooth_ad_codec_local_name, std::vector<uint8_t>(249, 'a'), TLV_CODEC_OK);
 }
 
 TEST(Unit_Tlv_BluetoothAdCodec, NamesRejectMalformedUtf8InBothDirections) {
@@ -202,5 +202,30 @@ TEST(Unit_Tlv_BluetoothAdCodec, SpanEncodeValidatesBorrowedPointerAndNativeSize)
                   tlv_codec_encode(codec, &span, sizeof(span), nullptr, 0, &written));
         EXPECT_EQ(0u, written);
 #endif
+    }
+}
+
+TEST(Unit_Tlv_BluetoothAdCodec, FieldLengthsAndValueSemanticsAreIndependent) {
+    for (size_t i = 0; i < tlv_bluetooth_ad_schema.count; ++i) {
+        const auto* field = tlv_bluetooth_ad_schema.rules[i].entry;
+        const auto  type = field->tag.data[0];
+        if (type == 8 || type == 9) {
+            EXPECT_EQ(TLV_OK, tlv_schema_validate_length(field, 248));
+            EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_schema_validate_length(field, 249));
+            check_span(tlv_bluetooth_ad_codec_local_name, std::vector<uint8_t>(249, 'a'),
+                       TLV_CODEC_OK);
+            EXPECT_EQ(TLV_OK, tlv_schema_validate_length(field, 1));
+            check_span(tlv_bluetooth_ad_codec_local_name, {0x80}, TLV_CODEC_ERR_INVALID_VALUE);
+        } else if (type == 1) {
+            EXPECT_EQ(TLV_OK, tlv_schema_validate_length(field, 1));
+            check_span(tlv_bluetooth_ad_codec_flags, {0}, TLV_CODEC_ERR_INVALID_VALUE);
+        } else if (type == 10) {
+            EXPECT_EQ(TLV_OK, tlv_schema_validate_length(field, 1));
+            const uint8_t wire[] = {0x80};
+            int8_t        value = 0;
+            EXPECT_EQ(
+                TLV_CODEC_ERR_INVALID_VALUE,
+                tlv_codec_decode(&tlv_bluetooth_ad_codec_tx_power, wire, 1, &value, sizeof(value)));
+        }
     }
 }

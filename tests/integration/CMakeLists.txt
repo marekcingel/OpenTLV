@@ -1,4 +1,7 @@
 include(${OpenTLV_SOURCE_DIR}/tests/c_tests.cmake)
+if(OPENTLV_EMV)
+    include(${OpenTLV_SOURCE_DIR}/tests/emv_without_presentation.cmake)
+endif()
 if(OPENTLV_BUILD_CXX AND OPENTLV_FORMAT_BER)
     include(${OpenTLV_SOURCE_DIR}/tests/cxx_tests.cmake)
 endif()

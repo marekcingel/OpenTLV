@@ -133,10 +133,98 @@ See also the [C API reference: codecs](../reference/c-api.md#codecs).
 ## Reusable primitive codecs
 
 Include `tlv/codec/values.h` for `tlv_codec_uint8`,
-`tlv_codec_uint16_be`, `tlv_codec_uint32_be` and `tlv_codec_bytes`.
+`tlv_codec_uint16_be`, `tlv_codec_uint32_be`, their `_le` equivalents,
+`tlv_codec_int64_minimal_be` and `tlv_codec_bytes`.
 Include `tlv/codec/ipv4.h` for `tlv_codec_ipv4` and
 `tlv_codec_ipv4_list`. They use the same Codec
 contract and are available independently of protocol components.
 Byte sequences decode to borrowed `tlv_value_t` views; IPv4 lists decode
 to `tlv_ipv4_list_t` views with checked access through
 `tlv_ipv4_list_at()`. The caller retains ownership of the input.
+
+## Declarative numeric codecs
+
+`tlv/codec/number.h` describes unsigned `uint64_t` conversion using ordinary
+immutable data: binary BE/LE or unsigned BCD, representation width, and BCD
+decimal precision. Width zero encodes the shortest representation and accepts
+any supported input width. A nonzero width selects a fixed-width representation
+with leading zero padding. Binary supports 1..8 bytes; BCD supports 1..9 bytes
+and 1..18 decimal digits. Unused high decimal positions must be zero.
+
+Field-length intervals, steps and alternatives belong to Schema. A codec cannot
+choose a fixed output width from a validation rule it has not been given. The
+caller/domain composes the two: choose the representation, encode, and validate
+the resulting length. For variable-width fields, domain code can choose the
+shortest schema-permitted width that fits. No codec performs tag lookup.
+
+```c
+#include "tlv/codec/number.h"
+
+static const tlv_number_codec_config_t amount_config = {
+    TLV_NUMBER_BCD, 6, 12
+};
+static const tlv_codec_t amount_codec = {
+    &amount_config, tlv_number_decode, tlv_number_encode
+};
+```
+
+Caller-owned configuration uses `tlv_number_codec(&config)` to create the same
+borrowed descriptor. Keep the configuration alive and unchanged while it is in
+use. No allocation, registration or protocol lookup occurs. Invalid configuration,
+unrepresentable numbers and malformed digits are rejected, including during
+encode size queries. The callback functions also support direct invocation and
+leave output bytes unchanged on failure.
+
+`tlv_codec_int64_minimal_be` converts minimal signed two's-complement values
+without any ASN.1 dependency. It rejects redundant leading sign bytes and values
+outside its eight-byte representation. Domain schemas still choose the codec
+and impose any additional constraints.
+
+## Digit strings and text
+
+`tlv/codec/digits.h` packs decimal character strings high nibble first, with
+trailing `F` padding. Leading zeros remain digits; this is distinct from numeric
+BCD. Decode returns a NUL-terminated string; encode takes the digit count
+**excluding** the NUL. Width zero selects the shortest encoding; nonzero width
+selects fixed-width padding. Decode accepts trailing padding within that
+representation. Field-length and digit-count constraints are applied separately
+by Schema/domain validation.
+Digits after padding and nibbles `A..E` are rejected.
+
+```c
+#include "tlv/codec/digits.h"
+
+static const tlv_digits_codec_config_t identifier_config = {4};
+static const tlv_codec_t identifier_codec = {
+    &identifier_config, tlv_digits_decode, tlv_digits_encode
+};
+/* "00123" encodes as 00 12 3F FF; decoding preserves both leading zeros. */
+```
+
+`tlv/codec/text.h` converts explicitly selected ASCII text. Choose
+`TLV_TEXT_ASCII_PRINTABLE` (space through `~`) or `TLV_TEXT_ASCII_ALNUM`
+(letters and digits only). It does not infer the meaning of protocol labels
+such as AN/ANS and is not a Unicode codec. Optional zero padding strips trailing
+zero bytes on decode and pads to the selected fixed width on encode. Embedded
+zeros, controls and bytes outside the selected alphabet are invalid.
+
+```c
+#include "tlv/codec/text.h"
+
+static const tlv_text_codec_config_t label_config = {
+    TLV_TEXT_ASCII_PRINTABLE, 16, 1
+};
+static const tlv_codec_t label_codec = {
+    &label_config, tlv_text_decode, tlv_text_encode
+};
+```
+
+The text C representation is `tlv_value_t`, not a C string. Decode returns an
+unpadded borrowed span into the original wire bytes without adding a terminator;
+encode takes the span object and `sizeof(tlv_value_t)`. Keep the wire storage
+alive while using the view. An all-padding field represents empty text.
+
+Both configurations can be caller-owned, using `tlv_digits_codec()` or
+`tlv_text_codec()` to construct borrowed descriptors. Configurations must remain
+alive and immutable. Size queries validate input, errors leave output unchanged,
+and neither codec performs allocation, tag lookup or domain selection.

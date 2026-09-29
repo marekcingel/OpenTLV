@@ -1,5 +1,26 @@
 #include "tlv/definition.h"
 #include <gtest/gtest.h>
+#include <string>
+#include <vector>
+
+TEST(Unit_Tlv_Definition, CallerOwnedRegistriesScopeMeaningAndNamesAreNotKeys) {
+    const std::vector<uint8_t>      keys{0x80, 0x81};
+    const std::string               first_name = "same label";
+    const std::string               other_name = "other context";
+    const tlv_definition_t          first[] = {{{keys.data(), 1}, first_name.c_str()},
+                                               {{keys.data() + 1, 1}, first_name.c_str()}};
+    const tlv_definition_t          second[] = {{{keys.data(), 1}, other_name.c_str()}};
+    const tlv_definition_registry_t first_registry = {first, 2};
+    const tlv_definition_registry_t second_registry = {second, 1};
+    const auto                      key = TLV_TAG(0x80);
+    const auto                      other_key = TLV_TAG(0x81);
+    ASSERT_EQ(first, tlv_definition_find(&first_registry, &key));
+    ASSERT_EQ(second, tlv_definition_find(&second_registry, &key));
+    EXPECT_EQ(first + 1, tlv_definition_find(&first_registry, &other_key));
+    EXPECT_EQ(nullptr, tlv_definition_find(&second_registry, &other_key));
+    EXPECT_STREQ("same label", tlv_definition_find(&first_registry, &key)->name);
+    EXPECT_STREQ("other context", tlv_definition_find(&second_registry, &key)->name);
+}
 
 TEST(Unit_Tlv_Definition, MatchesBytesAndSizeAndReturnsFirstBorrowedEntry) {
     const uint8_t                   bytes[] = {0x01, 0x02};

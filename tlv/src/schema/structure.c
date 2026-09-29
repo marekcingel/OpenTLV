@@ -47,8 +47,8 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
     for (size_t i = 0; i < current->count; ++i) {
         const tlv_structure_rule_t* rule = &current->rules[i];
         size_t count = 0, pos = start;
-        if (!rule->entry.tag.size || !rule->entry.tag.data ||
-            rule->entry.min_length > rule->entry.max_length ||
+        if (!rule->entry || !rule->entry->tag.size || !rule->entry->tag.data ||
+            rule->entry->min_length > rule->entry->max_length ||
             rule->min_occurs > rule->max_occurs || rule->kind < TLV_SCHEMA_ANY ||
             rule->kind > TLV_SCHEMA_CONSTRUCTED ||
             (rule->children && rule->kind != TLV_SCHEMA_CONSTRUCTED) ||
@@ -56,7 +56,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             (rule->group && rule->min_occurs != 0))
             return invalid(start, error_offset);
         for (size_t j = 0; j < i; ++j)
-            if (same_tag(&rule->entry.tag, &current->rules[j].entry.tag))
+            if (same_tag(&rule->entry->tag, &current->rules[j].entry->tag))
                 return invalid(start, error_offset);
         while (pos < end) {
             tlv_element_t element;
@@ -66,7 +66,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                 if (error_offset) *error_offset = pos;
                 return rc;
             }
-            if (same_tag(&rule->entry.tag, &element.tag)) {
+            if (same_tag(&rule->entry->tag, &element.tag)) {
                 if (count == rule->max_occurs) return invalid(pos, error_offset);
                 ++count;
             }
@@ -87,7 +87,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             }
             for (size_t i = 0; i < current->count; ++i)
                 if (current->rules[i].group == group->id &&
-                    same_tag(&current->rules[i].entry.tag, &element.tag)) {
+                    same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     if (count == group->max_occurs) return invalid(pos, error_offset);
                     ++count;
                     break;
@@ -109,7 +109,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                 return rc;
             }
             for (size_t i = 0; i < current->count; ++i)
-                if (same_tag(&current->rules[i].entry.tag, &element.tag)) {
+                if (same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     if (have_last && i < last_index) return invalid(pos, error_offset);
                     last_index = i;
                     have_last = 1;
@@ -164,7 +164,7 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size, const tlv_for
             }
             frame->pos += used;
             for (size_t i = 0; i < current->count; ++i)
-                if (same_tag(&current->rules[i].entry.tag, &element.tag)) {
+                if (same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     rule = &current->rules[i];
                     break;
                 }
@@ -179,7 +179,7 @@ tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size, const tlv_for
                     if (error_offset) *error_offset = pos;
                     return rc;
                 }
-                rc = tlv_schema_validate_length(&rule->entry, value_length);
+                rc = tlv_schema_validate_length(rule->entry, value_length);
                 if (rc != TLV_OK) {
                     if (error_offset) *error_offset = pos;
                     return rc;

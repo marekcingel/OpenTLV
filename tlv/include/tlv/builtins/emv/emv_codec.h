@@ -44,49 +44,6 @@ extern "C" {
  */
 
 /**
- * @brief C representation a semantic EMV codec converts a value to and from.
- *
- * #TLV_EMV_VALUE_BYTES, #TLV_EMV_VALUE_TEXT and #TLV_EMV_VALUE_TEMPLATE have
- * no codec: callers retain the reader's borrowed value. Text does not imply
- * UTF-8 or a terminating NUL. #TLV_EMV_VALUE_FLAGS preserves every wire bit,
- * including RFU bits, in a big-endian integer.
- *
- * @see tlv_emv_value_kind_description
- */
-typedef enum {
-    /** Opaque bytes; no codec. */
-    TLV_EMV_VALUE_BYTES,
-    /** Text bytes, not necessarily UTF-8 or NUL-terminated; no codec. */
-    TLV_EMV_VALUE_TEXT,
-    /** Semantic template of nested data objects; no codec. May have a primitive wire bit. */
-    TLV_EMV_VALUE_TEMPLATE,
-    /** `uint64_t`: binary or decimal BCD number. */
-    TLV_EMV_VALUE_NUMBER,
-    /** `uint64_t`: bit flags, every wire bit preserved. */
-    TLV_EMV_VALUE_FLAGS,
-    /** `char[]`: NUL-terminated decimal digits. */
-    TLV_EMV_VALUE_DIGITS,
-    /** #tlv_emv_date_t. */
-    TLV_EMV_VALUE_DATE,
-    /** #tlv_emv_time_t. */
-    TLV_EMV_VALUE_TIME,
-    /** #tlv_emv_account_type_t. */
-    TLV_EMV_VALUE_ACCOUNT,
-    /** #tlv_emv_cryptogram_info_t. */
-    TLV_EMV_VALUE_CRYPTOGRAM,
-    /** #tlv_emv_biometric_type_t. */
-    TLV_EMV_VALUE_BIOMETRIC,
-    /** #tlv_emv_number_list_t. */
-    TLV_EMV_VALUE_NUMBER_LIST,
-    /** #tlv_emv_afl_t. */
-    TLV_EMV_VALUE_AFL,
-    /** #tlv_emv_cvm_result_t. */
-    TLV_EMV_VALUE_CVM_RESULT,
-    /** #tlv_emv_track2_t. */
-    TLV_EMV_VALUE_TRACK2
-} tlv_emv_value_kind_t;
-
-/**
  * @brief Decoded EMV date (BCD `YYMMDD` on the wire).
  *
  * `year` is YY (0..99); no century is inferred. February 29 is accepted for
@@ -250,19 +207,6 @@ typedef struct {
  * documentation apply.
  */
 extern TLV_API const tlv_codec_t tlv_emv_codec_amount;
-
-/**
- * @brief Describes a value kind's C representation and wire meaning.
- *
- * Intended for diagnostics or tooling, for example `"Bit flags"` for
- * #TLV_EMV_VALUE_FLAGS.
- *
- * @param kind Value kind to describe.
- *
- * @return A static, NUL-terminated description, never `NULL`. Every declared
- *         kind has one; any other value returns `"Unspecified representation"`.
- */
-TLV_API const char* tlv_emv_value_kind_description(tlv_emv_value_kind_t kind);
 
 #ifdef __cplusplus
 }

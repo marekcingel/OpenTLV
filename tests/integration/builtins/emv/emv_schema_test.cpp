@@ -1,5 +1,6 @@
 #include "tlv/builtins/emv/format.h"
 #include "tlv/builtins/emv/emv_schema.h"
+#include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/walker.h"
 #include <gtest/gtest.h>
 #include <vector>
@@ -10,6 +11,24 @@ tlv_result_t validate(const std::vector<uint8_t>& wire, size_t* offset = nullptr
                                TLV_WALK_MAX_DEPTH, 1000, offset);
 }
 } // namespace
+
+TEST(Integration_Tlv_EmvSchema, StructuralScopesBorrowDictionaryFields) {
+    std::vector<const tlv_structure_schema_t*> pending{&tlv_emv_structure_schema};
+    while (!pending.empty()) {
+        const auto* scope = pending.back();
+        pending.pop_back();
+        for (size_t i = 0; i < scope->count; ++i) {
+            const auto& rule = scope->rules[i];
+            ASSERT_NE(nullptr, rule.entry);
+            const auto* dictionary = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &rule.entry->tag);
+            ASSERT_NE(nullptr, dictionary);
+            EXPECT_EQ(dictionary->schema, rule.entry);
+            if (rule.children) pending.push_back(rule.children);
+        }
+    }
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              validate({0x77, 0x0B, 0x82, 2, 0, 0, 0x94, 5, 0, 0, 0, 0, 0}));
+}
 
 TEST(Integration_Tlv_EmvSchema, AcceptsAnFciTemplateWithJustAMandatoryDfName) {
     // 6F 09 | 84 07 A0 00 00 00 03 10 10 (DF Name, an AID)

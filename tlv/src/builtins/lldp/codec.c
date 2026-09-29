@@ -1,21 +1,16 @@
 #include "tlv/builtins/lldp/codec.h"
 #include <string.h>
+#include "tlv/codec/values.h"
+#include "tlv/endian.h"
 
-enum { CHASSIS, PORT, TTL, TEXT, CAPABILITIES, MANAGEMENT, ORGANISATION };
+enum { CHASSIS, PORT, CAPABILITIES, MANAGEMENT, ORGANISATION };
 
-static uint16_t read16(const uint8_t* p) {
-    return (uint16_t)(((uint16_t)p[0] << 8) | p[1]);
-}
-static void write16(uint8_t* p, uint16_t value) {
-    p[0] = (uint8_t)(value >> 8);
-    p[1] = (uint8_t)value;
-}
 static int address_valid(uint8_t family, size_t size) {
     return family != 0 && size != 0 && (family != 1 || size == 4) && (family != 2 || size == 16);
 }
 static int id_valid(int kind, uint8_t subtype, const uint8_t* p, size_t size) {
     const uint8_t mac = (uint8_t)(kind == CHASSIS ? 4 : 3);
-    if (subtype < 1 || subtype > 7 || size < 1 || size > 255) return 0;
+    if (subtype < 1 || subtype > 7 || size < 1) return 0;
     if (subtype == mac) return size == 6;
     if (subtype == mac + 1) return size >= 2 && address_valid(p[0], size - 1);
     return 1;
@@ -40,28 +35,17 @@ static tlv_codec_result_t decode(const void* context, const uint8_t* data, size_
         case CHASSIS:
         case PORT: {
             tlv_lldp_id_t result;
-            if (size < 2 || size > 256 || !id_valid(kind, data[0], data + 1, size - 1))
+            if (size < 2 || !id_valid(kind, data[0], data + 1, size - 1))
                 return TLV_CODEC_ERR_INVALID_VALUE;
             result.subtype = data[0];
             result.identifier = (tlv_value_t){data + 1, size - 1};
             RETURN_VALUE(result);
         }
-        case TTL: {
-            uint16_t result;
-            if (size != 2) return TLV_CODEC_ERR_INVALID_VALUE;
-            result = read16(data);
-            RETURN_VALUE(result);
-        }
-        case TEXT: {
-            tlv_value_t result = {data, size};
-            if (size > 255) return TLV_CODEC_ERR_INVALID_VALUE;
-            RETURN_VALUE(result);
-        }
         case CAPABILITIES: {
             tlv_lldp_capabilities_t result;
             if (size != 4) return TLV_CODEC_ERR_INVALID_VALUE;
-            result.supported = read16(data);
-            result.enabled = read16(data + 2);
+            result.supported = tlv_read_u16_be(data);
+            result.enabled = tlv_read_u16_be(data + 2);
             if ((result.enabled & (uint16_t)~result.supported) != 0)
                 return TLV_CODEC_ERR_INVALID_VALUE;
             RETURN_VALUE(result);
@@ -92,7 +76,7 @@ static tlv_codec_result_t decode(const void* context, const uint8_t* data, size_
         }
         case ORGANISATION: {
             tlv_lldp_organisation_t result;
-            if (size < 4 || size > 511) return TLV_CODEC_ERR_INVALID_VALUE;
+            if (size < 4) return TLV_CODEC_ERR_INVALID_VALUE;
             memcpy(result.oui, data, 3);
             result.subtype = data[3];
             result.payload = (tlv_value_t){data + 4, size - 4};
@@ -106,7 +90,9 @@ static tlv_codec_result_t decode(const void* context, const uint8_t* data, size_
 static tlv_codec_result_t encode(const void* context, const void* value, size_t size, uint8_t* data,
                                  size_t capacity, size_t* written) {
     const int kind = *(const int*)context;
-    uint8_t wire[511];
+    /* Management representation: length + family/address (32) + interface (5)
+     * + OID length + OID (128). These are inner representation bounds. */
+    uint8_t wire[1 + 32 + 5 + 1 + 128];
     size_t length = 0, count = 0;
     tlv_codec_result_t rc;
 #define READ_VALUE(input)                                                                          \
@@ -119,37 +105,26 @@ static tlv_codec_result_t encode(const void* context, const void* value, size_t 
         case PORT: {
             tlv_lldp_id_t input;
             READ_VALUE(input);
-            rc = span_size(input.identifier, 255, &count);
+            rc = span_size(input.identifier, SIZE_MAX - 1, &count);
             if (rc != TLV_CODEC_OK) return rc;
             if (!id_valid(kind, input.subtype, input.identifier.data, count))
                 return TLV_CODEC_ERR_INVALID_VALUE;
-            wire[0] = input.subtype;
-            memcpy(wire + 1, input.identifier.data, count);
             length = 1 + count;
-            break;
-        }
-        case TTL: {
-            uint16_t input;
-            READ_VALUE(input);
-            write16(wire, input);
-            length = 2;
-            break;
-        }
-        case TEXT: {
-            tlv_value_t input;
-            READ_VALUE(input);
-            rc = span_size(input, 255, &length);
-            if (rc != TLV_CODEC_OK) return rc;
-            if (length) memcpy(wire, input.data, length);
-            break;
+            if (data) {
+                if (capacity < length) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+                data[0] = input.subtype;
+                memcpy(data + 1, input.identifier.data, count);
+            }
+            *written = length;
+            return TLV_CODEC_OK;
         }
         case CAPABILITIES: {
             tlv_lldp_capabilities_t input;
             READ_VALUE(input);
             if ((input.enabled & (uint16_t)~input.supported) != 0)
                 return TLV_CODEC_ERR_INVALID_VALUE;
-            write16(wire, input.supported);
-            write16(wire + 2, input.enabled);
+            tlv_write_u16_be(wire, input.supported);
+            tlv_write_u16_be(wire + 2, input.enabled);
             length = 4;
             break;
         }
@@ -181,13 +156,17 @@ static tlv_codec_result_t encode(const void* context, const void* value, size_t 
         case ORGANISATION: {
             tlv_lldp_organisation_t input;
             READ_VALUE(input);
-            rc = span_size(input.payload, 507, &count);
+            rc = span_size(input.payload, SIZE_MAX - 4, &count);
             if (rc != TLV_CODEC_OK) return rc;
-            memcpy(wire, input.oui, 3);
-            wire[3] = input.subtype;
-            if (count) memcpy(wire + 4, input.payload.data, count);
             length = 4 + count;
-            break;
+            if (data) {
+                if (capacity < length) return TLV_CODEC_ERR_BUFFER_TOO_SHORT;
+                memcpy(data, input.oui, 3);
+                data[3] = input.subtype;
+                if (count) memcpy(data + 4, input.payload.data, count);
+            }
+            *written = length;
+            return TLV_CODEC_OK;
         }
         default: return TLV_CODEC_ERR_UNSUPPORTED;
     }
@@ -205,8 +184,6 @@ static tlv_codec_result_t encode(const void* context, const void* value, size_t 
     const tlv_codec_t tlv_lldp_codec_##name = {&name##_kind, decode, encode}
 CODEC(chassis_id, CHASSIS);
 CODEC(port_id, PORT);
-CODEC(ttl, TTL);
-CODEC(text, TEXT);
 CODEC(capabilities, CAPABILITIES);
 CODEC(management_address, MANAGEMENT);
 CODEC(organisation, ORGANISATION);

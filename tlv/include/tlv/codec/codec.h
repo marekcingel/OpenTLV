@@ -51,6 +51,13 @@ typedef enum tlv_codec_result {
  * correctly typed and aligned objects. Capacities and sizes are in bytes.
  * Callbacks must respect bounds and must not require heap allocation.
  *
+ * Value conversion is independent of the enclosing element's tag. The caller
+ * or a domain dictionary selects the codec before invoking it; a value codec
+ * must not resolve that tag through a Definition registry or domain dictionary.
+ * Structure codecs may interpret nested elements by composing Reader/Writer,
+ * schema and value codecs; they still do not select themselves by an enclosing
+ * tag.
+ *
  * - **Decode** consumes the entire raw value and may return a representation
  *   that borrows the input bytes; that input must then outlive the
  *   representation.

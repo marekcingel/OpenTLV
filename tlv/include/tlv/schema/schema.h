@@ -26,6 +26,7 @@ extern "C" {
  *
  * Length bounds are inclusive; equal bounds specify an exact length.
  * A nonzero `length_multiple` additionally requires divisibility by that width.
+ * #TLV_SCHEMA_LENGTH_ENDPOINTS permits only min_length or max_length.
  */
 typedef struct {
     /** Tag this entry describes; borrows its bytes, which must outlive the schema. */
@@ -34,7 +35,7 @@ typedef struct {
     size_t min_length;
     /** Maximum permitted value length in bytes, inclusive; `SIZE_MAX` is unrestricted. */
     size_t max_length;
-    /** Reserved for future extensions; currently ignored. */
+    /** Length policy bits; unknown bits are ignored. See #TLV_SCHEMA_LENGTH_ENDPOINTS. */
     uint32_t flags;
     /** Borrowed name of the field this entry describes, for example `"df_name"`, or `NULL` if
      * unnamed. Used only for diagnostics; never affects validation. */
@@ -43,6 +44,10 @@ typedef struct {
      * Zero length is divisible by every nonzero width, subject to the bounds. */
     size_t length_multiple;
 } tlv_schema_entry_t;
+
+/** @brief Permit only the two bounds, rather than every length between them.
+ * Equal bounds still specify an exact length; length_multiple also applies. */
+enum { TLV_SCHEMA_LENGTH_ENDPOINTS = 1 };
 
 /**
  * @brief Borrowed table of per-tag length rules.
@@ -82,14 +87,15 @@ TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, co
  * Checks only the length, independently of parsing or tag lookup. Bounds are
  * inclusive; equal bounds specify an exact length, and `SIZE_MAX` can be used
  * as an unrestricted upper bound. A nonzero `length_multiple` requires
- * `length % length_multiple == 0`. The entry's flags do not affect validation.
+ * `length % length_multiple == 0`. #TLV_SCHEMA_LENGTH_ENDPOINTS additionally
+ * requires length to equal one of the two bounds. Unknown flag bits are ignored.
  *
  * @param[in] entry  Entry providing the bounds.
  * @param[in] length Value length to check.
  *
  * @return #TLV_OK if the length satisfies both the bounds and the multiple.
  * @return #TLV_ERR_INVALID_LENGTH for an out-of-range length, a non-multiple,
- *         or reversed bounds.
+ *         an excluded intermediate length or reversed bounds.
  * @return #TLV_ERR_NULL_ARG if `entry` is `NULL`.
  */
 TLV_API tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry, size_t length);
@@ -112,8 +118,10 @@ struct tlv_structure_schema;
  * @see tlv_structure_schema_t
  */
 typedef struct tlv_structure_rule {
-    /** Tag and permitted value-length bounds for this rule. */
-    tlv_schema_entry_t entry;
+    /** Required authoritative field Schema. Borrows immutable storage (including
+     * tag bytes and name) that must outlive every use of this structural rule.
+     * Multiple rules and dictionaries may share this same field Schema. */
+    const tlv_schema_entry_t* entry;
     /**
      * Minimum occurrences within the parent: 1 makes a field required; 0
      * makes it optional or, together with a default value maintained outside
@@ -455,7 +463,7 @@ typedef struct tlv_schema_diagnostic {
     tlv_tag_t tag;
     /** Tags of the scopes enclosing `tag`, outermost first; does not include `tag` itself. */
     tlv_diagnostic_path_t path;
-    /** Borrowed schema name for `tag` (the violated rule's `entry.name`, or the violated group's
+    /** Borrowed schema name for `tag` (the violated rule's `entry->name`, or the violated group's
      * `name` when `is_group` is nonzero), or `NULL` if it has none or no rule matched
      * (#TLV_SCHEMA_ISSUE_UNEXPECTED). */
     const char* field;
@@ -474,7 +482,8 @@ typedef struct tlv_schema_diagnostic {
     /** Occurrences found so far at the point of the violation, of `tag` or, when `is_group` is
      * nonzero, of the group's members combined. */
     size_t occurs;
-    /** Nonzero if `min_length`, `max_length`, `actual_length` and `length_multiple` are set
+    /** Nonzero if `min_length`, `max_length`, `actual_length`, `length_multiple` and `length_flags`
+     * are set
      * (#TLV_SCHEMA_ISSUE_LENGTH). */
     int has_length;
     /** Minimum permitted value length in bytes, inclusive. */
@@ -491,6 +500,8 @@ typedef struct tlv_schema_diagnostic {
     int actual_constructed;
     /** Required value-length multiple for a length violation; 0 means unrestricted. */
     size_t length_multiple;
+    /** Schema length-policy flags, including #TLV_SCHEMA_LENGTH_ENDPOINTS, when has_length. */
+    uint32_t length_flags;
 } tlv_schema_diagnostic_t;
 
 /**
