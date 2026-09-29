@@ -35,7 +35,7 @@ extern "C" {
  * much by kernel and issuer for a generic schema.
  *
  * Use with tlv_schema_validate() and #tlv_format_ber, whose `is_constructed`
- * is tlv_ber_is_constructed().
+ * is tlv_asn1_is_constructed().
  */
 extern TLV_API const tlv_structure_schema_t tlv_emv_structure_schema;
 

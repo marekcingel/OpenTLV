@@ -4,7 +4,7 @@
 #include "tlv/writer/writer.h"
 #include "tlv/size.h"
 #include "der_profile_internal.h"
-#include "der_values_internal.h"
+#include "asn1_values_internal.h"
 #include <string.h>
 
 const tlv_der_limits_t tlv_der_default_limits = {32, (size_t)16 * 1024 * 1024,
@@ -65,12 +65,12 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
         end = pos + used;
         rc = tlv_size_to_native(element.value.size, &value_length);
         if (rc != TLV_OK) return fail(rc, base + pos, error_offset);
-        if (strict && tlv_der_tag_class(&element.tag) == TLV_ASN1_UNIVERSAL &&
-            !tlv_der_tag_is_constructed(&element.tag)) {
+        if (strict && tlv_asn1_tag_class(&element.tag) == TLV_ASN1_UNIVERSAL &&
+            !tlv_asn1_tag_is_constructed(&element.tag)) {
             uint64_t number;
             rc = tlv_der_tag_number(&element.tag, &number);
             if (rc == TLV_OK)
-                rc = tlv_der_validate_universal_value(number, element.value.data, value_length);
+                rc = tlv_asn1_validate_universal_value(number, element.value.data, value_length);
             if (rc != TLV_OK) return fail(rc, base + end - value_length, error_offset);
         }
         if (one && pos == 0) {
@@ -84,7 +84,7 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
             if (visit == TLV_VISIT_STOP) return TLV_OK;
             if (visit != TLV_VISIT_CONTINUE) return fail(TLV_ERR_VISITOR, base + pos, error_offset);
         }
-        if (tlv_der_tag_is_constructed(&element.tag) && element.value.size) {
+        if (tlv_asn1_tag_is_constructed(&element.tag) && element.value.size) {
             /* Report the first child's tag for a depth-limit failure. */
             pos = end - value_length;
             if (initial_depth + level == limits->max_depth)
@@ -160,14 +160,14 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
         !limits->max_elements)
         return fail(TLV_ERR_LIMIT, 0, error_offset);
     if (length > limits->max_value_size) return fail(TLV_ERR_LIMIT, tag.size, error_offset);
-    if (strict && tlv_der_tag_class(&tag) == TLV_ASN1_UNIVERSAL &&
-        !tlv_der_tag_is_constructed(&tag)) {
+    if (strict && tlv_asn1_tag_class(&tag) == TLV_ASN1_UNIVERSAL &&
+        !tlv_asn1_tag_is_constructed(&tag)) {
         uint64_t number;
         rc = tlv_der_tag_number(&tag, &number);
-        if (rc == TLV_OK) rc = tlv_der_validate_universal_value(number, value, length);
+        if (rc == TLV_OK) rc = tlv_asn1_validate_universal_value(number, value, length);
         if (rc != TLV_OK) return fail(rc, total - length, error_offset);
     }
-    if (tlv_der_tag_is_constructed(&tag)) {
+    if (tlv_asn1_tag_is_constructed(&tag)) {
         rc = traverse(value, length, total - length, 1, 1, limits, NULL, NULL, 0, NULL, NULL,
                       strict, error_offset);
         if (rc != TLV_OK) return rc;

@@ -28,8 +28,8 @@ TEST(Integration_Tlv_Der, TagClassesNumbersAndForms) {
                                                          : (invalid ? TLV_ERR_INVALID_TAG : TLV_OK),
                           tlv_der_tag_make(cls, constructed, number, storage, &tag));
                 if (invalid) continue;
-                EXPECT_EQ(cls, tlv_der_tag_class(&tag));
-                EXPECT_EQ(constructed, tlv_der_tag_is_constructed(&tag));
+                EXPECT_EQ(cls, tlv_asn1_tag_class(&tag));
+                EXPECT_EQ(constructed, tlv_asn1_tag_is_constructed(&tag));
                 uint64_t actual = 0;
                 ASSERT_EQ(TLV_OK, tlv_der_tag_number(&tag, &actual));
                 EXPECT_EQ(number, actual);

@@ -1,6 +1,7 @@
 #ifndef OPENTLV_ASN1_INTERNAL_H
 #define OPENTLV_ASN1_INTERNAL_H
-#include "tlv/format.h"
+#include "tlv/layout.h"
+#include "tlv/builtins/asn1/identifier.h"
 
 /* Parses one BER identifier via tlv_ber_wire.read_tag, then applies the
  * canonical identifier restrictions shared by DER and CER (ITU-T X.690 §8.1,
@@ -32,4 +33,16 @@ tlv_result_t tlv_asn1_write_identifier(const void* context, uint8_t* data, size_
  * underlying reader. */
 tlv_result_t tlv_asn1_read_minimal_length(const void* context, const uint8_t* data, size_t size,
                                           tlv_size_t* length, size_t* consumed);
+/* Validate and emit exactly one identifier with the supplied ASN.1 policy. */
+tlv_result_t tlv_asn1_write_identifier_checked(tlv_read_tag_fn, const void*, uint8_t*, size_t,
+                                               const tlv_tag_t*, size_t*);
+
+/* Identifier arithmetic is shared; the caller supplies its format policy.
+ * Both functions preserve caller outputs on failure. */
+tlv_result_t tlv_asn1_tag_make_checked(tlv_write_tag_fn, tlv_asn1_class_t, int, uint64_t, uint8_t*,
+                                       tlv_tag_t*);
+tlv_result_t tlv_asn1_tag_number_checked(tlv_write_tag_fn, const tlv_tag_t*, uint64_t*);
+
+/* Universal types whose identifier must always carry the constructed bit. */
+int tlv_asn1_number_must_construct(uint64_t number);
 #endif

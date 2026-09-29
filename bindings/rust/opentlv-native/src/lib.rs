@@ -750,12 +750,8 @@ pub type tlv_der_visitor_t = unsafe extern "C" fn(
 pub type tlv_cer_visitor_t = tlv_der_visitor_t;
 
 extern "C" {
-    /// Nesting predicate for BER.
-    pub fn tlv_ber_is_constructed(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
-    /// Nesting predicate for CER.
-    pub fn tlv_cer_is_constructed(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
-    /// Nesting predicate for DER.
-    pub fn tlv_der_is_constructed(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
+    /// Shared ASN.1 nesting predicate for BER, DER and CER.
+    pub fn tlv_asn1_is_constructed(context: *const c_void, tag: *const tlv_tag_t) -> c_int;
 
     /// Looks up a tag's entry by linear search.
     pub fn tlv_schema_find(

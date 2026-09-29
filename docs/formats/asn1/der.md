@@ -11,6 +11,9 @@
 | CMake option (default ON) | `OPENTLV_FORMAT_DER` |
 | Link target | `tlv` |
 
+See [shared ASN.1 mechanisms](ber.md#shared-asn1-mechanisms) for the common
+identifier API, framing reuse and division of canonical validation.
+
 ## Scope and limits
 
 Canonical tag/length framing with definite lengths only. Generic I/O does not validate nested contents or full ASN.1 value semantics.

@@ -187,7 +187,7 @@ static tlv_visit_result_t emit_element(const tlv_element_t* element, size_t dept
         return TLV_VISIT_ERROR;
     header_size = decoded.source.header.size;
 #if OPENTLV_FORMAT_BER
-    if (w->ber) constructed = tlv_ber_is_constructed(NULL, &element->tag) != 0;
+    if (w->ber) constructed = tlv_asn1_is_constructed(NULL, &element->tag) != 0;
 #endif
     close_elements(w, depth);
     if (w->count[depth]++) builder_text(&w->out, ",");

@@ -13,11 +13,9 @@ extern "C" {
 /**
  * @file
  * @ingroup formats
- * @brief ASN.1 DER reader and writer formats with tag accessors.
+ * @brief ASN.1 DER format and validated tag helpers.
  *
- * #tlv_asn1_class_t is declared in tlv/builtins/asn1/ber.h: identifier-octet
- * class bits are shared by every ASN.1 encoding-rule profile, not specific to
- * DER.
+ * Shared identifier accessors are declared in tlv/builtins/asn1/identifier.h.
  */
 
 /** @addtogroup formats
@@ -25,35 +23,12 @@ extern "C" {
  */
 
 /**
- * @brief Returns the ASN.1 class of a DER tag.
- *
- * @param tag A successfully parsed or created DER tag; must be non-`NULL`
- *            and nonempty.
- *
- * @return The identifier-octet class.
- */
-static inline tlv_asn1_class_t tlv_der_tag_class(const tlv_tag_t* tag) {
-    return (tlv_asn1_class_t)(tag->data[0] >> TLV_ASN1_CLASS_SHIFT);
-}
-/**
- * @brief Reports whether a DER tag has the constructed bit set.
- *
- * @param tag A successfully parsed or created DER tag; must be non-`NULL`
- *            and nonempty.
- *
- * @return Nonzero if constructed, zero if primitive.
- */
-static inline int tlv_der_tag_is_constructed(const tlv_tag_t* tag) {
-    return (tag->data[0] & TLV_ASN1_CONSTRUCTED_BIT) != 0;
-}
-
-/**
  * @brief Constructs a canonical DER tag.
  *
  * Raw parsing supports tags up to #TLV_ASN1_TAG_MAX_SIZE bytes.
  *
  * @param[in]  tag_class   ASN.1 class.
- * @param[in]  constructed Nonzero for constructed form, zero for primitive.
+ * @param[in]  constructed One for constructed form, zero for primitive.
  * @param[in]  number      Tag number.
  * @param[out] storage     Destination for the tag bytes; #TLV_ASN1_TAG_MAX_SIZE
  *                         writable bytes. Must outlive every use of the tag.
@@ -94,19 +69,6 @@ TLV_API tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number);
  * and error offsets.
  */
 extern TLV_API const tlv_format_t tlv_format_der;
-
-/**
- * @brief Nesting predicate for tree traversal of DER data.
- *
- * Matches #tlv_is_constructed_fn. This is #tlv_format_der's own
- * `is_constructed`.
- *
- * @param context Unused; may be `NULL`.
- * @param tag     A successfully parsed DER tag.
- *
- * @return Nonzero if the tag is constructed, zero otherwise.
- */
-TLV_API int tlv_der_is_constructed(const void* context, const tlv_tag_t* tag);
 
 #ifdef __cplusplus
 }

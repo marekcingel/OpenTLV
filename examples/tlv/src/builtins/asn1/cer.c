@@ -50,7 +50,7 @@ int main(void) {
         CHECK(tlv_cer_write_segmented_string(segmented, sizeof(segmented), TLV_TAG(0x04), content,
                                              sizeof(content), NULL, &seg_written, NULL));
         CHECK(tlv_cer_read_strict(segmented, seg_written, NULL, &element, &consumed, NULL));
-        printf("Constructed: %d, encoded %zu bytes\n", tlv_cer_tag_is_constructed(&element.tag),
+        printf("Constructed: %d, encoded %zu bytes\n", tlv_asn1_tag_is_constructed(&element.tag),
                consumed);
         /* element.value is the encoded constructed contents (segment headers
          * included) -- distinct from the logical string data each segment's

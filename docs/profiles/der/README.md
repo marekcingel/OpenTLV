@@ -43,8 +43,8 @@ size_t consumed, error_offset;
 tlv_result_t rc = tlv_der_read(input, sizeof(input), NULL,
                               &element, &consumed, &error_offset);
 if (rc == TLV_OK) {
-    tlv_asn1_class_t cls = tlv_der_tag_class(&element.tag); /* UNIVERSAL */
-    int constructed = tlv_der_tag_is_constructed(&element.tag); /* 1 */
+    tlv_asn1_class_t cls = tlv_asn1_tag_class(&element.tag); /* UNIVERSAL */
+    int constructed = tlv_asn1_tag_is_constructed(&element.tag); /* 1 */
     uint64_t number;
     rc = tlv_der_tag_number(&element.tag, &number); /* 16 */
     (void)cls;

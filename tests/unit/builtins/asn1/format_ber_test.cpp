@@ -1,3 +1,11 @@
+#include "tlv/config.h"
+#include "tlv/builtins/asn1/identifier.h"
+#if OPENTLV_FORMAT_DER
+#include "tlv/builtins/asn1/der.h"
+#endif
+#if OPENTLV_FORMAT_CER
+#include "tlv/builtins/asn1/cer.h"
+#endif
 #include "tlv/layout.h"
 #include "tlv/formats/variable.h"
 #include "tlv/builtins/asn1/ber.h"
@@ -126,8 +134,8 @@ TEST(Unit_Tlv_Ber, TagClassFormAndNumberFromWireBytes) {
     for (const auto& c : cases) {
         SCOPED_TRACE(::testing::Message() << "bytes[0]=" << static_cast<unsigned>(c.bytes[0]));
         const tlv_tag_t tag = tlv_tag(c.bytes.data(), c.bytes.size());
-        EXPECT_EQ(c.cls, tlv_ber_tag_class(&tag));
-        EXPECT_EQ(c.constructed, tlv_ber_tag_is_constructed(&tag));
+        EXPECT_EQ(c.cls, tlv_asn1_tag_class(&tag));
+        EXPECT_EQ(c.constructed, tlv_asn1_tag_is_constructed(&tag));
         uint64_t number = 0;
         ASSERT_EQ(TLV_OK, tlv_ber_tag_number(&tag, &number));
         EXPECT_EQ(c.number, number);
@@ -147,7 +155,7 @@ TEST(Unit_Tlv_Ber, TagMakeRejectsOnlyReservedEocAmongUniversalNumbers) {
         for (int constructed : {0, 1}) {
             ASSERT_EQ(TLV_OK,
                       tlv_ber_tag_make(TLV_ASN1_UNIVERSAL, constructed, number, storage, &tag));
-            EXPECT_EQ(constructed, tlv_ber_tag_is_constructed(&tag));
+            EXPECT_EQ(constructed, tlv_asn1_tag_is_constructed(&tag));
         }
     }
 }
@@ -478,4 +486,143 @@ TEST(Unit_Tlv_Ber, LengthPolicyAndAtomicPublicOutputsDifferFromVariableMechanics
               fields->read_length(fields->context, overflow, sizeof(overflow), &value, &used));
     EXPECT_EQ(sizeof(overflow), used);
     EXPECT_EQ(99u, value);
+}
+
+namespace {
+struct Asn1Contract {
+    const tlv_format_t* format;
+    tlv_result_t (*make)(tlv_asn1_class_t, int, uint64_t, uint8_t*, tlv_tag_t*);
+    tlv_result_t (*number)(const tlv_tag_t*, uint64_t*);
+    int policy; // 0: raw BER, 1: DER, 2: CER identifier policy
+};
+const Asn1Contract asn1_contracts[] = {
+    {&tlv_format_ber, tlv_ber_tag_make, tlv_ber_tag_number, 0},
+#if OPENTLV_FORMAT_DER
+    {&tlv_format_der, tlv_der_tag_make, tlv_der_tag_number, 1},
+#endif
+#if OPENTLV_FORMAT_CER
+    {&tlv_format_cer, tlv_cer_tag_make, tlv_cer_tag_number, 2},
+#endif
+};
+} // namespace
+
+TEST(Unit_Tlv_Asn1, SharedIdentifierMechanicsRetainFormatPolicies) {
+    for (const auto& contract : asn1_contracts) {
+        for (unsigned cls = 0; cls < 4; ++cls) {
+            for (int constructed = 0; constructed <= 1; ++constructed) {
+                for (uint64_t number = 0; number <= 256; ++number) {
+                    SCOPED_TRACE(::testing::Message() << contract.policy << ":" << cls << ":"
+                                                      << constructed << ":" << number);
+                    bool valid = cls != 0 || number != 0;
+                    if (cls == 0 && contract.policy != 0) {
+                        const bool must_construct = number == 8 || number == 11 || number == 16 ||
+                                                    number == 17 || number == 29;
+                        valid = valid && number != 15 && (!must_construct || constructed);
+                        if (contract.policy == 1 && number <= 36)
+                            valid = valid && ((constructed != 0) == must_construct);
+                    }
+                    uint8_t storage[TLV_ASN1_TAG_MAX_SIZE];
+                    std::fill(std::begin(storage), std::end(storage), 0xA5);
+                    const uint8_t sentinel[] = {0x81};
+                    tlv_tag_t     tag = tlv_tag(sentinel, sizeof(sentinel));
+                    EXPECT_EQ(valid ? TLV_OK : TLV_ERR_INVALID_TAG,
+                              contract.make(static_cast<tlv_asn1_class_t>(cls), constructed, number,
+                                            storage, &tag));
+                    if (!valid) {
+                        EXPECT_EQ(sentinel, tag.data);
+                        EXPECT_EQ(1u, tag.size);
+                        for (uint8_t byte : storage) EXPECT_EQ(0xA5, byte);
+                        continue;
+                    }
+                    EXPECT_EQ(storage, tag.data);
+                    EXPECT_EQ(cls, static_cast<unsigned>(tlv_asn1_tag_class(&tag)));
+                    EXPECT_EQ(constructed, tlv_asn1_tag_is_constructed(&tag));
+                    EXPECT_EQ(constructed, contract.format->is_constructed(nullptr, &tag));
+                    uint64_t extracted = UINT64_MAX;
+                    ASSERT_EQ(TLV_OK, contract.number(&tag, &extracted));
+                    EXPECT_EQ(number, extracted);
+                    tlv_element_t  element = {tag, {nullptr, 0}};
+                    tlv_encoding_t encoding;
+                    EXPECT_EQ(TLV_OK,
+                              tlv_format_measure(contract.format, &element, &encoding, nullptr));
+                }
+            }
+        }
+        // High-tag-number raw BER compatibility is deliberately not ASN.1 canonical.
+        const uint8_t   raw[] = {0x9F, 0x1C};
+        const tlv_tag_t tag = tlv_tag(raw, sizeof(raw));
+        uint64_t        number = 777;
+        EXPECT_EQ(contract.policy == 0 ? TLV_OK : TLV_ERR_INVALID_TAG,
+                  contract.number(&tag, &number));
+        EXPECT_EQ(contract.policy == 0 ? 28u : 777u, number);
+    }
+}
+
+TEST(Unit_Tlv_Asn1, SharedDefiniteEncodingAndCanonicalReadPolicy) {
+    for (size_t length : {0u, 1u, 127u, 128u, 255u, 256u, 1000u}) {
+        std::vector<uint8_t> value(length, 0xAB);
+        const tlv_element_t  element = {TLV_TAG(0x04), {value.data(), length}};
+        std::vector<uint8_t> reference(length + 10);
+        size_t               reference_size = 0;
+        ASSERT_EQ(TLV_OK, tlv_format_encode(&tlv_format_ber, &element, reference.data(),
+                                            reference.size(), &reference_size, nullptr));
+        reference.resize(reference_size);
+        for (const auto& contract : asn1_contracts) {
+            std::vector<uint8_t> output(length + 10, 0xCC);
+            size_t               written = 0;
+            ASSERT_EQ(TLV_OK, tlv_format_encode(contract.format, &element, output.data(),
+                                                output.size(), &written, nullptr));
+            output.resize(written);
+            EXPECT_EQ(reference, output);
+            tlv_decoded_t decoded;
+            ASSERT_EQ(TLV_OK, tlv_format_decode(contract.format, output.data(), output.size(),
+                                                &decoded, nullptr));
+            EXPECT_EQ(length, decoded.element.value.size);
+        }
+    }
+    const uint8_t padded[] = {0x04, 0x81, 0x01, 0xAB};
+    for (const auto& contract : asn1_contracts) {
+        tlv_decoded_t decoded;
+        EXPECT_EQ(contract.policy == 0 ? TLV_OK : TLV_ERR_INVALID_LENGTH,
+                  tlv_format_decode(contract.format, padded, sizeof(padded), &decoded, nullptr));
+    }
+}
+
+TEST(Unit_Tlv_Asn1, LengthPoliciesKeepBorrowedContentsAndEocTrailerSeparate) {
+    const uint8_t definite[] = {0x30, 0x04, 0x04, 0x02, 0, 0};
+    const uint8_t indefinite[] = {0x30, 0x80, 0x30, 0x80, 0x04, 0x02, 0, 0, 0, 0, 0, 0};
+    for (const auto& contract : asn1_contracts) {
+        tlv_decoded_t decoded{};
+        EXPECT_EQ(
+            contract.policy == 2 ? TLV_ERR_INVALID_LENGTH : TLV_OK,
+            tlv_format_decode(contract.format, definite, sizeof(definite), &decoded, nullptr));
+        if (contract.policy == 1) {
+            EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+                      tlv_format_decode(contract.format, indefinite, sizeof(indefinite), &decoded,
+                                        nullptr));
+            continue;
+        }
+        ASSERT_EQ(TLV_OK, tlv_format_decode(contract.format, indefinite, sizeof(indefinite),
+                                            &decoded, nullptr));
+        EXPECT_EQ(indefinite + 2, decoded.element.value.data);
+        EXPECT_EQ(8u, decoded.element.value.size);
+        EXPECT_EQ(10u, decoded.source.trailer.offset);
+        EXPECT_EQ(2u, decoded.source.trailer.size);
+        EXPECT_EQ(sizeof(indefinite), decoded.source.size);
+        uint8_t copied[sizeof(indefinite)] = {};
+        size_t  written = 0;
+        ASSERT_EQ(TLV_OK, tlv_source_preserve(&decoded.source, &decoded.element, copied,
+                                              sizeof(copied), &written));
+        EXPECT_EQ(sizeof(indefinite), written);
+        EXPECT_EQ(0, std::memcmp(copied, indefinite, written));
+        // The two zero bytes inside OCTET STRING are contents, not a closing EOC.
+        tlv_format_error_t error{};
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  tlv_format_decode(contract.format, indefinite, sizeof(indefinite) - 2, &decoded,
+                                    &error));
+        EXPECT_EQ(TLV_REGION_TRAILER, error.region);
+        EXPECT_TRUE(error.has_offset);
+        EXPECT_EQ(10u, error.offset);
+        EXPECT_EQ(sizeof(indefinite), decoded.source.size); // failure leaves output intact
+    }
 }

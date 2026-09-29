@@ -84,13 +84,13 @@ tlv_result_t tlv_ber_length_encode(tlv_size_t value, uint8_t* out, size_t out_ca
     return tlv_variable_length_write(&ber_length, value, out, out_capacity, written);
 }
 
-static tlv_result_t length_size(const void* context, tlv_size_t length, size_t* size) {
+tlv_result_t tlv_ber_length_size(const void* context, tlv_size_t length, size_t* size) {
     (void)context;
     return tlv_ber_length_encode(length, NULL, 0, size);
 }
 
-static tlv_result_t write_length(const void* context, uint8_t* data, size_t capacity,
-                                 tlv_size_t length, size_t* written) {
+tlv_result_t tlv_ber_write_length(const void* context, uint8_t* data, size_t capacity,
+                                  tlv_size_t length, size_t* written) {
     (void)context;
     return tlv_ber_length_encode(length, data, capacity, written);
 }
@@ -99,5 +99,5 @@ const tlv_field_layout_t tlv_ber_wire = {.context = NULL,
                                          .read_tag = read_tag,
                                          .read_length = read_length,
                                          .write_tag = write_tag,
-                                         .write_length = write_length,
-                                         .length_size = length_size};
+                                         .write_length = tlv_ber_write_length,
+                                         .length_size = tlv_ber_length_size};

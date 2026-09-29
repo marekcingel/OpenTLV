@@ -64,7 +64,7 @@ TEST(Unit_Tlv_CerValues, OctetStringSegmentThresholds) {
         ASSERT_EQ(TLV_OK, tlv_cer_read_strict(data.data(), data.size(), nullptr, &element,
                                               &consumed, nullptr));
         EXPECT_EQ(data.size(), consumed);
-        EXPECT_EQ(length > 1000, static_cast<bool>(tlv_cer_tag_is_constructed(&element.tag)));
+        EXPECT_EQ(length > 1000, static_cast<bool>(tlv_asn1_tag_is_constructed(&element.tag)));
 
         if (length <= 1000) {
             EXPECT_EQ(length, element.value.size);
@@ -76,7 +76,7 @@ TEST(Unit_Tlv_CerValues, OctetStringSegmentThresholds) {
         for (size_t i = 0; i < segments.size(); ++i) {
             const bool final_segment = i + 1 == segments.size();
             EXPECT_EQ(0x04, segments[i].tag.data[0]);
-            EXPECT_FALSE(tlv_cer_tag_is_constructed(&segments[i].tag));
+            EXPECT_FALSE(tlv_asn1_tag_is_constructed(&segments[i].tag));
             if (!final_segment)
                 EXPECT_EQ(1000u, segments[i].length);
             else
@@ -190,7 +190,7 @@ TEST(Unit_Tlv_CerValues, BitStringSegmentation) {
     ASSERT_EQ(TLV_OK,
               tlv_cer_read_strict(data.data(), data.size(), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(data.size(), consumed);
-    ASSERT_TRUE(tlv_cer_tag_is_constructed(&element.tag));
+    ASSERT_TRUE(tlv_asn1_tag_is_constructed(&element.tag));
     const auto segments = segments_of(element);
     ASSERT_EQ(3u, segments.size());
     EXPECT_EQ(1000u, segments[0].length);

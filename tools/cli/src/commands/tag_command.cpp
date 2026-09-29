@@ -41,7 +41,7 @@ int tag_command::run() {
                   << "Type:        " << tlv_emv_value_kind_description(definition->value_kind)
                   << "\n"
                   << "Form:        "
-                  << (tlv_ber_is_constructed(nullptr, &parsed) ? "Constructed" : "Primitive")
+                  << (tlv_asn1_is_constructed(nullptr, &parsed) ? "Constructed" : "Primitive")
                   << "\n"
                   << "Length:      " << emv_length_range(*definition->schema) << "\n";
         if (definition->length_step != 1)

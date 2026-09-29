@@ -1,4 +1,5 @@
 #include "ber_internal.h"
+#include "asn1_internal.h"
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv/builtins/asn1/cer_profile.h"
 #include "tlv/writer/writer.h"
@@ -12,10 +13,6 @@ const tlv_cer_limits_t tlv_cer_default_limits = {32, (size_t)16 * 1024 * 1024,
 static tlv_result_t fail(tlv_result_t rc, size_t offset, size_t* error_offset) {
     if (error_offset) *error_offset = offset;
     return rc;
-}
-
-static int cer_number_must_construct(uint64_t number) {
-    return number == 8 || number == 11 || number == 16 || number == 17 || number == 29;
 }
 
 /* One open indefinite (constructed) scope. Unlike DER's traverse(), which
@@ -143,19 +140,19 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
         length_offset = pos;
         if (pos == size) return fail(TLV_ERR_BUFFER_TOO_SHORT, base + length_offset, error_offset);
 
-        tag_class = tlv_cer_tag_class(&tag);
+        tag_class = tlv_asn1_tag_class(&tag);
         if (tag_class == TLV_ASN1_UNIVERSAL) {
             rc = tlv_cer_tag_number(&tag, &number);
             if (rc == TLV_OK && number <= 36) {
                 recognized_universal = 1;
-                must_construct = cer_number_must_construct(number);
+                must_construct = tlv_asn1_number_must_construct(number);
                 info = tlv_cer_type_info(number);
             }
         }
 
         if (data[pos] == 0x80) {
             /* Constructed, indefinite: push a new level and descend. */
-            if (!tlv_cer_tag_is_constructed(&tag))
+            if (!tlv_asn1_tag_is_constructed(&tag))
                 return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, error_offset);
             /* A segment must always be primitive; a constructed element
              * where a segment was expected is a prohibited nested-segment
@@ -184,7 +181,7 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
         }
 
         /* Primitive: definite, canonically minimal length. */
-        if (tlv_cer_tag_is_constructed(&tag))
+        if (tlv_asn1_tag_is_constructed(&tag))
             return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, error_offset);
         {
             size_t value_length, length_size;
@@ -215,7 +212,7 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                         value_length > TLV_CER_MAX_SEGMENT_OCTETS)
                         return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, error_offset);
                     if (strict) {
-                        rc = tlv_cer_validate_universal_value(number, value_ptr, value_length);
+                        rc = tlv_asn1_validate_universal_value(number, value_ptr, value_length);
                         if (rc != TLV_OK) return fail(rc, base + pos, error_offset);
                     }
                 }
@@ -309,7 +306,7 @@ static tlv_result_t check_primitive_value(tlv_tag_t tag, const uint8_t* value, s
                                           size_t offset_base, int strict, size_t* error_offset) {
     tlv_result_t rc;
     uint64_t number;
-    if (tlv_cer_tag_class(&tag) != TLV_ASN1_UNIVERSAL) return TLV_OK;
+    if (tlv_asn1_tag_class(&tag) != TLV_ASN1_UNIVERSAL) return TLV_OK;
     if (tlv_cer_tag_number(&tag, &number) != TLV_OK || number > 36) return TLV_OK;
     {
         tlv_cer_type_info_t info = tlv_cer_type_info(number);
@@ -317,7 +314,7 @@ static tlv_result_t check_primitive_value(tlv_tag_t tag, const uint8_t* value, s
             return fail(TLV_ERR_INVALID_LENGTH, offset_base, error_offset);
     }
     if (!strict) return TLV_OK;
-    rc = tlv_cer_validate_universal_value(number, value, length);
+    rc = tlv_asn1_validate_universal_value(number, value, length);
     if (rc != TLV_OK) return fail(rc, offset_base, error_offset);
     return TLV_OK;
 }
@@ -335,7 +332,7 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
     rc = tlv_cer_fields.write_tag(NULL, NULL, 0, &tag, &tag_size);
     if (rc != TLV_OK) return fail(rc, 0, error_offset);
 
-    if (tlv_cer_tag_is_constructed(&tag)) {
+    if (tlv_asn1_tag_is_constructed(&tag)) {
         size_t total;
         tlv_cer_segment_state_t outer_state;
         tlv_cer_segment_state_t* outer_segments = NULL;
@@ -345,10 +342,10 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
         /* When the element being written is itself a segmentable UNIVERSAL
          * type, validate its pre-encoded children as canonical segments the
          * same way reading does (see parent_segments()/traverse()). */
-        if (tlv_cer_tag_class(&tag) == TLV_ASN1_UNIVERSAL) {
+        if (tlv_asn1_tag_class(&tag) == TLV_ASN1_UNIVERSAL) {
             uint64_t number;
             if (tlv_cer_tag_number(&tag, &number) == TLV_OK && number <= 36 &&
-                !cer_number_must_construct(number)) {
+                !tlv_asn1_number_must_construct(number)) {
                 tlv_cer_type_info_t info = tlv_cer_type_info(number);
                 if (info.form != TLV_CER_FORM_PRIMITIVE_ONLY) {
                     tlv_cer_segment_state_init(&outer_state, number, info, strict);
@@ -433,7 +430,7 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
         return fail(TLV_ERR_NULL_ARG, 0, error_offset);
     if (limits->max_depth > TLV_CER_MAX_DEPTH || !limits->max_elements)
         return fail(TLV_ERR_LIMIT, 0, error_offset);
-    if (tlv_cer_tag_class(&tag) != TLV_ASN1_UNIVERSAL || tlv_cer_tag_is_constructed(&tag))
+    if (tlv_asn1_tag_class(&tag) != TLV_ASN1_UNIVERSAL || tlv_asn1_tag_is_constructed(&tag))
         return fail(TLV_ERR_INVALID_ARG, 0, error_offset);
     rc = tlv_cer_fields.write_tag(NULL, NULL, 0, &tag, &tag_size);
     if (rc != TLV_OK) return fail(rc, 0, error_offset);
@@ -442,7 +439,7 @@ tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_
     info = tlv_cer_type_info(number);
     if (info.form == TLV_CER_FORM_PRIMITIVE_ONLY) return fail(TLV_ERR_INVALID_ARG, 0, error_offset);
 
-    rc = tlv_cer_validate_universal_value(number, content, content_length);
+    rc = tlv_asn1_validate_universal_value(number, content, content_length);
     if (rc != TLV_OK) return fail(rc, tag_size, error_offset);
 
     if (content_length <= TLV_CER_MAX_SEGMENT_OCTETS) {
