@@ -41,15 +41,15 @@ protected:
     // nonzero exit code (and printing its own diagnostic) to abort early.
     virtual int prepare();
 
-    // "validate --module emv" only: runs the EMV structure/dictionary
+    // "validate --module" only: runs the selected module schema/value
     // checks once the format walk itself succeeded (called from run() only
     // when result_ == TLV_OK, options_.module and !options_.pdol). May
     // update result_/error_offset_/stage_ and either has_schema_diag_ with
     // schema_diag_, or stage_ alone, for render_failure_diagnostic() below.
     // The base implementation does nothing.
-    virtual void run_emv_checks();
+    virtual void run_module_checks();
 
-    // Called once the walk (and, for "validate", the EMV checks) are done,
+    // Called once the walk (and, for "validate", the module checks) are done,
     // regardless of the outcome: prints the command's own output. Most
     // overrides only print on result_ == TLV_OK, except "dump" --output
     // json, which (like the original implementation) prints whatever

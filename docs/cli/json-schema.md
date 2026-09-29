@@ -41,7 +41,7 @@ Every element is an object with a `tag` and exactly one of `value` or
 | `value` | string | A **primitive** element: its raw value bytes as hexadecimal. The empty string is an empty value. |
 | `children` | array | A **constructed** element: its child elements in wire order. An empty array is an empty constructed element. |
 | `length_mode` | string | BER only, constructed elements only: `"definite"` or `"indefinite"`. `decode` always writes it for BER constructed elements. When absent on input, the length is definite. |
-| `name`, `description`, `decoded`, `decode_error` | string | Informational EMV annotations written by `decode --module emv`. Ignored by `encode`. |
+| `name`, `description`, `decoded`, `decode_error` | string | Informational annotations written by `decode --module emv` or `decode --module bluetooth` (`description` is EMV-only). Ignored by `encode`. |
 
 Rules that follow from this:
 

@@ -569,10 +569,12 @@ $ echo $?
 
 `validate` is silent on success. Both commands consume all concatenated
 elements; empty input succeeds and invalid trailing bytes fail. Default,
-fixed and bluetooth-ltv values are opaque. BER uses constructed-tag recognition; DER uses
+fixed and bluetooth-ltv values are opaque unless a semantic module is selected.
+BER uses constructed-tag recognition; DER uses
 the existing structural validator. This does not provide full ASN.1 value
 validation or canonical SET/SET OF ordering; EMV structural
-validation is available via `--module emv`, above.
+validation is available via `--module emv`, above. Bluetooth schema and codec
+validation is available via [`--module bluetooth`](#bluetooth-semantic-inspection).
 
 | Option | Default | Meaning |
 | --- | --- | --- |
@@ -696,3 +698,45 @@ model.
 Automatic format detection, custom text input syntax, full ASN.1 value
 validation, EMV kernel behavior, and prebuilt release binaries are outside the
 scope of the CLI.
+
+## Bluetooth semantic inspection
+
+With `OPENTLV_BLUETOOTH=ON`, `--module bluetooth` adds AD Type names from the
+public Definition registry to `dump` and `decode`. Add `--decode` to render
+Flags, Local Names, Tx Power, 16/32/128-bit UUID lists, Service Data and
+Manufacturer Specific Data through the public value codecs:
+
+```sh
+otlv dump --format bluetooth-ltv --module bluetooth --decode --hex "020106020AFC0000"
+otlv validate --format bluetooth-ltv --module bluetooth --hex "020106020AFC0000"
+```
+
+The dump includes:
+
+```text
+offset=0 tag=01 length=1 value=06 name="Flags" decoded="0x06"
+offset=3 tag=0A length=1 value=FC name="Tx Power Level" decoded="-4 dBm"
+```
+
+The module accepts trailing zero padding using the public AD container API.
+Only significant structures are walked; their offsets still refer to the
+original input. Embedded zeros remain value bytes. A nonzero byte after
+padding begins is an error. Without `--module bluetooth`, `bluetooth-ltv`
+remains strict wire inspection, including rejection of zero-length structures.
+
+`validate --module bluetooth` checks the public AD schema first, then the
+supported value codecs. Schema and codec failures retain original offsets and
+raw AD Types in the selected diagnostic format. Unknown AD Types and Company
+Identifiers are accepted. Company names are annotations from the bundled,
+non-exhaustive registry; service and manufacturer payloads remain opaque hex.
+
+`dump` and `decode` annotate malformed known values with `decode_error`
+(`decode-error` in text) without failing wire inspection. Use `validate` for
+semantic validity. Text output escapes Local Name control characters and
+quotes. `--output json` on `dump` retains `offset`, `tag`, `length` and `value`
+and adds `name` and optional `decoded` or `decode_error` strings.
+
+`decode` exports the significant structures using the existing versioned JSON
+schema. Re-encoding preserves those structures but does not restore container
+padding. `--recover` is unsupported with this module; `--describe` and EMV
+options require the EMV module.

@@ -3,6 +3,11 @@
 #include <sstream>
 #include "commands/support.hpp"
 #include "tlv/config.h"
+#include "bluetooth.hpp"
+#if OPENTLV_BLUETOOTH
+#include "tlv/builtins/bluetooth/ad_data.h"
+#include "tlv/builtins/bluetooth/ad_schema.h"
+#endif
 #if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/builtins/emv/emv_schema.h"
@@ -10,7 +15,43 @@
 
 namespace cli {
 
-void validate_command::run_emv_checks() {
+void validate_command::run_module_checks() {
+#if OPENTLV_BLUETOOTH
+    if (bluetooth_module(options_)) {
+        size_t significant = 0;
+        result_ = tlv_bluetooth_ad_data_validate(data(), size(), &significant, &error_offset_);
+        if (result_ != TLV_OK) return;
+        tlv_schema_diagnostic_report_t report = {&schema_diag_, 1, 0};
+        result_ = tlv_schema_validate_all_diag(
+            data(), significant, format_, &tlv_bluetooth_ad_schema, options_.max_depth,
+            options_.max_elements, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &error_offset_);
+        if (report.count) {
+            has_schema_diag_ = true;
+            result_ = schema_diag_.diagnostic.code;
+            error_offset_ = schema_diag_.diagnostic.offset;
+        }
+        if (result_ != TLV_OK) {
+            stage_ = "schema ";
+            return;
+        }
+        const auto visitor = [](const tlv_element_t* element, size_t, size_t offset,
+                                void* context) -> tlv_visit_result_t {
+            auto&      self = *static_cast<validate_command*>(context);
+            const auto decoded = decode_bluetooth_value(element);
+            if (decoded.status != decode_status::error) return TLV_VISIT_CONTINUE;
+            self.result_ = TLV_ERR_INVALID_VALUE;
+            self.error_offset_ = offset;
+            self.reader_diag_.has_tag = 1;
+            self.reader_diag_.tag = element->tag;
+            self.stage_ = "codec ";
+            return TLV_VISIT_STOP;
+        };
+        const auto rc = tlv_walk_tree(data(), significant, format_, options_.max_depth,
+                                      options_.max_elements, visitor, this, nullptr);
+        if (rc != TLV_OK) result_ = rc;
+        return;
+    }
+#endif
 #if OPENTLV_EMV
     check_.presentation = cli_presentation_t();
     check_.data = data();

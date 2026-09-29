@@ -16,7 +16,12 @@ completion_option::completion_option(const option_entry& entry) : name_(entry.na
     } else if (name_ == "--fixed-byte-order") {
         values_ = {"big", "little"};
     } else if (name_ == "--module") {
-        values_ = {"emv"};
+#if OPENTLV_EMV
+        values_.push_back("emv");
+#endif
+#if OPENTLV_BLUETOOTH
+        values_.push_back("bluetooth");
+#endif
     } else if (name_ == "--emv-check") {
         values_ = {"structure", "dictionary", "all"};
     } else if (name_ == "--emv-context") {

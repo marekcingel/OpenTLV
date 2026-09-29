@@ -45,10 +45,8 @@ enum : unsigned {
     encode_only = opt_tag | opt_value | opt_output_encoding | opt_output_file,
     // --format fixed only.
     fixed_only = opt_fixed_tag_size | opt_fixed_length_size | opt_fixed_byte_order,
-    // Options that require --module emv (directly, or, for opt_decode, via
-    // "--decode requires --module emv"), disabled as a group when the EMV
-    // module is not compiled in.
-    emv_only = opt_module | opt_describe | opt_decode | opt_emv_context | opt_emv_check,
+    // EMV-only presentation and validation options.
+    emv_only = opt_describe | opt_emv_context | opt_emv_check,
     // Every option bit, used to build dump's and validate's masks below by
     // exclusion, the same way their validity checks in parse() do.
     all_options = opt_tree | opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
@@ -368,10 +366,20 @@ int options::parse(int argc, char** argv) {
         return fail(2, "presentation options require dump or decode");
     if (recover && pdol) return fail(2, "--recover cannot be combined with --pdol");
     if (describe && !module) return fail(2, "--describe requires --module emv");
-    if (decode && !module) return fail(2, "--decode requires --module emv");
+    if (decode && !module) return fail(2, "--decode requires --module emv or bluetooth");
     if ((seen & opt_emv_context) && !module) return fail(2, "--emv-context requires --module emv");
     if ((seen & opt_emv_check) && !module) return fail(2, "--emv-check requires --module emv");
-    if (module) {
+    if (module && !strcmp(module, "bluetooth")) {
+#if !OPENTLV_BLUETOOTH
+        return fail(2, "Bluetooth module is disabled in this build");
+#endif
+        if (strcmp(format, "bluetooth-ltv"))
+            return fail(2, "Bluetooth module requires --format bluetooth-ltv");
+        if (seen & (opt_emv_context | opt_emv_check))
+            return fail(2, "EMV options require --module emv");
+        if (recover) return fail(2, "Bluetooth module cannot use --recover");
+        if (describe) return fail(2, "--describe requires --module emv");
+    } else if (module) {
         if (strcmp(module, "emv")) return fail(2, "unknown module");
         if (strcmp(format, "ber") && strcmp(format, "emv"))
             return fail(2, "EMV module requires --format ber or emv");
@@ -414,7 +422,8 @@ void options::usage() {
            "  --module emv           Annotate BER tags (dump, decode) or check EMV data "
            "(validate)\n"
            "  --describe             Include EMV type and length descriptions\n"
-           "  --decode               Decode known EMV values (requires --module emv)\n"
+           "  --module bluetooth     Annotate Bluetooth AD types; validate schema and codecs\n"
+           "  --decode               Decode known values (requires --module emv or bluetooth)\n"
            "  --emv-context NAME     EMV dictionary context of the top-level elements: base "
            "(default), bit, bht, bht-format, bit-group, biometric-counters, "
            "biometric-attempts, biometric-verification\n"
@@ -480,6 +489,9 @@ unsigned command_options_mask(const char* command) {
         mask = dump_options;
 #if !OPENTLV_EMV
     mask &= ~emv_only;
+#endif
+#if !OPENTLV_EMV && !OPENTLV_BLUETOOTH
+    mask &= ~(opt_module | opt_decode);
 #endif
     return mask;
 }
