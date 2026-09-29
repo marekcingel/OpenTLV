@@ -12,5 +12,6 @@ var searchData=
   ['required_9',['required',['../../../c-api/html/structtlv__format__error.html#a7331ba0ddc0d90f4debf39fc366d4760',1,'tlv_format_error::required'],['../../../c-api/html/structtlv__reader__diagnostic.html#a8dd6095780b51576e9d19c0a289ad469',1,'tlv_reader_diagnostic::required'],['../../../c-api/html/structtlv__writer__diagnostic.html#a894638824c3f1e0af2a1285ab1faccda',1,'tlv_writer_diagnostic::required']]],
   ['resolve_10',['resolve',['../../../c-api/html/structtlv__field__layout.html#a65d8c5f9e4565a632a7f91722f1370b4',1,'tlv_field_layout']]],
   ['result_11',['result',['../../../c-api/html/structtlv__emv__cvm__result__t.html#a7c8a7469f4a61bbd4f1cce74ac4f442a',1,'tlv_emv_cvm_result_t']]],
-  ['rules_12',['rules',['../../../c-api/html/structtlv__structure__schema.html#ad62cc59285c58f7e141b9caa00d1d241',1,'tlv_structure_schema']]]
+  ['resume_12',['resume',['../../../c-api/html/structtlv__tree__frame.html#af9e72ee95b29a377a48ab361f4824c17',1,'tlv_tree_frame']]],
+  ['rules_13',['rules',['../../../c-api/html/structtlv__structure__schema.html#ad62cc59285c58f7e141b9caa00d1d241',1,'tlv_structure_schema']]]
 ];

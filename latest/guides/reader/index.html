@@ -1205,6 +1205,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pull-based-tree-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull-based tree traversal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pull-based tree traversal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#storage-and-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage and limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skipping-and-incremental-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skipping and incremental input
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#walker-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Walker compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ownership-and-composition" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2804,6 +2854,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pull-based-tree-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull-based tree traversal
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pull-based tree traversal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#storage-and-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage and limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skipping-and-incremental-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skipping and incremental input
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#walker-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Walker compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#ownership-and-composition" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2976,6 +3076,78 @@ leaves the diagnostic unchanged.</p>
 from the same decode. Source ranges remain relative to <code>source.data</code>, the
 element start. Capture <code>tlv_reader_offset()</code> before the call to locate that source in
 the logical stream. Non-success leaves both success outputs unchanged.</p>
+<h2 id="pull-based-tree-traversal">Pull-based tree traversal<a class="headerlink" href="#pull-based-tree-traversal" title="Permanent link">&para;</a></h2>
+<p><code>tlv_tree_reader_t</code> is the canonical iterative preorder traversal cursor. Include
+<code>tlv/reader/tree.h</code>, provide an array of <code>tlv_tree_frame_t</code>, and initialize with
+<code>tlv_tree_reader_init()</code> or <code>tlv_tree_reader_init_incremental()</code>. Each successful
+<code>tlv_tree_reader_next()</code> returns a <code>tlv_tree_item_t</code> containing the complete
+borrowed Element, Source, depth, absolute element-start offset, and Format's
+constructed classification. Root depth is zero. Only Format interprets framing
+and identifies constructed values; a missing classification callback makes all
+values opaque.</p>
+<p>The stream has <strong>no separate ENTER or LEAVE events</strong>. Each element appears once,
+before its children. A decrease in the next item's depth closes prior scopes;
+final end closes the remaining scopes. Empty constructed values still appear
+once. Higher layers that need exit notifications can derive them from depth
+transitions and final end. <code>NEED_MORE_DATA</code> is not an end event.</p>
+<h3 id="storage-and-limits">Storage and limits<a class="headerlink" href="#storage-and-limits" title="Permanent link">&para;</a></h3>
+<p><code>TLV_TREE_DEFAULT_DEPTH</code> is a suggested default of 64, not a hard maximum.
+The caller supplies both a runtime <code>max_depth</code> and a frame array with explicit
+capacity. Each entered nonempty constructed value needs one frame; the root
+sequence needs none. Capacity and depth are independent bounds. A larger array
+and runtime limit allow deeper traversal without recompiling OpenTLV. Formats
+may have their own framing limits, such as BER indefinite-length nesting.</p>
+<p>Frames hold only absolute value-end and sibling-resume offsets. They do not
+retain Elements, Tags, Sources, or pointers into the input. Frames must remain
+writable and alive throughout traversal and must not overlap input or the
+cursor. Copying a cursor does not copy its frame array; independent traversals
+need independent structural storage. The caller may release or overwrite a
+returned item object immediately; this does not alter traversal state.</p>
+<p><code>max_elements</code> bounds the total number of published items, including parents.
+Zero permits only empty input. Depth or storage exhaustion returns
+<code>TLV_ERR_LIMIT</code> when attempting to descend, after the parent has been returned.
+Errors and <code>NEED_MORE_DATA</code> preserve the cursor, frames, and item output.
+<code>tlv_tree_reader_next_diag()</code> retains Reader diagnostics and absolute offsets
+without decoding again. Tree argument/resource errors leave the diagnostic
+unchanged.</p>
+<h3 id="skipping-and-incremental-input">Skipping and incremental input<a class="headerlink" href="#skipping-and-incremental-input" title="Permanent link">&para;</a></h3>
+<p>After receiving a nonempty constructed item, call
+<code>tlv_tree_reader_skip_subtree()</code> to continue after its complete encoded extent.
+The skipped descendants are neither decoded nor counted. The same operation is
+available after a failed descent while that subtree remains pending. Calling it
+without a pending subtree returns <code>TLV_ERR_INVALID_ARG</code>. Skipping does not
+validate descendants; Format may already have inspected their framing while
+establishing the complete parent's extent. Closing enclosing scopes uses an
+iterative loop bounded by the active depth.</p>
+<p>Tree input updates follow the sequential Reader contract:
+<code>tlv_tree_reader_set_input()</code> preserves the unconsumed prefix and accepts an
+explicit final-input flag. Use <code>tlv_tree_reader_consumed()</code> to find the prefix
+no longer needed by traversal, and <code>tlv_tree_reader_offset()</code> for its absolute
+frontier. After publishing a parent, its unvisited value remains unconsumed.
+You can relocate the retained bytes even while nested: frames use absolute
+logical offsets. Release any borrowed results referring to moved or overwritten
+storage first, including parents whose Values cover those bytes.</p>
+<p>The complete-element contract from incremental Reader still applies. <strong>An
+incomplete child delays publication of its enclosing constructed parent.</strong>
+Tree Reader cannot return a complete borrowed parent and then wait for bytes
+inside that parent's Value. Once published, that parent bounds child reads as
+final input; a child exceeding the bound returns <code>TLV_ERR_BUFFER_TOO_SHORT</code>,
+not <code>TLV_NEED_MORE_DATA</code>. More bytes outside the parent cannot repair it.
+Incremental traversal resumes across complete subtrees and incomplete subsequent
+roots, without requiring the entire stream in memory. It does not provide an
+early-header stream or partial Elements.</p>
+<p>See the compiled <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/tree_reader.c">Tree Reader example</a>
+for caller-owned frames, incomplete input, subtree skipping, window replacement,
+and EOF.</p>
+<h3 id="walker-compatibility">Walker compatibility<a class="headerlink" href="#walker-compatibility" title="Permanent link">&para;</a></h3>
+<p><code>tlv_walk_tree()</code> and <code>tlv_walk_tree_diag()</code> now adapt the canonical Tree Reader
+to existing callbacks; they contain no independent traversal algorithm.
+<code>tlv_walk()</code> remains a callback adapter over sequential Reader. The compatibility
+Walker owns a fixed stack of <code>TLV_WALK_MAX_DEPTH</code> frames. That name describes
+only the adapter's capacity: use Tree Reader directly for runtime depths beyond
+it, caller-owned traversal storage, incremental input, or subtree skipping.
+Existing Query and other Walker consumers therefore use Tree Reader through
+the adapter. Their own public limits and higher-level APIs remain unchanged.</p>
 <h2 id="ownership-and-composition">Ownership and composition<a class="headerlink" href="#ownership-and-composition" title="Permanent link">&para;</a></h2>
 <p>Input storage belongs to the caller and must stay alive and unchanged while
 borrowed results are retained. Tag may instead borrow immutable Format-supplied
@@ -2983,8 +3155,8 @@ storage, which must also outlive retained results. Reader borrows Format and its
 context; retained sources also require them. Advancing, reinitializing or
 discarding the cursor does not by itself invalidate previously returned elements.
 See <a href="../memory/">memory ownership</a>.</p>
-<p>Walker composes Reader for sequential and tree traversal. Query uses that
-traversal and Document uses Reader for sequential parsing. These higher layers
+<p>Tree Reader composes Reader for nested traversal; Walker is a callback adapter.
+Query uses that traversal and Document uses Reader for sequential parsing. These higher layers
 retain their own traversal, storage and validation responsibilities.</p>
 <h2 id="migration-from-scanner">Migration from Scanner<a class="headerlink" href="#migration-from-scanner" title="Permanent link">&para;</a></h2>
 <p>The public Scanner API, <code>tlv_scan()</code> and <code>tlv/reader/scanner.h</code>, has been removed

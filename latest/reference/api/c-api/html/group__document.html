@@ -357,7 +357,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a <code>NULL</code> argument, an unusable format or an allocator that lacks a callback. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if <code>max_depth</code> exceeds <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa03f8984ca3e48d080f644fc40d810053">TLV_WALK_MAX_DEPTH</a>. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if <code>max_depth</code> exceeds <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a03f8984ca3e48d080f644fc40d810053">TLV_WALK_MAX_DEPTH</a>. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a614f23c9fdd07003fba404fd4b94d270">TLV_ERR_OUT_OF_MEMORY</a> if memory is exhausted. </dd></dl>
 
@@ -709,7 +709,7 @@ Any writer format error for the tag, or reader error for a constructed value. </
 </div><div class="memdoc">
 
 <p>Fills options with the given format and the default limits. </p>
-<p>Sets <code>max_depth</code> to <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa03f8984ca3e48d080f644fc40d810053">TLV_WALK_MAX_DEPTH</a>, <code>max_elements</code> to <a class="el" href="group__document.html#ggaba01db17f4a2bfbc3db60dc172972a25af2c70ff1716f20365e62a169f0c89695">TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS</a> and the allocator to <code>NULL</code>.</p>
+<p>Sets <code>max_depth</code> to <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a03f8984ca3e48d080f644fc40d810053">TLV_WALK_MAX_DEPTH</a>, <code>max_elements</code> to <a class="el" href="group__document.html#ggaba01db17f4a2bfbc3db60dc172972a25af2c70ff1716f20365e62a169f0c89695">TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS</a> and the allocator to <code>NULL</code>.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[out]</td><td class="paramname">options</td><td>Options to initialize. </td></tr>
