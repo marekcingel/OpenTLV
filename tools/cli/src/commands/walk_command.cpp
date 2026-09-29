@@ -8,6 +8,10 @@
 #include "diagnostic_render.hpp"
 #include "diagnostics.hpp"
 #include "tlv/config.h"
+#include "bluetooth.hpp"
+#if OPENTLV_BLUETOOTH
+#include "tlv/builtins/bluetooth/ad_data.h"
+#endif
 #include "tlv/reader/reader.h"
 #include "tlv/reader/scanner.h"
 #if OPENTLV_FORMAT_BER
@@ -77,7 +81,7 @@ int walk_command::prepare() {
     return 0;
 }
 
-void walk_command::run_emv_checks() {}
+void walk_command::run_module_checks() {}
 
 void walk_command::render_output() {}
 
@@ -264,17 +268,33 @@ int walk_command::run() {
 
     diagnostic_scope_init(scope_, size());
     const walk_env env = {&options_, format_, is_der_};
-    if (options_.pdol)
+    std::size_t    significant = size();
+    result = TLV_OK;
+#if OPENTLV_BLUETOOTH
+    if (bluetooth_module(options_))
+        result = tlv_bluetooth_ad_data_validate(data(), size(), &significant, &error_offset);
+#endif
+    if (result != TLV_OK) {
+        stage_ = "container ";
+        // The container API reports an offset only. For a framing failure,
+        // ask the public walker for its full raw identifier/field diagnostic.
+        // Padding errors remain container diagnostics, not fake LTV elements.
+        if (result != TLV_ERR_INVALID_VALUE) {
+            std::size_t ignored = 0;
+            walk_slice(env, data(), size(), 0, options_.max_elements, nullptr, nullptr, &ignored,
+                       &reader_diag_);
+        }
+    } else if (options_.pdol)
         result = walk_pdol(&error_offset);
     else if (options_.recover)
         result = walk_recovering(&error_offset);
     else
-        result = walk_slice(env, data(), size(), 0, options_.max_elements, visit_trampoline, this,
-                            &error_offset, &reader_diag_);
+        result = walk_slice(env, data(), significant, 0, options_.max_elements, visit_trampoline,
+                            this, &error_offset, &reader_diag_);
     result_ = result;
     error_offset_ = error_offset;
 
-    if (result_ == TLV_OK && options_.module && !options_.pdol) run_emv_checks();
+    if (result_ == TLV_OK && options_.module && !options_.pdol) run_module_checks();
 
     render_output();
 

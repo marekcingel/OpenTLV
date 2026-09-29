@@ -25,6 +25,7 @@ set(SOURCES
     builtins/bluetooth/format_bluetooth_ltv_conformance_test.cpp
     builtins/bluetooth/format_bluetooth_ltv_test.cpp
     builtins/bluetooth/manufacturer_data_test.cpp
+    builtins/bluetooth/semantic_test.cpp
     builtins/bluetooth/service_data_test.cpp
     builtins/bluetooth/uuid_test.cpp
     builtins/dhcp/codec_test.cpp

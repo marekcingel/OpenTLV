@@ -5,7 +5,7 @@
 namespace cli {
 
 // otlv validate: walks the whole input, checking structure only (no display),
-// plus the EMV structure/dictionary checks under --module emv. Also used
+// plus the selected module schema/value checks. Also used
 // internally by "encode" to validate its own freshly encoded output under
 // the same limits as a standalone "otlv validate" run.
 class validate_command : public walk_command {
@@ -13,7 +13,7 @@ public:
     using walk_command::walk_command;
 
 protected:
-    void        run_emv_checks() override;
+    void        run_module_checks() override;
     std::string render_failure_diagnostic(diagnostic_format diag_format, const char* tag_hex_ptr,
                                           const std::string& stage_name) override;
 

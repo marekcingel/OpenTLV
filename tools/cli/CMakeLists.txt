@@ -1,4 +1,5 @@
 set(HEADERS
+    src/bluetooth.hpp
     src/command.hpp
     src/command_factory.hpp
     src/console_color.hpp
@@ -36,6 +37,7 @@ set(HEADERS
 )
 
 set(SOURCES
+    src/bluetooth.cpp
     src/command_factory.cpp
     src/diagnostic_collect.cpp
     src/diagnostic_render.cpp

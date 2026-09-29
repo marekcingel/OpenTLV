@@ -79,14 +79,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add Bluetooth semantic CLI output and schema/codec validation through `--module bluetooth`, with AD container padding support and semantic conformance coverage. (#351)
 - Add optional Schema/number codec composition that selects an output width from the authoritative field schema, shared by builtin and caller-owned dictionaries. (#389, #381)
-
 - Add configurable packed digit-string and ASCII text codecs with explicit padding policies, usable without protocol builtins. Add `TLV_SCHEMA_LENGTH_ENDPOINTS` for fields that accept only their minimum or maximum length. (#381)
-
 - Add caller-owned EMV dictionary lookup and configurable unsigned binary/BCD value codecs, plus little-endian uint16/uint32 and minimal signed int64 codecs, usable independently of protocol builtins and with runtime-owned configuration. (#381)
-
 - Document the Definition boundary audit across ASN.1, EMV, Bluetooth, LLDP and DHCP: keep generic identifier/name registries minimal, domain dictionaries optional and value codec selection outside the codec. No new mandatory mapping layer is required. (#381)
-
 - Add definite EMV BER-TLV framing over generic variable-width primitives, exposed as `tlv_format_emv` and the `emv` preset in bindings and tooling. EMV no longer requires DER; the existing DOL helper retains its BER dependency. (#379)
 - Add allocation-free configurable variable-width identifier and short/long length primitives, a Variable TLV/LTV format, and field composition support for concrete boundary and trailer rules. (#376)
 - Add exhaustive DHCP Code/Length round-trip coverage and architecture regression tests for generic Reader, Writer, Document, Query, Schema, source preservation and diagnostics. (#372)
