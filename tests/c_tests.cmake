@@ -34,6 +34,7 @@ set(SOURCES
     builtins/emv/dol_test.cpp
     builtins/emv/emv_schema_test.cpp
     builtins/emv/emv_test.cpp
+    builtins/emv/format_emv_test.cpp
     builtins/emv/tag_c_test.c
     builtins/lldp/codec_test.cpp
     builtins/lldp/lldp_test.cpp
@@ -100,7 +101,8 @@ if(NOT OPENTLV_FORMAT_CER)
 endif()
 if(NOT (OPENTLV_FORMAT_BER AND OPENTLV_PROFILE_EMV))
     list(REMOVE_ITEM SOURCES builtins/emv/emv_test.cpp builtins/emv/emv_schema_test.cpp
-                                 builtins/emv/dol_test.cpp builtins/emv/tag_c_test.c)
+                                 builtins/emv/dol_test.cpp builtins/emv/tag_c_test.c
+                                 builtins/emv/format_emv_test.cpp)
 endif()
 if(NOT (OPENTLV_FORMAT_BER))
     list(REMOVE_ITEM SOURCES builtins/asn1/format_ber_test.cpp builtins/asn1/asn1_codec_test.cpp

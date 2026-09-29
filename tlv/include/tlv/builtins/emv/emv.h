@@ -2,6 +2,7 @@
 #define OPENTLV_BUILTINS_EMV_H
 
 #include "tlv/error.h"
+#include "tlv/builtins/emv/format.h"
 #include "tlv/schema/schema.h"
 #include "tlv/builtins/emv/emv_codec.h"
 #include "tlv/export.h"
@@ -20,8 +21,8 @@ extern "C" {
  * dictionaries, or subsequent specification bulletins. Untagged data
  * elements are not tags.
  *
- * Use #tlv_format_ber with generic I/O; this profile does not parse
- * TLV. Every tag constant borrows constant static bytes and is always
+ * Use #tlv_format_emv with generic I/O for definite EMV framing.
+ * Every tag constant borrows constant static bytes and is always
  * available.
  */
 

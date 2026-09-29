@@ -14,6 +14,9 @@ const tlv_format_t* opentlv_python_format_for(int format_id) {
 #if OPENTLV_LLDP
         case 4: return opentlv_python_format_lldp();
 #endif
+#if OPENTLV_PROFILE_EMV
+        case 5: return opentlv_python_format_emv();
+#endif
         default: return NULL;
     }
 }

@@ -8,6 +8,9 @@ namespace cli {
 std::vector<std::string> enabled_formats() {
     std::vector<std::string> names;
     names.push_back("fixed");
+#if OPENTLV_PROFILE_EMV
+    names.push_back("emv");
+#endif
 #if OPENTLV_FORMAT_BER
     names.push_back("ber");
 #endif

@@ -61,6 +61,10 @@ void opentlv_lua_register_der(lua_State* L);
 #if OPENTLV_BLUETOOTH
 void opentlv_lua_register_bluetooth_ltv(lua_State* L);
 #endif
+#if OPENTLV_PROFILE_EMV
+void opentlv_lua_register_emv(lua_State* L);
+#endif
+
 #if OPENTLV_LLDP
 void opentlv_lua_register_lldp(lua_State* L);
 #endif

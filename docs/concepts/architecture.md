@@ -308,13 +308,15 @@ The [mutable document](../guides/document.md) is a separate optional generic com
 controlled by `OPENTLV_DOCUMENT`; it is not a format or a standard package.
 
 `OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`, and
-`OPENTLV_PROFILE_EMV` form a chain (ASN1 -> BER -> DER -> EMV): disabling an
+`OPENTLV_PROFILE_EMV` form a tree (ASN1 -> BER -> DER/CER/EMV): disabling an
 option forces every option below it OFF as well, regardless of how that
 option was set, so `-DOPENTLV_FORMAT_BER=OFF` also disables DER, CER and EMV.
 `OPENTLV_FORMAT_CER` is an independent sibling of `OPENTLV_FORMAT_DER` under
 `OPENTLV_FORMAT_BER`, not a descendant of it: CER never depends on DER (or
 vice versa), and disabling DER does not affect CER or EMV. This cascade is
-centralized in `cmake/format_options.cmake`. No component creates
+centralized in `cmake/format_options.cmake`. EMV element framing uses generic
+variable-width primitives directly; the BER build dependency remains only for
+the unchanged DOL identifier helper. No component creates
 another public binary library. `tlv/config.h` exposes the configured
 selection, including `OPENTLV_FORMAT_ASN1`. Explicitly including a disabled
 component's header does not provide its symbols; consumers should use the

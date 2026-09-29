@@ -289,6 +289,8 @@ pub struct tlv_fixed_format_t {
 extern "C" {
     /// BER-TLV format.
     pub static tlv_format_ber: tlv_format_t;
+    /// Definite EMV Contact Book 3 BER-TLV element framing.
+    pub static tlv_format_emv: tlv_format_t;
     /// LLDP framing descriptor; requires a C library built with OPENTLV_LLDP=ON.
     #[cfg(feature = "lldp")]
     pub static tlv_format_lldp: tlv_format_t;

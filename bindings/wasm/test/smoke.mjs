@@ -9,6 +9,14 @@ const opentlv = await loadOpenTLV();
 
 assert.match(opentlv.version, /^\d+\.\d+\.\d+/);
 
+if (opentlv.formats.includes("emv")) {
+  const emv = opentlv.parse(hexToBytes("70 03 9F 02 00"), { format: "emv", profile: "emv" });
+  assert.equal(emv.error, undefined);
+  assert.equal(emv.elements[0].constructed, true);
+  assert.equal(emv.elements[0].children[0].tag, "9F02");
+  assert.ok(opentlv.parse(hexToBytes("70 80 00 00"), { format: "emv" }).error);
+}
+
 if (opentlv.formats.includes("lldp")) {
   const lldp = opentlv.parse(hexToBytes("06 02 00 78 00 00"), { format: "lldp" });
   assert.equal(lldp.error, undefined);

@@ -28,7 +28,7 @@ optional. Both use the same Format, Reader and Writer contracts.
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
 | Canonical ASN.1 framing and nested checks | [DER](../profiles/der/README.md) | Structural validation, not full semantic DER |
 | Canonical ASN.1 with indefinite-length framing and segmented strings | [CER](../profiles/cer/README.md) | Structural validation, not full semantic CER |
-| EMV Contact Book 3 data objects | [BER plus EMV profile](../profiles/emv/README.md) | Dictionary/codecs, not a transaction engine |
+| EMV Contact Book 3 data objects | [EMV framing and profile](../profiles/emv/README.md) | Dictionary/codecs, not a transaction engine |
 
 For application-specific framing, use [custom callbacks](custom/README.md).
 They are an extension mechanism, not a built-in standard or a supplied format.

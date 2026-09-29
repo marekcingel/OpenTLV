@@ -16,6 +16,8 @@ pub enum Format {
     /// BER-TLV.
     #[default]
     Ber,
+    /// Definite EMV Contact Book 3 BER-TLV element framing.
+    Emv,
     /// Canonical Encoding Rules.
     Cer,
     /// Distinguished Encoding Rules.
@@ -27,8 +29,9 @@ pub enum Format {
 
 impl Format {
     /// Every supported format.
-    pub const ALL: [Format; 3 + cfg!(feature = "lldp") as usize] = [
+    pub const ALL: [Format; 4 + cfg!(feature = "lldp") as usize] = [
         Format::Ber,
+        Format::Emv,
         Format::Cer,
         Format::Der,
         #[cfg(feature = "lldp")]
@@ -39,6 +42,7 @@ impl Format {
     pub fn name(self) -> &'static str {
         match self {
             Format::Ber => "ber",
+            Format::Emv => "emv",
             Format::Cer => "cer",
             Format::Der => "der",
             #[cfg(feature = "lldp")]
@@ -54,6 +58,7 @@ impl Format {
         unsafe {
             match self {
                 Format::Ber => ptr::addr_of!(native::tlv_format_ber),
+                Format::Emv => ptr::addr_of!(native::tlv_format_emv),
                 Format::Cer => ptr::addr_of!(native::tlv_format_cer),
                 Format::Der => ptr::addr_of!(native::tlv_format_der),
                 #[cfg(feature = "lldp")]

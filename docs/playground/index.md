@@ -21,6 +21,7 @@ native applications. Nothing you enter is uploaded.
         <optgroup label="Built-in standards">
           <option value="bluetooth-ltv">Bluetooth LTV (strict)</option>
           <option value="ber">ASN.1 BER-TLV</option>
+          <option value="emv">EMV BER-TLV (definite)</option>
           <option value="der">ASN.1 DER-TLV</option>
           <option value="cer">ASN.1 CER-TLV</option>
         </optgroup>
@@ -32,7 +33,7 @@ native applications. Nothing you enter is uploaded.
     <label>Annotations
       <select id="otlv-pg-profile" disabled>
         <option value="none">None (AD names are automatic)</option>
-        <option value="emv">EMV tag names (BER-TLV only)</option>
+        <option value="emv">EMV tag names (BER or EMV)</option>
       </select>
     </label>
   </div>
@@ -102,11 +103,12 @@ buttons to copy the tag, the value or the whole encoded element. With the
 [EMV profile](../profiles/emv/README.md) and whether its length is permitted.
 
 In [BER-TLV](../formats/asn1/ber.md),
-[DER-TLV](../formats/asn1/der.md) and [CER-TLV](../formats/asn1/cer.md), constructed elements nest their children; the
+[DER-TLV](../formats/asn1/der.md), [CER-TLV](../formats/asn1/cer.md) and
+[EMV BER-TLV](../profiles/emv/README.md), wire-constructed elements nest their children; the
 [configurable fixed-width](../formats/fixed/configurable.md) and
 [Bluetooth LTV](../formats/bluetooth/README.md) formats have opaque values, so
 their elements are flat. Bluetooth LTV puts the length byte before the type, so
-in the hex view and the element details the length is shown before the tag. EMV data is BER-TLV.
+in the hex view and the element details the length is shown before the tag. The EMV preset requires definite lengths; semantic primitive-bit templates remain opaque.
 
 Invalid or truncated input reports the parser error with its code, message and
 input offset, together with every element read before the failure.

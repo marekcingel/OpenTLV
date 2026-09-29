@@ -4,7 +4,7 @@ import opentlv_native as native
 from opentlv import Document, FixedFormat, Format, Reader, Writer, codec, encoded_size
 
 
-@pytest.mark.parametrize("name, identifier", [("BER", 1), ("CER", 2), ("DER", 3), ("LLDP", 4)])
+@pytest.mark.parametrize("name, identifier", [("BER", 1), ("CER", 2), ("DER", 3), ("LLDP", 4), ("EMV", 5)])
 def test_format_availability(name, identifier):
     available = bool(getattr(native, "HAS_" + name))
     assert hasattr(Format, name) == available

@@ -1,4 +1,4 @@
-#include "tlv/builtins/asn1/ber.h"
+#include "tlv/builtins/emv/format.h"
 #include "tlv/builtins/emv/emv_schema.h"
 #include "tlv/reader/walker.h"
 #include <gtest/gtest.h>
@@ -6,7 +6,7 @@
 
 namespace {
 tlv_result_t validate(const std::vector<uint8_t>& wire, size_t* offset = nullptr) {
-    return tlv_schema_validate(wire.data(), wire.size(), &tlv_format_ber, &tlv_emv_structure_schema,
+    return tlv_schema_validate(wire.data(), wire.size(), &tlv_format_emv, &tlv_emv_structure_schema,
                                TLV_WALK_MAX_DEPTH, 1000, offset);
 }
 } // namespace
@@ -111,7 +111,7 @@ TEST(Integration_Tlv_EmvSchema, ReportsFciViolationsWithPathsInOnePass) {
     tlv_schema_issue_t         issues[4];
     tlv_schema_report_t        report = {issues, 4, 0};
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_ber,
+              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_emv,
                                       &tlv_emv_structure_schema, TLV_WALK_MAX_DEPTH, 1000,
                                       TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     ASSERT_EQ(2u, report.count);
@@ -134,7 +134,7 @@ TEST(Integration_Tlv_EmvSchema, ReportAgreesWithFailFastValidationOnConformingIn
                                     0x00, 0x00, 0x03, 0x10, 0x10};
     tlv_schema_report_t        report = {nullptr, 0, 99};
     EXPECT_EQ(TLV_OK, validate(wire));
-    EXPECT_EQ(TLV_OK, tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_ber,
+    EXPECT_EQ(TLV_OK, tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_emv,
                                               &tlv_emv_structure_schema, TLV_WALK_MAX_DEPTH, 1000,
                                               TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     EXPECT_EQ(0u, report.count);
