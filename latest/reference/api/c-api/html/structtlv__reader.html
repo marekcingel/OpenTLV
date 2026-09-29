@@ -90,13 +90,32 @@ Data Fields</h2></td></tr>
 <tr class="separator:a9bbe580b9ec656247f5ae64b8605bd9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0df462988d0cb475dba57307819a6eaa" id="r_a0df462988d0cb475dba57307819a6eaa"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader.html#a0df462988d0cb475dba57307819a6eaa">pos</a></td></tr>
 <tr class="separator:a0df462988d0cb475dba57307819a6eaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a61c49ffc41c001e33fcc23cb783807ad" id="r_a61c49ffc41c001e33fcc23cb783807ad"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader.html#a61c49ffc41c001e33fcc23cb783807ad">base_offset</a></td></tr>
+<tr class="separator:a61c49ffc41c001e33fcc23cb783807ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fdbfe26ef4fdf5c8e4c46b3491088f6" id="r_a8fdbfe26ef4fdf5c8e4c46b3491088f6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader.html#a8fdbfe26ef4fdf5c8e4c46b3491088f6">final_input</a></td></tr>
+<tr class="separator:a8fdbfe26ef4fdf5c8e4c46b3491088f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Canonical pull-based cursor over a caller-owned input buffer. </p>
-<p>Initialize with <a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9" title="Initializes a sequential reader.">tlv_reader_init()</a>. The reader borrows its buffer and format; neither is copied, and both must outlive the reader, transitively including the format's own context. The caller requests each element with <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a>; no I/O, buffering, allocation, schema validation, semantic decoding or recovery occurs. Format alone interprets the wire representation. Higher-level traversal composes this cursor rather than implementing another sequential parser.</p>
-<p>Only a successful read advances <code>pos</code>, by the complete encoded extent, including any trailer. End, incomplete input and errors preserve the cursor and success outputs. Repeating a call with unchanged input/state returns the same outcome. Reinitialize to reuse the state for another borrowed buffer; this API does not supply or accumulate additional input.</p>
+<p>Initialize with <a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9" title="Initializes a sequential reader over a complete, final input buffer.">tlv_reader_init()</a> or <a class="el" href="group__reader.html#ga3872c43ab5288f81f510256c24192a39" title="Initializes a non-final, incremental Reader at absolute offset zero.">tlv_reader_init_incremental()</a>. The reader borrows its current input and Format without copying. Format and its context must outlive the reader. Input must remain valid until replaced and while any borrowed result referring to it is used. The caller requests each element with <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a>; no I/O, buffering, allocation, schema validation, semantic decoding or recovery occurs. Format alone interprets the wire representation. Higher-level traversal composes this cursor rather than implementing another sequential parser.</p>
+<p>Only a successful read advances <code>pos</code>, by the complete encoded extent, including any trailer. End, incomplete input and errors preserve the cursor and success outputs. Repeating a call with unchanged input/state returns the same outcome. <a class="el" href="group__reader.html#ga3872c43ab5288f81f510256c24192a39" title="Initializes a non-final, incremental Reader at absolute offset zero.">tlv_reader_init_incremental()</a> starts non-final input; <a class="el" href="group__reader.html#ga7302246adfb31262cea1a80db0e01bf8" title="Extends or replaces the caller-owned contiguous input window.">tlv_reader_set_input()</a> supplies a replacement contiguous window without copying, retaining partial fields, or performing I/O. Incomplete elements are retried from their start through Format when more bytes are supplied. The caller must retain the complete unconsumed prefix, not the entire stream.</p>
 <p>Returned elements and sources do not borrow the cursor itself. Advancing or reinitializing it does not invalidate them; their input and format-supplied identifier storage must remain alive and unchanged while results are used. </p><dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
+<a id="a61c49ffc41c001e33fcc23cb783807ad" name="a61c49ffc41c001e33fcc23cb783807ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61c49ffc41c001e33fcc23cb783807ad">&#9670;&#160;</a></span>base_offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_reader::base_offset</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Absolute logical byte offset of data[0]; offsets are bounded by SIZE_MAX. </p>
+
+</div>
+</div>
 <a id="af1b8dc22d88017047e6e67f3dfa6fef4" name="af1b8dc22d88017047e6e67f3dfa6fef4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af1b8dc22d88017047e6e67f3dfa6fef4">&#9670;&#160;</a></span>data</h2>
 
@@ -109,6 +128,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Borrowed input buffer. </p>
+
+</div>
+</div>
+<a id="a8fdbfe26ef4fdf5c8e4c46b3491088f6" name="a8fdbfe26ef4fdf5c8e4c46b3491088f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fdbfe26ef4fdf5c8e4c46b3491088f6">&#9670;&#160;</a></span>final_input</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_reader::final_input</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Nonzero when no bytes may be appended; set through initialization or set_input. </p>
 
 </div>
 </div>

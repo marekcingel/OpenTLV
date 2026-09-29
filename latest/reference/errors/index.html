@@ -2808,7 +2808,8 @@
 
 <h1 id="error-codes">Error codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h1>
 <p>Every C function that can fail returns a <code>tlv_result_t</code> from <code>tlv/error.h</code>. Zero is
-success and every other value is an error. <code>tlv_strerror</code> returns a static, readable
+success; nonzero results include errors, end-of-input and the resumable
+<code>TLV_NEED_MORE_DATA</code> condition. <code>tlv_strerror</code> returns a static, readable
 description of any code and <code>"unknown error"</code> for an unrecognized one; never free or
 modify the string. The Rust <code>Error</code> type maps every <code>TLV_ERR_*</code> code.</p>
 <p>Unless a function says otherwise, an error leaves its output parameters unchanged. A
@@ -2933,6 +2934,12 @@ return; this page explains what each code means and what to check first.</p>
 <td>17</td>
 <td>A logical size exceeds the native address space.</td>
 <td>Checked conversion to <code>size_t</code>; the logical quantity itself remains valid.</td>
+</tr>
+<tr>
+<td><code>TLV_NEED_MORE_DATA</code></td>
+<td>18</td>
+<td>Incremental input is exhausted or incomplete.</td>
+<td>Supply an extended window or declare EOF. No element is published and the cursor does not advance.</td>
 </tr>
 </tbody>
 </table>

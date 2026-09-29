@@ -1183,6 +1183,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#incremental-input-windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incremental input windows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#source-and-diagnostics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2771,6 +2782,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#incremental-input-windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incremental input windows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#source-and-diagnostics" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2879,12 +2901,17 @@ buffering, recovery, schema validation or semantic Value decoding.</p>
 </tr>
 <tr>
 <td><code>TLV_ERR_END_OF_BUFFER</code></td>
-<td>All supplied bytes have been consumed</td>
+<td>Final input has been consumed</td>
+<td>Unchanged</td>
+</tr>
+<tr>
+<td><code>TLV_NEED_MORE_DATA</code></td>
+<td>Non-final input is exhausted or incomplete</td>
 <td>Unchanged</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
-<td>Format requires more bytes at this position</td>
+<td>Final input contains an incomplete element</td>
 <td>Unchanged</td>
 </tr>
 <tr>
@@ -2894,25 +2921,61 @@ buffering, recovery, schema validation or semantic Value decoding.</p>
 </tr>
 </tbody>
 </table>
-<p>These are the same result codes exposed by the single-element <code>tlv_read()</code>
-primitive. Custom Format decoders must distinguish incomplete input from
+<p>The single-element <code>tlv_read()</code> primitive retains its complete-buffer behavior;
+only a non-final Reader maps input shortage to <code>TLV_NEED_MORE_DATA</code>. Custom Format decoders must distinguish incomplete input from
 malformed wire data. Reader does not infer that distinction from tag or length
 bytes. Repeated calls with unchanged input and cursor state produce the same
 outcome; Reader never skips a failing element or searches for another boundary.</p>
-<p>End means the end of the supplied buffer, not an I/O end-of-stream event.
-An empty buffer is immediately at end. Incomplete input at a known final
-boundary is truncation that the caller must handle. This foundation does not
-provide a feed, buffering or incremental transport API. Reinitialization resets
-the cursor to position zero without taking ownership of input.</p>
+<p><code>tlv_reader_init()</code> treats the supplied buffer as complete and final, preserving
+its existing behavior. <code>tlv_reader_init_incremental()</code> starts an open input:
+empty or incomplete input yields <code>TLV_NEED_MORE_DATA</code>, and <code>at_end()</code> stays false.
+Malformed data returns its specific error immediately, even before EOF.</p>
+<h2 id="incremental-input-windows">Incremental input windows<a class="headerlink" href="#incremental-input-windows" title="Permanent link">&para;</a></h2>
+<p><code>tlv_reader_set_input(reader, data, size, discard, final_input)</code> supplies the
+next contiguous window. <code>discard</code> removes only a consumed prefix of the old
+window; use <code>tlv_reader_consumed()</code> to determine how much has been consumed.
+The new window must preserve the entire remaining old prefix byte-for-byte,
+then may append new bytes. Reader validates sizes and state, but does not compare
+prefix contents or access the old buffer. The caller may relocate that buffer
+before supplying the new pointer, provided no old borrowed view is still used.</p>
+<p>Set <code>final_input</code> to 1 to declare EOF. Repeating an incomplete read then reports
+<code>TLV_ERR_BUFFER_TOO_SHORT</code>; fully consumed final input reports
+<code>TLV_ERR_END_OF_BUFFER</code>. EOF cannot be reopened or extended without
+reinitializing Reader. Discarding consumed bytes or rebinding the same final
+extent is still permitted. A rejected update leaves Reader unchanged.</p>
+<p>Reader consumes only complete elements. A failed or incomplete decode consumes
+zero additional bytes and retains no partial parser storage. The next attempt
+retries Format decoding at the same element start. This is resumable parsing,
+not a guarantee of constant work per appended byte; a Format may rescan the
+retained prefix, including indefinite constructed contents.</p>
+<p>The whole stream need not be resident, but the next complete encoded element
+must be contiguous before it can be returned. This includes the full contents
+and trailer of a constructed element. A ring-buffer element crossing the wrap
+must be made contiguous by the caller. No hidden copying or I/O occurs.</p>
+<p>Moving or overwriting storage invalidates every borrowed element, source and
+diagnostic referring to it. Updating Reader does not redirect old views to new
+storage. Release such views before compacting or reusing their bytes; retaining
+an old view is safe if its original backing storage remains alive and unchanged.</p>
+<p>See the compiled <a href="https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/incremental_reader.c">incremental Reader example</a>:
+it processes a six-byte input using four bytes of caller-owned sliding storage.</p>
 <h2 id="source-and-diagnostics">Source and diagnostics<a class="headerlink" href="#source-and-diagnostics" title="Permanent link">&para;</a></h2>
-<p><code>reader.pos</code> is the byte offset of the next element within <code>reader.data</code>.
+<p><code>tlv_reader_consumed()</code> (also <code>reader.pos</code>) is the consumed prefix size within
+the current window. <code>tlv_reader_offset()</code> is the absolute logical stream
+position: <code>reader.base_offset + reader.pos</code>. Discarding a consumed prefix
+advances the base and reduces the local position by the same amount. Offsets
+use the existing <code>size_t</code> domain; any window update exceeding <code>SIZE_MAX</code> returns
+<code>TLV_ERR_OVERFLOW</code>, including on 32-bit hosts.
 <code>tlv_reader_next_diag()</code> reports structured errors with absolute offsets within
-that buffer, including any known field positions, declared length and available
-bytes. A successful call leaves the diagnostic unchanged.</p>
+the logical stream across window replacements, including known field positions,
+declared length and available bytes. <code>has_required</code>/<code>required</code> describe the
+required size of the failing region when Format knows it; it is not a total
+stream size or an additional byte count. Unknown extents remain unset.
+Need-more-data diagnostics have informational severity. A successful call
+leaves the diagnostic unchanged.</p>
 <p>Use <code>tlv_reader_next_source_diag()</code> to obtain an element and <code>tlv_source_t</code>
 from the same decode. Source ranges remain relative to <code>source.data</code>, the
-element start. Capture <code>reader.pos</code> before the call to locate that source in
-the original buffer. Non-success leaves both success outputs unchanged.</p>
+element start. Capture <code>tlv_reader_offset()</code> before the call to locate that source in
+the logical stream. Non-success leaves both success outputs unchanged.</p>
 <h2 id="ownership-and-composition">Ownership and composition<a class="headerlink" href="#ownership-and-composition" title="Permanent link">&para;</a></h2>
 <p>Input storage belongs to the caller and must stay alive and unchanged while
 borrowed results are retained. Tag may instead borrow immutable Format-supplied

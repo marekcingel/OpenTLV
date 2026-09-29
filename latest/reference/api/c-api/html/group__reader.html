@@ -132,8 +132,20 @@ Functions</h2></td></tr>
 <tr class="memdesc:gaa625cbb8ed79172214a9532810a81a09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses one element from the beginning of a buffer, with diagnostic detail on failure.  <br /></td></tr>
 <tr class="separator:gaa625cbb8ed79172214a9532810a81a09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga74c459c5842057ffc29a3e00278846e9" id="r_ga74c459c5842057ffc29a3e00278846e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9">tlv_reader_init</a> (<a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader, const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format)</td></tr>
-<tr class="memdesc:ga74c459c5842057ffc29a3e00278846e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a sequential reader.  <br /></td></tr>
+<tr class="memdesc:ga74c459c5842057ffc29a3e00278846e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a sequential reader over a complete, final input buffer.  <br /></td></tr>
 <tr class="separator:ga74c459c5842057ffc29a3e00278846e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3872c43ab5288f81f510256c24192a39" id="r_ga3872c43ab5288f81f510256c24192a39"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga3872c43ab5288f81f510256c24192a39">tlv_reader_init_incremental</a> (<a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader, const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format)</td></tr>
+<tr class="memdesc:ga3872c43ab5288f81f510256c24192a39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a non-final, incremental Reader at absolute offset zero.  <br /></td></tr>
+<tr class="separator:ga3872c43ab5288f81f510256c24192a39"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7302246adfb31262cea1a80db0e01bf8" id="r_ga7302246adfb31262cea1a80db0e01bf8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga7302246adfb31262cea1a80db0e01bf8">tlv_reader_set_input</a> (<a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader, const uint8_t *data, size_t size, size_t discard, int final_input)</td></tr>
+<tr class="memdesc:ga7302246adfb31262cea1a80db0e01bf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extends or replaces the caller-owned contiguous input window.  <br /></td></tr>
+<tr class="separator:ga7302246adfb31262cea1a80db0e01bf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3001a4e1921b15b8811b7295207717a9" id="r_ga3001a4e1921b15b8811b7295207717a9"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga3001a4e1921b15b8811b7295207717a9">tlv_reader_consumed</a> (const <a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader)</td></tr>
+<tr class="memdesc:ga3001a4e1921b15b8811b7295207717a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the consumed prefix size in the current window.  <br /></td></tr>
+<tr class="separator:ga3001a4e1921b15b8811b7295207717a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1f8ce7659959a524f6296cfc5841bb57" id="r_ga1f8ce7659959a524f6296cfc5841bb57"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#ga1f8ce7659959a524f6296cfc5841bb57">tlv_reader_offset</a> (const <a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader)</td></tr>
+<tr class="memdesc:ga1f8ce7659959a524f6296cfc5841bb57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the absolute logical offset of the next element.  <br /></td></tr>
+<tr class="separator:ga1f8ce7659959a524f6296cfc5841bb57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab5cb4a6d23f0adb8adbe00cce73bd148" id="r_gab5cb4a6d23f0adb8adbe00cce73bd148"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__reader.html#gab5cb4a6d23f0adb8adbe00cce73bd148">tlv_reader_at_end</a> (const <a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *reader)</td></tr>
 <tr class="memdesc:gab5cb4a6d23f0adb8adbe00cce73bd148"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports whether the reader has consumed all input.  <br /></td></tr>
 <tr class="separator:gab5cb4a6d23f0adb8adbe00cce73bd148"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -201,8 +213,8 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Canonical pull-based cursor over a caller-owned input buffer. </p>
-<p>Initialize with <a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9" title="Initializes a sequential reader.">tlv_reader_init()</a>. The reader borrows its buffer and format; neither is copied, and both must outlive the reader, transitively including the format's own context. The caller requests each element with <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a>; no I/O, buffering, allocation, schema validation, semantic decoding or recovery occurs. Format alone interprets the wire representation. Higher-level traversal composes this cursor rather than implementing another sequential parser.</p>
-<p>Only a successful read advances <code>pos</code>, by the complete encoded extent, including any trailer. End, incomplete input and errors preserve the cursor and success outputs. Repeating a call with unchanged input/state returns the same outcome. Reinitialize to reuse the state for another borrowed buffer; this API does not supply or accumulate additional input.</p>
+<p>Initialize with <a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9" title="Initializes a sequential reader over a complete, final input buffer.">tlv_reader_init()</a> or <a class="el" href="group__reader.html#ga3872c43ab5288f81f510256c24192a39" title="Initializes a non-final, incremental Reader at absolute offset zero.">tlv_reader_init_incremental()</a>. The reader borrows its current input and Format without copying. Format and its context must outlive the reader. Input must remain valid until replaced and while any borrowed result referring to it is used. The caller requests each element with <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a>; no I/O, buffering, allocation, schema validation, semantic decoding or recovery occurs. Format alone interprets the wire representation. Higher-level traversal composes this cursor rather than implementing another sequential parser.</p>
+<p>Only a successful read advances <code>pos</code>, by the complete encoded extent, including any trailer. End, incomplete input and errors preserve the cursor and success outputs. Repeating a call with unchanged input/state returns the same outcome. <a class="el" href="group__reader.html#ga3872c43ab5288f81f510256c24192a39" title="Initializes a non-final, incremental Reader at absolute offset zero.">tlv_reader_init_incremental()</a> starts non-final input; <a class="el" href="group__reader.html#ga7302246adfb31262cea1a80db0e01bf8" title="Extends or replaces the caller-owned contiguous input window.">tlv_reader_set_input()</a> supplies a replacement contiguous window without copying, retaining partial fields, or performing I/O. Incomplete elements are retried from their start through Format when more bytes are supplied. The caller must retain the complete unconsumed prefix, not the entire stream.</p>
 <p>Returned elements and sources do not borrow the cursor itself. Advancing or reinitializing it does not invalidate them; their input and format-supplied identifier storage must remain alive and unchanged while results are used. </p><dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 
 </div>
@@ -481,8 +493,36 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>1 if position equals input size, otherwise 0 (also for <code>NULL</code>). </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>1 if input is final and position equals input size, otherwise 0 (also for <code>NULL</code>). </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>This checks exhaustion only; it does not parse or validate remaining bytes. </dd></dl>
+
+</div>
+</div>
+<a id="ga3001a4e1921b15b8811b7295207717a9" name="ga3001a4e1921b15b8811b7295207717a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3001a4e1921b15b8811b7295207717a9">&#9670;&#160;</a></span>tlv_reader_consumed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_reader_consumed </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *&#160;</td>
+          <td class="paramname"><em>reader</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the consumed prefix size in the current window. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">reader</td><td>Initialized cursor, or NULL. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>reader-&gt;pos in bytes, or zero for NULL. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>These bytes may be discarded only after borrowed views into them are released. </dd></dl>
 
 </div>
 </div>
@@ -550,7 +590,7 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p>Initializes a sequential reader. </p>
+<p>Initializes a sequential reader over a complete, final input buffer. </p>
 <p>The reader borrows <code>data</code> and <code>format</code>; neither is copied.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -565,7 +605,63 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if an argument is <code>NULL</code>, or the format lacks a required callback. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On failure the reader remains unchanged. On success position is zero, including when reinitializing a previously used reader.</dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>The caller must keep <code>data</code> and <code>format</code> alive for the lifetime of the reader. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Format and its context must outlive the reader. Input must remain valid until replaced and while any retained borrowed result uses it. </dd></dl>
+
+</div>
+</div>
+<a id="ga3872c43ab5288f81f510256c24192a39" name="ga3872c43ab5288f81f510256c24192a39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3872c43ab5288f81f510256c24192a39">&#9670;&#160;</a></span>tlv_reader_init_incremental()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_reader_init_incremental </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *&#160;</td>
+          <td class="paramname"><em>reader</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initializes a non-final, incremental Reader at absolute offset zero. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">reader</td><td>Required cursor; unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>Borrowed contiguous input, NULL only when size is zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>Available bytes, including any incomplete element prefix. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Required readable Format; borrowed with its context. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required pointers or decode callback. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>No allocation or copying occurs. Empty input yields <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Input and Format storage must obey the lifetime contract of <a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034" title="Canonical pull-based cursor over a caller-owned input buffer.">tlv_reader_t</a>. </dd></dl>
 
 </div>
 </div>
@@ -606,13 +702,17 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> when an element is available. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> when all supplied input has been consumed. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> when final input has been fully consumed. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when Format reports incomplete input; additional bytes are required to complete decoding at this position. </dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a> when non-final input is exhausted or Format reports incomplete input. No partial element is published or consumed. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> when final input contains an incomplete element. </dd>
 <dd>
 Any other <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a> error for invalid input or arguments. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if position exceeds input size.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if position exceeds input size. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if the absolute input extent exceeds SIZE_MAX.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On error both the reader position and <code>*out_element</code> remain unchanged. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>The caller must keep the original buffer alive while the returned element is used. </dd></dl>
 
@@ -651,7 +751,7 @@ Any other <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956
 </div><div class="memdoc">
 
 <p>Reads the next TLV element and advances the reader, with diagnostic detail on failure. </p>
-<p>Behaves exactly like <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a>; additionally, when <code>out_diagnostic</code> is not <code>NULL</code> and the read fails, it is filled with detail about the failure. Offsets in <code>*out_diagnostic</code> are absolute within the reader's buffer, not relative to the element that was being read.</p>
+<p>Behaves exactly like <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a>; additionally, when <code>out_diagnostic</code> is not <code>NULL</code> and the read fails, it is filled with detail about the failure or <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a>. Diagnostic offsets are absolute across input windows (base_offset plus the local offset). Required region extent is exposed when known; need-more-data diagnostics have informational severity.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">reader</td><td>Reader to advance. </td></tr>
@@ -706,10 +806,10 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
 </div><div class="memdoc">
 
 <p>Pulls one element and its borrowed source metadata in one decode. </p>
-<p>Behaves like <a class="el" href="group__reader.html#gaa7c7cf5d16b93ef98c440915e513bf95" title="Reads the next TLV element and advances the reader, with diagnostic detail on failure.">tlv_reader_next_diag()</a>, also publishing the source on success. Source ranges remain relative to <code>source-&gt;data</code>, the element's start; its absolute offset in the reader buffer is the cursor position before the call. Diagnostic offsets are absolute within the reader buffer.</p>
+<p>Behaves like <a class="el" href="group__reader.html#gaa7c7cf5d16b93ef98c440915e513bf95" title="Reads the next TLV element and advances the reader, with diagnostic detail on failure.">tlv_reader_next_diag()</a>, also publishing the source on success. Source ranges remain relative to <code>source-&gt;data</code>, the element's start; its absolute logical offset is <a class="el" href="group__reader.html#ga1f8ce7659959a524f6296cfc5841bb57" title="Returns the absolute logical offset of the next element.">tlv_reader_offset()</a> before the call. Diagnostic offsets are absolute across input windows.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">reader</td><td>Cursor initialized by <a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9" title="Initializes a sequential reader.">tlv_reader_init()</a>; required. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">reader</td><td>Cursor initialized by <a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9" title="Initializes a sequential reader over a complete, final input buffer.">tlv_reader_init()</a>; required. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">out_element</td><td>Receives the semantic element; required. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">source</td><td>Receives the source and framing ranges; required. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">out_diagnostic</td><td>Optional structured failure detail; may be <code>NULL</code>. </td></tr>
@@ -719,6 +819,101 @@ On success <code>*out_diagnostic</code> is left unchanged. </dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>Same outcomes as <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>On non-success the cursor, element and source remain unchanged. On success the diagnostic remains unchanged. No allocation occurs. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Input bytes, Format and context must outlive retained sources and remain unchanged; format-supplied identifier storage must outlive Tags. </dd></dl>
+
+</div>
+</div>
+<a id="ga1f8ce7659959a524f6296cfc5841bb57" name="ga1f8ce7659959a524f6296cfc5841bb57"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1f8ce7659959a524f6296cfc5841bb57">&#9670;&#160;</a></span>tlv_reader_offset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_reader_offset </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *&#160;</td>
+          <td class="paramname"><em>reader</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the absolute logical offset of the next element. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">reader</td><td>Initialized cursor with unmodified valid state, or NULL. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>base_offset + pos in bytes, or zero for NULL. Bounded by SIZE_MAX. </dd></dl>
+
+</div>
+</div>
+<a id="ga7302246adfb31262cea1a80db0e01bf8" name="ga7302246adfb31262cea1a80db0e01bf8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7302246adfb31262cea1a80db0e01bf8">&#9670;&#160;</a></span>tlv_reader_set_input()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_reader_set_input </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a> *&#160;</td>
+          <td class="paramname"><em>reader</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>discard</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>final_input</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Extends or replaces the caller-owned contiguous input window. </p>
+<p>Discard only an already consumed prefix: <code>discard &lt;= reader-&gt;pos</code>. The new window must begin with exactly the old bytes from <code>discard</code> through the old window end, followed by optional additional bytes. Thus its size must be at least <code>reader-&gt;size - discard</code>. Prefix identity is a caller precondition; Reader does not compare or dereference the old window, which may already have been relocated. No bytes are copied or retained internally. On success base_offset increases by discard, pos decreases by discard, and the absolute cursor position is unchanged.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">reader</td><td>Initialized cursor; required. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>New contiguous window, NULL only when size is zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>New available byte count. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">discard</td><td>Number of bytes removed from the old window's beginning. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">final_input</td><td>Exactly 0 or 1; 1 declares EOF at the new window end. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing required pointers or Format callback. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid state, discard, size or final flag; final input cannot be reopened or extended without reinitialization. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a02f1494beef2c6ffc5f3ba9859fc6e2a">TLV_ERR_OVERFLOW</a> if the new absolute window end exceeds SIZE_MAX. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>On failure the cursor is unchanged. After EOF, rebinding and discarding consumed bytes remain allowed if the absolute end is unchanged. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>All retained elements, sources and diagnostics still borrow their original storage. Relocating or overwriting it invalidates them; this operation cannot transfer existing views to the new buffer. </dd></dl>
 
 </div>
 </div>

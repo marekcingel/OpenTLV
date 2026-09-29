@@ -910,6 +910,7 @@ $(function() {
 <li>tlv_lldp_validate()&#160;:&#160;<a class="el" href="builtins_2lldp_2schema_8h.html#ab289f496202a51701c7ed20431224d6c">schema.h</a></li>
 <li>TLV_MAYBE_UNUSED&#160;:&#160;<a class="el" href="group__core.html#ga24ddf4495d0912e4571c3f75543cb4f0">attributes.h</a></li>
 <li>tlv_measure_fn&#160;:&#160;<a class="el" href="group__formats.html#ga5319eda34a168156480b9aa4e4085022">format.h</a></li>
+<li>TLV_NEED_MORE_DATA&#160;:&#160;<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">error.h</a></li>
 <li>tlv_node_encode()&#160;:&#160;<a class="el" href="group__document.html#gad440723a7cf1738b26cbde6970bbfa7c">document.h</a></li>
 <li>tlv_node_encoded_size()&#160;:&#160;<a class="el" href="group__document.html#gaf676703b9150a47e99d4cd2f1c947aa4">document.h</a></li>
 <li>tlv_node_erase()&#160;:&#160;<a class="el" href="group__document.html#gafc359e1b3cbf5d9cf1ab1df9a6c4d27b">document.h</a></li>
@@ -960,12 +961,15 @@ $(function() {
 <li>tlv_read_u64_le()&#160;:&#160;<a class="el" href="group__core.html#ga2abc6bf26c43575746074ccdf4fc4486">endian.h</a></li>
 <li>tlv_read_uint()&#160;:&#160;<a class="el" href="group__core.html#ga8b23502601c29d6c00ba732ffb58c706">endian.h</a></li>
 <li>tlv_reader_at_end()&#160;:&#160;<a class="el" href="group__reader.html#gab5cb4a6d23f0adb8adbe00cce73bd148">reader.h</a></li>
+<li>tlv_reader_consumed()&#160;:&#160;<a class="el" href="group__reader.html#ga3001a4e1921b15b8811b7295207717a9">reader.h</a></li>
 <li>tlv_reader_diagnostic_init()&#160;:&#160;<a class="el" href="group__reader.html#gac84de34d64c807e7cedc9b80442e95df">reader.h</a></li>
 <li>tlv_reader_diagnostic_t&#160;:&#160;<a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">reader.h</a></li>
 <li>tlv_reader_init()&#160;:&#160;<a class="el" href="group__reader.html#ga74c459c5842057ffc29a3e00278846e9">reader.h</a></li>
+<li>tlv_reader_init_incremental()&#160;:&#160;<a class="el" href="group__reader.html#ga3872c43ab5288f81f510256c24192a39">reader.h</a></li>
 <li>tlv_reader_next()&#160;:&#160;<a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2">reader.h</a></li>
 <li>tlv_reader_next_diag()&#160;:&#160;<a class="el" href="group__reader.html#gaa7c7cf5d16b93ef98c440915e513bf95">reader.h</a></li>
 <li>tlv_reader_next_source_diag()&#160;:&#160;<a class="el" href="group__reader.html#gaa21ab05619de8010cfab99ae9e566538">reader.h</a></li>
+<li>tlv_reader_offset()&#160;:&#160;<a class="el" href="group__reader.html#ga1f8ce7659959a524f6296cfc5841bb57">reader.h</a></li>
 <li>TLV_READER_OP_HEADER&#160;:&#160;<a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9a0b6cdce18686e6622750671413c7b328">reader.h</a></li>
 <li>TLV_READER_OP_LENGTH&#160;:&#160;<a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9ab2ef28f1c15271f57e8fa922246f52ba">reader.h</a></li>
 <li>TLV_READER_OP_TAG&#160;:&#160;<a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9af1b48765f73e5817a480f3dd7b2840f4">reader.h</a></li>
@@ -973,6 +977,7 @@ $(function() {
 <li>TLV_READER_OP_VALUE&#160;:&#160;<a class="el" href="group__reader.html#gga1eb19dea4cfcbb788587e7a3208430a9a4a5f66bddd713974726228f5daef5717">reader.h</a></li>
 <li>tlv_reader_operation&#160;:&#160;<a class="el" href="group__reader.html#ga1eb19dea4cfcbb788587e7a3208430a9">reader.h</a></li>
 <li>tlv_reader_operation_t&#160;:&#160;<a class="el" href="group__reader.html#gabf8b5b14db678fec0ef62a89e62ed22f">reader.h</a></li>
+<li>tlv_reader_set_input()&#160;:&#160;<a class="el" href="group__reader.html#ga7302246adfb31262cea1a80db0e01bf8">reader.h</a></li>
 <li>tlv_reader_t&#160;:&#160;<a class="el" href="group__reader.html#gabf4c5d3902d19aaea312759ab513f034">reader.h</a></li>
 <li>tlv_region&#160;:&#160;<a class="el" href="group__formats.html#ga88f6b600ab2cd64a4e706f09adb7982b">format.h</a></li>
 <li>TLV_REGION_HEADER&#160;:&#160;<a class="el" href="group__formats.html#gga88f6b600ab2cd64a4e706f09adb7982ba75b47ead4a3ea30a14345662ecea056d">format.h</a></li>
@@ -1039,8 +1044,8 @@ $(function() {
 <li>tlv_structure_group_t&#160;:&#160;<a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9">schema.h</a></li>
 <li>tlv_structure_rule_t&#160;:&#160;<a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab">schema.h</a></li>
 <li>tlv_structure_schema_t&#160;:&#160;<a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">schema.h</a></li>
-<li>tlv_tag()&#160;:&#160;<a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0">tag.h</a></li>
 <li>TLV_TAG&#160;:&#160;<a class="el" href="group__core.html#ga62240f1e8115a67ac51e5b00855a240b">tag.h</a></li>
+<li>tlv_tag()&#160;:&#160;<a class="el" href="group__core.html#ga552f068e013290aec4dec3556559fbf0">tag.h</a></li>
 <li>tlv_tag_binding&#160;:&#160;<a class="el" href="group__formats.html#ga2a0f743da28ba779ffa4fa40478e953c">format.h</a></li>
 <li>TLV_TAG_BINDING_FORMAT&#160;:&#160;<a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca6d430bb7836140794c8073e0a18a64b0">format.h</a></li>
 <li>TLV_TAG_BINDING_SOURCE&#160;:&#160;<a class="el" href="group__formats.html#gga2a0f743da28ba779ffa4fa40478e953ca02d559be575d42952548b57116818172">format.h</a></li>

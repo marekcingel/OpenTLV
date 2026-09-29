@@ -118,6 +118,10 @@ Data Fields</h2></td></tr>
 <tr class="separator:a17f9af2423e34719a85f55d4198e32c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6cf95a0947823bf620f9c9e23af56204" id="r_a6cf95a0947823bf620f9c9e23af56204"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__diagnostic.html#a6cf95a0947823bf620f9c9e23af56204">enclosing_end</a></td></tr>
 <tr class="separator:a6cf95a0947823bf620f9c9e23af56204"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea8b3a69bc2973f9a12bda43ac404330" id="r_aea8b3a69bc2973f9a12bda43ac404330"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__diagnostic.html#aea8b3a69bc2973f9a12bda43ac404330">has_required</a></td></tr>
+<tr class="separator:aea8b3a69bc2973f9a12bda43ac404330"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8dd6095780b51576e9d19c0a289ad469" id="r_a8dd6095780b51576e9d19c0a289ad469"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__reader__diagnostic.html#a8dd6095780b51576e9d19c0a289ad469">required</a></td></tr>
+<tr class="separator:a8dd6095780b51576e9d19c0a289ad469"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Structured detail for a failed <a class="el" href="group__reader.html#gab43f1d0dbbaf69e1dbb3f0e421956939" title="Parses one element from the beginning of a buffer.">tlv_read()</a> or <a class="el" href="group__reader.html#gaddbded36b09dec9db85bf3f7af39b4c2" title="Reads the next TLV element and advances the reader.">tlv_reader_next()</a> call. </p>
@@ -260,6 +264,21 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a id="aea8b3a69bc2973f9a12bda43ac404330" name="aea8b3a69bc2973f9a12bda43ac404330"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aea8b3a69bc2973f9a12bda43ac404330">&#9670;&#160;</a></span>has_required</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_reader_diagnostic::has_required</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Nonzero when Format knows the required extent of the failing region. </p>
+
+</div>
+</div>
 <a id="a001f84c033ec647e64a750b724609631" name="a001f84c033ec647e64a750b724609631"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a001f84c033ec647e64a750b724609631">&#9670;&#160;</a></span>has_tag</h2>
 
@@ -347,6 +366,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Borrowed original length bytes (or the available prefix when truncated). Valid only when <code>has_raw_length</code> is nonzero. The source buffer must remain valid and unchanged while this diagnostic is used. </p>
+
+</div>
+</div>
+<a id="a8dd6095780b51576e9d19c0a289ad469" name="a8dd6095780b51576e9d19c0a289ad469"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8dd6095780b51576e9d19c0a289ad469">&#9670;&#160;</a></span>required</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#gaf15b8962e0139f0bfb17769739dcd9f8">tlv_size_t</a> tlv_reader_diagnostic::required</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Required region size in bytes, not an absolute offset or an additional byte count. </p>
 
 </div>
 </div>
