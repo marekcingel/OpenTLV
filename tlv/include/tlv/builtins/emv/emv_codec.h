@@ -13,7 +13,7 @@ extern "C" {
  * @brief Semantic codecs and C representations for EMV data element values.
  *
  * Use tlv_codec_decode() and tlv_codec_encode() with these codecs or with the
- * profile codec descriptors. Semantic codecs enforce the tag's length and
+ * EMV codec descriptors. Semantic codecs enforce the tag's length and
  * value representation and report errors as `TLV_CODEC_ERR_*`.
  *
  * Rules shared by all semantic codecs:

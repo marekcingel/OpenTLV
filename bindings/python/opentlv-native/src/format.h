@@ -22,7 +22,7 @@ const tlv_format_t* opentlv_python_format_cer(void);
 const tlv_format_t* opentlv_python_format_der(void);
 #endif
 
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 const tlv_format_t* opentlv_python_format_emv(void);
 #endif
 

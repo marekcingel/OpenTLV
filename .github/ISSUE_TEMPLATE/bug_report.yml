@@ -46,7 +46,7 @@ body:
     attributes:
       label: Build options
       description: Relevant CMake options or configuration flags, if any.
-      placeholder: e.g. OPENTLV_PROFILE_EMV=ON, Debug build
+      placeholder: e.g. OPENTLV_EMV=ON, Debug build
     validations:
       required: false
   - type: textarea

@@ -10,7 +10,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use opentlv::emv::{self, Context};
-use opentlv::{encoded_size, Codec, Format, Limits, Profile, Reader, Strictness, Tag, Writer};
+use opentlv::{encoded_size, Codec, Format, Limits, Reader, Strictness, Tag, Writer};
 
 /// Candidate tags up to this size are tried, which reaches past the longest tag any format accepts.
 const MAX_TAG_SIZE: usize = 16;
@@ -74,18 +74,18 @@ fn reader_handles_every_read_seed_in_every_format() {
 }
 
 #[test]
-fn profiles_are_consistent_on_every_der_seed() {
+fn canonical_formats_are_consistent_on_every_der_seed() {
     for (name, data) in seeds("builtins/asn1/corpus/der") {
-        for profile in [Profile::Der, Profile::Cer] {
-            let limits = profile.default_limits();
-            let canonical = profile.validate(&data, &limits, Strictness::Canonical);
-            let strict = profile.validate(&data, &limits, Strictness::Strict);
+        for format in [Format::Der, Format::Cer] {
+            let limits = format.default_limits().unwrap();
+            let canonical = format.validate(&data, &limits, Strictness::Canonical);
+            let strict = format.validate(&data, &limits, Strictness::Strict);
 
             // Strict adds checks on top of canonical, so it can never accept more.
             if strict.is_ok() {
                 assert!(
                     canonical.is_ok(),
-                    "{name} {profile:?}: strict but not canonical"
+                    "{name} {format:?}: strict but not canonical"
                 );
             }
             for error in [&canonical, &strict]
@@ -94,15 +94,13 @@ fn profiles_are_consistent_on_every_der_seed() {
             {
                 assert!(
                     error.offset <= data.len(),
-                    "{name} {profile:?}: offset past end"
+                    "{name} {format:?}: offset past end"
                 );
             }
             if canonical.is_ok() && !data.is_empty() {
-                let (element, consumed) = profile
+                let (element, consumed) = format
                     .read(&data, &limits, Strictness::Canonical)
-                    .unwrap_or_else(|e| {
-                        panic!("{name} {profile:?}: validated but unreadable: {e}")
-                    });
+                    .unwrap_or_else(|e| panic!("{name} {format:?}: validated but unreadable: {e}"));
                 assert!(consumed > 0 && consumed <= data.len());
                 assert!(element.value().len() <= consumed);
             }
@@ -211,8 +209,8 @@ fn every_emv_codec_round_trips_on_every_codec_seed() {
 fn default_limits_accept_a_minimal_element() {
     // Guards the corpus tests above against vacuous passes: a plain
     // element must be accepted by the limits they use.
-    let limits: Limits = Profile::Der.default_limits();
-    assert!(Profile::Der
+    let limits: Limits = Format::Der.default_limits().unwrap();
+    assert!(Format::Der
         .validate(&[0x04, 0x00], &limits, Strictness::Strict)
         .is_ok());
 }

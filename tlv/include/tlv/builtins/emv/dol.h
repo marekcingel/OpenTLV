@@ -13,7 +13,7 @@ extern "C" {
 
 /**
  * @file
- * @ingroup profiles
+ * @ingroup builtins
  * @brief Data Object List (DOL) parsing and construction (EMV Contact Book 3 v4.4, section 5.4).
  *
  * PDOL, CDOL1/CDOL2 and DDOL all share one wire format: a flat sequence of
@@ -33,7 +33,7 @@ extern "C" {
  * form and no value bytes follow it. No allocation and no recursion are used.
  */
 
-/** @addtogroup profiles
+/** @addtogroup builtins
  * @{
  */
 

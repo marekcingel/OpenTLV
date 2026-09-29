@@ -62,7 +62,7 @@ to this in practice.
 | Tag | The TLV tag abstraction: raw identifying bytes | `tlv_tag_t` | `tlv::tag_t` (alias) | `Tag` | `Tag` | a raw Lua string (content equality already compares it) |
 | Schema | Structural validation: tags, lengths, occurrence and nesting rules | `tlv_schema_t`, `tlv_structure_schema_t` | same C types, wrapped by `tlv::validate`/`tlv::validate_all` | `LengthSchema`, `StructureSchema` | `LengthSchema`, `StructureSchema` | not bound yet |
 | Codec | Typed encoding and decoding of a value | `tlv_codec_t`, `tlv_structure_codec_t` | `TlvCodec` concept, `tlv::decode_structure<T>`/`encode_structure` | `Codec` | `codec` submodule, narrow: only the public `tlv_emv_codec_amount` | not bound yet |
-| Diagnostics | Structured diagnostic information for a failure | `tlv_diagnostic_t` | `tlv::diagnostic` (alias) | `SchemaError`, `ProfileError`, `CodecError` (each carries the failing offset; no unified diagnostic type yet) | `OpenTLVError` subclasses carry the offset, expected/actual text and operation, when the C API reports them | a plain table with `code`/`message` and, when reported, `offset`/`expected`/`actual`/`operation`/`tag` |
+| Diagnostics | Structured diagnostic information for a failure | `tlv_diagnostic_t` | `tlv::diagnostic` (alias) | `SchemaError`, `ValidationError`, `CodecError` (each carries the failing offset; no unified diagnostic type yet) | `OpenTLVError` subclasses carry the offset, expected/actual text and operation, when the C API reports them | a plain table with `code`/`message` and, when reported, `offset`/`expected`/`actual`/`operation`/`tag` |
 
 A binding adopts a concept when it needs it, not all at once: the table above
 already shows gaps (Rust has no `Document` yet, and no single `Diagnostics`
@@ -121,7 +121,7 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   `tlv_diagnostic_t` directly as `tlv::diagnostic`).
 - **Rust (`opentlv`)**: experimental, in `bindings/rust/`. Covers Reader,
   Writer, Element, Tag, Schema and Codec; `Document` and the callback-based
-  visitors, structure codecs and DOL profile are not bound yet. Its `Codec`
+  visitors, structure codecs and DOL component are not bound yet. Its `Codec`
   is the exception to this page's binding-boundary rule: beyond the one
   concrete codec the C API exports publicly (`tlv_emv_codec_amount`), the
   per-kind EMV decoding it implements only exists in a C function private to

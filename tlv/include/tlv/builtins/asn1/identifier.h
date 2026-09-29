@@ -23,8 +23,8 @@ extern "C" {
 /**
  * @brief ASN.1 identifier-octet class bits (ITU-T X.690 section 8.1).
  *
- * Independent of any particular encoding-rule profile; shared by the DER and
- * CER profiles.
+ * Independent of any particular encoding rule set; shared by the DER and
+ * CER rules.
  */
 typedef enum tlv_asn1_class {
     /** UNIVERSAL class. */

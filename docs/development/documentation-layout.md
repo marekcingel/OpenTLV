@@ -9,7 +9,7 @@ section by the page's primary purpose, and link to related material elsewhere.
 | `concepts/` | Explanations of how and why the library works | [Architecture](../concepts/architecture.md) |
 | `guides/` | Task-oriented how-tos for one job | [Memory ownership](../guides/memory.md) |
 | `formats/` | Wire formats and their reading, writing and byte examples | [Formats](../formats/README.md) |
-| `profiles/` | Standards or industry semantics layered on a format | [DER](../profiles/der/README.md) |
+| `standards/` | Standards or industry semantics layered on a format | [DER](../standards/der/README.md) |
 | `cli/` | Command-line tools, one page per tool | [otlv](../cli/README.md) |
 | `reference/` | Lookup material: API manuals, option tables, support matrices | [C API](../reference/c-api.md), [Compilers](../reference/compilers.md) |
 | `development/` | Contributor material: tooling, fuzzing, docs conventions | [Fuzzing](fuzzing.md) |
@@ -23,11 +23,11 @@ copying it. Introductory build and first-program instructions belong in
 `getting-started/`; contributor workflows belong in `development/`.
 
 `formats/` describes wire encoding, identifier and length framing, format
-callbacks and byte examples. `profiles/` describes validation rules, semantics
+callbacks and byte examples. `standards/` describes validation rules, semantics
 and the limits of implemented support built on those formats. For example,
-the DER and CER format pages describe their framing, while their profile pages
-describe recursive and value validation. DER and CER are sibling BER profiles;
-EMV is a profile over BER-TLV. Cross-link these pages rather than duplicating
+the DER and CER format pages describe their framing, while their validation pages
+describe recursive and value validation. DER and CER are sibling ASN.1 encoding rules;
+EMV composes framing, definitions, schemas and codecs for BER-TLV. Cross-link these pages rather than duplicating
 their contracts or implying complete protocol support.
 
 ## Generated API reference
@@ -129,7 +129,7 @@ Conventions:
   `guides/`.
 - **Additional tooling**: a page or directory per tool in `cli/`; contributor
   tooling in `development/`.
-- **New formats and profiles**: a directory under `formats/` or `profiles/`
+- **New formats and standard-specific capabilities**: a directory under `formats/` or `standards/`
   with a `README.md`, as the existing ones do.
 
 Create these pages and directories when content is available; this layout
@@ -158,7 +158,7 @@ does not require placeholder pages or new OTDL, binding or tool documentation.
 ## Migration for issue #186
 
 The following paths are relative to `docs/`. Existing pages under `formats/`
-and `profiles/` retain their paths unless listed here.
+and `standards/` retain their paths unless listed here.
 
 | Previous path | Current path |
 | --- | --- |

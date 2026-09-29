@@ -9,7 +9,7 @@ completion_model completion_model::build() {
     completion_model model;
     for (const char* name : {"dump", "validate", "decode", "encode", "query"})
         model.commands_.push_back(completion_command_spec(name));
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     // tag/tags always fail at runtime without the EMV dictionary, so they are
     // not worth completing in a build that lacks it.
     for (const char* name : {"tag", "tags"})

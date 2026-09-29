@@ -1,4 +1,4 @@
-# EMV Contact Book 3 profile
+# EMV Contact Book 3 support
 
 Include `tlv/builtins/emv/emv.h` and link `tlv`. The supported set is explicitly
 **EMV Contact Book 3 v4.4 (October 2022)**, exposed as `TLV_EMV_SPECIFICATION`.
@@ -6,7 +6,7 @@ It covers all tagged data elements in Annex A Tables 37/38, including the
 context-specific biometric meanings and nested tags in Annex C Tables 48/51/52.
 The dictionary contains 144 distinct wire tags. Contactless kernels, payment
 system proprietary tag sets, and bulletins issued after this edition are outside
-this profile. Book 3 data elements without a tag are not assigned invented tags.
+this implementation. Book 3 data elements without a tag are not assigned invented tags.
 
 The reference is [EMVCo Book 3 v4.4](https://www.emvco.com/specifications/book-3-application-specification-2/),
 also available as a [public copy of the specification](https://www.scribd.com/document/648236969/EMV-v4-4-Book-3-Application-Specification-1).
@@ -30,7 +30,7 @@ helper. C++ exposes the same descriptor as `tlv::emv_format()` from
 | Length | Definite, big-endian, 0–65535; short form, `81`, or `82`. Reader accepts nonminimal/padded forms; Writer emits the shortest form. |
 | Termination | `80` indefinite length is rejected, as are wider length prefixes. No EOC trailer or EOC stopping. |
 | Padding | `00` is not an element tag. The caller handles inter-element padding and APDU status bytes. |
-| Nesting | Wire construction and semantic templates are separate; `9F31` needs explicit profile-aware traversal. |
+| Nesting | Wire construction and semantic templates are separate; `9F31` needs explicit EMV-aware traversal. |
 
 This is an element-framing preset for Contact Book 3 v4.4 Annex B, not a full
 transaction validator. The Annex B card-terminal restrictions and the specific
@@ -41,11 +41,11 @@ format. Source preservation retains accepted nonminimal length bytes; ordinary
 writing regenerates canonical field widths.
 
 The preset is available as Rust `Format::Emv`, Python `Format.EMV`, Lua
-`opentlv.formats.emv`, and `emv` in CLI/WASM. Select `--format emv --profile emv`
+`opentlv.formats.emv`, and `emv` in CLI/WASM. Select `--format emv --module emv`
 in the CLI for definite framing with dictionary annotations. Selecting `ber`
-with the EMV profile still annotates BER input and does not enforce EMV framing.
+with the EMV module still annotates BER input and does not enforce EMV framing.
 
-`OPENTLV_PROFILE_EMV` controls the descriptor alongside the existing EMV APIs.
+`OPENTLV_EMV` controls the descriptor alongside the existing EMV APIs.
 DER and CER may be disabled. The component still requires BER solely for the
 unchanged DOL identifier helper; DOL refactoring is outside this change.
 
@@ -193,7 +193,7 @@ such as `"Application File Locator (AFL)"` for `"afl"`, or `NULL` when none is
 curated; `tlv_emv_titlecase_name(name, buffer, capacity)` then derives a
 generic one (`"application_label"` -> `"Application Label"`) into caller-owned
 storage, `TLV_ERR_BUFFER_TOO_SHORT` if `capacity` is less than
-`strlen(name) + 1`. These back the `opentlv` CLI's `--profile emv` output.
+`strlen(name) + 1`. These back the `opentlv` CLI's `--module emv` output.
 
 ## Validation limits
 
@@ -201,7 +201,7 @@ Generic schemas check inclusive minimum/maximum lengths. Use
 `tlv_emv_validate_length()` for additional steps, such as AFL multiples of four,
 even CVM-list lengths, BIC lengths 8/11, and RSA exponent lengths 1/3. The
 semantic codecs enforce these rules too. Generic scanning with a schema checks
-only its minimum/maximum bounds; it does not invoke profile validation/codecs.
+only its minimum/maximum bounds; it does not invoke validation/codecs.
 
 Variable fields without a universal maximum use `SIZE_MAX`; key-dependent
 certificate/remainder lengths need the application's key and algorithm context.
@@ -244,7 +244,7 @@ tlv_result_t rc = tlv_schema_validate(wire, size, &tlv_format_emv, &tlv_emv_stru
  * its parent's value instead - see tlv/schema/schema.h. */
 ```
 
-This backs the `opentlv` CLI's `validate --profile emv`.
+This backs the `opentlv` CLI's `validate --module emv`.
 
 To report every violation with its path (for example `6F/84`) and offset in a
 single pass, or to define schemas for other templates such as the Read Record
@@ -351,6 +351,6 @@ a whole record instead of one element: it looks up every child tag with
 `tlv_emv_find()`, checks its length with `tlv_emv_validate_length()`, decodes it
 according to `value_kind`, and leaves a tag that is unknown or has an invalid
 length skipped rather than aborting the walk.
-[EMV profile and codecs](README.md)
+[EMV module and codecs](README.md)
 
-See also the [C API reference: profiles](../../reference/c-api.md#profiles).
+See also the [C API reference: builtins](../../reference/c-api.md#builtins).

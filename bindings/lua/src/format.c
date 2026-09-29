@@ -44,7 +44,7 @@ void opentlv_lua_open_format(lua_State* L, int module_table_index) {
 #if OPENTLV_LLDP
     opentlv_lua_register_lldp(L);
 #endif
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     opentlv_lua_register_emv(L);
 #endif
     opentlv_lua_register_fixed(L);

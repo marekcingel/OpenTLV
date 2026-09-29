@@ -142,10 +142,10 @@ nav:
       - Format roadmap: formats/format-roadmap.md
       - Format candidate catalogue: formats/format-catalogue.md
       - LLDP requirements review: formats/lldp-review.md
-  - Profiles:
-      - DER: profiles/der/README.md
-      - CER: profiles/cer/README.md
-      - EMV: profiles/emv/README.md
+  - Standards:
+      - DER: standards/der/README.md
+      - CER: standards/cer/README.md
+      - EMV: standards/emv/README.md
   - CLI:
       - otlv command line: cli/README.md
       - TLV JSON document: cli/json-schema.md

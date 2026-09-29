@@ -1,7 +1,7 @@
 #include "ber_internal.h"
 #include "asn1_internal.h"
 #include "tlv/builtins/asn1/cer.h"
-#include "tlv/builtins/asn1/cer_profile.h"
+#include "tlv/builtins/asn1/cer_validation.h"
 #include "tlv/writer/writer.h"
 #include "tlv/size.h"
 #include "cer_values_internal.h"

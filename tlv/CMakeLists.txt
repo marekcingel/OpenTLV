@@ -88,13 +88,13 @@ if(OPENTLV_FORMAT_DER OR OPENTLV_FORMAT_CER)
 endif()
 if(OPENTLV_FORMAT_DER)
     target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/asn1/der_profile.c src/builtins/asn1/der_schema.c)
+        src/builtins/asn1/der_validation.c src/builtins/asn1/der_schema.c)
 endif()
 if(OPENTLV_FORMAT_CER)
     target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/asn1/cer_profile.c src/builtins/asn1/cer_values_internal.c)
+        src/builtins/asn1/cer_validation.c src/builtins/asn1/cer_values_internal.c)
 endif()
-if(OPENTLV_PROFILE_EMV)
+if(OPENTLV_EMV)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/emv/format.c
         src/builtins/emv/emv.c src/builtins/emv/emv_codec.c src/builtins/emv/dol.c src/builtins/emv/emv_schema.c)

@@ -17,7 +17,7 @@ extern "C" {
  *
  * Use tlv_codec_decode() and tlv_codec_encode() with these codecs on a raw
  * value already read by a BER-family format (#tlv_format_ber, or a
- * DER or CER profile reader). A codec interprets only the value bytes it is
+ * DER or CER validation reader). A codec interprets only the value bytes it is
  * given; it never reads a tag, so callers choose the codec matching an
  * element's universal type themselves, for example from a schema or
  * dictionary.

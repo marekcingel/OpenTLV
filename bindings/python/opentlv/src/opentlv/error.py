@@ -61,7 +61,7 @@ class EndOfBufferError(OpenTLVError):
 
 
 class InvalidTagError(OpenTLVError):
-    """A tag is malformed or invalid for the format or profile."""
+    """A tag is malformed or invalid for the format or standard."""
 
 
 class VisitorError(OpenTLVError):

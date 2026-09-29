@@ -27,7 +27,7 @@ Turn off what you do not use.
 | `OPENTLV_FORMAT_BER` | [BER-TLV](../formats/asn1/ber.md); must be ON for DER, CER and EMV |
 | `OPENTLV_FORMAT_DER` | [DER-TLV](../formats/asn1/der.md); independent of EMV |
 | `OPENTLV_FORMAT_CER` | [CER-TLV](../formats/asn1/cer.md); independent of DER |
-| `OPENTLV_PROFILE_EMV` | [EMV profile](../profiles/emv/README.md) |
+| `OPENTLV_EMV` | [EMV module](../standards/emv/README.md) |
 
 The [mutable document](document.md) is a separate optional generic component,
 controlled by `OPENTLV_DOCUMENT`; it is not a format or a standard package.
@@ -59,7 +59,7 @@ cmake --build build --parallel --target tlv
 ```sh
 cmake -S . -B build \
   -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF \
-  -DOPENTLV_FORMAT_DER=OFF -DOPENTLV_FORMAT_CER=OFF -DOPENTLV_PROFILE_EMV=OFF
+  -DOPENTLV_FORMAT_DER=OFF -DOPENTLV_FORMAT_CER=OFF -DOPENTLV_EMV=OFF
 cmake --build build --parallel --target tlv
 ```
 

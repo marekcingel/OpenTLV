@@ -1,6 +1,6 @@
-#ifndef OPENTLV_DER_PROFILE_INTERNAL_H
-#define OPENTLV_DER_PROFILE_INTERNAL_H
-#include "tlv/builtins/asn1/der_profile.h"
+#ifndef OPENTLV_DER_VALIDATION_INTERNAL_H
+#define OPENTLV_DER_VALIDATION_INTERNAL_H
+#include "tlv/builtins/asn1/der_validation.h"
 #include "tlv/element.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -16,4 +16,4 @@ tlv_result_t tlv_der_read_element(const uint8_t* data, size_t size, size_t base,
                                   const tlv_der_limits_t* limits, tlv_element_t* element,
                                   size_t* consumed, size_t* error_offset);
 
-#endif /* OPENTLV_DER_PROFILE_INTERNAL_H */
+#endif /* OPENTLV_DER_VALIDATION_INTERNAL_H */

@@ -16,7 +16,7 @@ tlv_visit_result_t decode_command::visit_element(const tlv_element_t* element, s
     cli_presentation_visit(&presentation_, element, depth, indefinite);
     nlohmann::ordered_json object;
     object["tag"] = hex_string(element->tag.data, element->tag.size);
-    if (options_.profile) {
+    if (options_.module) {
         json_emv(object, presentation_, element, depth, options_.describe, false);
         if (options_.decode) json_decode(object, presentation_, element, depth);
     }

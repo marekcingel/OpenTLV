@@ -13,7 +13,7 @@
 
 CER is a sibling of DER over the same BER-TLV wire helpers: `OPENTLV_FORMAT_CER`
 cascades from `OPENTLV_FORMAT_BER`, not from `OPENTLV_FORMAT_DER`, and neither
-sibling depends on the other. `OPENTLV_PROFILE_EMV` cascades only from
+sibling depends on the other. `OPENTLV_EMV` cascades only from
 `OPENTLV_FORMAT_DER` and is unaffected by `OPENTLV_FORMAT_CER` either way.
 
 See [shared ASN.1 mechanisms](ber.md#shared-asn1-mechanisms) for the common
@@ -25,7 +25,7 @@ Canonical tag/length framing: a constructed value's length must be
 indefinite (EOC-terminated); a primitive value's length must be definite and
 minimally encoded. Generic I/O validates the current element's identifier and
 length and uses the shared BER scanner to resolve matching EOC boundaries.
-It does not enforce recursive CER canonicality or canonical string segmentation — use [tlv/builtins/asn1/cer_profile.h](../../profiles/cer/README.md)
+It does not enforce recursive CER canonicality or canonical string segmentation — use [tlv/builtins/asn1/cer_validation.h](../../standards/cer/README.md)
 for that.
 
 See [shared memory ownership rules](../../guides/memory.md) before retaining a
@@ -75,7 +75,7 @@ the indefinite length `80` and ends with `00 00`. Long strings are split into
 segments by the canonical rules. Typical uses are canonical encodings that can be
 produced in one pass without knowing the total length in advance. Generic I/O checks
 the current element's identifier and length and resolves EOC through BER framing;
-recursive CER canonicality and segmentation are checked by the [CER profile](../../profiles/cer/README.md).
+recursive CER canonicality and segmentation are checked by the [CER validation](../../standards/cer/README.md).
 
 ## Byte example: nested indefinite-length containers
 
@@ -106,8 +106,8 @@ bit pattern as an EOC. It never affects nesting: a primitive element's
 content is always skipped by its declared definite length, so a `00 00`
 inside it is just data, and `00 00` is only ever recognized as EOC when it
 appears at a TLV element boundary of an open indefinite container. Raw I/O
-does not decode ASN.1 meanings; use [`tlv_cer_read`](../../profiles/cer/README.md)
+does not decode ASN.1 meanings; use [`tlv_cer_read`](../../standards/cer/README.md)
 for bounded validation of the element and its descendants, including EOC
 placement.
 
-[CER profile](../../profiles/cer/README.md)
+[CER validation](../../standards/cer/README.md)

@@ -2,7 +2,7 @@
 #define OPENTLV_BUILTINS_ASN1_DER_SCHEMA_H
 
 #include "tlv/error.h"
-#include "tlv/builtins/asn1/der_profile.h"
+#include "tlv/builtins/asn1/der_validation.h"
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/schema/constraint.h"
 #include "tlv/element.h"
@@ -20,7 +20,7 @@ extern "C" {
  * A small, fixed subset of ASN.1 (SEQUENCE, SEQUENCE OF, SET, SET OF, CHOICE,
  * UNIVERSAL leaves, IMPLICIT/EXPLICIT tagging, REQUIRED/OPTIONAL/DEFAULT
  * components, a SEQUENCE extension marker, and an unrestricted ANY escape
- * hatch), layered on top of tlv/builtins/asn1/der_profile.h to enforce
+ * hatch), layered on top of tlv/builtins/asn1/der_validation.h to enforce
  * canonical rules raw TLV structure alone cannot express: SET vs SET OF
  * ordering, underlying-type validation of implicitly tagged content,
  * explicit-tag wrapper structure, CHOICE resolution and DEFAULT-value

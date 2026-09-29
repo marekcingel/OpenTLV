@@ -3,7 +3,7 @@
 #include "tlv/builtins/asn1/ber.h"
 #endif
 #include "tlv/builtins/asn1/cer.h"
-#include "tlv/builtins/asn1/cer_profile.h"
+#include "tlv/builtins/asn1/cer_validation.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -25,7 +25,7 @@ tlv_visit_result_t collect_segment(const tlv_element_t* element, void* context) 
 }
 
 /* Zero-copy segment iteration over a constructed element's already-borrowed
- * content, per docs/profiles/cer/README.md's documented tlv_walk pattern. */
+ * content, per docs/standards/cer/README.md's documented tlv_walk pattern. */
 std::vector<Segment> segments_of(const tlv_element_t& element) {
     std::vector<Segment> result;
     if (element.value.size)
@@ -168,7 +168,7 @@ TEST(Unit_Tlv_CerValues, RejectsUnjustifiedConstructedEncoding) {
      * 1000-octet threshold: should have used primitive form. Reported at
      * the outer element's length field (its 0x80 indefinite marker),
      * matching the "length-form errors point to the length field" offset
-     * convention used throughout this profile. */
+     * convention used throughout these validators. */
     const uint8_t data[] = {0x24, 0x80, 0x04, 1, 'a', 0, 0};
     size_t        offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
@@ -273,7 +273,7 @@ TEST(Unit_Tlv_CerValues, UnrecognizedNumberBeyond36SkipsValueValidation) {
      * implemented content rule (0 and 15 are reserved and rejected at tag
      * validation, and 8/11/16/17/29 must be constructed), unlike DER's shared
      * dispatch, CER only calls value validation at all for a UNIVERSAL number
-     * <=36 (see cer_profile.c's "recognized_universal" gate); a number beyond
+     * <=36 (see cer_validation.c's "recognized_universal" gate); a number beyond
      * that, like 37 here (needing the high-tag-number form), is therefore
      * always structurally accepted in strict mode, with no possible
      * UNSUPPORTED_TYPE outcome the way DER has via tag 37 in

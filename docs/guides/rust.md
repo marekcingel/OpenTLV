@@ -2,7 +2,7 @@
 
 The `opentlv` crate is an experimental safe Rust API over the OpenTLV C library.
 This guide covers setup, reading, writing, error handling and ownership. For
-crate layout, schemas, codecs, profiles and CI, see
+crate layout, schemas, codecs, canonical validation and CI, see
 [Rust bindings](../development/rust.md); every public item also has Rustdoc
 (`cargo doc -p opentlv --open` from `bindings/rust`).
 
@@ -98,7 +98,7 @@ Every fallible call returns `opentlv::Result<T>`, an alias for
 - `Writer::write` returns `Error::BufferTooShort` when the element does not fit
   and leaves the position unchanged, so you can retry with a bigger buffer.
 - Layers with more context use their own types: `SchemaError` and
-  `ProfileError` carry the C `Error` plus the failing offset, and `CodecError`
+  `ValidationError` carry the C `Error` plus the failing offset, and `CodecError`
   maps the separate `tlv_codec_result_t`.
 
 ## Ownership and lifetimes
@@ -138,4 +138,4 @@ so behavior matches the C API, and the C error codes map one to one onto
 become slices, initialization and `NULL` checks are done internally, and
 lifetimes replace the borrowing rules the [C memory guide](memory.md)
 documents. Parts of the C API that need callbacks (visitors, structure codecs,
-the DOL profile) are not bound yet; see the [C API reference](../reference/c-api.md).
+the DOL component) are not bound yet; see the [C API reference](../reference/c-api.md).

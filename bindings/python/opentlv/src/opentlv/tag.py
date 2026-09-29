@@ -7,7 +7,7 @@ class Tag:
     """A TLV tag: an arbitrary sequence of raw bytes in wire order.
 
     A tag owns its bytes and has no length limit; whether the bytes form a
-    valid tag is decided by the wire format or profile it is used with.
+    valid tag is decided by the wire format or standard it is used with.
     Tags compare equal, and order, by their bytes, which is exactly what
     Python's own ``bytes`` comparison already does (unsigned, lexicographic,
     shorter-is-smaller-on-a-shared-prefix), so `Tag` delegates to it instead

@@ -79,9 +79,9 @@ add_test(NAME Integration_example_tlv_formats_fixed_format
 set_tests_properties(Integration_example_tlv_formats_fixed_format PROPERTIES LABELS "integration;examples")
 
 # Builtin-specific example: walks an EMV template with the EMV dictionary.
-# Kept independent of the flags above; it only needs OPENTLV_PROFILE_EMV
+# Kept independent of the flags above; it only needs OPENTLV_EMV
 # (which already implies OPENTLV_FORMAT_BER).
-if(OPENTLV_PROFILE_EMV)
+if(OPENTLV_EMV)
     add_executable(example-tlv-builtins-emv-tag-decoding src/builtins/emv/tag_decoding.c)
     target_include_directories(example-tlv-builtins-emv-tag-decoding PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/builtins/emv

@@ -4,7 +4,7 @@
 #include "diagnostics.hpp"
 #include "input.hpp"
 #include "presentation.hpp"
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include "tlv/builtins/asn1/ber.h"
 #endif
 
@@ -12,7 +12,7 @@ using cli::fail;
 
 namespace cli {
 
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 
 std::string tag_hex_string(const tlv_tag_t& tag) {
     static const char digits[] = "0123456789ABCDEF";

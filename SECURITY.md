@@ -39,7 +39,7 @@ To help us triage and fix the issue quickly, include as much of the following
 as you can:
 
 - Affected OpenTLV version (tag, commit hash, or release).
-- Affected component (for example a specific format, codec, profile, or CLI
+- Affected component (for example a specific format, codec, schema, or CLI
   tool).
 - A description of the vulnerability.
 - Reproduction steps or a proof-of-concept input/program.

@@ -4,7 +4,7 @@
 #include "format.h"
 
 #if OPENTLV_FORMAT_DER
-#include <tlv/builtins/asn1/der_profile.h>
+#include <tlv/builtins/asn1/der_validation.h>
 #endif
 #include <tlv/reader/walker.h>
 

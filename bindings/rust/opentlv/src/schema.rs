@@ -467,7 +467,7 @@ pub struct ValidationLimits {
 
 impl Default for ValidationLimits {
     /// A depth of 32 and 100 000 elements, the defaults of the DER and CER
-    /// profiles.
+    /// standards.
     fn default() -> ValidationLimits {
         ValidationLimits {
             max_depth: 32,

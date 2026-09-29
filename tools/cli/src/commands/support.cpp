@@ -7,7 +7,7 @@
 #include "tlv/config.h"
 #include "tlv++/reader/walker.hpp"
 #include "tlv/formats/fixed.h"
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include "tlv/builtins/emv/format.h"
 #endif
 #if OPENTLV_BLUETOOTH
@@ -18,7 +18,7 @@
 #endif
 #if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
-#include "tlv/builtins/asn1/der_profile.h"
+#include "tlv/builtins/asn1/der_validation.h"
 #endif
 
 namespace cli {
@@ -29,7 +29,7 @@ bool is_json(const options& o) {
 
 const tlv_format_t* select_format(const options& o) {
     const char* name = o.format;
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
     if (!strcmp(name, "emv")) return &tlv_format_emv;
 #endif
     // Configured by --fixed-tag-size/--fixed-length-size/--fixed-byte-order,

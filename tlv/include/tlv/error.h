@@ -39,7 +39,7 @@ typedef enum tlv_result {
     TLV_ERR_OUT_OF_MEMORY = 4,
     /** No further element exists, or the input is empty. */
     TLV_ERR_END_OF_BUFFER = 5,
-    /** A tag is malformed or invalid for the format or profile. */
+    /** A tag is malformed or invalid for the format or standard. */
     TLV_ERR_INVALID_TAG = 6,
     /** A visitor callback requested an error stop. */
     TLV_ERR_VISITOR = 7,

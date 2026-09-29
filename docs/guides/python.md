@@ -18,7 +18,7 @@ The BER, CER and DER presets likewise follow `OPENTLV_FORMAT_BER`,
 Without BER, pass an explicit format to Reader, Writer, Document,
 `encoded_size()` and schema validation; omitting it raises `ValueError`.
 `FixedFormat` remains available for Reader and Writer in every build.
-EMV amount functions raise `NotImplementedError` when `OPENTLV_PROFILE_EMV`
+EMV amount functions raise `NotImplementedError` when `OPENTLV_EMV`
 is disabled. The Python binding still requires `OPENTLV_DOCUMENT=ON`.
 
 Neither package is published to PyPI yet. Install both by path from a

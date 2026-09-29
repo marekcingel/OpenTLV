@@ -36,7 +36,7 @@ or framing. Read-only and write-only capability groups remain possible.
 Encoding regenerates framing according to the selected format/context policy.
 BER normally writes minimal definite lengths; `tlv_format_ber_indefinite`
 writes constructed elements with indefinite framing. CER chooses indefinite
-framing for constructed identifiers. Strict profile validation remains a
+framing for constructed identifiers. Strict canonical validation remains a
 separate operation; framing equality does not promise application semantics.
 
 Exact preservation is explicit:
@@ -59,7 +59,7 @@ mutation must be explicitly implemented by a format policy and revalidated;
 source preservation never performs that operation or falls back to encoding.
 Conversion to another format is fresh encoding, and fails if the destination
 cannot represent the identifier/content. Identifier mapping is not implicit.
-Canonical profile transformations that change Value bytes are separate content
+Canonical transformations that change Value bytes are separate content
 transformations, not semantic identity at this boundary.
 
 ## Format operations

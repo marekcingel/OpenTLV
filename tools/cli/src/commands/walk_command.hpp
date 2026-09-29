@@ -41,9 +41,9 @@ protected:
     // nonzero exit code (and printing its own diagnostic) to abort early.
     virtual int prepare();
 
-    // "validate --profile emv" only: runs the EMV structure/dictionary
+    // "validate --module emv" only: runs the EMV structure/dictionary
     // checks once the format walk itself succeeded (called from run() only
-    // when result_ == TLV_OK, options_.profile and !options_.pdol). May
+    // when result_ == TLV_OK, options_.module and !options_.pdol). May
     // update result_/error_offset_/stage_ and either has_schema_diag_ with
     // schema_diag_, or stage_ alone, for render_failure_diagnostic() below.
     // The base implementation does nothing.

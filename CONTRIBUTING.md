@@ -76,7 +76,7 @@ state each of the following explicitly:
   success;
 - native-size limitations, such as a 64-bit `tlv_size_t` narrowed to
   `size_t`;
-- format- or profile-specific restrictions.
+- format- or standard-specific restrictions.
 
 **Conventions.**
 
@@ -115,7 +115,7 @@ builds do not require Doxygen; enabling it requires Doxygen at configure time.
 Generated files stay in the build directory and must not be committed.
 
 The reference covers `tlv/include/tlv` and the generated public configuration
-and version headers. It includes all shipped C formats and profiles, even
+and version headers. It includes all shipped C formats and standard-specific capabilities, even
 when disabled in the configured library; configuration/version values describe
 that build. Implementation sources and C++ headers are outside the input set.
 The configuration is in [tools/docs/Doxyfile.in](tools/docs/Doxyfile.in).
@@ -298,7 +298,7 @@ mkdocs build --strict                     # any warning fails the build
 ```
 
 Documentation is grouped by purpose (`getting-started/`, `concepts/`, `guides/`,
-`formats/`, `profiles/`, `cli/`, `reference/`, `development/`); see
+`formats/`, `standards/`, `cli/`, `reference/`, `development/`); see
 [where documentation belongs](docs/development/documentation-layout.md) before
 adding a page.
 

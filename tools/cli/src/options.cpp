@@ -5,7 +5,7 @@
 #include <iostream>
 #include "tlv/config.h"
 #include "tlv/reader/walker.h"
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"
 #endif
 
@@ -24,7 +24,7 @@ enum : unsigned {
     opt_describe = 256,
     opt_force_color = 512,
     opt_no_color = 1024,
-    opt_profile = 2048,
+    opt_module = 2048,
     opt_input_encoding = 4096,
     opt_pdol = 8192,
     opt_decode = 16384,
@@ -45,18 +45,18 @@ enum : unsigned {
     encode_only = opt_tag | opt_value | opt_output_encoding | opt_output_file,
     // --format fixed only.
     fixed_only = opt_fixed_tag_size | opt_fixed_length_size | opt_fixed_byte_order,
-    // Options that require --profile emv (directly, or, for opt_decode, via
-    // "--decode requires --profile emv"), disabled as a group when the EMV
-    // profile is not compiled in.
-    emv_only = opt_profile | opt_describe | opt_decode | opt_emv_context | opt_emv_check,
+    // Options that require --module emv (directly, or, for opt_decode, via
+    // "--decode requires --module emv"), disabled as a group when the EMV
+    // module is not compiled in.
+    emv_only = opt_module | opt_describe | opt_decode | opt_emv_context | opt_emv_check,
     // Every option bit, used to build dump's and validate's masks below by
     // exclusion, the same way their validity checks in parse() do.
     all_options = opt_tree | opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
-        opt_max_elements | opt_pretty | opt_describe | opt_force_color | opt_no_color |
-        opt_profile | opt_input_encoding | opt_pdol | opt_decode | opt_output | opt_tag |
-        opt_value | opt_output_encoding | opt_search | opt_recover | opt_emv_context |
-        opt_emv_check | opt_output_file | opt_diagnostics | opt_fixed_tag_size |
-        opt_fixed_length_size | opt_fixed_byte_order,
+        opt_max_elements | opt_pretty | opt_describe | opt_force_color | opt_no_color | opt_module |
+        opt_input_encoding | opt_pdol | opt_decode | opt_output | opt_tag | opt_value |
+        opt_output_encoding | opt_search | opt_recover | opt_emv_context | opt_emv_check |
+        opt_output_file | opt_diagnostics | opt_fixed_tag_size | opt_fixed_length_size |
+        opt_fixed_byte_order,
     // Options that are plain flags: every other option in the table below
     // takes a following value, except --value under "query" (see
     // flag_options_mask()'s doc comment in options.hpp).
@@ -66,15 +66,15 @@ enum : unsigned {
 
 // Options valid for each command, matched by options::parse() below and
 // reused by command_options_mask() for `otlv completion`.
-const unsigned lookup_options = opt_profile | opt_output;
-const unsigned listing_options = opt_profile | opt_output | opt_search;
+const unsigned lookup_options = opt_module | opt_output;
+const unsigned listing_options = opt_module | opt_output | opt_search;
 const unsigned query_options = opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
                                opt_max_elements | opt_input_encoding | opt_output | opt_value |
                                opt_diagnostics | fixed_only;
 const unsigned encode_options = opt_format | opt_input | opt_max_input | opt_max_depth |
                                 opt_max_elements | encode_only | fixed_only;
 const unsigned decode_options = opt_format | opt_input | opt_hex | opt_max_input | opt_max_depth |
-                                opt_max_elements | opt_describe | opt_profile | opt_input_encoding |
+                                opt_max_elements | opt_describe | opt_module | opt_input_encoding |
                                 opt_decode | opt_recover | opt_emv_context | opt_diagnostics |
                                 fixed_only;
 const unsigned dump_options = all_options & ~(encode_only | opt_search | opt_emv_check);
@@ -92,7 +92,7 @@ int number(const char* text, std::size_t* out) {
     return 1;
 }
 
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 struct context_name {
     const char* name;
     int         context;
@@ -136,7 +136,7 @@ const cli::option_entry option_table_data[] = {
     {"--describe", opt_describe},
     {"--force-color", opt_force_color},
     {"--no-color", opt_no_color},
-    {"--profile", opt_profile},
+    {"--module", opt_module},
     {"--input-encoding", opt_input_encoding},
     {"--pdol", opt_pdol},
     {"--decode", opt_decode},
@@ -187,7 +187,7 @@ int options::parse(int argc, char** argv) {
         i = 3;
     }
     if (lookup) {
-        // tag takes the tag bytes as a positional argument: otlv tag 9F02 --profile emv
+        // tag takes the tag bytes as a positional argument: otlv tag 9F02 --module emv
         if (argc < 3 || !strncmp(argv[2], "--", 2)) return fail(2, "tag requires a hex tag");
         tag = argv[2];
         i = 3;
@@ -257,8 +257,8 @@ int options::parse(int argc, char** argv) {
             input = argv[i];
         else if (bit == opt_hex)
             hex = argv[i];
-        else if (bit == opt_profile)
-            profile = argv[i];
+        else if (bit == opt_module)
+            module = argv[i];
         else if (bit == opt_tag)
             tag = argv[i];
         else if (bit == opt_search)
@@ -268,12 +268,12 @@ int options::parse(int argc, char** argv) {
         else if (bit == opt_output_file)
             output_file = argv[i];
         else if (bit == opt_emv_context) {
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
             if (!context_by_name(argv[i], &emv_context))
                 return fail(2, "unknown EMV context; use base, bit, bht, bht-format, bit-group, "
                                "biometric-counters, biometric-attempts or biometric-verification");
 #else
-            return fail(2, "EMV profile is disabled in this build");
+            return fail(2, "EMV module is disabled in this build");
 #endif
         } else if (bit == opt_emv_check) {
             if (!strcmp(argv[i], "structure"))
@@ -317,11 +317,11 @@ int options::parse(int argc, char** argv) {
             return fail(2, "limits must be nonnegative decimal integers fitting size_t");
     }
     if (lookup || listing) {
-        if (!profile)
-            return fail(2, listing ? "tags requires --profile emv" : "tag requires --profile emv");
-        if (strcmp(profile, "emv")) return fail(2, "unknown profile");
-#if !OPENTLV_PROFILE_EMV
-        return fail(2, "EMV profile is disabled in this build");
+        if (!module)
+            return fail(2, listing ? "tags requires --module emv" : "tag requires --module emv");
+        if (strcmp(module, "emv")) return fail(2, "unknown module");
+#if !OPENTLV_EMV
+        return fail(2, "EMV module is disabled in this build");
 #endif
         return 0;
     }
@@ -367,17 +367,16 @@ int options::parse(int argc, char** argv) {
     if ((describe || color || decode || strcmp(output, "text")) && validating)
         return fail(2, "presentation options require dump or decode");
     if (recover && pdol) return fail(2, "--recover cannot be combined with --pdol");
-    if (describe && !profile) return fail(2, "--describe requires --profile emv");
-    if (decode && !profile) return fail(2, "--decode requires --profile emv");
-    if ((seen & opt_emv_context) && !profile)
-        return fail(2, "--emv-context requires --profile emv");
-    if ((seen & opt_emv_check) && !profile) return fail(2, "--emv-check requires --profile emv");
-    if (profile) {
-        if (strcmp(profile, "emv")) return fail(2, "unknown profile");
+    if (describe && !module) return fail(2, "--describe requires --module emv");
+    if (decode && !module) return fail(2, "--decode requires --module emv");
+    if ((seen & opt_emv_context) && !module) return fail(2, "--emv-context requires --module emv");
+    if ((seen & opt_emv_check) && !module) return fail(2, "--emv-check requires --module emv");
+    if (module) {
+        if (strcmp(module, "emv")) return fail(2, "unknown module");
         if (strcmp(format, "ber") && strcmp(format, "emv"))
-            return fail(2, "EMV profile requires --format ber or emv");
-#if !OPENTLV_PROFILE_EMV
-        return fail(2, "EMV profile is disabled in this build");
+            return fail(2, "EMV module requires --format ber or emv");
+#if !OPENTLV_EMV
+        return fail(2, "EMV module is disabled in this build");
 #endif
         if (pdol && (seen & (opt_emv_context | opt_emv_check)))
             return fail(2, "--pdol cannot use --emv-context or --emv-check");
@@ -399,8 +398,8 @@ void options::usage() {
            "[--output-encoding hex|binary] [--output-file PATH]\n"
            "       otlv query PATH --format NAME [--input PATH|- | --hex BYTES] [--value] "
            "[--output text|json]\n"
-           "       otlv tag HEX --profile emv [--output text|json]\n"
-           "       otlv tags --profile emv [--search TEXT] [--output text|json]\n"
+           "       otlv tag HEX --module emv [--output text|json]\n"
+           "       otlv tags --module emv [--search TEXT] [--output text|json]\n"
            "       otlv completion bash|zsh|fish|powershell\n"
            "       otlv formats | --help | --version\n"
            "Formats: default, fixed, ber, der, emv, bluetooth-ltv (when enabled in this build)\n"
@@ -412,10 +411,10 @@ void options::usage() {
            "  --pdol                 Read raw DOL tag/one-byte-length pairs (BER)\n"
            "  --tree                 Print nested BER/DER elements (dump only)\n"
            "  --pretty               Print a graphical UTF-8 tree (implies --tree)\n"
-           "  --profile emv          Annotate BER tags (dump, decode) or check EMV data "
+           "  --module emv           Annotate BER tags (dump, decode) or check EMV data "
            "(validate)\n"
            "  --describe             Include EMV type and length descriptions\n"
-           "  --decode               Decode known EMV values (requires --profile emv)\n"
+           "  --decode               Decode known EMV values (requires --module emv)\n"
            "  --emv-context NAME     EMV dictionary context of the top-level elements: base "
            "(default), bit, bht, bht-format, bit-group, biometric-counters, "
            "biometric-attempts, biometric-verification\n"
@@ -451,7 +450,7 @@ void options::usage() {
            "diagnostics to stderr.\n"
            "Input is binary; hex accepts contiguous bytes or whitespace between pairs.\n"
            "Validation accepts empty input and checks all concatenated elements.\n"
-           "With --profile emv, validate also checks the EMV schema structure "
+           "With --module emv, validate also checks the EMV schema structure "
            "(mandatory/forbidden/duplicate tags, lengths, and nesting) and reports a "
            "schema-labeled diagnostic distinct from format errors; --pdol skips it.\n"
            "Exit codes: 0 success, 1 invalid TLV (or element rejected by encode), 2 invalid "
@@ -479,7 +478,7 @@ unsigned command_options_mask(const char* command) {
         mask = validate_options;
     else if (!strcmp(command, "dump"))
         mask = dump_options;
-#if !OPENTLV_PROFILE_EMV
+#if !OPENTLV_EMV
     mask &= ~emv_only;
 #endif
     return mask;
@@ -489,7 +488,7 @@ unsigned flag_options_mask() {
     return flag_only;
 }
 
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 const char* const* emv_context_names(std::size_t* count) {
     static const char* names[sizeof(context_names) / sizeof(context_names[0])];
     for (std::size_t i = 0; i < sizeof(context_names) / sizeof(context_names[0]); ++i)

@@ -1,9 +1,9 @@
 #include "ber_internal.h"
 #include "tlv/builtins/asn1/der.h"
-#include "tlv/builtins/asn1/der_profile.h"
+#include "tlv/builtins/asn1/der_validation.h"
 #include "tlv/writer/writer.h"
 #include "tlv/size.h"
-#include "der_profile_internal.h"
+#include "der_validation_internal.h"
 #include "asn1_values_internal.h"
 #include <string.h>
 

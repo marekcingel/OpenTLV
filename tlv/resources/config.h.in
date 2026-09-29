@@ -21,7 +21,7 @@
 #cmakedefine01 OPENTLV_FORMAT_BER
 #cmakedefine01 OPENTLV_FORMAT_DER
 #cmakedefine01 OPENTLV_FORMAT_CER
-#cmakedefine01 OPENTLV_PROFILE_EMV
+#cmakedefine01 OPENTLV_EMV
 #cmakedefine01 OPENTLV_DOCUMENT
 
 #ifdef __cplusplus
@@ -50,7 +50,11 @@ TLV_API int tlv_config_format_asn1(void);
 TLV_API int tlv_config_format_ber(void);
 TLV_API int tlv_config_format_der(void);
 TLV_API int tlv_config_format_cer(void);
-TLV_API int tlv_config_profile_emv(void);
+/**
+ * @brief Reports whether native EMV capabilities were built.
+ * @return 1 if `OPENTLV_EMV` was enabled, otherwise 0.
+ */
+TLV_API int tlv_config_emv(void);
 TLV_API int tlv_config_document(void);
 
 #ifdef __cplusplus

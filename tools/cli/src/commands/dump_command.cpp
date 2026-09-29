@@ -19,7 +19,7 @@ tlv_visit_result_t dump_command::visit_element(const tlv_element_t* element, std
         object["length"] = (uint64_t)element->value.size;
         if (indefinite) object["indefinite"] = true;
         object["value"] = hex_string(element->value.data, cli_element_value_size(element));
-        if (options_.profile) {
+        if (options_.module) {
             json_emv(object, presentation_, element, depth, options_.describe);
             if (options_.decode) json_decode(object, presentation_, element, depth);
         }
@@ -39,7 +39,7 @@ tlv_visit_result_t dump_command::visit_element(const tlv_element_t* element, std
     if (indefinite) std::cout << " encoding=indefinite";
     std::cout << " value=";
     print_hex(element->value.data, cli_element_value_size(element));
-    if (options_.profile) {
+    if (options_.module) {
         cli_presentation_emv(&presentation_, element, depth, options_.describe);
         if (options_.decode) {
             const decode_result result = decode_emv_value(presentation_.contexts[depth], element);

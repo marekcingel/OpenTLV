@@ -43,7 +43,7 @@ TLV_API tlv_byte_order_t tlv_endian_native(void);
 /**
  * @brief Reads a 16-bit unsigned integer from raw bytes, big-endian.
  *
- * Converts raw value bytes independently of host byte order and TLV profile.
+ * Converts raw value bytes independently of host byte order and TLV standard.
  * No bounds checks are performed and no alignment is required; only the
  * specified bytes are read. Every value of the declared integer type fits, so
  * no overflow is possible.
@@ -75,7 +75,7 @@ TLV_API uint64_t tlv_read_u64_le(const uint8_t* data);
 /**
  * @brief Writes a 16-bit unsigned integer to raw bytes, big-endian.
  *
- * Converts independently of host byte order and TLV profile. No bounds checks
+ * Converts independently of host byte order and TLV standard. No bounds checks
  * are performed and no alignment is required; only the specified bytes are
  * written.
  *

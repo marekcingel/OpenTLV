@@ -95,7 +95,7 @@ reading; resolving an indefinite element inspects descendant framing.
 `tlv_asn1_class_t` (`TLV_ASN1_UNIVERSAL`, `TLV_ASN1_APPLICATION`,
 `TLV_ASN1_CONTEXT_SPECIFIC`, `TLV_ASN1_PRIVATE`) and the ASN.1 identifier-octet
 model (class, primitive/constructed form, low- and high-tag-number number)
-are wire-format concepts, not specific to any encoding-rule profile; every
+are wire-format concepts, not specific to any encoding rule set; every
 BER-family format shares them. ASN.1 type semantics such as `INTEGER` or
 `SEQUENCE` stay outside this layer.
 
@@ -264,7 +264,7 @@ These framing rules follow [ITU-T X.690 (02/2021), sections 8.1.3 and 8.1.5](htt
 [`tlv_codec_t`](../../guides/codecs.md) descriptors that convert the raw
 value bytes of the ASN.1 primitive universal types to and from C
 representations, independent of any particular BER-family format or
-profile. The format layer above never reads ASN.1 type semantics into a
+module. The format layer above never reads ASN.1 type semantics into a
 tag; callers pick the matching codec themselves, typically from a schema or
 dictionary:
 
@@ -373,7 +373,7 @@ contents are more elements with the same layout, so the structure is recursive.
 The definite length covers the contents (all children with their headers), not the
 identifier or the length octets. Typical uses are ASN.1-based protocols and smart-card
 data objects, where BER is the framing and the meaning of each tag comes from a
-[profile](../../profiles/emv/README.md) or a schema. See [DER](der.md) and [CER](cer.md)
+[module](../../standards/emv/README.md) or a schema. See [DER](der.md) and [CER](cer.md)
 for the canonical restrictions of this layout.
 
 ## Byte example
@@ -446,8 +446,8 @@ these helpers do not validate a Value or CER segmentation.
 | Canonical identifiers and minimal definite lengths | Shared ASN.1 helpers used by DER/CER |
 | Definite-only framing and DER identifier form restrictions | DER Format |
 | Primitive definite / constructed indefinite framing | CER Format |
-| Common canonical universal-value validation | Shared ASN.1 validators called by the profiles/codecs |
-| CER string segmentation and cross-segment validation | CER profile |
+| Common canonical universal-value validation | Shared ASN.1 validators called by the validation operations and codecs |
+| CER string segmentation and cross-segment validation | CER validation |
 
 The independent DER and CER descriptors preserve their own contracts. Neither
 component requires the other to be enabled. Value validation remains outside

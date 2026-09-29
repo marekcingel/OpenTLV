@@ -4,13 +4,17 @@ import { pathToFileURL } from "node:url";
 import { join, resolve } from "node:path";
 
 const dist = resolve(process.argv[2] ?? ".");
-const { loadOpenTLV, hexToBytes } = await import(pathToFileURL(join(dist, "opentlv.mjs")).href);
+const { loadOpenTLV, hexToBytes, MODULES } = await import(pathToFileURL(join(dist, "opentlv.mjs")).href);
 const opentlv = await loadOpenTLV();
+
+assert.deepEqual(MODULES, ["none", "emv"]);
+assert.ok(opentlv.modules.includes("none"));
+assert.equal(opentlv.modules.includes("emv"), opentlv.formats.includes("emv"));
 
 assert.match(opentlv.version, /^\d+\.\d+\.\d+/);
 
 if (opentlv.formats.includes("emv")) {
-  const emv = opentlv.parse(hexToBytes("70 03 9F 02 00"), { format: "emv", profile: "emv" });
+  const emv = opentlv.parse(hexToBytes("70 03 9F 02 00"), { format: "emv", module: "emv" });
   assert.equal(emv.error, undefined);
   assert.equal(emv.elements[0].constructed, true);
   assert.equal(emv.elements[0].children[0].tag, "9F02");
@@ -58,23 +62,23 @@ assert.deepEqual(
 );
 result = opentlv.parse(hexToBytes("5F 2D 02 65 6E"), { format: "ber" });
 assert.equal(result.elements[0].headerSize, 3);
-assert.equal(result.profile, undefined);
+assert.equal(result.module, undefined);
 assert.equal(result.elements[0].name, undefined);
 
-// The EMV profile names known tags and flags lengths the dictionary does not permit.
-result = opentlv.parse(sample, { format: "ber", profile: "emv" });
+// The EMV module names known tags and flags lengths the dictionary does not permit.
+result = opentlv.parse(sample, { format: "ber", module: "emv" });
 assert.equal(result.error, undefined);
-assert.equal(result.profile, "emv");
+assert.equal(result.module, "emv");
 assert.equal(result.elements[0].symbol, "fci_template");
 assert.match(result.elements[0].name, /FCI/);
 assert.equal(result.elements[0].children[0].symbol, "df_name");
 assert.equal(result.elements[0].children[0].lengthValid, false); // DF Name is 5..16 bytes long
-result = opentlv.parse(hexToBytes("9F 02 06 00 00 00 00 01 00 DF 99 01 00"), { format: "ber", profile: "emv" });
+result = opentlv.parse(hexToBytes("9F 02 06 00 00 00 00 01 00 DF 99 01 00"), { format: "ber", module: "emv" });
 assert.equal(result.elements[0].symbol, "amount_authorised");
 assert.equal(result.elements[0].lengthValid, true);
 assert.equal(result.elements[1].symbol, undefined);
-assert.ok(opentlv.parse(sample, { format: "fixed", profile: "emv" }).error);
-assert.ok(opentlv.parse(sample, { format: "ber", profile: "nope" }).error);
+assert.ok(opentlv.parse(sample, { format: "fixed", module: "emv" }).error);
+assert.ok(opentlv.parse(sample, { format: "ber", module: "nope" }).error);
 
 // Errors are reported to the caller together with the elements read before them.
 result = opentlv.parse(hexToBytes("84 03 41 42 43 84 05 41"), { format: "ber" });
@@ -121,7 +125,7 @@ result = opentlv.parse(hexToBytes("02 01 06 04 09 00 00"), { format: "bluetooth-
 assert.equal(result.error.code, 1);
 assert.equal(result.error.offset, 5);
 assert.equal(result.elements.length, 1);
-assert.ok(opentlv.parse(sample, { format: "bluetooth-ad", profile: "emv" }).error);
+assert.ok(opentlv.parse(sample, { format: "bluetooth-ad", module: "emv" }).error);
 
 // Configurable fixed-width format: a two-byte tag, then a one-byte big-endian length.
 result = opentlv.parse(hexToBytes("12 34 03 AA BB CC"), {
@@ -161,7 +165,7 @@ assert.deepEqual(result.elements[0].source.trailer, { offset: 12, length: 2 });
 assert.deepEqual(result.elements[0].children.map(e => e.tag), ["02", "0C"]);
 assert.ok(opentlv.parse(hexToBytes("30 03 02 01 05"), { format: "cer" }).error);
 assert.ok(opentlv.parse(hexToBytes("30 80 02 01 05"), { format: "cer" }).error);
-assert.ok(opentlv.parse(sample, { format: "cer", profile: "emv" }).error);
+assert.ok(opentlv.parse(sample, { format: "cer", module: "emv" }).error);
 assert.ok(opentlv.formats.includes("bluetooth-ad"));
 for (const invalid of [{ fixedTagSize: 0 }, { fixedLengthSize: 9 },
   { fixedByteOrder: "invalid" }, { fixedElementOrder: "invalid" },

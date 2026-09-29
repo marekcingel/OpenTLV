@@ -6,7 +6,7 @@
 namespace cli {
 
 // otlv tag: decodes the hexadecimal BER tag, looks it up in the selected
-// profile's dictionary (base context) and prints its metadata as text or
+// module's dictionary (base context) and prints its metadata as text or
 // JSON. An unknown tag is reported as a result with exit code 0; a malformed
 // tag is a usage error (exit code 2).
 class tag_command : public command {

@@ -52,7 +52,7 @@ for element in reader {
 ```
 
 `Reader::new` uses BER;
-`Reader::with_format` takes a `Format` (`Default`, `Ber`, `Cer`, `Der`), and
+`Reader::with_format` takes a `Format` (`Ber`, `Emv`, `Cer`, `Der`, plus optional `Lldp`), and
 `Reader::with_fixed_format` takes a borrowed `&FixedFormat` for a
 runtime-configurable tag width, length width and length byte order (wraps the C
 `tlv_fixed_format_t` and `tlv_fixed_format_init()`: `FixedFormatConfig::new(tag_size,
@@ -131,16 +131,18 @@ let date = definition.codec().unwrap().decode(&[0x25, 0x12, 0x31])?;
 contexts. Opaque bytes, text and templates have no codec; use the reader's
 borrowed value.
 
-## Profiles and formats
+## Formats and canonical validation
 
-`Format` (`Default`, `Ber`, `Cer`, `Der`) selects the wire
+`Format` (`Ber`, `Emv`, `Cer`, `Der`, plus optional `Lldp`) selects the wire
 encoding; it implements `FromStr` and `Display` for names such as `"der"`.
-`Profile` (`Der`, `Cer`) adds canonical-encoding checks and resource `Limits`
+`Format` (`Der`, `Cer`) adds canonical-encoding checks and resource `Limits`
 on top of the format: `validate`, `read`, `encoded_size` and `write`, each with
 a `Strictness` (`Canonical` or `Strict`, which also validates UNIVERSAL
-content). Failures are `ProfileError` values with the failing offset.
+content). `default_limits()` returns `Result<Limits, ValidationError>`.
+These bounded operations return `InvalidArg` at offset zero for formats other
+than DER/CER; ordinary framing remains available through Reader/Writer. Failures are `ValidationError` values with the failing offset.
 
-The DOL profile and the callback-based visitors and structure codecs of the C
+The DOL component and the callback-based visitors and structure codecs of the C
 API are not bound yet.
 
 ## Build
@@ -158,7 +160,7 @@ By default the build script configures and builds the OpenTLV C library from the
 repository root with CMake, as a static Release library inside Cargo's `target`
 directory, and links it. The C++ layer, CLI, tests and examples are not built.
 
-The build script passes no `OPENTLV_FORMAT_*` or `OPENTLV_PROFILE_*` options, so the
+The build script passes no `OPENTLV_FORMAT_*` or `OPENTLV_EMV` options, so the
 C library uses its default components except LLDP: the default `lldp` Cargo
 feature enables `OPENTLV_LLDP`; `--no-default-features` disables it. For prebuilt
 libraries, match the feature to the C build's option. Component selection for
@@ -196,7 +198,7 @@ cargo test --workspace
 
 `opentlv/tests/corpus.rs` replays the C fuzz seeds (each harness's `corpus/`
 folder under `tests/fuzz/`) through the safe API (reader on every format, DER
-and CER profiles, writer and reader round trips, every EMV codec), so seeds
+and CER rules, writer and reader round trips, every EMV codec), so seeds
 added for the C harnesses also cover the bindings without being copied.
 
 ## Linking a prebuilt library

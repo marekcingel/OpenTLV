@@ -19,7 +19,7 @@ struct decode_result {
 
 // Looks `element`'s tag up in the EMV dictionary under `context` (a
 // tlv_emv_context_t, passed as int so this header does not require the EMV
-// profile to be compiled in) and, if it carries a codec, decodes its value
+// module to be compiled in) and, if it carries a codec, decodes its value
 // through tlv_codec_decode and formats the result for display. `element`'s raw
 // value is never modified; callers present it independently. Builds on the
 // codec layer only - no decoding logic is implemented here beyond formatting

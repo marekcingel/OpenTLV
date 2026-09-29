@@ -5,7 +5,7 @@
 namespace cli {
 
 // otlv validate: walks the whole input, checking structure only (no display),
-// plus the EMV structure/dictionary checks under --profile emv. Also used
+// plus the EMV structure/dictionary checks under --module emv. Also used
 // internally by "encode" to validate its own freshly encoded output under
 // the same limits as a standalone "otlv validate" run.
 class validate_command : public walk_command {

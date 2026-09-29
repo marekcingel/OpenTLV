@@ -6,7 +6,7 @@
 namespace cli {
 
 // otlv tags: lists every base-context dictionary entry of the selected
-// profile, optionally filtered by a case-insensitive name substring
+// module, optionally filtered by a case-insensitive name substring
 // (--search), in dictionary order, as text or JSON. An empty result is still
 // success (exit code 0).
 class tags_command : public command {

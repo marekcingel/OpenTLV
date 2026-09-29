@@ -135,7 +135,7 @@ TLV_API tlv_result_t tlv_diagnostic_path_string(const tlv_diagnostic_path_t* pat
  * @brief A structured diagnostic: a stable code plus the state that produced it.
  *
  * The core representation is independent of any wire format, schema or
- * higher-level protocol. A format, schema, profile or application layer
+ * higher-level protocol. A format, schema or application layer
  * enriches a diagnostic that a lower layer produced by chaining
  * #tlv_diagnostic_context_t entries onto `contexts` with
  * tlv_diagnostic_add_context(), instead of defining its own diagnostic type.

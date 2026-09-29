@@ -28,12 +28,12 @@ extern "C" {
  * including constructed values; framing does not recursively validate children.
  *
  * The constructed callback reports only bit 20 of the first identifier octet.
- * Semantic templates such as 9F31 require explicit profile-aware traversal.
+ * Semantic templates such as 9F31 require explicit EMV-aware traversal.
  * Padding, APDU boundaries, per-object length limits and restrictions on the
  * use of three-octet lengths belong to the enclosing application or schema.
  * This descriptor covers element framing, not full Book 3 conformance.
  *
- * @note Available with OPENTLV_PROFILE_EMV. Immutable, allocation-free, and
+ * @note Available with OPENTLV_EMV. Immutable, allocation-free, and
  * zero-copy on read. No ASN.1 format is called by this descriptor.
  */
 extern TLV_API const tlv_format_t tlv_format_emv;

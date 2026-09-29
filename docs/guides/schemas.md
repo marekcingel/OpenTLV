@@ -9,7 +9,7 @@ primitives to the ASN.1 shapes they cover (SEQUENCE, SET, SET OF, CHOICE). For
 DER-specific canonical rules this engine still cannot express (implicit/explicit
 tagging, DEFAULT-value comparison against the encoded bytes, canonical SET/SET
 OF tag- or encoding-based sort order), see
-[schema-aware DER validation and encoding](../profiles/der/README.md#schema-aware-validation-and-encoding),
+[schema-aware DER validation and encoding](../standards/der/README.md#schema-aware-validation-and-encoding),
 a distinct schema type built for that purpose.
 
 A nonzero `tlv_schema_entry_t.length_multiple` requires the value length to be
@@ -191,7 +191,7 @@ Tables must remain immutable. Sibling order is a schema concern only when a
 scope opts into it (see below); cross-field/value semantics stay an
 application concern. `tlv::validate` exposes these same rules through the C++
 API. For a concrete structure schema built on this engine, see
-[EMV structural validation](../profiles/emv/README.md#structural-validation).
+[EMV structural validation](../standards/emv/README.md#structural-validation).
 
 ## Ordered, unordered and CHOICE-like structures
 
@@ -268,7 +268,7 @@ membership. DEFAULT has no dedicated representation here: since this engine
 never decodes values, a defaulted member is written the same way as an
 optional one (`min_occurs = 0`), and comparing an encoded value against its
 default stays a format-specific concern, as it already is for DER (see
-[schema-aware DER validation and encoding](../profiles/der/README.md#schema-aware-validation-and-encoding)).
+[schema-aware DER validation and encoding](../standards/der/README.md#schema-aware-validation-and-encoding)).
 
 ## Value constraints on decoded values
 

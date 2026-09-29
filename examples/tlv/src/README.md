@@ -39,7 +39,7 @@ Generic, protocol-agnostic format mechanisms.
 
 ## Builtins
 
-Examples specific to one wire format or profile.
+Examples specific to one wire format or standard.
 
 - [`builtins/asn1/ber.c`](builtins/asn1/ber.c) -- BER: multi-byte tags and
   long-form lengths.

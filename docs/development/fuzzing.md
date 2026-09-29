@@ -30,7 +30,7 @@ flags. Contract checks remain active with `NDEBUG`; UBSan errors are fatal.
 | --- | --- |
 | `fuzz_read` | Sequential `tlv_read` calls, positive bounded consumption, borrowed value ranges, unchanged element and consumed count on failure. |
 | `fuzz_walk_tree` | Nested `tlv_walk_tree` traversal, depth and element limits (including zero), element ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal. |
-| `fuzz_der` | `tlv_der_read` and `tlv_der_walk`, canonical DER-TLV framing, all four profile limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal. |
+| `fuzz_der` | `tlv_der_read` and `tlv_der_walk`, canonical DER-TLV framing, all four validation limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal. |
 | `fuzz_der_schema` | `tlv_der_schema_read` against a fixed representative schema (IMPLICIT/EXPLICIT tagging, a DEFAULT component, SET, SET OF, SEQUENCE OF and CHOICE), all five schema limits, unchanged read outputs and bounded error offsets on failure. |
 | `fuzz_roundtrip` | Generated tags and values, sizing, insufficient-capacity output preservation, successful write/read tag and value equality. |
 | `fuzz_fixed` | The configurable Fixed format (`tlv_fixed_format_init()`) with tag width, length width and byte order all derived from the fuzz input: exact framing-overhead round trips and insufficient-capacity output preservation for the derived configuration, plus sequential malformed-input `tlv_read` against the same raw bytes. |
@@ -41,7 +41,7 @@ The reader, walker, and round-trip targets run each input against every enabled
 built-in format: default, fixed-width (one tag byte, one length byte), Bluetooth LTV, BER, and DER. Component switches still
 apply; `fuzz_fixed` is always built when fuzzing is enabled, while `fuzz_der` and
 `fuzz_der_schema` are omitted when `OPENTLV_FORMAT_DER=OFF`,
-and `fuzz_codec` and `fuzz_dol` are omitted when `OPENTLV_PROFILE_EMV=OFF`. At
+and `fuzz_codec` and `fuzz_dol` are omitted when `OPENTLV_EMV=OFF`. At
 least one built-in format must be enabled. For the raw-byte formats, the
 walker harness uses tag bit `0x20` as a test-only container convention. BER
 and DER use their public nesting predicates. `fuzz_fixed` covers the

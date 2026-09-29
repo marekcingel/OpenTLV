@@ -1,6 +1,6 @@
 # C library formats
 
-Each page includes a byte example. Profile semantics are documented separately.
+Each page includes a byte example. Standard-specific semantics are documented separately.
 Concrete C implementations live under `tlv/builtins/<protocol>/` (grouped by
 protocol) or, for protocol-agnostic mechanisms like the configurable fixed-width
 format, `tlv/formats/`; see [architecture](../concepts/architecture.md#repository-layout).
@@ -26,9 +26,9 @@ optional. Both use the same Format, Reader and Writer contracts.
 | Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
 | LLDP packed Type/Length headers | [LLDP TLV support](lldp/README.md) | Packed framing, base definitions, LLDPDU structural rules and value codecs |
 | Multi-byte tags or constructed indefinite values | [BER-TLV](asn1/ber.md) | Payload semantics are separate |
-| Canonical ASN.1 framing and nested checks | [DER](../profiles/der/README.md) | Structural validation, not full semantic DER |
-| Canonical ASN.1 with indefinite-length framing and segmented strings | [CER](../profiles/cer/README.md) | Structural validation, not full semantic CER |
-| EMV Contact Book 3 data objects | [EMV framing and profile](../profiles/emv/README.md) | Dictionary/codecs, not a transaction engine |
+| Canonical ASN.1 framing and nested checks | [DER](../standards/der/README.md) | Structural validation, not full semantic DER |
+| Canonical ASN.1 with indefinite-length framing and segmented strings | [CER](../standards/cer/README.md) | Structural validation, not full semantic CER |
+| EMV Contact Book 3 data objects | [EMV framing and semantics](../standards/emv/README.md) | Dictionary/codecs, not a transaction engine |
 
 For application-specific framing, use [custom callbacks](custom/README.md).
 They are an extension mechanism, not a built-in standard or a supplied format.
@@ -69,7 +69,7 @@ Notes for choosing:
   The other formats hold opaque values; nesting is then up to your predicate.
 - DER and CER are BER with restrictions: they share the tag layout and differ in how
   lengths are chosen. Their generic readers check framing only; canonical values come from
-  the profile functions.
+  the validation functions.
 - Bluetooth LTV is a preset of the configurable Fixed format that puts the length
   before the type and has the length count the type as well as the value; the
   Fixed format's `element_order` and `length_scope` make both properties
@@ -83,7 +83,7 @@ Formats that are not implemented yet are catalogued in
 All formats follow the [shared memory ownership rules](../guides/memory.md).
 
 For canonical ASN.1 framing, nested validation, limits and error offsets, see
-[ASN.1 DER-TLV](../profiles/der/README.md) and its sibling [ASN.1 CER-TLV](../profiles/cer/README.md).
+[ASN.1 DER-TLV](../standards/der/README.md) and its sibling [ASN.1 CER-TLV](../standards/cer/README.md).
 `tlv_format_der` and `tlv_format_cer` also support the generic I/O below.
 
 ## Reading one element

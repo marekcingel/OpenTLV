@@ -422,7 +422,7 @@ cmake --build build-integration --config Release --parallel
 ctest --test-dir build-integration -C Release --output-on-failure --no-tests=error
 ```
 
-Both groups follow the enabled format/profile options and `OPENTLV_BUILD_CXX`.
+Both groups follow the enabled format/component options and `OPENTLV_BUILD_CXX`.
 Generic contract tests use controlled callbacks where appropriate and remain
 available without built-in formats. Compile-time format direction checks run
 when tests are enabled. Tags have no compile-time capacity, so tag lengths are

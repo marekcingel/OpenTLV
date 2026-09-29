@@ -40,17 +40,17 @@ otlv dump --format fixed --input sample.bin
 otlv dump --format bluetooth-ltv --hex "02 01 06 03 09 48 69"
 otlv validate --format der --input sample.der
 otlv validate --format ber --input -
-otlv dump --format ber --profile emv --hex "6F0784050102030405" --pretty --describe
+otlv dump --format ber --module emv --hex "6F0784050102030405" --pretty --describe
 otlv dump --format ber --input capture.hex --input-encoding hex
-otlv dump --format ber --profile emv --decode --hex "9F0206000000001000"
-otlv dump --format ber --profile emv --decode --output json --hex "9F0206000000001000"
-otlv validate --format ber --profile emv --input input.bin
+otlv dump --format ber --module emv --decode --hex "9F0206000000001000"
+otlv dump --format ber --module emv --decode --output json --hex "9F0206000000001000"
+otlv validate --format ber --module emv --input input.bin
 otlv encode --format ber --tag 9F02 --value 000000001000
-otlv decode --format ber --profile emv --input capture.bin > capture.json
+otlv decode --format ber --module emv --input capture.bin > capture.json
 otlv encode --format ber --input capture.json --output-encoding binary --output-file out.bin
 otlv dump --format ber --input damaged.bin --recover --tree
-otlv validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010"
-otlv tag 9F02 --profile emv
+otlv validate --format ber --module emv --emv-check dictionary --hex "9F02050000000010"
+otlv tag 9F02 --module emv
 otlv query 6F/A5/50 --format ber --input card.bin --value
 otlv completion bash
 cat capture.bin | otlv dump --format ber --output json | jq '.elements'
@@ -128,7 +128,7 @@ code page are temporarily configured as needed and restored after printing.
 
 ### EMV annotations
 
-`dump --format ber --profile emv` appends a readable name for each known tag.
+`dump --format ber --module emv` appends a readable name for each known tag.
 `--describe` additionally prints the dictionary's value representation and
 length bounds/step, for example:
 
@@ -151,14 +151,14 @@ that describe embedded structures. A standalone context-specific fragment has
 no enclosing context and begins in the base dictionary unless you select
 another one with `--emv-context NAME` (see [EMV contexts](#emv-contexts)).
 
-The EMV profile must be compiled in. `--describe`, `--decode` and
+The EMV module must be compiled in. `--describe`, `--decode` and
 `--emv-context` are accepted by `dump` and `decode` (and require
-`--profile emv`); `--output` and the color flags are dump-only.
-`--profile emv` itself is also accepted by `validate`, where it selects EMV
+`--module emv`); `--output` and the color flags are dump-only.
+`--module emv` itself is also accepted by `validate`, where it selects EMV
 checks instead of annotating output (see below). EMV annotations and checks
 both require BER, selected with `--format ber`; the wire format and the
-profile are separate options, so `--format der --profile emv` is an error. Use `--format emv --profile emv`
-for definite EMV framing; `--format ber --profile emv` retains general BER acceptance.
+module are separate options, so `--format der --module emv` is an error. Use `--format emv --module emv`
+for definite EMV framing; `--format ber --module emv` retains general BER acceptance.
 
 ### Value decoding
 
@@ -222,14 +222,14 @@ otlv decode --format ber --hex "E1 05 5A 01 12 5A 00 30 80 04 01 AA 00 00"
 {"schema":"opentlv.tlv","version":1,"format":"ber","elements":[{"tag":"E1","length_mode":"definite","children":[{"tag":"5A","value":"12"},{"tag":"5A","value":""}]},{"tag":"30","length_mode":"indefinite","children":[{"tag":"04","value":"AA"}]}]}
 ```
 
-`decode` takes the input, limit and profile options of `dump` (`--format`,
-`--input`/`--hex`, `--input-encoding`, `--max-*`, `--profile emv`,
+`decode` takes the input, limit and module options of `dump` (`--format`,
+`--input`/`--hex`, `--input-encoding`, `--max-*`, `--module emv`,
 `--describe`, `--decode`, `--emv-context`, `--recover`) and rejects the text
 presentation options (`--tree`, `--pretty`, colors, `--output`, `--pdol`).
 The whole input is always parsed as a tree, so BER and DER nesting is followed
 up to `--max-depth`. A failed export prints nothing on stdout, unlike `dump`,
 so a partial document is never mistaken for a complete one. With
-`--profile emv` each known element carries its dictionary `name`; unknown tags
+`--module emv` each known element carries its dictionary `name`; unknown tags
 carry only their raw `tag` and `value`.
 
 Offsets are not part of the document. Use `dump --output json` when you need
@@ -334,11 +334,11 @@ from the CLI.
 ### Tag lookup
 
 `tag` looks up one BER tag in the OpenTLV EMV dictionary, so the CLI can serve
-as a quick tag reference. The metadata comes from the profile layer
+as a quick tag reference. The metadata comes from the native EMV definitions
 (`tlv_emv_find` in the base context); the CLI keeps no dictionary of its own.
 
 ```sh
-otlv tag 9F02 --profile emv
+otlv tag 9F02 --module emv
 ```
 
 ```text
@@ -350,24 +350,24 @@ Length:      6
 ```
 
 The tag is a positional argument in the same hex syntax as `--hex`, and must
-be exactly one complete BER tag. `--profile emv` is required. `Length step` is
+be exactly one complete BER tag. `--module emv` is required. `Length step` is
 printed only when the dictionary's permitted lengths advance by more than one
 byte (for example the AFL). `--output json` prints one object with `tag`,
-`profile`, `known` and, for known tags, `name`, `symbol`, `type`,
+`module`, `known` and, for known tags, `name`, `symbol`, `type`,
 `constructed`, `min_length`, `max_length` (omitted when unbounded) and
 `length_step`.
 
 A tag with no dictionary entry is a valid result, not malformed data: text
-output prints `Result:      Unknown tag in the EMV profile (base context)`,
+output prints `Result:      Unknown tag in the EMV module (base context)`,
 JSON output has `"known":false`, and the exit code is 0. An invalid or
-incomplete tag, an unknown profile, or any option other than `--profile` and
+incomplete tag, an unknown module, or any option other than `--module` and
 `--output` exits with code 2.
 
 `tags` lists every tag in the dictionary (base context), sorted by tag, when
 you do not know which tag to look up:
 
 ```sh
-otlv tags --profile emv --search amount
+otlv tags --module emv --search amount
 ```
 
 ```text
@@ -378,10 +378,10 @@ otlv tags --profile emv --search amount
 ```
 
 `--search TEXT` keeps only tags whose displayed name contains `TEXT`
-(case-insensitive). `--output json` prints `{"profile":"emv","tags":[...]}`
+(case-insensitive). `--output json` prints `{"module":"emv","tags":[...]}`
 where each element has the same fields as a known `tag` result. A search with
 no matches is not an error: it prints nothing (or an empty array) and exits 0.
-`tags` accepts only `--profile`, `--output` and `--search`; `--search` is
+`tags` accepts only `--module`, `--output` and `--search`; `--search` is
 rejected by every other command.
 
 ### PDOL / DOL inspection
@@ -389,7 +389,7 @@ rejected by every other command.
 Use `--pdol` to read a raw PDOL value as ordered tag/length pairs:
 
 ```sh
-otlv dump --format ber --pdol --hex "9F02069F1A02" --profile emv
+otlv dump --format ber --pdol --hex "9F02069F1A02" --module emv
 otlv validate --format ber --pdol --input pdol.hex --input-encoding hex
 ```
 
@@ -411,17 +411,17 @@ All existing input sources, decoded-input and element-count limits apply.
 Empty input succeeds. Missing lengths, malformed tags, and tags longer than
 two bytes fail with offsets. `--tree` and `--pretty` are rejected because a DOL
 is flat; `--max-depth` has no effect. BER must be enabled; the EMV dictionary
-is needed only for optional `--profile emv` annotations.
+is needed only for optional `--module emv` annotations.
 
 ### EMV schema validation
 
-`validate --format ber --profile emv` additionally checks the parsed input
+`validate --format ber --module emv` additionally checks the parsed input
 against `tlv_emv_structure_schema` (see
-[EMV structural validation](../profiles/emv/README.md#structural-validation)):
+[EMV structural validation](../standards/emv/README.md#structural-validation)):
 mandatory tags, forbidden/unknown tags, duplicate tags, length bounds, and
 required nesting for the FCI Template, Application Template, and GPO
 Response Message Template Format 2. It runs only after the input has parsed
-as valid BER, only for `validate` (`dump --profile emv` only annotates
+as valid BER, only for `validate` (`dump --module emv` only annotates
 tags), and not with `--pdol` (a DOL's tag/length pairs are not a TLV
 structure to check against a schema).
 A schema violation is reported like any other failure, but prefixed with
@@ -433,7 +433,7 @@ every other violation (a forbidden/unknown/duplicate tag reports
 includes the offending tag:
 
 ```sh
-$ otlv validate --format ber --profile emv --hex "6F00"
+$ otlv validate --format ber --module emv --hex "6F00"
 otlv: schema TLV_ERR_SCHEMA_MISSING at byte 2: required schema field missing
 ```
 
@@ -443,7 +443,7 @@ are accepted unchecked; this is not a full EMV transaction or value validator.
 
 ### EMV checks
 
-`validate --profile emv` runs the checks chosen by `--emv-check`, always on
+`validate --module emv` runs the checks chosen by `--emv-check`, always on
 input that has already parsed as valid BER:
 
 | `--emv-check` | Checks | `compact` prefix |
@@ -457,14 +457,14 @@ The `compact` prefix distinguishes the two checks on one line; `human` and
 carries a `path` and, for most kinds, a `field` name, while a dictionary
 violation carries a `dictionary` `stage`.
 
-The dictionary check uses the same lookup and contexts as `dump --profile emv`
+The dictionary check uses the same lookup and contexts as `dump --module emv`
 and the library's `tlv_emv_validate_length`. It reports the first offending
 element, labeled `dictionary`, with exit code 1; see
 [Diagnostics and exit codes](#diagnostics-and-exit-codes) for the `--diagnostics`
 renderers. In `compact` form:
 
 ```sh
-$ otlv validate --format ber --profile emv --emv-check dictionary --hex "9F02050000000010" --diagnostics compact
+$ otlv validate --format ber --module emv --emv-check dictionary --hex "9F02050000000010" --diagnostics compact
 otlv: dictionary TLV_ERR_INVALID_LENGTH at byte 0 tag=9F02: invalid length encoding
 ```
 
@@ -507,8 +507,8 @@ so select it explicitly with `--emv-context NAME`, for `dump`, `decode` and
 | `biometric-verification` | Inside `BF4E`. |
 
 ```sh
-otlv dump --format ber --profile emv --emv-context bht --hex "820101"
-otlv validate --format ber --profile emv --emv-check dictionary --emv-context bht --hex "82020101"
+otlv dump --format ber --module emv --emv-context bht --hex "820101"
+otlv validate --format ber --module emv --emv-check dictionary --emv-context bht --hex "82020101"
 ```
 
 The first prints the element as `Biometric Subtype`; the second fails because
@@ -516,7 +516,7 @@ The first prints the element as `Biometric Subtype`; the second fails because
 dictionary. The structural schema models base-context templates only, so
 `--emv-check structure` (and `all`) require the base context; use
 `--emv-check dictionary` with any other. `--emv-context` requires
-`--profile emv` and cannot be combined with `--pdol`.
+`--module emv` and cannot be combined with `--pdol`.
 
 ### Recovery scanning
 
@@ -571,8 +571,8 @@ $ echo $?
 elements; empty input succeeds and invalid trailing bytes fail. Default,
 fixed and bluetooth-ltv values are opaque. BER uses constructed-tag recognition; DER uses
 the existing structural validator. This does not provide full ASN.1 value
-validation or canonical SET/SET OF ordering; EMV structural profile
-validation is available via `--profile emv`, above.
+validation or canonical SET/SET OF ordering; EMV structural
+validation is available via `--module emv`, above.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
@@ -622,7 +622,7 @@ Offsets do not promise the exact corrupted byte.
 `human` prints one field per line:
 
 ```sh
-$ otlv validate --format ber --profile emv --hex "6F048402AABB"
+$ otlv validate --format ber --module emv --hex "6F048402AABB"
 otlv: error: invalid length encoding
 
 code: TLV_ERR_INVALID_LENGTH
@@ -643,7 +643,7 @@ scripts that would otherwise have to reparse the human or compact text; a
 `--recover` run additionally wraps each skipped range's diagnostic with the
 `skipped_offset`/`skipped_length` of the range it recovered from.
 
-A plain wire-level failure (no `--profile emv`) additionally reports which
+A plain wire-level failure (no `--module emv`) additionally reports which
 step failed (`tag`, `length`, `value` or `trailer`) and, for a value or
 trailer that does not fit, the declared length versus the bytes actually
 available:
@@ -668,7 +668,7 @@ constructed-length handling does not currently surface it back through this
 path, so a BER/DER value-length overrun shows the step, offset, tag and
 path, but not the two length lines above; every other format does.
 
-An EMV schema violation (`validate --profile emv`) additionally carries the
+An EMV schema violation (`validate --module emv`) additionally carries the
 schema field name and the expected-versus-actual detail for the violated
 rule (occurrence counts, length bounds, or a primitive/constructed
 mismatch), computed directly by the schema check, so it is unaffected by

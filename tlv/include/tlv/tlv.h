@@ -44,9 +44,9 @@
 #include "tlv/builtins/asn1/der.h"
 #endif
 #if OPENTLV_FORMAT_DER
-#include "tlv/builtins/asn1/der_profile.h"
+#include "tlv/builtins/asn1/der_validation.h"
 #endif
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"
 #endif
 #if OPENTLV_DOCUMENT

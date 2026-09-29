@@ -21,7 +21,7 @@ public:
     const char* format = nullptr;
     const char* input = nullptr;
     const char* hex = nullptr;
-    const char* profile = nullptr;
+    const char* module = nullptr;
     std::size_t max_input = 16777216;
     std::size_t max_depth = 64;
     std::size_t max_elements = 100000;
@@ -36,7 +36,7 @@ public:
     int recover = 0;
     // EMV dictionary context (tlv_emv_context_t) the top-level elements start in.
     int emv_context = 0;
-    // validate --profile emv only: bit mask of emv_check_* (0 = default).
+    // validate --module emv only: bit mask of emv_check_* (0 = default).
     int         emv_check = 0;
     const char* output = "text";
     // dump/validate/decode/query only: shape of the diagnostic printed on
@@ -74,7 +74,7 @@ const option_entry* option_table(std::size_t* count);
 // The bitmask of options valid for `command` (one of "dump", "validate",
 // "decode", "encode", "query", "tag" or "tags"; 0 for any other name),
 // narrowed to this build: EMV-only options are removed unless
-// OPENTLV_PROFILE_EMV. Fixed format options are always available.
+// OPENTLV_EMV. Fixed format options are always available.
 unsigned command_options_mask(const char* command);
 
 // The bitmask of options that never take a following value (booleans such as
@@ -83,7 +83,7 @@ unsigned command_options_mask(const char* command);
 // flag-only sense (print only the addressed elements' values).
 unsigned flag_options_mask();
 
-#if OPENTLV_PROFILE_EMV
+#if OPENTLV_EMV
 // The command-line names of the EMV dictionary contexts (tlv_emv_context_t)
 // --emv-context accepts, in the same order as options.cpp's own table.
 const char* const* emv_context_names(std::size_t* count);
