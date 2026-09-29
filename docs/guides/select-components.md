@@ -25,7 +25,7 @@ Turn off what you do not use.
 | `OPENTLV_LLDP` | [LLDP](../formats/lldp/README.md): packed framing and base Type definitions; no schemas or value codecs |
 | `OPENTLV_FORMAT_ASN1` | The ASN.1 group; must be ON for BER, DER, CER and EMV |
 | `OPENTLV_FORMAT_BER` | [BER-TLV](../formats/asn1/ber.md); must be ON for DER, CER and EMV |
-| `OPENTLV_FORMAT_DER` | [DER-TLV](../formats/asn1/der.md); must be ON for EMV |
+| `OPENTLV_FORMAT_DER` | [DER-TLV](../formats/asn1/der.md); independent of EMV |
 | `OPENTLV_FORMAT_CER` | [CER-TLV](../formats/asn1/cer.md); independent of DER |
 | `OPENTLV_PROFILE_EMV` | [EMV profile](../profiles/emv/README.md) |
 
@@ -33,7 +33,9 @@ The [mutable document](document.md) is a separate optional generic component,
 controlled by `OPENTLV_DOCUMENT`; it is not a format or a standard package.
 
 Turning an option OFF also turns OFF everything below it in the chain
-`ASN1 -> BER -> DER -> EMV`, with CER a sibling of DER under BER.
+`ASN1 -> BER`, with DER, CER and EMV as siblings under BER.
+EMV framing uses generic primitives; only the unchanged DOL implementation
+retains a BER dependency. EMV does not require DER or CER.
 The C++ [configurable fixed-width format](../formats/fixed/configurable.md)
 template delegates to the always-built C implementation.
 
@@ -63,7 +65,8 @@ cmake --build build --parallel --target tlv
 
 ### Core, BER, DER and EMV
 
-EMV needs DER and DER needs BER, so all three are on. CER is off.
+This recipe enables DER alongside EMV. EMV itself does not need DER;
+add `-DOPENTLV_FORMAT_DER=OFF` for BER and EMV only. CER is off.
 
 ```sh
 cmake -S . -B build \

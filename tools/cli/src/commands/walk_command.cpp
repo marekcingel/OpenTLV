@@ -247,8 +247,9 @@ int walk_command::run() {
 #if OPENTLV_FORMAT_DER
     is_der = format == &tlv_format_der;
 #endif
-    structured = is_ber || is_der;
-    if (options_.tree && !structured) return fail(2, "--tree supports only BER and DER");
+    structured = format->is_constructed != NULL;
+    if (options_.tree && !structured)
+        return fail(2, "--tree requires a format with a constructed indicator");
 
     format_ = format;
     is_der_ = is_der != 0;

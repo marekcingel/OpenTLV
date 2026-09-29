@@ -65,9 +65,6 @@ public:
 #if OPENTLV_FORMAT_BER
         ber_ = !strcmp(name, "ber");
 #endif
-#if OPENTLV_FORMAT_DER
-        der_ = !strcmp(name, "der");
-#endif
     }
 
     int encode(const std::vector<cli::json_model::node>& elements, std::vector<uint8_t>& out) {
@@ -97,7 +94,7 @@ private:
         std::size_t                 size;
         tlv_result_t                result;
 
-        if (ber_ || der_) {
+        if (format_->is_constructed) {
             const bool constructed = is_constructed(tag);
             if (element.has_children && !constructed)
                 return reject(index, "tag " + hex_text(element.tag) +
@@ -145,7 +142,6 @@ private:
     const tlv_format_t* format_;
     const char*         name_;
     bool                ber_ = false;
-    bool                der_ = false;
     std::size_t         index_ = 0;
 };
 

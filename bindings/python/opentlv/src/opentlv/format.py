@@ -25,6 +25,9 @@ class Format(enum.IntEnum):
         DER = 3
         """Distinguished Encoding Rules."""
 
+    if opentlv_native.HAS_EMV:
+        EMV = 5
+        """Definite EMV Contact Book 3 BER-TLV element framing."""
     if opentlv_native.HAS_LLDP:
         LLDP = 4
         """LLDP packed header framing, without LLDPDU semantic validation."""

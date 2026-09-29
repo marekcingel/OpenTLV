@@ -58,7 +58,7 @@ typedef enum {
     TLV_EMV_VALUE_BYTES,
     /** Text bytes, not necessarily UTF-8 or NUL-terminated; no codec. */
     TLV_EMV_VALUE_TEXT,
-    /** Constructed template of nested data objects; no codec. */
+    /** Semantic template of nested data objects; no codec. May have a primitive wire bit. */
     TLV_EMV_VALUE_TEMPLATE,
     /** `uint64_t`: binary or decimal BCD number. */
     TLV_EMV_VALUE_NUMBER,

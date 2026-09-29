@@ -7,6 +7,9 @@
 #include "tlv/config.h"
 #include "tlv++/reader/walker.hpp"
 #include "tlv/formats/fixed.h"
+#if OPENTLV_PROFILE_EMV
+#include "tlv/builtins/emv/format.h"
+#endif
 #if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #endif
@@ -26,6 +29,9 @@ bool is_json(const options& o) {
 
 const tlv_format_t* select_format(const options& o) {
     const char* name = o.format;
+#if OPENTLV_PROFILE_EMV
+    if (!strcmp(name, "emv")) return &tlv_format_emv;
+#endif
     // Configured by --fixed-tag-size/--fixed-length-size/--fixed-byte-order,
     // one tag byte/one length byte/big-endian by default.
     if (!strcmp(name, "fixed")) {

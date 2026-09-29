@@ -51,7 +51,7 @@ const result = opentlv.parse(
 ```
 
 `parse` takes a `Uint8Array`, a `format` (`fixed`, `bluetooth-ltv`, `bluetooth-ad`,
-`ber`, `der` or `cer`; default `ber`) and optionally a `profile` (`none` or `emv`; default
+`ber`, `der`, `cer` or `emv`; default `ber`) and optionally a `profile` (`none` or `emv`; default
 `none`) and returns:
 
 Bluetooth modes annotate known AD Types with `name` from the C registry.
@@ -87,7 +87,7 @@ These options apply only to Fixed. Invalid JavaScript configuration values throw
 }
 ```
 
-Tags and values are uppercase hexadecimal. Only BER, DER and CER elements can be
+Tags and values are uppercase hexadecimal. Only BER, DER, CER and EMV elements can be
 constructed; the other formats return flat elements with opaque values. An
 element occupies `encodedSize` bytes from `offset`, including any trailer.
 `source` contains absolute `{offset, length}` ranges for `header`, `tag`,
@@ -100,7 +100,7 @@ The JSON example above omits `encodedSize` and `source` for brevity.
 preorder output and EOC source ranges. It checks framing only; full CER profile
 validation (including string segmentation and semantic values) is not applied.
 
-With `profile: "emv"` (BER only; other formats report an invalid-argument
+With `profile: "emv"` (BER or EMV framing; other formats report an invalid-argument
 error) the result also has `"profile": "emv"`. Every element the
 [EMV dictionary](../profiles/emv/README.md) knows carries `symbol` (the
 dictionary name), `name` (a display name) and `lengthValid` (whether `length`

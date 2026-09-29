@@ -34,8 +34,9 @@ extern "C" {
  * etc.) are accepted unchecked at the root, because their contents vary too
  * much by kernel and issuer for a generic schema.
  *
- * Use with tlv_schema_validate() and #tlv_format_ber, whose `is_constructed`
- * is tlv_asn1_is_constructed().
+ * Use with tlv_schema_validate() and #tlv_format_emv, whose `is_constructed`
+ * reports the wire constructed bit. Semantic primitive-bit templates are
+ * outside this structural schema and require explicit application traversal.
  */
 extern TLV_API const tlv_structure_schema_t tlv_emv_structure_schema;
 

@@ -96,6 +96,7 @@ if(OPENTLV_FORMAT_CER)
 endif()
 if(OPENTLV_PROFILE_EMV)
     target_sources(${PROJECT_NAME} PRIVATE
+        src/builtins/emv/format.c
         src/builtins/emv/emv.c src/builtins/emv/emv_codec.c src/builtins/emv/dol.c src/builtins/emv/emv_schema.c)
 endif()
 if(OPENTLV_DOCUMENT)

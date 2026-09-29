@@ -186,9 +186,8 @@ static tlv_visit_result_t emit_element(const tlv_element_t* element, size_t dept
             TLV_OK)
         return TLV_VISIT_ERROR;
     header_size = decoded.source.header.size;
-#if OPENTLV_FORMAT_BER
-    if (w->ber) constructed = tlv_asn1_is_constructed(NULL, &element->tag) != 0;
-#endif
+    if (w->reader->is_constructed)
+        constructed = w->reader->is_constructed(w->reader->context, &element->tag) != 0;
     close_elements(w, depth);
     if (w->count[depth]++) builder_text(&w->out, ",");
     w->count[depth + 1] = 0;
@@ -264,6 +263,9 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
         if (tlv_fixed_format_init(fixed_format, fixed_config) != TLV_OK) return NULL;
         return fixed_format;
     }
+#if OPENTLV_PROFILE_EMV
+    if (!strcmp(name, "emv")) return &tlv_format_emv;
+#endif
 #if OPENTLV_LLDP
     if (!strcmp(name, "lldp")) return &tlv_format_lldp;
 #endif
@@ -337,7 +339,8 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
     if (profile && *profile && strcmp(profile, "none")) {
         /* The EMV dictionary names BER-TLV tags; it does not apply to other formats. */
 #if OPENTLV_PROFILE_EMV
-        if (!strcmp(profile, "emv") && format && !strcmp(format, "ber") && reader) {
+        if (!strcmp(profile, "emv") && format &&
+            (!strcmp(format, "ber") || !strcmp(format, "emv")) && reader) {
             w->emv = 1;
             w->emv_context[0] = TLV_EMV_CONTEXT_BASE;
             builder_text(&w->out, ",\"profile\":\"emv\"");

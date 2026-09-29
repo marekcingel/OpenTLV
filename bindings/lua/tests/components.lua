@@ -1,9 +1,9 @@
 -- Standalone smoke test: expected availability comes from the CMake build.
 local opentlv = require("opentlv")
-local names = { "ber", "cer", "der", "bluetooth_ltv", "lldp" }
+local names = { "ber", "cer", "der", "bluetooth_ltv", "lldp", "emv" }
 local wires = {
     string.char(4, 1, 42), string.char(4, 1, 42), string.char(4, 1, 42),
-    string.char(2, 4, 42), string.char(8, 1, 42),
+    string.char(2, 4, 42), string.char(8, 1, 42), string.char(4, 1, 42),
 }
 for i, name in ipairs(names) do
     local format = opentlv.formats[name]

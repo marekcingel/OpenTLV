@@ -157,7 +157,8 @@ The EMV profile must be compiled in. `--describe`, `--decode` and
 `--profile emv` itself is also accepted by `validate`, where it selects EMV
 checks instead of annotating output (see below). EMV annotations and checks
 both require BER, selected with `--format ber`; the wire format and the
-profile are separate options, so `--format der --profile emv` is an error.
+profile are separate options, so `--format der --profile emv` is an error. Use `--format emv --profile emv`
+for definite EMV framing; `--format ber --profile emv` retains general BER acceptance.
 
 ### Value decoding
 

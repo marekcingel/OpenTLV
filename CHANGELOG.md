@@ -74,6 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add definite EMV BER-TLV framing over generic variable-width primitives, exposed as `tlv_format_emv` and the `emv` preset in bindings and tooling. EMV no longer requires DER; the existing DOL helper retains its BER dependency. (#379)
 - Add allocation-free configurable variable-width identifier and short/long length primitives, a Variable TLV/LTV format, and field composition support for concrete boundary and trailer rules. (#376)
 - Add exhaustive DHCP Code/Length round-trip coverage and architecture regression tests for generic Reader, Writer, Document, Query, Schema, source preservation and diagnostics. (#372)
 - Add DHCPv4 options container validation with configurable End and trailing-byte rules, significant-region extent, element limits and source diagnostics, plus a C++ wrapper. (#371)

@@ -15,8 +15,40 @@ together in [emv_tags.def](../../../tlv/include/tlv/builtins/emv/emv_tags.def).
 
 ## Framing and lookup
 
-Use `&tlv_format_ber` with the reader, walker, scanner, or writer.
+Use `&tlv_format_emv` with the reader, walker, scanner, or writer.
 There is no separate EMV parser and the reader never interprets values.
+
+The descriptor in `tlv/builtins/emv/format.h` composes generic variable identifier
+and count primitives with EMV policy. It calls no ASN.1 format or private BER
+helper. C++ exposes the same descriptor as `tlv::emv_format()` from
+`tlv++/builtins/emv/format.hpp`.
+
+| Concern | EMV framing contract |
+| --- | --- |
+| Identifier | One or two bytes, preserved verbatim; escaped second byte is 01–7F. Unknown tags are accepted. No ASN.1 numeric-tag minimality or universal-type validation. |
+| Constructed | Bit `20` in the first byte; classification only, without recursively validating the value. |
+| Length | Definite, big-endian, 0–65535; short form, `81`, or `82`. Reader accepts nonminimal/padded forms; Writer emits the shortest form. |
+| Termination | `80` indefinite length is rejected, as are wider length prefixes. No EOC trailer or EOC stopping. |
+| Padding | `00` is not an element tag. The caller handles inter-element padding and APDU status bytes. |
+| Nesting | Wire construction and semantic templates are separate; `9F31` needs explicit profile-aware traversal. |
+
+This is an element-framing preset for Contact Book 3 v4.4 Annex B, not a full
+transaction validator. The Annex B card-terminal restrictions and the specific
+permission for three-byte lengths on `71`, `72`, and `86` are application/context
+checks; the format supports the common maximum without inspecting tag meanings.
+Contactless or proprietary encodings requiring wider identifiers need a different
+format. Source preservation retains accepted nonminimal length bytes; ordinary
+writing regenerates canonical field widths.
+
+The preset is available as Rust `Format::Emv`, Python `Format.EMV`, Lua
+`opentlv.formats.emv`, and `emv` in CLI/WASM. Select `--format emv --profile emv`
+in the CLI for definite framing with dictionary annotations. Selecting `ber`
+with the EMV profile still annotates BER input and does not enforce EMV framing.
+
+`OPENTLV_PROFILE_EMV` controls the descriptor alongside the existing EMV APIs.
+DER and CER may be disabled. The component still requires BER solely for the
+unchanged DOL identifier helper; DOL refactoring is outside this change.
+
 The existing `tlv_emv_tag_*` objects use the universal `tlv_tag_t`.
 Each has a numeric integer constant expression with the `_u64` suffix,
 such as `tlv_emv_tag_aip_u64` (`0x82`), usable in C and C++ `case` labels.
@@ -50,7 +82,7 @@ optional codec, and length step. Unknown tags and invalid contexts return NULL.
 /* Inside a function; wire contains an Amount, Authorised (Numeric) TLV. */
 tlv_element_t element;
 size_t consumed;
-if (tlv_read(wire, wire_size, &tlv_format_ber, &element, &consumed) == TLV_OK) {
+if (tlv_read(wire, wire_size, &tlv_format_emv, &element, &consumed) == TLV_OK) {
     const tlv_emv_definition_t* def =
         tlv_emv_find(TLV_EMV_CONTEXT_BASE, &element.tag);
     if (def && tlv_emv_validate_length(def, element.value.size) == TLV_OK &&
@@ -66,7 +98,7 @@ if (tlv_read(wire, wire_size, &tlv_format_ber, &element, &consumed) == TLV_OK) {
 
 For writing, explicitly encode the C value with `tlv_codec_encode()` into
 caller-owned storage, then pass those bytes and the tag to `tlv_write()` or
-`tlv_writer_write()` with `&tlv_format_ber`. Every semantic codec supports
+`tlv_writer_write()` with `&tlv_format_emv`. Every semantic codec supports
 the generic encoding size query (`data == NULL`, `capacity == 0`).
 
 ## Contexts
@@ -88,7 +120,7 @@ within a Biometric Header Template. Select the context explicitly, using
 | BIOMETRIC_VERIFICATION | `BF4E` |
 
 Context lookup never falls back to BASE. Traverse nested value buffers using
-generic BER I/O and carry the context in application code. The `9F31` Card BIT
+generic EMV I/O and carry the context in application code. The `9F31` Card BIT
 Group Template contains nested objects despite its primitive BER tag bit;
 `TLV_EMV_VALUE_TEMPLATE` records this semantic distinction. Matching algorithm
 parameters and proprietary template contents do not acquire invented schemas.
@@ -179,11 +211,12 @@ before validating a required value. These tables do not enforce APDU size,
 required tags, duplicates, template membership, or full transaction validity;
 see [Structural validation](#structural-validation) for the layer that does.
 
-Generic BER reading also accepts constructed indefinite lengths; the EMV
-dictionary and length schemas do not enforce a definite-only encoding policy.
-APDU status bytes and EMV
-padding are handled by the caller. Book 3 defines one- and two-byte tags;
-three-byte tags remain readable by generic BER but are unknown to this profile.
+`tlv_format_emv` enforces definite framing independently of ASN.1 BER. It rejects
+indefinite lengths and does not interpret `00 00` as EOC. APDU status bytes and
+padding between elements remain the caller's responsibility. Book 3 framing
+supports one- and two-byte tags; three-byte identifiers are rejected by this
+preset. Applications needing broader raw BER framing can still explicitly
+select `tlv_format_ber`, with its different validity contract.
 Every tag constant borrows constant static bytes, so the tables and constants
 are the same in every build.
 
@@ -199,12 +232,12 @@ Format 2 (`77`). Other top-level tags, including the Read Record Template
 and issuer for a generic schema and are accepted unchecked at the root.
 
 ```c
-#include "tlv/builtins/asn1/ber.h"
+#include "tlv/builtins/emv/format.h"
 #include "tlv/builtins/emv/emv_schema.h"
 
 /* Inside a function; wire/size hold one or more concatenated EMV elements. */
 size_t       offset;
-tlv_result_t rc = tlv_schema_validate(wire, size, &tlv_format_ber, &tlv_emv_structure_schema,
+tlv_result_t rc = tlv_schema_validate(wire, size, &tlv_format_emv, &tlv_emv_structure_schema,
                                       64, 100000, &offset);
 /* TLV_OK, or an element-anchored TLV_ERR_SCHEMA/TLV_ERR_INVALID_LENGTH, or
  * TLV_ERR_SCHEMA_MISSING (a missing required tag) with offset at the end of
@@ -306,7 +339,7 @@ Element (9 bytes)
     `-- Explicit EMV numeric decoding: 1234 minor units
 ```
 
-Read the framing with `tlv_format_ber`, then explicitly decode the value
+Read the framing with `tlv_format_emv`, then explicitly decode the value
 with `tlv_emv_codec_amount` into caller-owned storage. Currency and decimal scale
 come from application context; the codec does not assign them. This one data
 object does not represent a complete or validated transaction.

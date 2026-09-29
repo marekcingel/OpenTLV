@@ -351,8 +351,9 @@ int options::parse(int argc, char** argv) {
             return fail(2, "invalid query path; use hexadecimal tags separated by /");
         if (rc == TLV_ERR_INVALID_TAG_SIZE) return fail(2, "query tag is too long");
         if (rc != TLV_OK) return fail(2, "query path has too many tags");
-        if (query.count > 1 && strcmp(format, "ber") && strcmp(format, "der"))
-            return fail(2, "a query with nested tags requires --format ber or der");
+        if (query.count > 1 && strcmp(format, "ber") && strcmp(format, "der") &&
+            strcmp(format, "emv"))
+            return fail(2, "a query with nested tags requires --format ber, der or emv");
         if (value_only && strcmp(output, "text"))
             return fail(2, "--value cannot be combined with --output json");
         return 0;
@@ -373,7 +374,8 @@ int options::parse(int argc, char** argv) {
     if ((seen & opt_emv_check) && !profile) return fail(2, "--emv-check requires --profile emv");
     if (profile) {
         if (strcmp(profile, "emv")) return fail(2, "unknown profile");
-        if (strcmp(format, "ber")) return fail(2, "EMV profile requires --format ber");
+        if (strcmp(format, "ber") && strcmp(format, "emv"))
+            return fail(2, "EMV profile requires --format ber or emv");
 #if !OPENTLV_PROFILE_EMV
         return fail(2, "EMV profile is disabled in this build");
 #endif
@@ -401,7 +403,7 @@ void options::usage() {
            "       otlv tags --profile emv [--search TEXT] [--output text|json]\n"
            "       otlv completion bash|zsh|fish|powershell\n"
            "       otlv formats | --help | --version\n"
-           "Formats: default, fixed, ber, der, bluetooth-ltv (when enabled in this build)\n"
+           "Formats: default, fixed, ber, der, emv, bluetooth-ltv (when enabled in this build)\n"
            "Options:\n"
            "  --fixed-tag-size N     --format fixed: tag width in bytes (default 1)\n"
            "  --fixed-length-size N  --format fixed: length width in bytes, 1..8 (default 1)\n"

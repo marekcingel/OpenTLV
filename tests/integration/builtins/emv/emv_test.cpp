@@ -1,7 +1,14 @@
-#include "tlv/builtins/asn1/ber.h"
+#include "tlv/builtins/emv/format.h"
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
+#include "tlv/reader/walker.h"
 #include "tlv/writer/writer.h"
+#include "tlv/query/query.h"
+#include "tlv/config.h"
+#if OPENTLV_DOCUMENT
+#include "tlv/document/document.h"
+#include <memory>
+#endif
 #include <gtest/gtest.h>
 #include <cstring>
 #include <set>
@@ -39,7 +46,7 @@ void check_vector(const tlv_codec_t* codec, const T& expected, std::initializer_
 }
 } // namespace
 
-TEST(Integration_Tlv_Emv, AllDefinitionsUseGenericBerAndSchemas) {
+TEST(Integration_Tlv_Emv, AllDefinitionsUseEmvFramingAndSchemas) {
     for (int ctx = 0; ctx < TLV_EMV_CONTEXT_COUNT; ++ctx) {
         auto        context = static_cast<tlv_emv_context_t>(ctx);
         const auto* schema = tlv_emv_schema_for(context);
@@ -69,11 +76,11 @@ TEST(Integration_Tlv_Emv, AllDefinitionsUseGenericBerAndSchemas) {
                 entry.max_length == SIZE_MAX ? entry.min_length : entry.max_length;
             std::vector<uint8_t> value(length, 0x5A), wire(length + 16);
             tlv_writer_t         writer;
-            ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, wire.data(), wire.size(), &tlv_format_ber));
+            ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, wire.data(), wire.size(), &tlv_format_emv));
             ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, entry.tag, value.data(), length));
             EXPECT_EQ(0, std::memcmp(wire.data(), entry.tag.data, entry.tag.size));
             tlv_reader_t reader;
-            ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire.data(), writer.pos, &tlv_format_ber));
+            ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire.data(), writer.pos, &tlv_format_emv));
             tlv_element_t element;
             ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
             EXPECT_TRUE(tlv_reader_at_end(&reader));
@@ -177,7 +184,7 @@ TEST(Integration_Tlv_Emv, CurrencyListsAreNotSingleNumbers) {
 TEST(Integration_Tlv_Emv, FramingSchemaAndValueValidationAreIndependent) {
     const uint8_t wire[] = {0x9F, 0x02, 6, 0, 0, 0, 0, 0, 0xFA, 0x9F, 0x02, 0, 0xDF, 0x01, 0};
     tlv_reader_t  reader;
-    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire, sizeof(wire), &tlv_format_ber));
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wire, sizeof(wire), &tlv_format_emv));
     tlv_element_t element;
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     ASSERT_EQ(TLV_OK, tlv_schema_validate_length(tlv_schema_find(&tlv_emv_schema, &element.tag),
@@ -192,6 +199,63 @@ TEST(Integration_Tlv_Emv, FramingSchemaAndValueValidationAreIndependent) {
                                          element.value.size));
     ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &element));
     EXPECT_EQ(nullptr, tlv_schema_find(&tlv_emv_schema, &element.tag));
+}
+
+TEST(Integration_Tlv_Emv, SemanticTemplateDoesNotChangeWireConstructedBit) {
+    // 9F31 is a semantic template despite its primitive wire bit.
+    const uint8_t wire[] = {0x9f, 0x31, 3, 0x7f, 0x60, 0};
+    tlv_decoded_t outer{};
+    ASSERT_EQ(TLV_OK, tlv_format_decode(&tlv_format_emv, wire, sizeof(wire), &outer, nullptr));
+    EXPECT_FALSE(tlv_format_emv.is_constructed(tlv_format_emv.context, &outer.element.tag));
+    const auto* definition = tlv_emv_find(TLV_EMV_CONTEXT_BASE, &outer.element.tag);
+    ASSERT_NE(nullptr, definition);
+    EXPECT_EQ(TLV_EMV_VALUE_TEMPLATE, definition->value_kind);
+    EXPECT_EQ(TLV_EMV_CONTEXT_BASE,
+              tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &outer.element.tag));
+    size_t visits = 0;
+    auto   visitor = [](const tlv_element_t*, size_t, size_t, void* context) {
+        ++*static_cast<size_t*>(context);
+        return TLV_VISIT_CONTINUE;
+    };
+    ASSERT_EQ(TLV_OK,
+              tlv_walk_tree(wire, sizeof(wire), &tlv_format_emv, 8, 8, visitor, &visits, nullptr));
+    EXPECT_EQ(1u, visits);
+    // The application explicitly opens the value using its semantic context.
+    tlv_decoded_t child{};
+    ASSERT_EQ(TLV_OK, tlv_format_decode(&tlv_format_emv, outer.element.value.data, sizeof(wire) - 3,
+                                        &child, nullptr));
+    EXPECT_EQ(TLV_EMV_CONTEXT_BIT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &child.element.tag));
+}
+
+TEST(Integration_Tlv_Emv, GenericQueryAndDocumentUseEmvFraming) {
+    const uint8_t wire[] = {0x70, 4, 0x9f, 2, 1, 0x42};
+    tlv_query_t   query{};
+    ASSERT_EQ(TLV_OK, tlv_query_parse("70/9F02", &query, nullptr));
+    size_t visits = 0;
+    auto   visitor = [](const tlv_element_t* element, size_t depth, size_t offset, void* context) {
+        EXPECT_EQ(1u, depth);
+        EXPECT_EQ(2u, offset);
+        EXPECT_EQ(1u, element->value.size);
+        EXPECT_EQ(0x42, element->value.data[0]);
+        ++*static_cast<size_t*>(context);
+        return TLV_VISIT_CONTINUE;
+    };
+    ASSERT_EQ(TLV_OK, tlv_query_walk(wire, sizeof(wire), &tlv_format_emv, &query, 8, 8, visitor,
+                                     &visits, nullptr));
+    EXPECT_EQ(1u, visits);
+#if OPENTLV_DOCUMENT
+    tlv_document_options_t options{};
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &tlv_format_emv));
+    tlv_document_t* raw = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_parse(wire, sizeof(wire), &options, &raw, nullptr));
+    std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
+    ASSERT_NE(nullptr, tlv_document_find_path(doc.get(), &query));
+    uint8_t output[sizeof(wire)] = {};
+    size_t  written = 0;
+    ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), output, sizeof(output), &written));
+    EXPECT_EQ(sizeof(wire), written);
+    EXPECT_EQ(0, std::memcmp(wire, output, written));
+#endif
 }
 
 TEST(Integration_Tlv_Emv, AmountCodecKnownVectorsAndLimits) {
