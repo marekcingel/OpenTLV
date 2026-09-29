@@ -24,6 +24,8 @@ walking, codecs and endian conversion, and a fully custom format.
   `tlv_writer_copy_element`/`tlv_writer_copy_encoded`.
 - [`copies.c`](copies.c) -- the explicit `tlv_copy_value`/`tlv_copy_encoded`/`tlv_copy_element`
   helpers.
+- [`incremental_reader.c`](incremental_reader.c) -- caller-owned sliding input,
+  resumable reads and explicit EOF using a buffer smaller than the full input.
 - [`schema_walk.c`](schema_walk.c) -- schema validation inside a
   `tlv_walk()` callback.
 - [`codecs_and_endian.c`](codecs_and_endian.c) -- an application value codec, and

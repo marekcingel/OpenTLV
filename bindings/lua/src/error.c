@@ -50,6 +50,8 @@ void opentlv_lua_register_error_codes(lua_State* L, int module_table_index) {
     lua_newtable(L);
     lua_pushinteger(L, TLV_OK);
     lua_setfield(L, -2, "OK");
+    lua_pushinteger(L, TLV_NEED_MORE_DATA);
+    lua_setfield(L, -2, "NEED_MORE_DATA");
     lua_pushinteger(L, TLV_ERR_BUFFER_TOO_SHORT);
     lua_setfield(L, -2, "BUFFER_TOO_SHORT");
     lua_pushinteger(L, TLV_ERR_INVALID_LENGTH);

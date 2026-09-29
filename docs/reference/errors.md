@@ -1,7 +1,8 @@
 # Error codes
 
 Every C function that can fail returns a `tlv_result_t` from `tlv/error.h`. Zero is
-success and every other value is an error. `tlv_strerror` returns a static, readable
+success; nonzero results include errors, end-of-input and the resumable
+`TLV_NEED_MORE_DATA` condition. `tlv_strerror` returns a static, readable
 description of any code and `"unknown error"` for an unrecognized one; never free or
 modify the string. The Rust `Error` type maps every `TLV_ERR_*` code.
 
@@ -32,6 +33,7 @@ return; this page explains what each code means and what to check first.
 | `TLV_ERR_UNSUPPORTED_TYPE` | 15 | A universal tag number has no implemented canonical validation. | Strict mode returns this instead of silently accepting a type it does not check; see the list in the [DER validation](../standards/der/README.md#strict-universal-value-validation). |
 | `TLV_ERR_SCHEMA_MISSING` | 16 | A required field is absent. | Its offset is the end of the enclosing parent's value, not an element; see below. |
 | `TLV_ERR_NATIVE_SIZE` | 17 | A logical size exceeds the native address space. | Checked conversion to `size_t`; the logical quantity itself remains valid. |
+| `TLV_NEED_MORE_DATA` | 18 | Incremental input is exhausted or incomplete. | Supply an extended window or declare EOF. No element is published and the cursor does not advance. |
 
 ## Offsets and diagnosis
 

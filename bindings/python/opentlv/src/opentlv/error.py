@@ -108,6 +108,10 @@ class NativeSizeError(OpenTLVError):
     """A logical size exceeds the native address space."""
 
 
+class NeedMoreDataError(OpenTLVError):
+    """Non-final input is exhausted or incomplete; supply more data or EOF."""
+
+
 # Keyed by tlv_result_t; mirrors tlv/include/tlv/error.h.
 _ERROR_TYPES = {
     1: BufferTooShortError,
@@ -127,6 +131,7 @@ _ERROR_TYPES = {
     15: UnsupportedTypeError,
     16: SchemaMissingError,
     17: NativeSizeError,
+    18: NeedMoreDataError,
 }
 
 

@@ -20,7 +20,8 @@ extern "C" {
 /**
  * @brief Result code returned by OpenTLV C functions.
  *
- * Zero is success; every other value is an error. Unless a function states
+ * Zero is success. #TLV_NEED_MORE_DATA is a resumable input condition;
+ * other nonzero values describe errors or end of input. Unless a function states
  * otherwise, an error leaves its output parameters unchanged. Which codes a
  * function can return is documented on that function.
  *
@@ -75,7 +76,9 @@ typedef enum tlv_result {
      */
     TLV_ERR_SCHEMA_MISSING = 16,
     /** A valid logical quantity exceeds the host address space. */
-    TLV_ERR_NATIVE_SIZE = 17
+    TLV_ERR_NATIVE_SIZE = 17,
+    /** Non-final Reader input is exhausted or incomplete; supply more bytes or mark it final. */
+    TLV_NEED_MORE_DATA = 18
 } tlv_result_t;
 
 /**

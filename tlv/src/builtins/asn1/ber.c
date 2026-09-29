@@ -33,11 +33,16 @@ tlv_result_t tlv_ber_tag_number(const tlv_tag_t* tag, uint64_t* number) {
 }
 
 static tlv_result_t scan_failure(tlv_format_error_t* error, tlv_result_t code, size_t offset,
-                                 tlv_region_t region) {
+                                 tlv_region_t region, int bounded) {
+    if (code == TLV_ERR_BUFFER_TOO_SHORT && bounded) code = TLV_ERR_INVALID_LENGTH;
     if (error) {
         error->region = region;
         error->offset = offset;
         error->has_offset = 1;
+        if (region == TLV_REGION_TRAILER && code == TLV_ERR_BUFFER_TOO_SHORT) {
+            error->has_required = 1;
+            error->required = TLV_BER_EOC_SIZE;
+        }
     }
     return code;
 }
@@ -47,10 +52,12 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
                                         tlv_format_error_t* error) {
     size_t ends[TLV_BER_MAX_DEPTH];
     int terminated[TLV_BER_MAX_DEPTH];
+    int bounded[TLV_BER_MAX_DEPTH];
     size_t depth = 1, pos = 0;
     tlv_region_t region = TLV_REGION_VALUE;
     ends[0] = size;
     terminated[0] = indefinite;
+    bounded[0] = 0;
     for (;;) {
         size_t limit = ends[depth - 1], tag_size, len_size;
         tlv_size_t length;
@@ -59,7 +66,8 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
         int child_indefinite, constructed;
         if (pos == limit) {
             if (terminated[depth - 1])
-                return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, TLV_REGION_TRAILER);
+                return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, TLV_REGION_TRAILER,
+                                    bounded[depth - 1]);
             if (--depth == 0) {
                 *value_size = pos;
                 *consumed = pos;
@@ -70,10 +78,12 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
         if (data[pos] == 0) {
             region = TLV_REGION_TRAILER;
             if (limit - pos < TLV_BER_EOC_SIZE)
-                return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, region);
-            if (data[pos + 1] != 0) return scan_failure(error, TLV_ERR_INVALID_LENGTH, pos, region);
+                return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, region,
+                                    bounded[depth - 1]);
+            if (data[pos + 1] != 0)
+                return scan_failure(error, TLV_ERR_INVALID_LENGTH, pos, region, bounded[depth - 1]);
             if (!terminated[depth - 1])
-                return scan_failure(error, TLV_ERR_INVALID_TAG, pos, region);
+                return scan_failure(error, TLV_ERR_INVALID_TAG, pos, region, bounded[depth - 1]);
             if (--depth == 0) {
                 *value_size = pos;
                 *consumed = pos + TLV_BER_EOC_SIZE;
@@ -84,27 +94,37 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
         }
         region = TLV_REGION_TAG;
         rc = read_tag(NULL, data + pos, limit - pos, &tag, &tag_size);
-        if (rc != TLV_OK) return scan_failure(error, rc, pos, region);
+        if (rc != TLV_OK) return scan_failure(error, rc, pos, region, bounded[depth - 1]);
         pos += tag_size;
         region = TLV_REGION_LENGTH;
-        if (pos == limit) return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, region);
+        if (pos == limit)
+            return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, region, bounded[depth - 1]);
         constructed = tlv_asn1_is_constructed(NULL, &tag);
         child_indefinite = data[pos] == TLV_BER_LENGTH_LONG_FORM_BIT;
         if (child_indefinite) {
-            if (!constructed) return scan_failure(error, TLV_ERR_INVALID_LENGTH, pos, region);
+            if (!constructed)
+                return scan_failure(error, TLV_ERR_INVALID_LENGTH, pos, region, bounded[depth - 1]);
             ++pos;
             length = limit - pos;
         } else {
             rc = read_length(NULL, data + pos, limit - pos, &length, &len_size);
-            if (rc != TLV_OK) return scan_failure(error, rc, pos, region);
+            if (rc != TLV_OK) return scan_failure(error, rc, pos, region, bounded[depth - 1]);
             pos += len_size;
             region = TLV_REGION_VALUE;
-            if (length > limit - pos)
-                return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, region);
+            if (length > limit - pos) {
+                if (error) {
+                    error->has_required = 1;
+                    error->required = length;
+                }
+                return scan_failure(error, TLV_ERR_BUFFER_TOO_SHORT, pos, region,
+                                    bounded[depth - 1]);
+            }
         }
         if (constructed) {
-            if (depth == TLV_BER_MAX_DEPTH) return scan_failure(error, TLV_ERR_LIMIT, pos, region);
+            if (depth == TLV_BER_MAX_DEPTH)
+                return scan_failure(error, TLV_ERR_LIMIT, pos, region, bounded[depth - 1]);
             ends[depth] = pos + (size_t)length;
+            bounded[depth] = bounded[depth - 1] || !child_indefinite;
             terminated[depth++] = child_indefinite;
         } else
             pos += (size_t)length;

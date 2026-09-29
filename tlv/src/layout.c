@@ -248,8 +248,15 @@ static tlv_field_layout_t binary_fields(const void* context) {
 
 tlv_result_t tlv_binary_decode(const void* context, const uint8_t* data, size_t size,
                                tlv_decoded_t* result, tlv_format_error_t* error) {
+    const tlv_binary_layout_t* layout = (const tlv_binary_layout_t*)context;
     tlv_field_layout_t f = binary_fields(context);
-    return tlv_fields_decode(&f, data, size, result, error);
+    tlv_result_t rc = tlv_fields_decode(&f, data, size, result, error);
+    if (rc == TLV_ERR_BUFFER_TOO_SHORT &&
+        (error->region == TLV_REGION_TAG || error->region == TLV_REGION_LENGTH)) {
+        error->has_required = 1;
+        error->required = error->region == TLV_REGION_TAG ? layout->tag_size : layout->length_size;
+    }
+    return rc;
 }
 
 tlv_result_t tlv_binary_measure(const void* context, const tlv_element_t* element,
