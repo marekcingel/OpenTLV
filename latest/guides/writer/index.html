@@ -3015,19 +3015,23 @@ Format policy still applies to complete-element writes: the BER indefinite
 preset only encodes constructed elements, while CER selects definite framing
 for primitive elements and indefinite framing for constructed elements.</p>
 <h2 id="reader-transform-writer">Reader → transform → Writer<a class="headerlink" href="#reader-transform-writer" title="Permanent link">&para;</a></h2>
-<p>A Tree Reader returns complete Elements in preorder with an item depth. Before
-processing each item, close writer parents until the number of open parents
-equals that depth. For a constructed item, call <code>begin()</code> with its destination
-Tag; for a primitive item, transform its content and call <code>write_element()</code>.
-At final Reader exhaustion, close the remaining parents and call <code>finish()</code>.
-An empty constructed item is opened and closed by the same depth transitions.</p>
-<p>Alternatively, write an unchanged complete subtree with <code>write_element()</code> and
-call <code>tlv_tree_reader_skip_subtree()</code> before advancing, when that subtree is
-nonempty. Its descendants must not be written a second time. Input and output
-remain separate, and input-backed Tags retained by <code>begin()</code> must stay alive
-until their parents close. Non-final <code>TLV_NEED_MORE_DATA</code> does not close scopes.
-No Document is required; this remains subject to Tree Reader's complete-parent
-input contract. Format conversion may reject destination identifiers or content.</p>
+<p>Pull <code>tlv_tree_reader_next_event()</code> and pass each successful event directly to
+<code>tlv_tree_writer_write_event()</code>, optionally modifying node content between them.
+BEGIN opens the destination Tag and ignores the original parent Value; ELEMENT
+writes primitive content; END encodes the accumulated parent. No depth reconstruction
+or final implicit closure is required. <code>finish()</code> rejects missing END events.</p>
+<p>Writer checks event depth and destination classification. It rejects skipped END
+because omitted descendants are not an empty container. Code choosing to copy a
+complete subtree with <code>write_element()</code> must suppress that subtree's BEGIN and
+skipped END rather than write it twice. Query matches alone are not a balanced
+structural stream.</p>
+<p>Input and output remain separate. In default mode BEGIN borrows its Tag until END.
+Use <code>tlv_tree_writer_set_tag_storage()</code> with disjoint caller-owned bytes to retain
+open Tags independently of a replaceable Reader buffer; exhaustion returns LIMIT.
+On Writer failure retain the current event for retry before pulling another one.
+NEED_MORE_DATA publishes nothing and does not close scopes. No Document is required;
+Tree Reader still requires a complete parent before BEGIN. Format conversion may
+reject destination identifiers or content. See the <a href="../../concepts/processing-pipeline/#canonical-structural-events-402">event contract</a>.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
 <p>This self-checking example works without optional builtins:</p>
 <!-- example: examples/tlv/src/tree_writer.c -->
@@ -3072,10 +3076,12 @@ input contract. Format conversion may reject destination identifiers or content.
 <a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="measuring-an-owned-tree">Measuring an owned tree<a class="headerlink" href="#measuring-an-owned-tree" title="Permanent link">&para;</a></h2>
-<p><code>tlv_tree_writer_measure()</code> consumes a caller-supplied preorder callback. The
-callback returns each semantic Element, its depth, and its constructed flag;
-Tree Writer opens and closes scopes, including empty parents. It has no dependency
-on Document. A Document or another tree owner can supply the same source contract.</p>
+<p><code>tlv_tree_writer_measure_events()</code> consumes a balanced structural event callback.
+Document and other tree producers supply the same BEGIN/ELEMENT/END contract.
+The node-only <code>tlv_tree_writer_measure()</code> callback remains an adapter that supplies
+missing closures to the same event consumer. Tree Writer has no Document dependency.
+The event helper requires explicit final ENDs; NEED_MORE_DATA aborts this one-shot
+operation, so use a persistent Writer for resumable transformations.</p>
 <p>The caller supplies <code>tlv_tree_writer_workspace_t</code>: frames, staging output and a
 separate shared scratch buffer. Measurement stages the encoding so that every
 Format receives readable child bytes, including Formats whose header or trailer

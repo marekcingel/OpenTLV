@@ -100,6 +100,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a5a3a79e2cc3ada934014cc52c93823e6" id="r_a5a3a79e2cc3ada934014cc52c93823e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#ae532e2a7c270ec66692e80352238237c">tree_item</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a5a3a79e2cc3ada934014cc52c93823e6">next</a> (<a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a5a3a79e2cc3ada934014cc52c93823e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Publish the next complete borrowed preorder item.  <br /></td></tr>
 <tr class="separator:a5a3a79e2cc3ada934014cc52c93823e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb68092903f2cf027c5ca72b427270df" id="r_aeb68092903f2cf027c5ca72b427270df"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#af416d1342eb5bb2398b1148ce54269b4">tree_event</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#aeb68092903f2cf027c5ca72b427270df">next_event</a> (<a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:aeb68092903f2cf027c5ca72b427270df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull a canonical structural event from the C engine.  <br /></td></tr>
+<tr class="separator:aeb68092903f2cf027c5ca72b427270df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35d5898b05a0a542d6cb60989adb95b4" id="r_a35d5898b05a0a542d6cb60989adb95b4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a35d5898b05a0a542d6cb60989adb95b4">skip_subtree</a> ()</td></tr>
 <tr class="memdesc:a35d5898b05a0a542d6cb60989adb95b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Skip the pending nonempty subtree without decoding descendants.  <br /></td></tr>
 <tr class="separator:a35d5898b05a0a542d6cb60989adb95b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -323,7 +326,43 @@ Friends</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Item, NEED_MORE_DATA, END_OF_BUFFER, or the original C error. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Non-success preserves traversal state. A parent is published only when its entire encoded extent is available; there are no ENTER/LEAVE events. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Hides pending END events before reading a node. Apart from those closures, non-success preserves traversal state. A parent requires its entire encoded extent; use <a class="el" href="classtlv_1_1tree__reader.html#aeb68092903f2cf027c5ca72b427270df" title="Pull a canonical structural event from the C engine.">next_event()</a> for explicit structural events. </dd></dl>
+
+</div>
+</div>
+<a id="aeb68092903f2cf027c5ca72b427270df" name="aeb68092903f2cf027c5ca72b427270df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb68092903f2cf027c5ca72b427270df">&#9670;&#160;</a></span>next_event()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#af416d1342eb5bb2398b1148ce54269b4">tree_event</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::tree_reader::next_event </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Pull a canonical structural event from the C engine. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">diagnostic</td><td>Optional original Reader failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Event or the original Reader error; borrowed payload follows input lifetime. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Do not mix with node-only pulls when consuming a balanced stream. </dd></dl>
 
 </div>
 </div>

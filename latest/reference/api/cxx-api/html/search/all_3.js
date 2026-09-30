@@ -15,7 +15,7 @@ var searchData=
   ['definition_2eh_12',['definition.h',['../../../c-api/html/definition_8h.html',1,'']]],
   ['definition_2ehpp_13',['definition.hpp',['../definition_8hpp.html',1,'']]],
   ['definition_5fregistry_14',['definition_registry',['../classtlv_1_1definition__registry.html#a33bdac18b4096b05690e839c0a366dc8',1,'tlv::definition_registry::definition_registry()'],['../classtlv_1_1definition__registry.html',1,'tlv::definition_registry']]],
-  ['depth_15',['depth',['../../../c-api/html/structtlv__tree__item.html#a690bf14345a7e534dba6e9ce9cc3ddc5',1,'tlv_tree_item::depth'],['../../../c-api/html/structtlv__tree__reader.html#a945f26560ddca84c692369bf880878c9',1,'tlv_tree_reader::depth'],['../../../c-api/html/structtlv__tree__writer.html#a32b594106cbe849909240bffd560edc0',1,'tlv_tree_writer::depth']]],
+  ['depth_15',['depth',['../../../c-api/html/structtlv__tree__item.html#a690bf14345a7e534dba6e9ce9cc3ddc5',1,'tlv_tree_item::depth'],['../../../c-api/html/structtlv__tree__event.html#abfd42ddd2da5edd3b8002cd12130130a',1,'tlv_tree_event::depth'],['../../../c-api/html/structtlv__tree__reader.html#a945f26560ddca84c692369bf880878c9',1,'tlv_tree_reader::depth'],['../../../c-api/html/structtlv__tree__writer.html#a32b594106cbe849909240bffd560edc0',1,'tlv_tree_writer::depth']]],
   ['der_2eh_16',['der.h',['../../../c-api/html/der_8h.html',1,'']]],
   ['der_5fschema_2eh_17',['der_schema.h',['../../../c-api/html/der__schema_8h.html',1,'']]],
   ['der_5fvalidation_2eh_18',['der_validation.h',['../../../c-api/html/der__validation_8h.html',1,'']]],

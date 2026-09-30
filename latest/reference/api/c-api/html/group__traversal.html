@@ -173,6 +173,12 @@ Functions</h2></td></tr>
 <tr class="memitem:gacd8a0af2a70f78fe01583fd8b727ee34" id="r_gacd8a0af2a70f78fe01583fd8b727ee34"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gacd8a0af2a70f78fe01583fd8b727ee34">tlv_query_visit_buffer</a> (const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, const <a class="el" href="group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> *query, size_t max_depth, size_t max_elements, <a class="el" href="group__traversal.html#gaf572548859302a08a316afb73d4ea641">tlv_tree_visitor_t</a> visitor, void *context, size_t *error_offset)</td></tr>
 <tr class="memdesc:gacd8a0af2a70f78fe01583fd8b727ee34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calls a visitor for every element a query addresses.  <br /></td></tr>
 <tr class="separator:gacd8a0af2a70f78fe01583fd8b727ee34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad81a439152f24e0d06c0f52c6542ca90" id="r_gad81a439152f24e0d06c0f52c6542ca90"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gad81a439152f24e0d06c0f52c6542ca90">tlv_tree_reader_next_event</a> (<a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *reader, <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event)</td></tr>
+<tr class="memdesc:gad81a439152f24e0d06c0f52c6542ca90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull one canonical BEGIN, ELEMENT or END event.  <br /></td></tr>
+<tr class="separator:gad81a439152f24e0d06c0f52c6542ca90"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0b8b43ce133ebdac20431525ca0cad9b" id="r_ga0b8b43ce133ebdac20431525ca0cad9b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga0b8b43ce133ebdac20431525ca0cad9b">tlv_tree_reader_next_event_diag</a> (<a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *reader, <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event, <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga0b8b43ce133ebdac20431525ca0cad9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull a canonical event with original Reader diagnostics.  <br /></td></tr>
+<tr class="separator:ga0b8b43ce133ebdac20431525ca0cad9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga29aca0eb01c33f7ef8a7cb3652dfbf9c" id="r_ga29aca0eb01c33f7ef8a7cb3652dfbf9c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga29aca0eb01c33f7ef8a7cb3652dfbf9c">tlv_tree_reader_init</a> (<a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *reader, const uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="group__traversal.html#ga7b6f4acf3a3650c0f9e3b71eaf40ded3">tlv_tree_frame_t</a> *frames, size_t capacity, size_t max_depth, size_t max_elements)</td></tr>
 <tr class="memdesc:ga29aca0eb01c33f7ef8a7cb3652dfbf9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize traversal of a complete, final input window.  <br /></td></tr>
 <tr class="separator:ga29aca0eb01c33f7ef8a7cb3652dfbf9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -183,7 +189,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga918801776a3f7d9869ff6cccda108462"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replace or extend the contiguous input window without copying.  <br /></td></tr>
 <tr class="separator:ga918801776a3f7d9869ff6cccda108462"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1b4dc845d9a626648f47e5dd6d5d6e10" id="r_ga1b4dc845d9a626648f47e5dd6d5d6e10"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga1b4dc845d9a626648f47e5dd6d5d6e10">tlv_tree_reader_next</a> (<a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *reader, <a class="el" href="group__traversal.html#ga1a97318bea7cf12089db0524b5701d5d">tlv_tree_item_t</a> *item)</td></tr>
-<tr class="memdesc:ga1b4dc845d9a626648f47e5dd6d5d6e10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull the next complete item in preorder.  <br /></td></tr>
+<tr class="memdesc:ga1b4dc845d9a626648f47e5dd6d5d6e10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull the next complete node, hiding canonical END events.  <br /></td></tr>
 <tr class="separator:ga1b4dc845d9a626648f47e5dd6d5d6e10"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab65dfd47ae0d940c8578d65a1fabebb7" id="r_gab65dfd47ae0d940c8578d65a1fabebb7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gab65dfd47ae0d940c8578d65a1fabebb7">tlv_tree_reader_next_diag</a> (<a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *reader, <a class="el" href="group__traversal.html#ga1a97318bea7cf12089db0524b5701d5d">tlv_tree_item_t</a> *item, <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:gab65dfd47ae0d940c8578d65a1fabebb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull an item with the original Reader failure detail, without a second decode.  <br /></td></tr>
@@ -280,7 +286,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>One complete borrowed element in the preorder tree stream. </p>
-<p>There are no ENTER/LEAVE events. Siblings have equal depth; a lower depth returns to an enclosing sequence. Final end closes remaining scopes. Empty constructed values still produce one item. Source ranges are relative to source.data. </p>
+<p>Node-only projection of the canonical structural stream: END events are hidden. Siblings have equal depth; a lower depth returns to an enclosing sequence. Final end closes remaining scopes. Empty constructed values still produce one item. Source ranges are relative to source.data. </p>
 
 </div>
 </div>
@@ -1147,7 +1153,7 @@ Any Reader error, propagated unchanged without retrying the decode. </dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p>Pull the next complete item in preorder. </p>
+<p>Pull the next complete node, hiding canonical END events. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">reader</td><td>Initialized cursor; required. </td></tr>
@@ -1168,7 +1174,7 @@ Any Reader error, propagated unchanged without retrying the decode. </dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for a NULL cursor or item. </dd>
 <dd>
 Any other Reader error, propagated unchanged. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Non-success preserves traversal state and frame storage. Repeating a call with unchanged input is deterministic. Descent limits are checked after publishing the parent, so it can be skipped without entering it. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Node-only pulls hide pending END events, including those left by a Document Builder, before attempting the next node. Apart from those closures, non-success preserves traversal state and frame storage. Descent limits are checked after publishing the parent, so it can be skipped without entering it. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>The item borrows input and Format storage; it owns neither. </dd></dl>
 
 </div>
@@ -1214,7 +1220,91 @@ Any other Reader error, propagated unchanged. </dd></dl>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Same results and state transitions as <a class="el" href="group__traversal.html#ga1b4dc845d9a626648f47e5dd6d5d6e10" title="Pull the next complete item in preorder.">tlv_tree_reader_next()</a>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Same results and state transitions as <a class="el" href="group__traversal.html#ga1b4dc845d9a626648f47e5dd6d5d6e10" title="Pull the next complete node, hiding canonical END events.">tlv_tree_reader_next()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="gad81a439152f24e0d06c0f52c6542ca90" name="gad81a439152f24e0d06c0f52c6542ca90"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad81a439152f24e0d06c0f52c6542ca90">&#9670;&#160;</a></span>tlv_tree_reader_next_event()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tree_reader_next_event </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *&#160;</td>
+          <td class="paramname"><em>reader</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *&#160;</td>
+          <td class="paramname"><em>event</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pull one canonical BEGIN, ELEMENT or END event. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">reader</td><td>Initialized cursor; required. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">event</td><td>Required output; unchanged on non-success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>TLV_OK for one event; otherwise the results of <a class="el" href="group__traversal.html#ga1b4dc845d9a626648f47e5dd6d5d6e10" title="Pull the next complete node, hiding canonical END events.">tlv_tree_reader_next()</a>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>BEGIN waits for a complete encoded parent. Known END events precede NEED_MORE_DATA or final EOF and do not count against max_elements. Non-success preserves all traversal state and frames. END never borrows parent storage. Do not interleave event pulls with node-only next()/Visitor projections when consuming a balanced stream: those projections intentionally hide END events. </dd></dl>
+
+</div>
+</div>
+<a id="ga0b8b43ce133ebdac20431525ca0cad9b" name="ga0b8b43ce133ebdac20431525ca0cad9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0b8b43ce133ebdac20431525ca0cad9b">&#9670;&#160;</a></span>tlv_tree_reader_next_event_diag()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tree_reader_next_event_diag </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> *&#160;</td>
+          <td class="paramname"><em>reader</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *&#160;</td>
+          <td class="paramname"><em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pull a canonical event with original Reader diagnostics. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">reader</td><td>Initialized cursor; required. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">event</td><td>Required output; unchanged on non-success. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional Reader failure detail, unchanged on events or tree errors. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Same results and guarantees as <a class="el" href="group__traversal.html#gad81a439152f24e0d06c0f52c6542ca90" title="Pull one canonical BEGIN, ELEMENT or END event.">tlv_tree_reader_next_event()</a>. </dd></dl>
 
 </div>
 </div>
@@ -1334,7 +1424,7 @@ Any other Reader error, propagated unchanged. </dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> when there is no pending subtree. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for NULL reader. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>May be called after a failed next() while descent is still pending. Skipped descendants do not count toward max_elements. No descendant validation occurs here; Format may already have scanned framing while decoding the parent. Closing enclosing scopes takes O(depth) work. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>In event mode the next pull emits END with skipped=1; node-only mode hides this closure. Empty containers already have a pending ordinary END. May be called after a failed next() while descent is still pending. Skipped descendants do not count toward max_elements. No descendant validation occurs here; Format may already have scanned framing while decoding the parent. Closing enclosing scopes takes O(depth) work. </dd></dl>
 
 </div>
 </div>

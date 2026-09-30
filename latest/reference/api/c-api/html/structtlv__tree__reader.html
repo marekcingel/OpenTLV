@@ -100,6 +100,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:ab33e0df6e78a86b79a8ef674a99bad0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abea11a7a437760241f72a61cf7dd94a7" id="r_abea11a7a437760241f72a61cf7dd94a7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__reader.html#abea11a7a437760241f72a61cf7dd94a7">descend_pending</a></td></tr>
 <tr class="separator:abea11a7a437760241f72a61cf7dd94a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a144d9a7768354f914faece25a0515e7b" id="r_a144d9a7768354f914faece25a0515e7b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__reader.html#a144d9a7768354f914faece25a0515e7b">end_pending</a></td></tr>
+<tr class="separator:a144d9a7768354f914faece25a0515e7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a594105cfa1f7143085c6b45e31464078" id="r_a594105cfa1f7143085c6b45e31464078"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__reader.html#a594105cfa1f7143085c6b45e31464078">skipped</a></td></tr>
+<tr class="separator:a594105cfa1f7143085c6b45e31464078"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7046295a2967e91ed7b004ea21c0574c" id="r_a7046295a2967e91ed7b004ea21c0574c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__reader.html#a7046295a2967e91ed7b004ea21c0574c">item_projection</a></td></tr>
+<tr class="separator:a7046295a2967e91ed7b004ea21c0574c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Allocation-free, iterative preorder cursor composing the canonical Reader. </p>
@@ -167,6 +173,21 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a id="a144d9a7768354f914faece25a0515e7b" name="a144d9a7768354f914faece25a0515e7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a144d9a7768354f914faece25a0515e7b">&#9670;&#160;</a></span>end_pending</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_tree_reader::end_pending</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>A pending empty or skipped container must emit END. </p>
+
+</div>
+</div>
 <a id="a06dc59a0cd6aad8bcb57d926766df928" name="a06dc59a0cd6aad8bcb57d926766df928"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a06dc59a0cd6aad8bcb57d926766df928">&#9670;&#160;</a></span>frames</h2>
 
@@ -194,6 +215,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Canonical input window and traversal frontier. </p>
+
+</div>
+</div>
+<a id="a7046295a2967e91ed7b004ea21c0574c" name="a7046295a2967e91ed7b004ea21c0574c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7046295a2967e91ed7b004ea21c0574c">&#9670;&#160;</a></span>item_projection</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_tree_reader::item_projection</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Last pull selected the node-only compatibility projection. </p>
 
 </div>
 </div>
@@ -239,6 +275,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Continuation for the last item, before optional descent. </p>
+
+</div>
+</div>
+<a id="a594105cfa1f7143085c6b45e31464078" name="a594105cfa1f7143085c6b45e31464078"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a594105cfa1f7143085c6b45e31464078">&#9670;&#160;</a></span>skipped</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int tlv_tree_reader::skipped</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Pending END reports omitted descendants. </p>
 
 </div>
 </div>

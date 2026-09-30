@@ -7,5 +7,6 @@ var searchData=
   ['interface_5fnumber_4',['interface_number',['../structtlv__lldp__management__address.html#a58aa4c957ef89345f4f1fb3aa691e035',1,'tlv_lldp_management_address']]],
   ['interface_5fsubtype_5',['interface_subtype',['../structtlv__lldp__management__address.html#a5c62478a3bcdc5a130fdb2a122753238',1,'tlv_lldp_management_address']]],
   ['is_5fconstructed_6',['is_constructed',['../structtlv__format.html#a0127a948aff3dd7310d17e0037592584',1,'tlv_format']]],
-  ['is_5fgroup_7',['is_group',['../structtlv__schema__diagnostic.html#a6ff07c00e2adb83bb0f47b10ea649975',1,'tlv_schema_diagnostic']]]
+  ['is_5fgroup_7',['is_group',['../structtlv__schema__diagnostic.html#a6ff07c00e2adb83bb0f47b10ea649975',1,'tlv_schema_diagnostic']]],
+  ['item_5fprojection_8',['item_projection',['../structtlv__tree__reader.html#a7046295a2967e91ed7b004ea21c0574c',1,'tlv_tree_reader']]]
 ];

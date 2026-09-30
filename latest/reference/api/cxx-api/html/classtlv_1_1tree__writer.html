@@ -90,6 +90,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a39f9190c63504f2b99c643f33d991265" id="r_a39f9190c63504f2b99c643f33d991265"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a39f9190c63504f2b99c643f33d991265">tree_writer</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="el" href="namespacetlv.html#ab17c45337fcf91eb2d6e5477b0fbe06d">tree_writer_frame</a> *frames, size_t frame_capacity, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *scratch, size_t scratch_capacity, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX)</td></tr>
 <tr class="memdesc:a39f9190c63504f2b99c643f33d991265"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize borrowed output and structural storage.  <br /></td></tr>
 <tr class="separator:a39f9190c63504f2b99c643f33d991265"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acabae253a6e58b2bb76b23a5ba583988" id="r_acabae253a6e58b2bb76b23a5ba583988"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#acabae253a6e58b2bb76b23a5ba583988">set_tag_storage</a> (<a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt; storage)</td></tr>
+<tr class="memdesc:acabae253a6e58b2bb76b23a5ba583988"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy open Tags into disjoint caller-owned storage until matching END.  <br /></td></tr>
+<tr class="separator:acabae253a6e58b2bb76b23a5ba583988"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f689b3a2557edaa46e97e9ba03186ef" id="r_a4f689b3a2557edaa46e97e9ba03186ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a4f689b3a2557edaa46e97e9ba03186ef">write_event</a> (const <a class="elRef" href="../../c-api/html/tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> &amp;event, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a4f689b3a2557edaa46e97e9ba03186ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume a canonical event, checking depth and destination classification.  <br /></td></tr>
+<tr class="separator:a4f689b3a2557edaa46e97e9ba03186ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a422d840743c0ab3fbe8f371c37b5aeaa" id="r_a422d840743c0ab3fbe8f371c37b5aeaa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html#a422d840743c0ab3fbe8f371c37b5aeaa">begin</a> (<a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a422d840743c0ab3fbe8f371c37b5aeaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a constructed parent; Tag bytes remain borrowed until <a class="el" href="classtlv_1_1tree__writer.html#ad9c0b588f32b62932a9435fa815740ed" title="Close the innermost parent; failures preserve accumulated output and cursor.">end()</a>.  <br /></td></tr>
 <tr class="separator:a422d840743c0ab3fbe8f371c37b5aeaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -315,6 +321,41 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="acabae253a6e58b2bb76b23a5ba583988" name="acabae253a6e58b2bb76b23a5ba583988"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acabae253a6e58b2bb76b23a5ba583988">&#9670;&#160;</a></span>set_tag_storage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::tree_writer::set_tag_storage </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classtlv_1_1span.html">span</a>&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;&#160;</td>
+          <td class="paramname"><em>storage</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copy open Tags into disjoint caller-owned storage until matching END. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">storage</td><td>Storage that outlives this writer; empty NULL storage restores borrowing. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>C configuration result; cannot change storage with open parents. </dd></dl>
+
+</div>
+</div>
 <a id="a717823f46deb9796a913d0fc0e577887" name="a717823f46deb9796a913d0fc0e577887"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a717823f46deb9796a913d0fc0e577887">&#9670;&#160;</a></span>size()</h2>
 
@@ -385,6 +426,52 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>C write result or the retained initialization error. </dd></dl>
+
+</div>
+</div>
+<a id="a4f689b3a2557edaa46e97e9ba03186ef" name="a4f689b3a2557edaa46e97e9ba03186ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f689b3a2557edaa46e97e9ba03186ef">&#9670;&#160;</a></span>write_event()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::tree_writer::write_event </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Consume a canonical event, checking depth and destination classification. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">event</td><td>Borrowed event; BEGIN retains Tag unless copying storage is configured. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional Writer failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>C result; retry the same event on recoverable failure. </dd></dl>
 
 </div>
 </div>

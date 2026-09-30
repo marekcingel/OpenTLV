@@ -125,7 +125,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga84cf18bf22d1d866be097ac50f613a0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a builder for a complete tree stream or the last published subtree.  <br /></td></tr>
 <tr class="separator:ga84cf18bf22d1d866be097ac50f613a0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0888d701e74d2d1283c20316c7a47e84" id="r_ga0888d701e74d2d1283c20316c7a47e84"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga0888d701e74d2d1283c20316c7a47e84">tlv_document_builder_consume</a> (<a class="el" href="group__document.html#ga1ef71916e5fc7aa07e2126d2dc7f979d">tlv_document_builder_t</a> *builder, <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> **document, size_t *error_offset, <a class="el" href="group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a> *diagnostic)</td></tr>
-<tr class="memdesc:ga0888d701e74d2d1283c20316c7a47e84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume available tree items and transfer ownership only on completion.  <br /></td></tr>
+<tr class="memdesc:ga0888d701e74d2d1283c20316c7a47e84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume structural events and transfer ownership only on completion.  <br /></td></tr>
 <tr class="separator:ga0888d701e74d2d1283c20316c7a47e84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6f31156720a209fb231131bc123b051e" id="r_ga6f31156720a209fb231131bc123b051e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga6f31156720a209fb231131bc123b051e">tlv_document_builder_free</a> (<a class="el" href="group__document.html#ga1ef71916e5fc7aa07e2126d2dc7f979d">tlv_document_builder_t</a> *builder)</td></tr>
 <tr class="memdesc:ga6f31156720a209fb231131bc123b051e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroy a builder and discard any unfinished document.  <br /></td></tr>
@@ -371,8 +371,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Consume available tree items and transfer ownership only on completion. </p>
-<p>A whole-stream builder completes at final end. A subtree builder completes after its root and descendants, without decoding the following sibling; the cursor is ready to continue outside that subtree. Empty and primitive roots complete without another pull. This validates only the selected range.</p>
+<p>Consume structural events and transfer ownership only on completion. </p>
+<p>A whole-stream builder completes at final end. A subtree builder completes after its root and descendants, without decoding the following sibling; the cursor is ready to continue outside that subtree. Empty and primitive roots complete without another pull. Enclosing END events outside the selected subtree remain pending, so the frontier may precede an enclosing trailer. This validates only the selected range.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">builder</td><td>Active builder; required. </td></tr>
@@ -438,7 +438,7 @@ Any other Tree Reader error, propagated unchanged. </dd></dl>
 </div><div class="memdoc">
 
 <p>Create a builder for a complete tree stream or the last published subtree. </p>
-<p>With NULL <code>root</code>, consume a fresh reader through final end, including all roots. Otherwise <code>root</code> must be the last item published by <code>reader</code>, with no intervening pulls or subtree skips. Its node becomes the document's only root at depth zero. The root's tag and primitive value are copied immediately; descendants are copied by <a class="el" href="group__document.html#ga0888d701e74d2d1283c20316c7a47e84" title="Consume available tree items and transfer ownership only on completion.">tlv_document_builder_consume()</a>. No borrowed item is retained.</p>
+<p>With NULL <code>root</code>, consume a fresh reader through final end, including all roots. Otherwise <code>root</code> must be the last item published by <code>reader</code>, with no intervening pulls or subtree skips. Its node becomes the document's only root at depth zero. The root's tag and primitive value are copied immediately; descendants are copied by <a class="el" href="group__document.html#ga0888d701e74d2d1283c20316c7a47e84" title="Consume structural events and transfer ownership only on completion.">tlv_document_builder_consume()</a>. No borrowed item is retained.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>Document options; copied. The format must be the reader's exact descriptor. Depth limits are relative to the materialized root; element limits count only materialized nodes. Reader limits still apply. </td></tr>

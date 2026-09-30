@@ -749,6 +749,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#canonical-structural-events-402" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical structural events (#402)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Canonical structural events (#402)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#continuation-borrowing-and-subtree-skipping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuation, borrowing and subtree skipping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consumers-and-projections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consumers and projections
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#removed-superseded-interfaces" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2838,6 +2877,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#canonical-structural-events-402" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical structural events (#402)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Canonical structural events (#402)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#continuation-borrowing-and-subtree-skipping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Continuation, borrowing and subtree skipping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consumers-and-projections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consumers and projections
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#removed-superseded-interfaces" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2931,6 +3009,112 @@
 <h1 id="canonical-processing-pipeline">Canonical processing pipeline<a class="headerlink" href="#canonical-processing-pipeline" title="Permanent link">&para;</a></h1>
 <p>The #401 audit covers the generic Reader, Tree Reader, Visitor, Query, Document,
 Writer and Tree Writer engines and their C++, Rust and Python adapters.</p>
+<h2 id="canonical-structural-events-402">Canonical structural events (#402)<a class="headerlink" href="#canonical-structural-events-402" title="Permanent link">&para;</a></h2>
+<p>The canonical streaming representation is <code>tlv_tree_event_t</code> from <code>tlv/tree.h</code>:
+<code>BEGIN</code>, <code>ELEMENT</code>, <code>END</code>. Document remains the materialized representation.
+Tree Reader produces events with <code>tlv_tree_reader_next_event[_diag]</code>; Tree Writer
+accepts them with <code>tlv_tree_writer_write_event[_diag]</code>. Neither depends on the
+other. Both use the same Format-independent event contract.</p>
+<table>
+<thead>
+<tr>
+<th>Representation considered</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Element + depth</td>
+<td>Complete preorder can describe a tree, but every consumer must infer closures and final EOF closure. Retained only as a node projection.</td>
+</tr>
+<tr>
+<td>ENTER / ELEMENT / LEAVE</td>
+<td>Equivalent if ENTER carries the container and ELEMENT only primitives; a separate container ELEMENT is redundant.</td>
+</tr>
+<tr>
+<td>BEGIN / ELEMENT / END</td>
+<td>Selected: explicit, balanced operations directly map to Writer.</td>
+</tr>
+<tr>
+<td>Element + closure count</td>
+<td>Requires expanding implicit closes and a terminal record; no consumer simplification.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>BEGIN E1       depth=0
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>ELEMENT 01     depth=1
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>BEGIN E2       depth=1
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>ELEMENT 02     depth=2
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>END            depth=1
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>END            depth=0
+</code></pre></div>
+<p>BEGIN and ELEMENT carry the existing Element and optional Source metadata.
+Reader BEGIN carries the complete original container Value. Writer ignores that
+Value and encodes the children supplied between BEGIN and END, avoiding duplicate
+children and regenerating lengths/framing with the destination Format. END carries
+no Element, Tag or Source; depth identifies the closed level. Its offset is the
+absolute end of the original Value, before any trailer. Empty containers emit
+BEGIN then END. Roots form a sequence without a synthetic parent. EOF is a result,
+not an event; every pending END must be delivered before final exhaustion.</p>
+<p>Depth starts at zero. Writer rejects mismatched depth, unknown operations,
+unmatched END, missing END at <code>finish()</code>, and classification incompatible with the
+destination Format. BEGIN/ELEMENT count toward <code>max_elements</code>; END does not.
+Reader needs a frame only when entering nonempty children, permitting skip after
+a depth/capacity failure. Writer needs a frame for every BEGIN, including empty
+containers. Both are iterative and allocation-free with caller-owned bounded
+storage. Sequential Reader remains independently usable for flat sequences.</p>
+<h3 id="continuation-borrowing-and-subtree-skipping">Continuation, borrowing and subtree skipping<a class="headerlink" href="#continuation-borrowing-and-subtree-skipping" title="Permanent link">&para;</a></h3>
+<p>This is a structural event stream, not early-header streaming. BEGIN is published
+only when the entire encoded parent is contiguous, preserving the complete-Element
+Format/Reader contract. Known END events are delivered before NEED_MORE_DATA at
+the next root. NEED_MORE_DATA publishes nothing and preserves cursor, frames and
+output event. Resuming neither repeats successful events nor fabricates closure.
+A malformed child inside an already complete parent is a terminal framing error;
+appending input cannot repair it and no successful END is fabricated.</p>
+<p>Node payloads borrow their original input/Format storage. A later pull does not
+itself invalidate immutable retained views, but moving, overwriting or releasing
+their backing storage does. Input replacement cannot retarget an old view.
+Traversal frames store numeric continuations, never borrowed Elements. END
+therefore remains available after parent headers have been discarded or relocated.</p>
+<p>After BEGIN for a nonempty container, <code>skip_subtree()</code> omits descendants without
+validating them; the next event is its END with <code>skipped=1</code>. Writer and Document
+Builder reject omitted content rather than silently interpreting it as an empty
+container. Skipping does not prescribe a transformation policy. For example, code
+that copies a complete subtree itself must suppress that subtree's BEGIN and its
+skipped END instead of forwarding them as a second encoding.</p>
+<p>Writer normally borrows BEGIN Tags until matching END. Configure
+<code>tlv_tree_writer_set_tag_storage()</code> to copy them into a bounded caller-owned arena
+so a pipeline can discard input after each accepted event. Empty present Tags use
+one byte to preserve presence; absent Tags need none. Arena exhaustion returns
+LIMIT without consuming the event. Storage may be configured only with no open
+parents. END releases its Tag capacity only on success. Binding facades also
+support retaining owned Tags. Source metadata never determines output encoding.</p>
+<p>On Writer failure keep the current event for retry before pulling another event.
+Failures preserve the Writer cursor and accumulated bytes, following the existing
+begin/write/end contracts. Output and scratch remain bounded; events do not add
+an append-only output sink or remove whole-Value staging requirements.</p>
+<h3 id="consumers-and-projections">Consumers and projections<a class="headerlink" href="#consumers-and-projections" title="Permanent link">&para;</a></h3>
+<p>Visitor maps BEGIN/ELEMENT to existing node callbacks and ignores END; Query
+uses that projection and its existing matcher. Query matches alone are not a
+balanced stream. Document Builder consumes opens/closes directly. A selected-subtree builder consumes its
+own END and leaves enclosing END events pending; its frontier can therefore
+precede an enclosing trailer until the next pull. Document
+encoding emits the same events to <code>tlv_tree_writer_measure_events()</code>. This one-shot
+measurement helper stages exact bytes, reports required workspace, and requires
+a fresh producer for retry, including after NEED_MORE_DATA. Persistent Writer
+plus <code>write_event()</code> is the resumable path.</p>
+<p><code>tlv_tree_reader_next()</code> remains a thin node-only projection of the event engine;
+it hides END, preserving existing item iteration. Node pulls can consume pending
+ENDs left by a Builder before returning EOF or NEED_MORE_DATA; event pulls keep
+the stronger one-event-or-no-state-change contract. Do not interleave node/Visitor
+pulls and event pulls while expecting a complete balanced stream. There is one
+traversal state machine. C++ exposes <code>next_event()</code>/<code>write_event()</code> and
+<code>measure_tree_events()</code>, Rust <code>read_event()</code>/<code>write_event()</code>, and Python
+<code>next_event()</code>/<code>write_event()</code>. Rust and Python retain owned BEGIN Tags until END.
+Lua's existing missing Tree Reader/Writer facade remains a documented parity gap.</p>
+<p>Rebuild C consumers and native bindings: Reader and Writer cursor layouts gained
+state fields. Existing node-only entry points and serialized semantics remain
+available; the shared event representation adds no protocol-specific policy.</p>
 <h2 id="removed-superseded-interfaces">Removed superseded interfaces<a class="headerlink" href="#removed-superseded-interfaces" title="Permanent link">&para;</a></h2>
 <p>The standalone C++ <code>visit_tree</code> template and <code>tlv++/reader/visitor.hpp</code> are removed.
 Use <code>tlv::tree_reader</code> with caller-owned frames and its <code>visit()</code> method, which
@@ -2980,7 +3164,7 @@ aliases remain. Rebuild consumers after this source/ABI-breaking removal.</p>
 <tr>
 <td>Document parsing</td>
 <td><code>tlv/src/document/document.c</code></td>
-<td>Resumable Builder consuming Tree Reader items</td>
+<td>Resumable Builder consuming canonical structural events</td>
 </tr>
 <tr>
 <td>Document lookup</td>
@@ -2990,7 +3174,7 @@ aliases remain. Rebuild consumers after this source/ABI-breaking removal.</p>
 <tr>
 <td>Document encoding</td>
 <td><code>tlv/src/document/document.c</code></td>
-<td>Node preorder feeding <code>tlv_tree_writer_measure</code>, then Writer encoded copy</td>
+<td>Node events feeding <code>tlv_tree_writer_measure_events</code>, then Writer encoded copy</td>
 </tr>
 <tr>
 <td>Tree Writer</td>

@@ -3232,6 +3232,27 @@ coverage still needs verification; it must not be counted as parity.</p>
 <td>Missing pull facade</td>
 </tr>
 <tr>
+<td>Event measurement: <code>tlv_tree_writer_measure_events</code></td>
+<td>Bound: <code>measure_tree_events</code></td>
+<td>Bound: <code>measure_events</code></td>
+<td>Bound: <code>measure_events</code></td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Bounded Tag copying: <code>tlv_tree_writer_set_tag_storage</code></td>
+<td>Bound: <code>set_tag_storage</code></td>
+<td>Bound: <code>set_tag_capacity</code></td>
+<td>Bound: <code>set_tag_capacity</code></td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Structural events: <code>tlv_tree_reader_next_event</code>, <code>tlv_tree_writer_write_event</code></td>
+<td>Bound: <code>next_event</code>, <code>write_event</code></td>
+<td>Bound: <code>read_event</code>, <code>write_event</code></td>
+<td>Bound: <code>next_event</code>, <code>write_event</code></td>
+<td>Missing tree facades</td>
+</tr>
+<tr>
 <td>Incremental Tree Reader: <code>tlv_tree_reader_init_incremental</code>, <code>tlv_tree_reader_set_input</code>, <code>tlv_tree_reader_consumed</code>, <code>tlv_tree_reader_offset</code></td>
 <td>Bound: <code>tree_reader</code> continuation methods</td>
 <td>Bound: <code>TreeReader</code> continuation methods</td>

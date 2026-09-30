@@ -120,6 +120,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:gab9db909d8cb7eb930d06a32e07a72fd8" id="r_gab9db909d8cb7eb930d06a32e07a72fd8"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__tree__writer__workspace.html">tlv_tree_writer_workspace</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a></td></tr>
 <tr class="memdesc:gab9db909d8cb7eb930d06a32e07a72fd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned bounded storage for exact tree measurement and staging.  <br /></td></tr>
 <tr class="separator:gab9db909d8cb7eb930d06a32e07a72fd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6100d62044ea782d48db0dddb04ec39e" id="r_ga6100d62044ea782d48db0dddb04ec39e"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga6100d62044ea782d48db0dddb04ec39e">tlv_tree_event_next_fn</a>) (void *context, <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event)</td></tr>
+<tr class="memdesc:ga6100d62044ea782d48db0dddb04ec39e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pull one structural event for bounded tree measurement.  <br /></td></tr>
+<tr class="separator:ga6100d62044ea782d48db0dddb04ec39e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga4348495d7c9e8210b26f511d6ef5b958" id="r_ga4348495d7c9e8210b26f511d6ef5b958"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__writer.html#gab650d8082fbcc856730fd85aea1ce33d">tlv_writer_operation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga4348495d7c9e8210b26f511d6ef5b958">tlv_writer_operation_t</a></td></tr>
 <tr class="memdesc:ga4348495d7c9e8210b26f511d6ef5b958"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which encoding step a <a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5" title="Structured detail for a failed tlv_write() or tlv_writer_write() call.">tlv_writer_diagnostic_t</a> reports on.  <br /></td></tr>
 <tr class="separator:ga4348495d7c9e8210b26f511d6ef5b958"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -151,6 +154,15 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga8e349e44b101cc451cdd42885febe9e8" id="r_ga8e349e44b101cc451cdd42885febe9e8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga8e349e44b101cc451cdd42885febe9e8">tlv_tree_writer_set_tag_storage</a> (<a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a> *writer, uint8_t *data, size_t capacity)</td></tr>
+<tr class="memdesc:ga8e349e44b101cc451cdd42885febe9e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure bounded copying of open Tags instead of retaining input views.  <br /></td></tr>
+<tr class="separator:ga8e349e44b101cc451cdd42885febe9e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga91301fdd81996b323c0cc45b684f7ca1" id="r_ga91301fdd81996b323c0cc45b684f7ca1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga91301fdd81996b323c0cc45b684f7ca1">tlv_tree_writer_write_event</a> (<a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a> *writer, const <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event)</td></tr>
+<tr class="memdesc:ga91301fdd81996b323c0cc45b684f7ca1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume one canonical structural event without reconstructing depth transitions.  <br /></td></tr>
+<tr class="separator:ga91301fdd81996b323c0cc45b684f7ca1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaae5c2122df90a62f334ca5470e4dce2d" id="r_gaae5c2122df90a62f334ca5470e4dce2d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gaae5c2122df90a62f334ca5470e4dce2d">tlv_tree_writer_write_event_diag</a> (<a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a> *writer, const <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event, <a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gaae5c2122df90a62f334ca5470e4dce2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consume an event with Writer diagnostics.  <br /></td></tr>
+<tr class="separator:gaae5c2122df90a62f334ca5470e4dce2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gace80d49512bbbf142fc6ff873f57421f" id="r_gace80d49512bbbf142fc6ff873f57421f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gace80d49512bbbf142fc6ff873f57421f">tlv_tree_writer_init</a> (<a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a> *writer, uint8_t *data, size_t size, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="group__writer.html#gac48be24a305bd17c0a57ebc45b7a771f">tlv_tree_writer_frame_t</a> *frames, size_t capacity, uint8_t *scratch, size_t scratch_capacity, size_t max_depth, size_t max_elements)</td></tr>
 <tr class="memdesc:gace80d49512bbbf142fc6ff873f57421f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize an empty bounded output sequence without allocating.  <br /></td></tr>
 <tr class="separator:gace80d49512bbbf142fc6ff873f57421f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -178,6 +190,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga4f1b5464912ec033a6f1ff98cdd20948" id="r_ga4f1b5464912ec033a6f1ff98cdd20948"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga4f1b5464912ec033a6f1ff98cdd20948">tlv_tree_writer_size</a> (const <a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a> *writer)</td></tr>
 <tr class="memdesc:ga4f1b5464912ec033a6f1ff98cdd20948"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the final output prefix containing only closed root elements.  <br /></td></tr>
 <tr class="separator:ga4f1b5464912ec033a6f1ff98cdd20948"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga11ca5a489172b72a33de62e4e645a7dd" id="r_ga11ca5a489172b72a33de62e4e645a7dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga11ca5a489172b72a33de62e4e645a7dd">tlv_tree_writer_measure_events</a> (const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="group__writer.html#ga6100d62044ea782d48db0dddb04ec39e">tlv_tree_event_next_fn</a> next, void *context, <a class="el" href="group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a> *workspace, size_t max_depth, size_t max_elements, size_t *size, <a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:ga11ca5a489172b72a33de62e4e645a7dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure and stage a canonical balanced event stream through Tree Writer.  <br /></td></tr>
+<tr class="separator:ga11ca5a489172b72a33de62e4e645a7dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae10ae48fc054294c71cf6c1797225f1d" id="r_gae10ae48fc054294c71cf6c1797225f1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gae10ae48fc054294c71cf6c1797225f1d">tlv_tree_writer_measure</a> (const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="group__writer.html#ga771aec7d5b9e24b09c9f6e401bc44107">tlv_tree_writer_next_fn</a> next, void *context, <a class="el" href="group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a> *workspace, size_t max_depth, size_t max_elements, size_t *size, <a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:gae10ae48fc054294c71cf6c1797225f1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure a preorder tree through canonical Tree Writer encoding, without allocating.  <br /></td></tr>
 <tr class="separator:gae10ae48fc054294c71cf6c1797225f1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -245,6 +260,31 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Encoding and stateful output into caller-owned buffers. Guides: <a href="https://marekcingel.github.io/OpenTLV/formats/">formats</a>, <a href="https://marekcingel.github.io/OpenTLV/guides/writer/">bounded Tree Writer</a>. </p>
 <h2 class="groupheader">Typedef Documentation</h2>
+<a id="ga6100d62044ea782d48db0dddb04ec39e" name="ga6100d62044ea782d48db0dddb04ec39e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6100d62044ea782d48db0dddb04ec39e">&#9670;&#160;</a></span>tlv_tree_event_next_fn</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_tree_event_next_fn) (void *context, <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *event)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pull one structural event for bounded tree measurement. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">context</td><td>Producer state. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">event</td><td>One event on TLV_OK; unchanged otherwise. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>TLV_OK, TLV_ERR_END_OF_BUFFER at final EOF, or a producer error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>BEGIN Tags must outlive measurement; other payloads need only survive until the next callback. No callbacks may mutate the measurement workspace. </dd></dl>
+
+</div>
+</div>
 <a id="gac48be24a305bd17c0a57ebc45b7a771f" name="gac48be24a305bd17c0a57ebc45b7a771f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gac48be24a305bd17c0a57ebc45b7a771f">&#9670;&#160;</a></span>tlv_tree_writer_frame_t</h2>
 
@@ -603,7 +643,7 @@ Any callback error, propagated unchanged.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">writer</td><td>Initialized cursor; required. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Identifier, borrowed until successful end() or cursor abandonment. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Identifier, borrowed until successful end() or cursor abandonment, or copied when <a class="el" href="group__writer.html#ga8e349e44b101cc451cdd42885febe9e8" title="Configure bounded copying of open Tags instead of retaining input views.">tlv_tree_writer_set_tag_storage()</a> has configured storage. </td></tr>
   </table>
   </dd>
 </dl>
@@ -613,7 +653,7 @@ Any callback error, propagated unchanged.</dd></dl>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if frame capacity, item depth or element count is exhausted. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Failure leaves state and output unchanged. Wire representability is checked at end(), once the Value is known. Empty parents require end(). </dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>Tag bytes must remain immutable and must not overlap output, scratch, cursor or frame storage. Unlike single-element writing, begin retains Tag. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Tag bytes must remain immutable and must not overlap output, scratch, cursor, frame or Tag storage. Without configured Tag storage, begin retains Tag. </dd></dl>
 
 </div>
 </div>
@@ -945,6 +985,133 @@ Any Format measurement/encoding error, propagated unchanged. </dd></dl>
 
 </div>
 </div>
+<a id="ga11ca5a489172b72a33de62e4e645a7dd" name="ga11ca5a489172b72a33de62e4e645a7dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga11ca5a489172b72a33de62e4e645a7dd">&#9670;&#160;</a></span>tlv_tree_writer_measure_events()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tree_writer_measure_events </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__writer.html#ga6100d62044ea782d48db0dddb04ec39e">tlv_tree_event_next_fn</a>&#160;</td>
+          <td class="paramname"><em>next</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a> *&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Measure and stage a canonical balanced event stream through Tree Writer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Borrowed destination Format; required. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">next</td><td>Required event producer; consumed even on failure. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">context</td><td>Producer state passed unchanged to next. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">workspace</td><td>Caller-owned bounded staging storage; required. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_depth</td><td>Maximum node depth, roots zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_elements</td><td>Maximum BEGIN/ELEMENT count; END does not count. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">size</td><td>Exact encoded size on success; unchanged otherwise. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional Writer failure detail. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Source/Writer result, including INVALID_ARG for missing END or skipped content. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Uses the storage, required-capacity and replay contracts of <a class="el" href="group__writer.html#gae10ae48fc054294c71cf6c1797225f1d" title="Measure a preorder tree through canonical Tree Writer encoding, without allocating.">tlv_tree_writer_measure()</a>. NEED_MORE_DATA aborts this one-shot helper; use a persistent Tree Writer and write_event() for resumable transformations. </dd></dl>
+
+</div>
+</div>
+<a id="ga8e349e44b101cc451cdd42885febe9e8" name="ga8e349e44b101cc451cdd42885febe9e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8e349e44b101cc451cdd42885febe9e8">&#9670;&#160;</a></span>tlv_tree_writer_set_tag_storage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tree_writer_set_tag_storage </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a> *&#160;</td>
+          <td class="paramname"><em>writer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Configure bounded copying of open Tags instead of retaining input views. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">writer</td><td>Initialized cursor without open parents; required. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">data</td><td>Caller-owned storage, disjoint from all other storage and inputs. NULL with zero capacity restores borrowed-Tag mode. Storage must outlive use. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Available bytes; an explicit empty Tag consumes one byte. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>TLV_OK, TLV_ERR_NULL_ARG, or TLV_ERR_INVALID_ARG when parents are open. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>begin() copies Tags in this mode; end() releases capacity on success. Failure preserves the configuration. Exhaustion at begin returns TLV_ERR_LIMIT. </dd></dl>
+
+</div>
+</div>
 <a id="ga4f1b5464912ec033a6f1ff98cdd20948" name="ga4f1b5464912ec033a6f1ff98cdd20948"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga4f1b5464912ec033a6f1ff98cdd20948">&#9670;&#160;</a></span>tlv_tree_writer_size()</h2>
 
@@ -1054,6 +1221,90 @@ Any Format measurement/encoding error, propagated unchanged. </dd></dl>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Same results and guarantees as <a class="el" href="group__writer.html#ga7e7555f71eaf8a06f5b9178e5d7833d0" title="Append a primitive or already-complete constructed Element.">tlv_tree_writer_write_element()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="ga91301fdd81996b323c0cc45b684f7ca1" name="ga91301fdd81996b323c0cc45b684f7ca1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga91301fdd81996b323c0cc45b684f7ca1">&#9670;&#160;</a></span>tlv_tree_writer_write_event()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tree_writer_write_event </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a> *&#160;</td>
+          <td class="paramname"><em>writer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *&#160;</td>
+          <td class="paramname"><em>event</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Consume one canonical structural event without reconstructing depth transitions. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">writer</td><td>Initialized cursor; required. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">event</td><td>Required event. BEGIN opens its Tag (ignoring source Value), ELEMENT writes a primitive, END closes the innermost parent. Depth must match. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Underlying begin/write/end result; TLV_ERR_INVALID_ARG for malformed ordering, unknown kinds or skipped END; TLV_ERR_INVALID_TAG for incompatible destination classification. Errors preserve cursor and accumulated output. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>In borrowed mode BEGIN retains Tag until END. Configure tag storage to release input after every successful event. On failure retain the current event for retry; do not advance the producer. Source metadata is ignored. </dd></dl>
+
+</div>
+</div>
+<a id="gaae5c2122df90a62f334ca5470e4dce2d" name="gaae5c2122df90a62f334ca5470e4dce2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaae5c2122df90a62f334ca5470e4dce2d">&#9670;&#160;</a></span>tlv_tree_writer_write_event_diag()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tree_writer_write_event_diag </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a> *&#160;</td>
+          <td class="paramname"><em>writer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="tree_8h.html#a3b1e811784f5c9b0085cb0144a0c57c2">tlv_tree_event_t</a> *&#160;</td>
+          <td class="paramname"><em>event</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Consume an event with Writer diagnostics. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">writer</td><td>Initialized cursor; required. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">event</td><td>Required canonical event. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional failure detail; unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Same results and guarantees as <a class="el" href="group__writer.html#ga91301fdd81996b323c0cc45b684f7ca1" title="Consume one canonical structural event without reconstructing depth transitions.">tlv_tree_writer_write_event()</a>. </dd></dl>
 
 </div>
 </div>

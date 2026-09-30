@@ -100,6 +100,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:afbe89065e67cbe10db0737e69a21677f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1bbbb5b5425ef395a76780c01938e52f" id="r_a1bbbb5b5425ef395a76780c01938e52f"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__writer.html#a1bbbb5b5425ef395a76780c01938e52f">scratch_capacity</a></td></tr>
 <tr class="separator:a1bbbb5b5425ef395a76780c01938e52f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a191082e45440b209f36eef0858ccfb16" id="r_a191082e45440b209f36eef0858ccfb16"><td class="memItemLeft" align="right" valign="top">uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__writer.html#a191082e45440b209f36eef0858ccfb16">tags</a></td></tr>
+<tr class="separator:a191082e45440b209f36eef0858ccfb16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e73beed0cbcc899370cbb05c6136640" id="r_a1e73beed0cbcc899370cbb05c6136640"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__writer.html#a1e73beed0cbcc899370cbb05c6136640">tags_capacity</a></td></tr>
+<tr class="separator:a1e73beed0cbcc899370cbb05c6136640"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5b871491d14a80edd720cb3df6ee2f6" id="r_ac5b871491d14a80edd720cb3df6ee2f6"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__writer.html#ac5b871491d14a80edd720cb3df6ee2f6">tags_used</a></td></tr>
+<tr class="separator:ac5b871491d14a80edd720cb3df6ee2f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bounded tree writer composing Format measure/encode without recursion or allocation. </p>
@@ -239,6 +245,51 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Workspace capacity in bytes. </p>
+
+</div>
+</div>
+<a id="a191082e45440b209f36eef0858ccfb16" name="a191082e45440b209f36eef0858ccfb16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a191082e45440b209f36eef0858ccfb16">&#9670;&#160;</a></span>tags</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t* tlv_tree_writer::tags</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Optional caller-owned storage for open identifiers. </p>
+
+</div>
+</div>
+<a id="a1e73beed0cbcc899370cbb05c6136640" name="a1e73beed0cbcc899370cbb05c6136640"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e73beed0cbcc899370cbb05c6136640">&#9670;&#160;</a></span>tags_capacity</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_tree_writer::tags_capacity</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Capacity of tags; storage never grows implicitly. </p>
+
+</div>
+</div>
+<a id="ac5b871491d14a80edd720cb3df6ee2f6" name="ac5b871491d14a80edd720cb3df6ee2f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5b871491d14a80edd720cb3df6ee2f6">&#9670;&#160;</a></span>tags_used</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv_tree_writer::tags_used</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Bytes held by currently open identifiers. </p>
 
 </div>
 </div>
