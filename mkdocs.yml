@@ -135,6 +135,7 @@ nav:
       - Configurable fixed-width TLV: formats/fixed/configurable.md
       - Configurable variable-width TLV: formats/variable.md
       - Bluetooth LTV: formats/bluetooth/README.md
+      - NFC Type 2 Tag framing: formats/nfc/README.md
       - DHCPv4 option framing: formats/dhcp/README.md
       - LLDP TLV support: formats/lldp/README.md
       - LLDP reference and conformance notes: formats/lldp/conformance.md

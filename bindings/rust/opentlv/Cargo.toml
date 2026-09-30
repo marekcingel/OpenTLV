@@ -8,8 +8,9 @@ license.workspace = true
 repository.workspace = true
 
 [features]
-default = ["lldp", "document"]
+default = ["lldp", "document", "nfc"]
 lldp = ["opentlv-native/lldp"]
+nfc = ["opentlv-native/nfc"]
 document = ["opentlv-native/document"]
 
 [dependencies]

@@ -65,6 +65,10 @@ void opentlv_lua_register_bluetooth_ltv(lua_State* L);
 void opentlv_lua_register_emv(lua_State* L);
 #endif
 
+#if OPENTLV_NFC
+void opentlv_lua_register_nfc_type2(lua_State* L);
+#endif
+
 #if OPENTLV_LLDP
 void opentlv_lua_register_lldp(lua_State* L);
 #endif

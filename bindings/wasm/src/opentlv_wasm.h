@@ -52,15 +52,15 @@ extern "C" {
 typedef struct opentlv_wasm_result opentlv_wasm_result_t;
 
 /*
- * Parses `size` bytes as `format` ("fixed", "bluetooth-ltv", "bluetooth-ad", "lldp", "ber", "der"
- * or "cer"). `module` annotates elements with dictionary metadata: NULL, "" or "none" for none, or
- * "emv" (EMV Contact Book 3 tags) with the "ber" format. `fixed_tag_size`, `fixed_length_size` and
- * `fixed_big_endian` (nonzero for big-endian) configure `format == "fixed"`'s tag width, length
- * width (1-8 bytes) and length byte order (tlv_fixed_format_t); ignored for every other format.
- * Nonzero `fixed_length_first` selects LTV; nonzero `fixed_counts_tag` makes the length count Tag +
- * Value. Both default to zero for conventional TLV. Returns NULL only when memory runs out. An
- * unknown format or module, invalid fixed-format widths, or invalid input, is reported through the
- * result, never by returning NULL.
+ * Parses `size` bytes as `format` ("fixed", "bluetooth-ltv", "bluetooth-ad", "lldp", "nfc-type2",
+ * "ber", "der" or "cer"). `module` annotates elements with dictionary metadata: NULL, "" or "none"
+ * for none, or "emv" (EMV Contact Book 3 tags) with the "ber" format. `fixed_tag_size`,
+ * `fixed_length_size` and `fixed_big_endian` (nonzero for big-endian) configure `format ==
+ * "fixed"`'s tag width, length width (1-8 bytes) and length byte order (tlv_fixed_format_t);
+ * ignored for every other format. Nonzero `fixed_length_first` selects LTV; nonzero
+ * `fixed_counts_tag` makes the length count Tag + Value. Both default to zero for conventional TLV.
+ * Returns NULL only when memory runs out. An unknown format or module, invalid fixed-format widths,
+ * or invalid input, is reported through the result, never by returning NULL.
  */
 OPENTLV_WASM_API opentlv_wasm_result_t*
 opentlv_wasm_parse(const uint8_t* data, size_t size, const char* format, const char* module,

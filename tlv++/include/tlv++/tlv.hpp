@@ -22,6 +22,9 @@
 #include "tlv++/codec/structure.hpp"
 #include "tlv++/query/query.hpp"
 #include "tlv++/schema/schema.hpp"
+#if OPENTLV_NFC
+#include "tlv++/builtins/nfc/type2.hpp"
+#endif
 #if OPENTLV_DHCP
 #include "tlv++/builtins/dhcp/dhcpv4.hpp"
 #include "tlv++/builtins/dhcp/container.hpp"

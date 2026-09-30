@@ -41,6 +41,9 @@ void opentlv_lua_open_format(lua_State* L, int module_table_index) {
 #if OPENTLV_BLUETOOTH
     opentlv_lua_register_bluetooth_ltv(L);
 #endif
+#if OPENTLV_NFC
+    opentlv_lua_register_nfc_type2(L);
+#endif
 #if OPENTLV_LLDP
     opentlv_lua_register_lldp(L);
 #endif

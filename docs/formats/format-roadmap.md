@@ -20,6 +20,10 @@ definitions, structural validation and value codecs. Its remaining work is
 full-edition normative verification and any separately scoped extensions;
 Ethernet transport and LLDP agents remain outside OpenTLV.
 
+NFC Type 2 now provides [contiguous TLV stream framing](nfc/README.md), including
+NULL/Terminator and both length forms. Physical memory mapping and NDEF
+interpretation remain outside that implementation.
+
 ## Keep the core generic
 
 Keep raw framing, nesting rules, structural schemas, value codecs, and protocol
@@ -136,7 +140,8 @@ OpenTLV
 │   │   ├── [ ] EMV contactless kernels (existing entry)
 │   │   ├── [?] ISO 7816-4 SIMPLE-TLV
 │   │   ├── [?] SIM Toolkit COMPREHENSION-TLV (ETSI TS 102 223)
-│   │   └── [?] NFC Forum Type 1/2 tag TLV container (holds NDEF)
+│   │   ├── [x] NFC Forum Type 2 TLV stream (opaque NDEF)
+│   │   └── [?] NFC Forum Type 1 tag TLV container (holds NDEF)
 │   ├── Networking, AAA and tunnelling
 │   │   ├── [ ] RADIUS (existing entry; VSA and extended attributes are variants)
 │   │   ├── [?] Diameter AVP (RFC 6733)
@@ -210,7 +215,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.**
 | Length includes the header | RADIUS, Diameter | The adapter subtracts the header size to get `value_size` and rejects a length smaller than the header. |
 | Trailing padding after the value | Diameter | The canonical framing result includes a Trailer range and logical trailer size; `encode` writes and `decode` validates the padding. |
 | Header size depends on the type or flags | PFCP (enterprise ID), GTPv2 (type 254), GTPv1-C (TV versus TLV), RFC 5444 (flags) | `header_size` is reported per element, so this fits. GTPv1-C needs a type-to-length table in the borrowed descriptor context. |
-| Elements without a length, and a terminator | DHCPv4 Pad and End, NFC tag TLV NULL and Terminator | DHCPv4 uses the generic identifier-selected binary layout for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC requires separate assessment. |
+| Elements without a length, and a terminator | DHCPv4 Pad and End, NFC tag TLV NULL and Terminator | DHCPv4 uses the generic identifier-selected binary layout for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC Type 2 uses the shared tag-only field composition with escape-prefixed lengths; physical memory mapping remains outside the format. |
 | Composite tag identity (type plus instance, vendor or flags) | GTPv2, PFCP, Diameter, RADIUS VSA, LDP | Direct binding requires a compatible contiguous source byte range; transformed identities require stable immutable format storage and individual review. LLDP keeps OUI/subtype in Value, not in its outer Tag. |
 | Grouped or nested elements decided by the type | PFCP, GTPv2, Diameter, IS-IS sub-TLVs, DHCPv4 option 82 | `tlv_format_t::is_constructed` receives the format context and the tag, so a table in the context can decide; the flags and value are not visible to it. |
 | Different formats at successive nesting levels | LDP, SNMP, SIM Toolkit | A caller can parse level by level today; automatic tree traversing needs [mixed-format traversal](#generic-processing-extensions). |

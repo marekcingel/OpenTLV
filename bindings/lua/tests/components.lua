@@ -1,10 +1,10 @@
 -- Standalone smoke test: expected availability comes from the CMake build.
 local opentlv = require("opentlv")
-assert((opentlv.document ~= nil) == (arg[7] == "1"), "Document availability mismatch")
-local names = { "ber", "cer", "der", "bluetooth_ltv", "lldp", "emv" }
+assert((opentlv.document ~= nil) == (arg[8] == "1"), "Document availability mismatch")
+local names = { "ber", "cer", "der", "bluetooth_ltv", "lldp", "emv", "nfc_type2" }
 local wires = {
     string.char(4, 1, 42), string.char(4, 1, 42), string.char(4, 1, 42),
-    string.char(2, 4, 42), string.char(8, 1, 42), string.char(4, 1, 42),
+    string.char(2, 4, 42), string.char(8, 1, 42), string.char(4, 1, 42), string.char(4, 1, 42),
 }
 for i, name in ipairs(names) do
     local format = opentlv.formats[name]

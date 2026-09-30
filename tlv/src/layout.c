@@ -271,23 +271,25 @@ tlv_result_t tlv_binary_encode(const void* context, const tlv_element_t* element
     return tlv_fields_encode(&f, element, data, capacity, written, error);
 }
 
-static int tagged_binary_tag_only(const tlv_tagged_binary_layout_t* f, const tlv_tag_t* tag) {
+static int tagged_fields_tag_only(const tlv_tagged_fields_layout_t* f, const tlv_tag_t* tag) {
     for (size_t i = 0; i < f->count; ++i)
         if (tlv_tag_equal(*tag, f->tag_only[i])) return 1;
     return 0;
 }
 
-tlv_result_t tlv_tagged_binary_decode(const void* context, const uint8_t* data, size_t size,
+tlv_result_t tlv_tagged_fields_decode(const void* context, const uint8_t* data, size_t size,
                                       tlv_decoded_t* result, tlv_format_error_t* error) {
-    const tlv_tagged_binary_layout_t* f = (const tlv_tagged_binary_layout_t*)context;
+    const tlv_tagged_fields_layout_t* f = (const tlv_tagged_fields_layout_t*)context;
     tlv_tag_t tag = {0};
     size_t width = 0;
     tlv_result_t rc;
     location(error, TLV_REGION_TAG, 0);
-    rc = binary_tag_read(&f->fields, data, size, &tag, &width);
+    rc = f->fields.read_tag(f->fields.context, data, size, &tag, &width);
     if (rc != TLV_OK) return rc;
-    if (!tagged_binary_tag_only(f, &tag))
-        return tlv_binary_decode(&f->fields, data, size, result, error);
+    if (!width || width > size || (tag.size && !tag.data)) return TLV_ERR_INVALID_TAG;
+    error->tag = range(0, width);
+    if (!tagged_fields_tag_only(f, &tag))
+        return tlv_fields_decode(&f->fields, data, size, result, error);
     result->element.tag = tag;
     result->element.value = (tlv_value_t){data + width, 0};
     result->source.header = range(0, width);
@@ -299,16 +301,17 @@ tlv_result_t tlv_tagged_binary_decode(const void* context, const uint8_t* data, 
     return TLV_OK;
 }
 
-tlv_result_t tlv_tagged_binary_measure(const void* context, const tlv_element_t* element,
+tlv_result_t tlv_tagged_fields_measure(const void* context, const tlv_element_t* element,
                                        tlv_encoding_t* encoding, tlv_format_error_t* error) {
-    const tlv_tagged_binary_layout_t* f = (const tlv_tagged_binary_layout_t*)context;
+    const tlv_tagged_fields_layout_t* f = (const tlv_tagged_fields_layout_t*)context;
     size_t width = 0;
     tlv_result_t rc;
     location(error, TLV_REGION_TAG, 0);
-    rc = binary_tag_write(&f->fields, NULL, 0, &element->tag, &width);
+    rc = f->fields.write_tag(f->fields.context, NULL, 0, &element->tag, &width);
     if (rc != TLV_OK) return rc;
-    if (!tagged_binary_tag_only(f, &element->tag))
-        return tlv_binary_measure(&f->fields, element, encoding, error);
+    if (!width) return TLV_ERR_INVALID_TAG;
+    if (!tagged_fields_tag_only(f, &element->tag))
+        return tlv_fields_measure(&f->fields, element, encoding, error);
     if (element->value.size) {
         location(error, TLV_REGION_VALUE, width);
         error->required = 0;
@@ -319,17 +322,71 @@ tlv_result_t tlv_tagged_binary_measure(const void* context, const tlv_element_t*
     return TLV_OK;
 }
 
+tlv_result_t tlv_tagged_fields_encode(const void* context, const tlv_element_t* element,
+                                      uint8_t* data, size_t capacity, size_t* written,
+                                      tlv_format_error_t* error) {
+    const tlv_tagged_fields_layout_t* f = (const tlv_tagged_fields_layout_t*)context;
+    tlv_encoding_t encoding;
+    tlv_result_t rc = tlv_tagged_fields_measure(context, element, &encoding, error);
+    if (rc != TLV_OK) return rc;
+    if (!tagged_fields_tag_only(f, &element->tag))
+        return tlv_fields_encode(&f->fields, element, data, capacity, written, error);
+    if (encoding.total > capacity) return TLV_ERR_BUFFER_TOO_SHORT;
+    return f->fields.write_tag(f->fields.context, data, capacity, &element->tag, written);
+}
+
+tlv_result_t tlv_tagged_fields_format_init(tlv_format_t* format,
+                                           const tlv_tagged_fields_layout_t* f) {
+    if (!format || !f) return TLV_ERR_NULL_ARG;
+    if (!f->fields.read_tag || !f->fields.read_length || !f->fields.write_tag ||
+        !f->fields.write_length || !f->fields.length_size || f->fields.resolve ||
+        f->fields.order != TLV_ELEMENT_ORDER_TLV || f->fields.scope != TLV_LENGTH_SCOPE_VALUE ||
+        (f->count && !f->tag_only))
+        return TLV_ERR_INVALID_ARG;
+    for (size_t i = 0; i < f->count; ++i) {
+        size_t width = 0;
+        tlv_result_t rc;
+        if (!f->tag_only[i].size || !f->tag_only[i].data) return TLV_ERR_INVALID_ARG;
+        rc = f->fields.write_tag(f->fields.context, NULL, 0, &f->tag_only[i], &width);
+        if (rc != TLV_OK) return rc;
+        if (!width) return TLV_ERR_INVALID_TAG;
+    }
+    return tlv_format_init(format, f, tlv_tagged_fields_decode, tlv_tagged_fields_measure,
+                           tlv_tagged_fields_encode);
+}
+
+static tlv_tagged_fields_layout_t tagged_binary_fields(const tlv_tagged_binary_layout_t* f) {
+    tlv_tagged_fields_layout_t layout = {binary_fields(&f->fields), f->tag_only, f->count};
+    return layout;
+}
+
+tlv_result_t tlv_tagged_binary_decode(const void* context, const uint8_t* data, size_t size,
+                                      tlv_decoded_t* result, tlv_format_error_t* error) {
+    const tlv_tagged_binary_layout_t* f = (const tlv_tagged_binary_layout_t*)context;
+    tlv_tagged_fields_layout_t fields = tagged_binary_fields(f);
+    tlv_result_t rc = tlv_tagged_fields_decode(&fields, data, size, result, error);
+    if (rc == TLV_ERR_BUFFER_TOO_SHORT &&
+        (error->region == TLV_REGION_TAG || error->region == TLV_REGION_LENGTH)) {
+        error->has_required = 1;
+        error->required =
+            error->region == TLV_REGION_TAG ? f->fields.tag_size : f->fields.length_size;
+    }
+    return rc;
+}
+
+tlv_result_t tlv_tagged_binary_measure(const void* context, const tlv_element_t* element,
+                                       tlv_encoding_t* encoding, tlv_format_error_t* error) {
+    tlv_tagged_fields_layout_t fields =
+        tagged_binary_fields((const tlv_tagged_binary_layout_t*)context);
+    return tlv_tagged_fields_measure(&fields, element, encoding, error);
+}
+
 tlv_result_t tlv_tagged_binary_encode(const void* context, const tlv_element_t* element,
                                       uint8_t* data, size_t capacity, size_t* written,
                                       tlv_format_error_t* error) {
-    const tlv_tagged_binary_layout_t* f = (const tlv_tagged_binary_layout_t*)context;
-    tlv_encoding_t encoding;
-    tlv_result_t rc = tlv_tagged_binary_measure(context, element, &encoding, error);
-    if (rc != TLV_OK) return rc;
-    if (!tagged_binary_tag_only(f, &element->tag))
-        return tlv_binary_encode(&f->fields, element, data, capacity, written, error);
-    if (capacity < f->fields.tag_size) return TLV_ERR_BUFFER_TOO_SHORT;
-    return binary_tag_write(&f->fields, data, capacity, &element->tag, written);
+    tlv_tagged_fields_layout_t fields =
+        tagged_binary_fields((const tlv_tagged_binary_layout_t*)context);
+    return tlv_tagged_fields_encode(&fields, element, data, capacity, written, error);
 }
 
 tlv_result_t tlv_tagged_binary_format_init(tlv_format_t* format,

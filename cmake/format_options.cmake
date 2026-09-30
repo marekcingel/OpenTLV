@@ -18,6 +18,9 @@
 # OPENTLV_EMV retains a BER dependency for the unchanged DOL helper.
 # EMV element framing itself uses only generic primitives and needs no DER/CER.
 #
+# OPENTLV_NFC independently controls the NFC Type 2 preset; generic escaped
+# length fields and identifier-selected framing are always built.
+#
 # OPENTLV_BLUETOOTH controls the entire Bluetooth extension independently
 # of the always-built Fixed format. Both formats reuse the generic
 # binary layout primitives.

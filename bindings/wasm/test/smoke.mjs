@@ -21,6 +21,15 @@ if (opentlv.formats.includes("emv")) {
   assert.ok(opentlv.parse(hexToBytes("70 80 00 00"), { format: "emv" }).error);
 }
 
+if (opentlv.formats.includes("nfc-type2")) {
+  const nfc = opentlv.parse(hexToBytes("00 03 03 D1 01 00 FE 00"), { format: "nfc-type2" });
+  assert.equal(nfc.error, undefined);
+  assert.deepEqual(nfc.elements.map(({ tag, length, value }) => [tag, length, value]),
+    [["00", 0, ""], ["03", 3, "D10100"], ["FE", 0, ""], ["00", 0, ""]]);
+  assert.deepEqual(nfc.elements[1].source.tag, { offset: 1, length: 1 });
+  assert.ok(opentlv.parse(hexToBytes("03 FF FF FF"), { format: "nfc-type2" }).error);
+}
+
 if (opentlv.formats.includes("lldp")) {
   const lldp = opentlv.parse(hexToBytes("06 02 00 78 00 00"), { format: "lldp" });
   assert.equal(lldp.error, undefined);

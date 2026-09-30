@@ -8,6 +8,9 @@
 
 /* Bounded browser output storage; independent of core traversal limits. */
 enum { WASM_TREE_CAPACITY = 64 };
+#if OPENTLV_NFC
+#include "tlv/builtins/nfc/type2.h"
+#endif
 #if OPENTLV_LLDP
 #include "tlv/builtins/lldp/lldp.h"
 #endif
@@ -265,6 +268,9 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
     }
 #if OPENTLV_EMV
     if (!strcmp(name, "emv")) return &tlv_format_emv;
+#endif
+#if OPENTLV_NFC
+    if (!strcmp(name, "nfc-type2")) return &tlv_format_nfc_type2;
 #endif
 #if OPENTLV_LLDP
     if (!strcmp(name, "lldp")) return &tlv_format_lldp;

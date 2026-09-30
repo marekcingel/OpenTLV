@@ -59,6 +59,8 @@ set(SOURCES
     formats/fixed_io_test.cpp
     formats/format_fixed_test.cpp
     formats/variable_test.cpp
+    formats/escaped_test.cpp
+    builtins/nfc/type2_test.cpp
     packed_field_test.cpp
     query/query_test.cpp
     reader/reader_test.cpp
@@ -86,6 +88,9 @@ foreach(source IN LISTS SOURCES)
 endforeach()
 
 # Tests that name an optional component follow the same feature selection.
+if(NOT OPENTLV_NFC)
+    list(FILTER SOURCES EXCLUDE REGEX "^builtins/nfc/")
+endif()
 if(NOT OPENTLV_DHCP)
     list(FILTER SOURCES EXCLUDE REGEX "^builtins/dhcp/")
 endif()

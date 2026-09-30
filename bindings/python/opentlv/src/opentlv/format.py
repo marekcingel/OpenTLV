@@ -28,6 +28,10 @@ class Format(enum.IntEnum):
     if opentlv_native.HAS_EMV:
         EMV = 5
         """Definite EMV Contact Book 3 BER-TLV element framing."""
+    if opentlv_native.HAS_NFC:
+        NFC_TYPE2 = 6
+        """Contiguous NFC Type 2 TLV stream; the caller handles termination."""
+
     if opentlv_native.HAS_LLDP:
         LLDP = 4
         """LLDP packed header framing, without LLDPDU semantic validation."""

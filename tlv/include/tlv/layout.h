@@ -253,6 +253,57 @@ typedef struct tlv_tagged_binary_layout {
 } tlv_tagged_binary_layout_t;
 
 /**
+ * @brief Field codec composition with identifier-selected tag-only elements.
+ *
+ * The borrowed immutable fields, table and identifier bytes must outlive all
+ * operations. Fields must provide both reading and writing, use TLV/VALUE
+ * framing and have no bounds resolver. Table identifiers use semantic byte
+ * identity and must be encodable by fields.write_tag. Duplicate entries are
+ * harmless. Tag-only elements omit Length and require an empty Value; their
+ * source Value/Trailer ranges are present and empty immediately after Tag.
+ * No skip or stop policy is implied. No operation allocates.
+ */
+typedef struct tlv_tagged_fields_layout {
+    tlv_field_layout_t fields; /**< Default field codec composition. */
+    const tlv_tag_t* tag_only; /**< Borrowed table; NULL only when count is zero. */
+    size_t count;              /**< Number of table entries. */
+} tlv_tagged_fields_layout_t;
+
+/** @brief Decode identifier-selected field framing.
+ * @copydetails tlv_decode_fn
+ * @note context points to a valid immutable #tlv_tagged_fields_layout_t.
+ */
+TLV_API tlv_result_t tlv_tagged_fields_decode(const void* context, const uint8_t* data, size_t size,
+                                              tlv_decoded_t* result, tlv_format_error_t* error);
+
+/** @brief Measure identifier-selected field framing.
+ * @copydetails tlv_measure_fn
+ * @note context points to a valid immutable #tlv_tagged_fields_layout_t.
+ * Nonempty tag-only Values return #TLV_ERR_INVALID_LENGTH.
+ */
+TLV_API tlv_result_t tlv_tagged_fields_measure(const void* context, const tlv_element_t* element,
+                                               tlv_encoding_t* encoding, tlv_format_error_t* error);
+
+/** @brief Encode identifier-selected field framing.
+ * @copydetails tlv_encode_fn
+ * @note context points to a valid immutable #tlv_tagged_fields_layout_t.
+ */
+TLV_API tlv_result_t tlv_tagged_fields_encode(const void* context, const tlv_element_t* element,
+                                              uint8_t* data, size_t capacity, size_t* written,
+                                              tlv_format_error_t* error);
+
+/** @brief Initialize a bidirectional identifier-selected field format.
+ * @param[out] format Descriptor, unchanged on failure.
+ * @param[in] layout Borrowed immutable composition, which must outlive format.
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for a missing required pointer.
+ * @return #TLV_ERR_INVALID_ARG for incomplete codecs, unsupported framing or an invalid table.
+ * @return A tag encoder error for an unrepresentable table identifier.
+ */
+TLV_API tlv_result_t tlv_tagged_fields_format_init(tlv_format_t* format,
+                                                   const tlv_tagged_fields_layout_t* layout);
+
+/**
  * @brief Decode identifier-selected binary framing.
  *
  * @copydetails tlv_decode_fn
