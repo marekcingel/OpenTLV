@@ -2767,6 +2767,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#query-and-document-ownership-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query and Document ownership tests
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2903,6 +2914,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#query-and-document-ownership-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query and Document ownership tests
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2953,8 +2975,8 @@ API), using only the portable subset of the Lua C API common to all of them;
 see <code>bindings/lua/src/compat.h</code>. It covers Reader, Writer, Tree Writer, Element and Tag, and
 preorder tree traversal (<code>opentlv.visit_tree</code>, built on <code>tlv_tree_reader_visit()</code>/
 <code>tlv_der_visit()</code>), structural Schema validation with detailed diagnostic reports,
-and Value codecs with builtin and custom callback support;
-Document is not bound yet.</p>
+Value codecs with builtin and custom callback support, compiled path Query,
+and mutable Document (when <code>OPENTLV_DOCUMENT=ON</code>).</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Requirements: CMake 3.16 or newer, a C99 compiler, and Lua 5.1, 5.2, 5.3, 5.4
 or LuaJIT headers and library.</p>
@@ -3045,6 +3067,16 @@ capacity/count-only results, malformed input, numeric checks, immutable
 configuration and garbage collection. When the test allocator is available,
 it also injects failures during construction and diagnostic conversion and
 checks that retained child schemas are released.</p>
+<h2 id="query-and-document-ownership-tests">Query and Document ownership tests<a class="headerlink" href="#query-and-document-ownership-tests" title="Permanent link">&para;</a></h2>
+<p><code>tests/query_document_spec.lua</code> runs directly through CTest and under busted.
+It covers query diagnostics and matching, mutation rollback, foreign and stale
+handles, configured Format lifetimes, and optional-component builds. Its
+<code>--allocator</code> mode injects Lua allocation failures during construction, result
+conversion, insertion and serialization. Document userdata acquire their
+finalizer before allocating native state; Node userdata root the owning
+Document. A non-owning list of live handles tracks native invalidation without
+copying the document tree. Query evaluation pulls native Tree Reader items
+between Lua allocations, avoiding Lua long jumps through native callbacks.</p>
 
 
 

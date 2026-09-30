@@ -1561,6 +1561,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#query-and-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query and Document
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3103,6 +3114,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#query-and-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query and Document
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3667,6 +3689,96 @@ including cycles that capture the codec itself.</p>
 <p>This API binds Value codecs. The separate <code>tlv_structure_codec_t</code> contract
 for complete objects remains unbound. See the runnable
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/codec.lua">codec example</a>.</p>
+<h2 id="query-and-document">Query and Document<a class="headerlink" href="#query-and-document" title="Permanent link">&para;</a></h2>
+<p><code>tlv.query(path)</code> compiles the C Query language: exact hexadecimal tags separated
+by <code>/</code>, such as <code>E1/9F02</code>. Tags are byte identities; there are no wildcards,
+indexes, predicates or recursive searches. <code>query:steps()</code> returns binary tag
+strings. Query compilation errors raise <code>opentlv.Error</code> with a zero-based
+character <code>offset</code>, including rejected embedded NUL characters.</p>
+<p><code>query:evaluate(data, format, options)</code> returns all matching entries in document
+order, with the Reader fields <code>tag</code>, <code>length</code>, <code>value</code>, <code>offset</code>, plus <code>depth</code>
+and <code>constructed</code>. The returned strings are copies. Evaluation delegates to the
+native Query matcher over Tree Reader, scans the complete input (including
+nonmatching branches), and reports Reader errors with available diagnostics.
+<code>options.max_depth</code> defaults to the native tree default and <code>max_elements</code> to
+65536. Limits must be nonnegative integers. This uses the supplied Format's
+framing contract, not additional semantic Schema or full DER validation.</p>
+<p>With <code>OPENTLV_DOCUMENT=ON</code> (the default), <code>tlv.document(data, format, options)</code>
+parses into an owning native Document. Pass <code>nil</code> or an empty string to create
+an empty document. The input can be released after parsing. The Document keeps
+its Format alive, including configured Fixed formats. Options are native
+<code>max_depth</code> and <code>max_elements</code>, with the C Document defaults. Query evaluation
+and Document construction default to BER when the format is omitted; builds
+without BER require an explicit format. Disabling Document omits
+<code>tlv.document</code> and leaves Query available.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">tlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">doc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="nf">document</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0x01</span><span class="p">,</span><span class="w"> </span><span class="mh">0x05</span><span class="p">),</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">)</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kd">local</span><span class="w"> </span><span class="nv">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">doc</span><span class="p">:</span><span class="nf">find</span><span class="p">(</span><span class="s2">"9F02"</span><span class="p">)</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">amount</span><span class="p">:</span><span class="nf">value</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">doc</span><span class="p">:</span><span class="nf">set</span><span class="p">(</span><span class="s2">"9F02"</span><span class="p">,</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">6</span><span class="p">)))</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="kd">local</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">doc</span><span class="p">:</span><span class="nf">serialize</span><span class="p">()</span>
+</code></pre></div>
+<p>Document operations:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Result and behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>find(path_or_query)</code></td>
+<td>First matching Node, or <code>nil</code>; searches past dead-end branches.</td>
+</tr>
+<tr>
+<td><code>query(path_or_query)</code></td>
+<td>Array of all matching Nodes in document order.</td>
+</tr>
+<tr>
+<td><code>first()</code> / <code>count()</code></td>
+<td>First root or <code>nil</code>; total number of nodes including descendants.</td>
+</tr>
+<tr>
+<td><code>set(target, value)</code></td>
+<td>Replace the first matched node's Value; returns <code>false</code> if absent, <code>true</code> on success.</td>
+</tr>
+<tr>
+<td><code>insert(tag, value, parent, before)</code></td>
+<td>Return a new Node; binary tag and Value strings are copied. Omitted parent means root level; omitted before means append.</td>
+</tr>
+<tr>
+<td><code>erase(target)</code></td>
+<td>Remove the node and descendants; returns whether a node was found.</td>
+</tr>
+<tr>
+<td><code>serialize(format)</code></td>
+<td>Encode the document, optionally with a compatible destination Format.</td>
+</tr>
+</tbody>
+</table>
+<p>Mutation targets and insertion positions accept a path, compiled Query or live
+Node from the same Document. Missing explicit insertion positions and foreign
+or invalidated Nodes raise Lua argument errors. <code>set</code> and <code>erase</code> affect only
+the first path match; use <code>query</code> to select repeated entries individually.</p>
+<p>Nodes expose <code>tag()</code>, <code>value()</code>, <code>is_constructed()</code>, <code>first_child()</code>, <code>next()</code>,
+<code>parent()</code>, <code>next_same_tag()</code>, <code>set(value)</code>, <code>erase()</code> and <code>serialize(format)</code>.
+Navigation returns <code>nil</code> at the end. <code>value()</code> returns copied primitive bytes,
+including <code>""</code> for an empty primitive, and <code>nil</code> for constructed nodes; read
+children or serialize the subtree instead. Constructed Value replacement and
+insertion parse child bytes through the native Document format.</p>
+<p>Each Node keeps its native Document alive. Removing a node invalidates all
+handles to it and its descendants. Successful constructed Value replacement
+invalidates handles to the former descendants; the parent and unrelated nodes
+remain usable. Failed mutations leave both content and handles unchanged.
+Invalidated handles raise argument errors before touching native node memory.</p>
+<p>Native mutation and encoding failures raise <code>opentlv.Error</code> with the original
+<code>code</code> and <code>message</code>. Document parse errors include a source <code>offset</code> when the
+C API supplies one; mutation and encoding APIs do not provide detailed offsets,
+so the binding does not invent them. Encoding uses the native Document/Tree
+Writer contract: framing can be normalized, and incompatible destination
+formats can reject the tree. Lua does not implement a separate DOM or mutation
+engine.</p>
 
 
 
