@@ -78,3 +78,63 @@ def test_measurement_propagates_source_exception_after_native_return():
     with pytest.raises(RuntimeError, match="source failed"):
         TreeWriter.measure(broken(), 32)
     assert TreeWriter.measure([], 0) == b""
+
+
+def test_canonical_events_roundtrip_and_skipped_rejection():
+    from opentlv import TreeReader, TreeEventKind
+    data = bytes.fromhex("300704012A30020400")
+    reader = TreeReader(data)
+    writer = TreeWriter(64)
+    kinds = []
+    while not reader.at_end:
+        event = reader.next_event()
+        kinds.append(event.kind)
+        writer.write_event(event)
+    assert kinds == [TreeEventKind.BEGIN, TreeEventKind.ELEMENT, TreeEventKind.BEGIN,
+                     TreeEventKind.ELEMENT, TreeEventKind.END, TreeEventKind.END]
+    assert writer.finish() == data
+    reader = TreeReader(data)
+    writer = TreeWriter(64)
+    writer.write_event(reader.next_event())
+    reader.skip_subtree()
+    end = reader.next_event()
+    assert end.kind == TreeEventKind.END and end.skipped and end.item is None
+    with pytest.raises(InvalidArgError):
+        writer.write_event(end)
+
+
+def test_event_parent_payload_survives_input_replacement():
+    from opentlv import TreeReader, TreeEventKind
+    reader = TreeReader(bytes.fromhex("30020400"), final_input=False)
+    begin = reader.next_event()
+    writer = TreeWriter(32)
+    writer.write_event(begin)
+    reader.set_input(bytes.fromhex("0400"), discard=2, final_input=True)
+    del begin
+    gc.collect()
+    writer.write_event(reader.next_event())
+    end = reader.next_event()
+    assert end.kind == TreeEventKind.END and end.item is None
+    writer.write_event(end)
+    assert writer.finish() == bytes.fromhex("30020400")
+
+
+def test_event_measurement_and_bounded_tags():
+    from opentlv import TreeReader
+    data = bytes.fromhex("30020400")
+    reader = TreeReader(data)
+    events = []
+    while not reader.at_end:
+        events.append(reader.next_event())
+    assert TreeWriter.measure_events(events, 32) == data
+    with pytest.raises(InvalidArgError):
+        TreeWriter.measure_events(events[:-1], 32)
+    writer = TreeWriter(32)
+    writer.set_tag_capacity(0)
+    with pytest.raises(LimitError):
+        writer.write_event(events[0])
+    writer.set_tag_capacity(1)
+    for event in events:
+        writer.write_event(event)
+    assert writer.finish() == data
+    writer.set_tag_capacity(None)

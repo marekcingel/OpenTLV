@@ -130,3 +130,59 @@ fn tree_visitor_stop_allows_subtree_skip() {
     assert_eq!(tree.read().unwrap().decoded.element.value(), &[42]);
     assert!(tree.is_at_end());
 }
+
+#[test]
+fn canonical_events_feed_writer_and_report_skipped_content() {
+    use opentlv::{TreeEvent, TreeWriter};
+    let data = [0x30, 6, 4, 0, 0x30, 2, 4, 0];
+    let mut reader = TreeReader::new(&data, Format::Ber, 2, 2, 4, true).unwrap();
+    let mut output = [0u8; 32];
+    let mut writer = TreeWriter::new(&mut output, Format::Ber, 2, 32, 2, 4).unwrap();
+    let mut ends = 0;
+    while !reader.is_at_end() {
+        let event = reader.read_event().unwrap();
+        if matches!(event, TreeEvent::End { .. }) {
+            ends += 1;
+        }
+        writer.write_event(&event).unwrap();
+    }
+    assert_eq!(ends, 2);
+    assert_eq!(writer.finish().unwrap(), data);
+    let mut reader = TreeReader::new(&data, Format::Ber, 0, 0, 1, true).unwrap();
+    assert!(matches!(reader.read_event().unwrap(), TreeEvent::Begin(_)));
+    reader.skip_subtree().unwrap();
+    assert!(matches!(
+        reader.read_event().unwrap(),
+        TreeEvent::End { skipped: true, .. }
+    ));
+}
+
+#[test]
+fn event_measurement_and_bounded_tag_storage() {
+    use opentlv::TreeWriter;
+    let data = [0x30, 2, 4, 0];
+    let mut reader = TreeReader::new(&data, Format::Ber, 1, 1, 2, true).unwrap();
+    let mut events = Vec::new();
+    while !reader.is_at_end() {
+        events.push(reader.read_event().unwrap());
+    }
+    let mut output = [0u8; 32];
+    let mut writer = TreeWriter::new(&mut output, Format::Ber, 1, 32, 1, 2).unwrap();
+    assert_eq!(
+        writer
+            .measure_events(events.clone().into_iter().map(Ok))
+            .unwrap(),
+        data
+    );
+    assert!(writer
+        .measure_events(events[..2].iter().cloned().map(Ok))
+        .is_err());
+    writer.set_tag_capacity(Some(0)).unwrap();
+    assert_eq!(writer.write_event(&events[0]), Err(Error::Limit));
+    writer.set_tag_capacity(Some(1)).unwrap();
+    for event in &events {
+        writer.write_event(event).unwrap();
+    }
+    assert_eq!(writer.finish().unwrap(), data);
+    writer.set_tag_capacity(None).unwrap();
+}

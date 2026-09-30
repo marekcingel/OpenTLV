@@ -257,8 +257,8 @@ model](../concepts/bindings.md) for the binding coverage of each language.
 Document uses the canonical Tree Reader to parse nested input. Its runtime depth
 limit is not capped at `TLV_TREE_DEFAULT_DEPTH`; temporary structural storage uses
 the Document allocator. Parsing, subtree cleanup, path search, encoded-size
-measurement and encoding are iterative. Document supplies semantic nodes and their
-preorder depths to the canonical Tree Writer; it does not size or encode nested
+measurement and encoding are iterative. Document supplies canonical BEGIN/ELEMENT/END
+events to Tree Writer; it does not size or encode nested
 TLVs itself. Tree Writer uses Format callbacks for every element.
 
 Exact measurement may call both the Format's measure and encode callbacks: a

@@ -70,6 +70,23 @@ class TreeItem:
         return self.decoded.element
 
 
+class TreeEventKind(IntEnum):
+    """Canonical structural operations shared by Reader and Writer."""
+    BEGIN = 0
+    ELEMENT = 1
+    END = 2
+
+
+@dataclass(frozen=True)
+class TreeEvent:
+    """Structural event; END has no borrowed payload. Skipped means omitted content."""
+    kind: TreeEventKind
+    item: TreeItem | None
+    depth: int
+    offset: int = 0
+    skipped: bool = False
+
+
 class _Cursor:
     __slots__ = ("_capsule", "_data", "_format")
 
@@ -133,6 +150,9 @@ class _Cursor:
             raise _from_native(error) from None
         if result is None:
             raise StopIteration
+        return self._decode_item(result)
+
+    def _decode_item(self, result):
         tag, start, size, ranges, depth, offset, constructed, source = result
         encoded = memoryview(self._data)[start:start + size]
         layout = Layout(*ranges)
@@ -176,6 +196,18 @@ class TreeReader(_Cursor):
     def __next__(self) -> TreeItem:
         """Yield complete items; NEED_MORE_DATA and other failures preserve state."""
         return self._pull()
+
+    def next_event(self) -> TreeEvent:
+        """Pull through C; do not mix with node iteration for a balanced stream."""
+        try:
+            result = _native.cursor_event(self._capsule)
+        except _native.Error as error:
+            raise _from_native(error) from None
+        if result is None:
+            raise StopIteration
+        kind, item, depth, offset, skipped = result
+        return TreeEvent(TreeEventKind(kind), self._decode_item(item) if item is not None else None,
+                         depth, offset, bool(skipped))
 
     def skip_subtree(self) -> None:
         """Skip pending descendants, also after a descent limit failure."""

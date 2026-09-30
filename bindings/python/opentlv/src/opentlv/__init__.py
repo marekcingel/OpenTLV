@@ -43,7 +43,7 @@ from opentlv.error import (
 from opentlv.fixed_format import FixedFormat
 from opentlv.format import Format
 from opentlv.reader import Reader, read
-from opentlv.cursor import Decoded, Layout, TreeItem, TreeReader, Visit
+from opentlv.cursor import Decoded, Layout, TreeItem, TreeEvent, TreeEventKind, TreeReader, Visit
 from opentlv.query import Query, QueryMatcher
 from opentlv.tree_writer import TreeWriter
 from opentlv.schema import SchemaBounds, SchemaDiagnostic, SchemaDiagnosticReport, Kind, LengthRule, LengthSchema, SchemaOrder, UnknownPolicy, StructureGroup, StructureRule, StructureSchema
@@ -88,6 +88,8 @@ __all__ = [
     "Decoded",
     "Layout",
     "TreeItem",
+    "TreeEvent",
+    "TreeEventKind",
     "TreeReader",
     "TreeWriter",
     "Visit",

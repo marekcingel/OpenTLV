@@ -124,3 +124,38 @@ TEST(Integration_Tlv_TreeWriter, BerIndefiniteKeepsFormatPolicyAndNestedTerminat
     EXPECT_EQ(TLV_OK, tlv_format_decode(&tlv_format_ber, data, sizeof(data), &decoded, nullptr));
 }
 #endif
+
+#if OPENTLV_FORMAT_BER && OPENTLV_FORMAT_CER
+TEST(Integration_Tlv_TreeWriter, EventsTransformDefiniteParentsToIndefiniteAndBack) {
+    const uint8_t definite[] = {0x30, 7, 4, 1, 0xAA, 0x30, 2, 4, 0};
+    const uint8_t indefinite[] = {0x30, 0x80, 4, 1, 0xAA, 0x30, 0x80, 4, 0, 0, 0, 0, 0};
+    for (bool reverse : {false, true}) {
+        const auto*       input = reverse ? indefinite : definite;
+        const auto        size = reverse ? sizeof(indefinite) : sizeof(definite);
+        tlv_tree_frame_t  frames[2];
+        tlv_tree_reader_t reader;
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, input, size,
+                                               reverse ? &tlv_format_cer : &tlv_format_ber, frames,
+                                               2, 2, 4));
+        uint8_t                 output[32], scratch[32];
+        tlv_tree_writer_frame_t writer_frames[2];
+        tlv_tree_writer_t       writer;
+        ASSERT_EQ(TLV_OK, tlv_tree_writer_init(&writer, output, 32,
+                                               reverse ? &tlv_format_ber : &tlv_format_cer,
+                                               writer_frames, 2, scratch, 32, 2, 4));
+        size_t closures = 0;
+        while (!tlv_tree_reader_at_end(&reader)) {
+            tlv_tree_event_t event;
+            ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
+            if (event.kind == TLV_TREE_END) ++closures;
+            ASSERT_EQ(TLV_OK, tlv_tree_writer_write_event(&writer, &event));
+        }
+        ASSERT_EQ(2u, closures);
+        ASSERT_EQ(TLV_OK, tlv_tree_writer_finish(&writer));
+        const auto* expected = reverse ? definite : indefinite;
+        const auto  expected_size = reverse ? sizeof(definite) : sizeof(indefinite);
+        ASSERT_EQ(expected_size, tlv_tree_writer_size(&writer));
+        EXPECT_EQ(0, std::memcmp(expected, output, expected_size));
+    }
+}
+#endif

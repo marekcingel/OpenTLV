@@ -277,8 +277,7 @@ static PyObject* range_object(tlv_range_t range) {
     return Py_BuildValue("(nn)", (Py_ssize_t)range.offset, (Py_ssize_t)range.size);
 }
 
-PyObject* opentlv_python_cursor_next(PyObject* module, PyObject* capsule) {
-    (void)module;
+static PyObject* cursor_pull(PyObject* capsule, int events) {
     cursor* self = PyCapsule_GetPointer(capsule, CURSOR_NAME);
     if (!available(self)) return NULL;
     self->has_current = 0;
@@ -286,9 +285,24 @@ PyObject* opentlv_python_cursor_next(PyObject* module, PyObject* capsule) {
     tlv_reader_diagnostic_t diagnostic;
     tlv_reader_diagnostic_init(&diagnostic);
     item.offset = tlv_reader_offset(&self->reader);
-    tlv_result_t code = self->nested ? tlv_tree_reader_next_diag(&self->tree, &item, &diagnostic)
-                                     : tlv_reader_next_source_diag(&self->reader, &item.element,
-                                                                   &item.source, &diagnostic);
+    tlv_tree_event_t event = {0};
+    tlv_result_t     code;
+    if (events) {
+        if (!self->nested) {
+            PyErr_SetString(PyExc_ValueError, "Tree Reader required");
+            return NULL;
+        }
+        code = tlv_tree_reader_next_event_diag(&self->tree, &event, &diagnostic);
+        if (code == TLV_OK && event.kind == TLV_TREE_END)
+            return Py_BuildValue("(iOnni)", event.kind, Py_None, (Py_ssize_t)event.depth,
+                                 (Py_ssize_t)event.offset, event.skipped);
+        item = (tlv_tree_item_t){event.element, event.source, event.depth, event.offset,
+                                 event.kind == TLV_TREE_BEGIN};
+    } else {
+        code = self->nested ? tlv_tree_reader_next_diag(&self->tree, &item, &diagnostic)
+                            : tlv_reader_next_source_diag(&self->reader, &item.element,
+                                                          &item.source, &diagnostic);
+    }
     if (code == TLV_ERR_END_OF_BUFFER) return Py_NewRef(Py_None);
     if (code != TLV_OK) {
         opentlv_python_raise_reader(code, &diagnostic);
@@ -324,12 +338,25 @@ PyObject* opentlv_python_cursor_next(PyObject* module, PyObject* capsule) {
         return NULL;
     }
     self->current = item;
-    self->has_current = self->nested;
-    return Py_BuildValue(
+    self->has_current = self->nested && !events;
+    PyObject* result = Py_BuildValue(
         "(NnnNnniN)", tag,
         (Py_ssize_t)(item.source.data - (const uint8_t*)PyBytes_AsString(self->input)),
         (Py_ssize_t)item.source.size, layout, (Py_ssize_t)item.depth, (Py_ssize_t)item.offset,
         item.constructed, source_capsule);
+    if (!result || !events) return result;
+    return Py_BuildValue("(iNnni)", event.kind, result, (Py_ssize_t)event.depth,
+                         (Py_ssize_t)event.offset, event.skipped);
+}
+
+PyObject* opentlv_python_cursor_next(PyObject* module, PyObject* capsule) {
+    (void)module;
+    return cursor_pull(capsule, 0);
+}
+
+PyObject* opentlv_python_cursor_event(PyObject* module, PyObject* capsule) {
+    (void)module;
+    return cursor_pull(capsule, 1);
 }
 
 PyObject* opentlv_python_cursor_input(PyObject* module, PyObject* args) {

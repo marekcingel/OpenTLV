@@ -72,6 +72,75 @@ unsafe extern "C" fn measure_next<'a, I: Iterator<Item = Result<TreeWriteItem<'a
     }
 }
 
+struct EventMeasureSource<'a, I> {
+    items: I,
+    retained: Vec<crate::TreeEvent<'a>>,
+    error: Option<Error>,
+    panic: Option<Box<dyn Any + Send>>,
+}
+
+unsafe extern "C" fn measure_event_next<'a, I: Iterator<Item = Result<crate::TreeEvent<'a>>>>(
+    context: *mut c_void,
+    event: *mut native::tlv_tree_event_t,
+) -> i32 {
+    // SAFETY: synchronous measurement supplies this exact context and writable event.
+    let source = unsafe { &mut *context.cast::<EventMeasureSource<'a, I>>() };
+    let outcome = catch_unwind(AssertUnwindSafe(|| {
+        let Some(item) = source.items.next() else {
+            return Ok(native::TLV_ERR_END_OF_BUFFER);
+        };
+        let item = item?;
+        source
+            .retained
+            .try_reserve(1)
+            .map_err(|_| Error::OutOfMemory)?;
+        source.retained.push(item);
+        // SAFETY: native record has nullable pointers and scalar fields only.
+        let mut raw: native::tlv_tree_event_t = unsafe { std::mem::zeroed() };
+        match source.retained.last().unwrap() {
+            crate::TreeEvent::Begin(item) | crate::TreeEvent::Element(item) => {
+                raw.kind = if matches!(source.retained.last(), Some(crate::TreeEvent::Begin(_))) {
+                    native::TLV_TREE_BEGIN
+                } else {
+                    native::TLV_TREE_ELEMENT
+                };
+                raw.depth = item.depth;
+                raw.element.tag = item.decoded.element.tag().raw();
+                raw.element.value = native::tlv_value_t {
+                    data: item.decoded.element.value().as_ptr(),
+                    size: item.decoded.element.value().len() as u64,
+                };
+            }
+            crate::TreeEvent::End {
+                depth,
+                offset,
+                skipped,
+            } => {
+                raw.kind = native::TLV_TREE_END;
+                raw.depth = *depth;
+                raw.offset = *offset;
+                raw.skipped = i32::from(*skipped);
+            }
+        }
+        // SAFETY: output is writable and retained Tags own stable storage.
+        unsafe {
+            *event = raw;
+        }
+        Ok(native::TLV_OK)
+    }));
+    match outcome {
+        Ok(Ok(code)) => code,
+        Ok(Err(error)) => {
+            source.error = Some(error);
+            native::TLV_ERR_INVALID_ARG
+        }
+        Err(panic) => {
+            source.panic = Some(panic);
+            native::TLV_ERR_INVALID_ARG
+        }
+    }
+}
+
 /// Owned details for a failed Writer operation.
 #[derive(Clone, Debug)]
 pub struct WriterDiagnostic {
@@ -130,6 +199,7 @@ pub struct TreeWriter<'a> {
     _frames: Box<[native::tlv_tree_writer_frame_t]>,
     _scratch: Box<[u8]>,
     tags: Vec<Tag>,
+    tag_storage: Option<Box<[u8]>>,
     diagnostic: Option<WriterDiagnostic>,
     required_workspace: (usize, usize),
 }
@@ -232,6 +302,7 @@ impl<'a> TreeWriter<'a> {
             _frames: frames,
             _scratch: scratch,
             tags,
+            tag_storage: None,
             diagnostic: None,
             required_workspace: (0, 0),
         })
@@ -251,6 +322,29 @@ impl<'a> TreeWriter<'a> {
             (code != native::TLV_OK).then(|| unsafe { WriterDiagnostic::from_raw(&diag) });
         Error::check(code)
     }
+    /// Configure a bounded owned Tag arena with no open parents; None restores borrowing.
+    pub fn set_tag_capacity(&mut self, capacity: Option<usize>) -> Result<()> {
+        let mut storage = if let Some(capacity) = capacity {
+            let mut bytes = Vec::new();
+            bytes
+                .try_reserve_exact(capacity.max(1))
+                .map_err(|_| Error::OutOfMemory)?;
+            bytes.resize(capacity.max(1), 0);
+            Some(bytes.into_boxed_slice())
+        } else {
+            None
+        };
+        let data = storage
+            .as_mut()
+            .map_or(ptr::null_mut(), |bytes| bytes.as_mut_ptr());
+        // SAFETY: arena is disjoint, owned, and retained after successful configuration.
+        Error::check(unsafe {
+            native::tlv_tree_writer_set_tag_storage(&mut self.raw, data, capacity.unwrap_or(0))
+        })?;
+        self.tag_storage = storage;
+        Ok(())
+    }
+
     /// Open a constructed item, retaining an owned copy of its tag until successful end.
     pub fn begin(&mut self, tag: &Tag) -> Result<()> {
         let owned = tag.clone();
@@ -275,6 +369,54 @@ impl<'a> TreeWriter<'a> {
             native::tlv_tree_writer_write_element_diag(writer, &raw, diag)
         })
     }
+    /// Consume a canonical Reader event through C, retaining an owned BEGIN Tag.
+    pub fn write_event(&mut self, event: &crate::TreeEvent<'_>) -> Result<()> {
+        // SAFETY: C record consists of scalar fields and nullable pointers.
+        let mut raw: native::tlv_tree_event_t = unsafe { std::mem::zeroed() };
+        let mut owned = None;
+        match event {
+            crate::TreeEvent::Begin(item) | crate::TreeEvent::Element(item) => {
+                let begin = matches!(event, crate::TreeEvent::Begin(_));
+                raw.kind = if begin {
+                    native::TLV_TREE_BEGIN
+                } else {
+                    native::TLV_TREE_ELEMENT
+                };
+                raw.depth = item.depth;
+                raw.offset = item.offset;
+                if begin {
+                    owned = Some(item.decoded.element.tag().clone());
+                }
+                raw.element.tag = owned.as_ref().unwrap_or(item.decoded.element.tag()).raw();
+                raw.element.value = native::tlv_value_t {
+                    data: item.decoded.element.value().as_ptr(),
+                    size: item.decoded.element.value().len() as u64,
+                };
+            }
+            crate::TreeEvent::End {
+                depth,
+                offset,
+                skipped,
+            } => {
+                raw.kind = native::TLV_TREE_END;
+                raw.depth = *depth;
+                raw.offset = *offset;
+                raw.skipped = i32::from(*skipped);
+            }
+        }
+        // SAFETY: input remains live; owned BEGIN Tag is retained on success.
+        self.operation(|writer, diag| unsafe {
+            native::tlv_tree_writer_write_event_diag(writer, &raw, diag)
+        })?;
+        if let Some(tag) = owned {
+            self.tags.push(tag);
+        }
+        if raw.kind == native::TLV_TREE_END {
+            self.tags.pop();
+        }
+        Ok(())
+    }
+
     /// Close the innermost parent; failure retains state and open tag for retry.
     pub fn end(&mut self) -> Result<()> {
         // SAFETY: cursor storage and open tags remain alive.
@@ -341,6 +483,66 @@ impl<'a> TreeWriter<'a> {
                 self.raw.output.format,
                 Some(measure_next::<I::IntoIter>),
                 (&mut source as *mut MeasureSource<'s, I::IntoIter>).cast(),
+                &mut workspace,
+                self.raw.max_depth,
+                self.raw.max_elements,
+                &mut size,
+                diag.as_mut_ptr(),
+            )
+        };
+        self.required_workspace = (workspace.required_data, workspace.required_scratch);
+        // SAFETY: initialized diagnostic; source records still retain every borrowed Tag.
+        let diag = unsafe { diag.assume_init() };
+        self.diagnostic =
+            (code != native::TLV_OK).then(|| unsafe { WriterDiagnostic::from_raw(&diag) });
+        if let Some(panic) = source.panic {
+            resume_unwind(panic);
+        }
+        if let Some(error) = source.error {
+            return Err(error);
+        }
+        Error::check(code)?;
+        // SAFETY: C returned a valid staged prefix within exclusive output storage.
+        Ok(unsafe { slice::from_raw_parts(self.raw.output.buf, size) })
+    }
+
+    /// Measure a balanced event source through C; requires an unused writer.
+    /// Retains event Tags, propagates errors/panics, and reports required workspace.
+    pub fn measure_events<'s, I>(&mut self, items: I) -> Result<&[u8]>
+    where
+        I: IntoIterator<Item = Result<crate::TreeEvent<'s>>>,
+    {
+        self.required_workspace = (0, 0);
+        self.diagnostic = None;
+        if self.raw.count != 0 {
+            return Err(Error::InvalidArg);
+        }
+        let mut source = EventMeasureSource {
+            items: items.into_iter(),
+            retained: Vec::new(),
+            error: None,
+            panic: None,
+        };
+        let mut workspace = native::tlv_tree_writer_workspace_t {
+            frames: self.raw.frames,
+            frame_capacity: self.raw.capacity,
+            data: self.raw.output.buf,
+            data_capacity: self.raw.output.capacity,
+            scratch: self.raw.scratch,
+            scratch_capacity: self.raw.scratch_capacity,
+            required_data: 0,
+            required_scratch: 0,
+        };
+        let mut size = 0;
+        let mut diag = MaybeUninit::uninit();
+        // SAFETY: exclusive self borrow protects disjoint storage. Format and
+        // source bytes remain live through the synchronous call and diagnostic copy.
+        let code = unsafe {
+            native::tlv_writer_diagnostic_init(diag.as_mut_ptr());
+            native::tlv_tree_writer_measure_events(
+                self.raw.output.format,
+                Some(measure_event_next::<I::IntoIter>),
+                (&mut source as *mut EventMeasureSource<'s, I::IntoIter>).cast(),
                 &mut workspace,
                 self.raw.max_depth,
                 self.raw.max_elements,

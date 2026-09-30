@@ -96,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a canonical `BEGIN` / `ELEMENT` / `END` tree event stream shared by Tree Reader, Tree Writer and Document, with direct transformation support, explicit skipped-subtree closure, bounded Tag copying and C++/Rust/Python event facades. Reader and Writer cursor layout changes require rebuilding native consumers. (#402)
 - Add a resumable C++ Document Builder and materialization of the already selected Tree Reader subtree in Rust and Python, with end-to-end processing pipeline and architectural regression checks. (#401)
 - Add generic Definition registries to C++, Rust and Python, with canonical C lookup and language-appropriate ownership. (#400)
 - Add C++ single-element Writer operations and length-only measurement, plus configurable binary and BCD number codecs in Rust and Python. (#400)

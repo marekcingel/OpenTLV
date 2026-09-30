@@ -3,6 +3,109 @@
 The #401 audit covers the generic Reader, Tree Reader, Visitor, Query, Document,
 Writer and Tree Writer engines and their C++, Rust and Python adapters.
 
+## Canonical structural events (#402)
+
+The canonical streaming representation is `tlv_tree_event_t` from `tlv/tree.h`:
+`BEGIN`, `ELEMENT`, `END`. Document remains the materialized representation.
+Tree Reader produces events with `tlv_tree_reader_next_event[_diag]`; Tree Writer
+accepts them with `tlv_tree_writer_write_event[_diag]`. Neither depends on the
+other. Both use the same Format-independent event contract.
+
+| Representation considered | Decision |
+| --- | --- |
+| Element + depth | Complete preorder can describe a tree, but every consumer must infer closures and final EOF closure. Retained only as a node projection. |
+| ENTER / ELEMENT / LEAVE | Equivalent if ENTER carries the container and ELEMENT only primitives; a separate container ELEMENT is redundant. |
+| BEGIN / ELEMENT / END | Selected: explicit, balanced operations directly map to Writer. |
+| Element + closure count | Requires expanding implicit closes and a terminal record; no consumer simplification. |
+
+```text
+BEGIN E1       depth=0
+ELEMENT 01     depth=1
+BEGIN E2       depth=1
+ELEMENT 02     depth=2
+END            depth=1
+END            depth=0
+```
+
+BEGIN and ELEMENT carry the existing Element and optional Source metadata.
+Reader BEGIN carries the complete original container Value. Writer ignores that
+Value and encodes the children supplied between BEGIN and END, avoiding duplicate
+children and regenerating lengths/framing with the destination Format. END carries
+no Element, Tag or Source; depth identifies the closed level. Its offset is the
+absolute end of the original Value, before any trailer. Empty containers emit
+BEGIN then END. Roots form a sequence without a synthetic parent. EOF is a result,
+not an event; every pending END must be delivered before final exhaustion.
+
+Depth starts at zero. Writer rejects mismatched depth, unknown operations,
+unmatched END, missing END at `finish()`, and classification incompatible with the
+destination Format. BEGIN/ELEMENT count toward `max_elements`; END does not.
+Reader needs a frame only when entering nonempty children, permitting skip after
+a depth/capacity failure. Writer needs a frame for every BEGIN, including empty
+containers. Both are iterative and allocation-free with caller-owned bounded
+storage. Sequential Reader remains independently usable for flat sequences.
+
+### Continuation, borrowing and subtree skipping
+
+This is a structural event stream, not early-header streaming. BEGIN is published
+only when the entire encoded parent is contiguous, preserving the complete-Element
+Format/Reader contract. Known END events are delivered before NEED_MORE_DATA at
+the next root. NEED_MORE_DATA publishes nothing and preserves cursor, frames and
+output event. Resuming neither repeats successful events nor fabricates closure.
+A malformed child inside an already complete parent is a terminal framing error;
+appending input cannot repair it and no successful END is fabricated.
+
+Node payloads borrow their original input/Format storage. A later pull does not
+itself invalidate immutable retained views, but moving, overwriting or releasing
+their backing storage does. Input replacement cannot retarget an old view.
+Traversal frames store numeric continuations, never borrowed Elements. END
+therefore remains available after parent headers have been discarded or relocated.
+
+After BEGIN for a nonempty container, `skip_subtree()` omits descendants without
+validating them; the next event is its END with `skipped=1`. Writer and Document
+Builder reject omitted content rather than silently interpreting it as an empty
+container. Skipping does not prescribe a transformation policy. For example, code
+that copies a complete subtree itself must suppress that subtree's BEGIN and its
+skipped END instead of forwarding them as a second encoding.
+
+Writer normally borrows BEGIN Tags until matching END. Configure
+`tlv_tree_writer_set_tag_storage()` to copy them into a bounded caller-owned arena
+so a pipeline can discard input after each accepted event. Empty present Tags use
+one byte to preserve presence; absent Tags need none. Arena exhaustion returns
+LIMIT without consuming the event. Storage may be configured only with no open
+parents. END releases its Tag capacity only on success. Binding facades also
+support retaining owned Tags. Source metadata never determines output encoding.
+
+On Writer failure keep the current event for retry before pulling another event.
+Failures preserve the Writer cursor and accumulated bytes, following the existing
+begin/write/end contracts. Output and scratch remain bounded; events do not add
+an append-only output sink or remove whole-Value staging requirements.
+
+### Consumers and projections
+
+Visitor maps BEGIN/ELEMENT to existing node callbacks and ignores END; Query
+uses that projection and its existing matcher. Query matches alone are not a
+balanced stream. Document Builder consumes opens/closes directly. A selected-subtree builder consumes its
+own END and leaves enclosing END events pending; its frontier can therefore
+precede an enclosing trailer until the next pull. Document
+encoding emits the same events to `tlv_tree_writer_measure_events()`. This one-shot
+measurement helper stages exact bytes, reports required workspace, and requires
+a fresh producer for retry, including after NEED_MORE_DATA. Persistent Writer
+plus `write_event()` is the resumable path.
+
+`tlv_tree_reader_next()` remains a thin node-only projection of the event engine;
+it hides END, preserving existing item iteration. Node pulls can consume pending
+ENDs left by a Builder before returning EOF or NEED_MORE_DATA; event pulls keep
+the stronger one-event-or-no-state-change contract. Do not interleave node/Visitor
+pulls and event pulls while expecting a complete balanced stream. There is one
+traversal state machine. C++ exposes `next_event()`/`write_event()` and
+`measure_tree_events()`, Rust `read_event()`/`write_event()`, and Python
+`next_event()`/`write_event()`. Rust and Python retain owned BEGIN Tags until END.
+Lua's existing missing Tree Reader/Writer facade remains a documented parity gap.
+
+Rebuild C consumers and native bindings: Reader and Writer cursor layouts gained
+state fields. Existing node-only entry points and serialized semantics remain
+available; the shared event representation adds no protocol-specific policy.
+
 ## Removed superseded interfaces
 
 The standalone C++ `visit_tree` template and `tlv++/reader/visitor.hpp` are removed.
@@ -31,9 +134,9 @@ aliases remain. Rebuild consumers after this source/ABI-breaking removal.
 | Tree Reader | `tlv/src/reader/tree.c` | `tlv_reader_next_source_diag`; iterative scope stack |
 | Visitor | `tlv/src/reader/visitor.c` | Reader or Tree Reader pulls |
 | Query | `tlv/src/query/query.c` | Tag/depth matcher; Tree Reader Visitor for buffer traversal |
-| Document parsing | `tlv/src/document/document.c` | Resumable Builder consuming Tree Reader items |
+| Document parsing | `tlv/src/document/document.c` | Resumable Builder consuming canonical structural events |
 | Document lookup | `tlv/src/document/document.c` | Node preorder feeding the same Query matcher |
-| Document encoding | `tlv/src/document/document.c` | Node preorder feeding `tlv_tree_writer_measure`, then Writer encoded copy |
+| Document encoding | `tlv/src/document/document.c` | Node events feeding `tlv_tree_writer_measure_events`, then Writer encoded copy |
 | Tree Writer | `tlv/src/writer/tree.c` | Writer measurement and encoding; iterative parent stack |
 | Writer | `tlv/src/writer/writer.c` | Format measurement and encoding |
 

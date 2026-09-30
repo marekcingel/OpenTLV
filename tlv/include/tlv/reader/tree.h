@@ -3,6 +3,7 @@
 
 #include "tlv/reader/reader.h"
 #include "tlv/defaults.h"
+#include "tlv/tree.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,7 +33,8 @@ typedef struct tlv_tree_frame {
 /**
  * @brief One complete borrowed element in the preorder tree stream.
  *
- * There are no ENTER/LEAVE events. Siblings have equal depth; a lower depth
+ * Node-only projection of the canonical structural stream: END events are hidden.
+ * Siblings have equal depth; a lower depth
  * returns to an enclosing sequence. Final end closes remaining scopes. Empty constructed
  * values still produce one item. Source ranges are relative to source.data.
  */
@@ -72,7 +74,34 @@ typedef struct tlv_tree_reader {
     size_t depth; /**< Number of active enclosing frames. */
     tlv_tree_frame_t pending; /**< Continuation for the last item, before optional descent. */
     int descend_pending;      /**< Nonzero while the last item's nonempty subtree can be skipped. */
+    int end_pending;          /**< A pending empty or skipped container must emit END. */
+    int skipped;              /**< Pending END reports omitted descendants. */
+    int item_projection;      /**< Last pull selected the node-only compatibility projection. */
 } tlv_tree_reader_t;
+
+/**
+ * @brief Pull one canonical BEGIN, ELEMENT or END event.
+ * @param[in,out] reader Initialized cursor; required.
+ * @param[out] event Required output; unchanged on non-success.
+ * @return TLV_OK for one event; otherwise the results of tlv_tree_reader_next().
+ * @note BEGIN waits for a complete encoded parent. Known END events precede
+ * NEED_MORE_DATA or final EOF and do not count against max_elements. Non-success
+ * preserves all traversal state and frames. END never borrows parent storage.
+ * Do not interleave event pulls with node-only next()/Visitor projections when
+ * consuming a balanced stream: those projections intentionally hide END events.
+ */
+TLV_API tlv_result_t tlv_tree_reader_next_event(tlv_tree_reader_t* reader, tlv_tree_event_t* event);
+
+/**
+ * @brief Pull a canonical event with original Reader diagnostics.
+ * @param[in,out] reader Initialized cursor; required.
+ * @param[out] event Required output; unchanged on non-success.
+ * @param[out] diagnostic Optional Reader failure detail, unchanged on events or tree errors.
+ * @return Same results and guarantees as tlv_tree_reader_next_event().
+ */
+TLV_API tlv_result_t tlv_tree_reader_next_event_diag(tlv_tree_reader_t* reader,
+                                                     tlv_tree_event_t* event,
+                                                     tlv_reader_diagnostic_t* diagnostic);
 
 /**
  * @brief Initialize traversal of a complete, final input window.
@@ -128,7 +157,7 @@ TLV_API tlv_result_t tlv_tree_reader_set_input(tlv_tree_reader_t* reader, const 
                                                size_t size, size_t discard, int final_input);
 
 /**
- * @brief Pull the next complete item in preorder.
+ * @brief Pull the next complete node, hiding canonical END events.
  *
  * @param[in,out] reader Initialized cursor; required.
  * @param[out] item Required output; unchanged on non-success.
@@ -140,8 +169,10 @@ TLV_API tlv_result_t tlv_tree_reader_set_input(tlv_tree_reader_t* reader, const 
  * @return #TLV_ERR_LIMIT when depth, frame capacity or element count is exhausted.
  * @return #TLV_ERR_NULL_ARG for a NULL cursor or item.
  * @return Any other Reader error, propagated unchanged.
- * @note Non-success preserves traversal state and frame storage. Repeating a
- *       call with unchanged input is deterministic. Descent limits are checked
+ * @note Node-only pulls hide pending END events, including those left by a
+ *       Document Builder, before attempting the next node. Apart from those
+ *       closures, non-success preserves traversal state and frame storage.
+ *       Descent limits are checked
  *       after publishing the parent, so it can be skipped without entering it.
  * @warning The item borrows input and Format storage; it owns neither.
  */
@@ -166,7 +197,9 @@ TLV_API tlv_result_t tlv_tree_reader_next_diag(tlv_tree_reader_t* reader, tlv_tr
  * @return #TLV_OK when a pending nonempty constructed subtree was skipped.
  * @return #TLV_ERR_INVALID_ARG when there is no pending subtree.
  * @return #TLV_ERR_NULL_ARG for NULL reader.
- * @note May be called after a failed next() while descent is still pending.
+ * @note In event mode the next pull emits END with skipped=1; node-only mode
+ * hides this closure. Empty containers already have a pending ordinary END.
+ * May be called after a failed next() while descent is still pending.
  *       Skipped descendants do not count toward max_elements. No descendant
  *       validation occurs here; Format may already have scanned framing while
  *       decoding the parent. Closing enclosing scopes takes O(depth) work.

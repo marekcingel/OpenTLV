@@ -1317,6 +1317,12 @@ pub struct tlv_tree_reader_t {
     pub pending: tlv_tree_frame_t,
     /// Corresponding C field.
     pub descend_pending: c_int,
+    /// Pending empty or skipped END.
+    pub end_pending: c_int,
+    /// Omitted descendants on pending END.
+    pub skipped: c_int,
+    /// Node-only projection selected.
+    pub item_projection: c_int,
 }
 
 // Canonical bounded Tree Writer state.
@@ -1484,6 +1490,12 @@ pub struct tlv_tree_writer_t {
     pub scratch: *mut u8,
     /// Corresponding C field.
     pub scratch_capacity: usize,
+    /// Optional owned-by-caller Tag arena.
+    pub tags: *mut u8,
+    /// Tag arena capacity.
+    pub tags_capacity: usize,
+    /// Tag arena used bytes.
+    pub tags_used: usize,
 }
 
 /// Configuration of the canonical uint64 numeric codec.
@@ -1528,4 +1540,47 @@ extern "C" {
         registry: *const tlv_definition_registry_t,
         tag: *const tlv_tag_t,
     ) -> *const tlv_definition_t;
+}
+
+/// Canonical structural event shared by Reader and Writer.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_tree_event_t {
+    pub kind: c_int,
+    pub element: tlv_element_t,
+    pub source: tlv_source_t,
+    pub depth: usize,
+    pub offset: usize,
+    pub skipped: c_int,
+}
+pub const TLV_TREE_BEGIN: c_int = 0;
+pub const TLV_TREE_ELEMENT: c_int = 1;
+pub const TLV_TREE_END: c_int = 2;
+extern "C" {
+    pub fn tlv_tree_writer_measure_events(
+        format: *const tlv_format_t,
+        next: Option<unsafe extern "C" fn(*mut c_void, *mut tlv_tree_event_t) -> tlv_result_t>,
+        context: *mut c_void,
+        workspace: *mut tlv_tree_writer_workspace_t,
+        max_depth: usize,
+        max_elements: usize,
+        size: *mut usize,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+
+    pub fn tlv_tree_reader_next_event_diag(
+        reader: *mut tlv_tree_reader_t,
+        event: *mut tlv_tree_event_t,
+        diagnostic: *mut tlv_reader_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_writer_write_event_diag(
+        writer: *mut tlv_tree_writer_t,
+        event: *const tlv_tree_event_t,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_writer_set_tag_storage(
+        writer: *mut tlv_tree_writer_t,
+        data: *mut u8,
+        capacity: usize,
+    ) -> tlv_result_t;
 }

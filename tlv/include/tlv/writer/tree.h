@@ -3,6 +3,7 @@
 
 #include "tlv/writer/writer.h"
 #include "tlv/defaults.h"
+#include "tlv/tree.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +52,49 @@ typedef struct tlv_tree_writer {
     size_t count;            /**< Successful begin/write operations. */
     uint8_t* scratch;        /**< Borrowed workspace, overwritten by end(). */
     size_t scratch_capacity; /**< Workspace capacity in bytes. */
+    uint8_t* tags;           /**< Optional caller-owned storage for open identifiers. */
+    size_t tags_capacity;    /**< Capacity of tags; storage never grows implicitly. */
+    size_t tags_used;        /**< Bytes held by currently open identifiers. */
 } tlv_tree_writer_t;
+
+/**
+ * @brief Configure bounded copying of open Tags instead of retaining input views.
+ * @param[in,out] writer Initialized cursor without open parents; required.
+ * @param[in,out] data Caller-owned storage, disjoint from all other storage and inputs.
+ * NULL with zero capacity restores borrowed-Tag mode. Storage must outlive use.
+ * @param[in] capacity Available bytes; an explicit empty Tag consumes one byte.
+ * @return TLV_OK, TLV_ERR_NULL_ARG, or TLV_ERR_INVALID_ARG when parents are open.
+ * @note begin() copies Tags in this mode; end() releases capacity on success.
+ * Failure preserves the configuration. Exhaustion at begin returns TLV_ERR_LIMIT.
+ */
+TLV_API tlv_result_t tlv_tree_writer_set_tag_storage(tlv_tree_writer_t* writer, uint8_t* data,
+                                                     size_t capacity);
+
+/**
+ * @brief Consume one canonical structural event without reconstructing depth transitions.
+ * @param[in,out] writer Initialized cursor; required.
+ * @param[in] event Required event. BEGIN opens its Tag (ignoring source Value),
+ * ELEMENT writes a primitive, END closes the innermost parent. Depth must match.
+ * @return Underlying begin/write/end result; TLV_ERR_INVALID_ARG for malformed
+ * ordering, unknown kinds or skipped END; TLV_ERR_INVALID_TAG for incompatible
+ * destination classification. Errors preserve cursor and accumulated output.
+ * @warning In borrowed mode BEGIN retains Tag until END. Configure tag storage
+ * to release input after every successful event. On failure retain the current
+ * event for retry; do not advance the producer. Source metadata is ignored.
+ */
+TLV_API tlv_result_t tlv_tree_writer_write_event(tlv_tree_writer_t* writer,
+                                                 const tlv_tree_event_t* event);
+
+/**
+ * @brief Consume an event with Writer diagnostics.
+ * @param[in,out] writer Initialized cursor; required.
+ * @param[in] event Required canonical event.
+ * @param[out] diagnostic Optional failure detail; unchanged on success.
+ * @return Same results and guarantees as tlv_tree_writer_write_event().
+ */
+TLV_API tlv_result_t tlv_tree_writer_write_event_diag(tlv_tree_writer_t* writer,
+                                                      const tlv_tree_event_t* event,
+                                                      tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Initialize an empty bounded output sequence without allocating.
@@ -79,14 +122,15 @@ TLV_API tlv_result_t tlv_tree_writer_init(tlv_tree_writer_t* writer, uint8_t* da
 /**
  * @brief Open a constructed element without emitting its header yet.
  * @param[in,out] writer Initialized cursor; required.
- * @param[in] tag Identifier, borrowed until successful end() or cursor abandonment.
+ * @param[in] tag Identifier, borrowed until successful end() or cursor abandonment,
+ * or copied when tlv_tree_writer_set_tag_storage() has configured storage.
  * @return #TLV_OK on success; #TLV_ERR_NULL_ARG for NULL writer or invalid Tag pointer.
  * @return #TLV_ERR_INVALID_TAG if Format does not classify tag as constructed.
  * @return #TLV_ERR_LIMIT if frame capacity, item depth or element count is exhausted.
  * @note Failure leaves state and output unchanged. Wire representability is
  *       checked at end(), once the Value is known. Empty parents require end().
  * @warning Tag bytes must remain immutable and must not overlap output, scratch,
- *          cursor or frame storage. Unlike single-element writing, begin retains Tag.
+ *          cursor, frame or Tag storage. Without configured Tag storage, begin retains Tag.
  */
 TLV_API tlv_result_t tlv_tree_writer_begin(tlv_tree_writer_t* writer, tlv_tag_t tag);
 
@@ -188,6 +232,38 @@ typedef struct tlv_tree_writer_workspace {
     size_t required_data;            /**< Next required output capacity on storage exhaustion. */
     size_t required_scratch;         /**< Next required scratch capacity on storage exhaustion. */
 } tlv_tree_writer_workspace_t;
+
+/**
+ * @brief Pull one structural event for bounded tree measurement.
+ * @param[in,out] context Producer state.
+ * @param[out] event One event on TLV_OK; unchanged otherwise.
+ * @return TLV_OK, TLV_ERR_END_OF_BUFFER at final EOF, or a producer error.
+ * @warning BEGIN Tags must outlive measurement; other payloads need only survive
+ * until the next callback. No callbacks may mutate the measurement workspace.
+ */
+typedef tlv_result_t (*tlv_tree_event_next_fn)(void* context, tlv_tree_event_t* event);
+
+/**
+ * @brief Measure and stage a canonical balanced event stream through Tree Writer.
+ * @param[in] format Borrowed destination Format; required.
+ * @param[in] next Required event producer; consumed even on failure.
+ * @param[in,out] context Producer state passed unchanged to next.
+ * @param[in,out] workspace Caller-owned bounded staging storage; required.
+ * @param[in] max_depth Maximum node depth, roots zero.
+ * @param[in] max_elements Maximum BEGIN/ELEMENT count; END does not count.
+ * @param[out] size Exact encoded size on success; unchanged otherwise.
+ * @param[out] diagnostic Optional Writer failure detail.
+ * @return Source/Writer result, including INVALID_ARG for missing END or skipped content.
+ * @note Uses the storage, required-capacity and replay contracts of
+ * tlv_tree_writer_measure(). NEED_MORE_DATA aborts this one-shot helper; use a
+ * persistent Tree Writer and write_event() for resumable transformations.
+ */
+TLV_API tlv_result_t tlv_tree_writer_measure_events(const tlv_format_t* format,
+                                                    tlv_tree_event_next_fn next, void* context,
+                                                    tlv_tree_writer_workspace_t* workspace,
+                                                    size_t max_depth, size_t max_elements,
+                                                    size_t* size,
+                                                    tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Measure a preorder tree through canonical Tree Writer encoding, without allocating.
