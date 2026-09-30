@@ -3,7 +3,8 @@
 
 #include "compat.h"
 
-/* Registers module_table["visit_tree"], the opentlv.visit_tree(data, format,
+/* Registers visit(data, format, callback), a sequential C Reader visitor,
+ * and module_table["visit_tree"], the opentlv.visit_tree(data, format,
  * callback, opts) preorder tree traversal built on tlv_tree_reader_visit()/
  * tlv_der_visit(); `callback` may be omitted to validate structure and
  * limits only. module_table must be on top of the stack; the stack is
