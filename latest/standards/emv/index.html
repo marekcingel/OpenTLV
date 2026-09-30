@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/architectural-rules/" class="md-nav__link">
         
   
@@ -3352,7 +3380,7 @@ and issuer for a generic schema and are accepted unchecked at the root.</p>
 <p>This backs the <code>opentlv</code> CLI's <code>validate --module emv</code>.</p>
 <p>To report every violation with its path (for example <code>6F/84</code>) and offset in a
 single pass, or to define schemas for other templates such as the Read Record
-Template (<code>70</code>) for a specific kernel, use <code>tlv_schema_validate_all()</code>; see
+Template (<code>70</code>) for a specific kernel, use <code>tlv_schema_validate_all_diag()</code>; see
 <a href="../../guides/schemas/#reporting-every-violation">Reporting every violation</a>.</p>
 <h2 id="data-object-lists-pdolcdolddol">Data Object Lists (PDOL/CDOL/DDOL)<a class="headerlink" href="#data-object-lists-pdolcdolddol" title="Permanent link">&para;</a></h2>
 <p>Include <code>tlv/builtins/emv/dol.h</code>. A Data Object List is a sequence of tag/

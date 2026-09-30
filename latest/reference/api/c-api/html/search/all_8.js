@@ -9,6 +9,5 @@ var searchData=
   ['interface_5fsubtype_6',['interface_subtype',['../structtlv__lldp__management__address.html#a5c62478a3bcdc5a130fdb2a122753238',1,'tlv_lldp_management_address']]],
   ['ipv4_2eh_7',['ipv4.h',['../ipv4_8h.html',1,'']]],
   ['is_5fconstructed_8',['is_constructed',['../structtlv__format.html#a0127a948aff3dd7310d17e0037592584',1,'tlv_format']]],
-  ['is_5fgroup_9',['is_group',['../structtlv__schema__diagnostic.html#a6ff07c00e2adb83bb0f47b10ea649975',1,'tlv_schema_diagnostic']]],
-  ['issues_10',['issues',['../structtlv__schema__report.html#a2c82b3b97b6128d5ad761c5f551914de',1,'tlv_schema_report']]]
+  ['is_5fgroup_9',['is_group',['../structtlv__schema__diagnostic.html#a6ff07c00e2adb83bb0f47b10ea649975',1,'tlv_schema_diagnostic']]]
 ];

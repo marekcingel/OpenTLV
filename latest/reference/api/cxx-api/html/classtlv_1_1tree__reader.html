@@ -125,12 +125,14 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
 Friends</h2></td></tr>
+<tr class="memitem:a39848b78fca670e8aed4510059a796ec" id="r_a39848b78fca670e8aed4510059a796ec"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#a39848b78fca670e8aed4510059a796ec">document_builder</a></td></tr>
+<tr class="separator:a39848b78fca670e8aed4510059a796ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9f5beddc2f1b0ae0b8a0147c207d3b2" id="r_ab9f5beddc2f1b0ae0b8a0147c207d3b2"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html#ab9f5beddc2f1b0ae0b8a0147c207d3b2">query_matcher</a></td></tr>
 <tr class="separator:ab9f5beddc2f1b0ae0b8a0147c207d3b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Bounded preorder traversal with incremental input and subtree control. </p>
-<dl class="section warning"><dt>Warning</dt><dd>Input, Format and context must outlive returned views. Frames must remain writable and alive throughout traversal and must not overlap input. Successful pull operations allocate nothing; error messages may allocate. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Input, Format and context must outlive returned views. Frames must remain writable and alive throughout traversal and must not overlap input. Successful pull operations allocate nothing; error messages may allocate. Only the last successful explicit <a class="el" href="classtlv_1_1tree__reader.html#a5a3a79e2cc3ada934014cc52c93823e6" title="Publish the next complete borrowed preorder item.">next()</a> selects a subtree for Document building. Every pull, skip, input replacement, validation, visitor or builder creation attempt invalidates the previous selection, including failed attempts. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a188b525ae67bcec383e6f919fde3ca63" name="a188b525ae67bcec383e6f919fde3ca63"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a188b525ae67bcec383e6f919fde3ca63">&#9670;&#160;</a></span>tree_reader() <span class="overload">[1/2]</span></h2>
@@ -567,6 +569,28 @@ template&lt;typename Visitor &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="a39848b78fca670e8aed4510059a796ec" name="a39848b78fca670e8aed4510059a796ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39848b78fca670e8aed4510059a796ec">&#9670;&#160;</a></span>document_builder</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classtlv_1_1document__builder.html">document_builder</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="ab9f5beddc2f1b0ae0b8a0147c207d3b2" name="ab9f5beddc2f1b0ae0b8a0147c207d3b2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab9f5beddc2f1b0ae0b8a0147c207d3b2">&#9670;&#160;</a></span>query_matcher</h2>
 

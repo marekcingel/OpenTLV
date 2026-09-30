@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/architectural-rules/" class="md-nav__link">
         
   
@@ -2882,7 +2910,7 @@ element to a matcher instead:</p>
 </code></pre></div>
 <p><code>tlv::query</code> holds the parsed query by value and never allocates.
 <code>tlv::query::visit_buffer()</code> wraps <code>tlv_query_visit_buffer()</code> with the visitor conventions of
-<code>tlv::visit_tree()</code>.</p>
+<code>tlv::tree_reader::visit()</code>.</p>
 </div>
 <div class="tabbed-block">
 <p><code>opentlv</code> does not bind the zero-copy traversal directly; a query addresses

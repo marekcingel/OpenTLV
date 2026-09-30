@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/architectural-rules/" class="md-nav__link">
         
   
@@ -3015,11 +3043,9 @@ borrowed pointer, so filling a <code>tlv_writer_diagnostic_t</code> never alloca
 <p><code>tlv_writer_write_diag()</code> reports the same fields with the offset absolute
 within the writer's buffer, not relative to the element being written.</p>
 <h2 id="schema-diagnostics">Schema diagnostics<a class="headerlink" href="#schema-diagnostics" title="Permanent link">&para;</a></h2>
-<p>Schema validation enriches a diagnostic the same way, but for every violation
-it finds, not just the first: <code>tlv_schema_validate_all_diag()</code> behaves
-exactly like <code>tlv_schema_validate_all()</code> (see
-<a href="../schemas/#reporting-every-violation">Reporting every violation</a>), and
-additionally fills each recorded violation as a <code>tlv_schema_diagnostic_t</code>.</p>
+<p>Schema validation records every violation through <code>tlv_schema_validate_all_diag()</code>
+as a <code>tlv_schema_diagnostic_t</code>; see
+<a href="../schemas/#reporting-every-violation">Reporting every violation</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"tlv/schema/schema.h"</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">tlv_schema_diagnostic_t</span><span class="w">        </span><span class="n">diagnostics</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
@@ -3057,9 +3083,7 @@ unset for <code>TLV_SCHEMA_ISSUE_UNEXPECTED</code>, which matches no rule.</p>
 report needs its own path, and wiring it through a pointer field would leave
 a dangling self-reference the moment the struct is copied out of the report
 array. Attach it explicitly with <code>tlv_diagnostic_set_path(&amp;d-&gt;diagnostic,
-&amp;d-&gt;path)</code> if code elsewhere expects to find a path on <code>d-&gt;diagnostic</code>.
-<code>tlv_schema_validate_all()</code> is unchanged and still reports <code>tlv_schema_issue_t</code>
-for callers that only need the tag, kind and path.</p>
+&amp;d-&gt;path)</code> if code elsewhere expects to find a path on <code>d-&gt;diagnostic</code>.</p>
 <h2 id="hierarchical-paths">Hierarchical paths<a class="headerlink" href="#hierarchical-paths" title="Permanent link">&para;</a></h2>
 <p>An offset alone does not say which branch of a nested document a diagnostic
 came from: the same tag can appear at several depths. <code>tlv_diagnostic_path_t</code>

@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/definition-boundaries/">
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/latest/concepts/processing-pipeline/">
       
       
-        <link rel="prev" href="../format-contract/">
+        <link rel="prev" href="../architecture/">
       
       
-        <link rel="next" href="../value/">
+        <link rel="next" href="../architectural-rules/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Definition boundaries - OpenTLV</title>
+        <title>Processing pipeline - OpenTLV</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#definition-boundary-audit-381" class="md-skip">
+        <a href="#canonical-processing-pipeline" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Definition boundaries
+              Processing pipeline
             
           </span>
         </div>
@@ -686,10 +686,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../processing-pipeline/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -705,6 +732,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#removed-superseded-interfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed superseded interfaces
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependency-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ownership-and-continuation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ownership and continuation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selecting-a-subtree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selecting a subtree
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exact-measurement-and-encoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exact measurement and encoding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regression-protection-and-limits-of-the-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regression protection and limits of the audit
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -798,37 +911,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Definition boundaries
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../definition-boundaries/" class="md-nav__link">
         
   
   
@@ -844,125 +930,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#decision-minimal-definition-optional-domain-dictionaries" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision: minimal Definition, optional domain dictionaries
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#evidence-across-standards" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Evidence across standards
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#separate-decision-logical-identity-and-identifier-mapping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Separate decision: logical identity and identifier mapping
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#native-and-future-runtime-modules" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Native and future runtime modules
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#regression-evidence-and-limits" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Regression evidence and limits
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#runtime-model-readiness-and-codec-reuse" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Runtime-model readiness and codec reuse
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#additional-domain-dictionary-stress-cases" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Additional domain-dictionary stress cases
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#single-ownership-after-the-composition-review-389" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Single ownership after the composition review (#389)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#final-cross-standard-codec-audit-389" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Final cross-standard codec audit (#389)
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2871,10 +2838,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#decision-minimal-definition-optional-domain-dictionaries" class="md-nav__link">
+  <a href="#removed-superseded-interfaces" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Decision: minimal Definition, optional domain dictionaries
+        Removed superseded interfaces
       
     </span>
   </a>
@@ -2882,10 +2849,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#evidence-across-standards" class="md-nav__link">
+  <a href="#dependency-evidence" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Evidence across standards
+        Dependency evidence
       
     </span>
   </a>
@@ -2893,10 +2860,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#separate-decision-logical-identity-and-identifier-mapping" class="md-nav__link">
+  <a href="#ownership-and-continuation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Separate decision: logical identity and identifier mapping
+        Ownership and continuation
       
     </span>
   </a>
@@ -2904,10 +2871,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#native-and-future-runtime-modules" class="md-nav__link">
+  <a href="#selecting-a-subtree" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Native and future runtime modules
+        Selecting a subtree
       
     </span>
   </a>
@@ -2915,10 +2882,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#regression-evidence-and-limits" class="md-nav__link">
+  <a href="#exact-measurement-and-encoding" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Regression evidence and limits
+        Exact measurement and encoding
       
     </span>
   </a>
@@ -2926,43 +2893,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#runtime-model-readiness-and-codec-reuse" class="md-nav__link">
+  <a href="#regression-protection-and-limits-of-the-audit" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Runtime-model readiness and codec reuse
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#additional-domain-dictionary-stress-cases" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Additional domain-dictionary stress cases
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#single-ownership-after-the-composition-review-389" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Single ownership after the composition review (#389)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#final-cross-standard-codec-audit-389" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Final cross-standard codec audit (#389)
+        Regression protection and limits of the audit
       
     </span>
   </a>
@@ -2986,7 +2920,7 @@
 
 
   
-    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/definition-boundaries.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/processing-pipeline.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2994,411 +2928,154 @@
   
 
 
-<h1 id="definition-boundary-audit-381">Definition boundary audit (#381)<a class="headerlink" href="#definition-boundary-audit-381" title="Permanent link">&para;</a></h1>
-<p>This Phase 1 audit examines the current implementation after the ASN.1 and EMV
-format refactoring. It records architectural evidence, not a new normative
-conformance assessment of the standards.</p>
-<h2 id="decision-minimal-definition-optional-domain-dictionaries">Decision: minimal Definition, optional domain dictionaries<a class="headerlink" href="#decision-minimal-definition-optional-domain-dictionaries" title="Permanent link">&para;</a></h2>
-<p>The generic Definition contract answers:</p>
-<blockquote>
-<p>What identifier is this, and what is its descriptive name in this registry?</p>
-</blockquote>
-<p><code>tlv_definition_t</code> remains an identifier/name entry. It must not acquire codec
-pointers, schema references, ASN.1 type information, EMV value kinds, length
-constraints or other standard-specific metadata. Its name is descriptive,
-possibly absent, and neither unique nor a stable symbolic domain identity.
-<code>tlv_definition_find()</code> compares key bytes in the explicitly selected registry;
-it does not infer a namespace, context or protocol. Duplicate keys retain the
-documented first-match behavior.</p>
-<p>A standard-specific dictionary answers:</p>
-<blockquote>
-<p>In this standard and context, how should this identifier be interpreted?</p>
-</blockquote>
-<p>Dictionaries may compose Definition, Schema, Codec and domain metadata. They
-need not embed <code>tlv_definition_t</code> or route their lookup through a generic registry.
-Dictionary is domain composition, not a new top-level OpenTLV layer. A factory
-is only a possible implementation choice.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Element + explicit context
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>            |
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>            v
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Caller / standard-specific dictionary
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>            |
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>            +-- identifier/name metadata
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>            +-- schema and constraints
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>            `-- selected value codec
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                        |
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                        v
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                   decoded Value
-</code></pre></div>
-<p>This is optional composition, not a mandatory parsing pipeline. Format and
-Reader do not require a dictionary. A value codec converts Value bytes to/from
-its documented typed representation without resolving the enclosing tag. The
-caller selects it before invocation, checks that a codec exists and supplies
-the correct representation and native byte size. Structure codecs can compose
-Reader/Writer, schemas and codecs for nested elements; this does not make the
-outer tag an input to value codec selection inside the codec.</p>
-<h2 id="evidence-across-standards">Evidence across standards<a class="headerlink" href="#evidence-across-standards" title="Permanent link">&para;</a></h2>
-<p>Public header paths below are relative to <code>tlv/include/</code>; source and test paths
-are relative to the repository root.</p>
+<h1 id="canonical-processing-pipeline">Canonical processing pipeline<a class="headerlink" href="#canonical-processing-pipeline" title="Permanent link">&para;</a></h1>
+<p>The #401 audit covers the generic Reader, Tree Reader, Visitor, Query, Document,
+Writer and Tree Writer engines and their C++, Rust and Python adapters.</p>
+<h2 id="removed-superseded-interfaces">Removed superseded interfaces<a class="headerlink" href="#removed-superseded-interfaces" title="Permanent link">&para;</a></h2>
+<p>The standalone C++ <code>visit_tree</code> template and <code>tlv++/reader/visitor.hpp</code> are removed.
+Use <code>tlv::tree_reader</code> with caller-owned frames and its <code>visit()</code> method, which
+also exposes diagnostics and incremental continuation.</p>
+<p>The compact Schema report (<code>tlv_schema_issue_t</code>, <code>tlv_schema_report_t</code>,
+<code>tlv_schema_validate_all</code>, <code>tlv_schema_issue_path_string</code>, <code>TLV_SCHEMA_PATH_MAX</code>)
+is removed. Use <code>tlv_schema_diagnostic_t</code>, <code>tlv_schema_diagnostic_report_t</code> and
+<code>tlv_schema_validate_all_diag</code>. The shared <code>tlv_diagnostic_path_t</code> contains
+enclosing scopes; the affected tag is separate. Its capacity is
+<code>TLV_DIAGNOSTIC_PATH_MAX</code>, replacing the old 16-tag limit. Format enclosing paths
+through <code>tlv_diagnostic_path_string</code>, or copy the path and append the affected tag
+when a full field path is needed and capacity permits.</p>
+<p>C++ callers use <code>validate_all_diag</code>. Rust/Python callers use
+<code>validate_diagnostics</code> and <code>SchemaDiagnosticReport.diagnostics</code>; <code>SchemaIssue</code>,
+<code>SchemaReport</code> and the compact <code>validate_all</code> methods are removed. No compatibility
+aliases remain. Rebuild consumers after this source/ABI-breaking removal.</p>
+<h2 id="dependency-evidence">Dependency evidence<a class="headerlink" href="#dependency-evidence" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Family</th>
-<th>Current implementation evidence</th>
-<th>Boundary established</th>
+<th>Consumer</th>
+<th>Implementation</th>
+<th>Processing dependency</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>ASN.1 BER/DER/CER</td>
-<td><code>tlv/builtins/asn1/identifier.h</code> shares identifier accessors; the formats retain identifier octets. <code>der_schema.h</code> separates a component's type from IMPLICIT/EXPLICIT tagging. <code>asn1_codec.h</code> explicitly assigns codec selection to the caller/schema/dictionary.</td>
-<td>Identifier bytes do not identify a complete ASN.1 type or schema component. No generic Definition registry is needed for the implemented schema and codec operations.</td>
+<td>Reader</td>
+<td><code>tlv/src/reader/reader.c</code></td>
+<td><code>tlv_format_decode</code> through one shared read implementation</td>
 </tr>
 <tr>
-<td>EMV</td>
-<td><code>tlv/src/builtins/emv/dictionary.c</code> assigns <code>80</code> to <code>response_template1</code> in BASE and <code>biometric_header_version</code> in BHT. <code>tlv_emv_find(context, tag)</code> selects a context with no fallback. <code>tlv_emv_definition_t</code> references generic Definition, field Schema and Codec, plus independent EMV interpretation annotations.</td>
-<td>Meaning is context-dependent. The rich EMV entry is a domain dictionary entry, not a proposed expansion of generic Definition. Its descriptive name belongs to Definition; the diagnostic symbol belongs to Schema.</td>
+<td>Tree Reader</td>
+<td><code>tlv/src/reader/tree.c</code></td>
+<td><code>tlv_reader_next_source_diag</code>; iterative scope stack</td>
 </tr>
 <tr>
-<td>Bluetooth</td>
-<td><code>tlv_bluetooth_ad_types</code> names one-byte AD Types. <code>tlv_bluetooth_company_ids</code> names two-byte keys, least-significant octet first; <code>{4C, 00}</code> is a Company Identifier inside a Value. Codecs and AD schema are independent consumers.</td>
-<td>A registry can name identifiers beyond an element's Tag. Explicit key representation is independent of CPU endianity; generic lookup does not decode integers or interpret vendor payloads.</td>
+<td>Visitor</td>
+<td><code>tlv/src/reader/visitor.c</code></td>
+<td>Reader or Tree Reader pulls</td>
 </tr>
 <tr>
-<td>LLDP</td>
-<td><code>tlv/src/builtins/lldp/lldp.c</code> extracts the packed seven-bit Type into an immutable one-byte key used by <code>tlv_lldp_types</code>. The raw header also contains Length bits.</td>
-<td>Format performs wire extraction. Definition uses canonical keys, not the raw header or its byte envelope. Schema and value codecs remain separate.</td>
+<td>Query</td>
+<td><code>tlv/src/query/query.c</code></td>
+<td>Tag/depth matcher; Tree Reader Visitor for buffer traversal</td>
 </tr>
 <tr>
-<td>DHCP</td>
-<td><code>tlv_dhcpv4_options</code> names option Codes, including Pad and End. DHCP framing and container policy are separate from the registry.</td>
-<td>A definition's presence does not validate an option, interpret Value or cause generic Reader to stop at End.</td>
+<td>Document parsing</td>
+<td><code>tlv/src/document/document.c</code></td>
+<td>Resumable Builder consuming Tree Reader items</td>
+</tr>
+<tr>
+<td>Document lookup</td>
+<td><code>tlv/src/document/document.c</code></td>
+<td>Node preorder feeding the same Query matcher</td>
+</tr>
+<tr>
+<td>Document encoding</td>
+<td><code>tlv/src/document/document.c</code></td>
+<td>Node preorder feeding <code>tlv_tree_writer_measure</code>, then Writer encoded copy</td>
+</tr>
+<tr>
+<td>Tree Writer</td>
+<td><code>tlv/src/writer/tree.c</code></td>
+<td>Writer measurement and encoding; iterative parent stack</td>
+</tr>
+<tr>
+<td>Writer</td>
+<td><code>tlv/src/writer/writer.c</code></td>
+<td>Format measurement and encoding</td>
 </tr>
 </tbody>
 </table>
-<p>All five families can use this boundary without extending <code>tlv_definition_t</code>.
-ASN.1 can use the boundary without a registry; EMV composes Definition by reference.
-Unknown identifiers remain structurally parseable whenever their Format accepts
-them; a dictionary miss is not a framing error.</p>
-<h2 id="separate-decision-logical-identity-and-identifier-mapping">Separate decision: logical identity and identifier mapping<a class="headerlink" href="#separate-decision-logical-identity-and-identifier-mapping" title="Permanent link">&para;</a></h2>
-<p>Two different relationships must be distinguished:</p>
-<ol>
-<li><strong>Wire representation to canonical identifier.</strong> Format already owns this
-   relationship. LLDP proves that canonical keys need not be raw header bytes;
-   source metadata retains wire locations. See the
-   <a href="../format-contract/#decoded-identifier-consistency">Format contract</a>.</li>
-<li><strong>Domain identity to identifiers in context.</strong> ASN.1 component tagging and
-   EMV context dictionaries demonstrate this relationship, but their existing
-   Schema/domain composition handles it without a shared new mapping API.</li>
-</ol>
-<p>For example, <code>{9F, 02}</code> plus "Amount, Authorised" is a valid descriptive entry
-in an EMV registry. It is not a protocol-independent identity for an authorised
-amount. The EMV dictionary also has <code>amount_authorised_binary</code> under <code>{81}</code>,
-with a different Value representation. Neither name equality nor a numerical
-conversion of tags establishes semantic equivalence.</p>
-<p><strong>Audit outcome:</strong> retain the existing generic Definition representation; do
-not introduce a top-level Mapping/Binding abstraction. Multiple families show
-context-dependent meaning, but the reviewed implementations do not demonstrate
-a missing shared mechanism beyond Format, Schema and domain dictionaries.
-This is an empirical decision for the current scope, not a prohibition on future
-mapping support. Revisit it if independent standards require the same unresolved
-mapping operation that existing composition cannot express. Generic lookup and
-Writer must not silently remap identifiers in the meantime.</p>
-<h2 id="native-and-future-runtime-modules">Native and future runtime modules<a class="headerlink" href="#native-and-future-runtime-modules" title="Permanent link">&para;</a></h2>
-<p>Native tables, generated tables and a future <code>.otlv</code> loader must expose the same
-borrowed registry contract. A runtime owner can hold entry arrays, immutable key
-bytes and names; all must remain valid and unchanged while a registry or returned
-entry is in use. The core lookup allocates nothing and does not own that storage.
-Runtime symbols/references must be resolved separately from descriptive names.</p>
-<p>A module may provide only definitions, only a format, or richer domain
-composition. Dynamic loading does not require a new core dictionary API, codec
-lookup callback or runtime-specific Definition type. No <code>.otlv</code> loader or syntax
-is implemented by this audit.</p>
-<h2 id="regression-evidence-and-limits">Regression evidence and limits<a class="headerlink" href="#regression-evidence-and-limits" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>tests/unit/definition_test.cpp</code>: byte/size matching, first match, invalid
-  inputs, independent registry scope and non-unique descriptive names. The
-  registry-scope case uses caller-owned storage rather than builtin tables.</li>
-<li><code>tests/integration/builtins/emv/emv_test.cpp</code>: parsed tags select domain codecs
-  for two representations of an amount; codecs also work directly on Value.
-  <code>tests/unit/builtins/emv/emv_test.cpp</code> covers context collisions and missing
-  entries without fallback.</li>
-<li><code>tests/unit/builtins/asn1/der_schema_test.cpp</code>: IMPLICIT/EXPLICIT tagging and
-  schema type resolution. <code>tests/unit/builtins/asn1/asn1_codec_test.cpp</code> exercises
-  codecs directly without tag lookup. BER/DER/CER framing tests cover their
-  distinct format contracts.</li>
-<li><code>tests/unit/builtins/bluetooth/company_ids_test.cpp</code>: independent Company ID
-  lookup and byte identity. <code>tests/unit/builtins/bluetooth/ad_types_test.cpp</code>
-  covers unknown types independently of registry coverage.</li>
-<li><code>tests/integration/builtins/lldp/lldp_test.cpp</code>: canonical Type lookup after
-  packed-header decoding, unknown Type handling and separate schema/codec use.</li>
-<li><code>tests/unit/builtins/dhcp/options_test.cpp</code> and
-  <code>tests/integration/architecture_test.cpp</code> cover independent naming, unknown
-  Codes and generic Pad/End behavior.</li>
-</ul>
-<p>These are architectural regressions, not exhaustive standards conformance or
-validation of a future <code>.otlv</code> runtime. The generic Definition layout and encoded-byte behavior remain unchanged.
-The EMV X-macro include is removed. Dictionary and generic codec configuration
-layouts change, and structural rules gain optional borrowed field references. See the <a href="../../standards/emv/#migration-from-the-x-macro-dictionary-381">EMV migration notes</a>.</p>
-<h2 id="runtime-model-readiness-and-codec-reuse">Runtime-model readiness and codec reuse<a class="headerlink" href="#runtime-model-readiness-and-codec-reuse" title="Permanent link">&para;</a></h2>
-<p>EMV now provides explicit typed tables and <code>tlv_emv_dictionary_t</code>, a borrowed
-view that works equally with builtin or caller-owned entries. The existing
-<code>tlv_emv_definition_t</code> composes borrowed Definition, Schema and Codec objects;
-it does not expand generic Definition. <code>tlv_emv_dictionary_find()</code> has the same semantics
-for static and dynamically owned storage. The context is selected before lookup.
-Caller-owned dictionary tests configure a BCD codec and decode through the same
-generic conversion used by the builtin adapters, without a parallel runtime
-object model. Builtin adapters additionally validate the referenced Schema.</p>
-<p>The codec audit follows wire representation and C representation, not just
-similar names:</p>
-<table>
-<thead>
-<tr>
-<th>Family</th>
-<th>Generic reuse implemented</th>
-<th>Semantics retained in the domain</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>EMV</td>
-<td>Numeric/flag entries configure generic unsigned binary/BCD conversion. Digit strings reuse generic F-padded conversion. Amount borrows its schema and delegates BCD conversion; date, time, account and number-list codecs reuse that numeric primitive internally.</td>
-<td>Calendar checks, allowed account/biometric values, digit-count/length constraints, AFL, CVM and Track 2 structures.</td>
-</tr>
-<tr>
-<td>ASN.1</td>
-<td>INTEGER and ENUMERATED delegate conversion to the generic minimal signed big-endian <code>int64_t</code> codec.</td>
-<td>Universal-type selection, BOOLEAN content rules, BIT STRING padding, OID, character/time rules and structured representations.</td>
-</tr>
-<tr>
-<td>Bluetooth</td>
-<td>UUID16/32 delegate to generic LE integer codecs; Flags and Local Name reuse generic borrowed-byte conversion after validation.</td>
-<td>UUID128 representation and UUID-list views, Flags minimality, UTF-8/length checks, Tx Power range and compound Service/Manufacturer Data views.</td>
-</tr>
-<tr>
-<td>LLDP</td>
-<td>TTL delegates to the generic BE uint16 codec; text reuses generic borrowed bytes after length validation.</td>
-<td>Identifier subtypes, capabilities relationships, address families, management/organisation structures and length policy.</td>
-</tr>
-<tr>
-<td>DHCP</td>
-<td>Message Type already delegates to generic uint8; integer, IPv4 and byte-sequence consumers already use generic codecs.</td>
-<td>Container/option constraints and interpretation of vendor payloads.</td>
-</tr>
-</tbody>
-</table>
-<p>These are different typed representations: for example a <code>uint16_t</code> UUID codec
-cannot be substituted by a <code>uint64_t</code> number codec without an explicit adapter.
-The unsigned number configuration exposes byte order/BCD, fixed or minimal
-representation width, and decimal precision as data. It does not encode tags,
-EMV value kinds, currency scaling or callbacks that choose a codec by tag.
-The same descriptor can be initialized statically or created from caller-owned
-configuration. The signed primitive encodes minimal two's-complement values;
-it does not infer ASN.1 types.</p>
-<p>Specialized codecs remain valid where generic conversion would lose domain
-validation or change the public C representation. A new standard should first
-compose existing codecs/configuration; repeated conversion mechanics should
-be extracted as the smallest useful generic primitive. This does not require
-all standards to adopt an EMV dictionary type or introduce a mandatory generic
-dictionary layer. Future <code>.otlv</code> modules can select the same codec descriptors
-and own their configurations without changing the core contracts.</p>
-<h2 id="additional-domain-dictionary-stress-cases">Additional domain-dictionary stress cases<a class="headerlink" href="#additional-domain-dictionary-stress-cases" title="Permanent link">&para;</a></h2>
-<p>A field catalog may contain symbolic aliases, identical identifiers with different
-meanings in different contexts, and differently encoded identifiers for a similar
-business concept. These are distinct cases:</p>
-<ul>
-<li>An alias can refer to the same domain entry. A descriptive name is not a
-  unique symbol and must not become a global lookup key.</li>
-<li>A context chooses a dictionary before identifier lookup. A collision across
-  dictionaries does not require a different generic Definition representation.</li>
-<li>A shared business meaning across identifiers needs an explicit domain mapping;
-  equal names or compatible codecs alone do not establish logical identity.
-  This does not yet demonstrate a cross-standard need for a generic binding API.</li>
-</ul>
-<p>Length constraints belong to Schema. Exact length uses equal bounds, an interval
-uses ordinary bounds, unrestricted length uses <code>0..SIZE_MAX</code>, and endpoint-only
-length uses <code>TLV_SCHEMA_LENGTH_ENDPOINTS</code>. This flag composes with
-<code>length_multiple</code>; diagnostics retain the flag in <code>length_flags</code>. EMV BIC and
-public-key-exponent entries use the endpoint rule. The schema entry layout is
-unchanged; the diagnostic layout gains a field and consumers must be rebuilt.</p>
-<p>Encoding labels must resolve to explicit wire and C representations. Numeric
-zero-left-padded BCD uses <code>uint64_t</code>; F-right-padded digit strings preserve
-leading zeros in a character buffer. ASCII text uses a borrowed <code>tlv_value_t</code>,
-with a chosen alphabet and optional trailing zero padding. Domain labels such
-as AN/ANS do not automatically imply a character repertoire or padding policy.
-See the <a href="../../guides/codecs/#digit-strings-and-text">codec configurations</a>.</p>
-<p>A dictionary can describe identifiers that its selected Format does not accept.
-Supporting private identifiers in a separate domain must not silently widen the
-strict EMV wire grammar. Runtime owners can compose these existing primitives;
-no universal descriptor, symbol resolver or <code>.otlv</code> loader is introduced here.</p>
-<h2 id="single-ownership-after-the-composition-review-389">Single ownership after the composition review (#389)<a class="headerlink" href="#single-ownership-after-the-composition-review-389" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Authoritative object</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Identifier bytes</td>
-<td>Canonical tag storage shared by Definition and Schema views</td>
-</tr>
-<tr>
-<td>Descriptive name</td>
-<td>Generic Definition</td>
-</tr>
-<tr>
-<td>Symbol used for diagnostics</td>
-<td>Schema entry name</td>
-</tr>
-<tr>
-<td>Field-length bounds, multiples and alternatives</td>
-<td>Schema entry</td>
-</tr>
-<tr>
-<td>Parent-specific occurrences, wire form and nesting</td>
-<td>Structural rule</td>
-</tr>
-<tr>
-<td>Byte conversion and output padding/width</td>
-<td>Selected Codec representation</td>
-</tr>
-<tr>
-<td>Context selection</td>
-<td>Domain dictionary/caller</td>
-</tr>
-</tbody>
-</table>
-<p>EMV entries contain only Definition, Schema and Codec references. They store no
-<code>value_kind</code>, <code>length_step</code> or <code>semantics</code>. Text, flags and template display labels
-are not additional dictionary metadata. Actual bit assignments remain EMV domain
-constants; child-context resolution remains explicit domain behavior.</p>
-<p>The optional <code>tlv/builtins/emv/presentation.h</code> adapter supplies a display/typed
-binding profile for immutable builtin entries. Its
-<code>tlv_emv_builtin_value_kind()</code> replaces <code>tlv_emv_value_kind()</code> and uses an explicit
-profile keyed by context and canonical tag objects, after checking that the entry
-belongs to the builtin tables. It never inspects codec callbacks or contexts.
-The dictionary and codec implementations do not depend on this profile. It
-preserves CLI/Rust builtin presentation without establishing a generic type
-system. Caller-owned entries and runtime modules choose their C representation
-and invoke codecs directly; this builtin-only adapter cannot interpret them.</p>
-<p>Codec representation width is distinct from field-length validity. The generic
-codecs contain no min/max length or step policy, and packed digits contain no
-field digit-count bounds. The optional <code>tlv_schema_number_t</code> adapter borrows a schema to select an
-allowed output width, then delegates conversion; it does not duplicate rules.
-Builtin and caller-owned EMV entries use the same generic adapter, also tested
-with LLDP TTL constraints.
-BCD precision describes decimal representability. Calendar, account and PAN
-semantics remain explicit domain checks around shared conversion primitives.</p>
-<p>A structural rule has exactly one required <code>entry</code> pointer to its authoritative
-field schema. EMV templates, dictionary entries and codec adapters reference the
-same immutable field objects. There is no inline field, override precedence or
-selection accessor. The owner keeps fields, tags and names alive while referenced;
-static builtins and owning language builders use the same relationship.
-Tests cover reference identity, missing references, diagnostics, cross-format
-reuse, caller codecs and binding storage stability.</p>
-<p>ASN.1 sequence/choice rules, Bluetooth AD, LLDP and DHCP all use the same field
-reference contract. Their framing and container policies remain independent.
-Canonical tag bytes also drive EMV child-context resolution; numeric <code>_u64</code>
-constants are only public compile-time conveniences.</p>
-<p>For a future <code>.otlv</code> module the serialization check is direct: instantiate field
-schemas, codecs and Definitions, then let structural rules and domain entries
-reference them. Each instance has one owner for each constraint; lifetime and
-construction differ from static C, not semantics. No presentation enum, callback
-identity, override rule or duplicate field-length policy needs to be serialized.
-The builtin presentation profile is an optional application adapter and is not
-part of this semantic model. No loader or syntax is introduced here.</p>
-<p>This changes the ABI of EMV dictionary entries, generic codec configurations and
-<code>tlv_structure_rule_t</code>. Rebuild consumers and update aggregate initializers.</p>
-<h2 id="final-cross-standard-codec-audit-389">Final cross-standard codec audit (#389)<a class="headerlink" href="#final-cross-standard-codec-audit-389" title="Permanent link">&para;</a></h2>
-<p>Field Schema owns outer length policy. A codec must still reject bytes that
-cannot represent its documented application value: a partial integer, incomplete
-UUID, missing compound prefix or inconsistent inner length cannot be decoded by
-ignoring Schema. These conversion requirements are independent of a field's use
-in a particular parent or protocol. Standalone codec success is not full protocol
-validation; callers apply Schema separately.</p>
-<table>
-<thead>
-<tr>
-<th>Standard / value</th>
-<th>Mechanism and reason</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>DHCP Message Type</td>
-<td>Direct source alias of <code>tlv_codec_uint8</code>; caller-owned Schema can require one option byte. Unknown message bytes remain representable. No DHCP wrapper or implicit exchange validation.</td>
-</tr>
-<tr>
-<td>Bluetooth UUID16/32</td>
-<td>Source aliases of generic little-endian integer codecs.</td>
-</tr>
-<tr>
-<td>Bluetooth Flags</td>
-<td>Generic borrowed bytes plus omission of trailing all-zero octets, a canonical bit-vector representation rule.</td>
-</tr>
-<tr>
-<td>Bluetooth Local Name</td>
-<td>Generic borrowed bytes plus complete UTF-8 validation. The 248-byte maximum is enforced only by AD Schema.</td>
-</tr>
-<tr>
-<td>Bluetooth Tx Power</td>
-<td>Signed octet conversion with the domain exclusion of -128; the one-octet representation is intrinsic.</td>
-</tr>
-<tr>
-<td>Bluetooth UUID128/list</td>
-<td>Canonical UUID byte-order conversion and homogeneous list views; partial UUIDs cannot form a list entry. AD completeness/occurrence rules stay in Schema.</td>
-</tr>
-<tr>
-<td>Bluetooth Service/Manufacturer Data</td>
-<td>Compound UUID/company prefix plus borrowed opaque payload. Prefix width and safe slicing are conversion requirements; no vendor lookup or payload policy.</td>
-</tr>
-<tr>
-<td>LLDP TTL/text</td>
-<td>Source aliases of generic uint16 BE/bytes. Text's 255-byte maximum is checked only by Schema.</td>
-</tr>
-<tr>
-<td>LLDP Chassis/Port ID</td>
-<td>Subtype-dependent compound identifier, MAC/network address validation. The maximum enclosing field length is checked only by Schema.</td>
-</tr>
-<tr>
-<td>LLDP Capabilities</td>
-<td>Pair of bitmaps with enabled bits contained in supported bits.</td>
-</tr>
-<tr>
-<td>LLDP Management Address</td>
-<td>Compound address/interface/OID representation, inner length consistency and domain subtype constraints. Outer bounds and occurrences stay in Schema.</td>
-</tr>
-<tr>
-<td>LLDP Organisation</td>
-<td>Four-byte OUI/subtype prefix and opaque payload; the 511-byte enclosing field maximum stays in Schema (and the wire format's length capacity).</td>
-</tr>
-<tr>
-<td>ASN.1 INTEGER/ENUMERATED</td>
-<td>Shared minimal signed integer primitive; universal-type names remain distinct presets.</td>
-</tr>
-<tr>
-<td>ASN.1 OCTET STRING and opaque string presets</td>
-<td>One shared conversion implementation preserves their existing borrowed <code>tlv_asn1_octet_string_t</code> representation and empty-value contract. Character repertoire, time, bit-string and OID codecs retain intrinsic type-specific checks. Structural/type membership and field constraints remain in Schema; DER/CER canonical rules remain in their validators.</td>
-</tr>
-</tbody>
-</table>
-<p>The DHCP, LLDP and Bluetooth scalar aliases preserve C/C++ source spelling, but
-remove the old exported descriptor symbols: rebuild consumers and migrate FFI
-symbol references to the generic descriptors. They are not forwarding functions.</p>
-<p><code>Integration_Emv.WithoutPresentation</code> compiles the actual library source set
-without <code>presentation.c</code>, with an intentionally unusable <code>presentation.h</code> first
-on the include path. Its separate executable links only that library and tests
-EMV parsing, all context lookups with copied tag bytes, shared Schema identity,
-structural validation, builtin codec selection and a caller-owned dictionary.
-Thus ordinary link-time dead-code elimination cannot conceal a dependency on the
-presentation adapter. No production build switch or mandatory layer is added.</p>
-<p>Canonical tag bytes remain the source of identifier identity; <code>_u64</code> constants
-are public compile-time conveniences only. The dictionary regression fixture
-checks their consistency, while the isolated test resolves entries using copied
-bytes and never converts tags to integers. Future <code>.otlv</code> owners instantiate the
-same objects and select known representations directly, without this UI profile.</p>
+<p>These dependencies are acyclic. Definition registries and Schema/Codec are not
+mandatory stages. Only Format and its reusable layout primitives interpret wire
+framing. Constructed classification is a Format callback, including when used by
+Tree Reader and Tree Writer.</p>
+<p>Document's iterative node iteration, counting and destruction operate on owned
+nodes, not encoded input. They must not be replaced with a byte parser. Likewise,
+Tree Writer's semantic preorder callback supplies nodes; Tree Writer owns nested
+encoding. The audited generic Reader/Writer tree engines contain no C recursion
+or heap allocation. Format callbacks are caller-supplied code and have their own
+resource and lifetime obligations.</p>
+<p>Schema's scope occurrence/order checks may rescan a bounded scope through the
+stateless Reader API; its nested validation uses Tree Reader. These are semantic
+validation passes, not a second wire decoder. Protocol-specific semantic codecs
+and complete parity for all binding capabilities are outside this pipeline audit.</p>
+<h2 id="ownership-and-continuation">Ownership and continuation<a class="headerlink" href="#ownership-and-continuation" title="Permanent link">&para;</a></h2>
+<p>Reader values borrow immutable input. Tags borrow input or immutable storage
+provided by Format. Retained views require their original storage to remain live,
+even when the cursor discards a prefix. Source ranges remain element-relative;
+tree item offsets and Reader diagnostics identify absolute stream locations.</p>
+<p>Incremental input publishes complete elements. A constructed parent requires its
+complete contiguous extent before publication. <code>NEED_MORE_DATA</code> preserves cursor
+state; malformed children inside a complete parent are terminal truncation errors.
+Input replacement must retain the undiscarded suffix. Final EOF is distinct from
+temporary exhaustion.</p>
+<p>Reader frames, Writer frames, destination and scratch are caller-owned. Depth,
+element count and workspace capacities bound their work/storage. Document is an
+explicit allocating owner; its allocator copies selected content. Binding-owned
+frames and language objects are also explicit higher-level ownership, not hidden
+allocation in the C engine.</p>
+<h2 id="selecting-a-subtree">Selecting a subtree<a class="headerlink" href="#selecting-a-subtree" title="Permanent link">&para;</a></h2>
+<p>Feed each published item to the Query matcher. On a match, pass that same root
+to <code>tlv_document_builder_create</code>; do not pull it again. Builder copies the root
+immediately, consumes its descendants through the same Tree Reader, and leaves
+the following sibling unread. Document depth limits are relative to the selected
+root; the reader's global limits continue to apply.</p>
+<p>C++ exposes <code>document_builder::current_subtree(reader)</code> and resumable <code>consume()</code>.
+The reader is borrowed and must not be pulled, skipped or visited until the builder
+finishes or is destroyed. Its Format/context must outlive the resulting document.</p>
+<p>Rust exposes <code>DocumentBuilder::current_subtree(&amp;mut reader, depth, count)</code> and
+Python exposes <code>DocumentBuilder(reader, current_subtree=True)</code>. All three facades use the last
+successful explicit pull, never a caller-fabricated root. Subsequent pulls, input
+replacement, skips, visitors and builder creation invalidate this selection.
+Match using <code>QueryMatcher.matches</code> before creating the builder. Visitor STOP
+does not establish this explicit-pull selection. Rust exclusively borrows the
+reader; Python rejects cursor operations during active building except input
+replacement/status queries.</p>
+<h2 id="exact-measurement-and-encoding">Exact measurement and encoding<a class="headerlink" href="#exact-measurement-and-encoding" title="Permanent link">&para;</a></h2>
+<p><code>tlv_tree_writer_measure</code> uses caller-owned output staging, scratch and frames.
+It invokes the canonical encoding path because a Format may inspect encoded child
+content when measuring a parent. Successful measurement therefore already has
+complete output bytes. Reuse them through <code>tlv_writer_copy_encoded</code> instead of
+replaying encoding.</p>
+<p>On workspace exhaustion, required capacities are discovered lower bounds. Grow
+storage and restart a deterministic semantic source. Source or Format callback
+errors do not masquerade as workspace growth requests. Document handles workspace
+ownership through its allocator. Separate Document size and encode calls each
+prepare an encoding; a pure size-only, storage-free pass is not promised.</p>
+<h2 id="regression-protection-and-limits-of-the-audit">Regression protection and limits of the audit<a class="headerlink" href="#regression-protection-and-limits-of-the-audit" title="Permanent link">&para;</a></h2>
+<p><code>Integration_Tlv_Pipeline</code> exercises a custom non-BER Format across all input
+split positions, Query selection, Builder, mutation, exact measurement, output
+capacity failures, absolute offsets and resource failures. Format callback counters
+check that selection does not reparse its root or consume following siblings.
+C++/Rust/Python Document tests exercise the facade transition and continuation.
+Existing component tests cover Tree Writer workspace exhaustion and callback
+failures, deep iteration, source preservation and format-family differences.</p>
+<p>CTest's <code>architecture-pipeline</code> source guard rejects direct allocation in canonical
+Reader/Writer engines, forbidden upward/protocol includes and direct Format
+processing in higher layers. It is a targeted regression guard, not a general C
+call-graph proof: new indirect callbacks or engines still require code review.
+The <a href="../bindings/#capability-parity-through-the-public-facade">binding matrix</a>
+continues to track remaining capabilities, including Lua; this audit does not
+claim full binding parity.</p>
 
 
 
@@ -3436,7 +3113,7 @@ same objects and select known representations directly, without this UI profile.
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../format-contract/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Format and Element contract">
+          <a href="../architecture/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Architecture">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3446,20 +3123,20 @@ same objects and select known representations directly, without this UI profile.
                 Previous
               </span>
               <div class="md-ellipsis">
-                Format and Element contract
+                Architecture
               </div>
             </div>
           </a>
         
         
           
-          <a href="../value/" class="md-footer__link md-footer__link--next" aria-label="Next: Borrowed values">
+          <a href="../architectural-rules/" class="md-footer__link md-footer__link--next" aria-label="Next: Core architectural rules">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Borrowed values
+                Core architectural rules
               </div>
             </div>
             <div class="md-footer__button md-icon">

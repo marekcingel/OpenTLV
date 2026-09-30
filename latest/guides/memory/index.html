@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/architectural-rules/" class="md-nav__link">
         
   
@@ -2946,7 +2974,7 @@ that lifetime.</p>
   <code>storage</code>, which has to outlive the tag.</li>
 <li>APIs do not retain a tag beyond the call unless their documentation says so.
   Structures that hold tags, such as a <code>tlv_schema_entry_t</code>, a
-  <code>tlv_dol_entry_t</code>, a <code>tlv_schema_issue_t</code> path, or a reader's view, therefore
+  <code>tlv_dol_entry_t</code>, a <code>tlv_schema_diagnostic_t</code> path, or a reader's view, therefore
   borrow the bytes too: a schema table needs its tag bytes to have static (or
   otherwise long) storage, and a validation report's paths point into the input
   that was validated, immutable format-supplied identifier storage, or the schema

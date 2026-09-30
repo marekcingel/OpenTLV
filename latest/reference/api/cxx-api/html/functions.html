@@ -89,9 +89,11 @@ $(function() {
 <li>c_query()&#160;:&#160;<a class="el" href="classtlv_1_1query.html#a6a572a70987101556156fc697cd1e8fd">tlv::query</a></li>
 <li>children()&#160;:&#160;<a class="el" href="classtlv_1_1document.html#a3cb9fd5d1c821cf3e9626cdd387d06f1">tlv::document</a></li>
 <li>code&#160;:&#160;<a class="el" href="structtlv_1_1error.html#a95ae94d214e3a104026eeaa4bb7bf769">tlv::error</a></li>
+<li>consume()&#160;:&#160;<a class="el" href="classtlv_1_1document__builder.html#aa83fbf09b405fc32bb61b3bcae5c783c">tlv::document_builder</a></li>
 <li>consumed()&#160;:&#160;<a class="el" href="classtlv_1_1reader.html#ac5ebb7eb8af3eba40e3f588e6cff18d7">tlv::reader</a>, <a class="el" href="classtlv_1_1tree__reader.html#afcc91d1670eab82cb25bb0f47fb785d3">tlv::tree_reader</a></li>
 <li>copy_encoded()&#160;:&#160;<a class="el" href="classtlv_1_1writer.html#a70a001edc992aa1e16251acb26626c2a">tlv::writer</a></li>
-<li>create()&#160;:&#160;<a class="el" href="classtlv_1_1document.html#aa8622b1aa4eddb3de224eaf5ead1c76b">tlv::document</a></li>
+<li>create()&#160;:&#160;<a class="el" href="classtlv_1_1document.html#aa8622b1aa4eddb3de224eaf5ead1c76b">tlv::document</a>, <a class="el" href="classtlv_1_1document__builder.html#abe3145899f66084737bb66442c291dcc">tlv::document_builder</a></li>
+<li>current_subtree()&#160;:&#160;<a class="el" href="classtlv_1_1document__builder.html#aeca0084681bd03ed07654a13c64e6309">tlv::document_builder</a></li>
 </ul>
 
 
@@ -101,6 +103,7 @@ $(function() {
 <li>decoder_fn&#160;:&#160;<a class="el" href="classtlv_1_1codec__registry.html#a0d9ec95bf207d6e4d8cdc4c1f110a70d">tlv::codec_registry</a></li>
 <li>definition_registry()&#160;:&#160;<a class="el" href="classtlv_1_1definition__registry.html#a33bdac18b4096b05690e839c0a366dc8">tlv::definition_registry</a></li>
 <li>document()&#160;:&#160;<a class="el" href="classtlv_1_1document.html#a21d3dd045aa4ead04d484d876746bd05">tlv::document</a></li>
+<li>document_builder&#160;:&#160;<a class="el" href="classtlv_1_1document.html#a39848b78fca670e8aed4510059a796ec">tlv::document</a>, <a class="el" href="classtlv_1_1document__builder.html#a60785c1b93e73a39aff1086b5a944afd">tlv::document_builder</a>, <a class="el" href="classtlv_1_1tree__reader.html#a39848b78fca670e8aed4510059a796ec">tlv::tree_reader</a></li>
 <li>document_format()&#160;:&#160;<a class="el" href="structtlv_1_1document__format.html#a01ed9cb1d258204835fd519aa52a4f7d">tlv::document_format</a></li>
 </ul>
 
@@ -168,8 +171,8 @@ $(function() {
 <li>operator!=&#160;:&#160;<a class="el" href="classtlv_1_1node.html#af312b28e0944681c4dc9efd864d780a4">tlv::node</a>, <a class="el" href="classtlv_1_1node__iterator.html#a37b1e0b98d6481e1c6d24bfd422dd4c9">tlv::node_iterator</a></li>
 <li>operator*()&#160;:&#160;<a class="el" href="classtlv_1_1expected.html#a8c5b7d459696d8ff38b917aa2ec436e4">tlv::expected&lt; T, E &gt;</a>, <a class="el" href="classtlv_1_1node__iterator.html#a99d29fc91ee3c47ac0519c3b0eca229d">tlv::node_iterator</a></li>
 <li>operator++()&#160;:&#160;<a class="el" href="classtlv_1_1node__iterator.html#aa88adb99b61a4ae4ed7b59fd2e6561a0">tlv::node_iterator</a></li>
-<li>operator-&gt;()&#160;:&#160;<a class="el" href="classtlv_1_1expected.html#a755c433e62ce9c6826b6a123fea392f0">tlv::expected&lt; T, E &gt;</a>, <a class="el" href="classtlv_1_1node__iterator.html#a8a807764006542403e1ee761c2405ca2">tlv::node_iterator</a></li>
-<li>operator=()&#160;:&#160;<a class="el" href="classtlv_1_1any.html#a39e190e870142a362f6a832989feac9a">tlv::any</a>, <a class="el" href="classtlv_1_1document.html#a093232fe37856efb9a4ff523e0752633">tlv::document</a>, <a class="el" href="classtlv_1_1expected.html#a74c1d907dd1c9ae9f34fba30d8c5e917">tlv::expected&lt; T, E &gt;</a>, <a class="el" href="classtlv_1_1query__matcher.html#a24a15ccf21247c5649b91294dc09613e">tlv::query_matcher</a>, <a class="el" href="classtlv_1_1tree__reader.html#aee9f89f3161a21e74db726302207e2e5">tlv::tree_reader</a></li>
+<li>operator-&gt;()&#160;:&#160;<a class="el" href="classtlv_1_1expected.html#afb1a10bb581acbc3d059d08de9f76b47">tlv::expected&lt; T, E &gt;</a>, <a class="el" href="classtlv_1_1node__iterator.html#a8a807764006542403e1ee761c2405ca2">tlv::node_iterator</a></li>
+<li>operator=()&#160;:&#160;<a class="el" href="classtlv_1_1any.html#a39e190e870142a362f6a832989feac9a">tlv::any</a>, <a class="el" href="classtlv_1_1document.html#a093232fe37856efb9a4ff523e0752633">tlv::document</a>, <a class="el" href="classtlv_1_1document__builder.html#a754cb487dc0a20d1eb4c98f76b2ae83b">tlv::document_builder</a>, <a class="el" href="classtlv_1_1expected.html#a74c1d907dd1c9ae9f34fba30d8c5e917">tlv::expected&lt; T, E &gt;</a>, <a class="el" href="classtlv_1_1query__matcher.html#a24a15ccf21247c5649b91294dc09613e">tlv::query_matcher</a>, <a class="el" href="classtlv_1_1tree__reader.html#aee9f89f3161a21e74db726302207e2e5">tlv::tree_reader</a></li>
 <li>operator==&#160;:&#160;<a class="el" href="classtlv_1_1node.html#a6babda0d88c04be113f8b15513e079d8">tlv::node</a>, <a class="el" href="classtlv_1_1node__iterator.html#aeb56321da7bc62bc3c8c4ceb4e679eda">tlv::node_iterator</a></li>
 <li>operator[]()&#160;:&#160;<a class="el" href="classtlv_1_1span.html#ab87b031b0e1bca83a53613de87ab4fc6">tlv::span&lt; T &gt;</a></li>
 </ul>

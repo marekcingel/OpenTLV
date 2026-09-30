@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/architectural-rules/" class="md-nav__link">
         
   
@@ -3239,7 +3267,7 @@ local policy.</p>
 and the C++ Walker wrapper have been removed. Include <code>reader/visitor.h</code>,
 initialize a Reader or Tree Reader, then call <code>tlv_reader_visit()</code> or
 <code>tlv_tree_reader_visit()</code> (or their diagnostic variants). C++ uses
-<code>tlv::visit_tree(cursor, callback)</code>. Supply frame storage explicitly for tree
+<code>cursor.visit(callback)</code>. Supply frame storage explicitly for tree
 processing. <code>TLV_TREE_DEFAULT_DEPTH</code> is a suggested default, not a maximum.</p>
 <p>Query's buffer convenience function owns <code>TLV_QUERY_MAX_STEPS</code> frames; use
 <code>tlv_query_visit()</code> with a caller-owned cursor and matcher for resumable input

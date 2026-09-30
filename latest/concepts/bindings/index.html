@@ -689,6 +689,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../architectural-rules/" class="md-nav__link">
         
   
@@ -3090,6 +3118,10 @@ the public C API. See <a href="../../guides/rust/#relationship-to-the-c-api">rel
 API</a> for how the Rust crate holds
 to this in practice.</p>
 <h2 id="capability-parity-through-the-public-facade">Capability parity through the public facade<a class="headerlink" href="#capability-parity-through-the-public-facade" title="Permanent link">&para;</a></h2>
+<p>The <a href="../processing-pipeline/">pipeline audit</a> describes selection of an already
+published subtree: C++ <code>document_builder::current_subtree(reader)</code>, Rust
+<code>DocumentBuilder::current_subtree</code> and Python <code>current_subtree=True</code> avoid pulling
+the selected root a second time.</p>
 <p>Every supported language binding must expose the complete capability set of
 the public C API through its public, idiomatic language facade. Access through
 raw FFI alone does not satisfy capability parity. Users must not need to bypass
@@ -3452,17 +3484,17 @@ semantic content is rejected; raw <code>copy_encoded</code> intentionally does n
 and set native length flags and multiples. C validates rule-table ordering,
 group identity, occurrence totals and all length policies; bindings only retain
 or marshal the descriptions. Rust keeps stable group storage when schemas move.</p>
-<p><code>StructureSchema.validate_all</code> in both languages uses the C report validator.
+<p><code>StructureSchema.validate_diagnostics</code> in both languages uses the C diagnostic report validator.
 <code>UnknownPolicy</code> controls unknown-tag handling. A report retains at most the
 requested capacity while <code>total_count</code> reports every violation, including at
-zero capacity. Issues own copied Tags, optional offsets, native issue names and
-paths formatted by C. Reports survive input and schema destruction. Schema
+zero capacity. Diagnostics own copied Tags, optional offsets and native issue names.
+Reports survive input and schema destruction. Schema
 violations return a report; malformed wire input and invalid configuration
 still fail. <code>validate_diagnostics</code> returns owned expected/actual length,
 occurrence and form constraints, group identity, severity, field names and
 source offsets. Its path contains enclosing scopes; the affected Tag is a
-separate field, matching the C diagnostic contract. Rust <code>validate_fixed</code>,
-<code>validate_all_fixed</code> and <code>validate_diagnostics_fixed</code> accept a borrowed
+separate field, matching the C diagnostic contract. Rust <code>validate_fixed</code> and
+<code>validate_diagnostics_fixed</code> accept a borrowed
 <code>FixedFormat</code>; Python accepts <code>FixedFormat</code> through the same <code>format</code> argument.</p>
 <p><code>NumberCodec</code> in Rust and Python selects binary big/little endian or BCD,
 fixed/minimal width and BCD precision. Decode, encode, size queries and writing
@@ -3569,7 +3601,7 @@ explicitly out of scope for #400.</p>
 <td>Schema</td>
 <td>Structural validation: tags, lengths, occurrence and nesting rules</td>
 <td><code>tlv_schema_t</code>, <code>tlv_structure_schema_t</code></td>
-<td>same C types, wrapped by <code>tlv::validate</code>/<code>tlv::validate_all</code></td>
+<td>same C types, wrapped by <code>tlv::validate</code>/<code>tlv::validate_all_diag</code></td>
 <td><code>LengthSchema</code>, <code>StructureSchema</code></td>
 <td><code>LengthSchema</code>, <code>StructureSchema</code></td>
 <td>not bound yet</td>

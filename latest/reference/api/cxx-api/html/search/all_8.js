@@ -13,6 +13,5 @@ var searchData=
   ['ipv4_2eh_10',['ipv4.h',['../../../c-api/html/ipv4_8h.html',1,'']]],
   ['is_5fconstructed_11',['is_constructed',['../../../c-api/html/structtlv__format.html#a0127a948aff3dd7310d17e0037592584',1,'tlv_format::is_constructed'],['../classtlv_1_1node.html#a40dbfcc7d7457acf9f8408f3a95ad9a0',1,'tlv::node::is_constructed()']]],
   ['is_5fgroup_12',['is_group',['../../../c-api/html/structtlv__schema__diagnostic.html#a6ff07c00e2adb83bb0f47b10ea649975',1,'tlv_schema_diagnostic']]],
-  ['is_5ftlv_5fcodec_13',['is_tlv_codec',['../structtlv_1_1is__tlv__codec.html',1,'tlv']]],
-  ['issues_14',['issues',['../../../c-api/html/structtlv__schema__report.html#a2c82b3b97b6128d5ad761c5f551914de',1,'tlv_schema_report']]]
+  ['is_5ftlv_5fcodec_13',['is_tlv_codec',['../structtlv_1_1is__tlv__codec.html',1,'tlv']]]
 ];

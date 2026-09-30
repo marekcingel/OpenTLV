@@ -684,6 +684,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../concepts/processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../concepts/architectural-rules/" class="md-nav__link">
         
   
@@ -3359,7 +3387,7 @@ require additional context and are not checked.</p>
 <p><code>02 0A FC</code> passes; <code>03 0A FC FD</code> parses successfully but fails schema
 validation with <code>TLV_ERR_INVALID_LENGTH</code>. Likewise, <code>04 03 0F 18 00</code>
 fails because three value bytes cannot form a 16-bit UUID list.
-<code>tlv_schema_validate_all()</code> and <code>tlv_schema_validate_all_diag()</code> report these
+<code>tlv_schema_validate_all_diag()</code> report these
 as length issues; the detailed diagnostic includes <code>length_multiple</code>.</p>
 <p>This schema checks lengths and occurrences only. It does not check UTF-8,
 flag-bit contents, numeric ranges, assigned UUIDs/company identifiers or

@@ -77,6 +77,7 @@ $(function() {
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#friends">Friends</a> &#124;
 <a href="classtlv_1_1document-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">tlv::document Class Reference</div></div>
 </div><!--header-->
@@ -147,12 +148,17 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aa8622b1aa4eddb3de224eaf5ead1c76b" id="r_aa8622b1aa4eddb3de224eaf5ead1c76b"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="classtlv_1_1document.html">document</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#aa8622b1aa4eddb3de224eaf5ead1c76b">create</a> (const <a class="el" href="structtlv_1_1document__format.html">document_format</a> &amp;format)</td></tr>
 <tr class="memdesc:aa8622b1aa4eddb3de224eaf5ead1c76b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an empty document.  <br /></td></tr>
 <tr class="separator:aa8622b1aa4eddb3de224eaf5ead1c76b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
+Friends</h2></td></tr>
+<tr class="memitem:a39848b78fca670e8aed4510059a796ec" id="r_a39848b78fca670e8aed4510059a796ec"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a39848b78fca670e8aed4510059a796ec">document_builder</a></td></tr>
+<tr class="separator:a39848b78fca670e8aed4510059a796ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>An owned, mutable TLV document. </p>
 <p>Wraps <a class="elRef" href="../../c-api/html/group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a>. Unlike the reader and visitor wrappers, a document copies the data it is given, allocates memory and lets the data be searched, changed and encoded again. It is independent of the zero-copy APIs: nothing in the core depends on it, and it never refers to the buffer it was parsed from.</p>
 <p>A document is move-only. Moving keeps every <a class="el" href="classtlv_1_1node.html" title="A non-owning handle to one element of a tlv::document.">tlv::node</a> handle valid; the moved-from document is empty and unusable except for destruction and assignment.</p>
-<dl class="section warning"><dt>Warning</dt><dd>The format callbacks' contexts are borrowed and must outlive the document. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>The format callbacks' contexts are borrowed and must outlive the document. Documents returned by <a class="el" href="classtlv_1_1document__builder.html" title="Owning, resumable adapter over the canonical C Document Builder.">document_builder</a> also borrow the reader's Format descriptor. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a href="https://marekcingel.github.io/OpenTLV/guides/memory/">format context ownership and lifetime</a> </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a21d3dd045aa4ead04d484d876746bd05" name="a21d3dd045aa4ead04d484d876746bd05"></a>
@@ -781,6 +787,29 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Number of elements, including nested ones. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Friends And Related Symbol Documentation</h2>
+<a id="a39848b78fca670e8aed4510059a796ec" name="a39848b78fca670e8aed4510059a796ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39848b78fca670e8aed4510059a796ec">&#9670;&#160;</a></span>document_builder</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classtlv_1_1document__builder.html">document_builder</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>
