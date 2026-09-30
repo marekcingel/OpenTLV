@@ -1,5 +1,6 @@
 # Experimental Lua binding: the OpenTLV C core plus a native extension
-# module (src/) exposing Reader, Writer, Tree Writer, Schema, Element, Tag and traversal to Lua 5.1
+# module (src/) exposing Reader, Writer, Tree Writer, Schema, Query, Document,
+# Element, Tag and traversal to Lua 5.1
 # through 5.4 and LuaJIT, and a one-line pure-Lua entry point (lua/) that
 # `require("opentlv")` resolves to — the same native/pure split as the
 # Python opentlv-native/opentlv and Rust opentlv-native/opentlv packages.
@@ -35,6 +36,9 @@ add_library(opentlv_lua MODULE
     src/formats/fixed.c
     src/reader.c
     src/reader.h
+    src/query.c
+    src/query.h
+    src/document.h
     src/schema.c
     src/schema.h
     src/writer.c
@@ -43,6 +47,9 @@ add_library(opentlv_lua MODULE
     src/visitor.h
     src/compat.h
 )
+if(OPENTLV_DOCUMENT)
+    target_sources(opentlv_lua PRIVATE src/document.c)
+endif()
 if(OPENTLV_FORMAT_BER)
     target_sources(opentlv_lua PRIVATE src/formats/ber.c)
 endif()
@@ -180,6 +187,12 @@ if(OPENTLV_BUILD_LUA_TESTS)
     endif()
 
     if(OPENTLV_LUA_EXECUTABLE)
+        add_test(NAME Integration_lua_query_document
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/query_document_spec.lua")
+        add_test(NAME Integration_lua_query_document_allocator
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/query_document_spec.lua" --allocator)
+        set_tests_properties(Integration_lua_query_document Integration_lua_query_document_allocator
+            PROPERTIES LABELS "integration;lua" ENVIRONMENT "${_lua_test_environment}")
         add_test(NAME Integration_lua_codec
             COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/codec_spec.lua")
         add_test(NAME Integration_lua_codec_allocator
@@ -220,7 +233,7 @@ if(OPENTLV_BUILD_LUA_TESTS)
                 "${CMAKE_CURRENT_SOURCE_DIR}/tests/components.lua"
                 $<BOOL:${OPENTLV_FORMAT_BER}> $<BOOL:${OPENTLV_FORMAT_CER}>
                 $<BOOL:${OPENTLV_FORMAT_DER}> $<BOOL:${OPENTLV_BLUETOOTH}>
-                $<BOOL:${OPENTLV_LLDP}> $<BOOL:${OPENTLV_EMV}>)
+                $<BOOL:${OPENTLV_LLDP}> $<BOOL:${OPENTLV_EMV}> $<BOOL:${OPENTLV_DOCUMENT}>)
         set_tests_properties(Integration_lua_components PROPERTIES
             LABELS "integration;lua"
             ENVIRONMENT "${_lua_test_environment}")

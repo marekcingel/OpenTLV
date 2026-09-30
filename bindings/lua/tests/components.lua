@@ -1,5 +1,6 @@
 -- Standalone smoke test: expected availability comes from the CMake build.
 local opentlv = require("opentlv")
+assert((opentlv.document ~= nil) == (arg[7] == "1"), "Document availability mismatch")
 local names = { "ber", "cer", "der", "bluetooth_ltv", "lldp", "emv" }
 local wires = {
     string.char(4, 1, 42), string.char(4, 1, 42), string.char(4, 1, 42),
@@ -19,6 +20,12 @@ for i, name in ipairs(names) do
         assert(count == 1)
         local visited = opentlv.visit_tree(wires[i], format, function() end)
         assert(visited == 1)
+        assert(opentlv.query("04"):evaluate(wires[i], format)[1].value == string.char(42))
+        if opentlv.document then
+            local doc = opentlv.document(wires[i], format)
+            assert(doc:find("04"):value() == string.char(42))
+            assert(doc:serialize() == wires[i])
+        end
     end
 end
 
@@ -33,4 +40,8 @@ local ok, result = pcall(opentlv.reader, wires[1])
 assert(ok == (arg[1] == "1"))
 if not ok then
     assert(tostring(result):find("format is required when BER is disabled", 1, true))
+end
+assert(pcall(function() opentlv.query("04"):evaluate(wires[1]) end) == (arg[1] == "1"))
+if opentlv.document then
+    assert(pcall(opentlv.document, wires[1]) == (arg[1] == "1"))
 end

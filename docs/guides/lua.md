@@ -478,3 +478,76 @@ including cycles that capture the codec itself.
 This API binds Value codecs. The separate `tlv_structure_codec_t` contract
 for complete objects remains unbound. See the runnable
 [codec example](https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/codec.lua).
+
+## Query and Document
+
+`tlv.query(path)` compiles the C Query language: exact hexadecimal tags separated
+by `/`, such as `E1/9F02`. Tags are byte identities; there are no wildcards,
+indexes, predicates or recursive searches. `query:steps()` returns binary tag
+strings. Query compilation errors raise `opentlv.Error` with a zero-based
+character `offset`, including rejected embedded NUL characters.
+
+`query:evaluate(data, format, options)` returns all matching entries in document
+order, with the Reader fields `tag`, `length`, `value`, `offset`, plus `depth`
+and `constructed`. The returned strings are copies. Evaluation delegates to the
+native Query matcher over Tree Reader, scans the complete input (including
+nonmatching branches), and reports Reader errors with available diagnostics.
+`options.max_depth` defaults to the native tree default and `max_elements` to
+65536. Limits must be nonnegative integers. This uses the supplied Format's
+framing contract, not additional semantic Schema or full DER validation.
+
+With `OPENTLV_DOCUMENT=ON` (the default), `tlv.document(data, format, options)`
+parses into an owning native Document. Pass `nil` or an empty string to create
+an empty document. The input can be released after parsing. The Document keeps
+its Format alive, including configured Fixed formats. Options are native
+`max_depth` and `max_elements`, with the C Document defaults. Query evaluation
+and Document construction default to BER when the format is omitted; builds
+without BER require an explicit format. Disabling Document omits
+`tlv.document` and leaves Query available.
+
+```lua
+local tlv = require("opentlv")
+local doc = tlv.document(string.char(0x9F, 0x02, 0x01, 0x05), tlv.formats.ber)
+local amount = doc:find("9F02")
+assert(amount:value() == string.char(5))
+assert(doc:set("9F02", string.char(6)))
+local result = doc:serialize()
+```
+
+Document operations:
+
+| Method | Result and behavior |
+| --- | --- |
+| `find(path_or_query)` | First matching Node, or `nil`; searches past dead-end branches. |
+| `query(path_or_query)` | Array of all matching Nodes in document order. |
+| `first()` / `count()` | First root or `nil`; total number of nodes including descendants. |
+| `set(target, value)` | Replace the first matched node's Value; returns `false` if absent, `true` on success. |
+| `insert(tag, value, parent, before)` | Return a new Node; binary tag and Value strings are copied. Omitted parent means root level; omitted before means append. |
+| `erase(target)` | Remove the node and descendants; returns whether a node was found. |
+| `serialize(format)` | Encode the document, optionally with a compatible destination Format. |
+
+Mutation targets and insertion positions accept a path, compiled Query or live
+Node from the same Document. Missing explicit insertion positions and foreign
+or invalidated Nodes raise Lua argument errors. `set` and `erase` affect only
+the first path match; use `query` to select repeated entries individually.
+
+Nodes expose `tag()`, `value()`, `is_constructed()`, `first_child()`, `next()`,
+`parent()`, `next_same_tag()`, `set(value)`, `erase()` and `serialize(format)`.
+Navigation returns `nil` at the end. `value()` returns copied primitive bytes,
+including `""` for an empty primitive, and `nil` for constructed nodes; read
+children or serialize the subtree instead. Constructed Value replacement and
+insertion parse child bytes through the native Document format.
+
+Each Node keeps its native Document alive. Removing a node invalidates all
+handles to it and its descendants. Successful constructed Value replacement
+invalidates handles to the former descendants; the parent and unrelated nodes
+remain usable. Failed mutations leave both content and handles unchanged.
+Invalidated handles raise argument errors before touching native node memory.
+
+Native mutation and encoding failures raise `opentlv.Error` with the original
+`code` and `message`. Document parse errors include a source `offset` when the
+C API supplies one; mutation and encoding APIs do not provide detailed offsets,
+so the binding does not invent them. Encoding uses the native Document/Tree
+Writer contract: framing can be normalized, and incompatible destination
+formats can reject the tree. Lua does not implement a separate DOM or mutation
+engine.

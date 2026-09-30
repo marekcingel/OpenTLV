@@ -27,6 +27,8 @@
 #include "compat.h"
 #include "error.h"
 #include "format.h"
+#include "query.h"
+#include "document.h"
 #include "reader.h"
 #include "schema.h"
 #include "visitor.h"
@@ -58,6 +60,10 @@ int luaopen_opentlv_native(lua_State* L) {
     opentlv_lua_open_schema(L, module_index);
     opentlv_lua_open_writer(L, module_index);
     opentlv_lua_open_visitor(L, module_index);
+    opentlv_lua_open_query(L, module_index);
+#if OPENTLV_DOCUMENT
+    opentlv_lua_open_document(L, module_index);
+#endif
 
     lua_pushcfunction(L, l_version);
     lua_setfield(L, module_index, "version");

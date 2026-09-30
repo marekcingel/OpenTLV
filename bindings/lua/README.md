@@ -9,6 +9,11 @@ same native/pure split as the Python `opentlv-native`/`opentlv` and Rust
 See [Lua bindings](https://marekcingel.github.io/OpenTLV/development/lua/)
 and [using OpenTLV from Lua](https://marekcingel.github.io/OpenTLV/guides/lua/).
 
+`tlv.query(path)` compiles native tag paths and evaluates them over buffers.
+With `OPENTLV_DOCUMENT=ON`, `tlv.document(data, format)` owns a native mutable
+Document with `find`, `query`, `set`, `insert`, `erase` and `serialize` methods.
+Node userdata retain their Document and reject access after removal.
+
 ```lua
 local opentlv = require("opentlv")
 

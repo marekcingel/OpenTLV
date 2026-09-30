@@ -25,8 +25,8 @@ API), using only the portable subset of the Lua C API common to all of them;
 see `bindings/lua/src/compat.h`. It covers Reader, Writer, Tree Writer, Element and Tag, and
 preorder tree traversal (`opentlv.visit_tree`, built on `tlv_tree_reader_visit()`/
 `tlv_der_visit()`), structural Schema validation with detailed diagnostic reports,
-and Value codecs with builtin and custom callback support;
-Document is not bound yet.
+Value codecs with builtin and custom callback support, compiled path Query,
+and mutable Document (when `OPENTLV_DOCUMENT=ON`).
 
 ## Build
 
@@ -139,3 +139,15 @@ capacity/count-only results, malformed input, numeric checks, immutable
 configuration and garbage collection. When the test allocator is available,
 it also injects failures during construction and diagnostic conversion and
 checks that retained child schemas are released.
+
+## Query and Document ownership tests
+
+`tests/query_document_spec.lua` runs directly through CTest and under busted.
+It covers query diagnostics and matching, mutation rollback, foreign and stale
+handles, configured Format lifetimes, and optional-component builds. Its
+`--allocator` mode injects Lua allocation failures during construction, result
+conversion, insertion and serialization. Document userdata acquire their
+finalizer before allocating native state; Node userdata root the owning
+Document. A non-owning list of live handles tracks native invalidation without
+copying the document tree. Query evaluation pulls native Tree Reader items
+between Lua allocations, avoiding Lua long jumps through native callbacks.
