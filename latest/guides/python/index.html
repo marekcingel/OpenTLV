@@ -1384,6 +1384,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#generic-definition-registries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic Definition registries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#codec" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1421,6 +1432,17 @@
     <span class="md-ellipsis">
       
         Relationship to the C API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tree-measurement-preservation-and-materialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tree measurement, preservation and materialization
       
     </span>
   </a>
@@ -2876,6 +2898,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#generic-definition-registries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic Definition registries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#codec" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2913,6 +2946,17 @@
     <span class="md-ellipsis">
       
         Relationship to the C API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tree-measurement-preservation-and-materialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tree measurement, preservation and materialization
       
     </span>
   </a>
@@ -2978,9 +3022,11 @@ see <a href="../../development/python/#build">Build</a>.</p>
 (<code>python examples/quick_start.py</code> from <code>bindings/python/opentlv</code>).</p>
 <h2 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">&para;</a></h2>
 <p><code>Reader</code> is a Python iterator over <code>Element</code> values. Each <code>Element</code> has a <code>Tag</code>
-and a <code>value</code> that is a zero-copy <code>memoryview</code> slice of your input.
-Constructed elements are not expanded automatically; create a new <code>Reader</code>
-over <code>element.value</code> to descend.</p>
+and a <code>value</code> that is a <code>memoryview</code> of retained immutable input storage.
+Sequential Reader treats constructed Values as opaque. Use <code>TreeReader</code> for
+canonical preorder traversal, limits and subtree skipping. Both Readers support
+incremental windows and Visitors; <code>QueryMatcher</code> adds resumable Query processing.
+See the <a href="../../concepts/bindings/#rust-and-python-reader-and-query-facades">Reader and Query facade contract</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">opentlv</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0xAA</span><span class="p">,</span> <span class="mh">0xBB</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">])</span>
@@ -2988,9 +3034,10 @@ over <code>element.value</code> to descend.</p>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
 </code></pre></div>
 <p><code>data</code> may be <code>bytes</code>, <code>bytearray</code>, <code>memoryview</code>, or any other
-buffer-protocol object; the reader borrows it rather than copying it, so it
-must stay valid and unchanged for as long as the reader or its elements are
-used. <code>Reader(data)</code> uses <code>opentlv.Format.BER</code>; pass <code>format=</code> for
+buffer-protocol object. Immutable bytes are retained without copying; other
+inputs are snapshotted into immutable bytes. Returned views keep their storage
+alive across Reader destruction and input replacement. <code>Reader(data)</code> uses
+<code>opentlv.Format.BER</code>; pass <code>format=</code> for
 another wire format, for example <code>opentlv.Reader(data, opentlv.Format.BER)</code>,
 or an <code>opentlv.FixedFormat(tag_size, length_size, byte_order="big")</code> for a
 runtime-configurable fixed-width tag and length (equivalent to the C
@@ -3022,8 +3069,8 @@ builds a nested BER document bottom-up (<code>python examples/write.py</code>);
 shows the growable buffer handling a value far larger than its initial
 capacity, and a genuine format error (<code>python examples/writer.py</code>).</p>
 <h2 id="validating">Validating<a class="headerlink" href="#validating" title="Permanent link">&para;</a></h2>
-<p><code>LengthSchema</code> is a pure Python per-tag length table (<code>validate_length</code> is a
-dict lookup and bounds check, so it never calls into C):</p>
+<p><code>LengthSchema</code> is a per-tag length table whose lookup and length constraints
+delegate to the canonical C Schema API:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">opentlv</span><span class="w"> </span><span class="kn">import</span> <span class="n">LengthRule</span><span class="p">,</span> <span class="n">LengthSchema</span><span class="p">,</span> <span class="n">Tag</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">tag</span> <span class="o">=</span> <span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x9f\x02</span><span class="s2">"</span><span class="p">)</span>
@@ -3057,29 +3104,36 @@ each carrying the failing <code>offset</code>.</p>
 incomplete one:
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/validate.py">validate.py</a>
 (<code>python examples/validate.py</code>).</p>
+<h2 id="generic-definition-registries">Generic Definition registries<a class="headerlink" href="#generic-definition-registries" title="Permanent link">&para;</a></h2>
+<p><code>Definition(tag, name=None)</code> describes an identifier independently of Schema or
+Codec. <code>DefinitionRegistry(definitions).find(tag)</code> calls the canonical C lookup
+and returns the first matching record or <code>None</code>. Records own immutable identifier
+bytes and names, so returned definitions survive the registry.</p>
 <h2 id="codec">Codec<a class="headerlink" href="#codec" title="Permanent link">&para;</a></h2>
-<p><code>opentlv.codec</code> binds the one concrete value codec the public OpenTLV C API
-exports, <code>tlv_emv_codec_amount</code>, for EMV format n12 amounts:</p>
+<p><code>NumberCodec(NumberEncoding.BIG_ENDIAN, width=2)</code> converts unsigned numeric
+Values through C. <code>LITTLE_ENDIAN</code> and <code>BCD</code> are also supported; BCD requires
+<code>digits</code> precision. Width zero selects minimal encoding. <code>decode</code>, <code>encode</code>,
+<code>encoded_size</code> and <code>encode_into</code> expose conversion, measurement and caller-owned
+output. Conversion errors raise <code>codec.CodecError</code>; integers outside uint64
+raise <code>OverflowError</code> during representation adaptation.</p>
+<p><code>opentlv.codec</code> also binds <code>tlv_emv_codec_amount</code> for EMV format n12 amounts:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">opentlv</span><span class="w"> </span><span class="kn">import</span> <span class="n">codec</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">codec</span><span class="o">.</span><span class="n">encode_amount</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>            <span class="c1"># b"\x00\x00\x00\x01\x23\x45"</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">codec</span><span class="o">.</span><span class="n">decode_amount</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x00\x00\x00\x01\x23\x45</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># 12345</span>
 </code></pre></div>
-<p>This does not extend to the rest of Rust's <code>Codec</code>/<code>Value</code> model (dates,
-Track 2, AFL, CVM results, cryptogram info, and so on): the C functions that
-decode those (<code>emv_value_decode</code>/<code>emv_value_encode</code>) are declared only in a
-private header under <code>tlv/src/</code>, not in <code>tlv/include/</code>, so binding them would
-mean reimplementing that EMV decoding logic in Python instead of calling
-into C for it, unlike every other type this package binds. A <code>CodecError</code>
-(not an <code>OpenTLVError</code> subclass — <code>tlv_codec_result_t</code> is a separate error
-domain from <code>tlv_result_t</code>) carries the raw <code>tlv_codec_result_t</code> code as
-<code>.code</code>.</p>
+<p>Other public C codecs (dates, Track 2, AFL, CVM results and cryptogram
+information, among others) remain binding gaps. They must be exposed by wrapping
+the public C descriptors rather than reimplementing their conversion logic.
+<code>codec.CodecError</code> is separate from <code>OpenTLVError</code>, matching C's separate codec
+error domain; its <code>.code</code> contains the raw <code>tlv_codec_result_t</code> value.</p>
 <p>Runnable version, decoding and encoding an EMV "Amount, Authorised" element:
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/codec.py">codec.py</a>
 (<code>python examples/codec.py</code>).</p>
 <h2 id="documents">Documents<a class="headerlink" href="#documents" title="Permanent link">&para;</a></h2>
-<p><code>Reader</code> and <code>Writer</code> are zero-copy and never allocate; <code>Document</code> is a
-separate, allocating convenience layer for changing an existing message. It
+<p><code>Reader</code> retains immutable input or snapshots mutable buffers, and <code>Writer</code>
+uses managed output storage. <code>Document</code> is a separate, allocating convenience
+layer for changing an existing message. It
 parses input into an owned tree of <code>Node</code>s that can be searched, changed,
 extended and shortened, then encoded again:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">opentlv</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">Tag</span>
@@ -3107,9 +3161,10 @@ succeeds completely or leaves the document unchanged, and raises an
 allocates beyond a Python object's own memory — so close it deterministically
 with <code>close()</code> or a <code>with</code> block instead of waiting for garbage collection
 when that matters, for example for a large document. A node stays valid
-until it is erased, its value is replaced, or its document is closed or
-freed; using it afterwards is the same use-after-free hazard the C API
-itself has, not something this binding guards against.</p>
+until it or an ancestor is erased, its parent Value is replaced, or its
+document is closed. Invalid access raises <code>ValueError</code> before native access.
+Replacing a node's own Value leaves that node usable; its old children become
+invalid only after successful replacement. Unrelated handles remain valid.</p>
 <p>Runnable versions:
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/document.py">document.py</a>
 replaces a value and appends an element in an existing message
@@ -3141,34 +3196,42 @@ advance past malformed input.</p>
 directly against the CPython C API (no pybind11, cffi or Cython) and the
 CPython Limited API, declaring and calling the public OpenTLV C API;
 <code>opentlv</code> wraps it and contains no C API calls of its own, the same split as
-the Rust <code>opentlv-native</code>/<code>opentlv</code> crates. <code>opentlv-native</code> exposes element
-parsing (<code>tlv_read_diag</code>) and encoding (<code>tlv_write_diag</code>) as two stateless
-calls, <code>read(data, offset, format)</code> and <code>write(buffer, offset, tag, value,
-format)</code>; <code>opentlv.Reader</code> and <code>opentlv.Writer</code> keep their position in pure
-Python and call them repeatedly, the same sequential behavior
-<code>tlv_reader_next()</code>/<code>tlv_writer_write()</code> give other bindings, without needing
-to represent the C <code>tlv_reader_t</code>/<code>tlv_writer_t</code> structs on the Python side.
-Unlike the C writer, which reports <code>TLV_ERR_BUFFER_TOO_SHORT</code> for a
-caller-provided buffer that is too small, <code>opentlv.Writer</code> owns a growable
-<code>bytearray</code> and retries once after growing it to the exact required size
-(<code>required</code> on the resulting diagnostic), the same size
-<code>tlv_encoded_size()</code>/<code>opentlv.encoded_size()</code> reports. <code>StructureSchema</code>
+the Rust <code>opentlv-native</code>/<code>opentlv</code> crates. <code>Reader</code> and <code>TreeReader</code> retain native C cursors for incremental input and
+canonical traversal. <code>Writer</code> delegates each write to C and updates its Python
+position only after success. With <code>buffer=...</code>, output capacity is fixed;
+without it, the owned bytearray grows on a native capacity diagnostic.
+<code>StructureSchema</code>
 serializes its Python-owned rules (including nested <code>children</code> schemas) into
 an ephemeral C rule tree for the duration of one <code>structure_validate()</code> call,
 built and freed with plain <code>malloc</code>/<code>free</code>, rather than keeping a persistent
 native handle across calls the way it would for a schema reused many times;
-<code>LengthSchema</code> needs no such call at all, since its lookup and bounds check
-carry no wire-format semantics worth delegating to C. <code>codec.decode_amount</code>/
+<code>LengthSchema</code> likewise marshals its rules and delegates lookup and length
+constraints to <code>tlv_schema_find</code> and <code>tlv_schema_validate_length</code>. Rule flags
+and length multiples use the same C semantics. <code>codec.decode_amount</code>/
 <code>encode_amount</code> wrap <code>tlv_codec_decode</code>/<code>tlv_codec_encode</code> directly, passed
 the public <code>tlv_emv_codec_amount</code> descriptor. <code>opentlv.Document</code> wraps a
 <code>tlv_document_t*</code> in a <code>PyCapsule</code> that frees it (<code>tlv_document_free()</code>) when
 the capsule is garbage collected or <code>close()</code> drops Python's only reference
-to it; <code>opentlv.Node</code> wraps a borrowed <code>tlv_node_t*</code> as a plain integer,
-which needs no capsule of its own since nodes are freed with their document,
-not individually, and holds a reference to its <code>Document</code> so the capsule
-stays alive for as long as a node from it is reachable. This completes every
-type in the <a href="../../concepts/bindings/">language bindings conceptual
-model</a> this package's scope covers.</p>
+to it. <code>Node</code> retains its Document and validates shared ownership tokens before
+using its internal pointer. This protects aliases and descendants from use after
+erasure, replacement or close. Remaining parity gaps are listed in the
+<a href="../../concepts/bindings/#capability-implementation-matrix">binding capability matrix</a>.</p>
+<h2 id="tree-measurement-preservation-and-materialization">Tree measurement, preservation and materialization<a class="headerlink" href="#tree-measurement-preservation-and-materialization" title="Permanent link">&para;</a></h2>
+<p><code>TreeWriter.measure(items, capacity, format, ...)</code> accepts preorder tuples
+<code>(Element, depth, constructed)</code>. It calls C measurement and returns the staged
+encoded bytes; their length is the exact size. Workspace errors expose
+<code>required_data</code> and <code>required_scratch</code> lower bounds. A retry needs a fresh source.
+<code>Reader.read_source()</code> results expose <code>preserve()</code> and <code>preserve_into(storage)</code>;
+<code>Writer.preserve(decoded)</code> appends the unchanged original representation.
+All equality checks and byte copying are performed by C.</p>
+<p><code>DocumentBuilder(reader)</code> consumes a fresh TreeReader incrementally.
+<code>DocumentBuilder(reader, next_subtree=True)</code> consumes only its next subtree.
+Call <code>consume()</code> until a Document is returned; <code>NeedMoreDataError</code> permits
+<code>reader.set_input(...)</code> and retry. Use a <code>with</code> block or <code>close()</code> to discard an
+unfinished build. Active builders prevent other cursor traversal operations.</p>
+<p><code>Document.encode(format)</code> and <code>Node.encode(format)</code> support conversion to a
+compatible builtin destination Format without changing the stored tree.
+<code>encoded_size_as(format)</code> measures the same destination encoding.</p>
 
 
 

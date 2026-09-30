@@ -1377,6 +1377,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tree-measurement-and-owning-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tree measurement and owning Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2875,6 +2886,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tree-measurement-and-owning-documents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tree measurement and owning Documents
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2964,8 +2986,9 @@ the parent.</p>
 <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/writer.rs">writer.rs</a>
 (<code>cargo run --example writer</code>).</p>
 <h2 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
-<p>Every fallible call returns <code>opentlv::Result&lt;T&gt;</code>, an alias for
-<code>Result&lt;T, opentlv::Error&gt;</code>. There are no panics on bad input and no
+<p>Most fallible calls return <code>opentlv::Result&lt;T&gt;</code>, an alias for
+<code>Result&lt;T, opentlv::Error&gt;</code>; operations with additional context use error
+structures such as <code>DocumentError</code> and <code>WriterError</code>. There are no panics on bad input and no
 <code>unsafe</code> in caller code.</p>
 <ul>
 <li><code>Error</code> has one variant per C <code>TLV_ERR_*</code> code and implements
@@ -2993,7 +3016,7 @@ the parent.</p>
 <tbody>
 <tr>
 <td><code>Tag</code></td>
-<td>its bytes (<code>Copy</code>)</td>
+<td>its bytes (<code>Clone</code>)</td>
 <td>nothing</td>
 </tr>
 <tr>
@@ -3008,8 +3031,18 @@ the parent.</p>
 </tr>
 <tr>
 <td><code>Writer&lt;'a&gt;</code></td>
-<td>its position</td>
+<td>its position and optional diagnostic</td>
 <td>the output <code>&amp;'a mut [u8]</code></td>
+</tr>
+<tr>
+<td><code>Document&lt;'f&gt;</code></td>
+<td>C document nodes and storage</td>
+<td>optional Fixed Format/context</td>
+</tr>
+<tr>
+<td><code>Node</code>, <code>NodeMut</code></td>
+<td>a node handle</td>
+<td>immutable or exclusive Document access</td>
 </tr>
 <tr>
 <td><code>LengthSchema</code>, <code>StructureSchema</code></td>
@@ -3052,8 +3085,33 @@ so behavior matches the C API, and the C error codes map one to one onto
 <code>Error</code>. What the safe API changes is memory handling: pointer and length pairs
 become slices, initialization and <code>NULL</code> checks are done internally, and
 lifetimes replace the borrowing rules the <a href="../memory/">C memory guide</a>
-documents. Parts of the C API that need callbacks (visitors, structure codecs,
-the DOL component) are not bound yet; see the <a href="../../reference/c-api/">C API reference</a>.</p>
+documents. Reader and Tree Reader <code>visit</code> methods support resumable callbacks;
+panics are resumed only after returning from C. <code>QueryMatcher</code> retains canonical
+matching state across STOP and input replacement. See the
+<a href="../../concepts/bindings/#rust-and-python-reader-and-query-facades">Reader and Query facade contract</a>.
+Structure codecs and the DOL component are not bound yet; see the
+<a href="../../reference/c-api/">C API reference</a>.</p>
+<h2 id="tree-measurement-and-owning-documents">Tree measurement and owning Documents<a class="headerlink" href="#tree-measurement-and-owning-documents" title="Permanent link">&para;</a></h2>
+<p><code>TreeWriter::measure</code> takes an iterator of <code>Result&lt;TreeWriteItem&gt;</code> records
+and returns a borrowed staged encoding. Its length is the exact measured size;
+C owns all parent closure and depth validation. <code>required_workspace()</code> reports
+output/scratch lower bounds after exhaustion. Retry with a fresh source.
+<code>Writer::preserve</code> uses C semantic equality checks before copying original
+source bytes. <code>Writer::diagnostic</code> owns failure detail. Standalone
+<code>measure_element</code> and <code>write_element</code> return <code>WriterError</code> with the same detail.</p>
+<p>The default-enabled Cargo feature <code>document</code> exposes <code>Document</code>, <code>Node</code>,
+<code>NodeMut</code> and <code>DocumentBuilder</code>. Disable it when linking a C library without
+<code>OPENTLV_DOCUMENT</code>. <code>Document::parse</code> copies input through C, while node Values
+borrow document storage. Mutation requires exclusive access; a retained value
+or node prevents mutation or destruction at compile time. Query lookup and all
+edits delegate to C. Destination-format sizing and output are available through
+<code>encoded_size_as</code>, <code>encode_as</code> and <code>encode_into_as</code>.</p>
+<p><code>DocumentBuilder::new</code> materializes a fresh TreeReader stream;
+<code>DocumentBuilder::next_subtree</code> pulls and materializes only the next subtree.
+The builder exclusively borrows the reader. On <code>Error::NeedMoreData</code>, replace
+input through <code>builder.set_input</code> and call <code>consume</code> again. Dropping the builder
+releases the reader; completed Documents retain owned content and the reader's
+conservative input/Format lifetime.</p>
 
 
 

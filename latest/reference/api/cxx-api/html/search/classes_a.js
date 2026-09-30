@@ -98,5 +98,6 @@ var searchData=
   ['tlv_5fvariable_5flength_95',['tlv_variable_length',['../../../c-api/html/structtlv__variable__length.html',1,'']]],
   ['tlv_5fwriter_96',['tlv_writer',['../../../c-api/html/structtlv__writer.html',1,'']]],
   ['tlv_5fwriter_5fdiagnostic_97',['tlv_writer_diagnostic',['../../../c-api/html/structtlv__writer__diagnostic.html',1,'']]],
-  ['tree_5fwriter_98',['tree_writer',['../classtlv_1_1tree__writer.html',1,'tlv']]]
+  ['tree_5freader_98',['tree_reader',['../classtlv_1_1tree__reader.html',1,'tlv']]],
+  ['tree_5fwriter_99',['tree_writer',['../classtlv_1_1tree__writer.html',1,'tlv']]]
 ];

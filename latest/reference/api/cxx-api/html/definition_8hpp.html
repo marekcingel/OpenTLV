@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C++ API: tlv++/writer/tree.hpp File Reference</title>
+<title>OpenTLV C++ API: tlv++/definition.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,7 +69,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_bb4de694aed7e68e236ea99f4ab65f5c.html">tlv++</a></li><li class="navelem"><a class="el" href="dir_3de64aa60896925bdd38e04da01aa0fd.html">writer</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_bb4de694aed7e68e236ea99f4ab65f5c.html">tlv++</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -77,20 +77,19 @@ $(function() {
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#typedef-members">Typedefs</a>  </div>
-  <div class="headertitle"><div class="title">tree.hpp File Reference</div></div>
+  <div class="headertitle"><div class="title">definition.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>C++ bounded Tree Writer over caller-owned output, frames and workspace.  
+<p>Borrowed generic identifier metadata and canonical registry lookup.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="elRef" href="../../c-api/html/writer_2tree_8h.html">tlv/writer/tree.h</a>&quot;</code><br />
-<code>#include &quot;<a class="elRef" href="../../c-api/html/defaults_8h.html">tlv/defaults.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="writer_8hpp.html">tlv++/writer/writer.hpp</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="elRef" href="../../c-api/html/definition_8h.html">tlv/definition.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html">tlv::tree_writer</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterative bounded writer with the storage and failure contracts of <a class="elRef" href="../../c-api/html/group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a>.  <a href="classtlv_1_1tree__writer.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1definition__registry.html">tlv::definition_registry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry view; caller retains entries, identifier bytes and names.  <a href="classtlv_1_1definition__registry.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -101,12 +100,12 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:ab17c45337fcf91eb2d6e5477b0fbe06d" id="r_ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab17c45337fcf91eb2d6e5477b0fbe06d">tlv::tree_writer_frame</a> = <a class="elRef" href="../../c-api/html/group__writer.html#gac48be24a305bd17c0a57ebc45b7a771f">tlv_tree_writer_frame_t</a></td></tr>
-<tr class="memdesc:ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned Tree Writer frame; retains a borrowed Tag until end().  <br /></td></tr>
-<tr class="separator:ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2e6883118ec4e009f3bc9b58b57ee55" id="r_ac2e6883118ec4e009f3bc9b58b57ee55"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac2e6883118ec4e009f3bc9b58b57ee55">tlv::definition</a> = <a class="elRef" href="../../c-api/html/structtlv__definition__t.html">tlv_definition_t</a></td></tr>
+<tr class="memdesc:ac2e6883118ec4e009f3bc9b58b57ee55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Identifier and optional borrowed name, without Schema or Codec policy.  <br /></td></tr>
+<tr class="separator:ac2e6883118ec4e009f3bc9b58b57ee55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>C++ bounded Tree Writer over caller-owned output, frames and workspace. </p>
+<div class="textblock"><p>Borrowed generic identifier metadata and canonical registry lookup. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

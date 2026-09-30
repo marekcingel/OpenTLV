@@ -956,6 +956,89 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#capability-parity-through-the-public-facade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability parity through the public facade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#capability-implementation-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability implementation matrix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Capability implementation matrix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c-resumable-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++ resumable traversal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rust-and-python-reader-and-query-facades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust and Python Reader and Query facades
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rust-and-python-tree-writer-facades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust and Python Tree Writer facades
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-constraints-and-bounded-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema constraints and bounded reports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owning-documents-and-safe-handles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owning Documents and safe handles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#core-concepts" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2810,6 +2893,89 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#capability-parity-through-the-public-facade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability parity through the public facade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#capability-implementation-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability implementation matrix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Capability implementation matrix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c-resumable-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++ resumable traversal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rust-and-python-reader-and-query-facades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust and Python Reader and Query facades
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rust-and-python-tree-writer-facades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust and Python Tree Writer facades
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-constraints-and-bounded-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema constraints and bounded reports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owning-documents-and-safe-handles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owning Documents and safe handles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#core-concepts" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2906,9 +3072,8 @@ ergonomics to the target language.</p>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>idiomatic  idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>   C++       Rust        Go       Python      Lua    &lt;language&gt;
 </code></pre></div>
-<p>C++ and Rust ship today; Python (<code>bindings/python/</code>) now binds Reader, Writer,
-Document, Element and Tag — including Document, which neither Rust nor
-WebAssembly bind yet. Lua (<code>bindings/lua/</code>) binds Reader, Element and Tag. Go is
+<p>C++, Rust and Python expose Readers, Writers and Document facades today.
+Lua (<code>bindings/lua/</code>) currently binds Reader, Element and Tag. Go is
 illustrative here, not yet scaffolded, to show the contract extends past the
 current bindings. The trailing <code>...</code> stands for any further binding.</p>
 <p>The public OpenTLV C API (see the <a href="../../reference/c-api/">C API reference</a>) is
@@ -2924,6 +3089,423 @@ headers instead of linking a separately built library, but it still wraps only
 the public C API. See <a href="../../guides/rust/#relationship-to-the-c-api">relationship to the C
 API</a> for how the Rust crate holds
 to this in practice.</p>
+<h2 id="capability-parity-through-the-public-facade">Capability parity through the public facade<a class="headerlink" href="#capability-parity-through-the-public-facade" title="Permanent link">&para;</a></h2>
+<p>Every supported language binding must expose the complete capability set of
+the public C API through its public, idiomatic language facade. Access through
+raw FFI alone does not satisfy capability parity. Users must not need to bypass
+the facade to access advanced capabilities. Raw FFI may remain an internal
+implementation detail; exposing it publicly is not required.</p>
+<p>The call boundary is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Application
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    |
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Public idiomatic language facade
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    |
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Internal binding / FFI
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    |
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>Public C API and canonical C engine
+</code></pre></div>
+<p>These are responsibilities, not a requirement for separate packages. A native
+extension can implement the facade directly, and C++ can call C directly from
+its headers.</p>
+<p>The facade adapts calling conventions, ownership, lifetimes, iteration and
+error handling. Parsing, tree traversal, Query semantics, validation, value
+codecs and wire encoding must delegate to the canonical C engine. Bindings
+must not implement independent versions of those processing semantics.</p>
+<p>Parity covers single-element and sequential Readers and Writers, Tree Reader,
+incremental/resumable input, Reader and Writer diagnostics, source offsets and
+source information, Reader resource limits, subtree control, Visitor processing,
+Tree Writer, measurement, exact encoded copy and preservation, Query, Schema,
+Codec, Definition, Format, Layout and Document. It includes configuration and
+extension capabilities exposed by C, not just access to builtin presets.
+Compare bindings against the same enabled C components; a disabled optional
+component is distinct from an unimplemented binding capability.</p>
+<p>Convenience defaults and iterators may simplify ordinary use, but advanced
+operations must remain available through the facade. In particular, resumable
+reading must preserve the distinction between an element, a request for more
+input, final end of input and an error. An iterator must not make a resumable
+reader permanently exhausted merely because it needs more input.</p>
+<p>Preserve zero-copy access and borrowed lifetimes where the language supports
+them directly. Managed representations must keep backing storage alive or use
+documented copies, and must prevent access through invalidated native handles.
+Document intentional language-specific ownership and error-handling differences
+without treating missing functionality as an ergonomic difference.</p>
+<p>Capability tracking must identify the corresponding C operations, the public
+facade API and parity tests where practical. An FFI declaration without a public
+facade remains a gap. Tests should compare observable C semantics, including
+results, diagnostics, offsets, limits, incremental continuation and encoded
+bytes. The current coverage below is an implementation snapshot, not a claim
+that full parity has already been achieved. This contract is the long-term
+target; <a href="https://github.com/marekcingel/OpenTLV/issues/400">#400</a> delivers the
+scoped implementation described below.</p>
+<h2 id="capability-implementation-matrix">Capability implementation matrix<a class="headerlink" href="#capability-implementation-matrix" title="Permanent link">&para;</a></h2>
+<p>The current #400 implementation scope is C++, Rust and Python. Lua parity is
+handled by separate stories and does not block this implementation; its column
+below remains informational.</p>
+<p>The following remaining capabilities are explicitly <strong>out of scope for #400</strong>
+and are deferred to follow-up work:</p>
+<ul>
+<li>Additional codecs beyond the facades already implemented.</li>
+<li>Additional protocol-specific Definition/dictionary registries and lookup.</li>
+<li>Further Format/Layout extensions, including custom callbacks, additional
+  optional builtins and destination-format configuration not yet exposed.</li>
+<li>Custom Document allocator adaptation.</li>
+</ul>
+<p>Existing implementations in these families remain part of #400. The deferred
+capabilities do not block acceptance of its scoped implementation. They remain
+coverage gaps against the long-term full-parity contract; excluding them from
+this issue does not mark them implemented.</p>
+<p>The public C headers are the source of truth. Each row must cover all public
+operations in the referenced family before it can be marked complete. <strong>Bound</strong>
+means the listed operations have a public facade; it does not imply every
+edge case has a parity test. <strong>Partial</strong> means only a subset is exposed.
+<strong>Missing</strong> means the capability has no public facade. <strong>Audit</strong> means operation
+coverage still needs verification; it must not be counted as parity.</p>
+<table>
+<thead>
+<tr>
+<th>Capability and canonical C operations</th>
+<th>C++</th>
+<th>Rust</th>
+<th>Python</th>
+<th>Lua</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single-element Reader: <code>tlv_read</code>, <code>tlv_read_diag</code>, <code>tlv_read_source_diag</code></td>
+<td>Bound: <code>read</code></td>
+<td>Bound: <code>read</code>, <code>read_fixed</code></td>
+<td>Bound: <code>read</code></td>
+<td>Audit</td>
+</tr>
+<tr>
+<td>Sequential Reader: <code>tlv_reader_init</code>, <code>tlv_reader_next</code>, <code>tlv_reader_at_end</code></td>
+<td>Bound: <code>reader</code></td>
+<td>Bound: <code>Reader</code></td>
+<td>Bound: <code>Reader</code></td>
+<td>Bound: <code>reader</code></td>
+</tr>
+<tr>
+<td>Incremental Reader: <code>tlv_reader_init_incremental</code>, <code>tlv_reader_set_input</code>, <code>tlv_reader_consumed</code>, <code>tlv_reader_offset</code></td>
+<td>Bound: <code>input_mode</code>, <code>set_input</code>, <code>consumed</code>, <code>offset</code></td>
+<td>Bound: <code>Reader::incremental</code>, continuation methods</td>
+<td>Bound: <code>Reader(final_input=False)</code>, continuation methods</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Tree Reader: <code>tlv_tree_reader_init</code>, <code>tlv_tree_reader_next</code>, <code>tlv_tree_reader_at_end</code></td>
+<td>Bound: <code>tree_reader</code></td>
+<td>Bound: <code>TreeReader</code></td>
+<td>Bound: <code>TreeReader</code></td>
+<td>Missing pull facade</td>
+</tr>
+<tr>
+<td>Incremental Tree Reader: <code>tlv_tree_reader_init_incremental</code>, <code>tlv_tree_reader_set_input</code>, <code>tlv_tree_reader_consumed</code>, <code>tlv_tree_reader_offset</code></td>
+<td>Bound: <code>tree_reader</code> continuation methods</td>
+<td>Bound: <code>TreeReader</code> continuation methods</td>
+<td>Bound: <code>TreeReader</code> continuation methods</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Reader diagnostics: <code>tlv_reader_next_diag</code>, <code>tlv_tree_reader_next_diag</code>, <code>tlv_reader_diagnostic_init</code></td>
+<td>Bound: optional diagnostics and value initialization</td>
+<td>Bound: owned <code>ReaderDiagnostic</code></td>
+<td>Bound: structured exceptions</td>
+<td>Partial</td>
+</tr>
+<tr>
+<td>Source information and instance Layout: <code>tlv_reader_next_source_diag</code>, <code>tlv_source_t</code>, Tree Reader item source/depth/offset</td>
+<td>Bound: <code>next_source</code>, <code>tree_item</code>, <code>source</code></td>
+<td>Bound: <code>Decoded</code>, <code>Layout</code>, <code>TreeItem</code></td>
+<td>Bound: <code>Decoded</code>, <code>Layout</code>, <code>TreeItem</code></td>
+<td>Partial</td>
+</tr>
+<tr>
+<td>Reader limits: Tree Reader frame capacity, maximum depth and item count</td>
+<td>Bound: <code>tree_reader</code> construction</td>
+<td>Bound: <code>TreeReader</code> construction</td>
+<td>Bound: <code>TreeReader</code> construction</td>
+<td>Partial: Visitor options</td>
+</tr>
+<tr>
+<td>Subtree control: <code>tlv_tree_reader_skip_subtree</code></td>
+<td>Bound: <code>skip_subtree</code></td>
+<td>Bound: <code>skip_subtree</code></td>
+<td>Bound: <code>skip_subtree</code></td>
+<td>Audit</td>
+</tr>
+<tr>
+<td>Visitor: <code>tlv_reader_visit[_diag]</code>, <code>tlv_tree_reader_visit[_diag]</code></td>
+<td>Bound: Reader and Tree Reader <code>visit</code></td>
+<td>Bound: Reader and Tree Reader <code>visit</code></td>
+<td>Bound: Reader and Tree Reader <code>visit</code></td>
+<td>Partial: tree Visitor</td>
+</tr>
+<tr>
+<td>Single-element Writer: <code>tlv_write[_diag]</code>, <code>tlv_write_element[_diag]</code></td>
+<td>Bound: <code>write</code> overloads</td>
+<td>Bound: <code>write_element</code>, <code>write_element_fixed</code></td>
+<td>Audit</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Sequential Writer: <code>tlv_writer_init</code>, <code>tlv_writer_write[_diag]</code>, <code>tlv_writer_write_element[_diag]</code>, size/remaining</td>
+<td>Audit</td>
+<td>Bound: <code>Writer</code>, owned diagnostics</td>
+<td>Audit</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Tree Writer: <code>tlv_tree_writer_init</code>, begin/write/end and diagnostic variants, finish/size</td>
+<td>Bound: <code>tree_writer</code></td>
+<td>Bound: <code>TreeWriter</code></td>
+<td>Bound: <code>TreeWriter</code></td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Element measurement: <code>tlv_encoded_size</code>, <code>tlv_element_encoded_size[_diag]</code></td>
+<td>Bound: <code>encoded_size</code> overloads</td>
+<td>Bound: <code>measure_element</code>, <code>encoded_size</code></td>
+<td>Bound</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Tree measurement: <code>tlv_tree_writer_measure</code>, staging and capacity requirements</td>
+<td>Bound: <code>measure_tree</code></td>
+<td>Bound: <code>TreeWriter::measure</code>, <code>required_workspace</code></td>
+<td>Bound: <code>TreeWriter.measure</code>, exception requirements</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Writer diagnostics: <code>tlv_writer_diagnostic_t</code> and diagnostic operations</td>
+<td>Audit</td>
+<td>Bound: owned sequential, single-element and Tree Writer diagnostics</td>
+<td>Audit</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Exact copy/preservation: <code>tlv_writer_copy_encoded[_diag]</code>, <code>tlv_writer_preserve[_diag]</code>, <code>tlv_source_preserve</code></td>
+<td>Audit</td>
+<td>Bound: <code>Writer::copy_encoded</code>, <code>Writer::preserve</code>, <code>Decoded::preserve</code></td>
+<td>Bound: <code>Writer.copy_encoded</code>, <code>Writer.preserve</code>, <code>Decoded.preserve_into</code></td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Query: parse/step, matcher init/visit, <code>tlv_query_visit</code>, <code>tlv_query_visit_buffer</code></td>
+<td>Bound: <code>query</code>, <code>query_matcher</code></td>
+<td>Bound: <code>Query</code>, <code>QueryMatcher</code></td>
+<td>Bound: <code>Query</code>, <code>QueryMatcher</code></td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Schema: public <code>tlv/schema/</code> operations, constraints and diagnostics</td>
+<td>Audit</td>
+<td>Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400</td>
+<td>Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400</td>
+<td>Separate stories</td>
+</tr>
+<tr>
+<td>Codec: public <code>tlv/codec/</code> operations and builtin codecs (additional codecs out of scope for #400)</td>
+<td>Audit</td>
+<td>Partial: configured <code>NumberCodec</code> and EMV codecs</td>
+<td>Partial: configured <code>NumberCodec</code> and EMV amount</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Generic Definition: <code>tlv_definition_t</code>, <code>tlv_definition_registry_t</code>, <code>tlv_definition_find</code></td>
+<td>Bound: borrowed <code>definition_registry</code></td>
+<td>Bound: owned <code>DefinitionRegistry</code></td>
+<td>Bound: owned <code>DefinitionRegistry</code></td>
+<td>Missing generic facade</td>
+</tr>
+<tr>
+<td>Builtin Definition/dictionary registries and protocol-specific lookup (additional coverage out of scope for #400)</td>
+<td>Audit</td>
+<td>Partial: EMV dictionary</td>
+<td>Missing</td>
+<td>Separate stories</td>
+</tr>
+<tr>
+<td>Format: decode/measure/encode, configuration, custom callbacks and optional builtins (remaining extensions out of scope for #400)</td>
+<td>Audit</td>
+<td>Partial</td>
+<td>Partial</td>
+<td>Partial</td>
+</tr>
+<tr>
+<td>Format field-layout configuration: public <code>tlv/layout.h</code> operations (remaining extensions out of scope for #400)</td>
+<td>Audit</td>
+<td>Audit</td>
+<td>Audit</td>
+<td>Audit</td>
+</tr>
+<tr>
+<td>Document: public <code>tlv/document/document.h</code> operations and node lifetimes</td>
+<td>Audit</td>
+<td>Partial: owning <code>Document</code>, borrowed <code>Node</code>/<code>NodeMut</code>, builder; allocator adaptation out of scope for #400</td>
+<td>Partial: safe invalidation, builder, builtin destination formats; allocator and remaining destination configuration out of scope for #400</td>
+<td>Missing</td>
+</tr>
+</tbody>
+</table>
+<p>Go and Java are future bindings, not existing implementations to mark complete.
+The current WASM tooling embedding exposes only a parse-to-JSON operation; it
+does not satisfy general binding parity. Its classification is described below.
+Neither an experimental label nor an FFI declaration closes a matrix gap.</p>
+<p>The first implementation slice has focused C++ tests in
+<code>tests/unit/reader/test_reader.cpp</code>: borrowed source results, incomplete/final
+input, discarded-window offsets, preorder agreement with C, resource limits,
+subtree skipping, Visitor STOP/resume and incremental Query continuation.
+Rows marked Audit require a function-by-function review before claiming full
+capability parity. For #400 acceptance, this review applies to its in-scope
+operations; the exclusions above are tracked for follow-up work.</p>
+<h3 id="c-resumable-traversal">C++ resumable traversal<a class="headerlink" href="#c-resumable-traversal" title="Permanent link">&para;</a></h3>
+<p><code>tlv::reader</code> and <code>tlv::tree_reader</code> accept <code>tlv::input_mode::incremental</code>.
+Their <code>next</code> operations return <code>expected</code> results with the original C codes:
+<code>TLV_NEED_MORE_DATA</code> is resumable and <code>TLV_ERR_END_OF_BUFFER</code> is final exhaustion.
+Use <code>set_input</code> to replace the contiguous input window and declare final input;
+<code>consumed</code> bounds the discardable prefix and <code>offset</code> remains absolute.</p>
+<p>Tree Reader takes a borrowed <code>span&lt;tree_frame&gt;</code> plus depth and item limits.
+<code>next</code> returns the complete borrowed Element, source ranges, depth, absolute
+offset and constructed classification together. <code>skip_subtree</code> can avoid
+descent even after a depth or frame limit error. Tree Reader is noncopyable
+because copying would alias its mutable frame storage.</p>
+<p>Both Readers expose <code>visit</code> for language callables, backed by the C Visitor
+engine. <code>query_matcher</code> owns a copy of its parsed <code>query</code> and exposes <code>matches</code>
+for externally supplied preorder items and <code>visit</code> for a <code>tree_reader</code>.
+Retain the matcher across STOP and input replacement; do not interleave
+unmatched pulls with Query traversal. The matcher is noncopyable to keep its
+native reference to the owned query stable.</p>
+<h2 id="rust-and-python-reader-and-query-facades">Rust and Python Reader and Query facades<a class="headerlink" href="#rust-and-python-reader-and-query-facades" title="Permanent link">&para;</a></h2>
+<p>Rust <code>Reader::incremental</code> and Python <code>Reader(..., final_input=False)</code> use the
+canonical C sequential cursor. Rust <code>read_source</code> and Python <code>read_source</code>
+return content and original source ranges in one decode. <code>TreeReader</code> in both
+languages yields complete preorder items containing source metadata, depth,
+absolute offset and constructed classification. Frame capacity, maximum depth
+and item count are explicit constructor options. <code>skip_subtree</code> delegates to C,
+including recovery after a descent limit failure.</p>
+<p><code>set_input</code> checks that undiscarded bytes remain identical before asking C to
+replace the window. <code>consumed</code> bounds the discardable prefix, while <code>offset</code>
+remains absolute. NEED_MORE_DATA remains distinct from final EOF and malformed
+input. Rust returns <code>Error::NeedMoreData</code>; Python raises <code>NeedMoreDataError</code>.
+Neither outcome permanently exhausts the incremental iterator. Sequential
+convenience iterators still stop after a terminal error; explicit source pulls
+remain available for advanced cursor control.</p>
+<p>Rust borrows input and Fixed configuration through lifetimes; retained items
+can outlive the cursor but not their storage. Frame storage is owned by the
+Tree Reader. Rust diagnostics copy borrowed diagnostic fields into owned values.
+Python retains immutable bytes without copying them; bytearray, memoryview and
+other buffer inputs are snapshotted into bytes. Returned memoryviews keep old
+storage alive across cursor destruction and input replacement. This deliberately
+changes Python's former borrowing of mutable input, making source metadata stable.</p>
+<p>Both languages expose <code>visit</code> on Readers and Tree Readers. Sequential callbacks
+receive an Element; tree callbacks also receive depth and absolute offset.
+Callbacks return <code>Visit</code> actions; Python also accepts None as CONTINUE. All
+iteration is performed by C Visitor functions. Python callbacks receive owned
+snapshots, and reentry into the active cursor is rejected. Rust callbacks borrow
+immutable input, and panics are caught before the C boundary and resumed after
+C returns. Python exceptions likewise propagate after the C adapter returns.
+STOP preserves canonical continuation; callback effects are never rolled back.</p>
+<p><code>Query</code> parses through C and exposes path steps. <code>QueryMatcher</code> owns a stable
+copy of its Query and provides <code>matches</code> and <code>visit</code>. Keep the same matcher
+across STOP and input replacement; do not interleave unmatched pulls. Python
+<code>Query.visit_buffer</code> composes the same C Tree Reader and Query matcher for
+complete input. No language implements its own query grammar or matching rules.</p>
+<p>Parity scenarios are exercised in <code>bindings/rust/opentlv/tests/tree_reader.rs</code>
+and <code>bindings/python/opentlv/tests/test_tree_reader.py</code>. Writer and Document
+coverage gaps remain tracked separately in the matrix above.</p>
+<h2 id="rust-and-python-tree-writer-facades">Rust and Python Tree Writer facades<a class="headerlink" href="#rust-and-python-tree-writer-facades" title="Permanent link">&para;</a></h2>
+<p><code>TreeWriter</code> in both languages delegates begin, write, end, finish and finalized
+output sizing to the C Tree Writer. Frame capacity, maximum item depth and
+element count are explicit. Scratch capacity bounds the largest parent Value
+that can be closed. Output and scratch do not grow implicitly.</p>
+<p>Rust borrows caller-owned output exclusively and owns stable frame/scratch
+storage. Python owns all these buffers and returns copied finalized bytes.
+Both retain immutable copies of open tags until a successful <code>end</code>; temporary
+language tag objects can therefore expire safely after <code>begin</code>. Neither facade
+implements header patching, encoding or a second tree construction engine.</p>
+<p>Rust <code>written</code> and Python <code>bytes()</code> expose only the finalized prefix, excluding
+open roots. <code>finish</code> rejects unclosed parents without sealing the cursor.
+Failures preserve the C operation's state/output guarantees. Rust exposes owned
+<code>WriterDiagnostic</code> detail and Python uses structured exceptions. Tests in
+<code>bindings/rust/opentlv/tests/tree_writer.rs</code> and
+<code>bindings/python/opentlv/tests/test_tree_writer.py</code> cover open-tag ownership,
+BER/CER output, item limits and scratch exhaustion.</p>
+<p>C++ <code>measure_tree</code>, Rust <code>TreeWriter::measure</code> and Python <code>TreeWriter.measure</code>
+consume semantic preorder records through <code>tlv_tree_writer_measure</code>. C owns
+parent closure, depth validation and content-dependent encoding. Successful
+measurement stages the actual bytes, so they can be reused without replay.
+C++ returns a size into caller-owned workspace; Rust returns a borrowed staged
+slice; Python returns immutable copied bytes. Source errors and native Writer
+errors propagate. Rust catches source panics before crossing C and resumes
+unwinding afterwards; Python propagates source exceptions after C returns.
+On exhaustion, workspace requirements are discovered lower bounds, not the
+final size prediction. Retrying requires a fresh source.</p>
+<p>Rust <code>Writer::preserve</code> and Python <code>Writer.preserve</code> append unchanged source
+bytes through C equality checks. <code>Decoded::preserve</code>/<code>Decoded.preserve_into</code>
+provide standalone preservation. Python retains both the immutable input and
+the native Format owner across cursor replacement or destruction. Changed
+semantic content is rejected; raw <code>copy_encoded</code> intentionally does not validate.</p>
+<h2 id="schema-constraints-and-bounded-reports">Schema constraints and bounded reports<a class="headerlink" href="#schema-constraints-and-bounded-reports" title="Permanent link">&para;</a></h2>
+<p>Rust <code>StructureSchema::with_constraints</code> and Python <code>StructureSchema</code> accept
+<code>SchemaOrder</code> and <code>StructureGroup</code> descriptions. Each rule may select a group
+and set native length flags and multiples. C validates rule-table ordering,
+group identity, occurrence totals and all length policies; bindings only retain
+or marshal the descriptions. Rust keeps stable group storage when schemas move.</p>
+<p><code>StructureSchema.validate_all</code> in both languages uses the C report validator.
+<code>UnknownPolicy</code> controls unknown-tag handling. A report retains at most the
+requested capacity while <code>total_count</code> reports every violation, including at
+zero capacity. Issues own copied Tags, optional offsets, native issue names and
+paths formatted by C. Reports survive input and schema destruction. Schema
+violations return a report; malformed wire input and invalid configuration
+still fail. <code>validate_diagnostics</code> returns owned expected/actual length,
+occurrence and form constraints, group identity, severity, field names and
+source offsets. Its path contains enclosing scopes; the affected Tag is a
+separate field, matching the C diagnostic contract. Rust <code>validate_fixed</code>,
+<code>validate_all_fixed</code> and <code>validate_diagnostics_fixed</code> accept a borrowed
+<code>FixedFormat</code>; Python accepts <code>FixedFormat</code> through the same <code>format</code> argument.</p>
+<p><code>NumberCodec</code> in Rust and Python selects binary big/little endian or BCD,
+fixed/minimal width and BCD precision. Decode, encode, size queries and writing
+into caller storage delegate to the C numeric codec. It interprets Values only;
+it does not attach protocol tags or field-length rules.</p>
+<p><code>DefinitionRegistry</code> owns immutable generic definitions in Rust and Python;
+C++ <code>definition_registry</code> borrows the caller's table. All three use the C lookup,
+including first-match behavior for duplicate identifiers and empty identifiers.
+Definition contains only a canonical identifier and optional descriptive name.
+It does not select codecs, validate fields or resolve protocol context.</p>
+<h2 id="owning-documents-and-safe-handles">Owning Documents and safe handles<a class="headerlink" href="#owning-documents-and-safe-handles" title="Permanent link">&para;</a></h2>
+<p>Rust's default-enabled <code>document</code> Cargo feature exposes <code>Document</code>, immutable
+<code>Node</code>, exclusive <code>NodeMut</code>, and <code>DocumentBuilder</code>. Disable it when linking C
+without <code>OPENTLV_DOCUMENT</code>. C owns parsing, navigation, Query lookup, edits,
+measurement and destination-format encoding. Immutable node/value borrows
+prevent document mutation or destruction. Mutable navigation consumes its
+handle; temporary immutable views block mutation until they expire. Fixed
+configuration is borrowed for the document lifetime.</p>
+<p>Python <code>Node</code> retains its Document and checks ownership metadata before each
+native access. Erasure invalidates the node and all descendants; replacing a
+constructed Value invalidates old descendants only after successful mutation.
+Unrelated handles and the replaced parent remain usable. Closing the document
+invalidates all handles. Invalid access and foreign-document arguments raise
+<code>ValueError</code> before dereferencing native storage. Ownership tokens follow
+parent relationships obtained from C; they do not parse or process TLV trees.
+Invalidation is armed before native mutation and rolled back on a reported C
+failure; asynchronous interruption may conservatively invalidate handles even
+if the operation did not complete, preventing stale access after an interrupt.</p>
+<p>Both languages expose the canonical resumable Document builder. Whole-stream
+materialization requires a fresh Tree Reader. The next-subtree operation pulls
+one root then copies exactly that subtree without decoding its following
+sibling. NEED_MORE_DATA retains unfinished state; terminal failure discards
+it. Rust borrows the reader exclusively and permits input replacement through
+the builder. Python rejects pulls/skips/visitors while a builder is active but
+allows <code>reader.set_input</code> and status queries. Closing or dropping the builder
+releases its reader; completed documents survive. Python retains the native
+cursor as the Format owner for such documents. Rust conservatively retains the
+reader's combined input/Format lifetime in the resulting Document.</p>
+<p>Python <code>Document.encode(format)</code> and <code>Node.encode(format)</code> support builtin
+destination formats, with <code>encoded_size_as</code> for measurement. Rust also offers
+caller-owned output and reports required capacity on shortage. Remaining
+configuration/allocator differences remain tracked coverage gaps and are
+explicitly out of scope for #400.</p>
 <h2 id="core-concepts">Core concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2961,8 +3543,8 @@ to this in practice.</p>
 <td>Optional owning, mutable representation</td>
 <td><code>tlv_document_t</code></td>
 <td><code>tlv::document</code></td>
-<td>not bound yet</td>
-<td><code>Document</code>, <code>Node</code></td>
+<td><code>Document</code>, <code>Node</code>, <code>NodeMut</code>, <code>DocumentBuilder</code></td>
+<td><code>Document</code>, <code>Node</code>, <code>DocumentBuilder</code></td>
 <td>not bound yet</td>
 </tr>
 <tr>
@@ -2998,7 +3580,7 @@ to this in practice.</p>
 <td><code>tlv_codec_t</code>, <code>tlv_structure_codec_t</code></td>
 <td><code>TlvCodec</code> concept, <code>tlv::decode_structure&lt;T&gt;</code>/<code>encode_structure</code></td>
 <td><code>Codec</code></td>
-<td><code>codec</code> submodule, narrow: only the public <code>tlv_emv_codec_amount</code></td>
+<td><code>NumberCodec</code> and EMV amount functions</td>
 <td>not bound yet</td>
 </tr>
 <tr>
@@ -3012,11 +3594,10 @@ to this in practice.</p>
 </tr>
 </tbody>
 </table>
-<p>A binding adopts a concept when it needs it, not all at once: the table above
-already shows gaps (Rust has no <code>Document</code> yet, and no single <code>Diagnostics</code>
-type), and future bindings will fill in concepts incrementally too. What the
-contract fixes is the name and role a concept gets once a binding does expose
-it, not a deadline for exposing all eight.</p>
+<p>Bindings may reach parity incrementally, but missing capabilities remain
+tracked gaps against the public facade contract. The table above describes
+concept coverage; exposing a concept does not establish coverage of every C
+operation belonging to it.</p>
 <h2 id="adapting-ergonomics-not-architecture">Adapting ergonomics, not architecture<a class="headerlink" href="#adapting-ergonomics-not-architecture" title="Permanent link">&para;</a></h2>
 <p>Bindings must adapt syntax and behavior to the conventions of their target
 language; they must not introduce a different conceptual architecture to do
@@ -3025,7 +3606,7 @@ it. For example:</p>
 <li>Rust's <code>Reader</code> implements <code>Iterator&lt;Item = Result&lt;Element&gt;&gt;</code>, so callers
   write <code>for element in reader { ... }</code> instead of an explicit <code>at_end()</code>/
   <code>next()</code> loop. <code>tlv++</code>'s <code>reader</code> uses that explicit loop today (or a
-  visitor passed to <code>tlv::visit_tree</code>); a future C++ range-based <code>for</code> over a
+  visitor passed to <code>reader.visit</code> or <code>tree_reader.visit</code>); a future C++ range-based <code>for</code> over a
   <code>reader</code> would be the same adaptation applied there.</li>
 <li>Python's <code>Reader</code> iterates the same reader concept with
   <code>for element in reader:</code>, and raises a native <code>Exception</code> subclass instead of
@@ -3064,13 +3645,11 @@ it. For example:</p>
   concept above except a standalone <code>Diagnostics</code> type (it reuses the C
   <code>tlv_diagnostic_t</code> directly as <code>tlv::diagnostic</code>).</li>
 <li><strong>Rust (<code>opentlv</code>)</strong>: experimental, in <code>bindings/rust/</code>. Covers Reader,
-  Writer, Element, Tag, Schema and Codec; <code>Document</code> and the callback-based
-  visitors, structure codecs and DOL component are not bound yet. Its <code>Codec</code>
-  is the exception to this page's binding-boundary rule: beyond the one
-  concrete codec the C API exports publicly (<code>tlv_emv_codec_amount</code>), the
-  per-kind EMV decoding it implements only exists in a C function private to
-  <code>tlv/src/</code>, so <code>Codec</code> reimplements that logic in Rust instead of calling
-  into C for it. See <a href="../../development/rust/">Rust bindings</a> and <a href="../../guides/rust/">using
+  Writer, Tree Reader/Writer, Query, Visitors, Document, Element, Tag, Schema
+  and EMV Codec. Codec conversion delegates to public C codecs; earlier
+  binding-side EMV conversions are no longer the implementation. Generic
+  codecs, structure codecs, allocator adaptation and other matrix gaps still
+  require work. See <a href="../../development/rust/">Rust bindings</a> and <a href="../../guides/rust/">using
   OpenTLV from Rust</a>.</li>
 <li><strong>WebAssembly</strong>: in <code>bindings/wasm/</code>, a deliberately narrow <code>parse()</code>
   function that returns a JSON element tree for browser tooling, not a
@@ -3082,13 +3661,10 @@ it. For example:</p>
   using the CPython Limited API where compatible, that calls the public C
   API) and <code>opentlv</code> (a pure-Python package on top of it) — the same split
   as the Rust <code>opentlv-native</code>/<code>opentlv</code> crates. Covers Reader, Writer,
-  Document, Element, Tag and Schema, across the default, BER, CER, DER and
-  fixed-1-byte wire formats, plus a deliberately narrow Codec (only the one
-  concrete codec, <code>tlv_emv_codec_amount</code>, that the public C API exports —
-  unlike Rust's <code>Codec</code>, the rest is not a thin C wrapper and reimplements
-  EMV decoding logic that only exists in a private C header). See <a href="../../development/python/">Python
-  bindings</a> and <a href="../../guides/python/">using OpenTLV from
-  Python</a>.</li>
+  Tree Reader/Writer, Query, Visitors, Document, Element, Tag and Schema.
+  Codec coverage includes configured numeric codecs and the EMV amount codec;
+  other public C codecs still need facade support. See <a href="../../development/python/">Python bindings</a>
+  and <a href="../../guides/python/">using OpenTLV from Python</a>.</li>
 <li><strong>Lua</strong>: experimental, in <code>bindings/lua/</code>, split into <code>opentlv-native</code> (a
   native extension written directly against the Lua C API) and <code>opentlv</code>
   (a one-line pure-Lua entry point on top of it, <code>lua/opentlv/init.lua</code>) —
@@ -3098,8 +3674,8 @@ it. For example:</p>
   and LuaJIT. Covers Reader, Element and Tag, across the default, BER, CER, DER,
   Bluetooth LTV and configurable fixed-width formats, plus preorder tree
   traversal (<code>opentlv.visit_tree()</code>, built on <code>tlv_tree_reader_visit()</code>/
-  <code>tlv_der_visit()</code>) — the one traversal capability neither Rust nor Python
-  exposes directly yet. See <a href="../../development/lua/">Lua bindings</a> and
+  <code>tlv_der_visit()</code>). Pull-based Tree Reader and Writer capabilities remain
+  gaps in Lua. See <a href="../../development/lua/">Lua bindings</a> and
   <a href="../../guides/lua/">using OpenTLV from Lua</a>.</li>
 <li><strong>Go</strong>: planned, not started yet. No <code>bindings/go/</code> directory exists; when
   work on it begins, it follows this contract like the Rust crate does.</li>

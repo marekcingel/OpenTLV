@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['set_0',['set',['../classtlv_1_1node.html#a4c3e99fcadd919d83ef5d5418bf08d09',1,'tlv::node']]],
-  ['set_5fpath_1',['set_path',['../namespacetlv.html#a1ebd1f785dffded6a41e5887546d0447',1,'tlv']]],
-  ['size_2',['size',['../classtlv_1_1span.html#af9763dc55004193c455ecbb1e817909a',1,'tlv::span::size()'],['../classtlv_1_1document.html#a88f7e5693ade570f9f9137db51c56ba2',1,'tlv::document::size()'],['../classtlv_1_1query.html#a2cd66da393d6b030f76a61cf7c6b1a67',1,'tlv::query::size()'],['../classtlv_1_1tree__writer.html#a717823f46deb9796a913d0fc0e577887',1,'tlv::tree_writer::size()'],['../classtlv_1_1writer.html#af0324c106107f6790d44846a2904aaa9',1,'tlv::writer::size()']]],
-  ['span_3',['span',['../classtlv_1_1span.html#a0bda0703f37c736b0a2bf3c77205d114',1,'tlv::span::span()'],['../classtlv_1_1span.html#ab8c70860e2ea0fc3bde54c4a17786d41',1,'tlv::span::span(T *data, std::size_t size)']]]
+  ['read_0',['read',['../namespacetlv.html#ac6665c938ebabfd7f55e4df8294432c0',1,'tlv']]],
+  ['reader_1',['reader',['../classtlv_1_1reader.html#af15d074773f93d538d18ccf2f6e437da',1,'tlv::reader']]],
+  ['register_5fdecoder_2',['register_decoder',['../classtlv_1_1codec__registry.html#a14c4e2d3bfa97d1f09d7fd5aa63af06c',1,'tlv::codec_registry']]],
+  ['register_5ftype_3',['register_type',['../classtlv_1_1codec__registry.html#a09d6fdf21a113f3aa4a949058b73680a',1,'tlv::codec_registry']]],
+  ['remaining_4',['remaining',['../classtlv_1_1writer.html#ae56c3ef9a7e6145e1683f82ddabf05ac',1,'tlv::writer']]]
 ];

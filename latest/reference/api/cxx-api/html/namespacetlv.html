@@ -90,6 +90,9 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1codec__registry.html">codec_registry</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry for types that must be decoded at runtime.  <a href="classtlv_1_1codec__registry.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1definition__registry.html">definition_registry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry view; caller retains entries, identifier bytes and names.  <a href="classtlv_1_1definition__registry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html">document</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An owned, mutable TLV document.  <a href="classtlv_1_1document.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -123,11 +126,17 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html">query</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A parsed path query such as <code>6F/A5/50</code>.  <a href="classtlv_1_1query.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__matcher.html">query_matcher</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resumable C Query matcher owning a copy of its parsed query.  <a href="classtlv_1_1query__matcher.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1reader.html">reader</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thin, safe C++ wrapper around <a class="elRef" href="../../c-api/html/group__reader.html#gabf4c5d3902d19aaea312759ab513f034">tlv_reader_t</a>.  <a href="classtlv_1_1reader.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1span.html">span</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimal non-owning view of contiguous elements for pre-C++20 builds.  <a href="classtlv_1_1span.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html">tree_reader</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded preorder traversal with incremental input and subtree control.  <a href="classtlv_1_1tree__reader.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__writer.html">tree_writer</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterative bounded writer with the storage and failure contracts of <a class="elRef" href="../../c-api/html/group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a>.  <a href="classtlv_1_1tree__writer.html#details">More...</a><br /></td></tr>
@@ -147,6 +156,9 @@ Concepts</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr class="memitem:ac2e6883118ec4e009f3bc9b58b57ee55" id="r_ac2e6883118ec4e009f3bc9b58b57ee55"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac2e6883118ec4e009f3bc9b58b57ee55">definition</a> = <a class="elRef" href="../../c-api/html/structtlv__definition__t.html">tlv_definition_t</a></td></tr>
+<tr class="memdesc:ac2e6883118ec4e009f3bc9b58b57ee55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Identifier and optional borrowed name, without Schema or Codec policy.  <br /></td></tr>
+<tr class="separator:ac2e6883118ec4e009f3bc9b58b57ee55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a00ca9c69c35ef11f6a22b7eda1b115ba" id="r_a00ca9c69c35ef11f6a22b7eda1b115ba"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a> = <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a></td></tr>
 <tr class="memdesc:a00ca9c69c35ef11f6a22b7eda1b115ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the C diagnostic type, <a class="elRef" href="../../c-api/html/group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:a00ca9c69c35ef11f6a22b7eda1b115ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -168,6 +180,12 @@ Typedefs</h2></td></tr>
 <tr class="memitem:aec6151f23d86b874b79d9d2ae021e568" id="r_aec6151f23d86b874b79d9d2ae021e568"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> = <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a></td></tr>
 <tr class="memdesc:aec6151f23d86b874b79d9d2ae021e568"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the reader-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:aec6151f23d86b874b79d9d2ae021e568"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa70bacfa123d58a717da39cb7fd97a77" id="r_aa70bacfa123d58a717da39cb7fd97a77"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa70bacfa123d58a717da39cb7fd97a77">tree_frame</a> = <a class="elRef" href="../../c-api/html/group__traversal.html#ga7b6f4acf3a3650c0f9e3b71eaf40ded3">tlv_tree_frame_t</a></td></tr>
+<tr class="memdesc:aa70bacfa123d58a717da39cb7fd97a77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned structural continuation storage.  <br /></td></tr>
+<tr class="separator:aa70bacfa123d58a717da39cb7fd97a77"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae532e2a7c270ec66692e80352238237c" id="r_ae532e2a7c270ec66692e80352238237c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae532e2a7c270ec66692e80352238237c">tree_item</a> = <a class="elRef" href="../../c-api/html/group__traversal.html#ga1a97318bea7cf12089db0524b5701d5d">tlv_tree_item_t</a></td></tr>
+<tr class="memdesc:ae532e2a7c270ec66692e80352238237c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Complete borrowed element, source, depth, absolute offset and classification.  <br /></td></tr>
+<tr class="separator:ae532e2a7c270ec66692e80352238237c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e03c6255ccb433c2413b3b7906bab8c" id="r_a4e03c6255ccb433c2413b3b7906bab8c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a4e03c6255ccb433c2413b3b7906bab8c">schema_diagnostic</a> = <a class="elRef" href="../../c-api/html/group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a></td></tr>
 <tr class="memdesc:a4e03c6255ccb433c2413b3b7906bab8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the schema-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:a4e03c6255ccb433c2413b3b7906bab8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -183,6 +201,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ab17c45337fcf91eb2d6e5477b0fbe06d" id="r_ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ab17c45337fcf91eb2d6e5477b0fbe06d">tree_writer_frame</a> = <a class="elRef" href="../../c-api/html/group__writer.html#gac48be24a305bd17c0a57ebc45b7a771f">tlv_tree_writer_frame_t</a></td></tr>
 <tr class="memdesc:ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned Tree Writer frame; retains a borrowed Tag until end().  <br /></td></tr>
 <tr class="separator:ab17c45337fcf91eb2d6e5477b0fbe06d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57b8cb8121f7e7c4f797dee062d94717" id="r_a57b8cb8121f7e7c4f797dee062d94717"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> = <a class="elRef" href="../../c-api/html/group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a></td></tr>
+<tr class="memdesc:a57b8cb8121f7e7c4f797dee062d94717"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed bounded staging storage and required-capacity results for tree measurement.  <br /></td></tr>
+<tr class="separator:a57b8cb8121f7e7c4f797dee062d94717"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1df134eb9e2b476155eb324618396e4d" id="r_a1df134eb9e2b476155eb324618396e4d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> = <a class="elRef" href="../../c-api/html/group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a></td></tr>
 <tr class="memdesc:a1df134eb9e2b476155eb324618396e4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the writer-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:a1df134eb9e2b476155eb324618396e4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -191,6 +212,11 @@ Typedefs</h2></td></tr>
 Enumerations</h2></td></tr>
 <tr class="memitem:aa91df798a712d88cf7d2f1f63a539b51" id="r_aa91df798a712d88cf7d2f1f63a539b51"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> : unsigned char </td></tr>
 <tr class="separator:aa91df798a712d88cf7d2f1f63a539b51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d141be87a05679c237c4d7f5b941c15" id="r_a6d141be87a05679c237c4d7f5b941c15"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">input_mode</a> { <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">final</a>
+, <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a57e48ffcfe372672b239d90ecbe3919a">incremental</a>
+ }</td></tr>
+<tr class="memdesc:a6d141be87a05679c237c4d7f5b941c15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the supplied input window declares final EOF.  <a href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">More...</a><br /></td></tr>
+<tr class="separator:a6d141be87a05679c237c4d7f5b941c15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -255,6 +281,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ac052284063328a192cc1de21d5788bbd" id="r_ac052284063328a192cc1de21d5788bbd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac052284063328a192cc1de21d5788bbd">preserve</a> (const <a class="el" href="namespacetlv.html#a9ea18a502ce343bbda5c68825925022c">source</a> &amp;original, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity)</td></tr>
 <tr class="memdesc:ac052284063328a192cc1de21d5788bbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reproduce original bytes after checking semantic equality.  <br /></td></tr>
 <tr class="separator:ac052284063328a192cc1de21d5788bbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6665c938ebabfd7f55e4df8294432c0" id="r_ac6665c938ebabfd7f55e4df8294432c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac6665c938ebabfd7f55e4df8294432c0">read</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, size_t &amp;consumed, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:ac6665c938ebabfd7f55e4df8294432c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read one complete element with its source ranges and optional diagnostics.  <br /></td></tr>
+<tr class="separator:ac6665c938ebabfd7f55e4df8294432c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af38bba1df6bf6bbbbe5b7174c2a27473" id="r_af38bba1df6bf6bbbbe5b7174c2a27473"><td class="memTemplParams" colspan="2">template&lt;typename Visitor &gt; </td></tr>
 <tr class="memitem:af38bba1df6bf6bbbbe5b7174c2a27473"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#af38bba1df6bf6bbbbe5b7174c2a27473">visit_tree</a> (<a class="elRef" href="../../c-api/html/group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a> &amp;<a class="el" href="classtlv_1_1reader.html">reader</a>, Visitor &amp;&amp;visitor, size_t *error_offset=nullptr)</td></tr>
 <tr class="memdesc:af38bba1df6bf6bbbbe5b7174c2a27473"><td class="mdescLeft">&#160;</td><td class="mdescRight">Visit an initialized caller-owned Tree Reader without allocation.  <br /></td></tr>
@@ -271,9 +300,22 @@ Functions</h2></td></tr>
 <tr class="memitem:a4c254e24e77d49afc2e4866e4370cd82" id="r_a4c254e24e77d49afc2e4866e4370cd82"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a4c254e24e77d49afc2e4866e4370cd82">as_bytes</a> (<a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a> value)</td></tr>
 <tr class="memdesc:a4c254e24e77d49afc2e4866e4370cd82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a logical TLV value to a native byte span without copying.  <br /></td></tr>
 <tr class="separator:a4c254e24e77d49afc2e4866e4370cd82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a150f8d840867424d28c13be43c89232c" id="r_a150f8d840867424d28c13be43c89232c"><td class="memTemplParams" colspan="2">template&lt;typename Source &gt; </td></tr>
+<tr class="memitem:a150f8d840867424d28c13be43c89232c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a150f8d840867424d28c13be43c89232c">measure_tree</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, Source &amp;&amp;next, <a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;workspace, size_t max_depth=<a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a>, size_t max_elements=SIZE_MAX, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a150f8d840867424d28c13be43c89232c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure and stage semantic preorder records using the canonical C engine.  <br /></td></tr>
+<tr class="separator:a150f8d840867424d28c13be43c89232c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13d744645f8b59ec22c177bd33d7d663" id="r_a13d744645f8b59ec22c177bd33d7d663"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a13d744645f8b59ec22c177bd33d7d663">encoded_size</a> (const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
 <tr class="memdesc:a13d744645f8b59ec22c177bd33d7d663"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measures exact caller-owned destination storage for an Element.  <br /></td></tr>
 <tr class="separator:a13d744645f8b59ec22c177bd33d7d663"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a124a5e3f75782ed66470439ae0df7c55" id="r_a124a5e3f75782ed66470439ae0df7c55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a124a5e3f75782ed66470439ae0df7c55">encoded_size</a> (<a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, size_t length, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format)</td></tr>
+<tr class="memdesc:a124a5e3f75782ed66470439ae0df7c55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measures an encoding from tag and Value length through the C Format.  <br /></td></tr>
+<tr class="separator:a124a5e3f75782ed66470439ae0df7c55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb04e1553e7edd9bd7d55143941bc1e7" id="r_adb04e1553e7edd9bd7d55143941bc1e7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#adb04e1553e7edd9bd7d55143941bc1e7">write</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:adb04e1553e7edd9bd7d55143941bc1e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes one semantic Element into caller-owned storage.  <br /></td></tr>
+<tr class="separator:adb04e1553e7edd9bd7d55143941bc1e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18876391eb6b08890d3fb44b71acc3c6" id="r_a18876391eb6b08890d3fb44b71acc3c6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a18876391eb6b08890d3fb44b71acc3c6">write</a> (<a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *data, size_t capacity, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tag, <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a18876391eb6b08890d3fb44b71acc3c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes one Tag and Value pair into caller-owned storage.  <br /></td></tr>
+<tr class="separator:a18876391eb6b08890d3fb44b71acc3c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Public C++ wrappers, value types, codec traits and helpers for OpenTLV. </p>
@@ -309,6 +351,22 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Semantic element together with its borrowed original framing. </p>
+
+</div>
+</div>
+<a id="ac2e6883118ec4e009f3bc9b58b57ee55" name="ac2e6883118ec4e009f3bc9b58b57ee55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2e6883118ec4e009f3bc9b58b57ee55">&#9670;&#160;</a></span>definition</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#ac2e6883118ec4e009f3bc9b58b57ee55">tlv::definition</a> = typedef <a class="elRef" href="../../c-api/html/structtlv__definition__t.html">tlv_definition_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Identifier and optional borrowed name, without Schema or Codec policy. </p>
 
 </div>
 </div>
@@ -457,6 +515,38 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="aa70bacfa123d58a717da39cb7fd97a77" name="aa70bacfa123d58a717da39cb7fd97a77"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa70bacfa123d58a717da39cb7fd97a77">&#9670;&#160;</a></span>tree_frame</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#aa70bacfa123d58a717da39cb7fd97a77">tlv::tree_frame</a> = typedef <a class="elRef" href="../../c-api/html/group__traversal.html#ga7b6f4acf3a3650c0f9e3b71eaf40ded3">tlv_tree_frame_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Caller-owned structural continuation storage. </p>
+
+</div>
+</div>
+<a id="ae532e2a7c270ec66692e80352238237c" name="ae532e2a7c270ec66692e80352238237c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae532e2a7c270ec66692e80352238237c">&#9670;&#160;</a></span>tree_item</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#ae532e2a7c270ec66692e80352238237c">tlv::tree_item</a> = typedef <a class="elRef" href="../../c-api/html/group__traversal.html#ga1a97318bea7cf12089db0524b5701d5d">tlv_tree_item_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Complete borrowed element, source, depth, absolute offset and classification. </p>
+
+</div>
+</div>
 <a id="ab17c45337fcf91eb2d6e5477b0fbe06d" name="ab17c45337fcf91eb2d6e5477b0fbe06d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab17c45337fcf91eb2d6e5477b0fbe06d">&#9670;&#160;</a></span>tree_writer_frame</h2>
 
@@ -470,6 +560,22 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Caller-owned Tree Writer frame; retains a borrowed Tag until end(). </p>
+
+</div>
+</div>
+<a id="a57b8cb8121f7e7c4f797dee062d94717" name="a57b8cb8121f7e7c4f797dee062d94717"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a57b8cb8121f7e7c4f797dee062d94717">&#9670;&#160;</a></span>tree_writer_workspace</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tlv::tree_writer_workspace</a> = typedef <a class="elRef" href="../../c-api/html/group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Borrowed bounded staging storage and required-capacity results for tree measurement. </p>
 
 </div>
 </div>
@@ -509,6 +615,36 @@ Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6d141be87a05679c237c4d7f5b941c15" name="a6d141be87a05679c237c4d7f5b941c15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d141be87a05679c237c4d7f5b941c15">&#9670;&#160;</a></span>input_mode</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum class <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">tlv::input_mode</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether the supplied input window declares final EOF. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5" name="a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5"></a>final&#160;</td><td class="fielddoc"><p>No more input will follow this window. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6d141be87a05679c237c4d7f5b941c15a57e48ffcfe372672b239d90ecbe3919a" name="a6d141be87a05679c237c4d7f5b941c15a57e48ffcfe372672b239d90ecbe3919a"></a>incremental&#160;</td><td class="fielddoc"><p>More input may be supplied after NEED_MORE_DATA. </p>
+</td></tr>
+</table>
 
 </div>
 </div>
@@ -1072,7 +1208,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <a id="a13d744645f8b59ec22c177bd33d7d663" name="a13d744645f8b59ec22c177bd33d7d663"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a13d744645f8b59ec22c177bd33d7d663">&#9670;&#160;</a></span>encoded_size()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a13d744645f8b59ec22c177bd33d7d663">&#9670;&#160;</a></span>encoded_size() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1121,6 +1257,59 @@ template&lt;typename T &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Native byte count or C error. Success does not allocate; errors may allocate. </dd></dl>
+
+</div>
+</div>
+<a id="a124a5e3f75782ed66470439ae0df7c55" name="a124a5e3f75782ed66470439ae0df7c55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a124a5e3f75782ed66470439ae0df7c55">&#9670;&#160;</a></span>encoded_size() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::encoded_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a>&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>length</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>format</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Measures an encoding from tag and Value length through the C Format. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tag</td><td>Semantic tag. </td></tr>
+    <tr><td class="paramname">length</td><td>Logical Value length in bytes. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed format; content-dependent formats may reject length-only measurement. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Required byte count, or the C measurement error. </dd></dl>
 
 </div>
 </div>
@@ -1276,6 +1465,75 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a id="a150f8d840867424d28c13be43c89232c" name="a150f8d840867424d28c13be43c89232c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a150f8d840867424d28c13be43c89232c">&#9670;&#160;</a></span>measure_tree()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Source &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::measure_tree </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Source &amp;&amp;&#160;</td>
+          <td class="paramname"><em>next</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a57b8cb8121f7e7c4f797dee062d94717">tree_writer_workspace</a> &amp;&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em> = <code><a class="elRef" href="../../c-api/html/defaults_8h.html#aba01db17f4a2bfbc3db60dc172972a25ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a></code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em> = <code>SIZE_MAX</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Measure and stage semantic preorder records using the canonical C engine. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">format</td><td>Borrowed writable Format and context. </td></tr>
+    <tr><td class="paramname">next</td><td>Callable taking element&amp;, size_t&amp; depth and bool&amp; constructed, returning expected&lt;bool, error&gt;: true publishes an item, false ends input, error aborts. </td></tr>
+    <tr><td class="paramname">workspace</td><td>Disjoint caller-owned frames, output and scratch. On success its data contains the exact encoding; required_data/required_scratch report storage exhaustion lower bounds. Bytes may change on failure. </td></tr>
+    <tr><td class="paramname">max_depth</td><td>Maximum item depth, roots at zero. </td></tr>
+    <tr><td class="paramname">max_elements</td><td>Maximum source records. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional borrowed failure detail, unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact encoded size or the original source/Writer error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Source is consumed on failure; retries require a fresh source. Tags must remain alive until return and while inspecting diagnostics; primitive Values must remain readable until the next callback. The callable must not throw exceptions. </dd></dl>
+
+</div>
+</div>
 <a id="aad094f25b69c1d02f418afbe4be0234e" name="aad094f25b69c1d02f418afbe4be0234e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aad094f25b69c1d02f418afbe4be0234e">&#9670;&#160;</a></span>pop_path()</h2>
 
@@ -1416,6 +1674,67 @@ template&lt;typename T &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Success, or <a class="el" href="structtlv_1_1error.html#aa8a240155b76d53763c77fe67c2956a6" title="Builds an error from a C result code.">error::from_c</a> wrapping <a class="elRef" href="../../c-api/html/group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the path is already full. </dd></dl>
+
+</div>
+</div>
+<a id="ac6665c938ebabfd7f55e4df8294432c0" name="ac6665c938ebabfd7f55e4df8294432c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6665c938ebabfd7f55e4df8294432c0">&#9670;&#160;</a></span>read()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::read </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t &amp;&#160;</td>
+          <td class="paramname"><em>consumed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Read one complete element with its source ranges and optional diagnostics. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">data</td><td>Immutable borrowed input. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">format</td><td>Borrowed readable format and context. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">consumed</td><td>Encoded byte count; unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional Reader detail; unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Decoded element and source, or the original C Reader error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Input and Format storage must outlive the returned borrowed views. </dd></dl>
 
 </div>
 </div>
@@ -1785,6 +2104,149 @@ template&lt;typename Visitor &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Success on exhaustion or STOP; otherwise the original cursor or visitor error. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Borrowed lifetimes and callback restrictions follow <a class="elRef" href="../../c-api/html/group__traversal.html#ga9da3c187f455de47fb13b6dbb1681d66">tlv_tree_reader_visit()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="adb04e1553e7edd9bd7d55143941bc1e7" name="adb04e1553e7edd9bd7d55143941bc1e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb04e1553e7edd9bd7d55143941bc1e7">&#9670;&#160;</a></span>write() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::write </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Encodes one semantic Element into caller-owned storage. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Writable output; must not overlap the input Element's storage. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Available output bytes. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed Format and context, live for this call. </td></tr>
+    <tr><td class="paramname">value</td><td>Semantic Element with readable Value bytes. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional borrowed failure detail; unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Written byte count, or the canonical C error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>A failing Format callback may modify output bytes; see <a class="elRef" href="../../c-api/html/group__writer.html#ga7241611daf00b111624255317d124fc4">tlv_write_element_diag()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="a18876391eb6b08890d3fb44b71acc3c6" name="a18876391eb6b08890d3fb44b71acc3c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18876391eb6b08890d3fb44b71acc3c6">&#9670;&#160;</a></span>write() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::write </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a>&#160;</td>
+          <td class="paramname"><em>tag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Encodes one Tag and Value pair into caller-owned storage. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">data</td><td>Writable output; must not overlap the input tag or Value storage. </td></tr>
+    <tr><td class="paramname">capacity</td><td>Available output bytes. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed Format and context. </td></tr>
+    <tr><td class="paramname">tag</td><td>Semantic tag. </td></tr>
+    <tr><td class="paramname">value</td><td>Readable Value bytes, borrowed for this call. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional borrowed failure detail; unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Written byte count, or the canonical C error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>A failing Format callback may modify output bytes; see <a class="elRef" href="../../c-api/html/group__writer.html#ga64ee3299e5ca9aedf22a662750d58f6a">tlv_write_diag()</a>. </dd></dl>
 
 </div>
 </div>

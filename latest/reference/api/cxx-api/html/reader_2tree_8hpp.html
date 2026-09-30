@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OpenTLV C++ API: tlv++/query/query.hpp File Reference</title>
+<title>OpenTLV C++ API: tlv++/reader/tree.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,32 +69,26 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_bb4de694aed7e68e236ea99f4ab65f5c.html">tlv++</a></li><li class="navelem"><a class="el" href="dir_5632706d818e71eb87407d19ea0c1ba6.html">query</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_bb4de694aed7e68e236ea99f4ab65f5c.html">tlv++</a></li><li class="navelem"><a class="el" href="dir_9cffefb67e618749991f660da434e267.html">reader</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a>  </div>
-  <div class="headertitle"><div class="title">query.hpp File Reference</div></div>
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#typedef-members">Typedefs</a>  </div>
+  <div class="headertitle"><div class="title">tree.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>C++ wrapper for path queries over TLV data.  
+<p>Borrowed C++ preorder cursor backed by the canonical C Tree Reader.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;type_traits&gt;</code><br />
-<code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
-<code>#include &quot;<a class="elRef" href="../../c-api/html/size_8h.html">tlv/size.h</a>&quot;</code><br />
-<code>#include &quot;<a class="elRef" href="../../c-api/html/query_8h.html">tlv/query/query.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="reader_2tree_8hpp.html">tlv++/reader/tree.hpp</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="reader_8hpp.html">tlv++/reader/reader.hpp</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html">tlv::query</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A parsed path query such as <code>6F/A5/50</code>.  <a href="classtlv_1_1query.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query__matcher.html">tlv::query_matcher</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resumable C Query matcher owning a copy of its parsed query.  <a href="classtlv_1_1query__matcher.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1tree__reader.html">tlv::tree_reader</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded preorder traversal with incremental input and subtree control.  <a href="classtlv_1_1tree__reader.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -102,9 +96,18 @@ Namespaces</h2></td></tr>
 <tr class="memitem:namespacetlv" id="r_namespacetlv"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html">tlv</a></td></tr>
 <tr class="memdesc:namespacetlv"><td class="mdescLeft">&#160;</td><td class="mdescRight">Public C++ wrappers, value types, codec traits and helpers for OpenTLV. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:aa70bacfa123d58a717da39cb7fd97a77" id="r_aa70bacfa123d58a717da39cb7fd97a77"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aa70bacfa123d58a717da39cb7fd97a77">tlv::tree_frame</a> = <a class="elRef" href="../../c-api/html/group__traversal.html#ga7b6f4acf3a3650c0f9e3b71eaf40ded3">tlv_tree_frame_t</a></td></tr>
+<tr class="memdesc:aa70bacfa123d58a717da39cb7fd97a77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned structural continuation storage.  <br /></td></tr>
+<tr class="separator:aa70bacfa123d58a717da39cb7fd97a77"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae532e2a7c270ec66692e80352238237c" id="r_ae532e2a7c270ec66692e80352238237c"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae532e2a7c270ec66692e80352238237c">tlv::tree_item</a> = <a class="elRef" href="../../c-api/html/group__traversal.html#ga1a97318bea7cf12089db0524b5701d5d">tlv_tree_item_t</a></td></tr>
+<tr class="memdesc:ae532e2a7c270ec66692e80352238237c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Complete borrowed element, source, depth, absolute offset and classification.  <br /></td></tr>
+<tr class="separator:ae532e2a7c270ec66692e80352238237c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>C++ wrapper for path queries over TLV data. </p>
+<div class="textblock"><p>Borrowed C++ preorder cursor backed by the canonical C Tree Reader. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

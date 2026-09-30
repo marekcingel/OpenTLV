@@ -91,6 +91,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2cd66da393d6b030f76a61cf7c6b1a67" id="r_a2cd66da393d6b030f76a61cf7c6b1a67"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a2cd66da393d6b030f76a61cf7c6b1a67">size</a> () const</td></tr>
 <tr class="memdesc:a2cd66da393d6b030f76a61cf7c6b1a67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of tags in the query, which is the depth of the addressed elements plus one.  <br /></td></tr>
 <tr class="separator:a2cd66da393d6b030f76a61cf7c6b1a67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6405367b4f185b93d494221c8ab65349" id="r_a6405367b4f185b93d494221c8ab65349"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a6405367b4f185b93d494221c8ab65349">step</a> (size_t index) const</td></tr>
+<tr class="memdesc:a6405367b4f185b93d494221c8ab65349"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the tag at a zero-based query step, or an empty tag out of range.  <br /></td></tr>
+<tr class="separator:a6405367b4f185b93d494221c8ab65349"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a572a70987101556156fc697cd1e8fd" id="r_a6a572a70987101556156fc697cd1e8fd"><td class="memItemLeft" align="right" valign="top">const <a class="elRef" href="../../c-api/html/group__traversal.html#ga747ab1ec662ee8b640d522f981f35ec2">tlv_query_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1query.html#a6a572a70987101556156fc697cd1e8fd">c_query</a> () const</td></tr>
 <tr class="memdesc:a6a572a70987101556156fc697cd1e8fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">The underlying C query, for use with the C API.  <br /></td></tr>
 <tr class="separator:a6a572a70987101556156fc697cd1e8fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -207,6 +210,35 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Number of tags in the query, which is the depth of the addressed elements plus one. </p>
+
+</div>
+</div>
+<a id="a6405367b4f185b93d494221c8ab65349" name="a6405367b4f185b93d494221c8ab65349"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6405367b4f185b93d494221c8ab65349">&#9670;&#160;</a></span>step()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacetlv.html#a2b31c4b301052e8137584ed7baf54611">tag_t</a> tlv::query::step </td>
+          <td>(</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the tag at a zero-based query step, or an empty tag out of range. </p>
+<dl class="section warning"><dt>Warning</dt><dd>The returned bytes borrow this query and must not outlive it. </dd></dl>
 
 </div>
 </div>

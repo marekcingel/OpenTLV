@@ -4,6 +4,7 @@ var searchData=
   ['c_5fnode_1',['c_node',['../classtlv_1_1node.html#a26082f0279f8a5bf7ea0206657e113c2',1,'tlv::node']]],
   ['c_5fquery_2',['c_query',['../classtlv_1_1query.html#a6a572a70987101556156fc697cd1e8fd',1,'tlv::query']]],
   ['children_3',['children',['../classtlv_1_1document.html#a3cb9fd5d1c821cf3e9626cdd387d06f1',1,'tlv::document']]],
-  ['copy_5fencoded_4',['copy_encoded',['../classtlv_1_1writer.html#a70a001edc992aa1e16251acb26626c2a',1,'tlv::writer']]],
-  ['create_5',['create',['../classtlv_1_1document.html#aa8622b1aa4eddb3de224eaf5ead1c76b',1,'tlv::document']]]
+  ['consumed_4',['consumed',['../classtlv_1_1reader.html#ac5ebb7eb8af3eba40e3f588e6cff18d7',1,'tlv::reader::consumed()'],['../classtlv_1_1tree__reader.html#afcc91d1670eab82cb25bb0f47fb785d3',1,'tlv::tree_reader::consumed()']]],
+  ['copy_5fencoded_5',['copy_encoded',['../classtlv_1_1writer.html#a70a001edc992aa1e16251acb26626c2a',1,'tlv::writer']]],
+  ['create_6',['create',['../classtlv_1_1document.html#aa8622b1aa4eddb3de224eaf5ead1c76b',1,'tlv::document']]]
 ];

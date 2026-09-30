@@ -76,7 +76,9 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#typedef-members">Typedefs</a>  </div>
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">reader.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -86,6 +88,9 @@ $(function() {
 <div class="textblock"><code>#include &quot;<a class="elRef" href="../../c-api/html/reader_8h.html">tlv/reader/reader.h</a>&quot;</code><br />
 <code>#include &quot;<a class="elRef" href="../../c-api/html/size_8h.html">tlv/size.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="types_8hpp.html">tlv++/types.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="format_8hpp.html">tlv++/format.hpp</a>&quot;</code><br />
+<code>#include &quot;<a class="elRef" href="../../c-api/html/visitor_8h.html">tlv/reader/visitor.h</a>&quot;</code><br />
+<code>#include &lt;type_traits&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -104,6 +109,20 @@ Typedefs</h2></td></tr>
 <tr class="memitem:aec6151f23d86b874b79d9d2ae021e568" id="r_aec6151f23d86b874b79d9d2ae021e568"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">tlv::reader_diagnostic</a> = <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a></td></tr>
 <tr class="memdesc:aec6151f23d86b874b79d9d2ae021e568"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the reader-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__reader.html#ga24371a524a13cd9d1cd22b3db640de85">tlv_reader_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:aec6151f23d86b874b79d9d2ae021e568"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a6d141be87a05679c237c4d7f5b941c15" id="r_a6d141be87a05679c237c4d7f5b941c15"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">tlv::input_mode</a> { <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a2a1585a864d9e67627c6ae04c807a2c5">tlv::final</a>
+, <a class="el" href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15a57e48ffcfe372672b239d90ecbe3919a">tlv::incremental</a>
+ }</td></tr>
+<tr class="memdesc:a6d141be87a05679c237c4d7f5b941c15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the supplied input window declares final EOF.  <a href="namespacetlv.html#a6d141be87a05679c237c4d7f5b941c15">More...</a><br /></td></tr>
+<tr class="separator:a6d141be87a05679c237c4d7f5b941c15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:ac6665c938ebabfd7f55e4df8294432c0" id="r_ac6665c938ebabfd7f55e4df8294432c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a805cf4968e94f981f07e1cd785760ae1">decoded</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ac6665c938ebabfd7f55e4df8294432c0">tlv::read</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> data, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, size_t &amp;consumed, <a class="el" href="namespacetlv.html#aec6151f23d86b874b79d9d2ae021e568">reader_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:ac6665c938ebabfd7f55e4df8294432c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read one complete element with its source ranges and optional diagnostics.  <br /></td></tr>
+<tr class="separator:ac6665c938ebabfd7f55e4df8294432c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>C++ wrapper for sequential zero-copy reading. </p>
