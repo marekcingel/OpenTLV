@@ -1,8 +1,8 @@
 # Using OpenTLV from Lua
 
 The `opentlv` module is an experimental Lua binding for OpenTLV. It binds a
-Reader, Writer, Tree Writer, tag/length/value `Element` tables and preorder tree
-traversal; there is no Document or Schema binding yet (see [Lua
+Reader, Writer, Tree Writer, Schema, tag/length/value `Element` tables and preorder tree
+traversal; there is no Document binding yet (see [Lua
 bindings](../development/lua.md)).
 
 ## Setup
@@ -206,3 +206,130 @@ if not ok then
     print(err.code, err.message, err.required, err.available)
 end
 ```
+
+## Structural schemas
+
+`opentlv.schema(config)` creates an immutable structural Schema. It snapshots
+the rule/group tables and retains tag strings, field names and child Schema
+objects. Changing the original tables does not change the schema.
+Validation delegates to `tlv_schema_validate_all_diag()`; Lua implements no
+schema rules, wire parser or value decoding.
+
+```lua
+local tlv = require("opentlv")
+local format = tlv.formats.fixed(1, 1, "big")
+local schema = tlv.schema {
+    rules = {
+        {tag = string.char(1), name = "identifier", min_occurs = 1,
+         max_occurs = 1, min_length = 2, max_length = 2, kind = "primitive"},
+    },
+}
+local result = schema:validate(string.char(1, 1, 255), format)
+if not result.ok then
+    for _, diagnostic in ipairs(result.diagnostics) do
+        print(diagnostic.code, diagnostic.offset, diagnostic.field)
+        if diagnostic.length then
+            print(diagnostic.length.minimum, diagnostic.length.maximum,
+                  diagnostic.length.actual)
+        end
+    end
+end
+```
+
+`config.rules` is a dense array of rule tables (default empty). Each rule
+requires a binary-string `tag`; identifiers have exactly the same byte identity
+as Reader tags. Optional fields are:
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `name` | `nil` | Diagnostic field name; embedded NUL bytes are rejected |
+| `min_length`, `max_length` | `0`, `math.huge` | Inclusive Value-length bounds |
+| `length_multiple` | `0` | Required length multiple; zero disables it |
+| `flags` | `0` | C length flags; `tlv.SCHEMA_LENGTH_ENDPOINTS` permits only the bounds |
+| `min_occurs`, `max_occurs` | `0`, `math.huge` | Inclusive occurrence bounds per parent |
+| `kind` | `"any"` | `"any"`, `"primitive"` or `"constructed"` |
+| `children` | `nil` | Another Schema object; requires `kind = "constructed"` |
+| `group` | `0` | Alternative-group ID; zero means no group |
+
+An omitted child schema leaves membership unrestricted; the C engine still
+checks wire structure. Constructed status comes from Format, so a Fixed
+format's values remain opaque. For example, when BER is enabled:
+
+```lua
+local child = tlv.schema {
+    rules = {{tag = string.char(4), min_occurs = 1}},
+}
+local parent = tlv.schema {
+    rules = {{tag = string.char(48), kind = "constructed", children = child}},
+}
+assert(parent:validate(string.char(48, 2, 4, 0), tlv.formats.ber).ok)
+```
+
+At scope level, `allow_unknown` defaults to `false` and `order` defaults to
+`"any"`; `"sequence"` enforces relative rule order. Optional `groups` is a dense
+array of `{id, min_occurs, max_occurs, name}` tables using named fields.
+Group IDs must be nonzero and unique; bounds default to `0` and `math.huge`.
+A group's bounds apply to the sum of all matching alternatives. Grouped rules
+must have `min_occurs = 0`, and each rule's `max_occurs` still applies.
+C validates these constraints, including duplicate tags and invalid bounds,
+when validating the corresponding scope.
+
+`schema:validate(data, format, options)` accepts a binary Lua string and an
+existing Format object. Format defaults to BER when enabled; otherwise it is
+required. Options are:
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `capacity` | `64` | Maximum stored schema diagnostics; zero counts only |
+| `max_depth` | `32` | Native nesting limit |
+| `max_elements` | `100000` | Total element limit; zero allows only empty input |
+| `unknown` | `"by_schema"` | `"by_schema"`, `"allow"` or `"reject"` |
+
+Numbers must be nonnegative native-size integers. `math.huge` represents
+`SIZE_MAX` for upper length/occurrence bounds and `max_elements`. Lua versions
+with floating-point-only numbers retain their usual integer precision limits.
+Native fixed traversal/path capacities also apply; exceeding them returns
+`LIMIT`. Format selects framing; Schema does not add semantic DER or protocol
+value validation.
+
+The result always contains `ok`, numeric `code`, `diagnostics`, `total_count`
+and `truncated`. Success has code `OK` and an empty diagnostics array. Schema
+violations return code `SCHEMA`; `total_count` counts every native violation,
+even when `capacity` stores only a prefix. `truncated` reports an omitted suffix.
+The C engine determines diagnostic ordering; within-scope order is unspecified.
+
+Malformed input, invalid schema configuration and exceeded limits return
+`ok = false` and the native error code. They return one basic diagnostic,
+`total_count = 1` and `truncated = false`, even at `capacity = 0`; this capacity
+limits schema reports only. C provides no partial schema report on these
+failures. Lua argument/type errors and allocation failures raise Lua errors.
+
+## Diagnostic tables
+
+Schema reports, Reader and Writer use the same common native diagnostic
+conversion. Tables own their strings and remain valid after the input,
+Schema or Reader/Writer is collected. Common fields are `code`, `message`
+(from `tlv_strerror()`), and `severity` (`"error"`, `"warning"`, `"info"`).
+`offset`, `expected`, `actual`, `path` and `contexts` appear only when supplied
+by C. Offsets remain zero-based bytes, independent of Lua array indexing.
+`contexts` is an array of `{layer, key, value}` tables in native order.
+
+Schema violations additionally provide:
+
+- `kind`: `"missing"`, `"duplicate"`, `"unexpected"`, `"kind"`, `"length"` or `"order"`.
+- `tag`: affected binary identifier; `path`: binary identifiers of enclosing
+  scopes, outermost first, excluding `tag`.
+- Optional `field` and boolean `is_group`.
+- `occurrences` or `length`: `{minimum, maximum, actual}` when applicable.
+  An unrestricted maximum is `math.huge`.
+- `length_multiple` and `length_flags` for length failures.
+- `form`: `{expected, actual_constructed}` for kind failures, with an expected
+  kind string and an actual boolean.
+
+These typed fields are copied from the C report. The binding does not invent
+textual `expected`/`actual` descriptions. Missing-field reports use the native
+parent-element offset when nested and have no offset at root level. Fatal
+diagnostics carry only code/message/severity and the offset if C provided one;
+the binding does not reparse the input to reconstruct tag or path information.
+
+See the runnable [schema example](https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/schema.lua).

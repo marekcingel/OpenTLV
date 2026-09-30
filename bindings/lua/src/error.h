@@ -28,6 +28,10 @@ const char* opentlv_lua_reader_operation_name(tlv_reader_operation_t operation);
  * stash it (see visitor.c), or raise it with lua_error(). */
 void opentlv_lua_push_error(lua_State* L, tlv_result_t code, int has_offset, size_t offset);
 
+/* Copies the common native diagnostic, including optional path and contexts,
+ * into an owned error table. Does not raise. */
+void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnostic);
+
 /* Like opentlv_lua_push_error(), additionally filling "expected", "actual",
  * "operation" and "tag" from a reader diagnostic when it reports them.
  * `diag` may be NULL, equivalent to opentlv_lua_push_error() with has_offset

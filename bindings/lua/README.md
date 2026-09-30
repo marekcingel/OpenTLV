@@ -2,7 +2,7 @@
 
 Lua bindings to the [OpenTLV](https://github.com/marekcingel/OpenTLV) C API:
 two pieces, `opentlv-native` (`src/`, built directly against the Lua C API,
-binding `Reader`, `Writer`, `TreeWriter`, `Element`, `Tag` and preorder tree traversal) and `opentlv`
+binding `Reader`, `Writer`, `TreeWriter`, `Schema`, `Element`, `Tag` and preorder tree traversal) and `opentlv`
 (`lua/opentlv/init.lua`, a one-line pure-Lua entry point on top of it) — the
 same native/pure split as the Python `opentlv-native`/`opentlv` and Rust
 `opentlv-native`/`opentlv` packages. Targets Lua 5.1 through 5.4 and LuaJIT.
@@ -91,3 +91,14 @@ bounded buffer and delegates encoding to the C core. See the
 [writing guide](../../docs/guides/lua.md#writing) for nesting, capacity options
 and diagnostics. The standalone `tests/writer_spec.lua` runs without busted
 and is registered as `Integration_lua_writer`, including reduced builds.
+
+## Schema validation
+
+`opentlv.schema { rules = {...} }` creates an immutable structural schema.
+`schema:validate(data, format, options)` returns `ok`, `code`, a bounded
+`diagnostics` array, `total_count` and `truncated`. All rules and diagnostic
+details originate from the C schema validator. See the
+[Schema guide](../../docs/guides/lua.md#structural-schemas) and runnable
+[`examples/schema.lua`](examples/schema.lua).
+The standalone `tests/schema_spec.lua` is registered as `Integration_lua_schema`
+and runs with Fixed Format even when optional formats are disabled.

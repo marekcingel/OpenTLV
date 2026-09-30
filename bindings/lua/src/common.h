@@ -6,8 +6,8 @@
 #include <tlv/element.h>
 
 /*
- * Shared infrastructure for every OpenTLV Lua userdata type (Reader and Writer today;
- * Document, Schema, ... later). Conventions established here, so
+ * Shared infrastructure for every OpenTLV Lua userdata type (including Reader,
+ * Writer and Schema). Conventions established here, so
  * later components add to them instead of reinventing them:
  *
  * - Ownership/lifetime: a userdata never copies the Lua values it borrows
