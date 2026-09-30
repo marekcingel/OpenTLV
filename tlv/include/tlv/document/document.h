@@ -113,6 +113,83 @@ typedef struct tlv_document tlv_document_t;
 typedef struct tlv_node tlv_node_t;
 
 /**
+ * @brief Resumable owning consumer of a Tree Reader, optionally limited to one subtree.
+ *
+ * Opaque and allocating. A builder keeps its unfinished document private. Free
+ * it with tlv_document_builder_free(), including after successful completion.
+ */
+typedef struct tlv_document_builder tlv_document_builder_t;
+
+/**
+ * @brief Create a builder for a complete tree stream or the last published subtree.
+ *
+ * With NULL `root`, consume a fresh reader through final end, including all roots.
+ * Otherwise `root` must be the last item published by `reader`, with no intervening
+ * pulls or subtree skips. Its node becomes the document's only root at depth zero.
+ * The root's tag and primitive value are copied immediately; descendants are
+ * copied by tlv_document_builder_consume(). No borrowed item is retained.
+ *
+ * @param[in] options Document options; copied. The format must be the reader's exact
+ *                    descriptor. Depth limits are relative to the materialized root;
+ *                    element limits count only materialized nodes. Reader limits still apply.
+ * @param[in,out] reader Initialized cursor; borrowed until completion or destruction.
+ * @param[in] root Optional last published item, still valid during this call.
+ * @param[out] builder Required output; NULL on failure.
+ * @return #TLV_OK on success.
+ * @return #TLV_ERR_NULL_ARG for missing required arguments.
+ * @return #TLV_ERR_INVALID_ARG for a format mismatch, a non-fresh whole-stream cursor,
+ *         or an invalid root extent.
+ * @return #TLV_ERR_LIMIT if the root exceeds document limits.
+ * @return #TLV_ERR_OUT_OF_MEMORY if allocation fails.
+ * @return Any other error of tlv_document_create().
+ * @note Does not advance the reader. Failure releases all allocations.
+ * @warning Do not pull or skip on the reader while the builder is active. Input
+ *          replacement through tlv_tree_reader_set_input() is allowed. The format
+ *          and allocator contexts must outlive both builder and resulting document.
+ *          Reader's complete contiguous constructed-element contract still applies.
+ */
+TLV_API tlv_result_t tlv_document_builder_create(const tlv_document_options_t* options,
+                                                 tlv_tree_reader_t* reader,
+                                                 const tlv_tree_item_t* root,
+                                                 tlv_document_builder_t** builder);
+
+/**
+ * @brief Consume available tree items and transfer ownership only on completion.
+ *
+ * A whole-stream builder completes at final end. A subtree builder completes
+ * after its root and descendants, without decoding the following sibling; the
+ * cursor is ready to continue outside that subtree. Empty and primitive roots
+ * complete without another pull. This validates only the selected range.
+ *
+ * @param[in,out] builder Active builder; required.
+ * @param[out] document Required output; receives the owned document on success,
+ *                      otherwise NULL. Release with tlv_document_free().
+ * @param[out] error_offset Optional absolute source offset on traversal or node
+ *                         creation failure, including NEED_MORE_DATA; unchanged on success.
+ * @param[out] diagnostic Optional borrowed Reader failure detail, with the same
+ *                       lifetime and update rules as tlv_tree_reader_next_diag().
+ * @return #TLV_OK when the completed document is transferred to the caller.
+ * @return #TLV_NEED_MORE_DATA when more input is needed; builder state is retained.
+ * @return #TLV_ERR_NULL_ARG for missing required arguments.
+ * @return #TLV_ERR_INVALID_ARG if already completed or failed.
+ * @return #TLV_ERR_LIMIT if document or reader limits are exceeded.
+ * @return #TLV_ERR_OUT_OF_MEMORY if node allocation fails.
+ * @return Any other Tree Reader error, propagated unchanged.
+ * @note On terminal traversal/build failure all unfinished nodes are released.
+ *       Only NEED_MORE_DATA is resumable. The cursor is not rolled back on failure.
+ */
+TLV_API tlv_result_t tlv_document_builder_consume(tlv_document_builder_t* builder,
+                                                  tlv_document_t** document, size_t* error_offset,
+                                                  tlv_reader_diagnostic_t* diagnostic);
+
+/**
+ * @brief Destroy a builder and discard any unfinished document.
+ * @param[in] builder Builder to release; NULL is ignored. A transferred document
+ *                    is unaffected. Does not free the borrowed reader or its input.
+ */
+TLV_API void tlv_document_builder_free(tlv_document_builder_t* builder);
+
+/**
  * @brief Fills options with the given format and the default limits.
  *
  * Sets `max_depth` to #TLV_TREE_DEFAULT_DEPTH, `max_elements` to
@@ -156,8 +233,9 @@ TLV_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
  * @param[in]  options      Format descriptor and limits; copied.
  * @param[out] document     Receives the document; free it with tlv_document_free(). Set to
  *                          `NULL` on failure.
- * @param[out] error_offset Optional. On failure of the input, receives the absolute offset of
- *                          the offending element; unchanged otherwise.
+ * @param[out] error_offset Optional. On traversal or node creation failure, receives the
+ *                          offending element's absolute offset; unchanged on success or
+ *                          failure before traversal starts.
  *
  * @return #TLV_OK on success.
  * @return Any error of tlv_document_create().

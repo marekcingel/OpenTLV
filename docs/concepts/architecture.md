@@ -213,12 +213,19 @@ harnesses, each with its checked-in seed corpus in a sibling `corpus/` folder
 ## Mutable document
 
 `document/document.h` is a layer above the reader, writer and query facilities. It
-parses input into an owned tree, lets the tree be searched, changed, extended and
-shortened, and encodes it again through the writer. It is the only component that
+builds an owned tree from canonical Tree Reader items, lets the tree be searched,
+changed, extended and shortened, and encodes it again through the writer. It is the only component that
 allocates, it can use a caller-supplied allocator, and it is the `OPENTLV_DOCUMENT`
 option. Nothing below it depends on it, so the reader, writer and visitor stay
 zero-copy and allocation-free whether or not it is built. See
 [mutable documents](../guides/document.md).
+
+`tlv_document_builder_t` owns unfinished construction and consumes a caller-owned
+Tree Reader, resuming after `TLV_NEED_MORE_DATA`. It publishes a document only at
+final stream end or completion of a selected subtree. Complete-buffer parsing
+and constructed-value mutations reuse the same item consumer. Query can select
+the subtree root without introducing a dependency from Reader or Builder to Query
+matching semantics.
 
 ## Reader and traversal
 

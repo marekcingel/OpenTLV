@@ -3,11 +3,14 @@
 #include "tlv/document/document.h"
 #include <gtest/gtest.h>
 #include <cstdint>
+#include <memory>
 #include <set>
 #include <vector>
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
 #endif
+
+using Builder = std::unique_ptr<tlv_document_builder_t, decltype(&tlv_document_builder_free)>;
 
 namespace {
 using Bytes = std::vector<uint8_t>;
@@ -750,3 +753,264 @@ TEST(Unit_Tlv_Document, IterativeEncodingReleasesEveryTemporaryAllocationOnFailu
     }
     EXPECT_TRUE(completed);
 }
+
+TEST(Unit_Tlv_DocumentBuilder, IncrementalInputOwnsPublishedDataAndTransfersOnlyAtFinalEnd) {
+    auto              opts = options();
+    Bytes             window = {0x50, 1, 0xAB};
+    tlv_tree_frame_t  frames[4];
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init_incremental(&reader, window.data(), window.size(),
+                                                       opts.format, frames, 4, 4, 20));
+    tlv_document_builder_t* raw = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &raw));
+    Builder builder(raw, tlv_document_builder_free);
+    Doc     doc;
+    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(nullptr, doc.handle);
+    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    window.assign(window.size(), 0);
+    // A partial constructed root must not publish or duplicate any nodes.
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, sample.data(), 3, 3, 0));
+    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(nullptr, doc.handle);
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, sample.data(), sample.size(), 0, 1));
+    size_t offset = 999;
+    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, &offset, nullptr));
+    EXPECT_EQ(999u, offset);
+    builder.reset();
+    Bytes expected = {0x50, 1, 0xAB};
+    expected.insert(expected.end(), sample.begin(), sample.end());
+    EXPECT_EQ(expected, encode(doc.get()));
+    EXPECT_EQ(6u, tlv_document_count(doc.get()));
+    EXPECT_EQ(Bytes({0xAB}), value_of(tlv_document_first(doc.get())));
+}
+
+TEST(Unit_Tlv_DocumentBuilder, QuerySelectedSubtreeNormalizesDepthAndLeavesNextSiblingUnread) {
+    auto opts = options();
+    opts.max_depth = 1;
+    opts.max_elements = 2;
+    tlv_tree_frame_t  frames[4];
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, sample.data(), sample.size(), opts.format,
+                                           frames, 4, 4, 20));
+    tlv_query_t         query;
+    tlv_query_matcher_t matcher;
+    ASSERT_EQ(TLV_OK, tlv_query_parse("6F/A5", &query, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_query_matcher_init(&matcher, &query));
+    tlv_tree_item_t item;
+    do {
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
+    } while (!tlv_query_matcher_visit(&matcher, &item.element.tag, item.depth));
+    tlv_document_builder_t* raw = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, &item, &raw));
+    Builder builder(raw, tlv_document_builder_free);
+    Doc     doc;
+    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(Bytes({0xA5, 4, 0x50, 2, 0x41, 0x42}), encode(doc.get()));
+    EXPECT_EQ(nullptr, tlv_node_parent(tlv_document_first(doc.get())));
+    EXPECT_EQ(12u, tlv_tree_reader_offset(&reader));
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
+    EXPECT_EQ(12u, item.offset);
+    EXPECT_EQ(0u, item.depth);
+    tlv_document_t* repeated = nullptr;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_builder_consume(raw, &repeated, nullptr, nullptr));
+    EXPECT_EQ(nullptr, repeated);
+    // The result remains mutable through the existing API.
+    const uint8_t replacement = 7;
+    ASSERT_EQ(TLV_OK, tlv_node_set_value(find(doc.get(), "A5/50"), &replacement, 1));
+    EXPECT_EQ(Bytes({0xA5, 3, 0x50, 1, 7}), encode(doc.get()));
+}
+
+TEST(Unit_Tlv_DocumentBuilder, PrimitiveAndEmptyConstructedRootsDoNotReadMalformedSibling) {
+    for (uint8_t tag : {0x50, 0xA5}) {
+        const Bytes       wire = {tag, 0, 0x51};
+        auto              opts = options();
+        tlv_tree_reader_t reader;
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, wire.data(), wire.size(), opts.format,
+                                               nullptr, 0, 0, 10));
+        tlv_tree_item_t root;
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &root));
+        tlv_document_builder_t* raw = nullptr;
+        ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, &root, &raw));
+        Builder builder(raw, tlv_document_builder_free);
+        Doc     doc;
+        ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+        EXPECT_EQ(Bytes({tag, 0}), encode(doc.get()));
+        EXPECT_EQ(2u, tlv_tree_reader_offset(&reader));
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_reader_next(&reader, &root));
+    }
+}
+
+TEST(Unit_Tlv_DocumentBuilder, PreservesReaderDiagnosticsAfterWindowReplacement) {
+    auto              opts = options();
+    const Bytes       first = {0x50, 0};
+    const Bytes       bad = {0x6F, 3, 0x50, 2, 0xAB};
+    tlv_tree_frame_t  frames[2];
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init_incremental(&reader, first.data(), first.size(),
+                                                       opts.format, frames, 2, 2, 10));
+    tlv_document_builder_t* raw = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &raw));
+    Builder builder(raw, tlv_document_builder_free);
+    Doc     doc;
+    ASSERT_EQ(TLV_NEED_MORE_DATA, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, bad.data(), bad.size(), first.size(), 1));
+    tlv_reader_diagnostic_t actual;
+    tlv_reader_diagnostic_init(&actual);
+    size_t offset = 999;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_document_builder_consume(raw, &doc.handle, &offset, &actual));
+    EXPECT_EQ(nullptr, doc.handle);
+    EXPECT_EQ(4u, offset);
+    tlv_reader_diagnostic_t expected;
+    tlv_reader_diagnostic_init(&expected);
+    tlv_tree_item_t item;
+    ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_tree_reader_next_diag(&reader, &item, &expected));
+    EXPECT_EQ(expected.diagnostic.code, actual.diagnostic.code);
+    EXPECT_EQ(expected.diagnostic.offset, actual.diagnostic.offset);
+    EXPECT_EQ(expected.operation, actual.operation);
+    EXPECT_EQ(expected.value_offset, actual.value_offset);
+    EXPECT_EQ(expected.declared_length, actual.declared_length);
+    EXPECT_EQ(expected.enclosing_end, actual.enclosing_end);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+}
+
+TEST(Unit_Tlv_DocumentBuilder, AllocationFailureAndCancellationReleaseAllOwnedMemory) {
+    bool succeeded = false;
+    for (size_t fail_at = 0; fail_at < 32 && !succeeded; ++fail_at) {
+        Arena arena;
+        auto  allocator = arena.allocator();
+        auto  opts = options();
+        opts.allocator = &allocator;
+        arena.fail_at = fail_at;
+        tlv_tree_frame_t  frames[4];
+        tlv_tree_reader_t reader;
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, sample.data(), sample.size(), opts.format,
+                                               frames, 4, 4, 20));
+        tlv_document_builder_t* builder = nullptr;
+        auto                    rc = tlv_document_builder_create(&opts, &reader, nullptr, &builder);
+        tlv_document_t*         doc = nullptr;
+        if (rc == TLV_OK) rc = tlv_document_builder_consume(builder, &doc, nullptr, nullptr);
+        if (rc == TLV_OK) {
+            succeeded = true;
+            arena.fail_at = SIZE_MAX;
+            EXPECT_EQ(sample, encode(doc));
+        } else {
+            EXPECT_EQ(TLV_ERR_OUT_OF_MEMORY, rc);
+            EXPECT_EQ(nullptr, doc);
+        }
+        tlv_document_free(doc);
+        tlv_document_builder_free(builder);
+        EXPECT_TRUE(arena.live.empty()) << fail_at;
+    }
+    EXPECT_TRUE(succeeded);
+    Arena arena;
+    auto  allocator = arena.allocator();
+    auto  opts = options();
+    opts.allocator = &allocator;
+    tlv_tree_frame_t  frames[4];
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init_incremental(&reader, sample.data(), sample.size(),
+                                                       opts.format, frames, 4, 4, 20));
+    tlv_document_builder_t* builder = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &builder));
+    Doc doc;
+    ASSERT_EQ(TLV_NEED_MORE_DATA,
+              tlv_document_builder_consume(builder, &doc.handle, nullptr, nullptr));
+    tlv_document_builder_free(builder);
+    EXPECT_EQ(nullptr, doc.handle);
+    EXPECT_TRUE(arena.live.empty());
+}
+
+TEST(Unit_Tlv_DocumentBuilder, EnforcesDocumentAndReaderLimitsSeparately) {
+    for (int limit = 0; limit < 4; ++limit) {
+        auto opts = options();
+        if (limit == 0) opts.max_elements = 2;
+        if (limit == 1) opts.max_depth = 0;
+        tlv_tree_frame_t  frames[4];
+        tlv_tree_reader_t reader;
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, sample.data(), sample.size(), opts.format,
+                                               frames, 4, limit == 2 ? 0 : 4, limit == 3 ? 1 : 20));
+        tlv_document_builder_t* raw = nullptr;
+        ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &raw));
+        Builder builder(raw, tlv_document_builder_free);
+        Doc     doc;
+        EXPECT_EQ(TLV_ERR_LIMIT, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+        EXPECT_EQ(nullptr, doc.handle);
+    }
+}
+
+TEST(Unit_Tlv_DocumentBuilder, EmptyFinalStreamAndArgumentValidation) {
+    auto              opts = options();
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, nullptr, 0, opts.format, nullptr, 0, 0, 0));
+    tlv_document_builder_t* raw = nullptr;
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_builder_create(&opts, &reader, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_builder_create(nullptr, &reader, nullptr, &raw));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_builder_create(&opts, nullptr, nullptr, &raw));
+    auto other = controlled_constructed_format;
+    auto wrong = opts;
+    wrong.format = &other;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_builder_create(&wrong, &reader, nullptr, &raw));
+    ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &raw));
+    Builder builder(raw, tlv_document_builder_free);
+    Doc     doc;
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_builder_consume(raw, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_document_builder_consume(nullptr, &doc.handle, nullptr, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(0u, tlv_document_count(doc.get()));
+    tlv_document_builder_free(nullptr);
+
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, sample.data(), sample.size(), opts.format,
+                                           nullptr, 0, 0, 10));
+    tlv_tree_item_t root;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &root));
+    tlv_document_builder_t* rejected = nullptr;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_builder_create(&opts, &reader, nullptr, &rejected));
+    opts.max_elements = 0;
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_document_builder_create(&opts, &reader, &root, &rejected));
+    EXPECT_EQ(nullptr, rejected);
+}
+
+TEST(Unit_Tlv_DocumentBuilder, NodeCreationUsesCanonicalConstructedClassification) {
+    static size_t calls;
+    calls = 0;
+    auto format = controlled_constructed_format;
+    format.is_constructed = [](const void*, const tlv_tag_t* tag) {
+        ++calls;
+        return is_constructed(nullptr, tag);
+    };
+    auto opts = options();
+    opts.format = &format;
+    Doc doc;
+    ASSERT_EQ(TLV_OK,
+              tlv_document_parse(sample.data(), sample.size(), &opts, &doc.handle, nullptr));
+    EXPECT_EQ(tlv_document_count(doc.get()), calls);
+}
+
+#if OPENTLV_FORMAT_BER
+TEST(Unit_Tlv_DocumentBuilder, SelectedIndefiniteSubtreeStopsAfterTrailers) {
+    const Bytes wire = {0xE1, 0x80, 0xE2, 0x80, 0x04, 1, 0xAA, 0, 0, 0, 0, 0x04, 0};
+    auto        opts = options();
+    opts.format = &tlv_format_ber;
+    tlv_tree_frame_t  frames[4];
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, wire.data(), wire.size(), opts.format, frames,
+                                           4, 4, 20));
+    tlv_tree_item_t item;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
+    tlv_document_builder_t* raw = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, &item, &raw));
+    Builder builder(raw, tlv_document_builder_free);
+    Doc     doc;
+    ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
+    EXPECT_EQ(Bytes({0xE2, 3, 0x04, 1, 0xAA}), encode(doc.get()));
+    EXPECT_EQ(11u, tlv_tree_reader_offset(&reader));
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
+    EXPECT_EQ(11u, item.offset);
+    EXPECT_EQ(0u, item.depth);
+}
+#endif
