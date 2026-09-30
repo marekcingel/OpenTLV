@@ -883,6 +883,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#field-ordering-and-length-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field ordering and length scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#format-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2894,6 +2905,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#field-ordering-and-length-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field ordering and length scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#format-operations" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3017,6 +3039,86 @@ Conversion to another format is fresh encoding, and fails if the destination
 cannot represent the identifier/content. Identifier mapping is not implicit.
 Canonical transformations that change Value bytes are separate content
 transformations, not semantic identity at this boundary.</p>
+<h2 id="field-ordering-and-length-scope">Field ordering and length scope<a class="headerlink" href="#field-ordering-and-length-scope" title="Permanent link">&para;</a></h2>
+<p>Format owns wire representation rules and composes reusable Field Encoding
+mechanics with field ordering and framing. Reader and Writer delegate decoding
+and encoding to Format; they do not interpret field order. Layout records the
+resulting source ranges, while Element retains only the semantic identifier
+and Value. Schema does not select wire field order.</p>
+<p>The existing generic field composition supports two orders, with Value last:</p>
+<ul>
+<li><code>TLV_ELEMENT_ORDER_TLV</code>: Type (Tag), Length, Value.</li>
+<li><code>TLV_ELEMENT_ORDER_LTV</code>: Length, Type (Tag), Value.</li>
+</ul>
+<p>These are defined compositions, not configurable arbitrary field permutations.
+Formats requiring other arrangements can implement the canonical Format
+operations while preserving the same Element and source contracts. Reusable
+mechanics belong in generic primitives; protocol wire restrictions belong in
+the corresponding Format implementation.</p>
+<p>Field order and length scope are independent. <code>TLV_LENGTH_SCOPE_VALUE</code> counts
+only Value bytes; <code>TLV_LENGTH_SCOPE_TAG_AND_VALUE</code> counts the encoded identifier
+and Value bytes, excluding the Length field itself. Both orders support both
+scopes. In every case, <code>element.value.size</code> counts only Value bytes.</p>
+<p>For one-byte Type and Length fields, these inputs describe the same semantic
+Tag <code>09</code> and Value <code>41 42</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Composition</th>
+<th>Length scope</th>
+<th>Wire bytes</th>
+<th>Tag offset</th>
+<th>Length offset</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TLV</td>
+<td>Value</td>
+<td><code>09 02 41 42</code></td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>LTV</td>
+<td>Value</td>
+<td><code>02 09 41 42</code></td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Bluetooth LTV</td>
+<td>Tag and Value</td>
+<td><code>03 09 41 42</code></td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>All three have Header <code>[0, 2)</code>, Value <code>[2, 4)</code> and a present empty Trailer at
+offset 4. Their Elements compare equal by identifier and Value bytes, even
+though their borrowed pointers and original wire representations differ.
+<a href="../../formats/bluetooth/">Bluetooth Advertising Data</a> uses the third
+configuration; Type <code>09</code> identifies a Complete Local Name, here <code>AB</code>.
+This demonstrates framing equivalence without requiring a Definition lookup
+or interpreting Value during decoding.</p>
+<p>Use <code>tlv_fixed_format_init()</code> with <code>tag_size = 1</code>, <code>length_size = 1</code>, an explicit
+<code>length_order</code>, and the selected <code>element_order</code> and <code>length_scope</code> to reproduce
+these compositions. Fixed delegates to the generic binary-field composition;
+custom field codecs can use <code>tlv_field_layout_t</code> and <code>tlv_fields_format_init()</code>.
+Format configuration must outlive its descriptor and all retained sources.</p>
+<p>Encoding an Element uses the destination Format's order and count scope.
+Explicit <code>tlv_source_preserve()</code> (or <code>tlv_writer_preserve()</code>) instead reproduces
+the original bytes for unchanged semantic content. Source ranges describe
+that original representation, not a later encoding in another Format.</p>
+<p>The regression test <code>EquivalentElementsKeepTheirOwnLayoutAcrossOrdersAndScopes</code>
+in <code>tests/integration/formats/format_fixed_test.cpp</code> checks these examples,
+source ranges, explicit preservation and encoding each decoded Element into
+each destination composition through the shared Reader/Writer APIs. Existing
+Fixed and Variable tests cover both orders crossed with both length scopes;
+Tree Reader and Tree Writer tests exercise LTV through the same upper layers.
+NFC Type 2 support and its control rules are outside this ordering contract's
+validation scope.</p>
 <h2 id="format-operations">Format operations<a class="headerlink" href="#format-operations" title="Permanent link">&para;</a></h2>
 <p>The descriptor has one decode operation, one measure operation and one encode
 operation. Reader and Writer have no alternate field-callback path. Field
