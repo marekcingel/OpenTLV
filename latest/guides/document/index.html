@@ -1239,6 +1239,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#building-from-a-tree-reader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building from a Tree Reader
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Building from a Tree Reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#materializing-a-selected-subtree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Materializing a selected subtree
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inspecting" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2804,6 +2832,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#building-from-a-tree-reader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building from a Tree Reader
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Building from a Tree Reader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#materializing-a-selected-subtree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Materializing a selected subtree
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#inspecting" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2902,7 +2958,7 @@ read a TLV message, change a field, add or drop an element and send it on, use
 the optional <strong>document</strong> API. It copies the data into an owned tree that can be
 modified, and encodes it again.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Low level, zero-copy:   bytes -&gt; reader -&gt; element -&gt; traversal / schema / codec
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>High level, mutable:    bytes -&gt; document -&gt; inspect / modify -&gt; encode
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>High level, mutable:    Tree Reader -&gt; Document Builder -&gt; document -&gt; modify -&gt; encode
 </code></pre></div>
 <p>The document is a separate layer on top of the public reader, writer and
 <a href="../queries/">path query</a> APIs. It changes nothing about how they work, and they
@@ -2931,33 +2987,80 @@ use: <code>max_depth</code> (default <code>TLV_TREE_DEFAULT_DEPTH</code>) and <c
 <code>TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS</code>, 65536). Parsing and every later
 modification are refused with <code>TLV_ERR_LIMIT</code> when they would exceed a limit, so
 untrusted input cannot make a document grow without bound.</p>
+<h2 id="building-from-a-tree-reader">Building from a Tree Reader<a class="headerlink" href="#building-from-a-tree-reader" title="Permanent link">&para;</a></h2>
+<p><code>tlv_document_parse()</code> and constructed-value mutations use the same internal
+Tree Reader consumer as the resumable <code>tlv_document_builder_t</code>. The consumer
+copies canonical tags and primitive values into owned nodes and uses the
+Tree Reader's constructed classification. It does not decode TLV framing.</p>
+<p>For incremental input, initialize a <code>tlv_tree_reader_t</code>, then create a builder:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">tlv_document_builder_t</span><span class="o">*</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">tlv_document_t</span><span class="o">*</span><span class="w"> </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">tlv_result_t</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_document_builder_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">reader</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">builder</span><span class="p">);</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">TLV_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_document_builder_consume</span><span class="p">(</span><span class="n">builder</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">error_offset</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="cm">/* On TLV_NEED_MORE_DATA, retain builder, replace/extend reader input with</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="cm">       tlv_tree_reader_set_input(), and call consume again. */</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">}</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="cm">/* At completion, or to cancel: */</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">tlv_document_builder_free</span><span class="p">(</span><span class="n">builder</span><span class="p">);</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="cm">/* Only TLV_OK from consume publishes a document; free it when finished. */</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">tlv_document_free</span><span class="p">(</span><span class="n">document</span><span class="p">);</span>
+</code></pre></div>
+<p>Use the same Format descriptor for the reader and document options. The
+reader and its frames remain caller-owned. Do not interleave pulls or skips
+while the builder is active. Input replacement follows the normal Reader
+window rules; copied nodes no longer borrow the old input. Format and allocator
+contexts remain borrowed and must outlive both the builder and document.</p>
+<p><code>TLV_NEED_MORE_DATA</code> preserves private construction state and returns a NULL
+document. A whole-stream builder publishes only at final end. A terminal error
+discards the unfinished nodes; the reader is not rolled back. The optional
+<code>tlv_reader_diagnostic_t</code> output forwards Reader diagnostics with absolute
+offsets and their original borrowed lifetime. Allocation failures and document
+limits report the current item's absolute offset through <code>error_offset</code>.</p>
+<h3 id="materializing-a-selected-subtree">Materializing a selected subtree<a class="headerlink" href="#materializing-a-selected-subtree" title="Permanent link">&para;</a></h3>
+<p>Pull items and feed their tags and depths to a Query matcher. When the desired
+root matches, pass that <strong>last published item</strong> as the <code>root</code> argument to
+<code>tlv_document_builder_create()</code>. The builder copies the root immediately and
+consumes its descendants without decoding the following sibling. It can
+complete before the overall input is final. Continue pulling from the same
+reader after completion.</p>
+<p>The selected root has document depth zero. Document depth and element limits
+apply to the selected tree, while Reader limits still apply to the entire
+traversal. No Query logic is built into either Reader or Builder. Selection
+materializes a complete subtree, not an arbitrary sequence with missing parents.
+Malformed input outside that subtree is left for the caller's later traversal.</p>
+<p>This reduces <strong>owned Document memory</strong>, but does not change Reader's input
+contract: a constructed element is published only when its complete encoded
+extent is contiguous. A single 500 MB constructed root therefore still needs
+that extent available before its descendants can be selected. Multiple complete
+roots can be consumed through successive input windows.</p>
 <h2 id="inspecting">Inspecting<a class="headerlink" href="#inspecting" title="Permanent link">&para;</a></h2>
 <p>Nodes form a tree. Use the navigation functions or a <a href="../queries/">path query</a>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">tlv_node_t</span><span class="o">*</span><span class="w"> </span><span class="n">fci</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_document_find</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x6F</span><span class="p">));</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_node_t</span><span class="o">*</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_first_child</span><span class="p">(</span><span class="n">fci</span><span class="p">);</span><span class="w"> </span><span class="n">child</span><span class="p">;</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_next</span><span class="p">(</span><span class="n">child</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_tag</span><span class="p">(</span><span class="n">child</span><span class="p">);</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="cm">/* ... */</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">tlv_query_t</span><span class="w"> </span><span class="n">query</span><span class="p">;</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">tlv_query_parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">tlv_node_t</span><span class="o">*</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_document_find_path</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">);</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_value_data</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_value_size</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">tlv_node_t</span><span class="o">*</span><span class="w"> </span><span class="n">fci</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_document_find</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x6F</span><span class="p">));</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">tlv_node_t</span><span class="o">*</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_first_child</span><span class="p">(</span><span class="n">fci</span><span class="p">);</span><span class="w"> </span><span class="n">child</span><span class="p">;</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_next</span><span class="p">(</span><span class="n">child</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">tlv_tag_t</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_tag</span><span class="p">(</span><span class="n">child</span><span class="p">);</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="cm">/* ... */</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">}</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">tlv_query_t</span><span class="w"> </span><span class="n">query</span><span class="p">;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">tlv_query_parse</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">tlv_node_t</span><span class="o">*</span><span class="w"> </span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_document_find_path</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">query</span><span class="p">);</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_value_data</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv_node_value_size</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
 </code></pre></div>
 <p><code>tlv_document_find_path()</code> returns the first element the query addresses in
 document order. A constructed node has no value bytes of its own; read its
 children.</p>
 <h2 id="modifying">Modifying<a class="headerlink" href="#modifying" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cm">/* Replace a value. */</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">tlv_node_set_value</span><span class="p">(</span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="s">"NEW"</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="cm">/* Insert: parent NULL is the top level, before NULL appends. */</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">tlv_node_t</span><span class="o">*</span><span class="w"> </span><span class="n">created</span><span class="p">;</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">tlv_document_insert</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="n">fci</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x5F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x2D</span><span class="p">),</span><span class="w"> </span><span class="n">lang</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">created</span><span class="p">);</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="cm">/* Erase a node with everything below it. */</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">tlv_node_erase</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cm">/* Replace a value. */</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">tlv_node_set_value</span><span class="p">(</span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="s">"NEW"</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="cm">/* Insert: parent NULL is the top level, before NULL appends. */</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">tlv_node_t</span><span class="o">*</span><span class="w"> </span><span class="n">created</span><span class="p">;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">tlv_document_insert</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="n">fci</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x5F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x2D</span><span class="p">),</span><span class="w"> </span><span class="n">lang</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">created</span><span class="p">);</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="cm">/* Erase a node with everything below it. */</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">tlv_node_erase</span><span class="p">(</span><span class="n">label</span><span class="p">);</span>
 </code></pre></div>
 <p>For a constructed tag the value given to <code>tlv_node_set_value()</code> and
 <code>tlv_document_insert()</code> is <em>encoded child elements</em>, parsed with the document's
@@ -2968,10 +3071,10 @@ changes the encoded lengths of all its ancestors automatically.</p>
 including when memory runs out (<code>TLV_ERR_OUT_OF_MEMORY</code>) or a nested value is
 malformed.</p>
 <h2 id="encoding">Encoding<a class="headerlink" href="#encoding" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">tlv_document_encoded_size</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">size</span><span class="p">);</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">tlv_document_encode</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">size</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">tlv_document_encoded_size</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">size</span><span class="p">);</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">tlv_document_encode</span><span class="p">(</span><span class="n">document</span><span class="p">,</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">size</span><span class="p">);</span>
 </code></pre></div>
 <p>Encoding uses the writer format, through <code>tlv_writer_write()</code>. It fails with the
 writer's error, for example <code>TLV_ERR_INVALID_LENGTH</code> when a value became longer
@@ -3026,21 +3129,21 @@ needs exclusive access.</p>
 <div class="tabbed-block">
 <p><code>tlv++/document/document.hpp</code> wraps the same API. <code>tlv::document</code> owns the tree and is
 move-only; <code>tlv::node</code> is a cheap non-owning handle.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv++/document/document.hpp&gt;</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">tlv</span><span class="o">::</span><span class="n">document_format</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="n">tlv_format_ber</span><span class="p">);</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">auto</span><span class="w"> </span><span class="n">parsed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">document</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">);</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">parsed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* parsed.error().code */</span><span class="w"> </span><span class="p">}</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">tlv</span><span class="o">::</span><span class="n">document</span><span class="w"> </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">parsed</span><span class="p">);</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">tlv</span><span class="o">::</span><span class="n">node</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x50</span><span class="p">));</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">entry</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">new_value</span><span class="p">);</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">document</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">new_tag</span><span class="p">,</span><span class="w"> </span><span class="n">new_value</span><span class="p">);</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="n">document</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">old_tag</span><span class="p">);</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="k">auto</span><span class="w"> </span><span class="n">encoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">encode</span><span class="p">();</span><span class="w">   </span><span class="c1">// expected&lt;std::vector&lt;byte&gt;, error&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;tlv++/document/document.hpp&gt;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">tlv</span><span class="o">::</span><span class="n">document_format</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="n">tlv_format_ber</span><span class="p">);</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">auto</span><span class="w"> </span><span class="n">parsed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">document</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">);</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">parsed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* parsed.error().code */</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">tlv</span><span class="o">::</span><span class="n">document</span><span class="w"> </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="o">*</span><span class="n">parsed</span><span class="p">);</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">tlv</span><span class="o">::</span><span class="n">node</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">TLV_TAG</span><span class="p">(</span><span class="mh">0x50</span><span class="p">));</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">entry</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">new_value</span><span class="p">);</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">document</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">new_tag</span><span class="p">,</span><span class="w"> </span><span class="n">new_value</span><span class="p">);</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="n">document</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">old_tag</span><span class="p">);</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="k">auto</span><span class="w"> </span><span class="n">encoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">encode</span><span class="p">();</span><span class="w">   </span><span class="c1">// expected&lt;std::vector&lt;byte&gt;, error&gt;</span>
 </code></pre></div>
 <p>Handles stay valid when the document is moved. Children can be visited with
 <code>for (tlv::node child : tlv::node_range(parent.first_child()))</code>, and a path
@@ -3049,12 +3152,12 @@ query works as <code>document.find(query)</code>.</p>
 <div class="tabbed-block">
 <p><code>opentlv.Document</code> wraps the same API as a context manager; <code>Node</code> is a cheap
 non-owning handle.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">with</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Document</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Format</span><span class="o">.</span><span class="n">BER</span><span class="p">)</span> <span class="k">as</span> <span class="n">document</span><span class="p">:</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">fci</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">first</span>                       <span class="c1"># the 6F template</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">label</span> <span class="o">=</span> <span class="n">fci</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x50</span><span class="s2">"</span><span class="p">))</span>      <span class="c1"># a direct child of 6F</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">label</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">"NEW"</span>                        <span class="c1"># replace a value</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">document</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x9f\x02</span><span class="s2">"</span><span class="p">),</span> <span class="sa">b</span><span class="s2">"</span><span class="se">\x00\x00\x00\x00\x01\x00</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># append</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">encoded</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">with</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Document</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">opentlv</span><span class="o">.</span><span class="n">Format</span><span class="o">.</span><span class="n">BER</span><span class="p">)</span> <span class="k">as</span> <span class="n">document</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">fci</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">first</span>                       <span class="c1"># the 6F template</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">label</span> <span class="o">=</span> <span class="n">fci</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x50</span><span class="s2">"</span><span class="p">))</span>      <span class="c1"># a direct child of 6F</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">label</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">"NEW"</span>                        <span class="c1"># replace a value</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">document</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Tag</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\x9f\x02</span><span class="s2">"</span><span class="p">),</span> <span class="sa">b</span><span class="s2">"</span><span class="se">\x00\x00\x00\x00\x01\x00</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># append</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">encoded</span> <span class="o">=</span> <span class="n">document</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
 </code></pre></div>
 <p>Navigate with <code>document.first</code>/<code>for node in document</code>, <code>node.first_child</code>/
 <code>for child in node</code>, <code>node.next</code>/<code>node.parent</code>, or search with
