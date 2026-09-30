@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "tlv++/query/query.hpp"
+#include "tlv++/reader/tree.hpp"
 #include "tlv++/types.hpp"
 #include "tlv/document/document.h"
 
@@ -310,6 +311,7 @@ struct document_format {
  * is empty and unusable except for destruction and assignment.
  *
  * @warning The format callbacks' contexts are borrowed and must outlive the document.
+ * Documents returned by document_builder also borrow the reader's Format descriptor.
  * @see @docs{guides/memory,format context ownership and lifetime}
  */
 class document {
@@ -541,6 +543,79 @@ private:
     }
 
     std::unique_ptr<state> impl_;
+    friend class document_builder;
+};
+
+/**
+ * @brief Owning, resumable adapter over the canonical C Document Builder.
+ * @warning The reader and its frames must outlive the active builder. Do not pull,
+ * skip or visit that reader while building; set_input() is permitted. The reader's
+ * Format and context must outlive both builder and returned document.
+ */
+class document_builder {
+public:
+    /** @brief Exclusive ownership; copying is prohibited. */
+    document_builder(const document_builder&) = delete;
+    /** @brief Exclusive ownership; copying is prohibited. */
+    document_builder& operator=(const document_builder&) = delete;
+    /** @brief Transfer the active builder without moving its borrowed reader. */
+    document_builder(document_builder&&) noexcept = default;
+    /** @brief Discard unfinished work and take over another builder. */
+    document_builder& operator=(document_builder&&) noexcept = default;
+
+    /**
+     * @brief Materialize a fresh stream or an already selected subtree.
+     * @param reader Borrowed initialized Tree Reader.
+     * @param root Last published item, or nullptr for a fresh whole stream.
+     * @param max_depth Maximum materialized depth, relative to the selected root.
+     * @param max_elements Maximum materialized node count.
+     * @return Builder or the original C error; does not advance the reader.
+     * @warning A non-null root must still be valid and be the last item from this
+     * reader, with no intervening pulls or skips. Root content is copied immediately.
+     */
+    TLV_NODISCARD static expected<document_builder, error>
+    create(tree_reader& reader, const tree_item* root = nullptr,
+           size_t max_depth = TLV_TREE_DEFAULT_DEPTH,
+           size_t max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {
+        if (reader.init_result_ != TLV_OK)
+            return unexpected<error>(error::from_c(reader.init_result_));
+        tlv_document_options_t options{};
+        auto                   rc = tlv_document_options_init(&options, reader.impl_.input.format);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        options.max_depth = max_depth;
+        options.max_elements = max_elements;
+        tlv_document_builder_t* raw = nullptr;
+        rc = tlv_document_builder_create(&options, &reader.impl_, root, &raw);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        return document_builder(raw);
+    }
+
+    /**
+     * @brief Consume available items and return the owning document when complete.
+     * @param error_offset Optional absolute source failure offset.
+     * @param diagnostic Optional borrowed Reader failure detail.
+     * @return Document, NEED_MORE_DATA with continuation retained, or terminal error.
+     * @note Selected subtrees leave the following sibling unread. Completion and
+     * terminal errors end consumption; destroying this builder discards unfinished work.
+     */
+    TLV_NODISCARD expected<document, error> consume(size_t*            error_offset = nullptr,
+                                                    reader_diagnostic* diagnostic = nullptr) {
+        std::unique_ptr<document::state> state(new document::state());
+        tlv_document_t*                  raw = nullptr;
+        auto rc = tlv_document_builder_consume(handle_.get(), &raw, error_offset, diagnostic);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        state->handle.reset(raw);
+        return document(std::move(state));
+    }
+
+private:
+    struct deleter {
+        void operator()(tlv_document_builder_t* handle) const {
+            tlv_document_builder_free(handle);
+        }
+    };
+    explicit document_builder(tlv_document_builder_t* handle) : handle_(handle) {}
+    std::unique_ptr<tlv_document_builder_t, deleter> handle_;
 };
 
 } // namespace tlv

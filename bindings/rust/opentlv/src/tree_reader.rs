@@ -21,6 +21,7 @@ pub struct TreeItem<'a> {
 /// does not move its heap-backed frames. It cannot be cloned to alias frame state.
 pub struct TreeReader<'a> {
     pub(crate) raw: native::tlv_tree_reader_t,
+    pub(crate) current: Option<native::tlv_tree_item_t>,
     _frames: Box<[native::tlv_tree_frame_t]>,
     pub(crate) diagnostic: Option<ReaderDiagnostic>,
     input: &'a [u8],
@@ -110,6 +111,7 @@ impl<'a> TreeReader<'a> {
             raw: unsafe { raw.assume_init() },
             _frames: frames,
             diagnostic: None,
+            current: None,
             input: data,
             lifetime: PhantomData,
         })
@@ -117,6 +119,7 @@ impl<'a> TreeReader<'a> {
 
     /// Pulls a complete item, preserving NEED_MORE_DATA, EOF and resource errors.
     pub fn read(&mut self) -> Result<TreeItem<'a>> {
+        self.current = None;
         let mut item = MaybeUninit::uninit();
         let mut diag = MaybeUninit::uninit();
         // SAFETY: initialized cursor, writable outputs and live input/frames.
@@ -135,7 +138,7 @@ impl<'a> TreeReader<'a> {
         Error::check(code)?;
         // SAFETY: successful pull initialized item with storage borrowed for 'a.
         let item = unsafe { item.assume_init() };
-        Ok(TreeItem {
+        let result = TreeItem {
             // SAFETY: complete output of the same successful native decode.
             decoded: unsafe {
                 Decoded::from_raw(native::tlv_decoded_t {
@@ -146,16 +149,20 @@ impl<'a> TreeReader<'a> {
             depth: item.depth,
             offset: item.offset,
             constructed: item.constructed != 0,
-        })
+        };
+        self.current = Some(item);
+        Ok(result)
     }
 
     /// Skips the pending subtree; may recover from a descent limit failure.
     pub fn skip_subtree(&mut self) -> Result<()> {
+        self.current = None;
         // SAFETY: exclusively borrowed initialized cursor.
         Error::check(unsafe { native::tlv_tree_reader_skip_subtree(&mut self.raw) })
     }
     /// Replaces the window, retaining undiscarded bytes unchanged and all old borrows.
     pub fn set_input(&mut self, data: &'a [u8], discard: usize, final_input: bool) -> Result<()> {
+        self.current = None;
         if discard > self.input.len() || !data.starts_with(&self.input[discard..]) {
             return Err(Error::InvalidArg);
         }
@@ -199,6 +206,7 @@ impl<'a> TreeReader<'a> {
         &mut self,
         callback: impl FnMut(crate::Element<'a>, usize, usize) -> crate::Visit,
     ) -> Result<()> {
+        self.current = None;
         // SAFETY: exclusive cursor and frames, input and Format borrowed for 'a.
         let (result, diagnostic) = unsafe {
             crate::visitor::run(
@@ -217,6 +225,7 @@ impl<'a> Iterator for TreeReader<'a> {
     type Item = Result<TreeItem<'a>>;
     fn next(&mut self) -> Option<Self::Item> {
         if self.is_at_end() {
+            self.current = None;
             None
         } else {
             Some(self.read())

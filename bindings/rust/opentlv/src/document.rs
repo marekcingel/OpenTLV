@@ -43,6 +43,19 @@ pub struct DocumentBuilder<'r, 'a> {
     reader: &'r mut TreeReader<'a>,
 }
 impl<'r, 'a> DocumentBuilder<'r, 'a> {
+    /// Materialize the item most recently returned by `TreeReader::read` and its subtree.
+    /// Call immediately after matching that item. Pulls, input replacement, skips,
+    /// visitors and builder creation invalidate the selection, even on failure.
+    /// No second pull or decode of the selected root is performed.
+    pub fn current_subtree(
+        reader: &'r mut TreeReader<'a>,
+        max_depth: usize,
+        max_elements: usize,
+    ) -> DocResult<Self> {
+        let root = reader.current.take().ok_or(Error::InvalidArg)?;
+        Self::create(reader, &root, max_depth, max_elements)
+    }
+
     /// Materialize the whole stream from a fresh Tree Reader.
     pub fn new(
         reader: &'r mut TreeReader<'a>,
@@ -59,6 +72,7 @@ impl<'r, 'a> DocumentBuilder<'r, 'a> {
         max_depth: usize,
         max_elements: usize,
     ) -> DocResult<Self> {
+        reader.current = None;
         let mut root = MaybeUninit::uninit();
         let mut diagnostic = MaybeUninit::uninit();
         // SAFETY: exclusive live reader and writable outputs, input retained by reader.
@@ -89,6 +103,7 @@ impl<'r, 'a> DocumentBuilder<'r, 'a> {
         max_depth: usize,
         max_elements: usize,
     ) -> DocResult<Self> {
+        reader.current = None;
         let mut options = MaybeUninit::uninit();
         // SAFETY: initialized reader's immutable Format outlives the resulting document.
         Error::check(unsafe {

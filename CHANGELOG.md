@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Allow C and C++ pipeline headers in either include order without an MSVC `TLV_NODISCARD` redefinition error. (#401)
 - Reject invalidated and foreign Python Document node handles before native access, while preserving unaffected handles after edits. (#400)
 - Fix the Clang C99 workflow invoking the old schema example name after its rename to `schema_visitor`. (#399)
 - Fix the LLDP C++ documentation example differing from its source and failing the documentation example check. (#363)
@@ -93,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a resumable C++ Document Builder and materialization of the already selected Tree Reader subtree in Rust and Python, with end-to-end processing pipeline and architectural regression checks. (#401)
 - Add generic Definition registries to C++, Rust and Python, with canonical C lookup and language-appropriate ownership. (#400)
 - Add C++ single-element Writer operations and length-only measurement, plus configurable binary and BCD number codecs in Rust and Python. (#400)
 - Expose detailed Schema diagnostics, named fields and groups, and configurable Fixed Format validation in Rust and Python. (#400)

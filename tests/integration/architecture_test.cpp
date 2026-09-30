@@ -30,6 +30,7 @@
 #include <cstring>
 #include <vector>
 #include <memory>
+#include "tlv/writer/tree.h"
 
 namespace {
 // Deliberately different from BER: bit 7 identifies a container.
@@ -102,6 +103,138 @@ const tlv_field_layout_t constructed_full_format_layout = {nullptr,
                                                            TLV_LENGTH_SCOPE_VALUE};
 const tlv_format_t constructed_full_format = {&constructed_full_format_layout, tlv_fields_decode,
                                               tlv_fields_measure, tlv_fields_encode, constructed};
+
+#if OPENTLV_DOCUMENT
+struct PipelineFormat {
+    mutable size_t decodes = 0, measures = 0, encodes = 0;
+    tlv_format_t   descriptor;
+    PipelineFormat() : descriptor{this, decode, measure, encode, constructed} {}
+    static tlv_result_t decode(const void* ctx, const uint8_t* data, size_t size,
+                               tlv_decoded_t* out, tlv_format_error_t* error) {
+        ++static_cast<const PipelineFormat*>(ctx)->decodes;
+        return tlv_fields_decode(&constructed_full_format_layout, data, size, out, error);
+    }
+    static tlv_result_t measure(const void* ctx, const tlv_element_t* element, tlv_encoding_t* out,
+                                tlv_format_error_t* error) {
+        ++static_cast<const PipelineFormat*>(ctx)->measures;
+        return tlv_fields_measure(&constructed_full_format_layout, element, out, error);
+    }
+    static tlv_result_t encode(const void* ctx, const tlv_element_t* element, uint8_t* data,
+                               size_t capacity, size_t* used, tlv_format_error_t* error) {
+        ++static_cast<const PipelineFormat*>(ctx)->encodes;
+        return tlv_fields_encode(&constructed_full_format_layout, element, data, capacity, used,
+                                 error);
+    }
+};
+
+TEST(Integration_Tlv_Pipeline, IncrementalSelectionMutationAndEncodingAtEverySplit) {
+    // A prefix, nested selection, another child, and a following root.
+    const uint8_t wire[] = {1, 0, 0x80, 7, 0x81, 3, 2, 1, 42, 3, 0, 4, 0};
+    for (size_t split = 0; split <= sizeof(wire); ++split) {
+        SCOPED_TRACE(split);
+        PipelineFormat    format;
+        tlv_tree_frame_t  frames[2]{};
+        tlv_tree_reader_t reader{};
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_init_incremental(&reader, wire, split, &format.descriptor,
+                                                           frames, 2, 2, 6));
+        tlv_query_t         query{};
+        tlv_query_matcher_t matcher{};
+        ASSERT_EQ(TLV_OK, tlv_query_parse("80/81", &query, nullptr));
+        ASSERT_EQ(TLV_OK, tlv_query_matcher_init(&matcher, &query));
+        tlv_tree_item_t item{};
+        bool            replaced = false;
+        for (;;) {
+            auto rc = tlv_tree_reader_next(&reader, &item);
+            if (rc == TLV_NEED_MORE_DATA) {
+                ASSERT_FALSE(replaced);
+                // Drop the already consumed prefix; offsets must remain absolute.
+                const size_t discard = tlv_tree_reader_consumed(&reader);
+                ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, wire + discard,
+                                                            sizeof(wire) - discard, discard, 1));
+                replaced = true;
+                continue;
+            }
+            ASSERT_EQ(TLV_OK, rc);
+            EXPECT_EQ(wire + item.offset + item.source.value.offset, item.element.value.data);
+            if (tlv_query_matcher_visit(&matcher, &item.element.tag, item.depth)) break;
+        }
+        EXPECT_EQ(4u, item.offset);
+        EXPECT_EQ(1u, item.depth);
+        const size_t           decoded = format.decodes;
+        tlv_document_options_t options{};
+        ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &format.descriptor));
+        options.max_depth = 1;
+        options.max_elements = 2;
+        tlv_document_builder_t* raw_builder = nullptr;
+        ASSERT_EQ(TLV_OK, tlv_document_builder_create(&options, &reader, &item, &raw_builder));
+        std::unique_ptr<tlv_document_builder_t, decltype(&tlv_document_builder_free)> builder(
+            raw_builder, tlv_document_builder_free);
+        tlv_document_t* raw = nullptr;
+        ASSERT_EQ(TLV_OK, tlv_document_builder_consume(builder.get(), &raw, nullptr, nullptr));
+        std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
+        EXPECT_EQ(decoded + 1, format.decodes); // Only the selected descendant is decoded.
+        EXPECT_EQ(9u, tlv_tree_reader_offset(&reader));
+        const uint8_t changed[] = {7, 8};
+        ASSERT_EQ(TLV_OK,
+                  tlv_node_set_value(tlv_node_first_child(tlv_document_first(raw)), changed, 2));
+        size_t size = 0;
+        ASSERT_EQ(TLV_OK, tlv_document_encoded_size(raw, &size));
+        EXPECT_GT(format.measures, 0u);
+        EXPECT_GT(format.encodes, 0u); // Exact measurement stages actual bytes.
+        std::vector<uint8_t> output(size, 0xCC);
+        size_t               used = 0;
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  tlv_document_encode(raw, output.data(), size - 1, &used));
+        EXPECT_EQ(size, used);
+        EXPECT_EQ(std::vector<uint8_t>(size, 0xCC), output);
+        ASSERT_EQ(TLV_OK, tlv_document_encode(raw, output.data(), output.size(), &used));
+        EXPECT_EQ((std::vector<uint8_t>{0x81, 4, 2, 2, 7, 8}), output);
+        EXPECT_EQ(42, wire[8]); // Mutation owns its data, never changes borrowed input.
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
+        EXPECT_EQ(9u, item.offset);
+        EXPECT_EQ(3, item.element.tag.data[0]);
+        if (!replaced)
+            ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, wire, sizeof(wire), 0, 1));
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
+        EXPECT_EQ(11u, item.offset);
+        EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
+    }
+}
+
+TEST(Integration_Tlv_Pipeline, BuilderPreservesAbsoluteDiagnosticsAndReaderLimits) {
+    const uint8_t wire[] = {1, 0, 0x80, 2, 2, 2};
+    for (bool limited : {false, true}) {
+        tlv_tree_reader_t reader{};
+        tlv_tree_frame_t  frame{};
+        ASSERT_EQ(TLV_OK,
+                  tlv_tree_reader_init(&reader, wire, sizeof(wire), &constructed_full_format,
+                                       &frame, 1, 1, limited ? 2 : 3));
+        tlv_tree_item_t root{};
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &root));
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, wire + 2, sizeof(wire) - 2, 2, 1));
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &root));
+        tlv_document_options_t options{};
+        ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &constructed_full_format));
+        tlv_document_builder_t* raw = nullptr;
+        ASSERT_EQ(TLV_OK, tlv_document_builder_create(&options, &reader, &root, &raw));
+        std::unique_ptr<tlv_document_builder_t, decltype(&tlv_document_builder_free)> builder(
+            raw, tlv_document_builder_free);
+        tlv_document_t*         doc = nullptr;
+        tlv_reader_diagnostic_t diagnostic{};
+        size_t                  offset = 99;
+        EXPECT_EQ(limited ? TLV_ERR_LIMIT : TLV_ERR_BUFFER_TOO_SHORT,
+                  tlv_document_builder_consume(raw, &doc, &offset, &diagnostic));
+        EXPECT_EQ(nullptr, doc);
+        EXPECT_EQ(4u, offset);
+        if (!limited) {
+            EXPECT_TRUE(diagnostic.diagnostic.has_offset);
+            // Builder reports the offending element; detailed diagnostics point
+            // at its missing Value, both in absolute stream coordinates.
+            EXPECT_EQ(6u, diagnostic.diagnostic.offset);
+        }
+    }
+}
+#endif
 const tlv_schema_entry_t   child_rules_fields[] = {{TLV_TAG(1), 1, 1, 0, nullptr, 0},
                                                    {TLV_TAG(2), 1, 1, 0, nullptr, 0}};
 const tlv_structure_rule_t child_rules[] = {

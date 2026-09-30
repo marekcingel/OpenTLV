@@ -52,6 +52,11 @@ to this in practice.
 
 ## Capability parity through the public facade
 
+The [pipeline audit](processing-pipeline.md) describes selection of an already
+published subtree: C++ `document_builder::create(reader, &item)`, Rust
+`DocumentBuilder::current_subtree` and Python `current_subtree=True` avoid pulling
+the selected root a second time.
+
 Every supported language binding must expose the complete capability set of
 the public C API through its public, idiomatic language facade. Access through
 raw FFI alone does not satisfy capability parity. Users must not need to bypass

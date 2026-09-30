@@ -229,6 +229,10 @@ matching semantics.
 
 ## Reader and traversal
 
+The [canonical processing pipeline audit](processing-pipeline.md) records the
+Reader/Query/Document/Writer dependency graph, ownership contracts and end-to-end
+regression coverage.
+
 * `tlv_reader_next` iterates adjacent elements without interpreting their values.
 * `tlv_reader_visit` visits adjacent elements from an initialized Reader.
 * `tlv_tree_reader_next` returns one preorder item with depth, absolute source
