@@ -38,7 +38,7 @@ rather than chained context strings; see [Schema diagnostics](#schema-diagnostic
 
 `tlv_diagnostic_add_context()` links `context` onto the front of
 `diagnostic->contexts`, so the most recently added context is innermost and
-`contexts` can be walked from innermost to outermost. Nothing is copied: the
+`contexts` can be traversed from innermost to outermost. Nothing is copied: the
 caller supplies storage for each context node and its `layer`, `key` and
 `value` strings, and that storage must outlive the diagnostic.
 
@@ -171,11 +171,11 @@ An offset alone does not say which branch of a nested document a diagnostic
 came from: the same tag can appear at several depths. `tlv_diagnostic_path_t`
 is a bounded, allocation-free stack of the tags enclosing a diagnostic,
 outermost first, that a caller builds while descending into nested
-constructed elements, for example with `tlv_walk_tree()`:
+constructed elements, for example with `tlv_tree_reader_visit()`:
 
 ```c
 #include "tlv/diagnostic.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 
 tlv_diagnostic_path_t path;
 tlv_diagnostic_path_init(&path);
@@ -187,7 +187,11 @@ tlv_visit_result_t on_element(const tlv_element_t* element, size_t depth, size_t
     return TLV_VISIT_CONTINUE;
 }
 
-tlv_walk_tree(data, size, &format, TLV_WALK_MAX_DEPTH, SIZE_MAX, on_element, NULL, NULL);
+tlv_tree_frame_t frames[TLV_TREE_DEFAULT_DEPTH];
+tlv_tree_reader_t reader;
+if (tlv_tree_reader_init(&reader, data, size, &format, frames, TLV_TREE_DEFAULT_DEPTH,
+                         TLV_TREE_DEFAULT_DEPTH, SIZE_MAX) == TLV_OK)
+    tlv_tree_reader_visit(&reader, on_element, NULL, NULL);
 ```
 
 Popping back to `depth` before pushing keeps `path` in sync with preorder

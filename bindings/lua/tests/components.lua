@@ -17,7 +17,7 @@ for i, name in ipairs(names) do
             count = count + 1
         end
         assert(count == 1)
-        local visited = opentlv.walk_tree(wires[i], format, function() end)
+        local visited = opentlv.visit_tree(wires[i], format, function() end)
         assert(visited == 1)
     end
 end

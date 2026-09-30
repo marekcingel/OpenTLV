@@ -297,12 +297,12 @@ TEST(Unit_Tlv_DerValues, NestedValueReportsOffsetOfOffendingElement) {
     EXPECT_EQ(7u, offset);
 }
 
-TEST(Unit_Tlv_DerValues, WalkStrictVisitsAndReportsInvalidContent) {
+TEST(Unit_Tlv_DerValues, VisitStrictVisitsAndReportsInvalidContent) {
     const uint8_t data[] = {0x01, 1, 0x02};
     size_t        offset = 99;
-    EXPECT_EQ(TLV_OK, tlv_der_walk(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_der_visit(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
-              tlv_der_walk_strict(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
+              tlv_der_visit_strict(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
 }
 

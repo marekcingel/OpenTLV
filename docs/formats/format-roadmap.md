@@ -213,7 +213,7 @@ transformed identifiers. LLDPDU protocol conformance remains separate.**
 | Elements without a length, and a terminator | DHCPv4 Pad and End, NFC tag TLV NULL and Terminator | DHCPv4 uses the generic identifier-selected binary layout for tag-only Pad/End elements. Skip/stop policy remains with the caller. NFC requires separate assessment. |
 | Composite tag identity (type plus instance, vendor or flags) | GTPv2, PFCP, Diameter, RADIUS VSA, LDP | Direct binding requires a compatible contiguous source byte range; transformed identities require stable immutable format storage and individual review. LLDP keeps OUI/subtype in Value, not in its outer Tag. |
 | Grouped or nested elements decided by the type | PFCP, GTPv2, Diameter, IS-IS sub-TLVs, DHCPv4 option 82 | `tlv_format_t::is_constructed` receives the format context and the tag, so a table in the context can decide; the flags and value are not visible to it. |
-| Different formats at successive nesting levels | LDP, SNMP, SIM Toolkit | A caller can parse level by level today; automatic tree walking needs [mixed-format traversal](#generic-processing-extensions). |
+| Different formats at successive nesting levels | LDP, SNMP, SIM Toolkit | A caller can parse level by level today; automatic tree traversing needs [mixed-format traversal](#generic-processing-extensions). |
 | Fixed PDU header followed by a TLV region | IS-IS, DHCP, LDP, PFCP, GTPv2 | The header is outside the core; the caller passes the region. |
 | Untagged positional fields | NAS imperative part | Not framing and not TLV: stays with the caller, see the [NAS row](format-catalogue.md#telecommunications). |
 | Logical values split across several elements | DHCPv4 (RFC 3396), long RADIUS attributes | Conflicts with zero-copy: needs an explicit, caller-visible policy with no hidden allocation. |
@@ -230,7 +230,7 @@ zero-copy value reads. A candidate that cannot meet this is not a fit for the li
   status, buffer ownership, and resource limits. Zero-copy views require their
   backing bytes to remain available; fragmented values need an explicit policy.
 
-The current tree walker already handles nested values without a schema, using
+The current tree visitor already handles nested values without a schema, using
 bounded iterative traversal. It does not allocate an object tree. See
 [architecture](../concepts/architecture.md#reader-and-traversal).
 

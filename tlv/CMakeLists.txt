@@ -29,7 +29,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/utf8_internal.c
     src/reader/reader.c
     src/reader/tree.c
-    src/reader/walker.c
+    src/reader/visitor.c
     src/query/query.c
     src/schema/schema.c
     src/schema/number.c

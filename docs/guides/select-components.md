@@ -5,7 +5,7 @@ recipes for the common selections. For the principle and the option reference, s
 [include only what you need](../concepts/architecture.md#include-only-what-you-need) and
 [build configuration](../concepts/architecture.md#build-configuration).
 
-The generic core (reader, writer, walker, schemas, value codecs and the format
+The generic core (reader, writer, visitor, schemas, value codecs and the format
 callbacks), including the configurable Fixed format, is always built.
 Protocol extensions are options that default to ON.
 Turn off what you do not use.

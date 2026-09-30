@@ -53,32 +53,33 @@ public:
     /**
      * @brief Calls a visitor for every element the query addresses.
      *
-     * Wraps tlv_query_walk(): elements are visited in document order and the
+     * Wraps tlv_query_visit_buffer(): elements are visited in document order and the
      * rules for limits, offsets and errors are the same. Nothing is allocated
      * and the entries passed to the visitor borrow `data`.
      *
      * @tparam Visitor Callable invoked as `visitor(element, depth, absolute_offset)`
-     *                 returning #tlv_visit_result_t, as for walk_tree().
+     *                 returning #tlv_visit_result_t, as for visit_tree().
      *
      * @param data          Encoded input; borrowed.
      * @param format        Reader format. A `nullptr` `format.is_constructed`
      *                      treats every value as opaque, in which case only
      *                      one-tag queries can match.
-     * @param max_depth     Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`.
+     * @param max_depth     Runtime depth limit; the convenience API owns TLV_QUERY_MAX_STEPS
+     * frames.
      * @param max_elements  Bound on all traversed elements.
      * @param visitor       Visitor callable; returning #TLV_VISIT_STOP succeeds
      *                      immediately, #TLV_VISIT_ERROR fails.
      * @param error_offset  Optional. On failure receives the failing element's
      *                      absolute offset; unchanged on success.
      *
-     * @return Success, also when nothing matched, or the error of tlv_query_walk().
+     * @return Success, also when nothing matched, or the error of tlv_query_visit_buffer().
      *
      * @warning Visitor side effects are not rolled back on error.
      */
     template <typename Visitor>
     TLV_NODISCARD expected<void, error>
-    walk(bytes data, const tlv_format_t& format, size_t max_depth, size_t max_elements,
-         Visitor&& visitor, size_t* error_offset = nullptr) const {
+    visit_buffer(bytes data, const tlv_format_t& format, size_t max_depth, size_t max_elements,
+                 Visitor&& visitor, size_t* error_offset = nullptr) const {
         typedef typename std::remove_reference<Visitor>::type visitor_type;
         struct adapter {
             visitor_type*             visitor;
@@ -89,9 +90,9 @@ public:
             }
         };
         adapter      state{&visitor};
-        tlv_result_t rc =
-            tlv_query_walk(reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format,
-                           &query_, max_depth, max_elements, &adapter::call, &state, error_offset);
+        tlv_result_t rc = tlv_query_visit_buffer(
+            reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format, &query_, max_depth,
+            max_elements, &adapter::call, &state, error_offset);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return {};
     }

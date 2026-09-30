@@ -889,7 +889,7 @@ extern "C" {
         error_offset: *mut usize,
     ) -> tlv_result_t;
     /// Validates all concatenated DER elements recursively.
-    pub fn tlv_der_walk(
+    pub fn tlv_der_visit(
         data: *const u8,
         size: usize,
         limits: *const tlv_der_limits_t,
@@ -897,8 +897,8 @@ extern "C" {
         context: *mut c_void,
         error_offset: *mut usize,
     ) -> tlv_result_t;
-    /// Strict counterpart of [`tlv_der_walk`].
-    pub fn tlv_der_walk_strict(
+    /// Strict counterpart of [`tlv_der_visit`].
+    pub fn tlv_der_visit_strict(
         data: *const u8,
         size: usize,
         limits: *const tlv_der_limits_t,
@@ -950,7 +950,7 @@ extern "C" {
         error_offset: *mut usize,
     ) -> tlv_result_t;
     /// Validates all concatenated CER elements recursively.
-    pub fn tlv_cer_walk(
+    pub fn tlv_cer_visit(
         data: *const u8,
         size: usize,
         limits: *const tlv_cer_limits_t,
@@ -958,8 +958,8 @@ extern "C" {
         context: *mut c_void,
         error_offset: *mut usize,
     ) -> tlv_result_t;
-    /// Strict counterpart of [`tlv_cer_walk`].
-    pub fn tlv_cer_walk_strict(
+    /// Strict counterpart of [`tlv_cer_visit`].
+    pub fn tlv_cer_visit_strict(
         data: *const u8,
         size: usize,
         limits: *const tlv_cer_limits_t,

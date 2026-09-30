@@ -124,7 +124,7 @@ jobs:
           ./build/examples/tlv/example-tlv-quick-start
           ./build/examples/tlv++/example-tlv++
           ./build/examples/tlv++/example-tlv++-quick-start
-          # The other C examples (sequential_io, copies, schema_walk,
+          # The other C examples (sequential_io, copies, schema_visitor,
           # codecs_and_endian, custom_format, and the builtins) are exercised
           # by the "ctest -L integration" step above instead.
 

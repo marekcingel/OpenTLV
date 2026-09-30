@@ -71,7 +71,7 @@ capacity return `TLV_ERR_INVALID_TAG_SIZE`; invalid encodings return
 
 ## Traverse and limit work
 
-`tlv_der_walk(data, size, limits, visitor, context, &error_offset)` processes all
+`tlv_der_visit(data, size, limits, visitor, context, &error_offset)` processes all
 concatenated elements in preorder, including nested constructed values. A NULL
 visitor performs validation only. Empty input succeeds. Each callback receives
 a temporary element, its depth (top-level is zero), and its absolute tag offset.
@@ -85,7 +85,7 @@ All DER operations accept NULL limits for `tlv_der_default_limits`:
 | Field | Default | Meaning |
 | --- | --- | --- |
 | `max_depth` | 32 | Maximum constructed ancestors of an element |
-| `max_input_size` | 16 MiB | Supplied read/walk buffer or complete encoded output |
+| `max_input_size` | 16 MiB | Supplied read/visit buffer or complete encoded output |
 | `max_value_size` | 16 MiB | Value length of each element |
 | `max_elements` | 100,000 | Total elements, including the root and descendants |
 
@@ -130,15 +130,15 @@ returns `TLV_ERR_INVALID_LENGTH`.
 
 ## Strict universal value validation
 
-`tlv_der_read_strict`, `tlv_der_walk_strict` and `tlv_der_write_strict` are drop-in
-counterparts of `tlv_der_read`, `tlv_der_walk` and `tlv_der_write`: identical
+`tlv_der_read_strict`, `tlv_der_visit_strict` and `tlv_der_write_strict` are drop-in
+counterparts of `tlv_der_read`, `tlv_der_visit` and `tlv_der_write`: identical
 signatures, offsets and resource limits, but every UNIVERSAL-class **primitive**
 element they encounter (including nested ones, and the top-level element given
 to `tlv_der_write_strict`) additionally has its content checked against ASN.1
 DER canonical rules. Non-UNIVERSAL classes and constructed values (SEQUENCE,
 SET, EXTERNAL, EMBEDDED PDV, CHARACTER STRING) are unaffected: their contents
 are validated structurally only, exactly as with the non-strict functions.
-`tlv_der_read`, `tlv_der_walk` and `tlv_der_write` themselves are unchanged.
+`tlv_der_read`, `tlv_der_visit` and `tlv_der_write` themselves are unchanged.
 
 Recognized types with invalid or noncanonical content return
 `TLV_ERR_INVALID_VALUE`. A UNIVERSAL primitive tag number without an
@@ -285,7 +285,7 @@ not attacker input — guarding only against an accidentally self-referential
 table. `TLV_DER_SCHEMA_MAX_COMPONENTS` (64) bounds a single SEQUENCE, SET or
 CHOICE's direct component count.
 
-Existing `tlv_der_read`/`walk`/`write` (and their `_strict` counterparts) and
+Existing `tlv_der_read`/`visit`/`write` (and their `_strict` counterparts) and
 the generic `tlv_structure_schema_t` engine are unaffected: this is a purely
 additive layer.
 

@@ -1,8 +1,9 @@
+#include "visitor_input.h"
 #include "tlv/builtins/emv/presentation.h"
 #include "tlv/builtins/emv/format.h"
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/writer/writer.h"
 #include "tlv/query/query.h"
 #include "tlv/config.h"
@@ -245,8 +246,8 @@ TEST(Integration_Tlv_Emv, SemanticTemplateDoesNotChangeWireConstructedBit) {
         ++*static_cast<size_t*>(context);
         return TLV_VISIT_CONTINUE;
     };
-    ASSERT_EQ(TLV_OK,
-              tlv_walk_tree(wire, sizeof(wire), &tlv_format_emv, 8, 8, visitor, &visits, nullptr));
+    ASSERT_EQ(TLV_OK, visit_tree_input(wire, sizeof(wire), &tlv_format_emv, 8, 8, visitor, &visits,
+                                       nullptr));
     EXPECT_EQ(1u, visits);
     // The application explicitly opens the value using its semantic context.
     tlv_decoded_t child{};
@@ -268,8 +269,8 @@ TEST(Integration_Tlv_Emv, GenericQueryAndDocumentUseEmvFraming) {
         ++*static_cast<size_t*>(context);
         return TLV_VISIT_CONTINUE;
     };
-    ASSERT_EQ(TLV_OK, tlv_query_walk(wire, sizeof(wire), &tlv_format_emv, &query, 8, 8, visitor,
-                                     &visits, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_query_visit_buffer(wire, sizeof(wire), &tlv_format_emv, &query, 8, 8,
+                                             visitor, &visits, nullptr));
     EXPECT_EQ(1u, visits);
 #if OPENTLV_DOCUMENT
     tlv_document_options_t options{};

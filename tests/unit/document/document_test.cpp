@@ -525,8 +525,10 @@ TEST(Unit_Tlv_Document, RejectsInvalidArguments) {
     broken.format = &read_only;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_create(&broken, &doc));
     broken = opts;
-    broken.max_depth = TLV_WALK_MAX_DEPTH + 1;
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_document_create(&broken, &doc));
+    broken.max_depth = TLV_TREE_DEFAULT_DEPTH + 1;
+    EXPECT_EQ(TLV_OK, tlv_document_create(&broken, &doc));
+    tlv_document_free(doc);
+    doc = nullptr;
     tlv_allocator_t incomplete = {nullptr, nullptr, nullptr};
     broken = opts;
     broken.allocator = &incomplete;
@@ -685,3 +687,66 @@ TEST(Unit_Tlv_Document, WorksWithTheBerFormatAndNormalisesLengths) {
     EXPECT_EQ(long_value, value_of(find(again.get(), "30/04")));
 }
 #endif
+
+TEST(Unit_Tlv_Document, RuntimeDepthBeyondDefaultParsesEncodesEditsAndFrees) {
+    constexpr size_t depth = TLV_TREE_DEFAULT_DEPTH + 32;
+    Bytes            wire;
+    for (size_t i = 0; i <= depth; ++i) {
+        wire.push_back(0x6F);
+        wire.push_back(static_cast<uint8_t>(2 * (depth - i)));
+    }
+    auto opts = options();
+    opts.max_depth = depth;
+    Arena arena;
+    auto  allocator = arena.allocator();
+    opts.allocator = &allocator;
+    {
+        auto doc = parse(wire, opts);
+        ASSERT_NE(nullptr, doc.get());
+        EXPECT_EQ(depth + 1, tlv_document_count(doc.get()));
+        size_t size = 0;
+        ASSERT_EQ(TLV_OK, tlv_document_encoded_size(doc.get(), &size));
+        Bytes encoded(size);
+        ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), encoded.data(), encoded.size(), &size));
+        EXPECT_EQ(wire, encoded);
+        auto* root = tlv_document_first(doc.get());
+        ASSERT_EQ(TLV_OK, tlv_node_set_value(root, wire.data() + 2, wire.size() - 2));
+        EXPECT_EQ(depth + 1, tlv_document_count(doc.get()));
+        tlv_node_erase(root);
+        EXPECT_EQ(0u, tlv_document_count(doc.get()));
+    }
+    EXPECT_TRUE(arena.live.empty());
+}
+
+TEST(Unit_Tlv_Document, IterativeEncodingReleasesEveryTemporaryAllocationOnFailure) {
+    Arena arena;
+    auto  allocator = arena.allocator();
+    auto  opts = options();
+    opts.allocator = &allocator;
+    auto doc = parse(sample, opts);
+    ASSERT_NE(nullptr, doc.get());
+    const auto retained = arena.live;
+    size_t     measured = 99;
+    arena.fail_at = arena.allocations;
+    EXPECT_EQ(TLV_ERR_OUT_OF_MEMORY, tlv_document_encoded_size(doc.get(), &measured));
+    EXPECT_EQ(99u, measured);
+    EXPECT_EQ(retained, arena.live);
+    arena.fail_at = SIZE_MAX;
+    bool completed = false;
+    for (size_t failure = 0; failure < 64 && !completed; ++failure) {
+        Bytes  output(sample.size());
+        size_t written = 0;
+        arena.fail_at = arena.allocations + failure;
+        auto rc = tlv_document_encode(doc.get(), output.data(), output.size(), &written);
+        arena.fail_at = SIZE_MAX;
+        EXPECT_EQ(retained, arena.live);
+        if (rc == TLV_OK) {
+            EXPECT_EQ(sample, output);
+            EXPECT_EQ(sample.size(), written);
+            completed = true;
+        } else {
+            EXPECT_EQ(TLV_ERR_OUT_OF_MEMORY, rc);
+        }
+    }
+    EXPECT_TRUE(completed);
+}

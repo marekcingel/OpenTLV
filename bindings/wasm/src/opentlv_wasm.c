@@ -5,6 +5,9 @@
 #include <string.h>
 
 #include "tlv/tlv.h"
+
+/* Bounded browser output storage; independent of core traversal limits. */
+enum { WASM_TREE_CAPACITY = 64 };
 #if OPENTLV_LLDP
 #include "tlv/builtins/lldp/lldp.h"
 #endif
@@ -43,8 +46,8 @@ typedef struct {
      * object is still unclosed, `has_children` records which of them opened a
      * "children" array and `count` how many siblings each level already has. */
     size_t open;
-    size_t count[TLV_WALK_MAX_DEPTH + 2];
-    int    has_children[TLV_WALK_MAX_DEPTH + 2];
+    size_t count[WASM_TREE_CAPACITY + 2];
+    int    has_children[WASM_TREE_CAPACITY + 2];
     int    ber;
     int    bluetooth;
     /* Start of the parsed input; offsets of values are measured against it. */
@@ -55,7 +58,7 @@ typedef struct {
     /* Set when the EMV dictionary annotates elements; `emv_context[d]` is the
      * dictionary context of the elements at depth d. */
     int               emv;
-    tlv_emv_context_t emv_context[TLV_WALK_MAX_DEPTH + 2];
+    tlv_emv_context_t emv_context[WASM_TREE_CAPACITY + 2];
 #endif
 } writer_context_t;
 
@@ -176,7 +179,7 @@ static tlv_visit_result_t emit_element(const tlv_element_t* element, size_t dept
     tlv_decoded_t     decoded;
 
     if (tlv_size_to_native(element->value.size, &length) != TLV_OK) return TLV_VISIT_ERROR;
-    if (depth > TLV_WALK_MAX_DEPTH) return TLV_VISIT_ERROR;
+    if (depth > WASM_TREE_CAPACITY) return TLV_VISIT_ERROR;
     /* Obtain authoritative source ranges, including trailers such as BER EOC. */
     if (offset > w->input_size ||
         tlv_format_decode(w->reader, w->input + offset, w->input_size - offset, &decoded, NULL) !=
@@ -223,7 +226,7 @@ static tlv_visit_result_t emit_element(const tlv_element_t* element, size_t dept
     }
 #endif
     if (constructed && length) {
-        /* The walker descends into it next; children close it later. */
+        /* The Tree Reader descends into it next; children close it later. */
         builder_text(&w->out, ",\"children\":[");
         w->has_children[w->open] = 1;
     } else {
@@ -391,12 +394,17 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
 #endif
 #if OPENTLV_FORMAT_DER
             if (der) {
-            result->code = tlv_der_walk(data, size, NULL, emit_element, w, &error_offset);
+            result->code = tlv_der_visit(data, size, NULL, emit_element, w, &error_offset);
         } else
 #endif
         {
-            result->code = tlv_walk_tree(data, size, reader, TLV_WALK_MAX_DEPTH, WASM_MAX_ELEMENTS,
-                                         emit_element, w, &error_offset);
+            tlv_tree_reader_t cursor;
+            tlv_tree_frame_t  frames[WASM_TREE_CAPACITY];
+            result->code =
+                tlv_tree_reader_init(&cursor, data, size, reader, frames, WASM_TREE_CAPACITY,
+                                     WASM_TREE_CAPACITY, WASM_MAX_ELEMENTS);
+            if (result->code == TLV_OK)
+                result->code = tlv_tree_reader_visit(&cursor, emit_element, w, &error_offset);
         }
     }
     if (w->out.failed) result->code = TLV_ERR_OUT_OF_MEMORY;

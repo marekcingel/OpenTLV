@@ -27,7 +27,7 @@
  *   metatable's __index/__gc/__tostring/__call from plain lua_CFunction
  *   pointers, so every type is registered the same shape.
  * - Errors: never raised directly by anything invoked as a callback from a
- *   C library function (see error.h and walk.c's trampoline for why); every
+ *   C library function (see error.h and visitor.c's trampoline for why); every
  *   other C function calls lua_error() directly through error.h's helpers.
  */
 
@@ -58,14 +58,14 @@ void opentlv_lua_new_type(lua_State* L, const char* name, const opentlv_lua_meth
  * Pushes {tag = <string>, length = <integer>, value = <string>, offset =
  * <integer>} for one decoded element: the one generic conversion from a
  * borrowed C tlv_element_t to a Lua value every reading or traversal
- * operation needs, shared so Reader (reader.c) and tree traversal (walk.c)
+ * operation needs, shared so Reader (reader.c) and tree traversal (visitor.c)
  * produce identically shaped entries. `offset` is the absolute position of
  * the element's tag within the buffer the tag/value were read from.
  *
  * Never calls lua_error(): narrowing tlv_value_t's 64-bit length to size_t
  * can fail (only on builds where size_t is narrower than the value
  * actually read), and this may be called from contexts, such as the
- * tlv_walk_tree() visitor trampoline in walk.c, where raising directly
+ * tlv_tree_reader_visit() visitor trampoline in visitor.c, where raising directly
  * would unsafely unwind through library frames not prepared for it. On
  * failure it leaves the stack as it found it and returns the narrowing
  * failure's tlv_result_t instead of TLV_OK, and the caller decides how to

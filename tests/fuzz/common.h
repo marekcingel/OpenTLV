@@ -4,7 +4,7 @@
 #include "tlv/config.h"
 #include "tlv/size.h"
 #include "tlv/reader/reader.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/writer/writer.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +53,7 @@ typedef struct fuzz_visit_context {
     const uint8_t*     data;
     size_t             size, max_depth, max_elements, max_value_size;
     size_t             count, previous_offset, previous_depth;
-    size_t             value_ends[TLV_WALK_MAX_DEPTH + 1];
+    size_t             value_ends[TLV_TREE_DEFAULT_DEPTH + 1];
     size_t             stop_at;
     tlv_visit_result_t action;
 } fuzz_visit_context;
@@ -63,7 +63,7 @@ static inline tlv_visit_result_t fuzz_visit(const tlv_element_t* element, size_t
     fuzz_visit_context* ctx = (fuzz_visit_context*)opaque;
     size_t              value_length;
     FUZZ_CHECK(ctx->count < ctx->max_elements);
-    FUZZ_CHECK(depth <= ctx->max_depth && depth <= TLV_WALK_MAX_DEPTH);
+    FUZZ_CHECK(depth <= ctx->max_depth && depth <= TLV_TREE_DEFAULT_DEPTH);
     FUZZ_CHECK(offset < ctx->size);
     FUZZ_CHECK(ctx->count ? offset > ctx->previous_offset : depth == 0);
     FUZZ_CHECK(!ctx->count || depth <= ctx->previous_depth + 1);

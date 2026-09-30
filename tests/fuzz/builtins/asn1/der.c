@@ -12,8 +12,8 @@ static void check_der(const uint8_t* data, size_t size, const tlv_der_limits_t* 
         FUZZ_CHECK(size <= actual->max_input_size);
         FUZZ_CHECK(element.value.size <= actual->max_value_size);
         FUZZ_CHECK(error == SIZE_MAX);
-        /* A successful single-element validation must also walk its prefix. */
-        FUZZ_CHECK(tlv_der_walk(data, consumed, limits, NULL, NULL, NULL) == TLV_OK);
+        /* A successful single-element validation must also traverse its prefix. */
+        FUZZ_CHECK(tlv_der_visit(data, consumed, limits, NULL, NULL, NULL) == TLV_OK);
     } else {
         fuzz_unchanged(&element, &before);
         FUZZ_CHECK(consumed == SIZE_MAX && error <= size);
@@ -28,7 +28,7 @@ static void check_der(const uint8_t* data, size_t size, const tlv_der_limits_t* 
         ctx.stop_at = mode ? 1 : 0;
         ctx.action = mode == 1 ? TLV_VISIT_STOP : TLV_VISIT_ERROR;
         error = SIZE_MAX;
-        rc = tlv_der_walk(data, size, limits, fuzz_visit, &ctx, &error);
+        rc = tlv_der_visit(data, size, limits, fuzz_visit, &ctx, &error);
         if (rc == TLV_OK) {
             FUZZ_CHECK(error == SIZE_MAX && size <= actual->max_input_size);
         } else
@@ -38,7 +38,7 @@ static void check_der(const uint8_t* data, size_t size, const tlv_der_limits_t* 
         }
         if (!mode) {
             size_t other_error = SIZE_MAX;
-            FUZZ_CHECK(rc == tlv_der_walk(data, size, limits, NULL, NULL, &other_error));
+            FUZZ_CHECK(rc == tlv_der_visit(data, size, limits, NULL, NULL, &other_error));
             FUZZ_CHECK(error == other_error);
         }
     }

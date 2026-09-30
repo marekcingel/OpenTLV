@@ -36,9 +36,9 @@ target_compile_options(tlv_fuzz PRIVATE
     -fsanitize=fuzzer-no-link,address,undefined -fno-sanitize-recover=all
     -fno-omit-frame-pointer -g)
 
-set(fuzz_targets read walk_tree roundtrip)
+set(fuzz_targets read visitor roundtrip)
 set(fuzz_source_read reader/read.c)
-set(fuzz_source_walk_tree reader/walk_tree.c)
+set(fuzz_source_visitor reader/visitor.c)
 set(fuzz_source_roundtrip roundtrip.c)
 list(APPEND fuzz_targets fixed)
 set(fuzz_source_fixed builtins/fixed/fixed.c)

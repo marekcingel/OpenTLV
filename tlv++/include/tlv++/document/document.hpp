@@ -243,7 +243,7 @@ private:
 };
 
 /**
- * @brief Format descriptor of a #tlv::document, as for tlv_walk_tree().
+ * @brief Format and runtime resource limits of a #tlv::document.
  * @see @docs{guides/memory,format context ownership and lifetime}
  */
 struct document_format {
@@ -252,7 +252,7 @@ struct document_format {
      * `format.is_constructed` selects nested values, or `nullptr` for opaque values.
      */
     tlv_format_t format;
-    /** Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`. */
+    /** Runtime maximum nesting depth (default TLV_TREE_DEFAULT_DEPTH). */
     size_t max_depth;
     /** Maximum number of elements, including nested ones. */
     size_t max_elements;
@@ -263,14 +263,14 @@ struct document_format {
      * @param fmt Format.
      */
     document_format(const tlv_format_t& fmt)
-        : format(fmt), max_depth(TLV_WALK_MAX_DEPTH),
+        : format(fmt), max_depth(TLV_TREE_DEFAULT_DEPTH),
           max_elements(TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {}
 };
 
 /**
  * @brief An owned, mutable TLV document.
  *
- * Wraps #tlv_document_t. Unlike the reader and walker wrappers, a document copies the data it
+ * Wraps #tlv_document_t. Unlike the reader and visitor wrappers, a document copies the data it
  * is given, allocates memory and lets the data be searched, changed and encoded again. It is
  * independent of the zero-copy APIs: nothing in the core depends on it, and it never refers to
  * the buffer it was parsed from.

@@ -304,8 +304,8 @@ TEST(Integration_Tlv_Lldp, ReaderDefinitionsAndQueryUseTypeWithoutProtocolSemant
         ++*static_cast<size_t*>(context);
         return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_OK, tlv_query_walk(wire, sizeof(wire), &tlv_format_lldp, &query, 0, 2, visit,
-                                     &matches, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_query_visit_buffer(wire, sizeof(wire), &tlv_format_lldp, &query, 0, 2,
+                                             visit, &matches, nullptr));
     EXPECT_EQ(1u, matches);
 #if OPENTLV_DOCUMENT
     tlv_document_options_t options{};

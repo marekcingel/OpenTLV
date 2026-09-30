@@ -1,15 +1,15 @@
 #ifndef OPENTLV_CLI_COMMANDS_QUERY_COMMAND_HPP
 #define OPENTLV_CLI_COMMANDS_QUERY_COMMAND_HPP
-#include "commands/walk_command.hpp"
+#include "commands/traversal_command.hpp"
 
 namespace cli {
 
 // otlv query PATH: prints every element addressed by a path of hexadecimal
 // tags as text or, with --output json, one JSON document; exit code 5 means
 // nothing matched.
-class query_command : public walk_command {
+class query_command : public traversal_command {
 public:
-    using walk_command::walk_command;
+    using traversal_command::traversal_command;
 
 protected:
     int                prepare() override;

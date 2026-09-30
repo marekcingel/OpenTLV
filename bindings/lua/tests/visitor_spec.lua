@@ -4,10 +4,10 @@ local opentlv = require("opentlv")
 -- Template (A5) holding an Application Label (50).
 local BER_DATA = string.char(0x6F, 0x0A, 0x84, 0x03, 0x41, 0x42, 0x43, 0xA5, 0x03, 0x50, 0x01, 0x01)
 
-describe("opentlv.walk_tree", function()
+describe("opentlv.visit_tree", function()
     it("visits every element in preorder with depth, offset and constructed", function()
         local seen = {}
-        local visited, stopped = opentlv.walk_tree(BER_DATA, opentlv.formats.ber,
+        local visited, stopped = opentlv.visit_tree(BER_DATA, opentlv.formats.ber,
             function(element, depth)
                 seen[#seen + 1] = {tag = element.tag, depth = depth, offset = element.offset,
                                    constructed = element.constructed}
@@ -27,7 +27,7 @@ describe("opentlv.walk_tree", function()
     end)
 
     it("stops early when the callback returns false", function()
-        local visited, stopped = opentlv.walk_tree(BER_DATA, opentlv.formats.ber,
+        local visited, stopped = opentlv.visit_tree(BER_DATA, opentlv.formats.ber,
             function(element, depth)
                 return false
             end)
@@ -36,13 +36,13 @@ describe("opentlv.walk_tree", function()
     end)
 
     it("continues when the callback returns nothing or true", function()
-        local visited, stopped = opentlv.walk_tree(BER_DATA, opentlv.formats.ber, function() end)
+        local visited, stopped = opentlv.visit_tree(BER_DATA, opentlv.formats.ber, function() end)
         assert(visited == 4)
         assert(stopped == false)
     end)
 
     it("propagates a Lua error raised by the callback", function()
-        local ok, err = pcall(opentlv.walk_tree, BER_DATA, opentlv.formats.ber, function()
+        local ok, err = pcall(opentlv.visit_tree, BER_DATA, opentlv.formats.ber, function()
             error("boom")
         end)
         assert(not ok)
@@ -50,27 +50,27 @@ describe("opentlv.walk_tree", function()
     end)
 
     it("raises a structured error when max_elements is exceeded", function()
-        local ok, err = pcall(opentlv.walk_tree, BER_DATA, opentlv.formats.ber, function() end,
+        local ok, err = pcall(opentlv.visit_tree, BER_DATA, opentlv.formats.ber, function() end,
             {max_elements = 1})
         assert(not ok)
         assert(err.code == opentlv.errors.LIMIT)
     end)
 
     it("raises a structured error when max_depth is exceeded", function()
-        local ok, err = pcall(opentlv.walk_tree, BER_DATA, opentlv.formats.ber, function() end,
+        local ok, err = pcall(opentlv.visit_tree, BER_DATA, opentlv.formats.ber, function() end,
             {max_depth = 0})
         assert(not ok)
         assert(err.code == opentlv.errors.LIMIT)
     end)
 
     it("validates structure only when the callback is omitted", function()
-        local visited, stopped = opentlv.walk_tree(BER_DATA, opentlv.formats.ber, nil)
+        local visited, stopped = opentlv.visit_tree(BER_DATA, opentlv.formats.ber, nil)
         assert(visited == 0)
         assert(stopped == false)
     end)
 
-    it("uses tlv_der_walk() and its default limits for opentlv.formats.der", function()
-        local visited = opentlv.walk_tree(BER_DATA, opentlv.formats.der, function() end)
+    it("uses tlv_der_visit() and its default limits for opentlv.formats.der", function()
+        local visited = opentlv.visit_tree(BER_DATA, opentlv.formats.der, function() end)
         assert(visited == 4)
     end)
 end)

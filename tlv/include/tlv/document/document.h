@@ -5,7 +5,7 @@
 #include "tlv/error.h"
 #include "tlv/format.h"
 #include "tlv/query/query.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/tag.h"
 
 #include <stddef.h>
@@ -29,8 +29,8 @@ extern "C" {
  *
  * The document is built only on the public reader, writer and query APIs and
  * works with any format: the reader and writer formats and the nesting
- * predicate are passed in #tlv_document_options_t, exactly as for
- * tlv_walk_tree(). Nothing in the allocation-free core depends on it. It is
+ * predicate are supplied through the Format in #tlv_document_options_t, as for
+ * tlv_tree_reader_init(). Nothing in the allocation-free core depends on it. It is
  * an optional component (`OPENTLV_DOCUMENT`, see tlv/config.h) and the only
  * OpenTLV component that allocates memory.
  *
@@ -95,8 +95,8 @@ typedef struct tlv_document_options {
      */
     const tlv_format_t* format;
     /**
-     * Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`; top-level elements have depth zero and an
-     * element that would lie deeper is rejected with #TLV_ERR_LIMIT.
+     * Runtime maximum nesting depth (default TLV_TREE_DEFAULT_DEPTH); top-level elements have depth
+     * zero and an element that would lie deeper is rejected with #TLV_ERR_LIMIT.
      */
     size_t max_depth;
     /** Maximum number of elements in the document, including nested ones. */
@@ -115,7 +115,7 @@ typedef struct tlv_node tlv_node_t;
 /**
  * @brief Fills options with the given format and the default limits.
  *
- * Sets `max_depth` to #TLV_WALK_MAX_DEPTH, `max_elements` to
+ * Sets `max_depth` to #TLV_TREE_DEFAULT_DEPTH, `max_elements` to
  * #TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS and the allocator to `NULL`.
  *
  * @param[out] options Options to initialize.
@@ -138,7 +138,6 @@ TLV_API tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a `NULL` argument, an unusable format or an allocator that
  *         lacks a callback.
- * @return #TLV_ERR_LIMIT if `max_depth` exceeds #TLV_WALK_MAX_DEPTH.
  * @return #TLV_ERR_OUT_OF_MEMORY if memory is exhausted.
  */
 TLV_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
@@ -357,11 +356,14 @@ TLV_API void tlv_node_erase(tlv_node_t* node);
 /**
  * @brief Computes the encoded size of a whole document.
  *
+ * Uses iterative traversal and temporary storage from the Document allocator.
+ *
  * @param[in]  document Document to size.
  * @param[out] size     Receives the size in bytes. Unchanged on failure.
  *
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a `NULL` argument.
+ * @return #TLV_ERR_OUT_OF_MEMORY if temporary traversal storage cannot be allocated.
  * @return Any writer format error, such as #TLV_ERR_INVALID_LENGTH for a length the format
  *         cannot represent.
  */

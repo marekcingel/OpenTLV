@@ -53,17 +53,17 @@ tlv_query_t parse(const char* text) {
     return query;
 }
 
-Outcome walk(const char* text, const std::vector<uint8_t>& input = data,
-             tlv_is_constructed_fn predicate = is_constructed,
-             size_t max_depth = TLV_WALK_MAX_DEPTH, size_t max_elements = 1000,
-             tlv_visit_result_t result = TLV_VISIT_CONTINUE) {
+Outcome visit_buffer(const char* text, const std::vector<uint8_t>& input = data,
+                     tlv_is_constructed_fn predicate = is_constructed,
+                     size_t max_depth = TLV_TREE_DEFAULT_DEPTH, size_t max_elements = 1000,
+                     tlv_visit_result_t result = TLV_VISIT_CONTINUE) {
     Outcome      run;
     tlv_query_t  query = parse(text);
     Visit        visit = {&run.matches, result};
     tlv_format_t format = controlled::format;
     format.is_constructed = predicate;
-    run.rc = tlv_query_walk(input.data(), input.size(), &format, &query, max_depth, max_elements,
-                            collect, &visit, &run.error_offset);
+    run.rc = tlv_query_visit_buffer(input.data(), input.size(), &format, &query, max_depth,
+                                    max_elements, collect, &visit, &run.error_offset);
     return run;
 }
 } // namespace
@@ -179,68 +179,107 @@ TEST(Unit_Tlv_Query, MatcherFollowsAPreorderTraversal) {
 }
 
 TEST(Unit_Tlv_Query, AddressesEveryElementAlongTheExactPath) {
-    const Outcome run = walk("6F/A5/50");
+    const Outcome run = visit_buffer("6F/A5/50");
     EXPECT_EQ(TLV_OK, run.rc);
     EXPECT_EQ((std::vector<Match>{{8, 2, 2}, {19, 2, 1}, {22, 2, 1}}), run.matches);
 }
 
 TEST(Unit_Tlv_Query, DistinguishesDepthFromTag) {
-    EXPECT_EQ((std::vector<Match>{{12, 0, 1}}), walk("50").matches);
-    EXPECT_EQ((std::vector<Match>{{0, 0, 10}, {15, 0, 8}, {25, 0, 7}}), walk("6F").matches);
-    EXPECT_EQ((std::vector<Match>{{6, 1, 4}, {17, 1, 6}}), walk("6F/A5").matches);
-    EXPECT_EQ((std::vector<Match>{{2, 1, 2}}), walk("6F/84").matches);
-    EXPECT_EQ((std::vector<Match>{{27, 1, 5}}), walk("6F/A6").matches);
-    EXPECT_EQ((std::vector<Match>{{29, 2, 3}}), walk("6F/A6/A5").matches);
-    EXPECT_EQ((std::vector<Match>{{31, 3, 1}}), walk("6F/A6/A5/50").matches);
-    EXPECT_TRUE(walk("A5").matches.empty());
-    EXPECT_TRUE(walk("6F/50").matches.empty());
-    EXPECT_TRUE(walk("6F/A5/51").matches.empty());
-    EXPECT_TRUE(walk("6F/A5/50/50").matches.empty());
-    EXPECT_EQ(TLV_OK, walk("6F/A5/51").rc);
+    EXPECT_EQ((std::vector<Match>{{12, 0, 1}}), visit_buffer("50").matches);
+    EXPECT_EQ((std::vector<Match>{{0, 0, 10}, {15, 0, 8}, {25, 0, 7}}), visit_buffer("6F").matches);
+    EXPECT_EQ((std::vector<Match>{{6, 1, 4}, {17, 1, 6}}), visit_buffer("6F/A5").matches);
+    EXPECT_EQ((std::vector<Match>{{2, 1, 2}}), visit_buffer("6F/84").matches);
+    EXPECT_EQ((std::vector<Match>{{27, 1, 5}}), visit_buffer("6F/A6").matches);
+    EXPECT_EQ((std::vector<Match>{{29, 2, 3}}), visit_buffer("6F/A6/A5").matches);
+    EXPECT_EQ((std::vector<Match>{{31, 3, 1}}), visit_buffer("6F/A6/A5/50").matches);
+    EXPECT_TRUE(visit_buffer("A5").matches.empty());
+    EXPECT_TRUE(visit_buffer("6F/50").matches.empty());
+    EXPECT_TRUE(visit_buffer("6F/A5/51").matches.empty());
+    EXPECT_TRUE(visit_buffer("6F/A5/50/50").matches.empty());
+    EXPECT_EQ(TLV_OK, visit_buffer("6F/A5/51").rc);
 }
 
 TEST(Unit_Tlv_Query, OpaqueValuesAnswerOnlyTopLevelQueries) {
-    EXPECT_EQ(3u, walk("6F", data, nullptr).matches.size());
-    EXPECT_TRUE(walk("6F/A5", data, nullptr).matches.empty());
+    EXPECT_EQ(3u, visit_buffer("6F", data, nullptr).matches.size());
+    EXPECT_TRUE(visit_buffer("6F/A5", data, nullptr).matches.empty());
 }
 
 TEST(Unit_Tlv_Query, HonorsVisitorResults) {
-    EXPECT_EQ(1u, walk("6F/A5/50", data, is_constructed, 64, 1000, TLV_VISIT_STOP).matches.size());
-    EXPECT_EQ(TLV_OK, walk("6F/A5/50", data, is_constructed, 64, 1000, TLV_VISIT_STOP).rc);
-    const Outcome failed = walk("6F/A5/50", data, is_constructed, 64, 1000, TLV_VISIT_ERROR);
+    EXPECT_EQ(
+        1u,
+        visit_buffer("6F/A5/50", data, is_constructed, 64, 1000, TLV_VISIT_STOP).matches.size());
+    EXPECT_EQ(TLV_OK, visit_buffer("6F/A5/50", data, is_constructed, 64, 1000, TLV_VISIT_STOP).rc);
+    const Outcome failed =
+        visit_buffer("6F/A5/50", data, is_constructed, 64, 1000, TLV_VISIT_ERROR);
     EXPECT_EQ(TLV_ERR_VISITOR, failed.rc);
     EXPECT_EQ(8u, failed.error_offset);
     EXPECT_EQ(1u, failed.matches.size());
 }
 
 TEST(Unit_Tlv_Query, PropagatesTraversalErrorsAndLimits) {
-    EXPECT_EQ(TLV_ERR_LIMIT, walk("6F/A5/50", data, is_constructed, 1).rc);
-    EXPECT_EQ(TLV_ERR_LIMIT, walk("6F/A5/50", data, is_constructed, 2).rc);
-    EXPECT_EQ(TLV_OK, walk("6F/A5/50", data, is_constructed, 3).rc);
-    const Outcome few = walk("6F", data, is_constructed, 64, 3);
+    EXPECT_EQ(TLV_ERR_LIMIT, visit_buffer("6F/A5/50", data, is_constructed, 1).rc);
+    EXPECT_EQ(TLV_ERR_LIMIT, visit_buffer("6F/A5/50", data, is_constructed, 2).rc);
+    EXPECT_EQ(TLV_OK, visit_buffer("6F/A5/50", data, is_constructed, 3).rc);
+    const Outcome few = visit_buffer("6F", data, is_constructed, 64, 3);
     EXPECT_EQ(TLV_ERR_LIMIT, few.rc);
     // Damage after the last match is still reported.
     std::vector<uint8_t> truncated(data.begin(), data.begin() + 14);
-    const Outcome        run = walk("6F/A5/50", truncated);
+    const Outcome        run = visit_buffer("6F/A5/50", truncated);
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, run.rc);
     EXPECT_EQ(12u, run.error_offset);
     EXPECT_EQ(1u, run.matches.size());
 }
 
-TEST(Unit_Tlv_Query, WalkValidatesArguments) {
+TEST(Unit_Tlv_Query, VisitBufferValidatesArguments) {
     const tlv_query_t query = parse("6F");
     Outcome           run;
     Visit             visit = {&run.matches, TLV_VISIT_CONTINUE};
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_query_walk(data.data(), data.size(), &controlled::format,
-                                               &query, 1, 10, nullptr, &visit, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_query_walk(data.data(), data.size(), &controlled::format,
-                                               nullptr, 1, 10, collect, &visit, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_query_visit_buffer(data.data(), data.size(), &controlled::format, &query, 1, 10,
+                                     nullptr, &visit, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_query_visit_buffer(data.data(), data.size(), &controlled::format, nullptr, 1, 10,
+                                     collect, &visit, nullptr));
     tlv_query_t empty = {};
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_query_walk(data.data(), data.size(), &controlled::format,
-                                                  &empty, 1, 10, collect, &visit, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_query_walk(data.data(), data.size(), nullptr, &query, 1, 10,
-                                               collect, &visit, nullptr));
-    EXPECT_EQ(TLV_OK, tlv_query_walk(nullptr, 0, &controlled::format, &query, 1, 10, collect,
-                                     &visit, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_query_visit_buffer(data.data(), data.size(), &controlled::format, &empty, 1, 10,
+                                     collect, &visit, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_query_visit_buffer(data.data(), data.size(), nullptr, &query, 1,
+                                                       10, collect, &visit, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_query_visit_buffer(nullptr, 0, &controlled::format, &query, 1, 10,
+                                             collect, &visit, nullptr));
     EXPECT_TRUE(run.matches.empty());
+}
+
+TEST(Unit_Tlv_Query, CallerOwnedCursorResumesAndTraversesBeyondPathCapacity) {
+    constexpr size_t     depth = TLV_TREE_DEFAULT_DEPTH + 32;
+    std::vector<uint8_t> wire;
+    for (size_t i = 0; i <= depth; ++i) {
+        wire.push_back(0x6F);
+        wire.push_back(static_cast<uint8_t>(2 * (depth - i)));
+    }
+    auto format = controlled::format;
+    format.is_constructed = is_constructed;
+    std::vector<tlv_tree_frame_t> frames(depth);
+    tlv_tree_reader_t             reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init_incremental(&reader, wire.data(), wire.size(), &format,
+                                                       frames.data(), depth, depth, depth + 2));
+    tlv_query_t         query;
+    tlv_query_matcher_t matcher;
+    ASSERT_EQ(TLV_OK, tlv_query_parse("6F", &query, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_query_matcher_init(&matcher, &query));
+    size_t calls = 0;
+    auto   visit = [](const tlv_element_t*, size_t d, size_t, void* context) {
+        EXPECT_EQ(0u, d);
+        ++*static_cast<size_t*>(context);
+        return TLV_VISIT_STOP;
+    };
+    EXPECT_EQ(TLV_OK, tlv_query_visit(&reader, &matcher, visit, &calls, nullptr));
+    EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_query_visit(&reader, &matcher, visit, &calls, nullptr));
+    EXPECT_EQ(1u, calls);
+    const uint8_t final[] = {0x6F, 0};
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, final, sizeof(final), wire.size(), 1));
+    EXPECT_EQ(TLV_OK, tlv_query_visit(&reader, &matcher, visit, &calls, nullptr));
+    EXPECT_EQ(2u, calls);
+    EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
 }

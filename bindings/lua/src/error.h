@@ -24,7 +24,7 @@ const char* opentlv_lua_reader_operation_name(tlv_reader_operation_t operation);
 /* Pushes a table describing `code`, with the "opentlv.Error" metatable set:
  * always "code" and "message" (tlv_strerror(code)); "offset" only if
  * has_offset. Does not raise; the caller decides whether to return it,
- * stash it (see walk.c), or raise it with lua_error(). */
+ * stash it (see visitor.c), or raise it with lua_error(). */
 void opentlv_lua_push_error(lua_State* L, tlv_result_t code, int has_offset, size_t offset);
 
 /* Like opentlv_lua_push_error(), additionally filling "expected", "actual",
@@ -37,7 +37,7 @@ void opentlv_lua_push_reader_error(lua_State* L, tlv_result_t code,
 /* Raises the table built by opentlv_lua_push_error()/opentlv_lua_push_reader_error()
  * via lua_error(). Safe to call directly from any function Lua calls
  * directly; never call these from inside a callback invoked by a C library
- * function such as tlv_walk_tree()/tlv_der_walk() (see walk.c). Both never
+ * function such as tlv_tree_reader_visit()/tlv_der_visit() (see visitor.c). Both never
  * return; the int result mirrors lua_error()'s so callers can write
  * `return opentlv_lua_raise(...)`. */
 int opentlv_lua_raise(lua_State* L, tlv_result_t code, int has_offset, size_t offset);

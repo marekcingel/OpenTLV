@@ -1,7 +1,8 @@
+#include "visitor_input.h"
 #include "tlv/layout.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/codec/structure.h"
 #include "tlv/config.h"
 #include "tlv/formats/fixed.h"
@@ -123,8 +124,8 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaAndCopies) {
         out.push_back(pos);
         return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_OK,
-              tlv_walk_tree(wire, sizeof(wire), &tlv_format_ber, 3, 6, visitor, &visits, nullptr));
+    EXPECT_EQ(TLV_OK, visit_tree_input(wire, sizeof(wire), &tlv_format_ber, 3, 6, visitor, &visits,
+                                       nullptr));
     EXPECT_EQ((std::vector<size_t>{0, 0, 1, 2, 2, 4, 3, 6, 1, 11, 0, 15}), visits);
     tlv_structure_schema_t     recursive{};
     const tlv_schema_entry_t   rules_fields[] = {{TLV_TAG(0x30), 0, 100, 0, nullptr, 0},
@@ -136,8 +137,8 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaAndCopies) {
     EXPECT_EQ(TLV_OK,
               tlv_schema_validate(wire, sizeof(wire), &tlv_format_ber, &recursive, 3, 6, nullptr));
     size_t offset = 999;
-    EXPECT_EQ(TLV_ERR_LIMIT,
-              tlv_walk_tree(wire, sizeof(wire), &tlv_format_ber, 2, 6, nullptr, nullptr, &offset));
+    EXPECT_EQ(TLV_ERR_LIMIT, visit_tree_input(wire, sizeof(wire), &tlv_format_ber, 2, 6, nullptr,
+                                              nullptr, &offset));
     EXPECT_EQ(6u, offset);
     tlv_element_t element{};
     size_t        used = 0;
@@ -152,7 +153,7 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaAndCopies) {
     EXPECT_EQ(11, copied[1]);
     EXPECT_EQ(0, std::memcmp(wire + 2, copied + 2, 11));
     EXPECT_EQ(TLV_OK,
-              tlv_walk_tree(copied, written, &tlv_format_ber, 3, 5, nullptr, nullptr, nullptr));
+              visit_tree_input(copied, written, &tlv_format_ber, 3, 5, nullptr, nullptr, nullptr));
     ASSERT_EQ(TLV_OK, tlv_copy_encoded(wire, used, copied, sizeof(copied), &written));
     EXPECT_EQ(15u, written);
     EXPECT_EQ(0, std::memcmp(wire, copied, written));
@@ -182,38 +183,39 @@ TEST(Integration_Tlv_Architecture, GenericVisitorUsesFormatNestingAndAbsoluteOff
         out.push_back(pos);
         return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &constructed_format, 1, 4, visitor, &visits,
-                                    &offset));
+    EXPECT_EQ(TLV_OK, visit_tree_input(wire, sizeof(wire), &constructed_format, 1, 4, visitor,
+                                       &visits, &offset));
     EXPECT_EQ((std::vector<size_t>{0, 0, 1, 2, 1, 5, 0, 7}), visits);
     EXPECT_EQ(999u, offset);
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(wire, sizeof(wire), &constructed_format, 0, 4, nullptr,
-                                           nullptr, &offset));
+    EXPECT_EQ(TLV_ERR_LIMIT, visit_tree_input(wire, sizeof(wire), &constructed_format, 0, 4,
+                                              nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(wire, sizeof(wire), &constructed_format, 1, 3, nullptr,
-                                           nullptr, &offset));
+    EXPECT_EQ(TLV_ERR_LIMIT, visit_tree_input(wire, sizeof(wire), &constructed_format, 1, 3,
+                                              nullptr, nullptr, &offset));
     EXPECT_EQ(7u, offset);
     // `format` has no is_constructed, so every value is opaque.
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &format, 0, 2, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_OK,
+              visit_tree_input(wire, sizeof(wire), &format, 0, 2, nullptr, nullptr, nullptr));
 }
 
 TEST(Integration_Tlv_Architecture, TreeRejectsTruncatedChildrenAndSupportsEarlyStop) {
     const uint8_t wire[] = {0x80, 2, 1, 9, 2, 0};
     size_t        offset = 99;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_walk_tree(wire, sizeof(wire), &constructed_format, 2,
-                                                      10, nullptr, nullptr, &offset));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, visit_tree_input(wire, sizeof(wire), &constructed_format, 2,
+                                                         10, nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
     auto stop = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(wire, sizeof(wire), &constructed_format, 2, 10, stop, nullptr,
-                                    nullptr));
+    EXPECT_EQ(TLV_OK, visit_tree_input(wire, sizeof(wire), &constructed_format, 2, 10, stop,
+                                       nullptr, nullptr));
     auto fail = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
-    EXPECT_EQ(TLV_ERR_VISITOR, tlv_walk_tree(wire, sizeof(wire), &constructed_format, 2, 10, fail,
-                                             nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_VISITOR, visit_tree_input(wire, sizeof(wire), &constructed_format, 2, 10,
+                                                fail, nullptr, nullptr));
     EXPECT_EQ(TLV_OK,
-              tlv_walk_tree(nullptr, 0, &constructed_format, 0, 0, nullptr, nullptr, nullptr));
+              visit_tree_input(nullptr, 0, &constructed_format, 0, 0, nullptr, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG,
-              tlv_walk_tree(nullptr, 1, &constructed_format, 0, 0, nullptr, nullptr, nullptr));
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_walk_tree(nullptr, 0, &constructed_format, TLV_WALK_MAX_DEPTH + 1,
-                                           0, nullptr, nullptr, nullptr));
+              visit_tree_input(nullptr, 1, &constructed_format, 0, 0, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_OK, visit_tree_input(nullptr, 0, &constructed_format, TLV_TREE_DEFAULT_DEPTH + 1,
+                                       0, nullptr, nullptr, nullptr));
 }
 
 TEST(Integration_Tlv_Architecture, SchemaChecksRequiredRepeatedAndNestedMembership) {
@@ -243,26 +245,27 @@ TEST(Integration_Tlv_Architecture, SchemaChecksRequiredRepeatedAndNestedMembersh
 
 TEST(Integration_Tlv_Architecture, MaximumDepthAndEmptyChildSchemaUseTheSameBoundary) {
     std::vector<uint8_t> wire;
-    for (size_t i = 0; i <= TLV_WALK_MAX_DEPTH; ++i) {
+    for (size_t i = 0; i <= TLV_TREE_DEFAULT_DEPTH; ++i) {
         wire.push_back(0x80);
-        wire.push_back(static_cast<uint8_t>(2 * (TLV_WALK_MAX_DEPTH - i)));
+        wire.push_back(static_cast<uint8_t>(2 * (TLV_TREE_DEFAULT_DEPTH - i)));
     }
     tlv_structure_schema_t   recursive{};
     const tlv_schema_entry_t rule_fields[] = {{TLV_TAG(0x80), 0, 255, 0, nullptr, 0}};
     tlv_structure_rule_t     rule = {&rule_fields[0], 0, 1, TLV_SCHEMA_CONSTRUCTED, &recursive, 0};
     recursive.rules = &rule;
     recursive.count = 1;
-    EXPECT_EQ(TLV_OK, tlv_schema_validate(wire.data(), wire.size(), &constructed_format, &recursive,
-                                          TLV_WALK_MAX_DEPTH, TLV_WALK_MAX_DEPTH + 1, nullptr));
+    EXPECT_EQ(TLV_OK,
+              tlv_schema_validate(wire.data(), wire.size(), &constructed_format, &recursive,
+                                  TLV_TREE_DEFAULT_DEPTH, TLV_TREE_DEFAULT_DEPTH + 1, nullptr));
     size_t offset = 0;
     EXPECT_EQ(TLV_ERR_LIMIT,
               tlv_schema_validate(wire.data(), wire.size(), &constructed_format, &recursive,
-                                  TLV_WALK_MAX_DEPTH - 1, TLV_WALK_MAX_DEPTH + 1, &offset));
-    EXPECT_EQ(2u * TLV_WALK_MAX_DEPTH, offset);
+                                  TLV_TREE_DEFAULT_DEPTH - 1, TLV_TREE_DEFAULT_DEPTH + 1, &offset));
+    EXPECT_EQ(2u * TLV_TREE_DEFAULT_DEPTH, offset);
     rule.min_occurs = 1;
     EXPECT_EQ(TLV_ERR_SCHEMA_MISSING,
               tlv_schema_validate(wire.data(), wire.size(), &constructed_format, &recursive,
-                                  TLV_WALK_MAX_DEPTH, TLV_WALK_MAX_DEPTH + 1, &offset));
+                                  TLV_TREE_DEFAULT_DEPTH, TLV_TREE_DEFAULT_DEPTH + 1, &offset));
     EXPECT_EQ(wire.size(), offset);
 }
 
@@ -273,8 +276,8 @@ TEST(Integration_Tlv_Architecture, TreeCursorDiagnosticsKeepAbsoluteOffsetsAndPa
     size_t                  error_offset = 99;
     tlv_reader_diagnostic_t diagnostic{};
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_walk_tree_diag(data, sizeof(data), &constructed_format, 8, 8, nullptr, nullptr,
-                                 &error_offset, &diagnostic));
+              visit_tree_input_diag(data, sizeof(data), &constructed_format, 8, 8, nullptr, nullptr,
+                                    &error_offset, &diagnostic));
     EXPECT_EQ(4u, error_offset);
     EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.operation);
     EXPECT_EQ(6u, diagnostic.diagnostic.offset);
@@ -294,8 +297,8 @@ TEST(Integration_Tlv_Architecture, SequentialTraversalDoesNotRecoverPastInvalidI
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_reader_next(&reader, &element));
     EXPECT_EQ(0u, reader.pos);
     auto visit = [](const tlv_element_t*, void*) { return TLV_VISIT_CONTINUE; };
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_walk(noisy, sizeof(noisy), &format, visit, nullptr));
-    EXPECT_EQ(TLV_OK, tlv_walk(noisy + 2, sizeof(noisy) - 2, &format, visit, nullptr));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, visit_input(noisy, sizeof(noisy), &format, visit, nullptr));
+    EXPECT_EQ(TLV_OK, visit_input(noisy + 2, sizeof(noisy) - 2, &format, visit, nullptr));
 }
 
 struct object {
@@ -437,8 +440,8 @@ TEST(Integration_Tlv_Architecture, WireFamiliesShareCanonicalElementAndGenericOp
             static_cast<std::vector<size_t>*>(context)->push_back(offset);
             return TLV_VISIT_CONTINUE;
         };
-        ASSERT_EQ(TLV_OK, tlv_query_walk(test.wire.data(), test.wire.size(), test.format, &query, 0,
-                                         3, visit, &matches, nullptr));
+        ASSERT_EQ(TLV_OK, tlv_query_visit_buffer(test.wire.data(), test.wire.size(), test.format,
+                                                 &query, 0, 3, visit, &matches, nullptr));
         ASSERT_EQ(1u, matches.size());
         EXPECT_EQ(message_offset, matches[0]);
 #if OPENTLV_DOCUMENT

@@ -230,8 +230,8 @@ TEST(Integration_Tlv_TransformedTag, ReaderQueryAndSchemaUseCanonicalIdentity) {
         ++*static_cast<size_t*>(context);
         return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_OK, tlv_query_walk(wire.data(), wire.size(), &packed_format, &query, 0, 2,
-                                     visitor, &count, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_query_visit_buffer(wire.data(), wire.size(), &packed_format, &query, 0, 2,
+                                             visitor, &count, nullptr));
     EXPECT_EQ(2u, count);
     tlv_structure_rule_t     rule{};
     const tlv_schema_entry_t field = {TLV_TAG(1), 255, 256, 0, nullptr, 0};

@@ -1,5 +1,5 @@
 """Addresses elements of a Document by a `/`-separated path of hexadecimal
-tags instead of walking node by node. See document.py for direct navigation
+tags instead of traversing node by node. See document.py for direct navigation
 and parse.py for the document this query addresses.
 
 Run with `python examples/query.py` from `bindings/python/opentlv`, after
@@ -15,7 +15,7 @@ DOCUMENT = bytes([0x6F, 0x0A, 0x84, 0x03, 0x41, 0x42, 0x43, 0xA5, 0x03, 0x50, 0x
 
 def main() -> None:
     with opentlv.Document(DOCUMENT, opentlv.Format.BER) as document:
-        # A multi-tag query walks straight to a deeply nested element,
+        # A multi-tag query traverses straight to a deeply nested element,
         # without visiting 6F and A5 as separate steps.
         label = document.find_path("6F/A5/50")
         print(f"6F/A5/50 -> tag {label.tag} value {bytes(label.value).hex(' ').upper()}")

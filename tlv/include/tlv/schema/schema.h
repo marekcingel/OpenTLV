@@ -21,6 +21,9 @@ extern "C" {
  * @{
  */
 
+/** @brief Nesting capacity of the Schema validators' local traversal storage. */
+enum { TLV_SCHEMA_MAX_DEPTH = 64 };
+
 /**
  * @brief Length rule for one tag in a #tlv_schema_t.
  *
@@ -225,7 +228,8 @@ typedef struct tlv_structure_schema {
  * alternative groups and child membership.
  *
  * Never decodes values. All tables are borrowed and immutable during use.
- * Limits and offsets follow tlv_walk_tree(). Uses bounded stack storage
+ * Limits and offsets follow Tree Reader. Uses TLV_SCHEMA_MAX_DEPTH structural frames
+ * and bounded schema-context storage
  * without allocation or recursion. Counts are checked by rescanning each
  * scope per rule and per group: O((rules + groups) * (rules + elements)) per
  * scope. Input and schema errors leave no partial application objects.
@@ -244,8 +248,9 @@ typedef struct tlv_structure_schema {
  * @param[in]  size          Input size in bytes.
  * @param[in]  format        Reader format.
  * @param[in]  schema        Structural schema to validate against.
- * @param[in]  max_depth     Maximum nesting depth, as for tlv_walk_tree().
- * @param[in]  max_elements  Maximum total elements, as for tlv_walk_tree().
+ * @param[in]  max_depth     Runtime nesting limit; actual depth is also bounded by
+ * TLV_SCHEMA_MAX_DEPTH.
+ * @param[in]  max_elements  Maximum total elements, as for tlv_tree_reader_visit().
  * @param[out] error_offset  Optional. Receives the offset of the failure; see below.
  *
  * @return #TLV_OK if the data conforms to the schema.
@@ -260,7 +265,7 @@ typedef struct tlv_structure_schema {
  *         scope, an invalid rule or group table), with the offset anchored to
  *         the offending element.
  * @return #TLV_ERR_INVALID_LENGTH for a length failure, also element-anchored.
- * @return Any other error of tlv_walk_tree().
+ * @return Any other error of tlv_tree_reader_visit().
  */
 TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                                          const tlv_format_t* format,
@@ -371,13 +376,14 @@ typedef struct tlv_schema_report {
  * @param[in]     size          Input size in bytes.
  * @param[in]     format        Reader format.
  * @param[in]     schema        Structural schema to validate against.
- * @param[in]     max_depth     Maximum nesting depth, as for tlv_walk_tree().
- * @param[in]     max_elements  Maximum total elements, as for tlv_walk_tree().
+ * @param[in]     max_depth     Runtime nesting limit; actual depth is also bounded by
+ * TLV_SCHEMA_MAX_DEPTH.
+ * @param[in]     max_elements  Maximum total elements, as for tlv_tree_reader_visit().
  * @param[in]     unknown       Policy for tags without a rule.
  * @param[in,out] report        Receives the violations; `count` is set on #TLV_OK
  *                              and #TLV_ERR_SCHEMA and is zero on other errors.
  * @param[out]    error_offset  Optional. Receives the failing offset for errors
- *                              other than #TLV_ERR_SCHEMA; see tlv_walk_tree().
+ *                              other than #TLV_ERR_SCHEMA; see tlv_tree_reader_visit().
  *
  * @return #TLV_OK if the data conforms; `report->count` is zero.
  * @return #TLV_ERR_SCHEMA if at least one violation was found; `report->count`
@@ -385,8 +391,8 @@ typedef struct tlv_schema_report {
  * @return #TLV_ERR_NULL_ARG for missing required arguments.
  * @return #TLV_ERR_INVALID_ARG for an invalid rule or group table, or an invalid `unknown` value.
  * @return #TLV_ERR_LIMIT if the schema nests deeper than #TLV_SCHEMA_PATH_MAX
- *         tags, or as for tlv_walk_tree().
- * @return Any other error of tlv_walk_tree().
+ *         tags, or as for tlv_tree_reader_visit().
+ * @return Any other error of tlv_tree_reader_visit().
  *
  * @see tlv_schema_issue_path_string
  */
@@ -541,13 +547,14 @@ typedef struct tlv_schema_diagnostic_report {
  * @param[in]     size          Input size in bytes.
  * @param[in]     format        Reader format.
  * @param[in]     schema        Structural schema to validate against.
- * @param[in]     max_depth     Maximum nesting depth, as for tlv_walk_tree().
- * @param[in]     max_elements  Maximum total elements, as for tlv_walk_tree().
+ * @param[in]     max_depth     Runtime nesting limit; actual depth is also bounded by
+ * TLV_SCHEMA_MAX_DEPTH.
+ * @param[in]     max_elements  Maximum total elements, as for tlv_tree_reader_visit().
  * @param[in]     unknown       Policy for tags without a rule.
  * @param[in,out] report        Receives the violations; `count` is set on #TLV_OK
  *                              and #TLV_ERR_SCHEMA and is zero on other errors.
  * @param[out]    error_offset  Optional. Receives the failing offset for errors
- *                              other than #TLV_ERR_SCHEMA; see tlv_walk_tree().
+ *                              other than #TLV_ERR_SCHEMA; see tlv_tree_reader_visit().
  *
  * @return Same as tlv_schema_validate_all().
  *

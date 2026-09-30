@@ -1,11 +1,11 @@
 /*
- * Applying a length schema inside a tlv_walk() visitor.
+ * Applying a length schema inside a tlv_reader_visit() visitor.
  * Parsing never applies a schema automatically; the visitor below does.
  */
 #include <stdio.h>
 #include "tlv/formats/fixed.h"
 #include "tlv/size.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/schema/schema.h"
 
 static void print_element(const tlv_element_t* element) {
@@ -50,6 +50,7 @@ static tlv_visit_result_t visit(const tlv_element_t* element, void* context) {
 }
 
 int main(void) {
+    tlv_reader_t reader;
     /* One tag byte and one length byte; config must outlive its readers. */
     const tlv_fixed_format_t config = {
         .tag_size = 1, .length_size = 1, .length_order = TLV_BYTE_ORDER_BIG_ENDIAN};
@@ -61,16 +62,19 @@ int main(void) {
     tlv_result_t    result;
     visit_context_t state = {0, 0};
 
-    if (tlv_walk(input, sizeof(input), &format, visit, &state) != TLV_OK) return 1;
+    if (tlv_reader_init(&reader, input, sizeof(input), &format) != TLV_OK) return 1;
+    if (tlv_reader_visit(&reader, visit, &state) != TLV_OK) return 1;
     printf("Visited %zu elements\n", state.count);
 
     state.count = 0;
     state.stop_after = 1;
-    if (tlv_walk(input, sizeof(input), &format, visit, &state) != TLV_OK) return 1;
+    if (tlv_reader_init(&reader, input, sizeof(input), &format) != TLV_OK) return 1;
+    if (tlv_reader_visit(&reader, visit, &state) != TLV_OK) return 1;
     printf("Stopped successfully after %zu element\n", state.count);
 
     /* Parsing never applies a schema automatically; our callback does. */
-    result = tlv_walk(invalid, sizeof(invalid), &format, visit, &state);
+    if (tlv_reader_init(&reader, invalid, sizeof(invalid), &format) != TLV_OK) return 1;
+    result = tlv_reader_visit(&reader, visit, &state);
     if (result != TLV_ERR_VISITOR) return 1;
     printf("Schema rejection by visitor: %s\n", tlv_strerror(result));
 

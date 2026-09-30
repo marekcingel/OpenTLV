@@ -1,7 +1,7 @@
 #include "tlv/layout.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/codec/structure.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
@@ -255,10 +255,10 @@ TEST(Unit_Tlv_Architecture, StructureCodecValidatesArgumentsDirectionsAndCallbac
               tlv_structure_encode(nullptr, &value, sizeof(value), wire, sizeof(wire), &used));
     EXPECT_EQ(TLV_CODEC_ERR_NULL_ARG,
               tlv_structure_decode(&codec, nullptr, 1, &value, sizeof(value)));
-    codec.max_depth = TLV_WALK_MAX_DEPTH + 1;
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+    codec.max_depth = TLV_TREE_DEFAULT_DEPTH + 1;
+    EXPECT_EQ(TLV_CODEC_ERR_UNSUPPORTED,
               tlv_structure_decode(&codec, nullptr, 0, &value, sizeof(value)));
-    EXPECT_EQ(TLV_CODEC_ERR_INVALID_VALUE,
+    EXPECT_EQ(TLV_CODEC_ERR_UNSUPPORTED,
               tlv_structure_encode(&codec, &value, sizeof(value), wire, sizeof(wire), &used));
     codec.max_depth = 0;
     codec.encode = [](const void*, const tlv_format_t*, const void*, size_t, uint8_t*,

@@ -16,6 +16,13 @@ opentlv_copy_shared_runtime(example-tlv-tree-reader)
 add_test(NAME Integration_example_tlv_tree_reader COMMAND $<TARGET_FILE:example-tlv-tree-reader>)
 set_tests_properties(Integration_example_tlv_tree_reader PROPERTIES LABELS "integration;examples")
 
+add_executable(example-tlv-visitor src/visitor.c)
+target_link_libraries(example-tlv-visitor PRIVATE tlv)
+opentlv_configure_compiler(example-tlv-visitor)
+opentlv_copy_shared_runtime(example-tlv-visitor)
+add_test(NAME Integration_example_tlv_visitor COMMAND $<TARGET_FILE:example-tlv-visitor>)
+set_tests_properties(Integration_example_tlv_visitor PROPERTIES LABELS "integration;examples")
+
 if(OPENTLV_DHCP)
     add_executable(example-tlv-dhcpv4 src/dhcpv4.c)
     target_link_libraries(example-tlv-dhcpv4 PRIVATE tlv)
@@ -54,7 +61,7 @@ if(OPENTLV_FORMAT_BER)
     endforeach()
 
     # One topic per example, each its own small self-checking program.
-    foreach(topic sequential_io copies schema_walk codecs_and_endian custom_format)
+    foreach(topic sequential_io copies schema_visitor codecs_and_endian custom_format)
         string(REPLACE "_" "-" topic_dashed ${topic})
         add_executable(example-tlv-${topic_dashed} src/${topic}.c)
         target_link_libraries(example-tlv-${topic_dashed} PRIVATE tlv)
@@ -92,7 +99,7 @@ add_test(NAME Integration_example_tlv_formats_fixed_format
     COMMAND $<TARGET_FILE:example-tlv-formats-fixed-format>)
 set_tests_properties(Integration_example_tlv_formats_fixed_format PROPERTIES LABELS "integration;examples")
 
-# Builtin-specific example: walks an EMV template with the EMV dictionary.
+# Builtin-specific example: traverses an EMV template with the EMV dictionary.
 # Kept independent of the flags above; it only needs OPENTLV_EMV
 # (which already implies OPENTLV_FORMAT_BER).
 if(OPENTLV_EMV)

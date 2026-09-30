@@ -188,16 +188,40 @@ See the compiled [Tree Reader example](../../examples/tlv/src/tree_reader.c)
 for caller-owned frames, incomplete input, subtree skipping, window replacement,
 and EOF.
 
-### Walker compatibility
+### Resumable Visitor adapters
 
-`tlv_walk_tree()` and `tlv_walk_tree_diag()` now adapt the canonical Tree Reader
-to existing callbacks; they contain no independent traversal algorithm.
-`tlv_walk()` remains a callback adapter over sequential Reader. The compatibility
-Walker owns a fixed stack of `TLV_WALK_MAX_DEPTH` frames. That name describes
-only the adapter's capacity: use Tree Reader directly for runtime depths beyond
-it, caller-owned traversal storage, incremental input, or subtree skipping.
-Existing Query and other Walker consumers therefore use Tree Reader through
-the adapter. Their own public limits and higher-level APIs remain unchanged.
+Include `tlv/reader/visitor.h` and use `tlv_reader_visit()` or
+`tlv_tree_reader_visit()` with an initialized cursor. Their `_diag` variants
+preserve the original Reader diagnostics without another decode. The tree
+adapter accepts a NULL callback for validation only; the sequential adapter
+requires a callback. No adapter allocates, buffers input or recurses by nesting
+depth. Recursion explicitly performed by application callbacks is outside this
+library guarantee.
+
+CONTINUE keeps pulling. STOP returns `TLV_OK`; ERROR or an unknown callback
+result returns `TLV_ERR_VISITOR`. The current item is already published in all
+three cases. Another call resumes without replaying it. After STOP on a parent,
+resumption visits its children; the application can instead call
+`tlv_tree_reader_skip_subtree()` before resuming. Do not mutate the active cursor,
+input, Format or frames inside a callback.
+
+`TLV_NEED_MORE_DATA` returns control to the application. Supply a replacement
+window through the cursor's `set_input()` and call the adapter again. Final
+exhaustion succeeds; incomplete final input remains an error. Parents are still
+published only once their complete encoded extent is available. Offsets remain
+absolute after discarding a consumed prefix. Limits and publication counts
+belong to the cursor and persist across adapter calls.
+
+The callback's Element pointer is temporary, but an Element copied by value has
+the same borrowed lifetime as a direct pull result. Keep its original input and
+any Format-supplied Tag storage alive and unchanged while retaining it.
+Diagnostics are cleared at each adapter entry; Reader outcomes fill them,
+whereas visitor and tree resource errors leave them clear. Tree `error_offset`
+reports the published item for visitor errors and the frontier for pull failures
+or need-more-data; it is unchanged on success.
+
+See the runnable [Visitor example](../../examples/tlv/src/visitor.c) for STOP,
+resumption and incremental input replacement.
 
 ## Ownership and composition
 
@@ -208,8 +232,8 @@ context; retained sources also require them. Advancing, reinitializing or
 discarding the cursor does not by itself invalidate previously returned elements.
 See [memory ownership](memory.md).
 
-Tree Reader composes Reader for nested traversal; Walker is a callback adapter.
-Query uses that traversal and Document uses Reader for sequential parsing. These higher layers
+Tree Reader composes Reader for nested traversal; Visitor is a callback adapter.
+Query, Schema and Document compose Tree Reader for nested traversal. These higher layers
 retain their own traversal, storage and validation responsibilities.
 
 ## Migration from Scanner
@@ -219,3 +243,33 @@ in #391. Applications needing resynchronization choose candidate offsets and
 call `tlv_read()` themselves. Candidate acceptance and recovery policy belong
 to the application. The CLI retains its `--recover` behavior through such a
 local policy.
+
+## Migration from Walker (#394)
+
+The generic `tlv_walk*()` functions, `TLV_WALK_MAX_DEPTH`, `reader/walker.h`
+and the C++ Walker wrapper have been removed. Include `reader/visitor.h`,
+initialize a Reader or Tree Reader, then call `tlv_reader_visit()` or
+`tlv_tree_reader_visit()` (or their diagnostic variants). C++ uses
+`tlv::visit_tree(cursor, callback)`. Supply frame storage explicitly for tree
+processing. `TLV_TREE_DEFAULT_DEPTH` is a suggested default, not a maximum.
+
+Query's buffer convenience function owns `TLV_QUERY_MAX_STEPS` frames; use
+`tlv_query_visit()` with a caller-owned cursor and matcher for resumable input
+or greater traversal capacity. The query path itself still has its documented
+inline capacity. Schema validators and structure codecs have their own bounded
+storage (`TLV_SCHEMA_MAX_DEPTH` and `TLV_STRUCTURE_MAX_DEPTH`); exhaustion is a
+resource error at actual descent, not rejection of a larger requested limit.
+The WASM presentation adapter retains its own 64-level output capacity.
+
+Callback convenience APIs use Visitor naming consistently:
+
+| Previous API | Replacement |
+| --- | --- |
+| Lua `opentlv.walk_tree` | `opentlv.visit_tree` |
+| `tlv_der_walk` / `tlv_der_walk_strict` | `tlv_der_visit` / `tlv_der_visit_strict` |
+| `tlv_cer_walk` / `tlv_cer_walk_strict` | `tlv_cer_visit` / `tlv_cer_visit_strict` |
+| `tlv_query_walk` | `tlv_query_visit_buffer` |
+| `tlv::query::walk` | `tlv::query::visit_buffer` |
+
+These are renames without compatibility aliases; callback and validation behavior
+is unchanged. `tlv_query_visit` remains the resumable cursor-based API.

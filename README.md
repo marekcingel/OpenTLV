@@ -178,7 +178,7 @@ See [getting started](docs/getting-started/README.md) for linking this example, 
 integration, C-only builds, and running tests. The [C](examples/tlv/src/) examples
 cover more of the API, one topic per file, and the [C++](examples/tlv++/src/basic_usage.cpp)
 example covers BER; [examples/tlv/src/builtins/emv/tag_decoding.c](examples/tlv/src/builtins/emv/tag_decoding.c)
-walks a full EMV TLV record through tag lookup, length validation, and value decoding.
+traverses a full EMV TLV record through tag lookup, length validation, and value decoding.
 
 ## Documentation
 

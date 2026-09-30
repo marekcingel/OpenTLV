@@ -57,7 +57,7 @@ enum { TLV_DIAGNOSTIC_PATH_MAX = 32 };
  * @brief Bounded, allocation-free stack of the tags enclosing a #tlv_diagnostic_t.
  *
  * A caller that traverses nested constructed TLVs, for example with
- * tlv_walk_tree() or by recursing into a value's bytes, builds a path by
+ * tlv_tree_reader_visit() or by recursing into a value's bytes, builds a path by
  * calling tlv_diagnostic_path_push() with the tag of each element it
  * descends into and tlv_diagnostic_path_pop() when it returns to the
  * parent. `tags` then lists the enclosing elements outermost first, so it

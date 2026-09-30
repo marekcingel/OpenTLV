@@ -168,9 +168,9 @@ impl Format {
         let code = unsafe {
             match (self, strictness) {
                 (Format::Der, Strictness::Canonical) => {
-                    native::tlv_der_walk(ptr, len, &limits.der(), None, no_context, &mut offset)
+                    native::tlv_der_visit(ptr, len, &limits.der(), None, no_context, &mut offset)
                 }
-                (Format::Der, Strictness::Strict) => native::tlv_der_walk_strict(
+                (Format::Der, Strictness::Strict) => native::tlv_der_visit_strict(
                     ptr,
                     len,
                     &limits.der(),
@@ -179,9 +179,9 @@ impl Format {
                     &mut offset,
                 ),
                 (Format::Cer, Strictness::Canonical) => {
-                    native::tlv_cer_walk(ptr, len, &limits.cer(), None, no_context, &mut offset)
+                    native::tlv_cer_visit(ptr, len, &limits.cer(), None, no_context, &mut offset)
                 }
-                (Format::Cer, Strictness::Strict) => native::tlv_cer_walk_strict(
+                (Format::Cer, Strictness::Strict) => native::tlv_cer_visit_strict(
                     ptr,
                     len,
                     &limits.cer(),

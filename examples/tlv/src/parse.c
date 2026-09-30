@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/size.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 
 /* An FCI Template (6F) holding a DF Name (84) and an FCI Proprietary
  * Template (A5) holding an Application Label (50). */
@@ -30,10 +30,13 @@ static tlv_visit_result_t print_element(const tlv_element_t* element, size_t dep
 }
 
 int main(void) {
-    size_t count = 0;
-    if (tlv_walk_tree(document, sizeof(document), &tlv_format_ber, TLV_WALK_MAX_DEPTH, 16,
-                      print_element, &count, NULL) != TLV_OK)
+    size_t            count = 0;
+    tlv_tree_frame_t  frames[TLV_TREE_DEFAULT_DEPTH];
+    tlv_tree_reader_t reader;
+    if (tlv_tree_reader_init(&reader, document, sizeof(document), &tlv_format_ber, frames,
+                             TLV_TREE_DEFAULT_DEPTH, TLV_TREE_DEFAULT_DEPTH, 16) != TLV_OK)
         return 1;
+    if (tlv_tree_reader_visit(&reader, print_element, &count, NULL) != TLV_OK) return 1;
     /* 6F, its two children (84, A5) and A5's child (50). */
     return count == 4 ? 0 : 1;
 }

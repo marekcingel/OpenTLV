@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Rename Lua `walk_tree` to `visit_tree`, DER/CER `*_walk` and `*_walk_strict` to `*_visit` and `*_visit_strict`, and Query buffer traversal to `tlv_query_visit_buffer` / `tlv::query::visit_buffer`. Update bindings and examples to the Visitor naming; no compatibility aliases are retained. (#394)
+- **Breaking:** Remove the generic Walker API (`tlv_walk*()`, `TLV_WALK_MAX_DEPTH`, C/C++ Walker headers). Use `reader/visitor.h` and caller-owned Reader/Tree Reader cursors; C++ exposes `tlv::visit_tree`. Migrate Query, Schema, CLI and bindings to the canonical cursors. Document parsing, encoding and cleanup are iterative and support runtime depths beyond the default; CLI traversal storage grows with input depth. Schema, structure-codec and Query convenience capacities remain component-owned bounds. Rebuild consumers and migrate removed symbols. (#391, #393, #394)
 - Make Tree Reader the canonical nested traversal mechanism; Walker is now a compatibility callback adapter. `TLV_WALK_MAX_DEPTH` limits only the adapter's stack, while Tree Reader supports caller-selected depths and storage capacities. (#393)
 - **Breaking:** Extend `tlv_reader_t` and `tlv_reader_diagnostic_t` for incremental input; rebuild consumers and update FFI layouts. Existing `tlv_reader_init()` retains final-buffer behavior. BER/CER indefinite framing now rejects incomplete children within a fixed enclosing boundary as invalid lengths rather than requesting impossible additional input. (#392)
 - Establish Reader as the canonical allocation-free pull cursor with explicit element, end, incomplete-input and error outcomes. Unify cursor transitions and diagnostics, expose source metadata without a second decode, and compose tree traversal through Reader. (#391)
@@ -83,6 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add resumable Visitor adapters over caller-owned Reader and Tree Reader cursors, including incremental input, absolute diagnostics and caller-selected tree storage. Add `tlv_query_visit()` for resumable matching over a caller-owned Tree Reader. (#394)
 - Add an allocation-free, iterative Tree Reader with preorder items, absolute offsets, incremental input windows, subtree skipping, caller-owned traversal frames, runtime depth limits and an element-count bound. Constructed items retain Reader's complete contiguous borrowed-storage contract. (#393)
 - Add allocation-free incremental Reader input windows, explicit `TLV_NEED_MORE_DATA` and EOF semantics, consumed-byte and absolute-offset accessors, and known required extents in diagnostics. Callers retain buffering and borrowed-storage ownership. (#392)
 - Add Bluetooth semantic CLI output and schema/codec validation through `--module bluetooth`, with AD container padding support and semantic conformance coverage. (#351)

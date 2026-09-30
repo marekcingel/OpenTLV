@@ -17,7 +17,7 @@
 #include "tlv++/writer/writer.hpp"
 #include "tlv++/codec/registry.hpp"
 #include "tlv++/codec/structure.hpp"
-#include "tlv++/reader/walker.hpp"
+#include "tlv++/reader/visitor.hpp"
 #include "tlv++/query/query.hpp"
 #include "tlv++/schema/schema.hpp"
 #if OPENTLV_DHCP

@@ -1,6 +1,6 @@
 # Mutable documents
 
-The reader, writer and walker are zero-copy: they look at the input buffer and
+The reader, writer and visitor are zero-copy: they look at the input buffer and
 never allocate. That is the right tool for parsing and for embedded targets, but
 it cannot change a message that already exists. When an application has to
 read a TLV message, change a field, add or drop an element and send it on, use
@@ -40,7 +40,7 @@ if (rc != TLV_OK) { /* error_offset is the offset of the offending element */ }
 ```
 
 `tlv_document_options_init()` also sets the limits, which you can change before
-use: `max_depth` (default `TLV_WALK_MAX_DEPTH`) and `max_elements` (default
+use: `max_depth` (default `TLV_TREE_DEFAULT_DEPTH`) and `max_elements` (default
 `TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS`, 65536). Parsing and every later
 modification are refused with `TLV_ERR_LIMIT` when they would exceed a limit, so
 untrusted input cannot make a document grow without bound.
@@ -195,3 +195,9 @@ model](../concepts/bindings.md) for the binding coverage of each language.
   [copy helpers](copy.md).
 - Which tags are constructed is decided when a node is created and stays with
   the node; there is no operation that changes a node's tag.
+
+Document uses the canonical Tree Reader to parse nested input. Its runtime depth
+limit is not capped at `TLV_TREE_DEFAULT_DEPTH`; temporary structural storage uses
+the Document allocator. Parsing, subtree cleanup, path search, encoded-size
+measurement and encoding are iterative. Measurement and encoding may allocate
+scratch storage and report allocation failure without leaking partial state.

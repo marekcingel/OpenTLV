@@ -11,7 +11,7 @@ from opentlv.format import Format, _resolve_format
 from opentlv.tag import Tag
 
 _DEFAULT_MAX_DEPTH = 64
-"""TLV_WALK_MAX_DEPTH."""
+"""TLV_TREE_DEFAULT_DEPTH."""
 
 _DEFAULT_MAX_ELEMENTS = 65536
 """TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS."""

@@ -1,7 +1,7 @@
 #ifndef OPENTLV_CLI_DECODE_HPP
 #define OPENTLV_CLI_DECODE_HPP
 #include <string>
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 
 namespace cli {
 

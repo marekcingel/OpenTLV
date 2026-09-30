@@ -1,5 +1,5 @@
 // Addresses the Application Label directly by path, `6F/A5/50`, without
-// walking the whole document by hand. See parse.cpp for the document itself.
+// traversing the whole document by hand. See parse.cpp for the document itself.
 #include <array>
 #include <iomanip>
 #include <iostream>
@@ -20,8 +20,8 @@ int main() {
     }
 
     bool found = false;
-    auto result = query->walk(
-        tlv::bytes(document.data(), document.size()), tlv_format_ber, TLV_WALK_MAX_DEPTH, 16,
+    auto result = query->visit_buffer(
+        tlv::bytes(document.data(), document.size()), tlv_format_ber, TLV_TREE_DEFAULT_DEPTH, 16,
         [&found](const tlv::element& element, size_t /*depth*/, size_t offset) {
             std::cout << "6F/A5/50 = " << std::hex << std::uppercase << std::setw(2)
                       << std::setfill('0') << static_cast<int>(element.value.data[0]) << std::dec

@@ -1,40 +1,41 @@
 #ifndef OPENTLV_CLI_DIAGNOSTIC_COLLECT_HPP
 #define OPENTLV_CLI_DIAGNOSTIC_COLLECT_HPP
 #include <cstddef>
+#include <vector>
 #include <cstdint>
 #include "tlv/diagnostic.h"
 #include "tlv/reader/reader.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 
-// Collects the detail behind a walk's diagnostic (the path enclosing it, and
+// Collects the detail behind a traversal's diagnostic (the path enclosing it, and
 // enough of a reader diagnostic to describe it) independently of how that
 // detail is later presented. diagnostic_render.hpp owns formatting only;
 // this file owns figuring out what there is to format.
 
 namespace cli {
 
-// The tags and value boundaries enclosing whichever element a walk's visitor
+// The tags and value boundaries enclosing whichever element a traversal's visitor
 // was last called for. Independent of cli_presentation_t, which exists only
 // for display bookkeeping (indentation, EMV context inheritance) and must
 // not be reused here. One instance is shared by every visitor of a single
-// walk.
+// traversal.
 struct diagnostic_scope {
     tlv_diagnostic_path_t path;
     // end[d]: offset one past the value of the scope open at depth d;
     // end[0] is the whole input size.
-    size_t end[TLV_WALK_MAX_DEPTH + 1];
+    std::vector<size_t> end;
 };
 
 // Resets `scope` to an empty path within an input of `size` bytes.
 void diagnostic_scope_init(diagnostic_scope& scope, size_t size);
 
 // Updates `scope` for the element just visited at `depth`, before doing
-// anything else with it, so that a later failure deeper in the same walk can
+// anything else with it, so that a later failure deeper in the same traversal can
 // be reported with the tags and value boundary enclosing it. Mirrors the
 // pop-then-push pattern in docs/guides/diagnostics.md#hierarchical-paths.
 // `base` is the start of the whole input buffer, used to compute a
 // constructed value's absolute end from its borrowed pointer; `constructed`
-// is the same nesting predicate passed to the walk, or `nullptr`.
+// is the same nesting predicate passed to the traversal, or `nullptr`.
 void diagnostic_scope_visit(diagnostic_scope& scope, const uint8_t* base,
                             const tlv_element_t* element, std::size_t depth,
                             tlv_is_constructed_fn constructed);

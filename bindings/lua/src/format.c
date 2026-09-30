@@ -13,11 +13,11 @@ static int format_tostring(lua_State* L) {
     return 1;
 }
 
-void opentlv_lua_register_builtin(lua_State* L, tlv_format_t format_value, int use_der_walker,
+void opentlv_lua_register_builtin(lua_State* L, tlv_format_t format_value, int use_der_validation,
                                   const char* name) {
     tlv_lua_format_t* format = (tlv_lua_format_t*)lua_newuserdata(L, sizeof(tlv_lua_format_t));
     format->format = format_value;
-    format->use_der_walker = use_der_walker;
+    format->use_der_validation = use_der_validation;
     format->name = name;
     luaL_getmetatable(L, OPENTLV_LUA_FORMAT_MT);
     lua_setmetatable(L, -2);

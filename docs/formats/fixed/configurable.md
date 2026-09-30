@@ -39,7 +39,7 @@ C descriptor's context is the caller-owned `config` passed to
 from it. See [format context ownership and
 lifetime](../../guides/memory.md#format-context-ownership-and-lifetime) for
 the general contract this follows, including copying, sharing and moving.
-Both work with the reader, writer, walker, schemas and the C API. Neither
+Both work with the reader, writer, visitor, schemas and the C API. Neither
 performs allocation.
 
 ## Supported parameters

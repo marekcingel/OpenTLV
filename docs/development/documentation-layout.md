@@ -114,7 +114,7 @@ Conventions:
   `<!-- example: PATH -->` marker and the fenced block inside the tab, and the
   check below keeps the copy identical. See
   [Getting started](../getting-started/README.md#quick-start). Small
-  illustrative fragments (a guide walking through one call, not a complete
+  illustrative fragments (a guide traversing through one call, not a complete
   program) may instead stay inline per tab, with a "Runnable version" link to
   the full example file, as `guides/python.md` and `guides/rust.md` do.
 

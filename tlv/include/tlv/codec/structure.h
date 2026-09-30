@@ -18,6 +18,9 @@ extern "C" {
  * @{
  */
 
+/** @brief Frame capacity used by structure codecs when no Schema is supplied. */
+enum { TLV_STRUCTURE_MAX_DEPTH = 64 };
+
 /**
  * @brief Descriptor mapping a complete TLV sequence to one caller-owned application object.
  *
@@ -56,11 +59,13 @@ typedef struct tlv_structure_codec {
     /** Optional borrowed schema; `NULL` validates framing and nesting only. */
     const tlv_structure_schema_t* schema;
     /**
-     * Maximum nesting depth, following tlv_walk_tree() conventions. Zero is a
-     * real limit; a value out of range returns #TLV_CODEC_ERR_INVALID_VALUE.
+     * Maximum nesting depth, following tlv_tree_reader_visit() conventions. Zero is a
+     * real limit; actual traversal is bounded by TLV_STRUCTURE_MAX_DEPTH frames without a Schema,
+     * or TLV_SCHEMA_MAX_DEPTH with a Schema.
      */
     size_t max_depth;
-    /** Maximum element count, following tlv_walk_tree() conventions. Zero is a real limit. */
+    /** Maximum element count, following tlv_tree_reader_visit() conventions. Zero is a real limit.
+     */
     size_t max_elements;
     /** Converts a validated sequence to the application object; `NULL` if unsupported. */
     tlv_codec_result_t (*decode)(const void* context, const tlv_format_t* format,
@@ -85,7 +90,6 @@ typedef struct tlv_structure_codec {
  * @return #TLV_CODEC_OK on success.
  * @return #TLV_CODEC_ERR_NULL_ARG for missing required arguments.
  * @return #TLV_CODEC_ERR_INVALID_STRUCTURE if validation fails.
- * @return #TLV_CODEC_ERR_INVALID_VALUE if `max_depth` is out of range.
  * @return #TLV_CODEC_ERR_UNSUPPORTED if the descriptor has no decoder.
  *
  * @warning On error the contents of `value` are unspecified. The decoded
@@ -113,7 +117,6 @@ TLV_API tlv_codec_result_t tlv_structure_decode(const tlv_structure_codec_t* cod
  * @return #TLV_CODEC_ERR_NULL_ARG for missing required arguments.
  * @return #TLV_CODEC_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient.
  * @return #TLV_CODEC_ERR_INVALID_STRUCTURE if the produced bytes fail validation.
- * @return #TLV_CODEC_ERR_INVALID_VALUE if `max_depth` is out of range.
  * @return #TLV_CODEC_ERR_UNSUPPORTED if the descriptor has no encoder.
  *
  * @warning On error the destination is unspecified and `*written` is zero.

@@ -1,7 +1,7 @@
 /*
  * luaopen_opentlv_native(): the entry point require("opentlv_native") loads.
  * Ties together the format (format.c), reader (reader.c), tree traversal
- * (walk.c), error (error.c) and shared (common.c) pieces into the module
+ * (visitor.c), error (error.c) and shared (common.c) pieces into the module
  * table Lua sees; the OpenTLV C reader itself (tlv/reader/) does the actual
  * parsing, exactly as for every other OpenTLV binding (see
  * docs/concepts/bindings.md).
@@ -18,8 +18,8 @@
  * and error handling; it does not implement TLV parsing, encoding or
  * validation logic of its own. When a Lua-binding change would require new
  * decoding/encoding behavior, that behavior is added to tlv/ first, and this
- * binding calls it, the same way format.c, reader.c and walk.c call
- * tlv_reader_init(), tlv_reader_next_diag() and tlv_walk_tree() rather than
+ * binding calls it, the same way format.c, reader.c and visitor.c call
+ * tlv_reader_init(), tlv_reader_next_diag() and tlv_tree_reader_visit() rather than
  * re-implementing any part of what those functions do.
  */
 #include "common.h"
@@ -27,7 +27,7 @@
 #include "error.h"
 #include "format.h"
 #include "reader.h"
-#include "walk.h"
+#include "visitor.h"
 
 #include <tlv/error.h>
 #include <tlv/version.h>
@@ -51,7 +51,7 @@ int luaopen_opentlv_native(lua_State* L) {
     opentlv_lua_register_error_codes(L, module_index);
     opentlv_lua_open_format(L, module_index);
     opentlv_lua_open_reader(L, module_index);
-    opentlv_lua_open_walk(L, module_index);
+    opentlv_lua_open_visitor(L, module_index);
 
     lua_pushcfunction(L, l_version);
     lua_setfield(L, module_index, "version");

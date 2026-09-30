@@ -20,7 +20,7 @@ more than 1,000 content octets is rejected, and so is a constructed encoding who
 total content is 1,000 octets or fewer.
 
 This is a **TLV-layer and framing validator, not a complete ASN.1 CER validator**.
-Structural validation (`tlv_cer_read`/`tlv_cer_walk`/`tlv_cer_write`) covers framing,
+Structural validation (`tlv_cer_read`/`tlv_cer_visit`/`tlv_cer_write`) covers framing,
 EOC placement, and canonical segmentation — segment tags, forms and sizes — but not
 value semantics. Universal value semantics (BOOLEAN representation, INTEGER
 minimality, BIT STRING padding, string charsets, and so on) are checked only by the
@@ -45,7 +45,7 @@ returning its element and complete encoded size. Trailing input is ignored. Empt
 input returns `TLV_ERR_END_OF_BUFFER`. Keep the input alive while using returned
 views (see [memory ownership](../../guides/memory.md)).
 
-`tlv_cer_walk(data, size, limits, visitor, context, &error_offset)` processes all
+`tlv_cer_visit(data, size, limits, visitor, context, &error_offset)` processes all
 concatenated elements, including nested constructed values. A NULL visitor
 performs validation only. Empty input succeeds.
 
@@ -102,17 +102,19 @@ state rather than concatenating them.
 A constructed string's segments are just ordinary CER primitive elements one
 level below its own element — `element.value` for a constructed CER element already
 excludes the outer EOC, the same convention `tlv_read` uses for BER. Iterate
-them with the existing generic `tlv_walk`, no dedicated API needed:
+them with the existing generic `tlv_reader_visit`, no dedicated API needed:
 
 ```c
-tlv_element_t element; /* a constructed OCTET STRING element from tlv_cer_read/_walk */
+tlv_element_t element; /* a constructed OCTET STRING element from tlv_cer_read/_visit */
 tlv_visit_result_t print_segment(const tlv_element_t* segment, void* context) {
     /* segment->value borrows the input; print it, hash it, etc. */
     return TLV_VISIT_CONTINUE;
 }
 size_t length;
 tlv_size_to_native(element.value.size, &length);
-tlv_walk(element.value.data, length, &tlv_format_cer, print_segment, NULL);
+tlv_reader_t segments;
+if (tlv_reader_init(&segments, element.value.data, length, &tlv_format_cer) == TLV_OK)
+    tlv_reader_visit(&segments, print_segment, NULL);
 ```
 
 `element.value` here is a element of the **encoded constructed contents** (segment
@@ -173,8 +175,8 @@ overflow-checked before writing.
 
 ## Strict universal value validation
 
-`tlv_cer_read_strict`, `tlv_cer_walk_strict` and `tlv_cer_write_strict` are drop-in
-counterparts of `tlv_cer_read`, `tlv_cer_walk` and `tlv_cer_write`: identical
+`tlv_cer_read_strict`, `tlv_cer_visit_strict` and `tlv_cer_write_strict` are drop-in
+counterparts of `tlv_cer_read`, `tlv_cer_visit` and `tlv_cer_write`: identical
 signatures, offsets and resource limits, but every UNIVERSAL-class element they
 encounter additionally has its content validated against ASN.1 canonical rules —
 including, for a segmented constructed value, every segment, validated as it is

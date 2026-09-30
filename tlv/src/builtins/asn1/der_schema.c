@@ -245,7 +245,7 @@ tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root, size_t* err
 /* Shared traversal state: data is the original input's base pointer, so
  * every offset threaded through the engine is absolute against it, and
  * element_count is the single running total tlv_der_read_element-style reads
- * are charged against, matching tlv_der_walk's convention. */
+ * are charged against, matching tlv_der_visit's convention. */
 typedef struct der_schema_ctx {
     const uint8_t* data;
     const tlv_der_schema_limits_t* limits;
@@ -287,7 +287,7 @@ static tlv_visit_result_t der_schema_count_visitor(const tlv_element_t* element,
 
 /* ANY accepts exactly one well-formed DER-TLV element without ASN.1
  * semantics; a constructed one must still have well-formed generic DER-TLV
- * children, checked with the ordinary (non-strict) generic walker under a
+ * children, checked with the ordinary (non-strict) generic Tree Reader under a
  * limits budget reduced by what this validation has already spent, with the
  * elements it visits folded back into the running total. */
 static tlv_result_t dispatch_any(der_schema_ctx_t* ctx, size_t value_offset, size_t value_length,
@@ -303,8 +303,8 @@ static tlv_result_t dispatch_any(der_schema_ctx_t* ctx, size_t value_offset, siz
     sub_limits.max_elements = ctx->element_count < ctx->limits->base.max_elements
                                   ? ctx->limits->base.max_elements - ctx->element_count
                                   : 0;
-    rc = tlv_der_walk(ctx->data + value_offset, value_length, &sub_limits, der_schema_count_visitor,
-                      &visited, &sub_offset);
+    rc = tlv_der_visit(ctx->data + value_offset, value_length, &sub_limits,
+                       der_schema_count_visitor, &visited, &sub_offset);
     ctx->element_count += visited;
     if (rc != TLV_OK) return fail(rc, value_offset + sub_offset, ctx->error_offset);
     return TLV_OK;

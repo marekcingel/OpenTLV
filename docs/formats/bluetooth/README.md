@@ -160,7 +160,7 @@ with `OPENTLV_BLUETOOTH=ON` and uses the generic reader with the
 strict Bluetooth LTV format. It allocates nothing and leaves the input unchanged.
 
 For `02 01 06 00 00 00`, validation succeeds with `significant_size = 3`.
-Pass the original `data` pointer and that size to the generic reader, walker
+Pass the original `data` pointer and that size to the generic reader, visitor
 or schema validator. The remaining bytes are padding; source offsets still
 refer to the original buffer. Subsequent parsing performs a second pass.
 
@@ -279,7 +279,7 @@ manufacturer data) is up to the caller, keyed on the type. The views borrow the
 input buffer; see the [shared memory ownership rules](../../guides/memory.md)
 before retaining one.
 
-The reader is also usable through the walker, schemas and the `otlv`
+The reader is also usable through the visitor, schemas and the `otlv`
 CLI:
 
 ```text

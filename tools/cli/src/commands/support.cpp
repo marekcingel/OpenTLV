@@ -1,3 +1,5 @@
+#include <vector>
+#include <algorithm>
 #include "commands/support.hpp"
 #include <cstring>
 #include <iomanip>
@@ -5,7 +7,7 @@
 #include <iostream>
 #include "console_color.hpp"
 #include "tlv/config.h"
-#include "tlv++/reader/walker.hpp"
+#include "tlv++/reader/visitor.hpp"
 #include "tlv/formats/fixed.h"
 #if OPENTLV_EMV
 #include "tlv/builtins/emv/format.h"
@@ -83,22 +85,26 @@ std::string hex_string(const uint8_t* data, std::size_t length) {
     return result;
 }
 
-tlv_result_t walk_slice(const walk_env& env, const uint8_t* slice, std::size_t slice_size,
-                        std::size_t base, std::size_t max_elements, tlv_tree_visitor_t visitor,
-                        void* context, std::size_t* error_offset,
-                        tlv_reader_diagnostic_t* diagnostic) {
+tlv_result_t visit_slice(const traversal_env& env, const uint8_t* slice, std::size_t slice_size,
+                         std::size_t base, std::size_t max_elements, tlv_tree_visitor_t visitor,
+                         void* context, std::size_t* error_offset,
+                         tlv_reader_diagnostic_t* diagnostic) {
     const options& o = *env.options;
     std::size_t    relative = 0;
     tlv_result_t   result;
 #if OPENTLV_FORMAT_DER
     if (env.is_der) {
         tlv_der_limits_t limits = {o.max_depth, o.max_input, o.max_input, max_elements};
-        result = tlv_der_walk(slice, slice_size, &limits, visitor, context, &relative);
+        result = tlv_der_visit(slice, slice_size, &limits, visitor, context, &relative);
     } else
 #endif
     {
-        result = tlv_walk_tree_diag(slice, slice_size, env.format, o.max_depth, max_elements,
-                                    visitor, context, &relative, diagnostic);
+        std::vector<tlv_tree_frame_t> frames(std::min(o.max_depth, slice_size));
+        tlv_tree_reader_t             reader;
+        result = tlv_tree_reader_init(&reader, slice, slice_size, env.format, frames.data(),
+                                      frames.size(), o.max_depth, max_elements);
+        if (result == TLV_OK)
+            result = tlv_tree_reader_visit_diag(&reader, visitor, context, &relative, diagnostic);
         if (result != TLV_OK && diagnostic && diagnostic->diagnostic.code != TLV_OK) {
             if (diagnostic->diagnostic.has_offset) diagnostic->diagnostic.offset += base;
             if (diagnostic->has_tag_offset) diagnostic->tag_offset += base;

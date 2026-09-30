@@ -46,14 +46,18 @@ void validate_command::run_module_checks() {
             self.stage_ = "codec ";
             return TLV_VISIT_STOP;
         };
-        const auto rc = tlv_walk_tree(data(), significant, format_, options_.max_depth,
-                                      options_.max_elements, visitor, this, nullptr);
+        tlv_tree_reader_t reader;
+        auto rc = tlv_tree_reader_init(&reader, data(), significant, format_, nullptr, 0,
+                                       options_.max_depth, options_.max_elements);
+        if (rc == TLV_OK) rc = tlv_tree_reader_visit(&reader, visitor, this, nullptr);
         if (rc != TLV_OK) result_ = rc;
         return;
     }
 #endif
 #if OPENTLV_EMV
     check_.presentation = cli_presentation_t();
+    check_.presentation.ends.resize(1);
+    check_.presentation.contexts.resize(1);
     check_.data = data();
     check_.predicate = format_->is_constructed;
     diagnostic_scope_init(check_.scope, size());
@@ -91,9 +95,9 @@ void validate_command::run_module_checks() {
         check_.presentation.data = data();
         check_.presentation.ends[0] = size();
         check_.presentation.contexts[0] = options_.emv_context;
-        const walk_env env = {&options_, format_, is_der_};
-        result_ = walk_slice(env, data(), size(), 0, options_.max_elements,
-                             check_dictionary_trampoline, this, &error_offset_);
+        const traversal_env env = {&options_, format_, is_der_};
+        result_ = visit_slice(env, data(), size(), 0, options_.max_elements,
+                              check_dictionary_trampoline, this, &error_offset_);
         if (result_ == TLV_OK && check_.result != TLV_OK) {
             result_ = check_.result;
             error_offset_ = check_.offset;
@@ -119,7 +123,7 @@ std::string validate_command::render_failure_diagnostic(diagnostic_format  diag_
         return format_diagnostic(diag, diag_format, "dictionary", check_.tag.c_str());
     }
 #endif
-    return walk_command::render_failure_diagnostic(diag_format, tag_hex_ptr, stage_name);
+    return traversal_command::render_failure_diagnostic(diag_format, tag_hex_ptr, stage_name);
 }
 
 #if OPENTLV_EMV

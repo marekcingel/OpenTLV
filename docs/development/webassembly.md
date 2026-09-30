@@ -96,7 +96,7 @@ Value excludes the enclosing trailer. Field order comes from these ranges,
 so LTV and BER end-of-contents need no byte-layout guessing in the viewer.
 The JSON example above omits `encodedSize` and `source` for brevity.
 
-`format: "cer"` uses the generic tree walker with `tlv_format_cer`, preserving
+`format: "cer"` uses the generic tree visitor with `tlv_format_cer`, preserving
 preorder output and EOC source ranges. It checks framing only; full CER
 validation (including string segmentation and semantic values) is not applied.
 

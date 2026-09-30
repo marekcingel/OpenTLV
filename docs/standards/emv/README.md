@@ -69,7 +69,7 @@ storage. Runtime owners select codecs and validate Schema explicitly; no
 
 ## Framing and lookup
 
-Use `&tlv_format_emv` with the reader, walker, or writer.
+Use `&tlv_format_emv` with the reader, visitor, or writer.
 There is no separate EMV parser and the reader never interprets values.
 
 The descriptor in `tlv/builtins/emv/format.h` composes generic variable identifier
@@ -312,7 +312,7 @@ Template (`70`) for a specific kernel, use `tlv_schema_validate_all()`; see
 Include `tlv/builtins/emv/dol.h`. A Data Object List is a sequence of tag/
 requested-length pairs with no value bytes of its own; PDOL, CDOL1, CDOL2 and
 DDOL all share this format (Book 3 section 5.4). Reading one with `tlv_read`
-or `tlv_walk` would misinterpret the one-byte requested length as a BER
+or `tlv_reader_visit` would misinterpret the one-byte requested length as a BER
 length field, so this is a dedicated value component rather than ordinary
 TLV structure.
 
@@ -402,11 +402,11 @@ object does not represent a complete or validated transaction.
 
 ## Example
 
-[examples/tlv/src/builtins/emv/tag_decoding.c](../../../examples/tlv/src/builtins/emv/tag_decoding.c) walks
+[examples/tlv/src/builtins/emv/tag_decoding.c](../../../examples/tlv/src/builtins/emv/tag_decoding.c) traverses
 a whole record instead of one element: it looks up every child tag with
 `tlv_emv_find()`, checks its length with `tlv_emv_validate_length()`, decodes it
 using the explicit builtin presentation profile, and leaves a tag that is unknown or has an invalid
-length skipped rather than aborting the walk.
+length skipped rather than aborting the traversal.
 [EMV module and codecs](README.md)
 
 See also the [C API reference: builtins](../../reference/c-api.md#builtins).

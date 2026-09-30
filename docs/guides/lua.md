@@ -66,23 +66,23 @@ input:
 
 ## Tree traversal
 
-`opentlv.walk_tree(data, format, callback, opts)` visits every element of
+`opentlv.visit_tree(data, format, callback, opts)` visits every element of
 `data` in preorder, calling `callback(element, depth)` for each; `element` has an
 additional `constructed` boolean field. Returning `false` from `callback`
-stops the walk early:
+stops the traversal early:
 
 ```lua
-opentlv.walk_tree(data, opentlv.formats.ber, function(element, depth)
+opentlv.visit_tree(data, opentlv.formats.ber, function(element, depth)
     print(string.rep("  ", depth) .. element.tag)
 end)
 ```
 
 `opts` is an optional table with integer `max_depth` (default 64, the
-library's `TLV_WALK_MAX_DEPTH`) and `max_elements` (default 65536); pass an
-explicit, tighter `max_elements` when walking untrusted input, since the C
-`tlv_walk_tree()` this wraps requires a real bound. `callback` may be omitted
+library's `TLV_TREE_DEFAULT_DEPTH`) and `max_elements` (default 65536); pass an
+explicit, tighter `max_elements` when traversing untrusted input, since the C
+`tlv_tree_reader_visit()` this wraps requires a real bound. `callback` may be omitted
 to validate structure and limits only. For `opentlv.formats.der`, traversal
-always uses the stricter `tlv_der_walk()` with the library's default DER
+always uses the stricter `tlv_der_visit()` with the library's default DER
 limits instead, and `opts` is ignored.
 
 ## Error handling
@@ -105,6 +105,6 @@ if not ok then
 end
 ```
 
-A callback error inside `opentlv.walk_tree` (a genuine Lua error your
-`callback` raises) propagates out of `opentlv.walk_tree` unchanged, so
+A callback error inside `opentlv.visit_tree` (a genuine Lua error your
+`callback` raises) propagates out of `opentlv.visit_tree` unchanged, so
 `pcall` catches whatever your callback raised, not a wrapped copy.

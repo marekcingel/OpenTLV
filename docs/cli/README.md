@@ -489,7 +489,7 @@ What runs, and what does not:
 The dictionary is context dependent: the same tag can mean different things
 inside different templates (for example `82` is the 2-byte Application
 Interchange Profile at the top level but a 1-byte Biometric Subtype inside a
-Biometric Header Template). During a walk the CLI switches context on known
+Biometric Header Template). During a traversal the CLI switches context on known
 containers such as the Biometric Information Template `7F60`. A fragment cut
 out of such a container has no enclosing element to say which context applies,
 so select it explicitly with `--emv-context NAME`, for `dump`, `decode` and
@@ -663,7 +663,7 @@ available: 1
 ```
 
 This declared-length/available detail comes from re-reading the failing
-element on its own once the walk has located it, bounded to the value it
+element on its own once the traversal has located it, bounded to the value it
 actually sits in (not necessarily the whole input); it is shown whenever
 that re-read reproduces the original failure exactly. BER and DER's
 constructed-length handling does not currently surface it back through this
@@ -719,7 +719,7 @@ offset=3 tag=0A length=1 value=FC name="Tx Power Level" decoded="-4 dBm"
 ```
 
 The module accepts trailing zero padding using the public AD container API.
-Only significant structures are walked; their offsets still refer to the
+Only significant structures are traversed; their offsets still refer to the
 original input. Embedded zeros remain value bytes. A nonzero byte after
 padding begins is an error. Without `--module bluetooth`, `bluetooth-ltv`
 remains strict wire inspection, including rejection of zero-length structures.

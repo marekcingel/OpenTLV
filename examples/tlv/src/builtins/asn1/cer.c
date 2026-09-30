@@ -8,7 +8,7 @@
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv/builtins/asn1/cer_validation.h"
 #include "tlv/size.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 
 #define CHECK(call)                                                                                \
     do {                                                                                           \
@@ -56,7 +56,9 @@ int main(void) {
          * included) -- distinct from the logical string data each segment's
          * own borrowed value exposes below. */
         CHECK(tlv_size_to_native(element.value.size, &value_size));
-        CHECK(tlv_walk(element.value.data, value_size, &tlv_format_cer, print_segment, NULL));
+        tlv_reader_t segments;
+        CHECK(tlv_reader_init(&segments, element.value.data, value_size, &tlv_format_cer));
+        CHECK(tlv_reader_visit(&segments, print_segment, NULL));
     }
     return 0;
 }

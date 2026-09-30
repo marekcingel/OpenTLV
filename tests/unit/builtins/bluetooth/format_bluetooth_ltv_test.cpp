@@ -1,7 +1,8 @@
+#include "visitor_input.h"
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/copy.h"
 #include "tlv/reader/reader.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/schema/schema.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
@@ -145,18 +146,18 @@ TEST(Unit_Tlv_BluetoothLtv, WriterRoundTripsThroughReader) {
     EXPECT_EQ(0, std::memcmp(buffer + 3, copy, copied));
 }
 
-TEST(Unit_Tlv_BluetoothLtv, GenericWalkerAndTreeWalkWork) {
+TEST(Unit_Tlv_BluetoothLtv, SequentialAndTreeVisitorsWork) {
     size_t count = 0;
     ASSERT_EQ(TLV_OK,
-              tlv_walk(advertising, sizeof(advertising), &reader_format, count_element, &count));
+              visit_input(advertising, sizeof(advertising), &reader_format, count_element, &count));
     EXPECT_EQ(3u, count);
 
     size_t error_offset = 99;
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(advertising, sizeof(advertising), &reader_format, 8, 100,
-                                    nullptr, nullptr, &error_offset));
+    EXPECT_EQ(TLV_OK, visit_tree_input(advertising, sizeof(advertising), &reader_format, 8, 100,
+                                       nullptr, nullptr, &error_offset));
     const uint8_t bad[] = {0x02, 0x01, 0x06, 0x00};
-    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_walk_tree(bad, sizeof(bad), &reader_format, 8, 100,
-                                                    nullptr, nullptr, &error_offset));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, visit_tree_input(bad, sizeof(bad), &reader_format, 8, 100,
+                                                       nullptr, nullptr, &error_offset));
     EXPECT_EQ(3u, error_offset);
 }
 

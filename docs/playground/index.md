@@ -124,7 +124,7 @@ Both modes use the C AD Type registry for names, including Flags, Local Name,
 Service Data and Manufacturer Specific Data. Unknown types remain readable.
 Values remain raw; this view does not apply Bluetooth schemas or value codecs.
 
-CER uses the generic reader and tree walker with `tlv_format_cer`: framing and
+CER uses the generic reader and tree visitor with `tlv_format_cer`: framing and
 EOC boundaries are checked. Full CER validation, including string
 segmentation rules and semantic value checks, is not applied.
 

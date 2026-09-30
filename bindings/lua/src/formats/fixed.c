@@ -32,7 +32,7 @@ static int l_format_fixed(lua_State* L) {
     format->fixed_config.length_order = order;
     format->fixed_config.element_order = TLV_ELEMENT_ORDER_TLV;
     format->fixed_config.length_scope = TLV_LENGTH_SCOPE_VALUE;
-    format->use_der_walker = 0;
+    format->use_der_validation = 0;
     format->name = "fixed";
 
     tlv_result_t code = tlv_fixed_format_init(&format->format, &format->fixed_config);

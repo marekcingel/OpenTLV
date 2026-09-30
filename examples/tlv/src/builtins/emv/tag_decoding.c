@@ -14,7 +14,7 @@
 #include "tlv/size.h"
 #include "tlv/builtins/emv/emv.h"
 #include "tlv/reader/reader.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/writer/writer.h"
 
 #include <inttypes.h>
@@ -156,8 +156,8 @@ static int build_record(uint8_t* content, size_t capacity, size_t* content_size)
     return 0;
 }
 
-/* Everything the walk below successfully decoded, plus counters used to
- * assert the record was handled as expected once the walk completes. */
+/* Everything the traversal below successfully decoded, plus counters used to
+ * assert the record was handled as expected once the traversal completes. */
 typedef struct {
     int                       errors, known_count, unknown_count, invalid_length_count;
     int                       pan_seen;
@@ -335,7 +335,9 @@ int main(void) {
     EXPECT(consumed == wire_size, "unexpected trailing bytes after the record template");
     CHECK(tlv_size_to_native(outer.value.size, &wire_content_size));
 
-    CHECK(tlv_walk(outer.value.data, wire_content_size, &tlv_format_emv, decode_field, &record));
+    tlv_reader_t fields;
+    CHECK(tlv_reader_init(&fields, outer.value.data, wire_content_size, &tlv_format_emv));
+    CHECK(tlv_reader_visit(&fields, decode_field, &record));
 
     EXPECT(record.errors == 0, "no decode errors were expected");
     EXPECT(record.known_count == 7, "seven tags with a dictionary entry were expected");
@@ -360,6 +362,6 @@ int main(void) {
            "account type decoded incorrectly");
 
     puts("All known tags decoded and validated; the unknown tag and the "
-         "invalid-length tag were skipped without aborting the walk.");
+         "invalid-length tag were skipped without aborting the traversal.");
     return 0;
 }

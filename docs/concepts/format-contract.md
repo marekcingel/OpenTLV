@@ -140,7 +140,7 @@ These formats are not wire-compatible replacements for every legacy input.
 C++ provides `tlv::decode`, `measure`, `encode` and `preserve` in `tlv++/format.hpp`.
 Rust separates semantic `Element` from `Decoded`, available through `decode()`
 and `decode_fixed()`; raw Length belongs to `Decoded::raw_length()`.
-Lua/WASM semantic walker records no longer expose raw Length. Python's existing
+Lua/WASM semantic visitor records no longer expose raw Length. Python's existing
 raw-length inspection is populated from separate source information.
 
 ### Decoded identifier consistency

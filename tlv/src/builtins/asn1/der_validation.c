@@ -96,9 +96,9 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
     return TLV_OK;
 }
 
-static tlv_result_t walk_impl(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
-                              tlv_der_visitor_t visitor, void* context, int strict,
-                              size_t* error_offset) {
+static tlv_result_t visit_impl(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                               tlv_der_visitor_t visitor, void* context, int strict,
+                               size_t* error_offset) {
     if (!limits) limits = &tlv_der_default_limits;
     if (!data && size) return fail(TLV_ERR_NULL_ARG, 0, error_offset);
     if (limits->max_depth > TLV_DER_MAX_DEPTH || size > limits->max_input_size)
@@ -107,14 +107,14 @@ static tlv_result_t walk_impl(const uint8_t* data, size_t size, const tlv_der_li
                     error_offset);
 }
 
-tlv_result_t tlv_der_walk(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
-                          tlv_der_visitor_t visitor, void* context, size_t* error_offset) {
-    return walk_impl(data, size, limits, visitor, context, 0, error_offset);
+tlv_result_t tlv_der_visit(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                           tlv_der_visitor_t visitor, void* context, size_t* error_offset) {
+    return visit_impl(data, size, limits, visitor, context, 0, error_offset);
 }
 
-tlv_result_t tlv_der_walk_strict(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
-                                 tlv_der_visitor_t visitor, void* context, size_t* error_offset) {
-    return walk_impl(data, size, limits, visitor, context, 1, error_offset);
+tlv_result_t tlv_der_visit_strict(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                                  tlv_der_visitor_t visitor, void* context, size_t* error_offset) {
+    return visit_impl(data, size, limits, visitor, context, 1, error_offset);
 }
 
 static tlv_result_t read_impl(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,

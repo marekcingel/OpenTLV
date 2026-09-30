@@ -1,16 +1,16 @@
 #ifndef OPENTLV_CLI_COMMANDS_VALIDATE_COMMAND_HPP
 #define OPENTLV_CLI_COMMANDS_VALIDATE_COMMAND_HPP
-#include "commands/walk_command.hpp"
+#include "commands/traversal_command.hpp"
 
 namespace cli {
 
-// otlv validate: walks the whole input, checking structure only (no display),
+// otlv validate: traverses the whole input, checking structure only (no display),
 // plus the selected module schema/value checks. Also used
 // internally by "encode" to validate its own freshly encoded output under
 // the same limits as a standalone "otlv validate" run.
-class validate_command : public walk_command {
+class validate_command : public traversal_command {
 public:
-    using walk_command::walk_command;
+    using traversal_command::traversal_command;
 
 protected:
     void        run_module_checks() override;
