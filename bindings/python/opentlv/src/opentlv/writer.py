@@ -1,4 +1,4 @@
-"""Sequential writer over a self-managed, growable buffer."""
+"""Sequential output into caller-owned storage or an optional growable buffer."""
 
 from __future__ import annotations
 
@@ -19,12 +19,11 @@ _INITIAL_CAPACITY = 64
 
 
 class Writer:
-    """A sequential writer that encodes TLV entries into a growable buffer.
+    """A sequential writer over borrowed or growable output storage.
 
-    Unlike the C library's `tlv_writer_t`, which fills a caller-provided
-    fixed-capacity buffer, `Writer` owns a `bytearray` that grows as needed:
-    `write` never fails for lack of space, only for an error the format
-    itself reports (for example an unsupported tag size).
+    With ``buffer=storage``, borrows fixed-capacity caller-owned storage.
+    Without a buffer, owns a ``bytearray`` that grows as needed. Both modes
+    keep the position unchanged on failure and delegate encoding to Format.
 
     >>> writer = Writer()
     >>> writer.write(Tag(b"\\x01"), b"\\xaa\\xbb")
@@ -33,10 +32,25 @@ class Writer:
     b'\\x01\\x02\\xaa\\xbb\\x02\\x00'
     """
 
-    __slots__ = ("_buffer", "_pos", "_format")
+    __slots__ = ("_buffer", "_pos", "_format", "_owned")
 
-    def __init__(self, format: AnyFormat | None = None) -> None:
-        self._buffer = bytearray(_INITIAL_CAPACITY)
+    def __init__(self, format: AnyFormat | None = None, *,
+                 buffer: bytearray | memoryview | None = None) -> None:
+        """Borrow a writable contiguous buffer, or allocate a growable one.
+
+        Borrowed storage never grows. A failed write leaves position unchanged;
+        encoder failures may modify bytes after that position. Input tag/value
+        bytes must not overlap the destination element. Python wrapper objects
+        may allocate, but the borrowed mode never allocates output storage.
+        """
+        self._owned = buffer is None
+        if buffer is None:
+            self._buffer = bytearray(_INITIAL_CAPACITY)
+        else:
+            view = memoryview(buffer)
+            if view.readonly or not view.c_contiguous:
+                raise ValueError("buffer must be writable and contiguous")
+            self._buffer = view.cast("B")
         self._pos = 0
         self._format = _resolve_format(format)
 
@@ -64,7 +78,8 @@ class Writer:
             written = self._write_native(self._pos, tag_bytes, value)
         except _native.Error as native_error:
             error = _from_native(native_error)
-            if not (isinstance(error, BufferTooShortError) and error.required is not None):
+            if not (self._owned and isinstance(error, BufferTooShortError)
+                    and error.required is not None):
                 raise error from None
             self._grow(self._pos + error.required)
             try:
@@ -77,6 +92,26 @@ class Writer:
         """Appends a decoded `Element`, for example one produced by a `Reader`."""
         self.write(element.tag, element.value)
 
+    def copy_encoded(self, encoded: Value) -> None:
+        """Copy raw bytes without validation or conversion; overlap is supported.
+
+        A capacity failure preserves position and output bytes. Owned storage
+        grows as needed; borrowed storage never grows.
+        """
+        try:
+            written = _native.copy_encoded(self._buffer, self._pos, encoded)
+        except _native.Error as native_error:
+            error = _from_native(native_error)
+            if not (self._owned and isinstance(error, BufferTooShortError)
+                    and error.required is not None):
+                raise error from None
+            self._grow(self._pos + error.required)
+            try:
+                written = _native.copy_encoded(self._buffer, self._pos, encoded)
+            except _native.Error as retry_error:
+                raise _from_native(retry_error) from None
+        self._pos += written
+
     def _grow(self, min_capacity: int) -> None:
         capacity = len(self._buffer)
         while capacity < min_capacity:
@@ -86,6 +121,20 @@ class Writer:
     def bytes(self) -> bytes:
         """Returns the bytes written so far, as a new `bytes` object."""
         return bytes(self._buffer[:self._pos])
+
+    @property
+    def capacity(self) -> int:
+        """Current destination capacity in bytes."""
+        return len(self._buffer)
+
+    @property
+    def remaining(self) -> int:
+        """Destination bytes available before resizing or capacity failure."""
+        return self.capacity - self._pos
+
+    def view(self) -> memoryview:
+        """Borrow written bytes without copying; release before growing owned storage."""
+        return memoryview(self._buffer)[:self._pos].toreadonly()
 
     def __len__(self) -> int:
         return self._pos
@@ -109,5 +158,22 @@ def encoded_size(tag: Union[Tag, bytes], value_length: int,
             return _native.encoded_size_fixed(tag_bytes, value_length, format.tag_size,
                                               format.length_size, format.big_endian)
         return _native.encoded_size(tag_bytes, value_length, format)
+    except _native.Error as native_error:
+        raise _from_native(native_error) from None
+
+
+def element_encoded_size(element: Element, format: AnyFormat | None = None) -> int:
+    """Measure exact Header + Value + Trailer storage using readable content.
+
+    Does not allocate an output buffer. The caller chooses storage, then writes
+    with ``Writer(format, buffer=storage).write_element(element)``.
+    """
+    format = _resolve_format(format)
+    try:
+        if isinstance(format, FixedFormat):
+            return _native.element_encoded_size_fixed(
+                element.tag.data, element.value, format.tag_size,
+                format.length_size, format.big_endian)
+        return _native.element_encoded_size(element.tag.data, element.value, format)
     except _native.Error as native_error:
         raise _from_native(native_error) from None

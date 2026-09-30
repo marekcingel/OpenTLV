@@ -32,9 +32,8 @@ tlv_result_t tlv_copy_element(const tlv_element_t* element, const tlv_format_t* 
         return TLV_ERR_NULL_ARG;
     rc = tlv_size_to_native(element->value.size, &length);
     if (rc != TLV_OK) return rc;
-    if (!data) return tlv_encoded_size(element->tag, length, format, written);
-    rc = tlv_write(data, capacity, format, element->tag, element->value.data, length,
-                   &local_written);
+    if (!data) return tlv_element_encoded_size(element, format, written);
+    rc = tlv_write_element(data, capacity, format, element, &local_written);
     if (rc == TLV_OK) *written = local_written;
     return rc;
 }

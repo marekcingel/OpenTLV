@@ -2,6 +2,22 @@
 
 use opentlv::{encoded_size, Error, Format, Reader, Tag, Writer};
 
+#[test]
+fn element_sizing_and_raw_copy_use_caller_storage() {
+    let element = opentlv::Element::new(tag(&[0x04]), b"abc");
+    let required = opentlv::element_encoded_size(&element, Format::Ber).unwrap();
+    let mut storage = vec![0u8; required + 1];
+    let mut writer = Writer::with_format(&mut storage, Format::Ber);
+    writer.write_element(&element).unwrap();
+    writer.copy_encoded(&[0xFF]).unwrap();
+    assert_eq!(writer.written(), b"\x04\x03abc\xff");
+    assert_eq!(writer.remaining(), 0);
+    assert_eq!(writer.write_element(&element), Err(Error::BufferTooShort));
+    assert_eq!(writer.copy_encoded(&[1]), Err(Error::BufferTooShort));
+    assert_eq!(writer.position(), required + 1);
+    writer.copy_encoded(&[]).unwrap();
+}
+
 fn tag(bytes: &[u8]) -> Tag {
     Tag::from_bytes(bytes)
 }

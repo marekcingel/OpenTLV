@@ -12,6 +12,27 @@
 #include <string>
 #include <type_traits>
 
+TEST(Unit_Tlvpp, CanonicalWriterMeasuresPreservesAndCopiesIntoCallerStorage) {
+    const uint8_t original[] = {0xFF, 1, 0xAB};
+    tlv_decoded_t decoded{};
+    ASSERT_EQ(TLV_OK, tlv_format_decode(&controlled::format, original, sizeof(original), &decoded,
+                                        nullptr));
+    auto required = tlv::encoded_size(decoded.element, controlled::format);
+    ASSERT_TRUE(required.has_value());
+    EXPECT_EQ(3u, *required);
+    std::array<tlv::byte, 9> output{};
+    tlv::writer              writer(output.data(), output.size(), controlled::format);
+    ASSERT_TRUE(writer.write(decoded.element).has_value());
+    ASSERT_TRUE(writer.preserve(decoded.source, decoded.element).has_value());
+    ASSERT_TRUE(writer.copy_encoded(tlv::bytes(output.data(), 3)).has_value());
+    EXPECT_EQ(0u, writer.remaining());
+    tlv::writer_diagnostic diagnostic{};
+    EXPECT_FALSE(writer.write(decoded.element, &diagnostic).has_value());
+    EXPECT_EQ(9u, writer.size());
+    EXPECT_EQ(3u, diagnostic.required);
+    EXPECT_EQ(9u, diagnostic.diagnostic.offset);
+}
+
 #if OPENTLV_LLDP
 TEST(Unit_Tlvpp, LldpPresetUsesSharedDescriptor) {
     EXPECT_EQ(&tlv_format_lldp, &tlv::lldp_format());

@@ -97,7 +97,9 @@ pub use schema::{
 pub use source::{decode, decode_fixed, Decoded};
 pub use tag::Tag;
 pub use validation::{Limits, Strictness, ValidationError};
-pub use writer::{encoded_size, encoded_size_fixed, Writer};
+pub use writer::{
+    element_encoded_size, element_encoded_size_fixed, encoded_size, encoded_size_fixed, Writer,
+};
 
 use std::ffi::CStr;
 

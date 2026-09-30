@@ -112,8 +112,10 @@ pointer for content-independent queries; content-dependent formats require
 readable content even for exact sizing.
 
 Actual buffer extents, field ranges, offsets and consumed/written counts use
-`size_t`. Narrow only after validation. `tlv_encoded_size()` is the native-sized
-convenience wrapper; it does not replace logical measurement.
+`size_t`. Narrow only after validation. `tlv_element_encoded_size()` is Writer's
+native-sized measurement of a complete semantic Element. `tlv_encoded_size()`
+is its tag/length convenience wrapper for content-independent queries. Neither
+replaces logical measurement or allocates output storage.
 
 - `TLV_ERR_OVERFLOW`: logical arithmetic exceeds the logical size domain.
 - `TLV_ERR_INVALID_LENGTH`: the quantity is invalid for the wire encoding.

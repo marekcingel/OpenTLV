@@ -11,6 +11,26 @@ namespace {
 const tlv_tag_t tag = TLV_TAG(0x04);
 }
 
+TEST(Integration_Tlv_Writer, PreserveRetainsNonminimalBerWhileElementWriteRegeneratesIt) {
+    const uint8_t original[] = {0x04, 0x81, 0x01, 0xAB};
+    tlv_decoded_t decoded{};
+    ASSERT_EQ(TLV_OK,
+              tlv_format_decode(&tlv_format_ber, original, sizeof(original), &decoded, nullptr));
+    size_t required = 0;
+    ASSERT_EQ(TLV_OK, tlv_element_encoded_size(&decoded.element, &tlv_format_ber, &required));
+    EXPECT_EQ(3u, required);
+    uint8_t      output[11] = {};
+    tlv_writer_t writer{};
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, output, sizeof(output), &tlv_format_ber));
+    ASSERT_EQ(TLV_OK, tlv_writer_write_element(&writer, &decoded.element));
+    EXPECT_EQ(1, output[1]);
+    ASSERT_EQ(TLV_OK, tlv_writer_preserve(&writer, &decoded.source, &decoded.element));
+    EXPECT_EQ(0, std::memcmp(output + 3, original, sizeof(original)));
+    ASSERT_EQ(TLV_OK, tlv_writer_copy_encoded(&writer, original, sizeof(original)));
+    EXPECT_EQ(0, std::memcmp(output + 7, original, sizeof(original)));
+    EXPECT_EQ(sizeof(output), writer.pos);
+}
+
 TEST(Integration_Tlv_Writer, SizesWireEncodingAndRoundTripsAtLengthBoundaries) {
     for (const auto* format : {&controlled::format, &tlv_format_ber}) {
         for (size_t length : {0u, 1u, 127u, 128u, 255u, 256u, 65535u}) {

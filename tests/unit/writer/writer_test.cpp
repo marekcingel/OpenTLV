@@ -1,6 +1,7 @@
 #include "controlled_format.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
+#include "tlv/copy.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>
@@ -8,6 +9,159 @@
 
 namespace {
 const tlv_tag_t tag = TLV_TAG(0xFF);
+
+// Exact framing depends on Value content, not merely its length.
+tlv_result_t content_measure(const void*, const tlv_element_t* element, tlv_encoding_t* sizes,
+                             tlv_format_error_t*) {
+    if (!element->value.data || element->value.size != 1) return TLV_ERR_INVALID_VALUE;
+    *sizes = {2, 1, element->value.data[0] & 1u, 3 + (element->value.data[0] & 1u)};
+    return TLV_OK;
+}
+tlv_result_t content_encode(const void*, const tlv_element_t* element, uint8_t* data,
+                            size_t capacity, size_t* written, tlv_format_error_t* error) {
+    const auto rc = controlled::format.encode(controlled::format.context, element, data, capacity,
+                                              written, error);
+    if (rc == TLV_OK && (element->value.data[0] & 1u)) data[(*written)++] = 0xEE;
+    return rc;
+}
+const tlv_format_t content_format = {nullptr, nullptr, content_measure, content_encode, nullptr};
+} // namespace
+
+TEST(Unit_Tlv_Writer, ElementMeasurementUsesContentAndIncludesTrailer) {
+    const uint8_t       value = 1;
+    const tlv_element_t element = {tag, {&value, 1}};
+    size_t              required = 99;
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_encoded_size(tag, 1, &content_format, &required));
+    EXPECT_EQ(99u, required);
+    ASSERT_EQ(TLV_OK, tlv_element_encoded_size(&element, &content_format, &required));
+    EXPECT_EQ(4u, required);
+    size_t copied = 0;
+    ASSERT_EQ(TLV_OK, tlv_copy_element(&element, &content_format, nullptr, 0, &copied));
+    EXPECT_EQ(required, copied);
+    uint8_t                 output[4] = {0xAA, 0xAA, 0xAA, 0xAA};
+    tlv_writer_diagnostic_t diagnostic{};
+    size_t                  written = 99;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_write_element_diag(output, 3, &content_format, &element, &written, &diagnostic));
+    EXPECT_EQ(required, written);
+    EXPECT_EQ(required, diagnostic.required);
+    for (auto byte : output) EXPECT_EQ(0xAA, byte);
+    ASSERT_EQ(TLV_OK,
+              tlv_write_element(output, sizeof(output), &content_format, &element, &written));
+    EXPECT_EQ(required, written);
+    EXPECT_EQ(0xEE, output[3]);
+    EXPECT_EQ(TLV_OK, tlv_copy_element(&element, &content_format, output, sizeof(output), &copied));
+    EXPECT_EQ(required, copied);
+}
+
+TEST(Unit_Tlv_Writer, ElementSizingChecksLogicalAndNativeOverflowWithoutReadingValue) {
+    auto format = controlled::format;
+    format.measure = [](const void*, const tlv_element_t* element, tlv_encoding_t* sizes,
+                        tlv_format_error_t*) {
+        *sizes = {1, element->value.size, 0, element->value.size + 1};
+        return TLV_OK;
+    };
+    tlv_element_t           element = {tag, {nullptr, std::numeric_limits<tlv_size_t>::max()}};
+    size_t                  required = 77;
+    tlv_writer_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_OVERFLOW,
+              tlv_element_encoded_size_diag(&element, &format, &required, &diagnostic));
+    EXPECT_EQ(77u, required);
+    EXPECT_FALSE(diagnostic.has_available);
+    if (sizeof(size_t) < sizeof(tlv_size_t)) {
+        element.value.size = std::numeric_limits<size_t>::max();
+        EXPECT_EQ(TLV_ERR_NATIVE_SIZE,
+                  tlv_element_encoded_size_diag(&element, &format, &required, &diagnostic));
+        EXPECT_EQ(77u, required);
+    }
+    element.value.size = 0;
+    const auto before = diagnostic;
+    EXPECT_EQ(TLV_OK, tlv_element_encoded_size_diag(&element, &format, &required, &diagnostic));
+    EXPECT_EQ(1u, required);
+    EXPECT_EQ(0, std::memcmp(&before, &diagnostic, sizeof(before)));
+}
+
+TEST(Unit_Tlv_Writer, PreserveValidatesContentAndNeverTreatsEmptyCursorAsSizing) {
+    const uint8_t original[] = {0xFF, 1, 0xAB};
+    tlv_decoded_t decoded{};
+    ASSERT_EQ(TLV_OK, tlv_format_decode(&controlled::format, original, sizeof(original), &decoded,
+                                        nullptr));
+    tlv_writer_t writer{};
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, nullptr, 0, &controlled::format));
+    tlv_writer_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_writer_preserve_diag(&writer, &decoded.source, &decoded.element, &diagnostic));
+    EXPECT_EQ(0u, writer.pos);
+    EXPECT_EQ(sizeof(original), diagnostic.required);
+    EXPECT_EQ(TLV_WRITER_OP_PRESERVE, diagnostic.operation);
+    uint8_t output[8] = {};
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, output, sizeof(output), &controlled::format));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, nullptr, 0));
+    const uint8_t changed = 0xCD;
+    auto          element = decoded.element;
+    element.value.data = &changed;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_writer_preserve_diag(&writer, &decoded.source, &element, &diagnostic));
+    EXPECT_EQ(2u, writer.pos);
+    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(0, output[2]);
+    ASSERT_EQ(TLV_OK, tlv_writer_preserve(&writer, &decoded.source, &decoded.element));
+    EXPECT_EQ(0, std::memcmp(output + 2, original, sizeof(original)));
+    EXPECT_EQ(3u, tlv_writer_remaining(&writer));
+    EXPECT_EQ(TLV_OK, tlv_writer_write_element(&writer, &element));
+    EXPECT_EQ(0u, tlv_writer_remaining(&writer));
+    EXPECT_EQ(0xCD, output[7]);
+}
+
+TEST(Unit_Tlv_Writer, ElementCallbackFailureKeepsPositionAndSupportsRetry) {
+    auto format = controlled::format;
+    format.encode = [](const void*, const tlv_element_t*, uint8_t* data, size_t, size_t*,
+                       tlv_format_error_t* error) {
+        data[0] = 0xEE;
+        error->region = TLV_REGION_TRAILER;
+        error->has_offset = 1;
+        error->offset = 1;
+        return TLV_ERR_INVALID_VALUE;
+    };
+    uint8_t      output[6] = {};
+    tlv_writer_t writer{};
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, output, sizeof(output), &format));
+    const uint8_t prefix = 0xAA;
+    ASSERT_EQ(TLV_OK, tlv_writer_copy_encoded(&writer, &prefix, 1));
+    const tlv_element_t     element = {tag, {nullptr, 0}};
+    tlv_writer_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_writer_write_element_diag(&writer, &element, &diagnostic));
+    EXPECT_EQ(1u, writer.pos);
+    EXPECT_EQ(0xAA, output[0]);
+    EXPECT_EQ(0xEE, output[1]);
+    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_WRITER_OP_TRAILER, diagnostic.operation);
+    format.encode = controlled::format.encode;
+    EXPECT_EQ(TLV_OK, tlv_writer_write_element(&writer, &element));
+    EXPECT_EQ(3u, writer.pos);
+}
+
+TEST(Unit_Tlv_Writer, MeasureAndRawCopyDiagnosticsHaveApplicableFields) {
+    size_t                  size = 77;
+    tlv_writer_diagnostic_t diagnostic{};
+    const tlv_element_t     invalid = {tag, {nullptr, 256}};
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_element_encoded_size_diag(&invalid, &controlled::format, &size, &diagnostic));
+    EXPECT_EQ(77u, size);
+    EXPECT_FALSE(diagnostic.has_available);
+    EXPECT_EQ(TLV_WRITER_OP_LENGTH, diagnostic.operation);
+    uint8_t      output[2] = {};
+    tlv_writer_t writer{};
+    ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, output, sizeof(output), &controlled::format));
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, tag, nullptr, 0));
+    const uint8_t raw = 0xAA;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_writer_copy_encoded_diag(&writer, &raw, 1, &diagnostic));
+    EXPECT_EQ(2u, writer.pos);
+    EXPECT_EQ(2u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(1u, diagnostic.required);
+    EXPECT_FALSE(diagnostic.has_tag);
+    EXPECT_EQ(TLV_WRITER_OP_COPY, diagnostic.operation);
 }
 
 TEST(Unit_Tlv_Writer, EveryInsufficientCapacityReportsRequiredSizeAndPreservesBuffer) {

@@ -1,6 +1,76 @@
 import pytest
 
-from opentlv import Element, FixedFormat, Format, InvalidTagSizeError, Reader, Tag, Writer, encoded_size
+from opentlv import (BufferTooShortError, Element, FixedFormat, Format,
+                     InvalidTagSizeError, Reader, Tag, Writer,
+                     element_encoded_size, encoded_size)
+
+
+@pytest.mark.parametrize("format", [Format.BER, FixedFormat(1, 1, "big")])
+def test_measure_allocate_write_into_exact_caller_storage(format):
+    element = Element(Tag(b"\x04"), memoryview(b"abc"))
+    required = element_encoded_size(element, format)
+    storage = bytearray(required)
+    writer = Writer(format, buffer=storage)
+    writer.write_element(element)
+    assert writer.position == required
+    assert writer.remaining == 0
+    assert writer.capacity == required
+    assert writer.view() == storage == b"\x04\x03abc"
+    with pytest.raises(BufferTooShortError) as exc:
+        writer.write_element(element)
+    assert exc.value.offset == required
+    assert exc.value.required == required
+    assert writer.position == required
+    assert storage == b"\x04\x03abc"
+
+
+def test_borrowed_empty_buffer_never_becomes_a_sizing_query():
+    storage = bytearray()
+    writer = Writer(buffer=storage)
+    with pytest.raises(BufferTooShortError):
+        writer.write(b"\x04", b"")
+    assert writer.position == len(storage) == 0
+    writer.copy_encoded(b"")
+    assert writer.position == 0
+
+
+def test_borrowed_memoryview_capacity_failure_and_retry():
+    storage = bytearray(b"\xee" * 6)
+    writer = Writer(buffer=memoryview(storage)[1:5])
+    with pytest.raises(BufferTooShortError):
+        writer.write(b"\x04", b"abc")
+    assert storage == b"\xee" * 6
+    writer.write(b"\x04", b"ab")
+    assert storage == b"\xee\x04\x02ab\xee"
+
+
+def test_raw_copy_supports_overlap_and_does_not_validate_framing():
+    storage = bytearray(b"abcd--")
+    writer = Writer(buffer=storage)
+    writer.copy_encoded(b"!")
+    writer.copy_encoded(memoryview(storage)[:4])
+    assert storage == b"!!bcd-"
+    with pytest.raises(BufferTooShortError) as exc:
+        writer.copy_encoded(b"too long")
+    assert exc.value.operation == "copy"
+    assert exc.value.offset == 5
+    assert writer.position == 5
+
+
+def test_borrowed_buffer_must_be_writable_and_contiguous():
+    with pytest.raises(ValueError):
+        Writer(buffer=memoryview(b"immutable"))
+    with pytest.raises(ValueError):
+        Writer(buffer=memoryview(bytearray(8))[::2])
+
+
+def test_element_measurement_failure_has_no_destination_capacity():
+    element = Element(Tag(b"\x9f\x02"), memoryview(b"abc"))
+    with pytest.raises(InvalidTagSizeError) as exc:
+        element_encoded_size(element, FixedFormat(1, 1, "big"))
+    assert exc.value.available is None
+    assert exc.value.tag == b"\x9f\x02"
+    assert exc.value.operation == "tag"
 
 
 def test_write_produces_the_same_bytes_as_the_default_format_example():
