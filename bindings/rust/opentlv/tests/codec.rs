@@ -318,3 +318,33 @@ fn reader_and_dictionary_decode_a_gpo_response() {
         )
     );
 }
+
+#[test]
+fn configured_numeric_codecs_delegate_measure_decode_and_encode_to_c() {
+    use opentlv::{NumberCodec, NumberEncoding};
+    for (encoding, width, digits, value, wire) in [
+        (NumberEncoding::BigEndian, 2, 0, 258, vec![1, 2]),
+        (NumberEncoding::LittleEndian, 2, 0, 258, vec![2, 1]),
+        (NumberEncoding::Bcd, 3, 6, 12345, vec![1, 0x23, 0x45]),
+        (NumberEncoding::BigEndian, 0, 0, 0, vec![0]),
+        (NumberEncoding::BigEndian, 8, 0, u64::MAX, vec![255; 8]),
+    ] {
+        let codec = NumberCodec::new(encoding, width, digits);
+        assert_eq!(codec.encode(value).unwrap(), wire);
+        assert_eq!(codec.decode(&wire).unwrap(), value);
+        assert_eq!(codec.encoded_size(value).unwrap(), wire.len());
+        let mut output = vec![0xAA; wire.len() + 1];
+        assert_eq!(codec.encode_into(value, &mut output).unwrap(), wire.len());
+        assert_eq!(&output[..wire.len()], wire);
+        assert_eq!(output[wire.len()], 0xAA);
+        let mut short = vec![0xAA; wire.len() - 1];
+        assert!(codec.encode_into(value, &mut short).is_err());
+        assert_eq!(short, vec![0xAA; wire.len() - 1]);
+    }
+    assert!(NumberCodec::new(NumberEncoding::BigEndian, 1, 0)
+        .encode(256)
+        .is_err());
+    assert!(NumberCodec::new(NumberEncoding::Bcd, 1, 2)
+        .decode(&[0xFA])
+        .is_err());
+}

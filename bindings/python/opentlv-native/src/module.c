@@ -3,17 +3,23 @@
 #include <Python.h>
 
 #include <stdlib.h>
+#include <limits.h>
 #include <string.h>
 
 #include "format.h"
+#include "reader.h"
+#include "schema.h"
+#include "writer.h"
 #include <tlv/config.h>
 #if OPENTLV_EMV
 #include <tlv/builtins/emv/emv_codec.h>
 #endif
 #include <tlv/formats/fixed.h>
 #include <tlv/codec/codec.h>
+#include <tlv/codec/number.h>
 #include <tlv/document/document.h>
 #include <tlv/error.h>
+#include <tlv/definition.h>
 #include <tlv/size.h>
 #include <tlv/query/query.h>
 #include <tlv/reader/reader.h>
@@ -143,7 +149,18 @@ static void raise_reader_error(tlv_result_t code, const tlv_reader_diagnostic_t*
                      ? PyLong_FromUnsignedLongLong(diag->declared_length)
                      : Py_NewRef(Py_None)) < 0 ||
         dict_set_size_or_none(fields, "available", diag && diag->has_available,
-                              diag ? diag->available : 0) < 0) {
+                              diag ? diag->available : 0) < 0 ||
+        dict_set_size_or_none(fields, "tag_offset", diag && diag->has_tag_offset,
+                              diag ? diag->tag_offset : 0) < 0 ||
+        dict_set_size_or_none(fields, "length_offset", diag && diag->has_length_offset,
+                              diag ? diag->length_offset : 0) < 0 ||
+        dict_set_size_or_none(fields, "value_offset", diag && diag->has_value_offset,
+                              diag ? diag->value_offset : 0) < 0 ||
+        dict_set_size_or_none(fields, "enclosing_end", diag && diag->has_enclosing_end,
+                              diag ? diag->enclosing_end : 0) < 0 ||
+        dict_set(fields, "required",
+                 diag && diag->has_required ? PyLong_FromUnsignedLongLong(diag->required)
+                                            : Py_NewRef(Py_None)) < 0) {
         Py_DECREF(fields);
         return;
     }
@@ -206,7 +223,10 @@ static void free_structure_schema(tlv_structure_schema_t* schema);
  * children schema, but not the rule struct itself: it lives inside its
  * parent schema's rules array. */
 static void free_structure_rule_contents(const tlv_structure_rule_t* rule) {
-    if (rule->entry) free((void*)rule->entry->tag.data);
+    if (rule->entry) {
+        free((void*)rule->entry->tag.data);
+        free((void*)rule->entry->name);
+    }
     free((void*)rule->entry);
     free_structure_schema((tlv_structure_schema_t*)rule->children);
 }
@@ -219,19 +239,46 @@ static void free_structure_schema(tlv_structure_schema_t* schema) {
         free_structure_rule_contents(&schema->rules[i]);
     }
     free((void*)schema->rules);
+    for (size_t i = 0; i < schema->group_count; ++i) free((void*)schema->groups[i].name);
+    free((void*)schema->groups);
     free(schema);
 }
 
 static tlv_structure_schema_t* build_structure_schema(PyObject* schema_obj);
+/* Own UTF-8 names rather than retaining pointers into temporary Python values. */
+static char* schema_name_copy(PyObject* value) {
+    if (value == Py_None) return NULL;
+    PyObject* encoded = PyUnicode_AsUTF8String(value);
+    if (!encoded) return NULL;
+    char*      bytes = NULL;
+    Py_ssize_t length = 0;
+    if (PyBytes_AsStringAndSize(encoded, &bytes, &length) < 0) {
+        Py_DECREF(encoded);
+        return NULL;
+    }
+    if (memchr(bytes, 0, (size_t)length)) {
+        Py_DECREF(encoded);
+        PyErr_SetString(PyExc_ValueError, "schema names cannot contain NUL");
+        return NULL;
+    }
+    char* copy = malloc((size_t)length + 1);
+    if (copy)
+        memcpy(copy, bytes, (size_t)length + 1);
+    else
+        PyErr_NoMemory();
+    Py_DECREF(encoded);
+    return copy;
+}
 
 /* Fills `out` from a (tag: bytes, min_length: int, max_length: int,
- * min_occurs: int, max_occurs: int, kind: int, children: schema | None)
+ * min_occurs: int, max_occurs: int, kind: int, children: schema | None,
+ * flags: int, length_multiple: int, group: int, name: str | None)
  * tuple. Returns 1 on success; on failure an exception is set and `out` has
  * no allocation left to free (any partial allocation is cleaned up here). */
 static int build_structure_rule(PyObject* rule_obj, tlv_structure_rule_t* out) {
     memset(out, 0, sizeof(*out));
-    if (!PyTuple_Check(rule_obj) || PyTuple_Size(rule_obj) != 7) {
-        PyErr_SetString(PyExc_TypeError, "each structure rule must be a 7-element tuple; use "
+    if (!PyTuple_Check(rule_obj) || PyTuple_Size(rule_obj) != 11) {
+        PyErr_SetString(PyExc_TypeError, "each structure rule must be an 11-element tuple; use "
                                          "StructureRule instead of building one directly");
         return 0;
     }
@@ -258,11 +305,18 @@ static int build_structure_rule(PyObject* rule_obj, tlv_structure_rule_t* out) {
         memcpy(tag_copy, tag_data, (size_t)tag_size);
     }
 
-    size_t min_length = PyLong_AsSize_t(min_length_obj);
-    size_t max_length = PyErr_Occurred() ? 0 : PyLong_AsSize_t(max_length_obj);
-    size_t min_occurs = PyErr_Occurred() ? 0 : PyLong_AsSize_t(min_occurs_obj);
-    size_t max_occurs = PyErr_Occurred() ? 0 : PyLong_AsSize_t(max_occurs_obj);
-    long   kind = PyErr_Occurred() ? 0 : PyLong_AsLong(kind_obj);
+    size_t        min_length = PyLong_AsSize_t(min_length_obj);
+    size_t        max_length = PyErr_Occurred() ? 0 : PyLong_AsSize_t(max_length_obj);
+    size_t        min_occurs = PyErr_Occurred() ? 0 : PyLong_AsSize_t(min_occurs_obj);
+    size_t        max_occurs = PyErr_Occurred() ? 0 : PyLong_AsSize_t(max_occurs_obj);
+    long          kind = PyErr_Occurred() ? 0 : PyLong_AsLong(kind_obj);
+    unsigned long flags =
+        PyErr_Occurred() ? 0 : PyLong_AsUnsignedLong(PyTuple_GetItem(rule_obj, 7));
+    size_t        multiple = PyErr_Occurred() ? 0 : PyLong_AsSize_t(PyTuple_GetItem(rule_obj, 8));
+    unsigned long group =
+        PyErr_Occurred() ? 0 : PyLong_AsUnsignedLong(PyTuple_GetItem(rule_obj, 9));
+    if (!PyErr_Occurred() && (flags > UINT32_MAX || group > UINT32_MAX || kind < 0 || kind > 2))
+        PyErr_SetString(PyExc_ValueError, "invalid rule flags, group or kind");
     if (PyErr_Occurred()) {
         free(tag_copy);
         return 0;
@@ -289,22 +343,30 @@ static int build_structure_rule(PyObject* rule_obj, tlv_structure_rule_t* out) {
     entry->tag.size = (size_t)tag_size;
     entry->min_length = min_length;
     entry->max_length = max_length;
-    entry->flags = 0;
-    entry->name = NULL;
+    entry->flags = (uint32_t)flags;
+    entry->length_multiple = multiple;
+    entry->name = schema_name_copy(PyTuple_GetItem(rule_obj, 10));
     out->min_occurs = min_occurs;
     out->max_occurs = max_occurs;
     out->kind = (tlv_schema_kind_t)kind;
     out->children = children;
+    out->group = (uint32_t)group;
+    if (PyErr_Occurred()) {
+        free_structure_rule_contents(out);
+        memset(out, 0, sizeof(*out));
+        return 0;
+    }
     return 1;
 }
 
-/* Builds a schema from an (allow_unknown: bool, rules: sequence[rule tuple])
- * pair, as opentlv.StructureSchema._to_native() produces. Returns a
+/* Builds a schema from (allow_unknown, rules, order, groups),
+ * as opentlv.StructureSchema._to_native() produces. Returns a
  * malloc'd tree that free_structure_schema() must free, or NULL with an
  * exception set. */
 static tlv_structure_schema_t* build_structure_schema(PyObject* schema_obj) {
-    if (!PyTuple_Check(schema_obj) || PyTuple_Size(schema_obj) != 2) {
-        PyErr_SetString(PyExc_TypeError, "schema must be an (allow_unknown, rules) pair");
+    if (!PyTuple_Check(schema_obj) || PyTuple_Size(schema_obj) != 4) {
+        PyErr_SetString(PyExc_TypeError,
+                        "schema must contain allow_unknown, rules, order and groups");
         return NULL;
     }
     PyObject* allow_unknown_obj = PyTuple_GetItem(schema_obj, 0);
@@ -315,6 +377,10 @@ static tlv_structure_schema_t* build_structure_schema(PyObject* schema_obj) {
     }
     Py_ssize_t count = PySequence_Size(rules_obj);
     if (count < 0) {
+        return NULL;
+    }
+    if ((size_t)count > SIZE_MAX / sizeof(tlv_structure_rule_t)) {
+        PyErr_NoMemory();
         return NULL;
     }
 
@@ -355,7 +421,121 @@ static tlv_structure_schema_t* build_structure_schema(PyObject* schema_obj) {
         }
         schema->count = (size_t)(i + 1);
     }
+    long      order = PyLong_AsLong(PyTuple_GetItem(schema_obj, 2));
+    PyObject* group_objects = PyTuple_GetItem(schema_obj, 3);
+    if (PyErr_Occurred() || (order != 0 && order != 1) || !PyTuple_Check(group_objects)) {
+        if (!PyErr_Occurred()) PyErr_SetString(PyExc_ValueError, "invalid schema order or groups");
+        free_structure_schema(schema);
+        return NULL;
+    }
+    schema->order = (tlv_schema_order_t)order;
+    size_t group_count = (size_t)PyTuple_Size(group_objects);
+    if (group_count > SIZE_MAX / sizeof(tlv_structure_group_t)) {
+        free_structure_schema(schema);
+        return (tlv_structure_schema_t*)PyErr_NoMemory();
+    }
+    tlv_structure_group_t* groups = group_count ? calloc(group_count, sizeof(*groups)) : NULL;
+    if (group_count && !groups) {
+        free_structure_schema(schema);
+        return (tlv_structure_schema_t*)PyErr_NoMemory();
+    }
+    schema->groups = groups;
+    schema->group_count = group_count;
+    for (size_t i = 0; i < group_count; ++i) {
+        PyObject* item = PyTuple_GetItem(group_objects, (Py_ssize_t)i);
+        if (!PyTuple_Check(item) || PyTuple_Size(item) != 4) {
+            PyErr_SetString(PyExc_TypeError, "group must contain id, occurrence bounds and name");
+            free_structure_schema(schema);
+            return NULL;
+        }
+        unsigned long id = PyLong_AsUnsignedLong(PyTuple_GetItem(item, 0));
+        groups[i].min_occurs = PyErr_Occurred() ? 0 : PyLong_AsSize_t(PyTuple_GetItem(item, 1));
+        groups[i].max_occurs = PyErr_Occurred() ? 0 : PyLong_AsSize_t(PyTuple_GetItem(item, 2));
+        if (!PyErr_Occurred() && id > UINT32_MAX)
+            PyErr_SetString(PyExc_OverflowError, "group id exceeds uint32");
+        if (PyErr_Occurred()) {
+            free_structure_schema(schema);
+            return NULL;
+        }
+        groups[i].id = (uint32_t)id;
+        groups[i].name = schema_name_copy(PyTuple_GetItem(item, 3));
+        if (PyErr_Occurred()) {
+            free_structure_schema(schema);
+            return NULL;
+        }
+    }
     return schema;
+}
+
+/* Copy every borrowed field before the schema and input are released. */
+static PyObject* schema_diagnostic_value(const tlv_schema_diagnostic_t* diagnostic) {
+    PyObject* path = PyTuple_New((Py_ssize_t)diagnostic->path.length);
+    if (!path) return NULL;
+    for (size_t i = 0; i < diagnostic->path.length; ++i) {
+        tlv_tag_t tag = diagnostic->path.tags[i];
+        PyObject* value = PyBytes_FromStringAndSize((const char*)tag.data, (Py_ssize_t)tag.size);
+        if (!value) {
+            Py_DECREF(path);
+            return NULL;
+        }
+        PyTuple_SetItem(path, (Py_ssize_t)i, value);
+    }
+    PyObject* tag = PyBytes_FromStringAndSize((const char*)diagnostic->tag.data,
+                                              (Py_ssize_t)diagnostic->tag.size);
+    PyObject* offset = diagnostic->diagnostic.has_offset
+                           ? PyLong_FromSize_t(diagnostic->diagnostic.offset)
+                           : Py_NewRef(Py_None);
+    PyObject* occurs = diagnostic->has_occurs
+                           ? Py_BuildValue("(KKK)", (unsigned long long)diagnostic->min_occurs,
+                                           (unsigned long long)diagnostic->max_occurs,
+                                           (unsigned long long)diagnostic->occurs)
+                           : Py_NewRef(Py_None);
+    PyObject* length = diagnostic->has_length
+                           ? Py_BuildValue("(KKK)", (unsigned long long)diagnostic->min_length,
+                                           (unsigned long long)diagnostic->max_length,
+                                           (unsigned long long)diagnostic->actual_length)
+                           : Py_NewRef(Py_None);
+    PyObject* form = diagnostic->has_form ? Py_BuildValue("(ii)", (int)diagnostic->expected_form,
+                                                          diagnostic->actual_constructed)
+                                          : Py_NewRef(Py_None);
+    /* N consumes each reference, including on failure. */
+    return Py_BuildValue(
+        "(iiisNNNziNNNKI)", (int)diagnostic->diagnostic.code, (int)diagnostic->diagnostic.severity,
+        (int)diagnostic->kind, tlv_schema_issue_kind_string(diagnostic->kind), tag, path, offset,
+        diagnostic->field, diagnostic->is_group, occurs, length, form,
+        (unsigned long long)diagnostic->length_multiple, (unsigned int)diagnostic->length_flags);
+}
+
+static PyObject* schema_diagnostic_report(const Py_buffer* buffer, const tlv_format_t* format,
+                                          const tlv_structure_schema_t* schema, size_t max_depth,
+                                          size_t max_elements, size_t capacity,
+                                          tlv_schema_unknown_policy_t unknown) {
+    tlv_schema_diagnostic_t* storage = capacity ? calloc(capacity, sizeof(*storage)) : NULL;
+    if (capacity && !storage) return PyErr_NoMemory();
+    tlv_schema_diagnostic_report_t report = {storage, capacity, 0};
+    size_t                         offset = 0;
+    tlv_result_t                   code =
+        tlv_schema_validate_all_diag(buffer->buf, (size_t)buffer->len, format, schema, max_depth,
+                                     max_elements, unknown, &report, &offset);
+    PyObject* result = NULL;
+    if (code == TLV_OK || code == TLV_ERR_SCHEMA) {
+        size_t    stored = report.count < capacity ? report.count : capacity;
+        PyObject* items = PyTuple_New((Py_ssize_t)stored);
+        if (items) {
+            for (size_t i = 0; i < stored; ++i) {
+                PyObject* item = schema_diagnostic_value(&storage[i]);
+                if (!item) {
+                    Py_CLEAR(items);
+                    break;
+                }
+                PyTuple_SetItem(items, (Py_ssize_t)i, item);
+            }
+            if (items) result = Py_BuildValue("(NN)", PyLong_FromSize_t(report.count), items);
+        }
+    } else
+        raise_code_and_offset(code, offset);
+    free(storage);
+    return result;
 }
 
 /* structure_validate(data, format, schema, max_depth, max_elements) -> None
@@ -367,14 +547,52 @@ static tlv_structure_schema_t* build_structure_schema(PyObject* schema_obj) {
 static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* args) {
     (void)module;
     Py_buffer  buffer;
-    int        format_id;
+    PyObject*  format_obj;
     PyObject*  schema_obj;
     Py_ssize_t max_depth, max_elements;
-    if (!PyArg_ParseTuple(args, "y*iOnn", &buffer, &format_id, &schema_obj, &max_depth,
-                          &max_elements)) {
+    Py_ssize_t report_capacity = -1;
+    int        unknown = 0;
+    int        detailed = 0;
+    if (!PyArg_ParseTuple(args, "y*OOnn|nip", &buffer, &format_obj, &schema_obj, &max_depth,
+                          &max_elements, &report_capacity, &unknown, &detailed)) {
         return NULL;
     }
-    const tlv_format_t* format = opentlv_python_format_for(format_id);
+    tlv_fixed_format_t  fixed;
+    tlv_format_t        descriptor;
+    const tlv_format_t* format = NULL;
+    if (PyTuple_Check(format_obj)) {
+        Py_ssize_t tag_size, length_size;
+        int        big_endian;
+        if (!PyArg_ParseTuple(format_obj, "nnp", &tag_size, &length_size, &big_endian)) {
+            PyBuffer_Release(&buffer);
+            return NULL;
+        }
+        if (tag_size < 0 || length_size < 0) {
+            PyBuffer_Release(&buffer);
+            PyErr_SetString(PyExc_ValueError, "negative format width");
+            return NULL;
+        }
+        fixed.tag_size = (size_t)tag_size;
+        fixed.length_size = (size_t)length_size;
+        fixed.length_order = big_endian ? TLV_BYTE_ORDER_BIG_ENDIAN : TLV_BYTE_ORDER_LITTLE_ENDIAN;
+        fixed.element_order = TLV_ELEMENT_ORDER_TLV;
+        fixed.length_scope = TLV_LENGTH_SCOPE_VALUE;
+        tlv_result_t rc = tlv_fixed_format_init(&descriptor, &fixed);
+        if (rc != TLV_OK) {
+            PyBuffer_Release(&buffer);
+            raise_code_only(rc);
+            return NULL;
+        }
+        format = &descriptor;
+    } else {
+        long format_id = PyLong_AsLong(format_obj);
+        if (PyErr_Occurred()) {
+            PyBuffer_Release(&buffer);
+            return NULL;
+        }
+        if (format_id >= 0 && format_id <= INT_MAX)
+            format = opentlv_python_format_for((int)format_id);
+    }
     if (format == NULL) {
         PyBuffer_Release(&buffer);
         PyErr_SetString(PyExc_ValueError, "unknown format");
@@ -385,6 +603,14 @@ static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* a
         PyErr_SetString(PyExc_ValueError, "max_depth and max_elements must not be negative");
         return NULL;
     }
+    if (PyTuple_Size(args) > 5 &&
+        (report_capacity < 0 ||
+         (size_t)report_capacity > SIZE_MAX / (detailed ? sizeof(tlv_schema_diagnostic_t)
+                                                        : sizeof(tlv_schema_issue_t)))) {
+        PyBuffer_Release(&buffer);
+        PyErr_SetString(PyExc_ValueError, "invalid report capacity");
+        return NULL;
+    }
 
     tlv_structure_schema_t* schema = build_structure_schema(schema_obj);
     if (schema == NULL) {
@@ -392,7 +618,96 @@ static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* a
         return NULL;
     }
 
-    size_t       error_offset = 0;
+    size_t error_offset = 0;
+    if (detailed) {
+        PyObject* result = schema_diagnostic_report(&buffer, format, schema, (size_t)max_depth,
+                                                    (size_t)max_elements, (size_t)report_capacity,
+                                                    (tlv_schema_unknown_policy_t)unknown);
+        free_structure_schema(schema);
+        PyBuffer_Release(&buffer);
+        return result;
+    }
+    if (report_capacity >= 0) {
+        tlv_schema_issue_t* issues =
+            report_capacity ? calloc((size_t)report_capacity, sizeof(*issues)) : NULL;
+        if (report_capacity && !issues) {
+            free_structure_schema(schema);
+            PyBuffer_Release(&buffer);
+            return PyErr_NoMemory();
+        }
+        tlv_schema_report_t report = {issues, (size_t)report_capacity, 0};
+        tlv_result_t        code = tlv_schema_validate_all(
+            buffer.buf, (size_t)buffer.len, format, schema, (size_t)max_depth, (size_t)max_elements,
+            (tlv_schema_unknown_policy_t)unknown, &report, &error_offset);
+        PyObject* result = NULL;
+        if (code == TLV_OK || code == TLV_ERR_SCHEMA) {
+            size_t    stored = report.count < report.capacity ? report.count : report.capacity;
+            PyObject* list = PyList_New((Py_ssize_t)stored);
+            if (list) {
+                for (size_t i = 0; i < stored; ++i) {
+                    tlv_schema_issue_t* issue = &issues[i];
+                    PyObject*           path = PyTuple_New((Py_ssize_t)issue->path_length);
+                    if (!path) {
+                        Py_CLEAR(list);
+                        break;
+                    }
+                    for (size_t j = 0; j < issue->path_length; ++j) {
+                        PyObject* tag = PyBytes_FromStringAndSize((const char*)issue->path[j].data,
+                                                                  (Py_ssize_t)issue->path[j].size);
+                        if (!tag) {
+                            Py_CLEAR(path);
+                            break;
+                        }
+                        PyTuple_SetItem(path, (Py_ssize_t)j, tag);
+                    }
+                    if (!path) {
+                        Py_CLEAR(list);
+                        break;
+                    }
+                    size_t       length = 0;
+                    tlv_result_t rc = tlv_schema_issue_path_string(issue, NULL, 0, &length);
+                    if (rc != TLV_OK && rc != TLV_ERR_BUFFER_TOO_SHORT) {
+                        Py_DECREF(path);
+                        Py_CLEAR(list);
+                        raise_code_only(rc);
+                        break;
+                    }
+                    char* text = length < SIZE_MAX ? malloc(length + 1) : NULL;
+                    if (!text) {
+                        Py_DECREF(path);
+                        Py_CLEAR(list);
+                        PyErr_NoMemory();
+                        break;
+                    }
+                    rc = tlv_schema_issue_path_string(issue, text, length + 1, &length);
+                    PyObject* offset =
+                        issue->has_offset ? PyLong_FromSize_t(issue->offset) : Py_NewRef(Py_None);
+                    PyObject* item = rc == TLV_OK && offset
+                                         ? Py_BuildValue("(isNNs)", (int)issue->kind,
+                                                         tlv_schema_issue_kind_string(issue->kind),
+                                                         path, offset, text)
+                                         : NULL;
+                    free(text);
+                    if (!item) {
+                        if (rc != TLV_OK || !offset) {
+                            Py_DECREF(path);
+                            Py_XDECREF(offset);
+                        }
+                        if (!PyErr_Occurred()) raise_code_only(rc);
+                        Py_CLEAR(list);
+                        break;
+                    }
+                    PyList_SetItem(list, (Py_ssize_t)i, item);
+                }
+                if (list) result = Py_BuildValue("(nN)", (Py_ssize_t)report.count, list);
+            }
+        } else
+            raise_code_and_offset(code, error_offset);
+        free(issues);
+        free_structure_schema(schema);
+        PyBuffer_Release(&buffer);
+        return result;
+    }
     tlv_result_t code =
         tlv_schema_validate((const uint8_t*)buffer.buf, (size_t)buffer.len, format, schema,
                             (size_t)max_depth, (size_t)max_elements, &error_offset);
@@ -418,7 +733,6 @@ static PyObject* opentlv_native_codec_strerror(PyObject* module, PyObject* args)
  * tlv_codec_result_t code. This is a separate error domain from
  * opentlv_native.Error: tlv_codec_result_t conversion errors are
  * independent of the tlv_result_t framing errors that raises. */
-#if OPENTLV_EMV
 static void raise_codec_error(tlv_codec_result_t code) {
     PyObject* codec_args = Py_BuildValue("(i)", (int)code);
     if (codec_args == NULL) {
@@ -428,11 +742,111 @@ static void raise_codec_error(tlv_codec_result_t code) {
     Py_DECREF(codec_args);
 }
 
+/* Names do not participate in lookup; the facade retains them in its records. */
+static PyObject* opentlv_native_definition_find(PyObject* module, PyObject* args) {
+    (void)module;
+    PyObject *tags, *wanted;
+    if (!PyArg_ParseTuple(args, "OO", &tags, &wanted)) return NULL;
+    if (!PyTuple_Check(tags) || !PyBytes_Check(wanted)) {
+        PyErr_SetString(PyExc_TypeError, "immutable tag tuple and bytes required");
+        return NULL;
+    }
+    size_t count = (size_t)PyTuple_Size(tags);
+    if (count > SIZE_MAX / sizeof(tlv_definition_t)) return PyErr_NoMemory();
+    tlv_definition_t* entries = count ? calloc(count, sizeof(*entries)) : NULL;
+    if (count && !entries) return PyErr_NoMemory();
+    for (size_t i = 0; i < count; ++i) {
+        PyObject* tag = PyTuple_GetItem(tags, (Py_ssize_t)i);
+        if (!PyBytes_Check(tag)) {
+            free(entries);
+            PyErr_SetString(PyExc_TypeError, "immutable tag bytes required");
+            return NULL;
+        }
+        entries[i].tag = tlv_tag((const uint8_t*)PyBytes_AsString(tag), (size_t)PyBytes_Size(tag));
+    }
+    tlv_tag_t tag = tlv_tag((const uint8_t*)PyBytes_AsString(wanted), (size_t)PyBytes_Size(wanted));
+    tlv_definition_registry_t registry = {entries, count};
+    const tlv_definition_t*   found = tlv_definition_find(&registry, &tag);
+    PyObject* result = found ? PyLong_FromSize_t((size_t)(found - entries)) : Py_NewRef(Py_None);
+    free(entries);
+    return result;
+}
+
+static PyObject* opentlv_native_number_codec(PyObject* module, PyObject* args) {
+    (void)module;
+    int        operation, encoding;
+    Py_ssize_t width;
+    PyObject*  digits_obj;
+    PyObject*  input;
+    PyObject*  output = Py_None;
+    if (!PyArg_ParseTuple(args, "iinOO|O", &operation, &encoding, &width, &digits_obj, &input,
+                          &output))
+        return NULL;
+    if (width < 0) {
+        PyErr_SetString(PyExc_ValueError, "negative codec width");
+        return NULL;
+    }
+    unsigned long digits = PyLong_AsUnsignedLong(digits_obj);
+    if (PyErr_Occurred()) return NULL;
+    if (digits > UINT_MAX) {
+        PyErr_SetString(PyExc_OverflowError, "digits exceed unsigned int");
+        return NULL;
+    }
+    tlv_number_codec_config_t config = {(tlv_number_encoding_t)encoding, (size_t)width,
+                                        (unsigned int)digits};
+    uint64_t                  value = 0;
+    tlv_codec_result_t        code;
+    if (operation == 0) {
+        Py_buffer data;
+        if (PyObject_GetBuffer(input, &data, PyBUF_SIMPLE) < 0) return NULL;
+        code = tlv_number_decode(&config, data.buf, (size_t)data.len, &value, sizeof(value));
+        PyBuffer_Release(&data);
+        if (code != TLV_CODEC_OK) {
+            raise_codec_error(code);
+            return NULL;
+        }
+        return PyLong_FromUnsignedLongLong(value);
+    }
+    value = PyLong_AsUnsignedLongLong(input);
+    if (PyErr_Occurred()) return NULL;
+    size_t written = 0;
+    if (operation == 3) {
+        Py_buffer buffer;
+        if (PyObject_GetBuffer(output, &buffer, PyBUF_WRITABLE) < 0) return NULL;
+        code = tlv_number_encode(&config, &value, sizeof(value), buffer.buf, (size_t)buffer.len,
+                                 &written);
+        PyBuffer_Release(&buffer);
+        if (code != TLV_CODEC_OK) {
+            raise_codec_error(code);
+            return NULL;
+        }
+        return PyLong_FromSize_t(written);
+    }
+    if (operation != 1 && operation != 2) {
+        PyErr_SetString(PyExc_ValueError, "unknown codec operation");
+        return NULL;
+    }
+    code = tlv_number_encode(&config, &value, sizeof(value), NULL, 0, &written);
+    if (code != TLV_CODEC_OK) {
+        raise_codec_error(code);
+        return NULL;
+    }
+    if (operation == 2) return PyLong_FromSize_t(written);
+    /* Numeric C representations never exceed nine bytes; size query already validates. */
+    uint8_t bytes[9];
+    code = tlv_number_encode(&config, &value, sizeof(value), bytes, sizeof(bytes), &written);
+    if (code != TLV_CODEC_OK) {
+        raise_codec_error(code);
+        return NULL;
+    }
+    return PyBytes_FromStringAndSize((const char*)bytes, (Py_ssize_t)written);
+}
+
+#if OPENTLV_EMV
 /* emv_decode_amount(data) -> int
  *
  * Decodes 6 bytes of BCD (EMV format n12) into an unscaled minor-unit
- * amount, using the public `tlv_emv_codec_amount` codec: the one concrete
- * tlv_codec_t the OpenTLV C API exports. Raises opentlv_native.CodecError
+ * amount, using the public `tlv_emv_codec_amount` codec. Raises opentlv_native.CodecError
  * on failure. */
 static PyObject* opentlv_native_emv_decode_amount(PyObject* module, PyObject* args) {
     (void)module;
@@ -485,6 +899,25 @@ static void document_capsule_destructor(PyObject* capsule) {
     if (document != NULL) {
         tlv_document_free(document);
     }
+    PyObject* owner = PyCapsule_GetContext(capsule);
+    Py_XDECREF(owner);
+}
+
+/* Keep Format storage alive for documents built from a cursor-owned descriptor. */
+PyObject* opentlv_python_document_wrap(tlv_document_t* document, PyObject* owner) {
+    PyObject* capsule = PyCapsule_New(document, DOCUMENT_CAPSULE_NAME, document_capsule_destructor);
+    if (!capsule) {
+        tlv_document_free(document);
+        return NULL;
+    }
+    if (owner) {
+        if (PyCapsule_SetContext(capsule, owner) < 0) {
+            Py_DECREF(capsule);
+            return NULL;
+        }
+        Py_INCREF(owner);
+    }
+    return capsule;
 }
 
 /* Returns the document a capsule holds, or NULL with an exception set if
@@ -702,16 +1135,23 @@ static PyObject* opentlv_native_document_insert(PyObject* module, PyObject* args
 
 static PyObject* opentlv_native_document_encoded_size(PyObject* module, PyObject* args) {
     (void)module;
+    int       format_id = -1;
     PyObject* capsule;
-    if (!PyArg_ParseTuple(args, "O", &capsule)) {
+    if (!PyArg_ParseTuple(args, "O|i", &capsule, &format_id)) {
         return NULL;
     }
     tlv_document_t* document = document_from_capsule(capsule);
     if (document == NULL) {
         return NULL;
     }
+    const tlv_format_t* destination = format_id == -1 ? NULL : opentlv_python_format_for(format_id);
+    if (format_id != -1 && !destination) {
+        PyErr_SetString(PyExc_ValueError, "unsupported destination Format");
+        return NULL;
+    }
     size_t       size = 0;
-    tlv_result_t code = tlv_document_encoded_size(document, &size);
+    tlv_result_t code = (destination ? tlv_document_encoded_size_as(document, destination, &size)
+                                     : tlv_document_encoded_size(document, &size));
     if (code != TLV_OK) {
         raise_code_only(code);
         return NULL;
@@ -721,18 +1161,29 @@ static PyObject* opentlv_native_document_encoded_size(PyObject* module, PyObject
 
 static PyObject* opentlv_native_document_encode(PyObject* module, PyObject* args) {
     (void)module;
+    int       format_id = -1;
     PyObject* capsule;
-    if (!PyArg_ParseTuple(args, "O", &capsule)) {
+    if (!PyArg_ParseTuple(args, "O|i", &capsule, &format_id)) {
         return NULL;
     }
     tlv_document_t* document = document_from_capsule(capsule);
     if (document == NULL) {
         return NULL;
     }
+    const tlv_format_t* destination = format_id == -1 ? NULL : opentlv_python_format_for(format_id);
+    if (format_id != -1 && !destination) {
+        PyErr_SetString(PyExc_ValueError, "unsupported destination Format");
+        return NULL;
+    }
     size_t       size = 0;
-    tlv_result_t code = tlv_document_encoded_size(document, &size);
+    tlv_result_t code = (destination ? tlv_document_encoded_size_as(document, destination, &size)
+                                     : tlv_document_encoded_size(document, &size));
     if (code != TLV_OK) {
         raise_code_only(code);
+        return NULL;
+    }
+    if (size > PY_SSIZE_T_MAX) {
+        raise_code_only(TLV_ERR_NATIVE_SIZE);
         return NULL;
     }
     PyObject* result = PyBytes_FromStringAndSize(NULL, (Py_ssize_t)size);
@@ -741,7 +1192,9 @@ static PyObject* opentlv_native_document_encode(PyObject* module, PyObject* args
     }
     char*  buf = PyBytes_AsString(result);
     size_t written = 0;
-    code = tlv_document_encode(document, (uint8_t*)buf, size, &written);
+    code =
+        (destination ? tlv_document_encode_as(document, destination, (uint8_t*)buf, size, &written)
+                     : tlv_document_encode(document, (uint8_t*)buf, size, &written));
     if (code != TLV_OK) {
         Py_DECREF(result);
         raise_code_only(code);
@@ -851,12 +1304,19 @@ static PyObject* opentlv_native_node_erase(PyObject* module, PyObject* args) {
 
 static PyObject* opentlv_native_node_encoded_size(PyObject* module, PyObject* args) {
     (void)module;
+    int         format_id = -1;
     tlv_node_t* node;
-    if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) {
+    if (!PyArg_ParseTuple(args, "O&|i", py_to_node, &node, &format_id)) {
+        return NULL;
+    }
+    const tlv_format_t* destination = format_id == -1 ? NULL : opentlv_python_format_for(format_id);
+    if (format_id != -1 && !destination) {
+        PyErr_SetString(PyExc_ValueError, "unsupported destination Format");
         return NULL;
     }
     size_t       size = 0;
-    tlv_result_t code = tlv_node_encoded_size(node, &size);
+    tlv_result_t code = (destination ? tlv_node_encoded_size_as(node, destination, &size)
+                                     : tlv_node_encoded_size(node, &size));
     if (code != TLV_OK) {
         raise_code_only(code);
         return NULL;
@@ -866,14 +1326,25 @@ static PyObject* opentlv_native_node_encoded_size(PyObject* module, PyObject* ar
 
 static PyObject* opentlv_native_node_encode(PyObject* module, PyObject* args) {
     (void)module;
+    int         format_id = -1;
     tlv_node_t* node;
-    if (!PyArg_ParseTuple(args, "O&", py_to_node, &node)) {
+    if (!PyArg_ParseTuple(args, "O&|i", py_to_node, &node, &format_id)) {
+        return NULL;
+    }
+    const tlv_format_t* destination = format_id == -1 ? NULL : opentlv_python_format_for(format_id);
+    if (format_id != -1 && !destination) {
+        PyErr_SetString(PyExc_ValueError, "unsupported destination Format");
         return NULL;
     }
     size_t       size = 0;
-    tlv_result_t code = tlv_node_encoded_size(node, &size);
+    tlv_result_t code = (destination ? tlv_node_encoded_size_as(node, destination, &size)
+                                     : tlv_node_encoded_size(node, &size));
     if (code != TLV_OK) {
         raise_code_only(code);
+        return NULL;
+    }
+    if (size > PY_SSIZE_T_MAX) {
+        raise_code_only(TLV_ERR_NATIVE_SIZE);
         return NULL;
     }
     PyObject* result = PyBytes_FromStringAndSize(NULL, (Py_ssize_t)size);
@@ -882,7 +1353,8 @@ static PyObject* opentlv_native_node_encode(PyObject* module, PyObject* args) {
     }
     char*  buf = PyBytes_AsString(result);
     size_t written = 0;
-    code = tlv_node_encode(node, (uint8_t*)buf, size, &written);
+    code = (destination ? tlv_node_encode_as(node, destination, (uint8_t*)buf, size, &written)
+                        : tlv_node_encode(node, (uint8_t*)buf, size, &written));
     if (code != TLV_OK) {
         Py_DECREF(result);
         raise_code_only(code);
@@ -1354,7 +1826,44 @@ static PyObject* opentlv_native_element_encoded_size_fixed(PyObject* module, PyO
     return PyLong_FromSize_t(size);
 }
 
+void opentlv_python_raise_reader(tlv_result_t code, const tlv_reader_diagnostic_t* diagnostic) {
+    raise_reader_error(code, diagnostic);
+}
+
+void opentlv_python_raise_writer(tlv_result_t code, const tlv_writer_diagnostic_t* diagnostic) {
+    raise_writer_error(code, diagnostic);
+}
+
 static PyMethodDef opentlv_native_methods[] = {
+    {"length_schema", opentlv_python_length_schema, METH_VARARGS,
+     "Find or validate a length rule through the canonical C schema engine."},
+    {"source_preserve", opentlv_python_source_preserve, METH_VARARGS,
+     "Preserve retained immutable source bytes after C semantic equality checks."},
+    {"document_builder_create", opentlv_python_builder_create, METH_VARARGS,
+     "Materialize a whole stream or next subtree through the C builder."},
+    {"document_builder_consume", opentlv_python_builder_consume, METH_O,
+     "Resume materialization and transfer a completed document."},
+    {"tree_writer_measure", opentlv_python_tree_writer_measure, METH_VARARGS,
+     "Measure and stage a preorder source through C."},
+    {"tree_writer_create", opentlv_python_tree_writer_create, METH_VARARGS,
+     "Create bounded canonical tree output."},
+    {"tree_writer_action", opentlv_python_tree_writer_action, METH_VARARGS,
+     "Operate the canonical C Tree Writer."},
+    {"cursor_create", opentlv_python_cursor_create, METH_VARARGS,
+     "Create a canonical C Reader cursor."},
+    {"cursor_next", opentlv_python_cursor_next, METH_O, "Pull complete content and source ranges."},
+    {"cursor_input", opentlv_python_cursor_input, METH_VARARGS, "Replace a cursor input window."},
+    {"cursor_status", opentlv_python_cursor_status, METH_O,
+     "Return consumed bytes, absolute offset and final exhaustion."},
+    {"cursor_skip", opentlv_python_cursor_skip, METH_O, "Skip the pending subtree."},
+    {"cursor_visit", opentlv_python_cursor_visit, METH_VARARGS,
+     "Visit through the C traversal engine."},
+    {"query_create", opentlv_python_query_create, METH_O, "Parse or copy a canonical Query."},
+    {"query_steps", opentlv_python_query_steps, METH_O, "Return query path tags."},
+    {"query_matches", opentlv_python_query_matches, METH_VARARGS,
+     "Feed a preorder item to the C matcher."},
+    {"query_visit", opentlv_python_query_visit, METH_VARARGS,
+     "Visit matches through the C Query engine."},
     {"version_string", opentlv_native_version_string, METH_NOARGS,
      "Return the version of the linked OpenTLV C library, for example \"0.6.0\"."},
     {"strerror", opentlv_native_strerror, METH_VARARGS,
@@ -1380,6 +1889,10 @@ static PyMethodDef opentlv_native_methods[] = {
      "Compute the encoded size of an element in the configurable fixed-width format."},
     {"structure_validate", opentlv_native_structure_validate, METH_VARARGS,
      "Validate a buffer against a serialized structural schema."},
+    {"definition_find", opentlv_native_definition_find, METH_VARARGS,
+     "Find the first generic C Definition."},
+    {"number_codec", opentlv_native_number_codec, METH_VARARGS,
+     "Configured C numeric Value codec."},
     {"codec_strerror", opentlv_native_codec_strerror, METH_VARARGS,
      "Return the readable description of a tlv_codec_result_t code."},
 #if OPENTLV_EMV

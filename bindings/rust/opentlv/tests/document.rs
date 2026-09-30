@@ -1,0 +1,158 @@
+#![cfg(feature = "document")]
+use opentlv::{ByteOrder, Document, Error, FixedFormat, FixedFormatConfig, Format, Query, Tag};
+
+#[test]
+fn builder_resumes_and_materializes_selected_subtree_without_sibling_decode() {
+    use opentlv::{DocumentBuilder, TreeReader};
+    let first = [1, 0];
+    let second = [2, 1, 42];
+    let mut reader = TreeReader::new(&first, Format::Ber, 4, 4, 20, false).unwrap();
+    {
+        let mut builder = DocumentBuilder::new(&mut reader, 4, 20).unwrap();
+        assert_eq!(builder.consume().err().unwrap().error, Error::NeedMoreData);
+        assert_eq!(builder.consumed(), 2);
+        builder.set_input(&second, 2, true).unwrap();
+        let document = builder.consume().unwrap();
+        assert_eq!(document.encode().unwrap(), [1, 0, 2, 1, 42]);
+        assert_eq!(builder.consume().err().unwrap().error, Error::InvalidArg);
+    }
+    let input = [0x30, 3, 4, 1, 42, 4, 2];
+    let mut reader = TreeReader::new(&input, Format::Ber, 4, 4, 20, true).unwrap();
+    let document = {
+        let mut builder = DocumentBuilder::next_subtree(&mut reader, 4, 20).unwrap();
+        builder.consume().unwrap()
+    };
+    assert_eq!(document.encode().unwrap(), &input[..5]);
+    assert_eq!(reader.read().err().unwrap(), Error::BufferTooShort);
+}
+
+#[test]
+fn owns_input_and_delegates_navigation_query_and_mutation() {
+    let mut document = {
+        let input = vec![0x30, 3, 4, 1, 42, 4, 0];
+        Document::parse(&input, Format::Ber, 64, 100).unwrap()
+    };
+    assert_eq!(document.len(), 3);
+    let query = Query::parse("30/04").unwrap();
+    assert_eq!(document.find_path(&query).unwrap().value(), &[42]);
+    let root = document.first().unwrap();
+    assert!(root.is_constructed());
+    assert_eq!(
+        root.first_child().unwrap().parent().unwrap().tag(),
+        Tag::from_bytes(&[0x30])
+    );
+    assert_eq!(root.next().unwrap().value(), &[]);
+    document
+        .find_path_mut(&query)
+        .unwrap()
+        .set_value(&[43])
+        .unwrap();
+    {
+        let mut root = document.first_mut().unwrap();
+        root.append(&Tag::from_bytes(&[4]), &[44]).unwrap();
+        assert_eq!(
+            root.as_node()
+                .first_child()
+                .unwrap()
+                .next_same_tag()
+                .unwrap()
+                .value(),
+            &[44]
+        );
+    }
+    document.first_mut().unwrap().into_next().unwrap().erase();
+    assert_eq!(document.encode().unwrap(), [0x30, 6, 4, 1, 43, 4, 1, 44]);
+    assert_eq!(document.encoded_size().unwrap(), 8);
+    document
+        .first_mut()
+        .unwrap()
+        .into_first_child()
+        .unwrap()
+        .erase();
+    assert_eq!(document.len(), 2);
+}
+
+#[test]
+fn failed_mutation_preserves_document_and_encoding_capacity_is_reported() {
+    let mut document = Document::parse(&[0x30, 3, 4, 1, 42], Format::Ber, 2, 2).unwrap();
+    assert_eq!(
+        document.first_mut().unwrap().set_value(&[4, 2]),
+        Err(Error::BufferTooShort)
+    );
+    assert_eq!(
+        document
+            .find(&Tag::from_bytes(&[0x30]))
+            .unwrap()
+            .first_child()
+            .unwrap()
+            .value(),
+        &[42]
+    );
+    assert!(document.append(&Tag::from_bytes(&[4]), &[]).is_err());
+    let mut output = [0xAA; 2];
+    let error = document.encode_into(&mut output).unwrap_err();
+    assert_eq!(error.error, Error::BufferTooShort);
+    assert_eq!(error.required, Some(5));
+    assert_eq!(output, [0xAA; 2]);
+}
+
+#[test]
+fn destination_format_and_subtree_encoding_use_c() {
+    let document = Document::parse(&[0x30, 3, 4, 1, 42], Format::Ber, 64, 100).unwrap();
+    let expected = [0x30, 0x80, 4, 1, 42, 0, 0];
+    assert_eq!(document.encode_as(Format::Cer).unwrap(), expected);
+    assert_eq!(
+        document.encoded_size_as(Format::Cer).unwrap(),
+        expected.len()
+    );
+    let mut output = [0; 7];
+    assert_eq!(
+        document
+            .first()
+            .unwrap()
+            .encode_into_as(&mut output, Format::Cer)
+            .unwrap(),
+        7
+    );
+    assert_eq!(output, expected);
+    assert_eq!(
+        document
+            .first()
+            .unwrap()
+            .first_child()
+            .unwrap()
+            .encode()
+            .unwrap(),
+        [4, 1, 42]
+    );
+}
+
+#[test]
+fn fixed_format_and_insert_before_are_available() {
+    let config = FixedFormatConfig::new(1, 1, ByteOrder::Big);
+    let format = FixedFormat::new(&config).unwrap();
+    let mut document = Document::with_fixed_format(&format, 0, 5).unwrap();
+    document.append(&Tag::from_bytes(&[2]), &[20]).unwrap();
+    document
+        .first_mut()
+        .unwrap()
+        .insert_before(&Tag::from_bytes(&[1]), &[10])
+        .unwrap();
+    assert_eq!(document.encode().unwrap(), [1, 1, 10, 2, 1, 20]);
+}
+
+#[test]
+fn parse_reports_source_offset_and_limits() {
+    let error = Document::parse(&[1, 0, 2, 2], Format::Ber, 64, 100)
+        .err()
+        .unwrap();
+    assert_eq!(error.error, Error::BufferTooShort);
+    assert_eq!(error.offset, Some(2));
+    assert_eq!(
+        Document::parse(&[1, 0], Format::Ber, 0, 0)
+            .err()
+            .unwrap()
+            .error,
+        Error::Limit
+    );
+}

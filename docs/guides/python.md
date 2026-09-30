@@ -45,9 +45,11 @@ Runnable round-trip version:
 ## Reading
 
 `Reader` is a Python iterator over `Element` values. Each `Element` has a `Tag`
-and a `value` that is a zero-copy `memoryview` slice of your input.
-Constructed elements are not expanded automatically; create a new `Reader`
-over `element.value` to descend.
+and a `value` that is a `memoryview` of retained immutable input storage.
+Sequential Reader treats constructed Values as opaque. Use `TreeReader` for
+canonical preorder traversal, limits and subtree skipping. Both Readers support
+incremental windows and Visitors; `QueryMatcher` adds resumable Query processing.
+See the [Reader and Query facade contract](../concepts/bindings.md#rust-and-python-reader-and-query-facades).
 
 ```python
 import opentlv
@@ -58,9 +60,10 @@ for element in opentlv.Reader(data):
 ```
 
 `data` may be `bytes`, `bytearray`, `memoryview`, or any other
-buffer-protocol object; the reader borrows it rather than copying it, so it
-must stay valid and unchanged for as long as the reader or its elements are
-used. `Reader(data)` uses `opentlv.Format.BER`; pass `format=` for
+buffer-protocol object. Immutable bytes are retained without copying; other
+inputs are snapshotted into immutable bytes. Returned views keep their storage
+alive across Reader destruction and input replacement. `Reader(data)` uses
+`opentlv.Format.BER`; pass `format=` for
 another wire format, for example `opentlv.Reader(data, opentlv.Format.BER)`,
 or an `opentlv.FixedFormat(tag_size, length_size, byte_order="big")` for a
 runtime-configurable fixed-width tag and length (equivalent to the C
@@ -101,8 +104,8 @@ capacity, and a genuine format error (`python examples/writer.py`).
 
 ## Validating
 
-`LengthSchema` is a pure Python per-tag length table (`validate_length` is a
-dict lookup and bounds check, so it never calls into C):
+`LengthSchema` is a per-tag length table whose lookup and length constraints
+delegate to the canonical C Schema API:
 
 ```python
 from opentlv import LengthRule, LengthSchema, Tag
@@ -144,10 +147,23 @@ incomplete one:
 [validate.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/validate.py)
 (`python examples/validate.py`).
 
+## Generic Definition registries
+
+`Definition(tag, name=None)` describes an identifier independently of Schema or
+Codec. `DefinitionRegistry(definitions).find(tag)` calls the canonical C lookup
+and returns the first matching record or `None`. Records own immutable identifier
+bytes and names, so returned definitions survive the registry.
+
 ## Codec
 
-`opentlv.codec` binds the one concrete value codec the public OpenTLV C API
-exports, `tlv_emv_codec_amount`, for EMV format n12 amounts:
+`NumberCodec(NumberEncoding.BIG_ENDIAN, width=2)` converts unsigned numeric
+Values through C. `LITTLE_ENDIAN` and `BCD` are also supported; BCD requires
+`digits` precision. Width zero selects minimal encoding. `decode`, `encode`,
+`encoded_size` and `encode_into` expose conversion, measurement and caller-owned
+output. Conversion errors raise `codec.CodecError`; integers outside uint64
+raise `OverflowError` during representation adaptation.
+
+`opentlv.codec` also binds `tlv_emv_codec_amount` for EMV format n12 amounts:
 
 ```python
 from opentlv import codec
@@ -156,15 +172,11 @@ codec.encode_amount(12345)            # b"\x00\x00\x00\x01\x23\x45"
 codec.decode_amount(b"\x00\x00\x00\x01\x23\x45")  # 12345
 ```
 
-This does not extend to the rest of Rust's `Codec`/`Value` model (dates,
-Track 2, AFL, CVM results, cryptogram info, and so on): the C functions that
-decode those (`emv_value_decode`/`emv_value_encode`) are declared only in a
-private header under `tlv/src/`, not in `tlv/include/`, so binding them would
-mean reimplementing that EMV decoding logic in Python instead of calling
-into C for it, unlike every other type this package binds. A `CodecError`
-(not an `OpenTLVError` subclass — `tlv_codec_result_t` is a separate error
-domain from `tlv_result_t`) carries the raw `tlv_codec_result_t` code as
-`.code`.
+Other public C codecs (dates, Track 2, AFL, CVM results and cryptogram
+information, among others) remain binding gaps. They must be exposed by wrapping
+the public C descriptors rather than reimplementing their conversion logic.
+`codec.CodecError` is separate from `OpenTLVError`, matching C's separate codec
+error domain; its `.code` contains the raw `tlv_codec_result_t` value.
 
 Runnable version, decoding and encoding an EMV "Amount, Authorised" element:
 [codec.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/codec.py)
@@ -172,8 +184,9 @@ Runnable version, decoding and encoding an EMV "Amount, Authorised" element:
 
 ## Documents
 
-`Reader` and `Writer` are zero-copy and never allocate; `Document` is a
-separate, allocating convenience layer for changing an existing message. It
+`Reader` retains immutable input or snapshots mutable buffers, and `Writer`
+uses managed output storage. `Document` is a separate, allocating convenience
+layer for changing an existing message. It
 parses input into an owned tree of `Node`s that can be searched, changed,
 extended and shortened, then encoded again:
 
@@ -205,9 +218,10 @@ A document owns every tag and value it holds — the only part of OpenTLV that
 allocates beyond a Python object's own memory — so close it deterministically
 with `close()` or a `with` block instead of waiting for garbage collection
 when that matters, for example for a large document. A node stays valid
-until it is erased, its value is replaced, or its document is closed or
-freed; using it afterwards is the same use-after-free hazard the C API
-itself has, not something this binding guards against.
+until it or an ancestor is erased, its parent Value is replaced, or its
+document is closed. Invalid access raises `ValueError` before native access.
+Replacing a node's own Value leaves that node usable; its old children become
+invalid only after successful replacement. Unrelated handles remain valid.
 
 Runnable versions:
 [document.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/document.py)
@@ -247,31 +261,43 @@ advance past malformed input.
 directly against the CPython C API (no pybind11, cffi or Cython) and the
 CPython Limited API, declaring and calling the public OpenTLV C API;
 `opentlv` wraps it and contains no C API calls of its own, the same split as
-the Rust `opentlv-native`/`opentlv` crates. `opentlv-native` exposes element
-parsing (`tlv_read_diag`) and encoding (`tlv_write_diag`) as two stateless
-calls, `read(data, offset, format)` and `write(buffer, offset, tag, value,
-format)`; `opentlv.Reader` and `opentlv.Writer` keep their position in pure
-Python and call them repeatedly, the same sequential behavior
-`tlv_reader_next()`/`tlv_writer_write()` give other bindings, without needing
-to represent the C `tlv_reader_t`/`tlv_writer_t` structs on the Python side.
-Unlike the C writer, which reports `TLV_ERR_BUFFER_TOO_SHORT` for a
-caller-provided buffer that is too small, `opentlv.Writer` owns a growable
-`bytearray` and retries once after growing it to the exact required size
-(`required` on the resulting diagnostic), the same size
-`tlv_encoded_size()`/`opentlv.encoded_size()` reports. `StructureSchema`
+the Rust `opentlv-native`/`opentlv` crates. `Reader` and `TreeReader` retain native C cursors for incremental input and
+canonical traversal. `Writer` delegates each write to C and updates its Python
+position only after success. With `buffer=...`, output capacity is fixed;
+without it, the owned bytearray grows on a native capacity diagnostic.
+`StructureSchema`
 serializes its Python-owned rules (including nested `children` schemas) into
 an ephemeral C rule tree for the duration of one `structure_validate()` call,
 built and freed with plain `malloc`/`free`, rather than keeping a persistent
 native handle across calls the way it would for a schema reused many times;
-`LengthSchema` needs no such call at all, since its lookup and bounds check
-carry no wire-format semantics worth delegating to C. `codec.decode_amount`/
+`LengthSchema` likewise marshals its rules and delegates lookup and length
+constraints to `tlv_schema_find` and `tlv_schema_validate_length`. Rule flags
+and length multiples use the same C semantics. `codec.decode_amount`/
 `encode_amount` wrap `tlv_codec_decode`/`tlv_codec_encode` directly, passed
 the public `tlv_emv_codec_amount` descriptor. `opentlv.Document` wraps a
 `tlv_document_t*` in a `PyCapsule` that frees it (`tlv_document_free()`) when
 the capsule is garbage collected or `close()` drops Python's only reference
-to it; `opentlv.Node` wraps a borrowed `tlv_node_t*` as a plain integer,
-which needs no capsule of its own since nodes are freed with their document,
-not individually, and holds a reference to its `Document` so the capsule
-stays alive for as long as a node from it is reachable. This completes every
-type in the [language bindings conceptual
-model](../concepts/bindings.md) this package's scope covers.
+to it. `Node` retains its Document and validates shared ownership tokens before
+using its internal pointer. This protects aliases and descendants from use after
+erasure, replacement or close. Remaining parity gaps are listed in the
+[binding capability matrix](../concepts/bindings.md#capability-implementation-matrix).
+
+## Tree measurement, preservation and materialization
+
+`TreeWriter.measure(items, capacity, format, ...)` accepts preorder tuples
+`(Element, depth, constructed)`. It calls C measurement and returns the staged
+encoded bytes; their length is the exact size. Workspace errors expose
+`required_data` and `required_scratch` lower bounds. A retry needs a fresh source.
+`Reader.read_source()` results expose `preserve()` and `preserve_into(storage)`;
+`Writer.preserve(decoded)` appends the unchanged original representation.
+All equality checks and byte copying are performed by C.
+
+`DocumentBuilder(reader)` consumes a fresh TreeReader incrementally.
+`DocumentBuilder(reader, next_subtree=True)` consumes only its next subtree.
+Call `consume()` until a Document is returned; `NeedMoreDataError` permits
+`reader.set_input(...)` and retry. Use a `with` block or `close()` to discard an
+unfinished build. Active builders prevent other cursor traversal operations.
+
+`Document.encode(format)` and `Node.encode(format)` support conversion to a
+compatible builtin destination Format without changing the stored tree.
+`encoded_size_as(format)` measures the same destination encoding.

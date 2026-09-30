@@ -9,10 +9,32 @@ use std::{marker::PhantomData, mem::MaybeUninit, slice};
 pub struct Decoded<'a> {
     /// Canonical content; replacing it does not change the original source.
     pub element: Element<'a>,
-    source: native::tlv_source_t,
+    pub(crate) source: native::tlv_source_t,
     lifetime: PhantomData<&'a [u8]>,
 }
 impl<'a> Decoded<'a> {
+    /// Convert a successful native decode whose storage remains valid for `'a`.
+    pub(crate) unsafe fn from_raw(raw: native::tlv_decoded_t) -> Result<Self> {
+        Ok(Self {
+            // SAFETY: caller guarantees the successful decode and storage lifetime.
+            element: unsafe { Element::from_raw(&raw.element) }?,
+            source: raw.source,
+            lifetime: PhantomData,
+        })
+    }
+
+    /// Original framing ranges, relative to `encoded()`. Absent fields are `None`.
+    pub fn layout(&self) -> Layout {
+        let range =
+            |r: native::tlv_range_t| (r.present != 0).then_some(r.offset..r.offset + r.size);
+        Layout {
+            header: range(self.source.header),
+            tag: range(self.source.tag),
+            length: range(self.source.length),
+            value: range(self.source.value),
+            trailer: range(self.source.trailer),
+        }
+    }
     /// Returns the complete original encoded element, including framing.
     pub fn encoded(&self) -> &'a [u8] {
         // SAFETY: successful C decode returns a range within the borrowed input.
@@ -49,6 +71,21 @@ impl<'a> Decoded<'a> {
         })?;
         Ok(written)
     }
+}
+
+/// Source-relative byte ranges for the original encoded element.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Layout {
+    /// Complete header.
+    pub header: Option<std::ops::Range<usize>>,
+    /// Optional wire tag.
+    pub tag: Option<std::ops::Range<usize>>,
+    /// Optional length field.
+    pub length: Option<std::ops::Range<usize>>,
+    /// Logical value.
+    pub value: Option<std::ops::Range<usize>>,
+    /// Optional trailer.
+    pub trailer: Option<std::ops::Range<usize>>,
 }
 unsafe fn decode_raw<'a>(
     data: &'a [u8],

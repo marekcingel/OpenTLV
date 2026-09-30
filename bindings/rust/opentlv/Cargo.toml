@@ -8,8 +8,9 @@ license.workspace = true
 repository.workspace = true
 
 [features]
-default = ["lldp"]
+default = ["lldp", "document"]
 lldp = ["opentlv-native/lldp"]
+document = ["opentlv-native/document"]
 
 [dependencies]
 opentlv-native = { path = "../opentlv-native", default-features = false }

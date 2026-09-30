@@ -168,3 +168,44 @@ fn write_element_copies_entries_read_from_another_buffer() {
     }
     assert_eq!(writer.written(), &source);
 }
+#[test]
+fn preservation_and_owned_writer_diagnostics() {
+    let input = [4, 0x81, 1, 42];
+    let mut decoded = opentlv::decode(&input, Format::Ber).unwrap();
+    let mut output = [0; 8];
+    let mut writer = Writer::new(&mut output);
+    writer.copy_encoded(&[1, 0]).unwrap();
+    writer.preserve(&decoded).unwrap();
+    assert_eq!(writer.written(), [1, 0, 4, 0x81, 1, 42]);
+    decoded.element = opentlv::Element::new(Tag::from_bytes(&[4]), &[43]);
+    assert_eq!(writer.preserve(&decoded), Err(Error::InvalidArg));
+    assert_eq!(writer.diagnostic().unwrap().offset, Some(6));
+    assert_eq!(writer.position(), 6);
+    assert_eq!(
+        writer.write(&Tag::from_bytes(&[4]), &[1]),
+        Err(Error::BufferTooShort)
+    );
+    assert_eq!(
+        writer.diagnostic().unwrap().tag,
+        Some(Tag::from_bytes(&[4]))
+    );
+    assert_eq!(writer.diagnostic().unwrap().required, Some(3));
+}
+
+#[test]
+fn single_element_measurement_and_diagnostics() {
+    let element = opentlv::Element::new(Tag::from_bytes(&[4]), &[42]);
+    assert_eq!(opentlv::measure_element(&element, Format::Ber).unwrap(), 3);
+    let mut output = [0xAA; 2];
+    let error = opentlv::write_element(&mut output, &element, Format::Ber).unwrap_err();
+    assert_eq!(error.error, Error::BufferTooShort);
+    assert_eq!(error.diagnostic.required, Some(3));
+    assert_eq!(error.diagnostic.available, Some(2));
+    assert_eq!(output, [0xAA; 2]);
+    let mut output = [0; 3];
+    assert_eq!(
+        opentlv::write_element(&mut output, &element, Format::Ber).unwrap(),
+        3
+    );
+    assert_eq!(output, [4, 1, 42]);
+}

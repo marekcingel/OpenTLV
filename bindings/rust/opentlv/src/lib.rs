@@ -1,7 +1,7 @@
 //! Safe Rust bindings for OpenTLV.
 //!
-//! All `unsafe` FFI interaction lives in `opentlv-native`; this crate builds the
-//! safe API on top of it. It provides the core types [`Tag`], [`Element`],
+//! Raw C declarations live in `opentlv-native`; this crate wraps those calls
+//! with safe ownership and lifetime contracts. It provides [`Tag`], [`Element`],
 //! [`Error`] and [`Result`], the [`Reader`] that parses TLV buffers, the
 //! [`Writer`] that encodes them, and reports the library version. Higher-level
 //! layers wrap the C library's implementation instead of reimplementing it:
@@ -63,42 +63,63 @@
 //!
 //! Every operation calls into the OpenTLV C library through `opentlv-native`, so
 //! behavior and error codes match the C API. The safe layer replaces pointer and
-//! length pairs with slices and lifetimes. Callback-based visitors, structure
+//! length pairs with slices and lifetimes. [`TreeReader`], resumable Readers,
+//! Visitors and [`QueryMatcher`] delegate to the canonical C engines. Structure
 //! codecs and the DOL component are not bound yet.
 
 #![warn(missing_docs)]
 
 mod codec;
+mod definition;
+pub use definition::{Definition, DefinitionRegistry};
+#[cfg(feature = "document")]
+mod document;
 mod element;
 mod error;
 mod fixed_format;
 mod format;
+mod query;
 mod reader;
+mod reader_diagnostic;
 mod schema;
 mod source;
 mod tag;
+mod tree_reader;
+mod tree_writer;
+#[cfg(feature = "document")]
+pub use document::{Document, DocumentBuilder, DocumentError, Node, NodeMut};
 mod validation;
+mod visitor;
 mod writer;
 
 pub mod emv;
 
 pub use codec::{
     AccountType, AflEntry, BiometricType, Codec, CodecError, CodecResult, CryptogramInfo,
-    CryptogramType, CvmResult, Date, Time, Track2, Value, ValueKind,
+    CryptogramType, CvmResult, Date, NumberCodec, NumberEncoding, Time, Track2, Value, ValueKind,
 };
 pub use element::Element;
 pub use error::{Error, Result};
 pub use fixed_format::{ByteOrder, FixedFormat, FixedFormatConfig};
 pub use format::Format;
-pub use reader::Reader;
+pub use query::{Query, QueryError, QueryMatcher};
+pub use reader::{read, read_fixed, Reader, ReaderError};
+pub use reader_diagnostic::ReaderDiagnostic;
 pub use schema::{
-    Kind, LengthRule, LengthSchema, SchemaError, StructureRule, StructureSchema, ValidationLimits,
+    Kind, LengthRule, LengthSchema, SchemaBounds, SchemaDiagnostic, SchemaDiagnosticReport,
+    SchemaError, SchemaIssue, SchemaOrder, SchemaReport, StructureGroup, StructureRule,
+    StructureSchema, UnknownPolicy, ValidationLimits,
 };
-pub use source::{decode, decode_fixed, Decoded};
+pub use source::{decode, decode_fixed, Decoded, Layout};
 pub use tag::Tag;
+pub use tree_reader::{TreeItem, TreeReader};
+pub use tree_writer::{TreeWriteItem, TreeWriter, WriterDiagnostic};
 pub use validation::{Limits, Strictness, ValidationError};
+pub use visitor::Visit;
 pub use writer::{
-    element_encoded_size, element_encoded_size_fixed, encoded_size, encoded_size_fixed, Writer,
+    element_encoded_size, element_encoded_size_fixed, encoded_size, encoded_size_fixed,
+    measure_element, measure_element_fixed, write_element, write_element_fixed, Writer,
+    WriterError,
 };
 
 use std::ffi::CStr;

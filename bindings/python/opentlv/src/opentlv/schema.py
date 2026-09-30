@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import enum
-from typing import Dict, Iterable, Optional, Union
+import struct
+from dataclasses import dataclass
+from typing import Iterable, Optional, Union
 
 import opentlv_native as _native
 
-from opentlv.error import InvalidLengthError, SchemaError, _from_native
+from opentlv.error import _from_native
 from opentlv.format import Format, _resolve_format
 from opentlv.tag import Tag
 
-UNRESTRICTED = 2**64 - 1
+UNRESTRICTED = 2**(8 * struct.calcsize("P")) - 1
 """Sentinel for an unrestricted upper bound, matching the C library's `SIZE_MAX`."""
 
 
@@ -21,13 +23,19 @@ class LengthRule:
     Bounds are inclusive; equal bounds specify an exact length.
     """
 
-    __slots__ = ("tag", "min_length", "max_length")
+    __slots__ = ("tag", "min_length", "max_length", "flags", "length_multiple")
 
     def __init__(self, tag: Union[Tag, bytes], min_length: int = 0,
-                 max_length: int = UNRESTRICTED) -> None:
+                 max_length: int = UNRESTRICTED, *, flags: int = 0,
+                 length_multiple: int = 0) -> None:
         self.tag = tag if isinstance(tag, Tag) else Tag(tag)
         self.min_length = min_length
         self.max_length = max_length
+        self.flags = flags
+        self.length_multiple = length_multiple
+
+    def _to_native(self):
+        return (self.tag.data, self.min_length, self.max_length, self.flags, self.length_multiple)
 
     @staticmethod
     def exact(tag: Union[Tag, bytes], length: int) -> "LengthRule":
@@ -41,9 +49,8 @@ class LengthRule:
 class LengthSchema:
     """A table of per-tag value-length rules.
 
-    A pure Python lookup table: `find`/`validate_length` are a dict lookup
-    and a bounds check, so this does not call into the C library. Earlier
-    rules win for a repeated tag.
+    Lookup and validation delegate to C, including endpoint-only lengths
+    (flags=1) and length_multiple constraints. Earlier rules win for a repeated tag.
 
     >>> tag = Tag(b"\\x01")
     >>> schema = LengthSchema([LengthRule(tag, 2, 4)])
@@ -57,10 +64,7 @@ class LengthSchema:
     __slots__ = ("_rules",)
 
     def __init__(self, rules: Iterable[LengthRule] = ()) -> None:
-        table: Dict[bytes, LengthRule] = {}
-        for rule in rules:
-            table.setdefault(rule.tag.data, rule)
-        self._rules = table
+        self._rules = tuple(rules)
 
     def __len__(self) -> int:
         return len(self._rules)
@@ -68,7 +72,12 @@ class LengthSchema:
     def find(self, tag: Union[Tag, bytes]) -> Optional[LengthRule]:
         """Returns the rule for `tag`, or `None` if the schema does not know it."""
         tag_bytes = tag.data if isinstance(tag, Tag) else bytes(tag)
-        return self._rules.get(tag_bytes)
+        try:
+            index = _native.length_schema(tuple(rule._to_native() for rule in self._rules),
+                                          tag_bytes, None)
+        except _native.Error as error:
+            raise _from_native(error) from None
+        return None if index is None else self._rules[index]
 
     def validate_length(self, tag: Union[Tag, bytes], length: int) -> None:
         """Checks that a value of `length` bytes is permitted for `tag`.
@@ -76,11 +85,12 @@ class LengthSchema:
         Raises `SchemaError` if the schema has no rule for `tag`, or
         `InvalidLengthError` if `length` is out of the rule's bounds.
         """
-        rule = self.find(tag)
-        if rule is None:
-            raise SchemaError(9)
-        if not (rule.min_length <= length <= rule.max_length):
-            raise InvalidLengthError(2)
+        tag_bytes = tag.data if isinstance(tag, Tag) else bytes(tag)
+        try:
+            _native.length_schema(tuple(rule._to_native() for rule in self._rules),
+                                  tag_bytes, length)
+        except _native.Error as error:
+            raise _from_native(error) from None
 
 
 class Kind(enum.IntEnum):
@@ -107,12 +117,13 @@ class StructureRule:
     ...                       min_occurs=1, max_occurs=1, kind=Kind.PRIMITIVE)
     """
 
-    __slots__ = ("tag", "min_length", "max_length", "min_occurs", "max_occurs", "kind", "children")
+    __slots__ = ("tag", "min_length", "max_length", "min_occurs", "max_occurs", "kind", "children", "flags", "length_multiple", "group", "name")
 
     def __init__(self, tag: Union[Tag, bytes], *, min_length: int = 0,
                  max_length: int = UNRESTRICTED, min_occurs: int = 0,
                  max_occurs: int = UNRESTRICTED, kind: Kind = Kind.ANY,
-                 children: Optional["StructureSchema"] = None) -> None:
+                 children: Optional["StructureSchema"] = None, flags: int = 0,
+                 length_multiple: int = 0, group: int = 0, name: str | None = None) -> None:
         self.tag = tag if isinstance(tag, Tag) else Tag(tag)
         self.min_length = min_length
         self.max_length = max_length
@@ -120,16 +131,103 @@ class StructureRule:
         self.max_occurs = max_occurs
         self.kind = Kind.CONSTRUCTED if children is not None else kind
         self.children = children
+        self.flags = flags
+        self.length_multiple = length_multiple
+        self.group = group
+        self.name = name
 
     def _to_native(self):
         children = self.children._to_native() if self.children is not None else None
         return (self.tag.data, self.min_length, self.max_length, self.min_occurs,
-                self.max_occurs, int(self.kind), children)
+                self.max_occurs, int(self.kind), children, self.flags, self.length_multiple, self.group, self.name)
 
     def __repr__(self) -> str:
         return (f"StructureRule({self.tag!r}, min_length={self.min_length}, "
                 f"max_length={self.max_length}, min_occurs={self.min_occurs}, "
                 f"max_occurs={self.max_occurs}, kind={self.kind!r})")
+
+
+class SchemaOrder(enum.IntEnum):
+    """Ordering of matched elements, enforced by C."""
+    ANY = 0
+    SEQUENCE = 1
+
+
+class UnknownPolicy(enum.IntEnum):
+    """Unknown-tag policy for report-based validation."""
+    BY_SCHEMA = 0
+    ALLOW = 1
+    REJECT = 2
+
+
+@dataclass(frozen=True)
+class SchemaIssue:
+    """Owned C violation detail, independent of input and schema lifetimes."""
+    kind: int
+    kind_name: str
+    path: tuple[Tag, ...]
+    offset: int | None
+    path_string: str
+
+
+@dataclass(frozen=True)
+class SchemaReport:
+    """Total violations and the bounded stored prefix reported by C."""
+    total_count: int
+    issues: tuple[SchemaIssue, ...]
+
+
+@dataclass(frozen=True)
+class SchemaBounds:
+    """Inclusive expected bounds and observed value reported by C."""
+    minimum: int
+    maximum: int
+    actual: int
+
+
+@dataclass(frozen=True)
+class SchemaDiagnostic:
+    """Owned C diagnostic; path contains enclosing scopes, tag is separate."""
+    code: int
+    severity: int
+    kind: int
+    kind_name: str
+    tag: Tag
+    path: tuple[Tag, ...]
+    offset: int | None
+    field: str | None
+    is_group: bool
+    occurrences: SchemaBounds | None
+    length: SchemaBounds | None
+    form: tuple[Kind, bool] | None
+    length_multiple: int
+    length_flags: int
+
+
+@dataclass(frozen=True)
+class SchemaDiagnosticReport:
+    """Total violations and the bounded prefix of detailed diagnostics."""
+    total_count: int
+    diagnostics: tuple[SchemaDiagnostic, ...]
+
+
+class StructureGroup:
+    """Occurrence bounds across every rule assigned to one nonzero group ID."""
+    __slots__ = ("id", "min_occurs", "max_occurs", "name")
+
+    def __init__(self, id: int, min_occurs=0, max_occurs=UNRESTRICTED, *, name: str | None = None):
+        self.id = id
+        self.name = name
+        self.min_occurs = min_occurs
+        self.max_occurs = max_occurs
+
+
+def _schema_format(format):
+    from opentlv.fixed_format import FixedFormat
+    format = _resolve_format(format)
+    if isinstance(format, FixedFormat):
+        return (format.tag_size, format.length_size, format.big_endian)
+    return format
 
 
 class StructureSchema:
@@ -150,14 +248,18 @@ class StructureSchema:
     opentlv.error.SchemaMissingError: required schema field missing
     """
 
-    __slots__ = ("rules", "allow_unknown")
+    __slots__ = ("rules", "allow_unknown", "order", "groups")
 
-    def __init__(self, rules: Iterable[StructureRule] = (), allow_unknown: bool = False) -> None:
+    def __init__(self, rules: Iterable[StructureRule] = (), allow_unknown: bool = False, *,
+                 order: SchemaOrder = SchemaOrder.ANY, groups: Iterable[StructureGroup] = ()) -> None:
         self.rules = list(rules)
         self.allow_unknown = allow_unknown
+        self.order = order
+        self.groups = tuple(groups)
 
     def _to_native(self):
-        return (self.allow_unknown, [rule._to_native() for rule in self.rules])
+        return (self.allow_unknown, [rule._to_native() for rule in self.rules], int(self.order),
+                tuple((group.id, group.min_occurs, group.max_occurs, group.name) for group in self.groups))
 
     def validate(self, data, format: Format | None = None, max_depth: int = 32,
                  max_elements: int = 100_000) -> None:
@@ -173,11 +275,49 @@ class StructureSchema:
         `SchemaError` for other rule violations, `InvalidLengthError` for a
         length failure, or a reading error such as `LimitError`.
         """
-        format = _resolve_format(format)
+        format = _schema_format(format)
         try:
             _native.structure_validate(data, format, self._to_native(), max_depth, max_elements)
         except _native.Error as native_error:
             raise _from_native(native_error) from None
+
+    def validate_diagnostics(self, data, format=None, *, capacity=64,
+                             unknown=UnknownPolicy.BY_SCHEMA,
+                             max_depth=32, max_elements=100_000) -> SchemaDiagnosticReport:
+        """Collect expected/actual details from C, with owned tags and field names.
+
+        Zero capacity counts only. Wire/configuration errors raise instead of
+        returning a partial report. No traversal or validation occurs in Python.
+        """
+        try:
+            count, items = _native.structure_validate(data, _schema_format(format),
+                self._to_native(), max_depth, max_elements, capacity, int(unknown), True)
+        except _native.Error as error:
+            raise _from_native(error) from None
+        return SchemaDiagnosticReport(count, tuple(
+            SchemaDiagnostic(code, severity, kind, name, Tag(tag),
+                tuple(Tag(t) for t in path), offset, field, bool(group),
+                SchemaBounds(*occurs) if occurs is not None else None,
+                SchemaBounds(*length) if length is not None else None,
+                (Kind(form[0]), bool(form[1])) if form is not None else None,
+                multiple, flags)
+            for code, severity, kind, name, tag, path, offset, field, group,
+                occurs, length, form, multiple, flags in items))
+
+    def validate_all(self, data, format=None, *, capacity=64, unknown=UnknownPolicy.BY_SCHEMA,
+                     max_depth=32, max_elements=100_000) -> SchemaReport:
+        """Collect a bounded C report; framing/configuration failures still raise.
+
+        Zero capacity counts without storing issues. total_count can exceed
+        len(issues); no extra parse or binding-side validation is performed.
+        """
+        try:
+            count, items = _native.structure_validate(data, _schema_format(format),
+                self._to_native(), max_depth, max_elements, capacity, int(unknown))
+        except _native.Error as error:
+            raise _from_native(error) from None
+        return SchemaReport(count, tuple(SchemaIssue(kind, name, tuple(Tag(t) for t in path), offset, text)
+                                         for kind, name, path, offset, text in items))
 
     def __len__(self) -> int:
         return len(self.rules)

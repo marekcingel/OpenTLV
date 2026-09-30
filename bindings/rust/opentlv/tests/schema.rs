@@ -274,3 +274,259 @@ fn owned_field_references_survive_growth_and_schema_moves() {
     .join()
     .unwrap();
 }
+#[test]
+fn length_schema_retains_native_endpoint_and_multiple_constraints() {
+    let tag = Tag::from_bytes(&[1]);
+    let mut rule = LengthRule::new(tag.clone(), 2, 8);
+    rule.flags = 1;
+    rule.length_multiple = 2;
+    let schema = LengthSchema::new([rule]);
+    assert_eq!(schema.find(&tag).unwrap().flags, 1);
+    assert_eq!(schema.find(&tag).unwrap().length_multiple, 2);
+    assert!(schema.validate_length(&tag, 2).is_ok());
+    assert!(schema.validate_length(&tag, 8).is_ok());
+    assert_eq!(schema.validate_length(&tag, 4), Err(Error::InvalidLength));
+}
+#[test]
+fn sequence_and_alternative_groups_delegate_to_c_after_move() {
+    use opentlv::{SchemaOrder, StructureGroup};
+    let limits = ValidationLimits::default();
+    let sequence = StructureSchema::with_constraints(
+        [
+            StructureRule::new(Tag::from_bytes(&[1])),
+            StructureRule::new(Tag::from_bytes(&[2])),
+        ],
+        false,
+        SchemaOrder::Sequence,
+        [],
+    );
+    sequence
+        .validate(&[1, 0, 2, 0], Format::Ber, &limits)
+        .unwrap();
+    assert_eq!(
+        sequence
+            .validate(&[2, 0, 1, 0], Format::Ber, &limits)
+            .unwrap_err()
+            .offset,
+        2
+    );
+    let choice = StructureSchema::with_constraints(
+        [
+            StructureRule::new(Tag::from_bytes(&[1])).group(7),
+            StructureRule::new(Tag::from_bytes(&[2])).group(7),
+        ],
+        false,
+        SchemaOrder::Any,
+        [StructureGroup {
+            id: 7,
+            name: None,
+            min_occurs: 1,
+            max_occurs: 1,
+        }],
+    );
+    let moved = Box::new(choice);
+    moved.validate(&[2, 0], Format::Ber, &limits).unwrap();
+    assert_eq!(
+        moved.validate(&[], Format::Ber, &limits).unwrap_err().error,
+        Error::SchemaMissing
+    );
+    assert_eq!(
+        moved
+            .validate(&[1, 0, 2, 0], Format::Ber, &limits)
+            .unwrap_err()
+            .error,
+        Error::Schema
+    );
+}
+#[test]
+fn bounded_reports_keep_total_and_owned_paths() {
+    use opentlv::UnknownPolicy;
+    let limits = ValidationLimits::default();
+    let schema = StructureSchema::new(
+        [StructureRule::new(Tag::from_bytes(&[1])).required_once()],
+        false,
+    );
+    let report = schema
+        .validate_all(&[2, 0], Format::Ber, &limits, UnknownPolicy::BySchema, 1)
+        .unwrap();
+    assert_eq!(report.total_count, 2);
+    assert_eq!(report.issues.len(), 1);
+    assert!(report.issues[0].path_string == "01" || report.issues[0].path_string == "02");
+    assert_eq!(
+        schema
+            .validate_all(&[2, 0], Format::Ber, &limits, UnknownPolicy::BySchema, 0)
+            .unwrap()
+            .total_count,
+        2
+    );
+    let report = schema
+        .validate_all(&[2, 0], Format::Ber, &limits, UnknownPolicy::Allow, 5)
+        .unwrap();
+    drop(schema);
+    assert_eq!(report.issues[0].kind_name, "missing");
+    assert_eq!(report.issues[0].path, [Tag::from_bytes(&[1])]);
+    assert_eq!(report.issues[0].offset, None);
+}
+
+#[test]
+fn nested_report_outlives_input_and_schema() {
+    use opentlv::UnknownPolicy;
+    let report = {
+        let input = vec![0x30, 3, 4, 1, 42];
+        let schema = StructureSchema::new(
+            [
+                StructureRule::new(Tag::from_bytes(&[0x30])).children(StructureSchema::new(
+                    [StructureRule::new(Tag::from_bytes(&[4])).length(2, 3)],
+                    false,
+                )),
+            ],
+            false,
+        );
+        schema
+            .validate_all(
+                &input,
+                Format::Ber,
+                &ValidationLimits::default(),
+                UnknownPolicy::BySchema,
+                4,
+            )
+            .unwrap()
+    };
+    assert_eq!(report.issues[0].kind_name, "length");
+    assert_eq!(report.issues[0].path_string, "30/04");
+    assert_eq!(
+        report.issues[0].path,
+        [Tag::from_bytes(&[0x30]), Tag::from_bytes(&[4])]
+    );
+    assert_eq!(report.issues[0].offset, Some(2));
+}
+
+#[test]
+fn detailed_report_owns_names_and_expected_actual() {
+    use opentlv::{SchemaBounds, UnknownPolicy};
+    let report = {
+        let input = vec![0x30, 3, 4, 1, 42];
+        let schema = StructureSchema::new(
+            [
+                StructureRule::new(Tag::from_bytes(&[0x30])).children(StructureSchema::new(
+                    [StructureRule::new(Tag::from_bytes(&[4]))
+                        .length(2, 8)
+                        .length_multiple(2)
+                        .length_flags(1)
+                        .named("payload-?")
+                        .unwrap()],
+                    false,
+                )),
+            ],
+            false,
+        );
+        schema
+            .validate_diagnostics(
+                &input,
+                Format::Ber,
+                &ValidationLimits::default(),
+                UnknownPolicy::BySchema,
+                4,
+            )
+            .unwrap()
+    };
+    assert_eq!(report.total_count, 1);
+    let issue = &report.diagnostics[0];
+    assert_eq!(issue.field.as_deref(), Some("payload-?"));
+    assert_eq!(issue.kind_name, "length");
+    assert_eq!(issue.path, [Tag::from_bytes(&[0x30])]);
+    assert_eq!(issue.tag, Tag::from_bytes(&[4]));
+    assert_eq!(issue.offset, Some(2));
+    assert_eq!(
+        issue.length,
+        Some(SchemaBounds {
+            minimum: 2,
+            maximum: 8,
+            actual: 1
+        })
+    );
+    assert_eq!(issue.length_multiple, 2);
+    assert_eq!(issue.length_flags, 1);
+    assert!(issue.occurrences.is_none() && issue.form.is_none());
+}
+
+#[test]
+fn detailed_group_report_capacity_and_wire_failure() {
+    use opentlv::{SchemaBounds, SchemaOrder, StructureGroup, UnknownPolicy};
+    let schema = StructureSchema::with_constraints(
+        [StructureRule::new(Tag::from_bytes(&[4])).group(7)],
+        false,
+        SchemaOrder::Any,
+        [StructureGroup {
+            id: 7,
+            min_occurs: 1,
+            max_occurs: 1,
+            name: Some(std::ffi::CString::new("choice").unwrap()),
+        }],
+    );
+    let limits = ValidationLimits::default();
+    let report = schema
+        .validate_diagnostics(&[], Format::Ber, &limits, UnknownPolicy::BySchema, 1)
+        .unwrap();
+    let issue = &report.diagnostics[0];
+    assert!(issue.is_group);
+    assert_eq!(issue.field.as_deref(), Some("choice"));
+    assert_eq!(
+        issue.occurrences,
+        Some(SchemaBounds {
+            minimum: 1,
+            maximum: 1,
+            actual: 0
+        })
+    );
+    assert_eq!(issue.offset, None);
+    let report = schema
+        .validate_diagnostics(&[5, 0], Format::Ber, &limits, UnknownPolicy::BySchema, 0)
+        .unwrap();
+    assert_eq!(report.total_count, 2);
+    assert!(report.diagnostics.is_empty());
+    assert!(schema
+        .validate_diagnostics(&[4, 1], Format::Ber, &limits, UnknownPolicy::BySchema, 2)
+        .is_err());
+}
+
+#[test]
+fn configured_fixed_schema_validation_and_reports() {
+    use opentlv::{ByteOrder, FixedFormat, FixedFormatConfig, UnknownPolicy};
+    let config = FixedFormatConfig::new(2, 2, ByteOrder::Little);
+    let format = FixedFormat::new(&config).unwrap();
+    let schema = StructureSchema::new(
+        [StructureRule::new(Tag::from_bytes(&[0, 4])).length(2, 4)],
+        false,
+    );
+    let limits = ValidationLimits::default();
+    schema
+        .validate_fixed(&[0, 4, 2, 0, 1, 2], &format, &limits)
+        .unwrap();
+    assert!(schema
+        .validate_fixed(&[0, 4, 1, 0, 42], &format, &limits)
+        .is_err());
+    assert_eq!(
+        schema
+            .validate_all_fixed(
+                &[0, 4, 1, 0, 42],
+                &format,
+                &limits,
+                UnknownPolicy::BySchema,
+                1
+            )
+            .unwrap()
+            .total_count,
+        1
+    );
+    let report = schema
+        .validate_diagnostics_fixed(
+            &[0, 4, 1, 0, 42],
+            &format,
+            &limits,
+            UnknownPolicy::BySchema,
+            1,
+        )
+        .unwrap();
+    assert_eq!(report.diagnostics[0].length.as_ref().unwrap().actual, 1);
+}

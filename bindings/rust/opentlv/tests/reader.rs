@@ -120,3 +120,11 @@ fn element_borrows_original_length_bytes() {
 
     assert_eq!(element.value(), &data[5..]);
 }
+#[test]
+fn single_read_retains_layout_and_owned_failure_detail() {
+    let decoded = opentlv::read(&[1, 0, 0xff], opentlv::Format::Ber).unwrap();
+    assert_eq!(decoded.encoded(), &[1, 0]);
+    let error = opentlv::read(&[1, 2], opentlv::Format::Ber).unwrap_err();
+    assert_eq!(error.error, opentlv::Error::BufferTooShort);
+    assert!(error.diagnostic.is_some());
+}

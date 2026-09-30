@@ -118,6 +118,21 @@ class Writer:
             capacity *= 2
         self._buffer.extend(bytes(capacity - len(self._buffer)))
 
+    def preserve(self, decoded, *, element=None) -> None:
+        """Append an exact source copy after C checks unchanged semantic content.
+
+        The writer's destination Format does not reinterpret preserved bytes.
+        Failure leaves position unchanged; borrowed storage never grows.
+        """
+        try:
+            written = decoded.preserve_into(self._buffer, offset=self._pos, element=element)
+        except BufferTooShortError as error:
+            if not self._owned or error.required is None:
+                raise
+            self._grow(self._pos + error.required)
+            written = decoded.preserve_into(self._buffer, offset=self._pos, element=element)
+        self._pos += written
+
     def bytes(self) -> bytes:
         """Returns the bytes written so far, as a new `bytes` object."""
         return bytes(self._buffer[:self._pos])

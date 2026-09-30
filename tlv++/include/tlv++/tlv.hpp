@@ -5,7 +5,8 @@
  * @file tlv.hpp
  * @brief Main include that aggregates the complete tlv++ API.
  *
- * Usage: `#include <tlv++/tlv.hpp>`
+ * Usage: `#include "tlv++/definition.hpp"
+#include <tlv++/tlv.hpp>`
  */
 
 #include "tlv/tlv.h"
@@ -14,6 +15,7 @@
 #include "tlv++/diagnostic.hpp"
 #include "tlv++/formats/fixed_format.hpp"
 #include "tlv++/reader/reader.hpp"
+#include "tlv++/reader/tree.hpp"
 #include "tlv++/writer/writer.hpp"
 #include "tlv++/writer/tree.hpp"
 #include "tlv++/codec/registry.hpp"

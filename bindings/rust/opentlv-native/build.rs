@@ -51,6 +51,11 @@ fn build_from_source() {
         .arg(&source_dir)
         .arg("-B")
         .arg(&build_dir)
+        .arg(if cfg!(feature = "document") {
+            "-DOPENTLV_DOCUMENT=ON"
+        } else {
+            "-DOPENTLV_DOCUMENT=OFF"
+        })
         .arg(if cfg!(feature = "lldp") {
             "-DOPENTLV_LLDP=ON"
         } else {

@@ -31,6 +31,64 @@ TLV_NODISCARD inline expected<size_t, error> encoded_size(const element&      va
 }
 
 /**
+ * @brief Measures an encoding from tag and Value length through the C Format.
+ * @param tag Semantic tag.
+ * @param length Logical Value length in bytes.
+ * @param format Borrowed format; content-dependent formats may reject length-only measurement.
+ * @return Required byte count, or the C measurement error.
+ */
+TLV_NODISCARD inline expected<size_t, error> encoded_size(tag_t tag, size_t length,
+                                                          const tlv_format_t& format) {
+    size_t     size = 0;
+    const auto rc = tlv_encoded_size(tag, length, &format, &size);
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    return size;
+}
+
+/**
+ * @brief Encodes one semantic Element into caller-owned storage.
+ * @param data Writable output; must not overlap the input Element's storage.
+ * @param capacity Available output bytes.
+ * @param format Borrowed Format and context, live for this call.
+ * @param value Semantic Element with readable Value bytes.
+ * @param diagnostic Optional borrowed failure detail; unchanged on success.
+ * @return Written byte count, or the canonical C error.
+ * @warning A failing Format callback may modify output bytes; see tlv_write_element_diag().
+ */
+TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity,
+                                                   const tlv_format_t& format, const element& value,
+                                                   writer_diagnostic* diagnostic = nullptr) {
+    size_t     written = 0;
+    const auto rc = tlv_write_element_diag(reinterpret_cast<uint8_t*>(data), capacity, &format,
+                                           &value, &written, diagnostic);
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    return written;
+}
+
+/**
+ * @brief Encodes one Tag and Value pair into caller-owned storage.
+ * @param data Writable output; must not overlap the input tag or Value storage.
+ * @param capacity Available output bytes.
+ * @param format Borrowed Format and context.
+ * @param tag Semantic tag.
+ * @param value Readable Value bytes, borrowed for this call.
+ * @param diagnostic Optional borrowed failure detail; unchanged on success.
+ * @return Written byte count, or the canonical C error.
+ * @warning A failing Format callback may modify output bytes; see tlv_write_diag().
+ */
+TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity,
+                                                   const tlv_format_t& format, tag_t tag,
+                                                   bytes              value,
+                                                   writer_diagnostic* diagnostic = nullptr) {
+    size_t     written = 0;
+    const auto rc = tlv_write_diag(reinterpret_cast<uint8_t*>(data), capacity, &format, tag,
+                                   reinterpret_cast<const uint8_t*>(value.data()), value.size(),
+                                   &written, diagnostic);
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    return written;
+}
+
+/**
  * @brief Thin C++ wrapper around #tlv_writer_t.
  *
  * Writes elements sequentially into a caller-owned buffer. Successful writes

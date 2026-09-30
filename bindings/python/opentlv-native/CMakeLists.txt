@@ -12,7 +12,7 @@ find_package(Python 3.11 REQUIRED COMPONENTS Interpreter Development.Module Deve
 # at the wheel root (not inside a package directory), so `import opentlv_native`
 # resolves directly to it, mirroring how the Rust opentlv-native crate root is
 # itself the raw extern "C" declarations.
-Python_add_library(opentlv_native MODULE USE_SABI 3.11 WITH_SOABI src/module.c src/format.c src/format.h)
+Python_add_library(opentlv_native MODULE USE_SABI 3.11 WITH_SOABI src/module.c src/format.c src/format.h src/reader.c src/reader.h src/writer.c src/writer.h src/schema.c src/schema.h)
 if(OPENTLV_FORMAT_BER)
     target_sources(opentlv_native PRIVATE src/formats/ber.c)
 endif()
