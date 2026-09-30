@@ -43,7 +43,7 @@ from opentlv.format import Format
 from opentlv.reader import Reader
 from opentlv.schema import Kind, LengthRule, LengthSchema, StructureRule, StructureSchema
 from opentlv.tag import Tag
-from opentlv.writer import Writer, encoded_size
+from opentlv.writer import Writer, element_encoded_size, encoded_size
 
 __version__ = version_string()
 
@@ -83,4 +83,5 @@ __all__ = [
     "VisitorError",
     "Writer",
     "encoded_size",
+    "element_encoded_size",
 ]

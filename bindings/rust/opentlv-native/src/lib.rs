@@ -328,6 +328,39 @@ extern "C" {
     ) -> tlv_result_t;
     /// Returns the number of bytes written so far.
     pub fn tlv_writer_size(writer: *const tlv_writer_t) -> usize;
+    /// Measures exact native storage using readable semantic content.
+    pub fn tlv_element_encoded_size(
+        element: *const tlv_element_t,
+        format: *const tlv_format_t,
+        size: *mut usize,
+    ) -> tlv_result_t;
+    /// Encodes an Element into caller-owned storage.
+    pub fn tlv_write_element(
+        data: *mut u8,
+        capacity: usize,
+        format: *const tlv_format_t,
+        element: *const tlv_element_t,
+        written: *mut usize,
+    ) -> tlv_result_t;
+    /// Appends an Element; advances only on success.
+    pub fn tlv_writer_write_element(
+        writer: *mut tlv_writer_t,
+        element: *const tlv_element_t,
+    ) -> tlv_result_t;
+    /// Appends unvalidated raw bytes; overlap is supported.
+    pub fn tlv_writer_copy_encoded(
+        writer: *mut tlv_writer_t,
+        data: *const u8,
+        size: usize,
+    ) -> tlv_result_t;
+    /// Preserves immutable Source bytes after checking semantic equality.
+    pub fn tlv_writer_preserve(
+        writer: *mut tlv_writer_t,
+        source: *const tlv_source_t,
+        element: *const tlv_element_t,
+    ) -> tlv_result_t;
+    /// Returns remaining destination bytes.
+    pub fn tlv_writer_remaining(writer: *const tlv_writer_t) -> usize;
 
     /// Initializes a sequential reader over `data`; both `data` and `format` are borrowed.
     pub fn tlv_reader_init(

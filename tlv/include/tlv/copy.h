@@ -84,10 +84,11 @@ TLV_API tlv_result_t tlv_copy_encoded(const uint8_t* encoded_data, size_t encode
  * @brief Serializes an element's tag, length and value using a writer format.
  *
  * Encodes as tlv_write() does, regenerating the length from `value.size`,
- * so the result may differ from the bytes the element was read from; use
- * tlv_copy_encoded() to preserve them exactly.
+ * so the result may differ from the bytes the element was read from. Use
+ * tlv_source_preserve() to check unchanged content and retain original framing,
+ * or tlv_copy_encoded() to copy an unvalidated byte range exactly.
  *
- * Requires the format's `write_tag`, `write_length` and `length_size`
+ * Requires the format's `measure` and `encode`
  * callbacks. The element's value bytes must not overlap the destination element.
  *
  * @param[in]  element     Element to serialize.

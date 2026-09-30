@@ -58,6 +58,8 @@ static const char* writer_operation_name(tlv_writer_operation_t operation) {
         case TLV_WRITER_OP_VALUE: return "value";
         case TLV_WRITER_OP_TRAILER: return "trailer";
         case TLV_WRITER_OP_HEADER: return "header";
+        case TLV_WRITER_OP_COPY: return "copy";
+        case TLV_WRITER_OP_PRESERVE: return "preserve";
         default: return NULL;
     }
 }
@@ -968,6 +970,33 @@ static PyObject* opentlv_native_read(PyObject* module, PyObject* args) {
                          value_offset, (Py_ssize_t)value_length, consumed_obj);
 }
 
+/* Copy an unvalidated range with the sequential Writer capacity/diagnostic contract. */
+static PyObject* opentlv_native_copy_encoded(PyObject* module, PyObject* args) {
+    (void)module;
+    Py_buffer  buffer, encoded;
+    Py_ssize_t offset;
+    if (!PyArg_ParseTuple(args, "w*ny*", &buffer, &offset, &encoded)) return NULL;
+    if (offset < 0 || offset > buffer.len) {
+        PyBuffer_Release(&buffer);
+        PyBuffer_Release(&encoded);
+        PyErr_SetString(PyExc_ValueError, "offset is out of range for buffer");
+        return NULL;
+    }
+    /* Raw copying deliberately does not use a Format. */
+    tlv_writer_t writer = {NULL, (uint8_t*)buffer.buf, (size_t)buffer.len, (size_t)offset};
+    tlv_writer_diagnostic_t diag;
+    tlv_writer_diagnostic_init(&diag);
+    tlv_result_t code = tlv_writer_copy_encoded_diag(&writer, (const uint8_t*)encoded.buf,
+                                                     (size_t)encoded.len, &diag);
+    PyBuffer_Release(&buffer);
+    PyBuffer_Release(&encoded);
+    if (code != TLV_OK) {
+        raise_writer_error(code, &diag);
+        return NULL;
+    }
+    return PyLong_FromSize_t(writer.pos - (size_t)offset);
+}
+
 /* write(buffer, offset, tag, value, format) -> written: int
  *
  * Encodes one element at `offset` in `buffer` using wire format `format` and
@@ -1012,6 +1041,12 @@ static PyObject* opentlv_native_write(PyObject* module, PyObject* args) {
     PyBuffer_Release(&value_buf);
     PyBuffer_Release(&buffer);
     if (code != TLV_OK) {
+        if (diag.diagnostic.has_offset) {
+            if (diag.diagnostic.offset > SIZE_MAX - (size_t)offset)
+                diag.diagnostic.has_offset = 0;
+            else
+                diag.diagnostic.offset += (size_t)offset;
+        }
         raise_writer_error(code, &diag);
         return NULL;
     }
@@ -1051,6 +1086,34 @@ static PyObject* opentlv_native_encoded_size(PyObject* module, PyObject* args) {
         raise_code_only(code);
         return NULL;
     }
+    return PyLong_FromSize_t(size);
+}
+
+static PyObject* opentlv_native_element_encoded_size(PyObject* module, PyObject* args) {
+    (void)module;
+    Py_buffer tag_buf, value_buf;
+
+    int format_id;
+    if (!PyArg_ParseTuple(args, "y*y*i", &tag_buf, &value_buf, &format_id)) {
+        return NULL;
+    }
+    const tlv_format_t* format = opentlv_python_format_for(format_id);
+    if (format == NULL) {
+        PyBuffer_Release(&tag_buf);
+        PyBuffer_Release(&value_buf);
+        PyErr_SetString(PyExc_ValueError, "unknown format");
+        return NULL;
+    }
+
+    tlv_tag_t           tag = tlv_tag((const uint8_t*)tag_buf.buf, (size_t)tag_buf.len);
+    size_t              size = 0;
+    const tlv_element_t element = {tag, {(const uint8_t*)value_buf.buf, (tlv_size_t)value_buf.len}};
+    tlv_writer_diagnostic_t diag;
+    tlv_result_t            code = tlv_element_encoded_size_diag(&element, format, &size, &diag);
+    if (code != TLV_OK) raise_writer_error(code, &diag);
+    PyBuffer_Release(&tag_buf);
+    PyBuffer_Release(&value_buf);
+    if (code != TLV_OK) return NULL;
     return PyLong_FromSize_t(size);
 }
 
@@ -1201,6 +1264,12 @@ static PyObject* opentlv_native_write_fixed(PyObject* module, PyObject* args) {
     PyBuffer_Release(&value_buf);
     PyBuffer_Release(&buffer);
     if (code != TLV_OK) {
+        if (diag.diagnostic.has_offset) {
+            if (diag.diagnostic.offset > SIZE_MAX - (size_t)offset)
+                diag.diagnostic.has_offset = 0;
+            else
+                diag.diagnostic.offset += (size_t)offset;
+        }
         raise_writer_error(code, &diag);
         return NULL;
     }
@@ -1249,6 +1318,42 @@ static PyObject* opentlv_native_encoded_size_fixed(PyObject* module, PyObject* a
     return PyLong_FromSize_t(size);
 }
 
+static PyObject* opentlv_native_element_encoded_size_fixed(PyObject* module, PyObject* args) {
+    (void)module;
+    Py_buffer  tag_buf, value_buf;
+    Py_ssize_t tag_size, length_size;
+    int        big_endian;
+    if (!PyArg_ParseTuple(args, "y*y*nnp", &tag_buf, &value_buf, &tag_size, &length_size,
+                          &big_endian)) {
+        return NULL;
+    }
+    tlv_fixed_format_t config;
+    if (!fixed_config_from_args(tag_size, length_size, big_endian, &config)) {
+        PyBuffer_Release(&tag_buf);
+        PyBuffer_Release(&value_buf);
+        return NULL;
+    }
+    tlv_format_t format;
+    tlv_result_t init_code = tlv_fixed_format_init(&format, &config);
+    if (init_code != TLV_OK) {
+        PyBuffer_Release(&tag_buf);
+        PyBuffer_Release(&value_buf);
+        raise_code_only(init_code);
+        return NULL;
+    }
+
+    tlv_tag_t           tag = tlv_tag((const uint8_t*)tag_buf.buf, (size_t)tag_buf.len);
+    size_t              size = 0;
+    const tlv_element_t element = {tag, {(const uint8_t*)value_buf.buf, (tlv_size_t)value_buf.len}};
+    tlv_writer_diagnostic_t diag;
+    tlv_result_t            code = tlv_element_encoded_size_diag(&element, &format, &size, &diag);
+    if (code != TLV_OK) raise_writer_error(code, &diag);
+    PyBuffer_Release(&tag_buf);
+    PyBuffer_Release(&value_buf);
+    if (code != TLV_OK) return NULL;
+    return PyLong_FromSize_t(size);
+}
+
 static PyMethodDef opentlv_native_methods[] = {
     {"version_string", opentlv_native_version_string, METH_NOARGS,
      "Return the version of the linked OpenTLV C library, for example \"0.6.0\"."},
@@ -1258,6 +1363,12 @@ static PyMethodDef opentlv_native_methods[] = {
      "Parse one element at an offset in a buffer using a wire format."},
     {"write", opentlv_native_write, METH_VARARGS,
      "Encode one element at an offset in a writable buffer using a wire format."},
+    {"copy_encoded", opentlv_native_copy_encoded, METH_VARARGS,
+     "Copy raw bytes into caller storage without format conversion."},
+    {"element_encoded_size", opentlv_native_element_encoded_size, METH_VARARGS,
+     "Measure exact output storage using semantic content."},
+    {"element_encoded_size_fixed", opentlv_native_element_encoded_size_fixed, METH_VARARGS,
+     "Measure exact output storage for a fixed format Element."},
     {"encoded_size", opentlv_native_encoded_size, METH_VARARGS,
      "Compute the encoded size of an element without writing it."},
     {"read_fixed", opentlv_native_read_fixed, METH_VARARGS,

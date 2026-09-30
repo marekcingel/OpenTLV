@@ -12,6 +12,44 @@ use crate::fixed_format::FixedFormat;
 use crate::format::Format;
 use crate::tag::Tag;
 
+fn raw_element(element: &Element<'_>) -> native::tlv_element_t {
+    native::tlv_element_t {
+        tag: element.tag().raw(),
+        value: native::tlv_value_t {
+            data: element.value().as_ptr(),
+            size: element.value().len() as u64,
+        },
+    }
+}
+
+/// Measures exact destination storage including Header and Trailer without allocation.
+/// Readable Value content is supplied, so content-dependent sizing is supported.
+///
+/// # Errors
+/// Returns the C measurement error, including native size overflow.
+pub fn element_encoded_size(element: &Element<'_>, format: Format) -> Result<usize> {
+    let raw = raw_element(element);
+    let mut size = 0;
+    // SAFETY: input and format remain valid for the call; size is writable.
+    Error::check(unsafe { native::tlv_element_encoded_size(&raw, format.raw(), &mut size) })?;
+    Ok(size)
+}
+
+/// Measures an Element in a configurable fixed format without allocation.
+///
+/// # Errors
+/// Returns the C measurement error, including native size overflow.
+pub fn element_encoded_size_fixed(
+    element: &Element<'_>,
+    format: &FixedFormat<'_>,
+) -> Result<usize> {
+    let raw = raw_element(element);
+    let mut size = 0;
+    // SAFETY: input and borrowed format remain valid for the call; size is writable.
+    Error::check(unsafe { native::tlv_element_encoded_size(&raw, format.raw(), &mut size) })?;
+    Ok(size)
+}
+
 /// Returns the encoded size of an element with the given tag and value length
 /// in `format`, without writing anything.
 ///
@@ -135,7 +173,20 @@ impl<'a> Writer<'a> {
     ///
     /// Same as [`Writer::write`].
     pub fn write_element(&mut self, element: &Element<'_>) -> Result<()> {
-        self.write(element.tag(), element.value())
+        let raw = raw_element(element);
+        // SAFETY: input is readable, output is exclusively borrowed and disjoint.
+        Error::check(unsafe { native::tlv_writer_write_element(&mut self.raw, &raw) })
+    }
+
+    /// Appends bytes without framing validation or format conversion.
+    ///
+    /// # Errors
+    /// Insufficient capacity leaves both output and position unchanged.
+    pub fn copy_encoded(&mut self, encoded: &[u8]) -> Result<()> {
+        // SAFETY: input is readable and the cursor owns an exclusive output borrow.
+        Error::check(unsafe {
+            native::tlv_writer_copy_encoded(&mut self.raw, encoded.as_ptr(), encoded.len())
+        })
     }
 
     /// Returns the number of bytes written so far.
@@ -151,7 +202,8 @@ impl<'a> Writer<'a> {
 
     /// Returns the number of bytes that can still be written.
     pub fn remaining(&self) -> usize {
-        self.raw.capacity - self.position()
+        // SAFETY: the cursor is initialized and borrowed for this call.
+        unsafe { native::tlv_writer_remaining(&self.raw) }
     }
 
     /// Returns the bytes written so far.
