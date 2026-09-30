@@ -1,5 +1,5 @@
 # Experimental Lua binding: the OpenTLV C core plus a native extension
-# module (src/) exposing Reader, Writer, Tree Writer, Element, Tag and traversal to Lua 5.1
+# module (src/) exposing Reader, Writer, Tree Writer, Schema, Element, Tag and traversal to Lua 5.1
 # through 5.4 and LuaJIT, and a one-line pure-Lua entry point (lua/) that
 # `require("opentlv")` resolves to — the same native/pure split as the
 # Python opentlv-native/opentlv and Rust opentlv-native/opentlv packages.
@@ -32,6 +32,8 @@ add_library(opentlv_lua MODULE
     src/formats/fixed.c
     src/reader.c
     src/reader.h
+    src/schema.c
+    src/schema.h
     src/writer.c
     src/writer.h
     src/visitor.c
@@ -175,6 +177,16 @@ if(OPENTLV_BUILD_LUA_TESTS)
     endif()
 
     if(OPENTLV_LUA_EXECUTABLE)
+        add_test(NAME Integration_lua_schema
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema_spec.lua")
+        set_tests_properties(Integration_lua_schema PROPERTIES
+            LABELS "integration;lua"
+            ENVIRONMENT "${_lua_test_environment}")
+        add_test(NAME Integration_example_lua_schema
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/examples/schema.lua")
+        set_tests_properties(Integration_example_lua_schema PROPERTIES
+            LABELS "integration;examples;lua"
+            ENVIRONMENT "${_lua_test_environment}")
         add_test(NAME Integration_lua_visitor
             COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/visitor_spec.lua")
         set_tests_properties(Integration_lua_visitor PROPERTIES

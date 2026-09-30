@@ -6,18 +6,12 @@ int opentlv_lua_raise_writer_error(lua_State* L, tlv_result_t code,
                                    const tlv_writer_diagnostic_t* diag) {
     static const char* const operations[] = {"tag",  "length",   "value", "header", "trailer",
                                              "copy", "preserve", "begin", "end"};
-    opentlv_lua_push_error(L, code, diag->diagnostic.has_offset, diag->diagnostic.offset);
+    tlv_diagnostic_t         diagnostic = diag->diagnostic;
+    diagnostic.code = code;
+    opentlv_lua_push_diagnostic(L, &diagnostic);
     if ((unsigned)diag->operation < sizeof(operations) / sizeof(operations[0])) {
         lua_pushstring(L, operations[diag->operation]);
         lua_setfield(L, -2, "operation");
-    }
-    if (diag->diagnostic.expected) {
-        lua_pushstring(L, diag->diagnostic.expected);
-        lua_setfield(L, -2, "expected");
-    }
-    if (diag->diagnostic.actual) {
-        lua_pushstring(L, diag->diagnostic.actual);
-        lua_setfield(L, -2, "actual");
     }
     if (diag->has_tag) {
         lua_pushlstring(L, diag->tag.data ? (const char*)diag->tag.data : "", diag->tag.size);
@@ -141,21 +135,13 @@ void opentlv_lua_push_error(lua_State* L, tlv_result_t code, int has_offset, siz
 
 void opentlv_lua_push_reader_error(lua_State* L, tlv_result_t code,
                                    const tlv_reader_diagnostic_t* diag) {
-    int    has_offset = diag != NULL && diag->diagnostic.has_offset;
-    size_t offset = has_offset ? diag->diagnostic.offset : 0;
-    opentlv_lua_push_error(L, code, has_offset, offset);
-
     if (diag == NULL) {
+        opentlv_lua_push_error(L, code, 0, 0);
         return;
     }
-    if (diag->diagnostic.expected != NULL) {
-        lua_pushstring(L, diag->diagnostic.expected);
-        lua_setfield(L, -2, "expected");
-    }
-    if (diag->diagnostic.actual != NULL) {
-        lua_pushstring(L, diag->diagnostic.actual);
-        lua_setfield(L, -2, "actual");
-    }
+    tlv_diagnostic_t diagnostic = diag->diagnostic;
+    diagnostic.code = code;
+    opentlv_lua_push_diagnostic(L, &diagnostic);
     const char* operation = opentlv_lua_reader_operation_name(diag->operation);
     if (operation != NULL) {
         lua_pushstring(L, operation);
@@ -164,6 +150,44 @@ void opentlv_lua_push_reader_error(lua_State* L, tlv_result_t code,
     if (diag->has_tag) {
         lua_pushlstring(L, (const char*)diag->tag.data, diag->tag.size);
         lua_setfield(L, -2, "tag");
+    }
+}
+
+void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnostic) {
+    opentlv_lua_push_error(L, diagnostic->code, diagnostic->has_offset, diagnostic->offset);
+    lua_pushstring(L, tlv_diagnostic_severity_string(diagnostic->severity));
+    lua_setfield(L, -2, "severity");
+    if (diagnostic->expected) {
+        lua_pushstring(L, diagnostic->expected);
+        lua_setfield(L, -2, "expected");
+    }
+    if (diagnostic->actual) {
+        lua_pushstring(L, diagnostic->actual);
+        lua_setfield(L, -2, "actual");
+    }
+    if (diagnostic->path) {
+        lua_newtable(L);
+        for (size_t i = 0; i < diagnostic->path->length; ++i) {
+            tlv_tag_t tag = diagnostic->path->tags[i];
+            lua_pushlstring(L, tag.data ? (const char*)tag.data : "", tag.size);
+            lua_rawseti(L, -2, (int)i + 1);
+        }
+        lua_setfield(L, -2, "path");
+    }
+    if (diagnostic->contexts) {
+        lua_newtable(L);
+        int index = 1;
+        for (const tlv_diagnostic_context_t* ctx = diagnostic->contexts; ctx; ctx = ctx->next) {
+            lua_newtable(L);
+            lua_pushstring(L, ctx->layer);
+            lua_setfield(L, -2, "layer");
+            lua_pushstring(L, ctx->key);
+            lua_setfield(L, -2, "key");
+            lua_pushstring(L, ctx->value);
+            lua_setfield(L, -2, "value");
+            lua_rawseti(L, -2, index++);
+        }
+        lua_setfield(L, -2, "contexts");
     }
 }
 

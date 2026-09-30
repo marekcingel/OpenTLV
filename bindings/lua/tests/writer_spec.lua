@@ -32,6 +32,7 @@ describe("Lua Writer", function()
         local err = failure(function() w:write(bytes(5), "yz") end,
             tlv.errors.BUFFER_TOO_SHORT)
         assert(err.offset == 3 and err.required == 4 and err.available == 1)
+        assert(err.severity == "error" and err.message == tlv.strerror(err.code))
         assert(err.tag == bytes(5) and err.length == 2 and err.operation == "value")
         assert(w:bytes() == bytes(4, 1) .. "x" and w:size() == 3)
         failure(function() tlv.writer(fixed, {capacity = 0}):write(bytes(4), "") end,

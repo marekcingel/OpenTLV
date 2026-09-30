@@ -12,7 +12,7 @@ Writer, Tree Writer, Element, Tag) that there is nothing a Lua-side wrapper woul
 today, so the split exists for naming/packaging consistency across bindings
 rather than for a richer pure-Lua layer. `bindings/lua/src/common.h`
 documents the ownership, registration and error-handling conventions every
-native-side component (Reader and Writer today; Document, Schema, ... later)
+native-side component (including Reader, Writer and Schema)
 follows, and states the rule for what belongs in this binding versus in
 `tlv/`: functionality useful outside Lua belongs in the OpenTLV C API, this
 binding only adapts what already exists there to Lua's conventions. For
@@ -24,7 +24,8 @@ It targets Lua 5.1 through 5.4 and LuaJIT (which implements the Lua 5.1 C
 API), using only the portable subset of the Lua C API common to all of them;
 see `bindings/lua/src/compat.h`. It covers Reader, Writer, Tree Writer, Element and Tag, and
 preorder tree traversal (`opentlv.visit_tree`, built on `tlv_tree_reader_visit()`/
-`tlv_der_visit()`); Document and Schema are not bound yet.
+`tlv_der_visit()`), and structural Schema validation with detailed diagnostic reports;
+Document is not bound yet.
 
 ## Build
 
@@ -91,3 +92,25 @@ registers the standalone suite whenever the interpreter is available, even
 when optional formats are disabled. It covers binary strings, Reader/Writer
 roundtrips, exact preset bytes, ownership, nested output, resource exhaustion
 and structured diagnostics.
+
+## Schema implementation
+
+`src/schema.c` snapshots Lua descriptions into `tlv_structure_schema_t`,
+`tlv_structure_rule_t`, `tlv_schema_entry_t` and `tlv_structure_group_t` arrays.
+A registry reference retains a private table holding native-array userdata,
+immutable tag/name strings and child Schema objects. The Schema finalizer is
+installed before acquiring references; temporary diagnostic arrays are rooted
+on the Lua stack, so constructor or result-conversion allocation failures do
+not leak native storage. No Lua callback runs during C validation.
+
+`Schema:validate()` calls `tlv_schema_validate_all_diag()`. It returns bounded
+schema reports or a basic native-code/offset diagnostic on fatal failures.
+`src/error.c` provides common `tlv_diagnostic_t` conversion shared with Reader
+and Writer; Schema adds only the typed detail exposed by the C report.
+
+`tests/schema_spec.lua` runs under busted and directly through CTest, including
+builds without BER. It covers rules, groups, ordering, paths, native offsets,
+capacity/count-only results, malformed input, numeric checks, immutable
+configuration and garbage collection. When the test allocator is available,
+it also injects failures during construction and diagnostic conversion and
+checks that retained child schemas are released.

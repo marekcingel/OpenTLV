@@ -27,6 +27,7 @@
 #include "error.h"
 #include "format.h"
 #include "reader.h"
+#include "schema.h"
 #include "visitor.h"
 #include "writer.h"
 
@@ -52,6 +53,7 @@ int luaopen_opentlv_native(lua_State* L) {
     opentlv_lua_register_error_codes(L, module_index);
     opentlv_lua_open_format(L, module_index);
     opentlv_lua_open_reader(L, module_index);
+    opentlv_lua_open_schema(L, module_index);
     opentlv_lua_open_writer(L, module_index);
     opentlv_lua_open_visitor(L, module_index);
 
