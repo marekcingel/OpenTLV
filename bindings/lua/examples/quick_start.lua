@@ -1,9 +1,6 @@
 --[[
-The simplest possible read: one element encoded with the configurable
-fixed-width format (one tag byte, one length byte), decoded with a Reader.
-This binding covers Reader, Element and Tag only (see issue #298); there is no
-Lua Writer yet, so unlike the C, C++, Rust and Python quick_start examples,
-the encoded bytes below are written out by hand instead of with a Writer.
+One element encoded with the configurable fixed-width format (one tag byte,
+one length byte) using a Writer, then decoded with a Reader.
 See parse.lua for a nested BER document and error handling.
 
 Run with `lua examples/quick_start.lua` from `bindings/lua`, after building
@@ -21,10 +18,13 @@ local function hex(bytes)
 end
 
 -- tag 0x01, length 0x03, value 0xAA 0xBB 0xCC.
-local encoded = string.char(0x01, 0x03, 0xAA, 0xBB, 0xCC)
+local format = opentlv.formats.fixed(1, 1, "big")
+local writer = opentlv.writer(format, { capacity = 64 })
+writer:write(string.char(0x01), string.char(0xAA, 0xBB, 0xCC))
+local encoded = writer:bytes()
+assert(encoded == string.char(0x01, 0x03, 0xAA, 0xBB, 0xCC))
 print(string.format("reading %d bytes: %s", #encoded, hex(encoded)))
 
-local format = opentlv.formats.fixed(1, 1, "big")
 local reader = opentlv.reader(encoded, format)
 local element = reader:next()
 assert(element ~= nil)

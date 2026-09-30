@@ -2,6 +2,42 @@
 
 #include <stdio.h>
 
+int opentlv_lua_raise_writer_error(lua_State* L, tlv_result_t code,
+                                   const tlv_writer_diagnostic_t* diag) {
+    static const char* const operations[] = {"tag",  "length",   "value", "header", "trailer",
+                                             "copy", "preserve", "begin", "end"};
+    opentlv_lua_push_error(L, code, diag->diagnostic.has_offset, diag->diagnostic.offset);
+    if ((unsigned)diag->operation < sizeof(operations) / sizeof(operations[0])) {
+        lua_pushstring(L, operations[diag->operation]);
+        lua_setfield(L, -2, "operation");
+    }
+    if (diag->diagnostic.expected) {
+        lua_pushstring(L, diag->diagnostic.expected);
+        lua_setfield(L, -2, "expected");
+    }
+    if (diag->diagnostic.actual) {
+        lua_pushstring(L, diag->diagnostic.actual);
+        lua_setfield(L, -2, "actual");
+    }
+    if (diag->has_tag) {
+        lua_pushlstring(L, diag->tag.data ? (const char*)diag->tag.data : "", diag->tag.size);
+        lua_setfield(L, -2, "tag");
+    }
+    if (diag->has_length) {
+        lua_pushnumber(L, (lua_Number)diag->length);
+        lua_setfield(L, -2, "length");
+    }
+    if (diag->has_required) {
+        lua_pushnumber(L, (lua_Number)diag->required);
+        lua_setfield(L, -2, "required");
+    }
+    if (diag->has_available) {
+        lua_pushnumber(L, (lua_Number)diag->available);
+        lua_setfield(L, -2, "available");
+    }
+    return lua_error(L);
+}
+
 const char* opentlv_lua_reader_operation_name(tlv_reader_operation_t operation) {
     switch (operation) {
         case TLV_READER_OP_TAG: return "tag";

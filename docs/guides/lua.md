@@ -1,8 +1,8 @@
 # Using OpenTLV from Lua
 
 The `opentlv` module is an experimental Lua binding for OpenTLV. It binds a
-Reader, tag/length/value `Element` tables and preorder tree traversal; there is
-no Writer, Document or Schema binding yet (see [Lua
+Reader, Writer, Tree Writer, tag/length/value `Element` tables and preorder tree
+traversal; there is no Document or Schema binding yet (see [Lua
 bindings](../development/lua.md)).
 
 ## Setup
@@ -108,3 +108,81 @@ end
 A callback error inside `opentlv.visit_tree` (a genuine Lua error your
 `callback` raises) propagates out of `opentlv.visit_tree` unchanged, so
 `pcall` catches whatever your callback raised, not a wrapped copy.
+
+## Writing
+
+`opentlv.writer(format, options)` creates a sequential Writer over a buffer
+owned by the Lua binding. `format` defaults to BER when enabled; otherwise
+it is required. `options.capacity` defaults to 1024 bytes, never grows, and
+may be zero. All encoding is performed by the OpenTLV C Writer and Format.
+
+```lua
+local tlv = require("opentlv")
+local writer = tlv.writer(tlv.formats.ber, { capacity = 1024 })
+writer:write(string.char(0x5F, 0x2A), string.char(0x09, 0x78))
+writer:write(string.char(0x9F, 0x02), string.char(0, 0, 0, 0, 1, 0))
+local encoded = writer:bytes()
+```
+
+- `write(tag, value)` appends one element. Both arguments are binary strings,
+  including embedded zero bytes; numbers and arbitrary userdata are rejected.
+  `nil` Tag represents an absent identifier when the Format permits it.
+  An empty Tag string represents an explicit empty identifier.
+- `write_element(element)` accepts a Reader-style table with `tag` and `value`.
+  Length is derived from `value`; metadata such as `length` and `offset` does
+  not override the content.
+- `bytes()` returns an independent immutable string containing written bytes.
+- `size()` and `remaining()` report written bytes and unused capacity.
+- `format()` returns the retained Format object.
+
+Tag strings represent raw byte identity: `"5F2A"` is four ASCII bytes, not
+`string.char(0x5F, 0x2A)`. Input strings are borrowed only during a write call.
+The binding keeps the Format alive and releases its output buffer at garbage
+collection. A failed sequential write does not advance the cursor; as in C,
+encoder callback failures may modify unused destination bytes.
+
+### Nested writing
+
+`opentlv.tree_writer(format, options)` wraps the C Tree Writer. It supports
+`write`, `write_element`, `format` and `size`, plus `begin(tag)`,
+`end_element()` and `finish()`. `finish()` and `bytes()` both check that all
+parents are closed and return an independent output string; neither closes
+parents implicitly. `size()` reports only the finalized root prefix.
+
+```lua
+local tlv = require("opentlv")
+local writer = tlv.tree_writer(tlv.formats.ber, { capacity = 1024 })
+writer:begin(string.char(0xE1))
+writer:write(string.char(0x04), "hello")
+writer:end_element()
+local encoded = writer:finish()
+```
+
+The selected C Format determines whether constructed encoding is supported.
+Tree options are `capacity` (1024), `scratch_capacity` and `tag_capacity`
+(both default to `capacity`), `frame_capacity` and `max_depth` (both default
+to the C `TLV_TREE_DEFAULT_DEPTH`), and `max_elements` (unbounded by default).
+Options must be nonnegative native integers. Scratch must hold the largest
+closed parent Value; each open parent uses one frame. Maximum item depth
+counts roots as zero. Open Tags are copied by the C Tree Writer into bounded
+Tag storage, so temporary Lua strings can be collected safely.
+
+### Writer errors
+
+Core failures raise the same structured error-table type as Reader. In addition
+to `code` and `message`, diagnostic operations copy `offset`, `operation`,
+`tag`, `length`, `required`, `available`, `expected` and `actual` when supplied
+by the C core. `required` and `available` describe the failing destination or
+workspace, not necessarily the complete final document. Tree offsets refer
+to the current provisional buffer. A failed `end_element()` preserves the
+open parent and its children, following the C Tree Writer contract.
+
+```lua
+local ok, err = pcall(function()
+    local writer = require("opentlv").writer(nil, { capacity = 0 })
+    writer:write(string.char(0x04), "value")
+end)
+if not ok then
+    print(err.code, err.message, err.required, err.available)
+end
+```

@@ -2,7 +2,7 @@
 
 Lua bindings to the [OpenTLV](https://github.com/marekcingel/OpenTLV) C API:
 two pieces, `opentlv-native` (`src/`, built directly against the Lua C API,
-binding `Reader`, `Element`, `Tag` and preorder tree traversal) and `opentlv`
+binding `Reader`, `Writer`, `TreeWriter`, `Element`, `Tag` and preorder tree traversal) and `opentlv`
 (`lua/opentlv/init.lua`, a one-line pure-Lua entry point on top of it) — the
 same native/pure split as the Python `opentlv-native`/`opentlv` and Rust
 `opentlv-native`/`opentlv` packages. Targets Lua 5.1 through 5.4 and LuaJIT.
@@ -76,3 +76,18 @@ The test suite uses [busted](https://lunarmodules.github.io/busted/):
 luarocks install busted
 LUA_PATH="lua/?.lua;lua/?/init.lua;;" LUA_CPATH="build-lua/bindings/lua/?.so;;" busted tests
 ```
+
+## Writing
+
+```lua
+local tlv = require("opentlv")
+local writer = tlv.writer(tlv.formats.ber, { capacity = 1024 })
+writer:write(string.char(0x5F, 0x2A), string.char(0x09, 0x78))
+local encoded = writer:bytes()
+```
+
+Tags and values are binary strings, not hexadecimal text. Writer owns its
+bounded buffer and delegates encoding to the C core. See the
+[writing guide](../../docs/guides/lua.md#writing) for nesting, capacity options
+and diagnostics. The standalone `tests/writer_spec.lua` runs without busted
+and is registered as `Integration_lua_writer`, including reduced builds.

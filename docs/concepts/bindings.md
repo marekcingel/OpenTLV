@@ -32,8 +32,8 @@ idiomatic  idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
 ```
 
 C++, Rust and Python expose Readers, Writers and Document facades today.
-Lua (`bindings/lua/`) currently binds Reader, Element and Tag. Go is
-illustrative here, not yet scaffolded, to show the contract extends past the
+Lua (`bindings/lua/`) currently binds Reader, Writer, Tree Writer, Element and Tag.
+Go is illustrative here, not yet scaffolded, to show the contract extends past the
 current bindings. The trailing `...` stands for any further binding.
 
 The public OpenTLV C API (see the [C API reference](../reference/c-api.md)) is
@@ -148,7 +148,7 @@ coverage still needs verification; it must not be counted as parity.
 | Incremental Reader: `tlv_reader_init_incremental`, `tlv_reader_set_input`, `tlv_reader_consumed`, `tlv_reader_offset` | Bound: `input_mode`, `set_input`, `consumed`, `offset` | Bound: `Reader::incremental`, continuation methods | Bound: `Reader(final_input=False)`, continuation methods | Missing |
 | Tree Reader: `tlv_tree_reader_init`, `tlv_tree_reader_next`, `tlv_tree_reader_at_end` | Bound: `tree_reader` | Bound: `TreeReader` | Bound: `TreeReader` | Missing pull facade |
 | Event measurement: `tlv_tree_writer_measure_events` | Bound: `measure_tree_events` | Bound: `measure_events` | Bound: `measure_events` | Missing |
-| Bounded Tag copying: `tlv_tree_writer_set_tag_storage` | Bound: `set_tag_storage` | Bound: `set_tag_capacity` | Bound: `set_tag_capacity` | Missing |
+| Bounded Tag copying: `tlv_tree_writer_set_tag_storage` | Bound: `set_tag_storage` | Bound: `set_tag_capacity` | Bound: `set_tag_capacity` | Partial: constructor `tag_capacity`; no storage replacement |
 | Structural events: `tlv_tree_reader_next_event`, `tlv_tree_writer_write_event` | Bound: `next_event`, `write_event` | Bound: `read_event`, `write_event` | Bound: `next_event`, `write_event` | Missing tree facades |
 | Incremental Tree Reader: `tlv_tree_reader_init_incremental`, `tlv_tree_reader_set_input`, `tlv_tree_reader_consumed`, `tlv_tree_reader_offset` | Bound: `tree_reader` continuation methods | Bound: `TreeReader` continuation methods | Bound: `TreeReader` continuation methods | Missing |
 | Reader diagnostics: `tlv_reader_next_diag`, `tlv_tree_reader_next_diag`, `tlv_reader_diagnostic_init` | Bound: optional diagnostics and value initialization | Bound: owned `ReaderDiagnostic` | Bound: structured exceptions | Partial |
@@ -157,11 +157,11 @@ coverage still needs verification; it must not be counted as parity.
 | Subtree control: `tlv_tree_reader_skip_subtree` | Bound: `skip_subtree` | Bound: `skip_subtree` | Bound: `skip_subtree` | Audit |
 | Visitor: `tlv_reader_visit[_diag]`, `tlv_tree_reader_visit[_diag]` | Bound: Reader and Tree Reader `visit` | Bound: Reader and Tree Reader `visit` | Bound: Reader and Tree Reader `visit` | Partial: tree Visitor |
 | Single-element Writer: `tlv_write[_diag]`, `tlv_write_element[_diag]` | Bound: `write` overloads | Bound: `write_element`, `write_element_fixed` | Audit | Missing |
-| Sequential Writer: `tlv_writer_init`, `tlv_writer_write[_diag]`, `tlv_writer_write_element[_diag]`, size/remaining | Audit | Bound: `Writer`, owned diagnostics | Audit | Missing |
-| Tree Writer: `tlv_tree_writer_init`, begin/write/end and diagnostic variants, finish/size | Bound: `tree_writer` | Bound: `TreeWriter` | Bound: `TreeWriter` | Missing |
+| Sequential Writer: `tlv_writer_init`, `tlv_writer_write[_diag]`, `tlv_writer_write_element[_diag]`, size/remaining | Audit | Bound: `Writer`, owned diagnostics | Audit | Bound: `writer`, write/Element, size/remaining |
+| Tree Writer: `tlv_tree_writer_init`, begin/write/end and diagnostic variants, finish/size | Bound: `tree_writer` | Bound: `TreeWriter` | Bound: `TreeWriter` | Bound: `tree_writer`, begin/write/end, finish/size |
 | Element measurement: `tlv_encoded_size`, `tlv_element_encoded_size[_diag]` | Bound: `encoded_size` overloads | Bound: `measure_element`, `encoded_size` | Bound | Missing |
 | Tree measurement: `tlv_tree_writer_measure`, staging and capacity requirements | Bound: `measure_tree` | Bound: `TreeWriter::measure`, `required_workspace` | Bound: `TreeWriter.measure`, exception requirements | Missing |
-| Writer diagnostics: `tlv_writer_diagnostic_t` and diagnostic operations | Audit | Bound: owned sequential, single-element and Tree Writer diagnostics | Audit | Missing |
+| Writer diagnostics: `tlv_writer_diagnostic_t` and diagnostic operations | Audit | Bound: owned sequential, single-element and Tree Writer diagnostics | Audit | Bound: owned sequential and Tree Writer error fields; single-element facade missing |
 | Exact copy/preservation: `tlv_writer_copy_encoded[_diag]`, `tlv_writer_preserve[_diag]`, `tlv_source_preserve` | Audit | Bound: `Writer::copy_encoded`, `Writer::preserve`, `Decoded::preserve` | Bound: `Writer.copy_encoded`, `Writer.preserve`, `Decoded.preserve_into` | Missing |
 | Query: parse/step, matcher init/visit, `tlv_query_visit`, `tlv_query_visit_buffer` | Bound: `query`, `query_matcher` | Bound: `Query`, `QueryMatcher` | Bound: `Query`, `QueryMatcher` | Missing |
 | Schema: public `tlv/schema/` operations, constraints and diagnostics | Audit | Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400 | Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400 | Separate stories |
@@ -364,7 +364,7 @@ explicitly out of scope for #400.
 | Concept | Responsibility | C | C++ (`tlv++`) | Rust (`opentlv`, experimental) | Python (`opentlv`, experimental) | Lua (`opentlv`, experimental) |
 | --- | --- | --- | --- | --- | --- | --- |
 | Reader | Read-only parsing and traversal | `tlv_reader_t`, `tlv_reader_next()` | `tlv::reader` | `Reader<'a>` | `Reader` | `opentlv.reader()` |
-| Writer | Construction and serialization | `tlv_writer_t` | `tlv::writer` | `Writer<'a>` | `Writer` | not bound yet |
+| Writer | Construction and serialization | `tlv_writer_t` | `tlv::writer` | `Writer<'a>` | `Writer` | `opentlv.writer()` |
 | Document | Optional owning, mutable representation | `tlv_document_t` | `tlv::document` | `Document`, `Node`, `NodeMut`, `DocumentBuilder` | `Document`, `Node`, `DocumentBuilder` | not bound yet |
 | Element | One TLV element with borrowed wire fields | `tlv_element_t` | `tlv::element` | `Element<'a>` | `Element` | a plain table (`tag`/`raw_length`/`length`/`value`/`offset` fields) |
 | Tag | The TLV tag abstraction: raw identifying bytes | `tlv_tag_t` | `tlv::tag_t` (alias) | `Tag` | `Tag` | a raw Lua string (content equality already compares it) |
@@ -452,11 +452,12 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   the same split as the Rust and Python `opentlv-native`/`opentlv` packages,
   though here the pure layer adds no ergonomics of its own, since Lua's C
   API is already close to the concepts bound. Targets Lua 5.1 through 5.4
-  and LuaJIT. Covers Reader, Element and Tag, across the default, BER, CER, DER,
-  Bluetooth LTV and configurable fixed-width formats, plus preorder tree
+  and LuaJIT. Covers Reader, Writer, Tree Writer, Element and Tag, across
+  the default, BER, CER, DER, Bluetooth LTV and configurable fixed-width formats, plus preorder tree
   traversal (`opentlv.visit_tree()`, built on `tlv_tree_reader_visit()`/
-  `tlv_der_visit()`). Pull-based Tree Reader and Writer capabilities remain
-  gaps in Lua. See [Lua bindings](../development/lua.md) and
+  `tlv_der_visit()`). Pull-based Tree Reader and advanced Writer capabilities
+  (measurement, structural events and exact copy/preservation) remain gaps
+  in Lua. See [Lua bindings](../development/lua.md) and
   [using OpenTLV from Lua](../guides/lua.md).
 - **Go**: planned, not started yet. No `bindings/go/` directory exists; when
   work on it begins, it follows this contract like the Rust crate does.

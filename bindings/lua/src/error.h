@@ -5,6 +5,7 @@
 
 #include <tlv/error.h>
 #include <tlv/reader/reader.h>
+#include <tlv/writer/writer.h>
 
 /* Metatable name for every error table this binding raises. */
 #define OPENTLV_LUA_ERROR_MT "opentlv.Error"
@@ -43,5 +44,9 @@ void opentlv_lua_push_reader_error(lua_State* L, tlv_result_t code,
 int opentlv_lua_raise(lua_State* L, tlv_result_t code, int has_offset, size_t offset);
 int opentlv_lua_raise_reader_error(lua_State* L, tlv_result_t code,
                                    const tlv_reader_diagnostic_t* diag);
+
+/* Copies borrowed writer diagnostic fields into the raised Lua error table. */
+int opentlv_lua_raise_writer_error(lua_State* L, tlv_result_t code,
+                                   const tlv_writer_diagnostic_t* diag);
 
 #endif /* OPENTLV_LUA_ERROR_H */
