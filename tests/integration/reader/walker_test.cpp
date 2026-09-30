@@ -72,3 +72,30 @@ TEST(Integration_Tlv_Walker, UsesSelectedFormatWithoutRecursingIntoValues) {
     EXPECT_EQ(2u, visits.elements[1].tag.data[0]);
     EXPECT_EQ(1u, visits.elements[1].value.size);
 }
+
+TEST(Integration_Tlv_Walker, BerIndefiniteParentCanStopThenResumeThroughTrailer) {
+    const uint8_t     data[] = {0x30, 0x80, 0x04, 1, 0xAB, 0, 0, 0x04, 0};
+    tlv_tree_frame_t  frames[1];
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK,
+              tlv_tree_reader_init(&reader, data, sizeof(data), &tlv_format_ber, frames, 1, 1, 3));
+    struct Context {
+        size_t count = 0;
+    } ctx;
+    auto callback = [](const tlv_element_t* element, size_t depth, size_t offset, void* context) {
+        auto&        c = *static_cast<Context*>(context);
+        const size_t offsets[] = {0, 2, 7};
+        const size_t depths[] = {0, 1, 0};
+        EXPECT_LT(c.count, 3u);
+        if (c.count >= 3) return TLV_VISIT_ERROR;
+        EXPECT_EQ(offsets[c.count], offset);
+        EXPECT_EQ(depths[c.count], depth);
+        EXPECT_EQ(c.count == 0 ? 0x30 : 0x04, element->tag.data[0]);
+        return ++c.count == 1 ? TLV_VISIT_STOP : TLV_VISIT_CONTINUE;
+    };
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_visit(&reader, callback, &ctx, nullptr));
+    EXPECT_EQ(1u, ctx.count);
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_visit(&reader, callback, &ctx, nullptr));
+    EXPECT_EQ(3u, ctx.count);
+    EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
+}

@@ -36,7 +36,7 @@ typedef enum tlv_visit_result {
  * @brief Callback invoked by tlv_walk() for each sequential element.
  *
  * @param element    Current element. The pointer is valid only during the
- *                callback; its value borrows the input data.
+ *                callback; copied Elements borrow input or immutable Format storage.
  * @param context Caller context passed to tlv_walk().
  *
  * @return A #tlv_visit_result_t. Any unknown value is treated as an error.
@@ -77,7 +77,7 @@ enum { TLV_WALK_MAX_DEPTH = TLV_TREE_DEFAULT_DEPTH };
 /**
  * @brief Callback invoked by tlv_walk_tree() for each element in preorder.
  *
- * @param element    Current element; its value borrows the input data and the
+ * @param element    Current element; its Tag and Value follow Reader borrowing and the
  *                pointer is valid only during the callback.
  * @param depth   Nesting depth; top-level elements have depth zero.
  * @param offset  Absolute offset of the encoded element start within the input.
@@ -89,11 +89,88 @@ typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_element_t* element, s
                                                  size_t offset, void* context);
 
 /**
+ * @brief Visit remaining sequential elements from an initialized Reader.
+ *
+ * Uses only canonical pull reads, without allocation, buffering or recursion.
+ * Works with final and incremental input. The current element has already been
+ * consumed when its callback runs, including on STOP or ERROR. Calling again
+ * resumes at the next element; prior callbacks are never replayed or rolled back.
+ *
+ * @param[in,out] reader Initialized caller-owned cursor; required.
+ * @param[in] visitor Required callback.
+ * @param[in] context Opaque callback context; may be NULL.
+ * @return #TLV_OK at final exhaustion or on #TLV_VISIT_STOP.
+ * @return #TLV_NEED_MORE_DATA when more input is needed; supply it with
+ *         tlv_reader_set_input() before resuming.
+ * @return #TLV_ERR_NULL_ARG for a NULL cursor or callback.
+ * @return #TLV_ERR_VISITOR on ERROR or an unknown callback result.
+ * @return Any Reader error, propagated unchanged without retrying the decode.
+ * @warning Do not mutate or advance this cursor, its input or Format inside
+ *          the callback. The element pointer is valid only during the callback;
+ *          a copied Element borrows the original input or Format storage under
+ *          the same lifetime contract as direct pull results. Application
+ *          recursion inside callbacks is outside the library traversal contract.
+ */
+TLV_API tlv_result_t tlv_reader_visit(tlv_reader_t* reader, tlv_visitor_t visitor, void* context);
+
+/**
+ * @brief Visit sequential elements with original Reader diagnostics.
+ *
+ * @copydetails tlv_reader_visit
+ * @param[out] diagnostic Optional detail, cleared at entry. Filled on Reader
+ *            failure or need-more-data with absolute offsets; remains clear on
+ *            success and visitor errors. Borrowed diagnostic storage follows Reader.
+ */
+TLV_API tlv_result_t tlv_reader_visit_diag(tlv_reader_t* reader, tlv_visitor_t visitor,
+                                           void* context, tlv_reader_diagnostic_t* diagnostic);
+
+/**
+ * @brief Visit remaining preorder items from an initialized Tree Reader.
+ *
+ * Uses only Tree Reader pull operations, without allocation or recursion.
+ * Caller-owned frames and configured limits remain in force across calls.
+ * STOP and ERROR leave the current item published: resuming after a constructed
+ * parent visits its children unless the caller skips its subtree first.
+ * Incremental input publishes complete elements only, including parents.
+ *
+ * @param[in,out] reader Initialized caller-owned cursor; required.
+ * @param[in] visitor Callback, or NULL to validate only.
+ * @param[in] context Opaque callback context; may be NULL.
+ * @param[out] error_offset Optional absolute failing item offset, or frontier
+ *            on pull failure/need-more-data; zero for NULL reader. Unchanged on success.
+ * @return #TLV_OK at final exhaustion or on #TLV_VISIT_STOP.
+ * @return #TLV_NEED_MORE_DATA when more input is needed; use
+ *         tlv_tree_reader_set_input() before resuming.
+ * @return #TLV_ERR_NULL_ARG for a NULL cursor.
+ * @return #TLV_ERR_VISITOR on ERROR or an unknown callback result.
+ * @return Any Tree Reader error, including resource limits, propagated unchanged.
+ * @warning Callback effects are not rolled back. Cursor mutation and borrowed
+ *          lifetimes follow tlv_reader_visit(); do not modify active frames.
+ */
+TLV_API tlv_result_t tlv_tree_reader_visit(tlv_tree_reader_t* reader, tlv_tree_visitor_t visitor,
+                                           void* context, size_t* error_offset);
+
+/**
+ * @brief Visit preorder items with original Tree Reader diagnostics.
+ *
+ * @copydetails tlv_tree_reader_visit
+ * @param[out] diagnostic Optional detail, cleared at entry. Filled on Reader
+ *            failure or need-more-data with absolute offsets, without reparsing;
+ *            remains clear on success and tree argument/resource/visitor errors.
+ *            Borrowed diagnostic storage follows Tree Reader.
+ */
+TLV_API tlv_result_t tlv_tree_reader_visit_diag(tlv_tree_reader_t* reader,
+                                                tlv_tree_visitor_t visitor, void* context,
+                                                size_t* error_offset,
+                                                tlv_reader_diagnostic_t* diagnostic);
+
+/**
  * @brief Visits preorder items from the canonical Tree Reader.
  *
  * This compatibility adapter owns a fixed stack of TLV_WALK_MAX_DEPTH frames.
- * Use #tlv_tree_reader_t for pull processing, incremental input, subtree skipping
- * or caller-controlled frame storage and runtime depths beyond that capacity.
+ * Use tlv_tree_reader_visit() with a caller-owned Tree Reader for incremental
+ * input, resumable processing and runtime depths beyond that capacity.
+ * Use direct pull processing when application-controlled subtree skipping is needed.
  *
  * Constructed values (identified by `format->is_constructed`) are traversed
  * as bounded views of the input. There is no allocation and no C recursion.

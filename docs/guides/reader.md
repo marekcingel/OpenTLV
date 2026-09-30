@@ -194,10 +194,45 @@ and EOF.
 to existing callbacks; they contain no independent traversal algorithm.
 `tlv_walk()` remains a callback adapter over sequential Reader. The compatibility
 Walker owns a fixed stack of `TLV_WALK_MAX_DEPTH` frames. That name describes
-only the adapter's capacity: use Tree Reader directly for runtime depths beyond
-it, caller-owned traversal storage, incremental input, or subtree skipping.
+only the adapter's capacity: use a caller-owned Tree Reader for runtime depths
+beyond it, incremental input or subtree skipping.
 Existing Query and other Walker consumers therefore use Tree Reader through
 the adapter. Their own public limits and higher-level APIs remain unchanged.
+
+### Resumable Visitor adapters
+
+Include `tlv/reader/walker.h` and use `tlv_reader_visit()` or
+`tlv_tree_reader_visit()` with an initialized cursor. Their `_diag` variants
+preserve the original Reader diagnostics without another decode. The tree
+adapter accepts a NULL callback for validation only; the sequential adapter
+requires a callback. No adapter allocates, buffers input or recurses by nesting
+depth. Recursion explicitly performed by application callbacks is outside this
+library guarantee.
+
+CONTINUE keeps pulling. STOP returns `TLV_OK`; ERROR or an unknown callback
+result returns `TLV_ERR_VISITOR`. The current item is already published in all
+three cases. Another call resumes without replaying it. After STOP on a parent,
+resumption visits its children; the application can instead call
+`tlv_tree_reader_skip_subtree()` before resuming. Do not mutate the active cursor,
+input, Format or frames inside a callback.
+
+`TLV_NEED_MORE_DATA` returns control to the application. Supply a replacement
+window through the cursor's `set_input()` and call the adapter again. Final
+exhaustion succeeds; incomplete final input remains an error. Parents are still
+published only once their complete encoded extent is available. Offsets remain
+absolute after discarding a consumed prefix. Limits and publication counts
+belong to the cursor and persist across adapter calls.
+
+The callback's Element pointer is temporary, but an Element copied by value has
+the same borrowed lifetime as a direct pull result. Keep its original input and
+any Format-supplied Tag storage alive and unchanged while retaining it.
+Diagnostics are cleared at each adapter entry; Reader outcomes fill them,
+whereas visitor and tree resource errors leave them clear. Tree `error_offset`
+reports the published item for visitor errors and the frontier for pull failures
+or need-more-data; it is unchanged on success.
+
+See the runnable [Visitor example](../../examples/tlv/src/visitor.c) for STOP,
+resumption and incremental input replacement.
 
 ## Ownership and composition
 
