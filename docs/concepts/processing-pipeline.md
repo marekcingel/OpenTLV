@@ -3,6 +3,26 @@
 The #401 audit covers the generic Reader, Tree Reader, Visitor, Query, Document,
 Writer and Tree Writer engines and their C++, Rust and Python adapters.
 
+## Removed superseded interfaces
+
+The standalone C++ `visit_tree` template and `tlv++/reader/visitor.hpp` are removed.
+Use `tlv::tree_reader` with caller-owned frames and its `visit()` method, which
+also exposes diagnostics and incremental continuation.
+
+The compact Schema report (`tlv_schema_issue_t`, `tlv_schema_report_t`,
+`tlv_schema_validate_all`, `tlv_schema_issue_path_string`, `TLV_SCHEMA_PATH_MAX`)
+is removed. Use `tlv_schema_diagnostic_t`, `tlv_schema_diagnostic_report_t` and
+`tlv_schema_validate_all_diag`. The shared `tlv_diagnostic_path_t` contains
+enclosing scopes; the affected tag is separate. Its capacity is
+`TLV_DIAGNOSTIC_PATH_MAX`, replacing the old 16-tag limit. Format enclosing paths
+through `tlv_diagnostic_path_string`, or copy the path and append the affected tag
+when a full field path is needed and capacity permits.
+
+C++ callers use `validate_all_diag`. Rust/Python callers use
+`validate_diagnostics` and `SchemaDiagnosticReport.diagnostics`; `SchemaIssue`,
+`SchemaReport` and the compact `validate_all` methods are removed. No compatibility
+aliases remain. Rebuild consumers after this source/ABI-breaking removal.
+
 ## Dependency evidence
 
 | Consumer | Implementation | Processing dependency |

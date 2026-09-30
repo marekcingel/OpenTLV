@@ -40,7 +40,7 @@ that lifetime.
   `storage`, which has to outlive the tag.
 - APIs do not retain a tag beyond the call unless their documentation says so.
   Structures that hold tags, such as a `tlv_schema_entry_t`, a
-  `tlv_dol_entry_t`, a `tlv_schema_issue_t` path, or a reader's view, therefore
+  `tlv_dol_entry_t`, a `tlv_schema_diagnostic_t` path, or a reader's view, therefore
   borrow the bytes too: a schema table needs its tag bytes to have static (or
   otherwise long) storage, and a validation report's paths point into the input
   that was validated, immutable format-supplied identifier storage, or the schema

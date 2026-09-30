@@ -1,6 +1,9 @@
 # Architectural guardrails, deliberately limited to the canonical processing engines.
 # Semantic behavior is covered by Integration_Tlv_Pipeline and component tests.
 get_filename_component(root "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+if(EXISTS "${root}/tlv++/include/tlv++/reader/visitor.hpp")
+    message(FATAL_ERROR "Use tree_reader::visit; the superseded C++ Visitor facade must not return")
+endif()
 
 function(forbid path pattern reason)
     file(READ "${root}/${path}" source)
@@ -11,6 +14,11 @@ function(forbid path pattern reason)
         message(FATAL_ERROR "${path}: ${reason}")
     endif()
 endfunction()
+
+foreach(path tlv/include/tlv/schema/schema.h tlv/src/schema/report.c)
+    forbid("${path}" "tlv_schema_(issue_t|report_t|issue_path_string)|TLV_SCHEMA_PATH_MAX"
+           "Schema reports must use the shared diagnostic model")
+endforeach()
 
 foreach(path reader/reader.c reader/tree.c reader/visitor.c writer/writer.c writer/tree.c)
     forbid("tlv/src/${path}" "(malloc|calloc|realloc|alloca)[ \t\r\n]*\\("

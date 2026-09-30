@@ -115,11 +115,9 @@ within the writer's buffer, not relative to the element being written.
 
 ## Schema diagnostics
 
-Schema validation enriches a diagnostic the same way, but for every violation
-it finds, not just the first: `tlv_schema_validate_all_diag()` behaves
-exactly like `tlv_schema_validate_all()` (see
-[Reporting every violation](schemas.md#reporting-every-violation)), and
-additionally fills each recorded violation as a `tlv_schema_diagnostic_t`.
+Schema validation records every violation through `tlv_schema_validate_all_diag()`
+as a `tlv_schema_diagnostic_t`; see
+[Reporting every violation](schemas.md#reporting-every-violation).
 
 ```c
 #include "tlv/schema/schema.h"
@@ -162,8 +160,6 @@ report needs its own path, and wiring it through a pointer field would leave
 a dangling self-reference the moment the struct is copied out of the report
 array. Attach it explicitly with `tlv_diagnostic_set_path(&d->diagnostic,
 &d->path)` if code elsewhere expects to find a path on `d->diagnostic`.
-`tlv_schema_validate_all()` is unchanged and still reports `tlv_schema_issue_t`
-for callers that only need the tag, kind and path.
 
 ## Hierarchical paths
 

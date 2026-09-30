@@ -46,7 +46,7 @@ from opentlv.reader import Reader, read
 from opentlv.cursor import Decoded, Layout, TreeItem, TreeReader, Visit
 from opentlv.query import Query, QueryMatcher
 from opentlv.tree_writer import TreeWriter
-from opentlv.schema import SchemaBounds, SchemaDiagnostic, SchemaDiagnosticReport, Kind, LengthRule, LengthSchema, SchemaOrder, SchemaIssue, SchemaReport, UnknownPolicy, StructureGroup, StructureRule, StructureSchema
+from opentlv.schema import SchemaBounds, SchemaDiagnostic, SchemaDiagnosticReport, Kind, LengthRule, LengthSchema, SchemaOrder, UnknownPolicy, StructureGroup, StructureRule, StructureSchema
 from opentlv.tag import Tag
 from opentlv.writer import Writer, element_encoded_size, encoded_size
 
@@ -97,8 +97,6 @@ __all__ = [
     "SchemaMissingError",
     "StructureRule",
     "SchemaOrder",
-    "SchemaIssue",
-    "SchemaReport",
     "SchemaBounds",
     "SchemaDiagnostic",
     "SchemaDiagnosticReport",

@@ -37,40 +37,6 @@ const tlv_structure_rule_t rootRules[] = {
     {&rootRules_fields[0], 1, 1, TLV_SCHEMA_CONSTRUCTED, &schema70, 0}};
 const tlv_structure_schema_t rootSchema = {rootRules, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
-struct Outcome {
-    tlv_result_t                    rc;
-    size_t                          count;
-    size_t                          errorOffset;
-    std::vector<tlv_schema_issue_t> issues;
-};
-
-Outcome run(const Wire& wire, const tlv_structure_schema_t& schema = rootSchema,
-            tlv_schema_unknown_policy_t unknown = TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
-            size_t                      capacity = 16) {
-    Outcome             out{TLV_OK, 99, 99, std::vector<tlv_schema_issue_t>(capacity)};
-    tlv_schema_report_t report = {out.issues.data(), capacity, 99};
-    out.rc =
-        tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_ber, &schema,
-                                TLV_TREE_DEFAULT_DEPTH, 1000, unknown, &report, &out.errorOffset);
-    out.count = report.count;
-    out.issues.resize(report.count < capacity ? report.count : capacity);
-    return out;
-}
-
-std::string pathOf(const tlv_schema_issue_t& issue) {
-    char   text[64];
-    size_t length = 0;
-    EXPECT_EQ(TLV_OK, tlv_schema_issue_path_string(&issue, text, sizeof(text), &length));
-    EXPECT_EQ(std::string(text).size(), length);
-    return text;
-}
-
-const tlv_schema_issue_t* find(const Outcome& out, tlv_schema_issue_kind_t kind) {
-    for (const auto& issue : out.issues)
-        if (issue.kind == kind) return &issue;
-    return nullptr;
-}
-
 struct DiagOutcome {
     tlv_result_t                         rc;
     size_t                               count;
@@ -96,6 +62,15 @@ std::string pathOf(const tlv_schema_diagnostic_t& diagnostic) {
     size_t length = 0;
     EXPECT_EQ(TLV_OK, tlv_diagnostic_path_string(&diagnostic.path, text, sizeof(text), &length));
     EXPECT_EQ(std::string(text).size(), length);
+    return text;
+}
+
+// Applications may render a full field path by appending the affected tag.
+std::string fullPathOf(const tlv_schema_diagnostic_t& diagnostic) {
+    auto path = diagnostic.path;
+    EXPECT_EQ(TLV_OK, tlv_diagnostic_path_push(&path, diagnostic.tag));
+    char text[128];
+    EXPECT_EQ(TLV_OK, tlv_diagnostic_path_string(&path, text, sizeof(text), nullptr));
     return text;
 }
 
@@ -131,7 +106,7 @@ TEST(Integration_Tlv_SchemaReport, EndpointLengthPolicySurvivesDiagnostics) {
 }
 
 TEST(Integration_Tlv_SchemaReport, AcceptsConformingTemplateWithoutViolations) {
-    Outcome out = run(valid);
+    DiagOutcome out = runDiag(valid);
     EXPECT_EQ(TLV_OK, out.rc);
     EXPECT_EQ(0u, out.count);
 }
@@ -162,31 +137,31 @@ TEST(Integration_Tlv_SchemaReport, BorrowedFieldIsAuthoritativeForValidationAndD
 }
 
 TEST(Integration_Tlv_SchemaReport, ReportsMissingRequiredTagWithFullPathAndParentOffset) {
-    Outcome out = run(missing9F36);
+    DiagOutcome out = runDiag(missing9F36);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(1u, out.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, out.issues[0].kind);
-    EXPECT_EQ("70/77/9F36", pathOf(out.issues[0]));
-    ASSERT_TRUE(out.issues[0].has_offset);
-    EXPECT_EQ(5u, out.issues[0].offset); // The offset of the enclosing 77.
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, out.diagnostics[0].kind);
+    EXPECT_EQ("70 > 77 > 9F36", fullPathOf(out.diagnostics[0]));
+    ASSERT_TRUE(out.diagnostics[0].diagnostic.has_offset);
+    EXPECT_EQ(5u, out.diagnostics[0].diagnostic.offset); // The offset of the enclosing 77.
 }
 
 TEST(Integration_Tlv_SchemaReport, ReportsMissingTopLevelTagWithoutOffset) {
-    const Wire wire = {};
-    Outcome    out = run(wire);
+    const Wire  wire = {};
+    DiagOutcome out = runDiag(wire);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(1u, out.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, out.issues[0].kind);
-    EXPECT_EQ("70", pathOf(out.issues[0]));
-    EXPECT_FALSE(out.issues[0].has_offset);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, out.diagnostics[0].kind);
+    EXPECT_EQ("70", fullPathOf(out.diagnostics[0]));
+    EXPECT_FALSE(out.diagnostics[0].diagnostic.has_offset);
 }
 
 TEST(Integration_Tlv_SchemaReport, ReportsEmptyContainerRequirements) {
-    const Wire wire = {0x70, 0x00};
-    Outcome    out = run(wire);
+    const Wire  wire = {0x70, 0x00};
+    DiagOutcome out = runDiag(wire);
     ASSERT_EQ(1u, out.count);
-    EXPECT_EQ("70/5A", pathOf(out.issues[0]));
-    EXPECT_EQ(0u, out.issues[0].offset);
+    EXPECT_EQ("70 > 5A", fullPathOf(out.diagnostics[0]));
+    EXPECT_EQ(0u, out.diagnostics[0].diagnostic.offset);
 }
 
 TEST(Integration_Tlv_SchemaReport,
@@ -195,12 +170,12 @@ TEST(Integration_Tlv_SchemaReport,
     Wire wire = {0x70, 0x1A, 0x5A, 0x01, 0x12, 0x5F, 0x24, 0x03, 0x01, 0x02, 0x03, 0x5F, 0x24,
                  0x03, 0x01, 0x02, 0x03, 0x9F, 0x4A, 0x01, 0x00, 0x9F, 0x4A, 0x01, 0x01};
     wire[1] = static_cast<uint8_t>(wire.size() - 2);
-    Outcome out = run(wire);
+    DiagOutcome out = runDiag(wire);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(1u, out.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, out.issues[0].kind);
-    EXPECT_EQ("70/5F24", pathOf(out.issues[0]));
-    EXPECT_EQ(11u, out.issues[0].offset);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, out.diagnostics[0].kind);
+    EXPECT_EQ("70 > 5F24", fullPathOf(out.diagnostics[0]));
+    EXPECT_EQ(11u, out.diagnostics[0].diagnostic.offset);
 }
 
 TEST(Integration_Tlv_SchemaReport, ReportsUnexpectedTagAndLengthAndHonoursUnknownPolicy) {
@@ -209,28 +184,28 @@ TEST(Integration_Tlv_SchemaReport, ReportsUnexpectedTagAndLengthAndHonoursUnknow
                  0x02, 0x00, 0x00, 0x9F, 0x36, 0x02, 0x00, 0x01, 0x5F, 0x2A, 0x01, 0x00};
     wire[1] = static_cast<uint8_t>(wire.size() - 2);
 
-    Outcome out = run(wire);
+    DiagOutcome out = runDiag(wire);
     ASSERT_EQ(2u, out.count);
-    const tlv_schema_issue_t* length = find(out, TLV_SCHEMA_ISSUE_LENGTH);
-    const tlv_schema_issue_t* unexpected = find(out, TLV_SCHEMA_ISSUE_UNEXPECTED);
+    const tlv_schema_diagnostic_t* length = findDiag(out, TLV_SCHEMA_ISSUE_LENGTH);
+    const tlv_schema_diagnostic_t* unexpected = findDiag(out, TLV_SCHEMA_ISSUE_UNEXPECTED);
     ASSERT_NE(nullptr, length);
     ASSERT_NE(nullptr, unexpected);
-    EXPECT_EQ("70/5F24", pathOf(*length));
-    EXPECT_EQ(5u, length->offset);
-    EXPECT_EQ("70/77/5F2A", pathOf(*unexpected));
-    EXPECT_EQ(21u, unexpected->offset);
+    EXPECT_EQ("70 > 5F24", fullPathOf(*length));
+    EXPECT_EQ(5u, length->diagnostic.offset);
+    EXPECT_EQ("70 > 77 > 5F2A", fullPathOf(*unexpected));
+    EXPECT_EQ(21u, unexpected->diagnostic.offset);
 
-    out = run(wire, rootSchema, TLV_SCHEMA_UNKNOWN_ALLOW);
+    out = runDiag(wire, rootSchema, TLV_SCHEMA_UNKNOWN_ALLOW);
     ASSERT_EQ(1u, out.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, out.issues[0].kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, out.diagnostics[0].kind);
 
     // 70 allows unknown tags by its schema; rejecting them everywhere adds a finding there.
     wire.push_back(0x5F);
     wire.push_back(0x2B);
     wire.push_back(0x00);
     wire[1] = static_cast<uint8_t>(wire.size() - 2);
-    EXPECT_EQ(2u, run(wire).count);
-    EXPECT_EQ(3u, run(wire, rootSchema, TLV_SCHEMA_UNKNOWN_REJECT).count);
+    EXPECT_EQ(2u, runDiag(wire).count);
+    EXPECT_EQ(3u, runDiag(wire, rootSchema, TLV_SCHEMA_UNKNOWN_REJECT).count);
 }
 
 TEST(Integration_Tlv_SchemaReport, ReportsPrimitiveConstructedMismatchAndDoesNotDescend) {
@@ -243,55 +218,55 @@ TEST(Integration_Tlv_SchemaReport, ReportsPrimitiveConstructedMismatchAndDoesNot
     static const tlv_structure_schema_t kindSchema = {kindRules, 2, 0,
                                                       nullptr,   0, TLV_SCHEMA_ORDER_ANY};
     const Wire                          wire = {0x5A, 0x01, 0x00, 0x6F, 0x00};
-    Outcome                             out = run(wire, kindSchema);
+    DiagOutcome                         out = runDiag(wire, kindSchema);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(2u, out.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_KIND, out.issues[0].kind);
-    EXPECT_EQ("5A", pathOf(out.issues[0]));
-    EXPECT_EQ(0u, out.issues[0].offset);
-    EXPECT_EQ("6F", pathOf(out.issues[1]));
-    EXPECT_EQ(3u, out.issues[1].offset);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_KIND, out.diagnostics[0].kind);
+    EXPECT_EQ("5A", fullPathOf(out.diagnostics[0]));
+    EXPECT_EQ(0u, out.diagnostics[0].diagnostic.offset);
+    EXPECT_EQ("6F", fullPathOf(out.diagnostics[1]));
+    EXPECT_EQ(3u, out.diagnostics[1].diagnostic.offset);
 }
 
 TEST(Integration_Tlv_SchemaReport, ReportsSeveralViolationsInOnePass) {
     // 70 | 5F24 02 AA BB | 5F24 03 .. | 77 0D | 82 02 00 00 | 9F36 02 00 01 | 5F2A 01 00
-    Wire    wire = {0x70, 0x1A, 0x5F, 0x24, 0x02, 0xAA, 0xBB, 0x5F, 0x24, 0x03,
-                    0x01, 0x02, 0x03, 0x77, 0x0D, 0x82, 0x02, 0x00, 0x00, 0x9F,
-                    0x36, 0x02, 0x00, 0x01, 0x5F, 0x2A, 0x01, 0x00};
-    Outcome out = run(wire);
+    Wire        wire = {0x70, 0x1A, 0x5F, 0x24, 0x02, 0xAA, 0xBB, 0x5F, 0x24, 0x03,
+                        0x01, 0x02, 0x03, 0x77, 0x0D, 0x82, 0x02, 0x00, 0x00, 0x9F,
+                        0x36, 0x02, 0x00, 0x01, 0x5F, 0x2A, 0x01, 0x00};
+    DiagOutcome out = runDiag(wire);
     ASSERT_EQ(TLV_ERR_SCHEMA, out.rc);
     ASSERT_EQ(4u, out.count);
-    ASSERT_NE(nullptr, find(out, TLV_SCHEMA_ISSUE_MISSING));
-    ASSERT_NE(nullptr, find(out, TLV_SCHEMA_ISSUE_DUPLICATE));
-    ASSERT_NE(nullptr, find(out, TLV_SCHEMA_ISSUE_LENGTH));
-    ASSERT_NE(nullptr, find(out, TLV_SCHEMA_ISSUE_UNEXPECTED));
-    EXPECT_EQ("70/5A", pathOf(*find(out, TLV_SCHEMA_ISSUE_MISSING)));
-    EXPECT_EQ(0u, find(out, TLV_SCHEMA_ISSUE_MISSING)->offset);
-    EXPECT_EQ("70/5F24", pathOf(*find(out, TLV_SCHEMA_ISSUE_DUPLICATE)));
-    EXPECT_EQ(7u, find(out, TLV_SCHEMA_ISSUE_DUPLICATE)->offset);
-    EXPECT_EQ("70/77/5F2A", pathOf(*find(out, TLV_SCHEMA_ISSUE_UNEXPECTED)));
-    EXPECT_EQ(24u, find(out, TLV_SCHEMA_ISSUE_UNEXPECTED)->offset);
+    ASSERT_NE(nullptr, findDiag(out, TLV_SCHEMA_ISSUE_MISSING));
+    ASSERT_NE(nullptr, findDiag(out, TLV_SCHEMA_ISSUE_DUPLICATE));
+    ASSERT_NE(nullptr, findDiag(out, TLV_SCHEMA_ISSUE_LENGTH));
+    ASSERT_NE(nullptr, findDiag(out, TLV_SCHEMA_ISSUE_UNEXPECTED));
+    EXPECT_EQ("70 > 5A", fullPathOf(*findDiag(out, TLV_SCHEMA_ISSUE_MISSING)));
+    EXPECT_EQ(0u, findDiag(out, TLV_SCHEMA_ISSUE_MISSING)->diagnostic.offset);
+    EXPECT_EQ("70 > 5F24", fullPathOf(*findDiag(out, TLV_SCHEMA_ISSUE_DUPLICATE)));
+    EXPECT_EQ(7u, findDiag(out, TLV_SCHEMA_ISSUE_DUPLICATE)->diagnostic.offset);
+    EXPECT_EQ("70 > 77 > 5F2A", fullPathOf(*findDiag(out, TLV_SCHEMA_ISSUE_UNEXPECTED)));
+    EXPECT_EQ(24u, findDiag(out, TLV_SCHEMA_ISSUE_UNEXPECTED)->diagnostic.offset);
 }
 
 TEST(Integration_Tlv_SchemaReport, CountsAllViolationsWhenStorageIsSmaller) {
-    const Wire wire = {0x70, 0x00, 0x70, 0x00};
-    Outcome    out = run(wire, rootSchema, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, 1);
+    const Wire  wire = {0x70, 0x00, 0x70, 0x00};
+    DiagOutcome out = runDiag(wire, rootSchema, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, 1);
     EXPECT_EQ(TLV_ERR_SCHEMA, out.rc);
     EXPECT_EQ(3u, out.count); // A duplicate 70, and 5A missing under each 70.
-    EXPECT_EQ(1u, out.issues.size());
+    EXPECT_EQ(1u, out.diagnostics.size());
 
-    tlv_schema_report_t report = {nullptr, 0, 99};
-    const Wire          count_only = {0x70, 0x00};
+    tlv_schema_diagnostic_report_t report = {nullptr, 0, 99};
+    const Wire                     count_only = {0x70, 0x00};
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate_all(count_only.data(), count_only.size(), &tlv_format_ber,
-                                      &rootSchema, TLV_TREE_DEFAULT_DEPTH, 1000,
-                                      TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
+              tlv_schema_validate_all_diag(count_only.data(), count_only.size(), &tlv_format_ber,
+                                           &rootSchema, TLV_TREE_DEFAULT_DEPTH, 1000,
+                                           TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     EXPECT_EQ(1u, report.count);
 }
 
 TEST(Integration_Tlv_SchemaReport, WireErrorsAbortWithoutViolations) {
-    const Wire wire = {0x70, 0x05, 0x5A, 0x01};
-    Outcome    out = run(wire);
+    const Wire  wire = {0x70, 0x05, 0x5A, 0x01};
+    DiagOutcome out = runDiag(wire);
     EXPECT_NE(TLV_OK, out.rc);
     EXPECT_NE(TLV_ERR_SCHEMA, out.rc);
     EXPECT_EQ(0u, out.count);
@@ -299,13 +274,13 @@ TEST(Integration_Tlv_SchemaReport, WireErrorsAbortWithoutViolations) {
 }
 
 TEST(Integration_Tlv_SchemaReport, RejectsInvalidArgumentsAndRuleTables) {
-    const Wire          wire = valid;
-    tlv_schema_issue_t  storage[2];
-    tlv_schema_report_t report = {storage, 2, 0};
+    const Wire                     wire = valid;
+    tlv_schema_diagnostic_t        storage[2];
+    tlv_schema_diagnostic_report_t report = {storage, 2, 0};
     auto call = [&](const tlv_structure_schema_t* schema, tlv_schema_unknown_policy_t unknown,
-                    tlv_schema_report_t* r) {
-        return tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_ber, schema,
-                                       TLV_TREE_DEFAULT_DEPTH, 1000, unknown, r, nullptr);
+                    tlv_schema_diagnostic_report_t* r) {
+        return tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_format_ber, schema,
+                                            TLV_TREE_DEFAULT_DEPTH, 1000, unknown, r, nullptr);
     };
     EXPECT_EQ(TLV_ERR_NULL_ARG, call(&rootSchema, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, call(nullptr, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report));
@@ -329,49 +304,23 @@ TEST(Integration_Tlv_SchemaReport, LimitsSchemaNestingToThePathCapacity) {
     recursive = {recursiveRules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
     Wire wire = {0x6F, 0x00};
-    for (int i = 1; i < TLV_SCHEMA_PATH_MAX + 4; ++i) {
+    for (int i = 1; i < TLV_DIAGNOSTIC_PATH_MAX + 4; ++i) {
         wire.insert(wire.begin(), static_cast<uint8_t>(wire.size()));
         wire.insert(wire.begin(), 0x6F);
     }
-    Outcome out = run(wire, recursive);
+    DiagOutcome out = runDiag(wire, recursive);
     EXPECT_EQ(TLV_ERR_LIMIT, out.rc);
     EXPECT_EQ(0u, out.count);
 
     Wire shallow = {0x6F, 0x00};
-    for (int i = 1; i < TLV_SCHEMA_PATH_MAX - 1; ++i) {
+    for (int i = 1; i < TLV_DIAGNOSTIC_PATH_MAX; ++i) {
         shallow.insert(shallow.begin(), static_cast<uint8_t>(shallow.size()));
         shallow.insert(shallow.begin(), 0x6F);
     }
-    EXPECT_EQ(TLV_OK, run(shallow, recursive).rc);
+    EXPECT_EQ(TLV_OK, runDiag(shallow, recursive).rc);
 }
 
-TEST(Integration_Tlv_SchemaReport, FormatsPathsAndKindNames) {
-    tlv_schema_issue_t issue = {};
-    issue.kind = TLV_SCHEMA_ISSUE_MISSING;
-    issue.path[0] = TLV_TAG(0x70);
-    issue.path[1] = TLV_TAG(0x77);
-    issue.path[2] = TLV_TAG(0x9F, 0x36);
-    issue.path_length = 3;
-
-    char   text[16];
-    size_t length = 0;
-    EXPECT_EQ(TLV_OK, tlv_schema_issue_path_string(&issue, text, sizeof(text), &length));
-    EXPECT_STREQ("70/77/9F36", text);
-    EXPECT_EQ(10u, length);
-
-    char small[10];
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_schema_issue_path_string(&issue, small, sizeof(small), &length));
-    EXPECT_EQ(10u, length);
-    // A NULL destination with zero capacity only measures the text.
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_schema_issue_path_string(&issue, nullptr, 0, &length));
-    EXPECT_EQ(10u, length);
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_schema_issue_path_string(nullptr, text, sizeof(text), &length));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_schema_issue_path_string(&issue, nullptr, 4, &length));
-    issue.path_length = 0;
-    EXPECT_EQ(TLV_ERR_INVALID_ARG,
-              tlv_schema_issue_path_string(&issue, text, sizeof(text), &length));
-
+TEST(Integration_Tlv_SchemaReport, FormatsKindNames) {
     EXPECT_STREQ("missing", tlv_schema_issue_kind_string(TLV_SCHEMA_ISSUE_MISSING));
     EXPECT_STREQ("duplicate", tlv_schema_issue_kind_string(TLV_SCHEMA_ISSUE_DUPLICATE));
     EXPECT_STREQ("unexpected", tlv_schema_issue_kind_string(TLV_SCHEMA_ISSUE_UNEXPECTED));
@@ -518,7 +467,7 @@ TEST(Integration_Tlv_SchemaReport, MissingFieldReferenceIsRejectedWithoutDerefer
     for (const Wire& wire : {Wire{}, Wire{0x04, 0}}) {
         EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate(wire.data(), wire.size(), &tlv_format_ber,
                                                       &schema, 8, 100, nullptr));
-        const auto report = run(wire, schema);
+        const auto report = runDiag(wire, schema);
         EXPECT_EQ(TLV_ERR_INVALID_ARG, report.rc);
         EXPECT_EQ(0u, report.count);
         const auto diagnostics = runDiag(wire, schema);

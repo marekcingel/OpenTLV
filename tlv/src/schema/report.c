@@ -10,18 +10,15 @@ static int same_tag(const tlv_tag_t* a, const tlv_tag_t* b) {
 
 typedef struct frame {
     const tlv_structure_schema_t* schema;
-    size_t start, end, pos;
+    size_t start, end;
     tlv_tag_t tag; /* Tag of the enclosing element; unused for the root frame. */
     size_t offset; /* Offset of the enclosing element; unused for the root frame. */
-    int checked;
 } frame_t;
 
 typedef struct collector {
-    tlv_schema_report_t* report;
     tlv_schema_diagnostic_report_t* diag_report;
     const frame_t* frames;
     size_t depth;
-    size_t violations;
 } collector_t;
 
 /* Expected-versus-actual detail for one violation, filled only for the kinds
@@ -47,24 +44,8 @@ static tlv_result_t code_for_kind(tlv_schema_issue_kind_t kind) {
     }
 }
 
-static void add_legacy_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_tag_t* tag,
-                             const size_t* offset) {
-    tlv_schema_report_t* report = c->report;
-    tlv_schema_issue_t* issue;
-    if (report->count++ >= report->capacity) return;
-    issue = &report->issues[report->count - 1];
-    memset(issue, 0, sizeof(*issue));
-    issue->kind = kind;
-    for (size_t i = 1; i <= c->depth; ++i) issue->path[issue->path_length++] = c->frames[i].tag;
-    issue->path[issue->path_length++] = *tag;
-    if (offset) {
-        issue->has_offset = 1;
-        issue->offset = *offset;
-    }
-}
-
-static void add_diagnostic(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_tag_t* tag,
-                           const size_t* offset, const violation_detail_t* detail) {
+static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_tag_t* tag,
+                      const size_t* offset, const violation_detail_t* detail) {
     tlv_schema_diagnostic_report_t* report = c->diag_report;
     tlv_schema_diagnostic_t* diagnostic;
     if (report->count++ >= report->capacity) return;
@@ -111,16 +92,6 @@ static void add_diagnostic(collector_t* c, tlv_schema_issue_kind_t kind, const t
             diagnostic->actual_constructed = detail->actual_constructed;
         }
     }
-}
-
-/* Records one violation in whichever of the two report styles the caller
- * asked for (`c->report`, `c->diag_report`, or both). `detail` may be NULL
- * for a violation with no expected/actual detail (TLV_SCHEMA_ISSUE_UNEXPECTED). */
-static void add_issue(collector_t* c, tlv_schema_issue_kind_t kind, const tlv_tag_t* tag,
-                      const size_t* offset, const violation_detail_t* detail) {
-    ++c->violations;
-    if (c->report) add_legacy_issue(c, kind, tag, offset);
-    if (c->diag_report) add_diagnostic(c, kind, tag, offset, detail);
 }
 
 static int group_index(const tlv_structure_schema_t* schema, uint32_t id) {
@@ -248,7 +219,7 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
                                  const tlv_structure_schema_t* schema, size_t max_depth,
                                  size_t max_elements, tlv_schema_unknown_policy_t unknown,
                                  collector_t* c, size_t* error_offset) {
-    frame_t stack[TLV_SCHEMA_PATH_MAX];
+    frame_t stack[TLV_DIAGNOSTIC_PATH_MAX + 1];
     tlv_tree_frame_t frames[TLV_SCHEMA_MAX_DEPTH];
     tlv_tree_reader_t reader;
     tlv_result_t rc = schema_check_tree(data, size, format, max_depth, max_elements, error_offset);
@@ -303,13 +274,13 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
             }
             if (kind_ok && rule->children) {
                 size_t start = (size_t)(element.value.data - data);
-                if (c->depth + 1 >= TLV_SCHEMA_PATH_MAX) {
+                if (c->depth == TLV_DIAGNOSTIC_PATH_MAX) {
                     if (error_offset) *error_offset = pos;
                     return TLV_ERR_LIMIT;
                 }
                 ++c->depth;
-                stack[c->depth] = (frame_t){
-                    rule->children, start, start + value_length, start, element.tag, pos, 0};
+                stack[c->depth] =
+                    (frame_t){rule->children, start, start + value_length, element.tag, pos};
                 rc = check_scope(data, format, c, &stack[c->depth]);
                 if (rc != TLV_OK) return rc;
             } else if (item.constructed && item.element.value.size) {
@@ -317,26 +288,7 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
             }
         }
     }
-    return c->violations ? TLV_ERR_SCHEMA : TLV_OK;
-}
-
-tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                     const tlv_structure_schema_t* schema, size_t max_depth,
-                                     size_t max_elements, tlv_schema_unknown_policy_t unknown,
-                                     tlv_schema_report_t* report, size_t* error_offset) {
-    tlv_result_t rc;
-    collector_t c;
-    if (!report) return TLV_ERR_NULL_ARG;
-    report->count = 0;
-    if (!schema || (!report->issues && report->capacity)) return TLV_ERR_NULL_ARG;
-    if (unknown < TLV_SCHEMA_UNKNOWN_BY_SCHEMA || unknown > TLV_SCHEMA_UNKNOWN_REJECT)
-        return TLV_ERR_INVALID_ARG;
-    memset(&c, 0, sizeof(c));
-    c.report = report;
-    rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, &c,
-                      error_offset);
-    if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) report->count = 0;
-    return rc;
+    return c->diag_report->count ? TLV_ERR_SCHEMA : TLV_OK;
 }
 
 tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
@@ -375,34 +327,4 @@ const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind) {
         case TLV_SCHEMA_ISSUE_ORDER: return "order";
     }
     return "unknown";
-}
-
-tlv_result_t tlv_schema_issue_path_string(const tlv_schema_issue_t* issue, char* out,
-                                          size_t capacity, size_t* length) {
-    static const char hex[] = "0123456789ABCDEF";
-    size_t needed = 0;
-    if (!issue || (!out && capacity)) return TLV_ERR_NULL_ARG;
-    if (!issue->path_length || issue->path_length > TLV_SCHEMA_PATH_MAX) return TLV_ERR_INVALID_ARG;
-    for (size_t i = 0; i < issue->path_length; ++i) {
-        const tlv_tag_t* tag = &issue->path[i];
-        if (!tag->size || !tag->data) return TLV_ERR_INVALID_ARG;
-        for (size_t j = 0; j < tag->size; ++j) {
-            if (needed + 2 < capacity) {
-                out[needed] = hex[tag->data[j] >> 4];
-                out[needed + 1] = hex[tag->data[j] & 0x0F];
-            }
-            needed += 2;
-        }
-        if (i + 1 < issue->path_length) {
-            if (needed + 1 < capacity) out[needed] = '/';
-            ++needed;
-        }
-    }
-    if (length) *length = needed;
-    if (needed + 1 > capacity) {
-        if (capacity) out[0] = '\0';
-        return TLV_ERR_BUFFER_TOO_SHORT;
-    }
-    out[needed] = '\0';
-    return TLV_OK;
 }

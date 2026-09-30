@@ -347,25 +347,27 @@ fn bounded_reports_keep_total_and_owned_paths() {
         false,
     );
     let report = schema
-        .validate_all(&[2, 0], Format::Ber, &limits, UnknownPolicy::BySchema, 1)
+        .validate_diagnostics(&[2, 0], Format::Ber, &limits, UnknownPolicy::BySchema, 1)
         .unwrap();
     assert_eq!(report.total_count, 2);
-    assert_eq!(report.issues.len(), 1);
-    assert!(report.issues[0].path_string == "01" || report.issues[0].path_string == "02");
+    assert_eq!(report.diagnostics.len(), 1);
+    assert!(report.diagnostics[0].path.is_empty());
+    assert!([Tag::from_bytes(&[1]), Tag::from_bytes(&[2])].contains(&report.diagnostics[0].tag));
     assert_eq!(
         schema
-            .validate_all(&[2, 0], Format::Ber, &limits, UnknownPolicy::BySchema, 0)
+            .validate_diagnostics(&[2, 0], Format::Ber, &limits, UnknownPolicy::BySchema, 0)
             .unwrap()
             .total_count,
         2
     );
     let report = schema
-        .validate_all(&[2, 0], Format::Ber, &limits, UnknownPolicy::Allow, 5)
+        .validate_diagnostics(&[2, 0], Format::Ber, &limits, UnknownPolicy::Allow, 5)
         .unwrap();
     drop(schema);
-    assert_eq!(report.issues[0].kind_name, "missing");
-    assert_eq!(report.issues[0].path, [Tag::from_bytes(&[1])]);
-    assert_eq!(report.issues[0].offset, None);
+    assert_eq!(report.diagnostics[0].kind_name, "missing");
+    assert!(report.diagnostics[0].path.is_empty());
+    assert_eq!(report.diagnostics[0].tag, Tag::from_bytes(&[1]));
+    assert_eq!(report.diagnostics[0].offset, None);
 }
 
 #[test]
@@ -383,7 +385,7 @@ fn nested_report_outlives_input_and_schema() {
             false,
         );
         schema
-            .validate_all(
+            .validate_diagnostics(
                 &input,
                 Format::Ber,
                 &ValidationLimits::default(),
@@ -392,13 +394,10 @@ fn nested_report_outlives_input_and_schema() {
             )
             .unwrap()
     };
-    assert_eq!(report.issues[0].kind_name, "length");
-    assert_eq!(report.issues[0].path_string, "30/04");
-    assert_eq!(
-        report.issues[0].path,
-        [Tag::from_bytes(&[0x30]), Tag::from_bytes(&[4])]
-    );
-    assert_eq!(report.issues[0].offset, Some(2));
+    assert_eq!(report.diagnostics[0].kind_name, "length");
+    assert_eq!(report.diagnostics[0].tag, Tag::from_bytes(&[4]));
+    assert_eq!(report.diagnostics[0].path, [Tag::from_bytes(&[0x30])]);
+    assert_eq!(report.diagnostics[0].offset, Some(2));
 }
 
 #[test]
@@ -508,7 +507,7 @@ fn configured_fixed_schema_validation_and_reports() {
         .is_err());
     assert_eq!(
         schema
-            .validate_all_fixed(
+            .validate_diagnostics_fixed(
                 &[0, 4, 1, 0, 42],
                 &format,
                 &limits,

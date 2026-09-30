@@ -272,10 +272,7 @@ TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
                                          const tlv_structure_schema_t* schema, size_t max_depth,
                                          size_t max_elements, size_t* error_offset);
 
-/** @brief Maximum number of tags in a #tlv_schema_issue_t path. */
-enum { TLV_SCHEMA_PATH_MAX = 16 };
-
-/** @brief Kind of violation found by tlv_schema_validate_all(). */
+/** @brief Kind of violation found by tlv_schema_validate_all_diag(). */
 typedef enum tlv_schema_issue_kind {
     /** A required tag is absent: its occurrence count is below `min_occurs`. */
     TLV_SCHEMA_ISSUE_MISSING = 1,
@@ -292,7 +289,7 @@ typedef enum tlv_schema_issue_kind {
     TLV_SCHEMA_ISSUE_ORDER
 } tlv_schema_issue_kind_t;
 
-/** @brief Unknown-tag policy applied by tlv_schema_validate_all(). */
+/** @brief Unknown-tag policy applied by tlv_schema_validate_all_diag(). */
 typedef enum tlv_schema_unknown_policy {
     /** Each scope follows its own #tlv_structure_schema_t::allow_unknown. */
     TLV_SCHEMA_UNKNOWN_BY_SCHEMA = 0,
@@ -303,107 +300,6 @@ typedef enum tlv_schema_unknown_policy {
 } tlv_schema_unknown_policy_t;
 
 /**
- * @brief One violation found by tlv_schema_validate_all().
- *
- * `path` lists the tags from the outermost scope to the affected tag, for
- * example `70`, `77`, `9F36` for the text `70/77/9F36`. For
- * #TLV_SCHEMA_ISSUE_MISSING the last entry is the tag that is absent; for a
- * missing or over-occurring #tlv_structure_group_t, it is the tag of the
- * group's first member rule for #TLV_SCHEMA_ISSUE_MISSING, or the actual
- * offending member's tag for #TLV_SCHEMA_ISSUE_DUPLICATE.
- */
-typedef struct tlv_schema_issue {
-    /** What is wrong. */
-    tlv_schema_issue_kind_t kind;
-    /**
-     * Tags from the outermost scope to the affected tag; `path_length` entries
-     * are valid. They borrow the input buffer, immutable format identifier
-     * storage, or the schema for a missing tag. Every backing store must
-     * outlive the issue.
-     */
-    tlv_tag_t path[TLV_SCHEMA_PATH_MAX];
-    /** Number of valid entries in `path`, at least one. */
-    size_t path_length;
-    /**
-     * Nonzero if `offset` is set. Zero for a tag missing from the top-level
-     * scope, which has no enclosing element.
-     */
-    int has_offset;
-    /**
-     * Offset of the affected element's tag in the input. For
-     * #TLV_SCHEMA_ISSUE_MISSING it is the offset of the enclosing element,
-     * because the absent tag has no position of its own.
-     */
-    size_t offset;
-} tlv_schema_issue_t;
-
-/**
- * @brief Caller-provided storage for the violations of tlv_schema_validate_all().
- *
- * @see tlv_schema_validate_all
- */
-typedef struct tlv_schema_report {
-    /** Destination for the first `capacity` violations; may be `NULL` only if `capacity` is zero.
-     */
-    tlv_schema_issue_t* issues;
-    /** Number of entries `issues` can hold. */
-    size_t capacity;
-    /** Receives the total number of violations found, which can exceed `capacity`. */
-    size_t count;
-} tlv_schema_report_t;
-
-/**
- * @brief Validates a TLV structure and reports every schema violation.
- *
- * Applies the same rules as tlv_schema_validate() (required and optional
- * tags, occurrence limits, ordering, alternative groups, parent-child
- * membership, primitive or constructed form, and per-tag length bounds), but
- * continues after a violation and records each one with the path to the
- * affected tag and its byte offset. The tag and length rules come from the
- * same #tlv_structure_rule_t entries, so nothing is defined twice. Never
- * decodes values. No allocation and no recursion.
- *
- * Wire-level errors (a truncated or malformed element, or an exceeded limit)
- * make the input unparseable and abort the call before any violation is
- * recorded. The contents of a scope that violates its rules are still
- * checked: an element rejected as unexpected or of the wrong form is not
- * descended into, but its siblings are checked.
- *
- * Violations are recorded in scope order; the order of violations within one
- * scope is not part of the contract.
- *
- * @param[in]     data          Encoded input.
- * @param[in]     size          Input size in bytes.
- * @param[in]     format        Reader format.
- * @param[in]     schema        Structural schema to validate against.
- * @param[in]     max_depth     Runtime nesting limit; actual depth is also bounded by
- * TLV_SCHEMA_MAX_DEPTH.
- * @param[in]     max_elements  Maximum total elements, as for tlv_tree_reader_visit().
- * @param[in]     unknown       Policy for tags without a rule.
- * @param[in,out] report        Receives the violations; `count` is set on #TLV_OK
- *                              and #TLV_ERR_SCHEMA and is zero on other errors.
- * @param[out]    error_offset  Optional. Receives the failing offset for errors
- *                              other than #TLV_ERR_SCHEMA; see tlv_tree_reader_visit().
- *
- * @return #TLV_OK if the data conforms; `report->count` is zero.
- * @return #TLV_ERR_SCHEMA if at least one violation was found; `report->count`
- *         is their total number, of which the first `report->capacity` are stored.
- * @return #TLV_ERR_NULL_ARG for missing required arguments.
- * @return #TLV_ERR_INVALID_ARG for an invalid rule or group table, or an invalid `unknown` value.
- * @return #TLV_ERR_LIMIT if the schema nests deeper than #TLV_SCHEMA_PATH_MAX
- *         tags, or as for tlv_tree_reader_visit().
- * @return Any other error of tlv_tree_reader_visit().
- *
- * @see tlv_schema_issue_path_string
- */
-TLV_API tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size,
-                                             const tlv_format_t* format,
-                                             const tlv_structure_schema_t* schema, size_t max_depth,
-                                             size_t max_elements,
-                                             tlv_schema_unknown_policy_t unknown,
-                                             tlv_schema_report_t* report, size_t* error_offset);
-
-/**
  * @brief Returns a short name for a violation kind.
  *
  * @param[in] kind Violation kind.
@@ -412,25 +308,6 @@ TLV_API tlv_result_t tlv_schema_validate_all(const uint8_t* data, size_t size,
  *         an unrecognized value yields `"unknown"`.
  */
 TLV_API const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind);
-
-/**
- * @brief Formats the path of a violation as uppercase hexadecimal tags joined by `/`.
- *
- * For example `70/77/9F36`. The text is NUL-terminated when it fits.
- *
- * @param[in]  issue    Violation to format.
- * @param[out] out      Destination; may be `NULL` only if `capacity` is zero.
- * @param[in]  capacity Size of `out` in bytes, including the terminator.
- * @param[out] length   Receives the text length without the terminator, also
- *                      when `out` is too small. May be `NULL`.
- *
- * @return #TLV_OK on success.
- * @return #TLV_ERR_NULL_ARG if `issue` or a required `out` is `NULL`.
- * @return #TLV_ERR_INVALID_ARG if the path length or a tag size is invalid.
- * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is below `*length + 1`.
- */
-TLV_API tlv_result_t tlv_schema_issue_path_string(const tlv_schema_issue_t* issue, char* out,
-                                                  size_t capacity, size_t* length);
 
 /**
  * @brief Structured detail for one violation found by tlv_schema_validate_all_diag().
@@ -462,7 +339,7 @@ TLV_API tlv_result_t tlv_schema_issue_path_string(const tlv_schema_issue_t* issu
 typedef struct tlv_schema_diagnostic {
     /** Code (derived from `kind`), severity and offset of the affected element. */
     tlv_diagnostic_t diagnostic;
-    /** Which rule was violated; same meaning as #tlv_schema_issue_t::kind. */
+    /** Which rule was violated; see #tlv_schema_issue_kind_t. */
     tlv_schema_issue_kind_t kind;
     /** Affected tag; for #TLV_SCHEMA_ISSUE_MISSING, the tag that is absent. Borrows the input
      * buffer, immutable format identifier storage, or the schema for a missing tag. */
@@ -533,15 +410,24 @@ typedef struct tlv_schema_diagnostic_report {
 } tlv_schema_diagnostic_report_t;
 
 /**
- * @brief Validates a TLV structure and reports every schema violation as a
- * #tlv_schema_diagnostic_t.
+ * @brief Validates a TLV structure and reports every schema violation.
  *
- * Behaves exactly like tlv_schema_validate_all(): same rules, same violation
- * order, same wire-level-error-aborts-before-any-violation behavior, no
- * allocation and no recursion. Additionally, each recorded violation carries
- * the schema field name (if the rule has one) and the expected-versus-actual
- * detail for its kind, so it can be reported without re-inspecting the input
- * or the schema.
+ * Applies the same rules as tlv_schema_validate() (required and optional
+ * tags, occurrence limits, ordering, alternative groups, parent-child
+ * membership, primitive or constructed form, and per-tag length bounds), but
+ * continues after a violation and records each one with its enclosing scope path, affected tag,
+ * field name, byte offset and expected-versus-actual detail. The tag and length rules come from the
+ * same #tlv_structure_rule_t entries, so nothing is defined twice. Never
+ * decodes values. No allocation and no recursion.
+ *
+ * Wire-level errors (a truncated or malformed element, or an exceeded limit)
+ * make the input unparseable and abort the call before any violation is
+ * recorded. The contents of a scope that violates its rules are still
+ * checked: an element rejected as unexpected or of the wrong form is not
+ * descended into, but its siblings are checked.
+ *
+ * Violations are recorded in scope order; the order of violations within one
+ * scope is not part of the contract.
  *
  * @param[in]     data          Encoded input.
  * @param[in]     size          Input size in bytes.
@@ -556,9 +442,16 @@ typedef struct tlv_schema_diagnostic_report {
  * @param[out]    error_offset  Optional. Receives the failing offset for errors
  *                              other than #TLV_ERR_SCHEMA; see tlv_tree_reader_visit().
  *
- * @return Same as tlv_schema_validate_all().
+ * @return #TLV_OK if the data conforms; `report->count` is zero.
+ * @return #TLV_ERR_SCHEMA if at least one violation was found; `report->count`
+ *         is their total number, of which the first `report->capacity` are stored.
+ * @return #TLV_ERR_NULL_ARG for missing required arguments.
+ * @return #TLV_ERR_INVALID_ARG for an invalid rule or group table, or an invalid `unknown` value.
+ * @return #TLV_ERR_LIMIT if the schema nests deeper than #TLV_DIAGNOSTIC_PATH_MAX
+ *         tags, or as for tlv_tree_reader_visit().
+ * @return Any other error of tlv_tree_reader_visit().
  *
- * @see tlv_schema_validate_all
+ * @see tlv_schema_diagnostic_t
  */
 TLV_API tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
                                                   const tlv_format_t* format,

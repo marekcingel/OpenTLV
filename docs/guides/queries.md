@@ -112,7 +112,7 @@ auto visited = query->visit_buffer(
 
 `tlv::query` holds the parsed query by value and never allocates.
 `tlv::query::visit_buffer()` wraps `tlv_query_visit_buffer()` with the visitor conventions of
-`tlv::visit_tree()`.
+`tlv::tree_reader::visit()`.
 
 ///
 

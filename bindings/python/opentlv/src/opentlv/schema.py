@@ -161,23 +161,6 @@ class UnknownPolicy(enum.IntEnum):
 
 
 @dataclass(frozen=True)
-class SchemaIssue:
-    """Owned C violation detail, independent of input and schema lifetimes."""
-    kind: int
-    kind_name: str
-    path: tuple[Tag, ...]
-    offset: int | None
-    path_string: str
-
-
-@dataclass(frozen=True)
-class SchemaReport:
-    """Total violations and the bounded stored prefix reported by C."""
-    total_count: int
-    issues: tuple[SchemaIssue, ...]
-
-
-@dataclass(frozen=True)
 class SchemaBounds:
     """Inclusive expected bounds and observed value reported by C."""
     minimum: int
@@ -291,7 +274,7 @@ class StructureSchema:
         """
         try:
             count, items = _native.structure_validate(data, _schema_format(format),
-                self._to_native(), max_depth, max_elements, capacity, int(unknown), True)
+                self._to_native(), max_depth, max_elements, capacity, int(unknown))
         except _native.Error as error:
             raise _from_native(error) from None
         return SchemaDiagnosticReport(count, tuple(
@@ -303,21 +286,6 @@ class StructureSchema:
                 multiple, flags)
             for code, severity, kind, name, tag, path, offset, field, group,
                 occurs, length, form, multiple, flags in items))
-
-    def validate_all(self, data, format=None, *, capacity=64, unknown=UnknownPolicy.BY_SCHEMA,
-                     max_depth=32, max_elements=100_000) -> SchemaReport:
-        """Collect a bounded C report; framing/configuration failures still raise.
-
-        Zero capacity counts without storing issues. total_count can exceed
-        len(issues); no extra parse or binding-side validation is performed.
-        """
-        try:
-            count, items = _native.structure_validate(data, _schema_format(format),
-                self._to_native(), max_depth, max_elements, capacity, int(unknown))
-        except _native.Error as error:
-            raise _from_native(error) from None
-        return SchemaReport(count, tuple(SchemaIssue(kind, name, tuple(Tag(t) for t in path), offset, text)
-                                         for kind, name, path, offset, text in items))
 
     def __len__(self) -> int:
         return len(self.rules)

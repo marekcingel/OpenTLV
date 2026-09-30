@@ -242,7 +242,7 @@ regression coverage.
   complete-element and borrowed-storage contracts.
 * `tlv_tree_reader_visit` is a resumable push adapter over a caller-owned Tree
   Reader. It owns no traversal storage and has no fixed depth ceiling. C++
-  provides `tlv::visit_tree` over the same initialized cursor.
+  provides `tlv::tree_reader::visit` over the same initialized cursor.
 
 The [Reader contract](../guides/reader.md) distinguishes an available element,
 final end of input, resumable input shortage and parsing errors. Incremental
@@ -393,7 +393,7 @@ EMV uses explicit domain dictionary tables. `tlv/schemas/schema.h` becomes `tlv/
 `tlv++`'s previously flat `tlv++/include/tlv++/*.hpp` headers (#280) move
 into the same folders as their C counterparts:
 the former flat reader headers become
-`tlv++/reader/reader.hpp`/`tlv++/reader/visitor.hpp`;
+`tlv++/reader/reader.hpp`/`tlv++/reader/tree.hpp`;
 `tlv++/writer.hpp`, `tlv++/query.hpp` and `tlv++/schema.hpp` become
 `tlv++/writer/writer.hpp`, `tlv++/query/query.hpp` and
 `tlv++/schema/schema.hpp`; `tlv++/codec.hpp`, `tlv++/structure.hpp` and

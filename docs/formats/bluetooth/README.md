@@ -142,7 +142,7 @@ require additional context and are not checked.
 `02 0A FC` passes; `03 0A FC FD` parses successfully but fails schema
 validation with `TLV_ERR_INVALID_LENGTH`. Likewise, `04 03 0F 18 00`
 fails because three value bytes cannot form a 16-bit UUID list.
-`tlv_schema_validate_all()` and `tlv_schema_validate_all_diag()` report these
+`tlv_schema_validate_all_diag()` report these
 as length issues; the detailed diagnostic includes `length_multiple`.
 
 This schema checks lengths and occurrences only. It does not check UTF-8,

@@ -67,7 +67,7 @@ public:
      * and the entries passed to the visitor borrow `data`.
      *
      * @tparam Visitor Callable invoked as `visitor(element, depth, absolute_offset)`
-     *                 returning #tlv_visit_result_t, as for visit_tree().
+     *                 returning #tlv_visit_result_t, as for tree_reader::visit().
      *
      * @param data          Encoded input; borrowed.
      * @param format        Reader format. A `nullptr` `format.is_constructed`

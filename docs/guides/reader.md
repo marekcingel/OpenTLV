@@ -250,7 +250,7 @@ The generic `tlv_walk*()` functions, `TLV_WALK_MAX_DEPTH`, `reader/walker.h`
 and the C++ Walker wrapper have been removed. Include `reader/visitor.h`,
 initialize a Reader or Tree Reader, then call `tlv_reader_visit()` or
 `tlv_tree_reader_visit()` (or their diagnostic variants). C++ uses
-`tlv::visit_tree(cursor, callback)`. Supply frame storage explicitly for tree
+`cursor.visit(callback)`. Supply frame storage explicitly for tree
 processing. `TLV_TREE_DEFAULT_DEPTH` is a suggested default, not a maximum.
 
 Query's buffer convenience function owns `TLV_QUERY_MAX_STEPS` frames; use

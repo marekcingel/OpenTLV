@@ -18,15 +18,12 @@ static const std::array<tlv::byte, 12> document = {
     tlv::byte(0x03), tlv::byte(0x50), tlv::byte(0x01), tlv::byte(0x01)};
 
 int main() {
-    size_t            count = 0;
-    tlv_tree_frame_t  frames[TLV_TREE_DEFAULT_DEPTH];
-    tlv_tree_reader_t reader;
-    if (tlv_tree_reader_init(&reader, reinterpret_cast<const uint8_t*>(document.data()),
-                             document.size(), &tlv_format_ber, frames, TLV_TREE_DEFAULT_DEPTH,
-                             TLV_TREE_DEFAULT_DEPTH, 16) != TLV_OK)
-        return 1;
-    auto result = tlv::visit_tree(
-        reader, [&count](const tlv::element& element, size_t depth, size_t /*offset*/) {
+    size_t           count = 0;
+    tlv_tree_frame_t frames[TLV_TREE_DEFAULT_DEPTH];
+    tlv::tree_reader reader(tlv::bytes(document.data(), document.size()), tlv_format_ber,
+                            {frames, TLV_TREE_DEFAULT_DEPTH}, TLV_TREE_DEFAULT_DEPTH, 16);
+    auto             result =
+        reader.visit([&count](const tlv::element& element, size_t depth, size_t /*offset*/) {
             std::cout << std::string(depth * 2, ' ') << "tag=" << std::hex << std::uppercase
                       << static_cast<int>(element.tag.data[0]) << " length=" << std::dec
                       << element.value.size << " value=" << std::hex << std::uppercase;

@@ -172,31 +172,31 @@ def test_structural_length_policies_and_invalid_group_are_native():
 def test_bounded_schema_reports_copy_paths_and_count_omitted_issues():
     from opentlv import UnknownPolicy, BufferTooShortError
     schema = StructureSchema([StructureRule(b"\x01", min_occurs=1)])
-    report = schema.validate_all(bytes.fromhex("0200"), capacity=1)
+    report = schema.validate_diagnostics(bytes.fromhex("0200"), capacity=1)
     assert report.total_count == 2
-    assert len(report.issues) == 1
-    assert report.issues[0].path_string in ("01", "02")
-    assert report.issues[0].path[0].data in (b"\x01", b"\x02")
-    assert schema.validate_all(bytes.fromhex("0200"), capacity=0).total_count == 2
-    allowed = schema.validate_all(bytes.fromhex("0200"), unknown=UnknownPolicy.ALLOW)
+    assert len(report.diagnostics) == 1
+    assert report.diagnostics[0].path == ()
+    assert report.diagnostics[0].tag.data in (b"\x01", b"\x02")
+    assert schema.validate_diagnostics(bytes.fromhex("0200"), capacity=0).total_count == 2
+    allowed = schema.validate_diagnostics(bytes.fromhex("0200"), unknown=UnknownPolicy.ALLOW)
     assert allowed.total_count == 1
-    assert allowed.issues[0].kind_name == "missing"
-    assert allowed.issues[0].offset is None
+    assert allowed.diagnostics[0].kind_name == "missing"
+    assert allowed.diagnostics[0].offset is None
     with pytest.raises(BufferTooShortError):
-        schema.validate_all(bytes.fromhex("0201"))
+        schema.validate_diagnostics(bytes.fromhex("0201"))
 
 
-def test_nested_report_owns_input_backed_tags_and_c_path_text():
+def test_nested_report_owns_input_backed_tags():
     schema = StructureSchema([StructureRule(b"\x30", children=StructureSchema([
         StructureRule(b"\x04", min_length=2)]))])
     data = bytearray.fromhex("300304012A")
-    report = schema.validate_all(data)
+    report = schema.validate_diagnostics(data)
     data[:] = b"\x00" * len(data)
     del schema
-    issue = report.issues[0]
+    issue = report.diagnostics[0]
     assert issue.kind_name == "length"
-    assert issue.path_string == "30/04"
-    assert issue.path == (Tag(b"\x30"), Tag(b"\x04"))
+    assert issue.tag == Tag(b"\x04")
+    assert issue.path == (Tag(b"\x30"),)
     assert issue.offset == 2
 
 
@@ -259,5 +259,5 @@ def test_schema_fixed_format_validation_and_reports():
     data = bytes.fromhex("000401002A")
     with pytest.raises(InvalidLengthError):
         schema.validate(data, format)
-    assert schema.validate_all(data, format).total_count == 1
+    assert schema.validate_diagnostics(data, format).total_count == 1
     assert schema.validate_diagnostics(data, format).diagnostics[0].length.actual == 1

@@ -304,7 +304,7 @@ This backs the `opentlv` CLI's `validate --module emv`.
 
 To report every violation with its path (for example `6F/84`) and offset in a
 single pass, or to define schemas for other templates such as the Read Record
-Template (`70`) for a specific kernel, use `tlv_schema_validate_all()`; see
+Template (`70`) for a specific kernel, use `tlv_schema_validate_all_diag()`; see
 [Reporting every violation](../../guides/schemas.md#reporting-every-violation).
 
 ## Data Object Lists (PDOL/CDOL/DDOL)

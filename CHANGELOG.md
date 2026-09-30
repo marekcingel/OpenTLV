@@ -88,6 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **Breaking:** Remove the compact Schema issue/report API, its path formatter and Rust/Python facade types and methods; use detailed Schema diagnostics and the shared diagnostic path model. Remove C++ `visit_tree` and `reader/visitor.hpp`; use `tree_reader::visit`. (#401)
 - **Breaking:** Remove the public Scanner API (`tlv_scan`, `tlv/reader/scanner.h`). Applications implement recovery policy using `tlv_read()`; CLI `--recover` remains available as CLI-owned policy. (#391)
 - **Breaking:** Remove the dedicated Fixed 1-byte TLV format: `tlv_reader_format_fixed_1byte`, `tlv_writer_format_fixed_1byte`, `tlv/builtins/fixed/fixed_1byte.h`, the `OPENTLV_FORMAT_FIXED_1BYTE` CMake option and `tlv_config_format_fixed_1byte()`, the Rust `Format::Fixed1Byte` and Python `Format.FIXED_1BYTE` variants, and the CLI/WASM `fixed-1byte` format name (now `fixed`); use the configurable fixed-width format's `tlv_fixed_config_t{1, 1, TLV_BYTE_ORDER_BIG_ENDIAN}` (or `tlv::fixed_format<1, 1, TLV_BYTE_ORDER_BIG_ENDIAN>`) instead. (#317)
 - **Breaking:** Remove `TLV_TAG_CAPACITY`, `tlv_tag_from_bytes()`, `tlv_tag_equal_bytes()` and the numeric `tlv_tag_to_u*()`, `tlv_tag_from_u*()` and `tlv_tag_equal_u*()`; use `tlv_tag()` and `tlv_tag_equal()` instead, and the Rust `Tag` loses `ByteOrder`, `from_u64` and `to_u64`. (#256)
