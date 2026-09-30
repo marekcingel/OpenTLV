@@ -1014,3 +1014,147 @@ TEST(Unit_Tlv_DocumentBuilder, SelectedIndefiniteSubtreeStopsAfterTrailers) {
     EXPECT_EQ(0u, item.depth);
 }
 #endif
+
+namespace {
+tlv_result_t document_content_measure(const void* context, const tlv_element_t* element,
+                                      tlv_encoding_t* sizes, tlv_format_error_t* error) {
+    if (element->value.size && !element->value.data) return TLV_ERR_NULL_ARG;
+    const auto rc = tlv_fields_measure(context, element, sizes, error);
+    if (rc != TLV_OK) return rc;
+    const bool extra = element->value.size && element->value.data[0] == 0x50;
+    sizes->header += extra ? 1 : 0;
+    sizes->trailer = 1;
+    sizes->total += extra ? 2 : 1;
+    return TLV_OK;
+}
+tlv_result_t document_content_encode(const void* context, const tlv_element_t* element,
+                                     uint8_t* data, size_t capacity, size_t* written,
+                                     tlv_format_error_t* error) {
+    const size_t extra = element->value.size && element->value.data[0] == 0x50 ? 1 : 0;
+    if (extra) data[0] = 0xFE;
+    size_t     used = 0;
+    const auto rc =
+        tlv_fields_encode(context, element, data + extra, capacity - extra - 1, &used, error);
+    if (rc != TLV_OK) return rc;
+    data[extra + used] = 0xEE;
+    *written = extra + used + 1;
+    return TLV_OK;
+}
+const tlv_format_t content_destination = {&controlled::format_layout, nullptr,
+                                          document_content_measure, document_content_encode,
+                                          is_constructed};
+} // namespace
+
+TEST(Unit_Tlv_Document, SameTreeUsesRuntimeContentDependentDestinationWithoutChangingSource) {
+    const Bytes original{0x6F, 3, 0x50, 1, 1, 0x50, 0};
+    auto        doc = parse(original);
+    const Bytes expected{0xFE, 0x6F, 4, 0x50, 1, 1, 0xEE, 0xEE, 0x50, 0, 0xEE};
+    size_t      size = 0;
+    ASSERT_EQ(TLV_OK, tlv_document_encoded_size_as(doc.get(), &content_destination, &size));
+    EXPECT_EQ(expected.size(), size);
+    Bytes  output(size, 0xCC);
+    size_t written = 99;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_document_encode_as(doc.get(), &content_destination,
+                                                               output.data(), size - 1, &written));
+    EXPECT_EQ(size, written);
+    EXPECT_EQ(Bytes(size, 0xCC), output);
+    ASSERT_EQ(TLV_OK, tlv_document_encode_as(doc.get(), &content_destination, output.data(),
+                                             output.size(), &written));
+    EXPECT_EQ(expected, output);
+    EXPECT_EQ(original, encode(doc.get()));
+    const auto* root = tlv_document_first(doc.get());
+    ASSERT_EQ(TLV_OK, tlv_node_encoded_size_as(root, &content_destination, &size));
+    EXPECT_EQ(8u, size);
+    output.resize(size);
+    ASSERT_EQ(TLV_OK, tlv_node_encode_as(root, &content_destination, output.data(), output.size(),
+                                         &written));
+    EXPECT_EQ(Bytes(expected.begin(), expected.begin() + 8), output);
+    size = 99;
+    EXPECT_EQ(TLV_ERR_INVALID_TAG,
+              tlv_document_encoded_size_as(doc.get(), &controlled::format, &size));
+    EXPECT_EQ(99u, size);
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_encoded_size_as(doc.get(), nullptr, &size));
+}
+
+TEST(Unit_Tlv_Document, DefaultFormatMeasurementReceivesPrimitiveAndConstructedContent) {
+    auto runtime = content_destination;
+    runtime.decode = controlled_constructed_format.decode;
+    auto opts = options();
+    opts.format = &runtime;
+    auto doc = parse(Bytes{0x6F, 3, 0x50, 1, 1}, opts);
+    EXPECT_EQ((Bytes{0xFE, 0x6F, 4, 0x50, 1, 1, 0xEE, 0xEE}), encode(doc.get()));
+}
+
+TEST(Unit_Tlv_Document, CallbackBufferErrorDoesNotTriggerAllocationRetryOrChangeOutputs) {
+    Arena arena;
+    auto  allocator = arena.allocator();
+    auto  opts = options();
+    opts.allocator = &allocator;
+    auto       doc = parse(sample, opts);
+    const auto retained = arena.live;
+    auto       failing = controlled_constructed_format;
+    failing.encode = [](const void*, const tlv_element_t*, uint8_t*, size_t, size_t*,
+                        tlv_format_error_t*) { return TLV_ERR_BUFFER_TOO_SHORT; };
+    size_t size = 99;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_document_encoded_size_as(doc.get(), &failing, &size));
+    EXPECT_EQ(99u, size);
+    Bytes output(100, 0xCC);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_document_encode_as(doc.get(), &failing, output.data(), output.size(), &size));
+    EXPECT_EQ(99u, size);
+    EXPECT_EQ(Bytes(100, 0xCC), output);
+    EXPECT_EQ(retained, arena.live);
+    failing.measure = [](const void*, const tlv_element_t*, tlv_encoding_t*, tlv_format_error_t*) {
+        return TLV_ERR_INVALID_VALUE;
+    };
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_document_encoded_size_as(doc.get(), &failing, &size));
+    EXPECT_EQ(99u, size);
+    EXPECT_EQ(retained, arena.live);
+}
+
+TEST(Unit_Tlv_Document, SharedWorkspaceAllocationsDoNotGrowWithConstructedSiblingCount) {
+    Arena arena;
+    auto  allocator = arena.allocator();
+    auto  opts = options();
+    opts.allocator = &allocator;
+    Bytes input;
+    for (size_t i = 0; i < 40; ++i) input.insert(input.end(), {0x6F, 2, 0x50, 0});
+    auto       doc = parse(input, opts);
+    const auto retained = arena.live;
+    const auto before = arena.allocations;
+    Bytes      output(input.size());
+    size_t     written = 0;
+    ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), output.data(), output.size(), &written));
+    EXPECT_EQ(input, output);
+    EXPECT_LE(arena.allocations - before, 3u); // frames, staged output, shared scratch
+    EXPECT_EQ(retained, arena.live);
+}
+
+TEST(Unit_Tlv_Document, WorkspaceGrowthAndAllocationFailuresPreserveOwnedTree) {
+    Arena arena;
+    auto  allocator = arena.allocator();
+    auto  opts = options();
+    opts.allocator = &allocator;
+    Bytes input;
+    for (size_t i = 0; i < 200; ++i) input.insert(input.end(), {0x6F, 2, 0x50, 0});
+    auto       doc = parse(input, opts);
+    const auto retained = arena.live;
+    bool       completed = false;
+    for (size_t failure = 0; failure < 32 && !completed; ++failure) {
+        arena.fail_at = arena.allocations + failure;
+        Bytes      output(input.size(), 0xCC);
+        size_t     written = 99;
+        const auto rc = tlv_document_encode(doc.get(), output.data(), output.size(), &written);
+        arena.fail_at = SIZE_MAX;
+        EXPECT_EQ(retained, arena.live);
+        if (rc == TLV_OK) {
+            EXPECT_EQ(input, output);
+            completed = true;
+        } else {
+            EXPECT_EQ(TLV_ERR_OUT_OF_MEMORY, rc);
+            EXPECT_EQ(99u, written);
+            EXPECT_EQ(Bytes(input.size(), 0xCC), output);
+        }
+    }
+    EXPECT_TRUE(completed);
+}

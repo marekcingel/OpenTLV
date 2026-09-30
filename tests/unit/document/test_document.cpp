@@ -172,3 +172,30 @@ TEST(Unit_Tlvpp_Document, RejectsUnusableFormats) {
     ASSERT_FALSE(created.has_value());
     EXPECT_EQ(TLV_ERR_NULL_ARG, created.error().code);
 }
+
+TEST(Unit_Tlvpp_Document, ExplicitDestinationPreservesTreeAndSubtreeBoundaries) {
+    auto parsed = tlv::document::parse(view(sample), format());
+    ASSERT_TRUE(parsed.has_value());
+    auto& doc = *parsed;
+    auto  destination = controlled::format;
+    auto  layout = controlled::format_layout;
+    layout.order = TLV_ELEMENT_ORDER_LTV;
+    destination.context = &layout;
+    destination.is_constructed = is_constructed;
+    auto output = doc.encode(destination);
+    ASSERT_TRUE(output.has_value());
+    EXPECT_EQ(make({10, 0x6F, 2, 0x84, 0xAA, 0xBB, 4, 0xA5, 2, 0x50, 0x41, 0x42, 1, 0x50, 0xFF}),
+              *output);
+    auto size = doc.encoded_size(destination);
+    ASSERT_TRUE(size.has_value());
+    EXPECT_EQ(output->size(), *size);
+    auto subtree = doc.first().encode(destination);
+    ASSERT_TRUE(subtree.has_value());
+    EXPECT_EQ(Bytes(output->begin(), output->begin() + 12), *subtree);
+    auto subtree_size = doc.first().encoded_size(destination);
+    ASSERT_TRUE(subtree_size.has_value());
+    EXPECT_EQ(subtree->size(), *subtree_size);
+    auto original = doc.encode();
+    ASSERT_TRUE(original.has_value());
+    EXPECT_EQ(sample, *original);
+}

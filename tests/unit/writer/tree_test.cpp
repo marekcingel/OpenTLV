@@ -298,3 +298,159 @@ TEST(Unit_Tlv_TreeWriter, AbsentTagAndNoNestingPredicateAreFormatDecisions) {
     EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_tree_writer_begin(&writer, parent));
     EXPECT_EQ(TLV_OK, tlv_tree_writer_write_element(&writer, &leaf));
 }
+
+namespace {
+struct SourceItem {
+    tlv_element_t element;
+    size_t        depth;
+    int           constructed;
+};
+struct Source {
+    std::vector<SourceItem> items;
+    size_t                  position = 0;
+    static tlv_result_t next(void* context, tlv_element_t* element, size_t* depth, int* parent) {
+        auto& source = *static_cast<Source*>(context);
+        if (source.position == source.items.size()) return TLV_ERR_END_OF_BUFFER;
+        const auto& item = source.items[source.position++];
+        *element = item.element;
+        *depth = item.depth;
+        *parent = item.constructed;
+        return TLV_OK;
+    }
+};
+} // namespace
+
+TEST(Unit_Tlv_TreeWriter, MeasurementClosesPreorderScopesAndStagesContentDependentBytes) {
+    const tlv_format_t          content = {&controlled::format_layout, nullptr, content_measure,
+                                           content_encode, constructed};
+    Source                      source{{{leaf, 0, 0},
+                                        {{parent, {}}, 0, 1},
+                                        {{inner, {}}, 1, 1},
+                                        {leaf, 2, 0},
+                                        {{inner, {}}, 1, 1},
+                                        {leaf, 0, 0}}};
+    uint8_t                     data[64]{}, scratch[64]{};
+    tlv_tree_writer_frame_t     frames[2]{};
+    tlv_tree_writer_workspace_t workspace{frames,          2, data, sizeof(data), scratch,
+                                          sizeof(scratch), 0, 0};
+    size_t                      size = 99;
+    tlv_writer_diagnostic_t     diagnostic{};
+    diagnostic.operation = TLV_WRITER_OP_COPY;
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_measure(&content, Source::next, &source, &workspace, 2, 6,
+                                              &size, &diagnostic));
+    const std::vector<uint8_t> expected{1,    0,    0xFF, 0xE1, 10,   0xFE, 0xE2, 3, 1,   0,
+                                        0xFF, 0xFF, 0xE2, 0,    0xFF, 0xFF, 1,    0, 0xFF};
+    EXPECT_EQ(expected, std::vector<uint8_t>(data, data + size));
+    EXPECT_EQ(TLV_WRITER_OP_COPY, diagnostic.operation);
+    EXPECT_EQ(0u, workspace.required_data);
+    EXPECT_EQ(0u, workspace.required_scratch);
+}
+
+TEST(Unit_Tlv_TreeWriter, MeasurementReportsOnlyItsOwnStorageShortagesForReplay) {
+    Source                      source{{{{parent, {}}, 0, 1}, {leaf, 1, 0}}};
+    uint8_t                     data[4]{}, scratch[2]{};
+    tlv_tree_writer_frame_t     frame{};
+    tlv_tree_writer_workspace_t workspace{&frame, 1, data, 2, scratch, 0, 0, 0};
+    size_t                      size = 99;
+    tlv_writer_diagnostic_t     diagnostic{};
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_tree_writer_measure(&format, Source::next, &source, &workspace, 1, 2, &size,
+                                      &diagnostic));
+    EXPECT_EQ(4u, workspace.required_data);
+    EXPECT_EQ(2u, workspace.required_scratch);
+    EXPECT_EQ(99u, size);
+    EXPECT_EQ(TLV_WRITER_OP_END, diagnostic.operation);
+    source.position = 0;
+    workspace.data_capacity = 4;
+    workspace.scratch_capacity = 2;
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_measure(&format, Source::next, &source, &workspace, 1, 2,
+                                              &size, &diagnostic));
+    EXPECT_EQ(4u, size);
+    EXPECT_EQ(0u, workspace.required_data);
+    EXPECT_EQ(0u, workspace.required_scratch);
+    auto failing = format;
+    failing.encode = [](const void*, const tlv_element_t*, uint8_t*, size_t, size_t*,
+                        tlv_format_error_t*) { return TLV_ERR_BUFFER_TOO_SHORT; };
+    source.position = 0;
+    size = 99;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_tree_writer_measure(&failing, Source::next, &source, &workspace, 1, 2, &size,
+                                      &diagnostic));
+    EXPECT_EQ(0u, workspace.required_data);
+    EXPECT_EQ(0u, workspace.required_scratch);
+    EXPECT_EQ(99u, size);
+    failing.measure = [](const void*, const tlv_element_t*, tlv_encoding_t*, tlv_format_error_t*) {
+        return TLV_ERR_BUFFER_TOO_SHORT;
+    };
+    source.position = 0;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_tree_writer_measure(&failing, Source::next, &source, &workspace, 1, 2, &size,
+                                      &diagnostic));
+    EXPECT_EQ(0u, workspace.required_data);
+    EXPECT_EQ(0u, workspace.required_scratch);
+}
+
+TEST(Unit_Tlv_TreeWriter, MeasurementRejectsInvalidTopologyAndRespectsBounds) {
+    uint8_t                     data[16]{}, scratch[16]{};
+    tlv_tree_writer_frame_t     frame{};
+    tlv_tree_writer_workspace_t workspace{&frame, 1, data, 16, scratch, 16, 0, 0};
+    size_t                      size = 99;
+    Source                      bad_depth{{{leaf, 0, 0}, {leaf, 1, 0}}};
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_measure(&format, Source::next, &bad_depth,
+                                                           &workspace, 2, 2, &size, nullptr));
+    Source bad_kind{{{{parent, {}}, 0, 0}}};
+    EXPECT_EQ(TLV_ERR_INVALID_TAG, tlv_tree_writer_measure(&format, Source::next, &bad_kind,
+                                                           &workspace, 2, 2, &size, nullptr));
+    for (int limit = 0; limit < 3; ++limit) {
+        Source source{{{{parent, {}}, 0, 1}, {leaf, 1, 0}}};
+        workspace.frame_capacity = limit == 0 ? 0 : 1;
+        EXPECT_EQ(TLV_ERR_LIMIT,
+                  tlv_tree_writer_measure(&format, Source::next, &source, &workspace,
+                                          limit == 1 ? 0 : 1, limit == 2 ? 1 : 2, &size, nullptr));
+        EXPECT_EQ(99u, size);
+    }
+    Source                      empty{};
+    tlv_tree_writer_workspace_t zero{};
+    EXPECT_EQ(TLV_OK,
+              tlv_tree_writer_measure(&format, Source::next, &empty, &zero, 0, 0, &size, nullptr));
+    EXPECT_EQ(0u, size);
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_tree_writer_measure(&format, nullptr, nullptr, &zero, 0, 0, &size, nullptr));
+}
+
+TEST(Unit_Tlv_TreeWriter, MeasurementKeepsAbsoluteDiagnosticsAndPropagatesSourceErrors) {
+    uint8_t                     data[32]{}, scratch[32]{};
+    tlv_tree_writer_frame_t     frame{};
+    tlv_tree_writer_workspace_t workspace{&frame, 1, data, 32, scratch, 32, 0, 0};
+    auto                        failing = format;
+    failing.encode = fail_parent;
+    Source                  source{{{leaf, 0, 0}, {{parent, {}}, 0, 1}, {leaf, 1, 0}}};
+    size_t                  size = 99;
+    tlv_writer_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_tree_writer_measure(&failing, Source::next, &source, &workspace, 1, 3, &size,
+                                      &diagnostic));
+    EXPECT_EQ(3u, diagnostic.diagnostic.offset);
+    EXPECT_EQ(TLV_WRITER_OP_LENGTH, diagnostic.operation);
+    EXPECT_EQ(99u, size);
+    EXPECT_EQ(0u, workspace.required_data);
+    failing.measure = [](const void* context, const tlv_element_t* element,
+                         tlv_encoding_t* encoding, tlv_format_error_t* error) {
+        if (element->tag.data[0] >= 0x80) {
+            error->has_offset = 1;
+            error->offset = 1;
+            error->region = TLV_REGION_LENGTH;
+            return TLV_ERR_INVALID_LENGTH;
+        }
+        return tlv_fields_measure(context, element, encoding, error);
+    };
+    source.position = 0;
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_tree_writer_measure(&failing, Source::next, &source, &workspace, 1, 3, &size,
+                                      &diagnostic));
+    EXPECT_EQ(3u, diagnostic.diagnostic.offset);
+    const auto fail_source = [](void*, tlv_element_t*, size_t*, int*) { return TLV_ERR_VISITOR; };
+    EXPECT_EQ(TLV_ERR_VISITOR, tlv_tree_writer_measure(&format, fail_source, nullptr, &workspace, 1,
+                                                       3, &size, &diagnostic));
+    EXPECT_EQ(TLV_ERR_VISITOR, diagnostic.diagnostic.code);
+}

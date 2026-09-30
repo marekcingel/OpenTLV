@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the Clang C99 workflow invoking the old schema example name after its rename to `schema_visitor`. (#399)
 - Fix the LLDP C++ documentation example differing from its source and failing the documentation example check. (#363)
 - Respect optional format components in the Python binding; disabled presets are absent and builds without BER require an explicit format.
 - Respect optional format components in the Lua binding; builds without BER require an explicit Reader format. (#360)
@@ -36,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Encode and measure Document trees through the canonical Tree Writer, supporting content-dependent Formats with shared temporary storage instead of per-parent buffers. Add C and C++ destination-Format selection for documents and individual subtrees. Exact size queries may now report encoder errors. (#399)
 - Consolidate Writer around allocation-free Element sizing and encoding, including content-dependent measurement, sequential source preservation, raw copying and structured diagnostics. Expose exact Element sizing in C++, Rust and Python, and let Python Writer borrow fixed-capacity caller storage. Existing single-element and copy size-query contracts remain available. (#397)
 - **Breaking:** Rename Lua `walk_tree` to `visit_tree`, DER/CER `*_walk` and `*_walk_strict` to `*_visit` and `*_visit_strict`, and Query buffer traversal to `tlv_query_visit_buffer` / `tlv::query::visit_buffer`. Update bindings and examples to the Visitor naming; no compatibility aliases are retained. (#394)
 - **Breaking:** Remove the generic Walker API (`tlv_walk*()`, `TLV_WALK_MAX_DEPTH`, C/C++ Walker headers). Use `reader/visitor.h` and caller-owned Reader/Tree Reader cursors; C++ exposes `tlv::visit_tree`. Migrate Query, Schema, CLI and bindings to the canonical cursors. Document parsing, encoding and cleanup are iterative and support runtime depths beyond the default; CLI traversal storage grows with input depth. Schema, structure-codec and Query convenience capacities remain component-owned bounds. Rebuild consumers and migrate removed symbols. (#391, #393, #394)
@@ -86,6 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add allocation-free Tree Writer measurement from a preorder source with caller-owned staging storage, content-dependent Format support, and explicit workspace requirements for replay. (#399)
 - Add an allocation-free, iterative Tree Writer with explicit begin/write/end operations, caller-owned output, frames and scratch storage, runtime limits, recoverable encoding failures and structured diagnostics. C and C++ support bounded nested output through the existing Format contract, including variable-width lengths and content-dependent measurement. (#398)
 - Add a resumable Document Builder over the canonical Tree Reader, with owned subtree selection, Reader diagnostics, independent materialization limits and publication only after completion. Complete Document parsing and constructed-value edits share its tree consumer. (#396)
 - Add resumable Visitor adapters over caller-owned Reader and Tree Reader cursors, including incremental input, absolute diagnostics and caller-selected tree storage. Add `tlv_query_visit()` for resumable matching over a caller-owned Tree Reader. (#394)

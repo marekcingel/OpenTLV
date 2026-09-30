@@ -143,3 +143,28 @@ int main(void) {
                : 1;
 }
 ```
+
+## Measuring an owned tree
+
+`tlv_tree_writer_measure()` consumes a caller-supplied preorder callback. The
+callback returns each semantic Element, its depth, and its constructed flag;
+Tree Writer opens and closes scopes, including empty parents. It has no dependency
+on Document. A Document or another tree owner can supply the same source contract.
+
+The caller supplies `tlv_tree_writer_workspace_t`: frames, staging output and a
+separate shared scratch buffer. Measurement stages the encoding so that every
+Format receives readable child bytes, including Formats whose header or trailer
+depends on Value content. On success, `size` is exact and `workspace.data` contains
+the complete encoding; `tlv_writer_copy_encoded()` can reuse it.
+
+If storage is too small, `required_data` and/or `required_scratch` identify the
+next required capacities. The caller may grow storage and restart from a fresh
+source. These fields are reset for every call; a callback returning
+`TLV_ERR_BUFFER_TOO_SHORT` does not set them and must not trigger a storage retry.
+Frame exhaustion and configured traversal limits return `TLV_ERR_LIMIT`.
+
+This operation never allocates or recurses. It can call both Format measure and
+encode callbacks, and failures may modify workspace bytes. Source Tags remain
+borrowed through completion. Formats and sources must be deterministic when
+replayed; staging requires space for the complete output, plus shared scratch
+and the structural stack.

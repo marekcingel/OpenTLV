@@ -152,6 +152,37 @@ public:
         return out;
     }
 
+    /**
+     * @brief Measure this node with an explicit destination Format.
+     * @param format Borrowed writable Format; must preserve constructed classification.
+     * @return Exact size or the error from tlv_node_encoded_size_as().
+     * @note Stages encoded children using the Document allocator; never changes the tree.
+     */
+    TLV_NODISCARD expected<size_t, error> encoded_size(const tlv_format_t& format) const {
+        size_t     size = 0;
+        const auto rc = tlv_node_encoded_size_as(node_, &format, &size);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        return size;
+    }
+
+    /**
+     * @brief Encode this node with an explicit destination Format.
+     * @param format Borrowed writable Format as for encoded_size(format).
+     * @return Owned bytes or the error from tlv_node_encode_as().
+     * @note Identifiers are not remapped and the tree's original Format is unchanged.
+     */
+    TLV_NODISCARD expected<std::vector<byte>, error> encode(const tlv_format_t& format) const {
+        auto size = encoded_size(format);
+        if (!size.has_value()) return unexpected<error>(size.error());
+        std::vector<byte> out(*size);
+        size_t            written = 0;
+        const auto rc = tlv_node_encode_as(node_, &format, reinterpret_cast<uint8_t*>(out.data()),
+                                           out.size(), &written);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        out.resize(written);
+        return out;
+    }
+
     /** @brief Compares two handles for referring to the same element. */
     friend bool operator==(const node& lhs, const node& rhs) {
         return lhs.node_ == rhs.node_;
@@ -429,6 +460,38 @@ public:
         size_t            written = 0;
         tlv_result_t      rc = tlv_document_encode(
             impl_->handle.get(), reinterpret_cast<uint8_t*>(out.data()), out.size(), &written);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        out.resize(written);
+        return out;
+    }
+
+    /**
+     * @brief Measure this document with an explicit destination Format.
+     * @param format Borrowed writable Format; must preserve constructed classification.
+     * @return Exact size or the error from tlv_document_encoded_size_as().
+     * @note Stages encoded children using the Document allocator; never changes the tree.
+     */
+    TLV_NODISCARD expected<size_t, error> encoded_size(const tlv_format_t& format) const {
+        size_t     size = 0;
+        const auto rc = tlv_document_encoded_size_as(impl_->handle.get(), &format, &size);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        return size;
+    }
+
+    /**
+     * @brief Encode this document with an explicit destination Format.
+     * @param format Borrowed writable Format as for encoded_size(format).
+     * @return Owned bytes or the error from tlv_document_encode_as().
+     * @note Identifiers are not remapped and the tree's original Format is unchanged.
+     */
+    TLV_NODISCARD expected<std::vector<byte>, error> encode(const tlv_format_t& format) const {
+        auto size = encoded_size(format);
+        if (!size.has_value()) return unexpected<error>(size.error());
+        std::vector<byte> out(*size);
+        size_t            written = 0;
+        const auto        rc =
+            tlv_document_encode_as(impl_->handle.get(), &format,
+                                   reinterpret_cast<uint8_t*>(out.data()), out.size(), &written);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         out.resize(written);
         return out;

@@ -154,7 +154,7 @@ jobs:
           ./build-c/examples/tlv/example-tlv-quick-start
           ./build-c/examples/tlv/example-tlv-sequential-io
           ./build-c/examples/tlv/example-tlv-copies
-          ./build-c/examples/tlv/example-tlv-schema-walk-and-scan
+          ./build-c/examples/tlv/example-tlv-schema-visitor
           ./build-c/examples/tlv/example-tlv-codecs-and-endian
           ./build-c/examples/tlv/example-tlv-custom-format
           ./build-c/examples/tlv/example-tlv-builtins-asn1-ber

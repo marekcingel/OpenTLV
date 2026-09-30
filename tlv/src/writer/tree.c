@@ -131,3 +131,105 @@ size_t tlv_tree_writer_size(const tlv_tree_writer_t* writer) {
     if (!writer) return 0;
     return writer->depth ? writer->frames[0].start : writer->output.pos;
 }
+
+/* Preflight only our own storage checks. A callback's BUFFER_TOO_SHORT must never
+ * be mistaken for an instruction to grow storage and replay that callback. */
+static tlv_result_t measure_storage(tlv_tree_writer_t* writer, const tlv_element_t* element,
+                                    size_t start, int closing,
+                                    tlv_tree_writer_workspace_t* workspace,
+                                    tlv_writer_diagnostic_t* diagnostic) {
+    size_t encoded;
+    tlv_result_t rc =
+        tlv_element_encoded_size_diag(element, writer->output.format, &encoded, diagnostic);
+    if (rc != TLV_OK) {
+        if (diagnostic && diagnostic->diagnostic.has_offset) {
+            if (diagnostic->diagnostic.offset <= SIZE_MAX - start)
+                diagnostic->diagnostic.offset += start;
+            else
+                diagnostic->diagnostic.has_offset = 0;
+        }
+        return rc;
+    }
+    if (encoded > SIZE_MAX - start)
+        return tree_error(diagnostic, TLV_ERR_OVERFLOW, TLV_WRITER_OP_VALUE, start, &element->tag);
+    if (start + encoded > workspace->data_capacity) workspace->required_data = start + encoded;
+    if (closing && writer->output.pos - start > workspace->scratch_capacity)
+        workspace->required_scratch = writer->output.pos - start;
+    if (!workspace->required_data && !workspace->required_scratch) return TLV_OK;
+    rc = tree_error(diagnostic, TLV_ERR_BUFFER_TOO_SHORT,
+                    workspace->required_scratch ? TLV_WRITER_OP_END : TLV_WRITER_OP_VALUE, start,
+                    &element->tag);
+    if (diagnostic) {
+        diagnostic->has_available = diagnostic->has_required = 1;
+        diagnostic->available = workspace->required_scratch ? workspace->scratch_capacity
+                                                            : workspace->data_capacity - start;
+        diagnostic->required = workspace->required_scratch ? workspace->required_scratch : encoded;
+    }
+    return rc;
+}
+
+static tlv_result_t measure_close(tlv_tree_writer_t* writer, tlv_tree_writer_workspace_t* workspace,
+                                  tlv_writer_diagnostic_t* diagnostic) {
+    const tlv_tree_writer_frame_t* frame = &writer->frames[writer->depth - 1];
+    tlv_element_t element = {frame->tag,
+                             {workspace->data ? workspace->data + frame->start : NULL,
+                              writer->output.pos - frame->start}};
+    tlv_result_t rc = measure_storage(writer, &element, frame->start, 1, workspace, diagnostic);
+    return rc == TLV_OK ? tlv_tree_writer_end_diag(writer, diagnostic) : rc;
+}
+
+tlv_result_t tlv_tree_writer_measure(const tlv_format_t* format, tlv_tree_writer_next_fn next,
+                                     void* context, tlv_tree_writer_workspace_t* workspace,
+                                     size_t max_depth, size_t max_elements, size_t* size,
+                                     tlv_writer_diagnostic_t* diagnostic) {
+    tlv_tree_writer_t writer;
+    tlv_result_t rc;
+    if (workspace) workspace->required_data = workspace->required_scratch = 0;
+    if (!next || !workspace || !size)
+        return tree_error(diagnostic, TLV_ERR_NULL_ARG, TLV_WRITER_OP_VALUE, 0, NULL);
+    rc = tlv_tree_writer_init(&writer, workspace->data, workspace->data_capacity, format,
+                              workspace->frames, workspace->frame_capacity, workspace->scratch,
+                              workspace->scratch_capacity, max_depth, max_elements);
+    if (rc != TLV_OK) return tree_error(diagnostic, rc, TLV_WRITER_OP_VALUE, 0, NULL);
+    for (;;) {
+        tlv_element_t element = {0};
+        size_t depth = 0;
+        int constructed = 0;
+        rc = next(context, &element, &depth, &constructed);
+        if (rc == TLV_ERR_END_OF_BUFFER) break;
+        if (rc != TLV_OK)
+            return tree_error(diagnostic, rc, TLV_WRITER_OP_VALUE, writer.output.pos, NULL);
+        if (depth > writer.depth)
+            return tree_error(diagnostic, TLV_ERR_INVALID_ARG, TLV_WRITER_OP_BEGIN,
+                              writer.output.pos, &element.tag);
+        while (writer.depth > depth) {
+            rc = measure_close(&writer, workspace, diagnostic);
+            if (rc != TLV_OK) return rc;
+        }
+        if (element.tag.size && !element.tag.data)
+            return tree_error(diagnostic, TLV_ERR_NULL_ARG, TLV_WRITER_OP_TAG, writer.output.pos,
+                              &element.tag);
+        if (!!constructed !=
+            !!(format->is_constructed && format->is_constructed(format->context, &element.tag)))
+            return tree_error(diagnostic, TLV_ERR_INVALID_TAG, TLV_WRITER_OP_BEGIN,
+                              writer.output.pos, &element.tag);
+        if (constructed) {
+            rc = tlv_tree_writer_begin_diag(&writer, element.tag, diagnostic);
+        } else {
+            if (writer.depth > max_depth || writer.count >= max_elements)
+                return tree_error(diagnostic, TLV_ERR_LIMIT, TLV_WRITER_OP_VALUE, writer.output.pos,
+                                  &element.tag);
+            rc = measure_storage(&writer, &element, writer.output.pos, 0, workspace, diagnostic);
+            if (rc == TLV_OK)
+                rc = tlv_tree_writer_write_element_diag(&writer, &element, diagnostic);
+        }
+        if (rc != TLV_OK) return rc;
+    }
+    while (writer.depth) {
+        rc = measure_close(&writer, workspace, diagnostic);
+        if (rc != TLV_OK) return rc;
+    }
+    rc = tlv_tree_writer_finish(&writer);
+    if (rc == TLV_OK) *size = tlv_tree_writer_size(&writer);
+    return rc;
+}
