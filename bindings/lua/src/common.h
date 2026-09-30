@@ -15,8 +15,10 @@
  *   alive for exactly as long as it is alive itself by holding a
  *   luaL_ref()/LUA_REGISTRYINDEX reference to each one, released in its
  *   __gc metamethod with luaL_unref(). This is the one ownership mechanism
- *   every type uses; there is no separate "borrowed vs. owned" userdata
- *   flavor to choose between.
+ *   types borrowing independent objects use; there is no separate "borrowed
+ *   vs. owned" userdata flavor. Codec callbacks instead live in a GC-visible
+ *   userdata environment/uservalue table so a callback capturing its own codec
+ *   forms a collectible cycle, rather than an immortal registry root.
  * - Embedding over pointers: a userdata that needs caller-owned config
  *   storage for the C API it wraps (for example a tlv_fixed_format_t for
  *   tlv_fixed_format_init()) embeds that storage directly inside
