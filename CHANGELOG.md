@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Document and validate the existing TLV/LTV field-ordering contract, independent length scopes, source layouts and explicit byte preservation using Bluetooth Advertising Data examples. (#424)
 - Define the planned Phase 2 runtime model and canonical IR architecture, including frontend separation, immutable model ownership, allocation boundaries and shared runtime/code-generation semantics. (#420)
 - Redefine the roadmap around Execution Foundation, Runtime Model & OTLV, and Compilation; align architectural guidance and separate architectural phases from SemVer major releases. (#419)
 - Expose Rust length-schema flags and length multiples, including constraints returned by native dictionaries. (#400)

@@ -5,6 +5,76 @@
 #include <cstring>
 #include <vector>
 
+TEST(Integration_Tlv_Fixed, EquivalentElementsKeepTheirOwnLayoutAcrossOrdersAndScopes) {
+    // The three examples in the Format contract: ordering and count scope
+    // change independently, while the semantic Tag and Value stay identical.
+    const tlv_fixed_format_t configs[] = {
+        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE},
+        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_VALUE},
+        {1, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_LTV, TLV_LENGTH_SCOPE_TAG_AND_VALUE},
+    };
+    const uint8_t wires[][4] = {
+        {0x09, 0x02, 0x41, 0x42}, {0x02, 0x09, 0x41, 0x42}, {0x03, 0x09, 0x41, 0x42}};
+    const size_t  tag_offsets[] = {0, 1, 1};
+    const size_t  length_offsets[] = {1, 0, 0};
+    tlv_format_t  formats[3]{};
+    tlv_element_t elements[3]{};
+    tlv_source_t  sources[3]{};
+    for (size_t i = 0; i < 3; ++i) {
+        SCOPED_TRACE(i);
+        ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&formats[i], &configs[i]));
+        tlv_reader_t reader{};
+        ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, wires[i], sizeof(wires[i]), &formats[i]));
+        ASSERT_EQ(TLV_OK, tlv_reader_next_source_diag(&reader, &elements[i], &sources[i], nullptr));
+        EXPECT_TRUE(tlv_reader_at_end(&reader));
+        ASSERT_EQ(1u, elements[i].tag.size);
+        EXPECT_EQ(0x09, elements[i].tag.data[0]);
+        ASSERT_EQ(2u, elements[i].value.size);
+        EXPECT_EQ(0, std::memcmp(wires[0] + 2, elements[i].value.data, 2));
+
+        const auto& source = sources[i];
+        EXPECT_EQ(wires[i], source.data);
+        EXPECT_EQ(4u, source.size);
+        EXPECT_TRUE(source.header.present);
+        EXPECT_EQ(0u, source.header.offset);
+        EXPECT_EQ(2u, source.header.size);
+        EXPECT_TRUE(source.tag.present);
+        EXPECT_EQ(tag_offsets[i], source.tag.offset);
+        EXPECT_EQ(1u, source.tag.size);
+        EXPECT_TRUE(source.length.present);
+        EXPECT_EQ(length_offsets[i], source.length.offset);
+        EXPECT_EQ(1u, source.length.size);
+        EXPECT_TRUE(source.value.present);
+        EXPECT_EQ(2u, source.value.offset);
+        EXPECT_EQ(2u, source.value.size);
+        EXPECT_TRUE(source.trailer.present);
+        EXPECT_EQ(4u, source.trailer.offset);
+        EXPECT_EQ(0u, source.trailer.size);
+        EXPECT_EQ(wires[i] + tag_offsets[i], elements[i].tag.data);
+        EXPECT_EQ(wires[i] + 2, elements[i].value.data);
+    }
+
+    for (size_t origin = 0; origin < 3; ++origin) {
+        for (size_t destination = 0; destination < 3; ++destination) {
+            SCOPED_TRACE(::testing::Message() << origin << " -> " << destination);
+            uint8_t      output[4]{};
+            tlv_writer_t writer{};
+            ASSERT_EQ(TLV_OK,
+                      tlv_writer_init(&writer, output, sizeof(output), &formats[destination]));
+            ASSERT_EQ(TLV_OK, tlv_writer_write_element(&writer, &elements[origin]));
+            EXPECT_EQ(sizeof(output), tlv_writer_size(&writer));
+            EXPECT_EQ(0, std::memcmp(wires[destination], output, sizeof(output)));
+
+            // Preservation uses the original layout even with another destination Format.
+            ASSERT_EQ(TLV_OK,
+                      tlv_writer_init(&writer, output, sizeof(output), &formats[destination]));
+            ASSERT_EQ(TLV_OK, tlv_writer_preserve(&writer, &sources[origin], &elements[origin]));
+            EXPECT_EQ(sizeof(output), tlv_writer_size(&writer));
+            EXPECT_EQ(0, std::memcmp(wires[origin], output, sizeof(output)));
+        }
+    }
+}
+
 TEST(Integration_Tlv_Fixed, ExampleWireBytesTwoByteTagOneByteLength) {
     /* [tag: 2 bytes][length: 1 byte][value: N bytes], from the issue's example use case. */
     const tlv_fixed_format_t config = {2, 1, TLV_BYTE_ORDER_BIG_ENDIAN, TLV_ELEMENT_ORDER_TLV,

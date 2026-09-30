@@ -7,6 +7,9 @@ data are a sequence of **Length | Type | Value** structures. OpenTLV reads and
 writes them through the same generic reader and writer as every other format;
 only the format descriptor differs.
 
+See the [field ordering and length scope contract](../../concepts/format-contract.md#field-ordering-and-length-scope)
+for equivalent TLV/LTV examples, source ranges and explicit byte preservation.
+
 ## API and build
 
 | Setting | Value |
