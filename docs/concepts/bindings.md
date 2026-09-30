@@ -32,7 +32,7 @@ idiomatic  idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
 ```
 
 C++, Rust and Python expose Readers, Writers and Document facades today.
-Lua (`bindings/lua/`) currently binds Reader, Writer, Tree Writer, Element and Tag.
+Lua (`bindings/lua/`) currently binds Reader, Writer, Tree Writer, Schema, Value Codec, Element and Tag.
 Go is illustrative here, not yet scaffolded, to show the contract extends past the
 current bindings. The trailing `...` stands for any further binding.
 
@@ -165,7 +165,7 @@ coverage still needs verification; it must not be counted as parity.
 | Exact copy/preservation: `tlv_writer_copy_encoded[_diag]`, `tlv_writer_preserve[_diag]`, `tlv_source_preserve` | Audit | Bound: `Writer::copy_encoded`, `Writer::preserve`, `Decoded::preserve` | Bound: `Writer.copy_encoded`, `Writer.preserve`, `Decoded.preserve_into` | Missing |
 | Query: parse/step, matcher init/visit, `tlv_query_visit`, `tlv_query_visit_buffer` | Bound: `query`, `query_matcher` | Bound: `Query`, `QueryMatcher` | Bound: `Query`, `QueryMatcher` | Missing |
 | Schema: public `tlv/schema/` operations, constraints and diagnostics | Audit | Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400 | Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400 | Partial: structural schemas and bounded detailed reports; standalone length-schema operations remain unbound |
-| Codec: public `tlv/codec/` operations and builtin codecs (additional codecs out of scope for #400) | Audit | Partial: configured `NumberCodec` and EMV codecs | Partial: configured `NumberCodec` and EMV amount | Missing |
+| Codec: public `tlv/codec/` operations and builtin codecs (additional codecs out of scope for #400) | Audit | Partial: configured `NumberCodec` and EMV codecs | Partial: configured `NumberCodec` and EMV amount | Value codecs, configuration, builtin EMV selection and custom callbacks (#302); structure codecs remain unbound |
 | Generic Definition: `tlv_definition_t`, `tlv_definition_registry_t`, `tlv_definition_find` | Bound: borrowed `definition_registry` | Bound: owned `DefinitionRegistry` | Bound: owned `DefinitionRegistry` | Missing generic facade |
 | Builtin Definition/dictionary registries and protocol-specific lookup (additional coverage out of scope for #400) | Audit | Partial: EMV dictionary | Missing | Separate stories |
 | Format: decode/measure/encode, configuration, custom callbacks and optional builtins (remaining extensions out of scope for #400) | Audit | Partial | Partial | Partial |
@@ -376,7 +376,7 @@ explicitly out of scope for #400.
 | Element | One TLV element with borrowed wire fields | `tlv_element_t` | `tlv::element` | `Element<'a>` | `Element` | a plain table (`tag`/`raw_length`/`length`/`value`/`offset` fields) |
 | Tag | The TLV tag abstraction: raw identifying bytes | `tlv_tag_t` | `tlv::tag_t` (alias) | `Tag` | `Tag` | a raw Lua string (content equality already compares it) |
 | Schema | Structural validation: tags, lengths, occurrence and nesting rules | `tlv_schema_t`, `tlv_structure_schema_t` | same C types, wrapped by `tlv::validate`/`tlv::validate_all_diag` | `LengthSchema`, `StructureSchema` | `LengthSchema`, `StructureSchema` | `schema` / `Schema:validate` (structural reports) |
-| Codec | Typed encoding and decoding of a value | `tlv_codec_t`, `tlv_structure_codec_t` | `TlvCodec` concept, `tlv::decode_structure<T>`/`encode_structure` | `Codec` | `NumberCodec` and EMV amount functions | not bound yet |
+| Codec | Typed encoding and decoding of a value | `tlv_codec_t`, `tlv_structure_codec_t` | `TlvCodec` concept, `tlv::decode_structure<T>`/`encode_structure` | `Codec` | `NumberCodec` and EMV amount functions | `codecs`, `codec {decode, encode}`; Value codecs only |
 | Diagnostics | Structured diagnostic information for a failure | `tlv_diagnostic_t` | `tlv::diagnostic` (alias) | `SchemaError`, `ValidationError`, `CodecError` (each carries the failing offset; no unified diagnostic type yet) | `OpenTLVError` subclasses carry the offset, expected/actual text and operation, when the C API reports them | owned tables with common code/message/severity, optional native context/path/offset, and Reader/Writer or Schema detail |
 
 Bindings may reach parity incrementally, but missing capabilities remain
@@ -464,7 +464,9 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   traversal (`opentlv.visit_tree()`, built on `tlv_tree_reader_visit()`/
   `tlv_der_visit()`). Pull-based Tree Reader and advanced Writer capabilities
   (measurement, structural events and exact copy/preservation) remain gaps
-  in Lua. See [Lua bindings](../development/lua.md) and
+  in Lua. Value codecs expose builtin representations, configured codecs,
+  EMV dictionary selection and custom callbacks through `tlv_codec_t` (#302).
+  Structure codecs remain unbound. See [Lua bindings](../development/lua.md) and
   [using OpenTLV from Lua](../guides/lua.md).
 - **Go**: planned, not started yet. No `bindings/go/` directory exists; when
   work on it begins, it follows this contract like the Rust crate does.

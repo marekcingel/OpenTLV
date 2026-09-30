@@ -25,6 +25,9 @@ add_library(opentlv_lua MODULE
     src/module.c
     src/common.c
     src/common.h
+    src/codec.c
+    src/codec.h
+    src/codec_builtin.c
     src/error.c
     src/error.h
     src/format.c
@@ -177,6 +180,16 @@ if(OPENTLV_BUILD_LUA_TESTS)
     endif()
 
     if(OPENTLV_LUA_EXECUTABLE)
+        add_test(NAME Integration_lua_codec
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/codec_spec.lua")
+        add_test(NAME Integration_lua_codec_allocator
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/codec_spec.lua" --allocator)
+        add_test(NAME Integration_example_lua_codec
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/examples/codec.lua")
+        set_tests_properties(Integration_lua_codec Integration_lua_codec_allocator
+            Integration_example_lua_codec PROPERTIES
+            LABELS "integration;lua"
+            ENVIRONMENT "${_lua_test_environment}")
         add_test(NAME Integration_lua_schema
             COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/schema_spec.lua")
         set_tests_properties(Integration_lua_schema PROPERTIES

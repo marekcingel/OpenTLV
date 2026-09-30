@@ -24,7 +24,8 @@ It targets Lua 5.1 through 5.4 and LuaJIT (which implements the Lua 5.1 C
 API), using only the portable subset of the Lua C API common to all of them;
 see `bindings/lua/src/compat.h`. It covers Reader, Writer, Tree Writer, Element and Tag, and
 preorder tree traversal (`opentlv.visit_tree`, built on `tlv_tree_reader_visit()`/
-`tlv_der_visit()`), and structural Schema validation with detailed diagnostic reports;
+`tlv_der_visit()`), structural Schema validation with detailed diagnostic reports,
+and Value codecs with builtin and custom callback support;
 Document is not bound yet.
 
 ## Build
@@ -77,6 +78,30 @@ runs on every push and pull request to `main`: it builds the module with
 `luarocks make` and runs `busted tests` and every script under `examples/`,
 across Lua 5.1, 5.3 and 5.4, on Linux, and additionally on Windows and macOS
 for release tags.
+
+## Codec implementation
+
+`src/codec.c` owns codec userdata, configured descriptors, exact Lua integer
+conversion and protected custom callback trampolines. `src/codec_builtin.c`
+adapts documented C representations to Lua values and tables. All wire
+conversion and semantic validation uses `tlv_codec_decode()` and
+`tlv_codec_encode()`. EMV selection uses its existing dictionary and builtin
+presentation adapter. There is no Lua-specific codec registry.
+
+Native temporary objects and output buffers are Lua userdata, so argument
+errors and allocation failures cannot leak C heap storage. Borrowed strings
+remain rooted until the native operation finishes; decoded views become
+owned Lua strings. Custom functions are held in a userdata environment
+(Lua 5.1) or uservalue table (5.2+), allowing callback cycles to be collected.
+Each invocation prepares its own protected closure before entering C, so
+allocation errors cannot unwind across the core and recursive calls do not
+overwrite callback state.
+
+`Integration_lua_codec`, `Integration_lua_codec_allocator` and
+`Integration_example_lua_codec` run standalone without busted, including
+minimal builds. The codec suite also runs under `busted tests` and checks
+every exported static descriptor. Structure codecs remain outside this
+Value-codec binding.
 
 ## Writer implementation
 

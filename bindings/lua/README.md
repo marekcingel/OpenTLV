@@ -2,7 +2,7 @@
 
 Lua bindings to the [OpenTLV](https://github.com/marekcingel/OpenTLV) C API:
 two pieces, `opentlv-native` (`src/`, built directly against the Lua C API,
-binding `Reader`, `Writer`, `TreeWriter`, `Schema`, `Element`, `Tag` and preorder tree traversal) and `opentlv`
+binding `Reader`, `Writer`, `TreeWriter`, `Schema`, `Codec`, `Element`, `Tag` and preorder tree traversal) and `opentlv`
 (`lua/opentlv/init.lua`, a one-line pure-Lua entry point on top of it) — the
 same native/pure split as the Python `opentlv-native`/`opentlv` and Rust
 `opentlv-native`/`opentlv` packages. Targets Lua 5.1 through 5.4 and LuaJIT.
@@ -102,3 +102,18 @@ details originate from the C schema validator. See the
 [`examples/schema.lua`](examples/schema.lua).
 The standalone `tests/schema_spec.lua` is registered as `Integration_lua_schema`
 and runs with Fixed Format even when optional formats are disabled.
+
+## Value codecs
+
+`opentlv.codecs.uint16_be:decode(bytes)` converts Value bytes through the C
+codec; `codec:encode(value)` returns a binary string. `opentlv.codecs` exposes
+generic codecs, configured number/text/digits constructors and the enabled
+ASN.1, Bluetooth, LLDP and EMV codecs. `opentlv.codec {decode = ..., encode = ...}`
+bridges custom Lua functions through `tlv_codec_t`. Codec errors have
+`domain = "codec"`, with codes in `opentlv.codec_errors`.
+
+See the [Codec guide](../../docs/guides/lua.md#value-codecs) for exact integer
+handling, builtin representations and EMV selection, and
+[`examples/codec.lua`](examples/codec.lua) for a runnable example.
+The standalone `tests/codec_spec.lua` runs with optional components disabled;
+CTest also runs allocation-failure checks through `Integration_lua_codec_allocator`.

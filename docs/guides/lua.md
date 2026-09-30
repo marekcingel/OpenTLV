@@ -333,3 +333,148 @@ diagnostics carry only code/message/severity and the offset if C provided one;
 the binding does not reparse the input to reconstruct tag or path information.
 
 See the runnable [schema example](https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/schema.lua).
+
+## Value codecs
+
+Select a codec explicitly and pass only an element's Value bytes:
+
+```lua
+local tlv = require("opentlv")
+local codec = tlv.codecs.uint16_be
+local value = codec:decode(string.char(0x12, 0x34)) -- 4660
+local bytes = codec:encode(value) -- binary string, no TLV framing
+```
+
+Both methods invoke the existing C codec. They do not select a codec from a
+Tag, validate the enclosing schema, or reinterpret framing. Encode uses the
+C size query before allocating the output. Decoded strings and tables own
+their contents and survive collection of the source string and codec.
+
+`tlv.codecs` is a namespace of exported descriptors and constructors, not a
+separate runtime registry. Standard Lua indexing provides name selection,
+for example `tlv.codecs["uint16_be"]`; an absent name returns `nil`.
+
+### Integers and configured codecs
+
+Integer codecs accept native Lua integers, exactly represented integral Lua
+numbers, or decimal strings. Lua 5.3+ returns a native integer when it fits
+`lua_Integer`. On Lua 5.1/5.2 and LuaJIT, the default double-number build
+returns numbers through ±(2^53−1). Larger results are decimal strings; this
+also covers unsigned values above Lua's signed integer range. Float-number
+builds use ±(2^24−1). Floating-point inputs outside that safe range, fractions,
+NaN, infinity and overflowing decimal strings are rejected rather than rounded.
+Use a decimal string to supply large exact values on every Lua version.
+
+```lua
+local number = tlv.codecs.number {encoding = "binary_be", width = 8}
+local maximum = "18446744073709551615"
+assert(number:decode(number:encode(maximum)) == maximum)
+
+local text = tlv.codecs.text {alphabet = "ascii_printable", width = 5, zero_padding = true}
+assert(text:encode("abc") == "abc\0\0")
+local digits = tlv.codecs.digits {width = 3}
+assert(digits:decode(string.char(0x00, 0x12, 0xFF)) == "0012")
+```
+
+All constructors take a table. Number `encoding` is `"binary_be"` (default),
+`"binary_le"`, or `"bcd"`; `width` defaults to zero (minimal encoding), and
+`digits` defaults to zero (supply the precision for BCD). Text `alphabet` is
+`"ascii_printable"` (default) or `"ascii_alnum"`; `width` defaults to zero and
+`zero_padding` to false. Digits `width` defaults to zero. The userdata owns
+its C configuration. The C engine validates configuration and Value semantics
+when the codec is invoked.
+
+### Builtin representations
+
+Names below are relative to `tlv.codecs`. Byte strings are binary Lua strings,
+including embedded zeros. Arrays are dense, one-based Lua tables. Integer
+fields use the exact integer rules above. Table field names match the C
+representation; required fields must be supplied on encode.
+
+| Codecs | Lua representation |
+| --- | --- |
+| `uint8`, `uint16_be`, `uint16_le`, `uint32_be`, `uint32_le`, `int64_minimal_be` | Integer |
+| `bytes` | Byte string |
+| `ipv4`, `ipv4_list` | Four network-order bytes; array of four-byte strings |
+| `dhcpv4.message_type`, `lldp.ttl`, `lldp.text`, `bluetooth.uuid16`, `bluetooth.uuid32` | C source aliases: integer, integer, bytes, integer, integer |
+| `asn1.boolean`, `asn1.integer`, `asn1.enumerated`, `asn1.null` | Boolean, signed integer, signed integer, `nil` |
+| `asn1.bit_string` | `{unused_bits, data}`; `data` excludes the count octet |
+| `asn1.oid`, `asn1.relative_oid` | Array of unsigned integer arcs |
+| `asn1.oid_iri`, `asn1.relative_oid_iri` | Array of string arc labels |
+| `asn1.octet_string`, `asn1.object_descriptor`, `asn1.*_string` | Byte string; BMP and Universal strings retain big-endian UCS-2/UCS-4 bytes |
+| `asn1.time`, `asn1.duration` | String validated by the C codec |
+| `asn1.date` | `{year, month, day}` |
+| `asn1.time_of_day` | `{hour, minute, second}` |
+| `asn1.utc_time`, `asn1.date_time` | `{year, month, day, hour, minute, second}` |
+| `asn1.generalized_time` | Same timestamp fields plus `fraction_digits` (empty string for no fraction) |
+| `bluetooth.flags`, `bluetooth.local_name`, `bluetooth.tx_power` | Bytes, UTF-8 string, signed integer |
+| `bluetooth.uuid128` | 16 bytes in canonical printed UUID order; C handles wire reversal |
+| `bluetooth.uuid16_list`, `bluetooth.uuid32_list`, `bluetooth.uuid128_list` | Arrays of the corresponding UUID representation |
+| `bluetooth.service_data16`, `bluetooth.service_data32`, `bluetooth.service_data128` | `{uuid, payload, raw}`; `raw` is informational, optional and ignored on encode |
+| `bluetooth.manufacturer_data` | `{company_id, payload, raw}`; same `raw` rule |
+| `lldp.chassis_id`, `lldp.port_id` | `{subtype, identifier}` |
+| `lldp.capabilities` | `{supported, enabled}` |
+| `lldp.management_address` | `{address_subtype, address, interface_subtype, interface_number, oid}` |
+| `lldp.organisation` | `{oui, subtype, payload}`; `oui` is exactly three bytes |
+| `emv.amount` | Unsigned integer in unscaled minor units |
+
+ASN.1 exports require `OPENTLV_FORMAT_BER`; they preserve C's canonical
+content checks even when the caller reads permissive BER. Protocol-specific
+Bluetooth, LLDP and EMV exports follow their component options. C source
+aliases remain available even with optional components disabled.
+
+### EMV dictionary selection
+
+`tlv.codecs.emv.find(tag, context)` delegates to `tlv_emv_find()` and selects
+the existing builtin descriptor. `tag` is a binary string; `context` defaults
+to `tlv.codecs.emv.contexts.BASE`. Other context constants are `BIT`, `BHT`,
+`BHT_FORMAT`, `BIT_GROUP`, `BIOMETRIC_COUNTERS`, `BIOMETRIC_ATTEMPTS` and
+`BIOMETRIC_VERIFICATION`. There is no fallback between contexts. Unknown
+entries and entries without a codec return `nil`.
+
+```lua
+local amount = tlv.codecs.emv.find(string.char(0x9F, 0x02))
+local bytes = amount:encode(1234)
+assert(amount:decode(bytes) == 1234)
+```
+
+The builtin C presentation adapter determines the representation: numbers,
+flags, account and biometric types are integers; digits are strings; dates
+and times are tables with the C field names; cryptogram information is
+`{type, flags}`; CVM results are `{method, condition, result}`; number lists
+are arrays; AFL is an array of `{sfi, first_record, last_record,
+offline_auth_record_count}`; Track 2 is `{pan, expiration_year,
+expiration_month, service_code, discretionary_data}`. This selection occurs
+before conversion, and does not add codec metadata to generic Definition.
+
+### Errors and custom codecs
+
+C codec failures raise an `opentlv.Error` table with `domain = "codec"`,
+`code` and `message` from `tlv_codec_strerror()`. Codes are exported as
+`tlv.codec_errors.OK`, `NULL_ARG`, `BUFFER_TOO_SHORT`, `INVALID_VALUE`,
+`UNSUPPORTED` and `INVALID_STRUCTURE`; `tlv.codec_strerror(code)` exposes
+their descriptions. Codec codes are a separate domain from `tlv.errors`.
+No source offset or Tag is invented for a Value-only operation. Incorrect
+Lua types and host representation bounds raise Lua argument errors.
+
+```lua
+local codec = tlv.codec {
+    decode = function(bytes) return {payload = bytes} end,
+    encode = function(value) return value.payload end,
+}
+assert(codec:decode(codec:encode {payload = "hello"}).payload == "hello")
+```
+
+Callbacks are optional and snapshotted at construction; a missing direction
+reports `UNSUPPORTED`. Decode returns one Lua value, including `nil`; encode
+must return a binary string. Encode calls the Lua function once and reuses
+that string for the C size query and write. Callbacks run through a native
+`tlv_codec_t` trampoline under protected Lua calls. Their original error
+objects propagate unchanged after the C call returns. Recursive codec calls
+and use from different coroutines are supported, but yielding through a
+callback is not. Callback references participate in Lua garbage collection,
+including cycles that capture the codec itself.
+
+This API binds Value codecs. The separate `tlv_structure_codec_t` contract
+for complete objects remains unbound. See the runnable
+[codec example](https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/codec.lua).

@@ -23,6 +23,7 @@
  * re-implementing any part of what those functions do.
  */
 #include "common.h"
+#include "codec.h"
 #include "compat.h"
 #include "error.h"
 #include "format.h"
@@ -51,6 +52,7 @@ int luaopen_opentlv_native(lua_State* L) {
 
     opentlv_lua_open_error(L);
     opentlv_lua_register_error_codes(L, module_index);
+    opentlv_lua_open_codec(L, module_index);
     opentlv_lua_open_format(L, module_index);
     opentlv_lua_open_reader(L, module_index);
     opentlv_lua_open_schema(L, module_index);
