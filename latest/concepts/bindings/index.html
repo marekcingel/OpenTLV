@@ -3355,7 +3355,7 @@ coverage still needs verification; it must not be counted as parity.</p>
 <td>Audit</td>
 <td>Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400</td>
 <td>Partial: constraints, named fields/groups, bounded detailed reports and Fixed Format validation bound; remaining Format extensions out of scope for #400</td>
-<td>Separate stories</td>
+<td>Partial: structural schemas and bounded detailed reports; standalone length-schema operations remain unbound</td>
 </tr>
 <tr>
 <td>Codec: public <code>tlv/codec/</code> operations and builtin codecs (additional codecs out of scope for #400)</td>
@@ -3500,6 +3500,12 @@ provide standalone preservation. Python retains both the immutable input and
 the native Format owner across cursor replacement or destruction. Changed
 semantic content is rejected; raw <code>copy_encoded</code> intentionally does not validate.</p>
 <h2 id="schema-constraints-and-bounded-reports">Schema constraints and bounded reports<a class="headerlink" href="#schema-constraints-and-bounded-reports" title="Permanent link">&para;</a></h2>
+<p>Lua <code>schema:validate(data, format, options)</code> delegates to the same C report
+validator. It snapshots rule/group descriptions, retains child schemas and
+returns owned diagnostic tables. Schema violations return bounded reports;
+fatal wire/configuration errors return a single basic diagnostic, including
+only the location/context available from C. See the
+<a href="../../guides/lua/#structural-schemas">Lua Schema guide</a>.</p>
 <p>Rust <code>StructureSchema::with_constraints</code> and Python <code>StructureSchema</code> accept
 <code>SchemaOrder</code> and <code>StructureGroup</code> descriptions. Each rule may select a group
 and set native length flags and multiples. C validates rule-table ordering,
@@ -3625,7 +3631,7 @@ explicitly out of scope for #400.</p>
 <td>same C types, wrapped by <code>tlv::validate</code>/<code>tlv::validate_all_diag</code></td>
 <td><code>LengthSchema</code>, <code>StructureSchema</code></td>
 <td><code>LengthSchema</code>, <code>StructureSchema</code></td>
-<td>not bound yet</td>
+<td><code>schema</code> / <code>Schema:validate</code> (structural reports)</td>
 </tr>
 <tr>
 <td>Codec</td>
@@ -3643,7 +3649,7 @@ explicitly out of scope for #400.</p>
 <td><code>tlv::diagnostic</code> (alias)</td>
 <td><code>SchemaError</code>, <code>ValidationError</code>, <code>CodecError</code> (each carries the failing offset; no unified diagnostic type yet)</td>
 <td><code>OpenTLVError</code> subclasses carry the offset, expected/actual text and operation, when the C API reports them</td>
-<td>a plain table with <code>code</code>/<code>message</code> and, when reported, <code>offset</code>/<code>expected</code>/<code>actual</code>/<code>operation</code>/<code>tag</code></td>
+<td>owned tables with common code/message/severity, optional native context/path/offset, and Reader/Writer or Schema detail</td>
 </tr>
 </tbody>
 </table>

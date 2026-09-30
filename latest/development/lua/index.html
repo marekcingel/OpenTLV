@@ -2745,6 +2745,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#schema-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2859,6 +2870,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#schema-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2897,7 +2919,7 @@ Writer, Tree Writer, Element, Tag) that there is nothing a Lua-side wrapper woul
 today, so the split exists for naming/packaging consistency across bindings
 rather than for a richer pure-Lua layer. <code>bindings/lua/src/common.h</code>
 documents the ownership, registration and error-handling conventions every
-native-side component (Reader and Writer today; Document, Schema, ... later)
+native-side component (including Reader, Writer and Schema)
 follows, and states the rule for what belongs in this binding versus in
 <code>tlv/</code>: functionality useful outside Lua belongs in the OpenTLV C API, this
 binding only adapts what already exists there to Lua's conventions. For
@@ -2908,7 +2930,8 @@ model</a>.</p>
 API), using only the portable subset of the Lua C API common to all of them;
 see <code>bindings/lua/src/compat.h</code>. It covers Reader, Writer, Tree Writer, Element and Tag, and
 preorder tree traversal (<code>opentlv.visit_tree</code>, built on <code>tlv_tree_reader_visit()</code>/
-<code>tlv_der_visit()</code>); Document and Schema are not bound yet.</p>
+<code>tlv_der_visit()</code>), and structural Schema validation with detailed diagnostic reports;
+Document is not bound yet.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Requirements: CMake 3.16 or newer, a C99 compiler, and Lua 5.1, 5.2, 5.3, 5.4
 or LuaJIT headers and library.</p>
@@ -2961,6 +2984,24 @@ registers the standalone suite whenever the interpreter is available, even
 when optional formats are disabled. It covers binary strings, Reader/Writer
 roundtrips, exact preset bytes, ownership, nested output, resource exhaustion
 and structured diagnostics.</p>
+<h2 id="schema-implementation">Schema implementation<a class="headerlink" href="#schema-implementation" title="Permanent link">&para;</a></h2>
+<p><code>src/schema.c</code> snapshots Lua descriptions into <code>tlv_structure_schema_t</code>,
+<code>tlv_structure_rule_t</code>, <code>tlv_schema_entry_t</code> and <code>tlv_structure_group_t</code> arrays.
+A registry reference retains a private table holding native-array userdata,
+immutable tag/name strings and child Schema objects. The Schema finalizer is
+installed before acquiring references; temporary diagnostic arrays are rooted
+on the Lua stack, so constructor or result-conversion allocation failures do
+not leak native storage. No Lua callback runs during C validation.</p>
+<p><code>Schema:validate()</code> calls <code>tlv_schema_validate_all_diag()</code>. It returns bounded
+schema reports or a basic native-code/offset diagnostic on fatal failures.
+<code>src/error.c</code> provides common <code>tlv_diagnostic_t</code> conversion shared with Reader
+and Writer; Schema adds only the typed detail exposed by the C report.</p>
+<p><code>tests/schema_spec.lua</code> runs under busted and directly through CTest, including
+builds without BER. It covers rules, groups, ordering, paths, native offsets,
+capacity/count-only results, malformed input, numeric checks, immutable
+configuration and garbage collection. When the test allocator is available,
+it also injects failures during construction and diagnostic conversion and
+checks that retained child schemas are released.</p>
 
 
 

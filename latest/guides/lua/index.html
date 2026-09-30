@@ -1478,6 +1478,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#structural-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structural schemas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostic-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic tables
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2937,6 +2959,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#structural-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structural schemas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostic-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic tables
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2964,8 +3008,8 @@
 
 <h1 id="using-opentlv-from-lua">Using OpenTLV from Lua<a class="headerlink" href="#using-opentlv-from-lua" title="Permanent link">&para;</a></h1>
 <p>The <code>opentlv</code> module is an experimental Lua binding for OpenTLV. It binds a
-Reader, Writer, Tree Writer, tag/length/value <code>Element</code> tables and preorder tree
-traversal; there is no Document or Schema binding yet (see <a href="../../development/lua/">Lua
+Reader, Writer, Tree Writer, Schema, tag/length/value <code>Element</code> tables and preorder tree
+traversal; there is no Document binding yet (see <a href="../../development/lua/">Lua
 bindings</a>).</p>
 <h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-lua<span class="w"> </span>-DOPENTLV_BUILD_LUA<span class="o">=</span>ON<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span><span class="se">\</span>
@@ -3128,6 +3172,180 @@ open parent and its children, following the C Tree Writer contract.</p>
 <a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nv">err</span><span class="p">.</span><span class="py">code</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="p">.</span><span class="py">message</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="p">.</span><span class="py">required</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="p">.</span><span class="py">available</span><span class="p">)</span>
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="kr">end</span>
 </code></pre></div>
+<h2 id="structural-schemas">Structural schemas<a class="headerlink" href="#structural-schemas" title="Permanent link">&para;</a></h2>
+<p><code>opentlv.schema(config)</code> creates an immutable structural Schema. It snapshots
+the rule/group tables and retains tag strings, field names and child Schema
+objects. Changing the original tables does not change the schema.
+Validation delegates to <code>tlv_schema_validate_all_diag()</code>; Lua implements no
+schema rules, wire parser or value decoding.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">tlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="nf">fixed</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s2">"big"</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kd">local</span><span class="w"> </span><span class="nv">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">schema</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nv">rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">        </span><span class="p">{</span><span class="nv">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"identifier"</span><span class="p">,</span><span class="w"> </span><span class="nv">min_occurs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">         </span><span class="nv">max_occurs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">min_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nv">max_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nv">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"primitive"</span><span class="p">},</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="p">}</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="kd">local</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">schema</span><span class="p">:</span><span class="nf">validate</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">),</span><span class="w"> </span><span class="nv">format</span><span class="p">)</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="kr">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nv">result</span><span class="p">.</span><span class="py">ok</span><span class="w"> </span><span class="kr">then</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="nv">diagnostic</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">ipairs</span><span class="p">(</span><span class="nv">result</span><span class="p">.</span><span class="py">diagnostics</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">        </span><span class="nb">print</span><span class="p">(</span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">code</span><span class="p">,</span><span class="w"> </span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">offset</span><span class="p">,</span><span class="w"> </span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">field</span><span class="p">)</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">        </span><span class="kr">if</span><span class="w"> </span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">length</span><span class="w"> </span><span class="kr">then</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">            </span><span class="nb">print</span><span class="p">(</span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">length</span><span class="p">.</span><span class="py">minimum</span><span class="p">,</span><span class="w"> </span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">length</span><span class="p">.</span><span class="py">maximum</span><span class="p">,</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">                  </span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">length</span><span class="p">.</span><span class="py">actual</span><span class="p">)</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">        </span><span class="kr">end</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">    </span><span class="kr">end</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="kr">end</span>
+</code></pre></div>
+<p><code>config.rules</code> is a dense array of rule tables (default empty). Each rule
+requires a binary-string <code>tag</code>; identifiers have exactly the same byte identity
+as Reader tags. Optional fields are:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>nil</code></td>
+<td>Diagnostic field name; embedded NUL bytes are rejected</td>
+</tr>
+<tr>
+<td><code>min_length</code>, <code>max_length</code></td>
+<td><code>0</code>, <code>math.huge</code></td>
+<td>Inclusive Value-length bounds</td>
+</tr>
+<tr>
+<td><code>length_multiple</code></td>
+<td><code>0</code></td>
+<td>Required length multiple; zero disables it</td>
+</tr>
+<tr>
+<td><code>flags</code></td>
+<td><code>0</code></td>
+<td>C length flags; <code>tlv.SCHEMA_LENGTH_ENDPOINTS</code> permits only the bounds</td>
+</tr>
+<tr>
+<td><code>min_occurs</code>, <code>max_occurs</code></td>
+<td><code>0</code>, <code>math.huge</code></td>
+<td>Inclusive occurrence bounds per parent</td>
+</tr>
+<tr>
+<td><code>kind</code></td>
+<td><code>"any"</code></td>
+<td><code>"any"</code>, <code>"primitive"</code> or <code>"constructed"</code></td>
+</tr>
+<tr>
+<td><code>children</code></td>
+<td><code>nil</code></td>
+<td>Another Schema object; requires <code>kind = "constructed"</code></td>
+</tr>
+<tr>
+<td><code>group</code></td>
+<td><code>0</code></td>
+<td>Alternative-group ID; zero means no group</td>
+</tr>
+</tbody>
+</table>
+<p>An omitted child schema leaves membership unrestricted; the C engine still
+checks wire structure. Constructed status comes from Format, so a Fixed
+format's values remain opaque. For example, when BER is enabled:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">schema</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="nv">rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="nv">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="nv">min_occurs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="p">}</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="kd">local</span><span class="w"> </span><span class="nv">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">schema</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nv">rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="nv">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">48</span><span class="p">),</span><span class="w"> </span><span class="nv">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"constructed"</span><span class="p">,</span><span class="w"> </span><span class="nv">children</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">child</span><span class="p">}},</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">parent</span><span class="p">:</span><span class="nf">validate</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mi">48</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">).</span><span class="nv">ok</span><span class="p">)</span>
+</code></pre></div>
+<p>At scope level, <code>allow_unknown</code> defaults to <code>false</code> and <code>order</code> defaults to
+<code>"any"</code>; <code>"sequence"</code> enforces relative rule order. Optional <code>groups</code> is a dense
+array of <code>{id, min_occurs, max_occurs, name}</code> tables using named fields.
+Group IDs must be nonzero and unique; bounds default to <code>0</code> and <code>math.huge</code>.
+A group's bounds apply to the sum of all matching alternatives. Grouped rules
+must have <code>min_occurs = 0</code>, and each rule's <code>max_occurs</code> still applies.
+C validates these constraints, including duplicate tags and invalid bounds,
+when validating the corresponding scope.</p>
+<p><code>schema:validate(data, format, options)</code> accepts a binary Lua string and an
+existing Format object. Format defaults to BER when enabled; otherwise it is
+required. Options are:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>capacity</code></td>
+<td><code>64</code></td>
+<td>Maximum stored schema diagnostics; zero counts only</td>
+</tr>
+<tr>
+<td><code>max_depth</code></td>
+<td><code>32</code></td>
+<td>Native nesting limit</td>
+</tr>
+<tr>
+<td><code>max_elements</code></td>
+<td><code>100000</code></td>
+<td>Total element limit; zero allows only empty input</td>
+</tr>
+<tr>
+<td><code>unknown</code></td>
+<td><code>"by_schema"</code></td>
+<td><code>"by_schema"</code>, <code>"allow"</code> or <code>"reject"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Numbers must be nonnegative native-size integers. <code>math.huge</code> represents
+<code>SIZE_MAX</code> for upper length/occurrence bounds and <code>max_elements</code>. Lua versions
+with floating-point-only numbers retain their usual integer precision limits.
+Native fixed traversal/path capacities also apply; exceeding them returns
+<code>LIMIT</code>. Format selects framing; Schema does not add semantic DER or protocol
+value validation.</p>
+<p>The result always contains <code>ok</code>, numeric <code>code</code>, <code>diagnostics</code>, <code>total_count</code>
+and <code>truncated</code>. Success has code <code>OK</code> and an empty diagnostics array. Schema
+violations return code <code>SCHEMA</code>; <code>total_count</code> counts every native violation,
+even when <code>capacity</code> stores only a prefix. <code>truncated</code> reports an omitted suffix.
+The C engine determines diagnostic ordering; within-scope order is unspecified.</p>
+<p>Malformed input, invalid schema configuration and exceeded limits return
+<code>ok = false</code> and the native error code. They return one basic diagnostic,
+<code>total_count = 1</code> and <code>truncated = false</code>, even at <code>capacity = 0</code>; this capacity
+limits schema reports only. C provides no partial schema report on these
+failures. Lua argument/type errors and allocation failures raise Lua errors.</p>
+<h2 id="diagnostic-tables">Diagnostic tables<a class="headerlink" href="#diagnostic-tables" title="Permanent link">&para;</a></h2>
+<p>Schema reports, Reader and Writer use the same common native diagnostic
+conversion. Tables own their strings and remain valid after the input,
+Schema or Reader/Writer is collected. Common fields are <code>code</code>, <code>message</code>
+(from <code>tlv_strerror()</code>), and <code>severity</code> (<code>"error"</code>, <code>"warning"</code>, <code>"info"</code>).
+<code>offset</code>, <code>expected</code>, <code>actual</code>, <code>path</code> and <code>contexts</code> appear only when supplied
+by C. Offsets remain zero-based bytes, independent of Lua array indexing.
+<code>contexts</code> is an array of <code>{layer, key, value}</code> tables in native order.</p>
+<p>Schema violations additionally provide:</p>
+<ul>
+<li><code>kind</code>: <code>"missing"</code>, <code>"duplicate"</code>, <code>"unexpected"</code>, <code>"kind"</code>, <code>"length"</code> or <code>"order"</code>.</li>
+<li><code>tag</code>: affected binary identifier; <code>path</code>: binary identifiers of enclosing
+  scopes, outermost first, excluding <code>tag</code>.</li>
+<li>Optional <code>field</code> and boolean <code>is_group</code>.</li>
+<li><code>occurrences</code> or <code>length</code>: <code>{minimum, maximum, actual}</code> when applicable.
+  An unrestricted maximum is <code>math.huge</code>.</li>
+<li><code>length_multiple</code> and <code>length_flags</code> for length failures.</li>
+<li><code>form</code>: <code>{expected, actual_constructed}</code> for kind failures, with an expected
+  kind string and an actual boolean.</li>
+</ul>
+<p>These typed fields are copied from the C report. The binding does not invent
+textual <code>expected</code>/<code>actual</code> descriptions. Missing-field reports use the native
+parent-element offset when nested and have no offset at root level. Fatal
+diagnostics carry only code/message/severity and the offset if C provided one;
+the binding does not reparse the input to reconstruct tag or path information.</p>
+<p>See the runnable <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/schema.lua">schema example</a>.</p>
 
 
 
