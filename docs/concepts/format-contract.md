@@ -62,6 +62,67 @@ cannot represent the identifier/content. Identifier mapping is not implicit.
 Canonical transformations that change Value bytes are separate content
 transformations, not semantic identity at this boundary.
 
+## Field ordering and length scope
+
+Format owns wire representation rules and composes reusable Field Encoding
+mechanics with field ordering and framing. Reader and Writer delegate decoding
+and encoding to Format; they do not interpret field order. Layout records the
+resulting source ranges, while Element retains only the semantic identifier
+and Value. Schema does not select wire field order.
+
+The existing generic field composition supports two orders, with Value last:
+
+- `TLV_ELEMENT_ORDER_TLV`: Type (Tag), Length, Value.
+- `TLV_ELEMENT_ORDER_LTV`: Length, Type (Tag), Value.
+
+These are defined compositions, not configurable arbitrary field permutations.
+Formats requiring other arrangements can implement the canonical Format
+operations while preserving the same Element and source contracts. Reusable
+mechanics belong in generic primitives; protocol wire restrictions belong in
+the corresponding Format implementation.
+
+Field order and length scope are independent. `TLV_LENGTH_SCOPE_VALUE` counts
+only Value bytes; `TLV_LENGTH_SCOPE_TAG_AND_VALUE` counts the encoded identifier
+and Value bytes, excluding the Length field itself. Both orders support both
+scopes. In every case, `element.value.size` counts only Value bytes.
+
+For one-byte Type and Length fields, these inputs describe the same semantic
+Tag `09` and Value `41 42`:
+
+| Composition | Length scope | Wire bytes | Tag offset | Length offset |
+| --- | --- | --- | --- | --- |
+| TLV | Value | `09 02 41 42` | 0 | 1 |
+| LTV | Value | `02 09 41 42` | 1 | 0 |
+| Bluetooth LTV | Tag and Value | `03 09 41 42` | 1 | 0 |
+
+All three have Header `[0, 2)`, Value `[2, 4)` and a present empty Trailer at
+offset 4. Their Elements compare equal by identifier and Value bytes, even
+though their borrowed pointers and original wire representations differ.
+[Bluetooth Advertising Data](../formats/bluetooth/README.md) uses the third
+configuration; Type `09` identifies a Complete Local Name, here `AB`.
+This demonstrates framing equivalence without requiring a Definition lookup
+or interpreting Value during decoding.
+
+Use `tlv_fixed_format_init()` with `tag_size = 1`, `length_size = 1`, an explicit
+`length_order`, and the selected `element_order` and `length_scope` to reproduce
+these compositions. Fixed delegates to the generic binary-field composition;
+custom field codecs can use `tlv_field_layout_t` and `tlv_fields_format_init()`.
+Format configuration must outlive its descriptor and all retained sources.
+
+Encoding an Element uses the destination Format's order and count scope.
+Explicit `tlv_source_preserve()` (or `tlv_writer_preserve()`) instead reproduces
+the original bytes for unchanged semantic content. Source ranges describe
+that original representation, not a later encoding in another Format.
+
+The regression test `EquivalentElementsKeepTheirOwnLayoutAcrossOrdersAndScopes`
+in `tests/integration/formats/format_fixed_test.cpp` checks these examples,
+source ranges, explicit preservation and encoding each decoded Element into
+each destination composition through the shared Reader/Writer APIs. Existing
+Fixed and Variable tests cover both orders crossed with both length scopes;
+Tree Reader and Tree Writer tests exercise LTV through the same upper layers.
+NFC Type 2 support and its control rules are outside this ordering contract's
+validation scope.
+
 ## Format operations
 
 The descriptor has one decode operation, one measure operation and one encode
