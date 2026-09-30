@@ -112,7 +112,7 @@ pub use schema::{
 };
 pub use source::{decode, decode_fixed, Decoded, Layout};
 pub use tag::Tag;
-pub use tree_reader::{TreeItem, TreeReader};
+pub use tree_reader::{TreeEvent, TreeItem, TreeReader};
 pub use tree_writer::{TreeWriteItem, TreeWriter, WriterDiagnostic};
 pub use validation::{Limits, Strictness, ValidationError};
 pub use visitor::Visit;

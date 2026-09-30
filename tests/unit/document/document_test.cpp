@@ -1008,6 +1008,13 @@ TEST(Unit_Tlv_DocumentBuilder, SelectedIndefiniteSubtreeStopsAfterTrailers) {
     Doc     doc;
     ASSERT_EQ(TLV_OK, tlv_document_builder_consume(raw, &doc.handle, nullptr, nullptr));
     EXPECT_EQ(Bytes({0xE2, 3, 0x04, 1, 0xAA}), encode(doc.get()));
+    // Builder consumes its selected END, leaving enclosing closure for the caller.
+    EXPECT_EQ(9u, tlv_tree_reader_offset(&reader));
+    tlv_tree_event_t end{};
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &end));
+    EXPECT_EQ(TLV_TREE_END, end.kind);
+    EXPECT_EQ(0u, end.depth);
+    EXPECT_EQ(9u, end.offset);
     EXPECT_EQ(11u, tlv_tree_reader_offset(&reader));
     ASSERT_EQ(TLV_OK, tlv_tree_reader_next(&reader, &item));
     EXPECT_EQ(11u, item.offset);

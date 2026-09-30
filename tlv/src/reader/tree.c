@@ -1,10 +1,29 @@
 #include "tlv/reader/tree.h"
 
-/* Skip enclosing trailers using structural offsets, never retained Elements. */
-static void close_scopes(tlv_tree_reader_t* reader) {
-    while (reader->depth &&
-           tlv_reader_offset(&reader->input) == reader->frames[reader->depth - 1].end) {
-        reader->input.pos = reader->frames[--reader->depth].resume - reader->input.base_offset;
+/* END is structural: no borrowed parent needs to survive until closure. */
+static int close_event(tlv_tree_reader_t* reader, tlv_tree_event_t* event) {
+    tlv_tree_frame_t frame;
+    if (reader->end_pending) {
+        frame = reader->pending;
+        event->skipped = reader->skipped;
+        reader->end_pending = reader->skipped = 0;
+        event->depth = reader->depth;
+    } else if (!reader->descend_pending && reader->depth &&
+               tlv_reader_offset(&reader->input) == reader->frames[reader->depth - 1].end) {
+        frame = reader->frames[--reader->depth];
+        event->depth = reader->depth;
+    } else {
+        return 0;
+    }
+    event->kind = TLV_TREE_END;
+    event->offset = frame.end;
+    reader->input.pos = frame.resume - reader->input.base_offset;
+    return 1;
+}
+
+static void drain_ends(tlv_tree_reader_t* reader) {
+    tlv_tree_event_t event = {0};
+    while (close_event(reader, &event)) {
     }
 }
 
@@ -49,17 +68,23 @@ size_t tlv_tree_reader_offset(const tlv_tree_reader_t* reader) {
 }
 
 int tlv_tree_reader_at_end(const tlv_tree_reader_t* reader) {
-    return reader && !reader->descend_pending && !reader->depth &&
+    return reader && !reader->descend_pending && !reader->end_pending && !reader->depth &&
            tlv_reader_at_end(&reader->input);
 }
 
-tlv_result_t tlv_tree_reader_next_diag(tlv_tree_reader_t* reader, tlv_tree_item_t* item,
-                                       tlv_reader_diagnostic_t* diagnostic) {
+tlv_result_t tlv_tree_reader_next_event_diag(tlv_tree_reader_t* reader, tlv_tree_event_t* item,
+                                             tlv_reader_diagnostic_t* diagnostic) {
     tlv_reader_t input;
-    tlv_tree_item_t next = {0};
+    tlv_tree_event_t next = {0};
+    int constructed;
     size_t depth;
     tlv_result_t rc;
     if (!reader || !item) return TLV_ERR_NULL_ARG;
+    if (close_event(reader, &next)) {
+        reader->item_projection = 0;
+        *item = next;
+        return TLV_OK;
+    }
     input = reader->input;
     depth = reader->depth;
     if (reader->descend_pending) {
@@ -76,22 +101,43 @@ tlv_result_t tlv_tree_reader_next_diag(tlv_tree_reader_t* reader, tlv_tree_item_
     next.depth = depth;
     rc = tlv_reader_next_source_diag(&input, &next.element, &next.source, diagnostic);
     if (rc != TLV_OK) return rc;
-    next.constructed = input.format->is_constructed &&
-                       input.format->is_constructed(input.format->context, &next.element.tag);
+    constructed = input.format->is_constructed &&
+                  input.format->is_constructed(input.format->context, &next.element.tag);
     if (reader->descend_pending) reader->frames[reader->depth] = reader->pending;
     reader->depth = depth;
     reader->input.pos = input.pos;
     ++reader->count;
-    reader->descend_pending = next.constructed && next.element.value.size;
-    if (reader->descend_pending) {
+    next.kind = constructed ? TLV_TREE_BEGIN : TLV_TREE_ELEMENT;
+    reader->item_projection = 0;
+    reader->descend_pending = constructed && next.element.value.size;
+    reader->end_pending = constructed && !next.element.value.size;
+    if (constructed) {
         const size_t start = next.offset + next.source.value.offset;
         reader->pending.end = start + next.source.value.size;
         reader->pending.resume = tlv_reader_offset(&input);
         reader->input.pos = start - input.base_offset;
-    } else {
-        close_scopes(reader);
     }
     *item = next;
+    return TLV_OK;
+}
+
+tlv_result_t tlv_tree_reader_next_event(tlv_tree_reader_t* reader, tlv_tree_event_t* event) {
+    return tlv_tree_reader_next_event_diag(reader, event, NULL);
+}
+
+tlv_result_t tlv_tree_reader_next_diag(tlv_tree_reader_t* reader, tlv_tree_item_t* item,
+                                       tlv_reader_diagnostic_t* diagnostic) {
+    tlv_tree_event_t event;
+    tlv_result_t rc;
+    if (!reader || !item) return TLV_ERR_NULL_ARG;
+    do {
+        rc = tlv_tree_reader_next_event_diag(reader, &event, diagnostic);
+        if (rc != TLV_OK) return rc;
+    } while (event.kind == TLV_TREE_END);
+    *item = (tlv_tree_item_t){event.element, event.source, event.depth, event.offset,
+                              event.kind == TLV_TREE_BEGIN};
+    reader->item_projection = 1;
+    drain_ends(reader);
     return TLV_OK;
 }
 
@@ -104,6 +150,7 @@ tlv_result_t tlv_tree_reader_skip_subtree(tlv_tree_reader_t* reader) {
     if (!reader->descend_pending) return TLV_ERR_INVALID_ARG;
     reader->input.pos = reader->pending.resume - reader->input.base_offset;
     reader->descend_pending = 0;
-    close_scopes(reader);
+    reader->end_pending = reader->skipped = 1;
+    if (reader->item_projection) drain_ends(reader);
     return TLV_OK;
 }

@@ -82,20 +82,25 @@ for primitive elements and indefinite framing for constructed elements.
 
 ## Reader → transform → Writer
 
-A Tree Reader returns complete Elements in preorder with an item depth. Before
-processing each item, close writer parents until the number of open parents
-equals that depth. For a constructed item, call `begin()` with its destination
-Tag; for a primitive item, transform its content and call `write_element()`.
-At final Reader exhaustion, close the remaining parents and call `finish()`.
-An empty constructed item is opened and closed by the same depth transitions.
+Pull `tlv_tree_reader_next_event()` and pass each successful event directly to
+`tlv_tree_writer_write_event()`, optionally modifying node content between them.
+BEGIN opens the destination Tag and ignores the original parent Value; ELEMENT
+writes primitive content; END encodes the accumulated parent. No depth reconstruction
+or final implicit closure is required. `finish()` rejects missing END events.
 
-Alternatively, write an unchanged complete subtree with `write_element()` and
-call `tlv_tree_reader_skip_subtree()` before advancing, when that subtree is
-nonempty. Its descendants must not be written a second time. Input and output
-remain separate, and input-backed Tags retained by `begin()` must stay alive
-until their parents close. Non-final `TLV_NEED_MORE_DATA` does not close scopes.
-No Document is required; this remains subject to Tree Reader's complete-parent
-input contract. Format conversion may reject destination identifiers or content.
+Writer checks event depth and destination classification. It rejects skipped END
+because omitted descendants are not an empty container. Code choosing to copy a
+complete subtree with `write_element()` must suppress that subtree's BEGIN and
+skipped END rather than write it twice. Query matches alone are not a balanced
+structural stream.
+
+Input and output remain separate. In default mode BEGIN borrows its Tag until END.
+Use `tlv_tree_writer_set_tag_storage()` with disjoint caller-owned bytes to retain
+open Tags independently of a replaceable Reader buffer; exhaustion returns LIMIT.
+On Writer failure retain the current event for retry before pulling another one.
+NEED_MORE_DATA publishes nothing and does not close scopes. No Document is required;
+Tree Reader still requires a complete parent before BEGIN. Format conversion may
+reject destination identifiers or content. See the [event contract](../concepts/processing-pipeline.md#canonical-structural-events-402).
 
 ## Example
 
@@ -146,10 +151,12 @@ int main(void) {
 
 ## Measuring an owned tree
 
-`tlv_tree_writer_measure()` consumes a caller-supplied preorder callback. The
-callback returns each semantic Element, its depth, and its constructed flag;
-Tree Writer opens and closes scopes, including empty parents. It has no dependency
-on Document. A Document or another tree owner can supply the same source contract.
+`tlv_tree_writer_measure_events()` consumes a balanced structural event callback.
+Document and other tree producers supply the same BEGIN/ELEMENT/END contract.
+The node-only `tlv_tree_writer_measure()` callback remains an adapter that supplies
+missing closures to the same event consumer. Tree Writer has no Document dependency.
+The event helper requires explicit final ENDs; NEED_MORE_DATA aborts this one-shot
+operation, so use a persistent Writer for resumable transformations.
 
 The caller supplies `tlv_tree_writer_workspace_t`: frames, staging output and a
 separate shared scratch buffer. Measurement stages the encoding so that every

@@ -58,6 +58,36 @@ measure_tree(const tlv_format_t& format, Source&& next, tree_writer_workspace& w
 }
 
 /**
+ * @brief Measure and stage a balanced canonical event stream through C.
+ * @param format Borrowed destination Format.
+ * @param next Callable taking tlv_tree_event_t& and returning expected<bool, error>.
+ * True supplies one event; false is final EOF. The callable must not throw.
+ * @param workspace Caller-owned bounded staging storage.
+ * @param max_depth Maximum node depth.
+ * @param max_elements Maximum BEGIN/ELEMENT count.
+ * @param diagnostic Optional failure detail.
+ * @return Exact staged size or source/Writer error. Retry with a fresh producer.
+ * @warning BEGIN Tags must remain alive until this operation returns.
+ */
+template <typename Source>
+TLV_NODISCARD expected<size_t, error>
+measure_tree_events(const tlv_format_t& format, Source&& next, tree_writer_workspace& workspace,
+                    size_t max_depth = TLV_TREE_DEFAULT_DEPTH, size_t max_elements = SIZE_MAX,
+                    writer_diagnostic* diagnostic = nullptr) {
+    using callable = typename std::remove_reference<Source>::type;
+    auto callback = [](void* context, tlv_tree_event_t* event) -> tlv_result_t {
+        auto item = (*static_cast<callable*>(context))(*event);
+        if (!item) return item.error().code;
+        return *item ? TLV_OK : TLV_ERR_END_OF_BUFFER;
+    };
+    size_t size = 0;
+    auto   rc = tlv_tree_writer_measure_events(&format, callback, &next, &workspace, max_depth,
+                                               max_elements, &size, diagnostic);
+    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    return size;
+}
+
+/**
  * @brief Iterative bounded writer with the storage and failure contracts of #tlv_tree_writer_t.
  *
  * Success paths do not allocate. Error conversion may allocate a message string.
@@ -85,6 +115,31 @@ public:
         : init_result_(tlv_tree_writer_init(
               &impl_, reinterpret_cast<uint8_t*>(data), capacity, &format, frames, frame_capacity,
               reinterpret_cast<uint8_t*>(scratch), scratch_capacity, max_depth, max_elements)) {}
+
+    /**
+     * @brief Copy open Tags into disjoint caller-owned storage until matching END.
+     * @param storage Storage that outlives this writer; empty NULL storage restores borrowing.
+     * @return C configuration result; cannot change storage with open parents.
+     */
+    TLV_NODISCARD expected<void, error> set_tag_storage(span<byte> storage) {
+        return result(init_result_ == TLV_OK
+                          ? tlv_tree_writer_set_tag_storage(
+                                &impl_, reinterpret_cast<uint8_t*>(storage.data()), storage.size())
+                          : init_result_);
+    }
+
+    /**
+     * @brief Consume a canonical event, checking depth and destination classification.
+     * @param event Borrowed event; BEGIN retains Tag unless copying storage is configured.
+     * @param diagnostic Optional Writer failure detail.
+     * @return C result; retry the same event on recoverable failure.
+     */
+    TLV_NODISCARD expected<void, error> write_event(const tlv_tree_event_t& event,
+                                                    writer_diagnostic*      diagnostic = nullptr) {
+        return result(init_result_ == TLV_OK
+                          ? tlv_tree_writer_write_event_diag(&impl_, &event, diagnostic)
+                          : init_result_);
+    }
 
     /**
      * @brief Open a constructed parent; Tag bytes remain borrowed until end().

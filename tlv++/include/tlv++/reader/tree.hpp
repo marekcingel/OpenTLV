@@ -12,6 +12,8 @@ namespace tlv {
 using tree_frame = tlv_tree_frame_t;
 /** @brief Complete borrowed element, source, depth, absolute offset and classification. */
 using tree_item = tlv_tree_item_t;
+/** @brief Canonical borrowed BEGIN, ELEMENT or END event. */
+using tree_event = tlv_tree_event_t;
 
 /**
  * @brief Bounded preorder traversal with incremental input and subtree control.
@@ -52,8 +54,9 @@ public:
      * @param[out] diagnostic Optional Reader failure detail; unchanged on success
      * or tree resource errors.
      * @return Item, NEED_MORE_DATA, END_OF_BUFFER, or the original C error.
-     * @note Non-success preserves traversal state. A parent is published only
-     * when its entire encoded extent is available; there are no ENTER/LEAVE events.
+     * @note Hides pending END events before reading a node. Apart from those
+     * closures, non-success preserves traversal state. A parent requires its
+     * entire encoded extent; use next_event() for explicit structural events.
      */
     TLV_NODISCARD expected<tree_item, error> next(reader_diagnostic* diagnostic = nullptr) {
         has_current_ = false;
@@ -64,6 +67,22 @@ public:
         current_ = result;
         has_current_ = true;
         return result;
+    }
+
+    /**
+     * @brief Pull a canonical structural event from the C engine.
+     * @param diagnostic Optional original Reader failure detail.
+     * @return Event or the original Reader error; borrowed payload follows input lifetime.
+     * @note Do not mix with node-only pulls when consuming a balanced stream.
+     */
+    TLV_NODISCARD expected<tree_event, error> next_event(reader_diagnostic* diagnostic = nullptr) {
+        has_current_ = false;
+        tree_event event{};
+        auto       rc = init_result_ == TLV_OK
+                            ? tlv_tree_reader_next_event_diag(&impl_, &event, diagnostic)
+                            : init_result_;
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        return event;
     }
 
     /**

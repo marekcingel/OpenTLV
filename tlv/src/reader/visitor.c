@@ -13,6 +13,8 @@ tlv_result_t tlv_tree_reader_visit_diag(tlv_tree_reader_t* reader, tlv_tree_visi
     tlv_result_t rc;
     if (diagnostic) tlv_reader_diagnostic_init(diagnostic);
     if (!reader) return tree_error(TLV_ERR_NULL_ARG, 0, error_offset);
+    /* Node projection drains structural ENDs before callbacks, preserving STOP
+     * and Query frontier semantics even when the last match closes its parents. */
     while (!tlv_tree_reader_at_end(reader)) {
         tlv_tree_item_t item;
         rc = tlv_tree_reader_next_diag(reader, &item, diagnostic);

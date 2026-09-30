@@ -16,6 +16,24 @@ pub struct TreeItem<'a> {
     pub constructed: bool,
 }
 
+/// Canonical structural stream. END has no borrowed parent payload.
+#[derive(Clone, Debug)]
+pub enum TreeEvent<'a> {
+    /// Open a constructed node; Writer ignores its original Value.
+    Begin(TreeItem<'a>),
+    /// One primitive node.
+    Element(TreeItem<'a>),
+    /// Close the innermost container; skipped marks omitted descendants.
+    End {
+        /// Depth of the container being closed.
+        depth: usize,
+        /// Absolute end of the original Value, before its trailer.
+        offset: usize,
+        /// Descendants were omitted instead of validated.
+        skipped: bool,
+    },
+}
+
 /// Preorder traversal backed exclusively by C; owns bounded frame storage.
 /// Input and custom fixed descriptors are borrowed for `'a`. Moving the reader
 /// does not move its heap-backed frames. It cannot be cloned to alias frame state.
@@ -152,6 +170,53 @@ impl<'a> TreeReader<'a> {
         };
         self.current = Some(item);
         Ok(result)
+    }
+
+    /// Pull one canonical event. Do not mix with node-only reads for a balanced stream.
+    pub fn read_event(&mut self) -> Result<TreeEvent<'a>> {
+        self.current = None;
+        let mut event = MaybeUninit::uninit();
+        let mut diag = MaybeUninit::uninit();
+        // SAFETY: cursor and borrowed input remain live, outputs are writable.
+        let (code, diag) = unsafe {
+            native::tlv_reader_diagnostic_init(diag.as_mut_ptr());
+            let code = native::tlv_tree_reader_next_event_diag(
+                &mut self.raw,
+                event.as_mut_ptr(),
+                diag.as_mut_ptr(),
+            );
+            (code, diag.assume_init())
+        };
+        // SAFETY: original diagnostic storage remains live.
+        self.diagnostic =
+            (code != native::TLV_OK).then(|| unsafe { ReaderDiagnostic::from_raw(&diag) });
+        Error::check(code)?;
+        // SAFETY: successful pull initialized event.
+        let event = unsafe { event.assume_init() };
+        if event.kind == native::TLV_TREE_END {
+            return Ok(TreeEvent::End {
+                depth: event.depth,
+                offset: event.offset,
+                skipped: event.skipped != 0,
+            });
+        }
+        let item = TreeItem {
+            // SAFETY: node event contains a complete decode borrowing input for 'a.
+            decoded: unsafe {
+                Decoded::from_raw(native::tlv_decoded_t {
+                    element: event.element,
+                    source: event.source,
+                })
+            }?,
+            depth: event.depth,
+            offset: event.offset,
+            constructed: event.kind == native::TLV_TREE_BEGIN,
+        };
+        Ok(if item.constructed {
+            TreeEvent::Begin(item)
+        } else {
+            TreeEvent::Element(item)
+        })
     }
 
     /// Skips the pending subtree; may recover from a descent limit failure.

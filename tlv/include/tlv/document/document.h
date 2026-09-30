@@ -154,12 +154,14 @@ TLV_API tlv_result_t tlv_document_builder_create(const tlv_document_options_t* o
                                                  tlv_document_builder_t** builder);
 
 /**
- * @brief Consume available tree items and transfer ownership only on completion.
+ * @brief Consume structural events and transfer ownership only on completion.
  *
  * A whole-stream builder completes at final end. A subtree builder completes
  * after its root and descendants, without decoding the following sibling; the
  * cursor is ready to continue outside that subtree. Empty and primitive roots
- * complete without another pull. This validates only the selected range.
+ * complete without another pull. Enclosing END events outside the selected
+ * subtree remain pending, so the frontier may precede an enclosing trailer.
+ * This validates only the selected range.
  *
  * @param[in,out] builder Active builder; required.
  * @param[out] document Required output; receives the owned document on success,

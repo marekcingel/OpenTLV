@@ -1,5 +1,6 @@
 #include "controlled_format.h"
 #include "tlv/reader/tree.h"
+#include "tlv/writer/tree.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>
@@ -260,4 +261,154 @@ TEST(Unit_Tlv_Tree, OpaqueFormatDoesNotInspectValuesAndPropagatesCallbackErrors)
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_tree_reader_next(&reader, &item));
     EXPECT_FALSE(tlv_tree_reader_at_end(&reader));
     EXPECT_EQ(0u, reader.count);
+}
+
+TEST(Unit_Tlv_Tree, CanonicalEventsRoundTripAndCloseBeforeNeedMore) {
+    const uint8_t     data[] = {0xE1, 6, 1, 0, 0xE2, 2, 2, 0, 0xE3, 0};
+    tlv_tree_frame_t  frames[2];
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init_incremental(&reader, data, sizeof(data), &format, frames,
+                                                       2, 2, 5));
+    uint8_t                 output[32], scratch[32], tags[2];
+    tlv_tree_writer_frame_t output_frames[2];
+    tlv_tree_writer_t       writer;
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_init(&writer, output, sizeof(output), &format, output_frames,
+                                           2, scratch, sizeof(scratch), 2, 5));
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_set_tag_storage(&writer, tags, sizeof(tags)));
+    const tlv_tree_event_kind_t kinds[] = {TLV_TREE_BEGIN,   TLV_TREE_ELEMENT, TLV_TREE_BEGIN,
+                                           TLV_TREE_ELEMENT, TLV_TREE_END,     TLV_TREE_END,
+                                           TLV_TREE_BEGIN,   TLV_TREE_END};
+    const size_t                depths[] = {0, 1, 1, 2, 1, 0, 0, 0};
+    tlv_tree_event_t            event{};
+    for (size_t i = 0; i < 8; ++i) {
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
+        EXPECT_EQ(kinds[i], event.kind);
+        EXPECT_EQ(depths[i], event.depth);
+        if (event.kind == TLV_TREE_END) {
+            EXPECT_EQ(nullptr, event.element.tag.data);
+            EXPECT_EQ(nullptr, event.source.data);
+        }
+        ASSERT_EQ(TLV_OK, tlv_tree_writer_write_event(&writer, &event));
+    }
+    EXPECT_EQ(5u, reader.count);
+    EXPECT_EQ(0u, writer.tags_used);
+    EXPECT_EQ(TLV_OK, tlv_tree_writer_finish(&writer));
+    ASSERT_EQ(sizeof(data), tlv_tree_writer_size(&writer));
+    EXPECT_EQ(0, std::memcmp(data, output, sizeof(data)));
+    const auto before = reader;
+    for (int i = 0; i < 2; ++i) {
+        EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_tree_reader_next_event(&reader, &event));
+        EXPECT_EQ(TLV_TREE_END, event.kind);
+        EXPECT_EQ(before.input.pos, reader.input.pos);
+        EXPECT_EQ(before.depth, reader.depth);
+    }
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, nullptr, 0, sizeof(data), 1));
+    EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_tree_reader_next_event(&reader, &event));
+}
+
+TEST(Unit_Tlv_Tree, EventSkipIsBalancedAndWriterRejectsOmittedContent) {
+    const uint8_t     data[] = {0xE1, 1, 0xFF};
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, data, sizeof(data), &format, nullptr, 0, 0, 1));
+    tlv_tree_event_t event{};
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_tree_reader_next_event(&reader, &event));
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_skip_subtree(&reader));
+    EXPECT_FALSE(tlv_tree_reader_at_end(&reader));
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
+    EXPECT_EQ(TLV_TREE_END, event.kind);
+    EXPECT_TRUE(event.skipped);
+    EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
+    uint8_t                 output[8], scratch[8];
+    tlv_tree_writer_frame_t frame;
+    tlv_tree_writer_t       writer;
+    ASSERT_EQ(TLV_OK,
+              tlv_tree_writer_init(&writer, output, 8, &format, &frame, 1, scratch, 8, 1, 1));
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_begin(&writer, tlv_tag(data, 1)));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_write_event(&writer, &event));
+    EXPECT_EQ(1u, writer.depth);
+}
+
+TEST(Unit_Tlv_Tree, EventPipelineCanDiscardAndOverwriteParentTags) {
+    uint8_t           data[] = {0xE1, 4, 0xE2, 2, 1, 0};
+    tlv_tree_frame_t  frames[2];
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init_incremental(&reader, data, sizeof(data), &format, frames,
+                                                       2, 2, 3));
+    uint8_t                 output[16], scratch[16], tags[2];
+    tlv_tree_writer_frame_t output_frames[2];
+    tlv_tree_writer_t       writer;
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_init(&writer, output, 16, &format, output_frames, 2, scratch,
+                                           16, 2, 3));
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_set_tag_storage(&writer, tags, 2));
+    tlv_tree_event_t event{};
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_write_event(&writer, &event));
+    const uint8_t remaining[] = {0xE2, 2, 1, 0};
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, remaining, 4, 2, 1));
+    std::memset(data, 0xFF, sizeof(data));
+    while (!tlv_tree_reader_at_end(&reader)) {
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
+        ASSERT_EQ(TLV_OK, tlv_tree_writer_write_event(&writer, &event));
+    }
+    const uint8_t expected[] = {0xE1, 4, 0xE2, 2, 1, 0};
+    ASSERT_EQ(sizeof(expected), tlv_tree_writer_size(&writer));
+    EXPECT_EQ(0, std::memcmp(expected, output, sizeof(expected)));
+}
+
+TEST(Unit_Tlv_Tree, EventWriterRejectsDepthAndSupportsRetryAfterTagLimit) {
+    uint8_t                 output[16], scratch[16], tag_storage[1];
+    const uint8_t           tag[] = {0xE1};
+    tlv_tree_writer_frame_t frame;
+    tlv_tree_writer_t       writer;
+    ASSERT_EQ(TLV_OK,
+              tlv_tree_writer_init(&writer, output, 16, &format, &frame, 1, scratch, 16, 1, 1));
+    tlv_tree_event_t event{};
+    event.kind = TLV_TREE_BEGIN;
+    event.element.tag = tlv_tag(tag, 1);
+    event.depth = 1;
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_write_event(&writer, &event));
+    event.depth = 0;
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_set_tag_storage(&writer, tag_storage, 0));
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_tree_writer_write_event(&writer, &event));
+    EXPECT_EQ(0u, writer.count);
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_set_tag_storage(&writer, tag_storage, 1));
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_write_event(&writer, &event));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_set_tag_storage(&writer, nullptr, 0));
+    event = {};
+    event.kind = TLV_TREE_END;
+    ASSERT_EQ(TLV_OK, tlv_tree_writer_write_event(&writer, &event));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_writer_write_event(&writer, &event));
+    EXPECT_EQ(0u, writer.tags_used);
+}
+
+TEST(Unit_Tlv_Tree, EventSplitsAreTransactionalAndEmptyContainersNeedNoFrame) {
+    const uint8_t data[] = {0xE1, 2, 0xE2, 0};
+    for (size_t split = 0; split < sizeof(data); ++split) {
+        tlv_tree_frame_t  frame{99, 98};
+        tlv_tree_reader_t reader;
+        ASSERT_EQ(TLV_OK,
+                  tlv_tree_reader_init_incremental(&reader, data, split, &format, &frame, 1, 1, 2));
+        tlv_tree_event_t event{};
+        event.offset = 999;
+        EXPECT_EQ(TLV_NEED_MORE_DATA, tlv_tree_reader_next_event(&reader, &event));
+        EXPECT_EQ(999u, event.offset);
+        EXPECT_EQ(99u, frame.end);
+        EXPECT_EQ(0u, reader.count);
+        ASSERT_EQ(TLV_OK, tlv_tree_reader_set_input(&reader, data, sizeof(data), 0, 1));
+        for (auto kind : {TLV_TREE_BEGIN, TLV_TREE_BEGIN, TLV_TREE_END, TLV_TREE_END}) {
+            ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
+            EXPECT_EQ(kind, event.kind);
+        }
+        EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
+    }
+    tlv_tree_reader_t reader;
+    tlv_tree_event_t  event{};
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&reader, data + 2, 2, &format, nullptr, 0, 0, 1));
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
+    EXPECT_EQ(TLV_TREE_BEGIN, event.kind);
+    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_tree_reader_skip_subtree(&reader));
+    ASSERT_EQ(TLV_OK, tlv_tree_reader_next_event(&reader, &event));
+    EXPECT_EQ(TLV_TREE_END, event.kind);
+    EXPECT_FALSE(event.skipped);
 }

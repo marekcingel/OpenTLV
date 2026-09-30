@@ -42,6 +42,28 @@ class TreeWriter:
         """Append a semantic Element through C; no tag/value input is retained."""
         self._action(1, element.tag.data, bytes(element.value))
 
+    def set_tag_capacity(self, capacity=None) -> None:
+        """Configure bounded owned Tag copying; None restores retained-tag mode.
+
+        Requires no open parents. Zero capacity rejects nonempty identifiers.
+        """
+        if capacity is not None and capacity < 0:
+            raise ValueError("nonnegative Tag capacity required")
+        try:
+            _native.tree_writer_tags(self._capsule, -1 if capacity is None else capacity)
+        except _native.Error as error:
+            raise _from_native(error) from None
+
+    def write_event(self, event) -> None:
+        """Consume through C; retain BEGIN tag ownership until successful END."""
+        element = event.item.element if event.item is not None else None
+        try:
+            _native.tree_writer_event(self._capsule, int(event.kind), event.depth,
+                                      element.tag.data if element else b"",
+                                      bytes(element.value) if element else b"", event.skipped)
+        except _native.Error as error:
+            raise _from_native(error) from None
+
     def end(self) -> None:
         """Close the innermost parent; failure preserves state and output."""
         self._action(2)
@@ -72,6 +94,28 @@ class TreeWriter:
                    for element, depth, constructed in items)
         try:
             return _native.tree_writer_measure(writer._capsule, records)
+        except _native.Error as native_error:
+            error = _from_native(native_error)
+            error.required_data = getattr(native_error, "required_data", 0)
+            error.required_scratch = getattr(native_error, "required_scratch", 0)
+            raise error from None
+
+
+    @classmethod
+    def measure_events(cls, events, capacity, format=None, **options) -> bytes:
+        """Stage a balanced event stream through C; retry requires a fresh source.
+
+        Owned records keep BEGIN Tags alive. Workspace requirements are reported
+        as for measure(); NEED_MORE_DATA aborts this one-shot operation.
+        """
+        writer = cls(capacity, format, **options)
+        def records():
+            for event in events:
+                element = event.item.element if event.item is not None else None
+                yield (int(event.kind), event.depth, element.tag.data if element else b"",
+                       bytes(element.value) if element else b"", event.skipped)
+        try:
+            return _native.tree_writer_measure(writer._capsule, records(), True)
         except _native.Error as native_error:
             error = _from_native(native_error)
             error.required_data = getattr(native_error, "required_data", 0)

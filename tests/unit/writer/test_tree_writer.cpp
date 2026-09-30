@@ -1,5 +1,6 @@
 #include "controlled_format.h"
 #include "tlv++/writer/tree.hpp"
+#include "tlv++/reader/tree.hpp"
 #include "tlv++/writer/writer.hpp"
 #include <gtest/gtest.h>
 #include <vector>
@@ -78,4 +79,43 @@ TEST(Unit_Tlvpp_WriterParity, SingleWriteAndMeasurementMatchC) {
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, failure.error().code);
     EXPECT_TRUE(diagnostic.has_required);
     EXPECT_EQ(native_size, diagnostic.required);
+}
+
+TEST(Unit_Tlvpp_TreeWriterParity, CanonicalEventPipelineAndMeasurement) {
+    const uint8_t          input[] = {0xE1, 2, 1, 0};
+    tlv::tree_frame        read_frames[1];
+    tlv::tree_writer_frame write_frames[1];
+    tlv::byte              output[16], scratch[16], tags[1];
+    tlv::tree_reader reader(tlv::bytes(reinterpret_cast<const tlv::byte*>(input), sizeof(input)),
+                            format, tlv::span<tlv::tree_frame>(read_frames, 1), 1, 2);
+    tlv::tree_writer writer(output, 16, format, write_frames, 1, scratch, 16, 1, 2);
+    ASSERT_TRUE(writer.set_tag_storage(tlv::span<tlv::byte>(tags, 1)));
+    while (!reader.at_end()) {
+        auto event = reader.next_event();
+        ASSERT_TRUE(event);
+        ASSERT_TRUE(writer.write_event(*event));
+    }
+    ASSERT_TRUE(writer.finish());
+    ASSERT_EQ(sizeof(input), writer.size());
+    EXPECT_EQ(0, std::memcmp(input, output, sizeof(input)));
+    tlv::tree_reader source(tlv::bytes(reinterpret_cast<const tlv::byte*>(input), sizeof(input)),
+                            format, tlv::span<tlv::tree_frame>(read_frames, 1), 1, 2);
+    tlv::tree_writer_workspace workspace{write_frames,
+                                         1,
+                                         reinterpret_cast<uint8_t*>(output),
+                                         16,
+                                         reinterpret_cast<uint8_t*>(scratch),
+                                         16,
+                                         0,
+                                         0};
+    auto next = [&](tlv_tree_event_t& event) -> tlv::expected<bool, tlv::error> {
+        if (source.at_end()) return false;
+        auto pulled = source.next_event();
+        if (!pulled) return tlv::unexpected<tlv::error>(pulled.error());
+        event = *pulled;
+        return true;
+    };
+    auto measured = tlv::measure_tree_events(format, next, workspace, 1, 2);
+    ASSERT_TRUE(measured);
+    EXPECT_EQ(sizeof(input), *measured);
 }

@@ -11,6 +11,7 @@ typedef struct writer_state {
     tlv_fixed_format_t       fixed;
     tlv_tree_writer_frame_t* frames;
     uint8_t *                data, *scratch;
+    uint8_t*                 tag_storage;
     PyObject**               tags;
     size_t                   depth;
     int                      busy;
@@ -22,6 +23,7 @@ static void release_writer(writer_state* self) {
     free(self->frames);
     free(self->data);
     free(self->scratch);
+    free(self->tag_storage);
     free(self);
 }
 static void destroy_writer(PyObject* capsule) {
@@ -140,6 +142,67 @@ PyObject* opentlv_python_tree_writer_action(PyObject* module, PyObject* args) {
     return Py_NewRef(Py_None);
 }
 
+PyObject* opentlv_python_tree_writer_tags(PyObject* module, PyObject* args) {
+    (void)module;
+    PyObject*  capsule;
+    Py_ssize_t capacity;
+    if (!PyArg_ParseTuple(args, "On", &capsule, &capacity)) return NULL;
+    writer_state* self = PyCapsule_GetPointer(capsule, WRITER_NAME);
+    if (!self) return NULL;
+    if (self->busy || capacity < -1) {
+        PyErr_SetString(PyExc_ValueError, "invalid Tag storage configuration");
+        return NULL;
+    }
+    uint8_t* storage = capacity < 0 ? NULL : malloc(capacity ? (size_t)capacity : 1);
+    if (capacity >= 0 && !storage) return PyErr_NoMemory();
+    tlv_result_t code = tlv_tree_writer_set_tag_storage(&self->writer, storage,
+                                                        capacity < 0 ? 0 : (size_t)capacity);
+    if (code != TLV_OK) {
+        free(storage);
+        opentlv_python_raise_writer(code, NULL);
+        return NULL;
+    }
+    free(self->tag_storage);
+    self->tag_storage = storage;
+    return Py_NewRef(Py_None);
+}
+
+PyObject* opentlv_python_tree_writer_event(PyObject* module, PyObject* args) {
+    (void)module;
+    PyObject * capsule, *tag, *value;
+    int        kind, skipped;
+    Py_ssize_t depth;
+    if (!PyArg_ParseTuple(args, "OinOOp", &capsule, &kind, &depth, &tag, &value, &skipped))
+        return NULL;
+    writer_state* self = PyCapsule_GetPointer(capsule, WRITER_NAME);
+    if (!self) return NULL;
+    if (self->busy) {
+        PyErr_SetString(PyExc_RuntimeError, "Tree Writer is busy");
+        return NULL;
+    }
+    if (depth < 0 || !PyBytes_Check(tag) || !PyBytes_Check(value)) {
+        PyErr_SetString(PyExc_ValueError, "nonnegative depth and immutable bytes required");
+        return NULL;
+    }
+    tlv_tree_event_t event = {0};
+    event.kind = (tlv_tree_event_kind_t)kind;
+    event.depth = (size_t)depth;
+    event.skipped = skipped;
+    event.element.tag = tlv_tag((const uint8_t*)PyBytes_AsString(tag), (size_t)PyBytes_Size(tag));
+    event.element.value =
+        (tlv_value_t){(const uint8_t*)PyBytes_AsString(value), (tlv_size_t)PyBytes_Size(value)};
+    tlv_writer_diagnostic_t diag;
+    tlv_writer_diagnostic_init(&diag);
+    tlv_result_t code = tlv_tree_writer_write_event_diag(&self->writer, &event, &diag);
+    if (code != TLV_OK) {
+        opentlv_python_raise_writer(code, &diag);
+        return NULL;
+    }
+    if (kind == TLV_TREE_BEGIN) self->tags[self->depth++] = Py_NewRef(tag);
+    if (kind == TLV_TREE_END) Py_DECREF(self->tags[--self->depth]);
+    return Py_NewRef(Py_None);
+}
+
 typedef struct measure_source {
     PyObject* iterator;
     PyObject* retained;
@@ -175,10 +238,41 @@ static tlv_result_t measure_next(void* context, tlv_element_t* element, size_t* 
     return TLV_OK;
 }
 
+static tlv_result_t measure_event_next(void* context, tlv_tree_event_t* event) {
+    measure_source* source = context;
+    PyObject*       item = PyIter_Next(source->iterator);
+    if (!item) return PyErr_Occurred() ? TLV_ERR_INVALID_ARG : TLV_ERR_END_OF_BUFFER;
+    PyObject * tag, *value;
+    Py_ssize_t depth;
+    int        kind, skipped;
+    if (!PyArg_ParseTuple(item, "inOOp", &kind, &depth, &tag, &value, &skipped)) {
+        Py_DECREF(item);
+        return TLV_ERR_INVALID_ARG;
+    }
+    if (depth < 0 || !PyBytes_Check(tag) || !PyBytes_Check(value)) {
+        Py_DECREF(item);
+        return TLV_ERR_INVALID_ARG;
+    }
+    if (PyList_Append(source->retained, item) < 0) {
+        Py_DECREF(item);
+        return TLV_ERR_OUT_OF_MEMORY;
+    }
+    *event = (tlv_tree_event_t){0};
+    event->kind = (tlv_tree_event_kind_t)kind;
+    event->depth = (size_t)depth;
+    event->skipped = skipped;
+    event->element.tag = tlv_tag((const uint8_t*)PyBytes_AsString(tag), (size_t)PyBytes_Size(tag));
+    event->element.value =
+        (tlv_value_t){(const uint8_t*)PyBytes_AsString(value), (tlv_size_t)PyBytes_Size(value)};
+    Py_DECREF(item);
+    return TLV_OK;
+}
+
 PyObject* opentlv_python_tree_writer_measure(PyObject* module, PyObject* args) {
     (void)module;
     PyObject *capsule, *items;
-    if (!PyArg_ParseTuple(args, "OO", &capsule, &items)) return NULL;
+    int       events = 0;
+    if (!PyArg_ParseTuple(args, "OO|p", &capsule, &items, &events)) return NULL;
     writer_state* self = PyCapsule_GetPointer(capsule, WRITER_NAME);
     if (!self) return NULL;
     if (self->busy || self->writer.count) {
@@ -199,10 +293,14 @@ PyObject* opentlv_python_tree_writer_measure(PyObject* module, PyObject* args) {
     tlv_writer_diagnostic_t diagnostic;
     tlv_writer_diagnostic_init(&diagnostic);
     size_t       size = 0;
-    tlv_result_t code = tlv_tree_writer_measure(&self->format, measure_next, &source, &workspace,
-                                                self->writer.max_depth, self->writer.max_elements,
-                                                &size, &diagnostic);
-    PyObject*    result = NULL;
+    tlv_result_t code =
+        events ? tlv_tree_writer_measure_events(&self->format, measure_event_next, &source,
+                                                &workspace, self->writer.max_depth,
+                                                self->writer.max_elements, &size, &diagnostic)
+               : tlv_tree_writer_measure(&self->format, measure_next, &source, &workspace,
+                                         self->writer.max_depth, self->writer.max_elements, &size,
+                                         &diagnostic);
+    PyObject* result = NULL;
     if (!PyErr_Occurred()) {
         if (code == TLV_OK) {
             result = PyBytes_FromStringAndSize((const char*)self->data, (Py_ssize_t)size);

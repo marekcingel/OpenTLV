@@ -115,20 +115,27 @@ the logical stream. Non-success leaves both success outputs unchanged.
 
 ## Pull-based tree traversal
 
-`tlv_tree_reader_t` is the canonical iterative preorder traversal cursor. Include
-`tlv/reader/tree.h`, provide an array of `tlv_tree_frame_t`, and initialize with
-`tlv_tree_reader_init()` or `tlv_tree_reader_init_incremental()`. Each successful
-`tlv_tree_reader_next()` returns a `tlv_tree_item_t` containing the complete
-borrowed Element, Source, depth, absolute element-start offset, and Format's
-constructed classification. Root depth is zero. Only Format interprets framing
-and identifies constructed values; a missing classification callback makes all
-values opaque.
+`tlv_tree_reader_t` is the canonical iterative structural cursor. Include
+`tlv/reader/tree.h`, supply caller-owned `tlv_tree_frame_t` storage, and initialize
+with `tlv_tree_reader_init()` or `tlv_tree_reader_init_incremental()`.
+`tlv_tree_reader_next_event()` returns `tlv_tree_event_t` from the shared
+`tlv/tree.h` contract:
 
-The stream has **no separate ENTER or LEAVE events**. Each element appears once,
-before its children. A decrease in the next item's depth closes prior scopes;
-final end closes the remaining scopes. Empty constructed values still appear
-once. Higher layers that need exit notifications can derive them from depth
-transitions and final end. `NEED_MORE_DATA` is not an end event.
+- `BEGIN` carries a complete constructed Element and opens its children.
+- `ELEMENT` carries a complete primitive Element.
+- `END` closes the innermost container without retaining a borrowed parent.
+
+Root depth is zero; END has the depth of the node being closed. Empty containers
+emit BEGIN then END. Source metadata belongs to node events; END's offset is the
+absolute Value end before any trailer. Format alone decides framing and constructed
+classification. A missing classification callback makes values opaque.
+Known END events are delivered before `NEED_MORE_DATA` or final EOF.
+
+`tlv_tree_reader_next()` remains a node-only projection returning `tlv_tree_item_t`:
+Element, Source, depth, absolute start offset and constructed classification.
+It hides END events for existing node consumers. Use event pulls for transformations
+instead of reconstructing closure from depth; do not mix the two projections while
+expecting a balanced stream. See the [structural event contract](../concepts/processing-pipeline.md#canonical-structural-events-402).
 
 ### Storage and limits
 
@@ -146,10 +153,11 @@ cursor. Copying a cursor does not copy its frame array; independent traversals
 need independent structural storage. The caller may release or overwrite a
 returned item object immediately; this does not alter traversal state.
 
-`max_elements` bounds the total number of published items, including parents.
+`max_elements` bounds published nodes, including BEGIN parents; END does not count.
 Zero permits only empty input. Depth or storage exhaustion returns
 `TLV_ERR_LIMIT` when attempting to descend, after the parent has been returned.
-Errors and `NEED_MORE_DATA` preserve the cursor, frames, and item output.
+Event errors and `NEED_MORE_DATA` preserve the cursor, frames, and event output.
+The node-only projection may first consume pending ENDs left by a Builder.
 `tlv_tree_reader_next_diag()` retains Reader diagnostics and absolute offsets
 without decoding again. Tree argument/resource errors leave the diagnostic
 unchanged.
@@ -160,13 +168,15 @@ After receiving a nonempty constructed item, call
 `tlv_tree_reader_skip_subtree()` to continue after its complete encoded extent.
 The skipped descendants are neither decoded nor counted. The same operation is
 available after a failed descent while that subtree remains pending. Calling it
-without a pending subtree returns `TLV_ERR_INVALID_ARG`. Skipping does not
+without a pending subtree returns `TLV_ERR_INVALID_ARG`. Event mode still emits
+the matching END with `skipped=1`; Writer and Document reject omitted content.
+Node-only mode hides this closure. Skipping does not
 validate descendants; Format may already have inspected their framing while
 establishing the complete parent's extent. Closing enclosing scopes uses an
 iterative loop bounded by the active depth.
 
 Tree input updates follow the sequential Reader contract:
-`tlv_tree_reader_set_input()` preserves the unconsumed prefix and accepts an
+`tlv_tree_reader_set_input()` preserves the undiscarded suffix and accepts an
 explicit final-input flag. Use `tlv_tree_reader_consumed()` to find the prefix
 no longer needed by traversal, and `tlv_tree_reader_offset()` for its absolute
 frontier. After publishing a parent, its unvisited value remains unconsumed.
