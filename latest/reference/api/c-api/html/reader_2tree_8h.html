@@ -76,7 +76,6 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">tree.h File Reference<div class="ingroups"><a class="el" href="group__traversal.html">Traversal</a></div></div></div>
 </div><!--header-->
@@ -85,6 +84,7 @@ $(function() {
 <p>Iterative pull traversal over caller-owned input and structural storage.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="reader_8h.html">tlv/reader/reader.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="defaults_8h.html">tlv/defaults.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
@@ -109,13 +109,6 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga74999ab774c60a10d1f759404edb7003" id="r_ga74999ab774c60a10d1f759404edb7003"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__tree__reader.html">tlv_tree_reader</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga74999ab774c60a10d1f759404edb7003">tlv_tree_reader_t</a></td></tr>
 <tr class="memdesc:ga74999ab774c60a10d1f759404edb7003"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free, iterative preorder cursor composing the canonical Reader.  <br /></td></tr>
 <tr class="separator:ga74999ab774c60a10d1f759404edb7003"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:gaf9bdc3014f3d54c426b6d2df10de4960" id="r_gaf9bdc3014f3d54c426b6d2df10de4960"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a> = 64
- }</td></tr>
-<tr class="memdesc:gaf9bdc3014f3d54c426b6d2df10de4960"><td class="mdescLeft">&#160;</td><td class="mdescRight">Suggested nesting limit and frame capacity, not a library maximum.  <a href="group__traversal.html#gaf9bdc3014f3d54c426b6d2df10de4960">More...</a><br /></td></tr>
-<tr class="separator:gaf9bdc3014f3d54c426b6d2df10de4960"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>

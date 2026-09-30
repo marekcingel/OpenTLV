@@ -684,11 +684,12 @@ A format error if encoding fails.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>Borrowed configuration. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Successfully decoded identifier, possibly absent.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tag</td><td>Identifier, possibly absent. Readers pass a successfully decoded identifier; Tree Writer passes the caller's identifier at begin().</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Nonzero for a constructed value; zero for an opaque value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This predicate classifies nesting, not wire representability. Tree Writer validates encoding constraints through measure/encode when the parent closes. </dd></dl>
 
 </div>
 </div>

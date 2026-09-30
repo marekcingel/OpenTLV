@@ -11,5 +11,5 @@ var searchData=
   ['formats_8',['Formats',['../group__formats.html',1,'']]],
   ['fraction_5fdigits_9',['fraction_digits',['../structtlv__asn1__generalized__time.html#a7119fbeb3be4bb0f6d27918f68808f70',1,'tlv_asn1_generalized_time']]],
   ['fraction_5fdigits_5flength_10',['fraction_digits_length',['../structtlv__asn1__generalized__time.html#a31f9a16f54ed2852cfe74ad1724336e1',1,'tlv_asn1_generalized_time']]],
-  ['frames_11',['frames',['../structtlv__tree__reader.html#a06dc59a0cd6aad8bcb57d926766df928',1,'tlv_tree_reader']]]
+  ['frames_11',['frames',['../structtlv__tree__reader.html#a06dc59a0cd6aad8bcb57d926766df928',1,'tlv_tree_reader::frames'],['../structtlv__tree__writer.html#a62025f6d6c45e179ab4349e053ec789f',1,'tlv_tree_writer::frames']]]
 ];

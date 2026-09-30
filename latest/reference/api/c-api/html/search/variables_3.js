@@ -7,7 +7,7 @@ var searchData=
   ['default_5fencoding_4',['default_encoding',['../structtlv__der__schema__component.html#aca25c82efae817e3e7cf4b551b0a22c5',1,'tlv_der_schema_component']]],
   ['default_5fencoding_5flength_5',['default_encoding_length',['../structtlv__der__schema__component.html#ad7061eee6977d55d14840c304e907e71',1,'tlv_der_schema_component']]],
   ['definition_6',['definition',['../structtlv__emv__definition__t.html#a81ac77201a526fd9be62de198ae66beb',1,'tlv_emv_definition_t']]],
-  ['depth_7',['depth',['../structtlv__tree__item.html#a690bf14345a7e534dba6e9ce9cc3ddc5',1,'tlv_tree_item::depth'],['../structtlv__tree__reader.html#a945f26560ddca84c692369bf880878c9',1,'tlv_tree_reader::depth']]],
+  ['depth_7',['depth',['../structtlv__tree__item.html#a690bf14345a7e534dba6e9ce9cc3ddc5',1,'tlv_tree_item::depth'],['../structtlv__tree__reader.html#a945f26560ddca84c692369bf880878c9',1,'tlv_tree_reader::depth'],['../structtlv__tree__writer.html#a32b594106cbe849909240bffd560edc0',1,'tlv_tree_writer::depth']]],
   ['descend_5fpending_8',['descend_pending',['../structtlv__tree__reader.html#abea11a7a437760241f72a61cf7dd94a7',1,'tlv_tree_reader']]],
   ['diagnostic_9',['diagnostic',['../structtlv__reader__diagnostic.html#a85cf1aa3370e9ce63c71af72de65080e',1,'tlv_reader_diagnostic::diagnostic'],['../structtlv__schema__diagnostic.html#a087446c2e7bc844a34787bef34233407',1,'tlv_schema_diagnostic::diagnostic'],['../structtlv__writer__diagnostic.html#aabf5e7151b6a404fbbb8156d45eeafb7',1,'tlv_writer_diagnostic::diagnostic']]],
   ['diagnostics_10',['diagnostics',['../structtlv__schema__diagnostic__report.html#a590694c482c0006962c82a050d2c066d',1,'tlv_schema_diagnostic_report']]],

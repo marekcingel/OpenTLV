@@ -84,8 +84,8 @@ Files</h2></td></tr>
 <tr class="memitem:query_8h" id="r_query_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="query_8h.html">query.h</a></td></tr>
 <tr class="memdesc:query_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Path queries that address TLV elements by their nested tags. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:tree_8h" id="r_tree_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="tree_8h.html">tree.h</a></td></tr>
-<tr class="memdesc:tree_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterative pull traversal over caller-owned input and structural storage. <br /></td></tr>
+<tr class="memitem:reader_2tree_8h" id="r_reader_2tree_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="reader_2tree_8h.html">tree.h</a></td></tr>
+<tr class="memdesc:reader_2tree_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Iterative pull traversal over caller-owned input and structural storage. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:visitor_8h" id="r_visitor_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="visitor_8h.html">visitor.h</a></td></tr>
 <tr class="memdesc:visitor_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resumable visitor adapters over Reader and Tree Reader. <br /></td></tr>
@@ -138,17 +138,13 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:ga80155586fa275b28773c9b203f52caba" id="r_ga80155586fa275b28773c9b203f52caba"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#gga80155586fa275b28773c9b203f52cabaa6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> = 65
+<tr class="memitem:ga6b7b47dd702d9e331586d485013fd1ea" id="r_ga6b7b47dd702d9e331586d485013fd1ea"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> = 65
  }</td></tr>
-<tr class="memdesc:ga80155586fa275b28773c9b203f52caba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Capacity of the inline query path; independent of Tree Reader limits.  <a href="group__traversal.html#ga80155586fa275b28773c9b203f52caba">More...</a><br /></td></tr>
-<tr class="separator:ga80155586fa275b28773c9b203f52caba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga6b7b47dd702d9e331586d485013fd1ea" id="r_ga6b7b47dd702d9e331586d485013fd1ea"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> = 512
- }</td></tr>
-<tr class="memdesc:ga6b7b47dd702d9e331586d485013fd1ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum total number of tag bytes in a query, across all of its tags.  <a href="group__traversal.html#ga6b7b47dd702d9e331586d485013fd1ea">More...</a><br /></td></tr>
+<tr class="memdesc:ga6b7b47dd702d9e331586d485013fd1ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Capacity of the inline query path; independent of Tree Reader limits.  <a href="group__traversal.html#ga6b7b47dd702d9e331586d485013fd1ea">More...</a><br /></td></tr>
 <tr class="separator:ga6b7b47dd702d9e331586d485013fd1ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaf9bdc3014f3d54c426b6d2df10de4960" id="r_gaf9bdc3014f3d54c426b6d2df10de4960"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960ad3b9801dae9cea1796aee28b0cdbfce2">TLV_TREE_DEFAULT_DEPTH</a> = 64
+<tr class="memitem:gaf9bdc3014f3d54c426b6d2df10de4960" id="r_gaf9bdc3014f3d54c426b6d2df10de4960"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> = 512
  }</td></tr>
-<tr class="memdesc:gaf9bdc3014f3d54c426b6d2df10de4960"><td class="mdescLeft">&#160;</td><td class="mdescRight">Suggested nesting limit and frame capacity, not a library maximum.  <a href="group__traversal.html#gaf9bdc3014f3d54c426b6d2df10de4960">More...</a><br /></td></tr>
+<tr class="memdesc:gaf9bdc3014f3d54c426b6d2df10de4960"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum total number of tag bytes in a query, across all of its tags.  <a href="group__traversal.html#gaf9bdc3014f3d54c426b6d2df10de4960">More...</a><br /></td></tr>
 <tr class="separator:gaf9bdc3014f3d54c426b6d2df10de4960"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga32dd2f26caa5ae7507636430b13cc961" id="r_ga32dd2f26caa5ae7507636430b13cc961"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga32dd2f26caa5ae7507636430b13cc961">tlv_visit_result</a> { <a class="el" href="group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a528d33a0f3bf7971e02fbe57c479f86d">TLV_VISIT_CONTINUE</a> = 0
 , <a class="el" href="group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01">TLV_VISIT_STOP</a> = 1
@@ -250,7 +246,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>A parsed query: the tags to follow from a top-level element down to the addressed ones. </p>
-<p>The structure is self-contained: it holds a copy of every tag's bytes, never allocates and never points to other memory, so it can be copied freely. Build it with <a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385" title="Parses the text of a query.">tlv_query_parse()</a> and read its tags with <a class="el" href="group__traversal.html#ga1d2bf69dfc017ebbac2be367da2d9c23" title="Returns one tag of a query.">tlv_query_step()</a>; a zero-initialized query has no tags and is rejected by the functions that take one. Each tag may have any length as long as all tags together stay within <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>. </p>
+<p>The structure is self-contained: it holds a copy of every tag's bytes, never allocates and never points to other memory, so it can be copied freely. Build it with <a class="el" href="group__traversal.html#gac6cc1fdb84b230eec2b4bd26e5da8385" title="Parses the text of a query.">tlv_query_parse()</a> and read its tags with <a class="el" href="group__traversal.html#ga1d2bf69dfc017ebbac2be367da2d9c23" title="Returns one tag of a query.">tlv_query_step()</a>; a zero-initialized query has no tags and is rejected by the functions that take one. Each tag may have any length as long as all tags together stay within <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>. </p>
 
 </div>
 </div>
@@ -374,25 +370,6 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="ga80155586fa275b28773c9b203f52caba" name="ga80155586fa275b28773c9b203f52caba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga80155586fa275b28773c9b203f52caba">&#9670;&#160;</a></span>anonymous enum</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">anonymous enum</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Capacity of the inline query path; independent of Tree Reader limits. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga80155586fa275b28773c9b203f52cabaa6e916ad17ed0c10580e0541c0b859b13" name="gga80155586fa275b28773c9b203f52cabaa6e916ad17ed0c10580e0541c0b859b13"></a>TLV_QUERY_MAX_STEPS&#160;</td><td class="fielddoc"></td></tr>
-</table>
-
-</div>
-</div>
 <a id="ga6b7b47dd702d9e331586d485013fd1ea" name="ga6b7b47dd702d9e331586d485013fd1ea"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga6b7b47dd702d9e331586d485013fd1ea">&#9670;&#160;</a></span>anonymous enum</h2>
 
@@ -405,9 +382,9 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Maximum total number of tag bytes in a query, across all of its tags. </p>
+<p>Capacity of the inline query path; independent of Tree Reader limits. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga6b7b47dd702d9e331586d485013fd1eaa25e94ebacffefe124afbbf879cd6ce7c" name="gga6b7b47dd702d9e331586d485013fd1eaa25e94ebacffefe124afbbf879cd6ce7c"></a>TLV_QUERY_MAX_BYTES&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13" name="gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13"></a>TLV_QUERY_MAX_STEPS&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -424,9 +401,9 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Suggested nesting limit and frame capacity, not a library maximum. </p>
+<p>Maximum total number of tag bytes in a query, across all of its tags. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaf9bdc3014f3d54c426b6d2df10de4960ad3b9801dae9cea1796aee28b0cdbfce2" name="ggaf9bdc3014f3d54c426b6d2df10de4960ad3b9801dae9cea1796aee28b0cdbfce2"></a>TLV_TREE_DEFAULT_DEPTH&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c" name="ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c"></a>TLV_QUERY_MAX_BYTES&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -494,7 +471,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>matcher</code> or <code>query</code> is <code>NULL</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>query</code> has no tags or more than <a class="el" href="group__traversal.html#gga80155586fa275b28773c9b203f52cabaa6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>query</code> has no tags or more than <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. On failure <code>*matcher</code> is unchanged. </dd></dl>
 
 </div>
@@ -593,7 +570,7 @@ Functions</h2></td></tr>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for a syntax error: an empty step, an odd number of digits, or a character other than a hexadecimal digit or <code>/</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the query has more than <a class="el" href="group__traversal.html#gga80155586fa275b28773c9b203f52cabaa6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> tags or more than <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> tag bytes in total.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the query has more than <a class="el" href="group__traversal.html#gga6b7b47dd702d9e331586d485013fd1eaa6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> tags or more than <a class="el" href="group__traversal.html#ggaf9bdc3014f3d54c426b6d2df10de4960a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> tag bytes in total.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. On failure <code>*query</code> is unchanged. </dd></dl>
 
 </div>

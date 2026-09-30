@@ -2,7 +2,7 @@ var searchData=
 [
   ['base_0',['base',['../../../c-api/html/structtlv__der__schema__limits.html#a95730ab286262d32f42f247d1650dbd8',1,'tlv_der_schema_limits']]],
   ['base_5foffset_1',['base_offset',['../../../c-api/html/structtlv__reader.html#a61c49ffc41c001e33fcc23cb783807ad',1,'tlv_reader']]],
-  ['begin_2',['begin',['../classtlv_1_1node__range.html#a61df0f6200ecf5158d2a0c9dff4b5923',1,'tlv::node_range']]],
+  ['begin_2',['begin',['../classtlv_1_1node__range.html#a61df0f6200ecf5158d2a0c9dff4b5923',1,'tlv::node_range::begin()'],['../classtlv_1_1tree__writer.html#a422d840743c0ab3fbe8f371c37b5aeaa',1,'tlv::tree_writer::begin()']]],
   ['ber_2eh_3',['ber.h',['../../../c-api/html/ber_8h.html',1,'']]],
   ['ber_2ehpp_4',['ber.hpp',['../ber_8hpp.html',1,'']]],
   ['ber_5fwrite_5findefinite_5',['ber_write_indefinite',['../namespacetlv.html#a769708ad0664f996822354ebe2371e04',1,'tlv']]],
