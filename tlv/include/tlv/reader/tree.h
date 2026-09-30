@@ -2,6 +2,7 @@
 #define OPENTLV_TREE_READER_H
 
 #include "tlv/reader/reader.h"
+#include "tlv/defaults.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,9 +17,6 @@ extern "C" {
 /** @addtogroup traversal
  * @{
  */
-
-/** @brief Suggested nesting limit and frame capacity, not a library maximum. */
-enum { TLV_TREE_DEFAULT_DEPTH = 64 };
 
 /**
  * @brief Structural continuation for one entered constructed value.

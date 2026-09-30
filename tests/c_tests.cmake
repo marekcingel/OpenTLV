@@ -75,6 +75,7 @@ set(SOURCES
     value_test.cpp
     versiontest.cpp
     writer/writer_test.cpp
+    writer/tree_test.cpp
 )
 
 # A split source exists only in the group containing relevant cases.

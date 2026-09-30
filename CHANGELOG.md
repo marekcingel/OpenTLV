@@ -86,6 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add an allocation-free, iterative Tree Writer with explicit begin/write/end operations, caller-owned output, frames and scratch storage, runtime limits, recoverable encoding failures and structured diagnostics. C and C++ support bounded nested output through the existing Format contract, including variable-width lengths and content-dependent measurement. (#398)
 - Add a resumable Document Builder over the canonical Tree Reader, with owned subtree selection, Reader diagnostics, independent materialization limits and publication only after completion. Complete Document parsing and constructed-value edits share its tree consumer. (#396)
 - Add resumable Visitor adapters over caller-owned Reader and Tree Reader cursors, including incremental input, absolute diagnostics and caller-selected tree storage. Add `tlv_query_visit()` for resumable matching over a caller-owned Tree Reader. (#394)
 - Add an allocation-free, iterative Tree Reader with preorder items, absolute offsets, incremental input windows, subtree skipping, caller-owned traversal frames, runtime depth limits and an element-count bound. Constructed items retain Reader's complete contiguous borrowed-storage contract. (#393)
