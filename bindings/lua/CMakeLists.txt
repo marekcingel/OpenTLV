@@ -135,6 +135,18 @@ endif()
 
 option(OPENTLV_BUILD_LUA_TESTS "Register the busted test suite and examples for the Lua binding" ON)
 if(OPENTLV_BUILD_LUA_TESTS)
+    add_library(opentlv_lua_test_allocator MODULE tests/failing_allocator.c)
+    add_dependencies(opentlv_lua opentlv_lua_test_allocator)
+    target_include_directories(opentlv_lua_test_allocator PRIVATE ${LUA_INCLUDE_DIR} src)
+    set_target_properties(opentlv_lua_test_allocator PROPERTIES
+        OUTPUT_NAME opentlv_test_allocator PREFIX "")
+    if(WIN32)
+        target_link_libraries(opentlv_lua_test_allocator PRIVATE ${LUA_LIBRARIES})
+        set_target_properties(opentlv_lua_test_allocator PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    elseif(APPLE)
+        target_link_options(opentlv_lua_test_allocator PRIVATE -undefined dynamic_lookup)
+        set_target_properties(opentlv_lua_test_allocator PROPERTIES SUFFIX ".so")
+    endif()
     find_program(OPENTLV_LUA_EXECUTABLE NAMES lua lua5.4 lua5.3 lua5.1 luajit)
     find_program(OPENTLV_BUSTED_EXECUTABLE busted)
 
@@ -163,6 +175,16 @@ if(OPENTLV_BUILD_LUA_TESTS)
     endif()
 
     if(OPENTLV_LUA_EXECUTABLE)
+        add_test(NAME Integration_lua_visitor
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/visitor_spec.lua")
+        set_tests_properties(Integration_lua_visitor PROPERTIES
+            LABELS "integration;lua"
+            ENVIRONMENT "${_lua_test_environment}")
+        add_test(NAME Integration_lua_visitor_allocator
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/visitor_spec.lua" --allocator)
+        set_tests_properties(Integration_lua_visitor_allocator PROPERTIES
+            LABELS "integration;lua"
+            ENVIRONMENT "${_lua_test_environment}")
         add_test(NAME Integration_lua_writer
             COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/writer_spec.lua")
         set_tests_properties(Integration_lua_writer PROPERTIES

@@ -62,14 +62,15 @@ void opentlv_lua_new_type(lua_State* L, const char* name, const opentlv_lua_meth
  * produce identically shaped entries. `offset` is the absolute position of
  * the element's tag within the buffer the tag/value were read from.
  *
- * Never calls lua_error(): narrowing tlv_value_t's 64-bit length to size_t
+ * Never explicitly calls lua_error(): narrowing tlv_value_t's 64-bit length to size_t
  * can fail (only on builds where size_t is narrower than the value
  * actually read), and this may be called from contexts, such as the
  * tlv_tree_reader_visit() visitor trampoline in visitor.c, where raising directly
  * would unsafely unwind through library frames not prepared for it. On
  * failure it leaves the stack as it found it and returns the narrowing
  * failure's tlv_result_t instead of TLV_OK, and the caller decides how to
- * report it.
+ * report it. Lua allocations can still raise errors; native visitor adapters
+ * must invoke this helper inside a protected Lua call.
  */
 int opentlv_lua_push_element(lua_State* L, const tlv_element_t* element, size_t offset);
 

@@ -64,7 +64,25 @@ input:
 [parse.lua](https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/parse.lua)
 (`lua examples/parse.lua`).
 
-## Tree traversal
+## Visitor and tree traversal
+
+`opentlv.visit(data, format, callback)` visits sequential top-level elements
+through the C Reader Visitor. It calls `callback(element)` with copied binary
+`tag` and `value` strings, `length`, zero-based wire `offset`, and `constructed`.
+It leaves nested bytes in the parent's Value, just like Reader:
+
+```lua
+local visited, stopped = opentlv.visit(data, opentlv.formats.ber, function(element)
+    print(element.tag, element.value)
+end)
+```
+
+Both visitor functions return `visited, stopped`. Only a boolean `false`
+stops traversal; other callback results continue. Calls are synchronous and
+callbacks cannot yield. Input, Format and callback remain alive during the call;
+copied elements may be retained afterward. Callback references and native
+traversal storage are released before returning or propagating an error.
+Callbacks may invoke a separate traversal, including on the same input.
 
 `opentlv.visit_tree(data, format, callback, opts)` visits every element of
 `data` in preorder, calling `callback(element, depth)` for each; `element` has an
@@ -82,8 +100,11 @@ library's `TLV_TREE_DEFAULT_DEPTH`) and `max_elements` (default 65536); pass an
 explicit, tighter `max_elements` when traversing untrusted input, since the C
 `tlv_tree_reader_visit()` this wraps requires a real bound. `callback` may be omitted
 to validate structure and limits only. For `opentlv.formats.der`, traversal
-always uses the stricter `tlv_der_visit()` with the library's default DER
-limits instead, and `opts` is ignored.
+uses the stricter `tlv_der_visit()`, applying `max_depth` and `max_elements`
+while retaining the library's default DER input/value size limits. Omitted
+DER options retain the C defaults (depth 32 and 100000 elements); explicit
+DER depths may be up to 64. Limits must be nonnegative integers representable by native
+`size_t`; zero is a real limit. Without a callback, `visited` is zero.
 
 ## Error handling
 
@@ -105,8 +126,7 @@ if not ok then
 end
 ```
 
-A callback error inside `opentlv.visit_tree` (a genuine Lua error your
-`callback` raises) propagates out of `opentlv.visit_tree` unchanged, so
+A callback error inside `opentlv.visit` or `opentlv.visit_tree` propagates unchanged, so
 `pcall` catches whatever your callback raised, not a wrapped copy.
 
 ## Writing

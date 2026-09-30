@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Safely clean up Lua traversal resources when callback argument allocation fails; validate traversal limits and honor them for DER. (#300)
 - Preserve Lua module search paths in CTest so registered binding tests and examples can load `opentlv`. (#299)
 - Replace the C++ Document Builder raw-root overload with `current_subtree(reader)`, rejecting invalidated selections and preventing caller-fabricated roots. (#401, #412)
 - Allow C and C++ pipeline headers in either include order without an MSVC `TLV_NODISCARD` redefinition error. (#401)
@@ -97,6 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add Lua `visit()` for sequential C Reader traversal alongside `visit_tree()`, with synchronous callbacks, early stopping and unchanged Lua error propagation. (#300)
 - Add Lua Writer and Tree Writer bindings with bounded output buffers, nested construction and structured writer diagnostics. (#299)
 - Add a canonical `BEGIN` / `ELEMENT` / `END` tree event stream shared by Tree Reader, Tree Writer and Document, with direct transformation support, explicit skipped-subtree closure, bounded Tag copying and C++/Rust/Python event facades. Reader and Writer cursor layout changes require rebuilding native consumers. (#402)
 - Add a resumable C++ Document Builder and materialization of the already selected Tree Reader subtree in Rust and Python, with end-to-end processing pipeline and architectural regression checks. (#401)
