@@ -58,6 +58,9 @@ policy remains in standards and extensions.
 
 ## Phase 2 — Runtime Model & OTLV
 
+The [runtime model and canonical IR architecture](docs/concepts/runtime-model.md)
+defines the planned construction pipeline, ownership and execution boundaries.
+
 Make the complete OpenTLV model dynamically describable, including both wire
 representation and semantic/structural information. Runtime Format and runtime
 Schema/Codec configuration belong to this same phase.

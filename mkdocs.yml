@@ -106,6 +106,7 @@ nav:
       - Getting started: getting-started/README.md
   - Concepts:
       - Architecture: concepts/architecture.md
+      - Runtime model and canonical IR: concepts/runtime-model.md
       - Processing pipeline: concepts/processing-pipeline.md
       - Core architectural rules: concepts/architectural-rules.md
       - Core types: concepts/core-types.md

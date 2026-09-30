@@ -259,6 +259,10 @@ processing with an already constructed immutable model should remain
 allocation-free using explicit buffers and workspaces. Explicitly owning
 operations such as Document retain their storage requirements.
 
+See the [Phase 2 runtime model and canonical IR](runtime-model.md) for the
+complete pipeline, ownership and lifetime requirements, allocation boundary
+and the distinction between semantic IR and execution descriptors.
+
 ---
 
 ## 5. Runtime / compiled / native are implementation strategies
