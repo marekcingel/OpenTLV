@@ -822,6 +822,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#field-encoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Encoding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3142,6 +3153,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#field-encoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field Encoding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3452,10 +3474,11 @@ shared conceptual model and dependency boundaries for current and future work.
 The <a href="../architecture/">architecture overview</a> maps these concepts to the current
 repository; the <a href="../format-contract/">Format and Element contract</a> specifies the
 current C API invariants.</p>
-<p>Phase 1 refers here to the generic foundation; Phase 2 refers to dynamic
-configuration of those same contracts. Rules for <code>.otlv</code>, generated formats
-and additional language bindings constrain their design; they do not claim
-that these facilities are already implemented.</p>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/ROADMAP.md">roadmap</a> defines three architectural phases: Execution
+Foundation, Runtime Model &amp; OTLV, and Compilation. Phase 3 completes the planned
+foundational architecture; future SemVer major releases do not imply more phases.
+Rules for <code>.otlv</code>, runtime models and generated implementations constrain future
+design; they do not claim that these facilities are already implemented.</p>
 <h2 id="1-generic-core-first">1. Generic core first<a class="headerlink" href="#1-generic-core-first" title="Permanent link">&para;</a></h2>
 <p>OpenTLV core must contain only generic TLV mechanisms.</p>
 <ul>
@@ -3474,22 +3497,7 @@ that these facilities are already implemented.</p>
 <hr />
 <h2 id="2-stable-conceptual-model">2. Stable conceptual model<a class="headerlink" href="#2-stable-conceptual-model" title="Permanent link">&para;</a></h2>
 <p>OpenTLV uses these concepts:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Definition
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    |
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    v
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>Format
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    |
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    v
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>Reader / Writer
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    |
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    v
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>Element + Layout
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    |
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    v
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>Schema
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    |
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    v
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>Codec
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Definition → Format → Field Encoding → Layout → Element → Schema → Codec
 </code></pre></div>
 <p>This diagram relates the concepts; it is not a mandatory pipeline or a module
 dependency graph. Format does not require a Definition registry. Reader and
@@ -3531,6 +3539,12 @@ and the separate assessment of logical identity versus identifier mapping.</p>
 <li>additional Header fields and Trailer framing</li>
 </ul>
 <p>Format must not interpret the semantic meaning of Value.</p>
+<h3 id="field-encoding">Field Encoding<a class="headerlink" href="#field-encoding" title="Permanent link">&para;</a></h3>
+<p>Provides reusable mechanics for encoding and decoding individual wire fields,
+such as fixed-width, variable-width and packed fields. Format composes these
+mechanics with field ordering and framing rules. Protocol-specific restrictions
+remain in the standard implementation; field mechanics do not interpret Value
+semantics.</p>
 <h3 id="layout">Layout<a class="headerlink" href="#layout" title="Permanent link">&para;</a></h3>
 <p>Represents where the parts of one concrete encoded element are located in the source bytes.</p>
 <p>Examples:</p>
@@ -3615,16 +3629,18 @@ Structure codecs may compose Reader/Writer, Schema and value codecs to map
 complete objects. They still delegate wire interpretation to Format.</p>
 <hr />
 <h2 id="3-declarative-descriptions-vs-runtime-objects">3. Declarative descriptions vs runtime objects<a class="headerlink" href="#3-declarative-descriptions-vs-runtime-objects" title="Permanent link">&para;</a></h2>
-<p>Definition, Format, Schema and Codec are descriptions/contracts.</p>
-<p>Element and Layout are runtime representations.</p>
+<p>Definition, Format, Field Encoding, Schema and Codec are descriptions/contracts.</p>
+<p>Element and Layout are runtime representations. Document is the core owned
+representation built on these primitives.</p>
 <p>Do not create architectural layers merely because a new runtime object is needed.</p>
 <hr />
 <h2 id="4-phase-2-must-not-introduce-another-architecture">4. Phase 2 must not introduce another architecture<a class="headerlink" href="#4-phase-2-must-not-introduce-another-architecture" title="Permanent link">&para;</a></h2>
 <p>Phase 2 dynamically configures the same abstractions established by Phase 1.</p>
 <p>Runtime:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>runtime Format
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>runtime Definition
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>runtime Definition
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>runtime Format / Field Encoding / Layout configuration
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>runtime Schema
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>runtime Codec
 </code></pre></div>
 <p>must implement the same contracts as their compile-time/native equivalents.</p>
 <p>Phase 2 must not introduce:</p>
@@ -3634,7 +3650,18 @@ complete objects. They still delegate wire interpretation to Format.</p>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>RuntimeValidator
 </code></pre></div>
 <p>as parallel architectural concepts.</p>
-<p>Runtime configuration is another implementation strategy of the same model.</p>
+<p>Runtime configuration is another implementation strategy of the same model.
+Phase 2 describes the complete wire, structural and semantic model together:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>.otlv → AST → semantic analysis and symbol resolution → IR → tlv_model_t → execution descriptors
+</code></pre></div>
+<p>The canonical internal IR lowers to the existing execution contracts.
+<code>tlv_format_t</code> remains a lightweight execution descriptor, not the canonical
+semantic representation of a Format. The planned immutable <code>tlv_model_t</code> owns
+the loaded model and supports introspection; it does not replace Element or
+other execution contracts. Model construction/loading may allocate, while TLV
+processing with an already constructed immutable model should remain
+allocation-free using explicit buffers and workspaces. Explicitly owning
+operations such as Document retain their storage requirements.</p>
 <hr />
 <h2 id="5-runtime-compiled-native-are-implementation-strategies">5. Runtime / compiled / native are implementation strategies<a class="headerlink" href="#5-runtime-compiled-native-are-implementation-strategies" title="Permanent link">&para;</a></h2>
 <p>A layer may be implemented as:</p>
@@ -3645,12 +3672,14 @@ complete objects. They still delegate wire interpretation to Format.</p>
 </ul>
 <p>but all implementations must preserve the same contract and semantics.</p>
 <p>For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>generic runtime BER Format
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>generated BER Format
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>optimized native BER Format
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>generic runtime BER Format
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>generated BER Format
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>optimized native BER Format
 </code></pre></div>
 <p>must still behave as the same conceptual Format.</p>
-<p>Optimization must not create a second OpenTLV API.</p>
+<p>Phase 3 reuses the same OTLV frontend and canonical IR for optimization and
+code generation. Runtime lowering and compiled implementations must preserve
+equivalent OTLV semantics. Optimization must not create a second OpenTLV API.</p>
 <hr />
 <h2 id="6-tag-identifier-is-byte-identity">6. Tag / identifier is byte identity<a class="headerlink" href="#6-tag-identifier-is-byte-identity" title="Permanent link">&para;</a></h2>
 <p>A TLV identifier is fundamentally a sequence of bytes.</p>
@@ -3664,7 +3693,7 @@ complete objects. They still delegate wire interpretation to Format.</p>
 <li>representation must be deterministic across platforms</li>
 </ul>
 <p>Conceptually:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>identifier = { bytes, size }
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>identifier = { bytes, size }
 </code></pre></div>
 <p>The same wire identifier must have the same identity on little-endian
 and big-endian machines.</p>
@@ -3673,7 +3702,7 @@ and big-endian machines.</p>
 <p>Endianness describes how numeric fields encoded on wire are interpreted.</p>
 <p>It must never depend on CPU endianness.</p>
 <p>For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>wire length = big-endian
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>wire length = big-endian
 </code></pre></div>
 <p>means OpenTLV interprets it as big-endian on every architecture.</p>
 <p>The host CPU may affect which optimized implementation is used,
@@ -3695,7 +3724,7 @@ but never the externally visible result.</p>
 <p>while the resulting logical value size is represented using OpenTLV's
 size type.</p>
 <p>Never assume:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>encoded length bytes == size_t
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>encoded length bytes == size_t
 </code></pre></div>
 <p>and never perform unchecked conversions to <code>size_t</code>.</p>
 <hr />
@@ -3711,11 +3740,11 @@ requires fresh encoding; preservation must reject it rather than reuse stale
 framing. A destination Format may reject identifiers or values it cannot
 represent; conversion does not implicitly remap identifier identity.</p>
 <p>This enables transformations such as:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>source Format A
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    ↓
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  Element
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    ↓
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>destination Format B
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>source Format A
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    ↓
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  Element
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    ↓
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>destination Format B
 </code></pre></div>
 <hr />
 <h2 id="10-source-location-is-metadata-not-element-identity">10. Source location is metadata, not Element identity<a class="headerlink" href="#10-source-location-is-metadata-not-element-identity" title="Permanent link">&para;</a></h2>
@@ -3748,13 +3777,13 @@ Value still borrows the input. All borrowed storage must outlive retained result
 <hr />
 <h2 id="12-reader-must-not-require-schema-or-codec">12. Reader must not require Schema or Codec<a class="headerlink" href="#12-reader-must-not-require-schema-or-codec" title="Permanent link">&para;</a></h2>
 <p>The basic parser pipeline must work as:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>bytes
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  ↓
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>Format
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>  ↓
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>Reader
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>  ↓
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>Element
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>bytes
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  ↓
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>Format
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>  ↓
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>Reader
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>  ↓
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>Element
 </code></pre></div>
 <p>Schema and Codec are optional higher-level functionality.</p>
 <p>Therefore it must always be possible to parse unknown TLV data without
@@ -3763,8 +3792,8 @@ having a Schema or Codec.</p>
 <h2 id="13-tlv-ltv-is-ordering-not-a-separate-architecture">13. TLV / LTV is ordering, not a separate architecture<a class="headerlink" href="#13-tlv-ltv-is-ordering-not-a-separate-architecture" title="Permanent link">&para;</a></h2>
 <p>TLV and LTV describe field ordering.</p>
 <p>For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>TLV = Tag → Length → Value
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>LTV = Length → Tag → Value
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>TLV = Tag → Length → Value
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>LTV = Length → Tag → Value
 </code></pre></div>
 <p>Generic Format configuration should represent this as field ordering.</p>
 <p>Do not create completely separate parser architectures merely because
@@ -3775,12 +3804,12 @@ Bluetooth-specific semantics inside the Bluetooth extension.</p>
 <h2 id="14-otlv-is-declarative">14. OTLV is declarative<a class="headerlink" href="#14-otlv-is-declarative" title="Permanent link">&para;</a></h2>
 <p><code>.otlv</code> must describe data, not implement programs.</p>
 <p>Do not introduce general control-flow constructs such as:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>if / else
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>for
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>while
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>switch
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>break
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>continue
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>if / else
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>for
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>while
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>switch
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>break
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>continue
 </code></pre></div>
 <p>Use declarative primitives instead:</p>
 <ul>
@@ -3823,14 +3852,14 @@ same contracts to the generic core. No runtime engine is introduced here.</p>
 <hr />
 <h2 id="16-standards-should-be-compositions-of-generic-primitives">16. Standards should be compositions of generic primitives<a class="headerlink" href="#16-standards-should-be-compositions-of-generic-primitives" title="Permanent link">&para;</a></h2>
 <p>A standard implementation should ideally look like:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>generic OpenTLV primitives
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>          +
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    standard configuration
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>          +
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>  standard-specific semantics
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>generic OpenTLV primitives
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>          +
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    standard configuration
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>          +
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>  standard-specific semantics
 </code></pre></div>
 <p>rather than:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>completely separate parser
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>completely separate parser
 </code></pre></div>
 <p>Examples:</p>
 <ul>
@@ -3842,7 +3871,17 @@ same contracts to the generic core. No runtime engine is introduced here.</p>
 generic layer and keep only the standard-specific policy in the extension.</p>
 <hr />
 <h2 id="17-phase-1-must-prove-genericity">17. Phase 1 must prove genericity<a class="headerlink" href="#17-phase-1-must-prove-genericity" title="Permanent link">&para;</a></h2>
-<p>Phase 1 is the foundation of everything that follows.</p>
+<p>Phase 1 discovers, generalizes, validates and stabilizes the generic C execution
+foundation. Independent standards such as BER/EMV, Bluetooth, LLDP, DHCP, NFC
+and future formats serve as a playground for discovering missing primitives
+and refining the shared taxonomy, not as a claim of implemented support.</p>
+<p>Phase 2 requirements guide Phase 1 design without requiring premature runtime
+model implementation. For every generic primitive, ask:</p>
+<ol>
+<li>Can it represent the required real-world TLV format generically?</li>
+<li>Could a future declarative model and canonical IR describe it completely?</li>
+<li>Could both runtime lowering and future code generation consume it?</li>
+</ol>
 <p>Before considering it complete, it should demonstrate that genuinely
 different TLV families can be represented without protocol-specific hacks.</p>
 <p>The architecture should be tested against formats with differences such as:</p>
@@ -3865,11 +3904,11 @@ architecture, the Phase 1 abstraction is not generic enough yet.</p>
 <h2 id="18-features-must-remain-independently-usable">18. Features must remain independently usable<a class="headerlink" href="#18-features-must-remain-independently-usable" title="Permanent link">&para;</a></h2>
 <p>Users should be able to use only the parts they need.</p>
 <p>For example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Reader only
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>Reader + Schema
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>Reader + Codec
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>Document + Query
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>full runtime OTLV stack
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>Reader only
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>Reader + Schema
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>Reader + Codec
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>Document + Query
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>full runtime OTLV stack
 </code></pre></div>
 <p>Disabled functionality should ideally introduce no unnecessary:</p>
 <ul>
@@ -3941,9 +3980,9 @@ full diagnostics cost.</p>
 <p>Even when implementing ASN.1-related functionality, OpenTLV remains focused
 on binary TLV representation.</p>
 <p>For ASN.1/X.680/X.690 this means reusing relevant concepts across:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>Format
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>Schema
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>Codec
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>Format
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>Schema
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>Codec
 </code></pre></div>
 <p>without turning OpenTLV core into:</p>
 <ul>

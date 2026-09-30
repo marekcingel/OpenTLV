@@ -2891,8 +2891,8 @@ the same parser as native applications. It defaults to <code>OFF</code> and adds
 to normal C and C++ builds.</p>
 <p>The first interface is intentionally small: it parses a byte buffer and returns
 the element structure or the parser error. It wraps the existing C API in
-<code>bindings/wasm/src/opentlv_wasm.c</code>; no parsing logic is duplicated. Editing, schemas,
-schemas and OTDL are not exposed; the EMV dictionary is available as an annotation module (below).
+<code>bindings/wasm/src/opentlv_wasm.c</code>; no parsing logic is duplicated. Editing,
+schemas and OTLV are not exposed; the EMV dictionary is available as an annotation module (below).
 Unlike a general-purpose binding, it does not follow the Reader/Writer/Element
 shape of the <a href="../../concepts/bindings/">language bindings conceptual model</a>; see
 that page for why.</p>
