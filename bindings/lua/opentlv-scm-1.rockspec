@@ -8,8 +8,8 @@ source = {
 description = {
    summary = "Lua bindings to the OpenTLV C library",
    detailed = [[
-      Binds the OpenTLV C reader (Reader, Element, Tag and preorder tree
-      traversal) directly to Lua 5.1 through 5.4 and LuaJIT. Experimental;
+      Binds the OpenTLV C Reader, Writer, Tree Writer, Element, Tag and preorder
+      tree traversal directly to Lua 5.1 through 5.4 and LuaJIT. Experimental;
       see https://marekcingel.github.io/OpenTLV/development/lua/.
    ]],
    homepage = "https://github.com/marekcingel/OpenTLV",

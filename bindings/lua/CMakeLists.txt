@@ -1,5 +1,5 @@
 # Experimental Lua binding: the OpenTLV C core plus a native extension
-# module (src/) exposing Reader, Element, Tag and tree traversal to Lua 5.1
+# module (src/) exposing Reader, Writer, Tree Writer, Element, Tag and traversal to Lua 5.1
 # through 5.4 and LuaJIT, and a one-line pure-Lua entry point (lua/) that
 # `require("opentlv")` resolves to — the same native/pure split as the
 # Python opentlv-native/opentlv and Rust opentlv-native/opentlv packages.
@@ -32,6 +32,8 @@ add_library(opentlv_lua MODULE
     src/formats/fixed.c
     src/reader.c
     src/reader.h
+    src/writer.c
+    src/writer.h
     src/visitor.c
     src/visitor.h
     src/compat.h
@@ -142,6 +144,9 @@ if(OPENTLV_BUILD_LUA_TESTS)
     # trailing ";;" keeps each interpreter's own default search path too.
     set(_lua_path "${CMAKE_CURRENT_SOURCE_DIR}/lua/?.lua;${CMAKE_CURRENT_SOURCE_DIR}/lua/?/init.lua;;")
     set(_lua_cpath "$<TARGET_FILE_DIR:opentlv_lua>/?$<TARGET_FILE_SUFFIX:opentlv_lua>;;")
+    # ENVIRONMENT is a CMake list; preserve separators inside each Lua path.
+    string(REPLACE ";" "\\;" _lua_path "${_lua_path}")
+    string(REPLACE ";" "\\;" _lua_cpath "${_lua_cpath}")
     set(_lua_test_environment "LUA_PATH=${_lua_path};LUA_CPATH=${_lua_cpath}")
 
     # The existing suite exercises all original presets. Reduced builds use
@@ -158,6 +163,11 @@ if(OPENTLV_BUILD_LUA_TESTS)
     endif()
 
     if(OPENTLV_LUA_EXECUTABLE)
+        add_test(NAME Integration_lua_writer
+            COMMAND ${OPENTLV_LUA_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tests/writer_spec.lua")
+        set_tests_properties(Integration_lua_writer PROPERTIES
+            LABELS "integration;lua"
+            ENVIRONMENT "${_lua_test_environment}")
         add_test(NAME Integration_lua_components
             COMMAND ${OPENTLV_LUA_EXECUTABLE}
                 "${CMAKE_CURRENT_SOURCE_DIR}/tests/components.lua"

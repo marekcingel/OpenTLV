@@ -8,11 +8,11 @@ one-line pure-Lua entry point that `require("opentlv")` resolves to and that
 returns `opentlv-native` unchanged. Unlike Python's and Rust's pure layers,
 `opentlv` adds no ergonomics of its own beyond the name callers request:
 Lua's C API is close enough to the concepts this binding exposes (Reader,
-Element, Tag) that there is nothing a Lua-side wrapper would usefully add
+Writer, Tree Writer, Element, Tag) that there is nothing a Lua-side wrapper would usefully add
 today, so the split exists for naming/packaging consistency across bindings
 rather than for a richer pure-Lua layer. `bindings/lua/src/common.h`
 documents the ownership, registration and error-handling conventions every
-native-side component (Reader today; Writer, Document, Schema, ... later)
+native-side component (Reader and Writer today; Document, Schema, ... later)
 follows, and states the rule for what belongs in this binding versus in
 `tlv/`: functionality useful outside Lua belongs in the OpenTLV C API, this
 binding only adapts what already exists there to Lua's conventions. For
@@ -22,9 +22,9 @@ model](../concepts/bindings.md).
 
 It targets Lua 5.1 through 5.4 and LuaJIT (which implements the Lua 5.1 C
 API), using only the portable subset of the Lua C API common to all of them;
-see `bindings/lua/src/compat.h`. It covers Reader, Element and Tag, and
+see `bindings/lua/src/compat.h`. It covers Reader, Writer, Tree Writer, Element and Tag, and
 preorder tree traversal (`opentlv.visit_tree`, built on `tlv_tree_reader_visit()`/
-`tlv_der_visit()`); Writer, Document and Schema are not bound yet.
+`tlv_der_visit()`); Document and Schema are not bound yet.
 
 ## Build
 
@@ -76,3 +76,18 @@ runs on every push and pull request to `main`: it builds the module with
 `luarocks make` and runs `busted tests` and every script under `examples/`,
 across Lua 5.1, 5.3 and 5.4, on Linux, and additionally on Windows and macOS
 for release tags.
+
+## Writer implementation
+
+`src/writer.c` owns bounded output and Tree Writer workspace storage, retains
+Format userdata, and delegates writes to `tlv_writer_write_element_diag()`
+and `tlv_tree_writer_*`. It contains no format-specific encoding logic.
+`src/error.c` copies native writer diagnostics into owned Lua error fields.
+The C core remains allocation-free; Lua userdata finalizers release storage
+allocated by the binding, including after partial constructor failures.
+
+`tests/writer_spec.lua` runs both under busted and directly with Lua. CTest
+registers the standalone suite whenever the interpreter is available, even
+when optional formats are disabled. It covers binary strings, Reader/Writer
+roundtrips, exact preset bytes, ownership, nested output, resource exhaustion
+and structured diagnostics.

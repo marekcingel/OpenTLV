@@ -1,5 +1,5 @@
 -- Pure-Lua entry point for require("opentlv"). Every OpenTLV concept
--- (Reader, Element, Tag, tree traversal, errors) is bound directly in the
+-- (Reader, Writer, Tree Writer, Element, Tag, traversal, errors) is bound in the
 -- native opentlv_native module (bindings/lua/src/); this file only
 -- re-exports it under the name callers request, the same native/pure split
 -- the Python opentlv-native/opentlv and Rust opentlv-native/opentlv

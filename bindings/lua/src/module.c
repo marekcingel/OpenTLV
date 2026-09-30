@@ -1,6 +1,6 @@
 /*
  * luaopen_opentlv_native(): the entry point require("opentlv_native") loads.
- * Ties together the format (format.c), reader (reader.c), tree traversal
+ * Ties together the format (format.c), reader (reader.c), writer (writer.c), traversal
  * (visitor.c), error (error.c) and shared (common.c) pieces into the module
  * table Lua sees; the OpenTLV C reader itself (tlv/reader/) does the actual
  * parsing, exactly as for every other OpenTLV binding (see
@@ -28,6 +28,7 @@
 #include "format.h"
 #include "reader.h"
 #include "visitor.h"
+#include "writer.h"
 
 #include <tlv/error.h>
 #include <tlv/version.h>
@@ -51,6 +52,7 @@ int luaopen_opentlv_native(lua_State* L) {
     opentlv_lua_register_error_codes(L, module_index);
     opentlv_lua_open_format(L, module_index);
     opentlv_lua_open_reader(L, module_index);
+    opentlv_lua_open_writer(L, module_index);
     opentlv_lua_open_visitor(L, module_index);
 
     lua_pushcfunction(L, l_version);

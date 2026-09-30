@@ -16,9 +16,9 @@
 #define OPENTLV_LUA_DEFAULT_FORMAT_KEY "opentlv.default_format"
 
 /* A format bound to Lua: the callbacks used by every generic C entry point
- * (tlv_reader_next(), tlv_tree_reader_visit(), ...) -- read-only from Lua's
- * perspective, since this binding never encodes -- format.is_constructed is
- * the nesting predicate (NULL for flat formats), and use_der_validation/name say
+ * (tlv_reader_next(), tlv_tree_reader_visit(), ...) -- shared by reading and
+ * writing. format.is_constructed is the nesting predicate (NULL for flat
+ * formats), and use_der_validation/name say
  * whether tree traversal should dispatch to the stricter tlv_der_visit()
  * instead of the generic tlv_tree_reader_visit(), and give a name for diagnostics.
  *
