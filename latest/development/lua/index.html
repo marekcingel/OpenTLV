@@ -2734,6 +2734,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#writer-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writer implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2837,6 +2848,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#writer-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writer implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2871,11 +2893,11 @@ one-line pure-Lua entry point that <code>require("opentlv")</code> resolves to a
 returns <code>opentlv-native</code> unchanged. Unlike Python's and Rust's pure layers,
 <code>opentlv</code> adds no ergonomics of its own beyond the name callers request:
 Lua's C API is close enough to the concepts this binding exposes (Reader,
-Element, Tag) that there is nothing a Lua-side wrapper would usefully add
+Writer, Tree Writer, Element, Tag) that there is nothing a Lua-side wrapper would usefully add
 today, so the split exists for naming/packaging consistency across bindings
 rather than for a richer pure-Lua layer. <code>bindings/lua/src/common.h</code>
 documents the ownership, registration and error-handling conventions every
-native-side component (Reader today; Writer, Document, Schema, ... later)
+native-side component (Reader and Writer today; Document, Schema, ... later)
 follows, and states the rule for what belongs in this binding versus in
 <code>tlv/</code>: functionality useful outside Lua belongs in the OpenTLV C API, this
 binding only adapts what already exists there to Lua's conventions. For
@@ -2884,9 +2906,9 @@ shape this binding follows and adapts, see the <a href="../../concepts/bindings/
 model</a>.</p>
 <p>It targets Lua 5.1 through 5.4 and LuaJIT (which implements the Lua 5.1 C
 API), using only the portable subset of the Lua C API common to all of them;
-see <code>bindings/lua/src/compat.h</code>. It covers Reader, Element and Tag, and
+see <code>bindings/lua/src/compat.h</code>. It covers Reader, Writer, Tree Writer, Element and Tag, and
 preorder tree traversal (<code>opentlv.visit_tree</code>, built on <code>tlv_tree_reader_visit()</code>/
-<code>tlv_der_visit()</code>); Writer, Document and Schema are not bound yet.</p>
+<code>tlv_der_visit()</code>); Document and Schema are not bound yet.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Requirements: CMake 3.16 or newer, a C99 compiler, and Lua 5.1, 5.2, 5.3, 5.4
 or LuaJIT headers and library.</p>
@@ -2927,6 +2949,18 @@ runs on every push and pull request to <code>main</code>: it builds the module w
 <code>luarocks make</code> and runs <code>busted tests</code> and every script under <code>examples/</code>,
 across Lua 5.1, 5.3 and 5.4, on Linux, and additionally on Windows and macOS
 for release tags.</p>
+<h2 id="writer-implementation">Writer implementation<a class="headerlink" href="#writer-implementation" title="Permanent link">&para;</a></h2>
+<p><code>src/writer.c</code> owns bounded output and Tree Writer workspace storage, retains
+Format userdata, and delegates writes to <code>tlv_writer_write_element_diag()</code>
+and <code>tlv_tree_writer_*</code>. It contains no format-specific encoding logic.
+<code>src/error.c</code> copies native writer diagnostics into owned Lua error fields.
+The C core remains allocation-free; Lua userdata finalizers release storage
+allocated by the binding, including after partial constructor failures.</p>
+<p><code>tests/writer_spec.lua</code> runs both under busted and directly with Lua. CTest
+registers the standalone suite whenever the interpreter is available, even
+when optional formats are disabled. It covers binary strings, Reader/Writer
+roundtrips, exact preset bytes, ownership, nested output, resource exhaustion
+and structured diagnostics.</p>
 
 
 
