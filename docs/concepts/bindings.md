@@ -52,6 +52,11 @@ to this in practice.
 
 ## Capability parity through the public facade
 
+The [pipeline audit](processing-pipeline.md) describes selection of an already
+published subtree: C++ `document_builder::current_subtree(reader)`, Rust
+`DocumentBuilder::current_subtree` and Python `current_subtree=True` avoid pulling
+the selected root a second time.
+
 Every supported language binding must expose the complete capability set of
 the public C API through its public, idiomatic language facade. Access through
 raw FFI alone does not satisfy capability parity. Users must not need to bypass
@@ -289,17 +294,17 @@ and set native length flags and multiples. C validates rule-table ordering,
 group identity, occurrence totals and all length policies; bindings only retain
 or marshal the descriptions. Rust keeps stable group storage when schemas move.
 
-`StructureSchema.validate_all` in both languages uses the C report validator.
+`StructureSchema.validate_diagnostics` in both languages uses the C diagnostic report validator.
 `UnknownPolicy` controls unknown-tag handling. A report retains at most the
 requested capacity while `total_count` reports every violation, including at
-zero capacity. Issues own copied Tags, optional offsets, native issue names and
-paths formatted by C. Reports survive input and schema destruction. Schema
+zero capacity. Diagnostics own copied Tags, optional offsets and native issue names.
+Reports survive input and schema destruction. Schema
 violations return a report; malformed wire input and invalid configuration
 still fail. `validate_diagnostics` returns owned expected/actual length,
 occurrence and form constraints, group identity, severity, field names and
 source offsets. Its path contains enclosing scopes; the affected Tag is a
-separate field, matching the C diagnostic contract. Rust `validate_fixed`,
-`validate_all_fixed` and `validate_diagnostics_fixed` accept a borrowed
+separate field, matching the C diagnostic contract. Rust `validate_fixed` and
+`validate_diagnostics_fixed` accept a borrowed
 `FixedFormat`; Python accepts `FixedFormat` through the same `format` argument.
 
 `NumberCodec` in Rust and Python selects binary big/little endian or BCD,
@@ -360,7 +365,7 @@ explicitly out of scope for #400.
 | Document | Optional owning, mutable representation | `tlv_document_t` | `tlv::document` | `Document`, `Node`, `NodeMut`, `DocumentBuilder` | `Document`, `Node`, `DocumentBuilder` | not bound yet |
 | Element | One TLV element with borrowed wire fields | `tlv_element_t` | `tlv::element` | `Element<'a>` | `Element` | a plain table (`tag`/`raw_length`/`length`/`value`/`offset` fields) |
 | Tag | The TLV tag abstraction: raw identifying bytes | `tlv_tag_t` | `tlv::tag_t` (alias) | `Tag` | `Tag` | a raw Lua string (content equality already compares it) |
-| Schema | Structural validation: tags, lengths, occurrence and nesting rules | `tlv_schema_t`, `tlv_structure_schema_t` | same C types, wrapped by `tlv::validate`/`tlv::validate_all` | `LengthSchema`, `StructureSchema` | `LengthSchema`, `StructureSchema` | not bound yet |
+| Schema | Structural validation: tags, lengths, occurrence and nesting rules | `tlv_schema_t`, `tlv_structure_schema_t` | same C types, wrapped by `tlv::validate`/`tlv::validate_all_diag` | `LengthSchema`, `StructureSchema` | `LengthSchema`, `StructureSchema` | not bound yet |
 | Codec | Typed encoding and decoding of a value | `tlv_codec_t`, `tlv_structure_codec_t` | `TlvCodec` concept, `tlv::decode_structure<T>`/`encode_structure` | `Codec` | `NumberCodec` and EMV amount functions | not bound yet |
 | Diagnostics | Structured diagnostic information for a failure | `tlv_diagnostic_t` | `tlv::diagnostic` (alias) | `SchemaError`, `ValidationError`, `CodecError` (each carries the failing offset; no unified diagnostic type yet) | `OpenTLVError` subclasses carry the offset, expected/actual text and operation, when the C API reports them | a plain table with `code`/`message` and, when reported, `offset`/`expected`/`actual`/`operation`/`tag` |
 

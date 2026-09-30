@@ -41,14 +41,16 @@
  * C23, to `__attribute__((warn_unused_result))` on compilers that recognize
  * it (GCC, Clang), and to nothing otherwise, including the C99 baseline. The
  * annotated declaration's signature, linkage and ABI are unchanged in every
- * case.
+ * case. A definition supplied by the C++ compatibility header is retained.
  */
+#ifndef TLV_NODISCARD
 #if TLV_ATTRIBUTES_HAS_STD_ATTR
 #define TLV_NODISCARD [[nodiscard]]
 #elif TLV_HAS_ATTRIBUTE(warn_unused_result)
 #define TLV_NODISCARD __attribute__((warn_unused_result))
 #else
 #define TLV_NODISCARD
+#endif
 #endif
 
 /**

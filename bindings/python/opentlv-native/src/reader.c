@@ -59,6 +59,8 @@ typedef struct cursor {
     tlv_format_t       format;
     tlv_reader_t       reader;
     tlv_tree_reader_t  tree;
+    tlv_tree_item_t    current;
+    int                has_current;
     tlv_tree_frame_t*  frames;
     int                nested;
     int                busy;
@@ -110,7 +112,7 @@ PyObject* opentlv_python_builder_create(PyObject* module, PyObject* args) {
     PyObject*  owner;
     int        subtree;
     Py_ssize_t depth, count;
-    if (!PyArg_ParseTuple(args, "Opnn", &owner, &subtree, &depth, &count)) return NULL;
+    if (!PyArg_ParseTuple(args, "Oinn", &owner, &subtree, &depth, &count)) return NULL;
     cursor* reader = PyCapsule_GetPointer(owner, CURSOR_NAME);
     if (!available(reader)) return NULL;
     if (!reader->nested || depth < 0 || count < 0) {
@@ -127,10 +129,18 @@ PyObject* opentlv_python_builder_create(PyObject* module, PyObject* args) {
     options.max_elements = (size_t)count;
     builder_state* self = calloc(1, sizeof(*self));
     if (!self) return PyErr_NoMemory();
-    tlv_tree_item_t         root;
+    tlv_tree_item_t root = reader->current;
+    int             has_current = reader->has_current;
+    reader->has_current = 0;
     tlv_reader_diagnostic_t diagnostic;
     tlv_reader_diagnostic_init(&diagnostic);
-    if (subtree) code = tlv_tree_reader_next_diag(&reader->tree, &root, &diagnostic);
+    if (subtree == 2) {
+        if (!has_current) code = TLV_ERR_INVALID_ARG;
+    } else if (subtree == 1) {
+        code = tlv_tree_reader_next_diag(&reader->tree, &root, &diagnostic);
+    } else if (subtree != 0) {
+        code = TLV_ERR_INVALID_ARG;
+    }
     if (code == TLV_OK)
         code = tlv_document_builder_create(&options, &reader->tree, subtree ? &root : NULL,
                                            &self->builder);
@@ -271,6 +281,7 @@ PyObject* opentlv_python_cursor_next(PyObject* module, PyObject* capsule) {
     (void)module;
     cursor* self = PyCapsule_GetPointer(capsule, CURSOR_NAME);
     if (!available(self)) return NULL;
+    self->has_current = 0;
     tlv_tree_item_t         item = {0};
     tlv_reader_diagnostic_t diagnostic;
     tlv_reader_diagnostic_init(&diagnostic);
@@ -312,6 +323,8 @@ PyObject* opentlv_python_cursor_next(PyObject* module, PyObject* capsule) {
         free(source);
         return NULL;
     }
+    self->current = item;
+    self->has_current = self->nested;
     return Py_BuildValue(
         "(NnnNnniN)", tag,
         (Py_ssize_t)(item.source.data - (const uint8_t*)PyBytes_AsString(self->input)),
@@ -327,6 +340,7 @@ PyObject* opentlv_python_cursor_input(PyObject* module, PyObject* args) {
     if (!PyArg_ParseTuple(args, "OOnp", &capsule, &input, &discard, &final_input)) return NULL;
     cursor* self = PyCapsule_GetPointer(capsule, CURSOR_NAME);
     if (!idle(self)) return NULL;
+    self->has_current = 0;
     if (!PyBytes_Check(input) || discard < 0) {
         PyErr_SetString(PyExc_ValueError, "immutable bytes and nonnegative discard required");
         return NULL;
@@ -369,6 +383,7 @@ PyObject* opentlv_python_cursor_skip(PyObject* module, PyObject* capsule) {
     (void)module;
     cursor* self = PyCapsule_GetPointer(capsule, CURSOR_NAME);
     if (!available(self)) return NULL;
+    self->has_current = 0;
     tlv_result_t code =
         self->nested ? tlv_tree_reader_skip_subtree(&self->tree) : TLV_ERR_INVALID_ARG;
     if (code != TLV_OK) {
@@ -411,6 +426,7 @@ PyObject* opentlv_python_cursor_visit(PyObject* module, PyObject* args) {
         PyErr_SetString(PyExc_TypeError, "visitor must be callable");
         return NULL;
     }
+    self->has_current = 0;
     self->busy = 1;
     tlv_reader_diagnostic_t diagnostic;
     tlv_reader_diagnostic_init(&diagnostic);
@@ -532,6 +548,7 @@ PyObject* opentlv_python_query_visit(PyObject* module, PyObject* args) {
         PyErr_SetString(PyExc_ValueError, "idle matcher, Tree Reader and callable required");
         return NULL;
     }
+    reader->has_current = 0;
     self->busy = reader->busy = 1;
     size_t       offset = 0;
     tlv_result_t code =

@@ -552,9 +552,8 @@ static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* a
     Py_ssize_t max_depth, max_elements;
     Py_ssize_t report_capacity = -1;
     int        unknown = 0;
-    int        detailed = 0;
-    if (!PyArg_ParseTuple(args, "y*OOnn|nip", &buffer, &format_obj, &schema_obj, &max_depth,
-                          &max_elements, &report_capacity, &unknown, &detailed)) {
+    if (!PyArg_ParseTuple(args, "y*OOnn|ni", &buffer, &format_obj, &schema_obj, &max_depth,
+                          &max_elements, &report_capacity, &unknown)) {
         return NULL;
     }
     tlv_fixed_format_t  fixed;
@@ -605,8 +604,7 @@ static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* a
     }
     if (PyTuple_Size(args) > 5 &&
         (report_capacity < 0 ||
-         (size_t)report_capacity > SIZE_MAX / (detailed ? sizeof(tlv_schema_diagnostic_t)
-                                                        : sizeof(tlv_schema_issue_t)))) {
+         (size_t)report_capacity > SIZE_MAX / sizeof(tlv_schema_diagnostic_t))) {
         PyBuffer_Release(&buffer);
         PyErr_SetString(PyExc_ValueError, "invalid report capacity");
         return NULL;
@@ -619,91 +617,10 @@ static PyObject* opentlv_native_structure_validate(PyObject* module, PyObject* a
     }
 
     size_t error_offset = 0;
-    if (detailed) {
+    if (report_capacity >= 0) {
         PyObject* result = schema_diagnostic_report(&buffer, format, schema, (size_t)max_depth,
                                                     (size_t)max_elements, (size_t)report_capacity,
                                                     (tlv_schema_unknown_policy_t)unknown);
-        free_structure_schema(schema);
-        PyBuffer_Release(&buffer);
-        return result;
-    }
-    if (report_capacity >= 0) {
-        tlv_schema_issue_t* issues =
-            report_capacity ? calloc((size_t)report_capacity, sizeof(*issues)) : NULL;
-        if (report_capacity && !issues) {
-            free_structure_schema(schema);
-            PyBuffer_Release(&buffer);
-            return PyErr_NoMemory();
-        }
-        tlv_schema_report_t report = {issues, (size_t)report_capacity, 0};
-        tlv_result_t        code = tlv_schema_validate_all(
-            buffer.buf, (size_t)buffer.len, format, schema, (size_t)max_depth, (size_t)max_elements,
-            (tlv_schema_unknown_policy_t)unknown, &report, &error_offset);
-        PyObject* result = NULL;
-        if (code == TLV_OK || code == TLV_ERR_SCHEMA) {
-            size_t    stored = report.count < report.capacity ? report.count : report.capacity;
-            PyObject* list = PyList_New((Py_ssize_t)stored);
-            if (list) {
-                for (size_t i = 0; i < stored; ++i) {
-                    tlv_schema_issue_t* issue = &issues[i];
-                    PyObject*           path = PyTuple_New((Py_ssize_t)issue->path_length);
-                    if (!path) {
-                        Py_CLEAR(list);
-                        break;
-                    }
-                    for (size_t j = 0; j < issue->path_length; ++j) {
-                        PyObject* tag = PyBytes_FromStringAndSize((const char*)issue->path[j].data,
-                                                                  (Py_ssize_t)issue->path[j].size);
-                        if (!tag) {
-                            Py_CLEAR(path);
-                            break;
-                        }
-                        PyTuple_SetItem(path, (Py_ssize_t)j, tag);
-                    }
-                    if (!path) {
-                        Py_CLEAR(list);
-                        break;
-                    }
-                    size_t       length = 0;
-                    tlv_result_t rc = tlv_schema_issue_path_string(issue, NULL, 0, &length);
-                    if (rc != TLV_OK && rc != TLV_ERR_BUFFER_TOO_SHORT) {
-                        Py_DECREF(path);
-                        Py_CLEAR(list);
-                        raise_code_only(rc);
-                        break;
-                    }
-                    char* text = length < SIZE_MAX ? malloc(length + 1) : NULL;
-                    if (!text) {
-                        Py_DECREF(path);
-                        Py_CLEAR(list);
-                        PyErr_NoMemory();
-                        break;
-                    }
-                    rc = tlv_schema_issue_path_string(issue, text, length + 1, &length);
-                    PyObject* offset =
-                        issue->has_offset ? PyLong_FromSize_t(issue->offset) : Py_NewRef(Py_None);
-                    PyObject* item = rc == TLV_OK && offset
-                                         ? Py_BuildValue("(isNNs)", (int)issue->kind,
-                                                         tlv_schema_issue_kind_string(issue->kind),
-                                                         path, offset, text)
-                                         : NULL;
-                    free(text);
-                    if (!item) {
-                        if (rc != TLV_OK || !offset) {
-                            Py_DECREF(path);
-                            Py_XDECREF(offset);
-                        }
-                        if (!PyErr_Occurred()) raise_code_only(rc);
-                        Py_CLEAR(list);
-                        break;
-                    }
-                    PyList_SetItem(list, (Py_ssize_t)i, item);
-                }
-                if (list) result = Py_BuildValue("(nN)", (Py_ssize_t)report.count, list);
-            }
-        } else
-            raise_code_and_offset(code, error_offset);
-        free(issues);
         free_structure_schema(schema);
         PyBuffer_Release(&buffer);
         return result;

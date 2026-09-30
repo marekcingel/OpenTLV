@@ -107,8 +107,8 @@ pub use reader::{read, read_fixed, Reader, ReaderError};
 pub use reader_diagnostic::ReaderDiagnostic;
 pub use schema::{
     Kind, LengthRule, LengthSchema, SchemaBounds, SchemaDiagnostic, SchemaDiagnosticReport,
-    SchemaError, SchemaIssue, SchemaOrder, SchemaReport, StructureGroup, StructureRule,
-    StructureSchema, UnknownPolicy, ValidationLimits,
+    SchemaError, SchemaOrder, StructureGroup, StructureRule, StructureSchema, UnknownPolicy,
+    ValidationLimits,
 };
 pub use source::{decode, decode_fixed, Decoded, Layout};
 pub use tag::Tag;

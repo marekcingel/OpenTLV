@@ -1,7 +1,7 @@
 // Keep this translation unit separate: low-level headers must not import codecs.
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/writer/writer.hpp"
-#include "tlv++/reader/visitor.hpp"
+#include "tlv++/reader/tree.hpp"
 #include "tlv++/schema/schema.hpp"
 #include "tlv++/query/query.hpp"
 #if defined(OPENTLV_TLVPP_CODEC_HPP) || defined(OPENTLV_CODEC_H)
@@ -48,12 +48,10 @@ TEST(Integration_Tlvpp, BerIndefiniteRoundTripAndTraversal) {
     EXPECT_EQ(reinterpret_cast<const uint8_t*>(buffer) + 2, item->value.data);
     EXPECT_EQ(4u, item->value.size);
     EXPECT_TRUE(reader.at_end());
-    size_t            visits = 0;
-    tlv_tree_frame_t  frames[1];
-    tlv_tree_reader_t tree;
-    ASSERT_EQ(TLV_OK, tlv_tree_reader_init(&tree, reinterpret_cast<const uint8_t*>(buffer),
-                                           *written, &tlv_format_ber, frames, 1, 1, 2));
-    EXPECT_TRUE(tlv::visit_tree(tree, [&visits](const tlv::element&, size_t depth, size_t offset) {
+    size_t           visits = 0;
+    tlv_tree_frame_t frames[1];
+    tlv::tree_reader tree(tlv::bytes(buffer, *written), tlv_format_ber, {frames, 1}, 1, 2);
+    EXPECT_TRUE(tree.visit([&visits](const tlv::element&, size_t depth, size_t offset) {
         EXPECT_EQ(visits, depth);
         EXPECT_EQ(visits * 2, offset);
         ++visits;
@@ -107,47 +105,23 @@ TEST(Integration_Tlvpp, BerPathQuery) {
 #endif
 
 TEST(Integration_Tlvpp, LayeredTraversalAndSchema) {
-    const uint8_t     data[] = {1, 1, 42, 2, 0};
-    tlv::bytes        bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
-    size_t            visits = 0;
-    tlv_tree_reader_t tree;
-    ASSERT_EQ(TLV_OK,
-              tlv_tree_reader_init(&tree, data, sizeof(data), &tlv_format_ber, nullptr, 0, 0, 2));
-    auto result =
-        tlv::visit_tree(tree, [&visits](const tlv::element& item, size_t depth, size_t offset) {
-            EXPECT_EQ(0u, depth);
-            EXPECT_EQ(visits ? 3u : 0u, offset);
-            EXPECT_EQ(visits ? 2 : 1, item.tag.data[0]);
-            ++visits;
-            return TLV_VISIT_CONTINUE;
-        });
+    const uint8_t    data[] = {1, 1, 42, 2, 0};
+    tlv::bytes       bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
+    size_t           visits = 0;
+    tlv::tree_reader tree(bytes, tlv_format_ber, {}, 0, 2);
+    auto result = tree.visit([&visits](const tlv::element& item, size_t depth, size_t offset) {
+        EXPECT_EQ(0u, depth);
+        EXPECT_EQ(visits ? 3u : 0u, offset);
+        EXPECT_EQ(visits ? 2 : 1, item.tag.data[0]);
+        ++visits;
+        return TLV_VISIT_CONTINUE;
+    });
     ASSERT_TRUE(result);
     EXPECT_EQ(2u, visits);
     const tlv_schema_entry_t     rule_fields[] = {{TLV_TAG(1), 1, 1, 0, nullptr, 0}};
     const tlv_structure_rule_t   rule = {&rule_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0};
     const tlv_structure_schema_t schema = {&rule, 1, 1, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
     EXPECT_TRUE(tlv::validate(bytes, tlv_format_ber, schema, 0, 2));
-}
-
-TEST(Integration_Tlvpp, ValidateAllCountsViolationsAndReportsTagPaths) {
-    const uint8_t                data[] = {2, 0};
-    const tlv::bytes             bytes(reinterpret_cast<const tlv::byte*>(data), sizeof(data));
-    const tlv_schema_entry_t     rule_fields[] = {{TLV_TAG(1), 1, 1, 0, "one", 0}};
-    const tlv_structure_rule_t   rule = {&rule_fields[0], 1, 1, TLV_SCHEMA_PRIMITIVE, nullptr, 0};
-    const tlv_structure_schema_t schema = {&rule, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
-    tlv_schema_issue_t           issues[4];
-    auto count = tlv::validate_all(bytes, tlv_format_ber, schema, 0, 2, issues, 4);
-    ASSERT_TRUE(count);
-    ASSERT_EQ(2u, *count); // Tag 1 is missing and tag 2 is unexpected.
-    char path[8];
-    ASSERT_EQ(TLV_OK, tlv_schema_issue_path_string(&issues[0], path, sizeof(path), nullptr));
-    EXPECT_STREQ("01", path);
-
-    auto conforming = tlv::validate_all(
-        tlv::bytes(), tlv_format_ber,
-        tlv_structure_schema_t{nullptr, 0, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY}, 0, 2, nullptr, 0);
-    ASSERT_TRUE(conforming);
-    EXPECT_EQ(0u, *conforming);
 }
 
 TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
@@ -162,6 +136,8 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsFieldNamesAndPaths) {
     ASSERT_EQ(2u, *count); // Tag 1 is missing and tag 2 is unexpected.
     EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostics[0].kind);
     EXPECT_STREQ("one", diagnostics[0].field);
+    EXPECT_EQ(0u, diagnostics[0].path.length);
+    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(1), diagnostics[0].tag));
     EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, diagnostics[1].kind);
     EXPECT_EQ(nullptr, diagnostics[1].field);
 
@@ -268,6 +244,8 @@ TEST(Integration_Tlvpp, ValidateAllDiagReportsGroupAndOrderViolations) {
     ASSERT_EQ(1u, *order_count);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_ORDER, diagnostics[0].kind);
     EXPECT_STREQ("one", diagnostics[0].field);
+    EXPECT_EQ(0u, diagnostics[0].path.length);
+    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(1), diagnostics[0].tag));
 }
 
 namespace {

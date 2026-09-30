@@ -119,14 +119,15 @@ TEST(Integration_Tlv_Lldp, SchemaRejectsDuplicatesLengthsAndTruncation) {
 TEST(Integration_Tlv_Lldp, GenericSchemaReportAndValueCodecComposition) {
     auto wire = base_lldpdu;
     wire.insert(wire.end(), {6, 2, 0, 0});
-    tlv_schema_issue_t  issue{};
-    tlv_schema_report_t report = {&issue, 1, 0};
-    EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_lldp, &tlv_lldp_schema,
-                                      0, 10, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
+    tlv_schema_diagnostic_t        issue{};
+    tlv_schema_diagnostic_report_t report = {&issue, 1, 0};
+    EXPECT_EQ(TLV_ERR_SCHEMA, tlv_schema_validate_all_diag(
+                                  wire.data(), wire.size(), &tlv_format_lldp, &tlv_lldp_schema, 0,
+                                  10, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     EXPECT_EQ(1u, report.count);
     EXPECT_EQ(TLV_SCHEMA_ISSUE_DUPLICATE, issue.kind);
-    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(3), issue.path[0]));
+    EXPECT_EQ(0u, issue.path.length);
+    EXPECT_TRUE(tlv_tag_equal(TLV_TAG(3), issue.tag));
     tlv_reader_t reader{};
     ASSERT_EQ(TLV_OK,
               tlv_reader_init(&reader, base_lldpdu.data(), base_lldpdu.size(), &tlv_format_lldp));

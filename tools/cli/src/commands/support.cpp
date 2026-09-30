@@ -7,7 +7,6 @@
 #include <iostream>
 #include "console_color.hpp"
 #include "tlv/config.h"
-#include "tlv++/reader/visitor.hpp"
 #include "tlv/formats/fixed.h"
 #if OPENTLV_EMV
 #include "tlv/builtins/emv/format.h"

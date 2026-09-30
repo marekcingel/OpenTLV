@@ -374,59 +374,46 @@ static const tlv_schema_entry_t identifier = {{tag_id, sizeof(tag_id)}, 8, 8, 0,
 
 ## Reporting every violation
 
-`tlv_schema_validate` stops at the first violation. To validate a template's
-contents and get all problems at once, call `tlv_schema_validate_all` with the
-same `tlv_structure_schema_t`. The rules, including tag and length bounds, are
-not duplicated: a template schema is an ordinary structure schema whose rules
-say which tags are required (`min_occurs`), which may repeat (`max_occurs`),
-which children each constructed tag may hold (`children`), and whether unknown
-tags are accepted (`allow_unknown`, or an override for the whole call with
-`tlv_schema_unknown_policy_t`).
+`tlv_schema_validate` stops at the first violation. To collect all violations,
+call `tlv_schema_validate_all_diag` with the same `tlv_structure_schema_t`.
+The rules, including occurrence, ordering, groups, form and length constraints,
+are shared with fail-fast validation.
 
 ```c
-tlv_schema_issue_t  issues[16];
-tlv_schema_report_t report = {issues, 16, 0};
-tlv_result_t rc = tlv_schema_validate_all(data, size, &tlv_format_ber, &template_schema, 16, 1000,
-                                          TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &offset);
+tlv_schema_diagnostic_t diagnostics[16];
+tlv_schema_diagnostic_report_t report = {diagnostics, 16, 0};
+tlv_result_t rc = tlv_schema_validate_all_diag(data, size, &tlv_format_ber,
+    &template_schema, 16, 1000, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &offset);
 if (rc == TLV_ERR_SCHEMA) {
     for (size_t i = 0; i < report.count && i < report.capacity; ++i) {
-        char path[64];
-        (void)tlv_schema_issue_path_string(&issues[i], path, sizeof(path), NULL);
-        printf("%s at %s", tlv_schema_issue_kind_string(issues[i].kind), path);
-        if (issues[i].has_offset) printf(" (offset %zu)", issues[i].offset);
+        const tlv_schema_diagnostic_t* d = &diagnostics[i];
+        char path[256];
+        if (tlv_diagnostic_path_string(&d->path, path, sizeof(path), NULL) == TLV_OK)
+            printf("%s in %s", tlv_schema_issue_kind_string(d->kind), path);
+        if (d->diagnostic.has_offset) printf(" (offset %zu)", d->diagnostic.offset);
         printf("\n");
     }
 }
 ```
 
-Each `tlv_schema_issue_t` has a `kind` (`MISSING`, `DUPLICATE`, `UNEXPECTED`,
-`KIND` for a primitive/constructed mismatch, `LENGTH`), the `path` from the
-outermost scope to the affected tag (`70/77/9F36` as text), and the byte
-`offset` of the element. The path tags borrow the input that was validated (and
-the schema, for a missing tag), so both must outlive the issue. A missing tag has no element of its own, so its offset
-is that of the enclosing element; a tag missing at the top level has no offset
-(`has_offset` is zero). The return value is `TLV_OK`, `TLV_ERR_SCHEMA` when
-violations were found (`report.count` is the total, even beyond `capacity`), or
-another error. A malformed or truncated wire encoding is not a violation: it
-aborts the call with the reader's error and no violations are reported.
-An element rejected as unexpected or of the wrong form is not descended into,
-but its siblings are still checked. Paths are limited to `TLV_SCHEMA_PATH_MAX`
-tags; a schema nested deeper returns `TLV_ERR_LIMIT`. `tlv::validate_all`
-wraps the same call in C++.
+Each diagnostic contains its violation `kind`, affected `tag`, enclosing scope
+`path`, field name, common diagnostic code/offset and applicable expected/actual
+constraints. The path excludes the affected tag. Tags and names borrow input,
+Format or Schema storage, which must outlive retained C diagnostics. Missing
+fields use their enclosing element's offset; a missing root field has no offset.
+
+`TLV_OK` means no violations. `TLV_ERR_SCHEMA` supplies the total count, which can
+exceed storage capacity. Zero capacity counts only. Wire errors abort validation
+without a partial report. Unexpected or wrongly formed elements are not descended
+into; siblings are still checked. Paths use the shared `TLV_DIAGNOSTIC_PATH_MAX`
+bound. C++ exposes `tlv::validate_all_diag`; Rust and Python expose
+`StructureSchema.validate_diagnostics` with owned report records.
 
 ## Diagnostics for a violation
 
-`tlv_schema_issue_t` is compact but only says which rule and tag failed. To
-also get the schema field name and the expected-versus-actual detail behind a
-violation, call `tlv_schema_validate_all_diag()` instead of
-`tlv_schema_validate_all()`: same rules, order and storage conventions,
-but each violation is a `tlv_schema_diagnostic_t` that pairs a
-`tlv_diagnostic_t` (code, offset) with the enclosing `path`, the affected
-`tag`, the rule's `field` name (its entry's `name`, or `NULL` if unnamed),
-and, depending on `kind`, occurrence counts, length bounds or the
-primitive/constructed mismatch. See
-[Schema diagnostics](diagnostics.md#schema-diagnostics) for the fields and a
-worked example. `tlv::validate_all_diag` wraps the same call in C++.
+See [Schema diagnostics](diagnostics.md#schema-diagnostics) for the expected/actual
+fields and an example. The compact issue/report API and its separate path formatter
+were removed in #401; use the shared diagnostic representation throughout.
 
 See also the [C API reference: schemas](../reference/c-api.md#schemas) and the [C++ API reference](../reference/cxx-api.md).
 

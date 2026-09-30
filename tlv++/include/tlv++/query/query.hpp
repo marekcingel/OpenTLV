@@ -67,7 +67,7 @@ public:
      * and the entries passed to the visitor borrow `data`.
      *
      * @tparam Visitor Callable invoked as `visitor(element, depth, absolute_offset)`
-     *                 returning #tlv_visit_result_t, as for visit_tree().
+     *                 returning #tlv_visit_result_t, as for tree_reader::visit().
      *
      * @param data          Encoded input; borrowed.
      * @param format        Reader format. A `nullptr` `format.is_constructed`
@@ -150,6 +150,7 @@ public:
     template <typename Visitor>
     TLV_NODISCARD expected<void, error> visit(tree_reader& reader, Visitor&& visitor,
                                               size_t* error_offset = nullptr) {
+        reader.has_current_ = false;
         if (init_result_ != TLV_OK) return unexpected<error>(error::from_c(init_result_));
         if (reader.init_result_ != TLV_OK)
             return unexpected<error>(error::from_c(reader.init_result_));

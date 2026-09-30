@@ -335,6 +335,11 @@ class Document:
 class DocumentBuilder:
     """Resumable C materialization of a whole stream or its next subtree.
 
+    current_subtree=True selects the last item returned by next(reader), for
+    example after QueryMatcher.matches(). It performs no second root pull.
+    Pulls, input replacement, skips, visitors and builder creation invalidate
+    that selection. It cannot be combined with next_subtree=True.
+
     While active, the TreeReader permits input replacement and status queries,
     but rejects pulls, skips and visitors. consume() returns an owning Document
     only when complete; NeedMoreDataError retains unfinished state. Terminal
@@ -342,14 +347,17 @@ class DocumentBuilder:
     """
     __slots__ = ("_capsule", "_reader")
 
-    def __init__(self, reader: TreeReader, *, next_subtree=False,
+    def __init__(self, reader: TreeReader, *, next_subtree=False, current_subtree=False,
                  max_depth=_DEFAULT_MAX_DEPTH, max_elements=_DEFAULT_MAX_ELEMENTS):
         if not isinstance(reader, TreeReader):
             raise TypeError("DocumentBuilder requires a TreeReader")
+        if next_subtree and current_subtree:
+            raise ValueError("choose either next_subtree or current_subtree")
         self._reader = reader
         try:
             self._capsule = _native.document_builder_create(
-                reader._capsule, next_subtree, max_depth, max_elements)
+                reader._capsule, 2 if current_subtree else int(next_subtree),
+                max_depth, max_elements)
         except _native.Error as error:
             raise _from_native(error) from None
 

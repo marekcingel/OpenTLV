@@ -2,6 +2,68 @@
 use opentlv::{ByteOrder, Document, Error, FixedFormat, FixedFormatConfig, Format, Query, Tag};
 
 #[test]
+fn pipeline_builds_already_matched_subtree() {
+    use opentlv::{DocumentBuilder, TreeReader};
+    let wire = [1, 0, 0x30, 5, 0x31, 3, 4, 1, 42, 4, 0];
+    let mut reader = TreeReader::new(&wire[..3], Format::Ber, 2, 2, 10, false).unwrap();
+    let mut matcher = Query::parse("30/31").unwrap().matcher().unwrap();
+    let first = reader.read().unwrap();
+    assert!(!matcher.matches(first.decoded.element.tag(), first.depth));
+    assert_eq!(reader.read().unwrap_err(), Error::NeedMoreData);
+    reader.set_input(&wire[2..], 2, true).unwrap();
+    loop {
+        let item = reader.read().unwrap();
+        if matcher.matches(item.decoded.element.tag(), item.depth) {
+            break;
+        }
+    }
+    let mut document = {
+        let mut builder = DocumentBuilder::current_subtree(&mut reader, 1, 2).unwrap();
+        builder.consume().unwrap()
+    };
+    document
+        .first_mut()
+        .unwrap()
+        .set_value(&[4, 2, 7, 8])
+        .unwrap();
+    assert_eq!(document.encode().unwrap(), [0x31, 4, 4, 2, 7, 8]);
+    assert_eq!(reader.read().unwrap().offset, 9);
+}
+
+#[test]
+fn current_subtree_cannot_reuse_a_stale_selection() {
+    use opentlv::{DocumentBuilder, TreeReader, Visit};
+    let wire = [0x30, 3, 4, 1, 42];
+    for operation in 0..5 {
+        let mut reader = TreeReader::new(&wire, Format::Ber, 2, 2, 10, true).unwrap();
+        assert!(DocumentBuilder::current_subtree(&mut reader, 2, 10).is_err());
+        reader.read().unwrap();
+        match operation {
+            0 => reader.set_input(&wire, 0, true).unwrap(),
+            1 => reader.skip_subtree().unwrap(),
+            2 => reader.visit(|_, _, _| Visit::Continue).unwrap(),
+            3 => Query::parse("30/04")
+                .unwrap()
+                .matcher()
+                .unwrap()
+                .visit(&mut reader, |_, _, _| Visit::Continue)
+                .unwrap(),
+            _ => {
+                reader.read().unwrap();
+                assert_eq!(reader.read().unwrap_err(), Error::EndOfBuffer);
+            }
+        }
+        assert_eq!(
+            DocumentBuilder::current_subtree(&mut reader, 2, 10)
+                .err()
+                .unwrap()
+                .error,
+            Error::InvalidArg
+        );
+    }
+}
+
+#[test]
 fn builder_resumes_and_materializes_selected_subtree_without_sibling_decode() {
     use opentlv::{DocumentBuilder, TreeReader};
     let first = [1, 0];

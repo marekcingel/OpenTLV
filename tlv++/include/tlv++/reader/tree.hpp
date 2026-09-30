@@ -18,6 +18,9 @@ using tree_item = tlv_tree_item_t;
  * @warning Input, Format and context must outlive returned views. Frames must
  * remain writable and alive throughout traversal and must not overlap input.
  * Successful pull operations allocate nothing; error messages may allocate.
+ * Only the last successful explicit next() selects a subtree for Document building.
+ * Every pull, skip, input replacement, validation, visitor or builder creation
+ * attempt invalidates the previous selection, including failed attempts.
  */
 class tree_reader {
 public:
@@ -53,10 +56,13 @@ public:
      * when its entire encoded extent is available; there are no ENTER/LEAVE events.
      */
     TLV_NODISCARD expected<tree_item, error> next(reader_diagnostic* diagnostic = nullptr) {
+        has_current_ = false;
         tree_item result{};
         auto rc = init_result_ == TLV_OK ? tlv_tree_reader_next_diag(&impl_, &result, diagnostic)
                                          : init_result_;
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        current_ = result;
+        has_current_ = true;
         return result;
     }
 
@@ -66,6 +72,7 @@ public:
      * @note May recover from a descent limit failure; skipped children do not count.
      */
     TLV_NODISCARD expected<void, error> skip_subtree() {
+        has_current_ = false;
         return result(init_result_ == TLV_OK ? tlv_tree_reader_skip_subtree(&impl_) : init_result_);
     }
 
@@ -78,6 +85,7 @@ public:
      * @warning Release views before moving or overwriting their backing storage.
      */
     TLV_NODISCARD expected<void, error> set_input(bytes data, size_t discard, input_mode mode) {
+        has_current_ = false;
         return result(
             init_result_ == TLV_OK
                 ? tlv_tree_reader_set_input(&impl_, reinterpret_cast<const uint8_t*>(data.data()),
@@ -107,6 +115,7 @@ public:
      */
     TLV_NODISCARD expected<void, error> validate(size_t*            error_offset = nullptr,
                                                  reader_diagnostic* diagnostic = nullptr) {
+        has_current_ = false;
         return result(init_result_ == TLV_OK ? tlv_tree_reader_visit_diag(&impl_, nullptr, nullptr,
                                                                           error_offset, diagnostic)
                                              : init_result_);
@@ -125,6 +134,7 @@ public:
     template <typename Visitor>
     TLV_NODISCARD expected<void, error> visit(Visitor&& visitor, size_t* error_offset = nullptr,
                                               reader_diagnostic* diagnostic = nullptr) {
+        has_current_ = false;
         if (init_result_ != TLV_OK) return result(init_result_);
         using callable = typename std::remove_reference<Visitor>::type;
         struct state {
@@ -139,11 +149,14 @@ public:
     }
 
 private:
+    friend class document_builder;
     friend class query_matcher;
     static expected<void, error> result(tlv_result_t rc) {
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return {};
     }
+    tree_item         current_{};
+    bool              has_current_ = false;
     tlv_tree_reader_t impl_{};
     tlv_result_t      init_result_ = TLV_ERR_INVALID_ARG;
 };

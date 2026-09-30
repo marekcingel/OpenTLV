@@ -3,6 +3,51 @@ import pytest
 from opentlv import BufferTooShortError, Document, Format, Node, Tag, Writer
 
 
+def test_pipeline_materializes_matched_current_subtree_without_repull():
+    from opentlv import DocumentBuilder, TreeReader, Query, NeedMoreDataError
+    wire = bytes.fromhex("01003005310304012A0400")
+    reader = TreeReader(wire[:3], final_input=False)
+    matcher = Query("30/31").matcher()
+    assert not matcher.matches(next(reader).element.tag, 0)
+    with pytest.raises(NeedMoreDataError):
+        next(reader)
+    reader.set_input(wire[2:], discard=2, final_input=True)
+    while True:
+        item = next(reader)
+        if matcher.matches(item.element.tag, item.depth):
+            break
+    assert item.offset == 4
+    with DocumentBuilder(reader, current_subtree=True) as builder:
+        document = builder.consume()
+    document.first.first_child.value = b"\x07\x08"
+    assert document.encode() == bytes.fromhex("310404020708")
+    assert next(reader).offset == 9
+
+
+@pytest.mark.parametrize("invalidate", ["input", "skip", "visit", "query", "eof"])
+def test_current_subtree_rejects_invalidated_selection(invalidate):
+    from opentlv import DocumentBuilder, TreeReader, Query, InvalidArgError
+    wire = bytes.fromhex("300304012A")
+    reader = TreeReader(wire)
+    with pytest.raises(InvalidArgError):
+        DocumentBuilder(reader, current_subtree=True)
+    next(reader)
+    if invalidate == "input":
+        reader.set_input(wire, final_input=True)
+    elif invalidate == "skip":
+        reader.skip_subtree()
+    elif invalidate == "visit":
+        reader.visit(lambda *_: None)
+    elif invalidate == "query":
+        Query("30/04").matcher().visit(reader, lambda *_: None)
+    else:
+        list(reader)
+        with pytest.raises(StopIteration):
+            next(reader)
+    with pytest.raises(InvalidArgError):
+        DocumentBuilder(reader, current_subtree=True)
+
+
 def test_parses_and_iterates_top_level_nodes():
     data = bytes([0x01, 0x02, 0xAA, 0xBB, 0x02, 0x00])
     doc = Document(data)

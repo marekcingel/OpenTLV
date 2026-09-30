@@ -91,16 +91,6 @@ TEST(Unit_Tlv_BluetoothAdSchema, ReportsLengthMultipleAndExactLengthAtElementOff
     size_t     offset = SIZE_MAX;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, validate(wire, &offset));
     EXPECT_EQ(3u, offset);
-    tlv_schema_issue_t  issues[2] = {};
-    tlv_schema_report_t report = {issues, 2, 0};
-    EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_bluetooth_ltv,
-                                      &tlv_bluetooth_ad_schema, 1, 64, TLV_SCHEMA_UNKNOWN_BY_SCHEMA,
-                                      &report, &offset));
-    ASSERT_EQ(2u, report.count);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, issues[0].kind);
-    EXPECT_EQ(3u, issues[0].offset);
-    EXPECT_EQ(8u, issues[1].offset);
     tlv_schema_diagnostic_t        diagnostics[2] = {};
     tlv_schema_diagnostic_report_t detailed = {diagnostics, 2, 0};
     EXPECT_EQ(TLV_ERR_SCHEMA,
@@ -108,6 +98,9 @@ TEST(Unit_Tlv_BluetoothAdSchema, ReportsLengthMultipleAndExactLengthAtElementOff
                                            &tlv_bluetooth_ad_schema, 1, 64,
                                            TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &detailed, &offset));
     ASSERT_EQ(2u, detailed.count);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, diagnostics[0].kind);
+    EXPECT_EQ(3u, diagnostics[0].diagnostic.offset);
+    EXPECT_EQ(8u, diagnostics[1].diagnostic.offset);
     EXPECT_NE(0, diagnostics[0].has_length);
     EXPECT_EQ(2u, diagnostics[0].length_multiple);
     EXPECT_EQ(3u, diagnostics[0].actual_length);

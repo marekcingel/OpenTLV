@@ -126,36 +126,37 @@ TEST(Integration_Tlv_EmvSchema, AcceptsSeveralTopLevelTemplatesConcatenated) {
 
 TEST(Integration_Tlv_EmvSchema, ReportsFciViolationsWithPathsInOnePass) {
     // 6F 08 | 50 01 41 (unexpected under 6F) | A5 03 87 01 01 (valid); DF Name is missing
-    const std::vector<uint8_t> wire{0x6F, 0x08, 0x50, 0x01, 0x41, 0xA5, 0x03, 0x87, 0x01, 0x01};
-    tlv_schema_issue_t         issues[4];
-    tlv_schema_report_t        report = {issues, 4, 0};
+    const std::vector<uint8_t>     wire{0x6F, 0x08, 0x50, 0x01, 0x41, 0xA5, 0x03, 0x87, 0x01, 0x01};
+    tlv_schema_diagnostic_t        issues[4];
+    tlv_schema_diagnostic_report_t report = {issues, 4, 0};
     EXPECT_EQ(TLV_ERR_SCHEMA,
-              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_emv,
-                                      &tlv_emv_structure_schema, TLV_TREE_DEFAULT_DEPTH, 1000,
-                                      TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
+              tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_format_emv,
+                                           &tlv_emv_structure_schema, TLV_TREE_DEFAULT_DEPTH, 1000,
+                                           TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     ASSERT_EQ(2u, report.count);
     char text[32];
     for (size_t i = 0; i < report.count; ++i) {
-        ASSERT_EQ(TLV_OK, tlv_schema_issue_path_string(&issues[i], text, sizeof(text), nullptr));
+        ASSERT_EQ(TLV_OK, tlv_diagnostic_path_string(&issues[i].path, text, sizeof(text), nullptr));
+        EXPECT_STREQ("6F", text);
         if (issues[i].kind == TLV_SCHEMA_ISSUE_MISSING) {
-            EXPECT_STREQ("6F/84", text);
-            EXPECT_EQ(0u, issues[i].offset);
+            EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x84), issues[i].tag));
+            EXPECT_EQ(0u, issues[i].diagnostic.offset);
         } else {
             EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, issues[i].kind);
-            EXPECT_STREQ("6F/50", text);
-            EXPECT_EQ(2u, issues[i].offset);
+            EXPECT_TRUE(tlv_tag_equal(TLV_TAG(0x50), issues[i].tag));
+            EXPECT_EQ(2u, issues[i].diagnostic.offset);
         }
     }
 }
 
 TEST(Integration_Tlv_EmvSchema, ReportAgreesWithFailFastValidationOnConformingInput) {
-    const std::vector<uint8_t> wire{0x6F, 0x09, 0x84, 0x07, 0xA0, 0x00,
-                                    0x00, 0x00, 0x03, 0x10, 0x10};
-    tlv_schema_report_t        report = {nullptr, 0, 99};
+    const std::vector<uint8_t>     wire{0x6F, 0x09, 0x84, 0x07, 0xA0, 0x00,
+                                        0x00, 0x00, 0x03, 0x10, 0x10};
+    tlv_schema_diagnostic_report_t report = {nullptr, 0, 99};
     EXPECT_EQ(TLV_OK, validate(wire));
     EXPECT_EQ(TLV_OK,
-              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_emv,
-                                      &tlv_emv_structure_schema, TLV_TREE_DEFAULT_DEPTH, 1000,
-                                      TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
+              tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_format_emv,
+                                           &tlv_emv_structure_schema, TLV_TREE_DEFAULT_DEPTH, 1000,
+                                           TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     EXPECT_EQ(0u, report.count);
 }

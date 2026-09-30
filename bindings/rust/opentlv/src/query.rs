@@ -94,6 +94,7 @@ impl QueryMatcher {
         callback: impl FnMut(Element<'a>, usize, usize) -> Visit,
     ) -> Result<()> {
         // SAFETY: exclusive reader/matcher, owned frames/query and live 'a input.
+        reader.current = None;
         let (result, diagnostic) = unsafe {
             crate::visitor::run(ptr::null_mut(), &mut reader.raw, callback, &mut self.raw)
         };
