@@ -199,7 +199,7 @@ Functions</h2></td></tr>
 <tr class="separator:gafc359e1b3cbf5d9cf1ab1df9a6c4d27b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader">Encoding</h2></td></tr>
-<tr><td class="ititle" colspan="2"><p>Encoding runs every element through the writer format. Sizes and bytes agree with <a class="el" href="group__writer.html#ga8bea505ba8d2e9e9f23f54d91ba154f8" title="Computes the encoded size of an element without accessing value bytes.">tlv_encoded_size()</a> and <a class="el" href="group__writer.html#gacf33218620291433b9ddccbc58798241" title="Encodes one element directly into caller-owned memory.">tlv_write()</a>, and constructed values are written from their children, so no length is stored that could go stale. </p>
+<tr><td class="ititle" colspan="2"><p>Encoding and exact measurement consume a preorder source through Tree Writer. Constructed Values are generated from children using the destination Format; content-dependent measurement receives actual encoded child bytes. </p>
 </td></tr>
 <tr class="memitem:gaa9be50eec6c4dc5c24abb1143a76ba4f" id="r_gaa9be50eec6c4dc5c24abb1143a76ba4f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#gaa9be50eec6c4dc5c24abb1143a76ba4f">tlv_document_encoded_size</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, size_t *size)</td></tr>
 <tr class="memdesc:gaa9be50eec6c4dc5c24abb1143a76ba4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the encoded size of a whole document.  <br /></td></tr>
@@ -213,6 +213,18 @@ Functions</h2></td></tr>
 <tr class="memitem:gad440723a7cf1738b26cbde6970bbfa7c" id="r_gad440723a7cf1738b26cbde6970bbfa7c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#gad440723a7cf1738b26cbde6970bbfa7c">tlv_node_encode</a> (const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *node, uint8_t *data, size_t capacity, size_t *written)</td></tr>
 <tr class="memdesc:gad440723a7cf1738b26cbde6970bbfa7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes one element with its descendants.  <br /></td></tr>
 <tr class="separator:gad440723a7cf1738b26cbde6970bbfa7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga64b72e105bbb1b104fae0f549dfd22e0" id="r_ga64b72e105bbb1b104fae0f549dfd22e0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga64b72e105bbb1b104fae0f549dfd22e0">tlv_document_encoded_size_as</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, size_t *size)</td></tr>
+<tr class="memdesc:ga64b72e105bbb1b104fae0f549dfd22e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute document size with an explicit destination Format.  <br /></td></tr>
+<tr class="separator:ga64b72e105bbb1b104fae0f549dfd22e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7592b81de37d511817f1bbb4ecc4e415" id="r_ga7592b81de37d511817f1bbb4ecc4e415"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga7592b81de37d511817f1bbb4ecc4e415">tlv_document_encode_as</a> (const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *document, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, uint8_t *data, size_t capacity, size_t *written)</td></tr>
+<tr class="memdesc:ga7592b81de37d511817f1bbb4ecc4e415"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode a document using an explicit compatible destination Format.  <br /></td></tr>
+<tr class="separator:ga7592b81de37d511817f1bbb4ecc4e415"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga41e9b00cabfa1d574479503b6dede2c1" id="r_ga41e9b00cabfa1d574479503b6dede2c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga41e9b00cabfa1d574479503b6dede2c1">tlv_node_encoded_size_as</a> (const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *node, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, size_t *size)</td></tr>
+<tr class="memdesc:ga41e9b00cabfa1d574479503b6dede2c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure one node and its descendants using a destination Format.  <br /></td></tr>
+<tr class="separator:ga41e9b00cabfa1d574479503b6dede2c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6b6583104e01236a02a0226822b2486d" id="r_ga6b6583104e01236a02a0226822b2486d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__document.html#ga6b6583104e01236a02a0226822b2486d">tlv_node_encode_as</a> (const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *node, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, uint8_t *data, size_t capacity, size_t *written)</td></tr>
+<tr class="memdesc:ga6b6583104e01236a02a0226822b2486d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode one node and its descendants using a destination Format.  <br /></td></tr>
+<tr class="separator:ga6b6583104e01236a02a0226822b2486d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Optional owned tree of elements that can be searched, changed and encoded again; the only allocating component. Guides: <a href="https://marekcingel.github.io/OpenTLV/guides/document/">mutable documents</a>. </p>
@@ -609,6 +621,66 @@ Any writer format error.</dd></dl>
 
 </div>
 </div>
+<a id="ga7592b81de37d511817f1bbb4ecc4e415" name="ga7592b81de37d511817f1bbb4ecc4e415"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7592b81de37d511817f1bbb4ecc4e415">&#9670;&#160;</a></span>tlv_document_encode_as()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_document_encode_as </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *&#160;</td>
+          <td class="paramname"><em>document</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>written</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encode a document using an explicit compatible destination Format. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">document</td><td>Required immutable document. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Destination as for <a class="el" href="group__document.html#ga64b72e105bbb1b104fae0f549dfd22e0" title="Compute document size with an explicit destination Format.">tlv_document_encoded_size_as()</a>. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Caller-owned destination; NULL only when capacity is zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Available destination bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">written</td><td>Encoded size on success or required size on capacity failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Same results and output guarantees as <a class="el" href="group__document.html#gae38dd8a022b31c47ce1753c23ea542de" title="Encodes a whole document into caller-owned memory.">tlv_document_encode()</a>, plus <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> for incompatible constructed classification. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Uses the Document allocator. Wire rules come exclusively from Format through Tree Writer; the original document and its Format are unchanged. </dd></dl>
+
+</div>
+</div>
 <a id="gaa9be50eec6c4dc5c24abb1143a76ba4f" name="gaa9be50eec6c4dc5c24abb1143a76ba4f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaa9be50eec6c4dc5c24abb1143a76ba4f">&#9670;&#160;</a></span>tlv_document_encoded_size()</h2>
 
@@ -636,7 +708,7 @@ Any writer format error.</dd></dl>
 </div><div class="memdoc">
 
 <p>Computes the encoded size of a whole document. </p>
-<p>Uses iterative traversal and temporary storage from the Document allocator.</p>
+<p>Uses iterative Tree Writer measurement and temporary storage from the Document allocator. Measurement stages the complete encoding, so encoder errors can also be reported. Storage comprises an O(depth) stack, staged output and shared scratch; there is no separate buffer for each constructed node.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">document</td><td>Document to size. </td></tr>
@@ -651,6 +723,52 @@ Any writer format error.</dd></dl>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a614f23c9fdd07003fba404fd4b94d270">TLV_ERR_OUT_OF_MEMORY</a> if temporary traversal storage cannot be allocated. </dd>
 <dd>
 Any writer format error, such as <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a11e399e826cabbe9fb215922485d3742">TLV_ERR_INVALID_LENGTH</a> for a length the format cannot represent. </dd></dl>
+
+</div>
+</div>
+<a id="ga64b72e105bbb1b104fae0f549dfd22e0" name="ga64b72e105bbb1b104fae0f549dfd22e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga64b72e105bbb1b104fae0f549dfd22e0">&#9670;&#160;</a></span>tlv_document_encoded_size_as()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_document_encoded_size_as </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *&#160;</td>
+          <td class="paramname"><em>document</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Compute document size with an explicit destination Format. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">document</td><td>Required immutable document. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Required writable Format and context, borrowed for this call. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">size</td><td>Exact encoded size; unchanged on failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Same results as <a class="el" href="group__document.html#gaa9be50eec6c4dc5c24abb1143a76ba4f" title="Computes the encoded size of a whole document.">tlv_document_encoded_size()</a>; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> if destination constructed classification differs from the stored topology. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The document's original Format and nodes remain unchanged. Identifiers are never remapped. The Format need not support decoding. Deterministic callbacks may be replayed while Document grows its staging workspace. </dd></dl>
 
 </div>
 </div>
@@ -1029,6 +1147,65 @@ Any reader error, propagated unchanged.</dd></dl>
 
 </div>
 </div>
+<a id="ga6b6583104e01236a02a0226822b2486d" name="ga6b6583104e01236a02a0226822b2486d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6b6583104e01236a02a0226822b2486d">&#9670;&#160;</a></span>tlv_node_encode_as()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_node_encode_as </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>capacity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>written</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encode one node and its descendants using a destination Format. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">node</td><td>Required subtree root; siblings are excluded. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Destination as for <a class="el" href="group__document.html#ga64b72e105bbb1b104fae0f549dfd22e0" title="Compute document size with an explicit destination Format.">tlv_document_encoded_size_as()</a>. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">data</td><td>Caller-owned destination; NULL only when capacity is zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">capacity</td><td>Available destination bytes. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">written</td><td>Encoded size on success or required size on capacity failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Same results and output guarantees as <a class="el" href="group__document.html#ga7592b81de37d511817f1bbb4ecc4e415" title="Encode a document using an explicit compatible destination Format.">tlv_document_encode_as()</a>. </dd></dl>
+
+</div>
+</div>
 <a id="gaf676703b9150a47e99d4cd2f1c947aa4" name="gaf676703b9150a47e99d4cd2f1c947aa4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaf676703b9150a47e99d4cd2f1c947aa4">&#9670;&#160;</a></span>tlv_node_encoded_size()</h2>
 
@@ -1064,6 +1241,51 @@ Any reader error, propagated unchanged.</dd></dl>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="ga41e9b00cabfa1d574479503b6dede2c1" name="ga41e9b00cabfa1d574479503b6dede2c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga41e9b00cabfa1d574479503b6dede2c1">&#9670;&#160;</a></span>tlv_node_encoded_size_as()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_node_encoded_size_as </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__document.html#ga9483f2f2d44c9a33a267a462c90d3883">tlv_node_t</a> *&#160;</td>
+          <td class="paramname"><em>node</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Measure one node and its descendants using a destination Format. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">node</td><td>Required root of the subtree; siblings are excluded. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Destination as for <a class="el" href="group__document.html#ga64b72e105bbb1b104fae0f549dfd22e0" title="Compute document size with an explicit destination Format.">tlv_document_encoded_size_as()</a>. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">size</td><td>Exact encoded subtree size; unchanged on failure. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Same results as <a class="el" href="group__document.html#ga64b72e105bbb1b104fae0f549dfd22e0" title="Compute document size with an explicit destination Format.">tlv_document_encoded_size_as()</a>. </dd></dl>
 
 </div>
 </div>

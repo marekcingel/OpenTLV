@@ -94,6 +94,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__writer.html">tlv_tree_writer</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded tree writer composing Format measure/encode without recursion or allocation.  <a href="structtlv__tree__writer.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__writer__workspace.html">tlv_tree_writer_workspace</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned bounded storage for exact tree measurement and staging.  <a href="structtlv__tree__writer__workspace.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -103,6 +106,12 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga16a0fb1e3ceca1143a5e3d79e99588f3" id="r_ga16a0fb1e3ceca1143a5e3d79e99588f3"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__tree__writer.html">tlv_tree_writer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a></td></tr>
 <tr class="memdesc:ga16a0fb1e3ceca1143a5e3d79e99588f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded tree writer composing Format measure/encode without recursion or allocation.  <br /></td></tr>
 <tr class="separator:ga16a0fb1e3ceca1143a5e3d79e99588f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga771aec7d5b9e24b09c9f6e401bc44107" id="r_ga771aec7d5b9e24b09c9f6e401bc44107"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga771aec7d5b9e24b09c9f6e401bc44107">tlv_tree_writer_next_fn</a>) (void *context, <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, size_t *depth, int *constructed)</td></tr>
+<tr class="memdesc:ga771aec7d5b9e24b09c9f6e401bc44107"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supply the next semantic node in preorder, without encoding it.  <br /></td></tr>
+<tr class="separator:ga771aec7d5b9e24b09c9f6e401bc44107"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab9db909d8cb7eb930d06a32e07a72fd8" id="r_gab9db909d8cb7eb930d06a32e07a72fd8"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__tree__writer__workspace.html">tlv_tree_writer_workspace</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a></td></tr>
+<tr class="memdesc:gab9db909d8cb7eb930d06a32e07a72fd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned bounded storage for exact tree measurement and staging.  <br /></td></tr>
+<tr class="separator:gab9db909d8cb7eb930d06a32e07a72fd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -133,6 +142,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga4f1b5464912ec033a6f1ff98cdd20948" id="r_ga4f1b5464912ec033a6f1ff98cdd20948"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga4f1b5464912ec033a6f1ff98cdd20948">tlv_tree_writer_size</a> (const <a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a> *writer)</td></tr>
 <tr class="memdesc:ga4f1b5464912ec033a6f1ff98cdd20948"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the final output prefix containing only closed root elements.  <br /></td></tr>
 <tr class="separator:ga4f1b5464912ec033a6f1ff98cdd20948"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae10ae48fc054294c71cf6c1797225f1d" id="r_gae10ae48fc054294c71cf6c1797225f1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gae10ae48fc054294c71cf6c1797225f1d">tlv_tree_writer_measure</a> (const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="group__writer.html#ga771aec7d5b9e24b09c9f6e401bc44107">tlv_tree_writer_next_fn</a> next, void *context, <a class="el" href="group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a> *workspace, size_t max_depth, size_t max_elements, size_t *size, <a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gae10ae48fc054294c71cf6c1797225f1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure a preorder tree through canonical Tree Writer encoding, without allocating.  <br /></td></tr>
+<tr class="separator:gae10ae48fc054294c71cf6c1797225f1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Allocation-free iterative construction using caller-owned bounded storage. </p>

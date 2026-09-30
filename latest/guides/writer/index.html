@@ -1254,6 +1254,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#measuring-an-owned-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measuring an owned tree
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2853,6 +2864,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#measuring-an-owned-tree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Measuring an owned tree
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3021,6 +3043,26 @@ input contract. Format conversion may reject destination identifiers or content.
 <a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">               </span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="p">}</span>
 </code></pre></div>
+<h2 id="measuring-an-owned-tree">Measuring an owned tree<a class="headerlink" href="#measuring-an-owned-tree" title="Permanent link">&para;</a></h2>
+<p><code>tlv_tree_writer_measure()</code> consumes a caller-supplied preorder callback. The
+callback returns each semantic Element, its depth, and its constructed flag;
+Tree Writer opens and closes scopes, including empty parents. It has no dependency
+on Document. A Document or another tree owner can supply the same source contract.</p>
+<p>The caller supplies <code>tlv_tree_writer_workspace_t</code>: frames, staging output and a
+separate shared scratch buffer. Measurement stages the encoding so that every
+Format receives readable child bytes, including Formats whose header or trailer
+depends on Value content. On success, <code>size</code> is exact and <code>workspace.data</code> contains
+the complete encoding; <code>tlv_writer_copy_encoded()</code> can reuse it.</p>
+<p>If storage is too small, <code>required_data</code> and/or <code>required_scratch</code> identify the
+next required capacities. The caller may grow storage and restart from a fresh
+source. These fields are reset for every call; a callback returning
+<code>TLV_ERR_BUFFER_TOO_SHORT</code> does not set them and must not trigger a storage retry.
+Frame exhaustion and configured traversal limits return <code>TLV_ERR_LIMIT</code>.</p>
+<p>This operation never allocates or recurses. It can call both Format measure and
+encode callbacks, and failures may modify workspace bytes. Source Tags remain
+borrowed through completion. Formats and sources must be deterministic when
+replayed; staging requires space for the complete output, plus shared scratch
+and the structural stack.</p>
 
 
 

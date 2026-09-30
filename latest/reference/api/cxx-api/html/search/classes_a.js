@@ -90,12 +90,13 @@ var searchData=
   ['tlv_5ftree_5freader_87',['tlv_tree_reader',['../../../c-api/html/structtlv__tree__reader.html',1,'']]],
   ['tlv_5ftree_5fwriter_88',['tlv_tree_writer',['../../../c-api/html/structtlv__tree__writer.html',1,'']]],
   ['tlv_5ftree_5fwriter_5fframe_89',['tlv_tree_writer_frame',['../../../c-api/html/structtlv__tree__writer__frame.html',1,'']]],
-  ['tlv_5fvalue_5fconstraint_90',['tlv_value_constraint',['../../../c-api/html/structtlv__value__constraint.html',1,'']]],
-  ['tlv_5fvalue_5ft_91',['tlv_value_t',['../../../c-api/html/structtlv__value__t.html',1,'']]],
-  ['tlv_5fvariable_5fformat_92',['tlv_variable_format',['../../../c-api/html/structtlv__variable__format.html',1,'']]],
-  ['tlv_5fvariable_5fidentifier_93',['tlv_variable_identifier',['../../../c-api/html/structtlv__variable__identifier.html',1,'']]],
-  ['tlv_5fvariable_5flength_94',['tlv_variable_length',['../../../c-api/html/structtlv__variable__length.html',1,'']]],
-  ['tlv_5fwriter_95',['tlv_writer',['../../../c-api/html/structtlv__writer.html',1,'']]],
-  ['tlv_5fwriter_5fdiagnostic_96',['tlv_writer_diagnostic',['../../../c-api/html/structtlv__writer__diagnostic.html',1,'']]],
-  ['tree_5fwriter_97',['tree_writer',['../classtlv_1_1tree__writer.html',1,'tlv']]]
+  ['tlv_5ftree_5fwriter_5fworkspace_90',['tlv_tree_writer_workspace',['../../../c-api/html/structtlv__tree__writer__workspace.html',1,'']]],
+  ['tlv_5fvalue_5fconstraint_91',['tlv_value_constraint',['../../../c-api/html/structtlv__value__constraint.html',1,'']]],
+  ['tlv_5fvalue_5ft_92',['tlv_value_t',['../../../c-api/html/structtlv__value__t.html',1,'']]],
+  ['tlv_5fvariable_5fformat_93',['tlv_variable_format',['../../../c-api/html/structtlv__variable__format.html',1,'']]],
+  ['tlv_5fvariable_5fidentifier_94',['tlv_variable_identifier',['../../../c-api/html/structtlv__variable__identifier.html',1,'']]],
+  ['tlv_5fvariable_5flength_95',['tlv_variable_length',['../../../c-api/html/structtlv__variable__length.html',1,'']]],
+  ['tlv_5fwriter_96',['tlv_writer',['../../../c-api/html/structtlv__writer.html',1,'']]],
+  ['tlv_5fwriter_5fdiagnostic_97',['tlv_writer_diagnostic',['../../../c-api/html/structtlv__writer__diagnostic.html',1,'']]],
+  ['tree_5fwriter_98',['tree_writer',['../classtlv_1_1tree__writer.html',1,'tlv']]]
 ];

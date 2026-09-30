@@ -129,6 +129,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aec2ac27f2f69570b4a7a1a24197a75ed" id="r_aec2ac27f2f69570b4a7a1a24197a75ed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#aec2ac27f2f69570b4a7a1a24197a75ed">encode</a> () const</td></tr>
 <tr class="memdesc:aec2ac27f2f69570b4a7a1a24197a75ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes the document into a new vector with the writer format.  <br /></td></tr>
 <tr class="separator:aec2ac27f2f69570b4a7a1a24197a75ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6c67ec63cb30430a8150d88573c4816" id="r_ab6c67ec63cb30430a8150d88573c4816"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ab6c67ec63cb30430a8150d88573c4816">encoded_size</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format) const</td></tr>
+<tr class="memdesc:ab6c67ec63cb30430a8150d88573c4816"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure this document with an explicit destination Format.  <br /></td></tr>
+<tr class="separator:ab6c67ec63cb30430a8150d88573c4816"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad69c1fa8656932f55da4b3f305187c6a" id="r_ad69c1fa8656932f55da4b3f305187c6a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#ad69c1fa8656932f55da4b3f305187c6a">encode</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format) const</td></tr>
+<tr class="memdesc:ad69c1fa8656932f55da4b3f305187c6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode this document with an explicit destination Format.  <br /></td></tr>
+<tr class="separator:ad69c1fa8656932f55da4b3f305187c6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a735ba41724e8105c486f42ce1afaac37" id="r_a735ba41724e8105c486f42ce1afaac37"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__document.html#gad50a36ea444832274667f45cb81dab83">tlv_document_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1document.html#a735ba41724e8105c486f42ce1afaac37">c_document</a> () const</td></tr>
 <tr class="memdesc:a735ba41724e8105c486f42ce1afaac37"><td class="mdescLeft">&#160;</td><td class="mdescRight">The underlying C document, for use with the C API.  <br /></td></tr>
 <tr class="separator:a735ba41724e8105c486f42ce1afaac37"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -322,7 +328,7 @@ Static Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="aec2ac27f2f69570b4a7a1a24197a75ed" name="aec2ac27f2f69570b4a7a1a24197a75ed"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aec2ac27f2f69570b4a7a1a24197a75ed">&#9670;&#160;</a></span>encode()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#aec2ac27f2f69570b4a7a1a24197a75ed">&#9670;&#160;</a></span>encode() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -350,8 +356,44 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ad69c1fa8656932f55da4b3f305187c6a" name="ad69c1fa8656932f55da4b3f305187c6a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad69c1fa8656932f55da4b3f305187c6a">&#9670;&#160;</a></span>encode() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; std::vector&lt; <a class="el" href="namespacetlv.html#aa91df798a712d88cf7d2f1f63a539b51">byte</a> &gt;, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::document::encode </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>format</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Encode this document with an explicit destination Format. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">format</td><td>Borrowed writable Format as for encoded_size(format). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Owned bytes or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga7592b81de37d511817f1bbb4ecc4e415">tlv_document_encode_as()</a>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Identifiers are not remapped and the tree's original Format is unchanged. </dd></dl>
+
+</div>
+</div>
 <a id="a540a6d7fbf6c56c899370626c6f2da69" name="a540a6d7fbf6c56c899370626c6f2da69"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a540a6d7fbf6c56c899370626c6f2da69">&#9670;&#160;</a></span>encoded_size()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a540a6d7fbf6c56c899370626c6f2da69">&#9670;&#160;</a></span>encoded_size() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -374,6 +416,42 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Computes the encoded size of the document; see <a class="elRef" href="../../c-api/html/group__document.html#gaa9be50eec6c4dc5c24abb1143a76ba4f">tlv_document_encoded_size()</a>. </p>
+
+</div>
+</div>
+<a id="ab6c67ec63cb30430a8150d88573c4816" name="ab6c67ec63cb30430a8150d88573c4816"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6c67ec63cb30430a8150d88573c4816">&#9670;&#160;</a></span>encoded_size() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::document::encoded_size </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>format</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Measure this document with an explicit destination Format. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">format</td><td>Borrowed writable Format; must preserve constructed classification. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Exact size or the error from <a class="elRef" href="../../c-api/html/group__document.html#ga64b72e105bbb1b104fae0f549dfd22e0">tlv_document_encoded_size_as()</a>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Stages encoded children using the Document allocator; never changes the tree. </dd></dl>
 
 </div>
 </div>

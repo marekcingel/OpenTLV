@@ -18,6 +18,7 @@ var searchData=
   ['formats_15',['Formats',['../../../c-api/html/group__formats.html',1,'']]],
   ['fraction_5fdigits_16',['fraction_digits',['../../../c-api/html/structtlv__asn1__generalized__time.html#a7119fbeb3be4bb0f6d27918f68808f70',1,'tlv_asn1_generalized_time']]],
   ['fraction_5fdigits_5flength_17',['fraction_digits_length',['../../../c-api/html/structtlv__asn1__generalized__time.html#a31f9a16f54ed2852cfe74ad1724336e1',1,'tlv_asn1_generalized_time']]],
-  ['frames_18',['frames',['../../../c-api/html/structtlv__tree__reader.html#a06dc59a0cd6aad8bcb57d926766df928',1,'tlv_tree_reader::frames'],['../../../c-api/html/structtlv__tree__writer.html#a62025f6d6c45e179ab4349e053ec789f',1,'tlv_tree_writer::frames']]],
-  ['from_5fc_19',['from_c',['../structtlv_1_1error.html#aa8a240155b76d53763c77fe67c2956a6',1,'tlv::error']]]
+  ['frame_5fcapacity_18',['frame_capacity',['../../../c-api/html/structtlv__tree__writer__workspace.html#a6ed12dd48b7adb89d683c6db2b4696cf',1,'tlv_tree_writer_workspace']]],
+  ['frames_19',['frames',['../../../c-api/html/structtlv__tree__reader.html#a06dc59a0cd6aad8bcb57d926766df928',1,'tlv_tree_reader::frames'],['../../../c-api/html/structtlv__tree__writer.html#a62025f6d6c45e179ab4349e053ec789f',1,'tlv_tree_writer::frames'],['../../../c-api/html/structtlv__tree__writer__workspace.html#aae7033385ce3a394632705b4d4dbbb2c',1,'tlv_tree_writer_workspace::frames']]],
+  ['from_5fc_20',['from_c',['../structtlv_1_1error.html#aa8a240155b76d53763c77fe67c2956a6',1,'tlv::error']]]
 ];

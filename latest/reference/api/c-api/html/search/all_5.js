@@ -11,5 +11,6 @@ var searchData=
   ['formats_8',['Formats',['../group__formats.html',1,'']]],
   ['fraction_5fdigits_9',['fraction_digits',['../structtlv__asn1__generalized__time.html#a7119fbeb3be4bb0f6d27918f68808f70',1,'tlv_asn1_generalized_time']]],
   ['fraction_5fdigits_5flength_10',['fraction_digits_length',['../structtlv__asn1__generalized__time.html#a31f9a16f54ed2852cfe74ad1724336e1',1,'tlv_asn1_generalized_time']]],
-  ['frames_11',['frames',['../structtlv__tree__reader.html#a06dc59a0cd6aad8bcb57d926766df928',1,'tlv_tree_reader::frames'],['../structtlv__tree__writer.html#a62025f6d6c45e179ab4349e053ec789f',1,'tlv_tree_writer::frames']]]
+  ['frame_5fcapacity_11',['frame_capacity',['../structtlv__tree__writer__workspace.html#a6ed12dd48b7adb89d683c6db2b4696cf',1,'tlv_tree_writer_workspace']]],
+  ['frames_12',['frames',['../structtlv__tree__reader.html#a06dc59a0cd6aad8bcb57d926766df928',1,'tlv_tree_reader::frames'],['../structtlv__tree__writer.html#a62025f6d6c45e179ab4349e053ec789f',1,'tlv_tree_writer::frames'],['../structtlv__tree__writer__workspace.html#aae7033385ce3a394632705b4d4dbbb2c',1,'tlv_tree_writer_workspace::frames']]]
 ];

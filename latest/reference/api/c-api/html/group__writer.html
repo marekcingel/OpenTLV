@@ -96,6 +96,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__writer.html">tlv_tree_writer</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded tree writer composing Format measure/encode without recursion or allocation.  <a href="structtlv__tree__writer.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__tree__writer__workspace.html">tlv_tree_writer_workspace</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned bounded storage for exact tree measurement and staging.  <a href="structtlv__tree__writer__workspace.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__writer__diagnostic.html">tlv_writer_diagnostic</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured detail for a failed <a class="el" href="group__writer.html#gacf33218620291433b9ddccbc58798241" title="Encodes one element directly into caller-owned memory.">tlv_write()</a> or <a class="el" href="group__writer.html#ga48781a827e6327c0ae5557286cf25b5c" title="Writes one TLV element at the writer&#39;s current position.">tlv_writer_write()</a> call.  <a href="structtlv__writer__diagnostic.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -111,6 +114,12 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga16a0fb1e3ceca1143a5e3d79e99588f3" id="r_ga16a0fb1e3ceca1143a5e3d79e99588f3"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__tree__writer.html">tlv_tree_writer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a></td></tr>
 <tr class="memdesc:ga16a0fb1e3ceca1143a5e3d79e99588f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bounded tree writer composing Format measure/encode without recursion or allocation.  <br /></td></tr>
 <tr class="separator:ga16a0fb1e3ceca1143a5e3d79e99588f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga771aec7d5b9e24b09c9f6e401bc44107" id="r_ga771aec7d5b9e24b09c9f6e401bc44107"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga771aec7d5b9e24b09c9f6e401bc44107">tlv_tree_writer_next_fn</a>) (void *context, <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, size_t *depth, int *constructed)</td></tr>
+<tr class="memdesc:ga771aec7d5b9e24b09c9f6e401bc44107"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supply the next semantic node in preorder, without encoding it.  <br /></td></tr>
+<tr class="separator:ga771aec7d5b9e24b09c9f6e401bc44107"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab9db909d8cb7eb930d06a32e07a72fd8" id="r_gab9db909d8cb7eb930d06a32e07a72fd8"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__tree__writer__workspace.html">tlv_tree_writer_workspace</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a></td></tr>
+<tr class="memdesc:gab9db909d8cb7eb930d06a32e07a72fd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Caller-owned bounded storage for exact tree measurement and staging.  <br /></td></tr>
+<tr class="separator:gab9db909d8cb7eb930d06a32e07a72fd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga4348495d7c9e8210b26f511d6ef5b958" id="r_ga4348495d7c9e8210b26f511d6ef5b958"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__writer.html#gab650d8082fbcc856730fd85aea1ce33d">tlv_writer_operation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga4348495d7c9e8210b26f511d6ef5b958">tlv_writer_operation_t</a></td></tr>
 <tr class="memdesc:ga4348495d7c9e8210b26f511d6ef5b958"><td class="mdescLeft">&#160;</td><td class="mdescRight">Which encoding step a <a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5" title="Structured detail for a failed tlv_write() or tlv_writer_write() call.">tlv_writer_diagnostic_t</a> reports on.  <br /></td></tr>
 <tr class="separator:ga4348495d7c9e8210b26f511d6ef5b958"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -169,6 +178,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga4f1b5464912ec033a6f1ff98cdd20948" id="r_ga4f1b5464912ec033a6f1ff98cdd20948"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga4f1b5464912ec033a6f1ff98cdd20948">tlv_tree_writer_size</a> (const <a class="el" href="group__writer.html#ga16a0fb1e3ceca1143a5e3d79e99588f3">tlv_tree_writer_t</a> *writer)</td></tr>
 <tr class="memdesc:ga4f1b5464912ec033a6f1ff98cdd20948"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the final output prefix containing only closed root elements.  <br /></td></tr>
 <tr class="separator:ga4f1b5464912ec033a6f1ff98cdd20948"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae10ae48fc054294c71cf6c1797225f1d" id="r_gae10ae48fc054294c71cf6c1797225f1d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#gae10ae48fc054294c71cf6c1797225f1d">tlv_tree_writer_measure</a> (const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, <a class="el" href="group__writer.html#ga771aec7d5b9e24b09c9f6e401bc44107">tlv_tree_writer_next_fn</a> next, void *context, <a class="el" href="group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a> *workspace, size_t max_depth, size_t max_elements, size_t *size, <a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a> *diagnostic)</td></tr>
+<tr class="memdesc:gae10ae48fc054294c71cf6c1797225f1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measure a preorder tree through canonical Tree Writer encoding, without allocating.  <br /></td></tr>
+<tr class="separator:gae10ae48fc054294c71cf6c1797225f1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8bea505ba8d2e9e9f23f54d91ba154f8" id="r_ga8bea505ba8d2e9e9f23f54d91ba154f8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__writer.html#ga8bea505ba8d2e9e9f23f54d91ba154f8">tlv_encoded_size</a> (<a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tag, size_t length, const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *format, size_t *size)</td></tr>
 <tr class="memdesc:ga8bea505ba8d2e9e9f23f54d91ba154f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the encoded size of an element without accessing value bytes.  <br /></td></tr>
 <tr class="separator:ga8bea505ba8d2e9e9f23f54d91ba154f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -249,6 +261,33 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga771aec7d5b9e24b09c9f6e401bc44107" name="ga771aec7d5b9e24b09c9f6e401bc44107"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga771aec7d5b9e24b09c9f6e401bc44107">&#9670;&#160;</a></span>tlv_tree_writer_next_fn</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>(* tlv_tree_writer_next_fn) (void *context, <a class="el" href="structtlv__element__t.html">tlv_element_t</a> *element, size_t *depth, int *constructed)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Supply the next semantic node in preorder, without encoding it. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">context</td><td>Caller-owned traversal state. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">element</td><td>Borrowed Tag and primitive Value; constructed Value is ignored. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">depth</td><td>Root-relative depth, starting at zero. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">constructed</td><td>Nonzero for a parent, including an empty parent. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> for an item, <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad3ea4a680040d2294498178b02b79878">TLV_ERR_END_OF_BUFFER</a> at final end, or a source error. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Tags must remain immutable and alive until traversal completes; primitive Values must remain readable until the next callback. Storage must not overlap the measurement workspace. Depth may increase only after a parent. </dd></dl>
+
+</div>
+</div>
 <a id="ga16a0fb1e3ceca1143a5e3d79e99588f3" name="ga16a0fb1e3ceca1143a5e3d79e99588f3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga16a0fb1e3ceca1143a5e3d79e99588f3">&#9670;&#160;</a></span>tlv_tree_writer_t</h2>
 
@@ -265,6 +304,22 @@ Functions</h2></td></tr>
 <p>Children are accumulated in output storage. end() copies their complete bytes to scratch and encodes the parent back into output using the canonical Writer. Scratch must fit the largest Value closed by end(), not the entire encoding. Each ancestor can copy its descendants again: worst-case work is O(bytes * depth). No maximum header width, in-place encoding or header patching is assumed. Content-dependent measurement and trailers are supported.</p>
 <p>Only the prefix returned by <a class="el" href="group__writer.html#ga4f1b5464912ec033a6f1ff98cdd20948" title="Return the final output prefix containing only closed root elements.">tlv_tree_writer_size()</a> is final. Open subtrees move when ancestors close. Diagnostics use absolute offsets in the current destination buffer, not predicted final offsets of unfinished descendants. This is bounded output, including for indefinite Formats; the complete-element Format contract does not expose a streaming header/trailer capability.</p>
 <p>Initialize through init(); do not modify members or active storage directly. </p>
+
+</div>
+</div>
+<a id="gab9db909d8cb7eb930d06a32e07a72fd8" name="gab9db909d8cb7eb930d06a32e07a72fd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab9db909d8cb7eb930d06a32e07a72fd8">&#9670;&#160;</a></span>tlv_tree_writer_workspace_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__tree__writer__workspace.html">tlv_tree_writer_workspace</a> <a class="el" href="group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Caller-owned bounded storage for exact tree measurement and staging. </p>
 
 </div>
 </div>
@@ -798,6 +853,95 @@ Any Format measurement/encoding error, propagated unchanged. </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> for missing storage or write capability. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Cursor, frames, scratch and output storage must be disjoint and live throughout use. Format/context must remain alive and immutable. </dd></dl>
+
+</div>
+</div>
+<a id="gae10ae48fc054294c71cf6c1797225f1d" name="gae10ae48fc054294c71cf6c1797225f1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae10ae48fc054294c71cf6c1797225f1d">&#9670;&#160;</a></span>tlv_tree_writer_measure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_tree_writer_measure </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> *&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__writer.html#ga771aec7d5b9e24b09c9f6e401bc44107">tlv_tree_writer_next_fn</a>&#160;</td>
+          <td class="paramname"><em>next</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>context</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__writer.html#gab9db909d8cb7eb930d06a32e07a72fd8">tlv_tree_writer_workspace_t</a> *&#160;</td>
+          <td class="paramname"><em>workspace</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_elements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Measure a preorder tree through canonical Tree Writer encoding, without allocating. </p>
+<p>Content-dependent Formats need actual encoded children. Consequently this operation stages the complete encoding in workspace.data, calling both measure and encode. The successful prefix can be reused through <a class="el" href="group__writer.html#ga540c090c0e876316a438581dadf05363" title="Appends an exact encoded byte range at the writer&#39;s current position.">tlv_writer_copy_encoded()</a> without replay. All parents are opened and closed iteratively by Tree Writer, including empty ones.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">format</td><td>Borrowed immutable writable Format and context; required. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">next</td><td>Required preorder source callback; consumed, including on failure. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">context</td><td>Opaque source state, passed unchanged to next. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">workspace</td><td>Required disjoint caller-owned storage; never allocated here. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_depth</td><td>Maximum item depth; roots have depth zero. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_elements</td><td>Maximum number of source items. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">size</td><td>Exact encoded size on success; unchanged on failure. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional Writer failure detail; unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success; source and Writer errors propagated unchanged. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> for invalid preorder depth; <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad733937761f1a5428fba8f9d2914b713">TLV_ERR_INVALID_TAG</a> for a constructed classification incompatible with the destination Format. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> for insufficient frames or exceeded traversal limits. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61acbd34cf02b42e70e99648aef5b9ca8b3">TLV_ERR_BUFFER_TOO_SHORT</a> on workspace exhaustion. Only this storage check sets required_data/required_scratch above capacity; callback errors, even with the same code, leave both zero. Requirements reset on each call. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>After increasing storage, restart with a fresh source. Requirements are a lower bound discovered during traversal, not a prediction of final size. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Failure may modify workspace bytes. Format and source callbacks must be deterministic for replay. No recursion, allocation, or Format-specific path. </dd></dl>
 
 </div>
 </div>
