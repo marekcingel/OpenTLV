@@ -9,7 +9,7 @@ modified, and encodes it again.
 
 ```text
 Low level, zero-copy:   bytes -> reader -> element -> traversal / schema / codec
-High level, mutable:    bytes -> document -> inspect / modify -> encode
+High level, mutable:    Tree Reader -> Document Builder -> document -> modify -> encode
 ```
 
 The document is a separate layer on top of the public reader, writer and
@@ -44,6 +44,64 @@ use: `max_depth` (default `TLV_TREE_DEFAULT_DEPTH`) and `max_elements` (default
 `TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS`, 65536). Parsing and every later
 modification are refused with `TLV_ERR_LIMIT` when they would exceed a limit, so
 untrusted input cannot make a document grow without bound.
+
+## Building from a Tree Reader
+
+`tlv_document_parse()` and constructed-value mutations use the same internal
+Tree Reader consumer as the resumable `tlv_document_builder_t`. The consumer
+copies canonical tags and primitive values into owned nodes and uses the
+Tree Reader's constructed classification. It does not decode TLV framing.
+
+For incremental input, initialize a `tlv_tree_reader_t`, then create a builder:
+
+```c
+tlv_document_builder_t* builder = NULL;
+tlv_document_t* document = NULL;
+tlv_result_t rc = tlv_document_builder_create(&options, &reader, NULL, &builder);
+if (rc == TLV_OK) {
+    rc = tlv_document_builder_consume(builder, &document, &error_offset, NULL);
+    /* On TLV_NEED_MORE_DATA, retain builder, replace/extend reader input with
+       tlv_tree_reader_set_input(), and call consume again. */
+}
+/* At completion, or to cancel: */
+tlv_document_builder_free(builder);
+/* Only TLV_OK from consume publishes a document; free it when finished. */
+tlv_document_free(document);
+```
+
+Use the same Format descriptor for the reader and document options. The
+reader and its frames remain caller-owned. Do not interleave pulls or skips
+while the builder is active. Input replacement follows the normal Reader
+window rules; copied nodes no longer borrow the old input. Format and allocator
+contexts remain borrowed and must outlive both the builder and document.
+
+`TLV_NEED_MORE_DATA` preserves private construction state and returns a NULL
+document. A whole-stream builder publishes only at final end. A terminal error
+discards the unfinished nodes; the reader is not rolled back. The optional
+`tlv_reader_diagnostic_t` output forwards Reader diagnostics with absolute
+offsets and their original borrowed lifetime. Allocation failures and document
+limits report the current item's absolute offset through `error_offset`.
+
+### Materializing a selected subtree
+
+Pull items and feed their tags and depths to a Query matcher. When the desired
+root matches, pass that **last published item** as the `root` argument to
+`tlv_document_builder_create()`. The builder copies the root immediately and
+consumes its descendants without decoding the following sibling. It can
+complete before the overall input is final. Continue pulling from the same
+reader after completion.
+
+The selected root has document depth zero. Document depth and element limits
+apply to the selected tree, while Reader limits still apply to the entire
+traversal. No Query logic is built into either Reader or Builder. Selection
+materializes a complete subtree, not an arbitrary sequence with missing parents.
+Malformed input outside that subtree is left for the caller's later traversal.
+
+This reduces **owned Document memory**, but does not change Reader's input
+contract: a constructed element is published only when its complete encoded
+extent is contiguous. A single 500 MB constructed root therefore still needs
+that extent available before its descendants can be selected. Multiple complete
+roots can be consumed through successive input windows.
 
 ## Inspecting
 

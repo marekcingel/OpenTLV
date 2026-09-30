@@ -85,6 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add a resumable Document Builder over the canonical Tree Reader, with owned subtree selection, Reader diagnostics, independent materialization limits and publication only after completion. Complete Document parsing and constructed-value edits share its tree consumer. (#396)
 - Add resumable Visitor adapters over caller-owned Reader and Tree Reader cursors, including incremental input, absolute diagnostics and caller-selected tree storage. Add `tlv_query_visit()` for resumable matching over a caller-owned Tree Reader. (#394)
 - Add an allocation-free, iterative Tree Reader with preorder items, absolute offsets, incremental input windows, subtree skipping, caller-owned traversal frames, runtime depth limits and an element-count bound. Constructed items retain Reader's complete contiguous borrowed-storage contract. (#393)
 - Add allocation-free incremental Reader input windows, explicit `TLV_NEED_MORE_DATA` and EOF semantics, consumed-byte and absolute-offset accessors, and known required extents in diagnostics. Callers retain buffering and borrowed-storage ownership. (#392)
