@@ -120,8 +120,8 @@ Conventions:
 
 ## Adding new topics
 
-- **OTDL**: the planned definition language's syntax and specification belong
-  in `reference/otdl/`, its model in `concepts/`, task-oriented usage in
+- **OTLV**: the planned complete model language's syntax and specification belong
+  in `reference/otlv/`, its model in `concepts/`, task-oriented usage in
   `guides/`, and tool commands in `cli/`. A definition language is distinct
   from the wire formats it describes; those remain in `formats/`.
 - **Language bindings**: one directory per binding under `reference/bindings/`,
@@ -133,7 +133,7 @@ Conventions:
   with a `README.md`, as the existing ones do.
 
 Create these pages and directories when content is available; this layout
-does not require placeholder pages or new OTDL, binding or tool documentation.
+does not require placeholder pages or new OTLV, binding or tool documentation.
 
 ## Rules
 

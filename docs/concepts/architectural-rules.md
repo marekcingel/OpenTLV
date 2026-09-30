@@ -6,10 +6,11 @@ The [architecture overview](architecture.md) maps these concepts to the current
 repository; the [Format and Element contract](format-contract.md) specifies the
 current C API invariants.
 
-Phase 1 refers here to the generic foundation; Phase 2 refers to dynamic
-configuration of those same contracts. Rules for `.otlv`, generated formats
-and additional language bindings constrain their design; they do not claim
-that these facilities are already implemented.
+The [roadmap](../../ROADMAP.md) defines three architectural phases: Execution
+Foundation, Runtime Model & OTLV, and Compilation. Phase 3 completes the planned
+foundational architecture; future SemVer major releases do not imply more phases.
+Rules for `.otlv`, runtime models and generated implementations constrain future
+design; they do not claim that these facilities are already implemented.
 
 ## 1. Generic core first
 
@@ -37,22 +38,7 @@ Core must never depend on a specific standard.
 OpenTLV uses these concepts:
 
 ```text
-Definition
-    |
-    v
-Format
-    |
-    v
-Reader / Writer
-    |
-    v
-Element + Layout
-    |
-    v
-Schema
-    |
-    v
-Codec
+Definition → Format → Field Encoding → Layout → Element → Schema → Codec
 ```
 
 This diagram relates the concepts; it is not a mandatory pipeline or a module
@@ -104,6 +90,14 @@ Examples of Format properties:
 - additional Header fields and Trailer framing
 
 Format must not interpret the semantic meaning of Value.
+
+### Field Encoding
+
+Provides reusable mechanics for encoding and decoding individual wire fields,
+such as fixed-width, variable-width and packed fields. Format composes these
+mechanics with field ordering and framing rules. Protocol-specific restrictions
+remain in the standard implementation; field mechanics do not interpret Value
+semantics.
 
 ### Layout
 
@@ -214,9 +208,10 @@ complete objects. They still delegate wire interpretation to Format.
 
 ## 3. Declarative descriptions vs runtime objects
 
-Definition, Format, Schema and Codec are descriptions/contracts.
+Definition, Format, Field Encoding, Schema and Codec are descriptions/contracts.
 
-Element and Layout are runtime representations.
+Element and Layout are runtime representations. Document is the core owned
+representation built on these primitives.
 
 Do not create architectural layers merely because a new runtime object is needed.
 
@@ -229,9 +224,10 @@ Phase 2 dynamically configures the same abstractions established by Phase 1.
 Runtime:
 
 ```text
-runtime Format
 runtime Definition
+runtime Format / Field Encoding / Layout configuration
 runtime Schema
+runtime Codec
 ```
 
 must implement the same contracts as their compile-time/native equivalents.
@@ -248,6 +244,20 @@ RuntimeValidator
 as parallel architectural concepts.
 
 Runtime configuration is another implementation strategy of the same model.
+Phase 2 describes the complete wire, structural and semantic model together:
+
+```text
+.otlv → AST → semantic analysis and symbol resolution → IR → tlv_model_t → execution descriptors
+```
+
+The canonical internal IR lowers to the existing execution contracts.
+`tlv_format_t` remains a lightweight execution descriptor, not the canonical
+semantic representation of a Format. The planned immutable `tlv_model_t` owns
+the loaded model and supports introspection; it does not replace Element or
+other execution contracts. Model construction/loading may allocate, while TLV
+processing with an already constructed immutable model should remain
+allocation-free using explicit buffers and workspaces. Explicitly owning
+operations such as Document retain their storage requirements.
 
 ---
 
@@ -271,7 +281,9 @@ optimized native BER Format
 
 must still behave as the same conceptual Format.
 
-Optimization must not create a second OpenTLV API.
+Phase 3 reuses the same OTLV frontend and canonical IR for optimization and
+code generation. Runtime lowering and compiled implementations must preserve
+equivalent OTLV semantics. Optimization must not create a second OpenTLV API.
 
 ---
 
@@ -543,7 +555,17 @@ generic layer and keep only the standard-specific policy in the extension.
 
 ## 17. Phase 1 must prove genericity
 
-Phase 1 is the foundation of everything that follows.
+Phase 1 discovers, generalizes, validates and stabilizes the generic C execution
+foundation. Independent standards such as BER/EMV, Bluetooth, LLDP, DHCP, NFC
+and future formats serve as a playground for discovering missing primitives
+and refining the shared taxonomy, not as a claim of implemented support.
+
+Phase 2 requirements guide Phase 1 design without requiring premature runtime
+model implementation. For every generic primitive, ask:
+
+1. Can it represent the required real-world TLV format generically?
+2. Could a future declarative model and canonical IR describe it completely?
+3. Could both runtime lowering and future code generation consume it?
 
 Before considering it complete, it should demonstrate that genuinely
 different TLV families can be represented without protocol-specific hacks.

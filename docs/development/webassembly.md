@@ -7,8 +7,8 @@ to normal C and C++ builds.
 
 The first interface is intentionally small: it parses a byte buffer and returns
 the element structure or the parser error. It wraps the existing C API in
-`bindings/wasm/src/opentlv_wasm.c`; no parsing logic is duplicated. Editing, schemas,
-schemas and OTDL are not exposed; the EMV dictionary is available as an annotation module (below).
+`bindings/wasm/src/opentlv_wasm.c`; no parsing logic is duplicated. Editing,
+schemas and OTLV are not exposed; the EMV dictionary is available as an annotation module (below).
 Unlike a general-purpose binding, it does not follow the Reader/Writer/Element
 shape of the [language bindings conceptual model](../concepts/bindings.md); see
 that page for why.
