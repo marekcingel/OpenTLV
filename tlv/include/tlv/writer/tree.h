@@ -163,6 +163,66 @@ TLV_API tlv_result_t tlv_tree_writer_finish(const tlv_tree_writer_t* writer);
  */
 TLV_API size_t tlv_tree_writer_size(const tlv_tree_writer_t* writer);
 
+/**
+ * @brief Supply the next semantic node in preorder, without encoding it.
+ * @param[in,out] context Caller-owned traversal state.
+ * @param[out] element Borrowed Tag and primitive Value; constructed Value is ignored.
+ * @param[out] depth Root-relative depth, starting at zero.
+ * @param[out] constructed Nonzero for a parent, including an empty parent.
+ * @return #TLV_OK for an item, #TLV_ERR_END_OF_BUFFER at final end, or a source error.
+ * @warning Tags must remain immutable and alive until traversal completes; primitive
+ *          Values must remain readable until the next callback. Storage must not
+ *          overlap the measurement workspace. Depth may increase only after a parent.
+ */
+typedef tlv_result_t (*tlv_tree_writer_next_fn)(void* context, tlv_element_t* element,
+                                                size_t* depth, int* constructed);
+
+/** @brief Caller-owned bounded storage for exact tree measurement and staging. */
+typedef struct tlv_tree_writer_workspace {
+    tlv_tree_writer_frame_t* frames; /**< Structural stack, disjoint from byte storage. */
+    size_t frame_capacity;           /**< Number of available frames. */
+    uint8_t* data;                   /**< Staged encoding, valid on successful measurement. */
+    size_t data_capacity;            /**< Available staged output bytes. */
+    uint8_t* scratch;                /**< Shared workspace for closing all parents. */
+    size_t scratch_capacity;         /**< Available scratch bytes. */
+    size_t required_data;            /**< Next required output capacity on storage exhaustion. */
+    size_t required_scratch;         /**< Next required scratch capacity on storage exhaustion. */
+} tlv_tree_writer_workspace_t;
+
+/**
+ * @brief Measure a preorder tree through canonical Tree Writer encoding, without allocating.
+ *
+ * Content-dependent Formats need actual encoded children. Consequently this operation
+ * stages the complete encoding in workspace.data, calling both measure and encode.
+ * The successful prefix can be reused through tlv_writer_copy_encoded() without replay.
+ * All parents are opened and closed iteratively by Tree Writer, including empty ones.
+ *
+ * @param[in] format Borrowed immutable writable Format and context; required.
+ * @param[in] next Required preorder source callback; consumed, including on failure.
+ * @param[in,out] context Opaque source state, passed unchanged to next.
+ * @param[in,out] workspace Required disjoint caller-owned storage; never allocated here.
+ * @param[in] max_depth Maximum item depth; roots have depth zero.
+ * @param[in] max_elements Maximum number of source items.
+ * @param[out] size Exact encoded size on success; unchanged on failure.
+ * @param[out] diagnostic Optional Writer failure detail; unchanged on success.
+ * @return #TLV_OK on success; source and Writer errors propagated unchanged.
+ * @return #TLV_ERR_INVALID_ARG for invalid preorder depth; #TLV_ERR_INVALID_TAG
+ *         for a constructed classification incompatible with the destination Format.
+ * @return #TLV_ERR_LIMIT for insufficient frames or exceeded traversal limits.
+ * @return #TLV_ERR_BUFFER_TOO_SHORT on workspace exhaustion. Only this storage
+ *         check sets required_data/required_scratch above capacity; callback errors,
+ *         even with the same code, leave both zero. Requirements reset on each call.
+ * @note After increasing storage, restart with a fresh source. Requirements are a
+ *       lower bound discovered during traversal, not a prediction of final size.
+ * @warning Failure may modify workspace bytes. Format and source callbacks must be
+ *          deterministic for replay. No recursion, allocation, or Format-specific path.
+ */
+TLV_API tlv_result_t tlv_tree_writer_measure(const tlv_format_t* format,
+                                             tlv_tree_writer_next_fn next, void* context,
+                                             tlv_tree_writer_workspace_t* workspace,
+                                             size_t max_depth, size_t max_elements, size_t* size,
+                                             tlv_writer_diagnostic_t* diagnostic);
+
 /** @} */
 #ifdef __cplusplus
 }

@@ -425,16 +425,19 @@ TLV_API void tlv_node_erase(tlv_node_t* node);
 
 /**
  * @name Encoding
- * Encoding runs every element through the writer format. Sizes and bytes agree with
- * tlv_encoded_size() and tlv_write(), and constructed values are written from their children,
- * so no length is stored that could go stale.
+ * Encoding and exact measurement consume a preorder source through Tree Writer.
+ * Constructed Values are generated from children using the destination Format;
+ * content-dependent measurement receives actual encoded child bytes.
  * @{
  */
 
 /**
  * @brief Computes the encoded size of a whole document.
  *
- * Uses iterative traversal and temporary storage from the Document allocator.
+ * Uses iterative Tree Writer measurement and temporary storage from the Document
+ * allocator. Measurement stages the complete encoding, so encoder errors can also
+ * be reported. Storage comprises an O(depth) stack, staged output and shared scratch;
+ * there is no separate buffer for each constructed node.
  *
  * @param[in]  document Document to size.
  * @param[out] size     Receives the size in bytes. Unchanged on failure.
@@ -491,6 +494,58 @@ TLV_API tlv_result_t tlv_node_encoded_size(const tlv_node_t* node, size_t* size)
  */
 TLV_API tlv_result_t tlv_node_encode(const tlv_node_t* node, uint8_t* data, size_t capacity,
                                      size_t* written);
+
+/**
+ * @brief Compute document size with an explicit destination Format.
+ * @param[in] document Required immutable document.
+ * @param[in] format Required writable Format and context, borrowed for this call.
+ * @param[out] size Exact encoded size; unchanged on failure.
+ * @return Same results as tlv_document_encoded_size(); #TLV_ERR_INVALID_TAG if
+ *         destination constructed classification differs from the stored topology.
+ * @note The document's original Format and nodes remain unchanged. Identifiers
+ *       are never remapped. The Format need not support decoding. Deterministic
+ *       callbacks may be replayed while Document grows its staging workspace.
+ */
+TLV_API tlv_result_t tlv_document_encoded_size_as(const tlv_document_t* document,
+                                                  const tlv_format_t* format, size_t* size);
+
+/**
+ * @brief Encode a document using an explicit compatible destination Format.
+ * @param[in] document Required immutable document.
+ * @param[in] format Destination as for tlv_document_encoded_size_as().
+ * @param[out] data Caller-owned destination; NULL only when capacity is zero.
+ * @param[in] capacity Available destination bytes.
+ * @param[out] written Encoded size on success or required size on capacity failure.
+ * @return Same results and output guarantees as tlv_document_encode(), plus
+ *         #TLV_ERR_INVALID_TAG for incompatible constructed classification.
+ * @note Uses the Document allocator. Wire rules come exclusively from Format
+ *       through Tree Writer; the original document and its Format are unchanged.
+ */
+TLV_API tlv_result_t tlv_document_encode_as(const tlv_document_t* document,
+                                            const tlv_format_t* format, uint8_t* data,
+                                            size_t capacity, size_t* written);
+
+/**
+ * @brief Measure one node and its descendants using a destination Format.
+ * @param[in] node Required root of the subtree; siblings are excluded.
+ * @param[in] format Destination as for tlv_document_encoded_size_as().
+ * @param[out] size Exact encoded subtree size; unchanged on failure.
+ * @return Same results as tlv_document_encoded_size_as().
+ */
+TLV_API tlv_result_t tlv_node_encoded_size_as(const tlv_node_t* node, const tlv_format_t* format,
+                                              size_t* size);
+
+/**
+ * @brief Encode one node and its descendants using a destination Format.
+ * @param[in] node Required subtree root; siblings are excluded.
+ * @param[in] format Destination as for tlv_document_encoded_size_as().
+ * @param[out] data Caller-owned destination; NULL only when capacity is zero.
+ * @param[in] capacity Available destination bytes.
+ * @param[out] written Encoded size on success or required size on capacity failure.
+ * @return Same results and output guarantees as tlv_document_encode_as().
+ */
+TLV_API tlv_result_t tlv_node_encode_as(const tlv_node_t* node, const tlv_format_t* format,
+                                        uint8_t* data, size_t capacity, size_t* written);
 
 /** @} */
 

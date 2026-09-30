@@ -1,7 +1,7 @@
 #include "tlv/document/document.h"
 #include "tlv/size.h"
 #include "tlv/reader/tree.h"
-#include "tlv/writer/writer.h"
+#include "tlv/writer/tree.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -622,190 +622,164 @@ void tlv_node_erase(tlv_node_t* node) {
 
 /* ---- Encoding -------------------------------------------------------------------------- */
 
-typedef struct encode_frame {
+/* Document supplies topology and semantic Values; Tree Writer owns scope closure,
+ * measurement and wire emission. No byte counts are attached to Document nodes. */
+typedef struct document_source {
     const tlv_node_t* next;
-    const tlv_node_t* owner;
-    uint8_t* bytes;
-    size_t used, capacity;
-} encode_frame_t;
+    size_t depth;
+    int single;
+} document_source_t;
 
-/* One traversal for measurement or output. A frame stores already encoded children. */
-static tlv_result_t process_nodes(const tlv_node_t* first, int single, tlv_writer_t* writer,
-                                  size_t* measured) {
-    const tlv_document_t* document;
-    const tlv_node_t* node;
-    encode_frame_t* frames;
-    size_t max_depth = 0, depth = 0, capacity, total = 0;
-    tlv_result_t rc = TLV_OK;
-    if (!first) {
-        if (measured) *measured = 0;
-        return TLV_OK;
-    }
-    document = first->document;
-    /* Measure actual topology, independent of configured limits. */
-    node = first;
-    for (;;) {
-        if (node->first) {
-            node = node->first;
-            ++depth;
-        } else {
-            while (depth && !node->next) {
-                node = node->parent;
-                --depth;
-            }
-            if (!depth && (single || !node->next)) break;
-            node = node->next;
+static tlv_result_t document_next(void* context, tlv_element_t* element, size_t* depth,
+                                  int* constructed) {
+    document_source_t* source = (document_source_t*)context;
+    const tlv_node_t* node = source->next;
+    if (!node) return TLV_ERR_END_OF_BUFFER;
+    *element = (tlv_element_t){node_tag(node), {node->value, node->value_size}};
+    *depth = source->depth;
+    *constructed = node->constructed;
+    if (node->first) {
+        source->next = node->first;
+        ++source->depth;
+    } else {
+        while (source->depth && !node->next) {
+            node = node->parent;
+            --source->depth;
         }
-        if (depth > max_depth) max_depth = depth;
+        source->next = !source->depth && source->single ? NULL : node->next;
     }
-    if (max_depth > SIZE_MAX / sizeof *frames - 2) return TLV_ERR_OUT_OF_MEMORY;
-    capacity = max_depth + 2;
-    frames = (encode_frame_t*)memory_allocate(document, capacity * sizeof *frames);
-    if (!frames) return TLV_ERR_OUT_OF_MEMORY;
-    memset(frames, 0, capacity * sizeof *frames);
-    frames[0].next = first;
-    depth = 0;
-    for (;;) {
-        encode_frame_t* frame = &frames[depth];
-        if (frame->next) {
-            node = frame->next;
-            frame->next = (!depth && single) ? NULL : node->next;
-            if (node->constructed) {
-                ++depth;
-                frames[depth] = (encode_frame_t){node->first, node, NULL, 0, 0};
-                continue;
-            }
-        } else {
-            if (!depth) {
-                total = frame->used;
-                break;
-            }
-            node = frame->owner;
-            --depth;
-            frame = &frames[depth];
-        }
-        {
-            const uint8_t* value = node->constructed ? frames[depth + 1].bytes : node->value;
-            size_t length = node->constructed ? frames[depth + 1].used : node->value_size;
-            size_t encoded;
-            rc = tlv_encoded_size(node_tag(node), length, document->options.format, &encoded);
-            if (rc != TLV_OK) break;
-            if (encoded > SIZE_MAX - frame->used) {
-                rc = TLV_ERR_OVERFLOW;
-                break;
-            }
-            if (writer) {
-                if (!depth) {
-                    rc = tlv_writer_write(writer, node_tag(node), value, length);
-                } else {
-                    size_t needed = frame->used + encoded;
-                    if (needed > frame->capacity) {
-                        size_t grown =
-                            frame->capacity <= SIZE_MAX / 2 ? frame->capacity * 2 : needed;
-                        if (grown < needed) grown = needed;
-                        uint8_t* replacement = (uint8_t*)memory_allocate(document, grown);
-                        if (!replacement) {
-                            rc = TLV_ERR_OUT_OF_MEMORY;
-                            break;
-                        }
-                        if (frame->used) memcpy(replacement, frame->bytes, frame->used);
-                        memory_release(document, frame->bytes);
-                        frame->bytes = replacement;
-                        frame->capacity = grown;
-                    }
-                    size_t written;
-                    rc = tlv_write(frame->bytes + frame->used, encoded, document->options.format,
-                                   node_tag(node), value, length, &written);
-                }
-                if (rc != TLV_OK) break;
-            }
-            frame->used += encoded;
-            if (node->constructed) {
-                memory_release(document, frames[depth + 1].bytes);
-                frames[depth + 1].bytes = NULL;
-            }
-        }
-    }
-    for (size_t i = 0; i < capacity; ++i) memory_release(document, frames[i].bytes);
-    memory_release(document, frames);
-    if (rc == TLV_OK && measured) *measured = total;
-    return rc;
+    return TLV_OK;
 }
 
-static tlv_result_t list_encoded_size(const tlv_node_t* first, size_t* size) {
-    return process_nodes(first, 0, NULL, size);
+static tlv_result_t grow_workspace(const tlv_document_t* document, uint8_t** data, size_t* capacity,
+                                   size_t required) {
+    size_t grown;
+    uint8_t* replacement;
+    if (required <= *capacity) return TLV_OK;
+    grown = *capacity <= SIZE_MAX / 2 ? *capacity * 2 : required;
+    if (grown < 256) grown = 256;
+    if (grown < required) grown = required;
+    replacement = (uint8_t*)memory_allocate(document, grown);
+    if (!replacement) return TLV_ERR_OUT_OF_MEMORY;
+    memory_release(document, *data);
+    *data = replacement;
+    *capacity = grown;
+    return TLV_OK;
 }
 
-static tlv_result_t node_encoded_size_impl(const tlv_node_t* node, size_t* size) {
-    return process_nodes(node, 1, NULL, size);
+static void release_workspace(const tlv_document_t* document,
+                              tlv_tree_writer_workspace_t* workspace) {
+    memory_release(document, workspace->frames);
+    memory_release(document, workspace->data);
+    memory_release(document, workspace->scratch);
 }
 
-static tlv_result_t encode_list(const tlv_node_t* first, tlv_writer_t* writer) {
-    return process_nodes(first, 0, writer, NULL);
-}
-
-static tlv_result_t encode_node(const tlv_node_t* node, tlv_writer_t* writer) {
-    return process_nodes(node, 1, writer, NULL);
-}
-
-static tlv_result_t encode_checked(const tlv_node_t* first, const tlv_format_t* format,
-                                   size_t total, uint8_t* data, size_t capacity, size_t* written) {
-    tlv_writer_t writer;
+static tlv_result_t prepare_encoding(const tlv_document_t* document, const tlv_node_t* first,
+                                     int single, const tlv_format_t* format,
+                                     tlv_tree_writer_workspace_t* workspace, size_t* size) {
+    document_source_t source = {first, 0, single};
+    tlv_element_t element;
+    size_t depth;
+    int constructed;
     tlv_result_t rc;
-    if (!written || (!data && capacity)) return TLV_ERR_NULL_ARG;
-    if (capacity < total) {
-        *written = total;
-        return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!tlv_format_can_write(format)) return TLV_ERR_NULL_ARG;
+    /* Size only the structural stack here, never wire representations. */
+    while (document_next(&source, &element, &depth, &constructed) == TLV_OK) {
+        if (constructed) {
+            if (depth >= SIZE_MAX / sizeof *workspace->frames) return TLV_ERR_OUT_OF_MEMORY;
+            if (depth + 1 > workspace->frame_capacity) workspace->frame_capacity = depth + 1;
+        }
     }
-    rc = tlv_writer_init(&writer, data, capacity, format);
-    if (rc == TLV_OK) rc = encode_list(first, &writer);
-    if (rc == TLV_OK) *written = tlv_writer_size(&writer);
+    if (workspace->frame_capacity) {
+        workspace->frames = (tlv_tree_writer_frame_t*)memory_allocate(
+            document, workspace->frame_capacity * sizeof *workspace->frames);
+        if (!workspace->frames) return TLV_ERR_OUT_OF_MEMORY;
+    }
+    for (;;) {
+        source = (document_source_t){first, 0, single};
+        rc = tlv_tree_writer_measure(format, document_next, &source, workspace, SIZE_MAX, SIZE_MAX,
+                                     size, NULL);
+        if (rc != TLV_ERR_BUFFER_TOO_SHORT ||
+            (!workspace->required_data && !workspace->required_scratch))
+            return rc;
+        rc = grow_workspace(document, &workspace->data, &workspace->data_capacity,
+                            workspace->required_data);
+        if (rc != TLV_OK) return rc;
+        rc = grow_workspace(document, &workspace->scratch, &workspace->scratch_capacity,
+                            workspace->required_scratch);
+        if (rc != TLV_OK) return rc;
+    }
+}
+
+static tlv_result_t encoded_size_as(const tlv_document_t* document, const tlv_node_t* first,
+                                    int single, const tlv_format_t* format, size_t* size) {
+    tlv_tree_writer_workspace_t workspace = {0};
+    size_t total;
+    tlv_result_t rc = prepare_encoding(document, first, single, format, &workspace, &total);
+    release_workspace(document, &workspace);
+    if (rc == TLV_OK) *size = total;
     return rc;
+}
+
+static tlv_result_t encode_as(const tlv_document_t* document, const tlv_node_t* first, int single,
+                              const tlv_format_t* format, uint8_t* data, size_t capacity,
+                              size_t* written) {
+    tlv_tree_writer_workspace_t workspace = {0};
+    tlv_writer_t writer;
+    size_t total;
+    tlv_result_t rc = prepare_encoding(document, first, single, format, &workspace, &total);
+    if (rc == TLV_OK && capacity < total) {
+        *written = total;
+        rc = TLV_ERR_BUFFER_TOO_SHORT;
+    } else if (rc == TLV_OK) {
+        rc = tlv_writer_init(&writer, data, capacity, format);
+        if (rc == TLV_OK) rc = tlv_writer_copy_encoded(&writer, workspace.data, total);
+        if (rc == TLV_OK) *written = tlv_writer_size(&writer);
+    }
+    release_workspace(document, &workspace);
+    return rc;
+}
+
+tlv_result_t tlv_document_encoded_size_as(const tlv_document_t* document,
+                                          const tlv_format_t* format, size_t* size) {
+    if (!document || !size) return TLV_ERR_NULL_ARG;
+    return encoded_size_as(document, document->first, 0, format, size);
 }
 
 tlv_result_t tlv_document_encoded_size(const tlv_document_t* document, size_t* size) {
-    size_t total;
-    tlv_result_t rc;
-    if (!document || !size) return TLV_ERR_NULL_ARG;
-    rc = list_encoded_size(document->first, &total);
-    if (rc == TLV_OK) *size = total;
-    return rc;
+    return tlv_document_encoded_size_as(document, document ? document->options.format : NULL, size);
+}
+
+tlv_result_t tlv_document_encode_as(const tlv_document_t* document, const tlv_format_t* format,
+                                    uint8_t* data, size_t capacity, size_t* written) {
+    if (!document || !written || (!data && capacity)) return TLV_ERR_NULL_ARG;
+    return encode_as(document, document->first, 0, format, data, capacity, written);
 }
 
 tlv_result_t tlv_document_encode(const tlv_document_t* document, uint8_t* data, size_t capacity,
                                  size_t* written) {
-    size_t total;
-    tlv_result_t rc;
-    if (!document || !written) return TLV_ERR_NULL_ARG;
-    rc = list_encoded_size(document->first, &total);
-    if (rc != TLV_OK) return rc;
-    return encode_checked(document->first, document->options.format, total, data, capacity,
-                          written);
+    return tlv_document_encode_as(document, document ? document->options.format : NULL, data,
+                                  capacity, written);
+}
+
+tlv_result_t tlv_node_encoded_size_as(const tlv_node_t* node, const tlv_format_t* format,
+                                      size_t* size) {
+    if (!node || !size) return TLV_ERR_NULL_ARG;
+    return encoded_size_as(node->document, node, 1, format, size);
 }
 
 tlv_result_t tlv_node_encoded_size(const tlv_node_t* node, size_t* size) {
-    size_t total;
-    tlv_result_t rc;
-    if (!node || !size) return TLV_ERR_NULL_ARG;
-    rc = node_encoded_size_impl(node, &total);
-    if (rc == TLV_OK) *size = total;
-    return rc;
+    return tlv_node_encoded_size_as(node, node ? node->document->options.format : NULL, size);
+}
+
+tlv_result_t tlv_node_encode_as(const tlv_node_t* node, const tlv_format_t* format, uint8_t* data,
+                                size_t capacity, size_t* written) {
+    if (!node || !written || (!data && capacity)) return TLV_ERR_NULL_ARG;
+    return encode_as(node->document, node, 1, format, data, capacity, written);
 }
 
 tlv_result_t tlv_node_encode(const tlv_node_t* node, uint8_t* data, size_t capacity,
                              size_t* written) {
-    tlv_writer_t writer;
-    size_t total;
-    tlv_result_t rc;
-    if (!node || !written || (!data && capacity)) return TLV_ERR_NULL_ARG;
-    rc = node_encoded_size_impl(node, &total);
-    if (rc != TLV_OK) return rc;
-    if (capacity < total) {
-        *written = total;
-        return TLV_ERR_BUFFER_TOO_SHORT;
-    }
-    rc = tlv_writer_init(&writer, data, capacity, node->document->options.format);
-    if (rc == TLV_OK) rc = encode_node(node, &writer);
-    if (rc == TLV_OK) *written = tlv_writer_size(&writer);
-    return rc;
+    return tlv_node_encode_as(node, node ? node->document->options.format : NULL, data, capacity,
+                              written);
 }

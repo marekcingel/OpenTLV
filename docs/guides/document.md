@@ -257,5 +257,38 @@ model](../concepts/bindings.md) for the binding coverage of each language.
 Document uses the canonical Tree Reader to parse nested input. Its runtime depth
 limit is not capped at `TLV_TREE_DEFAULT_DEPTH`; temporary structural storage uses
 the Document allocator. Parsing, subtree cleanup, path search, encoded-size
-measurement and encoding are iterative. Measurement and encoding may allocate
-scratch storage and report allocation failure without leaking partial state.
+measurement and encoding are iterative. Document supplies semantic nodes and their
+preorder depths to the canonical Tree Writer; it does not size or encode nested
+TLVs itself. Tree Writer uses Format callbacks for every element.
+
+Exact measurement may call both the Format's measure and encode callbacks: a
+parent whose framing depends on its Value needs the actual encoded children.
+Document owns the temporary frame stack, a staged output buffer, and one shared
+scratch buffer. There are no per-constructed-node byte buffers. Workspace grows
+through the Document allocator; allocation failures release all temporary storage.
+Format callbacks must be deterministic because workspace growth can replay a
+traversal. Encoder errors can therefore be returned by `encoded_size()` too.
+The staged output is reused by `encode()` through the Writer copy API after the
+caller buffer has passed the exact capacity check. No second encoding pass is
+needed within that call. Staging requires O(encoded bytes) memory in addition to
+the O(depth) stack; closing ancestors retains Tree Writer's O(bytes * depth)
+worst-case copying cost.
+
+### Choosing a destination Format
+
+The existing C functions use the document's original Format. To encode the same
+owned tree with another runtime or native Format, use
+`tlv_document_encoded_size_as(document, format, &size)` and
+`tlv_document_encode_as(document, format, output, capacity, &written)`.
+`tlv_node_encoded_size_as()` and `tlv_node_encode_as()` select a single subtree,
+excluding its siblings. The destination only needs write capability and remains
+borrowed for the duration of the call. The tree and original Format are unchanged.
+
+Destination Formats must preserve the nodes' constructed classification and
+support their identifiers and Values. Identifiers are not remapped. Incompatible
+classification returns `TLV_ERR_INVALID_TAG`; other Format errors propagate
+unchanged. All destinations follow the same Tree Writer path.
+
+In C++, `document.encoded_size(format)` / `document.encode(format)` and the
+corresponding `node` overloads accept a borrowed `const tlv_format_t&`. The
+no-argument methods retain their original behavior.
