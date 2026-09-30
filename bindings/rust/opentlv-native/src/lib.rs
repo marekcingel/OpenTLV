@@ -8,6 +8,13 @@
 
 use std::os::raw::{c_char, c_int, c_void};
 
+#[cfg(feature = "document")]
+mod document;
+mod schema_report;
+#[cfg(feature = "document")]
+pub use document::*;
+pub use schema_report::*;
+
 /// Logical TLV value length (`tlv_size_t`), always 64 bits wide.
 pub type tlv_size_t = u64;
 
@@ -1090,4 +1097,435 @@ mod tests {
         let message = unsafe { CStr::from_ptr(tlv_strerror(TLV_OK)) };
         assert!(!message.to_bytes().is_empty());
     }
+}
+
+extern "C" {
+    pub fn tlv_reader_diagnostic_init(diagnostic: *mut tlv_reader_diagnostic_t);
+    pub fn tlv_reader_next_source_diag(
+        reader: *mut tlv_reader_t,
+        element: *mut tlv_element_t,
+        source: *mut tlv_source_t,
+        diagnostic: *mut tlv_reader_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_reader_init(
+        reader: *mut tlv_tree_reader_t,
+        data: *const u8,
+        size: usize,
+        format: *const tlv_format_t,
+        frames: *mut tlv_tree_frame_t,
+        capacity: usize,
+        max_depth: usize,
+        max_elements: usize,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_reader_init_incremental(
+        reader: *mut tlv_tree_reader_t,
+        data: *const u8,
+        size: usize,
+        format: *const tlv_format_t,
+        frames: *mut tlv_tree_frame_t,
+        capacity: usize,
+        max_depth: usize,
+        max_elements: usize,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_reader_next_diag(
+        reader: *mut tlv_tree_reader_t,
+        item: *mut tlv_tree_item_t,
+        diagnostic: *mut tlv_reader_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_reader_set_input(
+        reader: *mut tlv_tree_reader_t,
+        data: *const u8,
+        size: usize,
+        discard: usize,
+        final_input: c_int,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_reader_skip_subtree(reader: *mut tlv_tree_reader_t) -> tlv_result_t;
+    pub fn tlv_tree_reader_consumed(reader: *const tlv_tree_reader_t) -> usize;
+    pub fn tlv_tree_reader_offset(reader: *const tlv_tree_reader_t) -> usize;
+    pub fn tlv_tree_reader_at_end(reader: *const tlv_tree_reader_t) -> c_int;
+}
+
+// Canonical Reader state and diagnostics. Keep repr(C) fields in header order.
+/// Self-contained canonical query storage.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_query_t {
+    pub bytes: [u8; 512],
+    pub ends: [u16; 65],
+    pub count: usize,
+}
+/// Native matcher borrowing its stable query storage.
+#[repr(C)]
+pub struct tlv_query_matcher_t {
+    pub query: *const tlv_query_t,
+    pub matched: usize,
+}
+extern "C" {
+    pub fn tlv_query_parse(
+        text: *const c_char,
+        query: *mut tlv_query_t,
+        offset: *mut usize,
+    ) -> tlv_result_t;
+    pub fn tlv_query_step(query: *const tlv_query_t, index: usize) -> tlv_tag_t;
+    pub fn tlv_query_matcher_init(
+        matcher: *mut tlv_query_matcher_t,
+        query: *const tlv_query_t,
+    ) -> tlv_result_t;
+    pub fn tlv_query_matcher_visit(
+        matcher: *mut tlv_query_matcher_t,
+        tag: *const tlv_tag_t,
+        depth: usize,
+    ) -> c_int;
+    pub fn tlv_query_visit(
+        reader: *mut tlv_tree_reader_t,
+        matcher: *mut tlv_query_matcher_t,
+        visitor: Option<
+            unsafe extern "C" fn(*const tlv_element_t, usize, usize, *mut c_void) -> c_int,
+        >,
+        context: *mut c_void,
+        error_offset: *mut usize,
+    ) -> tlv_result_t;
+}
+
+extern "C" {
+    pub fn tlv_reader_visit_diag(
+        reader: *mut tlv_reader_t,
+        visitor: Option<unsafe extern "C" fn(*const tlv_element_t, *mut c_void) -> c_int>,
+        context: *mut c_void,
+        diagnostic: *mut tlv_reader_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_reader_visit_diag(
+        reader: *mut tlv_tree_reader_t,
+        visitor: Option<
+            unsafe extern "C" fn(*const tlv_element_t, usize, usize, *mut c_void) -> c_int,
+        >,
+        context: *mut c_void,
+        error_offset: *mut usize,
+        diagnostic: *mut tlv_reader_diagnostic_t,
+    ) -> tlv_result_t;
+}
+
+/// Native tlv_diagnostic state.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_diagnostic_t {
+    /// Corresponding C field.
+    pub code: tlv_result_t,
+    /// Corresponding C field.
+    pub severity: c_int,
+    /// Corresponding C field.
+    pub has_offset: c_int,
+    /// Corresponding C field.
+    pub offset: usize,
+    /// Corresponding C field.
+    pub expected: *const c_char,
+    /// Corresponding C field.
+    pub actual: *const c_char,
+    /// Corresponding C field.
+    pub contexts: *const c_void,
+    /// Corresponding C field.
+    pub path: *const c_void,
+}
+/// Native tlv_reader_diagnostic state.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_reader_diagnostic_t {
+    /// Corresponding C field.
+    pub diagnostic: tlv_diagnostic_t,
+    /// Corresponding C field.
+    pub operation: c_int,
+    /// Corresponding C field.
+    pub has_tag: c_int,
+    /// Corresponding C field.
+    pub tag: tlv_tag_t,
+    /// Corresponding C field.
+    pub has_tag_offset: c_int,
+    /// Corresponding C field.
+    pub tag_offset: usize,
+    /// Corresponding C field.
+    pub has_length_offset: c_int,
+    /// Corresponding C field.
+    pub length_offset: usize,
+    /// Corresponding C field.
+    pub has_value_offset: c_int,
+    /// Corresponding C field.
+    pub value_offset: usize,
+    /// Corresponding C field.
+    pub has_declared_length: c_int,
+    /// Corresponding C field.
+    pub declared_length: tlv_size_t,
+    /// Corresponding C field.
+    pub has_raw_length: c_int,
+    /// Corresponding C field.
+    pub raw_length: tlv_length_t,
+    /// Corresponding C field.
+    pub has_available: c_int,
+    /// Corresponding C field.
+    pub available: usize,
+    /// Corresponding C field.
+    pub has_enclosing_end: c_int,
+    /// Corresponding C field.
+    pub enclosing_end: usize,
+    /// Corresponding C field.
+    pub has_required: c_int,
+    /// Corresponding C field.
+    pub required: tlv_size_t,
+}
+/// Native tlv_tree_frame state.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_tree_frame_t {
+    /// Corresponding C field.
+    pub end: usize,
+    /// Corresponding C field.
+    pub resume: usize,
+}
+/// Native tlv_tree_item state.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_tree_item_t {
+    /// Corresponding C field.
+    pub element: tlv_element_t,
+    /// Corresponding C field.
+    pub source: tlv_source_t,
+    /// Corresponding C field.
+    pub depth: usize,
+    /// Corresponding C field.
+    pub offset: usize,
+    /// Corresponding C field.
+    pub constructed: c_int,
+}
+/// Native tlv_tree_reader state.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_tree_reader_t {
+    /// Corresponding C field.
+    pub input: tlv_reader_t,
+    /// Corresponding C field.
+    pub frames: *mut tlv_tree_frame_t,
+    /// Corresponding C field.
+    pub capacity: usize,
+    /// Corresponding C field.
+    pub max_depth: usize,
+    /// Corresponding C field.
+    pub max_elements: usize,
+    /// Corresponding C field.
+    pub count: usize,
+    /// Corresponding C field.
+    pub depth: usize,
+    /// Corresponding C field.
+    pub pending: tlv_tree_frame_t,
+    /// Corresponding C field.
+    pub descend_pending: c_int,
+}
+
+// Canonical bounded Tree Writer state.
+extern "C" {
+    pub fn tlv_tree_writer_init(
+        writer: *mut tlv_tree_writer_t,
+        data: *mut u8,
+        size: usize,
+        format: *const tlv_format_t,
+        frames: *mut tlv_tree_writer_frame_t,
+        capacity: usize,
+        scratch: *mut u8,
+        scratch_capacity: usize,
+        max_depth: usize,
+        max_elements: usize,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_writer_begin_diag(
+        writer: *mut tlv_tree_writer_t,
+        tag: tlv_tag_t,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_writer_write_element_diag(
+        writer: *mut tlv_tree_writer_t,
+        element: *const tlv_element_t,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_writer_end_diag(
+        writer: *mut tlv_tree_writer_t,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_writer_finish(writer: *const tlv_tree_writer_t) -> tlv_result_t;
+    pub fn tlv_tree_writer_size(writer: *const tlv_tree_writer_t) -> usize;
+    pub fn tlv_writer_diagnostic_init(diagnostic: *mut tlv_writer_diagnostic_t);
+    pub fn tlv_element_encoded_size_diag(
+        element: *const tlv_element_t,
+        format: *const tlv_format_t,
+        size: *mut usize,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_write_element_diag(
+        data: *mut u8,
+        capacity: usize,
+        format: *const tlv_format_t,
+        element: *const tlv_element_t,
+        written: *mut usize,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_writer_write_diag(
+        writer: *mut tlv_writer_t,
+        tag: tlv_tag_t,
+        value: *const u8,
+        length: usize,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_writer_write_element_diag(
+        writer: *mut tlv_writer_t,
+        element: *const tlv_element_t,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_writer_copy_encoded_diag(
+        writer: *mut tlv_writer_t,
+        data: *const u8,
+        size: usize,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_writer_preserve_diag(
+        writer: *mut tlv_writer_t,
+        source: *const tlv_source_t,
+        element: *const tlv_element_t,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+    pub fn tlv_tree_writer_measure(
+        format: *const tlv_format_t,
+        next: Option<
+            unsafe extern "C" fn(
+                *mut c_void,
+                *mut tlv_element_t,
+                *mut usize,
+                *mut c_int,
+            ) -> tlv_result_t,
+        >,
+        context: *mut c_void,
+        workspace: *mut tlv_tree_writer_workspace_t,
+        max_depth: usize,
+        max_elements: usize,
+        size: *mut usize,
+        diagnostic: *mut tlv_writer_diagnostic_t,
+    ) -> tlv_result_t;
+}
+
+/// Caller-owned native tree measurement storage.
+#[repr(C)]
+pub struct tlv_tree_writer_workspace_t {
+    /// Structural stack storage.
+    pub frames: *mut tlv_tree_writer_frame_t,
+    /// Stack capacity.
+    pub frame_capacity: usize,
+    /// Staged encoding storage.
+    pub data: *mut u8,
+    /// Staged capacity.
+    pub data_capacity: usize,
+    /// Parent closure scratch storage.
+    pub scratch: *mut u8,
+    /// Scratch capacity.
+    pub scratch_capacity: usize,
+    /// Next required output capacity on exhaustion.
+    pub required_data: usize,
+    /// Next required scratch capacity on exhaustion.
+    pub required_scratch: usize,
+}
+
+/// Native tlv_writer_diagnostic state.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_writer_diagnostic_t {
+    /// Corresponding C field.
+    pub diagnostic: tlv_diagnostic_t,
+    /// Corresponding C field.
+    pub operation: c_int,
+    /// Corresponding C field.
+    pub has_tag: c_int,
+    /// Corresponding C field.
+    pub tag: tlv_tag_t,
+    /// Corresponding C field.
+    pub has_length: c_int,
+    /// Corresponding C field.
+    pub length: usize,
+    /// Corresponding C field.
+    pub has_required: c_int,
+    /// Corresponding C field.
+    pub required: usize,
+    /// Corresponding C field.
+    pub has_available: c_int,
+    /// Corresponding C field.
+    pub available: usize,
+}
+/// Native tlv_tree_writer_frame state.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_tree_writer_frame_t {
+    /// Corresponding C field.
+    pub tag: tlv_tag_t,
+    /// Corresponding C field.
+    pub start: usize,
+}
+/// Native tlv_tree_writer state.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_tree_writer_t {
+    /// Corresponding C field.
+    pub output: tlv_writer_t,
+    /// Corresponding C field.
+    pub frames: *mut tlv_tree_writer_frame_t,
+    /// Corresponding C field.
+    pub capacity: usize,
+    /// Corresponding C field.
+    pub depth: usize,
+    /// Corresponding C field.
+    pub max_depth: usize,
+    /// Corresponding C field.
+    pub max_elements: usize,
+    /// Corresponding C field.
+    pub count: usize,
+    /// Corresponding C field.
+    pub scratch: *mut u8,
+    /// Corresponding C field.
+    pub scratch_capacity: usize,
+}
+
+/// Configuration of the canonical uint64 numeric codec.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_number_codec_config_t {
+    /// Binary BE, binary LE or packed BCD.
+    pub encoding: c_int,
+    /// Fixed width, or zero for minimal encoding.
+    pub width: usize,
+    /// BCD precision, zero for binary encoding.
+    pub digits: u32,
+}
+extern "C" {
+    pub fn tlv_number_decode(
+        context: *const c_void,
+        data: *const u8,
+        size: usize,
+        value: *mut c_void,
+        capacity: usize,
+    ) -> tlv_codec_result_t;
+    pub fn tlv_number_encode(
+        context: *const c_void,
+        value: *const c_void,
+        size: usize,
+        data: *mut u8,
+        capacity: usize,
+        written: *mut usize,
+    ) -> tlv_codec_result_t;
+}
+
+/// Borrowed table of generic Definitions.
+#[repr(C)]
+pub struct tlv_definition_registry_t {
+    /// Immutable entries.
+    pub entries: *const tlv_definition_t,
+    /// Entry count.
+    pub count: usize,
+}
+extern "C" {
+    pub fn tlv_definition_find(
+        registry: *const tlv_definition_registry_t,
+        tag: *const tlv_tag_t,
+    ) -> *const tlv_definition_t;
 }

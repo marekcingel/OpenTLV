@@ -8,9 +8,10 @@ from opentlv.tag import Tag
 class Element:
     """A decoded TLV element: a tag, raw length bytes and a value.
 
-    `length` and `value` are ``memoryview`` objects onto the buffer the owning `Reader` was
-    created from, so reading it is zero-copy; it becomes unusable once that
-    buffer is released. Equality compares tag and value, ignoring raw length encoding.
+    `length` and `value` are ``memoryview`` objects onto storage retained by the
+    Reader. Bytes input is borrowed; other inputs are snapshotted. Views keep
+    their storage alive independently of the Reader. Equality compares tag and
+    value, ignoring raw length encoding.
     """
 
     __slots__ = ("_tag", "_length", "_value")

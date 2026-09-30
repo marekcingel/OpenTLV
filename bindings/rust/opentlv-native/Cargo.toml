@@ -10,5 +10,6 @@ links = "tlv"
 build = "build.rs"
 
 [features]
-default = ["lldp"]
+default = ["lldp", "document"]
 lldp = []
+document = []

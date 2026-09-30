@@ -56,6 +56,28 @@ def test_length_schema_earlier_rule_wins_for_a_repeated_tag():
     assert schema.find(tag).min_length == 1
 
 
+def test_length_constraints_use_native_endpoint_and_multiple_semantics():
+    tag = Tag(b"\x01")
+    schema = LengthSchema([LengthRule(tag, 2, 8, flags=1, length_multiple=2)])
+    schema.validate_length(tag, 2)
+    schema.validate_length(tag, 8)
+    with pytest.raises(InvalidLengthError):
+        schema.validate_length(tag, 4)
+    schema = LengthSchema([LengthRule(tag, 0, 8, length_multiple=3)])
+    schema.validate_length(tag, 0)
+    schema.validate_length(tag, 6)
+    with pytest.raises(InvalidLengthError):
+        schema.validate_length(tag, 8)
+
+
+def test_length_schema_rejects_sizes_outside_native_range():
+    schema = LengthSchema([LengthRule(b"\x01")])
+    with pytest.raises(OverflowError):
+        schema.validate_length(b"\x01", -1)
+    with pytest.raises(OverflowError):
+        schema.validate_length(b"\x01", 1 << 100)
+
+
 def test_structure_schema_accepts_a_present_required_field():
     schema = StructureSchema([StructureRule(Tag(b"\x01"), min_occurs=1, max_occurs=1)])
     schema.validate(bytes([0x01, 0x00]))
@@ -121,3 +143,121 @@ def test_structure_rule_setting_children_implies_constructed_kind():
 def test_structure_schema_len():
     schema = StructureSchema([StructureRule(Tag(b"\x01")), StructureRule(Tag(b"\x02"))])
     assert len(schema) == 2
+def test_native_sequence_and_alternative_group_constraints():
+    from opentlv import SchemaOrder, StructureGroup
+    sequence = StructureSchema([StructureRule(b"\x01"), StructureRule(b"\x02")],
+                               order=SchemaOrder.SEQUENCE)
+    sequence.validate(bytes.fromhex("01000200"))
+    with pytest.raises(SchemaError) as failure:
+        sequence.validate(bytes.fromhex("02000100"))
+    assert failure.value.offset == 2
+    choice = StructureSchema([StructureRule(b"\x01", group=7), StructureRule(b"\x02", group=7)],
+                             groups=[StructureGroup(7, 1, 1)])
+    choice.validate(bytes.fromhex("0200"))
+    with pytest.raises(SchemaMissingError):
+        choice.validate(b"")
+    with pytest.raises(SchemaError):
+        choice.validate(bytes.fromhex("01000200"))
+
+
+def test_structural_length_policies_and_invalid_group_are_native():
+    schema = StructureSchema([StructureRule(b"\x04", min_length=2, max_length=8,
+                                           flags=1, length_multiple=2)])
+    schema.validate(bytes.fromhex("04020000"))
+    with pytest.raises(InvalidLengthError):
+        schema.validate(bytes.fromhex("040400000000"))
+    schema = StructureSchema([StructureRule(b"\x04", group=7)])
+    with pytest.raises(SchemaError):
+        schema.validate(bytes.fromhex("0400"))
+def test_bounded_schema_reports_copy_paths_and_count_omitted_issues():
+    from opentlv import UnknownPolicy, BufferTooShortError
+    schema = StructureSchema([StructureRule(b"\x01", min_occurs=1)])
+    report = schema.validate_all(bytes.fromhex("0200"), capacity=1)
+    assert report.total_count == 2
+    assert len(report.issues) == 1
+    assert report.issues[0].path_string in ("01", "02")
+    assert report.issues[0].path[0].data in (b"\x01", b"\x02")
+    assert schema.validate_all(bytes.fromhex("0200"), capacity=0).total_count == 2
+    allowed = schema.validate_all(bytes.fromhex("0200"), unknown=UnknownPolicy.ALLOW)
+    assert allowed.total_count == 1
+    assert allowed.issues[0].kind_name == "missing"
+    assert allowed.issues[0].offset is None
+    with pytest.raises(BufferTooShortError):
+        schema.validate_all(bytes.fromhex("0201"))
+
+
+def test_nested_report_owns_input_backed_tags_and_c_path_text():
+    schema = StructureSchema([StructureRule(b"\x30", children=StructureSchema([
+        StructureRule(b"\x04", min_length=2)]))])
+    data = bytearray.fromhex("300304012A")
+    report = schema.validate_all(data)
+    data[:] = b"\x00" * len(data)
+    del schema
+    issue = report.issues[0]
+    assert issue.kind_name == "length"
+    assert issue.path_string == "30/04"
+    assert issue.path == (Tag(b"\x30"), Tag(b"\x04"))
+    assert issue.offset == 2
+
+
+def test_detailed_schema_report_owns_names_paths_and_expected_actual():
+    from opentlv import SchemaBounds
+    schema = StructureSchema([StructureRule(b"\x30", children=StructureSchema([
+        StructureRule(b"\x04", min_length=2, max_length=8, length_multiple=2,
+                      flags=1, name="payload-?")]))])
+    data = bytearray.fromhex("300304012A")
+    report = schema.validate_diagnostics(data)
+    data[:] = b"\x00" * len(data)
+    del schema
+    assert report.total_count == 1
+    issue = report.diagnostics[0]
+    assert issue.kind_name == "length"
+    assert issue.tag == Tag(b"\x04")
+    assert issue.path == (Tag(b"\x30"),)
+    assert issue.offset == 2
+    assert issue.field == "payload-?"
+    assert issue.length == SchemaBounds(2, 8, 1)
+    assert issue.length_multiple == 2 and issue.length_flags == 1
+    assert issue.occurrences is None and issue.form is None
+
+
+def test_detailed_schema_group_bounds_capacity_and_wire_errors():
+    from opentlv import SchemaBounds, StructureGroup, BufferTooShortError
+    schema = StructureSchema([StructureRule(b"\x04", group=7)],
+                             groups=[StructureGroup(7, 1, 1, name="choice")])
+    issue = schema.validate_diagnostics(b"").diagnostics[0]
+    assert issue.is_group and issue.field == "choice"
+    assert issue.occurrences == SchemaBounds(1, 1, 0)
+    assert issue.offset is None
+    duplicate = schema.validate_diagnostics(bytes.fromhex("04000400")).diagnostics[0]
+    assert duplicate.occurrences == SchemaBounds(1, 1, 2)
+    assert duplicate.offset == 2
+    report = schema.validate_diagnostics(bytes.fromhex("0500"), capacity=0)
+    assert report.total_count == 2 and report.diagnostics == ()
+    assert len(schema.validate_diagnostics(bytes.fromhex("0500"), capacity=1).diagnostics) == 1
+    with pytest.raises(BufferTooShortError):
+        schema.validate_diagnostics(bytes.fromhex("0401"))
+    with pytest.raises(ValueError):
+        schema.validate_diagnostics(b"", capacity=-1)
+    invalid = StructureSchema([StructureRule(b"\x04", name="bad\x00name")])
+    with pytest.raises(ValueError):
+        invalid.validate_diagnostics(b"")
+
+
+def test_detailed_schema_form_is_reported_by_c():
+    schema = StructureSchema([StructureRule(b"\x04", kind=Kind.CONSTRUCTED)])
+    diagnostic = schema.validate_diagnostics(bytes.fromhex("0400")).diagnostics[0]
+    assert diagnostic.form == (Kind.CONSTRUCTED, False)
+    assert diagnostic.length is None
+
+
+def test_schema_fixed_format_validation_and_reports():
+    from opentlv import FixedFormat
+    format = FixedFormat(2, 2, "little")
+    schema = StructureSchema([StructureRule(b"\x00\x04", min_length=2)])
+    schema.validate(bytes.fromhex("000402000102"), format)
+    data = bytes.fromhex("000401002A")
+    with pytest.raises(InvalidLengthError):
+        schema.validate(data, format)
+    assert schema.validate_all(data, format).total_count == 1
+    assert schema.validate_diagnostics(data, format).diagnostics[0].length.actual == 1

@@ -766,3 +766,81 @@ impl Codec {
         Ok(out)
     }
 }
+
+/// Numeric Value representation selected explicitly, independent of a protocol.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(i32)]
+pub enum NumberEncoding {
+    /// Most-significant byte first.
+    BigEndian = 0,
+    /// Least-significant byte first.
+    LittleEndian = 1,
+    /// Packed decimal, most-significant digit first.
+    Bcd = 2,
+}
+
+/// Configurable uint64 Value codec delegated to C.
+/// Width zero selects minimal encoding. C validates configuration on use;
+/// Schema remains responsible for contextual field-length constraints.
+#[derive(Clone, Copy, Debug)]
+pub struct NumberCodec {
+    config: native::tlv_number_codec_config_t,
+}
+impl NumberCodec {
+    /// Set encoding, fixed byte width (or zero), and BCD precision (zero for binary).
+    pub fn new(encoding: NumberEncoding, width: usize, digits: u32) -> Self {
+        Self {
+            config: native::tlv_number_codec_config_t {
+                encoding: encoding as i32,
+                width,
+                digits,
+            },
+        }
+    }
+    /// Decode Value bytes through the canonical C numeric codec.
+    pub fn decode(&self, data: &[u8]) -> CodecResult<u64> {
+        let mut value = 0u64;
+        // SAFETY: correctly aligned configuration and u64 destination; disjoint live input.
+        CodecError::check(unsafe {
+            native::tlv_number_decode(
+                (&self.config as *const native::tlv_number_codec_config_t).cast(),
+                data.as_ptr(),
+                data.len(),
+                (&mut value as *mut u64).cast(),
+                mem::size_of::<u64>(),
+            )
+        })?;
+        Ok(value)
+    }
+    /// Measure a validated encoding through the C size-query operation.
+    pub fn encoded_size(&self, value: u64) -> CodecResult<usize> {
+        self.encode_raw(value, ptr::null_mut(), 0)
+    }
+    /// Encode into caller storage; C leaves output unchanged on failure.
+    pub fn encode_into(&self, value: u64, output: &mut [u8]) -> CodecResult<usize> {
+        self.encode_raw(value, output.as_mut_ptr(), output.len())
+    }
+    /// Return owned encoded Value bytes.
+    pub fn encode(&self, value: u64) -> CodecResult<Vec<u8>> {
+        let mut bytes = vec![0; self.encoded_size(value)?];
+        let written = self.encode_into(value, &mut bytes)?;
+        bytes.truncate(written);
+        Ok(bytes)
+    }
+    fn encode_raw(&self, value: u64, output: *mut u8, capacity: usize) -> CodecResult<usize> {
+        let mut written = 0;
+        // SAFETY: private callers supply either NULL/zero or a writable exclusive slice.
+        // Configuration, scalar input and count are aligned live independent objects.
+        CodecError::check(unsafe {
+            native::tlv_number_encode(
+                (&self.config as *const native::tlv_number_codec_config_t).cast(),
+                (&value as *const u64).cast(),
+                mem::size_of::<u64>(),
+                output,
+                capacity,
+                &mut written,
+            )
+        })?;
+        Ok(written)
+    }
+}

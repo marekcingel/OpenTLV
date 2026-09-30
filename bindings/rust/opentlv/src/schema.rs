@@ -26,6 +26,10 @@ pub struct LengthRule {
     pub min_length: usize,
     /// Maximum permitted value length in bytes; `usize::MAX` is unrestricted.
     pub max_length: usize,
+    /// C length policy bits; mask `1` permits only the two bounds.
+    pub flags: u32,
+    /// Required length multiple; zero disables the constraint.
+    pub length_multiple: usize,
 }
 
 impl LengthRule {
@@ -35,6 +39,8 @@ impl LengthRule {
             tag,
             min_length,
             max_length,
+            flags: 0,
+            length_multiple: 0,
         }
     }
 
@@ -48,9 +54,9 @@ impl LengthRule {
             tag: self.tag.raw(),
             min_length: self.min_length,
             max_length: self.max_length,
-            flags: 0,
+            flags: self.flags,
             name: ptr::null(),
-            length_multiple: 0,
+            length_multiple: self.length_multiple,
         }
     }
 
@@ -64,6 +70,8 @@ impl LengthRule {
             tag: unsafe { Tag::from_raw(&raw.tag) }?,
             min_length: raw.min_length,
             max_length: raw.max_length,
+            flags: raw.flags,
+            length_multiple: raw.length_multiple,
         })
     }
 }
@@ -232,6 +240,10 @@ pub struct StructureRule {
     max_occurs: usize,
     kind: Kind,
     children: Option<StructureSchema>,
+    flags: u32,
+    length_multiple: usize,
+    group: u32,
+    name: Option<std::ffi::CString>,
 }
 
 impl StructureRule {
@@ -245,13 +257,42 @@ impl StructureRule {
             max_occurs: usize::MAX,
             kind: Kind::Any,
             children: None,
+            flags: 0,
+            length_multiple: 0,
+            group: 0,
+            name: None,
         }
+    }
+
+    /// Set the diagnostic field name, rejecting embedded NUL bytes.
+    pub fn named(mut self, name: &str) -> std::result::Result<Self, std::ffi::NulError> {
+        self.name = Some(std::ffi::CString::new(name)?);
+        Ok(self)
     }
 
     /// Restricts the value length to `min..=max` bytes.
     pub fn length(mut self, min: usize, max: usize) -> StructureRule {
         self.min_length = min;
         self.max_length = max;
+        self
+    }
+
+    /// Set native length policy flags (mask 1 permits only the two bounds).
+    pub fn length_flags(mut self, flags: u32) -> Self {
+        self.flags = flags;
+        self
+    }
+
+    /// Require a Value length divisible by this width; zero disables it.
+    pub fn length_multiple(mut self, width: usize) -> Self {
+        self.length_multiple = width;
+        self
+    }
+
+    /// Assign this rule to a native alternative group; zero means independent.
+    /// Grouped rules must have minimum occurrences zero, as checked by C.
+    pub fn group(mut self, id: u32) -> Self {
+        self.group = id;
         self
     }
 
@@ -294,6 +335,8 @@ struct Compiled {
     _tags: Vec<Tag>,
     // Kept alive because `rules` points to their C tables.
     _children: Vec<StructureSchema>,
+    _groups: Vec<native::tlv_structure_group_t>,
+    _names: Vec<std::ffi::CString>,
     raw: native::tlv_structure_schema_t,
 }
 
@@ -322,6 +365,136 @@ pub struct StructureSchema {
     backing: Backing,
 }
 
+/// Relative ordering of matched elements, enforced by the C Schema engine.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum SchemaOrder {
+    /// No relative ordering constraint.
+    #[default]
+    Any,
+    /// Matched elements follow their rule-table order.
+    Sequence,
+}
+
+/// Unknown-tag policy for report-based validation.
+#[derive(Clone, Copy, Debug, Default)]
+#[repr(i32)]
+pub enum UnknownPolicy {
+    /// Follow each scope's allow_unknown setting.
+    #[default]
+    BySchema = 0,
+    /// Accept unknown tags in every scope.
+    Allow = 1,
+    /// Reject unknown tags in every scope.
+    Reject = 2,
+}
+
+/// Owned copy of a C Schema issue, independent of input and schema lifetimes.
+#[derive(Clone, Debug)]
+pub struct SchemaIssue {
+    /// Canonical issue kind code.
+    pub kind: i32,
+    /// C's descriptive name of the issue kind.
+    pub kind_name: String,
+    /// Complete path, including the affected Tag.
+    pub path: Vec<Tag>,
+    /// Path formatted by the C helper.
+    pub path_string: String,
+    /// Affected element offset, absent for a missing root field.
+    pub offset: Option<usize>,
+}
+
+/// Bounded report; total_count can exceed the number of stored issues.
+#[derive(Clone, Debug)]
+pub struct SchemaReport {
+    /// Total violations found by C, including ones beyond capacity.
+    pub total_count: usize,
+    /// First capacity violations, copied into owned language values.
+    pub issues: Vec<SchemaIssue>,
+}
+
+/// Expected and observed values of one bounded constraint.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SchemaBounds {
+    /// Inclusive minimum.
+    pub minimum: usize,
+    /// Inclusive maximum; usize::MAX means unrestricted.
+    pub maximum: usize,
+    /// Observed value at the violation.
+    pub actual: usize,
+}
+
+/// Owned detailed C Schema violation; paths contain enclosing scopes only.
+#[derive(Clone, Debug)]
+pub struct SchemaDiagnostic {
+    /// C error corresponding to the violation.
+    pub error: Error,
+    /// C severity code.
+    pub severity: i32,
+    /// Canonical violation kind.
+    pub kind: i32,
+    /// Name returned by the C kind helper.
+    pub kind_name: String,
+    /// Affected tag, separate from the enclosing path.
+    pub tag: Tag,
+    /// Enclosing scope tags.
+    pub path: Vec<Tag>,
+    /// Affected source offset, when available.
+    pub offset: Option<usize>,
+    /// Owned schema field or group name.
+    pub field: Option<String>,
+    /// Whether occurrence bounds describe an alternative group.
+    pub is_group: bool,
+    /// Expected and actual occurrences, when applicable.
+    pub occurrences: Option<SchemaBounds>,
+    /// Expected and actual lengths, when applicable.
+    pub length: Option<SchemaBounds>,
+    /// Expected form and actual constructed classification, when applicable.
+    pub form: Option<(Kind, bool)>,
+    /// Required length multiple; meaningful when length is present.
+    pub length_multiple: usize,
+    /// C length constraint flags; meaningful when length is present.
+    pub length_flags: u32,
+}
+
+/// Detailed bounded report, independent of input and schema lifetimes.
+#[derive(Clone, Debug)]
+pub struct SchemaDiagnosticReport {
+    /// Total violations, including those beyond storage capacity.
+    pub total_count: usize,
+    /// Stored prefix of detailed violations.
+    pub diagnostics: Vec<SchemaDiagnostic>,
+}
+
+/// An alternative group whose total occurrences are checked by C.
+#[derive(Clone, Debug)]
+pub struct StructureGroup {
+    /// Nonzero group identity, referenced by StructureRule::group.
+    pub id: u32,
+    /// Minimum occurrences across all member tags.
+    pub min_occurs: usize,
+    /// Maximum occurrences across all member tags.
+    pub max_occurs: usize,
+    /// Optional diagnostic group name; owned for the lifetime of the schema.
+    pub name: Option<std::ffi::CString>,
+}
+
+impl StructureGroup {
+    /// Create an unnamed group with inclusive occurrence bounds.
+    pub fn new(id: u32, min_occurs: usize, max_occurs: usize) -> Self {
+        Self {
+            id,
+            min_occurs,
+            max_occurs,
+            name: None,
+        }
+    }
+    /// Set the diagnostic group name, rejecting embedded NUL bytes.
+    pub fn named(mut self, name: &str) -> std::result::Result<Self, std::ffi::NulError> {
+        self.name = Some(std::ffi::CString::new(name)?);
+        Ok(self)
+    }
+}
+
 // SAFETY: the tables are immutable after construction and only point to heap
 // memory owned by the schema or to an immutable static.
 unsafe impl Send for StructureSchema {}
@@ -336,6 +509,248 @@ impl fmt::Debug for StructureSchema {
 }
 
 impl StructureSchema {
+    /// Collect detailed expected/actual violations through the C validator.
+    /// Zero capacity counts only; malformed input and invalid configuration return Err.
+    pub fn validate_diagnostics(
+        &self,
+        data: &[u8],
+        format: Format,
+        limits: &ValidationLimits,
+        unknown: UnknownPolicy,
+        capacity: usize,
+    ) -> std::result::Result<SchemaDiagnosticReport, SchemaError> {
+        self.validate_diagnostics_raw(data, format.raw(), limits, unknown, capacity)
+    }
+
+    /// Same validation using a borrowed configurable Fixed Format.
+    pub fn validate_diagnostics_fixed(
+        &self,
+        data: &[u8],
+        format: &crate::FixedFormat<'_>,
+        limits: &ValidationLimits,
+        unknown: UnknownPolicy,
+        capacity: usize,
+    ) -> std::result::Result<SchemaDiagnosticReport, SchemaError> {
+        self.validate_diagnostics_raw(data, format.raw(), limits, unknown, capacity)
+    }
+
+    fn validate_diagnostics_raw(
+        &self,
+        data: &[u8],
+        format: *const native::tlv_format_t,
+        limits: &ValidationLimits,
+        unknown: UnknownPolicy,
+        capacity: usize,
+    ) -> std::result::Result<SchemaDiagnosticReport, SchemaError> {
+        let convert = |error| SchemaError { error, offset: 0 };
+        let mut storage = Vec::<std::mem::MaybeUninit<native::tlv_schema_diagnostic_t>>::new();
+        storage
+            .try_reserve_exact(capacity)
+            .map_err(|_| convert(Error::OutOfMemory))?;
+        storage.resize_with(capacity, std::mem::MaybeUninit::uninit);
+        let mut report = native::tlv_schema_diagnostic_report_t {
+            diagnostics: storage.as_mut_ptr().cast(),
+            capacity,
+            count: 0,
+        };
+        let mut offset = 0;
+        // SAFETY: schema/input are live and C receives exclusive, correctly sized storage.
+        let code = unsafe {
+            native::tlv_schema_validate_all_diag(
+                data.as_ptr(),
+                data.len(),
+                format,
+                self.as_raw(),
+                limits.max_depth,
+                limits.max_elements,
+                unknown as i32,
+                &mut report,
+                &mut offset,
+            )
+        };
+        if code != native::TLV_OK && code != native::TLV_ERR_SCHEMA {
+            return Err(SchemaError {
+                error: Error::from_code(code).unwrap(),
+                offset,
+            });
+        }
+        let mut diagnostics = Vec::new();
+        for item in storage.iter().take(report.count.min(capacity)) {
+            // SAFETY: C initialized the stored prefix; its borrowed data remains live here.
+            let item = unsafe { item.assume_init_ref() };
+            let mut path = Vec::new();
+            for tag in &item.path.tags[..item.path.length] {
+                // SAFETY: scope Tags borrow live input or schema storage.
+                path.push(unsafe { Tag::from_raw(tag) }.map_err(convert)?);
+            }
+            // SAFETY: C returns a static NUL-terminated name for any kind.
+            let kind_name = unsafe {
+                std::ffi::CStr::from_ptr(native::tlv_schema_issue_kind_string(item.kind))
+            }
+            .to_string_lossy()
+            .into_owned();
+            let field = if item.field.is_null() {
+                None
+            } else {
+                // SAFETY: schema retains this NUL-terminated name during the copy.
+                Some(
+                    unsafe { std::ffi::CStr::from_ptr(item.field) }
+                        .to_string_lossy()
+                        .into_owned(),
+                )
+            };
+            diagnostics.push(SchemaDiagnostic {
+                error: Error::from_code(item.diagnostic.code).unwrap_or(Error::Schema),
+                severity: item.diagnostic.severity,
+                kind: item.kind,
+                kind_name,
+                // SAFETY: affected tag borrows still-live storage.
+                tag: unsafe { Tag::from_raw(&item.tag) }.map_err(convert)?,
+                path,
+                offset: (item.diagnostic.has_offset != 0).then_some(item.diagnostic.offset),
+                field,
+                is_group: item.is_group != 0,
+                occurrences: (item.has_occurs != 0).then_some(SchemaBounds {
+                    minimum: item.min_occurs,
+                    maximum: item.max_occurs,
+                    actual: item.occurs,
+                }),
+                length: (item.has_length != 0).then_some(SchemaBounds {
+                    minimum: item.min_length,
+                    maximum: item.max_length,
+                    actual: item.actual_length,
+                }),
+                form: (item.has_form != 0).then_some((
+                    match item.expected_form {
+                        1 => Kind::Primitive,
+                        2 => Kind::Constructed,
+                        _ => Kind::Any,
+                    },
+                    item.actual_constructed != 0,
+                )),
+                length_multiple: item.length_multiple,
+                length_flags: item.length_flags,
+            });
+        }
+        Ok(SchemaDiagnosticReport {
+            total_count: report.count,
+            diagnostics,
+        })
+    }
+
+    /// Collect C Schema violations with bounded storage and an explicit unknown policy.
+    /// Schema violations return a report; wire and configuration failures return Err.
+    /// Zero capacity counts violations without retaining them. Paths are copied before
+    /// input or schema storage can expire; no Rust traversal is performed.
+    pub fn validate_all(
+        &self,
+        data: &[u8],
+        format: Format,
+        limits: &ValidationLimits,
+        unknown: UnknownPolicy,
+        capacity: usize,
+    ) -> std::result::Result<SchemaReport, SchemaError> {
+        self.validate_all_raw(data, format.raw(), limits, unknown, capacity)
+    }
+
+    /// Same validation using a borrowed configurable Fixed Format.
+    pub fn validate_all_fixed(
+        &self,
+        data: &[u8],
+        format: &crate::FixedFormat<'_>,
+        limits: &ValidationLimits,
+        unknown: UnknownPolicy,
+        capacity: usize,
+    ) -> std::result::Result<SchemaReport, SchemaError> {
+        self.validate_all_raw(data, format.raw(), limits, unknown, capacity)
+    }
+
+    fn validate_all_raw(
+        &self,
+        data: &[u8],
+        format: *const native::tlv_format_t,
+        limits: &ValidationLimits,
+        unknown: UnknownPolicy,
+        capacity: usize,
+    ) -> std::result::Result<SchemaReport, SchemaError> {
+        let convert = |error| SchemaError { error, offset: 0 };
+        let mut storage = Vec::<std::mem::MaybeUninit<native::tlv_schema_issue_t>>::new();
+        storage
+            .try_reserve_exact(capacity)
+            .map_err(|_| convert(Error::OutOfMemory))?;
+        storage.resize_with(capacity, std::mem::MaybeUninit::uninit);
+        let mut report = native::tlv_schema_report_t {
+            issues: storage.as_mut_ptr().cast(),
+            capacity,
+            count: 0,
+        };
+        let mut offset = 0;
+        // SAFETY: live schema/input and exclusive correctly sized report storage.
+        let code = unsafe {
+            native::tlv_schema_validate_all(
+                data.as_ptr(),
+                data.len(),
+                format,
+                self.as_raw(),
+                limits.max_depth,
+                limits.max_elements,
+                unknown as i32,
+                &mut report,
+                &mut offset,
+            )
+        };
+        if code != native::TLV_OK && code != native::TLV_ERR_SCHEMA {
+            return Err(SchemaError {
+                error: Error::from_code(code).unwrap(),
+                offset,
+            });
+        }
+        let mut issues = Vec::new();
+        for item in storage.iter().take(report.count.min(capacity)) {
+            // SAFETY: C initializes exactly the stored prefix on OK/SCHEMA results.
+            let item = unsafe { item.assume_init_ref() };
+            let mut path = Vec::new();
+            for tag in &item.path[..item.path_length] {
+                // SAFETY: C path borrows still-live input, schema or Format storage.
+                path.push(unsafe { Tag::from_raw(tag) }.map_err(convert)?);
+            }
+            let mut length = 0;
+            // SAFETY: valid issue, NULL destination queries exact text length.
+            let code = unsafe {
+                native::tlv_schema_issue_path_string(item, ptr::null_mut(), 0, &mut length)
+            };
+            if code != native::TLV_ERR_BUFFER_TOO_SHORT {
+                Error::check(code).map_err(convert)?;
+            }
+            let mut text = vec![0u8; length + 1];
+            // SAFETY: output has room for C's text and terminating NUL.
+            Error::check(unsafe {
+                native::tlv_schema_issue_path_string(
+                    item,
+                    text.as_mut_ptr().cast(),
+                    text.len(),
+                    &mut length,
+                )
+            })
+            .map_err(convert)?;
+            text.truncate(length);
+            // SAFETY: kind helper returns a static NUL-terminated string for any kind.
+            let name = unsafe {
+                std::ffi::CStr::from_ptr(native::tlv_schema_issue_kind_string(item.kind))
+            };
+            issues.push(SchemaIssue {
+                kind: item.kind,
+                kind_name: name.to_string_lossy().into_owned(),
+                path,
+                path_string: String::from_utf8_lossy(&text).into_owned(),
+                offset: (item.has_offset != 0).then_some(item.offset),
+            });
+        }
+        Ok(SchemaReport {
+            total_count: report.count,
+            issues,
+        })
+    }
     /// Creates a schema from `rules`. Tags must be unique; a duplicate tag is
     /// reported by [`StructureSchema::validate`] as [`Error::Schema`]. Unknown
     /// tags are rejected unless `allow_unknown` is `true`.
@@ -343,10 +758,23 @@ impl StructureSchema {
         rules: impl IntoIterator<Item = StructureRule>,
         allow_unknown: bool,
     ) -> StructureSchema {
+        Self::with_constraints(rules, allow_unknown, SchemaOrder::Any, [])
+    }
+
+    /// Construct a schema with native ordering and alternative-group constraints.
+    /// Invalid groups, duplicate identities and incompatible rules are rejected
+    /// by the canonical validator when the schema is used.
+    pub fn with_constraints(
+        rules: impl IntoIterator<Item = StructureRule>,
+        allow_unknown: bool,
+        order: SchemaOrder,
+        groups: impl IntoIterator<Item = StructureGroup>,
+    ) -> Self {
         let mut raw_rules = Vec::new();
         let mut fields = Vec::new();
         let mut children = Vec::new();
         let mut tags = Vec::new();
+        let mut names = Vec::new();
         for rule in rules {
             let child_ptr = match rule.children {
                 Some(child) => {
@@ -360,9 +788,9 @@ impl StructureSchema {
                 tag: rule.tag.raw(),
                 min_length: rule.min_length,
                 max_length: rule.max_length,
-                flags: 0,
-                name: ptr::null(),
-                length_multiple: 0,
+                flags: rule.flags,
+                name: rule.name.as_ref().map_or(ptr::null(), |name| name.as_ptr()),
+                length_multiple: rule.length_multiple,
             });
             raw_rules.push(native::tlv_structure_rule_t {
                 entry: ptr::null(),
@@ -370,30 +798,53 @@ impl StructureSchema {
                 max_occurs: rule.max_occurs,
                 kind: rule.kind.raw(),
                 children: child_ptr,
-                // Alternative groups (CHOICE) are not yet exposed by this crate.
-                group: 0,
+                group: rule.group,
             });
             // Moving a tag moves its handle, not the heap bytes the rule borrows.
             tags.push(rule.tag);
+            if let Some(name) = rule.name {
+                names.push(name);
+            }
         }
         for (rule, field) in raw_rules.iter_mut().zip(fields.iter()) {
             rule.entry = field;
         }
+        let groups: Vec<_> = groups
+            .into_iter()
+            .map(|group| {
+                let name = group
+                    .name
+                    .as_ref()
+                    .map_or(ptr::null(), |name| name.as_ptr());
+                if let Some(value) = group.name {
+                    names.push(value);
+                }
+                native::tlv_structure_group_t {
+                    id: group.id,
+                    min_occurs: group.min_occurs,
+                    max_occurs: group.max_occurs,
+                    name,
+                }
+            })
+            .collect();
         let mut compiled = Box::new(Compiled {
             raw: native::tlv_structure_schema_t {
                 rules: ptr::null(),
                 count: raw_rules.len(),
                 allow_unknown: allow_unknown as i32,
-                // Alternative groups (CHOICE) and explicit ordering (SEQUENCE) are not yet
-                // exposed by this crate.
-                groups: ptr::null(),
-                group_count: 0,
-                order: native::TLV_SCHEMA_ORDER_ANY,
+                groups: groups.as_ptr(),
+                group_count: groups.len(),
+                order: match order {
+                    SchemaOrder::Any => native::TLV_SCHEMA_ORDER_ANY,
+                    SchemaOrder::Sequence => native::TLV_SCHEMA_ORDER_SEQUENCE,
+                },
             },
             rules: raw_rules,
             _fields: fields,
             _tags: tags,
             _children: children,
+            _groups: groups,
+            _names: names,
         });
         // The vector is never resized again, so its buffer address is stable.
         compiled.raw.rules = compiled.rules.as_ptr();
@@ -426,8 +877,8 @@ impl StructureSchema {
     /// membership of `data` against the schema.
     ///
     /// Values are never decoded. Which tags are constructed is decided by
-    /// `format`: BER, CER and DER nest by their constructed bit, while
-    /// [`Format::Ber`] has no nesting, so every value is opaque.
+    /// `format`: BER, CER and DER nest by their constructed bit, and preserve the C format
+    /// classification of each element.
     ///
     /// # Errors
     ///
@@ -441,6 +892,25 @@ impl StructureSchema {
         format: Format,
         limits: &ValidationLimits,
     ) -> std::result::Result<(), SchemaError> {
+        self.validate_raw(data, format.raw(), limits)
+    }
+
+    /// Same validation using a borrowed configurable Fixed Format.
+    pub fn validate_fixed(
+        &self,
+        data: &[u8],
+        format: &crate::FixedFormat<'_>,
+        limits: &ValidationLimits,
+    ) -> std::result::Result<(), SchemaError> {
+        self.validate_raw(data, format.raw(), limits)
+    }
+
+    fn validate_raw(
+        &self,
+        data: &[u8],
+        format: *const native::tlv_format_t,
+        limits: &ValidationLimits,
+    ) -> std::result::Result<(), SchemaError> {
         let mut offset = 0usize;
         // SAFETY: `data` is a valid slice; the format and schema tables are
         // valid for the call and immutable; `offset` is a writable `usize`.
@@ -448,7 +918,7 @@ impl StructureSchema {
             native::tlv_schema_validate(
                 data.as_ptr(),
                 data.len(),
-                format.raw(),
+                format,
                 self.as_raw(),
                 limits.max_depth,
                 limits.max_elements,

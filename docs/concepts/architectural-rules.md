@@ -610,6 +610,17 @@ The language ergonomics may differ, but users should still recognize:
 
 Learning OpenTLV in one language should transfer to another language.
 
+Every supported binding must expose the complete public C capability set
+through its public, idiomatic language facade. Raw FFI access alone does not
+satisfy parity, and users must not need to bypass the facade for advanced
+operations. Exposing raw FFI publicly is optional.
+
+The facade adapts ownership, lifetimes, iteration and error handling while
+delegating processing semantics to the C engine. It must not implement an
+independent parser, tree traversal engine, Query semantics or wire encoder.
+See the [binding capability contract](bindings.md#capability-parity-through-the-public-facade)
+for scope, ownership requirements and how existing gaps are tracked.
+
 ---
 
 ## 20. Ergonomics belong above the stable core

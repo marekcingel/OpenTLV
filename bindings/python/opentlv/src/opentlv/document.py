@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 from typing import Iterator, Optional, Union
+from weakref import WeakValueDictionary
 
 import opentlv_native as _native
 
 from opentlv.error import _from_native
 from opentlv.format import Format, _resolve_format
 from opentlv.tag import Tag
+from opentlv.cursor import TreeReader
 
 _DEFAULT_MAX_DEPTH = 64
 """TLV_TREE_DEFAULT_DEPTH."""
@@ -17,22 +19,52 @@ _DEFAULT_MAX_ELEMENTS = 65536
 """TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS."""
 
 
+class _Lifetime:
+    """Ownership metadata only; native C remains the source of node topology."""
+
+    __slots__ = ("parent", "parent_revision", "revision", "alive", "__weakref__")
+
+    def __init__(self, parent):
+        self.parent = parent
+        self.parent_revision = parent.revision if parent else 0
+        self.revision = 0
+        self.alive = True
+
+    def valid(self):
+        token = self
+        while token is not None:
+            if not token.alive:
+                return False
+            parent = token.parent
+            if parent is not None and token.parent_revision != parent.revision:
+                return False
+            token = parent
+        return True
+
+
 class Node:
     """One element of a `Document`; owned by it.
 
-    A node stays valid until it is erased, its value is replaced, or its
-    document is freed or closed; using it afterwards is the same
-    use-after-free hazard the C API itself has, not something this binding
-    guards against. `Node` holds a reference to its owning `Document`, so
-    the document is not freed by garbage collection while a node from it is
-    reachable.
+    Erasing a node invalidates it and its descendants. Replacing a constructed
+    value invalidates its old descendants, while the node itself stays valid.
+    Invalid access raises ValueError, including after Document.close(). A Node
+    keeps its document alive until explicitly closed or no longer reachable.
     """
 
-    __slots__ = ("_document", "_ptr")
+    __slots__ = ("_document", "_address", "_lifetime")
 
-    def __init__(self, document: "Document", ptr: int) -> None:
+    def __init__(self, document: "Document", ptr: int, *, _key=None) -> None:
+        if _key is not document._lifetimes:
+            raise TypeError("nodes are obtained from Document operations")
         self._document = document
-        self._ptr = ptr
+        self._address = ptr
+        self._lifetime = document._lifetime(ptr)
+
+    @property
+    def _ptr(self):
+        if self._document._capsule is None or not self._lifetime.valid():
+            raise ValueError("node is no longer valid")
+        return self._address
 
     @property
     def tag(self) -> Tag:
@@ -55,9 +87,17 @@ class Node:
         """Replaces the value. For a constructed node, `value` is parsed as
         nested elements with the document's format, replacing every
         child."""
+        value = bytes(memoryview(value))
+        pointer = self._ptr
+        previous_revision = self._lifetime.revision
+        # Invalidate before entering C: a signal delivered immediately after C
+        # returns must not leave handles pointing at already released children.
+        self._lifetime.revision += 1
         try:
-            _native.node_set_value(self._ptr, value)
+            _native.node_set_value(pointer, value)
         except _native.Error as native_error:
+            # A reported native failure guarantees the old tree is unchanged.
+            self._lifetime.revision = previous_revision
             raise _from_native(native_error) from None
 
     @property
@@ -97,7 +137,9 @@ class Node:
 
     def erase(self) -> None:
         """Removes this node and all of its descendants from its document."""
-        _native.node_erase(self._ptr)
+        pointer = self._ptr
+        self._lifetime.alive = False
+        _native.node_erase(pointer)
 
     @property
     def encoded_size(self) -> int:
@@ -107,20 +149,27 @@ class Node:
         except _native.Error as native_error:
             raise _from_native(native_error) from None
 
-    def encode(self) -> bytes:
-        """Encodes this element with its descendants."""
+    def encoded_size_as(self, format: Format) -> int:
+        """Measure this subtree in a compatible destination builtin Format."""
         try:
-            return _native.node_encode(self._ptr)
+            return _native.node_encoded_size(self._ptr, _resolve_format(format))
+        except _native.Error as native_error:
+            raise _from_native(native_error) from None
+
+    def encode(self, format: Format | None = None) -> bytes:
+        """Encode this subtree, optionally using a compatible destination builtin."""
+        try:
+            return _native.node_encode(self._ptr, -1 if format is None else _resolve_format(format))
         except _native.Error as native_error:
             raise _from_native(native_error) from None
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Node):
-            return self._ptr == other._ptr and self._document is other._document
+            return self._lifetime is other._lifetime and self._document is other._document
         return NotImplemented
 
     def __hash__(self) -> int:
-        return hash(self._ptr)
+        return hash(self._lifetime)
 
     def __repr__(self) -> str:
         kind = "constructed" if self.is_constructed else "primitive"
@@ -146,7 +195,7 @@ class Document:
     b'\\x01\\x01\\xcc'
     """
 
-    __slots__ = ("_capsule",)
+    __slots__ = ("_capsule", "_lifetimes")
 
     def __init__(self, data: Optional[bytes] = None, format: Format | None = None, *,
                  max_depth: int = _DEFAULT_MAX_DEPTH,
@@ -157,6 +206,7 @@ class Document:
         later assigned to a node) and to `encode()` the document again.
         """
         format = _resolve_format(format)
+        self._lifetimes = WeakValueDictionary()
         try:
             if data is None:
                 self._capsule = _native.document_create(format, max_depth, max_elements)
@@ -165,8 +215,34 @@ class Document:
         except _native.Error as native_error:
             raise _from_native(native_error) from None
 
+    def _lifetime(self, ptr):
+        if self._capsule is None:
+            raise ValueError("document is closed")
+        # Only retained handles need ownership tokens. Read ancestry from C;
+        # this neither enumerates nor processes the document's elements.
+        pending = []
+        parent = None
+        while ptr is not None:
+            parent = self._lifetimes.get(ptr)
+            if parent is not None and parent.valid():
+                break
+            pending.append(ptr)
+            ptr = _native.node_parent(ptr)
+            parent = None
+        for address in reversed(pending):
+            parent = _Lifetime(parent)
+            self._lifetimes[address] = parent
+        return parent
+
+    def _node_ptr(self, node):
+        if node is None:
+            return None
+        if not isinstance(node, Node) or node._document is not self:
+            raise ValueError("node belongs to a different document")
+        return node._ptr
+
     def _wrap(self, ptr: Optional[int]) -> Optional[Node]:
-        return None if ptr is None else Node(self, ptr)
+        return None if ptr is None else Node(self, ptr, _key=self._lifetimes)
 
     def __len__(self) -> int:
         """The number of elements in the document, including nested ones."""
@@ -187,7 +263,7 @@ class Document:
     def find(self, tag: Union[Tag, bytes], parent: Optional[Node] = None) -> Optional[Node]:
         """Finds the first direct child of `parent` (or the top level) with `tag`."""
         tag_bytes = tag.data if isinstance(tag, Tag) else tag
-        parent_ptr = parent._ptr if parent is not None else None
+        parent_ptr = self._node_ptr(parent)
         return self._wrap(_native.document_find(self._capsule, parent_ptr, tag_bytes))
 
     def find_path(self, query: str) -> Optional[Node]:
@@ -208,13 +284,13 @@ class Document:
         as constructed is parsed as nested elements.
         """
         tag_bytes = tag.data if isinstance(tag, Tag) else tag
-        parent_ptr = parent._ptr if parent is not None else None
-        before_ptr = before._ptr if before is not None else None
+        parent_ptr = self._node_ptr(parent)
+        before_ptr = self._node_ptr(before)
         try:
             ptr = _native.document_insert(self._capsule, parent_ptr, before_ptr, tag_bytes, value)
         except _native.Error as native_error:
             raise _from_native(native_error) from None
-        return Node(self, ptr)
+        return self._wrap(ptr)
 
     @property
     def encoded_size(self) -> int:
@@ -224,10 +300,17 @@ class Document:
         except _native.Error as native_error:
             raise _from_native(native_error) from None
 
-    def encode(self) -> bytes:
-        """Encodes the whole document."""
+    def encoded_size_as(self, format: Format) -> int:
+        """Measure the document in a compatible destination builtin Format."""
         try:
-            return _native.document_encode(self._capsule)
+            return _native.document_encoded_size(self._capsule, _resolve_format(format))
+        except _native.Error as native_error:
+            raise _from_native(native_error) from None
+
+    def encode(self, format: Format | None = None) -> bytes:
+        """Encode the document, optionally using a compatible destination builtin."""
+        try:
+            return _native.document_encode(self._capsule, -1 if format is None else _resolve_format(format))
         except _native.Error as native_error:
             raise _from_native(native_error) from None
 
@@ -247,3 +330,46 @@ class Document:
 
     def __repr__(self) -> str:
         return f"Document(count={len(self)})"
+
+
+class DocumentBuilder:
+    """Resumable C materialization of a whole stream or its next subtree.
+
+    While active, the TreeReader permits input replacement and status queries,
+    but rejects pulls, skips and visitors. consume() returns an owning Document
+    only when complete; NeedMoreDataError retains unfinished state. Terminal
+    errors, completion and close() release the reader for further use.
+    """
+    __slots__ = ("_capsule", "_reader")
+
+    def __init__(self, reader: TreeReader, *, next_subtree=False,
+                 max_depth=_DEFAULT_MAX_DEPTH, max_elements=_DEFAULT_MAX_ELEMENTS):
+        if not isinstance(reader, TreeReader):
+            raise TypeError("DocumentBuilder requires a TreeReader")
+        self._reader = reader
+        try:
+            self._capsule = _native.document_builder_create(
+                reader._capsule, next_subtree, max_depth, max_elements)
+        except _native.Error as error:
+            raise _from_native(error) from None
+
+    def consume(self) -> Document:
+        """Consume available items; propagate C continuation or terminal errors."""
+        # Allocate facade bookkeeping before C transfers ownership.
+        document = Document.__new__(Document)
+        document._lifetimes = WeakValueDictionary()
+        try:
+            document._capsule = _native.document_builder_consume(self._capsule)
+        except _native.Error as error:
+            raise _from_native(error) from None
+        return document
+
+    def close(self) -> None:
+        """Discard unfinished nodes and release the cursor; completed data survives."""
+        self._capsule = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc_info):
+        self.close()

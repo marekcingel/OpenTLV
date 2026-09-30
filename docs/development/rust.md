@@ -12,8 +12,8 @@ For setup, examples, error handling and ownership as a user, see
 crate follows and adapts, see the [language bindings conceptual
 model](../concepts/bindings.md).
 
-All `unsafe` FFI interaction is isolated in `opentlv-native`; `opentlv` contains no
-`extern` declarations. Only the part of the C API the safe crate needs is bound
+Raw C declarations live in `opentlv-native`; safe facade implementations in
+`opentlv` contain the audited unsafe calls and callback adapters. Only the part of the C API the safe crate needs is bound
 so far.
 
 ## Core types
@@ -142,8 +142,8 @@ content). `default_limits()` returns `Result<Limits, ValidationError>`.
 These bounded operations return `InvalidArg` at offset zero for formats other
 than DER/CER; ordinary framing remains available through Reader/Writer. Failures are `ValidationError` values with the failing offset.
 
-The DOL component and the callback-based visitors and structure codecs of the C
-API are not bound yet.
+Reader and Tree Reader callbacks and resumable Query matching delegate to C.
+The DOL component and structure codecs are not bound yet.
 
 ## Build
 
@@ -214,3 +214,11 @@ OPENTLV_LIB_DIR=/path/to/build/tlv cargo build
 default CMake build). With a shared library, the platform's loader must find it
 at run time (`PATH` on Windows, `LD_LIBRARY_PATH` on Linux, `DYLD_LIBRARY_PATH`
 on macOS).
+
+## Document component
+
+The default-enabled `document` feature forwards to `opentlv-native/document`.
+Source builds set `OPENTLV_DOCUMENT` to match. Prebuilt C libraries must enable
+that component when the Rust feature is enabled. Document runtime tests and a
+compile-fail lifetime example cover ownership, mutation, Query lookup, limits,
+destination-format output and resumable whole-stream/subtree builders.

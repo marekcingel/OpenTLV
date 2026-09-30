@@ -84,8 +84,9 @@ Use `encoded_size` to size the buffer beforehand, or `encoded_size_fixed`/
 
 ## Error handling
 
-Every fallible call returns `opentlv::Result<T>`, an alias for
-`Result<T, opentlv::Error>`. There are no panics on bad input and no
+Most fallible calls return `opentlv::Result<T>`, an alias for
+`Result<T, opentlv::Error>`; operations with additional context use error
+structures such as `DocumentError` and `WriterError`. There are no panics on bad input and no
 `unsafe` in caller code.
 
 - `Error` has one variant per C `TLV_ERR_*` code and implements
@@ -105,10 +106,12 @@ Every fallible call returns `opentlv::Result<T>`, an alias for
 
 | Type | Owns | Borrows |
 | --- | --- | --- |
-| `Tag` | its bytes (`Copy`) | nothing |
+| `Tag` | its bytes (`Clone`) | nothing |
 | `Element<'a>` | its `Tag` | value `&'a [u8]` from the input |
 | `Reader<'a>` | its cursor | the input `&'a [u8]` |
-| `Writer<'a>` | its position | the output `&'a mut [u8]` |
+| `Writer<'a>` | its position and optional diagnostic | the output `&'a mut [u8]` |
+| `Document<'f>` | C document nodes and storage | optional Fixed Format/context |
+| `Node`, `NodeMut` | a node handle | immutable or exclusive Document access |
 | `LengthSchema`, `StructureSchema` | their rule tables | nothing |
 | `FixedFormatConfig` | its fields (`Copy`) | nothing |
 | `FixedFormat<'a>` | nothing | `&'a FixedFormatConfig` |
@@ -137,5 +140,34 @@ so behavior matches the C API, and the C error codes map one to one onto
 `Error`. What the safe API changes is memory handling: pointer and length pairs
 become slices, initialization and `NULL` checks are done internally, and
 lifetimes replace the borrowing rules the [C memory guide](memory.md)
-documents. Parts of the C API that need callbacks (visitors, structure codecs,
-the DOL component) are not bound yet; see the [C API reference](../reference/c-api.md).
+documents. Reader and Tree Reader `visit` methods support resumable callbacks;
+panics are resumed only after returning from C. `QueryMatcher` retains canonical
+matching state across STOP and input replacement. See the
+[Reader and Query facade contract](../concepts/bindings.md#rust-and-python-reader-and-query-facades).
+Structure codecs and the DOL component are not bound yet; see the
+[C API reference](../reference/c-api.md).
+
+## Tree measurement and owning Documents
+
+`TreeWriter::measure` takes an iterator of `Result<TreeWriteItem>` records
+and returns a borrowed staged encoding. Its length is the exact measured size;
+C owns all parent closure and depth validation. `required_workspace()` reports
+output/scratch lower bounds after exhaustion. Retry with a fresh source.
+`Writer::preserve` uses C semantic equality checks before copying original
+source bytes. `Writer::diagnostic` owns failure detail. Standalone
+`measure_element` and `write_element` return `WriterError` with the same detail.
+
+The default-enabled Cargo feature `document` exposes `Document`, `Node`,
+`NodeMut` and `DocumentBuilder`. Disable it when linking a C library without
+`OPENTLV_DOCUMENT`. `Document::parse` copies input through C, while node Values
+borrow document storage. Mutation requires exclusive access; a retained value
+or node prevents mutation or destruction at compile time. Query lookup and all
+edits delegate to C. Destination-format sizing and output are available through
+`encoded_size_as`, `encode_as` and `encode_into_as`.
+
+`DocumentBuilder::new` materializes a fresh TreeReader stream;
+`DocumentBuilder::next_subtree` pulls and materializes only the next subtree.
+The builder exclusively borrows the reader. On `Error::NeedMoreData`, replace
+input through `builder.set_input` and call `consume` again. Dropping the builder
+releases the reader; completed Documents retain owned content and the reader's
+conservative input/Format lifetime.

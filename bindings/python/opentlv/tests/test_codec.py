@@ -26,3 +26,35 @@ def test_decode_amount_rejects_the_wrong_length():
 def test_encode_amount_rejects_a_value_that_does_not_fit():
     with pytest.raises(codec.CodecError):
         codec.encode_amount(10**13)
+
+
+@pytest.mark.parametrize("encoding,width,digits,value,wire", [
+    (0, 2, 0, 258, "0102"), (1, 2, 0, 258, "0201"),
+    (2, 3, 6, 12345, "012345"), (0, 0, 0, 0, "00"),
+    (0, 8, 0, 2**64 - 1, "FFFFFFFFFFFFFFFF")])
+def test_configured_number_codec_uses_c(encoding, width, digits, value, wire):
+    from opentlv import NumberCodec, NumberEncoding, CodecError
+    codec = NumberCodec(NumberEncoding(encoding), width, digits)
+    expected = bytes.fromhex(wire)
+    assert codec.encode(value) == expected
+    assert codec.decode(expected) == value
+    assert codec.encoded_size(value) == len(expected)
+    output = bytearray(b"!" * (len(expected) + 1))
+    assert codec.encode_into(value, output) == len(expected)
+    assert output == expected + b"!"
+    short = bytearray(b"!" * (len(expected) - 1))
+    with pytest.raises(CodecError):
+        codec.encode_into(value, short)
+    assert short == b"!" * len(short)
+
+
+def test_number_codec_rejects_overflow_invalid_digits_and_bcd():
+    from opentlv import NumberCodec, NumberEncoding, CodecError
+    with pytest.raises(CodecError):
+        NumberCodec(width=1).encode(256)
+    with pytest.raises(OverflowError):
+        NumberCodec().encode(-1)
+    with pytest.raises(OverflowError):
+        NumberCodec(digits=-1).encode(0)
+    with pytest.raises(CodecError):
+        NumberCodec(NumberEncoding.BCD, 1, 2).decode(b"\xFA")

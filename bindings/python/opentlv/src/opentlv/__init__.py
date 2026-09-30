@@ -5,17 +5,19 @@ the public OpenTLV C API as Python callables, into an idiomatic API that
 follows the OpenTLV conceptual model: see [Language
 bindings](https://github.com/marekcingel/OpenTLV/blob/main/docs/concepts/bindings.md).
 
-Currently bound: `Reader`, `Writer`, `Document`/`Node`, `Element`, `Tag`,
+Currently bound: `Reader`, `TreeReader`, `Query`/`QueryMatcher`, Visitors,
+`Writer`, `TreeWriter`, `Document`/`Node`, `DocumentBuilder`, `Element`, `Tag`,
 `Format`, `FixedFormat`, `LengthSchema`/`StructureSchema` and the
-`OpenTLVError` exception hierarchy. The `codec` submodule binds the one
-concrete value codec the C API exports publicly (EMV amounts); the general
-Codec concept is otherwise not bound.
+`OpenTLVError` exception hierarchy. The `codec` submodule exposes configured numeric codecs and EMV amounts.
+Other public C codecs remain a capability gap.
 """
 
 from opentlv_native import version_string
 
+from opentlv.definition import Definition, DefinitionRegistry
 from opentlv import codec
-from opentlv.document import Document, Node
+from opentlv.codec import CodecError, NumberCodec, NumberEncoding
+from opentlv.document import Document, DocumentBuilder, Node
 from opentlv.element import Element
 from opentlv.error import (
     BufferTooShortError,
@@ -40,8 +42,11 @@ from opentlv.error import (
 )
 from opentlv.fixed_format import FixedFormat
 from opentlv.format import Format
-from opentlv.reader import Reader
-from opentlv.schema import Kind, LengthRule, LengthSchema, StructureRule, StructureSchema
+from opentlv.reader import Reader, read
+from opentlv.cursor import Decoded, Layout, TreeItem, TreeReader, Visit
+from opentlv.query import Query, QueryMatcher
+from opentlv.tree_writer import TreeWriter
+from opentlv.schema import SchemaBounds, SchemaDiagnostic, SchemaDiagnosticReport, Kind, LengthRule, LengthSchema, SchemaOrder, SchemaIssue, SchemaReport, UnknownPolicy, StructureGroup, StructureRule, StructureSchema
 from opentlv.tag import Tag
 from opentlv.writer import Writer, element_encoded_size, encoded_size
 
@@ -51,9 +56,15 @@ __all__ = [
     "__version__",
     "BufferTooShortError",
     "Document",
+    "DocumentBuilder",
     "Element",
     "Node",
     "codec",
+    "Definition",
+    "DefinitionRegistry",
+    "CodecError",
+    "NumberCodec",
+    "NumberEncoding",
     "EndOfBufferError",
     "FixedFormat",
     "Format",
@@ -73,9 +84,26 @@ __all__ = [
     "OpenTLVError",
     "OutOfMemoryError",
     "Reader",
+    "read",
+    "Decoded",
+    "Layout",
+    "TreeItem",
+    "TreeReader",
+    "TreeWriter",
+    "Visit",
+    "Query",
+    "QueryMatcher",
     "SchemaError",
     "SchemaMissingError",
     "StructureRule",
+    "SchemaOrder",
+    "SchemaIssue",
+    "SchemaReport",
+    "SchemaBounds",
+    "SchemaDiagnostic",
+    "SchemaDiagnosticReport",
+    "UnknownPolicy",
+    "StructureGroup",
     "StructureSchema",
     "Tag",
     "UnsupportedTypeError",

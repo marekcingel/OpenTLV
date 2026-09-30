@@ -4,6 +4,7 @@
 #include "tlv++/types.hpp"
 #include "tlv/size.h"
 #include "tlv/query/query.h"
+#include "tlv++/reader/tree.hpp"
 
 /**
  * @file query.hpp
@@ -43,6 +44,14 @@ public:
      */
     size_t size() const {
         return query_.count;
+    }
+
+    /**
+     * @brief Return the tag at a zero-based query step, or an empty tag out of range.
+     * @warning The returned bytes borrow this query and must not outlive it.
+     */
+    tag_t step(size_t index) const {
+        return tlv_query_step(&query_, index);
     }
 
     /** @brief The underlying C query, for use with the C API. */
@@ -100,6 +109,67 @@ public:
 private:
     query() : query_() {}
     tlv_query_t query_;
+};
+
+/**
+ * @brief Resumable C Query matcher owning a copy of its parsed query.
+ * @note Match state survives Visitor STOP and incremental input replacement.
+ * No processing semantics are implemented outside the C Query engine.
+ */
+class query_matcher {
+public:
+    /** @brief Start matching a new traversal using an owned copy of the query. */
+    explicit query_matcher(const query& pattern) : query_(pattern.c_query()) {
+        init_result_ = tlv_query_matcher_init(&impl_, &query_);
+    }
+    /** @brief Copying would invalidate the native matcher's owned-query reference. */
+    query_matcher(const query_matcher&) = delete;
+    /** @brief Assignment is prohibited to preserve native continuation state. */
+    query_matcher& operator=(const query_matcher&) = delete;
+
+    /**
+     * @brief Feed one preorder tag to the canonical matcher.
+     * @param tag Borrowed tag of the current item.
+     * @param depth Item depth, starting at zero for roots.
+     * @return True if this item matches the query.
+     * @warning Feed every item in order; do not skip nonmatching ancestors.
+     */
+    bool matches(tag_t tag, size_t depth) {
+        return init_result_ == TLV_OK && tlv_query_matcher_visit(&impl_, &tag, depth) != 0;
+    }
+
+    /**
+     * @brief Visit matching items from a C++ Tree Reader, preserving match state.
+     * @param reader Cursor at the start of a tree or a previous matching continuation.
+     * @param visitor Callable taking Element, depth and offset, returning tlv_visit_result_t.
+     * @param[out] error_offset Optional failure offset; unchanged on success.
+     * @return Success on EOF or STOP; NEED_MORE_DATA or original C error otherwise.
+     * @warning Do not interleave unmatched pulls or mutate the cursor in callbacks.
+     * Callback effects are not rolled back; retained Elements borrow input or Format.
+     */
+    template <typename Visitor>
+    TLV_NODISCARD expected<void, error> visit(tree_reader& reader, Visitor&& visitor,
+                                              size_t* error_offset = nullptr) {
+        if (init_result_ != TLV_OK) return unexpected<error>(error::from_c(init_result_));
+        if (reader.init_result_ != TLV_OK)
+            return unexpected<error>(error::from_c(reader.init_result_));
+        using callable = typename std::remove_reference<Visitor>::type;
+        struct state {
+            callable* function;
+        } context{&visitor};
+        auto callback = [](const tlv_element_t* value, size_t depth, size_t offset,
+                           void* context) -> tlv_visit_result_t {
+            return (*static_cast<state*>(context)->function)(*value, depth, offset);
+        };
+        auto rc = tlv_query_visit(&reader.impl_, &impl_, callback, &context, error_offset);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        return {};
+    }
+
+private:
+    tlv_query_t         query_{};
+    tlv_query_matcher_t impl_{};
+    tlv_result_t        init_result_;
 };
 } // namespace tlv
 #endif

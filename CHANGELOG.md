@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reject invalidated and foreign Python Document node handles before native access, while preserving unaffected handles after edits. (#400)
 - Fix the Clang C99 workflow invoking the old schema example name after its rename to `schema_visitor`. (#399)
 - Fix the LLDP C++ documentation example differing from its source and failing the documentation example check. (#363)
 - Respect optional format components in the Python binding; disabled presets are absent and builds without BER require an explicit format.
@@ -37,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Expose Rust length-schema flags and length multiples, including constraints returned by native dictionaries. (#400)
+- Delegate Python length-schema lookup and validation to C, including endpoint and multiple constraints; schema length now counts all supplied rules, including duplicate tags. (#400)
+- **Breaking:** Snapshot mutable Python Reader inputs into immutable bytes so retained Elements and source metadata remain valid across input replacement and Reader destruction; immutable bytes remain zero-copy. (#400)
+- Establish full C capability parity through each supported binding's public idiomatic facade as the long-term contract; raw FFI access alone is insufficient and processing semantics remain in the C engine. Scope #400 to the implemented capabilities, deferring additional codecs, protocol registries, Format/Layout extensions and custom Document allocators; Lua is handled separately. (#400)
 - Encode and measure Document trees through the canonical Tree Writer, supporting content-dependent Formats with shared temporary storage instead of per-parent buffers. Add C and C++ destination-Format selection for documents and individual subtrees. Exact size queries may now report encoder errors. (#399)
 - Consolidate Writer around allocation-free Element sizing and encoding, including content-dependent measurement, sequential source preservation, raw copying and structured diagnostics. Expose exact Element sizing in C++, Rust and Python, and let Python Writer borrow fixed-capacity caller storage. Existing single-element and copy size-query contracts remain available. (#397)
 - **Breaking:** Rename Lua `walk_tree` to `visit_tree`, DER/CER `*_walk` and `*_walk_strict` to `*_visit` and `*_visit_strict`, and Query buffer traversal to `tlv_query_visit_buffer` / `tlv::query::visit_buffer`. Update bindings and examples to the Visitor naming; no compatibility aliases are retained. (#394)
@@ -88,6 +93,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add generic Definition registries to C++, Rust and Python, with canonical C lookup and language-appropriate ownership. (#400)
+- Add C++ single-element Writer operations and length-only measurement, plus configurable binary and BCD number codecs in Rust and Python. (#400)
+- Expose detailed Schema diagnostics, named fields and groups, and configurable Fixed Format validation in Rust and Python. (#400)
+- Expose Schema ordering, alternative-group constraints and bounded multi-issue reports in Rust and Python, with canonical C validation and owned diagnostic paths. (#400)
+- Add C++/Rust/Python tree measurement with staged encoding and workspace requirements; add Rust owning Documents and Rust/Python resumable Document builders, destination-format output, and exact source preservation. (#400)
+- Add Python and Rust Tree Writer facades with bounded output, frame and scratch storage, retained open tags and Writer diagnostics, delegating construction and encoding to C. (#400)
+- Add Python and Rust incremental Reader, Tree Reader, source Layout, structured Reader diagnostics, resumable Visitor and Query facades backed by the C engine, with bounded traversal and subtree skipping. (#400)
+- Add C++ incremental Reader and Tree Reader facades with borrowed source metadata, diagnostics, resource limits, subtree control, resumable Visitors and Query matching. Track remaining binding capability gaps against the C API. (#400)
 - Add allocation-free Tree Writer measurement from a preorder source with caller-owned staging storage, content-dependent Format support, and explicit workspace requirements for replay. (#399)
 - Add an allocation-free, iterative Tree Writer with explicit begin/write/end operations, caller-owned output, frames and scratch storage, runtime limits, recoverable encoding failures and structured diagnostics. C and C++ support bounded nested output through the existing Format contract, including variable-width lengths and content-dependent measurement. (#398)
 - Add a resumable Document Builder over the canonical Tree Reader, with owned subtree selection, Reader diagnostics, independent materialization limits and publication only after completion. Complete Document parsing and constructed-value edits share its tree consumer. (#396)

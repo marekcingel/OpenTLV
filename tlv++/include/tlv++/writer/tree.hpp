@@ -4,6 +4,7 @@
 #include "tlv/writer/tree.h"
 #include "tlv/defaults.h"
 #include "tlv++/writer/writer.hpp"
+#include <type_traits>
 
 namespace tlv {
 /** @file
@@ -12,6 +13,49 @@ namespace tlv {
 
 /** @brief Caller-owned Tree Writer frame; retains a borrowed Tag until end(). */
 using tree_writer_frame = tlv_tree_writer_frame_t;
+
+/** @brief Borrowed bounded staging storage and required-capacity results for tree measurement. */
+using tree_writer_workspace = tlv_tree_writer_workspace_t;
+
+/**
+ * @brief Measure and stage semantic preorder records using the canonical C engine.
+ * @param format Borrowed writable Format and context.
+ * @param next Callable taking element&, size_t& depth and bool& constructed, returning
+ * expected<bool, error>: true publishes an item, false ends input, error aborts.
+ * @param workspace Disjoint caller-owned frames, output and scratch. On success its
+ * data contains the exact encoding; required_data/required_scratch report storage
+ * exhaustion lower bounds. Bytes may change on failure.
+ * @param max_depth Maximum item depth, roots at zero.
+ * @param max_elements Maximum source records.
+ * @param diagnostic Optional borrowed failure detail, unchanged on success.
+ * @return Exact encoded size or the original source/Writer error.
+ * @warning Source is consumed on failure; retries require a fresh source. Tags must
+ * remain alive until return and while inspecting diagnostics; primitive Values must
+ * remain readable until the next callback. The callable must not throw exceptions.
+ */
+template <typename Source>
+TLV_NODISCARD expected<size_t, error>
+measure_tree(const tlv_format_t& format, Source&& next, tree_writer_workspace& workspace,
+             size_t max_depth = TLV_TREE_DEFAULT_DEPTH, size_t max_elements = SIZE_MAX,
+             writer_diagnostic* diagnostic = nullptr) {
+    using callable = typename std::remove_reference<Source>::type;
+    struct state {
+        callable* function;
+    } context{&next};
+    auto callback = [](void* context, tlv_element_t* value, size_t* depth,
+                       int* constructed) -> tlv_result_t {
+        bool parent = false;
+        auto item = (*static_cast<state*>(context)->function)(*value, *depth, parent);
+        if (!item) return item.error().code;
+        *constructed = parent ? 1 : 0;
+        return *item ? TLV_OK : TLV_ERR_END_OF_BUFFER;
+    };
+    size_t size = 0;
+    auto   code = tlv_tree_writer_measure(&format, callback, &context, &workspace, max_depth,
+                                          max_elements, &size, diagnostic);
+    if (code != TLV_OK) return unexpected<error>(error::from_c(code));
+    return size;
+}
 
 /**
  * @brief Iterative bounded writer with the storage and failure contracts of #tlv_tree_writer_t.

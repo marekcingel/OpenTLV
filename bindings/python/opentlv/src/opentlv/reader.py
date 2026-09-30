@@ -1,78 +1,55 @@
-"""Sequential reader over a caller-owned buffer."""
-
-from __future__ import annotations
-
-from typing import Iterator, Union
-
-import opentlv_native as _native
-
-from opentlv.element import Element
-from opentlv.error import _from_native
-from opentlv.fixed_format import FixedFormat
-from opentlv.format import Format, _resolve_format
-from opentlv.tag import Tag
-
-Buffer = Union[bytes, bytearray, memoryview]
-AnyFormat = Union[Format, FixedFormat]
+﻿"""Sequential Reader over the canonical C cursor."""
+from opentlv.cursor import Decoded, _Cursor
+from opentlv.error import NeedMoreDataError, OpenTLVError
 
 
-class Reader:
-    """A sequential, one-pass reader that parses TLV elements from a buffer.
+class Reader(_Cursor):
+    """Iterate Elements using the C Reader cursor.
 
-    `Reader` is a Python iterator over `Element` values. `data` may be
-    `bytes`, `bytearray`, `memoryview`, or any other buffer-protocol object;
-    the reader does not copy it, and the elements it yields borrow it, so it
-    must stay valid and unchanged for as long as the reader or its elements
-    are used.
-
-    After the first error, iteration ends instead of retrying: the
-    underlying C reader does not advance past malformed input.
-
-    >>> data = bytes([0x01, 0x02, 0xAA, 0xBB, 0x02, 0x00])
-    >>> [(element.tag.data, bytes(element.value)) for element in Reader(data)]
-    [(b'\\x01', b'\\xaa\\xbb'), (b'\\x02', b'')]
+    Bytes are retained without copying; other buffers are snapshotted. Views
+    retain storage after Reader deletion or input replacement. final_input=False
+    enables incremental input. NeedMoreDataError permits set_input() and retry.
+    Other errors stop convenience iteration; read_source() permits explicit retry.
     """
+    __slots__ = ("_failed",)
 
-    __slots__ = ("_data", "_format", "_pos", "_failed")
-
-    def __init__(self, data: Buffer, format: AnyFormat | None = None) -> None:
-        self._data = data if isinstance(data, memoryview) else memoryview(data)
-        self._format = _resolve_format(format)
-        self._pos = 0
+    def __init__(self, data, format=None, *, final_input=True):
+        super().__init__(data, format, final_input=final_input)
         self._failed = False
 
-    @property
-    def format(self) -> AnyFormat:
-        """The wire format this reader parses."""
-        return self._format
+    def read_source(self) -> Decoded:
+        """Pull content and Layout in one decode, or raise a diagnostic/StopIteration."""
+        return self._pull().decoded
 
-    @property
-    def position(self) -> int:
-        """The offset in `data` of the next element to read."""
-        return self._pos
-
-    @property
-    def at_end(self) -> bool:
-        """`True` once all input has been consumed."""
-        return self._pos >= len(self._data)
-
-    def __iter__(self) -> Iterator[Element]:
+    def __iter__(self):
         return self
 
-    def __next__(self) -> Element:
-        if self._failed or self.at_end:
+    def visit(self, callback) -> None:
+        """C Visitor processing; callback(element) returns Visit or None.
+
+        Callback values are owned snapshots. STOP consumes the current element;
+        subsequent visits resume without replay. Callback exceptions propagate.
+        """
+        self._visit(callback, False)
+
+    def __next__(self):
+        if self._failed:
             raise StopIteration
         try:
-            if isinstance(self._format, FixedFormat):
-                tag_data, length_offset, length_size, value_offset, value_length, consumed = _native.read_fixed(
-                    self._data, self._pos, self._format.tag_size, self._format.length_size,
-                    self._format.big_endian)
-            else:
-                tag_data, length_offset, length_size, value_offset, value_length, consumed = _native.read(
-                    self._data, self._pos, self._format)
-        except _native.Error as native_error:
+            return self.read_source().element
+        except NeedMoreDataError:
+            raise
+        except OpenTLVError:
             self._failed = True
-            raise _from_native(native_error) from None
-        self._pos += consumed
-        value = self._data[value_offset:value_offset + value_length]
-        return Element(Tag(tag_data), value, self._data[length_offset:length_offset + length_size])
+            raise
+def read(data, format=None):
+    """Read one complete Element and Layout through C; trailing bytes are unread.
+
+    Returns Decoded; len(result.encoded) is the consumed byte count.
+    Empty input raises EndOfBufferError rather than iterator StopIteration.
+    """
+    from opentlv.error import EndOfBufferError
+    try:
+        return Reader(data, format).read_source()
+    except StopIteration:
+        raise EndOfBufferError(5) from None

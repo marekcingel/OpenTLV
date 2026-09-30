@@ -11,6 +11,105 @@ use crate::error::{Error, Result};
 use crate::fixed_format::FixedFormat;
 use crate::format::Format;
 use crate::tag::Tag;
+use crate::{Decoded, WriterDiagnostic};
+
+/// A single-element write or measurement failure, owning its C diagnostic.
+#[derive(Clone, Debug)]
+pub struct WriterError {
+    /// Canonical error code.
+    pub error: Error,
+    /// Copied failure detail, independent of temporary input lifetimes.
+    pub diagnostic: Box<WriterDiagnostic>,
+}
+impl std::fmt::Display for WriterError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.error.fmt(f)
+    }
+}
+impl std::error::Error for WriterError {}
+
+fn diagnosed_size(
+    call: impl FnOnce(*mut usize, *mut native::tlv_writer_diagnostic_t) -> i32,
+) -> std::result::Result<usize, WriterError> {
+    let mut size = 0;
+    let mut diagnostic = MaybeUninit::uninit();
+    // SAFETY: initialize writable diagnostic before the synchronous operation.
+    unsafe { native::tlv_writer_diagnostic_init(diagnostic.as_mut_ptr()) };
+    let code = call(&mut size, diagnostic.as_mut_ptr());
+    if let Some(error) = Error::from_code(code) {
+        // SAFETY: initialized diagnostic, caller retains all inputs until we return.
+        return Err(WriterError {
+            error,
+            diagnostic: Box::new(unsafe { WriterDiagnostic::from_raw(&diagnostic.assume_init()) }),
+        });
+    }
+    Ok(size)
+}
+
+/// Measure exact encoding through C, preserving structured errors.
+pub fn measure_element(
+    element: &Element<'_>,
+    format: Format,
+) -> std::result::Result<usize, WriterError> {
+    let element = raw_element(element);
+    // SAFETY: live immutable content/Format and writable outputs.
+    diagnosed_size(|size, diagnostic| unsafe {
+        native::tlv_element_encoded_size_diag(&element, format.raw(), size, diagnostic)
+    })
+}
+
+/// Measure using a borrowed Fixed Format, preserving structured errors.
+pub fn measure_element_fixed(
+    element: &Element<'_>,
+    format: &FixedFormat<'_>,
+) -> std::result::Result<usize, WriterError> {
+    let element = raw_element(element);
+    // SAFETY: live immutable content/Format and writable outputs.
+    diagnosed_size(|size, diagnostic| unsafe {
+        native::tlv_element_encoded_size_diag(&element, format.raw(), size, diagnostic)
+    })
+}
+
+/// Encode a single Element into caller storage, preserving C diagnostics.
+/// Capacity shortage reports diagnostic.required and leaves output unchanged.
+pub fn write_element(
+    output: &mut [u8],
+    element: &Element<'_>,
+    format: Format,
+) -> std::result::Result<usize, WriterError> {
+    let element = raw_element(element);
+    // SAFETY: output is exclusive and disjoint from all readable inputs.
+    diagnosed_size(|written, diagnostic| unsafe {
+        native::tlv_write_element_diag(
+            output.as_mut_ptr(),
+            output.len(),
+            format.raw(),
+            &element,
+            written,
+            diagnostic,
+        )
+    })
+}
+
+/// Encode a single Element with a borrowed Fixed Format and structured errors.
+pub fn write_element_fixed(
+    output: &mut [u8],
+    element: &Element<'_>,
+    format: &FixedFormat<'_>,
+) -> std::result::Result<usize, WriterError> {
+    let element = raw_element(element);
+    // SAFETY: output is exclusive and disjoint from all readable inputs.
+    diagnosed_size(|written, diagnostic| unsafe {
+        native::tlv_write_element_diag(
+            output.as_mut_ptr(),
+            output.len(),
+            format.raw(),
+            &element,
+            written,
+            diagnostic,
+        )
+    })
+}
 
 fn raw_element(element: &Element<'_>) -> native::tlv_element_t {
     native::tlv_element_t {
@@ -90,9 +189,10 @@ pub fn encoded_size_fixed(tag: &Tag, value_len: usize, format: &FixedFormat<'_>)
 
 /// A sequential writer that encodes TLV entries into a byte slice.
 ///
-/// The writer never allocates: it fills the caller's buffer and reports
+/// Output storage never grows: it fills the caller's buffer and reports
 /// [`Error::BufferTooShort`] when an element does not fit. A failed write leaves
-/// the position unchanged. Values are supplied as `&[u8]`.
+/// the position unchanged. Failure diagnostics own copies of borrowed details.
+/// Values are supplied as `&[u8]`.
 ///
 /// ```
 /// use opentlv::{Tag, Writer};
@@ -107,6 +207,7 @@ pub fn encoded_size_fixed(tag: &Tag, value_len: usize, format: &FixedFormat<'_>)
 pub struct Writer<'a> {
     raw: native::tlv_writer_t,
     _buf: PhantomData<&'a mut [u8]>,
+    diagnostic: Option<WriterDiagnostic>,
 }
 
 impl<'a> Writer<'a> {
@@ -131,6 +232,7 @@ impl<'a> Writer<'a> {
             // SAFETY: `tlv_writer_init` succeeded and initialized every field.
             raw: unsafe { raw.assume_init() },
             _buf: PhantomData,
+            diagnostic: None,
         }
     }
 
@@ -148,6 +250,7 @@ impl<'a> Writer<'a> {
             // SAFETY: `tlv_writer_init` succeeded and initialized every field.
             raw: unsafe { raw.assume_init() },
             _buf: PhantomData,
+            diagnostic: None,
         }
     }
 
@@ -161,10 +264,15 @@ impl<'a> Writer<'a> {
     pub fn write(&mut self, tag: &Tag, value: &[u8]) -> Result<()> {
         // SAFETY: `self.raw` is initialized and its buffer is exclusively
         // borrowed for `'a`; `value` is a valid slice of `value.len()` bytes.
-        let code = unsafe {
-            native::tlv_writer_write(&mut self.raw, tag.raw(), value.as_ptr(), value.len())
-        };
-        Error::check(code)
+        self.operation(|writer, diagnostic| unsafe {
+            native::tlv_writer_write_diag(
+                writer,
+                tag.raw(),
+                value.as_ptr(),
+                value.len(),
+                diagnostic,
+            )
+        })
     }
 
     /// Appends a decoded [`Element`], for example one produced by a `Reader`.
@@ -175,7 +283,9 @@ impl<'a> Writer<'a> {
     pub fn write_element(&mut self, element: &Element<'_>) -> Result<()> {
         let raw = raw_element(element);
         // SAFETY: input is readable, output is exclusively borrowed and disjoint.
-        Error::check(unsafe { native::tlv_writer_write_element(&mut self.raw, &raw) })
+        self.operation(|writer, diagnostic| unsafe {
+            native::tlv_writer_write_element_diag(writer, &raw, diagnostic)
+        })
     }
 
     /// Appends bytes without framing validation or format conversion.
@@ -184,9 +294,43 @@ impl<'a> Writer<'a> {
     /// Insufficient capacity leaves both output and position unchanged.
     pub fn copy_encoded(&mut self, encoded: &[u8]) -> Result<()> {
         // SAFETY: input is readable and the cursor owns an exclusive output borrow.
-        Error::check(unsafe {
-            native::tlv_writer_copy_encoded(&mut self.raw, encoded.as_ptr(), encoded.len())
+        self.operation(|writer, diagnostic| unsafe {
+            native::tlv_writer_copy_encoded_diag(
+                writer,
+                encoded.as_ptr(),
+                encoded.len(),
+                diagnostic,
+            )
         })
+    }
+
+    /// Preserve a decoded source exactly, rejecting semantic changes through C.
+    /// The destination Format does not reinterpret the copied source bytes.
+    pub fn preserve(&mut self, decoded: &Decoded<'_>) -> Result<()> {
+        let element = raw_element(&decoded.element);
+        // SAFETY: immutable source and content remain live and disjoint from output.
+        self.operation(|writer, diagnostic| unsafe {
+            native::tlv_writer_preserve_diag(writer, &decoded.source, &element, diagnostic)
+        })
+    }
+
+    /// Owned detail for the latest failed write/copy/preservation operation.
+    pub fn diagnostic(&self) -> Option<&WriterDiagnostic> {
+        self.diagnostic.as_ref()
+    }
+
+    fn operation(
+        &mut self,
+        call: impl FnOnce(*mut native::tlv_writer_t, *mut native::tlv_writer_diagnostic_t) -> i32,
+    ) -> Result<()> {
+        let mut diagnostic = MaybeUninit::uninit();
+        // SAFETY: writable diagnostic storage initialized before every operation.
+        unsafe { native::tlv_writer_diagnostic_init(diagnostic.as_mut_ptr()) };
+        let code = call(&mut self.raw, diagnostic.as_mut_ptr());
+        // SAFETY: initialized diagnostic and caller-owned operation inputs remain live.
+        self.diagnostic = (code != native::TLV_OK)
+            .then(|| unsafe { WriterDiagnostic::from_raw(&diagnostic.assume_init()) });
+        Error::check(code)
     }
 
     /// Returns the number of bytes written so far.

@@ -82,11 +82,13 @@ def test_is_reusable_as_a_plain_iterator():
     assert iter(reader) is reader
 
 
-def test_element_borrows_raw_length():
+def test_element_borrows_raw_length_from_immutable_snapshot():
     data = bytearray([1, 0x81, 1, 0xAA])
     element = next(Reader(data))
     assert bytes(element.length) == b"\x81\x01"
-    assert element.length.obj is data
+    assert element.length.obj == bytes(data)
+    data[:] = b"\x00" * len(data)
+    assert bytes(element.length) == b"\x81\x01"
     assert bytes(element.value) == b"\xaa"
 
 
@@ -97,3 +99,9 @@ def test_large_declared_size_and_raw_length_survive_reader_error():
     assert error.value.declared_length == 4294967296
     assert error.value.available == 127
     assert error.value.raw_length == bytes([0x85, 1, 0, 0, 0, 0])
+def test_single_read_returns_source_without_consuming_trailing_input():
+    from opentlv import read, EndOfBufferError
+    decoded = read(b"\x01\x00\xff")
+    assert bytes(decoded.encoded) == b"\x01\x00"
+    with pytest.raises(EndOfBufferError):
+        read(b"")
