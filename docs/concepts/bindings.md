@@ -53,7 +53,7 @@ to this in practice.
 ## Capability parity through the public facade
 
 The [pipeline audit](processing-pipeline.md) describes selection of an already
-published subtree: C++ `document_builder::create(reader, &item)`, Rust
+published subtree: C++ `document_builder::current_subtree(reader)`, Rust
 `DocumentBuilder::current_subtree` and Python `current_subtree=True` avoid pulling
 the selected root a second time.
 

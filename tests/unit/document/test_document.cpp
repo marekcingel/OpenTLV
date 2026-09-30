@@ -45,7 +45,7 @@ TEST(Unit_Tlvpp_Document, SelectedBuilderUsesPublishedRootAndResumesReader) {
         auto item = reader.next();
         ASSERT_TRUE(item);
         if (!matcher.matches(item->element.tag, item->depth)) continue;
-        auto builder = tlv::document_builder::create(reader, &*item);
+        auto builder = tlv::document_builder::current_subtree(reader);
         ASSERT_TRUE(builder);
         auto moved = std::move(*builder);
         auto doc = moved.consume();
@@ -59,6 +59,71 @@ TEST(Unit_Tlvpp_Document, SelectedBuilderUsesPublishedRootAndResumesReader) {
     auto sibling = reader.next();
     ASSERT_TRUE(sibling);
     EXPECT_EQ(12u, sibling->offset);
+}
+
+TEST(Unit_Tlvpp_Document, SelectionInvalidatedByCursorAndBuilderOperations) {
+    for (int operation = 0; operation < 9; ++operation) {
+        SCOPED_TRACE(operation);
+        auto             config = format();
+        tlv::tree_frame  frames[2]{};
+        tlv::tree_reader reader(view(sample), config.format, {frames, 2}, 2, 10);
+        EXPECT_FALSE(tlv::document_builder::current_subtree(reader));
+        ASSERT_TRUE(reader.next());
+        auto stop = [](const tlv_element_t&, size_t, size_t) { return TLV_VISIT_STOP; };
+        switch (operation) {
+            case 0: ASSERT_TRUE(reader.skip_subtree()); break;
+            case 1: ASSERT_TRUE(reader.set_input(view(sample), 0, tlv::input_mode::final)); break;
+            case 2:
+                EXPECT_FALSE(
+                    reader.set_input(view(sample), sample.size() + 1, tlv::input_mode::final));
+                break;
+            case 3: ASSERT_TRUE(reader.visit(stop)); break;
+            case 4: ASSERT_TRUE(reader.validate()); break;
+            case 5: {
+                auto query = tlv::query::parse("6F/84");
+                ASSERT_TRUE(query);
+                tlv::query_matcher matcher(*query);
+                ASSERT_TRUE(matcher.visit(reader, stop));
+                break;
+            }
+            case 6: {
+                auto builder = tlv::document_builder::current_subtree(reader);
+                ASSERT_TRUE(builder);
+                ASSERT_TRUE(builder->consume());
+                break;
+            }
+            case 7: {
+                auto builder = tlv::document_builder::create(reader);
+                (void)builder;
+                break;
+            }
+            case 8:
+                while (reader.next()) {
+                }
+                break;
+        }
+        auto rejected = tlv::document_builder::current_subtree(reader);
+        ASSERT_FALSE(rejected);
+        EXPECT_EQ(TLV_ERR_INVALID_ARG, rejected.error().code);
+    }
+}
+
+TEST(Unit_Tlvpp_Document, SelectionUsesLatestPullAndIgnoresCallerItemChanges) {
+    auto             config = format();
+    tlv::tree_frame  frames[2]{};
+    tlv::tree_reader reader(view(sample), config.format, {frames, 2}, 2, 10);
+    auto             old = reader.next();
+    ASSERT_TRUE(old);
+    auto latest = reader.next();
+    ASSERT_TRUE(latest);
+    *latest = *old;
+    auto builder = tlv::document_builder::current_subtree(reader);
+    ASSERT_TRUE(builder);
+    auto doc = builder->consume();
+    ASSERT_TRUE(doc);
+    auto encoded = doc->encode();
+    ASSERT_TRUE(encoded);
+    EXPECT_EQ(make({0x84, 2, 0xAA, 0xBB}), *encoded);
 }
 
 TEST(Unit_Tlvpp_Document, WholeStreamBuilderResumesAfterInputReplacement) {

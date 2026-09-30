@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Replace the C++ Document Builder raw-root overload with `current_subtree(reader)`, rejecting invalidated selections and preventing caller-fabricated roots. (#401, #412)
 - Allow C and C++ pipeline headers in either include order without an MSVC `TLV_NODISCARD` redefinition error. (#401)
 - Reject invalidated and foreign Python Document node handles before native access, while preserving unaffected handles after edits. (#400)
 - Fix the Clang C99 workflow invoking the old schema example name after its rename to `schema_visitor`. (#399)

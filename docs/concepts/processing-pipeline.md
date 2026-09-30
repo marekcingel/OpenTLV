@@ -81,12 +81,12 @@ immediately, consumes its descendants through the same Tree Reader, and leaves
 the following sibling unread. Document depth limits are relative to the selected
 root; the reader's global limits continue to apply.
 
-C++ exposes `document_builder::create(reader, &item)` and resumable `consume()`.
+C++ exposes `document_builder::current_subtree(reader)` and resumable `consume()`.
 The reader is borrowed and must not be pulled, skipped or visited until the builder
 finishes or is destroyed. Its Format/context must outlive the resulting document.
 
 Rust exposes `DocumentBuilder::current_subtree(&mut reader, depth, count)` and
-Python exposes `DocumentBuilder(reader, current_subtree=True)`. They use the last
+Python exposes `DocumentBuilder(reader, current_subtree=True)`. All three facades use the last
 successful explicit pull, never a caller-fabricated root. Subsequent pulls, input
 replacement, skips, visitors and builder creation invalidate this selection.
 Match using `QueryMatcher.matches` before creating the builder. Visitor STOP

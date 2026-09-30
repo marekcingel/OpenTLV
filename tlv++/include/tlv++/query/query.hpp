@@ -150,6 +150,7 @@ public:
     template <typename Visitor>
     TLV_NODISCARD expected<void, error> visit(tree_reader& reader, Visitor&& visitor,
                                               size_t* error_offset = nullptr) {
+        reader.has_current_ = false;
         if (init_result_ != TLV_OK) return unexpected<error>(error::from_c(init_result_));
         if (reader.init_result_ != TLV_OK)
             return unexpected<error>(error::from_c(reader.init_result_));

@@ -564,30 +564,34 @@ public:
     document_builder& operator=(document_builder&&) noexcept = default;
 
     /**
-     * @brief Materialize a fresh stream or an already selected subtree.
-     * @param reader Borrowed initialized Tree Reader.
-     * @param root Last published item, or nullptr for a fresh whole stream.
-     * @param max_depth Maximum materialized depth, relative to the selected root.
+     * @brief Materialize a fresh whole stream.
+     * @param reader Borrowed initialized Tree Reader; invalidates subtree selection.
+     * @param max_depth Maximum materialized depth.
      * @param max_elements Maximum materialized node count.
      * @return Builder or the original C error; does not advance the reader.
-     * @warning A non-null root must still be valid and be the last item from this
-     * reader, with no intervening pulls or skips. Root content is copied immediately.
      */
     TLV_NODISCARD static expected<document_builder, error>
-    create(tree_reader& reader, const tree_item* root = nullptr,
-           size_t max_depth = TLV_TREE_DEFAULT_DEPTH,
+    create(tree_reader& reader, size_t max_depth = TLV_TREE_DEFAULT_DEPTH,
            size_t max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {
-        if (reader.init_result_ != TLV_OK)
-            return unexpected<error>(error::from_c(reader.init_result_));
-        tlv_document_options_t options{};
-        auto                   rc = tlv_document_options_init(&options, reader.impl_.input.format);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-        options.max_depth = max_depth;
-        options.max_elements = max_elements;
-        tlv_document_builder_t* raw = nullptr;
-        rc = tlv_document_builder_create(&options, &reader.impl_, root, &raw);
-        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
-        return document_builder(raw);
+        return create_impl(reader, nullptr, max_depth, max_elements);
+    }
+
+    /**
+     * @brief Materialize the last item published by an explicit reader.next().
+     * @param reader Borrowed Tree Reader with a current subtree selection.
+     * @param max_depth Maximum materialized depth relative to the selected root.
+     * @param max_elements Maximum materialized node count.
+     * @return Builder, INVALID_ARG if selection was invalidated, or original C error.
+     * @note Root content is copied immediately without another pull. This attempt
+     * consumes selection, even on failure. Pulls, skips, input replacement,
+     * validation, visitors and builder creation invalidate selection.
+     */
+    TLV_NODISCARD static expected<document_builder, error>
+    current_subtree(tree_reader& reader, size_t max_depth = TLV_TREE_DEFAULT_DEPTH,
+                    size_t max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS) {
+        if (!reader.has_current_) return unexpected<error>(error::from_c(TLV_ERR_INVALID_ARG));
+        const tree_item root = reader.current_;
+        return create_impl(reader, &root, max_depth, max_elements);
     }
 
     /**
@@ -609,6 +613,22 @@ public:
     }
 
 private:
+    static expected<document_builder, error> create_impl(tree_reader& reader, const tree_item* root,
+                                                         size_t max_depth, size_t max_elements) {
+        reader.has_current_ = false;
+        if (reader.init_result_ != TLV_OK)
+            return unexpected<error>(error::from_c(reader.init_result_));
+        tlv_document_options_t options{};
+        auto                   rc = tlv_document_options_init(&options, reader.impl_.input.format);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        options.max_depth = max_depth;
+        options.max_elements = max_elements;
+        tlv_document_builder_t* raw = nullptr;
+        rc = tlv_document_builder_create(&options, &reader.impl_, root, &raw);
+        if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+        return document_builder(raw);
+    }
+
     struct deleter {
         void operator()(tlv_document_builder_t* handle) const {
             tlv_document_builder_free(handle);
