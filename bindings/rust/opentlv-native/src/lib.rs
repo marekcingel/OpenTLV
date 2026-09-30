@@ -307,6 +307,9 @@ extern "C" {
     pub static tlv_format_lldp: tlv_format_t;
     /// Reports whether the linked C library includes LLDP framing.
     pub fn tlv_config_lldp() -> c_int;
+    #[cfg(feature = "nfc")]
+    pub static tlv_format_nfc_type2: tlv_format_t;
+    pub fn tlv_config_nfc() -> c_int;
     /// CER format.
     pub static tlv_format_cer: tlv_format_t;
     /// DER format.

@@ -25,17 +25,22 @@ pub enum Format {
     /// LLDP packed Type/Length framing; no LLDPDU semantic validation.
     #[cfg(feature = "lldp")]
     Lldp,
+    /// Contiguous NFC Type 2 TLV stream; termination is controlled by the caller.
+    #[cfg(feature = "nfc")]
+    NfcType2,
 }
 
 impl Format {
     /// Every supported format.
-    pub const ALL: [Format; 4 + cfg!(feature = "lldp") as usize] = [
+    pub const ALL: [Format; 4 + cfg!(feature = "lldp") as usize + cfg!(feature = "nfc") as usize] = [
         Format::Ber,
         Format::Emv,
         Format::Cer,
         Format::Der,
         #[cfg(feature = "lldp")]
         Format::Lldp,
+        #[cfg(feature = "nfc")]
+        Format::NfcType2,
     ];
 
     /// Returns the lowercase name of the format, accepted by [`FromStr`].
@@ -47,6 +52,8 @@ impl Format {
             Format::Der => "der",
             #[cfg(feature = "lldp")]
             Format::Lldp => "lldp",
+            #[cfg(feature = "nfc")]
+            Format::NfcType2 => "nfc-type2",
         }
     }
 
@@ -63,6 +70,8 @@ impl Format {
                 Format::Der => ptr::addr_of!(native::tlv_format_der),
                 #[cfg(feature = "lldp")]
                 Format::Lldp => ptr::addr_of!(native::tlv_format_lldp),
+                #[cfg(feature = "nfc")]
+                Format::NfcType2 => ptr::addr_of!(native::tlv_format_nfc_type2),
             }
         }
     }

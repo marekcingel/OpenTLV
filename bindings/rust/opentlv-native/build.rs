@@ -56,6 +56,11 @@ fn build_from_source() {
         } else {
             "-DOPENTLV_DOCUMENT=OFF"
         })
+        .arg(if cfg!(feature = "nfc") {
+            "-DOPENTLV_NFC=ON"
+        } else {
+            "-DOPENTLV_NFC=OFF"
+        })
         .arg(if cfg!(feature = "lldp") {
             "-DOPENTLV_LLDP=ON"
         } else {

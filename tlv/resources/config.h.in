@@ -15,6 +15,7 @@
  */
 
 #cmakedefine01 OPENTLV_BLUETOOTH
+#cmakedefine01 OPENTLV_NFC
 #cmakedefine01 OPENTLV_DHCP
 #cmakedefine01 OPENTLV_LLDP
 #cmakedefine01 OPENTLV_FORMAT_ASN1
@@ -46,6 +47,10 @@ TLV_API int tlv_config_lldp(void);
  * @return 1 if `OPENTLV_DHCP` was enabled, otherwise 0.
  */
 TLV_API int tlv_config_dhcp(void);
+/** @brief Reports whether NFC Type 2 Tag framing was built.
+ * @return 1 if `OPENTLV_NFC` was enabled, otherwise 0.
+ */
+TLV_API int tlv_config_nfc(void);
 TLV_API int tlv_config_format_asn1(void);
 TLV_API int tlv_config_format_ber(void);
 TLV_API int tlv_config_format_der(void);

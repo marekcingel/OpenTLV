@@ -10,7 +10,7 @@
 import createOpenTLV from "./opentlv-core.js";
 
 /** Formats the module can parse (a build may compile out some of them). */
-export const FORMATS = Object.freeze(["fixed", "bluetooth-ltv", "bluetooth-ad", "ber", "der", "cer", "lldp", "emv"]);
+export const FORMATS = Object.freeze(["fixed", "bluetooth-ltv", "bluetooth-ad", "ber", "der", "cer", "lldp", "emv", "nfc-type2"]);
 
 /** Modules that annotate elements with known tag names ("none" adds nothing). */
 export const MODULES = Object.freeze(["none", "emv"]);

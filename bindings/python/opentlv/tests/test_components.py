@@ -4,9 +4,9 @@ import opentlv_native as native
 from opentlv import Document, FixedFormat, Format, Reader, Writer, codec, encoded_size
 
 
-@pytest.mark.parametrize("name, identifier", [("BER", 1), ("CER", 2), ("DER", 3), ("LLDP", 4), ("EMV", 5)])
+@pytest.mark.parametrize("name, identifier", [("BER", 1), ("CER", 2), ("DER", 3), ("LLDP", 4), ("EMV", 5), ("NFC_TYPE2", 6)])
 def test_format_availability(name, identifier):
-    available = bool(getattr(native, "HAS_" + name))
+    available = bool(getattr(native, "HAS_" + ("NFC" if name == "NFC_TYPE2" else name)))
     assert hasattr(Format, name) == available
     if not available:
         with pytest.raises(ValueError, match="unknown format"):

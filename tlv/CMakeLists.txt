@@ -20,6 +20,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/layout.c
     src/formats/fixed.c
     src/formats/variable.c
+    src/formats/escaped.c
     src/copy.c
     src/diagnostic.c
     src/tag.c
@@ -42,6 +43,10 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     ${OpenTLV_BINARY_DIR}/generated/src/version.c
     ${OpenTLV_BINARY_DIR}/generated/src/config.c
 )
+
+if(OPENTLV_NFC)
+    target_sources(${PROJECT_NAME} PRIVATE src/builtins/nfc/type2.c)
+endif()
 
 if(OPENTLV_DHCP)
     target_sources(${PROJECT_NAME} PRIVATE

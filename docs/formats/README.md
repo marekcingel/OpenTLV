@@ -22,6 +22,7 @@ optional. Both use the same Format, Reader and Writer contracts.
 
 | Need | Start with | Boundary |
 | --- | --- | --- |
+| NFC Type 2 Tag TLV stream | [NFC Type 2 framing](nfc/README.md) | Contiguous data-area stream; caller handles padding and termination |
 | DHCPv4 options with Pad and End | [DHCPv4 option framing](dhcp/README.md) | Individual options; caller handles termination and packet semantics |
 | Bluetooth advertising data (length before type) | [Bluetooth LTV](bluetooth/README.md) | Values up to 254 bytes, no nesting |
 | LLDP packed Type/Length headers | [LLDP TLV support](lldp/README.md) | Packed framing, base definitions, LLDPDU structural rules and value codecs |
@@ -53,6 +54,7 @@ explains its wire layout and supported scope.
 
 | Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree visitor | Build option |
 | --- | --- | --- | --- | --- | --- | --- |
+| [NFC Type 2](nfc/README.md) | 1 byte | 1 or 3 bytes; absent for NULL/Terminator | 65534 bytes | tag, length, value; tag only for controls | none | `OPENTLV_NFC` |
 | [DHCPv4 options](dhcp/README.md) | 1-byte code | 1 byte; absent for Pad/End | 255 bytes; 0 for Pad/End | code, length, value; code only for Pad/End | none | `OPENTLV_DHCP` |
 | [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_BLUETOOTH` |
 | [LLDP](lldp/README.md#wire-layout-and-logical-model) | 7-bit Type, canonical one-byte Tag | 9 bits, Value only | 511 bytes | packed Type/Length, Value | none | `OPENTLV_LLDP` |

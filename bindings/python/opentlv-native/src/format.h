@@ -26,6 +26,10 @@ const tlv_format_t* opentlv_python_format_der(void);
 const tlv_format_t* opentlv_python_format_emv(void);
 #endif
 
+#if OPENTLV_NFC
+const tlv_format_t* opentlv_python_format_nfc_type2(void);
+#endif
+
 #if OPENTLV_LLDP
 const tlv_format_t* opentlv_python_format_lldp(void);
 #endif

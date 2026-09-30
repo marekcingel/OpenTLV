@@ -17,6 +17,9 @@ const tlv_format_t* opentlv_python_format_for(int format_id) {
 #if OPENTLV_EMV
         case 5: return opentlv_python_format_emv();
 #endif
+#if OPENTLV_NFC
+        case 6: return opentlv_python_format_nfc_type2();
+#endif
         default: return NULL;
     }
 }
@@ -27,5 +30,6 @@ int opentlv_python_register_formats(PyObject* module) {
     if (PyModule_AddIntConstant(module, "HAS_DER", OPENTLV_FORMAT_DER) < 0) return -1;
     if (PyModule_AddIntConstant(module, "HAS_LLDP", OPENTLV_LLDP) < 0) return -1;
     if (PyModule_AddIntConstant(module, "HAS_EMV", OPENTLV_EMV) < 0) return -1;
+    if (PyModule_AddIntConstant(module, "HAS_NFC", OPENTLV_NFC) < 0) return -1;
     return 0;
 }

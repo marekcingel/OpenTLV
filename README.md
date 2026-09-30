@@ -59,6 +59,8 @@ Built-in components are enabled by default and can be selected with
     - [x] **Bluetooth LTV** - length-before-type framing used by Bluetooth advertising data, values up to 254 bytes. [Details](docs/formats/bluetooth/README.md) [Tree and bytes](docs/formats/bluetooth/README.md#byte-example)
     - [x] **LLDP TLV support** - packed headers, base definitions, LLDPDU structural validation, allocation-free value codecs and binding framing presets. [Details](docs/formats/lldp/README.md)
     - [x] **Configurable fixed-width TLV** - independent tag width, length width (1-8 bytes) and length byte order, chosen at runtime (C) or compile time (C++). [Details](docs/formats/fixed/configurable.md) [Tree and bytes](docs/formats/fixed/configurable.md#wire-layout)
+  - **NFC tag memory framing**
+    - [x] **NFC Type 2 Tag TLV** - contiguous data-area streams, NULL/Terminator and short/extended lengths; opaque NDEF. [Details](docs/formats/nfc/README.md)
   - **ASN.1-related encodings**
     - [x] **BER-TLV** - multi-byte tags. [Scope](docs/formats/asn1/ber.md) [Tree and bytes](docs/formats/asn1/ber.md#byte-example)
       - [x] Definite-length reading and writing
@@ -111,7 +113,7 @@ support never means full protocol support.
 | Protocols using BER | LDAP, SNMP | Schemas and codecs over [BER-TLV](docs/formats/asn1/ber.md) |
 | ASN.1 notation (X.680) | Wider type coverage, BER/CER schema variants, open types, optional schema generator | Extends the [DER schema subset](docs/standards/der/README.md#schema-aware-validation-and-encoding) |
 | ASN.1 standards | X.509, PKCS#1, PKCS#7, PKCS#8, PKCS#10, CMS/S-MIME, Kerberos, OCSP | Schemas over [DER/BER](docs/standards/der/README.md) |
-| Smart cards and SIM | ISO 7816 (BER-TLV and SIMPLE-TLV), GlobalPlatform beyond DGI, eSIM, SIM Toolkit, NFC tag TLV container | BER reuse plus new adapters |
+| Smart cards and SIM | ISO 7816 (BER-TLV and SIMPLE-TLV), GlobalPlatform beyond DGI, eSIM, SIM Toolkit, NFC Type 1 tag TLV container | BER reuse plus new adapters |
 | Networking | IS-IS, DHCPv4/DHCPv6, LDP, RFC 5444 TLV blocks, Diameter | New adapters |
 | Telecommunications | PFCP, GTPv2-C, GTPv1-C, NAS | New adapters and schemas |
 | Excluded (not TLV) | CBOR, CWT, COSE, QUIC frames, NDEF records, ASN.1 PER/OER/XER (S1AP, X2AP, NGAP) | Different encodings; out of scope |

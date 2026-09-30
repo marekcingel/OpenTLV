@@ -10,6 +10,7 @@ links = "tlv"
 build = "build.rs"
 
 [features]
-default = ["lldp", "document"]
+default = ["lldp", "document", "nfc"]
 lldp = []
+nfc = []
 document = []
