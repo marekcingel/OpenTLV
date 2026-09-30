@@ -3009,12 +3009,11 @@ it. For example:</p>
   exception hierarchy to subclass.</li>
 <li>Rust's and <code>tlv++</code>'s <code>Writer</code> fill a caller-provided fixed-capacity buffer
   and report an error when an element does not fit, matching the C library's
-  allocation-free <code>tlv_writer_t</code>. Python's <code>Writer</code> owns a <code>bytearray</code> it
-  grows as needed instead, so <code>write</code> never fails for lack of space: Python
-  callers do not pre-size a buffer or retry a failed write the way C, C++ and
-  Rust callers do. The concept (construction and serialization into a
-  sequential output) is unchanged; only which language owns the
-  buffer-sizing problem moves.</li>
+  allocation-free <code>tlv_writer_t</code>. Python's <code>Writer(format, buffer=storage)</code>
+  borrows writable contiguous storage with the same capacity and position
+  semantics. Omitting <code>buffer</code> retains the growable <code>bytearray</code> convenience
+  wrapper. Exact Element sizing is available before allocating output in C,
+  C++, Rust and Python; see the <a href="../../guides/memory/#writing">allocation contract</a>.</li>
 <li><code>tlv_document_t</code> is explicitly freed with <code>tlv_document_free()</code> in C, and
   by RAII (<code>tlv::document</code>'s destructor) in <code>tlv++</code>. Python's <code>Document</code>
   frees the same underlying allocation either way: deterministically via

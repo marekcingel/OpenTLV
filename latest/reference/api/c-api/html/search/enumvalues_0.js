@@ -339,9 +339,11 @@ var searchData=
   ['tlv_5fvisit_5fcontinue_336',['TLV_VISIT_CONTINUE',['../group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a528d33a0f3bf7971e02fbe57c479f86d',1,'visitor.h']]],
   ['tlv_5fvisit_5ferror_337',['TLV_VISIT_ERROR',['../group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961a1e6076c71ec8c7a08aa0c5e47cc1a74b',1,'visitor.h']]],
   ['tlv_5fvisit_5fstop_338',['TLV_VISIT_STOP',['../group__traversal.html#gga32dd2f26caa5ae7507636430b13cc961adbda0be9ca29c754fea87575ba560d01',1,'visitor.h']]],
-  ['tlv_5fwriter_5fop_5fheader_339',['TLV_WRITER_OP_HEADER',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33dae6fd43b1781f99d4da2ef331989b29b9',1,'writer.h']]],
-  ['tlv_5fwriter_5fop_5flength_340',['TLV_WRITER_OP_LENGTH',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33daa8979120b8a893bec4d13dd20b788417',1,'writer.h']]],
-  ['tlv_5fwriter_5fop_5ftag_341',['TLV_WRITER_OP_TAG',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da23870831724fe2432fe2986b69b2d31c',1,'writer.h']]],
-  ['tlv_5fwriter_5fop_5ftrailer_342',['TLV_WRITER_OP_TRAILER',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da27ba196362627471ae8afa042721e875',1,'writer.h']]],
-  ['tlv_5fwriter_5fop_5fvalue_343',['TLV_WRITER_OP_VALUE',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da95ea6ef74341a6449609e8ef8c780751',1,'writer.h']]]
+  ['tlv_5fwriter_5fop_5fcopy_339',['TLV_WRITER_OP_COPY',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da5120d19f1c65755c58791dd168d2359e',1,'writer.h']]],
+  ['tlv_5fwriter_5fop_5fheader_340',['TLV_WRITER_OP_HEADER',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33dae6fd43b1781f99d4da2ef331989b29b9',1,'writer.h']]],
+  ['tlv_5fwriter_5fop_5flength_341',['TLV_WRITER_OP_LENGTH',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33daa8979120b8a893bec4d13dd20b788417',1,'writer.h']]],
+  ['tlv_5fwriter_5fop_5fpreserve_342',['TLV_WRITER_OP_PRESERVE',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da920f7d3bab07e9809734ba87c07c560d',1,'writer.h']]],
+  ['tlv_5fwriter_5fop_5ftag_343',['TLV_WRITER_OP_TAG',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da23870831724fe2432fe2986b69b2d31c',1,'writer.h']]],
+  ['tlv_5fwriter_5fop_5ftrailer_344',['TLV_WRITER_OP_TRAILER',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da27ba196362627471ae8afa042721e875',1,'writer.h']]],
+  ['tlv_5fwriter_5fop_5fvalue_345',['TLV_WRITER_OP_VALUE',['../group__writer.html#ggab650d8082fbcc856730fd85aea1ce33da95ea6ef74341a6449609e8ef8c780751',1,'writer.h']]]
 ];

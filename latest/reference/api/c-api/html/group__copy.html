@@ -142,8 +142,8 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Serializes an element's tag, length and value using a writer format. </p>
-<p>Encodes as <a class="el" href="group__writer.html#gacf33218620291433b9ddccbc58798241" title="Encodes one element directly into caller-owned memory.">tlv_write()</a> does, regenerating the length from <code>value.size</code>, so the result may differ from the bytes the element was read from; use <a class="el" href="group__copy.html#ga06d2f6add67c483b2c66da85faf0b942" title="Copies an exact encoded byte range, preserving the original wire bytes.">tlv_copy_encoded()</a> to preserve them exactly.</p>
-<p>Requires the format's <code>write_tag</code>, <code>write_length</code> and <code>length_size</code> callbacks. The element's value bytes must not overlap the destination element.</p>
+<p>Encodes as <a class="el" href="group__writer.html#gacf33218620291433b9ddccbc58798241" title="Encodes one element directly into caller-owned memory.">tlv_write()</a> does, regenerating the length from <code>value.size</code>, so the result may differ from the bytes the element was read from. Use <a class="el" href="group__formats.html#gaff447cb2ce52706c333b38ee275ea592" title="Reproduce immutable source bytes only if element still equals the source.">tlv_source_preserve()</a> to check unchanged content and retain original framing, or <a class="el" href="group__copy.html#ga06d2f6add67c483b2c66da85faf0b942" title="Copies an exact encoded byte range, preserving the original wire bytes.">tlv_copy_encoded()</a> to copy an unvalidated byte range exactly.</p>
+<p>Requires the format's <code>measure</code> and <code>encode</code> callbacks. The element's value bytes must not overlap the destination element.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">element</td><td>Element to serialize. </td></tr>

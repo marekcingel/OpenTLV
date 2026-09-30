@@ -265,6 +265,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a4c254e24e77d49afc2e4866e4370cd82" id="r_a4c254e24e77d49afc2e4866e4370cd82"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; <a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a4c254e24e77d49afc2e4866e4370cd82">as_bytes</a> (<a class="elRef" href="../../c-api/html/structtlv__value__t.html">tlv_value_t</a> value)</td></tr>
 <tr class="memdesc:a4c254e24e77d49afc2e4866e4370cd82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a logical TLV value to a native byte span without copying.  <br /></td></tr>
 <tr class="separator:a4c254e24e77d49afc2e4866e4370cd82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13d744645f8b59ec22c177bd33d7d663" id="r_a13d744645f8b59ec22c177bd33d7d663"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a13d744645f8b59ec22c177bd33d7d663">encoded_size</a> (const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a13d744645f8b59ec22c177bd33d7d663"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measures exact caller-owned destination storage for an Element.  <br /></td></tr>
+<tr class="separator:a13d744645f8b59ec22c177bd33d7d663"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Public C++ wrappers, value types, codec traits and helpers for OpenTLV. </p>
@@ -1043,6 +1046,59 @@ template&lt;typename T &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The number of bytes written (or required, for a size query), or the <a class="elRef" href="../../c-api/html/group__codecs.html#ga6033534ecdbfc36953062aed6279562f">tlv_codec_result_t</a> reported by the codec.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>On error the contents of <code>data</code> are unspecified. </dd></dl>
+
+</div>
+</div>
+<a id="a13d744645f8b59ec22c177bd33d7d663" name="a13d744645f8b59ec22c177bd33d7d663"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13d744645f8b59ec22c177bd33d7d663">&#9670;&#160;</a></span>encoded_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::encoded_size </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Measures exact caller-owned destination storage for an Element. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>Semantic input; content-dependent formats require readable Value. </td></tr>
+    <tr><td class="paramname">format</td><td>Borrowed writable format. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional failure detail; unchanged on success. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Native byte count or C error. Success does not allocate; errors may allocate. </dd></dl>
 
 </div>
 </div>

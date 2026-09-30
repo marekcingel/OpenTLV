@@ -105,7 +105,7 @@ Data Fields</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Structured detail for a failed <a class="el" href="group__writer.html#gacf33218620291433b9ddccbc58798241" title="Encodes one element directly into caller-owned memory.">tlv_write()</a> or <a class="el" href="group__writer.html#ga48781a827e6327c0ae5557286cf25b5c" title="Writes one TLV element at the writer&#39;s current position.">tlv_writer_write()</a> call. </p>
-<p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> with the writer-specific state needed to explain an encoding failure: which step failed, the tag being encoded if one was already validated, the value length that was requested, the total encoded size that was required, and the destination capacity that was available. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates; <code>tag</code> borrows the tag passed to the failing call.</p>
+<p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> with the writer-specific state needed to explain an encoding failure: which step failed, the tag supplied by the caller, the value length that was requested, the total encoded size that was required, and the destination capacity that was available. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates; <code>tag</code> borrows the tag passed to the failing call.</p>
 <p>A field not applicable to the failure that produced the diagnostic is left unset, indicated by its paired <code>has_*</code> flag being zero.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__writer.html#ga7625f2cd0222a52934fa1a9c1a7cdcc5" title="Resets a writer diagnostic to all-unset.">tlv_writer_diagnostic_init</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
@@ -120,7 +120,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Destination bytes actually available at the failing offset; valid only if <code>has_available</code> is nonzero. </p>
+<p>Destination bytes available at the element start; valid only if <code>has_available</code> is nonzero. </p>
 
 </div>
 </div>
@@ -135,7 +135,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Code, severity, the output offset of the failing element, and any expected/actual text. </p>
+<p>Code, severity and failing field offset, or element start if no field offset is known. Sequential operations report absolute buffer offsets; sizing uses element-relative offsets. An unrepresentable absolute offset is unset. </p>
 
 </div>
 </div>
@@ -165,7 +165,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Nonzero if <code>length</code> is set. </p>
+<p>Nonzero if the supplied logical Value size fits the native <code>length</code> field. </p>
 
 </div>
 </div>
@@ -195,7 +195,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Nonzero if <code>tag</code> is known. Unset only when a general argument or format-usability check failed before the tag could be considered. </p>
+<p>Nonzero if an Element was supplied, even if its tag is invalid. </p>
 
 </div>
 </div>
@@ -240,7 +240,7 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Total encoded size required (tag + length + value), matching what <a class="el" href="group__writer.html#ga8bea505ba8d2e9e9f23f54d91ba154f8" title="Computes the encoded size of an element without accessing value bytes.">tlv_encoded_size()</a> reports for the same tag, length and format; valid only if <code>has_required</code> is nonzero. </p>
+<p>Total encoded size required (Header + Value + Trailer); valid only if <code>has_required</code> is nonzero. </p>
 
 </div>
 </div>

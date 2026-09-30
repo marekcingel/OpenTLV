@@ -99,6 +99,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af0324c106107f6790d44846a2904aaa9" id="r_af0324c106107f6790d44846a2904aaa9"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer.html#af0324c106107f6790d44846a2904aaa9">size</a> () const</td></tr>
 <tr class="memdesc:af0324c106107f6790d44846a2904aaa9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of bytes written so far.  <br /></td></tr>
 <tr class="separator:af0324c106107f6790d44846a2904aaa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae56c3ef9a7e6145e1683f82ddabf05ac" id="r_ae56c3ef9a7e6145e1683f82ddabf05ac"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer.html#ae56c3ef9a7e6145e1683f82ddabf05ac">remaining</a> () const</td></tr>
+<tr class="memdesc:ae56c3ef9a7e6145e1683f82ddabf05ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns remaining destination bytes without changing state.  <br /></td></tr>
+<tr class="separator:ae56c3ef9a7e6145e1683f82ddabf05ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb37e9751d2e33481f7c45c12600d37b" id="r_aeb37e9751d2e33481f7c45c12600d37b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer.html#aeb37e9751d2e33481f7c45c12600d37b">write</a> (const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:aeb37e9751d2e33481f7c45c12600d37b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes an Element at the current position using the cursor's Format.  <br /></td></tr>
+<tr class="separator:aeb37e9751d2e33481f7c45c12600d37b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70a001edc992aa1e16251acb26626c2a" id="r_a70a001edc992aa1e16251acb26626c2a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer.html#a70a001edc992aa1e16251acb26626c2a">copy_encoded</a> (<a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a> encoded, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a70a001edc992aa1e16251acb26626c2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies a raw byte range without validation or format conversion.  <br /></td></tr>
+<tr class="separator:a70a001edc992aa1e16251acb26626c2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a767673f8d3ab043db2d6622021c4194c" id="r_a767673f8d3ab043db2d6622021c4194c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1writer.html#a767673f8d3ab043db2d6622021c4194c">preserve</a> (const <a class="elRef" href="../../c-api/html/group__formats.html#gaa059c2a96e6efca0a92f863a056a5e1d">tlv_source_t</a> &amp;original, const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a767673f8d3ab043db2d6622021c4194c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends original framing after checking unchanged semantic content.  <br /></td></tr>
+<tr class="separator:a767673f8d3ab043db2d6622021c4194c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Thin C++ wrapper around <a class="elRef" href="../../c-api/html/group__writer.html#gab60fe025fad90cee69e0d2d92eb5d259">tlv_writer_t</a>. </p>
@@ -160,6 +172,134 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a70a001edc992aa1e16251acb26626c2a" name="a70a001edc992aa1e16251acb26626c2a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a70a001edc992aa1e16251acb26626c2a">&#9670;&#160;</a></span>copy_encoded()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::writer::copy_encoded </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a2abe7003a70af047ef9acae17f31f75d">bytes</a>&#160;</td>
+          <td class="paramname"><em>encoded</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copies a raw byte range without validation or format conversion. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">encoded</td><td>Borrowed byte range; overlap is supported. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional failure detail with absolute buffer offset. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Success or C error; failure preserves position and output bytes. </dd></dl>
+
+</div>
+</div>
+<a id="a767673f8d3ab043db2d6622021c4194c" name="a767673f8d3ab043db2d6622021c4194c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a767673f8d3ab043db2d6622021c4194c">&#9670;&#160;</a></span>preserve()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::writer::preserve </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" href="../../c-api/html/group__formats.html#gaa059c2a96e6efca0a92f863a056a5e1d">tlv_source_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>original</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Appends original framing after checking unchanged semantic content. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">original</td><td>Borrowed immutable Source; bytes and Format must remain alive. </td></tr>
+    <tr><td class="paramname">value</td><td>Current semantic content, equal to original content. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional failure detail with absolute buffer offset. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Success or C error; failure preserves position and output bytes. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Follow the overlap and immutable-source rules of <a class="elRef" href="../../c-api/html/group__writer.html#ga3a7e90570b96437908d37b3cdf23fce7">tlv_writer_preserve()</a>. </dd></dl>
+
+</div>
+</div>
+<a id="ae56c3ef9a7e6145e1683f82ddabf05ac" name="ae56c3ef9a7e6145e1683f82ddabf05ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae56c3ef9a7e6145e1683f82ddabf05ac">&#9670;&#160;</a></span>remaining()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t tlv::writer::remaining </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns remaining destination bytes without changing state. </p>
+<dl class="section return"><dt>Returns</dt><dd>Available capacity in bytes. </dd></dl>
+
+</div>
+</div>
 <a id="af0324c106107f6790d44846a2904aaa9" name="af0324c106107f6790d44846a2904aaa9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af0324c106107f6790d44846a2904aaa9">&#9670;&#160;</a></span>size()</h2>
 
@@ -188,8 +328,55 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="aeb37e9751d2e33481f7c45c12600d37b" name="aeb37e9751d2e33481f7c45c12600d37b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb37e9751d2e33481f7c45c12600d37b">&#9670;&#160;</a></span>write() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; void, <a class="el" href="structtlv_1_1error.html">error</a> &gt; tlv::writer::write </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em> = <code>nullptr</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Encodes an Element at the current position using the cursor's Format. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>Semantic input; borrowed for the call, must not overlap output. </td></tr>
+    <tr><td class="paramname">diagnostic</td><td>Optional failure detail with absolute buffer offset. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Success or C error; position advances only on success. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Callback errors may modify bytes past the unchanged position. </dd></dl>
+
+</div>
+</div>
 <a id="a5f4d451ec3f70797b9471ca99e171510" name="a5f4d451ec3f70797b9471ca99e171510"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5f4d451ec3f70797b9471ca99e171510">&#9670;&#160;</a></span>write() <span class="overload">[1/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f4d451ec3f70797b9471ca99e171510">&#9670;&#160;</a></span>write() <span class="overload">[2/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -236,7 +423,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <a id="afd2030dba0af4d061f1112b8d68e0fca" name="afd2030dba0af4d061f1112b8d68e0fca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd2030dba0af4d061f1112b8d68e0fca">&#9670;&#160;</a></span>write() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afd2030dba0af4d061f1112b8d68e0fca">&#9670;&#160;</a></span>write() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">

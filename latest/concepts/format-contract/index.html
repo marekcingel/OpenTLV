@@ -2973,8 +2973,10 @@ reports Header, Value, Trailer and their checked total. It accepts a null Value
 pointer for content-independent queries; content-dependent formats require
 readable content even for exact sizing.</p>
 <p>Actual buffer extents, field ranges, offsets and consumed/written counts use
-<code>size_t</code>. Narrow only after validation. <code>tlv_encoded_size()</code> is the native-sized
-convenience wrapper; it does not replace logical measurement.</p>
+<code>size_t</code>. Narrow only after validation. <code>tlv_element_encoded_size()</code> is Writer's
+native-sized measurement of a complete semantic Element. <code>tlv_encoded_size()</code>
+is its tag/length convenience wrapper for content-independent queries. Neither
+replaces logical measurement or allocates output storage.</p>
 <ul>
 <li><code>TLV_ERR_OVERFLOW</code>: logical arithmetic exceeds the logical size domain.</li>
 <li><code>TLV_ERR_INVALID_LENGTH</code>: the quantity is invalid for the wire encoding.</li>

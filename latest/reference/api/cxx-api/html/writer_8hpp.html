@@ -76,7 +76,8 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#typedef-members">Typedefs</a>  </div>
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">writer.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -103,6 +104,12 @@ Typedefs</h2></td></tr>
 <tr class="memitem:a1df134eb9e2b476155eb324618396e4d" id="r_a1df134eb9e2b476155eb324618396e4d"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">tlv::writer_diagnostic</a> = <a class="elRef" href="../../c-api/html/group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a></td></tr>
 <tr class="memdesc:a1df134eb9e2b476155eb324618396e4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">C++ alias for the writer-specific diagnostic type, <a class="elRef" href="../../c-api/html/group__writer.html#ga62e12d2578bd1747a55ff04c0649aea5">tlv_writer_diagnostic_t</a>.  <br /></td></tr>
 <tr class="separator:a1df134eb9e2b476155eb324618396e4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a13d744645f8b59ec22c177bd33d7d663" id="r_a13d744645f8b59ec22c177bd33d7d663"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classtlv_1_1expected.html">expected</a>&lt; size_t, <a class="el" href="structtlv_1_1error.html">error</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a13d744645f8b59ec22c177bd33d7d663">tlv::encoded_size</a> (const <a class="el" href="namespacetlv.html#a36fb32b6d2478c7a9f386389e959ebcc">element</a> &amp;value, const <a class="elRef" href="../../c-api/html/group__formats.html#gac461da7e8d46362fa8e09694efb0b062">tlv_format_t</a> &amp;format, <a class="el" href="namespacetlv.html#a1df134eb9e2b476155eb324618396e4d">writer_diagnostic</a> *<a class="el" href="namespacetlv.html#a00ca9c69c35ef11f6a22b7eda1b115ba">diagnostic</a>=nullptr)</td></tr>
+<tr class="memdesc:a13d744645f8b59ec22c177bd33d7d663"><td class="mdescLeft">&#160;</td><td class="mdescRight">Measures exact caller-owned destination storage for an Element.  <br /></td></tr>
+<tr class="separator:a13d744645f8b59ec22c177bd33d7d663"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>C++ wrapper for sequential writing into a caller-owned buffer. </p>

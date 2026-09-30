@@ -2943,6 +2943,48 @@ encoding must be retained.</p>
 must not overlap the destination element. Capacity is checked before writing;
 custom callback failures can still leave partially modified bytes. Do not assume
 that every error rolls back destination memory. See <a href="../../formats/">I/O contracts</a>.</p>
+<p>Sizing is the allocation boundary: OpenTLV reports exact storage, the caller
+chooses where to allocate it, and Writer fills that storage. Neither measuring
+nor writing requires Document, output I/O, or hidden buffering.</p>
+<ul>
+<li><code>tlv_element_encoded_size(element, format, &amp;required)</code> measures Header +
+  Value + Trailer using the complete semantic input. It checks that the total
+  fits native <code>size_t</code> without allocating output memory.</li>
+<li><code>tlv_encoded_size(tag, value_length, format, &amp;required)</code> remains available
+  when the Format can measure without reading Value content.</li>
+<li><code>tlv_write_element()</code> writes one Element. <code>tlv_writer_write_element()</code>
+  appends it to a caller-owned cursor; the tag/value/length helpers use the
+  same path. <code>tlv_writer_copy_element()</code> also re-encodes with the target Format.</li>
+<li><code>tlv_writer_preserve()</code> appends original Source bytes after verifying
+  unchanged semantic content. Source storage must remain immutable. The
+  cursor's Format does not convert the preserved representation.</li>
+<li><code>tlv_writer_copy_encoded()</code> appends an arbitrary byte range without framing
+  validation. Raw copying and preservation support overlapping byte ranges;
+  semantic encoding does not. Source descriptors must not overlap output.</li>
+</ul>
+<p>Every cursor operation advances <code>pos</code> only on success, with <code>pos &lt;= capacity</code>.
+<code>tlv_writer_remaining()</code> reports remaining capacity. A cursor with no storage
+is a real destination, never an implicit sizing mode. A zero-byte raw copy can
+succeed; an Element cannot fit in zero capacity.</p>
+<p><code>tlv_write()</code> and <code>tlv_write_element()</code> set <code>written</code> to the required size on a
+preflight capacity failure, leaving destination bytes unchanged. Other failures
+leave <code>written</code> unchanged. Standalone copy helpers retain their separate contract:
+<code>NULL, 0</code> queries size, and failure leaves <code>written</code> unchanged. For original
+representation sizing, use <code>tlv_source_preserve(source, element, NULL, 0, &amp;required)</code>.</p>
+<p>Diagnostic variants preserve diagnostics on success. On failure they identify
+the operation, applicable semantic input, and known required/available sizes.
+Sizing has no destination capacity. Field offsets are relative to the Element
+for standalone operations and absolute within the buffer for cursor operations;
+errors without a field offset point to the Element start. An absolute offset
+that cannot be represented is unset.</p>
+<p>In C++, <code>tlv::encoded_size(element, format)</code> and <code>tlv::writer::write(element)</code>
+provide the same two-stage model; error objects may allocate. Rust exposes
+<code>element_encoded_size</code> (and its fixed-format variant) and a Writer borrowing
+<code>&amp;mut [u8]</code>. Python exposes <code>element_encoded_size</code> and
+<code>Writer(format, buffer=storage)</code>: caller-supplied writable contiguous storage
+never grows. <code>Writer.view()</code> borrows written bytes; <code>Writer.bytes()</code> copies.
+Python wrapper objects may allocate; borrowed mode does not allocate output
+storage. Omitting <code>buffer</code> retains the optional growable convenience wrapper.</p>
 <h2 id="format-context-ownership-and-lifetime">Format context ownership and lifetime<a class="headerlink" href="#format-context-ownership-and-lifetime" title="Permanent link">&para;</a></h2>
 <p><code>tlv_format_t::context</code> is a borrowed, non-owning <code>const void*</code>: whoever
 constructs the state it points to (for example a <code>tlv_fixed_format_t</code>) owns
