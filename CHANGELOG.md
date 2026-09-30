@@ -98,6 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add Lua Query and optional mutable Document bindings with native path matching, editing, serialization, diagnostics, and lifetime-safe node handles. (#303)
 - Add Lua Value codecs with builtin and configurable codecs, EMV dictionary selection, exact 64-bit integer conversion, codec diagnostics and custom Lua callbacks through the C codec contract. (#302)
 - Add Lua structural Schema validation with nested rules, ordering, alternative groups and bounded diagnostic reports, sharing native diagnostic conversion with Reader and Writer. (#301)
 - Add Lua `visit()` for sequential C Reader traversal alongside `visit_tree()`, with synchronous callbacks, early stopping and unchanged Lua error propagation. (#300)
