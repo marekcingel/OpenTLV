@@ -2735,6 +2735,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#codec-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codec implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#writer-implementation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2860,6 +2871,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#codec-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codec implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#writer-implementation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2930,7 +2952,8 @@ model</a>.</p>
 API), using only the portable subset of the Lua C API common to all of them;
 see <code>bindings/lua/src/compat.h</code>. It covers Reader, Writer, Tree Writer, Element and Tag, and
 preorder tree traversal (<code>opentlv.visit_tree</code>, built on <code>tlv_tree_reader_visit()</code>/
-<code>tlv_der_visit()</code>), and structural Schema validation with detailed diagnostic reports;
+<code>tlv_der_visit()</code>), structural Schema validation with detailed diagnostic reports,
+and Value codecs with builtin and custom callback support;
 Document is not bound yet.</p>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">&para;</a></h2>
 <p>Requirements: CMake 3.16 or newer, a C99 compiler, and Lua 5.1, 5.2, 5.3, 5.4
@@ -2972,6 +2995,26 @@ runs on every push and pull request to <code>main</code>: it builds the module w
 <code>luarocks make</code> and runs <code>busted tests</code> and every script under <code>examples/</code>,
 across Lua 5.1, 5.3 and 5.4, on Linux, and additionally on Windows and macOS
 for release tags.</p>
+<h2 id="codec-implementation">Codec implementation<a class="headerlink" href="#codec-implementation" title="Permanent link">&para;</a></h2>
+<p><code>src/codec.c</code> owns codec userdata, configured descriptors, exact Lua integer
+conversion and protected custom callback trampolines. <code>src/codec_builtin.c</code>
+adapts documented C representations to Lua values and tables. All wire
+conversion and semantic validation uses <code>tlv_codec_decode()</code> and
+<code>tlv_codec_encode()</code>. EMV selection uses its existing dictionary and builtin
+presentation adapter. There is no Lua-specific codec registry.</p>
+<p>Native temporary objects and output buffers are Lua userdata, so argument
+errors and allocation failures cannot leak C heap storage. Borrowed strings
+remain rooted until the native operation finishes; decoded views become
+owned Lua strings. Custom functions are held in a userdata environment
+(Lua 5.1) or uservalue table (5.2+), allowing callback cycles to be collected.
+Each invocation prepares its own protected closure before entering C, so
+allocation errors cannot unwind across the core and recursive calls do not
+overwrite callback state.</p>
+<p><code>Integration_lua_codec</code>, <code>Integration_lua_codec_allocator</code> and
+<code>Integration_example_lua_codec</code> run standalone without busted, including
+minimal builds. The codec suite also runs under <code>busted tests</code> and checks
+every exported static descriptor. Structure codecs remain outside this
+Value-codec binding.</p>
 <h2 id="writer-implementation">Writer implementation<a class="headerlink" href="#writer-implementation" title="Permanent link">&para;</a></h2>
 <p><code>src/writer.c</code> owns bounded output and Tree Writer workspace storage, retains
 Format userdata, and delegates writes to <code>tlv_writer_write_element_diag()</code>

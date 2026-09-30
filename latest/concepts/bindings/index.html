@@ -3101,7 +3101,7 @@ ergonomics to the target language.</p>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>   C++       Rust        Go       Python      Lua    &lt;language&gt;
 </code></pre></div>
 <p>C++, Rust and Python expose Readers, Writers and Document facades today.
-Lua (<code>bindings/lua/</code>) currently binds Reader, Writer, Tree Writer, Element and Tag.
+Lua (<code>bindings/lua/</code>) currently binds Reader, Writer, Tree Writer, Schema, Value Codec, Element and Tag.
 Go is illustrative here, not yet scaffolded, to show the contract extends past the
 current bindings. The trailing <code>...</code> stands for any further binding.</p>
 <p>The public OpenTLV C API (see the <a href="../../reference/c-api/">C API reference</a>) is
@@ -3362,7 +3362,7 @@ coverage still needs verification; it must not be counted as parity.</p>
 <td>Audit</td>
 <td>Partial: configured <code>NumberCodec</code> and EMV codecs</td>
 <td>Partial: configured <code>NumberCodec</code> and EMV amount</td>
-<td>Missing</td>
+<td>Value codecs, configuration, builtin EMV selection and custom callbacks (#302); structure codecs remain unbound</td>
 </tr>
 <tr>
 <td>Generic Definition: <code>tlv_definition_t</code>, <code>tlv_definition_registry_t</code>, <code>tlv_definition_find</code></td>
@@ -3640,7 +3640,7 @@ explicitly out of scope for #400.</p>
 <td><code>TlvCodec</code> concept, <code>tlv::decode_structure&lt;T&gt;</code>/<code>encode_structure</code></td>
 <td><code>Codec</code></td>
 <td><code>NumberCodec</code> and EMV amount functions</td>
-<td>not bound yet</td>
+<td><code>codecs</code>, <code>codec {decode, encode}</code>; Value codecs only</td>
 </tr>
 <tr>
 <td>Diagnostics</td>
@@ -3735,7 +3735,9 @@ it. For example:</p>
   traversal (<code>opentlv.visit_tree()</code>, built on <code>tlv_tree_reader_visit()</code>/
   <code>tlv_der_visit()</code>). Pull-based Tree Reader and advanced Writer capabilities
   (measurement, structural events and exact copy/preservation) remain gaps
-  in Lua. See <a href="../../development/lua/">Lua bindings</a> and
+  in Lua. Value codecs expose builtin representations, configured codecs,
+  EMV dictionary selection and custom callbacks through <code>tlv_codec_t</code> (#302).
+  Structure codecs remain unbound. See <a href="../../development/lua/">Lua bindings</a> and
   <a href="../../guides/lua/">using OpenTLV from Lua</a>.</li>
 <li><strong>Go</strong>: planned, not started yet. No <code>bindings/go/</code> directory exists; when
   work on it begins, it follows this contract like the Rust crate does.</li>

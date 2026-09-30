@@ -1500,6 +1500,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value codecs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Value codecs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integers-and-configured-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integers and configured codecs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#builtin-representations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Builtin representations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-dictionary-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV dictionary selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#errors-and-custom-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors and custom codecs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2981,6 +3042,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value codecs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Value codecs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integers-and-configured-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integers and configured codecs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#builtin-representations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Builtin representations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-dictionary-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV dictionary selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#errors-and-custom-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors and custom codecs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3346,6 +3468,205 @@ parent-element offset when nested and have no offset at root level. Fatal
 diagnostics carry only code/message/severity and the offset if C provided one;
 the binding does not reparse the input to reconstruct tag or path information.</p>
 <p>See the runnable <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/schema.lua">schema example</a>.</p>
+<h2 id="value-codecs">Value codecs<a class="headerlink" href="#value-codecs" title="Permanent link">&para;</a></h2>
+<p>Select a codec explicitly and pass only an element's Value bytes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">tlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codecs</span><span class="p">.</span><span class="py">uint16_be</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kd">local</span><span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">codec</span><span class="p">:</span><span class="nf">decode</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0x34</span><span class="p">))</span><span class="w"> </span><span class="c1">-- 4660</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="kd">local</span><span class="w"> </span><span class="nv">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">codec</span><span class="p">:</span><span class="nf">encode</span><span class="p">(</span><span class="nv">value</span><span class="p">)</span><span class="w"> </span><span class="c1">-- binary string, no TLV framing</span>
+</code></pre></div>
+<p>Both methods invoke the existing C codec. They do not select a codec from a
+Tag, validate the enclosing schema, or reinterpret framing. Encode uses the
+C size query before allocating the output. Decoded strings and tables own
+their contents and survive collection of the source string and codec.</p>
+<p><code>tlv.codecs</code> is a namespace of exported descriptors and constructors, not a
+separate runtime registry. Standard Lua indexing provides name selection,
+for example <code>tlv.codecs["uint16_be"]</code>; an absent name returns <code>nil</code>.</p>
+<h3 id="integers-and-configured-codecs">Integers and configured codecs<a class="headerlink" href="#integers-and-configured-codecs" title="Permanent link">&para;</a></h3>
+<p>Integer codecs accept native Lua integers, exactly represented integral Lua
+numbers, or decimal strings. Lua 5.3+ returns a native integer when it fits
+<code>lua_Integer</code>. On Lua 5.1/5.2 and LuaJIT, the default double-number build
+returns numbers through ±(2^53−1). Larger results are decimal strings; this
+also covers unsigned values above Lua's signed integer range. Float-number
+builds use ±(2^24−1). Floating-point inputs outside that safe range, fractions,
+NaN, infinity and overflowing decimal strings are rejected rather than rounded.
+Use a decimal string to supply large exact values on every Lua version.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codecs</span><span class="p">.</span><span class="py">number</span><span class="w"> </span><span class="p">{</span><span class="nv">encoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"binary_be"</span><span class="p">,</span><span class="w"> </span><span class="nv">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">}</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">maximum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"18446744073709551615"</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">number</span><span class="p">:</span><span class="nf">decode</span><span class="p">(</span><span class="nv">number</span><span class="p">:</span><span class="nf">encode</span><span class="p">(</span><span class="nv">maximum</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nv">maximum</span><span class="p">)</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="kd">local</span><span class="w"> </span><span class="nv">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codecs</span><span class="p">.</span><span class="py">text</span><span class="w"> </span><span class="p">{</span><span class="nv">alphabet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"ascii_printable"</span><span class="p">,</span><span class="w"> </span><span class="nv">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nv">zero_padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span><span class="nf">encode</span><span class="p">(</span><span class="s2">"abc"</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"abc</span><span class="se">\0\0</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="kd">local</span><span class="w"> </span><span class="nv">digits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codecs</span><span class="p">.</span><span class="py">digits</span><span class="w"> </span><span class="p">{</span><span class="nv">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">}</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">digits</span><span class="p">:</span><span class="nf">decode</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"0012"</span><span class="p">)</span>
+</code></pre></div>
+<p>All constructors take a table. Number <code>encoding</code> is <code>"binary_be"</code> (default),
+<code>"binary_le"</code>, or <code>"bcd"</code>; <code>width</code> defaults to zero (minimal encoding), and
+<code>digits</code> defaults to zero (supply the precision for BCD). Text <code>alphabet</code> is
+<code>"ascii_printable"</code> (default) or <code>"ascii_alnum"</code>; <code>width</code> defaults to zero and
+<code>zero_padding</code> to false. Digits <code>width</code> defaults to zero. The userdata owns
+its C configuration. The C engine validates configuration and Value semantics
+when the codec is invoked.</p>
+<h3 id="builtin-representations">Builtin representations<a class="headerlink" href="#builtin-representations" title="Permanent link">&para;</a></h3>
+<p>Names below are relative to <code>tlv.codecs</code>. Byte strings are binary Lua strings,
+including embedded zeros. Arrays are dense, one-based Lua tables. Integer
+fields use the exact integer rules above. Table field names match the C
+representation; required fields must be supplied on encode.</p>
+<table>
+<thead>
+<tr>
+<th>Codecs</th>
+<th>Lua representation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uint8</code>, <code>uint16_be</code>, <code>uint16_le</code>, <code>uint32_be</code>, <code>uint32_le</code>, <code>int64_minimal_be</code></td>
+<td>Integer</td>
+</tr>
+<tr>
+<td><code>bytes</code></td>
+<td>Byte string</td>
+</tr>
+<tr>
+<td><code>ipv4</code>, <code>ipv4_list</code></td>
+<td>Four network-order bytes; array of four-byte strings</td>
+</tr>
+<tr>
+<td><code>dhcpv4.message_type</code>, <code>lldp.ttl</code>, <code>lldp.text</code>, <code>bluetooth.uuid16</code>, <code>bluetooth.uuid32</code></td>
+<td>C source aliases: integer, integer, bytes, integer, integer</td>
+</tr>
+<tr>
+<td><code>asn1.boolean</code>, <code>asn1.integer</code>, <code>asn1.enumerated</code>, <code>asn1.null</code></td>
+<td>Boolean, signed integer, signed integer, <code>nil</code></td>
+</tr>
+<tr>
+<td><code>asn1.bit_string</code></td>
+<td><code>{unused_bits, data}</code>; <code>data</code> excludes the count octet</td>
+</tr>
+<tr>
+<td><code>asn1.oid</code>, <code>asn1.relative_oid</code></td>
+<td>Array of unsigned integer arcs</td>
+</tr>
+<tr>
+<td><code>asn1.oid_iri</code>, <code>asn1.relative_oid_iri</code></td>
+<td>Array of string arc labels</td>
+</tr>
+<tr>
+<td><code>asn1.octet_string</code>, <code>asn1.object_descriptor</code>, <code>asn1.*_string</code></td>
+<td>Byte string; BMP and Universal strings retain big-endian UCS-2/UCS-4 bytes</td>
+</tr>
+<tr>
+<td><code>asn1.time</code>, <code>asn1.duration</code></td>
+<td>String validated by the C codec</td>
+</tr>
+<tr>
+<td><code>asn1.date</code></td>
+<td><code>{year, month, day}</code></td>
+</tr>
+<tr>
+<td><code>asn1.time_of_day</code></td>
+<td><code>{hour, minute, second}</code></td>
+</tr>
+<tr>
+<td><code>asn1.utc_time</code>, <code>asn1.date_time</code></td>
+<td><code>{year, month, day, hour, minute, second}</code></td>
+</tr>
+<tr>
+<td><code>asn1.generalized_time</code></td>
+<td>Same timestamp fields plus <code>fraction_digits</code> (empty string for no fraction)</td>
+</tr>
+<tr>
+<td><code>bluetooth.flags</code>, <code>bluetooth.local_name</code>, <code>bluetooth.tx_power</code></td>
+<td>Bytes, UTF-8 string, signed integer</td>
+</tr>
+<tr>
+<td><code>bluetooth.uuid128</code></td>
+<td>16 bytes in canonical printed UUID order; C handles wire reversal</td>
+</tr>
+<tr>
+<td><code>bluetooth.uuid16_list</code>, <code>bluetooth.uuid32_list</code>, <code>bluetooth.uuid128_list</code></td>
+<td>Arrays of the corresponding UUID representation</td>
+</tr>
+<tr>
+<td><code>bluetooth.service_data16</code>, <code>bluetooth.service_data32</code>, <code>bluetooth.service_data128</code></td>
+<td><code>{uuid, payload, raw}</code>; <code>raw</code> is informational, optional and ignored on encode</td>
+</tr>
+<tr>
+<td><code>bluetooth.manufacturer_data</code></td>
+<td><code>{company_id, payload, raw}</code>; same <code>raw</code> rule</td>
+</tr>
+<tr>
+<td><code>lldp.chassis_id</code>, <code>lldp.port_id</code></td>
+<td><code>{subtype, identifier}</code></td>
+</tr>
+<tr>
+<td><code>lldp.capabilities</code></td>
+<td><code>{supported, enabled}</code></td>
+</tr>
+<tr>
+<td><code>lldp.management_address</code></td>
+<td><code>{address_subtype, address, interface_subtype, interface_number, oid}</code></td>
+</tr>
+<tr>
+<td><code>lldp.organisation</code></td>
+<td><code>{oui, subtype, payload}</code>; <code>oui</code> is exactly three bytes</td>
+</tr>
+<tr>
+<td><code>emv.amount</code></td>
+<td>Unsigned integer in unscaled minor units</td>
+</tr>
+</tbody>
+</table>
+<p>ASN.1 exports require <code>OPENTLV_FORMAT_BER</code>; they preserve C's canonical
+content checks even when the caller reads permissive BER. Protocol-specific
+Bluetooth, LLDP and EMV exports follow their component options. C source
+aliases remain available even with optional components disabled.</p>
+<h3 id="emv-dictionary-selection">EMV dictionary selection<a class="headerlink" href="#emv-dictionary-selection" title="Permanent link">&para;</a></h3>
+<p><code>tlv.codecs.emv.find(tag, context)</code> delegates to <code>tlv_emv_find()</code> and selects
+the existing builtin descriptor. <code>tag</code> is a binary string; <code>context</code> defaults
+to <code>tlv.codecs.emv.contexts.BASE</code>. Other context constants are <code>BIT</code>, <code>BHT</code>,
+<code>BHT_FORMAT</code>, <code>BIT_GROUP</code>, <code>BIOMETRIC_COUNTERS</code>, <code>BIOMETRIC_ATTEMPTS</code> and
+<code>BIOMETRIC_VERIFICATION</code>. There is no fallback between contexts. Unknown
+entries and entries without a codec return <code>nil</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codecs</span><span class="p">.</span><span class="py">emv</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">))</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">amount</span><span class="p">:</span><span class="nf">encode</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">amount</span><span class="p">:</span><span class="nf">decode</span><span class="p">(</span><span class="nv">bytes</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1234</span><span class="p">)</span>
+</code></pre></div>
+<p>The builtin C presentation adapter determines the representation: numbers,
+flags, account and biometric types are integers; digits are strings; dates
+and times are tables with the C field names; cryptogram information is
+<code>{type, flags}</code>; CVM results are <code>{method, condition, result}</code>; number lists
+are arrays; AFL is an array of <code>{sfi, first_record, last_record,
+offline_auth_record_count}</code>; Track 2 is <code>{pan, expiration_year,
+expiration_month, service_code, discretionary_data}</code>. This selection occurs
+before conversion, and does not add codec metadata to generic Definition.</p>
+<h3 id="errors-and-custom-codecs">Errors and custom codecs<a class="headerlink" href="#errors-and-custom-codecs" title="Permanent link">&para;</a></h3>
+<p>C codec failures raise an <code>opentlv.Error</code> table with <code>domain = "codec"</code>,
+<code>code</code> and <code>message</code> from <code>tlv_codec_strerror()</code>. Codes are exported as
+<code>tlv.codec_errors.OK</code>, <code>NULL_ARG</code>, <code>BUFFER_TOO_SHORT</code>, <code>INVALID_VALUE</code>,
+<code>UNSUPPORTED</code> and <code>INVALID_STRUCTURE</code>; <code>tlv.codec_strerror(code)</code> exposes
+their descriptions. Codec codes are a separate domain from <code>tlv.errors</code>.
+No source offset or Tag is invented for a Value-only operation. Incorrect
+Lua types and host representation bounds raise Lua argument errors.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codec</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="nv">decode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">bytes</span><span class="p">)</span><span class="w"> </span><span class="kr">return</span><span class="w"> </span><span class="p">{</span><span class="nv">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">bytes</span><span class="p">}</span><span class="w"> </span><span class="kr">end</span><span class="p">,</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nv">encode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">value</span><span class="p">)</span><span class="w"> </span><span class="kr">return</span><span class="w"> </span><span class="nv">value</span><span class="p">.</span><span class="py">payload</span><span class="w"> </span><span class="kr">end</span><span class="p">,</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="p">}</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">codec</span><span class="p">:</span><span class="nf">decode</span><span class="p">(</span><span class="nv">codec</span><span class="p">:</span><span class="py">encode</span><span class="w"> </span><span class="p">{</span><span class="nv">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"hello"</span><span class="p">}).</span><span class="nv">payload</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"hello"</span><span class="p">)</span>
+</code></pre></div>
+<p>Callbacks are optional and snapshotted at construction; a missing direction
+reports <code>UNSUPPORTED</code>. Decode returns one Lua value, including <code>nil</code>; encode
+must return a binary string. Encode calls the Lua function once and reuses
+that string for the C size query and write. Callbacks run through a native
+<code>tlv_codec_t</code> trampoline under protected Lua calls. Their original error
+objects propagate unchanged after the C call returns. Recursive codec calls
+and use from different coroutines are supported, but yielding through a
+callback is not. Callback references participate in Lua garbage collection,
+including cycles that capture the codec itself.</p>
+<p>This API binds Value codecs. The separate <code>tlv_structure_codec_t</code> contract
+for complete objects remains unbound. See the runnable
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/codec.lua">codec example</a>.</p>
 
 
 
