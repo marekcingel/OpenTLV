@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Define the planned Phase 2 runtime model and canonical IR architecture, including frontend separation, immutable model ownership, allocation boundaries and shared runtime/code-generation semantics. (#420)
 - Redefine the roadmap around Execution Foundation, Runtime Model & OTLV, and Compilation; align architectural guidance and separate architectural phases from SemVer major releases. (#419)
 - Expose Rust length-schema flags and length multiples, including constraints returned by native dictionaries. (#400)
 - Delegate Python length-schema lookup and validation to C, including endpoint and multiple constraints; schema length now counts all supplied rules, including duplicate tags. (#400)

@@ -71,12 +71,17 @@ planned capabilities built on the current execution contracts.
 Phase 2 makes Definition, Format / Field Encoding / Layout configuration,
 Schema and Codec dynamically describable as one complete model. The `.otlv`
 frontend produces an AST, performs semantic analysis and symbol resolution,
-and constructs a canonical internal IR. Runtime lowering builds an immutable
-`tlv_model_t` and supplies the existing execution descriptors. `tlv_format_t`
+and constructs a canonical internal IR. Model construction establishes
+`tlv_model_t` ownership and lowers the IR to the existing execution descriptors
+before publishing the immutable model. `tlv_format_t`
 remains a lightweight execution descriptor, not the canonical semantic Format
 representation. Loading and model construction may allocate; subsequent TLV
 processing should remain allocation-free with explicit buffers/workspaces.
 Document remains an explicitly owning representation with its own storage needs.
+
+The [Phase 2 runtime model and canonical IR](runtime-model.md) defines the
+frontend, semantic representation, model lifetime, lowering and execution
+boundaries, including the shared IR requirement for future code generation.
 
 Phase 3 consumes the same frontend and IR through an optimizer/code generator.
 Runtime and compiled backends preserve equivalent OTLV semantics. It completes
