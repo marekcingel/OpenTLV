@@ -22,7 +22,7 @@ extern "C" {
  * serialized value. This makes a DOL value a dedicated component rather than
  * ordinary TLV structure.
  *
- * @warning Do not read a DOL with tlv_read() or tlv_walk(): they would
+ * @warning Do not read a DOL with tlv_read() or tlv_reader_visit(): they would
  *          misinterpret the one raw length byte as a BER length field and
  *          then look for value bytes that were never encoded.
  *

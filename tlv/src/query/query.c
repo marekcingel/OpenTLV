@@ -82,29 +82,45 @@ int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_t* tag, 
     return depth + 1 == query->count;
 }
 
-typedef struct query_walk {
-    tlv_query_matcher_t matcher;
+typedef struct query_visitor {
+    tlv_query_matcher_t* matcher;
     tlv_tree_visitor_t visitor;
     void* context;
-} query_walk_t;
+} query_visitor_t;
 
 static tlv_visit_result_t on_element(const tlv_element_t* element, size_t depth, size_t offset,
                                      void* context) {
-    query_walk_t* walk = (query_walk_t*)context;
-    if (!tlv_query_matcher_visit(&walk->matcher, &element->tag, depth)) return TLV_VISIT_CONTINUE;
-    return walk->visitor(element, depth, offset, walk->context);
+    query_visitor_t* state = (query_visitor_t*)context;
+    if (!tlv_query_matcher_visit(state->matcher, &element->tag, depth)) return TLV_VISIT_CONTINUE;
+    return state->visitor(element, depth, offset, state->context);
 }
 
-tlv_result_t tlv_query_walk(const uint8_t* data, size_t size, const tlv_format_t* format,
-                            const tlv_query_t* query, size_t max_depth, size_t max_elements,
-                            tlv_tree_visitor_t visitor, void* context, size_t* error_offset) {
-    query_walk_t walk;
+tlv_result_t tlv_query_visit(tlv_tree_reader_t* reader, tlv_query_matcher_t* matcher,
+                             tlv_tree_visitor_t visitor, void* context, size_t* error_offset) {
+    query_visitor_t state;
+    if (!reader || !matcher || !matcher->query || !visitor) return TLV_ERR_NULL_ARG;
+    state.matcher = matcher;
+    state.visitor = visitor;
+    state.context = context;
+    return tlv_tree_reader_visit(reader, on_element, &state, error_offset);
+}
+
+tlv_result_t tlv_query_visit_buffer(const uint8_t* data, size_t size, const tlv_format_t* format,
+                                    const tlv_query_t* query, size_t max_depth, size_t max_elements,
+                                    tlv_tree_visitor_t visitor, void* context,
+                                    size_t* error_offset) {
+    tlv_query_matcher_t matcher;
     tlv_result_t rc;
     if (!visitor) return TLV_ERR_NULL_ARG;
-    rc = tlv_query_matcher_init(&walk.matcher, query);
+    rc = tlv_query_matcher_init(&matcher, query);
     if (rc != TLV_OK) return rc;
-    walk.visitor = visitor;
-    walk.context = context;
-    return tlv_walk_tree(data, size, format, max_depth, max_elements, on_element, &walk,
-                         error_offset);
+    tlv_tree_frame_t frames[TLV_QUERY_MAX_STEPS];
+    tlv_tree_reader_t reader;
+    rc = tlv_tree_reader_init(&reader, data, size, format, frames, TLV_QUERY_MAX_STEPS, max_depth,
+                              max_elements);
+    if (rc != TLV_OK) {
+        if (error_offset) *error_offset = 0;
+        return rc;
+    }
+    return tlv_query_visit(&reader, &matcher, visitor, context, error_offset);
 }

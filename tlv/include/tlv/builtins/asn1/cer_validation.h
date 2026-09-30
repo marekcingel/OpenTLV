@@ -3,7 +3,7 @@
 
 #include "tlv/error.h"
 #include "tlv/builtins/asn1/cer.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -70,7 +70,7 @@ extern TLV_API const tlv_cer_limits_t tlv_cer_default_limits;
  * segments are ordinary primitive children one level deeper; to access them
  * zero-copy, iterate the constructed string element's own borrowed value
  * (`element->value`), for example with
- * `tlv_walk(element->value.data, size, &tlv_format_cer, ...)`. See
+ * a Reader initialized over the value with `tlv_format_cer`. See
  * docs/standards/cer/README.md.
  *
  * Unlike #tlv_der_visitor_t's preorder guarantee, CER traversal is postorder
@@ -84,7 +84,7 @@ extern TLV_API const tlv_cer_limits_t tlv_cer_default_limits;
  * @param element    Current element; temporary.
  * @param depth   Number of constructed ancestors; top-level elements have depth 0.
  * @param offset  Absolute input offset of the element's tag.
- * @param context Caller context passed to tlv_cer_walk().
+ * @param context Caller context passed to tlv_cer_visit().
  *
  * @return A #tlv_visit_result_t controlling traversal.
  *
@@ -142,8 +142,8 @@ TLV_API tlv_result_t tlv_cer_read(const uint8_t* data, size_t size, const tlv_ce
  *
  * @warning Callback side effects are not rolled back on errors.
  */
-TLV_API tlv_result_t tlv_cer_walk(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                                  tlv_cer_visitor_t visitor, void* context, size_t* error_offset);
+TLV_API tlv_result_t tlv_cer_visit(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
+                                   tlv_cer_visitor_t visitor, void* context, size_t* error_offset);
 
 /**
  * @brief Writes a canonical CER element.
@@ -205,15 +205,15 @@ TLV_API tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size,
                                          const tlv_cer_limits_t* limits, tlv_element_t* element,
                                          size_t* consumed, size_t* error_offset);
 /**
- * @brief Strict counterpart of tlv_cer_walk().
+ * @brief Strict counterpart of tlv_cer_visit().
  *
  * Adds the content validation described for tlv_cer_read_strict().
  *
  * @see tlv_cer_read_strict
  */
-TLV_API tlv_result_t tlv_cer_walk_strict(const uint8_t* data, size_t size,
-                                         const tlv_cer_limits_t* limits, tlv_cer_visitor_t visitor,
-                                         void* context, size_t* error_offset);
+TLV_API tlv_result_t tlv_cer_visit_strict(const uint8_t* data, size_t size,
+                                          const tlv_cer_limits_t* limits, tlv_cer_visitor_t visitor,
+                                          void* context, size_t* error_offset);
 /**
  * @brief Strict counterpart of tlv_cer_write().
  *

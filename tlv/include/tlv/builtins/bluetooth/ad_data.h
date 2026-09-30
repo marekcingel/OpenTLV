@@ -25,7 +25,7 @@ extern "C" {
  * and empty values are accepted. No schema or value-codec validation occurs.
  * Empty input and all-zero input succeed with a zero significant size.
  *
- * The significant prefix can be passed to a generic reader, walker or schema
+ * The significant prefix can be passed to a generic reader, visitor or schema
  * validator with the original input pointer, preserving source offsets.
  * This function never allocates, copies or retains input bytes.
  * Available when `OPENTLV_BLUETOOTH` is enabled.

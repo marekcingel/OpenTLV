@@ -35,7 +35,7 @@
  * Guides: @docs{formats,formats}.
  */
 /** @defgroup traversal Traversal
- * Walking adjacent or nested elements through the canonical Reader cursor.
+ * Traversing adjacent or nested elements through the canonical Reader cursor.
  * Guides: @docs{guides/reader,pull-based reading}.
  */
 /** @defgroup schemas Schemas

@@ -54,7 +54,7 @@ sure it is a *shared* `lua5x.dll`, not a static `liblua*.a`/`.lib`: a Lua
 interpreter statically linked against Lua and a module (this one, or any
 other) separately statically linked against Lua end up with two independent
 copies of the Lua runtime sharing one `lua_State`, which corrupts memory
-under the module's calls back into Lua (the ones in `walk.c`) and crashes.
+under the module's calls back into Lua (the ones in `visitor.c`) and crashes.
 Point `LUA_INCLUDE_DIR`/`LUA_LIBRARY` at your interpreter's own shared
 `lua5x.dll`'s headers and import library to avoid this; it is generally not
 an issue on Linux and macOS, where system Lua packages already ship a shared

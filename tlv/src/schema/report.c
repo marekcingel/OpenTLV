@@ -1,6 +1,6 @@
 #include "tlv/schema/schema.h"
 #include "tlv/reader/reader.h"
-#include "tlv/reader/walker.h"
+#include "traversal_internal.h"
 #include "tlv/size.h"
 #include <string.h>
 
@@ -249,35 +249,31 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
                                  size_t max_elements, tlv_schema_unknown_policy_t unknown,
                                  collector_t* c, size_t* error_offset) {
     frame_t stack[TLV_SCHEMA_PATH_MAX];
-    tlv_result_t rc =
-        tlv_walk_tree(data, size, format, max_depth, max_elements, NULL, NULL, error_offset);
+    tlv_tree_frame_t frames[TLV_SCHEMA_MAX_DEPTH];
+    tlv_tree_reader_t reader;
+    tlv_result_t rc = schema_check_tree(data, size, format, max_depth, max_elements, error_offset);
     if (rc != TLV_OK) return rc;
     memset(stack, 0, sizeof(stack));
     stack[0].schema = schema;
     stack[0].end = size;
     c->frames = stack;
     c->depth = 0;
-    for (;;) {
-        frame_t* frame = &stack[c->depth];
-        const tlv_structure_schema_t* current = frame->schema;
-        if (!frame->checked) {
-            rc = check_scope(data, format, c, frame);
-            if (rc != TLV_OK) return rc;
-            frame->checked = 1;
-        }
-        if (frame->pos == frame->end) {
-            if (!c->depth) break;
-            --c->depth;
-            continue;
-        }
+    rc = check_scope(data, format, c, &stack[0]);
+    if (rc != TLV_OK) return rc;
+    rc = tlv_tree_reader_init(&reader, data, size, format, frames, TLV_SCHEMA_MAX_DEPTH, max_depth,
+                              max_elements);
+    if (rc != TLV_OK) return rc;
+    while (!tlv_tree_reader_at_end(&reader)) {
+        tlv_tree_item_t item;
+        rc = tlv_tree_reader_next(&reader, &item);
+        if (rc != TLV_OK) return rc;
+        c->depth = item.depth;
+        const tlv_structure_schema_t* current = stack[c->depth].schema;
         {
-            tlv_element_t element;
-            size_t used, pos = frame->pos, value_length;
+            tlv_element_t element = item.element;
+            size_t pos = item.offset, value_length;
             const tlv_structure_rule_t* rule = NULL;
             int constructed, kind_ok;
-            rc = tlv_read(data + pos, frame->end - pos, format, &element, &used);
-            if (rc != TLV_OK) return rc;
-            frame->pos += used;
             for (size_t i = 0; i < current->count; ++i)
                 if (same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     rule = &current->rules[i];
@@ -287,6 +283,8 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
                 if (unknown == TLV_SCHEMA_UNKNOWN_REJECT ||
                     (unknown == TLV_SCHEMA_UNKNOWN_BY_SCHEMA && !current->allow_unknown))
                     add_issue(c, TLV_SCHEMA_ISSUE_UNEXPECTED, &element.tag, &pos, NULL);
+                if (item.constructed && item.element.value.size)
+                    (void)tlv_tree_reader_skip_subtree(&reader);
                 continue;
             }
             rc = tlv_size_to_native(element.value.size, &value_length);
@@ -312,6 +310,10 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
                 ++c->depth;
                 stack[c->depth] = (frame_t){
                     rule->children, start, start + value_length, start, element.tag, pos, 0};
+                rc = check_scope(data, format, c, &stack[c->depth]);
+                if (rc != TLV_OK) return rc;
+            } else if (item.constructed && item.element.value.size) {
+                (void)tlv_tree_reader_skip_subtree(&reader);
             }
         }
     }

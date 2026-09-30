@@ -146,7 +146,7 @@ TEST(Integration_Tlv_Der, NestedTraversalAndEncoding) {
     const uint8_t      data[] = {0x30, 9, 0x02, 1, 5, 0xA0, 4, 0x04, 0, 0x30, 0, 0x05, 0};
     std::vector<Visit> visits;
     size_t             offset = 99;
-    ASSERT_EQ(TLV_OK, tlv_der_walk(data, sizeof(data), nullptr, collect, &visits, &offset));
+    ASSERT_EQ(TLV_OK, tlv_der_visit(data, sizeof(data), nullptr, collect, &visits, &offset));
     ASSERT_EQ(6u, visits.size());
     const size_t offsets[] = {0, 2, 5, 7, 9, 11}, depths[] = {0, 1, 1, 2, 2, 0};
     for (size_t i = 0; i < visits.size(); ++i) {
@@ -171,7 +171,7 @@ TEST(Integration_Tlv_Der, LimitsAndWriterValidation) {
     const uint8_t    data[] = {0x30, 4, 0xA0, 2, 0x04, 0};
     tlv_der_limits_t limits = {2, sizeof(data), 4, 3};
     size_t           offset = 99, written = 99;
-    ASSERT_EQ(TLV_OK, tlv_der_walk(data, sizeof(data), &limits, nullptr, nullptr, &offset));
+    ASSERT_EQ(TLV_OK, tlv_der_visit(data, sizeof(data), &limits, nullptr, nullptr, &offset));
     for (int limit = 0; limit < 4; ++limit) {
         auto   restricted = limits;
         size_t expected;
@@ -194,7 +194,7 @@ TEST(Integration_Tlv_Der, LimitsAndWriterValidation) {
                 break;
         }
         EXPECT_EQ(TLV_ERR_LIMIT,
-                  tlv_der_walk(data, sizeof(data), &restricted, nullptr, nullptr, &offset));
+                  tlv_der_visit(data, sizeof(data), &restricted, nullptr, nullptr, &offset));
         EXPECT_EQ(expected, offset);
         EXPECT_EQ(TLV_ERR_LIMIT, tlv_der_write(nullptr, 0, (TLV_TAG(0x30)), data + 2, 4,
                                                &restricted, &written, &offset));
@@ -202,9 +202,9 @@ TEST(Integration_Tlv_Der, LimitsAndWriterValidation) {
         EXPECT_EQ(99u, written);
     }
     limits.max_depth = TLV_DER_MAX_DEPTH + 1;
-    EXPECT_EQ(TLV_ERR_LIMIT, tlv_der_walk(nullptr, 0, &limits, nullptr, nullptr, &offset));
+    EXPECT_EQ(TLV_ERR_LIMIT, tlv_der_visit(nullptr, 0, &limits, nullptr, nullptr, &offset));
     limits = {0, 2, 0, 1};
-    EXPECT_EQ(TLV_OK, tlv_der_walk(data + 4, 2, &limits, nullptr, nullptr, &offset));
+    EXPECT_EQ(TLV_OK, tlv_der_visit(data + 4, 2, &limits, nullptr, nullptr, &offset));
     const uint8_t invalid[] = {0x04, 0x81, 0};
     uint8_t       output[8];
     std::memset(output, 0xEE, sizeof(output));
@@ -231,7 +231,7 @@ TEST(Integration_Tlv_Der, DeepNestingUsesBoundedTraversal) {
         auto limits = tlv_der_default_limits;
         limits.max_depth = TLV_DER_MAX_DEPTH;
         EXPECT_EQ(depth <= TLV_DER_MAX_DEPTH ? TLV_OK : TLV_ERR_LIMIT,
-                  tlv_der_walk(data.data(), data.size(), &limits, nullptr, nullptr, nullptr));
+                  tlv_der_visit(data.data(), data.size(), &limits, nullptr, nullptr, nullptr));
     }
 }
 

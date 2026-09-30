@@ -1,5 +1,6 @@
+#include "visitor_input.h"
 #include "controlled_format.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -19,7 +20,7 @@ tlv_visit_result_t collect(const tlv_element_t* element, void* context) {
 }
 } // namespace
 
-TEST(Unit_Tlv_Walker, PropagatesCustomReaderErrorsIncludingEndOfBuffer) {
+TEST(Unit_Tlv_Visitor, PropagatesCustomReaderErrorsIncludingEndOfBuffer) {
     const uint8_t data[] = {1, 0};
     for (auto error : {TLV_ERR_INVALID_TAG, TLV_ERR_INVALID_LENGTH, TLV_ERR_END_OF_BUFFER}) {
         for (bool fail_tag : {false, true}) {
@@ -36,7 +37,7 @@ TEST(Unit_Tlv_Walker, PropagatesCustomReaderErrorsIncludingEndOfBuffer) {
                                         size_t*) { return *static_cast<const tlv_result_t*>(ctx); };
             }
             Visits visits;
-            EXPECT_EQ(error, tlv_walk(data, sizeof(data), &format, collect, &visits));
+            EXPECT_EQ(error, visit_input(data, sizeof(data), &format, collect, &visits));
             EXPECT_EQ(0u, visits.count);
             tlv_reader_t reader;
             ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, data, sizeof(data), &format));
@@ -49,13 +50,13 @@ TEST(Unit_Tlv_Walker, PropagatesCustomReaderErrorsIncludingEndOfBuffer) {
     }
 }
 
-TEST(Unit_Tlv_Walker, EmptyInputSucceedsAndNullContextIsAllowed) {
+TEST(Unit_Tlv_Visitor, EmptyInputSucceedsAndNullContextIsAllowed) {
     const uint8_t data[] = {1, 0};
     Visits        visits;
-    EXPECT_EQ(TLV_OK, tlv_walk(nullptr, 0, &controlled::format, collect, &visits));
-    EXPECT_EQ(TLV_OK, tlv_walk(data, 0, &controlled::format, collect, &visits));
+    EXPECT_EQ(TLV_OK, visit_input(nullptr, 0, &controlled::format, collect, &visits));
+    EXPECT_EQ(TLV_OK, visit_input(data, 0, &controlled::format, collect, &visits));
     EXPECT_EQ(0u, visits.count);
-    EXPECT_EQ(TLV_OK, tlv_walk(
+    EXPECT_EQ(TLV_OK, visit_input(
                           data, sizeof(data), &controlled::format,
                           [](const tlv_element_t* element, void* ctx) {
                               EXPECT_EQ(nullptr, ctx);
@@ -65,21 +66,21 @@ TEST(Unit_Tlv_Walker, EmptyInputSucceedsAndNullContextIsAllowed) {
                           nullptr));
 }
 
-TEST(Unit_Tlv_Walker, RejectsInvalidArgumentsEvenForEmptyInput) {
+TEST(Unit_Tlv_Visitor, RejectsInvalidArgumentsEvenForEmptyInput) {
     const uint8_t data[] = {1, 0};
     Visits        visits;
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(nullptr, 1, &controlled::format, collect, &visits));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, visit_input(nullptr, 1, &controlled::format, collect, &visits));
     for (size_t size : {size_t(0), sizeof(data)}) {
-        EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, nullptr, collect, &visits));
-        EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, &controlled::format, nullptr, &visits));
+        EXPECT_EQ(TLV_ERR_NULL_ARG, visit_input(data, size, nullptr, collect, &visits));
+        EXPECT_EQ(TLV_ERR_NULL_ARG, visit_input(data, size, &controlled::format, nullptr, &visits));
         auto layout = controlled::format_layout;
         auto format = controlled::format;
         format.context = &layout;
         format.decode = nullptr;
-        EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, &format, collect, &visits));
+        EXPECT_EQ(TLV_ERR_NULL_ARG, visit_input(data, size, &format, collect, &visits));
         format = controlled::format;
         format.decode = nullptr;
-        EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_walk(data, size, &format, collect, &visits));
+        EXPECT_EQ(TLV_ERR_NULL_ARG, visit_input(data, size, &format, collect, &visits));
     }
     EXPECT_EQ(0u, visits.count);
 }
@@ -94,7 +95,7 @@ tlv_format_t tree_format() {
 }
 } // namespace
 
-TEST(Unit_Tlv_Walker, CursorArgumentsAndCallbackErrors) {
+TEST(Unit_Tlv_Visitor, CursorArgumentsAndCallbackErrors) {
     const uint8_t data[] = {1, 0, 2, 0};
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_reader_visit(nullptr, collect, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_tree_reader_visit(nullptr, nullptr, nullptr, nullptr));
@@ -117,7 +118,7 @@ TEST(Unit_Tlv_Walker, CursorArgumentsAndCallbackErrors) {
     }
 }
 
-TEST(Unit_Tlv_Walker, TreeStopAndErrorResumeAtChildrenAndMatchPull) {
+TEST(Unit_Tlv_Visitor, TreeStopAndErrorResumeAtChildrenAndMatchPull) {
     const uint8_t data[] = {0xE1, 2, 1, 0, 2, 0};
     auto          format = tree_format();
     for (auto result : {TLV_VISIT_STOP, TLV_VISIT_ERROR, static_cast<tlv_visit_result_t>(99)}) {
@@ -155,7 +156,7 @@ TEST(Unit_Tlv_Walker, TreeStopAndErrorResumeAtChildrenAndMatchPull) {
     }
 }
 
-TEST(Unit_Tlv_Walker, IncrementalSequentialResumeAndAbsoluteDiagnostics) {
+TEST(Unit_Tlv_Visitor, IncrementalSequentialResumeAndAbsoluteDiagnostics) {
     const uint8_t initial[] = {1, 0, 2};
     const uint8_t replacement[] = {2, 1, 0xAB};
     tlv_reader_t  reader;
@@ -177,7 +178,7 @@ TEST(Unit_Tlv_Walker, IncrementalSequentialResumeAndAbsoluteDiagnostics) {
     EXPECT_EQ(5u, tlv_reader_offset(&reader));
 }
 
-TEST(Unit_Tlv_Walker, IncrementalTreePublishesCompleteParentsAndPreservesOffsets) {
+TEST(Unit_Tlv_Visitor, IncrementalTreePublishesCompleteParentsAndPreservesOffsets) {
     const uint8_t     initial[] = {0xE1, 2, 1, 0};
     const uint8_t     replacement[] = {2, 1, 0xAB};
     auto              format = tree_format();
@@ -209,8 +210,8 @@ TEST(Unit_Tlv_Walker, IncrementalTreePublishesCompleteParentsAndPreservesOffsets
     EXPECT_EQ(TLV_OK, diagnostic.diagnostic.code);
 }
 
-TEST(Unit_Tlv_Walker, CallerFramesAllowDepthBeyondCompatibilityCapacity) {
-    const size_t         depth = TLV_WALK_MAX_DEPTH + 32;
+TEST(Unit_Tlv_Visitor, CallerFramesAllowDepthBeyondDefaultDepth) {
+    const size_t         depth = TLV_TREE_DEFAULT_DEPTH + 32;
     std::vector<uint8_t> data;
     for (size_t i = 0; i <= depth; ++i) {
         data.push_back(0x80);
@@ -233,7 +234,7 @@ TEST(Unit_Tlv_Walker, CallerFramesAllowDepthBeyondCompatibilityCapacity) {
     EXPECT_EQ(depth + 1, count);
 }
 
-TEST(Unit_Tlv_Walker, TreeDiagnosticsDecodeOnceAndResourceErrorsRemainClear) {
+TEST(Unit_Tlv_Visitor, TreeDiagnosticsDecodeOnceAndResourceErrorsRemainClear) {
     const uint8_t malformed[] = {0xE1, 3, 1, 2, 0xAB};
     size_t        reads = 0;
     auto          layout = controlled::format_layout;

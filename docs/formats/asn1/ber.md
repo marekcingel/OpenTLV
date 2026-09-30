@@ -151,7 +151,7 @@ and indefinite descendants. Every definite parent bounds all its descendants;
 an EOC beyond that boundary cannot close a child. `TLV_BER_MAX_DEPTH` is 64
 simultaneous constructed scopes, counting the outer indefinite element and
 definite constructed descendants, including empty ones. Exceeding it returns
-`TLV_ERR_LIMIT`. This framing limit is independent of walker depth/element limits.
+`TLV_ERR_LIMIT`. This framing limit is independent of visitor depth/element limits.
 Resolving one indefinite element takes linear time in the inspected framing;
 tree traversal and schemas can rescan nested encodings.
 
@@ -196,7 +196,7 @@ The C core does not allocate; C++ error construction retains its existing
 
 `tlv_copy_element` with the BER writer re-encodes the outer header as definite;
 child bytes remain unchanged. Use `tlv_copy_encoded` with the full consumed
-range to preserve the original indefinite representation. Readers, walkers,
+range to preserve the original indefinite representation. Readers, visitors,
 structural schemas and structure codecs use the resolved value range.
 DER still rejects indefinite lengths.
 
@@ -398,7 +398,8 @@ Element (10 bytes)
 The parent's length includes each child's tag, length, and value. These are
 illustrative opaque payloads, not an EMV-valid record. Generic `tlv_read`
 returns the outer value without automatically visiting definite-length children.
-Use `tlv_walk_tree` with `tlv_format_ber`, whose `is_constructed` is
+Initialize a Tree Reader with `tlv_format_ber`, then consume it with
+`tlv_tree_reader_visit`. The Format's `is_constructed` is
 `tlv_asn1_is_constructed`, to traverse the hierarchy.
 
 ### Indefinite constructed value

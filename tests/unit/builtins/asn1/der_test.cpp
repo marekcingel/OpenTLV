@@ -34,8 +34,8 @@ TEST(Unit_Tlv_Der, EmptyArgumentsAndVisitorControl) {
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_der_read(nullptr, 0, nullptr, &element, &used, &offset));
     EXPECT_EQ(0u, offset);
     EXPECT_EQ(99u, used);
-    EXPECT_EQ(TLV_OK, tlv_der_walk(nullptr, 0, nullptr, nullptr, nullptr, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_walk(nullptr, 1, nullptr, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_der_visit(nullptr, 0, nullptr, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_visit(nullptr, 1, nullptr, nullptr, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_read(nullptr, 0, nullptr, nullptr, &used, nullptr));
     uint8_t storage[TLV_ASN1_TAG_MAX_SIZE];
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_der_tag_make(TLV_ASN1_PRIVATE, 0, 1, storage, nullptr));
@@ -47,10 +47,10 @@ TEST(Unit_Tlv_Der, EmptyArgumentsAndVisitorControl) {
     const uint8_t data[] = {4, 0, 0xFF};
     auto          stop = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
     auto error = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
-    EXPECT_EQ(TLV_OK, tlv_der_walk(data, sizeof(data), nullptr, stop, nullptr, nullptr));
-    EXPECT_EQ(TLV_ERR_VISITOR, tlv_der_walk(data, sizeof(data), nullptr, error, nullptr, &offset));
+    EXPECT_EQ(TLV_OK, tlv_der_visit(data, sizeof(data), nullptr, stop, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_VISITOR, tlv_der_visit(data, sizeof(data), nullptr, error, nullptr, &offset));
     EXPECT_EQ(0u, offset);
-    EXPECT_NE(TLV_OK, tlv_der_walk(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
+    EXPECT_NE(TLV_OK, tlv_der_visit(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
 }
 
 TEST(Unit_Tlv_Der, TagSizeErrorsPreserveOutputs) {

@@ -1,4 +1,4 @@
-#include "commands/walk_command.hpp"
+#include "commands/traversal_command.hpp"
 #include <cstring>
 #include <iostream>
 #include <utility>
@@ -56,57 +56,58 @@ void flush_stack(std::vector<Json>& stack, Json& root, size_t target_depth, cons
 
 namespace cli {
 
-walk_command::walk_command(const options& o, std::vector<uint8_t> data)
+traversal_command::traversal_command(const options& o, std::vector<uint8_t> data)
     : options_(o), base_(0), ber_(0), presentation_(), format_(NULL), is_der_(false), scope_(),
       matcher_(), matches_(0), result_(TLV_OK), error_offset_(0), stage_(""), schema_diag_(),
       has_schema_diag_(false), data_(std::move(data)) {}
 
-tlv_visit_result_t walk_command::visit_trampoline(const tlv_element_t* element, std::size_t depth,
-                                                  std::size_t offset, void* context) {
-    return static_cast<walk_command*>(context)->visit_element(element, depth, offset);
+tlv_visit_result_t traversal_command::visit_trampoline(const tlv_element_t* element,
+                                                       std::size_t depth, std::size_t offset,
+                                                       void* context) {
+    return static_cast<traversal_command*>(context)->visit_element(element, depth, offset);
 }
 
-tlv_visit_result_t walk_command::visit_element(const tlv_element_t* element, std::size_t depth,
-                                               std::size_t) {
+tlv_visit_result_t traversal_command::visit_element(const tlv_element_t* element, std::size_t depth,
+                                                    std::size_t) {
     // validate has no display visitor of its own; this one exists solely to
-    // keep the diagnostic scope current, so a failure the walk doesn't itself
+    // keep the diagnostic scope current, so a failure the traversal doesn't itself
     // annotate (a value that overruns its own container, not the whole
     // buffer) can still be reported with the path and boundary enclosing it.
     diagnostic_scope_visit(scope_, data(), element, depth, format_->is_constructed);
     return TLV_VISIT_CONTINUE;
 }
 
-int walk_command::prepare() {
+int traversal_command::prepare() {
     return 0;
 }
 
-void walk_command::run_module_checks() {}
+void traversal_command::run_module_checks() {}
 
-void walk_command::render_output() {}
+void traversal_command::render_output() {}
 
-int walk_command::after_success() {
+int traversal_command::after_success() {
     return 0;
 }
 
-void walk_command::json_flush(std::size_t target_depth) {
+void traversal_command::json_flush(std::size_t target_depth) {
     flush_stack(json_stack_, json_root_, target_depth, "elements");
 }
 
-void walk_command::document_flush(std::size_t target_depth) {
+void traversal_command::document_flush(std::size_t target_depth) {
     flush_stack(document_stack_, document_root_, target_depth, "children");
 }
 
-bool walk_command::prints_pdol_annotations() const {
+bool traversal_command::prints_pdol_annotations() const {
     return false;
 }
 
-bool walk_command::prints_skipped_inline() const {
+bool traversal_command::prints_skipped_inline() const {
     return false;
 }
 
-std::string walk_command::render_failure_diagnostic(diagnostic_format  diag_format,
-                                                    const char*        tag_hex_ptr,
-                                                    const std::string& stage_name) {
+std::string traversal_command::render_failure_diagnostic(diagnostic_format  diag_format,
+                                                         const char*        tag_hex_ptr,
+                                                         const std::string& stage_name) {
     if (has_schema_diag_) return format_schema_diagnostic(schema_diag_, diag_format);
     if (reader_diag_.diagnostic.code == result_) {
         if (scope_.path.length) tlv_diagnostic_set_path(&reader_diag_.diagnostic, &scope_.path);
@@ -119,7 +120,7 @@ std::string walk_command::render_failure_diagnostic(diagnostic_format  diag_form
 
 // A DOL length is a single unsigned byte, not a BER length field. No value
 // bytes follow it. Reuse the public BER tag reader without fabricating TLVs.
-tlv_result_t walk_command::walk_pdol(std::size_t* error_offset) {
+tlv_result_t traversal_command::visit_pdol(std::size_t* error_offset) {
     size_t pos = 0, count = 0;
     while (pos < size()) {
         tlv_element_t element;
@@ -160,16 +161,16 @@ tlv_result_t walk_command::walk_pdol(std::size_t* error_offset) {
 }
 
 // Recovery scan over the top-level elements. Each element that reads cleanly
-// and whose whole subtree validates is walked (and printed) like normal
+// and whose whole subtree validates is traversed (and printed) like normal
 // input; where one does not, the CLI looks for the next offset a
 // plausible element starts at, and the bytes in between are recorded as
 // skipped. Resource limits are not damage and still fail the run.
-tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
-    const walk_env env = {&options_, format_, is_der_};
-    const bool     inline_text = prints_skipped_inline();
-    size_t         pos = 0, budget = options_.max_elements;
-    bool           skipping = false;
-    skipped_range  current{};
+tlv_result_t traversal_command::visit_recovering(std::size_t* error_offset) {
+    const traversal_env env = {&options_, format_, is_der_};
+    const bool          inline_text = prints_skipped_inline();
+    size_t              pos = 0, budget = options_.max_elements;
+    bool                skipping = false;
+    skipped_range       current{};
 
     auto close_range = [&](size_t end) {
         current.length = end - current.offset;
@@ -191,8 +192,8 @@ tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
             if (attempt.has_enclosing_end) attempt.enclosing_end += pos;
         }
         if (rc == TLV_OK) {
-            rc = walk_slice(env, data() + pos, consumed, pos, budget, count_element, &count, &fault,
-                            &attempt);
+            rc = visit_slice(env, data() + pos, consumed, pos, budget, count_element, &count,
+                             &fault, &attempt);
             if ((rc == TLV_ERR_LIMIT || rc == TLV_ERR_OUT_OF_MEMORY) && fault == pos) {
                 reader_diag_.has_tag = 1;
                 reader_diag_.tag = element.tag;
@@ -205,8 +206,8 @@ tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
         if (rc == TLV_OK) {
             if (skipping) close_range(pos);
             base_ = pos;
-            rc = walk_slice(env, data() + pos, consumed, pos, budget, visit_trampoline, this,
-                            &fault);
+            rc = visit_slice(env, data() + pos, consumed, pos, budget, visit_trampoline, this,
+                             &fault);
             if (rc != TLV_OK) {
                 *error_offset = fault;
                 return rc;
@@ -234,7 +235,7 @@ tlv_result_t walk_command::walk_recovering(std::size_t* error_offset) {
     return TLV_OK;
 }
 
-int walk_command::run() {
+int traversal_command::run() {
     const tlv_format_t* format = select_format(options_);
     std::size_t         error_offset = 0;
     tlv_result_t        result;
@@ -267,8 +268,8 @@ int walk_command::run() {
     if (prepared) return prepared;
 
     diagnostic_scope_init(scope_, size());
-    const walk_env env = {&options_, format_, is_der_};
-    std::size_t    significant = size();
+    const traversal_env env = {&options_, format_, is_der_};
+    std::size_t         significant = size();
     result = TLV_OK;
 #if OPENTLV_BLUETOOTH
     if (bluetooth_module(options_))
@@ -277,20 +278,20 @@ int walk_command::run() {
     if (result != TLV_OK) {
         stage_ = "container ";
         // The container API reports an offset only. For a framing failure,
-        // ask the public walker for its full raw identifier/field diagnostic.
+        // ask the public Tree Reader for its full raw identifier/field diagnostic.
         // Padding errors remain container diagnostics, not fake LTV elements.
         if (result != TLV_ERR_INVALID_VALUE) {
             std::size_t ignored = 0;
-            walk_slice(env, data(), size(), 0, options_.max_elements, nullptr, nullptr, &ignored,
-                       &reader_diag_);
+            visit_slice(env, data(), size(), 0, options_.max_elements, nullptr, nullptr, &ignored,
+                        &reader_diag_);
         }
     } else if (options_.pdol)
-        result = walk_pdol(&error_offset);
+        result = visit_pdol(&error_offset);
     else if (options_.recover)
-        result = walk_recovering(&error_offset);
+        result = visit_recovering(&error_offset);
     else
-        result = walk_slice(env, data(), significant, 0, options_.max_elements, visit_trampoline,
-                            this, &error_offset, &reader_diag_);
+        result = visit_slice(env, data(), significant, 0, options_.max_elements, visit_trampoline,
+                             this, &error_offset, &reader_diag_);
     result_ = result;
     error_offset_ = error_offset;
 
@@ -322,7 +323,7 @@ int walk_command::run() {
     if (!skipped_.empty()) {
         size_t bytes = 0;
         // Every skipped range starts as its own top-level element (see
-        // walk_recovering()), so this scope's path stays empty; a range
+        // visit_recovering()), so this scope's path stays empty; a range
         // whose recorded failure is actually nested in that element's
         // subtree (not the top-level read itself) simply won't reproduce
         // through the derivation below and falls back to the plain form.

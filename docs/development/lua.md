@@ -23,8 +23,8 @@ model](../concepts/bindings.md).
 It targets Lua 5.1 through 5.4 and LuaJIT (which implements the Lua 5.1 C
 API), using only the portable subset of the Lua C API common to all of them;
 see `bindings/lua/src/compat.h`. It covers Reader, Element and Tag, and
-preorder tree traversal (`opentlv.walk_tree`, built on `tlv_walk_tree()`/
-`tlv_der_walk()`); Writer, Document and Schema are not bound yet.
+preorder tree traversal (`opentlv.visit_tree`, built on `tlv_tree_reader_visit()`/
+`tlv_der_visit()`); Writer, Document and Schema are not bound yet.
 
 ## Build
 
@@ -49,7 +49,7 @@ resolves through `init.lua` to it.
 **On Windows**, the module must link against the same shared `lua5x.dll` the
 embedding Lua interpreter uses, not a statically linked Lua: two
 independently linked copies of the Lua runtime sharing one `lua_State`
-corrupt memory under this module's calls back into Lua (`opentlv.walk_tree`'s
+corrupt memory under this module's calls back into Lua (`opentlv.visit_tree`'s
 callback) and crash. This is generally not a concern on Linux and macOS,
 where system Lua packages already ship a shared library. See
 `bindings/lua/README.md`.

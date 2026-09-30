@@ -7,7 +7,7 @@
 #
 # tlv++ is header-only, so unlike tlv's .c files there is no translation
 # unit of its own for clang-tidy to attach to. A synthetic TU that merely
-# #includes every header would compile, but its templates (codec, walker,
+# #includes every header would compile, but its templates (codec, Tree Reader,
 # schema, the compat.hpp polyfills, ...) would never be instantiated and so
 # would never actually be analyzed. Instead this points clang-tidy at the
 # tlv++ unit test TU (tests/unit/test_tlvpp.cpp), which already

@@ -2,7 +2,7 @@
 #define OPENTLV_QUERY_H
 
 #include "tlv/error.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/tag.h"
 #include "tlv/export.h"
 
@@ -20,7 +20,7 @@ extern "C" {
  * children, and the query addresses every element reached that way, in
  * document order. Tags are compared as raw bytes, so a query works for every
  * reader format; a path longer than one tag needs a format whose values can
- * be constructed (see tlv_query_walk()).
+ * be constructed (see tlv_query_visit_buffer()).
  *
  * The query language is deliberately small: exact tag paths only. It carries
  * no wildcards, indexes, predicates or recursive search, and does not depend
@@ -32,8 +32,8 @@ extern "C" {
  * @{
  */
 
-/** @brief Maximum number of tags in a query: one per nesting level, `0..TLV_WALK_MAX_DEPTH`. */
-enum { TLV_QUERY_MAX_STEPS = TLV_WALK_MAX_DEPTH + 1 };
+/** @brief Capacity of the inline query path; independent of Tree Reader limits. */
+enum { TLV_QUERY_MAX_STEPS = 65 };
 
 /** @brief Maximum total number of tag bytes in a query, across all of its tags. */
 enum { TLV_QUERY_MAX_BYTES = 512 };
@@ -98,8 +98,8 @@ TLV_API tlv_tag_t tlv_query_step(const tlv_query_t* query, size_t index);
 /**
  * @brief Incremental matcher that decides which elements of a preorder traversal a query addresses.
  *
- * This is the state behind tlv_query_walk(), exposed so that any preorder
- * traversal can run a query, such as the DER walker or a caller's own. Set it
+ * This is the state behind tlv_query_visit_buffer(), exposed so that any preorder
+ * traversal can run a query, such as the DER validation traversal or a caller's own. Set it
  * up with tlv_query_matcher_init() and feed it every element, in order, with
  * tlv_query_matcher_visit(). The fields are private.
  */
@@ -128,7 +128,7 @@ TLV_API tlv_result_t tlv_query_matcher_init(tlv_query_matcher_t* matcher, const 
  * @brief Reports whether the next element of a preorder traversal is addressed by the query.
  *
  * Call it once for every element in preorder, including elements the query
- * cannot reach, with the same `depth` values tlv_walk_tree() passes to its
+ * cannot reach, with the same `depth` values tlv_tree_reader_visit() passes to its
  * visitor.
  *
  * @param[in,out] matcher Matcher set up by tlv_query_matcher_init().
@@ -142,9 +142,27 @@ TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_
                                     size_t depth);
 
 /**
+ * @brief Visit matching items from a caller-owned Tree Reader with resumable matching state.
+ *
+ * @param[in,out] reader Initialized cursor; required. Frames and runtime limits belong to caller.
+ * @param[in,out] matcher Initialized matcher; required. Retain it across STOP and input
+ * replacement.
+ * @param[in] visitor Required callback for matches; follows tlv_tree_reader_visit().
+ * @param[in] context Optional opaque callback context.
+ * @param[out] error_offset Optional absolute failure offset; unchanged on success.
+ * @return #TLV_ERR_NULL_ARG for missing reader, matcher, query or callback.
+ * @return Any result of tlv_tree_reader_visit(), including #TLV_NEED_MORE_DATA.
+ * @warning Keep the matcher's query alive and unchanged. Use a fresh matcher at
+ *          the start of a tree; do not interleave unmatched pull operations.
+ */
+TLV_API tlv_result_t tlv_query_visit(tlv_tree_reader_t* reader, tlv_query_matcher_t* matcher,
+                                     tlv_tree_visitor_t visitor, void* context,
+                                     size_t* error_offset);
+
+/**
  * @brief Calls a visitor for every element a query addresses.
  *
- * Traverses the input in preorder like tlv_walk_tree() and calls `visitor` for
+ * Traverses the input in preorder like tlv_tree_reader_visit() and calls `visitor` for
  * each element addressed by `query`, in document order, with that element's
  * depth (always `query->count - 1`) and absolute offset. An element is
  * addressed when its tag equals the last query tag and its ancestors, from the
@@ -159,7 +177,8 @@ TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_
  * @param[in]  size          Input size in bytes.
  * @param[in]  format        Reader format.
  * @param[in]  query         Parsed query.
- * @param[in]  max_depth     Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`.
+ * @param[in]  max_depth     Runtime nesting limit; this convenience function owns
+ * TLV_QUERY_MAX_STEPS frames.
  * @param[in]  max_elements  Bound on all traversed elements, matching or not.
  * @param[in]  visitor       Callback per addressed element. Required. Its element
  *                           borrows `data` and is valid only during the call.
@@ -168,21 +187,22 @@ TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_
  *                           absolute offset; unchanged on success.
  *
  * @return #TLV_OK at the end of input, or when the visitor returns #TLV_VISIT_STOP.
- * @return #TLV_ERR_NULL_ARG if `query` or `visitor` is `NULL`, or as for tlv_walk_tree().
+ * @return #TLV_ERR_NULL_ARG if `query` or `visitor` is `NULL`, or as for tlv_tree_reader_visit().
  * @return Any error of tlv_query_matcher_init() for an invalid `query`.
  * @return #TLV_ERR_VISITOR if the visitor returns #TLV_VISIT_ERROR or an unknown result.
- * @return Any other error of tlv_walk_tree(), propagated unchanged.
+ * @return Any other error of tlv_tree_reader_visit(), propagated unchanged.
  *
  * @note Never allocates and does not recurse. No match is not an error: the
  *       visitor is simply never called.
  * @warning Visitor effects are not rolled back on error. The input and format
  *          must remain valid and unchanged during the call.
- * @see tlv_walk_tree
+ * @see tlv_query_visit
  */
-TLV_API tlv_result_t tlv_query_walk(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                    const tlv_query_t* query, size_t max_depth, size_t max_elements,
-                                    tlv_tree_visitor_t visitor, void* context,
-                                    size_t* error_offset);
+TLV_API tlv_result_t tlv_query_visit_buffer(const uint8_t* data, size_t size,
+                                            const tlv_format_t* format, const tlv_query_t* query,
+                                            size_t max_depth, size_t max_elements,
+                                            tlv_tree_visitor_t visitor, void* context,
+                                            size_t* error_offset);
 
 #ifdef __cplusplus
 }

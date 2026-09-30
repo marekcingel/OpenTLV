@@ -97,7 +97,7 @@ retired in favor of `builtins/<protocol>/` for exactly the protocol-specific
 ones. `formats/` returns only for mechanisms that stay protocol-agnostic.
 
 Reader is the canonical pull-based cursor; Tree Reader composes it for nested
-traversal, and Walker provides compatibility callback adapters.
+traversal, and Visitor provides resumable callback adapters.
 Recovery and resynchronization are application policies implemented, when needed,
 using the public single-element `tlv_read()` primitive. Standard-specific
 implementations compose generic facilities; generic facilities do not depend on them. DER's wire callbacks and bounded
@@ -113,7 +113,7 @@ Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
 tlv/
   element.h, value.h, length.h, size.h, error.h, endian.h, copy.h, format.h, tlv.h
   compiler.h, attributes.h, definition.h
-  reader/    reader.h, walker.h
+  reader/    reader.h, tree.h, visitor.h
   query/     query.h
   document/  document.h
   writer/    writer.h
@@ -166,7 +166,7 @@ counterpart and each protocol's wrapper under `builtins/<protocol>/`:
 ```text
 tlv++/
   types.hpp, compat.hpp, diagnostic.hpp, tlv.hpp
-  reader/    reader.hpp, walker.hpp
+  reader/    reader.hpp, visitor.hpp
   query/     query.hpp
   document/  document.hpp
   writer/    writer.hpp
@@ -216,22 +216,22 @@ harnesses, each with its checked-in seed corpus in a sibling `corpus/` folder
 parses input into an owned tree, lets the tree be searched, changed, extended and
 shortened, and encodes it again through the writer. It is the only component that
 allocates, it can use a caller-supplied allocator, and it is the `OPENTLV_DOCUMENT`
-option. Nothing below it depends on it, so the reader, writer and walker stay
+option. Nothing below it depends on it, so the reader, writer and visitor stay
 zero-copy and allocation-free whether or not it is built. See
 [mutable documents](../guides/document.md).
 
 ## Reader and traversal
 
 * `tlv_reader_next` iterates adjacent elements without interpreting their values.
-* `tlv_walk` visits adjacent elements and fails at invalid framing.
+* `tlv_reader_visit` visits adjacent elements from an initialized Reader.
 * `tlv_tree_reader_next` returns one preorder item with depth, absolute source
   offset, source metadata and Format-owned construction classification. It uses
   caller-provided structural frames and runtime depth/count limits, without
   allocation or C recursion. Input windows and subtree skipping preserve Reader's
   complete-element and borrowed-storage contracts.
-* `tlv_walk_tree` is a compatibility callback adapter over Tree Reader, with a
-  fixed stack capacity. A NULL visitor validates framing only. C++ offers
-  `tlv::walk_tree` with a callable visitor.
+* `tlv_tree_reader_visit` is a resumable push adapter over a caller-owned Tree
+  Reader. It owns no traversal storage and has no fixed depth ceiling. C++
+  provides `tlv::visit_tree` over the same initialized cursor.
 
 The [Reader contract](../guides/reader.md) distinguishes an available element,
 final end of input, resumable input shortage and parsing errors. Incremental
@@ -381,8 +381,8 @@ EMV uses explicit domain dictionary tables. `tlv/schemas/schema.h` becomes `tlv/
 
 `tlv++`'s previously flat `tlv++/include/tlv++/*.hpp` headers (#280) move
 into the same folders as their C counterparts:
-`tlv++/reader.hpp`/`tlv++/walker.hpp` become
-`tlv++/reader/reader.hpp`/`tlv++/reader/walker.hpp`;
+the former flat reader headers become
+`tlv++/reader/reader.hpp`/`tlv++/reader/visitor.hpp`;
 `tlv++/writer.hpp`, `tlv++/query.hpp` and `tlv++/schema.hpp` become
 `tlv++/writer/writer.hpp`, `tlv++/query/query.hpp` and
 `tlv++/schema/schema.hpp`; `tlv++/codec.hpp`, `tlv++/structure.hpp` and
@@ -450,9 +450,9 @@ consumers.
 
 Move constructed-element detection into `tlv_format_t` as an optional
 `is_constructed` field, instead of passing a separate `tlv_is_constructed_fn`
-predicate alongside a format: `tlv_walk_tree`, `tlv_schema_validate`,
-`tlv_schema_validate_all`, `tlv_schema_validate_all_diag`, `tlv_query_walk`,
-`tlv::walk_tree`, `tlv::query::walk`, `tlv::validate`, `tlv::validate_all` and
+predicate alongside a format: `tlv_schema_validate`,
+`tlv_schema_validate_all`, `tlv_schema_validate_all_diag`, `tlv_query_visit_buffer`,
+`tlv::query::visit_buffer`, `tlv::validate`, `tlv::validate_all` and
 `tlv::validate_all_diag` each drop that parameter and read
 `format->is_constructed` instead. `tlv_document_options_t`/
 `tlv::document_format` and `tlv_structure_codec_t` likewise drop their own

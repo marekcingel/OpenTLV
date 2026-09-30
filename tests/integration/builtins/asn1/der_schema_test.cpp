@@ -20,7 +20,7 @@ tlv_der_schema_component_t Required(const tlv_der_schema_type_t& type) {
 /* A SET's components must be encoded in ascending tag order to be canonical
  * DER; generic (schema-unaware) DER-TLV processing has no notion of "SET"
  * versus any other constructed value and accepts either order, so the same
- * misordered bytes are valid to tlv_der_walk_strict but rejected by the
+ * misordered bytes are valid to tlv_der_visit_strict but rejected by the
  * schema-aware reader -- the exact distinction issue #63 introduces. */
 TEST(Integration_Tlv_DerSchema, SchemaRejectsNonCanonicalSetOrderGenericDerAccepts) {
     tlv_der_schema_component_t  components[2] = {Required(kInteger), Required(kOctetString)};
@@ -39,8 +39,8 @@ TEST(Integration_Tlv_DerSchema, SchemaRejectsNonCanonicalSetOrderGenericDerAccep
                                   &schema_element, &schema_consumed, &schema_offset));
 
     size_t generic_offset = 0;
-    EXPECT_EQ(TLV_OK, tlv_der_walk_strict(misordered.data(), misordered.size(), nullptr, nullptr,
-                                          nullptr, &generic_offset));
+    EXPECT_EQ(TLV_OK, tlv_der_visit_strict(misordered.data(), misordered.size(), nullptr, nullptr,
+                                           nullptr, &generic_offset));
 }
 
 struct ScriptEntry {

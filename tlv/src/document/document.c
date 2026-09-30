@@ -1,6 +1,6 @@
 #include "tlv/document/document.h"
 #include "tlv/size.h"
-#include "tlv/reader/reader.h"
+#include "tlv/reader/tree.h"
 #include "tlv/writer/writer.h"
 #include <stdlib.h>
 #include <string.h>
@@ -105,21 +105,33 @@ static void node_unlink(tlv_node_t* node) {
     node->parent = node->prev = node->next = NULL;
 }
 
-/* Recursion is bounded by the document's depth limit, which is at most TLV_WALK_MAX_DEPTH. */
+/* Parent links provide iterative traversal without a depth-dependent C stack. */
+static const tlv_node_t* subtree_next(const tlv_node_t* node, const tlv_node_t* root) {
+    if (node->first) return node->first;
+    while (node != root && !node->next) node = node->parent;
+    return node == root ? NULL : node->next;
+}
+
 static size_t subtree_size(const tlv_node_t* node) {
-    size_t total = 1;
-    const tlv_node_t* child;
-    for (child = node->first; child; child = child->next) total += subtree_size(child);
+    size_t total = 0;
+    const tlv_node_t* current;
+    for (current = node; current; current = subtree_next(current, node)) ++total;
     return total;
 }
 
-static void free_children(tlv_node_t* node);
-
-/* Frees memory only; the caller keeps the element count and the links consistent. */
-static void free_subtree(tlv_node_t* node) {
-    free_children(node);
-    memory_release(node->document, node->value);
-    memory_release(node->document, node);
+static void free_subtree(tlv_node_t* root) {
+    tlv_node_t* node = root;
+    while (node) {
+        if (node->first) {
+            node = node->first;
+        } else {
+            tlv_node_t* parent = node == root ? NULL : node->parent;
+            if (parent) parent->first = node->next;
+            memory_release(node->document, node->value);
+            memory_release(node->document, node);
+            node = parent;
+        }
+    }
 }
 
 static void free_children(tlv_node_t* node) {
@@ -171,11 +183,10 @@ static tlv_result_t parse_list(tlv_document_t* document, tlv_node_t* parent, con
  * Creates the element and appends it to `parent`'s children (NULL: the top level), parsing the
  * value as nested elements for a constructed tag. On failure nothing stays behind.
  */
-static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
-                               const uint8_t* value, size_t length, size_t depth, size_t value_base,
-                               size_t element_offset, size_t* error_offset, tlv_node_t** created) {
+static tlv_result_t create_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
+                                const uint8_t* value, size_t length, size_t depth,
+                                size_t element_offset, size_t* error_offset, tlv_node_t** created) {
     tlv_node_t* node;
-    tlv_result_t rc = TLV_OK;
     if (depth > document->options.max_depth || document->count >= document->options.max_elements) {
         set_offset(error_offset, element_offset);
         return TLV_ERR_LIMIT;
@@ -189,18 +200,89 @@ static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv
     if (tag.size) memcpy(node + 1, tag.data, tag.size);
     node->constructed =
         document->options.format->is_constructed &&
-        document->options.format->is_constructed(document->options.format->context, &tag) != 0;
+        document->options.format->is_constructed(document->options.format->context, &tag);
+    if (!node->constructed && length) {
+        node->value = copy_bytes(document, value, length);
+        if (!node->value) {
+            memory_release(document, node);
+            return TLV_ERR_OUT_OF_MEMORY;
+        }
+        node->value_size = length;
+    }
     node_link(document, parent, NULL, node);
     ++document->count;
-    if (node->constructed) {
-        if (length)
+    *created = node;
+    return TLV_OK;
+}
+
+static tlv_result_t parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
+                               size_t size, size_t depth, size_t base, size_t* error_offset) {
+    tlv_tree_reader_t reader;
+    tlv_tree_frame_t* frames = NULL;
+    tlv_node_t* previous = NULL;
+    size_t previous_depth = 0;
+    size_t capacity;
+    tlv_result_t rc;
+    if (size && depth > document->options.max_depth) {
+        set_offset(error_offset, base);
+        return TLV_ERR_LIMIT;
+    }
+    capacity = depth > document->options.max_depth ? 0 : document->options.max_depth - depth;
+    /* Every nonempty encoding consumes at least one byte and one publication. */
+    if (capacity > size) capacity = size;
+    if (capacity > document->options.max_elements - document->count)
+        capacity = document->options.max_elements - document->count;
+    if (capacity > SIZE_MAX / sizeof *frames) return TLV_ERR_OUT_OF_MEMORY;
+    if (capacity) {
+        frames = (tlv_tree_frame_t*)memory_allocate(document, capacity * sizeof *frames);
+        if (!frames) return TLV_ERR_OUT_OF_MEMORY;
+    }
+    rc = tlv_tree_reader_init(&reader, data, size, document->options.format, frames, capacity,
+                              capacity, document->options.max_elements - document->count);
+    while (rc == TLV_OK && !tlv_tree_reader_at_end(&reader)) {
+        tlv_tree_item_t item;
+        tlv_node_t* container = parent;
+        size_t length;
+        rc = tlv_tree_reader_next(&reader, &item);
+        if (rc != TLV_OK) {
+            set_offset(error_offset, base + tlv_tree_reader_offset(&reader));
+            break;
+        }
+        if (previous) {
+            if (item.depth > previous_depth) {
+                container = previous;
+            } else {
+                while (previous_depth > item.depth) {
+                    previous = previous->parent;
+                    --previous_depth;
+                }
+                container = previous->parent;
+            }
+        }
+        rc = tlv_size_to_native(item.element.value.size, &length);
+        if (rc == TLV_OK)
+            rc = create_node(document, container, item.element.tag, item.element.value.data, length,
+                             depth + item.depth, base + item.offset, error_offset, &previous);
+        previous_depth = item.depth;
+    }
+    memory_release(document, frames);
+    return rc;
+}
+
+static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
+                               const uint8_t* value, size_t length, size_t depth, size_t value_base,
+                               size_t element_offset, size_t* error_offset, tlv_node_t** created) {
+    tlv_node_t* node;
+    tlv_result_t rc = create_node(document, parent, tag, value, length, depth, element_offset,
+                                  error_offset, &node);
+    if (rc != TLV_OK) return rc;
+    if (node->constructed && length) {
+        if (depth == document->options.max_depth) {
+            set_offset(error_offset, value_base);
+            rc = TLV_ERR_LIMIT;
+        } else {
             rc = parse_list(document, node, value, length, depth + 1, value_base, error_offset);
-    } else if (length) {
-        node->value = copy_bytes(document, value, length);
-        if (!node->value)
-            rc = TLV_ERR_OUT_OF_MEMORY;
-        else
-            node->value_size = length;
+        }
     }
     if (rc != TLV_OK) {
         node_unlink(node);
@@ -209,28 +291,6 @@ static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv
         return rc;
     }
     if (created) *created = node;
-    return TLV_OK;
-}
-
-static tlv_result_t parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
-                               size_t size, size_t depth, size_t base, size_t* error_offset) {
-    tlv_reader_t reader;
-    tlv_result_t rc = tlv_reader_init(&reader, data, size, document->options.format);
-    if (rc != TLV_OK) return rc;
-    while (!tlv_reader_at_end(&reader)) {
-        tlv_element_t element;
-        size_t start = reader.pos, length = 0;
-        rc = tlv_reader_next(&reader, &element);
-        if (rc == TLV_OK) rc = tlv_size_to_native(element.value.size, &length);
-        if (rc != TLV_OK) {
-            set_offset(error_offset, base + start);
-            return rc;
-        }
-        rc = build_node(document, parent, element.tag, element.value.data, length, depth,
-                        length ? base + (size_t)(element.value.data - data) : 0, base + start,
-                        error_offset, NULL);
-        if (rc != TLV_OK) return rc;
-    }
     return TLV_OK;
 }
 
@@ -244,7 +304,7 @@ tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
                                        const tlv_format_t* format) {
     if (!options || !format_usable(format)) return TLV_ERR_NULL_ARG;
     options->format = format;
-    options->max_depth = TLV_WALK_MAX_DEPTH;
+    options->max_depth = TLV_TREE_DEFAULT_DEPTH;
     options->max_elements = TLV_DOCUMENT_DEFAULT_MAX_ELEMENTS;
     options->allocator = NULL;
     return TLV_OK;
@@ -256,7 +316,6 @@ tlv_result_t tlv_document_create(const tlv_document_options_t* options, tlv_docu
     if (!document) return TLV_ERR_NULL_ARG;
     *document = NULL;
     if (!options || !format_usable(options->format)) return TLV_ERR_NULL_ARG;
-    if (options->max_depth > TLV_WALK_MAX_DEPTH) return TLV_ERR_LIMIT;
     if (options->allocator) {
         if (!options->allocator->allocate || !options->allocator->release) return TLV_ERR_NULL_ARG;
         allocator = *options->allocator;
@@ -343,24 +402,27 @@ tlv_node_t* tlv_node_next_same_tag(const tlv_node_t* node) {
     return node ? find_in_siblings(node->next, node_tag(node)) : NULL;
 }
 
-/* Recursion is bounded by TLV_QUERY_MAX_STEPS. */
-static tlv_node_t* find_path(tlv_node_t* first, const tlv_query_t* query, size_t step) {
-    tlv_tag_t tag = tlv_query_step(query, step);
+tlv_node_t* tlv_document_find_path(const tlv_document_t* document, const tlv_query_t* query) {
+    tlv_query_matcher_t matcher;
     tlv_node_t* node;
-    for (node = first; node; node = node->next) {
-        if (!tlv_tag_equal(node_tag(node), tag)) continue;
-        if (step + 1 == query->count) return node;
-        if (node->constructed) {
-            tlv_node_t* found = find_path(node->first, query, step + 1);
-            if (found) return found;
+    size_t depth = 0;
+    if (!document || tlv_query_matcher_init(&matcher, query) != TLV_OK) return NULL;
+    node = document->first;
+    while (node) {
+        tlv_tag_t tag = node_tag(node);
+        if (tlv_query_matcher_visit(&matcher, &tag, depth)) return node;
+        if (node->first) {
+            node = node->first;
+            ++depth;
+        } else {
+            while (node->parent && !node->next) {
+                node = node->parent;
+                --depth;
+            }
+            node = node->next;
         }
     }
     return NULL;
-}
-
-tlv_node_t* tlv_document_find_path(const tlv_document_t* document, const tlv_query_t* query) {
-    if (!document || !query || !query->count || query->count > TLV_QUERY_MAX_STEPS) return NULL;
-    return find_path(document->first, query, 0);
 }
 
 /* ---- Reading a node -------------------------------------------------------------------- */
@@ -457,71 +519,130 @@ void tlv_node_erase(tlv_node_t* node) {
 
 /* ---- Encoding -------------------------------------------------------------------------- */
 
-static tlv_result_t node_encoded_size_impl(const tlv_node_t* node, size_t* size);
+typedef struct encode_frame {
+    const tlv_node_t* next;
+    const tlv_node_t* owner;
+    uint8_t* bytes;
+    size_t used, capacity;
+} encode_frame_t;
 
-static tlv_result_t list_encoded_size(const tlv_node_t* first, size_t* size) {
-    size_t total = 0;
+/* One traversal for measurement or output. A frame stores already encoded children. */
+static tlv_result_t process_nodes(const tlv_node_t* first, int single, tlv_writer_t* writer,
+                                  size_t* measured) {
+    const tlv_document_t* document;
     const tlv_node_t* node;
-    for (node = first; node; node = node->next) {
-        size_t part;
-        tlv_result_t rc = node_encoded_size_impl(node, &part);
-        if (rc != TLV_OK) return rc;
-        if (part > SIZE_MAX - total) return TLV_ERR_OVERFLOW;
-        total += part;
-    }
-    *size = total;
-    return TLV_OK;
-}
-
-static tlv_result_t node_value_size(const tlv_node_t* node, size_t* size) {
-    if (!node->constructed) {
-        *size = node->value_size;
+    encode_frame_t* frames;
+    size_t max_depth = 0, depth = 0, capacity, total = 0;
+    tlv_result_t rc = TLV_OK;
+    if (!first) {
+        if (measured) *measured = 0;
         return TLV_OK;
     }
-    return list_encoded_size(node->first, size);
+    document = first->document;
+    /* Measure actual topology, independent of configured limits. */
+    node = first;
+    for (;;) {
+        if (node->first) {
+            node = node->first;
+            ++depth;
+        } else {
+            while (depth && !node->next) {
+                node = node->parent;
+                --depth;
+            }
+            if (!depth && (single || !node->next)) break;
+            node = node->next;
+        }
+        if (depth > max_depth) max_depth = depth;
+    }
+    if (max_depth > SIZE_MAX / sizeof *frames - 2) return TLV_ERR_OUT_OF_MEMORY;
+    capacity = max_depth + 2;
+    frames = (encode_frame_t*)memory_allocate(document, capacity * sizeof *frames);
+    if (!frames) return TLV_ERR_OUT_OF_MEMORY;
+    memset(frames, 0, capacity * sizeof *frames);
+    frames[0].next = first;
+    depth = 0;
+    for (;;) {
+        encode_frame_t* frame = &frames[depth];
+        if (frame->next) {
+            node = frame->next;
+            frame->next = (!depth && single) ? NULL : node->next;
+            if (node->constructed) {
+                ++depth;
+                frames[depth] = (encode_frame_t){node->first, node, NULL, 0, 0};
+                continue;
+            }
+        } else {
+            if (!depth) {
+                total = frame->used;
+                break;
+            }
+            node = frame->owner;
+            --depth;
+            frame = &frames[depth];
+        }
+        {
+            const uint8_t* value = node->constructed ? frames[depth + 1].bytes : node->value;
+            size_t length = node->constructed ? frames[depth + 1].used : node->value_size;
+            size_t encoded;
+            rc = tlv_encoded_size(node_tag(node), length, document->options.format, &encoded);
+            if (rc != TLV_OK) break;
+            if (encoded > SIZE_MAX - frame->used) {
+                rc = TLV_ERR_OVERFLOW;
+                break;
+            }
+            if (writer) {
+                if (!depth) {
+                    rc = tlv_writer_write(writer, node_tag(node), value, length);
+                } else {
+                    size_t needed = frame->used + encoded;
+                    if (needed > frame->capacity) {
+                        size_t grown =
+                            frame->capacity <= SIZE_MAX / 2 ? frame->capacity * 2 : needed;
+                        if (grown < needed) grown = needed;
+                        uint8_t* replacement = (uint8_t*)memory_allocate(document, grown);
+                        if (!replacement) {
+                            rc = TLV_ERR_OUT_OF_MEMORY;
+                            break;
+                        }
+                        if (frame->used) memcpy(replacement, frame->bytes, frame->used);
+                        memory_release(document, frame->bytes);
+                        frame->bytes = replacement;
+                        frame->capacity = grown;
+                    }
+                    size_t written;
+                    rc = tlv_write(frame->bytes + frame->used, encoded, document->options.format,
+                                   node_tag(node), value, length, &written);
+                }
+                if (rc != TLV_OK) break;
+            }
+            frame->used += encoded;
+            if (node->constructed) {
+                memory_release(document, frames[depth + 1].bytes);
+                frames[depth + 1].bytes = NULL;
+            }
+        }
+    }
+    for (size_t i = 0; i < capacity; ++i) memory_release(document, frames[i].bytes);
+    memory_release(document, frames);
+    if (rc == TLV_OK && measured) *measured = total;
+    return rc;
+}
+
+static tlv_result_t list_encoded_size(const tlv_node_t* first, size_t* size) {
+    return process_nodes(first, 0, NULL, size);
 }
 
 static tlv_result_t node_encoded_size_impl(const tlv_node_t* node, size_t* size) {
-    size_t value_size;
-    tlv_result_t rc = node_value_size(node, &value_size);
-    if (rc != TLV_OK) return rc;
-    return tlv_encoded_size(node_tag(node), value_size, node->document->options.format, size);
+    return process_nodes(node, 1, NULL, size);
 }
-
-static tlv_result_t encode_node(const tlv_node_t* node, tlv_writer_t* writer);
 
 static tlv_result_t encode_list(const tlv_node_t* first, tlv_writer_t* writer) {
-    const tlv_node_t* node;
-    for (node = first; node; node = node->next) {
-        tlv_result_t rc = encode_node(node, writer);
-        if (rc != TLV_OK) return rc;
-    }
-    return TLV_OK;
+    return process_nodes(first, 0, writer, NULL);
 }
 
-/*
- * The header carries the value length, so a constructed value is encoded first into a
- * temporary buffer and then written with the element through the writer.
- */
 static tlv_result_t encode_node(const tlv_node_t* node, tlv_writer_t* writer) {
-    const tlv_document_t* document = node->document;
-    tlv_writer_t inner;
-    uint8_t* scratch;
-    size_t value_size;
-    tlv_result_t rc;
-    if (!node->constructed)
-        return tlv_writer_write(writer, node_tag(node), node->value, node->value_size);
-    rc = list_encoded_size(node->first, &value_size);
-    if (rc != TLV_OK) return rc;
-    if (!value_size) return tlv_writer_write(writer, node_tag(node), NULL, 0);
-    scratch = (uint8_t*)memory_allocate(document, value_size);
-    if (!scratch) return TLV_ERR_OUT_OF_MEMORY;
-    rc = tlv_writer_init(&inner, scratch, value_size, document->options.format);
-    if (rc == TLV_OK) rc = encode_list(node->first, &inner);
-    if (rc == TLV_OK)
-        rc = tlv_writer_write(writer, node_tag(node), scratch, tlv_writer_size(&inner));
-    memory_release(document, scratch);
-    return rc;
+    return process_nodes(node, 1, writer, NULL);
 }
 
 static tlv_result_t encode_checked(const tlv_node_t* first, const tlv_format_t* format,

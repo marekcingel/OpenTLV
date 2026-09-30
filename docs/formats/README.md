@@ -40,7 +40,7 @@ They are an extension mechanism, not a built-in standard or a supplied format.
 These reusable formats describe wire layouts without protocol policy. Fixed and
 Variable are part of the core rather than optional standards packages.
 
-| Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree walker | Availability |
+| Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree visitor | Availability |
 | --- | --- | --- | --- | --- | --- | --- |
 | [Configurable fixed-width TLV](fixed/configurable.md#wire-layout) | 1 to 8 bytes | 1 to 8 bytes, big or little endian, counting the value alone or the tag and value | set by the length width | tag, length, value or length, tag, value | none (opaque values) | Always available (C and C++) |
 | [Configurable variable-width TLV](variable.md) | inline or escaped continuation octets; configurable maximum width | short/long, big or little endian, counting value or tag and value | `tlv_size_t`, subject to configured count width and native buffer limits | tag, length, value or length, tag, value | supplied by concrete composition | Always available (C API) |
@@ -51,7 +51,7 @@ These formats implement a specific standard. Their packages may also provide
 definitions, schemas, value codecs and container handling. Each format's page
 explains its wire layout and supported scope.
 
-| Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree walker | Build option |
+| Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree visitor | Build option |
 | --- | --- | --- | --- | --- | --- | --- |
 | [DHCPv4 options](dhcp/README.md) | 1-byte code | 1 byte; absent for Pad/End | 255 bytes; 0 for Pad/End | code, length, value; code only for Pad/End | none | `OPENTLV_DHCP` |
 | [Bluetooth LTV](bluetooth/README.md#wire-layout-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_BLUETOOTH` |
@@ -116,9 +116,9 @@ returns `TLV_ERR_END_OF_BUFFER`; missing tag, length, or value bytes return
 Custom format callback errors propagate unchanged. The stateful
 `tlv_reader_next` uses the same parser and advances by the consumed size.
 
-## Walking multiple elements
+## Traversing multiple elements
 
-Include `tlv/reader/walker.h` to visit concatenated elements with the generic reader:
+Include `tlv/reader/visitor.h` to visit concatenated elements with the generic reader:
 
 ```c
 static tlv_visit_result_t count_element(const tlv_element_t* element, void* context) {
@@ -130,7 +130,9 @@ static tlv_visit_result_t count_element(const tlv_element_t* element, void* cont
 
 /* Inside a function: format as constructed above. */
 size_t count = 0;
-tlv_result_t result = tlv_walk(data, size, &format, count_element, &count);
+tlv_reader_t reader;
+tlv_result_t result = tlv_reader_init(&reader, data, size, &format);
+if (result == TLV_OK) result = tlv_reader_visit(&reader, count_element, &count);
 ```
 
 The visitor runs once per successfully parsed element, in buffer order.
@@ -144,7 +146,7 @@ The visitor and a format with both read callbacks are required even for empty
 input; invalid arguments return `TLV_ERR_NULL_ARG`. The optional context may be
 NULL. The element pointer lasts only for the callback; a copied element still borrows
 the input value. Keep the input and format valid and unchanged during traversal.
-The walker allocates no memory and never interprets or recurses into values,
+The visitor allocates no memory and never interprets or recurses into values,
 even when they contain nested TLVs.
 
 ## Writing one element
@@ -230,12 +232,10 @@ leave it NULL.
 Custom protocols can supply a different rule. Traversal follows the value element
 and resumes at the complete encoded end, so BER EOCs are skipped correctly.
 
-Use `tlv_walk_tree(data, size, format, max_depth, max_elements, visitor, context,
-error_offset)` for bounded preorder traversal or NULL visitor for validation.
-Depth is zero at the top level and cannot exceed `TLV_WALK_MAX_DEPTH` (64).
-Limits are inclusive; zero is a real limit. Offsets identify failing elements.
-STOP succeeds immediately without validating the remaining input. The original
-flat reader and walker retain their behavior. See [architecture](../concepts/architecture.md).
+Initialize `tlv_tree_reader_t` with caller-owned frames, a runtime depth limit
+and an element limit, then call `tlv_tree_reader_visit(&reader, visitor, context,
+error_offset)`. The Format classifies constructed tags; Visitor consumes the
+canonical Tree Reader stream.
 
 See also the [C API reference: formats](../reference/c-api.md#formats).
 

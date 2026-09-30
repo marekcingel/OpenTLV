@@ -1,8 +1,9 @@
+#include "visitor_input.h"
 // Conformance tests for the Bluetooth LTV (Length | Type | Value) format. Every case goes through
-// the generic reader, writer and walker; there is no Bluetooth-specific parsing path here.
+// the generic reader, writer and Tree Reader; there is no Bluetooth-specific parsing path here.
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/reader/reader.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstdint>
@@ -292,47 +293,47 @@ TEST(Unit_Tlv_BluetoothLtvConformance, ZeroLengthEndsParsingLikePadding) {
     EXPECT_FALSE(tlv_reader_at_end(&reader));
 }
 
-TEST(Unit_Tlv_BluetoothLtvConformance, WalkerReportsElementOffsets) {
+TEST(Unit_Tlv_BluetoothLtvConformance, VisitorReportsElementOffsets) {
     VisitLog log;
     size_t   error_offset = 99;
     ASSERT_EQ(TLV_OK,
-              tlv_walk_tree(advertising_data.data(), advertising_data.size(), &reader_format,
-                            TLV_WALK_MAX_DEPTH, 100, log_visit, &log, &error_offset));
+              visit_tree_input(advertising_data.data(), advertising_data.size(), &reader_format,
+                               TLV_TREE_DEFAULT_DEPTH, 100, log_visit, &log, &error_offset));
     EXPECT_EQ(std::vector<size_t>({0, 3, 9, 12}), log.offsets);
     EXPECT_EQ(99u, error_offset);
 
     VisitLog stopped;
     stopped.stop_after = 2;
     EXPECT_EQ(TLV_OK,
-              tlv_walk_tree(advertising_data.data(), advertising_data.size(), &reader_format,
-                            TLV_WALK_MAX_DEPTH, 100, log_visit, &stopped, nullptr));
+              visit_tree_input(advertising_data.data(), advertising_data.size(), &reader_format,
+                               TLV_TREE_DEFAULT_DEPTH, 100, log_visit, &stopped, nullptr));
     EXPECT_EQ(2u, stopped.count);
 }
 
-TEST(Unit_Tlv_BluetoothLtvConformance, WalkerReportsOffsetOfMalformedElement) {
+TEST(Unit_Tlv_BluetoothLtvConformance, VisitorReportsOffsetOfMalformedElement) {
     // Element offsets 0, 3, then an element at 6 that overruns the buffer.
     const Bytes data = {0x02, 0x01, 0x06, 0x02, 0x0A, 0x04, 0x09, 0x09, 'H'};
     VisitLog    log;
     size_t      error_offset = 0;
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_walk_tree(data.data(), data.size(), &reader_format, TLV_WALK_MAX_DEPTH, 100,
-                            log_visit, &log, &error_offset));
+              visit_tree_input(data.data(), data.size(), &reader_format, TLV_TREE_DEFAULT_DEPTH,
+                               100, log_visit, &log, &error_offset));
     EXPECT_EQ(6u, error_offset);
     EXPECT_EQ(2u, log.count);
 
     const Bytes zero = {0x02, 0x01, 0x06, 0x00};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_walk_tree(zero.data(), zero.size(), &reader_format, TLV_WALK_MAX_DEPTH, 100,
-                            nullptr, nullptr, &error_offset));
+              visit_tree_input(zero.data(), zero.size(), &reader_format, TLV_TREE_DEFAULT_DEPTH,
+                               100, nullptr, nullptr, &error_offset));
     EXPECT_EQ(3u, error_offset);
 }
 
-TEST(Unit_Tlv_BluetoothLtvConformance, WalkerEnforcesElementLimit) {
+TEST(Unit_Tlv_BluetoothLtvConformance, VisitorEnforcesElementLimit) {
     size_t error_offset = 0;
     EXPECT_EQ(TLV_ERR_LIMIT,
-              tlv_walk_tree(advertising_data.data(), advertising_data.size(), &reader_format,
-                            TLV_WALK_MAX_DEPTH, 3, nullptr, nullptr, &error_offset));
+              visit_tree_input(advertising_data.data(), advertising_data.size(), &reader_format,
+                               TLV_TREE_DEFAULT_DEPTH, 3, nullptr, nullptr, &error_offset));
     EXPECT_EQ(TLV_OK,
-              tlv_walk_tree(advertising_data.data(), advertising_data.size(), &reader_format,
-                            TLV_WALK_MAX_DEPTH, 4, nullptr, nullptr, nullptr));
+              visit_tree_input(advertising_data.data(), advertising_data.size(), &reader_format,
+                               TLV_TREE_DEFAULT_DEPTH, 4, nullptr, nullptr, nullptr));
 }

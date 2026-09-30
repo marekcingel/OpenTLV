@@ -38,7 +38,7 @@ enum { TLV_BER_INDEFINITE_LENGTH_OCTET_SIZE = 1, TLV_BER_EOC_SIZE = 2 };
  * truncated fields. Discards the decoded quantity and never reads beyond size. */
 size_t tlv_ber_length_field_size(const uint8_t* data, size_t size);
 
-/* Walk only framing, skipping primitive contents in one step, starting just
+/* Traverse only framing, skipping primitive contents in one step, starting just
  * after a tag whose length field begins at data[0]. indefinite selects
  * whether the outer scope itself is EOC-terminated (the caller already
  * consumed its introducing 0x80). Each nested frame's end is a hard bound

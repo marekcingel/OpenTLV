@@ -158,7 +158,7 @@ fn ber_constructed_bit_controls_nesting() {
         opaque.validate(&[0x10, 2, 0x11, 5], Format::Ber, &limits()),
         Ok(())
     );
-    // In BER the container is walked and its malformed child is reported.
+    // In BER the container is traversed and its malformed child is reported.
     assert!(opaque.validate(&data, Format::Ber, &limits()).is_err());
 }
 

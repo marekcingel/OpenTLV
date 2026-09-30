@@ -1,6 +1,6 @@
 /*
  * Addresses the Application Label directly by path, `6F/A5/50`, without
- * walking the whole document by hand. See parse.c for the document itself.
+ * traversing the whole document by hand. See parse.c for the document itself.
  */
 #include <stdio.h>
 #include "tlv/builtins/asn1/ber.h"
@@ -26,8 +26,8 @@ int main(void) {
     tlv_query_t query;
     int         found = 0;
     if (tlv_query_parse("6F/A5/50", &query, NULL) != TLV_OK) return 1;
-    if (tlv_query_walk(document, sizeof(document), &tlv_format_ber, &query, TLV_WALK_MAX_DEPTH, 16,
-                       print_match, &found, NULL) != TLV_OK)
+    if (tlv_query_visit_buffer(document, sizeof(document), &tlv_format_ber, &query,
+                               TLV_TREE_DEFAULT_DEPTH, 16, print_match, &found, NULL) != TLV_OK)
         return 1;
     return found ? 0 : 1;
 }

@@ -16,7 +16,7 @@ set(HEADERS
     src/commands/help_command.hpp
     src/commands/version_command.hpp
     src/commands/formats_command.hpp
-    src/commands/walk_command.hpp
+    src/commands/traversal_command.hpp
     src/commands/dump_command.hpp
     src/commands/validate_command.hpp
     src/commands/decode_command.hpp
@@ -52,7 +52,7 @@ set(SOURCES
     src/commands/help_command.cpp
     src/commands/version_command.cpp
     src/commands/formats_command.cpp
-    src/commands/walk_command.cpp
+    src/commands/traversal_command.cpp
     src/commands/dump_command.cpp
     src/commands/validate_command.cpp
     src/commands/decode_command.cpp

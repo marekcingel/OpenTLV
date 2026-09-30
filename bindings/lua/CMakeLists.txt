@@ -32,8 +32,8 @@ add_library(opentlv_lua MODULE
     src/formats/fixed.c
     src/reader.c
     src/reader.h
-    src/walk.c
-    src/walk.h
+    src/visitor.c
+    src/visitor.h
     src/compat.h
 )
 if(OPENTLV_FORMAT_BER)

@@ -1,3 +1,4 @@
+#include "visitor_input.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
@@ -25,12 +26,12 @@ tlv_visit_result_t collect_segment(const tlv_element_t* element, void* context) 
 }
 
 /* Zero-copy segment iteration over a constructed element's already-borrowed
- * content, per docs/standards/cer/README.md's documented tlv_walk pattern. */
+ * content, per docs/standards/cer/README.md's documented Reader/Visitor pattern. */
 std::vector<Segment> segments_of(const tlv_element_t& element) {
     std::vector<Segment> result;
     if (element.value.size)
-        EXPECT_EQ(TLV_OK, tlv_walk(element.value.data, static_cast<size_t>(element.value.size),
-                                   &tlv_format_cer, collect_segment, &result));
+        EXPECT_EQ(TLV_OK, visit_input(element.value.data, static_cast<size_t>(element.value.size),
+                                      &tlv_format_cer, collect_segment, &result));
     return result;
 }
 
@@ -110,7 +111,7 @@ TEST(Unit_Tlv_CerValues, RejectsIncorrectSegmentTag) {
     data.push_back(0);
     size_t offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_TAG,
-              tlv_cer_walk(data.data(), data.size(), nullptr, nullptr, nullptr, &offset));
+              tlv_cer_visit(data.data(), data.size(), nullptr, nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
 }
 
@@ -119,7 +120,7 @@ TEST(Unit_Tlv_CerValues, RejectsConstructedSegment) {
     const uint8_t data[] = {0x24, 0x80, 0x24, 0x80, 0x04, 1, 'a', 0, 0, 0, 0};
     size_t        offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_TAG,
-              tlv_cer_walk(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
+              tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
 }
 
@@ -138,7 +139,7 @@ TEST(Unit_Tlv_CerValues, RejectsShortNonFinalSegment) {
     data.push_back(0);
     size_t offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_cer_walk(data.data(), data.size(), nullptr, nullptr, nullptr, &offset));
+              tlv_cer_visit(data.data(), data.size(), nullptr, nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
 }
 
@@ -149,7 +150,7 @@ TEST(Unit_Tlv_CerValues, RejectsOversizedSegment) {
     data.push_back(0);
     size_t offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_cer_walk(data.data(), data.size(), nullptr, nullptr, nullptr, &offset));
+              tlv_cer_visit(data.data(), data.size(), nullptr, nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
 }
 
@@ -159,7 +160,7 @@ TEST(Unit_Tlv_CerValues, RejectsEmptySegment) {
     const uint8_t data[] = {0x24, 0x80, 0x04, 0, 0, 0};
     size_t        offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_cer_walk(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
+              tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
     EXPECT_EQ(2u, offset);
 }
 
@@ -172,7 +173,7 @@ TEST(Unit_Tlv_CerValues, RejectsUnjustifiedConstructedEncoding) {
     const uint8_t data[] = {0x24, 0x80, 0x04, 1, 'a', 0, 0};
     size_t        offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_cer_walk(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
+              tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
     EXPECT_EQ(1u, offset);
 }
 
@@ -206,9 +207,9 @@ TEST(Unit_Tlv_CerValues, BitStringSegmentation) {
     tampered[2 + 4] = 1; /* first byte of the first segment's content */
     size_t offset = 99;
     EXPECT_EQ(TLV_OK,
-              tlv_cer_walk(tampered.data(), tampered.size(), nullptr, nullptr, nullptr, nullptr));
-    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_cer_walk_strict(tampered.data(), tampered.size(), nullptr,
-                                                         nullptr, nullptr, &offset));
+              tlv_cer_visit(tampered.data(), tampered.size(), nullptr, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_cer_visit_strict(tampered.data(), tampered.size(), nullptr,
+                                                          nullptr, nullptr, &offset));
 }
 
 TEST(Unit_Tlv_CerValues, Utf8StringCharacterSplitAcrossSegmentBoundary) {

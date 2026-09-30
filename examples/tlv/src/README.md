@@ -18,7 +18,7 @@ operation can be compared across languages.
 ## API tour
 
 One topic per file: sequential I/O, explicit copies, schema validation while
-walking, codecs and endian conversion, and a fully custom format.
+traversing, codecs and endian conversion, and a fully custom format.
 
 - [`sequential_io.c`](sequential_io.c) -- a sequential writer and reader,
   `tlv_writer_copy_element`/`tlv_writer_copy_encoded`.
@@ -28,8 +28,8 @@ walking, codecs and endian conversion, and a fully custom format.
   resumable reads and explicit EOF using a buffer smaller than the full input.
 - [`tree_reader.c`](tree_reader.c) -- pull-based preorder traversal with
   caller-owned frames, incremental input and subtree skipping.
-- [`schema_walk.c`](schema_walk.c) -- schema validation inside a
-  `tlv_walk()` callback.
+- [`schema_visitor.c`](schema_visitor.c) -- schema validation inside a
+  `tlv_reader_visit()` callback.
 - [`codecs_and_endian.c`](codecs_and_endian.c) -- an application value codec, and
   the standalone endian helpers.
 - [`custom_format.c`](custom_format.c) -- defining your own reader/writer format.

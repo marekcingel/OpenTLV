@@ -29,24 +29,24 @@ flags. Contract checks remain active with `NDEBUG`; UBSan errors are fatal.
 | Target | Checks |
 | --- | --- |
 | `fuzz_read` | Sequential `tlv_read` calls, positive bounded consumption, borrowed value ranges, unchanged element and consumed count on failure. |
-| `fuzz_walk_tree` | Nested `tlv_walk_tree` traversal, depth and element limits (including zero), element ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal. |
-| `fuzz_der` | `tlv_der_read` and `tlv_der_walk`, canonical DER-TLV framing, all four validation limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal. |
+| `fuzz_visitor` | Nested `tlv_tree_reader_visit` traversal, depth and element limits (including zero), element ranges, increasing offsets and parent bounds, STOP/ERROR handling, agreement with validation-only traversal. |
+| `fuzz_der` | `tlv_der_read` and `tlv_der_visit`, canonical DER-TLV framing, all four validation limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal. |
 | `fuzz_der_schema` | `tlv_der_schema_read` against a fixed representative schema (IMPLICIT/EXPLICIT tagging, a DEFAULT component, SET, SET OF, SEQUENCE OF and CHOICE), all five schema limits, unchanged read outputs and bounded error offsets on failure. |
 | `fuzz_roundtrip` | Generated tags and values, sizing, insufficient-capacity output preservation, successful write/read tag and value equality. |
 | `fuzz_fixed` | The configurable Fixed format (`tlv_fixed_format_init()`) with tag width, length width and byte order all derived from the fuzz input: exact framing-overhead round trips and insufficient-capacity output preservation for the derived configuration, plus sequential malformed-input `tlv_read` against the same raw bytes. |
 | `fuzz_codec` | `tlv_codec_decode`/`tlv_codec_encode` for every EMV dictionary tag's codec (NUMBER, FLAGS, DIGITS, DATE, TIME, ACCOUNT, CRYPTOGRAM, BIOMETRIC, NUMBER_LIST), one-byte-short capacities, decode/encode/decode round-trip equality, and undersized-output rejection. |
 | `fuzz_dol` | `tlv_dol_read` and `tlv_dol_write` (both a size query and a full write against a deterministic `resolve` callback exercising presence, padding and truncation), both DOL limits, and that `tlv_dol_write`'s output length depends only on the input DOL. |
 
-The reader, walker, and round-trip targets run each input against every enabled
+The reader, visitor, and round-trip targets run each input against every enabled
 built-in format: default, fixed-width (one tag byte, one length byte), Bluetooth LTV, BER, and DER. Component switches still
 apply; `fuzz_fixed` is always built when fuzzing is enabled, while `fuzz_der` and
 `fuzz_der_schema` are omitted when `OPENTLV_FORMAT_DER=OFF`,
 and `fuzz_codec` and `fuzz_dol` are omitted when `OPENTLV_EMV=OFF`. At
 least one built-in format must be enabled. For the raw-byte formats, the
-walker harness uses tag bit `0x20` as a test-only container convention. BER
+Visitor harness uses tag bit `0x20` as a test-only container convention. BER
 and DER use their public nesting predicates. `fuzz_fixed` covers the
 configurable dimensions (tag width, length width, byte order) that the
-reader/walker/round-trip targets' one fixed 1/1/big-endian configuration
+reader/visitor/round-trip targets' one fixed 1/1/big-endian configuration
 cannot reach; deriving a valid `tlv_fixed_format_t` from the input itself,
 rather than hard-coding a handful of configurations, lets libFuzzer explore
 the full valid range. `fuzz_der` covers the existing
@@ -68,7 +68,7 @@ exceptions rather than requiring every output to remain unchanged on error.
 Each harness's checked-in seed corpus lives next to it, under a `corpus/`
 folder in the same subsystem or built-in directory of `tests/fuzz/`, which
 mirrors `tlv/src`'s own layout: `tests/fuzz/reader/corpus/read` and
-`tests/fuzz/reader/corpus/walk_tree` for the generic reader/walker targets,
+`tests/fuzz/reader/corpus/visitor` for the generic reader/visitor targets,
 `tests/fuzz/corpus/roundtrip` for the cross-cutting round-trip target,
 `tests/fuzz/builtins/fixed/corpus/fixed`,
 `tests/fuzz/builtins/asn1/corpus/{der,der_schema}` /
@@ -77,9 +77,9 @@ Checked-in seed files use the `.bin` extension to identify binary test inputs.
 Only seed inputs belong in these corpus directories; mutation discoveries and
 crash artifacts go under the build directory instead.
 
-`corpus/read`, `corpus/walk_tree`, and `builtins/asn1/corpus/der` contain raw
+`corpus/read`, `corpus/visitor`, and `builtins/asn1/corpus/der` contain raw
 TLV bytes, with no selector prefix. Every enabled format receives the same
-input. A seed may be valid for one format and invalid for another. Walker and
+input. A seed may be valid for one format and invalid for another. Visitor and
 DER limits are also derived from input bytes without removing them from the
 parsed input.
 
@@ -89,7 +89,7 @@ high-number tags, nested containers, BER indefinite framing and EOC errors,
 noncanonical DER framing, and depth-limit boundaries. `bluetooth-ltv-*` seeds
 cover the length-first layout: valid advertising data, zero-length padding,
 truncated and overrunning lengths, the maximum length byte, and type-only
-elements. The raw formats use `0x20` as a test-only constructed bit in the walker.
+elements. The raw formats use `0x20` as a test-only constructed bit in the visitor.
 
 `corpus/roundtrip` uses a different layout: byte 0 modulo
 `17` gives the candidate tag size, clamped to the remaining
@@ -142,7 +142,7 @@ set -o pipefail
 status=0
 declare -A corpus_dir=(
   [read]=tests/fuzz/reader/corpus/read
-  [walk_tree]=tests/fuzz/reader/corpus/walk_tree
+  [visitor]=tests/fuzz/reader/corpus/visitor
   [roundtrip]=tests/fuzz/corpus/roundtrip
   [fixed]=tests/fuzz/builtins/fixed/corpus/fixed
   [der]=tests/fuzz/builtins/asn1/corpus/der
@@ -150,7 +150,7 @@ declare -A corpus_dir=(
   [codec]=tests/fuzz/builtins/emv/corpus/codec
   [dol]=tests/fuzz/builtins/emv/corpus/dol
 )
-for target in read walk_tree fixed der der_schema roundtrip codec dol; do
+for target in read visitor fixed der der_schema roundtrip codec dol; do
   executable="build/fuzz/tests/fuzz/fuzz_$target"
   [ -x "$executable" ] || continue
   mkdir -p "build/fuzz/corpus/$target" "build/fuzz/findings/$target"
@@ -190,7 +190,7 @@ saved input as a file instead of a corpus directory:
 build/fuzz/tests/fuzz/fuzz_read path/to/read/crash-<hash>
 ```
 
-Use the corresponding target for `walk_tree`, `fixed`, `der`, `der_schema`,
+Use the corresponding target for `visitor`, `fixed`, `der`, `der_schema`,
 `roundtrip`, `codec`, or `dol`. Findings
 may also use names such as `timeout-<hash>` or `oom-<hash>`; retain the original
 timeout/RSS settings when reproducing those. Keep the sanitizer environment

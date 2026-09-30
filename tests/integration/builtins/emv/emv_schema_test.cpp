@@ -1,14 +1,14 @@
 #include "tlv/builtins/emv/format.h"
 #include "tlv/builtins/emv/emv_schema.h"
 #include "tlv/builtins/emv/emv.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include <gtest/gtest.h>
 #include <vector>
 
 namespace {
 tlv_result_t validate(const std::vector<uint8_t>& wire, size_t* offset = nullptr) {
     return tlv_schema_validate(wire.data(), wire.size(), &tlv_format_emv, &tlv_emv_structure_schema,
-                               TLV_WALK_MAX_DEPTH, 1000, offset);
+                               TLV_TREE_DEFAULT_DEPTH, 1000, offset);
 }
 } // namespace
 
@@ -131,7 +131,7 @@ TEST(Integration_Tlv_EmvSchema, ReportsFciViolationsWithPathsInOnePass) {
     tlv_schema_report_t        report = {issues, 4, 0};
     EXPECT_EQ(TLV_ERR_SCHEMA,
               tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_emv,
-                                      &tlv_emv_structure_schema, TLV_WALK_MAX_DEPTH, 1000,
+                                      &tlv_emv_structure_schema, TLV_TREE_DEFAULT_DEPTH, 1000,
                                       TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     ASSERT_EQ(2u, report.count);
     char text[32];
@@ -153,8 +153,9 @@ TEST(Integration_Tlv_EmvSchema, ReportAgreesWithFailFastValidationOnConformingIn
                                     0x00, 0x00, 0x03, 0x10, 0x10};
     tlv_schema_report_t        report = {nullptr, 0, 99};
     EXPECT_EQ(TLV_OK, validate(wire));
-    EXPECT_EQ(TLV_OK, tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_emv,
-                                              &tlv_emv_structure_schema, TLV_WALK_MAX_DEPTH, 1000,
-                                              TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
+    EXPECT_EQ(TLV_OK,
+              tlv_schema_validate_all(wire.data(), wire.size(), &tlv_format_emv,
+                                      &tlv_emv_structure_schema, TLV_TREE_DEFAULT_DEPTH, 1000,
+                                      TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, nullptr));
     EXPECT_EQ(0u, report.count);
 }

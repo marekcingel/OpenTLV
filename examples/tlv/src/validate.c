@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "tlv/builtins/asn1/ber.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/schema/schema.h"
 
 /* Same bytes as parse.c's document. */
@@ -40,7 +40,7 @@ static const tlv_structure_schema_t top_schema = {top_rules, 1, 0, NULL, 0, TLV_
 
 int main(void) {
     tlv_result_t result = tlv_schema_validate(document, sizeof(document), &tlv_format_ber,
-                                              &top_schema, TLV_WALK_MAX_DEPTH, 16, NULL);
+                                              &top_schema, TLV_TREE_DEFAULT_DEPTH, 16, NULL);
     if (result != TLV_OK) {
         fprintf(stderr, "unexpected: %s\n", tlv_strerror(result));
         return 1;
@@ -48,7 +48,7 @@ int main(void) {
     puts("Document conforms to the schema");
 
     result = tlv_schema_validate(incomplete, sizeof(incomplete), &tlv_format_ber, &top_schema,
-                                 TLV_WALK_MAX_DEPTH, 16, NULL);
+                                 TLV_TREE_DEFAULT_DEPTH, 16, NULL);
     if (result != TLV_ERR_SCHEMA_MISSING) {
         fprintf(stderr, "expected a missing-field error, got %s\n", tlv_strerror(result));
         return 1;

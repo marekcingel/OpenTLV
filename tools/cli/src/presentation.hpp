@@ -1,8 +1,9 @@
 #ifndef OPENTLV_CLI_PRESENTATION_H
 #define OPENTLV_CLI_PRESENTATION_H
 #include <string>
+#include <vector>
 #include "tlv/definition.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 
 // Structured EMV dictionary metadata for one element, shared by the text
 // renderer (cli_presentation_emv, below) and the CLI's JSON output so both
@@ -22,14 +23,14 @@ struct cli_emv_info {
 std::string cli_emv_display_name(const tlv_definition_t* definition);
 
 typedef struct cli_presentation {
-    const uint8_t* data;
-    size_t         ends[TLV_WALK_MAX_DEPTH + 1];
-    int            more[TLV_WALK_MAX_DEPTH + 1];
-    int            contexts[TLV_WALK_MAX_DEPTH + 1];
-    int            color;
-    unsigned long  console_mode;
-    unsigned int   console_codepage;
-    int            restore_mode, restore_codepage;
+    const uint8_t*      data;
+    std::vector<size_t> ends;
+    std::vector<int>    more;
+    std::vector<int>    contexts;
+    int                 color;
+    unsigned long       console_mode;
+    unsigned int        console_codepage;
+    int                 restore_mode, restore_codepage;
 } cli_presentation_t;
 
 // Requires a successful reader-produced element. Checks native representability;

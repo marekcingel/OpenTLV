@@ -1,4 +1,5 @@
-#include "walk.h"
+#include <stdlib.h>
+#include "visitor.h"
 #include "common.h"
 #include "error.h"
 #include "format.h"
@@ -6,11 +7,11 @@
 #if OPENTLV_FORMAT_DER
 #include <tlv/builtins/asn1/der_validation.h>
 #endif
-#include <tlv/reader/walker.h>
+#include <tlv/reader/visitor.h>
 
-/* tlv_walk_tree() requires a real max_elements bound (zero permits only
- * empty input); this is the bound opentlv.walk_tree() applies when its
- * `opts.max_elements` is omitted. Callers walking untrusted input should
+/* tlv_tree_reader_visit() requires a real max_elements bound (zero permits only
+ * empty input); this is the bound opentlv.visit_tree() applies when its
+ * `opts.max_elements` is omitted. Callers traversing untrusted input should
  * pass an explicit, tighter bound instead of relying on this default. */
 #define OPENTLV_LUA_DEFAULT_MAX_ELEMENTS ((size_t)65536)
 
@@ -21,21 +22,21 @@ typedef struct {
     tlv_is_constructed_fn is_constructed;
     /* A Lua error raised by the callback, or a push_entry narrowing failure,
      * is stashed here rather than raised with lua_error(): this trampoline
-     * runs inside tlv_walk_tree()'s/tlv_der_walk()'s own C call frames, and
+     * runs inside tlv_tree_reader_visit()'s/tlv_der_visit()'s own C call frames, and
      * those plain C functions are not written to have their stack unwound
      * by a longjmp (which is how Lua errors propagate) part-way through.
-     * l_walk_tree() re-raises it after the walk function has returned,
+     * l_visit_tree() re-raises it after the traversal function has returned,
      * which is a safe boundary since it was called directly by Lua. */
     int          error_ref;
     tlv_result_t push_failed_code;
     size_t       visited;
     int          stopped;
-} walk_ctx_t;
+} visitor_ctx_t;
 
-static tlv_visit_result_t walk_trampoline(const tlv_element_t* element, size_t depth, size_t offset,
-                                          void* context) {
-    walk_ctx_t* ctx = (walk_ctx_t*)context;
-    lua_State*  L = ctx->L;
+static tlv_visit_result_t visitor_trampoline(const tlv_element_t* element, size_t depth,
+                                             size_t offset, void* context) {
+    visitor_ctx_t* ctx = (visitor_ctx_t*)context;
+    lua_State*     L = ctx->L;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, ctx->callback_ref);
     int narrow_code = opentlv_lua_push_element(L, element, offset);
@@ -64,21 +65,21 @@ static tlv_visit_result_t walk_trampoline(const tlv_element_t* element, size_t d
     return TLV_VISIT_CONTINUE;
 }
 
-/* opentlv.walk_tree(data, format, callback, opts) -> visited, stopped
+/* opentlv.visit_tree(data, format, callback, opts) -> visited, stopped
  *
  * Visits every element of `data` in preorder, calling
  * `callback(element, depth)` for each; `element` additionally has a
  * `constructed` boolean field alongside tag/length/value/offset. Returning
- * `false` from `callback` stops the walk early (`stopped` is then true).
+ * `false` from `callback` stops the traversal early (`stopped` is then true).
  * `callback` may be omitted (nil) to validate structure and limits only,
  * without the per-element call overhead; `visited` is then always 0, since
  * it counts callback invocations, not elements. `opts` is an optional table
- * with integer `max_depth` (default TLV_WALK_MAX_DEPTH, 64) and
+ * with integer `max_depth` (default TLV_TREE_DEFAULT_DEPTH, 64) and
  * `max_elements` (default OPENTLV_LUA_DEFAULT_MAX_ELEMENTS); for
- * opentlv.formats.der, tree traversal always uses tlv_der_walk() with the
+ * opentlv.formats.der, tree traversal always uses tlv_der_visit() with the
  * library's default limits instead, and `opts` is ignored, matching the
  * WebAssembly binding's choice for DER. */
-static int l_walk_tree(lua_State* L) {
+static int l_visit_tree(lua_State* L) {
     size_t            data_len;
     const char*       data = luaL_checklstring(L, 1, &data_len);
     tlv_lua_format_t* format = opentlv_lua_check_format(L, 2);
@@ -87,13 +88,15 @@ static int l_walk_tree(lua_State* L) {
         luaL_checktype(L, 3, LUA_TFUNCTION);
     }
 
-    size_t max_depth = TLV_WALK_MAX_DEPTH;
+    size_t max_depth = TLV_TREE_DEFAULT_DEPTH;
     size_t max_elements = OPENTLV_LUA_DEFAULT_MAX_ELEMENTS;
     if (!lua_isnoneornil(L, 4)) {
         luaL_checktype(L, 4, LUA_TTABLE);
         lua_getfield(L, 4, "max_depth");
         if (!lua_isnil(L, -1)) {
-            max_depth = (size_t)luaL_checkinteger(L, -1);
+            lua_Integer requested = luaL_checkinteger(L, -1);
+            luaL_argcheck(L, requested >= 0, 4, "max_depth must be nonnegative");
+            max_depth = (size_t)requested;
         }
         lua_pop(L, 1);
         lua_getfield(L, 4, "max_elements");
@@ -103,7 +106,7 @@ static int l_walk_tree(lua_State* L) {
         lua_pop(L, 1);
     }
 
-    walk_ctx_t ctx;
+    visitor_ctx_t ctx;
     ctx.L = L;
     if (has_callback) {
         lua_pushvalue(L, 3);
@@ -118,17 +121,29 @@ static int l_walk_tree(lua_State* L) {
     ctx.visited = 0;
     ctx.stopped = 0;
 
-    tlv_tree_visitor_t visitor = has_callback ? walk_trampoline : NULL;
+    tlv_tree_visitor_t visitor = has_callback ? visitor_trampoline : NULL;
     size_t             error_offset = 0;
     tlv_result_t       code;
 #if OPENTLV_FORMAT_DER
-    if (format->use_der_walker) {
-        code = tlv_der_walk((const uint8_t*)data, data_len, NULL, visitor, &ctx, &error_offset);
+    if (format->use_der_validation) {
+        code = tlv_der_visit((const uint8_t*)data, data_len, NULL, visitor, &ctx, &error_offset);
     } else
 #endif
     {
-        code = tlv_walk_tree((const uint8_t*)data, data_len, &format->format, max_depth,
-                             max_elements, visitor, &ctx, &error_offset);
+        tlv_tree_reader_t reader;
+        size_t            capacity = max_depth < data_len ? max_depth : data_len;
+        tlv_tree_frame_t* frames = NULL;
+        if (capacity > SIZE_MAX / sizeof(*frames)) {
+            code = TLV_ERR_OUT_OF_MEMORY;
+        } else {
+            if (capacity) frames = (tlv_tree_frame_t*)malloc(capacity * sizeof(*frames));
+            code = capacity && !frames ? TLV_ERR_OUT_OF_MEMORY
+                                       : tlv_tree_reader_init(&reader, (const uint8_t*)data,
+                                                              data_len, &format->format, frames,
+                                                              capacity, max_depth, max_elements);
+            if (code == TLV_OK) code = tlv_tree_reader_visit(&reader, visitor, &ctx, &error_offset);
+            free(frames);
+        }
     }
 
     if (has_callback) {
@@ -152,7 +167,7 @@ static int l_walk_tree(lua_State* L) {
     return 2;
 }
 
-void opentlv_lua_open_walk(lua_State* L, int module_table_index) {
-    lua_pushcfunction(L, l_walk_tree);
-    lua_setfield(L, module_table_index, "walk_tree");
+void opentlv_lua_open_visitor(lua_State* L, int module_table_index) {
+    lua_pushcfunction(L, l_visit_tree);
+    lua_setfield(L, module_table_index, "visit_tree");
 }

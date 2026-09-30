@@ -4,7 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include "tlv/config.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"
 #endif
@@ -329,7 +329,6 @@ int options::parse(int argc, char** argv) {
         if (value && !tag) return fail(2, "--value requires --tag");
         // Neither --tag nor --input: read the JSON document from stdin.
         if (!tag && !input) input = "-";
-        if (max_depth > TLV_WALK_MAX_DEPTH) return fail(2, "maximum depth must be in 0..64");
         if ((seen & fixed_only) && strcmp(format, "fixed"))
             return fail(2, "--fixed-tag-size/--fixed-length-size/--fixed-byte-order require "
                            "--format fixed");
@@ -339,7 +338,6 @@ int options::parse(int argc, char** argv) {
     if (input && hex) return fail(2, "--input and --hex cannot both be given");
     // Neither --input nor --hex: read the input from stdin.
     if (!input && !hex) input = "-";
-    if (max_depth > TLV_WALK_MAX_DEPTH) return fail(2, "maximum depth must be in 0..64");
     if ((seen & fixed_only) && strcmp(format, "fixed"))
         return fail(2, "--fixed-tag-size/--fixed-length-size/--fixed-byte-order require "
                        "--format fixed");
@@ -437,7 +435,7 @@ void options::usage() {
            "  --force-color          Emit ANSI colors even when redirected\n"
            "  --no-color             Disable colors (default: auto for terminals)\n"
            "  --max-input-size N     Maximum input bytes (default 16777216)\n"
-           "  --max-depth N          Maximum child depth, 0..64 (default 64)\n"
+           "  --max-depth N          Maximum child depth (default 64)\n"
            "  --max-elements N       Maximum visited elements (default 100000)\n"
            "  --search TEXT          tags: only tags whose name contains TEXT "
            "(case-insensitive)\n"

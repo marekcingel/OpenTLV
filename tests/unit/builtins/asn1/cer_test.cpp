@@ -1,3 +1,4 @@
+#include "visitor_input.h"
 #include "tlv/layout.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
@@ -6,7 +7,7 @@
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv/builtins/asn1/cer_validation.h"
 #include "tlv/reader/reader.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -52,18 +53,18 @@ TEST(Unit_Tlv_Cer, EmptyArgumentsAndVisitorControl) {
     EXPECT_EQ(TLV_ERR_END_OF_BUFFER, tlv_cer_read(nullptr, 0, nullptr, &element, &used, &offset));
     EXPECT_EQ(0u, offset);
     EXPECT_EQ(99u, used);
-    EXPECT_EQ(TLV_OK, tlv_cer_walk(nullptr, 0, nullptr, nullptr, nullptr, nullptr));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_cer_walk(nullptr, 1, nullptr, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_OK, tlv_cer_visit(nullptr, 0, nullptr, nullptr, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_cer_visit(nullptr, 1, nullptr, nullptr, nullptr, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_cer_read(nullptr, 0, nullptr, nullptr, &used, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG,
               tlv_cer_write(nullptr, 1, (TLV_TAG(4)), nullptr, 0, nullptr, &used, nullptr));
     const uint8_t data[] = {4, 0, 0xFF};
     auto          stop = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_STOP; };
     auto error = [](const tlv_element_t*, size_t, size_t, void*) { return TLV_VISIT_ERROR; };
-    EXPECT_EQ(TLV_OK, tlv_cer_walk(data, sizeof(data), nullptr, stop, nullptr, nullptr));
-    EXPECT_EQ(TLV_ERR_VISITOR, tlv_cer_walk(data, sizeof(data), nullptr, error, nullptr, &offset));
+    EXPECT_EQ(TLV_OK, tlv_cer_visit(data, sizeof(data), nullptr, stop, nullptr, nullptr));
+    EXPECT_EQ(TLV_ERR_VISITOR, tlv_cer_visit(data, sizeof(data), nullptr, error, nullptr, &offset));
     EXPECT_EQ(0u, offset);
-    EXPECT_NE(TLV_OK, tlv_cer_walk(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
+    EXPECT_NE(TLV_OK, tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
 }
 
 TEST(Unit_Tlv_Cer, TagSizeErrorsPreserveOutputs) {
@@ -126,13 +127,13 @@ TEST(Unit_Tlv_Cer, IsConstructedDistinguishesFormAndDrivesGenericTreeTraversal) 
     EXPECT_NE(0, tlv_asn1_is_constructed(nullptr, &sequence_tag));
     EXPECT_EQ(0, tlv_asn1_is_constructed(nullptr, &integer_tag));
 
-    /* SEQUENCE(indefinite) { INTEGER 5 }: the format-agnostic tlv_walk_tree,
+    /* SEQUENCE(indefinite) { INTEGER 5 }: the format-agnostic tlv_tree_reader_visit,
      * handed this predicate, must descend into the constructed element the
-     * same way tlv_cer_walk() does internally. */
+     * same way tlv_cer_visit() does internally. */
     const uint8_t                           data[] = {0x30, 0x80, 0x02, 1, 5, 0, 0};
     std::vector<std::pair<size_t, uint8_t>> visits;
     size_t                                  error_offset = 99;
-    EXPECT_EQ(TLV_OK, tlv_walk_tree(data, sizeof(data), &tlv_format_cer, TLV_WALK_MAX_DEPTH, 100,
-                                    collect_tags, &visits, &error_offset));
+    EXPECT_EQ(TLV_OK, visit_tree_input(data, sizeof(data), &tlv_format_cer, TLV_TREE_DEFAULT_DEPTH,
+                                       100, collect_tags, &visits, &error_offset));
     EXPECT_EQ((std::vector<std::pair<size_t, uint8_t>>{{0, 0x30}, {1, 0x02}}), visits);
 }

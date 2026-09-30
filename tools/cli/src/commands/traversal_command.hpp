@@ -1,5 +1,5 @@
-#ifndef OPENTLV_CLI_COMMANDS_WALK_COMMAND_HPP
-#define OPENTLV_CLI_COMMANDS_WALK_COMMAND_HPP
+#ifndef OPENTLV_CLI_COMMANDS_TRAVERSAL_COMMAND_HPP
+#define OPENTLV_CLI_COMMANDS_TRAVERSAL_COMMAND_HPP
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -12,44 +12,44 @@
 #include "options.hpp"
 #include "presentation.hpp"
 #include "tlv/query/query.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/schema/schema.h"
 
 namespace cli {
 
 // Shared skeleton for "dump", "validate", "decode" and "query", which all
-// walk the same TLV tree with the selected format under --pdol/--recover.
-// Owns the decoded input and the walk/diagnostic state a visitor needs (what
+// traverse the same TLV tree with the selected format under --pdol/--recover.
+// Owns the decoded input and the traversal/diagnostic state a visitor needs (what
 // used to be threaded through as a separate output_context_t and a
 // hand-picked free-function pointer); subclasses (one per file alongside
 // this one) override the small set of hooks that actually differ between
 // the four commands.
-class walk_command : public command {
+class traversal_command : public command {
 public:
-    walk_command(const options& o, std::vector<uint8_t> data);
+    traversal_command(const options& o, std::vector<uint8_t> data);
     int run() override;
 
 protected:
-    // Called for each element the walk visits, in preorder. The base
+    // Called for each element the traversal visits, in preorder. The base
     // implementation only keeps the diagnostic scope current (used as-is by
     // "validate", which has no display of its own).
     virtual tlv_visit_result_t visit_element(const tlv_element_t* element, std::size_t depth,
                                              std::size_t offset);
 
-    // Called once, before the walk starts. The base implementation does
+    // Called once, before the traversal starts. The base implementation does
     // nothing; "query" uses it to initialize its path matcher, returning a
     // nonzero exit code (and printing its own diagnostic) to abort early.
     virtual int prepare();
 
     // "validate --module" only: runs the selected module schema/value
-    // checks once the format walk itself succeeded (called from run() only
+    // checks once the format traversal itself succeeded (called from run() only
     // when result_ == TLV_OK, options_.module and !options_.pdol). May
     // update result_/error_offset_/stage_ and either has_schema_diag_ with
     // schema_diag_, or stage_ alone, for render_failure_diagnostic() below.
     // The base implementation does nothing.
     virtual void run_module_checks();
 
-    // Called once the walk (and, for "validate", the module checks) are done,
+    // Called once the traversal (and, for "validate", the module checks) are done,
     // regardless of the outcome: prints the command's own output. Most
     // overrides only print on result_ == TLV_OK, except "dump" --output
     // json, which (like the original implementation) prints whatever
@@ -115,7 +115,7 @@ protected:
     std::size_t                error_offset_;
     std::vector<skipped_range> skipped_;
     // Names the separate EMV pass ("schema ", "dictionary ") a failure came
-    // from, as opposed to the format/framing walk.
+    // from, as opposed to the format/framing traversal.
     const char*             stage_;
     tlv_schema_diagnostic_t schema_diag_;
     bool                    has_schema_diag_;
@@ -125,9 +125,9 @@ private:
     static tlv_visit_result_t visit_trampoline(const tlv_element_t* element, std::size_t depth,
                                                std::size_t offset, void* context);
     // --pdol: raw DOL tag/one-byte-length pairs (BER only), not full TLV.
-    tlv_result_t walk_pdol(std::size_t* error_offset);
+    tlv_result_t visit_pdol(std::size_t* error_offset);
     // --recover: scans past damaged top-level elements instead of failing.
-    tlv_result_t walk_recovering(std::size_t* error_offset);
+    tlv_result_t visit_recovering(std::size_t* error_offset);
 
     std::vector<uint8_t> data_;
 };

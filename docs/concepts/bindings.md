@@ -79,7 +79,7 @@ it. For example:
 - Rust's `Reader` implements `Iterator<Item = Result<Element>>`, so callers
   write `for element in reader { ... }` instead of an explicit `at_end()`/
   `next()` loop. `tlv++`'s `reader` uses that explicit loop today (or a
-  visitor passed to `tlv::walk_tree`); a future C++ range-based `for` over a
+  visitor passed to `tlv::visit_tree`); a future C++ range-based `for` over a
   `reader` would be the same adaptation applied there.
 - Python's `Reader` iterates the same reader concept with
   `for element in reader:`, and raises a native `Exception` subclass instead of
@@ -153,8 +153,8 @@ The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
   API is already close to the concepts bound. Targets Lua 5.1 through 5.4
   and LuaJIT. Covers Reader, Element and Tag, across the default, BER, CER, DER,
   Bluetooth LTV and configurable fixed-width formats, plus preorder tree
-  traversal (`opentlv.walk_tree()`, built on `tlv_walk_tree()`/
-  `tlv_der_walk()`) — the one traversal capability neither Rust nor Python
+  traversal (`opentlv.visit_tree()`, built on `tlv_tree_reader_visit()`/
+  `tlv_der_visit()`) — the one traversal capability neither Rust nor Python
   exposes directly yet. See [Lua bindings](../development/lua.md) and
   [using OpenTLV from Lua](../guides/lua.md).
 - **Go**: planned, not started yet. No `bindings/go/` directory exists; when

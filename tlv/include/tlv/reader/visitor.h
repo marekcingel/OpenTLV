@@ -1,5 +1,5 @@
-#ifndef OPENTLV_WALKER_H
-#define OPENTLV_WALKER_H
+#ifndef OPENTLV_VISITOR_H
+#define OPENTLV_VISITOR_H
 
 #include "tlv/error.h"
 #include "tlv/format.h"
@@ -13,7 +13,7 @@ extern "C" {
 /**
  * @file
  * @ingroup traversal
- * @brief Compatibility visitor adapters over Reader and Tree Reader.
+ * @brief Resumable visitor adapters over Reader and Tree Reader.
  */
 
 /** @addtogroup traversal
@@ -26,62 +26,31 @@ extern "C" {
 typedef enum tlv_visit_result {
     /** Continue with the next element. */
     TLV_VISIT_CONTINUE = 0,
-    /** Stop traversal immediately; the walk still returns #TLV_OK. */
+    /** Stop traversal immediately; the traversal still returns #TLV_OK. */
     TLV_VISIT_STOP = 1,
-    /** Abort traversal; the walk returns #TLV_ERR_VISITOR. */
+    /** Abort traversal; the traversal returns #TLV_ERR_VISITOR. */
     TLV_VISIT_ERROR = 2
 } tlv_visit_result_t;
 
 /**
- * @brief Callback invoked by tlv_walk() for each sequential element.
+ * @brief Callback invoked by tlv_reader_visit() for each sequential element.
  *
  * @param element    Current element. The pointer is valid only during the
  *                callback; copied Elements borrow input or immutable Format storage.
- * @param context Caller context passed to tlv_walk().
+ * @param context Caller context passed to tlv_reader_visit().
  *
  * @return A #tlv_visit_result_t. Any unknown value is treated as an error.
  */
 typedef tlv_visit_result_t (*tlv_visitor_t)(const tlv_element_t* element, void* context);
 
 /**
- * @brief Visits each sequential element using the generic reader.
- *
- * Does not allocate or recurse into values. Returns #TLV_OK at the end of
- * input (including empty input) or on #TLV_VISIT_STOP. No further elements
- * are read after a stop or error.
- *
- * @param[in] data    Input buffer. May be `NULL` only when `size` is zero.
- * @param[in] size    Input size in bytes.
- * @param[in] format  Reader format; `decode` are required,
- *                    even for empty input.
- * @param[in] visitor Callback invoked per element. Required.
- * @param[in] context Passed to the visitor unchanged; may be `NULL`.
- *
- * @return #TLV_OK at the end of input or on #TLV_VISIT_STOP.
- * @return #TLV_ERR_NULL_ARG for invalid arguments.
- * @return #TLV_ERR_VISITOR if the visitor returns #TLV_VISIT_ERROR or an
- *         unknown result.
- * @return Any reader error, propagated unchanged.
- *
- * @warning The input and format must remain valid and unchanged during
- *          traversal. Effects of earlier callbacks are not rolled back on error.
- */
-TLV_API tlv_result_t tlv_walk(const uint8_t* data, size_t size, const tlv_format_t* format,
-                              tlv_visitor_t visitor, void* context);
-
-/**
- * @brief Stack capacity of the compatibility Walker adapter, not a Tree Reader limit.
- */
-enum { TLV_WALK_MAX_DEPTH = TLV_TREE_DEFAULT_DEPTH };
-
-/**
- * @brief Callback invoked by tlv_walk_tree() for each element in preorder.
+ * @brief Callback invoked by tlv_tree_reader_visit() for each element in preorder.
  *
  * @param element    Current element; its Tag and Value follow Reader borrowing and the
  *                pointer is valid only during the callback.
  * @param depth   Nesting depth; top-level elements have depth zero.
  * @param offset  Absolute offset of the encoded element start within the input.
- * @param context Caller context passed to tlv_walk_tree().
+ * @param context Caller context passed to tlv_tree_reader_visit().
  *
  * @return A #tlv_visit_result_t controlling traversal.
  */
@@ -164,61 +133,10 @@ TLV_API tlv_result_t tlv_tree_reader_visit_diag(tlv_tree_reader_t* reader,
                                                 size_t* error_offset,
                                                 tlv_reader_diagnostic_t* diagnostic);
 
-/**
- * @brief Visits preorder items from the canonical Tree Reader.
- *
- * This compatibility adapter owns a fixed stack of TLV_WALK_MAX_DEPTH frames.
- * Use tlv_tree_reader_visit() with a caller-owned Tree Reader for incremental
- * input, resumable processing and runtime depths beyond that capacity.
- * Use direct pull processing when application-controlled subtree skipping is needed.
- *
- * Constructed values (identified by `format->is_constructed`) are traversed
- * as bounded views of the input. There is no allocation and no C recursion.
- * A `NULL` visitor validates only. #TLV_VISIT_STOP succeeds immediately.
- *
- * @param[in]  data          Input buffer.
- * @param[in]  size          Input size in bytes.
- * @param[in]  format        Reader format. A `NULL` `format->is_constructed`
- *                           treats every value as opaque.
- * @param[in]  max_depth     Maximum nesting depth, `0..TLV_WALK_MAX_DEPTH`.
- * @param[in]  max_elements  Bound on all visited nodes; zero permits only empty input.
- * @param[in]  visitor       Callback per element; may be `NULL` to validate only.
- * @param[in]  context       Passed to the visitor unchanged.
- * @param[out] error_offset  Optional. On failure receives the failing element's
- *                           absolute offset; unchanged on success.
- *
- * @return #TLV_OK on success or when the visitor returns #TLV_VISIT_STOP.
- * @return #TLV_ERR_LIMIT if `max_depth` exceeds #TLV_WALK_MAX_DEPTH, or the
- *         depth or element limit is exceeded.
- * @return #TLV_ERR_VISITOR if the visitor requests an error stop.
- * @return Any reader error, propagated unchanged.
- *
- * @warning Callback effects are not rolled back. The input, format and
- *          borrowed views follow the lifetimes documented for tlv_walk().
- * @see tlv_walk
- */
-TLV_API tlv_result_t tlv_walk_tree(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                   size_t max_depth, size_t max_elements,
-                                   tlv_tree_visitor_t visitor, void* context, size_t* error_offset);
-
-/**
- * @brief Traverse while retaining the original reader failure detail without reparsing.
- *
- * @copydetails tlv_walk_tree
- *
- * @param[out] diagnostic Optional reader failure detail, with absolute offsets.
- * Cleared at entry; remains clear for walker/resource/visitor errors and success.
- */
-TLV_API tlv_result_t tlv_walk_tree_diag(const uint8_t* data, size_t size,
-                                        const tlv_format_t* format, size_t max_depth,
-                                        size_t max_elements, tlv_tree_visitor_t visitor,
-                                        void* context, size_t* error_offset,
-                                        tlv_reader_diagnostic_t* diagnostic);
-
 #ifdef __cplusplus
 }
 #endif
 
 /** @} */
 
-#endif /* OPENTLV_WALKER_H */
+#endif /* OPENTLV_VISITOR_H */

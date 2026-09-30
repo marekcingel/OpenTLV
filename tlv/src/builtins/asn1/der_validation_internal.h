@@ -10,7 +10,7 @@
  * absolute offset within the original input, used only to compute
  * error_offset. On success, *element holds the tag and a value borrowing data,
  * and *consumed is the complete element size (tag + length + value).
- * Outputs are unchanged on failure. Shared by tlv_der_read/walk/write's
+ * Outputs are unchanged on failure. Shared by tlv_der_read/visit/write's
  * traversal and the schema-aware DER validator/encoder. */
 tlv_result_t tlv_der_read_element(const uint8_t* data, size_t size, size_t base,
                                   const tlv_der_limits_t* limits, tlv_element_t* element,

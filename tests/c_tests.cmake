@@ -64,7 +64,7 @@ set(SOURCES
     reader/reader_test.cpp
     reader/incremental_test.cpp
     reader/tree_test.cpp
-    reader/walker_test.cpp
+    reader/visitor_test.cpp
     schema/constraint_test.cpp
     schema/schema_report_test.cpp
     schema/schema_test.cpp
@@ -125,7 +125,7 @@ if(test_group STREQUAL "integration" AND NOT OPENTLV_FORMAT_BER)
 endif()
 if(test_group STREQUAL "integration")
     if(NOT (OPENTLV_FORMAT_BER))
-        list(REMOVE_ITEM SOURCES reader/walker_test.cpp)
+        list(REMOVE_ITEM SOURCES reader/visitor_test.cpp)
     endif()
 endif()
 if(test_group STREQUAL "integration")

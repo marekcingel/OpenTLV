@@ -35,7 +35,10 @@ static int environment_excludes_color(void) {
 void cli_presentation_init(cli_presentation_t* p, const uint8_t* data, size_t size, int color,
                            int pretty) {
     int terminal;
-    memset(p, 0, sizeof(*p));
+    *p = cli_presentation_t{};
+    p->ends.resize(1);
+    p->more.resize(1);
+    p->contexts.resize(1);
     p->data = data;
     p->ends[0] = size;
 #ifdef _WIN32
@@ -81,8 +84,11 @@ void cli_presentation_visit(cli_presentation_t* p, const tlv_element_t* element,
                             int indefinite) {
     size_t end =
         static_cast<size_t>(element->value.data - p->data) + cli_element_value_size(element);
+    p->ends.resize(depth + 2);
+    p->more.resize(depth + 2);
+    p->contexts.resize(depth + 2);
     p->more[depth] = end + (indefinite ? 2u : 0u) < p->ends[depth];
-    if (depth < TLV_WALK_MAX_DEPTH) {
+    {
         p->ends[depth + 1] = end;
 #if OPENTLV_EMV
         p->contexts[depth + 1] =

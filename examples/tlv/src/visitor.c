@@ -1,5 +1,5 @@
 /* Resumable push processing uses the same caller-owned Tree Reader as pull. */
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/formats/fixed.h"
 #include <stdio.h>
 

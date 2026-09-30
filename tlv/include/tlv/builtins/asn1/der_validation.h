@@ -3,7 +3,7 @@
 
 #include "tlv/error.h"
 #include "tlv/builtins/asn1/der.h"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -53,7 +53,7 @@ extern TLV_API const tlv_der_limits_t tlv_der_default_limits;
  * @param element    Current element; temporary, its value borrows the input.
  * @param depth   Number of constructed ancestors; top-level elements have depth 0.
  * @param offset  Absolute input offset of the element's tag.
- * @param context Caller context passed to tlv_der_walk().
+ * @param context Caller context passed to tlv_der_visit().
  *
  * @return A #tlv_visit_result_t. #TLV_VISIT_STOP succeeds without validating
  *         the rest of the input.
@@ -109,8 +109,8 @@ TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size, const tlv_de
  *
  * @warning Callback side effects are not rolled back on errors.
  */
-TLV_API tlv_result_t tlv_der_walk(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
-                                  tlv_der_visitor_t visitor, void* context, size_t* error_offset);
+TLV_API tlv_result_t tlv_der_visit(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
+                                   tlv_der_visitor_t visitor, void* context, size_t* error_offset);
 
 /**
  * @brief Writes a canonical DER element.
@@ -162,15 +162,15 @@ TLV_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
                                          const tlv_der_limits_t* limits, tlv_element_t* element,
                                          size_t* consumed, size_t* error_offset);
 /**
- * @brief Strict counterpart of tlv_der_walk().
+ * @brief Strict counterpart of tlv_der_visit().
  *
  * Adds the content validation described for tlv_der_read_strict().
  *
  * @see tlv_der_read_strict
  */
-TLV_API tlv_result_t tlv_der_walk_strict(const uint8_t* data, size_t size,
-                                         const tlv_der_limits_t* limits, tlv_der_visitor_t visitor,
-                                         void* context, size_t* error_offset);
+TLV_API tlv_result_t tlv_der_visit_strict(const uint8_t* data, size_t size,
+                                          const tlv_der_limits_t* limits, tlv_der_visitor_t visitor,
+                                          void* context, size_t* error_offset);
 /**
  * @brief Strict counterpart of tlv_der_write().
  *

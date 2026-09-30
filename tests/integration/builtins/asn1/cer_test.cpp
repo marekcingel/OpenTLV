@@ -1,3 +1,4 @@
+#include "visitor_input.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
@@ -36,7 +37,7 @@ TEST(Integration_Tlv_Cer, NestedIndefiniteContainersPostorderVisitOrder) {
     const uint8_t      data[] = {0x30, 0x80, 0x02, 1, 5, 0x30, 0x80, 0x04, 2, 0, 0, 0, 0, 0, 0};
     std::vector<Visit> visits;
     size_t             offset = 99;
-    ASSERT_EQ(TLV_OK, tlv_cer_walk(data, sizeof(data), nullptr, collect, &visits, &offset));
+    ASSERT_EQ(TLV_OK, tlv_cer_visit(data, sizeof(data), nullptr, collect, &visits, &offset));
     ASSERT_EQ(4u, visits.size());
     /* Primitive leaves visited immediately (preorder among siblings);
      * constructed containers visited only once their EOC is found. */
@@ -94,8 +95,8 @@ TEST(Integration_Tlv_Cer, MissingTruncatedAndUnexpectedEoc) {
     for (const auto& item : cases) {
         SCOPED_TRACE(::testing::PrintToString(item.bytes));
         size_t offset = 99;
-        EXPECT_EQ(item.error, tlv_cer_walk(item.bytes.data(), item.bytes.size(), nullptr, nullptr,
-                                           nullptr, &offset));
+        EXPECT_EQ(item.error, tlv_cer_visit(item.bytes.data(), item.bytes.size(), nullptr, nullptr,
+                                            nullptr, &offset));
         EXPECT_EQ(item.offset, offset);
     }
 }
@@ -107,7 +108,7 @@ TEST(Integration_Tlv_Cer, SingleElementReadLeavesFollowingElementUnconsumed) {
     ASSERT_EQ(TLV_OK, tlv_cer_read(data, sizeof(data), nullptr, &element, &consumed, nullptr));
     EXPECT_EQ(4u, consumed);
     std::vector<Visit> visits;
-    ASSERT_EQ(TLV_OK, tlv_cer_walk(data, sizeof(data), nullptr, collect, &visits, &offset));
+    ASSERT_EQ(TLV_OK, tlv_cer_visit(data, sizeof(data), nullptr, collect, &visits, &offset));
     ASSERT_EQ(2u, visits.size());
     EXPECT_EQ(0u, visits[0].offset);
     EXPECT_EQ(4u, visits[1].offset);
@@ -124,18 +125,18 @@ TEST(Integration_Tlv_Cer, DepthLimitBoundary) {
         auto limits = tlv_cer_default_limits;
         limits.max_depth = TLV_CER_MAX_DEPTH;
         EXPECT_EQ(depth <= TLV_CER_MAX_DEPTH ? TLV_OK : TLV_ERR_LIMIT,
-                  tlv_cer_walk(data.data(), data.size(), &limits, nullptr, nullptr, nullptr));
+                  tlv_cer_visit(data.data(), data.size(), &limits, nullptr, nullptr, nullptr));
     }
 }
 
 TEST(Integration_Tlv_Cer, ConstructedFormRejectedStructurallyEvenWithoutStrict) {
     /* SEQUENCE(indefinite) { constructed INTEGER(indefinite) { INTEGER 5 } } --
      * INTEGER is not segmentable and not in the always-constructed set, so
-     * this is a framing defect caught even by the non-strict walk. */
+     * this is a framing defect caught even by the non-strict traversal. */
     const uint8_t data[] = {0x30, 0x80, 0x22, 0x80, 0x02, 1, 5, 0, 0, 0, 0};
     size_t        offset = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_cer_walk(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
+              tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
     EXPECT_EQ(3u, offset);
 }
 
@@ -260,8 +261,8 @@ TEST(Integration_Tlv_Cer, WriteSegmentedStringSingleAndMultiSegment) {
         EXPECT_TRUE(tlv_asn1_tag_is_constructed(&element.tag));
         /* Zero-copy segment iteration: element.value already excludes the outer EOC. */
         std::vector<Segment> segments;
-        ASSERT_EQ(TLV_OK, tlv_walk(element.value.data, static_cast<size_t>(element.value.size),
-                                   &tlv_format_cer, collect_segment, &segments));
+        ASSERT_EQ(TLV_OK, visit_input(element.value.data, static_cast<size_t>(element.value.size),
+                                      &tlv_format_cer, collect_segment, &segments));
         ASSERT_EQ(2u, segments.size());
         EXPECT_EQ(0x04, segments[0].tag.data[0]);
         EXPECT_EQ(0x04, segments[1].tag.data[0]);

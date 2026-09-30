@@ -14,7 +14,7 @@
 #endif
 
 /* Raw-byte formats have no built-in nesting rule. This test convention lets
- * the walker exercise their nested values too: bit 0x20 denotes a container. */
+ * the Tree Reader exercise their nested values too: bit 0x20 denotes a container. */
 static inline int fuzz_constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
     return (tag->data[0] & 0x20) != 0;

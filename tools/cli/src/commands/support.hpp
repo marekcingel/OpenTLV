@@ -8,7 +8,7 @@
 #include "diagnostic_render.hpp"
 #include "options.hpp"
 #include "presentation.hpp"
-#include "tlv/reader/walker.h"
+#include "tlv/reader/visitor.h"
 
 // Small utilities shared by more than one file under commands/, kept out of
 // any single command's own file so none of them has to include another
@@ -46,20 +46,20 @@ void print_tag(const tlv_tag_t& tag, bool color);
 // --output json's field values (which are never color-wrapped).
 std::string hex_string(const uint8_t* data, std::size_t length);
 
-// What every walk of the input needs to know about the selected format.
-struct walk_env {
+// What every traversal of the input needs to know about the selected format.
+struct traversal_env {
     const options*      options;
     const tlv_format_t* format;
     bool                is_der;
 };
 
-// Walks `slice_size` bytes of `slice`, which starts at absolute offset `base`
+// Traverses `slice_size` bytes of `slice`, which starts at absolute offset `base`
 // of the input, allowing at most `max_elements` elements. On failure
 // *error_offset receives the failing element's absolute offset.
-tlv_result_t walk_slice(const walk_env& env, const uint8_t* slice, std::size_t slice_size,
-                        std::size_t base, std::size_t max_elements, tlv_tree_visitor_t visitor,
-                        void* context, std::size_t* error_offset,
-                        tlv_reader_diagnostic_t* diagnostic = nullptr);
+tlv_result_t visit_slice(const traversal_env& env, const uint8_t* slice, std::size_t slice_size,
+                         std::size_t base, std::size_t max_elements, tlv_tree_visitor_t visitor,
+                         void* context, std::size_t* error_offset,
+                         tlv_reader_diagnostic_t* diagnostic = nullptr);
 
 // Adds the "name" and, if requested, "description" EMV dictionary fields to
 // a JSON element object, from the same lookup the text renderer uses. A tag

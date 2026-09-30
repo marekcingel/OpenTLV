@@ -102,8 +102,8 @@ TEST(Integration_Tlv_Dhcpv4, QueryAndDocumentTreatPadAndEndAsOrdinaryElements) {
             static_cast<std::vector<size_t>*>(context)->push_back(offset);
             return TLV_VISIT_CONTINUE;
         };
-        ASSERT_EQ(TLV_OK, tlv_query_walk(wire, sizeof(wire), &tlv_format_dhcpv4, &query, 0, 5,
-                                         visit, &matches, nullptr));
+        ASSERT_EQ(TLV_OK, tlv_query_visit_buffer(wire, sizeof(wire), &tlv_format_dhcpv4, &query, 0,
+                                                 5, visit, &matches, nullptr));
         EXPECT_EQ(offsets[i], matches);
 #if OPENTLV_DOCUMENT
         auto* node = tlv_document_find_path(doc.get(), &query);
